@@ -78,7 +78,8 @@ def create_sample_campaigns() -> List[str]:
                 "metrics": ["conversions", "revenue"],
             },
         ],
-        target_metrics={"email_opens": 5000, "clicks": 1000, "conversions": 200, "revenue": 10000},
+        target_metrics={"email_opens": 5000, "clicks": 1000, "conversions": 200, 
+            "revenue": 10000},
         start_date=datetime.now() - timedelta(days=15),
         end_date=datetime.now() + timedelta(days=45),
         budget=3000,
@@ -407,14 +408,15 @@ def generate_sample_metrics(campaign_ids: List[str]) -> None:
     while (content_start + timedelta(days=current_day)) <= now:
         if current_day % 7 == 0:  # Weekly blog post
             content_publish_days.append((current_day, "blog"))
-        if current_day % 14 == 0:  # Bi-weekly YouTube video
+        if current_day % 14 == 0:  # Bi - weekly YouTube video
             content_publish_days.append((current_day, "youtube"))
         current_day += 1
 
     # Track metrics for each content piece
     for pub_day, channel in content_publish_days:
         # Each content piece gets metrics for 14 days after publishing
-        for day in range(min(14, (now - (content_start + timedelta(days=pub_day))).days + 1)):
+        for day in range(min(14, 
+            (now - (content_start + timedelta(days=pub_day))).days + 1)):
             date = content_start + timedelta(days=pub_day + day)
 
             # Content performance tends to be highest at first, then decays
@@ -502,7 +504,8 @@ def analyze_campaigns(campaign_ids: List[str]) -> None:
 
     for metric, data in social_analysis["metrics_performance"].items():
         print(
-            f"  {metric}: {data['current']:.2f}/{data['target']} ({data['achievement_percentage']:.2f}%)"
+            f"  {metric}: {data['current']:.2f}/{data['target']} (
+                {data['achievement_percentage']:.2f}%)"
         )
 
     print("\nPerformance by Group:")
@@ -531,18 +534,21 @@ def analyze_campaigns(campaign_ids: List[str]) -> None:
     report = tracker.generate_report(top_campaign_id, report_type="summary")
 
     print(f"\n=== Performance Report for {report['campaign_name']} ===")
-    print(f"Overall Performance: {report['performance_summary']['overall_performance']:.2f}%")
+    print(
+        f"Overall Performance: {report['performance_summary']['overall_performance']:.2f}%")
 
     print("\nTop Performing Metrics:")
     for metric in report["performance_summary"]["top_metrics"]:
         print(
-            f"  {metric['name']}: {metric['achievement']:.2f}% ({metric['current']:.2f}/{metric['target']})"
+            f"  {metric['name']}: {metric['achievement']:.2f}% (
+                {metric['current']:.2f}/{metric['target']})"
         )
 
     print("\nBottom Performing Metrics:")
     for metric in report["performance_summary"]["bottom_metrics"]:
         print(
-            f"  {metric['name']}: {metric['achievement']:.2f}% ({metric['current']:.2f}/{metric['target']})"
+            f"  {metric['name']}: {metric['achievement']:.2f}% (
+                {metric['current']:.2f}/{metric['target']})"
         )
 
 

@@ -6,7 +6,7 @@ Provides minimal functionality for error handling.
 
 class ServiceError(Exception):
     """
-    Base exception for service-related errors.
+    Base exception for service - related errors.
     """
 
     pass
@@ -30,7 +30,7 @@ class RateLimitExceededError(ServiceError):
 
 class RoutingError(ServiceError):
     """
-    Exception raised for routing-related errors.
+    Exception raised for routing - related errors.
     """
 
     pass

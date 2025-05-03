@@ -1,6 +1,6 @@
 """
 Developer Agent for the pAIssive Income project.
-Specializes in designing and developing AI-powered software solutions.
+Specializes in designing and developing AI - powered software solutions.
 """
 
 import uuid
@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 
 class DeveloperAgent:
     """
-    AI agent specialized in designing and developing AI-powered software solutions.
+    AI agent specialized in designing and developing AI - powered software solutions.
     Creates the technical specifications and implementation plans for niche AI tools.
     """
 
@@ -23,12 +23,12 @@ class DeveloperAgent:
         """
         self.team = team
         self.name = "Developer Agent"
-        self.description = "Specializes in designing and developing AI-powered software solutions"
+        self.description = "Specializes in designing and developing AI - powered software solutions"
         self.model_settings = team.config["model_settings"]["developer"]
 
     def design_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Design an AI-powered software solution for a specific niche.
+        Design an AI - powered software solution for a specific niche.
 
         Args:
             niche: Niche dictionary from the Research Agent
@@ -80,8 +80,8 @@ class DeveloperAgent:
                 "technical_complexity": "medium",  # Placeholder, would be determined by AI
                 "development_time": "2 weeks",  # Placeholder, would be determined by AI
                 "ai_models_required": [
-                    "gpt-4",
-                    "local-embedding-model",
+                    "gpt - 4",
+                    "local - embedding - model",
                 ],  # Placeholder, would be determined by AI
             }
             features.append(feature)
@@ -155,7 +155,7 @@ class DeveloperAgent:
         return {
             "id": str(uuid.uuid4()),
             "name": solution_name,
-            "description": f"An AI-powered solution for {niche['description']}",
+            "description": f"An AI - powered solution for {niche['description']}",
             "target_users": f"Users in the {niche['name']} niche",
             "features": features,
             "architecture": architecture,
@@ -167,7 +167,7 @@ class DeveloperAgent:
             },
             "estimated_development_cost": {
                 "time": "12 weeks",
-                "resources": "1-2 developers",
+                "resources": "1 - 2 developers",
                 "financial": "$5,000 - $10,000",
             },
             "timestamp": datetime.now().isoformat(),
@@ -218,7 +218,7 @@ class DeveloperAgent:
                     "tasks": [
                         {"name": "UI design", "duration": "5 days"},
                         {"name": "UI implementation", "duration": "10 days"},
-                        {"name": "UI-API integration", "duration": "5 days"},
+                        {"name": "UI - API integration", "duration": "5 days"},
                     ],
                 },
                 {
@@ -251,8 +251,8 @@ class DeveloperAgent:
                 "deployment": solution["architecture"]["deployment"],
             },
             "timeline": {
-                "start_date": "2023-01-01",  # Placeholder
-                "end_date": "2023-03-31",  # Placeholder
+                "start_date": "2023 - 01 - 01",  # Placeholder
+                "end_date": "2023 - 03 - 31",  # Placeholder
                 "total_duration": "12 weeks",
             },
             "timestamp": datetime.now().isoformat(),

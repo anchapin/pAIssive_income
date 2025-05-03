@@ -23,7 +23,7 @@ class Client:
 
     def __init__(
         self,
-        base_url: str = "http://localhost:8000/api",
+        base_url: str = "http://localhost:8000 / api",
         auth: Optional[Auth] = None,
         version: str = "v1",
         timeout: int = 60,
@@ -37,7 +37,7 @@ class Client:
             version: API version to use
             timeout: Request timeout in seconds
         """
-        self.base_url = base_url.rstrip("/")
+        self.base_url = base_url.rstrip(" / ")
         self.auth = auth or NoAuth()
         self.version = version
         self.timeout = timeout
@@ -89,12 +89,12 @@ class Client:
         Raises:
             requests.exceptions.RequestException: If the request fails
         """
-        url = f"{self.base_url}/{self.version}/{endpoint.lstrip('/')}"
+        url = f"{self.base_url}/{self.version}/{endpoint.lstrip(' / ')}"
 
         # Prepare headers
         request_headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
+            "Content - Type": "application / json",
+            "Accept": "application / json",
         }
 
         # Add authentication headers
@@ -131,7 +131,7 @@ class Client:
             raise
 
         # Parse response
-        if response.headers.get("Content-Type", "").startswith("application/json"):
+        if response.headers.get("Content - Type", "").startswith("application / json"):
             return response.json()
         else:
             return {"data": response.text}

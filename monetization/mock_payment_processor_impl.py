@@ -182,7 +182,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.list_payments(
-                customer_id=customer_id, start_date=start_date, end_date=end_date, limit=limit
+                customer_id=customer_id, start_date=start_date, end_date=end_date, 
+                    limit=limit
             )
 
         # Filter payments
@@ -198,7 +199,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         return payments
 
     def create_customer(
-        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None
+        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a customer.
@@ -212,7 +214,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             Dictionary with customer information
         """
         if self.payment_gateway:
-            return self.payment_gateway.create_customer(email=email, name=name, metadata=metadata)
+            return self.payment_gateway.create_customer(email=email, name=name, 
+                metadata=metadata)
 
         # Generate a customer ID
         customer_id = f"cus_{len(self.customers) + 1}"
@@ -626,7 +629,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.cancel_subscription(
-                subscription_id=subscription_id, cancel_at_period_end=cancel_at_period_end
+                subscription_id=subscription_id, 
+                    cancel_at_period_end=cancel_at_period_end
             )
 
         # Check if subscription exists
@@ -645,7 +649,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         return subscription
 
     def list_subscriptions(
-        self, customer_id: Optional[str] = None, status: Optional[str] = None, limit: int = 100
+        self, customer_id: Optional[str] = None, status: Optional[str] = None, 
+            limit: int = 100
     ) -> List[Dict[str, Any]]:
         """
         List subscriptions.
@@ -668,7 +673,8 @@ class MockPaymentProcessorImpl(PaymentProcessor):
 
         # Apply filters
         if customer_id:
-            subscriptions = [s for s in subscriptions if s["customer_id"] == customer_id]
+            subscriptions = \
+                [s for s in subscriptions if s["customer_id"] == customer_id]
         if status:
             subscriptions = [s for s in subscriptions if s["status"] == status]
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
 Example script demonstrating asynchronous model inference with the AI Models module.
 
@@ -23,7 +23,7 @@ from ai_models.async_utils import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ async def example_batch_text_generation():
     # Find a text generation model
     text_model_id = None
     for model in models:
-        if model.type == "huggingface" or "text-generation" in model.capabilities:
+        if model.type == "huggingface" or "text - generation" in model.capabilities:
             text_model_id = model.id
             break
 
@@ -54,8 +54,8 @@ async def example_batch_text_generation():
         print("No text generation model found. Creating a default example model.")
         # Register a Hugging Face model
         model_info = ModelInfo(
-            id="example-model",
-            name="GPT-2",
+            id="example - model",
+            name="GPT - 2",
             type="huggingface",
             path="gpt2",
             description="Example text generation model",
@@ -89,7 +89,7 @@ async def example_batch_text_generation():
     print(f"\nCompleted batch processing in {total_time:.2f} seconds")
     print("\nResults:")
     for i, (prompt, result) in enumerate(zip(prompts, results)):
-        print(f"\nPrompt {i+1}: {prompt}")
+        print(f"\nPrompt {i + 1}: {prompt}")
         if result.is_success:
             print(f"Response: {result.result}")
             print(f"Processing time: {result.processing_time:.2f} seconds")
@@ -125,10 +125,10 @@ async def example_batch_embeddings():
         print("No embedding model found. Creating a default example model.")
         # Register an embedding model
         model_info = ModelInfo(
-            id="example-embedding-model",
+            id="example - embedding - model",
             name="MiniLM",
             type="embedding",
-            path="all-MiniLM-L6-v2",
+            path="all - MiniLM - L6 - v2",
             description="Example embedding model",
         )
         manager.register_model(model_info)
@@ -137,7 +137,7 @@ async def example_batch_embeddings():
     # Prepare a batch of texts
     texts = [
         "Artificial intelligence is transforming industries",
-        "Machine learning enables data-driven decision making",
+        "Machine learning enables data - driven decision making",
         "Neural networks model complex relationships in data",
         "Deep learning has revolutionized computer vision",
         "Transformers have advanced natural language processing",
@@ -159,7 +159,7 @@ async def example_batch_embeddings():
         print(f"\nCompleted batch embedding generation in {total_time:.2f} seconds")
         print("\nResults:")
         for i, (text, result) in enumerate(zip(texts, results)):
-            print(f"\nText {i+1}: {text[:30]}...")
+            print(f"\nText {i + 1}: {text[:30]}...")
             if result.is_success:
                 embeddings = result.result
                 print(f"Embedding dimensions: {len(embeddings)}")
@@ -192,7 +192,7 @@ async def compare_sync_vs_async_batch():
     # Find a text generation model
     text_model_id = None
     for model in models:
-        if model.type == "huggingface" or "text-generation" in model.capabilities:
+        if model.type == "huggingface" or "text - generation" in model.capabilities:
             text_model_id = model.id
             break
 
@@ -200,8 +200,8 @@ async def compare_sync_vs_async_batch():
         print("No text generation model found. Creating a default example model.")
         # Register a Hugging Face model
         model_info = ModelInfo(
-            id="example-model",
-            name="GPT-2",
+            id="example - model",
+            name="GPT - 2",
             type="huggingface",
             path="gpt2",
             description="Example text generation model",
@@ -276,7 +276,7 @@ async def compare_sync_vs_async_batch():
     # Print individual results
     print("\nSynchronous Results:")
     for i, result in enumerate(sync_results):
-        print(f"\nPrompt {i+1}: {result['prompt']}")
+        print(f"\nPrompt {i + 1}: {result['prompt']}")
         if "error" not in result:
             print(f"Response: {result['result']}")
             print(f"Processing time: {result['processing_time']:.2f} seconds")
@@ -285,7 +285,7 @@ async def compare_sync_vs_async_batch():
 
     print("\nAsynchronous Results:")
     for i, (prompt, result) in enumerate(zip(prompts, async_results)):
-        print(f"\nPrompt {i+1}: {prompt}")
+        print(f"\nPrompt {i + 1}: {prompt}")
         if result.is_success:
             print(f"Response: {result.result}")
             print(f"Processing time: {result.processing_time:.2f} seconds")

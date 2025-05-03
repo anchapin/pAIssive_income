@@ -71,35 +71,35 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
             [
                 {
                     "id": "gpt2",
-                    "name": "GPT-2",
+                    "name": "GPT - 2",
                     "downloads": 500000,
                     "likes": 2500,
-                    "tags": ["text-generation", "transformer"],
-                    "pipeline_tag": "text-generation",
+                    "tags": ["text - generation", "transformer"],
+                    "pipeline_tag": "text - generation",
                 },
                 {
-                    "id": "bert-base-uncased",
+                    "id": "bert - base - uncased",
                     "name": "BERT Base Uncased",
                     "downloads": 1000000,
                     "likes": 5000,
-                    "tags": ["text-classification", "transformer"],
-                    "pipeline_tag": "text-classification",
+                    "tags": ["text - classification", "transformer"],
+                    "pipeline_tag": "text - classification",
                 },
                 {
-                    "id": "distilbert-base-uncased",
+                    "id": "distilbert - base - uncased",
                     "name": "DistilBERT Base Uncased",
                     "downloads": 750000,
                     "likes": 3000,
-                    "tags": ["text-classification", "transformer"],
-                    "pipeline_tag": "text-classification",
+                    "tags": ["text - classification", "transformer"],
+                    "pipeline_tag": "text - classification",
                 },
                 {
-                    "id": "all-MiniLM-L6-v2",
-                    "name": "All-MiniLM-L6-v2",
+                    "id": "all - MiniLM - L6 - v2",
+                    "name": "All - MiniLM - L6 - v2",
                     "downloads": 250000,
                     "likes": 1000,
-                    "tags": ["sentence-similarity", "embedding"],
-                    "pipeline_tag": "feature-extraction",
+                    "tags": ["sentence - similarity", "embedding"],
+                    "pipeline_tag": "feature - extraction",
                 },
             ],
         )
@@ -382,14 +382,14 @@ class MockStorageAPI:
     def __init__(self):
         """Initialize mock storage API."""
         self._files = {}
-        self._base_url = "https://mock-storage.example.com"
+        self._base_url = "https://mock - storage.example.com"
 
     def upload_file(self, file_path: str, content: str, **kwargs) -> Dict[str, Any]:
         """
         Upload a mock file.
 
         Args:
-            file_path: Path/name of the file
+            file_path: Path / name of the file
             content: File content
             kwargs: Additional file attributes
 

@@ -27,13 +27,13 @@ def main():
         name="Professional YouTuber",
         description="Professional content creator on YouTube",
         pain_points=[
-            "time-consuming script writing",
+            "time - consuming script writing",
             "maintaining viewer engagement",
             "content planning",
         ],
         goals=["increase video quality", "save time", "grow audience"],
         demographics={
-            "age_range": "25-45",
+            "age_range": "25 - 45",
             "education": "college degree",
             "income": "middle to high",
         },
@@ -48,7 +48,7 @@ def main():
     print(f"Pain points: {', '.join(persona['pain_points'])}")
     print(f"Goals: {', '.join(persona['goals'])}")
 
-    # Define a sample product/service
+    # Define a sample product / service
     product_name = "AI Script Assistant"
     key_points = [
         "Generate video script outlines in seconds",
@@ -61,9 +61,9 @@ def main():
     print(f"Key points: {', '.join(key_points)}")
 
     # Demo 1: Blog Post Template
-    print("\n" + "-" * 40)
+    print("\n" + " - " * 40)
     print("DEMO 1: BLOG POST TEMPLATE")
-    print("-" * 40)
+    print(" - " * 40)
 
     blog_post = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
@@ -89,9 +89,9 @@ def main():
         print(f"- {headline}")
 
     # Demo 2: Social Media Template
-    print("\n" + "-" * 40)
+    print("\n" + " - " * 40)
     print("DEMO 2: SOCIAL MEDIA TEMPLATE")
-    print("-" * 40)
+    print(" - " * 40)
 
     social_media = SocialMediaTemplate(
         title="AI Script Assistant for YouTubers",
@@ -121,9 +121,9 @@ def main():
         print(f"- #{hashtag}")
 
     # Demo 3: Email Newsletter Template
-    print("\n" + "-" * 40)
+    print("\n" + " - " * 40)
     print("DEMO 3: EMAIL NEWSLETTER TEMPLATE")
-    print("-" * 40)
+    print(" - " * 40)
 
     email_newsletter = EmailNewsletterTemplate(
         title="Revolutionize Your YouTube Workflow",
@@ -133,7 +133,7 @@ def main():
         call_to_action=call_to_action,
         newsletter_type="educational",
         sender_name="AI Script Assistant Team",
-        sender_email="hello@aiscriptassistant.com",
+        sender_email="hello @ aiscriptassistant.com",
     )
 
     email_outline = email_newsletter.generate_outline()
@@ -149,9 +149,9 @@ def main():
         print(f"- {subject}")
 
     # Demo 4: Video Script Template
-    print("\n" + "-" * 40)
+    print("\n" + " - " * 40)
     print("DEMO 4: VIDEO SCRIPT TEMPLATE")
-    print("-" * 40)
+    print(" - " * 40)
 
     video_script = VideoScriptTemplate(
         title="AI Script Assistant Demo",
@@ -173,19 +173,19 @@ def main():
         print(f"- {section['title']} ({section['duration']})")
 
     # Demo 5: Landing Page Template
-    print("\n" + "-" * 40)
+    print("\n" + " - " * 40)
     print("DEMO 5: LANDING PAGE TEMPLATE")
-    print("-" * 40)
+    print(" - " * 40)
 
     landing_page = LandingPageTemplate(
         title="AI Script Assistant",
         target_persona=persona,
         key_points=key_points,
-        call_to_action="Start Your Free 14-Day Trial",
+        call_to_action="Start Your Free 14 - Day Trial",
         unique_selling_proposition="Write better YouTube scripts in half the time",
         features=[
             {
-                "name": "AI-Powered Outline Generator",
+                "name": "AI - Powered Outline Generator",
                 "description": "Create video outlines in seconds",
             },
             {
@@ -219,14 +219,17 @@ def main():
     print("Demo Complete")
     print("=" * 80)
     print(
-        "\nThe Content Templates module provides templates for creating various types of marketing content,"
+        "\nThe Content Templates module provides templates for creating various types of marketing content,
+            "
     )
     print(
-        "including blog posts, social media posts, email newsletters, video scripts, landing pages,"
+        "including blog posts, social media posts, email newsletters, video scripts, 
+            landing pages,"
     )
     print("product descriptions, case studies, and testimonials.")
     print(
-        "\nEach template includes structure, tone and style guidelines, call-to-action recommendations,"
+        "\nEach template includes structure, tone and style guidelines, 
+            call - to - action recommendations,"
     )
     print("and optimization tips specific to the content type.")
 

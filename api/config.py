@@ -22,9 +22,9 @@ class APIConfig:
         description: Optional[str] = None,
         version: APIVersion = APIVersion.V1,
         active_versions: List[APIVersion] = None,
-        docs_url: str = "/docs",
-        redoc_url: str = "/redoc",
-        openapi_url: str = "/openapi.json",
+        docs_url: str = " / docs",
+        redoc_url: str = " / redoc",
+        openapi_url: str = " / openapi.json",
         cors_origins: List[str] = None,
         enable_auth: bool = True,
         enable_niche_analysis: bool = True,
@@ -71,7 +71,7 @@ class APIConfig:
         self.docs_url = docs_url
         self.redoc_url = redoc_url
         self.openapi_url = openapi_url
-        self.cors_origins = cors_origins or ["*"]
+        self.cors_origins = cors_origins or [" * "]
         self.enable_auth = enable_auth
         self.enable_niche_analysis = enable_niche_analysis
         self.enable_monetization = enable_monetization

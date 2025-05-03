@@ -93,7 +93,7 @@ class MetricsDashboard:
             model_id: ID of the model
             days: Number of days of data to include
             include_token_usage: Whether to include token usage charts
-            include_latency: Whether to include latency/performance charts
+            include_latency: Whether to include latency / performance charts
             include_cost: Whether to include cost charts
             include_errors: Whether to include error charts
 
@@ -175,7 +175,7 @@ class MetricsDashboard:
                     x=df["timestamp"],
                     y=df["latency_ms"].rolling(10).mean(),
                     mode="lines",
-                    name="10-point Moving Average",
+                    name="10 - point Moving Average",
                     line=dict(color="red", width=2),
                 )
             )
@@ -319,48 +319,48 @@ class MetricsDashboard:
         <html>
         <head>
             <title>{{ model_id }} - Performance Dashboard</title>
-            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://cdn.plot.ly / plotly - latest.min.js"></script>
+            <link href="https://cdn.jsdelivr.net / npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
             <style>
                 body { padding: 20px; }
-                .card { margin-bottom: 20px; }
-                .summary-card { background-color: #f8f9fa; }
-                .plot-container { height: 400px; }
+                .card { margin - bottom: 20px; }
+                .summary - card { background - color: #f8f9fa; }
+                .plot - container { height: 400px; }
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>{{ model_id }} - Performance Dashboard</h1>
-                <p class="text-muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
+                <p class="text - muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
 
                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="card summary-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Usage Summary</h5>
-                                <p class="card-text">Inferences: {{ report.num_inferences }}</p>
-                                <p class="card-text">Total Tokens: {{ total_tokens }}</p>
-                                <p class="card-text">Avg. Latency: {{ "%.2f"|format(report.avg_latency_ms) }} ms</p>
+                    <div class="col - md - 4">
+                        <div class="card summary - card">
+                            <div class="card - body">
+                                <h5 class="card - title">Usage Summary</h5>
+                                <p class="card - text">Inferences: {{ report.num_inferences }}</p>
+                                <p class="card - text">Total Tokens: {{ total_tokens }}</p>
+                                <p class="card - text">Avg. Latency: {{ "%.2f"|format(report.avg_latency_ms) }} ms</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card summary-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Cost Summary</h5>
-                                <p class="card-text">Total Cost: ${{ "%.2f"|format(total_cost) }}</p>
-                                <p class="card-text">Average Cost: ${{ "%.4f"|format(avg_cost_per_inference) }}</p>
-                                <p class="card-text">Cost per 1K Tokens: ${{ "%.4f"|format(report.cost_per_1k_tokens or 0) }}</p>
+                    <div class="col - md - 4">
+                        <div class="card summary - card">
+                            <div class="card - body">
+                                <h5 class="card - title">Cost Summary</h5>
+                                <p class="card - text">Total Cost: ${{ "%.2f"|format(total_cost) }}</p>
+                                <p class="card - text">Average Cost: ${{ "%.4f"|format(avg_cost_per_inference) }}</p>
+                                <p class="card - text">Cost per 1K Tokens: ${{ "%.4f"|format(report.cost_per_1k_tokens or 0) }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card summary-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Performance Summary</h5>
-                                <p class="card-text">Avg. Inference Time: {{ "%.2f"|format(report.avg_inference_time) }} s</p>
-                                <p class="card-text">Tokens per Second: {{ "%.2f"|format(report.avg_tokens_per_second) }}</p>
-                                <p class="card-text">Error Rate: {{ "%.2f"|format(error_rate * 100) }}%</p>
+                    <div class="col - md - 4">
+                        <div class="card summary - card">
+                            <div class="card - body">
+                                <h5 class="card - title">Performance Summary</h5>
+                                <p class="card - text">Avg. Inference Time: {{ "%.2f"|format(report.avg_inference_time) }} s</p>
+                                <p class="card - text">Tokens per Second: {{ "%.2f"|format(report.avg_tokens_per_second) }}</p>
+                                <p class="card - text">Error Rate: {{ "%.2f"|format(error_rate * 100) }}%</p>
                             </div>
                         </div>
                     </div>
@@ -368,9 +368,9 @@ class MetricsDashboard:
 
                 {% if 'latency_plot' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Latency Over Time</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Latency Over Time</h5>
+                        <div class="plot - container">
                             {{ plots.latency_plot | safe }}
                         </div>
                     </div>
@@ -379,9 +379,9 @@ class MetricsDashboard:
 
                 {% if 'token_usage_plot' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Token Usage</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Token Usage</h5>
+                        <div class="plot - container">
                             {{ plots.token_usage_plot | safe }}
                         </div>
                     </div>
@@ -390,9 +390,9 @@ class MetricsDashboard:
 
                 {% if 'cost_plot' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Cost Analysis</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Cost Analysis</h5>
+                        <div class="plot - container">
                             {{ plots.cost_plot | safe }}
                         </div>
                     </div>
@@ -401,9 +401,9 @@ class MetricsDashboard:
 
                 {% if 'cumulative_cost_plot' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Cumulative Cost</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Cumulative Cost</h5>
+                        <div class="plot - container">
                             {{ plots.cumulative_cost_plot | safe }}
                         </div>
                     </div>
@@ -412,9 +412,9 @@ class MetricsDashboard:
 
                 {% if 'inference_time_hist' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Inference Time Distribution</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Inference Time Distribution</h5>
+                        <div class="plot - container">
                             {{ plots.inference_time_hist | safe }}
                         </div>
                     </div>
@@ -423,9 +423,9 @@ class MetricsDashboard:
 
                 {% if 'error_rate_plot' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Error Rate</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Error Rate</h5>
+                        <div class="plot - container">
                             {{ plots.error_rate_plot | safe }}
                         </div>
                     </div>
@@ -433,9 +433,9 @@ class MetricsDashboard:
                 {% endif %}
 
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Detailed Metrics</h5>
-                        <table class="table table-striped">
+                    <div class="card - body">
+                        <h5 class="card - title">Detailed Metrics</h5>
+                        <table class="table table - striped">
                             <thead>
                                 <tr>
                                     <th>Metric</th>
@@ -487,9 +487,9 @@ class MetricsDashboard:
             model_id=model_id,
             report=report,
             plots=plots,
-            generation_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            start_date=start_time.strftime("%Y-%m-%d"),
-            end_date=end_time.strftime("%Y-%m-%d"),
+            generation_time=datetime.now().strftime(" % Y-%m-%d %H:%M:%S"),
+            start_date=start_time.strftime(" % Y-%m-%d"),
+            end_date=end_time.strftime(" % Y-%m-%d"),
             total_tokens=total_tokens,
             total_cost=total_cost,
             avg_cost_per_inference=avg_cost_per_inference,
@@ -500,7 +500,7 @@ class MetricsDashboard:
         # Save dashboard HTML
         filename = f"{model_id}_dashboard_{int(time.time())}.html"
         filepath = os.path.join(self.output_dir, filename)
-        with open(filepath, "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf - 8") as f:
             f.write(html_content)
 
         logger.info(f"Dashboard generated at: {filepath}")
@@ -668,28 +668,28 @@ class MetricsDashboard:
         <html>
         <head>
             <title>Model Comparison Dashboard</title>
-            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://cdn.plot.ly / plotly - latest.min.js"></script>
+            <link href="https://cdn.jsdelivr.net / npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
             <style>
                 body { padding: 20px; }
-                .card { margin-bottom: 20px; }
-                .plot-container { height: 400px; }
-                .table-container { max-height: 600px; overflow-y: auto; }
+                .card { margin - bottom: 20px; }
+                .plot - container { height: 400px; }
+                .table - container { max - height: 600px; overflow - y: auto; }
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>Model Performance Comparison</h1>
-                <p class="text-muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
+                <p class="text - muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
 
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col - md - 12">
                         <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Models Included</h5>
-                                <ul class="list-group">
+                            <div class="card - body">
+                                <h5 class="card - title">Models Included</h5>
+                                <ul class="list - group">
                                     {% for model_id, model_name in models %}
-                                    <li class="list-group-item">{{ model_name }} ({{ model_id }})</li>
+                                    <li class="list - group - item">{{ model_name }} ({{ model_id }})</li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -699,9 +699,9 @@ class MetricsDashboard:
 
                 {% if 'avg_inference_time_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Inference Time Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Inference Time Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.avg_inference_time_comparison | safe }}
                         </div>
                     </div>
@@ -710,9 +710,9 @@ class MetricsDashboard:
 
                 {% if 'avg_latency_ms_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Latency Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Latency Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.avg_latency_ms_comparison | safe }}
                         </div>
                     </div>
@@ -721,9 +721,9 @@ class MetricsDashboard:
 
                 {% if 'avg_tokens_per_second_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Throughput Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Throughput Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.avg_tokens_per_second_comparison | safe }}
                         </div>
                     </div>
@@ -732,9 +732,9 @@ class MetricsDashboard:
 
                 {% if 'cost_per_1k_tokens_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Cost Efficiency Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Cost Efficiency Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.cost_per_1k_tokens_comparison | safe }}
                         </div>
                     </div>
@@ -743,9 +743,9 @@ class MetricsDashboard:
 
                 {% if 'cost_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Cost Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Total Cost Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.cost_comparison | safe }}
                         </div>
                     </div>
@@ -754,9 +754,9 @@ class MetricsDashboard:
 
                 {% if 'token_comparison' in plots %}
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Token Usage Comparison</h5>
-                        <div class="plot-container">
+                    <div class="card - body">
+                        <h5 class="card - title">Token Usage Comparison</h5>
+                        <div class="plot - container">
                             {{ plots.token_comparison | safe }}
                         </div>
                     </div>
@@ -764,10 +764,10 @@ class MetricsDashboard:
                 {% endif %}
 
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Detailed Comparison Table</h5>
-                        <div class="table-container">
-                            <table class="table table-striped">
+                    <div class="card - body">
+                        <h5 class="card - title">Detailed Comparison Table</h5>
+                        <div class="table - container">
+                            <table class="table table - striped">
                                 <thead>
                                     <tr>
                                         <th>Metric</th>
@@ -785,7 +785,7 @@ class MetricsDashboard:
                                             {% if model_metrics[model_id][metric_name] is defined %}
                                             {{ model_metrics[model_id][metric_name] }}
                                             {% else %}
-                                            N/A
+                                            N / A
                                             {% endif %}
                                         </td>
                                         {% endfor %}
@@ -859,15 +859,15 @@ class MetricsDashboard:
             plots=plots,
             metrics_list=metrics_list,
             model_metrics=model_metrics,
-            generation_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            start_date=start_time.strftime("%Y-%m-%d"),
-            end_date=end_time.strftime("%Y-%m-%d"),
+            generation_time=datetime.now().strftime(" % Y-%m-%d %H:%M:%S"),
+            start_date=start_time.strftime(" % Y-%m-%d"),
+            end_date=end_time.strftime(" % Y-%m-%d"),
         )
 
         # Save dashboard HTML
         filename = f"model_comparison_{int(time.time())}.html"
         filepath = os.path.join(self.output_dir, filename)
-        with open(filepath, "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf - 8") as f:
             f.write(html_content)
 
         logger.info(f"Comparison dashboard generated at: {filepath}")
@@ -927,7 +927,7 @@ class MetricsDashboard:
             )
 
         # Export to JSON
-        with open(output_file, "w", encoding="utf-8") as f:
+        with open(output_file, "w", encoding="utf - 8") as f:
             json.dump(export_data, f, indent=2)
 
         logger.info(f"Metrics exported to JSON: {output_file}")

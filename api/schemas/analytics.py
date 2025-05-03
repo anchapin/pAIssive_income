@@ -36,7 +36,7 @@ class RequestStatsResponse(BaseModel):
 class DailyMetricsResponse(BaseModel):
     """Pydantic model for daily aggregated metrics."""
 
-    date: str = Field(..., description="Date in YYYY-MM-DD format")
+    date: str = Field(..., description="Date in YYYY - MM - DD format")
     endpoint: str = Field(..., description="Endpoint name")
     version: Optional[str] = Field(None, description="API version")
     request_count: int = Field(..., description="Number of requests")
@@ -70,7 +70,7 @@ class EndpointStatsResponse(BaseModel):
 class UserStatsResponse(BaseModel):
     """Pydantic model for user statistics."""
 
-    date: str = Field(..., description="Date in YYYY-MM-DD format")
+    date: str = Field(..., description="Date in YYYY - MM - DD format")
     user_id: str = Field(..., description="User ID")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
@@ -81,7 +81,7 @@ class UserStatsResponse(BaseModel):
 class ApiKeyStatsResponse(BaseModel):
     """Pydantic model for API key statistics."""
 
-    date: str = Field(..., description="Date in YYYY-MM-DD format")
+    date: str = Field(..., description="Date in YYYY - MM - DD format")
     api_key_id: str = Field(..., description="API key ID")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
@@ -104,7 +104,7 @@ class AnalyticsSummaryResponse(BaseModel):
 
 
 class EndpointRealTimeMetrics(BaseModel):
-    """Schema for real-time metrics for a specific endpoint."""
+    """Schema for real - time metrics for a specific endpoint."""
 
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
@@ -114,7 +114,7 @@ class EndpointRealTimeMetrics(BaseModel):
 
 
 class RealTimeMetricsResponse(BaseModel):
-    """Schema for real-time API metrics."""
+    """Schema for real - time API metrics."""
 
     request_count: int = Field(..., description="Total number of requests")
     error_count: int = Field(..., description="Total number of errors")

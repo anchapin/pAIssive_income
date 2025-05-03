@@ -110,7 +110,7 @@ class MongoDBAdapter(DatabaseInterface):
                 parts = query.split(":", 1)
                 if len(parts) != 2 or not all(parts):
                     raise ValueError(
-                        "Query format should be 'collection:operation' with non-empty parts"
+                        "Query format should be 'collection:operation' with non - empty parts"
                     )
 
                 collection_name, operation = parts

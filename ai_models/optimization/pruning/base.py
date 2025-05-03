@@ -32,11 +32,11 @@ class PruningConfig:
     method: PruningMethod = PruningMethod.NONE
     sparsity: float = 0.5  # Target sparsity (0.0 to 1.0)
 
-    # Method-specific parameters
+    # Method - specific parameters
     structured_block_size: int = 4  # For structured pruning
     structured_n_m_ratio: Tuple[int, int] = (2, 4)  # For N:M structured pruning
 
-    # Layer-specific parameters
+    # Layer - specific parameters
     excluded_layers: List[str] = field(default_factory=list)
     included_layers: Optional[List[str]] = None  # None means all layers except excluded
 
@@ -130,7 +130,7 @@ class Pruner(abc.ABC):
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the pruned model (None for in-place)
+            output_path: Path to save the pruned model (None for in - place)
             **kwargs: Additional parameters for pruning
 
         Returns:

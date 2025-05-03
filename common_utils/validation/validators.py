@@ -56,7 +56,7 @@ def validate_email(value: Any) -> Tuple[bool, Optional[str]]:
         return is_string, error
 
     # Use a simple regex for email validation
-    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    pattern = r"^[a - zA - Z0 - 9._%+-]+@[a - zA - Z0 - 9.-]+\.[a - zA - Z]{2,}$"
     if not re.match(pattern, value):
         return False, "Invalid email address format"
 
@@ -228,13 +228,13 @@ def validate_date(
     if min_date is not None and date_obj < min_date:
         return (
             False,
-            f"Date must be on or after {min_date.strftime(format_str or '%Y-%m-%d')}",
+            f"Date must be on or after {min_date.strftime(format_str or ' % Y-%m-%d')}",
         )
 
     if max_date is not None and date_obj > max_date:
         return (
             False,
-            f"Date must be on or before {max_date.strftime(format_str or '%Y-%m-%d')}",
+            f"Date must be on or before {max_date.strftime(format_str or ' % Y-%m-%d')}",
         )
 
     return True, None

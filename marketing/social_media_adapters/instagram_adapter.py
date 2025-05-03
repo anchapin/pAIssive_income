@@ -45,7 +45,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://graph.facebook.com/v18.0"  # Instagram uses Facebook Graph API
+        self.api_base_url = "https://graph.facebook.com / v18.0"  # Instagram uses Facebook Graph API
         self.access_token = self.credentials.get("access_token")
         self.instagram_account_id = self.credentials.get("instagram_account_id")
         self.facebook_page_id = self.credentials.get(
@@ -211,7 +211,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -259,7 +259,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             post_data: Additional post data
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -271,7 +271,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # 3. Publish the media container
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"instagram_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": post_id,
@@ -280,7 +280,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 "posted_at": datetime.now().isoformat(),
                 "platform_data": {
                     "id": post_id,
-                    "permalink": f"https://www.instagram.com/p/{post_id}/",
+                    "permalink": f"https://www.instagram.com / p/{post_id}/",
                 },
             }
 
@@ -297,7 +297,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             post_data: Additional post data
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -309,7 +309,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # 3. Publish the media container
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"instagram_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": post_id,
@@ -318,7 +318,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 "posted_at": datetime.now().isoformat(),
                 "platform_data": {
                     "id": post_id,
-                    "permalink": f"https://www.instagram.com/p/{post_id}/",
+                    "permalink": f"https://www.instagram.com / p/{post_id}/",
                 },
             }
 
@@ -337,7 +337,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             post_data: Additional post data
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -350,7 +350,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # 4. Publish the carousel container
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"instagram_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": post_id,
@@ -359,7 +359,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 "posted_at": datetime.now().isoformat(),
                 "platform_data": {
                     "id": post_id,
-                    "permalink": f"https://www.instagram.com/p/{post_id}/",
+                    "permalink": f"https://www.instagram.com / p/{post_id}/",
                     "children_count": len(carousel),
                 },
             }
@@ -376,7 +376,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             story: Story data
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -388,7 +388,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # 3. Publish the story
 
             # For demonstration, we'll simulate a successful post
-            story_id = f"instagram_story_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            story_id = f"instagram_story_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": story_id,
@@ -441,7 +441,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 raise NotSupportedError("instagram", "Scheduling stories is not supported")
 
             # For demonstration, we'll simulate a successful scheduling
-            scheduled_id = f"instagram_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            scheduled_id = f"instagram_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -584,8 +584,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific post
             if post_id:
@@ -601,7 +601,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
                 return analytics
 
-            # Otherwise, get account-level analytics
+            # Otherwise, get account - level analytics
             else:
                 # Get account insights
                 response = self.session.get(
@@ -668,18 +668,18 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_followers",
                 "demographics": {
                     "age_gender": {
-                        "F.13-17": 0.05,
-                        "F.18-24": 0.15,
-                        "F.25-34": 0.20,
-                        "F.35-44": 0.10,
-                        "F.45-54": 0.05,
-                        "F.55+": 0.02,
-                        "M.13-17": 0.03,
-                        "M.18-24": 0.18,
-                        "M.25-34": 0.15,
-                        "M.35-44": 0.05,
-                        "M.45-54": 0.01,
-                        "M.55+": 0.01,
+                        "F.13 - 17": 0.05,
+                        "F.18 - 24": 0.15,
+                        "F.25 - 34": 0.20,
+                        "F.35 - 44": 0.10,
+                        "F.45 - 54": 0.05,
+                        "F.55 + ": 0.02,
+                        "M.13 - 17": 0.03,
+                        "M.18 - 24": 0.18,
+                        "M.25 - 34": 0.15,
+                        "M.35 - 44": 0.05,
+                        "M.45 - 54": 0.01,
+                        "M.55 + ": 0.01,
                     },
                     "location": {
                         "United States": 0.35,

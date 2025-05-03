@@ -71,30 +71,30 @@ def setup_test_environment():
             id="model1",
             name="Primary Model",
             type="huggingface",
-            path="/path/to/model1",
-            capabilities=["text-generation", "classification"],
+            path=" / path / to / model1",
+            capabilities=["text - generation", "classification"],
         ),
         MockModelInfo(
             id="model2",
             name="Secondary Model",
             type="llama",
-            path="/path/to/model2",
-            capabilities=["text-generation"],
+            path=" / path / to / model2",
+            capabilities=["text - generation"],
         ),
         MockModelInfo(
             id="model3",
             name="Embedding Model",
             type="embedding",
-            path="/path/to/model3",
+            path=" / path / to / model3",
             capabilities=["embedding"],
         ),
         MockModelInfo(
             id="model4",
             name="Small Model",
             type="huggingface",
-            path="/path/to/model4",
+            path=" / path / to / model4",
             size_mb=100,
-            capabilities=["text-generation"],
+            capabilities=["text - generation"],
         ),
     ]
 
@@ -134,7 +134,7 @@ def test_fallback_strategies(manager):
         fallback_model, event = fallback_manager.find_fallback_model(
             original_model_id="non_existent_model",
             agent_type="researcher",
-            task_type="text-generation",
+            task_type="text - generation",
             strategy_override=strategy,
         )
 
@@ -143,10 +143,10 @@ def test_fallback_strategies(manager):
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 
-    # Test capability-based strategy with specific capabilities
-    print("\nTesting capability-based with specific requirements:")
+    # Test capability - based strategy with specific capabilities
+    print("\nTesting capability - based with specific requirements:")
     fallback_model, _ = fallback_manager.find_fallback_model(
-        required_capabilities=["text-generation", "classification"],
+        required_capabilities=["text - generation", "classification"],
         strategy_override=FallbackStrategy.CAPABILITY_BASED,
     )
 

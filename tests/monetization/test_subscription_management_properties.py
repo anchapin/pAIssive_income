@@ -1,5 +1,5 @@
 """
-Property-based tests for the subscription management logic.
+Property - based tests for the subscription management logic.
 
 These tests verify that subscription management operations work correctly
 across a wide range of input parameters.
@@ -31,22 +31,22 @@ def subscription_plans(draw):
         description=draw(st.text(max_size=200)),
     )
 
-    # Add 1-3 features
+    # Add 1 - 3 features
     num_features = draw(st.integers(min_value=1, max_value=3))
     features = []
     for i in range(num_features):
         feature = plan.add_feature(
-            name=f"Feature {i+1}", description=f"Test feature {i+1}", type="boolean"
+            name=f"Feature {i + 1}", description=f"Test feature {i + 1}", type="boolean"
         )
         features.append(feature)
 
-    # Add 1-3 tiers
+    # Add 1 - 3 tiers
     num_tiers = draw(st.integers(min_value=1, max_value=3))
     tiers = []
     for i in range(num_tiers):
         tier = plan.add_tier(
-            name=f"Tier {i+1}",
-            description=f"Test tier {i+1}",
+            name=f"Tier {i + 1}",
+            description=f"Test tier {i + 1}",
             price_monthly=draw(tier_prices),
             price_annual=draw(tier_prices) * 10,  # Annual price typically lower than 12x monthly
         )
@@ -99,7 +99,7 @@ def subscriptions(draw):
         start_date=start_date,
     )
 
-    # If we want a non-active status, update it
+    # If we want a non - active status, update it
     random_status = draw(st.sampled_from(status_options))
     if random_status != SubscriptionStatus.ACTIVE:
         subscription.status = random_status
@@ -334,8 +334,8 @@ def test_feature_access_properties(subscription):
         ):  # Only check features that are enabled
             assert manager.has_feature_access(subscription.id, feature["name"]) is True
 
-    # Property 2: Subscription should not have access to non-existent features
-    assert manager.has_feature_access(subscription.id, "Non-existent Feature") is False
+    # Property 2: Subscription should not have access to non - existent features
+    assert manager.has_feature_access(subscription.id, "Non - existent Feature") is False
 
     # Property 3: Features with limits should respect those limits
     for feature in tier_features:

@@ -15,7 +15,7 @@ from .base_adapter import BaseModelAdapter
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -135,7 +135,7 @@ class OllamaAdapter(BaseModelAdapter):
             List of model information dictionaries
         """
         try:
-            response = self.session.get(f"{self.base_url}/api/tags", timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/api / tags", timeout=self.timeout)
             response.raise_for_status()
 
             data = response.json()
@@ -188,7 +188,7 @@ class OllamaAdapter(BaseModelAdapter):
         """
         try:
             response = self.session.post(
-                f"{self.base_url}/api/show",
+                f"{self.base_url}/api / show",
                 json={"name": model_name},
                 timeout=self.timeout,
             )
@@ -221,8 +221,8 @@ class OllamaAdapter(BaseModelAdapter):
             prompt: Input prompt
             system_prompt: Optional system prompt
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -276,7 +276,7 @@ class OllamaAdapter(BaseModelAdapter):
             Generated text
         """
         response = self.session.post(
-            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / generate", json=request_data, timeout=self.timeout
         )
         response.raise_for_status()
 
@@ -294,7 +294,7 @@ class OllamaAdapter(BaseModelAdapter):
             Generator yielding text chunks
         """
         response = self.session.post(
-            f"{self.base_url}/api/generate",
+            f"{self.base_url}/api / generate",
             json=request_data,
             stream=True,
             timeout=self.timeout,
@@ -334,8 +334,8 @@ class OllamaAdapter(BaseModelAdapter):
             model_name: Name of the model
             messages: List of message dictionaries with "role" and "content" keys
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -385,7 +385,7 @@ class OllamaAdapter(BaseModelAdapter):
             Response dictionary
         """
         response = self.session.post(
-            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / chat", json=request_data, timeout=self.timeout
         )
         response.raise_for_status()
 
@@ -402,7 +402,7 @@ class OllamaAdapter(BaseModelAdapter):
             Generator yielding response dictionaries
         """
         response = self.session.post(
-            f"{self.base_url}/api/chat",
+            f"{self.base_url}/api / chat",
             json=request_data,
             stream=True,
             timeout=self.timeout,
@@ -444,7 +444,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             response = self.session.post(
-                f"{self.base_url}/api/embeddings",
+                f"{self.base_url}/api / embeddings",
                 json=request_data,
                 timeout=self.timeout,
             )
@@ -482,7 +482,7 @@ class OllamaAdapter(BaseModelAdapter):
                 return self._pull_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
-                    f"{self.base_url}/api/pull",
+                    f"{self.base_url}/api / pull",
                     json=request_data,
                     timeout=None,  # No timeout for model pulling
                 )
@@ -508,7 +508,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with pull status
         """
         response = self.session.post(
-            f"{self.base_url}/api/pull",
+            f"{self.base_url}/api / pull",
             json=request_data,
             stream=True,
             timeout=None,  # No timeout for model pulling
@@ -555,7 +555,7 @@ class OllamaAdapter(BaseModelAdapter):
                 return self._push_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
-                    f"{self.base_url}/api/push",
+                    f"{self.base_url}/api / push",
                     json=request_data,
                     timeout=None,  # No timeout for model pushing
                 )
@@ -581,7 +581,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with push status
         """
         response = self.session.post(
-            f"{self.base_url}/api/push",
+            f"{self.base_url}/api / push",
             json=request_data,
             stream=True,
             timeout=None,  # No timeout for model pushing
@@ -625,7 +625,7 @@ class OllamaAdapter(BaseModelAdapter):
                 return self._create_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
-                    f"{self.base_url}/api/create",
+                    f"{self.base_url}/api / create",
                     json=request_data,
                     timeout=None,  # No timeout for model creation
                 )
@@ -651,7 +651,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with creation status
         """
         response = self.session.post(
-            f"{self.base_url}/api/create",
+            f"{self.base_url}/api / create",
             json=request_data,
             stream=True,
             timeout=None,  # No timeout for model creation
@@ -688,7 +688,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             response = self.session.delete(
-                f"{self.base_url}/api/delete", json=request_data, timeout=self.timeout
+                f"{self.base_url}/api / delete", json=request_data, timeout=self.timeout
             )
             response.raise_for_status()
 
@@ -714,7 +714,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             response = self.session.post(
-                f"{self.base_url}/api/copy", json=request_data, timeout=self.timeout
+                f"{self.base_url}/api / copy", json=request_data, timeout=self.timeout
             )
             response.raise_for_status()
 
@@ -789,7 +789,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             async with self._async_session.get(
-                f"{self.base_url}/api/tags", timeout=self.timeout
+                f"{self.base_url}/api / tags", timeout=self.timeout
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
@@ -849,7 +849,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             async with self._async_session.post(
-                f"{self.base_url}/api/show",
+                f"{self.base_url}/api / show",
                 json={"name": model_name},
                 timeout=self.timeout,
             ) as response:
@@ -881,8 +881,8 @@ class OllamaAdapter(BaseModelAdapter):
             prompt: Input prompt
             system_prompt: Optional system prompt
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -947,7 +947,7 @@ class OllamaAdapter(BaseModelAdapter):
             self._async_session = aiohttp.ClientSession()
 
         async with self._async_session.post(
-            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / generate", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
             data = await response.json()
@@ -970,7 +970,7 @@ class OllamaAdapter(BaseModelAdapter):
             self._async_session = aiohttp.ClientSession()
 
         async with self._async_session.post(
-            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / generate", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
 
@@ -1008,8 +1008,8 @@ class OllamaAdapter(BaseModelAdapter):
             model_name: Name of the model
             messages: List of message dictionaries with "role" and "content" keys
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -1063,7 +1063,7 @@ class OllamaAdapter(BaseModelAdapter):
             self._async_session = aiohttp.ClientSession()
 
         async with self._async_session.post(
-            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / chat", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
             return await response.json()
@@ -1085,7 +1085,7 @@ class OllamaAdapter(BaseModelAdapter):
             self._async_session = aiohttp.ClientSession()
 
         async with self._async_session.post(
-            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
+            f"{self.base_url}/api / chat", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
 
@@ -1125,7 +1125,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             async with self._async_session.post(
-                f"{self.base_url}/api/embeddings",
+                f"{self.base_url}/api / embeddings",
                 json=request_data,
                 timeout=self.timeout,
             ) as response:
@@ -1157,7 +1157,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             async with self._async_session.post(
-                f"{self.base_url}/api/pull",
+                f"{self.base_url}/api / pull",
                 json=request_data,
                 timeout=None,  # No timeout for model pulling
             ) as response:

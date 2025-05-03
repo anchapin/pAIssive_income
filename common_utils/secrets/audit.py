@@ -13,30 +13,30 @@ import sys
 from typing import Any, Dict, List, Pattern
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format=" % (levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
 # Common patterns that might indicate hardcoded secrets
 SECRET_PATTERNS = [
     # API keys
-    r'(?i)(?:api|access|auth|app|secret|private)[-_]?key\s*=\s*[\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:api|access|auth|app|secret|private)[-_]?key\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
     # Passwords
-    r'(?i)(?:password|passwd|pwd|auth)[-_]?\s*=\s*[\'"`]([^\'"`\s]{4,})[\'"`]',
+    r'(?i)(?:password|passwd|pwd|auth)[-_]?\s*=\s * [\'"`]([^\'"`\s]{4,})[\'"`]',
     # Tokens
-    r'(?i)(?:token|auth[-_]?token|jwt|bearer)\s*=\s*[\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:token|auth[-_]?token|jwt|bearer)\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
     # Connection strings
-    r'(?i)(?:connection[-_]?string|conn[-_]?str)\s*=\s*[\'"`]([^\'"`]{10,})[\'"`]',
+    r'(?i)(?:connection[-_]?string|conn[-_]?str)\s*=\s * [\'"`]([^\'"`]{10,})[\'"`]',
     # Database credentials
-    r"(?i)mongodb(?:\+srv)?:\/\/[^:]+:([^@]+)@",
-    r"(?i)(?:postgres|mysql|postgresql):\/\/[^:]+:([^@]+)@",
+    r"(?i)mongodb(?:\+srv)?:\/\/[^:]+:([^@]+) @ ",
+    r"(?i)(?:postgres|mysql|postgresql):\/\/[^:]+:([^@]+) @ ",
     # AWS
-    r'(?i)(?:aws)?_?(?:access|secret|account)_?(?:key|token|id)\s*=\s*[\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:aws)?_?(?:access|secret|account)_?(?:key|token|id)\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
     # OAuth
-    r'(?i)(?:oauth|client)[-_]?(?:token|secret)\s*=\s*[\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:oauth|client)[-_]?(?:token|secret)\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
 ]
 
-# File patterns to include/exclude
+# File patterns to include / exclude
 INCLUDE_PATTERNS = [
     r"\.py$",  # Python files
     r"\.js$",  # JavaScript files
@@ -55,9 +55,9 @@ INCLUDE_PATTERNS = [
 ]
 
 EXCLUDE_PATTERNS = [
-    r"(?i)/venv/",
-    r"(?i)/node_modules/",
-    r"(?i)/__pycache__/",
+    r"(?i) / venv / ",
+    r"(?i) / node_modules / ",
+    r"(?i) / __pycache__ / ",
     r"(?i)/\.[^/]+/",  # Hidden directories
     r"(?i)\.min\.",  # Minified files
     r"(?i)\.pyc$",  # Compiled Python
@@ -113,10 +113,10 @@ def is_likely_secret(value: str) -> bool:
 
     # Look for entropy and patterns that suggest a secret
     # Has mixed case, numbers, special chars, etc.
-    has_uppercase = bool(re.search(r"[A-Z]", value))
-    has_lowercase = bool(re.search(r"[a-z]", value))
-    has_numbers = bool(re.search(r"[0-9]", value))
-    has_special = bool(re.search(r"[^A-Za-z0-9]", value))
+    has_uppercase = bool(re.search(r"[A - Z]", value))
+    has_lowercase = bool(re.search(r"[a - z]", value))
+    has_numbers = bool(re.search(r"[0 - 9]", value))
+    has_special = bool(re.search(r"[^A - Za - z0 - 9]", value))
 
     # If it has good entropy, it's more likely to be a secret
     entropy_score = sum([has_uppercase, has_lowercase, has_numbers, has_special])
@@ -137,7 +137,7 @@ def find_secrets_in_file(filepath: str, compiled_patterns: List[Pattern]) -> Lis
     findings = []
 
     try:
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, "r", encoding="utf - 8", errors="ignore") as f:
             lines = f.readlines()
 
         for line_num, line in enumerate(lines, 1):
@@ -235,7 +235,7 @@ def main() -> int:
     Main entry point for the secrets audit tool.
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     parser = argparse.ArgumentParser(description="Scan codebase for potential hardcoded secrets.")
     parser.add_argument(
@@ -247,7 +247,7 @@ def main() -> int:
     parser.add_argument("--output", help="Output file for the report (default: print to console)")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
     parser.add_argument(
-        "--exclude", nargs="+", default=[], help="Additional directories to exclude"
+        "--exclude", nargs=" + ", default=[], help="Additional directories to exclude"
     )
 
     args = parser.parse_args()
@@ -259,12 +259,12 @@ def main() -> int:
         # Output in JSON format
         report = json.dumps(findings, indent=2)
     else:
-        # Output in human-readable format
+        # Output in human - readable format
         report = format_findings(findings)
 
     if args.output:
         # Write to output file
-        with open(args.output, "w", encoding="utf-8") as f:
+        with open(args.output, "w", encoding="utf - 8") as f:
             f.write(report)
         logger.info(f"Report written to {args.output}")
     else:

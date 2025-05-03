@@ -276,7 +276,7 @@ class FeedbackAgent:
             "collection_methods": [
                 {
                     "id": str(uuid.uuid4()),
-                    "name": "In-App Feedback Form",
+                    "name": "In - App Feedback Form",
                     "description": "A feedback form accessible within the application",
                     "implementation": "Add a feedback button in the application that opens a form",
                     "data_collected": [
@@ -285,7 +285,7 @@ class FeedbackAgent:
                         "bug_reports",
                         "general_feedback",
                     ],
-                    "frequency": "on-demand",
+                    "frequency": "on - demand",
                 },
                 {
                     "id": str(uuid.uuid4()),
@@ -303,7 +303,7 @@ class FeedbackAgent:
                 {
                     "id": str(uuid.uuid4()),
                     "name": "User Interviews",
-                    "description": "One-on-one interviews with users",
+                    "description": "One - on - one interviews with users",
                     "implementation": "Schedule interviews with power users and users who have reported issues",
                     "data_collected": [
                         "detailed_feedback",
@@ -359,7 +359,7 @@ class FeedbackAgent:
                 "setup": "1 week",
                 "initial_collection": "1 month",
                 "ongoing_collection": "continuous",
-                "analysis_frequency": "bi-weekly",
+                "analysis_frequency": "bi - weekly",
                 "implementation_cycles": "monthly",
             },
             "timestamp": datetime.now().isoformat(),

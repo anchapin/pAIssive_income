@@ -44,7 +44,7 @@ class TestAPIIntegration:
         """Test the niche analysis to solution development workflow."""
         # Step 1: Create a niche analysis
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -64,7 +64,7 @@ class TestAPIIntegration:
             validate_field_exists(task_result, "status")
 
         # Step 3: Get the niches
-        response = auth_api_test_client.get("niche-analysis/niches")
+        response = auth_api_test_client.get("niche - analysis / niches")
         niches_result = validate_paginated_response(response)
 
         # If there are no niches, skip the rest of the test
@@ -96,7 +96,7 @@ class TestAPIIntegration:
         monetization_data = generate_monetization_data()
         monetization_data["solution_id"] = solution_id
 
-        response = auth_api_test_client.post("monetization/subscription-models", monetization_data)
+        response = auth_api_test_client.post("monetization / subscription - models", monetization_data)
 
         # If the endpoint returns 404 or 501, skip the monetization strategy
         if response.status_code in (404, 501):
@@ -112,7 +112,7 @@ class TestAPIIntegration:
         marketing_data["niche_id"] = niche_id
         marketing_data["solution_id"] = solution_id
 
-        response = auth_api_test_client.post("marketing/strategies", marketing_data)
+        response = auth_api_test_client.post("marketing / strategies", marketing_data)
 
         # If the endpoint returns 404 or 501, skip the marketing strategy
         if response.status_code in (404, 501):
@@ -126,7 +126,7 @@ class TestAPIIntegration:
         """Test the agent team workflow."""
         # Step 1: Create an agent team
         team_data = generate_agent_team_data()
-        response = auth_api_test_client.post("agent-team/teams", team_data)
+        response = auth_api_test_client.post("agent - team / teams", team_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -139,14 +139,14 @@ class TestAPIIntegration:
 
         # Step 2: Run a niche analysis workflow with the team
         workflow_data = {
-            "workflow_id": "niche-analysis",
+            "workflow_id": "niche - analysis",
             "parameters": {
-                "market_segments": ["e-commerce", "digital-marketing"],
+                "market_segments": ["e - commerce", "digital - marketing"],
                 "target_audience": "small businesses",
             },
         }
 
-        response = auth_api_test_client.post(f"agent-team/teams/{team_id}/run", workflow_data)
+        response = auth_api_test_client.post(f"agent - team / teams/{team_id}/run", workflow_data)
 
         # If the endpoint returns 404 or 501, skip the workflow
         if response.status_code in (404, 501):
@@ -174,10 +174,10 @@ class TestAPIIntegration:
             "name": "Test API Key",
             "description": "API key for testing",
             "permissions": ["read"],
-            "expires_at": "2099-12-31T23:59:59Z",
+            "expires_at": "2099 - 12 - 31T23:59:59Z",
         }
 
-        response = auth_api_test_client.post("api-keys", api_key_data)
+        response = auth_api_test_client.post("api - keys", api_key_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -189,9 +189,9 @@ class TestAPIIntegration:
         api_key = api_key_result["key"]
 
         # Step 2: Use the API key to access a protected endpoint
-        headers = {"X-API-Key": api_key}
+        headers = {"X - API - Key": api_key}
 
-        response = api_test_client.get("niche-analysis/niches", headers=headers)
+        response = api_test_client.get("niche - analysis / niches", headers=headers)
 
         # Validate response
         validate_success_response(response)
@@ -200,11 +200,11 @@ class TestAPIIntegration:
         """Test webhook integration."""
         # Step 1: Create a webhook
         webhook_data = {
-            "url": "https://example.com/webhook",
+            "url": "https://example.com / webhook",
             "event_types": ["niche.created", "solution.created"],
             "description": "Webhook for testing",
             "is_active": True,
-            "secret": "test-webhook-secret",
+            "secret": "test - webhook - secret",
         }
 
         response = auth_api_test_client.post("webhooks", webhook_data)
@@ -220,7 +220,7 @@ class TestAPIIntegration:
 
         # Step 2: Create a niche analysis (should trigger the webhook)
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the niche analysis
         if response.status_code in (404, 501):
@@ -240,14 +240,14 @@ class TestAPIIntegration:
     def test_analytics_integration(self, auth_api_test_client: APITestClient):
         """Test analytics integration."""
         # Step 1: Make several API requests to generate analytics data
-        auth_api_test_client.get("niche-analysis/niches")
-        auth_api_test_client.get("monetization/subscription-models")
-        auth_api_test_client.get("marketing/strategies")
-        auth_api_test_client.get("ai-models/models")
-        auth_api_test_client.get("agent-team/teams")
+        auth_api_test_client.get("niche - analysis / niches")
+        auth_api_test_client.get("monetization / subscription - models")
+        auth_api_test_client.get("marketing / strategies")
+        auth_api_test_client.get("ai - models / models")
+        auth_api_test_client.get("agent - team / teams")
 
         # Step 2: Check analytics data
-        response = auth_api_test_client.get("analytics/summary")
+        response = auth_api_test_client.get("analytics / summary")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -259,7 +259,7 @@ class TestAPIIntegration:
         validate_field_type(analytics_result, "total_requests", int)
 
         # Step 3: Check endpoint statistics
-        response = auth_api_test_client.get("analytics/endpoints")
+        response = auth_api_test_client.get("analytics / endpoints")
 
         # If the endpoint returns 404 or 501, skip the endpoint statistics
         if response.status_code in (404, 501):

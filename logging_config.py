@@ -15,7 +15,7 @@ logs_dir = Path("logs")
 logs_dir.mkdir(exist_ok=True)
 
 # Define log file paths
-current_date = datetime.now().strftime("%Y-%m-%d")
+current_date = datetime.now().strftime(" % Y-%m-%d")
 app_log_file = logs_dir / f"app_{current_date}.log"
 error_log_file = logs_dir / f"error_{current_date}.log"
 access_log_file = logs_dir / f"access_{current_date}.log"
@@ -26,15 +26,17 @@ LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "standard": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
+        "standard": {"format": " % (asctime)s - %(name)s - %(levelname)s - %(message)s"},
+            
         "json": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "format": " % (asctime)s - %(name)s - %(levelname)s - %(message)s",
             "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "json_default": str,
             "timestamp": True,
         },
         "access": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(remote_addr)s - %(url)s - %(method)s - %(status)s"
+            "format": " % (asctime)s - \
+                %(name)s - %(levelname)s - %(message)s - %(remote_addr)s - %(url)s - %(method)s - %(status)s"
         },
     },
     "handlers": {
@@ -123,7 +125,8 @@ def configure_logging():
                 if handler_name != "console":  # Keep console output readable
                     handler_config["formatter"] = "json"
         except ImportError:
-            logging.warning("python-json-logger not installed. Falling back to standard logging.")
+            logging.warning("python - \
+                json - logger not installed. Falling back to standard logging.")
 
     # Apply the configuration
     logging.config.dictConfig(LOGGING_CONFIG)

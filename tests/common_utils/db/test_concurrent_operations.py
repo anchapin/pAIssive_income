@@ -398,4 +398,4 @@ def test_concurrent_batch_operations(sqlite_db):
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_concurrent_operations.py"])
+    pytest.main([" - v", "test_concurrent_operations.py"])

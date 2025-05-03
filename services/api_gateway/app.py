@@ -33,7 +33,7 @@ from services.shared.auth import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -47,25 +47,25 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify actual origins
+    allow_origins=[" * "],  # In production, specify actual origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=[" * "],
+    allow_headers=[" * "],
 )
 
 # Add service authentication middleware
 app.add_middleware(
     ServiceAuthMiddleware,
     exclude_paths=[
-        "/",
-        "/api/status",
-        "/api/services",
-        "/health",
-        "/docs",
-        "/redoc",
-        "/openapi.json",
+        " / ",
+        " / api / status",
+        " / api / services",
+        " / health",
+        " / docs",
+        " / redoc",
+        " / openapi.json",
     ],
-    require_auth=False,  # Don't require auth for all requests, only for service-to-service communication
+    require_auth=False,  # Don't require auth for all requests, only for service - to - service communication
 )
 
 # Add rate limiting middleware
@@ -73,26 +73,26 @@ app.add_middleware(
     RateLimitMiddleware,
     rate_limit=100,  # 100 requests per minute
     window_size=60,  # 1 minute window
-    exclude_paths=["/", "/api/status", "/health", "/docs", "/redoc", "/openapi.json"],
+    exclude_paths=[" / ", " / api / status", " / health", " / docs", " / redoc", " / openapi.json"],
 )
 
 # Global variables
 service_registration = None
 
 
-@app.get("/")
+@app.get(" / ")
 async def root():
     """Root endpoint for API Gateway."""
     return {"message": "pAIssive Income API Gateway", "status": "running"}
 
 
-@app.get("/api/status")
+@app.get(" / api / status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "api-gateway"}
+    return {"status": "ok", "version": "1.0.0", "service": "api - gateway"}
 
 
-@app.get("/api/services")
+@app.get(" / api / services")
 async def list_services():
     """List all available services."""
     if not service_registration or not service_registration.client:
@@ -116,7 +116,7 @@ async def list_services():
         )
 
 
-@app.get("/health")
+@app.get(" / health")
 async def health_check():
     """Health check endpoint."""
     # Check if service discovery is available
@@ -150,7 +150,7 @@ class ServiceTokenRequest(BaseModel):
     target_service: str = Field(..., description="Name of the target service")
     token_id: Optional[str] = Field(None, description="Unique token ID")
     expiration: Optional[int] = Field(None, description="Token expiration time in seconds")
-    claims: Optional[Dict[str, Any]] = Field(None, description="Additional service-specific claims")
+    claims: Optional[Dict[str, Any]] = Field(None, description="Additional service - specific claims")
 
 
 class ServiceTokenResponse(BaseModel):
@@ -162,10 +162,10 @@ class ServiceTokenResponse(BaseModel):
     audience: str = Field(..., description="Service that the token is intended for")
 
 
-@app.post("/api/auth/service-token", response_model=ServiceTokenResponse)
+@app.post(" / api / auth / service - token", response_model=ServiceTokenResponse)
 async def create_service_token_endpoint(request: ServiceTokenRequest):
     """
-    Create a JWT token for service-to-service authentication.
+    Create a JWT token for service - to - service authentication.
 
     This endpoint allows services to request a token for authenticating with other services.
     """
@@ -201,27 +201,27 @@ async def create_service_token_endpoint(request: ServiceTokenRequest):
         )
 
 
-@app.post("/api/auth/validate-token")
+@app.post(" / api / auth / validate - token")
 async def validate_service_token_endpoint(request: Request, audience: Optional[str] = None):
     """
-    Validate a JWT token for service-to-service authentication.
+    Validate a JWT token for service - to - service authentication.
 
     This endpoint allows services to validate tokens received from other services.
-    The token should be provided in the X-Service-Token header.
+    The token should be provided in the X - Service - Token header.
     """
     # Get service token from header
-    service_token = request.headers.get("X-Service-Token")
+    service_token = request.headers.get("X - Service - Token")
 
     if not service_token:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service token is required in X-Service-Token header",
+            detail="Service token is required in X - Service - Token header",
         )
 
     try:
         # Validate the service token
         token_payload = validate_service_token(
-            token=service_token, audience=audience or "api-gateway"
+            token=service_token, audience=audience or "api - gateway"
         )
 
         # Return the validated token payload
@@ -256,27 +256,27 @@ async def route_requests(request: Request, call_next):
 
     # Skip routing for API Gateway's own endpoints
     if (
-        path == "/"
-        or path.startswith("/api/status")
-        or path.startswith("/api/services")
-        or path.startswith("/health")
+        path == " / "
+        or path.startswith(" / api / status")
+        or path.startswith(" / api / services")
+        or path.startswith(" / health")
     ):
         return await call_next(request)
 
-    # Extract service name from path (e.g., /api/niche-analysis/... -> niche-analysis)
-    parts = path.split("/")
+    # Extract service name from path (e.g., /api / niche - analysis/... -> niche - analysis)
+    parts = path.split(" / ")
     if len(parts) >= 3 and parts[1] == "api":
         service_name = parts[2]
 
         # Map service name from URL to actual service name
         service_name_map = {
-            "niche-analysis": "niche-analysis-service",
-            "ai-models": "ai-models-service",
-            "marketing": "marketing-service",
-            "monetization": "monetization-service",
-            "agent-team": "agent-team-service",
-            "ui": "ui-service",
-            "auth": "authentication-service",
+            "niche - analysis": "niche - analysis - service",
+            "ai - models": "ai - models - service",
+            "marketing": "marketing - service",
+            "monetization": "monetization - service",
+            "agent - team": "agent - team - service",
+            "ui": "ui - service",
+            "auth": "authentication - service",
         }
 
         target_service = service_name_map.get(service_name, service_name)
@@ -293,8 +293,8 @@ async def route_requests(request: Request, call_next):
                     )
 
                 # Construct target URL
-                # Remove the service name from the path to get the service-specific path
-                service_path = "/" + "/".join(parts[3:])
+                # Remove the service name from the path to get the service - specific path
+                service_path = " / " + " / ".join(parts[3:])
                 target_url = f"{service_url}{service_path}"
 
                 # Get request body
@@ -308,13 +308,13 @@ async def route_requests(request: Request, call_next):
                 # Get query parameters
                 params = dict(request.query_params)
 
-                # Add service token for service-to-service communication
+                # Add service token for service - to - service communication
                 # Create a token for the API Gateway to authenticate with the target service
                 try:
                     service_token = create_service_token(
-                        issuer="api-gateway", audience=target_service, expiration=300  # 5 minutes
+                        issuer="api - gateway", audience=target_service, expiration=300  # 5 minutes
                     )
-                    headers["X-Service-Token"] = service_token
+                    headers["X - Service - Token"] = service_token
                 except Exception as e:
                     logger.warning(f"Failed to create service token for {target_service}: {str(e)}")
 
@@ -344,7 +344,7 @@ async def route_requests(request: Request, call_next):
                             content=response.content,
                             status_code=response.status_code,
                             headers=dict(response.headers),
-                            media_type=response.headers.get("content-type"),
+                            media_type=response.headers.get("content - type"),
                         )
                     except httpx.RequestError as e:
                         # Handle request errors (connection errors, timeouts, etc.)
@@ -354,7 +354,7 @@ async def route_requests(request: Request, call_next):
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         )
             except HTTPException:
-                # Re-raise HTTP exceptions
+                # Re - raise HTTP exceptions
                 raise
             except Exception as e:
                 # Handle other errors
@@ -391,15 +391,15 @@ def register_with_service_registry(port: int):
 
     # Get metadata and tags
     metadata = get_service_metadata()
-    tags = get_default_tags() + ["api", "gateway", "entry-point"]
+    tags = get_default_tags() + ["api", "gateway", "entry - point"]
 
     # Register service
     service_registration = register_service(
         app=app,
-        service_name="api-gateway",
+        service_name="api - gateway",
         port=port,
         version="1.0.0",
-        health_check_path="/health",
+        health_check_path=" / health",
         check_functions=[check_service_health],
         tags=tags,
         metadata=metadata,

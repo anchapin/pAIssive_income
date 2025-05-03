@@ -21,7 +21,7 @@ def ip_allowlist():
     # Add some test IPs and networks
     allowlist.add_ip("127.0.0.1")
     allowlist.add_ip("testclient")  # TestClient uses this as the client IP
-    allowlist.add_network("10.0.0.0/8")
+    allowlist.add_network("10.0.0.0 / 8")
     return allowlist
 
 
@@ -38,15 +38,15 @@ def app_with_ip_allowlist(ip_allowlist):
 
     # Add middleware
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix="/webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
-    @app.get("/webhooks/test")
+    @app.get(" / webhooks / test")
     async def test_webhook():
         return {"status": "success"}
 
-    @app.get("/api/other")
+    @app.get(" / api / other")
     async def other_endpoint():
         return {"status": "success"}
 
@@ -60,15 +60,15 @@ def app_with_rate_limit(rate_limiter):
 
     # Add middleware
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix="/webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
-    @app.get("/webhooks/test")
+    @app.get(" / webhooks / test")
     async def test_webhook():
         return {"status": "success"}
 
-    @app.get("/api/other")
+    @app.get(" / api / other")
     async def other_endpoint():
         return {"status": "success"}
 
@@ -82,23 +82,23 @@ def app_with_both_middleware(ip_allowlist, rate_limiter):
 
     # Add middleware (order matters - IP allowlist should be first)
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix="/webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
     )
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix="/webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
-    @app.get("/webhooks/test")
+    @app.get(" / webhooks / test")
     async def test_webhook():
         return {"status": "success"}
 
-    @app.get("/api/other")
+    @app.get(" / api / other")
     async def other_endpoint():
         return {"status": "success"}
 
     # Add a route that returns client IP
-    @app.get("/client-ip")
+    @app.get(" / client - ip")
     async def client_ip(request: Request):
         return {"client_ip": request.client.host}
 
@@ -111,14 +111,14 @@ class TestIPAllowlistMiddleware:
     def test_allowed_ip(self, app_with_ip_allowlist):
         """Test that allowed IPs can access webhook endpoints."""
         client = TestClient(app_with_ip_allowlist)
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 
     def test_non_webhook_path(self, app_with_ip_allowlist):
-        """Test that non-webhook paths are not affected by IP allowlisting."""
+        """Test that non - webhook paths are not affected by IP allowlisting."""
         client = TestClient(app_with_ip_allowlist)
-        response = client.get("/api/other")
+        response = client.get(" / api / other")
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 
@@ -129,7 +129,7 @@ class TestIPAllowlistMiddleware:
         app_with_ip_allowlist.user_middleware[0].allowlist.add_ip("192.168.1.1")
 
         client = TestClient(app_with_ip_allowlist)
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 403
         assert "IP address not allowed" in response.json()["detail"]
 
@@ -143,24 +143,24 @@ class TestRateLimitMiddleware:
 
         # Make requests up to the limit
         for _ in range(3):
-            response = client.get("/webhooks/test")
+            response = client.get(" / webhooks / test")
             assert response.status_code == 200
-            assert "X-RateLimit-Remaining" in response.headers
+            assert "X - RateLimit - Remaining" in response.headers
 
         # Next request should be rate limited
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 429
         assert "Rate limit exceeded" in response.json()["detail"]
-        assert "Retry-After" in response.headers
-        assert "X-RateLimit-Reset" in response.headers
+        assert "Retry - After" in response.headers
+        assert "X - RateLimit - Reset" in response.headers
 
     def test_non_webhook_path(self, app_with_rate_limit):
-        """Test that non-webhook paths are not affected by rate limiting."""
+        """Test that non - webhook paths are not affected by rate limiting."""
         client = TestClient(app_with_rate_limit)
 
-        # Make many requests to a non-webhook path
+        # Make many requests to a non - webhook path
         for _ in range(10):
-            response = client.get("/api/other")
+            response = client.get(" / api / other")
             assert response.status_code == 200
             assert response.json()["status"] == "success"
 
@@ -170,18 +170,18 @@ class TestRateLimitMiddleware:
 
         # Make requests up to the limit
         for _ in range(3):
-            response = client.get("/webhooks/test")
+            response = client.get(" / webhooks / test")
             assert response.status_code == 200
 
         # Next request should be rate limited
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 429
 
         # Wait for the rate limit to reset
         time.sleep(1.1)
 
         # Should be able to make requests again
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 
@@ -194,7 +194,7 @@ class TestCombinedMiddleware:
         client = TestClient(app_with_both_middleware)
 
         # Check client IP
-        response = client.get("/client-ip")
+        response = client.get(" / client - ip")
         assert response.status_code == 200
         client_ip = response.json()["client_ip"]
 
@@ -203,7 +203,7 @@ class TestCombinedMiddleware:
 
         # Make requests up to the limit
         for _ in range(3):
-            response = client.get("/webhooks/test")
+            response = client.get(" / webhooks / test")
             assert response.status_code == 200
             assert response.json()["status"] == "success"
 
@@ -212,7 +212,7 @@ class TestCombinedMiddleware:
         client = TestClient(app_with_both_middleware)
 
         # Check client IP
-        response = client.get("/client-ip")
+        response = client.get(" / client - ip")
         assert response.status_code == 200
         client_ip = response.json()["client_ip"]
 
@@ -221,11 +221,11 @@ class TestCombinedMiddleware:
 
         # Make requests up to the limit
         for _ in range(3):
-            response = client.get("/webhooks/test")
+            response = client.get(" / webhooks / test")
             assert response.status_code == 200
 
         # Next request should be rate limited
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 429
         assert "Rate limit exceeded" in response.json()["detail"]
 
@@ -234,7 +234,7 @@ class TestCombinedMiddleware:
         client = TestClient(app_with_both_middleware)
 
         # Check client IP
-        response = client.get("/client-ip")
+        response = client.get(" / client - ip")
         assert response.status_code == 200
         client_ip = response.json()["client_ip"]
 
@@ -243,6 +243,6 @@ class TestCombinedMiddleware:
         app_with_both_middleware.user_middleware[0].allowlist.add_ip("192.168.1.1")  # Different IP
 
         # Try to access webhook endpoint
-        response = client.get("/webhooks/test")
+        response = client.get(" / webhooks / test")
         assert response.status_code == 403
         assert "IP address not allowed" in response.json()["detail"]

@@ -41,7 +41,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             ],
         },
         "ecommerce": {
-            "name": "E-commerce",
+            "name": "E - commerce",
             "description": "Online retail",
             "typical_channels": [
                 "social_media",
@@ -83,7 +83,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "email_marketing",
                 "influencer_marketing",
             ],
-            "typical_goals": ["audience_growth", "engagement", "monetization", "brand_awareness"],
+            "typical_goals": ["audience_growth", "engagement", "monetization", 
+                "brand_awareness"],
         },
         "local_business": {
             "name": "Local Business",
@@ -95,7 +96,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "direct_mail",
                 "events",
             ],
-            "typical_goals": ["foot_traffic", "local_awareness", "customer_acquisition", "loyalty"],
+            "typical_goals": ["foot_traffic", "local_awareness", "customer_acquisition", 
+                "loyalty"],
         },
     }
 
@@ -110,12 +112,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "influencer_marketing",
                 "pr",
             ],
-            "typical_metrics": ["reach", "impressions", "brand_mentions", "social_media_followers"],
+            "typical_metrics": ["reach", "impressions", "brand_mentions", 
+                "social_media_followers"],
         },
         "lead_generation": {
             "name": "Lead Generation",
             "description": "Generate new leads",
-            "recommended_channels": ["content_marketing", "email_marketing", "ppc", "social_media"],
+            "recommended_channels": ["content_marketing", "email_marketing", "ppc", 
+                "social_media"],
             "typical_metrics": [
                 "leads_generated",
                 "conversion_rate",
@@ -126,8 +130,10 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "customer_acquisition": {
             "name": "Customer Acquisition",
             "description": "Acquire new customers",
-            "recommended_channels": ["ppc", "email_marketing", "content_marketing", "social_media"],
-            "typical_metrics": ["new_customers", "customer_acquisition_cost", "conversion_rate"],
+            "recommended_channels": ["ppc", "email_marketing", "content_marketing", 
+                "social_media"],
+            "typical_metrics": ["new_customers", "customer_acquisition_cost", 
+                "conversion_rate"],
         },
         "retention": {
             "name": "Retention",
@@ -138,7 +144,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "social_media",
                 "customer_service",
             ],
-            "typical_metrics": ["retention_rate", "churn_rate", "customer_lifetime_value"],
+            "typical_metrics": ["retention_rate", "churn_rate", 
+                "customer_lifetime_value"],
         },
         "sales": {
             "name": "Sales",
@@ -166,6 +173,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "events",
             ],
             "typical_metrics": ["engagement_rate", "time_on_site", "comments", "shares"],
+                
         },
         "thought_leadership": {
             "name": "Thought Leadership",
@@ -192,7 +200,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "influencer_marketing",
                 "collaborations",
             ],
-            "typical_metrics": ["followers", "subscribers", "audience_growth_rate", "reach"],
+            "typical_metrics": ["followers", "subscribers", "audience_growth_rate", 
+                "reach"],
         },
         "monetization": {
             "name": "Monetization",
@@ -217,8 +226,11 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "content_marketing": {
             "name": "Content Marketing",
             "description": "Creating and sharing valuable content to attract and engage a target audience",
-            "formats": ["blog_posts", "videos", "podcasts", "infographics", "ebooks", "webinars"],
+                
+            "formats": ["blog_posts", "videos", "podcasts", "infographics", "ebooks", 
+                "webinars"],
             "metrics": ["traffic", "engagement", "leads", "conversions", "time_on_page"],
+                
             "difficulty": "medium",
             "time_investment": "high",
             "cost_range": "low_to_medium",
@@ -227,7 +239,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "social_media": {
             "name": "Social Media Marketing",
             "description": "Using social media platforms to connect with the audience and build the brand",
-            "formats": ["posts", "stories", "reels", "live_videos", "groups", "communities"],
+                
+            "formats": ["posts", "stories", "reels", "live_videos", "groups", 
+                "communities"],
             "metrics": ["followers", "engagement", "reach", "clicks", "conversions"],
             "difficulty": "medium",
             "time_investment": "high",
@@ -258,6 +272,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "seo": {
             "name": "Search Engine Optimization",
             "description": "Optimizing website content to rank higher in search engine results",
+                
             "formats": ["on_page_seo", "off_page_seo", "technical_seo", "local_seo"],
             "metrics": [
                 "rankings",
@@ -272,7 +287,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "best_for": ["organic_traffic", "brand_visibility", "lead_generation"],
         },
         "ppc": {
-            "name": "Pay-Per-Click Advertising",
+            "name": "Pay - Per - Click Advertising",
             "description": "Paying for ads on search engines and other platforms",
             "formats": ["search_ads", "display_ads", "social_media_ads", "remarketing"],
             "metrics": ["clicks", "impressions", "ctr", "cpc", "conversions", "roas"],
@@ -284,6 +299,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "influencer_marketing": {
             "name": "Influencer Marketing",
             "description": "Partnering with influencers to promote products or services",
+                
             "formats": ["sponsored_posts", "reviews", "collaborations", "takeovers"],
             "metrics": [
                 "reach",
@@ -300,18 +316,22 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "affiliate_marketing": {
             "name": "Affiliate Marketing",
             "description": "Partnering with affiliates who promote products for a commission",
+                
             "formats": ["affiliate_links", "coupon_codes", "co_branded_content"],
             "metrics": ["clicks", "conversions", "revenue", "commission_paid", "roas"],
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "low_to_medium",
-            "best_for": ["sales", "reaching_new_audiences", "performance_based_marketing"],
+            "best_for": ["sales", "reaching_new_audiences", 
+                "performance_based_marketing"],
         },
         "pr": {
             "name": "Public Relations",
             "description": "Managing the spread of information between an organization and the public",
+                
             "formats": ["press_releases", "media_outreach", "interviews", "events"],
-            "metrics": ["media_mentions", "reach", "sentiment", "website_traffic", "backlinks"],
+            "metrics": ["media_mentions", "reach", "sentiment", "website_traffic", 
+                "backlinks"],
             "difficulty": "high",
             "time_investment": "high",
             "cost_range": "medium_to_high",
@@ -320,7 +340,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "events": {
             "name": "Event Marketing",
             "description": "Creating or participating in events to promote products or services",
-            "formats": ["conferences", "webinars", "workshops", "trade_shows", "meetups"],
+                
+            "formats": ["conferences", "webinars", "workshops", "trade_shows", 
+                "meetups"],
             "metrics": ["attendees", "leads", "engagement", "conversions", "feedback"],
             "difficulty": "high",
             "time_investment": "high",
@@ -331,11 +353,13 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "name": "Direct Mail",
             "description": "Sending physical mail to prospects and customers",
             "formats": ["postcards", "letters", "catalogs", "brochures", "samples"],
-            "metrics": ["response_rate", "conversion_rate", "cost_per_acquisition", "roi"],
+            "metrics": ["response_rate", "conversion_rate", "cost_per_acquisition", 
+                "roi"],
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "medium_to_high",
-            "best_for": ["local_businesses", "high_value_products", "personalized_outreach"],
+            "best_for": ["local_businesses", "high_value_products", 
+                "personalized_outreach"],
         },
     }
 
@@ -357,15 +381,17 @@ class DefaultStrategyGenerator(StrategyGenerator):
         Initialize a DefaultStrategyGenerator.
 
         Args:
-            business_type: Type of business (e.g., "SaaS", "E-commerce")
-            business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
+            business_type: Type of business (e.g., "SaaS", "E - commerce")
+            business_size: Size of business (e.g., "Startup", "Small", "Medium", 
+                "Enterprise")
             goals: List of marketing goals
             target_audience: Target audience details
             budget: Budget details
             agent_team: Optional agent team for strategy generation assistance
             name: Name of the strategy
             description: Description of the strategy
-            channel_type: Type of channel (e.g., "multi_channel", "social_media", "content")
+            channel_type: Type of channel (e.g., "multi_channel", "social_media", 
+                "content")
             timeframe: Optional timeframe for the strategy
             kwargs: Additional keyword arguments to pass to the parent class
         """
@@ -397,7 +423,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
         """Get the channel type."""
         return self._channel_type
 
-    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
+    def create_strategy(self, target_persona: Dict[str, Any], 
+        goals: List[str]) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 
@@ -486,7 +513,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
         # Check if business type is valid
         if self.business_type.lower() not in self.BUSINESS_TYPES:
             errors.append(
-                f"Invalid business type: {self.business_type}. Must be one of: {', '.join(self.BUSINESS_TYPES.keys())}"
+                f"Invalid business type: {self.business_type}. Must be one of: {', 
+                    '.join(self.BUSINESS_TYPES.keys())}"
             )
             return False, errors
 
@@ -507,10 +535,12 @@ class DefaultStrategyGenerator(StrategyGenerator):
             return False, errors
 
         # Check if each goal is valid
-        invalid_goals = [goal for goal in self.goals if goal.lower() not in self.MARKETING_GOALS]
+        invalid_goals = \
+            [goal for goal in self.goals if goal.lower() not in self.MARKETING_GOALS]
         if invalid_goals:
             errors.append(
-                f"Invalid goals: {', '.join(invalid_goals)}. Valid goals are: {', '.join(self.MARKETING_GOALS.keys())}"
+                f"Invalid goals: {', '.join(invalid_goals)}. Valid goals are: {', 
+                    '.join(self.MARKETING_GOALS.keys())}"
             )
             return False, errors
 
@@ -540,11 +570,13 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Prioritize channels
         prioritized_channels = self._prioritize_channels(
-            channel_effectiveness, audience_fit, goal_alignment, budget_fit, roi_analysis
+            channel_effectiveness, audience_fit, goal_alignment, budget_fit, 
+                roi_analysis
         )
 
         # Generate channel recommendations
-        channel_recommendations = self._generate_channel_recommendations(prioritized_channels)
+        channel_recommendations = \
+            self._generate_channel_recommendations(prioritized_channels)
 
         # Return the complete analysis
         return {
@@ -760,7 +792,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 alignment_scores.append(0.3)
 
         # Average the alignment scores
-        return sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
+        return sum(alignment_scores) / \
+            len(alignment_scores) if alignment_scores else 0.5
 
     def _calculate_difficulty_adjustment(self, difficulty: str) -> float:
         """
@@ -931,7 +964,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get high fit channels
         high_fit_channels = [
-            channel for channel, data in audience_fit_scores.items() if data["fit_level"] == "high"
+            channel for channel, 
+                data in audience_fit_scores.items() if data["fit_level"] == "high"
         ]
 
         # Get medium fit channels
@@ -1011,10 +1045,12 @@ class DefaultStrategyGenerator(StrategyGenerator):
             goal_scores = {}
 
             for goal, goal_score in goal_alignment_scores.items():
-                goal_scores[goal] = goal_score["channel_scores"][channel]["alignment_score"]
+                goal_scores[goal] = \
+                    goal_score["channel_scores"][channel]["alignment_score"]
 
             # Calculate average alignment
-            avg_alignment = sum(goal_scores.values()) / len(goal_scores) if goal_scores else 0
+            avg_alignment = sum(goal_scores.values()) / \
+                len(goal_scores) if goal_scores else 0
 
             # Determine alignment level
             if avg_alignment >= 0.7:
@@ -1192,12 +1228,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get high ROI channels
         high_roi_channels = [
-            channel for channel, data in roi_scores.items() if data["roi_level"] == "high"
+            channel for channel, 
+                data in roi_scores.items() if data["roi_level"] == "high"
         ]
 
         # Get medium ROI channels
         medium_roi_channels = [
-            channel for channel, data in roi_scores.items() if data["roi_level"] == "medium"
+            channel for channel, 
+                data in roi_scores.items() if data["roi_level"] == "medium"
         ]
 
         return {
@@ -1234,11 +1272,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Get scores from each analysis
-            effectiveness_score = channel_effectiveness["effectiveness_scores"][channel][
+            effectiveness_score = \
+                channel_effectiveness["effectiveness_scores"][channel][
                 "overall_score"
             ]
-            audience_fit_score = audience_fit["audience_fit_scores"][channel]["overall_fit"]
-            goal_alignment_score = goal_alignment["overall_alignment"][channel]["avg_alignment"]
+            audience_fit_score = \
+                audience_fit["audience_fit_scores"][channel]["overall_fit"]
+            goal_alignment_score = \
+                goal_alignment["overall_alignment"][channel]["avg_alignment"]
             budget_fit_score = budget_fit["budget_fit_scores"][channel]["budget_fit"]
             roi_score = roi_analysis["roi_scores"][channel]["roi_score"]
 
@@ -1356,13 +1397,15 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "recommended_formats": channel_data.get("formats", [])[:3],
                 "key_metrics": channel_data.get("metrics", [])[:3],
                 "implementation_tips": [
-                    f"Focus on {channel_data.get('best_for', [''])[0]} to maximize effectiveness",
+                    f"Focus on {channel_data.get('best_for', 
+                        [''])[0]} to maximize effectiveness",
                     f"Allocate at least 20% of your budget to this channel",
-                    f"Measure {', '.join(channel_data.get('metrics', [])[:2])} to track performance",
+                    f"Measure {', '.join(channel_data.get('metrics', 
+                        [])[:2])} to track performance",
                 ],
             }
 
-            # Add business-specific recommendations
+            # Add business - specific recommendations
             if self.business_type and self.business_type.lower() in self.BUSINESS_TYPES:
                 business_type_data = self.BUSINESS_TYPES[self.business_type.lower()]
                 if channel in business_type_data.get("typical_channels", []):
@@ -1370,7 +1413,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                         f"This channel is particularly effective for {business_type_data['name']} businesses"
                     )
 
-            # Add goal-specific recommendations
+            # Add goal - specific recommendations
             for goal in self.goals:
                 if goal.lower() in self.MARKETING_GOALS:
                     goal_data = self.MARKETING_GOALS[goal.lower()]
@@ -1419,7 +1462,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "implementation_tips": [
                     f"Consider this channel as a secondary focus",
                     f"Allocate around 10% of your budget to this channel",
-                    f"Measure {', '.join(channel_data.get('metrics', [])[:1])} to track performance",
+                    f"Measure {', '.join(channel_data.get('metrics', 
+                        [])[:1])} to track performance",
                 ],
             }
 
@@ -1452,8 +1496,9 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
         Initialize a ContentMarketingStrategyGenerator.
 
         Args:
-            business_type: Type of business (e.g., "SaaS", "E-commerce")
-            business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
+            business_type: Type of business (e.g., "SaaS", "E - commerce")
+            business_size: Size of business (e.g., "Startup", "Small", "Medium", 
+                "Enterprise")
             goals: List of marketing goals
             target_audience: Target audience details
             budget: Budget details
@@ -1471,6 +1516,7 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
             agent_team=agent_team,
             name="Content Marketing Strategy",
             description="A strategy focused on creating and distributing valuable content",
+                
             channel_type="content_marketing",
             timeframe=timeframe,
             **kwargs,
@@ -1503,8 +1549,9 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
         Initialize a SocialMediaStrategyGenerator.
 
         Args:
-            business_type: Type of business (e.g., "SaaS", "E-commerce")
-            business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
+            business_type: Type of business (e.g., "SaaS", "E - commerce")
+            business_size: Size of business (e.g., "Startup", "Small", "Medium", 
+                "Enterprise")
             goals: List of marketing goals
             target_audience: Target audience details
             budget: Budget details
@@ -1528,7 +1575,8 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
         )
         self.platforms = platforms or ["instagram", "twitter", "facebook", "linkedin"]
         self.post_frequency = post_frequency
-        self.content_mix = content_mix or {"educational": 40, "promotional": 20, "entertaining": 40}
+        self.content_mix = content_mix or {"educational": 40, "promotional": 20, 
+            "entertaining": 40}
 
 
 class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
@@ -1554,8 +1602,9 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
         Initialize an EmailMarketingStrategyGenerator.
 
         Args:
-            business_type: Type of business (e.g., "SaaS", "E-commerce")
-            business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
+            business_type: Type of business (e.g., "SaaS", "E - commerce")
+            business_size: Size of business (e.g., "Startup", "Small", "Medium", 
+                "Enterprise")
             goals: List of marketing goals
             target_audience: Target audience details
             budget: Budget details
@@ -1577,7 +1626,8 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
             timeframe=timeframe,
             **kwargs,
         )
-        self.email_types = email_types or ["newsletter", "promotional", "onboarding", "retention"]
+        self.email_types = email_types or ["newsletter", "promotional", "onboarding", 
+            "retention"]
         self.frequency = frequency
         self.list_building_tactics = list_building_tactics or [
             "content upgrades",

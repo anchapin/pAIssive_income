@@ -100,7 +100,7 @@ class UsageTracker:
 
         self.metric_limits[limit.metric].append(limit.id)
 
-        # Create quota if auto-create is enabled
+        # Create quota if auto - create is enabled
         if self.auto_create_quotas:
             # Check if a quota already exists for this limit
             existing_quota = self.find_matching_quota(limit)
@@ -215,7 +215,7 @@ class UsageTracker:
 
         limit.updated_at = datetime.now()
 
-        # Update matching quota if auto-create is enabled
+        # Update matching quota if auto - create is enabled
         if self.auto_create_quotas:
             quota = self.find_matching_quota(limit)
 
@@ -586,7 +586,8 @@ class UsageTracker:
                             if record.resource_type not in self.resource_records:
                                 self.resource_records[record.resource_type] = []
 
-                            self.resource_records[record.resource_type].append(record.id)
+                            self.resource_records[record.resource_type].append(
+                                record.id)
 
                     except Exception as e:
                         print(f"Error loading record from {file_path}: {e}")
@@ -1111,8 +1112,10 @@ class UsageTracker:
                 result["intervals"][interval_key] = {
                     "count": 0,
                     "quantity": 0.0,
-                    "start_time": self._get_interval_start(record.timestamp, interval).isoformat(),
-                    "end_time": self._get_interval_end(record.timestamp, interval).isoformat(),
+                    "start_time": self._get_interval_start(record.timestamp, 
+                        interval).isoformat(),
+                    "end_time": self._get_interval_end(record.timestamp, 
+                        interval).isoformat(),
                 }
 
             result["intervals"][interval_key]["count"] += 1
@@ -1134,7 +1137,7 @@ class UsageTracker:
         """
         Generate comprehensive usage trend analysis with intelligent pattern detection.
 
-        This algorithm implements a sophisticated time-series analysis system for
+        This algorithm implements a sophisticated time - series analysis system for
         detecting and quantifying usage patterns across multiple dimensions. The
         implementation follows these key phases:
 
@@ -1147,13 +1150,13 @@ class UsageTracker:
 
         2. TEMPORAL DATA AGGREGATION AND GAP FILLING:
            - Collects and aggregates usage data into consistent time buckets
-           - Handles sparse data by properly zero-filling missing intervals
-           - Ensures complete time-series continuity for accurate trend analysis
+           - Handles sparse data by properly zero - filling missing intervals
+           - Ensures complete time - series continuity for accurate trend analysis
            - Maintains chronological ordering of data points
            - Preserves temporal relationships between data points
 
         3. STATISTICAL TREND IDENTIFICATION:
-           - Divides time-series data into equal analysis segments
+           - Divides time - series data into equal analysis segments
            - Calculates summary statistics for each segment
            - Applies comparative analysis between segments
            - Quantifies the direction and magnitude of usage changes
@@ -1185,18 +1188,19 @@ class UsageTracker:
             metric: Optional usage metric type (e.g., API_CALL, STORAGE) to analyze
             category: Optional usage category (e.g., INFERENCE) to filter by
             resource_type: Optional resource type (e.g., model) to filter by
-            start_time: Beginning of analysis period (auto-calculated if not provided)
+            start_time: Beginning of analysis period (auto - calculated if not provided)
             end_time: End of analysis period (defaults to current time if not provided)
             interval: Time bucket size for aggregation (hour, day, week, month)
-            num_intervals: Number of intervals to include when auto-calculating time range
+            num_intervals: Number of intervals to include when auto - \
+                calculating time range
 
         Returns:
             Comprehensive dictionary containing:
-            - Complete time-series data with consistent intervals
+            - Complete time - series data with consistent intervals
             - Statistical summary of usage volumes
             - Trend direction classification (increasing, decreasing, stable)
             - Quantified percentage change measurement
-            - Interval-specific usage breakdowns
+            - Interval - specific usage breakdowns
         """
         # PHASE 1: Time Range Determination and Normalization
         # Set default end time to now if not provided
@@ -1229,7 +1233,7 @@ class UsageTracker:
             interval=interval,
         )
 
-        # Generate complete sequence of intervals to ensure gap-free analysis
+        # Generate complete sequence of intervals to ensure gap - free analysis
         all_intervals = []
         current_time = start_time
 
@@ -1250,7 +1254,8 @@ class UsageTracker:
                 if current_time.month == 12:
                     current_time = datetime(current_time.year + 1, 1, 1)
                 else:
-                    current_time = datetime(current_time.year, current_time.month + 1, 1)
+                    current_time = datetime(current_time.year, current_time.month + 1, 
+                        1)
 
         # Initialize the trend analysis result structure
         trends = {
@@ -1270,7 +1275,7 @@ class UsageTracker:
                 # Use actual usage data when available
                 interval_data = usage_by_time["intervals"][interval_key]
             else:
-                # Create zero-filled data for intervals with no recorded usage
+                # Create zero - filled data for intervals with no recorded usage
                 # This ensures continuity of the time series for accurate trend analysis
                 interval_data = {
                     "count": 0,
@@ -1299,16 +1304,19 @@ class UsageTracker:
 
             # Calculate the average usage quantity for each half of the time series
             first_half_avg = (
-                sum(i["quantity"] for i in first_half) / len(first_half) if first_half else 0
+                sum(i["quantity"] for i in first_half) / \
+                    len(first_half) if first_half else 0
             )
             second_half_avg = (
-                sum(i["quantity"] for i in second_half) / len(second_half) if second_half else 0
+                sum(i["quantity"] for i in second_half) / \
+                    len(second_half) if second_half else 0
             )
 
             # Calculate percentage change between the two periods
             # Handle division by zero case for when the first period had no usage
             if first_half_avg > 0:
-                percentage_change = ((second_half_avg - first_half_avg) / first_half_avg) * 100
+                percentage_change = ((second_half_avg - \
+                    first_half_avg) / first_half_avg) * 100
             else:
                 # Special handling for cases where usage started from zero
                 percentage_change = 0 if second_half_avg == 0 else 100
@@ -1531,15 +1539,15 @@ class UsageTracker:
             Interval key
         """
         if interval == "hour":
-            return timestamp.strftime("%Y-%m-%d-%H")
+            return timestamp.strftime(" % Y-%m-%d-%H")
         elif interval == "day":
-            return timestamp.strftime("%Y-%m-%d")
+            return timestamp.strftime(" % Y-%m-%d")
         elif interval == "week":
             # Get the start of the week (Monday)
             start_of_week = timestamp - timedelta(days=timestamp.weekday())
-            return start_of_week.strftime("%Y-%m-%d")
+            return start_of_week.strftime(" % Y-%m-%d")
         elif interval == "month":
-            return timestamp.strftime("%Y-%m")
+            return timestamp.strftime(" % Y-%m")
         else:
             raise ValueError(f"Invalid interval: {interval}")
 
@@ -1555,11 +1563,11 @@ class UsageTracker:
             Datetime for the interval
         """
         if interval == "hour":
-            return datetime.strptime(interval_key, "%Y-%m-%d-%H")
+            return datetime.strptime(interval_key, " % Y-%m-%d-%H")
         elif interval == "day" or interval == "week":
-            return datetime.strptime(interval_key, "%Y-%m-%d")
+            return datetime.strptime(interval_key, " % Y-%m-%d")
         elif interval == "month":
-            return datetime.strptime(interval_key + "-01", "%Y-%m-%d")
+            return datetime.strptime(interval_key + " - 01", " % Y-%m-%d")
         else:
             raise ValueError(f"Invalid interval: {interval}")
 
@@ -1575,7 +1583,8 @@ class UsageTracker:
             Start of the interval
         """
         if interval == "hour":
-            return datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour)
+            return datetime(timestamp.year, timestamp.month, timestamp.day, 
+                timestamp.hour)
         elif interval == "day":
             return datetime(timestamp.year, timestamp.month, timestamp.day)
         elif interval == "week":
@@ -1664,7 +1673,7 @@ if __name__ == "__main__":
             category=UsageCategory.INFERENCE,
             resource_id=f"model_gpt4",
             resource_type="model",
-            metadata={"endpoint": "/v1/completions"},
+            metadata={"endpoint": " / v1 / completions"},
         )
 
         print(f"Tracked usage: {record}")

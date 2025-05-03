@@ -622,7 +622,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             token_data.append(entry)
 
         if not token_data:
-            # Try to use input/output tokens if enhanced metrics not available
+            # Try to use input / output tokens if enhanced metrics not available
             for metric in metrics_data:
                 entry = {
                     "timestamp": metric["timestamp"],
@@ -691,8 +691,8 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
                 plt.grid(True, alpha=0.3)
                 plt.legend()
 
-                # Format x-axis date labels
-                date_format = DateFormatter("%Y-%m-%d")
+                # Format x - axis date labels
+                date_format = DateFormatter(" % Y-%m-%d")
                 plt.gca().xaxis.set_major_formatter(date_format)
                 plt.xticks(rotation=45)
 
@@ -758,8 +758,8 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
                     bbox=dict(facecolor="white", alpha=0.8),
                 )
 
-                # Format x-axis date labels
-                date_format = DateFormatter("%Y-%m-%d")
+                # Format x - axis date labels
+                date_format = DateFormatter(" % Y-%m-%d")
                 plt.gca().xaxis.set_major_formatter(date_format)
                 plt.xticks(rotation=45)
 
@@ -981,7 +981,7 @@ class EnhancedInferenceTracker:
 
     def _capture_system_metrics(self) -> None:
         """
-        Capture system metrics like memory usage and CPU/GPU usage.
+        Capture system metrics like memory usage and CPU / GPU usage.
         """
         # Use the same implementation as the base class
         try:

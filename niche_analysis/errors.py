@@ -20,7 +20,7 @@ from errors import (
     handle_exception,
 )
 
-# Re-export the error classes for convenience
+# Re - export the error classes for convenience
 __all__ = [
     "NicheAnalysisError",
     "MarketAnalysisError",
@@ -43,11 +43,12 @@ class MarketSegmentError(MarketAnalysisError):
         Initialize the market segment error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(message=message, segment=segment, code="market_segment_error", **kwargs)
+        super().__init__(message=message, segment=segment, code="market_segment_error", 
+            **kwargs)
 
 
 class ProblemIdentificationError(NicheAnalysisError):
@@ -58,7 +59,7 @@ class ProblemIdentificationError(NicheAnalysisError):
         Initialize the problem identification error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -67,7 +68,8 @@ class ProblemIdentificationError(NicheAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message, code="problem_identification_error", details=details, **kwargs
+            message=message, code="problem_identification_error", details=details, 
+                **kwargs
         )
 
 
@@ -79,7 +81,7 @@ class CompetitionAnalysisError(MarketAnalysisError):
         Initialize the competition analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -88,7 +90,8 @@ class CompetitionAnalysisError(MarketAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message, code="competition_analysis_error", details=details, **kwargs
+            message=message, code="competition_analysis_error", details=details, 
+                **kwargs
         )
 
 
@@ -100,11 +103,12 @@ class TrendAnalysisError(MarketAnalysisError):
         Initialize the trend analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(message=message, segment=segment, code="trend_analysis_error", **kwargs)
+        super().__init__(message=message, segment=segment, code="trend_analysis_error", 
+            **kwargs)
 
 
 class TargetUserAnalysisError(MarketAnalysisError):
@@ -115,7 +119,7 @@ class TargetUserAnalysisError(MarketAnalysisError):
         Initialize the target user analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -124,5 +128,6 @@ class TargetUserAnalysisError(MarketAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message, code="target_user_analysis_error", details=details, **kwargs
+            message=message, code="target_user_analysis_error", details=details, 
+                **kwargs
         )

@@ -19,11 +19,11 @@ def mock_team():
     mock_team = MagicMock(spec=IAgentTeam)
     mock_team.config = {
         "model_settings": {
-            "researcher": {"model": "gpt-4", "temperature": 0.7},
-            "developer": {"model": "gpt-4", "temperature": 0.2},
-            "monetization": {"model": "gpt-4", "temperature": 0.5},
-            "marketing": {"model": "gpt-4", "temperature": 0.8},
-            "feedback": {"model": "gpt-4", "temperature": 0.3},
+            "researcher": {"model": "gpt - 4", "temperature": 0.7},
+            "developer": {"model": "gpt - 4", "temperature": 0.2},
+            "monetization": {"model": "gpt - 4", "temperature": 0.5},
+            "marketing": {"model": "gpt - 4", "temperature": 0.8},
+            "feedback": {"model": "gpt - 4", "temperature": 0.3},
         },
         "workflow": {
             "auto_progression": False,
@@ -46,7 +46,7 @@ def test_agent_information_sharing(mock_team):
     """Test information sharing between agents."""
     # Create test data
     niche = {
-        "id": "test-niche",
+        "id": "test - niche",
         "name": "Test Niche",
         "description": "A test niche market",
         "market_size": 1000000,
@@ -90,7 +90,7 @@ def test_agent_conflict_resolution(mock_team):
 
     # Create test solution with conflicting requirements
     solution = {
-        "id": "test-solution",
+        "id": "test - solution",
         "name": "Test Solution",
         "features": [
             {
@@ -150,7 +150,7 @@ def test_agent_conflict_resolution(mock_team):
 
 
 def test_agent_collaborative_decision_making(mock_team):
-    """Test collaborative decision-making between agents."""
+    """Test collaborative decision - making between agents."""
     # Set up test scenario with multiple agents
     researcher = ResearchAgent(team=mock_team)
     developer = DeveloperAgent(team=mock_team)
@@ -161,7 +161,7 @@ def test_agent_collaborative_decision_making(mock_team):
     mock_team.marketing = marketing
 
     # Create test data
-    niche = {"id": "test-niche", "name": "Test Niche", "market_size": 1000000}
+    niche = {"id": "test - niche", "name": "Test Niche", "market_size": 1000000}
 
     # Mock agent assessments
     researcher.assess_market_potential = MagicMock(return_value=0.8)
@@ -258,9 +258,9 @@ def test_agent_knowledge_retention(mock_team):
 
 
 def test_agent_domain_specialization(mock_team):
-    """Test domain-specific knowledge application."""
+    """Test domain - specific knowledge application."""
     # Create test domain data
-    domain = "e-commerce"
+    domain = "e - commerce"
     domain_knowledge = {
         "common_features": ["shopping_cart", "payment_processing"],
         "best_practices": ["secure_transactions", "inventory_management"],
@@ -273,7 +273,7 @@ def test_agent_domain_specialization(mock_team):
     # Mock domain specialization
     developer.apply_domain_knowledge = MagicMock(return_value=domain_knowledge)
 
-    # Test domain-specific knowledge application
+    # Test domain - specific knowledge application
     applied_knowledge = developer.apply_domain_knowledge(domain)
 
     # Verify domain specialization
@@ -284,11 +284,11 @@ def test_agent_domain_specialization(mock_team):
 
 
 def test_agent_cross_domain_problem_solving(mock_team):
-    """Test cross-domain problem-solving capabilities."""
+    """Test cross - domain problem - solving capabilities."""
     # Create test problem data
     problem = {
         "id": "problem1",
-        "domain": "e-commerce",
+        "domain": "e - commerce",
         "type": "performance",
         "description": "Slow checkout process",
     }
@@ -297,7 +297,7 @@ def test_agent_cross_domain_problem_solving(mock_team):
     developer = DeveloperAgent(team=mock_team)
     marketing = MarketingAgent(team=mock_team)
 
-    # Mock cross-domain analysis
+    # Mock cross - domain analysis
     developer.analyze_technical_aspect = MagicMock(
         return_value={"bottleneck": "database_queries", "solution": "query_optimization"}
     )
@@ -306,7 +306,7 @@ def test_agent_cross_domain_problem_solving(mock_team):
         return_value={"user_frustration": "high", "potential_loss": "significant"}
     )
 
-    # Test cross-domain problem solving
+    # Test cross - domain problem solving
     technical_analysis = developer.analyze_technical_aspect(problem)
     user_impact = marketing.analyze_user_impact(problem)
 
@@ -316,7 +316,7 @@ def test_agent_cross_domain_problem_solving(mock_team):
         "priority": "high" if user_impact["user_frustration"] == "high" else "medium",
     }
 
-    # Verify cross-domain problem solving
+    # Verify cross - domain problem solving
     assert "technical_solution" in solution
     assert "priority" in solution
     developer.analyze_technical_aspect.assert_called_once_with(problem)

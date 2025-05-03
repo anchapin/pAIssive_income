@@ -22,7 +22,7 @@ def setup_service_discovery(
     version: str = "1.0.0",
     tags: Optional[List[str]] = None,
     metadata: Optional[Dict[str, Any]] = None,
-    health_check_url: str = "/health",
+    health_check_url: str = " / health",
     registry_host: Optional[str] = None,
     registry_port: Optional[int] = None,
     auto_deregister: bool = True,
@@ -40,7 +40,7 @@ def setup_service_discovery(
         version: Service version (default: "1.0.0")
         tags: List of tags for this service (optional)
         metadata: Additional metadata for this service (optional)
-        health_check_url: URL path for health checks (default: "/health")
+        health_check_url: URL path for health checks (default: " / health")
         registry_host: Hostname of the registry service (default: from environment variable)
         registry_port: Port of the registry service (default: from environment variable)
         auto_deregister: Whether to automatically deregister on shutdown (default: True)
@@ -130,7 +130,7 @@ def create_health_check_handler(
         # Run custom health checks if provided
         if check_functions:
             for i, check_fn in enumerate(check_functions):
-                check_name = getattr(check_fn, "__name__", f"check_{i+1}")
+                check_name = getattr(check_fn, "__name__", f"check_{i + 1}")
                 try:
                     result = check_fn()
                     checks[check_name] = {"status": "UP" if result else "DOWN"}
@@ -163,7 +163,7 @@ def import_iso_timestamp() -> str:
     return datetime.utcnow().isoformat() + "Z"
 
 
-def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
+def register_health_check_endpoint(app, url_path: str = " / health", **kwargs):
     """
     Register a health check endpoint with a web application.
 
@@ -172,7 +172,7 @@ def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
 
     Args:
         app: The web application instance
-        url_path: URL path for the health check endpoint (default: "/health")
+        url_path: URL path for the health check endpoint (default: " / health")
         **kwargs: Additional arguments to pass to create_health_check_handler
     """
     health_check = create_health_check_handler(**kwargs)
@@ -198,14 +198,14 @@ def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
 
 
 def get_service_url(
-    service_name: str, path: str = "/", client: Optional[ServiceDiscoveryClient] = None
+    service_name: str, path: str = " / ", client: Optional[ServiceDiscoveryClient] = None
 ) -> Optional[str]:
     """
     Get the URL for a service by name.
 
     Args:
         service_name: Name of the service to look up
-        path: Path to append to the URL (default: "/")
+        path: Path to append to the URL (default: " / ")
         client: ServiceDiscoveryClient to use (optional, creates a temporary one if not provided)
 
     Returns:
@@ -217,7 +217,7 @@ def get_service_url(
         registry_port = int(os.environ.get("SERVICE_REGISTRY_PORT", "8500"))
 
         client = ServiceDiscoveryClient(
-            service_name="temp-client",
+            service_name="temp - client",
             port=0,  # No need for port since we're not registering
             auto_register=False,
             registry_host=registry_host,

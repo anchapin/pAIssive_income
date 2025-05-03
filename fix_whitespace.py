@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Script to fix whitespace issues (E226) in Python files.
 
@@ -22,20 +22,21 @@ def find_python_files(directory):
 
 def fix_whitespace_in_file(file_path):
     """Fix whitespace issues in a single file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf - 8") as f:
         content = f.read()
 
     # Fix missing whitespace around arithmetic operators (E226)
-    # Match patterns like: x+y, x-y, x*y, x/y, x%y, x**y, x//y, x@y
+    # Match patterns like: x + y, x - y, x * y, x / y, x % y, x** y, x // y, x @ y
     patterns = [
-        (r'([a-zA-Z0-9_\)\]\'"])\+([a-zA-Z0-9_\(\[\'\"])', r'\1 + \2'),
-        (r'([a-zA-Z0-9_\)\]\'"])-([a-zA-Z0-9_\(\[\'\"])', r'\1 - \2'),
-        (r'([a-zA-Z0-9_\)\]\'"]\*\*)([a-zA-Z0-9_\(\[\'\"])', r'\1 \2'),  # Handle ** before *
-        (r'([a-zA-Z0-9_\)\]\'"])\*([a-zA-Z0-9_\(\[\'\"])', r'\1 * \2'),
-        (r'([a-zA-Z0-9_\)\]\'"])/([a-zA-Z0-9_\(\[\'\"])', r'\1 / \2'),
-        (r'([a-zA-Z0-9_\)\]\'"])%([a-zA-Z0-9_\(\[\'\"])', r'\1 % \2'),
-        (r'([a-zA-Z0-9_\)\]\'"])//([a-zA-Z0-9_\(\[\'\"])', r'\1 // \2'),
-        (r'([a-zA-Z0-9_\)\]\'"])@([a-zA-Z0-9_\(\[\'\"])', r'\1 @ \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"])\+([a - zA - Z0 - 9_\(\[\'\"])', r'\1 + \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]) - ([a - zA - Z0 - 9_\(\[\'\"])', r'\1 - \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]\*\*)([a - zA - Z0 - 9_\(\[\'\"])', r'\1 \2'),  
+            # Handle ** before *
+        (r'([a - zA - Z0 - 9_\)\]\'"])\*([a - zA - Z0 - 9_\(\[\'\"])', r'\1 * \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]) / ([a - zA - Z0 - 9_\(\[\'\"])', r'\1 / \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]) % ([a - zA - Z0 - 9_\(\[\'\"])', r'\1 % \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]) // ([a - zA - Z0 - 9_\(\[\'\"])', r'\1 // \2'),
+        (r'([a - zA - Z0 - 9_\)\]\'"]) @ ([a - zA - Z0 - 9_\(\[\'\"])', r'\1 @ \2'),
     ]
 
     modified_content = content
@@ -44,7 +45,7 @@ def fix_whitespace_in_file(file_path):
 
     # Check if we need to write changes
     if modified_content != content:
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             f.write(modified_content)
         return True
 

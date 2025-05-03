@@ -126,6 +126,6 @@ class User:
         if self.is_admin:
             return True
 
-        # Check user-specific permissions (could be stored in metadata)
+        # Check user - specific permissions (could be stored in metadata)
         permissions = self.metadata.get("permissions", [])
         return permission in permissions

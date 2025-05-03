@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class DockerConfig:
     # Basic configuration
     image_name: str
     image_tag: str = "latest"
-    base_image: str = "python:3.9-slim"
+    base_image: str = "python:3.9 - slim"
 
     # Server configuration
     server_type: str = "rest"  # "rest" or "grpc"
@@ -34,7 +34,7 @@ class DockerConfig:
 
     # Model configuration
     model_path: str = ""
-    model_type: str = "text-generation"
+    model_type: str = "text - generation"
     model_id: str = ""
 
     # Resource configuration
@@ -110,8 +110,8 @@ def generate_docker_config(config: DockerConfig, output_dir: str) -> str:
     dockerfile_path = os.path.join(output_dir, "Dockerfile")
     _generate_dockerfile(config, dockerfile_path)
 
-    # Generate docker-compose.yml
-    compose_path = os.path.join(output_dir, "docker-compose.yml")
+    # Generate docker - compose.yml
+    compose_path = os.path.join(output_dir, "docker - compose.yml")
     _generate_docker_compose(config, compose_path)
 
     # Generate .dockerignore
@@ -147,17 +147,17 @@ FROM {config.base_image}
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \\
-    build-essential \\
+RUN apt - get update && apt - get install -y \\
+    build - essential \\
     curl \\
     git \\
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var / lib / apt / lists/*
 
 # Copy requirements
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no - cache - dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -203,29 +203,29 @@ ENTRYPOINT ["./entrypoint.sh"]
 """
 
     # Write Dockerfile
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
 def _generate_docker_compose(config: DockerConfig, output_path: str) -> None:
     """
-    Generate a docker-compose.yml file.
+    Generate a docker - compose.yml file.
 
     Args:
         config: Docker configuration
-        output_path: Path to save the docker-compose.yml file
+        output_path: Path to save the docker - compose.yml file
     """
-    # Create docker-compose.yml content
+    # Create docker - compose.yml content
     content = f"""
 version: '3'
 
 services:
-  model-server:
+  model - server:
     build:
       context: .
       dockerfile: Dockerfile
     image: {config.image_name}:{config.image_tag}
-    container_name: model-server
+    container_name: model - server
     ports:
       - "{config.port}:{config.port}"
     environment:
@@ -264,8 +264,8 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
 """
 
-    # Write docker-compose.yml
-    with open(output_path, "w", encoding="utf-8") as f:
+    # Write docker - compose.yml
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -290,7 +290,7 @@ __pycache__/
 .Python
 env/
 build/
-develop-eggs/
+develop - eggs/
 dist/
 downloads/
 eggs/
@@ -300,7 +300,7 @@ lib64/
 parts/
 sdist/
 var/
-*.egg-info/
+*.egg - info/
 .installed.cfg
 *.egg
 
@@ -316,7 +316,7 @@ ENV/
 
 # Docker
 Dockerfile
-docker-compose.yml
+docker - compose.yml
 .dockerignore
 
 # Logs
@@ -329,7 +329,7 @@ models/
 """
 
     # Write .dockerignore
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -342,22 +342,22 @@ def _generate_entrypoint(config: DockerConfig, output_path: str) -> None:
         output_path: Path to save the entrypoint.sh file
     """
     # Create entrypoint.sh content
-    content = """#!/bin/bash
+    content = """#!/bin / bash
 set -e
 
 # Download model if needed
 if [ ! -d "$MODEL_PATH" ]; then
     echo "Downloading model..."
-    python -m ai_models.cli download --model-id $MODEL_ID --output-dir $MODEL_PATH
+    python -m ai_models.cli download --model - id $MODEL_ID --output - dir $MODEL_PATH
 fi
 
 # Start server
 if [ "$SERVER_TYPE" = "rest" ]; then
     echo "Starting REST API server..."
-    python -m ai_models.cli serve-rest --model-path $MODEL_PATH --model-type $MODEL_TYPE --host $HOST --port $PORT
+    python -m ai_models.cli serve - rest --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
 elif [ "$SERVER_TYPE" = "grpc" ]; then
     echo "Starting gRPC server..."
-    python -m ai_models.cli serve-grpc --model-path $MODEL_PATH --model-type $MODEL_TYPE --host $HOST --port $PORT
+    python -m ai_models.cli serve - grpc --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
 else
     echo "Unknown server type: $SERVER_TYPE"
     exit 1
@@ -365,7 +365,7 @@ fi
 """
 
     # Write entrypoint.sh
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -382,14 +382,14 @@ def _generate_requirements(config: DockerConfig, output_path: str) -> None:
 # Core dependencies
 torch>=1.10.0
 transformers>=4.20.0
-sentence-transformers>=2.2.0
+sentence - transformers>=2.2.0
 
 # Server dependencies
 fastapi>=0.95.0
 uvicorn>=0.22.0
 grpcio>=1.54.0
-grpcio-reflection>=1.54.0
-grpcio-health-checking>=1.54.0
+grpcio - reflection>=1.54.0
+grpcio - health - checking>=1.54.0
 protobuf>=4.22.3
 
 # Utility dependencies
@@ -405,5 +405,5 @@ psutil>=5.9.5
             content += f"{package}\n"
 
     # Write requirements.txt
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())

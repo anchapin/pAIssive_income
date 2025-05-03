@@ -2,14 +2,15 @@
 Local AI Integration Templates for the pAIssive Income project.
 
 This module provides templates for integrating local AI models into your applications.
-It includes classes and functions for loading models, processing user input, caching responses,
+It includes classes and functions for loading models, processing user input, 
+    caching responses,
 and handling errors.
 
 Dependencies:
 - transformers
 - torch
-- sentence-transformers
-- llama-cpp-python (optional, for llama models)
+- sentence - transformers
+- llama - cpp - python (optional, for llama models)
 - onnxruntime (optional, for ONNX models)
 """
 
@@ -24,7 +25,7 @@ from typing import Any, Dict, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,8 @@ try:
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("Transformers or PyTorch not available. Some functionality will be limited.")
+    logger.warning("Transformers or \
+        PyTorch not available. Some functionality will be limited.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -43,7 +45,8 @@ try:
 
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("Sentence Transformers not available. Embedding functionality will be limited.")
+    logger.warning(
+        "Sentence Transformers not available. Embedding functionality will be limited.")
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -51,7 +54,8 @@ try:
 
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning("llama-cpp-python not available. Llama model support will be limited.")
+    logger.warning("llama - \
+        cpp - python not available. Llama model support will be limited.")
     LLAMA_CPP_AVAILABLE = False
 
 try:
@@ -67,9 +71,9 @@ class ModelCache:
     """
     Cache for AI model responses to improve performance and reduce resource usage.
 
-    This implementation provides a two-tiered caching system:
-    1. In-memory cache for fast access to frequently used items
-    2. Persistent file-based cache for longer-term storage
+    This implementation provides a two - tiered caching system:
+    1. In - memory cache for fast access to frequently used items
+    2. Persistent file - based cache for longer - term storage
 
     The cache uses a deterministic hashing algorithm to generate unique keys based on:
     - Model name
@@ -79,19 +83,20 @@ class ModelCache:
     This ensures identical requests get the same cached response, reducing
     computational load and improving response times. The system also handles:
     - Thread safety with locks for concurrent access
-    - TTL (time-to-live) expiration for cache items
+    - TTL (time - to - live) expiration for cache items
     - LRU (least recently used) eviction policy for memory cache
     - Automatic cleanup of invalid or expired cache entries
     """
 
-    def __init__(self, cache_dir: str = ".cache", max_size: int = 1000, ttl: int = 86400):
+    def __init__(self, cache_dir: str = ".cache", max_size: int = 1000, 
+        ttl: int = 86400):
         """
         Initialize the model cache.
 
         Args:
             cache_dir: Directory to store cache files
             max_size: Maximum number of items to keep in memory cache
-            ttl: Time-to-live for cache items in seconds (default: 24 hours)
+            ttl: Time - to - live for cache items in seconds (default: 24 hours)
         """
         self.cache_dir = cache_dir
         self.max_size = max_size
@@ -105,7 +110,8 @@ class ModelCache:
         os.makedirs(cache_dir, exist_ok=True)
         logger.info(f"Initialized model cache in {cache_dir}")
 
-    def _get_cache_key(self, model_name: str, input_text: str, params: Dict[str, Any]) -> str:
+    def _get_cache_key(self, model_name: str, input_text: str, params: Dict[str, 
+        Any]) -> str:
         """
         Generate a cache key from the model name, input text, and parameters.
 
@@ -113,7 +119,7 @@ class ModelCache:
         model inference request based on all its inputs. The algorithm:
         1. Converts parameters to a consistent string representation
         2. Concatenates model name, input text, and parameters
-        3. Creates an SHA-256 hash of this string for a compact, fixed-length key
+        3. Creates an SHA - 256 hash of this string for a compact, fixed - length key
 
         Using a cryptographic hash function ensures:
         - Uniformity: Even small changes in input produce different keys
@@ -133,7 +139,7 @@ class ModelCache:
         params_str = json.dumps(params, sort_keys=True)
 
         # Create a hash of the input and parameters
-        # Using SHA-256 for more secure hashing with usedforsecurity=False flag
+        # Using SHA - 256 for more secure hashing with usedforsecurity=False flag
         # since this is only used for caching, not security purposes
         key = hashlib.sha256(
             f"{model_name}:{input_text}:{params_str}".encode(), usedforsecurity=False
@@ -153,7 +159,8 @@ class ModelCache:
         """
         return os.path.join(self.cache_dir, f"{key}.json")
 
-    def get(self, model_name: str, input_text: str, params: Dict[str, Any]) -> Optional[Any]:
+    def get(self, model_name: str, input_text: str, params: Dict[str, 
+        Any]) -> Optional[Any]:
         """
         Get a cached response if available.
 
@@ -165,7 +172,7 @@ class ModelCache:
         5. For file cache hits, load into memory cache for faster future access
         6. Apply LRU eviction if memory cache exceeds max size
 
-        The multi-tiered approach balances speed (memory) with persistence (file),
+        The multi - tiered approach balances speed (memory) with persistence (file),
         while the TTL mechanism ensures cached data doesn't become stale.
 
         Args:
@@ -174,7 +181,7 @@ class ModelCache:
             params: Model parameters
 
         Returns:
-            Cached response or None if not found/expired
+            Cached response or None if not found / expired
         """
         key = self._get_cache_key(model_name, input_text, params)
 
@@ -227,7 +234,8 @@ class ModelCache:
         logger.debug(f"Cache miss: {key}")
         return None
 
-    def set(self, model_name: str, input_text: str, params: Dict[str, Any], response: Any) -> None:
+    def set(self, model_name: str, input_text: str, params: Dict[str, Any], 
+        response: Any) -> None:
         """
         Cache a model response.
 
@@ -236,7 +244,7 @@ class ModelCache:
         2. Create a cache item with response data and metadata
         3. Store in memory cache with thread safety
         4. Implement LRU eviction if memory cache exceeds max size
-        5. Persist to file cache for longer-term storage
+        5. Persist to file cache for longer - term storage
 
         The dual storage approach ensures fast access for frequently used items
         while maintaining persistence across application restarts.
@@ -287,9 +295,9 @@ class ModelCache:
 
         This method provides cache maintenance with two modes:
         1. Complete clear: Remove all cache items (memory and file)
-        2. Age-based clear: Remove only items older than a specified time
+        2. Age - based clear: Remove only items older than a specified time
 
-        The age-based option is particularly useful for:
+        The age - based option is particularly useful for:
         - Periodic cleanup of stale data
         - Clearing only old data while preserving recent items
         - Managing cache size without complete invalidation
@@ -308,7 +316,7 @@ class ModelCache:
         # Clear memory cache with thread safety
         with self.cache_lock:
             if older_than is not None:
-                # Age-based clear for memory cache
+                # Age - based clear for memory cache
                 current_time = time.time()
                 keys_to_remove = [
                     key
@@ -329,7 +337,7 @@ class ModelCache:
                 file_path = os.path.join(self.cache_dir, filename)
                 try:
                     if older_than is not None:
-                        # Age-based clear for file cache
+                        # Age - based clear for file cache
                         # Use file modification time as a proxy for cache item timestamp
                         file_time = os.path.getmtime(file_path)
                         if time.time() - file_time > older_than:
@@ -385,7 +393,8 @@ class BaseLocalAIModel(ABC):
             Generated text
         """
 
-    def _get_cached_response(self, prompt: str, params: Dict[str, Any]) -> Optional[str]:
+    def _get_cached_response(self, prompt: str, params: Dict[str, 
+        Any]) -> Optional[str]:
         """
         Get a cached response if available.
 
@@ -400,7 +409,8 @@ class BaseLocalAIModel(ABC):
             return self.cache.get(self.model_name, prompt, params)
         return None
 
-    def _cache_response(self, prompt: str, params: Dict[str, Any], response: str) -> None:
+    def _cache_response(self, prompt: str, params: Dict[str, Any], 
+        response: str) -> None:
         """
         Cache a model response.
 
@@ -421,7 +431,7 @@ class HuggingFaceModel(BaseLocalAIModel):
     def __init__(
         self,
         model_name: str,
-        model_type: str = "text-generation",
+        model_type: str = "text - generation",
         device: str = "auto",
         cache_enabled: bool = True,
         **model_kwargs,
@@ -431,7 +441,7 @@ class HuggingFaceModel(BaseLocalAIModel):
 
         Args:
             model_name: Name or path of the model
-            model_type: Type of model (text-generation, text2text-generation, etc.)
+            model_type: Type of model (text - generation, text2text - generation, etc.)
             device: Device to run the model on (auto, cpu, cuda, etc.)
             cache_enabled: Whether to enable response caching
             **model_kwargs: Additional parameters for model initialization
@@ -440,7 +450,8 @@ class HuggingFaceModel(BaseLocalAIModel):
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Transformers or PyTorch not available. Please install them with: pip install transformers torch"
+                "Transformers or \
+                    PyTorch not available. Please install them with: pip install transformers torch"
             )
 
         self.model_type = model_type
@@ -496,8 +507,8 @@ class HuggingFaceModel(BaseLocalAIModel):
             prompt: Input prompt
             max_length: Maximum length of generated text
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             num_return_sequences: Number of sequences to generate
             **kwargs: Additional parameters for text generation
 
@@ -527,7 +538,7 @@ class HuggingFaceModel(BaseLocalAIModel):
             outputs = self.pipeline(prompt, **params)
 
             # Process output based on pipeline type
-            if self.model_type == "text-generation":
+            if self.model_type == "text - generation":
                 if num_return_sequences == 1:
                     response = outputs[0]["generated_text"]
                 else:
@@ -572,7 +583,8 @@ class LlamaModel(BaseLocalAIModel):
 
         if not LLAMA_CPP_AVAILABLE:
             raise ImportError(
-                "llama-cpp-python not available. Please install it with: pip install llama-cpp-python"
+                "llama - \
+                    cpp - python not available. Please install it with: pip install llama - cpp - python"
             )
 
         self.model_path = model_path
@@ -618,8 +630,8 @@ class LlamaModel(BaseLocalAIModel):
             prompt: Input prompt
             max_tokens: Maximum number of tokens to generate
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             stop: List of strings to stop generation when encountered
             **kwargs: Additional parameters for text generation
 
@@ -675,7 +687,7 @@ class EmbeddingModel(BaseLocalAIModel):
 
     def __init__(
         self,
-        model_name: str = "all-MiniLM-L6-v2",
+        model_name: str = "all - MiniLM - L6 - v2",
         device: str = "auto",
         cache_enabled: bool = True,
         **model_kwargs,
@@ -693,7 +705,7 @@ class EmbeddingModel(BaseLocalAIModel):
 
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Sentence Transformers not available. Please install it with: pip install sentence-transformers"
+                "Sentence Transformers not available. Please install it with: pip install sentence - transformers"
             )
 
         self.device = device
@@ -782,7 +794,8 @@ class EmbeddingModel(BaseLocalAIModel):
             # Convert to list for JSON serialization
             if isinstance(embeddings, torch.Tensor):
                 embeddings = embeddings.tolist()
-            elif isinstance(embeddings, list) and isinstance(embeddings[0], torch.Tensor):
+            elif isinstance(embeddings, list) and isinstance(embeddings[0], 
+                torch.Tensor):
                 embeddings = [emb.tolist() for emb in embeddings]
             elif (
                 isinstance(embeddings, list)
@@ -878,7 +891,7 @@ if __name__ == "__main__":
             hf_model = LocalAIModel.create(
                 model_type="huggingface",
                 model_path="gpt2",  # Small model for testing
-                model_type_hf="text-generation",
+                model_type_hf="text - generation",
                 cache_enabled=True,
             )
 
@@ -897,7 +910,7 @@ if __name__ == "__main__":
         try:
             embedding_model = LocalAIModel.create(
                 model_type="embedding",
-                model_path="all-MiniLM-L6-v2",
+                model_path="all - MiniLM - L6 - v2",
                 cache_enabled=True,
             )
 
@@ -918,7 +931,7 @@ if __name__ == "__main__":
     if LLAMA_CPP_AVAILABLE:
         try:
             # This requires a downloaded model file
-            model_path = "path/to/llama/model.bin"
+            model_path = "path / to / llama / model.bin"
             if os.path.exists(model_path):
                 llama_model = LocalAIModel.create(
                     model_type="llama", model_path=model_path, cache_enabled=True

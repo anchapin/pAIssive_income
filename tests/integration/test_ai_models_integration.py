@@ -21,8 +21,8 @@ def mock_model_manager():
         "name": "Test Model",
         "description": "A test model",
         "type": "huggingface",
-        "path": "/path/to/model",
-        "capabilities": ["text-generation"],
+        "path": " / path / to / model",
+        "capabilities": ["text - generation"],
     }
 
     # Mock load_model method
@@ -45,10 +45,10 @@ def test_agent_model_integration(mock_researcher_class, mock_model_manager):
     team = AgentTeam("Test Team")
 
     # Assign a model to the researcher agent
-    provider.assign_model_to_agent("researcher", "model1", "text-generation")
+    provider.assign_model_to_agent("researcher", "model1", "text - generation")
 
     # Get the model for the researcher agent
-    model = provider.get_model_for_agent("researcher", "text-generation")
+    model = provider.get_model_for_agent("researcher", "text - generation")
 
     # Check that the model manager's load_model method was called
     mock_model_manager.load_model.assert_called_with("model1")
@@ -57,10 +57,10 @@ def test_agent_model_integration(mock_researcher_class, mock_model_manager):
     assert model is not None
 
     # Run niche analysis
-    team.run_niche_analysis(["e-commerce"])
+    team.run_niche_analysis(["e - commerce"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_researcher.analyze_market_segments.assert_called_once_with(["e-commerce"])
+    mock_researcher.analyze_market_segments.assert_called_once_with(["e - commerce"])
 
 
 def test_model_loading_integration(mock_model_manager):
@@ -76,7 +76,7 @@ def test_model_loading_integration(mock_model_manager):
 
     # Mock the get_model_info method
     model_info = MockModelInfo(
-        id="model1", name="Test Model", type="huggingface", capabilities=["text-generation"]
+        id="model1", name="Test Model", type="huggingface", capabilities=["text - generation"]
     )
     mock_model_manager.get_model_info.return_value = model_info
 
@@ -91,10 +91,10 @@ def test_model_loading_integration(mock_model_manager):
     provider = AgentModelProvider(mock_model_manager)
 
     # Assign a model to the researcher agent
-    provider.assign_model_to_agent("researcher", "model1", "text-generation")
+    provider.assign_model_to_agent("researcher", "model1", "text - generation")
 
     # Get the model for the researcher agent
-    model = provider.get_model_for_agent("researcher", "text-generation")
+    model = provider.get_model_for_agent("researcher", "text - generation")
 
     # Check that the model manager's methods were called
     mock_model_manager.get_model_info.assert_called_with("model1")
@@ -142,22 +142,22 @@ def test_multiple_agents_model_integration(
         "research_model": {
             "id": "research_model",
             "name": "Research Model",
-            "capabilities": ["text-generation", "summarization"],
+            "capabilities": ["text - generation", "summarization"],
         },
         "dev_model": {
             "id": "dev_model",
             "name": "Developer Model",
-            "capabilities": ["code-generation", "code-explanation"],
+            "capabilities": ["code - generation", "code - explanation"],
         },
         "monetization_model": {
             "id": "monetization_model",
             "name": "Monetization Model",
-            "capabilities": ["financial-analysis", "pricing-optimization"],
+            "capabilities": ["financial - analysis", "pricing - optimization"],
         },
         "marketing_model": {
             "id": "marketing_model",
             "name": "Marketing Model",
-            "capabilities": ["content-generation", "audience-analysis"],
+            "capabilities": ["content - generation", "audience - analysis"],
         },
     }
 
@@ -173,16 +173,16 @@ def test_multiple_agents_model_integration(
     team = AgentTeam("Test Team")
 
     # Assign models to each agent type for different capabilities
-    provider.assign_model_to_agent("researcher", "research_model", "text-generation")
-    provider.assign_model_to_agent("developer", "dev_model", "code-generation")
-    provider.assign_model_to_agent("monetization", "monetization_model", "financial-analysis")
-    provider.assign_model_to_agent("marketing", "marketing_model", "content-generation")
+    provider.assign_model_to_agent("researcher", "research_model", "text - generation")
+    provider.assign_model_to_agent("developer", "dev_model", "code - generation")
+    provider.assign_model_to_agent("monetization", "monetization_model", "financial - analysis")
+    provider.assign_model_to_agent("marketing", "marketing_model", "content - generation")
 
     # Get models for each agent
-    research_model = provider.get_model_for_agent("researcher", "text-generation")
-    dev_model = provider.get_model_for_agent("developer", "code-generation")
-    monetization_model = provider.get_model_for_agent("monetization", "financial-analysis")
-    marketing_model = provider.get_model_for_agent("marketing", "content-generation")
+    research_model = provider.get_model_for_agent("researcher", "text - generation")
+    dev_model = provider.get_model_for_agent("developer", "code - generation")
+    monetization_model = provider.get_model_for_agent("monetization", "financial - analysis")
+    marketing_model = provider.get_model_for_agent("marketing", "content - generation")
 
     # Check that appropriate models were returned
     assert research_model is not None
@@ -198,17 +198,17 @@ def test_multiple_agents_model_integration(
 
     # Mock the return value of run_niche_analysis to include required fields
     mock_niche = {
-        "id": "niche-123",
-        "name": "E-commerce Solutions",
-        "market_segment": "e-commerce",
+        "id": "niche - 123",
+        "name": "E - commerce Solutions",
+        "market_segment": "e - commerce",
         "opportunity_score": 0.85,
         "description": "Online shopping solutions for small businesses",
-        "keywords": ["e-commerce", "online shopping", "small business"],
+        "keywords": ["e - commerce", "online shopping", "small business"],
     }
     mock_all_agents["researcher"].analyze_market_segments.return_value = [mock_niche]
 
     # Run a complete workflow
-    niches = team.run_niche_analysis(["e-commerce"])
+    niches = team.run_niche_analysis(["e - commerce"])
     solution = team.develop_solution(niches[0])
     monetization = team.create_monetization_strategy(solution)
     marketing_plan = team.create_marketing_plan(niches[0], solution, monetization)
@@ -239,14 +239,14 @@ def test_model_fallback_integration(mock_model_manager):
         id="fallback_model",
         name="Fallback Model",
         type="huggingface",
-        capabilities=["text-generation"],
+        capabilities=["text - generation"],
     )
 
     primary_model_info = MockModelInfo(
         id="primary_model",
         name="Primary Model",
         type="huggingface",
-        capabilities=["text-generation"],
+        capabilities=["text - generation"],
     )
 
     # Configure the mocks
@@ -280,7 +280,7 @@ def test_model_fallback_integration(mock_model_manager):
     )
 
     # Attempt to get the model, which should trigger the fallback
-    model = provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
+    model = provider.get_model_with_fallback("researcher", "primary_model", "text - generation")
 
     # Verify we got the fallback model
     assert model == fallback_model
@@ -306,10 +306,10 @@ def test_model_performance_tracking_integration(mock_performance_monitor_class, 
     provider.performance_monitor = mock_performance_monitor
 
     # Assign a model to an agent
-    provider.assign_model_to_agent("researcher", "model1", "text-generation")
+    provider.assign_model_to_agent("researcher", "model1", "text - generation")
 
     # Get the model for the agent
-    tracked_model = provider.get_model_for_agent("researcher", "text-generation")
+    tracked_model = provider.get_model_for_agent("researcher", "text - generation")
 
     # Use the model
     result = tracked_model.generate(prompt="Test prompt", max_tokens=100)
@@ -341,7 +341,7 @@ def test_agent_model_error_handling_integration(mock_researcher_class, mock_mode
 
     # Mock model info
     model_info = MockModelInfo(
-        id="model1", name="Test Model", type="huggingface", capabilities=["text-generation"]
+        id="model1", name="Test Model", type="huggingface", capabilities=["text - generation"]
     )
     mock_model_manager.get_model_info.return_value = model_info
 
@@ -355,11 +355,11 @@ def test_agent_model_error_handling_integration(mock_researcher_class, mock_mode
     team = AgentTeam("Test Team")
 
     # Assign a model to the researcher agent
-    provider.assign_model_to_agent("researcher", "model1", "text-generation")
+    provider.assign_model_to_agent("researcher", "model1", "text - generation")
 
     # Check that an exception is raised when trying to get the model
     with pytest.raises(Exception) as excinfo:
-        model = provider.get_model_for_agent("researcher", "text-generation")
+        model = provider.get_model_for_agent("researcher", "text - generation")
 
     # Check that the exception message is correct
     assert "Model loading failed" in str(excinfo.value)
@@ -382,7 +382,7 @@ def test_agent_model_capabilities_integration(mock_model_manager):
         id="model1",
         name="Test Model",
         type="huggingface",
-        capabilities=["text-generation", "summarization"],
+        capabilities=["text - generation", "summarization"],
     )
 
     # Configure the mock to return our model info
@@ -396,23 +396,23 @@ def test_agent_model_capabilities_integration(mock_model_manager):
     provider.model_manager = mock_model_manager
 
     # Check if model has capabilities
-    has_capability = provider.model_has_capability("model1", "text-generation")
-    missing_capability = provider.model_has_capability("model1", "code-generation")
+    has_capability = provider.model_has_capability("model1", "text - generation")
+    missing_capability = provider.model_has_capability("model1", "code - generation")
 
     # Verify capability checks
     assert has_capability is True
     assert missing_capability is False
 
     # Assign a model to an agent for a specific capability
-    provider.assign_model_to_agent("researcher", "model1", "text-generation")
+    provider.assign_model_to_agent("researcher", "model1", "text - generation")
 
     # Check that the assignment was successful
-    assigned_model_id = provider.get_assigned_model_id("researcher", "text-generation")
+    assigned_model_id = provider.get_assigned_model_id("researcher", "text - generation")
     assert assigned_model_id == "model1"
 
     # We should be able to assign a model regardless of capabilities
     # The capability check is separate from assignment
-    provider.assign_model_to_agent("researcher", "model1", "code-generation")
+    provider.assign_model_to_agent("researcher", "model1", "code - generation")
 
     # But the capability check should still work
-    assert not provider.model_has_capability("model1", "code-generation")
+    assert not provider.model_has_capability("model1", "code - generation")

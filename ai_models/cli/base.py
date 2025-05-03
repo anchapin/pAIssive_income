@@ -1,5 +1,5 @@
 """
-Base command for the command-line interface.
+Base command for the command - line interface.
 
 This module provides the base class for all commands.
 """
@@ -11,7 +11,7 @@ from typing import Any, List
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -29,14 +29,14 @@ class BaseCommand(abc.ABC):
         Initialize the command.
 
         Args:
-            args: Command-line arguments
+            args: Command - line arguments
         """
         self.args = args
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser

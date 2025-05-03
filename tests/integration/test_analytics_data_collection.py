@@ -23,7 +23,7 @@ from tests.api.utils.test_data import (
 @pytest.fixture
 def auth_api_test_client():
     """Create an authenticated API test client."""
-    client = APITestClient(base_url="http://localhost:8000/api")
+    client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
 
@@ -41,13 +41,13 @@ class TestAnalyticsDataCollection:
     def test_api_request_tracking(self, auth_api_test_client):
         """Test API request tracking."""
         # Make several API requests
-        auth_api_test_client.get("niche-analysis/niches")
+        auth_api_test_client.get("niche - analysis / niches")
         auth_api_test_client.get("solutions")
-        auth_api_test_client.get("monetization/strategies")
-        auth_api_test_client.get("marketing/strategies")
+        auth_api_test_client.get("monetization / strategies")
+        auth_api_test_client.get("marketing / strategies")
 
         # Check analytics data
-        response = auth_api_test_client.get("analytics/requests")
+        response = auth_api_test_client.get("analytics / requests")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -74,7 +74,7 @@ class TestAnalyticsDataCollection:
 
         # Step 1: Create a niche analysis
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -86,7 +86,7 @@ class TestAnalyticsDataCollection:
 
         # Step 2: Develop a solution for the niche
         solution_data = generate_solution_data(niche_id=niche_id)
-        response = auth_api_test_client.post("solutions/develop", solution_data)
+        response = auth_api_test_client.post("solutions / develop", solution_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -98,14 +98,14 @@ class TestAnalyticsDataCollection:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization/strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
             pytest.skip("Monetization endpoint not implemented")
 
         # Check user journey analytics
-        response = auth_api_test_client.get("analytics/user-journeys")
+        response = auth_api_test_client.get("analytics / user - journeys")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -131,22 +131,22 @@ class TestAnalyticsDataCollection:
 
         # Verify the steps
         steps = our_journey["steps"]
-        assert steps[0]["endpoint"] == "niche-analysis/analyze"
-        assert steps[1]["endpoint"] == "solutions/develop"
-        assert steps[2]["endpoint"] == "monetization/strategies"
+        assert steps[0]["endpoint"] == "niche - analysis / analyze"
+        assert steps[1]["endpoint"] == "solutions / develop"
+        assert steps[2]["endpoint"] == "monetization / strategies"
 
     def test_feature_usage_analytics(self, auth_api_test_client):
         """Test feature usage analytics."""
         # Use various features
-        auth_api_test_client.get("niche-analysis/niches")
-        auth_api_test_client.get("niche-analysis/market-segments")
+        auth_api_test_client.get("niche - analysis / niches")
+        auth_api_test_client.get("niche - analysis / market - segments")
         auth_api_test_client.get("solutions")
-        auth_api_test_client.get("monetization/subscription-models")
-        auth_api_test_client.get("marketing/strategies")
-        auth_api_test_client.get("marketing/channels")
+        auth_api_test_client.get("monetization / subscription - models")
+        auth_api_test_client.get("marketing / strategies")
+        auth_api_test_client.get("marketing / channels")
 
         # Check feature usage analytics
-        response = auth_api_test_client.get("analytics/feature-usage")
+        response = auth_api_test_client.get("analytics / feature - usage")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -162,17 +162,17 @@ class TestAnalyticsDataCollection:
         features = usage_data["features"]
         feature_endpoints = [f["endpoint"] for f in features]
 
-        assert "niche-analysis/niches" in feature_endpoints
-        assert "niche-analysis/market-segments" in feature_endpoints
+        assert "niche - analysis / niches" in feature_endpoints
+        assert "niche - analysis / market - segments" in feature_endpoints
         assert "solutions" in feature_endpoints
-        assert "monetization/subscription-models" in feature_endpoints
-        assert "marketing/strategies" in feature_endpoints
-        assert "marketing/channels" in feature_endpoints
+        assert "monetization / subscription - models" in feature_endpoints
+        assert "marketing / strategies" in feature_endpoints
+        assert "marketing / channels" in feature_endpoints
 
     def test_performance_metrics_collection(self, auth_api_test_client):
         """Test performance metrics collection."""
         # Make several API requests with different response times
-        auth_api_test_client.get("niche-analysis/niches")
+        auth_api_test_client.get("niche - analysis / niches")
 
         # Simulate a slow request
         with patch("tests.api.utils.test_client.APITestClient.get") as mock_get:
@@ -191,7 +191,7 @@ class TestAnalyticsDataCollection:
             auth_api_test_client.get("solutions")
 
         # Check performance metrics
-        response = auth_api_test_client.get("analytics/performance")
+        response = auth_api_test_client.get("analytics / performance")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -208,7 +208,7 @@ class TestAnalyticsDataCollection:
 
         # Check that the slow endpoint has a higher response time
         niche_endpoint = next(
-            (e for e in endpoints if e["endpoint"] == "niche-analysis/niches"), None
+            (e for e in endpoints if e["endpoint"] == "niche - analysis / niches"), None
         )
         solution_endpoint = next((e for e in endpoints if e["endpoint"] == "solutions"), None)
 
@@ -218,11 +218,11 @@ class TestAnalyticsDataCollection:
     def test_error_tracking(self, auth_api_test_client):
         """Test error tracking."""
         # Make a request that will cause an error
-        response = auth_api_test_client.get("non-existent-endpoint")
+        response = auth_api_test_client.get("non - existent - endpoint")
         assert response.status_code in (404, 501)  # Not Found or Not Implemented
 
         # Check error analytics
-        response = auth_api_test_client.get("analytics/errors")
+        response = auth_api_test_client.get("analytics / errors")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -237,7 +237,7 @@ class TestAnalyticsDataCollection:
         # Find our error
         our_error = None
         for error in error_data["errors"]:
-            if error.get("endpoint") == "non-existent-endpoint":
+            if error.get("endpoint") == "non - existent - endpoint":
                 our_error = error
                 break
 
@@ -248,14 +248,14 @@ class TestAnalyticsDataCollection:
     def test_analytics_integration(self, auth_api_test_client):
         """Test analytics integration."""
         # Step 1: Make several API requests to generate analytics data
-        auth_api_test_client.get("niche-analysis/niches")
-        auth_api_test_client.get("monetization/subscription-models")
-        auth_api_test_client.get("marketing/strategies")
-        auth_api_test_client.get("ai-models/models")
-        auth_api_test_client.get("agent-team/teams")
+        auth_api_test_client.get("niche - analysis / niches")
+        auth_api_test_client.get("monetization / subscription - models")
+        auth_api_test_client.get("marketing / strategies")
+        auth_api_test_client.get("ai - models / models")
+        auth_api_test_client.get("agent - team / teams")
 
         # Step 2: Check analytics data
-        response = auth_api_test_client.get("analytics/summary")
+        response = auth_api_test_client.get("analytics / summary")
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -275,12 +275,12 @@ class TestAnalyticsDataCollection:
 
         # Check that our endpoints are in the analytics
         endpoints = analytics_data["unique_endpoints"]
-        assert "niche-analysis/niches" in endpoints
-        assert "monetization/subscription-models" in endpoints
-        assert "marketing/strategies" in endpoints
-        assert "ai-models/models" in endpoints
-        assert "agent-team/teams" in endpoints
+        assert "niche - analysis / niches" in endpoints
+        assert "monetization / subscription - models" in endpoints
+        assert "marketing / strategies" in endpoints
+        assert "ai - models / models" in endpoints
+        assert "agent - team / teams" in endpoints
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_analytics_data_collection.py"])
+    pytest.main([" - v", "test_analytics_data_collection.py"])

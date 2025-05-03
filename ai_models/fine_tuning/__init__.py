@@ -1,8 +1,8 @@
 """
-Fine-tuning module for AI models.
+Fine - tuning module for AI models.
 
-This module provides tools for fine-tuning AI models, including data collection,
-fine-tuning workflows, evaluation, and model comparison.
+This module provides tools for fine - tuning AI models, including data collection,
+fine - tuning workflows, evaluation, and model comparison.
 """
 
 from .data_collector import (
@@ -47,7 +47,7 @@ __all__ = [
     "collect_data",
     "prepare_dataset",
     "export_dataset",
-    # Fine-tuning
+    # Fine - tuning
     "FineTuner",
     "FineTuningConfig",
     "FineTuningMethod",

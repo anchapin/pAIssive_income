@@ -46,7 +46,7 @@ class TestPaymentAPI:
                 "token": "test_card_token",
                 "billing_details": {
                     "name": "Test User",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                     "address": {
                         "line1": "123 Test St",
                         "city": "Test City",
@@ -59,7 +59,7 @@ class TestPaymentAPI:
         }
 
         # Make request
-        response = api_test_client.post("payments/process", data)
+        response = api_test_client.post("payments / process", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -84,10 +84,10 @@ class TestPaymentAPI:
             "plan_id": generate_id(),
             "customer_id": generate_id(),
             "payment_method": {"type": "credit_card", "token": "test_card_token"},
-            "billing_details": {"name": "Test User", "email": "test@example.com"},
+            "billing_details": {"name": "Test User", "email": "test @ example.com"},
         }
 
-        response = api_test_client.post("payments/subscriptions", create_data)
+        response = api_test_client.post("payments / subscriptions", create_data)
         result = validate_success_response(response, 201)  # Created
         subscription_id = result["id"]
 
@@ -103,7 +103,7 @@ class TestPaymentAPI:
             "proration_behavior": "create_prorations",
         }
 
-        response = api_test_client.put(f"payments/subscriptions/{subscription_id}", modify_data)
+        response = api_test_client.put(f"payments / subscriptions/{subscription_id}", modify_data)
         result = validate_success_response(response)
 
         # Validate subscription modification
@@ -119,7 +119,7 @@ class TestPaymentAPI:
         }
 
         response = api_test_client.delete(
-            f"payments/subscriptions/{subscription_id}", json=cancel_data
+            f"payments / subscriptions/{subscription_id}", json=cancel_data
         )
         result = validate_success_response(response)
 

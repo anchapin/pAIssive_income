@@ -17,7 +17,8 @@ class CurrentSolutionSchema(BaseModel):
         ..., description="Description of manual processes used to solve the problem"
     )
     general_tools: str = Field(
-        ..., description="Description of general-purpose tools used to solve the problem"
+        ..., 
+            description="Description of general - purpose tools used to solve the problem"
     )
     outsourcing: str = Field(
         ..., description="Description of outsourcing approach used to solve the problem"
@@ -38,13 +39,17 @@ class ProblemSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the problem")
     name: str = Field(..., description="Name of the problem")
     description: str = Field(..., description="Description of the problem")
-    consequences: List[str] = Field(..., description="List of consequences of the problem")
-    severity: str = Field(..., description="Severity of the problem (high, medium, low)")
+    consequences: List[str] = Field(..., 
+        description="List of consequences of the problem")
+    severity: str = Field(..., description="Severity of the problem (high, medium, 
+        low)")
     current_solutions: CurrentSolutionSchema = Field(
         ..., description="Current solutions to the problem"
     )
-    solution_gaps: SolutionGapSchema = Field(..., description="Gaps in current solutions")
-    timestamp: str = Field(..., description="Timestamp of when the problem was identified")
+    solution_gaps: SolutionGapSchema = Field(..., 
+        description="Gaps in current solutions")
+    timestamp: str = Field(..., 
+        description="Timestamp of when the problem was identified")
 
 
 class SeverityAnalysisSchema(BaseModel):
@@ -52,7 +57,8 @@ class SeverityAnalysisSchema(BaseModel):
 
     impact_on_users: str = Field(..., description="Impact on users")
     frequency: str = Field(..., description="Frequency of occurrence")
-    emotional_response: str = Field(..., description="Emotional response to the problem")
+    emotional_response: str = Field(..., 
+        description="Emotional response to the problem")
     business_impact: str = Field(..., description="Impact on business")
     urgency: str = Field(..., description="Urgency of solving the problem")
 
@@ -63,11 +69,13 @@ class ProblemSeverityAnalysisSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the analysis")
     problem_id: str = Field(..., description="ID of the problem being analyzed")
     severity: str = Field(..., description="Severity level (high, medium, low)")
-    analysis: SeverityAnalysisSchema = Field(..., description="Detailed severity analysis")
+    analysis: SeverityAnalysisSchema = Field(..., 
+        description="Detailed severity analysis")
     potential_impact_of_solution: str = Field(
         ..., description="Potential impact of solving the problem"
     )
-    user_willingness_to_pay: str = Field(..., description="User willingness to pay for a solution")
+    user_willingness_to_pay: str = Field(..., 
+        description="User willingness to pay for a solution")
     timestamp: str = Field(..., description="Timestamp of the analysis")
 
 
@@ -88,7 +96,8 @@ class CompetitionAnalysisSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the analysis")
     niche: str = Field(..., description="Niche being analyzed")
     competitor_count: int = Field(..., description="Number of competitors")
-    top_competitors: List[CompetitorSchema] = Field(..., description="Top competitors in the niche")
+    top_competitors: List[CompetitorSchema] = Field(..., 
+        description="Top competitors in the niche")
     market_saturation: str = Field(..., description="Market saturation level")
     entry_barriers: str = Field(..., description="Entry barriers to the market")
     differentiation_opportunities: List[str] = Field(
@@ -127,8 +136,10 @@ class PsychographicsSchema(BaseModel):
 class BuyingBehaviorSchema(BaseModel):
     """Pydantic model for buying behavior of target users."""
 
-    decision_factors: List[str] = Field(..., description="Decision factors in purchasing")
-    purchase_process: str = Field(..., description="Description of the purchase process")
+    decision_factors: List[str] = Field(..., 
+        description="Decision factors in purchasing")
+    purchase_process: str = Field(..., 
+        description="Description of the purchase process")
     price_sensitivity: str = Field(..., description="Price sensitivity of target users")
 
 
@@ -137,9 +148,12 @@ class TargetUserAnalysisSchema(BaseModel):
 
     id: str = Field(..., description="Unique identifier for the analysis")
     niche: str = Field(..., description="Niche being analyzed")
-    user_segments: List[UserSegmentSchema] = Field(..., description="User segments in the niche")
-    demographics: DemographicsSchema = Field(..., description="Demographics of target users")
-    psychographics: PsychographicsSchema = Field(..., description="Psychographics of target users")
+    user_segments: List[UserSegmentSchema] = Field(..., 
+        description="User segments in the niche")
+    demographics: DemographicsSchema = Field(..., 
+        description="Demographics of target users")
+    psychographics: PsychographicsSchema = Field(..., 
+        description="Psychographics of target users")
     pain_points: List[str] = Field(..., description="Pain points of target users")
     goals: List[str] = Field(..., description="Goals of target users")
     buying_behavior: BuyingBehaviorSchema = Field(
@@ -171,11 +185,13 @@ class TrendAnalysisSchema(BaseModel):
 
     id: str = Field(..., description="Unique identifier for the analysis")
     segment: str = Field(..., description="Market segment being analyzed")
-    current_trends: List[TrendSchema] = Field(..., description="Current trends in the segment")
+    current_trends: List[TrendSchema] = Field(..., 
+        description="Current trends in the segment")
     future_predictions: List[PredictionSchema] = Field(
         ..., description="Future predictions for the segment"
     )
-    technological_shifts: List[str] = Field(..., description="Technological shifts in the segment")
+    technological_shifts: List[str] = Field(..., 
+        description="Technological shifts in the segment")
 
 
 class MarketSegmentSchema(BaseModel):
@@ -188,8 +204,10 @@ class MarketSegmentSchema(BaseModel):
     growth_rate: str = Field(..., description="Growth rate of the market")
     competition: str = Field(..., description="Competition level in the market")
     barriers_to_entry: str = Field(..., description="Barriers to entry in the market")
-    technological_adoption: str = Field(..., description="Technological adoption in the market")
-    potential_niches: List[str] = Field(..., description="Potential niches in the market")
+    technological_adoption: str = Field(..., 
+        description="Technological adoption in the market")
+    potential_niches: List[str] = Field(..., 
+        description="Potential niches in the market")
     target_users: List[str] = Field(..., description="Target users in the market")
 
 
@@ -198,7 +216,8 @@ class FactorScoreSchema(BaseModel):
 
     score: float = Field(..., description="Score for the factor", ge=0.0, le=1.0)
     weight: float = Field(..., description="Weight of the factor", ge=0.0, le=1.0)
-    weighted_score: float = Field(..., description="Weighted score for the factor", ge=0.0, le=1.0)
+    weighted_score: float = Field(..., description="Weighted score for the factor", 
+        ge=0.0, le=1.0)
     analysis: str = Field(..., description="Analysis of the factor")
 
 
@@ -208,7 +227,8 @@ class FactorScoresSchema(BaseModel):
     market_size: FactorScoreSchema = Field(..., description="Market size factor score")
     growth_rate: FactorScoreSchema = Field(..., description="Growth rate factor score")
     competition: FactorScoreSchema = Field(..., description="Competition factor score")
-    problem_severity: FactorScoreSchema = Field(..., description="Problem severity factor score")
+    problem_severity: FactorScoreSchema = Field(..., 
+        description="Problem severity factor score")
     solution_feasibility: FactorScoreSchema = Field(
         ..., description="Solution feasibility factor score"
     )
@@ -220,9 +240,12 @@ class FactorScoresSchema(BaseModel):
 class FactorsSchema(BaseModel):
     """Pydantic model for raw factor scores in opportunity scoring."""
 
-    market_size: float = Field(..., description="Market size factor score", ge=0.0, le=1.0)
-    growth_rate: float = Field(..., description="Growth rate factor score", ge=0.0, le=1.0)
-    competition: float = Field(..., description="Competition factor score", ge=0.0, le=1.0)
+    market_size: float = Field(..., description="Market size factor score", ge=0.0, 
+        le=1.0)
+    growth_rate: float = Field(..., description="Growth rate factor score", ge=0.0, 
+        le=1.0)
+    competition: float = Field(..., description="Competition factor score", ge=0.0, 
+        le=1.0)
     problem_severity: float = Field(
         ..., description="Problem severity factor score", ge=0.0, le=1.0
     )
@@ -243,7 +266,8 @@ class OpportunityScoreSchema(BaseModel):
     overall_score: float = Field(
         ..., description="Overall opportunity score (same as score)", ge=0.0, le=1.0
     )
-    opportunity_assessment: str = Field(..., description="Assessment of the opportunity")
+    opportunity_assessment: str = Field(..., 
+        description="Assessment of the opportunity")
     factor_scores: FactorScoresSchema = Field(..., description="Detailed factor scores")
     factors: FactorsSchema = Field(..., description="Raw factor scores")
     recommendations: List[str] = Field(..., description="Recommended actions")
@@ -276,8 +300,10 @@ class TopRecommendationSchema(BaseModel):
 class ScoreDistributionSchema(BaseModel):
     """Pydantic model for score distribution in opportunity comparison."""
 
-    excellent: int = Field(..., description="Number of opportunities with excellent scores")
-    very_good: int = Field(..., description="Number of opportunities with very good scores")
+    excellent: int = Field(..., 
+        description="Number of opportunities with excellent scores")
+    very_good: int = Field(..., 
+        description="Number of opportunities with very good scores")
     good: int = Field(..., description="Number of opportunities with good scores")
     fair: int = Field(..., description="Number of opportunities with fair scores")
     limited: int = Field(..., description="Number of opportunities with limited scores")
@@ -286,24 +312,29 @@ class ScoreDistributionSchema(BaseModel):
 class ComparativeAnalysisSchema(BaseModel):
     """Pydantic model for comparative analysis in opportunity comparison."""
 
-    highest_score: Optional[float] = Field(None, description="Highest opportunity score")
+    highest_score: Optional[float] = Field(None, 
+        description="Highest opportunity score")
     lowest_score: Optional[float] = Field(None, description="Lowest opportunity score")
-    average_score: Optional[float] = Field(None, description="Average opportunity score")
-    score_distribution: ScoreDistributionSchema = Field(..., description="Distribution of scores")
+    average_score: Optional[float] = Field(None, 
+        description="Average opportunity score")
+    score_distribution: ScoreDistributionSchema = Field(..., 
+        description="Distribution of scores")
 
 
 class OpportunityComparisonSchema(BaseModel):
     """Pydantic model for opportunity comparison results."""
 
     id: str = Field(..., description="Unique identifier for the comparison")
-    opportunities_count: int = Field(..., description="Number of opportunities compared")
+    opportunities_count: int = Field(..., 
+        description="Number of opportunities compared")
     ranked_opportunities: List[RankedOpportunitySchema] = Field(
         ..., description="Ranked list of opportunities"
     )
     top_recommendation: Optional[TopRecommendationSchema] = Field(
         None, description="Top recommendation"
     )
-    comparison_factors: Dict[str, str] = Field(..., description="Factors used for comparison")
+    comparison_factors: Dict[str, str] = Field(..., 
+        description="Factors used for comparison")
     comparative_analysis: ComparativeAnalysisSchema = Field(
         ..., description="Comparative analysis of opportunities"
     )

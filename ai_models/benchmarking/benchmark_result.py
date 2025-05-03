@@ -156,7 +156,7 @@ class BenchmarkResult:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         # Save result
-        with open(output_path, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf - 8") as f:
             json.dump(self.to_dict(), f, indent=2)
 
         return output_path
@@ -172,7 +172,7 @@ class BenchmarkResult:
         Returns:
             Benchmark result
         """
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, "r", encoding="utf - 8") as f:
             result_dict = json.load(f)
 
         return cls.from_dict(result_dict)
@@ -204,7 +204,7 @@ class BenchmarkResult:
 
         Args:
             data: List of values
-            percentile: Percentile to calculate (0-100)
+            percentile: Percentile to calculate (0 - 100)
 
         Returns:
             Percentile value

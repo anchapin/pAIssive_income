@@ -9,7 +9,7 @@ from .payment_processor_factory import factory
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -34,7 +34,8 @@ def run_demo():
     # Create a customer
     print("Creating customer...")
     customer = processor.create_customer(
-        email="customer@example.com", name="Demo Customer", metadata={"source": "demo"}
+        email="customer @ example.com", name="Demo Customer", 
+            metadata={"source": "demo"}
     )
 
     print(f"Customer created: {customer['id']}")
@@ -58,7 +59,8 @@ def run_demo():
     print(f"Payment method created: {payment_method['id']}")
     print(f"Type: {payment_method['type']}")
     print(
-        f"Card: {payment_method['details']['masked_number']} ({payment_method['details']['brand']})"
+        f"Card: {payment_method['details']['masked_number']} (
+            {payment_method['details']['brand']})"
     )
     print(
         f"Expiration: {payment_method['details']['exp_month']}/{payment_method['details']['exp_year']}"
@@ -77,7 +79,8 @@ def run_demo():
         )
 
         print(f"Payment processed: {payment['id']}")
-        print(f"Amount: {processor.format_amount(payment['amount'], payment['currency'])}")
+        print(f"Amount: {processor.format_amount(payment['amount'], 
+            payment['currency'])}")
         print(f"Status: {payment['status']}")
         print(f"Description: {payment['description']}")
     except ValueError as e:
@@ -131,7 +134,8 @@ def run_demo():
     print(f"Found {len(payments)} payments:")
     for payment in payments:
         print(
-            f"- {payment['id']}: {processor.format_amount(payment['amount'], payment['currency'])} ({payment['status']})"
+            f"- {payment['id']}: {processor.format_amount(payment['amount'], 
+                payment['currency'])} ({payment['status']})"
         )
 
     print_separator()
@@ -142,7 +146,8 @@ def run_demo():
 
     print(f"Found {len(subscriptions)} subscriptions:")
     for subscription in subscriptions:
-        print(f"- {subscription['id']}: {subscription['plan_id']} ({subscription['status']})")
+        print(
+            f"- {subscription['id']}: {subscription['plan_id']} ({subscription['status']})")
 
     print_separator()
 

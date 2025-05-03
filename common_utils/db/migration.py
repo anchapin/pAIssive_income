@@ -51,7 +51,7 @@ class Migration(ABC):
 class MigrationManager:
     """Manages database migrations for both SQL and NoSQL databases."""
 
-    # Collection/table name for tracking migrations
+    # Collection / table name for tracking migrations
     MIGRATIONS_TABLE = "_migrations"
 
     def __init__(self, db: DatabaseInterface, migrations_dir: str):
@@ -67,7 +67,7 @@ class MigrationManager:
         self._ensure_migrations_table()
 
     def _ensure_migrations_table(self) -> None:
-        """Ensure the migrations tracking table/collection exists."""
+        """Ensure the migrations tracking table / collection exists."""
         try:
             if isinstance(self.db, SQLiteAdapter):
                 # For SQL databases
@@ -95,7 +95,7 @@ class MigrationManager:
                     f"Unknown database type: {type(self.db)}. Migration tracking may not work correctly."
                 )
         except Exception as e:
-            logger.error(f"Error creating migrations table/collection: {e}")
+            logger.error(f"Error creating migrations table / collection: {e}")
             raise
 
     def get_applied_migrations(self) -> List[Dict[str, Any]]:
@@ -221,8 +221,8 @@ class MigrationManager:
         version_str = f"{version:03d}"
 
         # Format name as snake_case
-        name_snake = re.sub(r"[^a-zA-Z0-9]", "_", name.lower())
-        name_snake = re.sub(r"_+", "_", name_snake).strip("_")
+        name_snake = re.sub(r"[^a - zA - Z0 - 9]", "_", name.lower())
+        name_snake = re.sub(r"_ + ", "_", name_snake).strip("_")
 
         # Create the filename
         filename = f"{version_str}_{name_snake}.py"
@@ -232,7 +232,7 @@ class MigrationManager:
         content = f'''"""
 Migration {version_str}: {name}
 
-Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+Generated: {datetime.datetime.now().strftime(" % Y-%m-%d %H:%M:%S")}
 """
 
 from common_utils.db.migration import Migration

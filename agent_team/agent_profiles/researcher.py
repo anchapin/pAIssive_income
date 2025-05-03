@@ -14,7 +14,7 @@ class ResearchAgent(IResearchAgent):
     """
     AI agent specialized in market research and niche identification.
     Identifies profitable niches and user pain points that can be addressed
-    with AI-powered software tools.
+    with AI - powered software tools.
     """
 
     def __init__(self, team: IAgentTeam):
@@ -56,15 +56,15 @@ class ResearchAgent(IResearchAgent):
         ---------------------
         The niche identification algorithm operates as follows:
         1. For each market segment in the input list:
-           a. Call identify_niches_in_segment to get segment-specific niches
+           a. Call identify_niches_in_segment to get segment - specific niches
            b. Add these niches to the master list
         2. Sort all identified niches by opportunity score in descending order
            to prioritize the most promising opportunities
         3. Store the sorted list in the team's project state for workflow continuity
         4. Return the sorted list of niche opportunities
 
-        This algorithm employs a divide-and-conquer approach by:
-        - Breaking down the broad market analysis into segment-specific analyses
+        This algorithm employs a divide - and - conquer approach by:
+        - Breaking down the broad market analysis into segment - specific analyses
         - Aggregating the results
         - Applying a consistent ranking methodology across all niches
 
@@ -151,7 +151,7 @@ class ResearchAgent(IResearchAgent):
             "key_players": ["Company A", "Company B", "Company C"],
             "target_audience": {
                 "demographics": {
-                    "age_range": "25-45",
+                    "age_range": "25 - 45",
                     "income_level": "middle to upper",
                     "education": "college degree or higher",
                 },
@@ -163,7 +163,7 @@ class ResearchAgent(IResearchAgent):
             "trends": [
                 "Increasing adoption of AI solutions",
                 "Growing demand for specialized tools",
-                "Shift towards subscription-based models",
+                "Shift towards subscription - based models",
             ],
         }
 
@@ -182,17 +182,17 @@ class ResearchAgent(IResearchAgent):
 
         # Example niches for different segments
         segment_niches = {
-            "e-commerce": [
+            "e - commerce": [
                 self._create_niche(
-                    "Inventory Management for Small E-commerce",
-                    "Small e-commerce businesses struggle with inventory management",
+                    "Inventory Management for Small E - commerce",
+                    "Small e - commerce businesses struggle with inventory management",
                     ["overstocking", "stockouts", "manual inventory tracking"],
                     0.85,
                 ),
                 self._create_niche(
                     "Product Description Generator",
-                    "E-commerce businesses need compelling product descriptions",
-                    ["time-consuming", "inconsistent quality", "SEO optimization"],
+                    "E - commerce businesses need compelling product descriptions",
+                    ["time - consuming", "inconsistent quality", "SEO optimization"],
                     0.78,
                 ),
             ],
@@ -202,7 +202,7 @@ class ResearchAgent(IResearchAgent):
                     "YouTube creators need engaging scripts for their videos",
                     [
                         "writer's block",
-                        "time-consuming",
+                        "time - consuming",
                         "maintaining viewer engagement",
                     ],
                     0.92,
@@ -218,7 +218,7 @@ class ResearchAgent(IResearchAgent):
                 self._create_niche(
                     "Freelance Proposal Writer",
                     "Freelancers need to write compelling proposals to win clients",
-                    ["time-consuming", "low conversion rates", "customization"],
+                    ["time - consuming", "low conversion rates", "customization"],
                     0.88,
                 ),
                 self._create_niche(
@@ -232,13 +232,13 @@ class ResearchAgent(IResearchAgent):
                 self._create_niche(
                     "Study Note Generator",
                     "Students need comprehensive study notes from lectures",
-                    ["time-consuming", "missing important points", "organization"],
+                    ["time - consuming", "missing important points", "organization"],
                     0.89,
                 ),
                 self._create_niche(
                     "Personalized Learning Path Creator",
                     "Educators need to create personalized learning paths for students",
-                    ["time-consuming", "individualization", "tracking progress"],
+                    ["time - consuming", "individualization", "tracking progress"],
                     0.82,
                 ),
             ],
@@ -246,7 +246,7 @@ class ResearchAgent(IResearchAgent):
                 self._create_niche(
                     "Property Description Generator",
                     "Real estate agents need compelling property descriptions",
-                    ["time-consuming", "highlighting key features", "emotional appeal"],
+                    ["time - consuming", "highlighting key features", "emotional appeal"],
                     0.86,
                 ),
                 self._create_niche(
@@ -296,7 +296,7 @@ class ResearchAgent(IResearchAgent):
         """
         # For this implementation, we'll create some sample problems
         problem_areas = [
-            "time-consuming manual processes",
+            "time - consuming manual processes",
             "inconsistent quality",
             "lack of automation",
             "difficulty scaling",
@@ -339,7 +339,7 @@ class ResearchAgent(IResearchAgent):
         - Time complexity: O(p log p), where p is the number of problem areas in the niche
           (dominated by the sorting operation)
         - Space complexity: O(p) to store all identified problems
-        - More efficient than analyze_problems() when niche-specific problems are already known
+        - More efficient than analyze_problems() when niche - specific problems are already known
 
         Args:
             niche: Niche dictionary from identify_niches_in_segment

@@ -163,8 +163,8 @@ class TestGraphQLAPI:
             "input": {
                 "name": "Test Campaign",
                 "budget": 1000.00,
-                "startDate": "2025-05-01",
-                "endDate": "2025-05-31",
+                "startDate": "2025 - 05 - 01",
+                "endDate": "2025 - 05 - 31",
                 "channels": ["SOCIAL_MEDIA", "EMAIL"],
                 "targetAudience": {
                     "demographics": {"ageRanges": ["25_34", "35_44"], "locations": ["US", "UK"]}
@@ -196,7 +196,7 @@ class TestGraphQLAPI:
                 validate_field_equals(campaign, "budget", variables["input"]["budget"])
 
     def test_subscription_resolver(self, api_test_client: APITestClient):
-        """Test subscription resolver for real-time updates."""
+        """Test subscription resolver for real - time updates."""
         # GraphQL subscription
         subscription = """
         subscription OnCampaignMetricsUpdate($campaignId: ID!) {
@@ -327,7 +327,7 @@ class TestGraphQLAPI:
         validate_field_type(result["data"]["marketingStrategies"], list)
 
         # Test getting specific marketing strategy
-        strategy_id = "test-strategy-id"
+        strategy_id = "test - strategy - id"
         query = """
         query($id: ID!) {
             marketingStrategy(id: $id) {
@@ -407,9 +407,9 @@ class TestGraphQLAPI:
                 "name": "Test Strategy",
                 "description": "A test marketing strategy",
                 "targetAudience": {
-                    "demographics": {"ageRange": ["25-34"], "location": ["US"]},
+                    "demographics": {"ageRange": ["25 - 34"], "location": ["US"]},
                     "interests": ["technology", "marketing"],
-                    "painPoints": ["time-consuming content creation"],
+                    "painPoints": ["time - consuming content creation"],
                 },
                 "channels": [
                     {
@@ -438,7 +438,7 @@ class TestGraphQLAPI:
             validate_field_type(strategy, "channels", list)
 
         # Test updating marketing strategy
-        strategy_id = strategy["id"] if strategy else "test-strategy-id"
+        strategy_id = strategy["id"] if strategy else "test - strategy - id"
         mutation = """
         mutation($id: ID!, $input: MarketingStrategyInput!) {
             updateMarketingStrategy(id: $id, input: $input) {
@@ -500,7 +500,7 @@ class TestGraphQLAPI:
 
     def test_marketing_error_scenarios(self, api_test_client: APITestClient):
         """Test error scenarios for marketing operations."""
-        # Test querying non-existent strategy
+        # Test querying non - existent strategy
         query = """
         query($id: ID!) {
             marketingStrategy(id: $id) {
@@ -511,7 +511,7 @@ class TestGraphQLAPI:
         """
 
         response = api_test_client.post(
-            "graphql", json={"query": query, "variables": {"id": "non-existent-id"}}
+            "graphql", json={"query": query, "variables": {"id": "non - existent - id"}}
         )
         result = validate_json_response(response)
 
@@ -549,7 +549,7 @@ class TestGraphQLAPI:
         validate_field_type(result["errors"], list)
         assert len(result["errors"]) > 0
 
-        # Test updating non-existent strategy
+        # Test updating non - existent strategy
         mutation = """
         mutation($id: ID!, $input: MarketingStrategyInput!) {
             updateMarketingStrategy(id: $id, input: $input) {
@@ -564,7 +564,7 @@ class TestGraphQLAPI:
             json={
                 "query": mutation,
                 "variables": {
-                    "id": "non-existent-id",
+                    "id": "non - existent - id",
                     "input": {"name": "Test Strategy", "description": "Test description"},
                 },
             },

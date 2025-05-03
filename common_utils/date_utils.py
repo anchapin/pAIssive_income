@@ -8,17 +8,17 @@ import calendar
 from datetime import date, datetime, timedelta
 from typing import Optional, Union
 
-# Type alias for date-like objects
+# Type alias for date - like objects
 DateLike = Union[datetime, date]
 
 
-def format_date(date_obj: DateLike, format_str: str = "%Y-%m-%d") -> str:
+def format_date(date_obj: DateLike, format_str: str = " % Y-%m-%d") -> str:
     """
     Format a date object as a string.
 
     Args:
         date_obj: Date or datetime object to format
-        format_str: Format string (default: "%Y-%m-%d")
+        format_str: Format string (default: " % Y-%m-%d")
 
     Returns:
         Formatted date string
@@ -26,13 +26,13 @@ def format_date(date_obj: DateLike, format_str: str = "%Y-%m-%d") -> str:
     return date_obj.strftime(format_str)
 
 
-def format_datetime(dt_obj: datetime, format_str: str = "%Y-%m-%d %H:%M:%S") -> str:
+def format_datetime(dt_obj: datetime, format_str: str = " % Y-%m-%d %H:%M:%S") -> str:
     """
     Format a datetime object as a string.
 
     Args:
         dt_obj: Datetime object to format
-        format_str: Format string (default: "%Y-%m-%d %H:%M:%S")
+        format_str: Format string (default: " % Y-%m-%d %H:%M:%S")
 
     Returns:
         Formatted datetime string
@@ -46,7 +46,7 @@ def get_days_in_month(year: int, month: int) -> int:
 
     Args:
         year: Year
-        month: Month (1-12)
+        month: Month (1 - 12)
 
     Returns:
         Number of days in the month
@@ -288,7 +288,8 @@ def add_years(dt: DateLike, years: int) -> DateLike:
         day = dt.day
 
     if isinstance(dt, datetime):
-        return datetime(year, dt.month, day, dt.hour, dt.minute, dt.second, dt.microsecond)
+        return datetime(year, dt.month, day, dt.hour, dt.minute, dt.second, 
+            dt.microsecond)
     return date(year, dt.month, day)
 
 
@@ -298,7 +299,7 @@ def is_future_date(dt: DateLike, reference: Optional[DateLike] = None) -> bool:
 
     Args:
         dt: Date or datetime object to check
-        reference: Reference date (default: current date/time)
+        reference: Reference date (default: current date / time)
 
     Returns:
         True if the date is in the future, False otherwise
@@ -323,7 +324,7 @@ def is_past_date(dt: DateLike, reference: Optional[DateLike] = None) -> bool:
 
     Args:
         dt: Date or datetime object to check
-        reference: Reference date (default: current date/time)
+        reference: Reference date (default: current date / time)
 
     Returns:
         True if the date is in the past, False otherwise

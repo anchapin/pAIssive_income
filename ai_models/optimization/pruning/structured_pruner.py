@@ -14,7 +14,7 @@ from .base import Pruner, PruningConfig, PruningMethod
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -108,7 +108,7 @@ class StructuredPruner(Pruner):
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the pruned model (None for in-place)
+            output_path: Path to save the pruned model (None for in - place)
             **kwargs: Additional parameters for pruning
 
         Returns:
@@ -234,7 +234,7 @@ class StructuredPruner(Pruner):
         num_blocks_0 = weight.shape[0] // block_size
         num_blocks_1 = weight.shape[1] // block_size
 
-        # Reshape the weight for block-wise operations
+        # Reshape the weight for block - wise operations
         weight_reshaped = weight.reshape(num_blocks_0, block_size, num_blocks_1, block_size)
 
         # Calculate the L2 norm of each block
@@ -324,7 +324,7 @@ class StructuredPruner(Pruner):
         """
         config_path = os.path.join(output_path, "pruning_config.json")
 
-        with open(config_path, "w", encoding="utf-8") as f:
+        with open(config_path, "w", encoding="utf - 8") as f:
             json.dump(self.config.to_dict(), f, indent=2)
 
     def supports_model_type(self, model_type: str) -> bool:
@@ -339,13 +339,13 @@ class StructuredPruner(Pruner):
         """
         # Structured pruning supports most model types
         supported_types = [
-            "text-generation",
-            "text-classification",
+            "text - generation",
+            "text - classification",
             "embedding",
-            "causal-lm",
-            "seq2seq-lm",
-            "image-classification",
-            "object-detection",
+            "causal - lm",
+            "seq2seq - lm",
+            "image - classification",
+            "object - detection",
         ]
 
         return model_type in supported_types

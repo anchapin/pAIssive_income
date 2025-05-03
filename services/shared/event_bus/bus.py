@@ -1,7 +1,7 @@
 """
 Event bus implementation for pAIssive income microservices.
 
-This module provides an event bus implementation for event-driven architecture.
+This module provides an event bus implementation for event - driven architecture.
 """
 
 import asyncio
@@ -25,7 +25,7 @@ from .exceptions import EventHandlingError, EventPublishError, EventSubscribeErr
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class EventSubscription:
         self.is_async = is_async
 
         # Convert the event pattern to a regex pattern
-        pattern = event_pattern.replace(".", r"\.").replace("*", r"[^.]+").replace("#", r".+")
+        pattern = event_pattern.replace(".", r"\.").replace(" * ", r"[^.] + ").replace("#", r".+")
         self.pattern = re.compile(f"^{pattern}$")
 
     def matches(self, event_name: str) -> bool:
@@ -116,7 +116,7 @@ class EventPublisher:
             # Create a message from the event
             message = self.event_schema.create_message(
                 source=self.service_name,
-                destination="*",  # Broadcast to all interested services
+                destination=" * ",  # Broadcast to all interested services
                 subject=event.name,
                 payload=event,
                 message_type=MessageType.EVENT,
@@ -298,7 +298,7 @@ class EventSubscriber:
 
 class EventBus:
     """
-    Event bus for event-driven architecture.
+    Event bus for event - driven architecture.
 
     This class provides a unified interface for publishing and subscribing to events.
     """
@@ -310,7 +310,7 @@ class EventBus:
         port: int = 5672,
         username: str = "guest",
         password: str = "guest",
-        virtual_host: str = "/",
+        virtual_host: str = " / ",
         exchange_name: str = "paissive_income",
     ):
         """
@@ -423,7 +423,7 @@ class EventBus:
 
 class AsyncEventBus:
     """
-    Asynchronous event bus for event-driven architecture.
+    Asynchronous event bus for event - driven architecture.
 
     This class provides a unified interface for publishing and subscribing to events asynchronously.
     """
@@ -435,7 +435,7 @@ class AsyncEventBus:
         port: int = 5672,
         username: str = "guest",
         password: str = "guest",
-        virtual_host: str = "/",
+        virtual_host: str = " / ",
         exchange_name: str = "paissive_income",
     ):
         """
@@ -530,7 +530,7 @@ class AsyncEventBus:
             # Create a message from the event
             message = self.event_schema.create_message(
                 source=self.service_name,
-                destination="*",  # Broadcast to all interested services
+                destination=" * ",  # Broadcast to all interested services
                 subject=event.name,
                 payload=event,
                 message_type=MessageType.EVENT,

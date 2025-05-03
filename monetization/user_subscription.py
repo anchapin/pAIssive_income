@@ -88,7 +88,8 @@ class Subscription:
         # Check if tier has trial days
         if tier.get("trial_days", 0) > 0:
             self.status = SubscriptionStatus.TRIAL
-            self.trial_end_date = self.start_date + timedelta(days=tier.get("trial_days", 0))
+            self.trial_end_date = self.start_date + timedelta(days=tier.get("trial_days", 
+                0))
         else:
             self.trial_end_date = None
 
@@ -465,6 +466,7 @@ class Subscription:
             "end_date": self.end_date.isoformat(),
             "status": self.status,
             "trial_end_date": (self.trial_end_date.isoformat() if self.trial_end_date else None),
+                
             "canceled_at": self.canceled_at.isoformat() if self.canceled_at else None,
             "current_period_start": self.current_period_start.isoformat(),
             "current_period_end": self.current_period_end.isoformat(),
@@ -499,7 +501,8 @@ class Subscription:
             f.write(self.to_json())
 
     @classmethod
-    def load_from_dict(cls, data: Dict[str, Any], plan: SubscriptionPlan) -> "Subscription":
+    def load_from_dict(cls, data: Dict[str, Any], 
+        plan: SubscriptionPlan) -> "Subscription":
         """
         Load a subscription from a dictionary.
 
@@ -531,8 +534,10 @@ class Subscription:
         if data.get("canceled_at"):
             subscription.canceled_at = datetime.fromisoformat(data["canceled_at"])
 
-        subscription.current_period_start = datetime.fromisoformat(data["current_period_start"])
-        subscription.current_period_end = datetime.fromisoformat(data["current_period_end"])
+        subscription.current_period_start = \
+            datetime.fromisoformat(data["current_period_start"])
+        subscription.current_period_end = \
+            datetime.fromisoformat(data["current_period_end"])
         subscription.price = data["price"]
         subscription.usage = data.get("usage", {})
         subscription.status_history = data.get("status_history", [])
@@ -566,7 +571,8 @@ class Subscription:
     def __repr__(self) -> str:
         """Detailed string representation of the subscription."""
         tier = self.get_tier()
-        return f"Subscription(id={self.id}, user_id={self.user_id}, tier={tier['name']}, status={self.status})"
+        return f"Subscription(id={self.id}, user_id={self.user_id}, tier={tier['name']}, 
+            status={self.status})"
 
 
 # Example usage
@@ -576,7 +582,7 @@ if __name__ == "__main__":
     # Create a subscription plan
     plan = SubscriptionPlan(
         name="AI Tool Subscription",
-        description="Subscription plan for an AI-powered tool",
+        description="Subscription plan for an AI - powered tool",
     )
 
     # Add features
@@ -624,7 +630,8 @@ if __name__ == "__main__":
 
     # Track usage
     subscription.increment_feature_usage(feature1["id"], 5)
-    print(f"\nContent Generation usage: {subscription.get_feature_usage(feature1['id'])}")
+    print(
+        f"\nContent Generation usage: {subscription.get_feature_usage(feature1['id'])}")
     print(f"Remaining: {subscription.get_remaining_feature_usage(feature1['id'])}")
 
     # Add metadata

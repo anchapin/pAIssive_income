@@ -22,7 +22,7 @@ from services.shared.event_bus import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def niche_analysis_service_example():
     )
 
     # Create an event bus
-    event_bus = EventBus(service_name="niche-analysis-service")
+    event_bus = EventBus(service_name="niche - analysis - service")
 
     try:
         # Start the event bus
@@ -72,8 +72,8 @@ def niche_analysis_service_example():
 
         # Create an event for the completed analysis
         analysis_completed_data = NicheAnalysisCompleted(
-            niche_id="niche-123",
-            niche_name="fitness-apps",
+            niche_id="niche - 123",
+            niche_name="fitness - apps",
             score=0.85,
             problems_count=3,
             opportunities_count=5,
@@ -81,7 +81,7 @@ def niche_analysis_service_example():
         )
 
         analysis_completed_event = analysis_completed_schema.create_event(
-            source="niche-analysis-service",
+            source="niche - analysis - service",
             data=analysis_completed_data,
             event_type=EventType.DOMAIN,
         )
@@ -95,13 +95,13 @@ def niche_analysis_service_example():
         # Create events for identified opportunities
         opportunities = [
             {
-                "opportunity_id": "opp-1",
-                "opportunity_name": "AI-powered workout planner",
+                "opportunity_id": "opp - 1",
+                "opportunity_name": "AI - powered workout planner",
                 "opportunity_score": 0.9,
                 "difficulty": "medium",
             },
             {
-                "opportunity_id": "opp-2",
+                "opportunity_id": "opp - 2",
                 "opportunity_name": "Nutrition tracking app",
                 "opportunity_score": 0.8,
                 "difficulty": "low",
@@ -109,10 +109,10 @@ def niche_analysis_service_example():
         ]
 
         for opp in opportunities:
-            opportunity_data = NicheOpportunityIdentified(niche_id="niche-123", **opp)
+            opportunity_data = NicheOpportunityIdentified(niche_id="niche - 123", **opp)
 
             opportunity_event = opportunity_identified_schema.create_event(
-                source="niche-analysis-service", data=opportunity_data, event_type=EventType.DOMAIN
+                source="niche - analysis - service", data=opportunity_data, event_type=EventType.DOMAIN
             )
 
             # Publish the event
@@ -160,7 +160,7 @@ def marketing_service_example():
     )
 
     # Create an event bus
-    event_bus = EventBus(service_name="marketing-service")
+    event_bus = EventBus(service_name="marketing - service")
 
     try:
         # Define event handlers
@@ -231,8 +231,8 @@ async def async_event_handling_example():
     user_registered_schema = EventSchema(data_model=UserRegistered, event_name="user.registered")
 
     # Create async event buses for publisher and subscriber
-    async with AsyncEventBus(service_name="auth-service") as publisher_bus:
-        async with AsyncEventBus(service_name="notification-service") as subscriber_bus:
+    async with AsyncEventBus(service_name="auth - service") as publisher_bus:
+        async with AsyncEventBus(service_name="notification - service") as subscriber_bus:
             # Define an async event handler
             async def handle_user_registered(event: Event):
                 # Parse the event data
@@ -263,14 +263,14 @@ async def async_event_handling_example():
 
             # Create an event for the user registration
             user_data = UserRegistered(
-                user_id="user-123",
+                user_id="user - 123",
                 username="john_doe",
-                email="john.doe@example.com",
+                email="john.doe @ example.com",
                 registration_time=time.time(),
             )
 
             user_registered_event = user_registered_schema.create_event(
-                source="auth-service", data=user_data, event_type=EventType.DOMAIN
+                source="auth - service", data=user_data, event_type=EventType.DOMAIN
             )
 
             # Publish the event
@@ -280,9 +280,9 @@ async def async_event_handling_example():
             await asyncio.sleep(2)
 
 
-# Example 4: Event-Driven Workflow
+# Example 4: Event - Driven Workflow
 def event_driven_workflow_example():
-    """Example of an event-driven workflow across multiple services."""
+    """Example of an event - driven workflow across multiple services."""
 
     # Define event data schemas
     class NicheSelected(BaseModel):
@@ -322,9 +322,9 @@ def event_driven_workflow_example():
     )
 
     # Create event buses for each service
-    ui_bus = EventBus(service_name="ui-service")
-    solution_bus = EventBus(service_name="solution-service")
-    marketing_bus = EventBus(service_name="marketing-service")
+    ui_bus = EventBus(service_name="ui - service")
+    solution_bus = EventBus(service_name="solution - service")
+    marketing_bus = EventBus(service_name="marketing - service")
 
     try:
         # Define event handlers
@@ -342,14 +342,14 @@ def event_driven_workflow_example():
 
             # Create an event for the solution creation
             solution_data = SolutionCreated(
-                solution_id="solution-123",
+                solution_id="solution - 123",
                 niche_id=niche_data.niche_id,
                 solution_name=f"{niche_data.niche_name} Solution",
                 user_id=niche_data.user_id,
             )
 
             solution_event = solution_created_schema.create_event(
-                source="solution-service",
+                source="solution - service",
                 data=solution_data,
                 event_type=EventType.DOMAIN,
                 user_id=niche_data.user_id,
@@ -372,14 +372,14 @@ def event_driven_workflow_example():
 
             # Create an event for the marketing plan generation
             plan_data = MarketingPlanGenerated(
-                plan_id="plan-123",
+                plan_id="plan - 123",
                 solution_id=solution_data.solution_id,
-                channels=["social-media", "content-marketing", "email"],
+                channels=["social - media", "content - marketing", "email"],
                 user_id=solution_data.user_id,
             )
 
             plan_event = marketing_plan_schema.create_event(
-                source="marketing-service",
+                source="marketing - service",
                 data=plan_data,
                 event_type=EventType.DOMAIN,
                 user_id=solution_data.user_id,
@@ -422,11 +422,11 @@ def event_driven_workflow_example():
 
         # Create an event for the niche selection
         niche_data = NicheSelected(
-            niche_id="niche-123", niche_name="fitness-apps", user_id="user-123"
+            niche_id="niche - 123", niche_name="fitness - apps", user_id="user - 123"
         )
 
         niche_event = niche_selected_schema.create_event(
-            source="ui-service",
+            source="ui - service",
             data=niche_data,
             event_type=EventType.DOMAIN,
             user_id=niche_data.user_id,
@@ -456,5 +456,5 @@ if __name__ == "__main__":
     # Example 3: Asynchronous Event Handling
     # asyncio.run(async_event_handling_example())
 
-    # Example 4: Event-Driven Workflow
+    # Example 4: Event - Driven Workflow
     event_driven_workflow_example()

@@ -21,7 +21,8 @@ class NicheAnalysisRequest(BaseModel):
         min_length=1,  # At least one market segment must be selected
     )
 
-    model_config = ConfigDict(extra="forbid")  # Forbid extra fields to prevent unexpected input
+    model_config = \
+        ConfigDict(extra="forbid")  # Forbid extra fields to prevent unexpected input
 
 
 class DeveloperSolutionRequest(BaseModel):
@@ -47,7 +48,8 @@ class MonetizationStrategyRequest(BaseModel):
     """Schema for monetization strategy request validation."""
 
     solution_id: str = Field(
-        ..., description="ID of the solution to create a monetization strategy for", min_length=1
+        ..., description="ID of the solution to create a monetization strategy for", 
+            min_length=1
     )
 
     model_config = ConfigDict(extra="forbid")
@@ -66,7 +68,8 @@ class MarketingCampaignRequest(BaseModel):
     """Schema for marketing campaign request validation."""
 
     solution_id: str = Field(
-        ..., description="ID of the solution to create a marketing campaign for", min_length=1
+        ..., description="ID of the solution to create a marketing campaign for", 
+            min_length=1
     )
 
     model_config = ConfigDict(extra="forbid")
@@ -82,7 +85,7 @@ class MarketingCampaignRequest(BaseModel):
 
 
 class TaskRequest(BaseModel):
-    """Schema for task-related requests."""
+    """Schema for task - related requests."""
 
     task_id: UUID = Field(..., description="ID of the task to operate on")
 
@@ -95,7 +98,8 @@ class ApiQueryParams(BaseModel):
     limit: Optional[int] = Field(
         default=100, description="Maximum number of items to return", ge=1, le=1000
     )
-    offset: Optional[int] = Field(default=0, description="Number of items to skip", ge=0)
+    offset: Optional[int] = Field(default=0, description="Number of items to skip", 
+        ge=0)
     sort_by: Optional[str] = Field(default=None, description="Field to sort by")
     sort_order: Optional[str] = Field(
         default="asc", description="Sort order (asc or desc)", pattern="^(asc|desc)$"

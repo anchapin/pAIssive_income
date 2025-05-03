@@ -1,5 +1,5 @@
 """
-Tests for namespace-specific cache clearing functionality.
+Tests for namespace - specific cache clearing functionality.
 """
 
 import logging
@@ -11,7 +11,7 @@ from common_utils.caching.cache_service import CacheService
 
 # Set up logging
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 # Force the logger to DEBUG level
@@ -19,7 +19,7 @@ logger.setLevel(logging.DEBUG)
 
 
 class TestNamespaceClearing(unittest.TestCase):
-    """Test cases for namespace-specific cache clearing."""
+    """Test cases for namespace - specific cache clearing."""
 
     def setUp(self):
         """Set up test fixtures."""

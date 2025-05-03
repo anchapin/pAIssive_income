@@ -60,10 +60,10 @@ class ScalabilityTest:
         # Create test webhooks
         for i in range(self.webhook_count):
             webhook_data = {
-                "url": f"https://example.com/webhook/{i}",
+                "url": f"https://example.com / webhook/{i}",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": f"Scalability test webhook {i}",
-                "headers": {"Authorization": f"Bearer test-token-{i}"},
+                "headers": {"Authorization": f"Bearer test - token-{i}"},
                 "is_active": True,
             }
             webhook = await self.service.register_webhook(webhook_data)
@@ -256,7 +256,7 @@ async def run_scalability_tests():
 
     # Print summary
     print("\n=== Scalability Test Summary ===")
-    print("Scaling Factor | Events/Second | Success Rate | Avg CPU % | Avg Memory (MB)")
+    print("Scaling Factor | Events / Second | Success Rate | Avg CPU % | Avg Memory (MB)")
     print("-------------- | ------------- | ------------ | --------- | --------------")
 
     for r in results:
@@ -264,7 +264,7 @@ async def run_scalability_tests():
         memory_mb = r.get("avg_memory_mb", 0)
         print(
             f"{r['scaling_factor']:14} | {r['events_per_second']:13.2f} | "
-            f"{r['success_rate']*100:10.2f}% | {cpu_percent:9.2f} | {memory_mb:14.2f}"
+            f"{r['success_rate'] * 100:10.2f}% | {cpu_percent:9.2f} | {memory_mb:14.2f}"
         )
 
     # Calculate scaling efficiency
@@ -287,7 +287,7 @@ async def run_scalability_tests():
 
                 print(
                     f"{r['scaling_factor']:14} | {ideal_throughput:15.2f} | "
-                    f"{actual_throughput:16.2f} | {efficiency*100:8.2f}%"
+                    f"{actual_throughput:16.2f} | {efficiency * 100:8.2f}%"
                 )
 
 

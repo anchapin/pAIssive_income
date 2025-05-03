@@ -21,9 +21,9 @@ class MockResponse:
         content: Union[bytes, str] = b"",
         headers: Optional[Dict[str, str]] = None,
         json_data: Optional[Dict[str, Any]] = None,
-        url: str = "https://mock-url.com",
+        url: str = "https://mock - url.com",
         reason: str = "OK",
-        encoding: str = "utf-8",
+        encoding: str = "utf - 8",
         cookies: Optional[Dict[str, str]] = None,
         elapsed: float = 0.1,
         request: Optional[Any] = None,
@@ -44,7 +44,7 @@ class MockResponse:
             request: Original request object
         """
         self.status_code = status_code
-        self._content = content.encode("utf-8") if isinstance(content, str) else content
+        self._content = content.encode("utf - 8") if isinstance(content, str) else content
         self.headers = headers or {}
         self._json_data = json_data
         self.url = url
@@ -56,13 +56,13 @@ class MockResponse:
         self.request = request
         self._iter_content_index = 0
 
-        # Set Content-Length header if not present and content exists
-        if "content-length" not in self.headers and self._content:
-            self.headers["content-length"] = str(len(self._content))
+        # Set Content - Length header if not present and content exists
+        if "content - length" not in self.headers and self._content:
+            self.headers["content - length"] = str(len(self._content))
 
         # Set encoding based on headers if not specified
-        if "content-type" in self.headers and "charset=" in self.headers["content-type"]:
-            charset_match = re.search(r"charset=([^\s;]+)", self.headers["content-type"])
+        if "content - type" in self.headers and "charset=" in self.headers["content - type"]:
+            charset_match = re.search(r"charset=([^\s;]+)", self.headers["content - type"])
             if charset_match:
                 self.encoding = charset_match.group(1)
 
@@ -222,7 +222,7 @@ class MockRequests:
             response = MockResponse(
                 status_code=404,
                 content=f"No mock response found for {method} {url}",
-                headers={"Content-Type": "text/plain"},
+                headers={"Content - Type": "text / plain"},
                 url=url,
                 reason="Not Found",
             )
@@ -284,7 +284,7 @@ class MockRequests:
             # Convert the response to a MockResponse
             if isinstance(response, (dict, list)):
                 # Convert to JSON
-                headers = headers or {"Content-Type": "application/json"}
+                headers = headers or {"Content - Type": "application / json"}
                 self.responses[pattern] = MockResponse(
                     status_code=status_code, json_data=response, headers=headers
                 )
@@ -295,13 +295,13 @@ class MockRequests:
                 )
             elif isinstance(response, str):
                 # Use as text
-                headers = headers or {"Content-Type": "text/plain"}
+                headers = headers or {"Content - Type": "text / plain"}
                 self.responses[pattern] = MockResponse(
                     status_code=status_code, content=response, headers=headers
                 )
             else:
                 # Convert to string
-                headers = headers or {"Content-Type": "text/plain"}
+                headers = headers or {"Content - Type": "text / plain"}
                 self.responses[pattern] = MockResponse(
                     status_code=status_code, content=str(response), headers=headers
                 )
@@ -331,12 +331,12 @@ mock_requests = MockRequests()
 if __name__ == "__main__":
     # Add a mock response for a URL pattern
     mock_requests.add_response(
-        "https://api.example.com/users",
+        "https://api.example.com / users",
         [{"id": 1, "name": "John"}, {"id": 2, "name": "Jane"}],
     )
 
     # Make a request
-    response = mock_requests.get("https://api.example.com/users")
+    response = mock_requests.get("https://api.example.com / users")
 
     # Get the response data
     data = response.json()

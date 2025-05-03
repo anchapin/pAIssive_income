@@ -16,11 +16,11 @@ def test_openai_provider_usage(mock_openai_provider):
     # List available models
     models = mock_openai_provider.list_models()
     assert len(models) > 0
-    assert any(model["id"] == "gpt-4-turbo" for model in models)
+    assert any(model["id"] == "gpt - 4-turbo" for model in models)
 
     # Test chat completion
     response = mock_openai_provider.create_chat_completion(
-        model="gpt-3.5-turbo", messages=[{"role": "user", "content": "Hello, how are you?"}]
+        model="gpt - 3.5 - turbo", messages=[{"role": "user", "content": "Hello, how are you?"}]
     )
     assert "choices" in response
     assert len(response["choices"]) > 0
@@ -29,7 +29,7 @@ def test_openai_provider_usage(mock_openai_provider):
 
     # Test with custom trigger phrase
     response = mock_openai_provider.create_chat_completion(
-        model="gpt-3.5-turbo",
+        model="gpt - 3.5 - turbo",
         messages=[{"role": "user", "content": "Can you analyze market trends for me?"}],
     )
     assert (
@@ -60,8 +60,8 @@ def test_ollama_provider_usage(mock_ollama_provider):
 def test_stripe_payment_processing(mock_stripe_gateway):
     """Test using the mock Stripe payment gateway."""
     # Create a new customer
-    customer = mock_stripe_gateway.create_customer(email="john.doe@example.com", name="John Doe")
-    assert customer["email"] == "john.doe@example.com"
+    customer = mock_stripe_gateway.create_customer(email="john.doe @ example.com", name="John Doe")
+    assert customer["email"] == "john.doe @ example.com"
     assert "id" in customer
 
     # Create a payment method
@@ -98,7 +98,7 @@ def test_subscription_management(mock_stripe_gateway):
     """Test subscription creation and management with the mock payment gateway."""
     # Create a customer
     customer = mock_stripe_gateway.create_customer(
-        email="subscription.test@example.com", name="Subscription Tester"
+        email="subscription.test @ example.com", name="Subscription Tester"
     )
 
     # Create a payment method
@@ -165,7 +165,7 @@ def test_model_manager_with_mock(mock_get_model_provider, mock_openai_provider):
 
         # Use the provider to generate text
         response = provider.create_chat_completion(
-            model="gpt-3.5-turbo", messages=[{"role": "user", "content": "What is AI?"}]
+            model="gpt - 3.5 - turbo", messages=[{"role": "user", "content": "What is AI?"}]
         )
 
         # Verify the response
@@ -199,7 +199,7 @@ def test_payment_processor_with_mock(mock_get_payment_gateway, mock_stripe_gatew
         processor = MockPaymentProcessorImpl()
 
         # Create a customer and payment method for testing
-        customer = processor.create_customer(email="test@example.com", name="Test Customer")
+        customer = processor.create_customer(email="test @ example.com", name="Test Customer")
 
         payment_method = processor.create_payment_method(
             customer_id=customer["id"],
@@ -232,4 +232,4 @@ def test_payment_processor_with_mock(mock_get_payment_gateway, mock_stripe_gatew
 
 if __name__ == "__main__":
     # This allows running the tests directly from this file
-    pytest.main(["-v", __file__])
+    pytest.main([" - v", __file__])

@@ -10,7 +10,8 @@ from unittest.mock import MagicMock
 import pytest
 
 # Import our centralized mock fixtures
-from tests.mocks.fixtures import (  # Model provider fixtures; HTTP and external API fixtures; Complete test scenario fixtures; Common test data fixtures
+from tests.mocks.fixtures import (  # Model provider fixtures; HTTP and \
+    external API fixtures; Complete test scenario fixtures; Common test data fixtures
     mock_ai_model_testing_setup,
     mock_email_api,
     mock_embedding_result,
@@ -50,11 +51,12 @@ def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
     # Create gateway with network errors disabled
     gateway = create_payment_gateway(
-        "stripe", {"simulate_network_errors": False, "success_rate": 1.0}  # Always succeed
+        "stripe", {"simulate_network_errors": False, 
+            "success_rate": 1.0}  # Always succeed
     )
 
     # Add some test data
-    customer = gateway.create_customer(email="test@example.com", name="Test Customer")
+    customer = gateway.create_customer(email="test @ example.com", name="Test Customer")
 
     # Create a payment method
     payment_method = gateway.create_payment_method(
@@ -69,11 +71,13 @@ def mock_stripe_gateway():
     )
 
     # Create a plan
-    plan = gateway.create_plan(name="Test Plan", currency="USD", interval="month", amount=9.99)
+    plan = gateway.create_plan(name="Test Plan", currency="USD", interval="month", 
+        amount=9.99)
 
     # Create a subscription
     subscription = gateway.create_subscription(
-        customer_id=customer["id"], payment_method_id=payment_method["id"], plan_id=plan["id"]
+        customer_id=customer["id"], payment_method_id=payment_method["id"], 
+            plan_id=plan["id"]
     )
 
     return gateway
@@ -93,27 +97,27 @@ def mock_model_manager():
     # Define available models
     mock_manager.list_models.return_value = [
         {
-            "id": "gpt-3.5-turbo",
-            "name": "GPT-3.5 Turbo",
-            "capabilities": ["text-generation", "chat"],
+            "id": "gpt - 3.5 - turbo",
+            "name": "GPT - 3.5 Turbo",
+            "capabilities": ["text - generation", "chat"],
             "provider": "openai",
         },
         {
-            "id": "gpt-4",
-            "name": "GPT-4",
-            "capabilities": ["text-generation", "chat"],
+            "id": "gpt - 4",
+            "name": "GPT - 4",
+            "capabilities": ["text - generation", "chat"],
             "provider": "openai",
         },
         {
-            "id": "mistral-7b",
+            "id": "mistral - 7b",
             "name": "Mistral 7B",
-            "capabilities": ["text-generation", "chat"],
+            "capabilities": ["text - generation", "chat"],
             "provider": "ollama",
         },
         {
             "id": "llama2",
             "name": "Llama 2",
-            "capabilities": ["text-generation", "chat"],
+            "capabilities": ["text - generation", "chat"],
             "provider": "lmstudio",
         },
     ]
@@ -139,12 +143,13 @@ def mock_test_solution():
     return {
         "id": "solution1",
         "name": "AI Inventory Manager",
-        "description": "An AI-powered solution for inventory management",
+        "description": "An AI - powered solution for inventory management",
         "features": [
             {
                 "id": "feature1",
                 "name": "Demand Forecasting",
                 "description": "Predict future inventory needs based on historical data",
+                    
                 "complexity": "high",
                 "development_cost": "high",
                 "value_proposition": "Save time and reduce stockouts",
@@ -175,7 +180,7 @@ def mock_test_solution():
             },
         ],
         "market_data": {
-            "target_audience": "E-commerce store owners and inventory managers",
+            "target_audience": "E - commerce store owners and inventory managers",
             "market_size": "large",
             "competition": "medium",
         },
@@ -223,13 +228,16 @@ def mock_test_monetization_strategy():
         "target_audience": {
             "segments": [
                 "Small businesses",
-                "E-commerce store owners",
+                "E - commerce store owners",
                 "Retail inventory managers",
             ],
             "user_personas": {
                 "free_tier": "Small business owners looking for basic inventory management",
-                "pro_tier": "Growing e-commerce businesses with moderate inventory needs",
+                    
+                "pro_tier": "Growing e - commerce businesses with moderate inventory needs",
+                    
                 "business_tier": "Established businesses with complex inventory requirements",
+                    
             },
         },
         "pricing_strategy": {
@@ -256,7 +264,7 @@ def mock_test_niche():
     return {
         "id": "niche1",
         "name": "Inventory Management",
-        "market_segment": "e-commerce",
+        "market_segment": "e - commerce",
         "description": "AI tools for inventory management",
         "opportunity_score": 0.8,
         "market_data": {

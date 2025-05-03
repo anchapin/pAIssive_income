@@ -36,7 +36,8 @@ class ContentTemplate(ABC):
         self.title = template_data["title"]
         self.description = template_data["description"]
         self.target_persona = template_data["target_persona"]
-        self.created_at = template_data.get("created_at") or datetime.datetime.now().isoformat()
+        self.created_at = \
+            template_data.get("created_at") or datetime.datetime.now().isoformat()
         self.updated_at = template_data.get("updated_at")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -67,7 +68,8 @@ class BlogPostTemplate(ContentTemplate):
         self.estimated_reading_time = template_data.get("estimated_reading_time")
         self.target_word_count = template_data.get("target_word_count")
         self.topics = template_data["topics"]
-        self.target_reading_level = template_data.get("target_reading_level", "intermediate")
+        self.target_reading_level = template_data.get("target_reading_level", 
+            "intermediate")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert template to dictionary."""
@@ -184,7 +186,8 @@ class GeneratedContent(ABC):
         """Initialize content with data."""
         self.id = content_data.get("id") or str(uuid.uuid4())
         self.template_id = content_data["template_id"]
-        self.timestamp = content_data.get("timestamp") or datetime.datetime.now().isoformat()
+        self.timestamp = \
+            content_data.get("timestamp") or datetime.datetime.now().isoformat()
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert content to dictionary."""
@@ -350,7 +353,7 @@ class GeneratorConfig:
             "include_links": True,
             "seo_optimization": True,
             "target_reading_level": "intermediate",
-            "language": "en-US",
+            "language": "en - US",
             "content_format": "markdown",
             "include_metadata": True,
             "use_ai_enhancement": True,
@@ -466,7 +469,7 @@ class ContentGenerator(ABC):
             "kwargs": kwargs,
         }
 
-        # Remove non-deterministic fields that should not affect caching
+        # Remove non - deterministic fields that should not affect caching
         if "id" in key_data["template"]:
             key_data["template"]["id"] = "static_id"
 
@@ -479,7 +482,7 @@ class ContentGenerator(ABC):
         # Convert to stable string representation
         key_str = json.dumps(key_data, sort_keys=True)
 
-        # Hash to get a fixed-length key
+        # Hash to get a fixed - length key
         return hashlib.sha256(key_str.encode()).hexdigest()
 
     def set_cache_ttl(self, ttl_seconds: int) -> None:
@@ -510,8 +513,10 @@ class BlogPostGenerator(ContentGenerator):
         """
         Transform content templates into complete blog posts with intelligent structure generation.
 
-        This algorithm implements a sophisticated multi-stage blog post generation system
-        that transforms template specifications into complete, publication-ready content.
+        This algorithm implements a sophisticated multi - \
+            stage blog post generation system
+        that transforms template specifications into complete, 
+            publication - ready content.
         The implementation follows these key phases:
 
         1. TEMPLATE VALIDATION AND PREPROCESSING:
@@ -521,8 +526,10 @@ class BlogPostGenerator(ContentGenerator):
            - Sets up content generation environment with appropriate constraints
 
         2. INTELLIGENT STRUCTURE GENERATION:
-           - Dynamically creates an optimal content structure based on template parameters
-           - Generates appropriate introduction that establishes topic relevance and context
+           - \
+               Dynamically creates an optimal content structure based on template parameters
+           - \
+               Generates appropriate introduction that establishes topic relevance and context
            - Creates a logical progression of content sections that address key points
            - Synthesizes a conclusion that reinforces the main message and drives action
 
@@ -540,7 +547,8 @@ class BlogPostGenerator(ContentGenerator):
 
         This algorithm specifically addresses several critical content marketing requirements:
         - Ensures content aligns with SEO best practices while maintaining readability
-        - Produces structurally complete blog posts with proper beginning, middle, and end
+        - Produces structurally complete blog posts with proper beginning, middle, 
+            and end
         - Creates content optimized for both search engines and human readers
         - Maintains consistent tone and style throughout the generated content
 
@@ -587,12 +595,13 @@ class BlogPostGenerator(ContentGenerator):
             "tags": template["topics"],
             "categories": template["topics"],
             "featured_image": {
-                "url": "https://example.com/image.jpg",
+                "url": "https://example.com / image.jpg",
                 "alt": "Featured image",
             },
             "seo_data": {
                 "keywords": template["seo_keywords"],
-                "metadata": {"description": f"A blog post about {', '.join(template['topics'])}"},
+                "metadata": {"description": f"A blog post about {', 
+                    '.join(template['topics'])}"},
             },
         }
 
@@ -604,7 +613,8 @@ class BlogPostGenerator(ContentGenerator):
         result = blog_post.to_dict()
 
         # Store in cache
-        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, 
+            namespace=cache_namespace)
 
         return result
 
@@ -635,40 +645,45 @@ class SocialMediaPostGenerator(ContentGenerator):
 
     def generate(self, template: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """
-        Create platform-optimized social media content through adaptive formatting.
+        Create platform - optimized social media content through adaptive formatting.
 
-        This algorithm implements a sophisticated multi-platform social media content generation
-        system that adapts content to the specific requirements and best practices of different
+        This algorithm implements a sophisticated multi - \
+            platform social media content generation
+        system that adapts content to the specific requirements and \
+            best practices of different
         social networks. The implementation follows these key phases:
 
         1. TEMPLATE VALIDATION AND PLATFORM ANALYSIS:
            - Validates the structural integrity of the provided template
            - Identifies target social platform and its specific constraints
-           - Establishes platform-specific parameters (character limits, media support)
+           - Establishes platform - specific parameters (character limits, 
+               media support)
            - Determines optimal content structure for the target platform
 
         2. ADAPTIVE CONTENT GENERATION:
            - Selects optimal message format based on platform characteristics
-           - Applies platform-specific content length restrictions
-           - Implements platform-appropriate formatting conventions
-           - Optimizes for platform-specific engagement patterns and algorithms
+           - Applies platform - specific content length restrictions
+           - Implements platform - appropriate formatting conventions
+           - Optimizes for platform - specific engagement patterns and algorithms
 
         3. MEDIA AND LINK INTEGRATION:
            - Determines appropriate media inclusion based on platform capabilities
-           - Generates platform-optimized link structures (shortened, tracking-enabled)
-           - Creates platform-specific call-to-action formats
+           - Generates platform - optimized link structures (shortened, 
+               tracking - enabled)
+           - Creates platform - specific call - to - action formats
            - Provides appropriate media suggestions based on platform requirements
 
         4. POSTING STRATEGY OPTIMIZATION:
-           - Generates platform-optimized hashtag recommendations
+           - Generates platform - optimized hashtag recommendations
            - Calculates ideal posting times based on platform engagement patterns
            - Provides engagement optimization recommendations
-           - Ensures compliance with platform-specific constraints and best practices
+           - Ensures compliance with platform - specific constraints and best practices
 
         This algorithm specifically addresses several critical social media marketing challenges:
-        - Ensures content is optimized for each platform's unique algorithm and user expectations
-        - Balances message consistency with platform-specific adaptations
-        - Creates engagement-optimized content that adheres to platform constraints
+        - \
+            Ensures content is optimized for each platform's unique algorithm and user expectations
+        - Balances message consistency with platform - specific adaptations
+        - Creates engagement - optimized content that adheres to platform constraints
         - Provides comprehensive posting guidance to maximize content performance
 
         Args:
@@ -677,7 +692,7 @@ class SocialMediaPostGenerator(ContentGenerator):
 
         Returns:
             A dictionary containing the complete generated social media post with all
-            platform-specific optimizations and posting recommendations
+            platform - specific optimizations and posting recommendations
 
         Raises:
             ValueError: If the template is invalid or content generation fails
@@ -709,11 +724,12 @@ class SocialMediaPostGenerator(ContentGenerator):
             "content": self._generate_content(template),
             "hashtags": template.get("hashtags", []),
             "image_suggestions": (
-                [{"url": "https://example.com/image.jpg", "alt": "Suggested image"}]
+                [{"url": "https://example.com / image.jpg", "alt": "Suggested image"}]
                 if template.get("include_image", True)
                 else None
             ),
-            "link": ("https://example.com" if template.get("include_link", True) else None),
+            "link": ("https://example.com" if template.get("include_link", 
+                True) else None),
             "call_to_action": "Click here to learn more",
             "optimal_posting_times": ["10:00 AM", "2:00 PM", "8:00 PM"],
         }
@@ -726,7 +742,8 @@ class SocialMediaPostGenerator(ContentGenerator):
         result = social_post.to_dict()
 
         # Store in cache
-        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, 
+            namespace=cache_namespace)
 
         return result
 
@@ -747,9 +764,11 @@ class EmailNewsletterGenerator(ContentGenerator):
 
     def generate(self, template: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """
-        Create engagement-optimized email newsletters with advanced personalization and metrics prediction.
+        Create engagement - \
+            optimized email newsletters with advanced personalization and metrics prediction.
 
-        This algorithm implements a sophisticated multi-component email newsletter generation system
+        This algorithm implements a sophisticated multi - \
+            component email newsletter generation system
         that produces highly optimized marketing communications. The implementation follows these key phases:
 
         1. TEMPLATE VALIDATION AND PARAMETER EXTRACTION:
@@ -758,27 +777,30 @@ class EmailNewsletterGenerator(ContentGenerator):
            - Establishes campaign parameters and recipient targeting information
            - Sets up content generation environment with appropriate constraints
 
-        2. MULTI-COMPONENT CONTENT GENERATION:
+        2. MULTI - COMPONENT CONTENT GENERATION:
            - Dynamically selects optimal subject lines based on performance predictors
            - Generates preview text optimized for inbox visibility and open rates
            - Creates personalized greetings with dynamic recipient data integration
-           - Assembles a coherent multi-section body with logical flow and narrative structure
-           - Designs appropriate call-to-action elements with conversion optimization
+           - \
+               Assembles a coherent multi - section body with logical flow and narrative structure
+           - \
+               Designs appropriate call - to - action elements with conversion optimization
 
         3. EMAIL STRUCTURE AND FORMAT OPTIMIZATION:
-           - Applies responsive design considerations for multi-device compatibility
-           - Implements email client-specific formatting adaptations
-           - Balances text-to-image ratios to avoid spam filtering
+           - Applies responsive design considerations for multi - device compatibility
+           - Implements email client - specific formatting adaptations
+           - Balances text - to - image ratios to avoid spam filtering
            - Inserts appropriate tracking and analytics elements
 
         4. DELIVERABILITY AND PERFORMANCE OPTIMIZATION:
-           - Performs spam-score analysis with compliance validation
+           - Performs spam - score analysis with compliance validation
            - Incorporates required legal elements (unsubscribe, physical address)
            - Predicts performance metrics through engagement modeling
            - Validates the complete structure against email marketing best practices
 
         This algorithm specifically addresses several critical email marketing challenges:
-        - Ensures content passes spam filters while maintaining high engagement potential
+        - \
+            Ensures content passes spam filters while maintaining high engagement potential
         - Balances persuasive marketing content with deliverability requirements
         - Creates personalization that scales across large recipient bases
         - Provides predictive metrics to estimate campaign performance
@@ -823,11 +845,12 @@ class EmailNewsletterGenerator(ContentGenerator):
             "subject_line": subject,
             "preview_text": preheader,
             "content_sections": self._generate_sections(template),
-            "header": ("Header content" if template.get("include_header", True) else None),
+            "header": ("Header content" if template.get("include_header", 
+                True) else None),
             "footer": self._generate_footer(template),
             "call_to_action": self._generate_call_to_action(template),
             "images": (
-                [{"url": "https://example.com/image.jpg", "alt": "Newsletter image"}]
+                [{"url": "https://example.com / image.jpg", "alt": "Newsletter image"}]
                 if template.get("include_images", True)
                 else []
             ),
@@ -843,7 +866,8 @@ class EmailNewsletterGenerator(ContentGenerator):
         result = newsletter.to_dict()
 
         # Store in cache
-        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, 
+            namespace=cache_namespace)
 
         return result
 
@@ -861,7 +885,8 @@ class EmailNewsletterGenerator(ContentGenerator):
             # If no preheader options, use a truncated version of the first paragraph
             body = template.get("body_options", [""])[0]
             first_paragraph = body.split("\n\n")[0]
-            return first_paragraph[:100] + "..." if len(first_paragraph) > 100 else first_paragraph
+            return first_paragraph[:100] + \
+                "..." if len(first_paragraph) > 100 else first_paragraph
         return random.choice(options)
 
     def _generate_greeting(self, template: Dict[str, Any]) -> str:
@@ -892,11 +917,11 @@ class EmailNewsletterGenerator(ContentGenerator):
         """
         Generate optimized email footer with compliance and branding elements.
 
-        This algorithm creates legally-compliant, brand-consistent email footers
+        This algorithm creates legally - compliant, brand - consistent email footers
         that balance multiple requirements:
 
         1. COMPLIANCE INTEGRATION:
-           - Incorporates required legal elements (CAN-SPAM, GDPR compliance)
+           - Incorporates required legal elements (CAN - SPAM, GDPR compliance)
            - Includes properly formatted physical address information
            - Adds necessary unsubscribe mechanisms and preference management
            - Ensures all required disclaimers are present
@@ -933,7 +958,8 @@ class EmailNewsletterGenerator(ContentGenerator):
             footer_parts.append("1234 Example Street, City, State 12345")
 
         if template.get("include_social_links", True):
-            footer_parts.append("Follow us: [Facebook] [Twitter] [LinkedIn] [Instagram]")
+            footer_parts.append(
+                "Follow us: [Facebook] [Twitter] [LinkedIn] [Instagram]")
 
         return "\n".join(footer_parts)
 

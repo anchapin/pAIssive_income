@@ -22,7 +22,8 @@ class TestPaymentGateway(unittest.TestCase):
 
     def create_test_customer(self):
         """Helper to create a test customer with payment method."""
-        customer = self.processor.create_customer(email="test@example.com", name="Test Customer")
+        customer = self.processor.create_customer(email="test @ example.com", 
+            name="Test Customer")
         self.customer_id = customer["id"]
 
         payment_method = self.processor.create_payment_method(
@@ -123,7 +124,8 @@ class TestPaymentGateway(unittest.TestCase):
         )
 
         # Full refund
-        refund = self.processor.refund_payment(payment_id=payment["id"], reason="Customer request")
+        refund = self.processor.refund_payment(payment_id=payment["id"], 
+            reason="Customer request")
         self.assertEqual(refund["amount"], 50.00)
         self.assertEqual(refund["status"], "succeeded")
 
@@ -194,7 +196,8 @@ class TestPaymentGateway(unittest.TestCase):
         # Clean up created resources
         if self.subscription_id:
             try:
-                self.processor.cancel_subscription(self.subscription_id, cancel_at_period_end=False)
+                self.processor.cancel_subscription(self.subscription_id, 
+                    cancel_at_period_end=False)
             except:
                 pass
 

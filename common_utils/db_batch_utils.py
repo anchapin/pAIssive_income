@@ -59,12 +59,14 @@ class DBBatchProcessor:
     Class for performing database operations in batches.
     """
 
-    def __init__(self, connection: Union[sqlite3.Connection, Any], default_batch_size: int = 100):
+    def __init__(self, connection: Union[sqlite3.Connection, Any], 
+        default_batch_size: int = 100):
         """
         Initialize the batch processor.
 
         Args:
-            connection: Database connection (SQLite or other DB-API 2.0 compliant connection)
+            connection: Database connection (SQLite or other DB - \
+                API 2.0 compliant connection)
             default_batch_size: Default size for each batch
         """
         self.connection = connection
@@ -121,7 +123,8 @@ class DBBatchProcessor:
                             affected_rows += cursor.rowcount
                         except Exception as e:
                             errors.append((i, e))
-                            logger.error(f"Error executing {operation_type} operation: {e}")
+                            logger.error(
+                                f"Error executing {operation_type} operation: {e}")
             except Exception as e:
                 for i in range(len(params_list)):
                     errors.append((i, e))
@@ -271,7 +274,8 @@ class DBBatchProcessor:
         query = f"UPDATE {table_name} SET {set_clause} WHERE {where_column} = ?"
 
         # Prepare parameters for the query
-        params_list = [tuple(set_values + [where_value]) for set_values, where_value in data_list]
+        params_list = [tuple(set_values + [where_value]) for set_values, 
+            where_value in data_list]
 
         # Execute the batch operation
         return self.execute_batch_operation(
@@ -306,7 +310,7 @@ class DBBatchProcessor:
         # Create the DELETE query
         query = f"DELETE FROM {table_name} WHERE {where_column} = ?"
 
-        # Convert key_list to a list of single-element tuples
+        # Convert key_list to a list of single - element tuples
         params_list = [(key,) for key in key_list]
 
         # Execute the batch operation
@@ -361,7 +365,8 @@ class DBBatchProcessor:
                         # Processing error
                         results[i] = e
                         stats.failed_items += 1
-                        logger.error(f"Error processing query result for index {i}: {e}")
+                        logger.error(
+                            f"Error processing query result for index {i}: {e}")
                 else:
                     results[i] = rows
 
@@ -477,7 +482,8 @@ def batch_update(
         DBBatchResult with update results and statistics
     """
     processor = DBBatchProcessor(connection, default_batch_size=batch_size)
-    return processor.batch_update(table_name, set_columns, where_column, data_list, batch_size)
+    return processor.batch_update(table_name, set_columns, where_column, data_list, 
+        batch_size)
 
 
 def batch_delete(

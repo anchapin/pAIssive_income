@@ -68,7 +68,7 @@ class TestMeteredBilling(unittest.TestCase):
             id="invoice123",
             status="draft",
             items=[MagicMock(description="API Calls", amount=1.23)],
-            metadata={"invoice_url": "https://example.com/invoice123"},
+            metadata={"invoice_url": "https://example.com / invoice123"},
         )
 
     def test_metering_intervals(self):
@@ -91,7 +91,7 @@ class TestMeteredBilling(unittest.TestCase):
         # Test monthly interval
         self.model.set_metering_interval(MeteringInterval.MONTHLY)
         start, end = self.model.get_interval_start_end()
-        # This will vary by month, but should be roughly 28-31 days
+        # This will vary by month, but should be roughly 28 - 31 days
         self.assertTrue(28 <= (end - start).days <= 31)
 
     def test_custom_billing_period(self):
@@ -153,7 +153,7 @@ class TestMeteredBilling(unittest.TestCase):
         self.assertEqual(invoice["customer_id"], customer_id)
         self.assertEqual(invoice["total_amount"], 1.23)
         self.assertEqual(invoice["status"], "draft")
-        self.assertEqual(invoice["invoice_url"], "https://example.com/invoice123")
+        self.assertEqual(invoice["invoice_url"], "https://example.com / invoice123")
 
     def test_minimum_maximum_billing(self):
         """Test minimum and maximum billing amounts."""
@@ -298,13 +298,14 @@ class TestMeteredBilling(unittest.TestCase):
         self.model.prorate_partial_periods = True
         self.model.set_metering_interval(MeteringInterval.MONTHLY)
 
-        # Set up a mid-month billing period
+        # Set up a mid - month billing period
         mid_month_start = datetime(now.year, now.month, 15)
         next_month = mid_month_start + timedelta(days=30)
         next_month_start = datetime(next_month.year, next_month.month, 1)
 
         self.model.set_custom_billing_period(
-            customer_id=customer_id, start_time=mid_month_start, end_time=next_month_start
+            customer_id=customer_id, start_time=mid_month_start, 
+                end_time=next_month_start
         )
 
         # Mock the billing calculator for prorated amount
@@ -322,7 +323,8 @@ class TestMeteredBilling(unittest.TestCase):
         )
 
         # Verify prorated billing
-        self.assertEqual(result["current_cost"], 0.615)  # Should be half of the normal 1.23 rate
+        self.assertEqual(result["current_cost"], 
+            0.615)  # Should be half of the normal 1.23 rate
 
 
 if __name__ == "__main__":

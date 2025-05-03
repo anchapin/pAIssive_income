@@ -3,7 +3,7 @@ Resource utilization tests for the system.
 
 This module contains tests to evaluate the system's resource utilization patterns,
 including memory usage under sustained load, CPU utilization during concurrent
-operations, and I/O bottleneck identification.
+operations, and I / O bottleneck identification.
 """
 
 import asyncio
@@ -91,7 +91,7 @@ class ResourceMonitor:
                 memory_mb = memory_info.rss / (1024 * 1024)  # Convert to MB
                 self.memory_samples.append(memory_mb)
 
-                # I/O counters
+                # I / O counters
                 io_counters = self.process.io_counters()
                 self.io_samples.append(
                     {
@@ -123,7 +123,7 @@ class ResourceMonitor:
         )
         max_memory = max(self.memory_samples) if self.memory_samples else 0
 
-        # Calculate I/O rates
+        # Calculate I / O rates
         io_rates = []
         for i in range(1, len(self.io_samples)):
             time_diff = self.timestamps[i] - self.timestamps[i - 1]
@@ -244,7 +244,7 @@ class MemoryLeakTester:
 
             # Determine if there's a memory leak
             memory_growth_rate = slope * 3600  # MB per hour
-            has_leak = memory_growth_rate > 10  # More than 10MB/hour growth
+            has_leak = memory_growth_rate > 10  # More than 10MB / hour growth
 
             metrics["memory"]["growth_rate_mb_per_hour"] = memory_growth_rate
             metrics["memory"]["potential_leak_detected"] = has_leak
@@ -342,10 +342,10 @@ class CPUUtilizationTester:
 
 
 class IOBottleneckTester:
-    """Test for I/O bottlenecks."""
+    """Test for I / O bottlenecks."""
 
     def __init__(self):
-        """Initialize the I/O bottleneck tester."""
+        """Initialize the I / O bottleneck tester."""
         self.monitor = ResourceMonitor(interval=0.1)
         # Use a secure temporary directory
         self.temp_dir = tempfile.mkdtemp()
@@ -358,7 +358,7 @@ class IOBottleneckTester:
         self, file_sizes: List[int], concurrency_levels: List[int], operations_per_test: int = 100
     ) -> Dict[str, Any]:
         """
-        Run an I/O bottleneck test.
+        Run an I / O bottleneck test.
 
         Args:
             file_sizes: List of file sizes to test (in KB)
@@ -424,12 +424,12 @@ class IOBottleneckTester:
                     results.append(result)
 
                     print(f"  Completed in {duration:.2f}s")
-                    print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB/s")
+                    print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB / s")
                     print(
-                        f"  Average read rate: {metrics['io']['average_read_rate'] / (1024*1024):.2f} MB/s"
+                        f"  Average read rate: {metrics['io']['average_read_rate'] / (1024 * 1024):.2f} MB / s"
                     )
                     print(
-                        f"  Average write rate: {metrics['io']['average_write_rate'] / (1024*1024):.2f} MB/s"
+                        f"  Average write rate: {metrics['io']['average_write_rate'] / (1024 * 1024):.2f} MB / s"
                     )
 
         finally:
@@ -444,7 +444,7 @@ class IOBottleneckTester:
 
     async def _io_worker(self, file_size: int, worker_id: int, operations: int) -> None:
         """
-        Worker function for I/O testing.
+        Worker function for I / O testing.
 
         Args:
             file_size: Size of files to create (in KB)
@@ -488,7 +488,7 @@ async def test_memory_usage_patterns():
     async def create_and_deliver_webhook(iteration):
         # Create a webhook
         webhook = await service.create_webhook(
-            url=f"https://example.com/webhook-{iteration}",
+            url=f"https://example.com / webhook-{iteration}",
             events=[WebhookEventType.USER_CREATED],
             description=f"Test webhook {iteration}",
         )
@@ -534,7 +534,7 @@ async def test_memory_usage_patterns():
 
     if "growth_rate_mb_per_hour" in results["metrics"]["memory"]:
         print(
-            f"Memory growth rate: {results['metrics']['memory']['growth_rate_mb_per_hour']:.2f} MB/hour"
+            f"Memory growth rate: {results['metrics']['memory']['growth_rate_mb_per_hour']:.2f} MB / hour"
         )
         print(f"Potential memory leak: {results['metrics']['memory']['potential_leak_detected']}")
 
@@ -564,7 +564,7 @@ async def test_cpu_utilization():
             # Create webhooks
             for i in range(operations):
                 webhook = await service.create_webhook(
-                    url=f"https://example.com/webhook-{worker_id}-{i}",
+                    url=f"https://example.com / webhook-{worker_id}-{i}",
                     events=[WebhookEventType.USER_CREATED],
                     description=f"Test webhook {worker_id}-{i}",
                 )
@@ -612,14 +612,14 @@ async def test_cpu_utilization():
 
 
 async def test_io_bottleneck():
-    """Test I/O bottleneck identification."""
+    """Test I / O bottleneck identification."""
     if not PSUTIL_AVAILABLE:
         pytest.skip("psutil not available")
 
-    # Create an I/O bottleneck tester
+    # Create an I / O bottleneck tester
     tester = IOBottleneckTester()
 
-    # Run the I/O test with different file sizes and concurrency levels
+    # Run the I / O test with different file sizes and concurrency levels
     results = await tester.run_io_test(
         file_sizes=[10, 100, 1000],  # 10KB, 100KB, 1MB
         concurrency_levels=[1, 4, 16],
@@ -627,15 +627,15 @@ async def test_io_bottleneck():
     )
 
     # Print results
-    print("\nI/O Bottleneck Test Results:")
+    print("\nI / O Bottleneck Test Results:")
     for result in results["results"]:
         print(f"File size: {result['file_size_kb']}KB, Concurrency: {result['concurrency']}")
-        print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB/s")
+        print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB / s")
         print(
-            f"  Average read rate: {result['metrics']['io']['average_read_rate'] / (1024*1024):.2f} MB/s"
+            f"  Average read rate: {result['metrics']['io']['average_read_rate'] / (1024 * 1024):.2f} MB / s"
         )
         print(
-            f"  Average write rate: {result['metrics']['io']['average_write_rate'] / (1024*1024):.2f} MB/s"
+            f"  Average write rate: {result['metrics']['io']['average_write_rate'] / (1024 * 1024):.2f} MB / s"
         )
 
     # Save results to file
@@ -657,7 +657,7 @@ async def main():
     print("\n=== Testing CPU Utilization ===")
     await test_cpu_utilization()
 
-    print("\n=== Testing I/O Bottleneck Identification ===")
+    print("\n=== Testing I / O Bottleneck Identification ===")
     await test_io_bottleneck()
 
 

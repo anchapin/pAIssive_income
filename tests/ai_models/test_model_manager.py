@@ -41,7 +41,7 @@ def mock_config():
     config.default_device = "auto"
     config.model_sources = ["local", "huggingface"]
     config.default_text_model = "gpt2"
-    config.default_embedding_model = "all-MiniLM-L6-v2"
+    config.default_embedding_model = "all - MiniLM - L6 - v2"
     return config
 
 
@@ -88,15 +88,15 @@ def test_model_manager_init_model_registry(model_manager, mock_config):
             "name": "Model 1",
             "description": "A test model",
             "type": "huggingface",
-            "path": "/path/to/model1",
-            "capabilities": ["text-generation"],
+            "path": " / path / to / model1",
+            "capabilities": ["text - generation"],
         },
         "model2": {
             "id": "model2",
             "name": "Model 2",
             "description": "Another test model",
             "type": "embedding",
-            "path": "/path/to/model2",
+            "path": " / path / to / model2",
             "capabilities": ["embedding"],
         },
     }
@@ -129,8 +129,8 @@ def test_model_manager_save_model_registry(model_manager, mock_config):
             "name": "Model 1",
             "description": "A test model",
             "type": "huggingface",
-            "path": "/path/to/model1",
-            "capabilities": ["text-generation"],
+            "path": " / path / to / model1",
+            "capabilities": ["text - generation"],
         }
     )
 
@@ -143,7 +143,7 @@ def test_model_manager_save_model_registry(model_manager, mock_config):
             "name": "Model 2",
             "description": "Another test model",
             "type": "embedding",
-            "path": "/path/to/model2",
+            "path": " / path / to / model2",
             "capabilities": ["embedding"],
         }
     )
@@ -201,11 +201,11 @@ def test_model_manager_discover_huggingface_models(model_manager, mock_config):
     # Create mock model info objects
     model1 = MagicMock(spec=IModelInfo)
     model1.id = "gpt2"
-    model1.name = "GPT-2"
+    model1.name = "GPT - 2"
     model1.type = "huggingface"
 
     model2 = MagicMock(spec=IModelInfo)
-    model2.id = "all-MiniLM-L6-v2"
+    model2.id = "all - MiniLM - L6 - v2"
     model2.name = "MiniLM"
     model2.type = "huggingface"
 
@@ -280,9 +280,9 @@ def test_model_manager_get_model_info(model_manager):
     # Test error handling
     get_model_info_mock.side_effect = Exception("Model not found")
 
-    # Try to get info for a non-existent model
+    # Try to get info for a non - existent model
     with pytest.raises(Exception):
-        model_manager.get_model_info("non-existent-model")
+        model_manager.get_model_info("non - existent - model")
 
 
 def test_model_manager_get_models_by_type(model_manager):
@@ -374,7 +374,7 @@ def test_model_manager_load_huggingface_model(model_manager):
     # Create a mock model info
     model_info = MagicMock(spec=IModelInfo)
     model_info.id = "gpt2"
-    model_info.name = "GPT-2"
+    model_info.name = "GPT - 2"
     model_info.type = "huggingface"
     model_info.path = "gpt2"
 
@@ -433,9 +433,9 @@ def test_model_manager_unload_model(model_manager):
     # Test error handling
     unload_model_mock.side_effect = Exception("Model not loaded")
 
-    # Try to unload a non-existent model
+    # Try to unload a non - existent model
     with pytest.raises(Exception):
-        model_manager.unload_model("non-existent-model")
+        model_manager.unload_model("non - existent - model")
 
 
 def test_model_manager_is_model_loaded(model_manager):
@@ -498,7 +498,7 @@ def test_model_manager_update_model_info(model_manager):
     updated_info = {
         "name": "Updated Model 1",
         "description": "An updated test model",
-        "capabilities": ["text-generation", "embedding"],
+        "capabilities": ["text - generation", "embedding"],
     }
 
     # Call the method
@@ -510,9 +510,9 @@ def test_model_manager_update_model_info(model_manager):
     # Test error handling
     update_model_info_mock.side_effect = Exception("Model not found")
 
-    # Try to update a non-existent model
+    # Try to update a non - existent model
     with pytest.raises(Exception):
-        model_manager.update_model_info("non-existent-model", {"name": "New Name"})
+        model_manager.update_model_info("non - existent - model", {"name": "New Name"})
 
 
 def test_model_manager_delete_model(model_manager):
@@ -530,6 +530,6 @@ def test_model_manager_delete_model(model_manager):
     # Test error handling
     delete_model_mock.side_effect = Exception("Model not found")
 
-    # Try to delete a non-existent model
+    # Try to delete a non - existent model
     with pytest.raises(Exception):
-        model_manager.delete_model("non-existent-model")
+        model_manager.delete_model("non - existent - model")

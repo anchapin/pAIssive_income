@@ -56,8 +56,8 @@ class AnalyticsService:
         self.db = AnalyticsDatabase(db_path)
         self._lock = threading.Lock()
 
-        # Real-time monitoring
-        self._recent_requests = deque(maxlen=1000)  # Store recent requests for real-time analysis
+        # Real - time monitoring
+        self._recent_requests = deque(maxlen=1000)  # Store recent requests for real - time analysis
         self._alert_thresholds = {
             "error_rate": 0.05,  # 5% error rate
             "response_time": 1000,  # 1000ms response time
@@ -80,7 +80,7 @@ class AnalyticsService:
         )
         self._aggregation_thread.start()
 
-        # Real-time monitoring thread
+        # Real - time monitoring thread
         self._monitoring_thread = threading.Thread(
             target=self._real_time_monitoring_task, daemon=True
         )
@@ -111,7 +111,7 @@ class AnalyticsService:
         Args:
             method: HTTP method (GET, POST, etc.)
             path: Request path
-            endpoint: Endpoint name (e.g., "/api/v1/users")
+            endpoint: Endpoint name (e.g., " / api / v1 / users")
             version: API version
             status_code: HTTP status code
             response_time: Response time in seconds
@@ -158,7 +158,7 @@ class AnalyticsService:
         try:
             self.db.save_request(request_data)
 
-            # Add to recent requests for real-time monitoring
+            # Add to recent requests for real - time monitoring
             with self._lock:
                 self._recent_requests.append(request_data)
 
@@ -225,8 +225,8 @@ class AnalyticsService:
             List of daily metrics dictionaries
         """
         # Calculate date range
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime(" % Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
 
         return self.db.get_daily_metrics(
             start_date=start_date, end_date=end_date, endpoint=endpoint, version=version
@@ -244,8 +244,8 @@ class AnalyticsService:
             List of user metrics dictionaries
         """
         # Calculate date range
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime(" % Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
 
         return self.db.get_user_metrics(start_date=start_date, end_date=end_date, user_id=user_id)
 
@@ -261,8 +261,8 @@ class AnalyticsService:
             List of API key metrics dictionaries
         """
         # Calculate date range
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime(" % Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
 
         return self.db.get_api_key_metrics(
             start_date=start_date, end_date=end_date, api_key_id=api_key_id
@@ -279,8 +279,8 @@ class AnalyticsService:
             List of endpoint statistics dictionaries
         """
         # Calculate date range
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime(" % Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
 
         return self.db.get_endpoint_stats(start_date=start_date, end_date=end_date)
 
@@ -480,8 +480,8 @@ class AnalyticsService:
         while not self._stop_event.is_set():
             try:
                 # Get current date
-                today = datetime.now().strftime("%Y-%m-%d")
-                yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+                today = datetime.now().strftime(" % Y-%m-%d")
+                yesterday = (datetime.now() - timedelta(days=1)).strftime(" % Y-%m-%d")
 
                 # Update metrics for yesterday and today
                 self.db.update_daily_metrics(yesterday)
@@ -523,13 +523,13 @@ class AnalyticsService:
 
     def get_real_time_metrics(self, minutes: int = 5) -> Dict[str, Any]:
         """
-        Get real-time metrics for the last N minutes.
+        Get real - time metrics for the last N minutes.
 
         Args:
             minutes: Number of minutes to include
 
         Returns:
-            Dictionary with real-time metrics
+            Dictionary with real - time metrics
         """
         with self._lock:
             # Filter requests from the last N minutes
@@ -571,7 +571,7 @@ class AnalyticsService:
             # Calculate requests per minute
             requests_per_minute = request_count / minutes
 
-            # Calculate per-endpoint metrics
+            # Calculate per - endpoint metrics
             endpoints = {}
             for r in recent_requests:
                 endpoint = r.get("endpoint", "unknown")
@@ -613,11 +613,11 @@ class AnalyticsService:
 
     def _real_time_monitoring_task(self) -> None:
         """
-        Background task for real-time monitoring.
+        Background task for real - time monitoring.
         """
         while not self._stop_event.is_set():
             try:
-                # Get real-time metrics
+                # Get real - time metrics
                 metrics = self.get_real_time_metrics(minutes=5)
 
                 # Check for alerts
@@ -627,7 +627,7 @@ class AnalyticsService:
                 self._stop_event.wait(30)
 
             except Exception as e:
-                logger.error(f"Error in real-time monitoring task: {e}")
+                logger.error(f"Error in real - time monitoring task: {e}")
                 # Sleep for 1 minute before retrying
                 self._stop_event.wait(60)
 
@@ -636,7 +636,7 @@ class AnalyticsService:
         Check metrics against alert thresholds and trigger alerts if needed.
 
         Args:
-            metrics: Real-time metrics
+            metrics: Real - time metrics
         """
         now = datetime.now()
 
@@ -680,7 +680,7 @@ class AnalyticsService:
             if now > self._alert_cooldowns["requests_per_minute"]:
                 self._trigger_alert(
                     "High API Request Volume",
-                    f"Request rate of {metrics['requests_per_minute']:.2f} requests/minute exceeds threshold of {self._alert_thresholds['requests_per_minute']} requests/minute",
+                    f"Request rate of {metrics['requests_per_minute']:.2f} requests / minute exceeds threshold of {self._alert_thresholds['requests_per_minute']} requests / minute",
                     {
                         "metric": "requests_per_minute",
                         "value": metrics["requests_per_minute"],
@@ -692,7 +692,7 @@ class AnalyticsService:
                     minutes=self._alert_cooldown_minutes
                 )
 
-        # Check per-endpoint metrics
+        # Check per - endpoint metrics
         for endpoint, data in metrics["endpoints"].items():
             # Check endpoint error rate
             if (

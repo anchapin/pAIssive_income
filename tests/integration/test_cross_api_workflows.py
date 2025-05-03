@@ -1,5 +1,5 @@
 """
-Integration tests for cross-API workflows.
+Integration tests for cross - API workflows.
 
 This module contains tests for workflows that span multiple API endpoints,
 such as niche analysis to solution development.
@@ -22,13 +22,13 @@ from tests.api.utils.test_data import (
 @pytest.fixture
 def auth_api_test_client():
     """Create an authenticated API test client."""
-    client = APITestClient(base_url="http://localhost:8000/api")
+    client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
 
 
 class TestCrossAPIWorkflows:
-    """Test cross-API workflows."""
+    """Test cross - API workflows."""
 
     def validate_success_response(self, response, expected_status=200):
         """Validate a successful API response."""
@@ -46,7 +46,7 @@ class TestCrossAPIWorkflows:
         """Test the niche analysis to solution development workflow."""
         # Step 1: Create a niche analysis
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -58,13 +58,13 @@ class TestCrossAPIWorkflows:
         niche_id = niche_result["id"]
 
         # Step 2: Get niche details
-        response = auth_api_test_client.get(f"niche-analysis/niches/{niche_id}")
+        response = auth_api_test_client.get(f"niche - analysis / niches/{niche_id}")
         niche_details = self.validate_success_response(response)
         self.validate_field_exists(niche_details, "opportunity_score")
 
         # Step 3: Develop a solution for the niche
         solution_data = generate_solution_data(niche_id=niche_id)
-        response = auth_api_test_client.post("solutions/develop", solution_data)
+        response = auth_api_test_client.post("solutions / develop", solution_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -87,7 +87,7 @@ class TestCrossAPIWorkflows:
         """Test the solution development to monetization workflow."""
         # Step 1: Create a niche analysis
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -99,7 +99,7 @@ class TestCrossAPIWorkflows:
 
         # Step 2: Develop a solution for the niche
         solution_data = generate_solution_data(niche_id=niche_id)
-        response = auth_api_test_client.post("solutions/develop", solution_data)
+        response = auth_api_test_client.post("solutions / develop", solution_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -111,7 +111,7 @@ class TestCrossAPIWorkflows:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization/strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -123,7 +123,7 @@ class TestCrossAPIWorkflows:
         monetization_id = monetization_result["id"]
 
         # Step 4: Get monetization details
-        response = auth_api_test_client.get(f"monetization/strategies/{monetization_id}")
+        response = auth_api_test_client.get(f"monetization / strategies/{monetization_id}")
         monetization_details = self.validate_success_response(response)
         self.validate_field_exists(monetization_details, "model")
         self.validate_field_exists(monetization_details, "tiers")
@@ -135,7 +135,7 @@ class TestCrossAPIWorkflows:
         """Test the complete workflow from niche analysis to marketing."""
         # Step 1: Create a niche analysis
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -147,7 +147,7 @@ class TestCrossAPIWorkflows:
 
         # Step 2: Develop a solution for the niche
         solution_data = generate_solution_data(niche_id=niche_id)
-        response = auth_api_test_client.post("solutions/develop", solution_data)
+        response = auth_api_test_client.post("solutions / develop", solution_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -159,7 +159,7 @@ class TestCrossAPIWorkflows:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization/strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -173,7 +173,7 @@ class TestCrossAPIWorkflows:
         marketing_data = generate_marketing_strategy_data(
             niche_id=niche_id, solution_id=solution_id, monetization_id=monetization_id
         )
-        response = auth_api_test_client.post("marketing/strategies", marketing_data)
+        response = auth_api_test_client.post("marketing / strategies", marketing_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -185,7 +185,7 @@ class TestCrossAPIWorkflows:
         marketing_id = marketing_result["id"]
 
         # Step 5: Get marketing details
-        response = auth_api_test_client.get(f"marketing/strategies/{marketing_id}")
+        response = auth_api_test_client.get(f"marketing / strategies/{marketing_id}")
         marketing_details = self.validate_success_response(response)
         self.validate_field_exists(marketing_details, "channels")
         self.validate_field_exists(marketing_details, "target_audience")
@@ -197,7 +197,7 @@ class TestCrossAPIWorkflows:
 
         # Step 6: Export the complete plan
         response = auth_api_test_client.post(
-            "export/plan",
+            "export / plan",
             {
                 "niche_id": niche_id,
                 "solution_id": solution_id,
@@ -217,4 +217,4 @@ class TestCrossAPIWorkflows:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_cross_api_workflows.py"])
+    pytest.main([" - v", "test_cross_api_workflows.py"])

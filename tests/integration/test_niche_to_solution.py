@@ -1,5 +1,5 @@
 """
-Integration tests for the niche-to-solution workflow.
+Integration tests for the niche - to - solution workflow.
 """
 
 from unittest.mock import MagicMock, patch
@@ -19,7 +19,7 @@ def mock_agents():
         {
             "id": "niche1",
             "name": "Inventory Management",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "description": "AI tools for inventory management",
             "opportunity_score": 0.8,
             "market_data": {
@@ -39,7 +39,7 @@ def mock_agents():
         {
             "id": "niche2",
             "name": "Product Description Generation",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "description": "AI tools for generating product descriptions",
             "opportunity_score": 0.7,
             "market_data": {
@@ -51,7 +51,7 @@ def mock_agents():
                 {
                     "id": "problem2",
                     "name": "Description Quality",
-                    "description": "Creating high-quality product descriptions is time-consuming",
+                    "description": "Creating high - quality product descriptions is time - consuming",
                     "severity": "medium",
                 }
             ],
@@ -63,7 +63,7 @@ def mock_agents():
     mock_developer.design_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Manager",
-        "description": "An AI-powered solution for inventory management",
+        "description": "An AI - powered solution for inventory management",
         "features": [
             {
                 "id": "feature1",
@@ -108,7 +108,7 @@ def mock_agents():
         "name": "Inventory Manager Marketing Plan",
         "description": "A marketing plan for the AI Inventory Manager",
         "channels": ["content", "social", "email"],
-        "target_audience": "E-commerce store owners",
+        "target_audience": "E - commerce store owners",
     }
 
     return {
@@ -130,7 +130,7 @@ def test_niche_to_solution_workflow(
     mock_researcher_class,
     mock_agents,
 ):
-    """Test the complete niche-to-solution workflow."""
+    """Test the complete niche - to - solution workflow."""
     # Set up the mock agents
     mock_researcher_class.return_value = mock_agents["researcher"]
     mock_developer_class.return_value = mock_agents["developer"]
@@ -141,10 +141,10 @@ def test_niche_to_solution_workflow(
     team = AgentTeam("Test Team")
 
     # Run niche analysis
-    niches = team.run_niche_analysis(["e-commerce"])
+    niches = team.run_niche_analysis(["e - commerce"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(["e-commerce"])
+    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(["e - commerce"])
 
     # Check that niches were returned
     assert len(niches) == 2
@@ -190,4 +190,4 @@ def test_niche_to_solution_workflow(
     # Check that a marketing plan was returned
     assert marketing_plan["name"] == "Inventory Manager Marketing Plan"
     assert "content" in marketing_plan["channels"]
-    assert marketing_plan["target_audience"] == "E-commerce store owners"
+    assert marketing_plan["target_audience"] == "E - commerce store owners"

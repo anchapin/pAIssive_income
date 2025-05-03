@@ -21,7 +21,7 @@ async def register_webhook_example():
 
     # Register a webhook
     webhook = await webhook_service.register_webhook(
-        url="https://webhook.example.com/receive",
+        url="https://webhook.example.com / receive",
         events=[
             WebhookEventType.NICHE_ANALYSIS_CREATED,
             WebhookEventType.OPPORTUNITY_SCORED,
@@ -29,7 +29,7 @@ async def register_webhook_example():
         ],
         description="Example webhook for niche analysis and monetization events",
         # Optional secret for signature verification
-        secret="your-webhook-secret",
+        secret="your - webhook - secret",
     )
 
     print("Webhook registered:")
@@ -49,11 +49,11 @@ async def emit_event_example():
     analysis_data = {
         "id": analysis_id,
         "name": "Example Niche Analysis",
-        "niche": "AI-powered productivity tools",
+        "niche": "AI - powered productivity tools",
         "keywords": ["AI assistant", "productivity", "automation"],
         "competition": {"level": "medium", "major_competitors": 5},
         "opportunity_score": 8.7,
-        "created_at": "2025-04-28T12:00:00Z",
+        "created_at": "2025 - 04 - 28T12:00:00Z",
     }
 
     # Register a local event listener
@@ -82,20 +82,20 @@ async def verify_webhook_signature_example():
     """Example of verifying a webhook signature."""
 
     # This would be the raw payload received by your webhook endpoint
-    raw_payload = '{"event":"niche_analysis.created","timestamp":"2025-04-28T12:00:00Z","data":{"analysis_id":"na_12345"}}'
+    raw_payload = '{"event":"niche_analysis.created","timestamp":"2025 - 04 - 28T12:00:00Z","data":{"analysis_id":"na_12345"}}'
 
-    # The signature from the X-Webhook-Signature header
+    # The signature from the X - Webhook - Signature header
     signature = "abcdef1234567890"  # This would be the actual signature from the request
 
     # Your webhook secret
-    secret = "your-webhook-secret"
+    secret = "your - webhook - secret"
 
     # Verify the signature
     import hashlib
     import hmac
 
     expected_signature = hmac.new(
-        secret.encode("utf-8"), raw_payload.encode("utf-8"), hashlib.sha256
+        secret.encode("utf - 8"), raw_payload.encode("utf - 8"), hashlib.sha256
     ).hexdigest()
 
     is_valid = hmac.compare_digest(signature, expected_signature)

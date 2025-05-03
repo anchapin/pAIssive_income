@@ -18,7 +18,7 @@ from ai_models import ModelInfo, ModelManager, PerformanceMonitor
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -65,10 +65,10 @@ def main():
 
     # Register a test model
     model_info = ModelInfo(
-        id="test-model",
+        id="test - model",
         name="Test Model",
         type="huggingface",
-        path="test-model",
+        path="test - model",
         description="Test model for performance monitoring",
     )
     manager.register_model(model_info)
@@ -77,10 +77,10 @@ def main():
 
     # Run multiple inference simulations
     for i in range(5):
-        print(f"\nInference run {i+1}:")
+        print(f"\nInference run {i + 1}:")
 
         # Track inference using the model manager
-        with manager.track_inference("test-model", input_tokens=10) as tracker:
+        with manager.track_inference("test - model", input_tokens=10) as tracker:
             # Simulate inference
             tokens = random.randint(15, 30)
             delay = random.uniform(0.3, 0.7)
@@ -89,7 +89,7 @@ def main():
             simulate_inference(tracker, tokens=tokens, delay=delay)
 
     # Generate a performance report
-    report = manager.generate_performance_report("test-model")
+    report = manager.generate_performance_report("test - model")
 
     print("\nPerformance Report:")
     print(f"Model: {report.model_name}")
@@ -105,11 +105,11 @@ def main():
         print(f"Average peak GPU memory: {report.avg_peak_gpu_memory_mb:.2f} MB")
 
     # Get detailed metrics
-    metrics = manager.get_model_performance_metrics("test-model")
+    metrics = manager.get_model_performance_metrics("test - model")
 
     print("\nDetailed Metrics:")
     for i, metric in enumerate(metrics):
-        print(f"Run {i+1}:")
+        print(f"Run {i + 1}:")
         print(f"  Total time: {metric.total_time:.4f} seconds")
         print(f"  Tokens per second: {metric.tokens_per_second:.2f}")
         print(f"  Time to first token: {metric.time_to_first_token:.4f} seconds")

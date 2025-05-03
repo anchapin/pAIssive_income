@@ -46,7 +46,7 @@ def test_metric_accuracy(metrics_api):
     """Test that metrics are recorded accurately."""
     # Create test metrics
     test_metrics = EnhancedInferenceMetrics(
-        model_id="test-model",
+        model_id="test - model",
         latency_ms=123.45,
         tokens_per_second=67.89,
         memory_usage_mb=256.0,
@@ -61,12 +61,12 @@ def test_metric_accuracy(metrics_api):
     metrics_api.monitor.save_enhanced_metrics(test_metrics)
 
     # Retrieve metrics
-    retrieved_metrics = metrics_api.monitor.metrics_db.get_metrics(model_id="test-model", limit=1)[
+    retrieved_metrics = metrics_api.monitor.metrics_db.get_metrics(model_id="test - model", limit=1)[
         0
     ]
 
     # Check accuracy of key metrics
-    assert retrieved_metrics["model_id"] == "test-model"
+    assert retrieved_metrics["model_id"] == "test - model"
     assert abs(retrieved_metrics["latency_ms"] - 123.45) < 0.001
     assert abs(retrieved_metrics["tokens_per_second"] - 67.89) < 0.001
     assert abs(retrieved_metrics["memory_usage_mb"] - 256.0) < 0.001
@@ -81,7 +81,7 @@ def test_metric_aggregation_at_scale(metrics_api, temp_db_path):
     """Test that metrics can be aggregated correctly at scale."""
     # Generate a large number of test metrics
     num_metrics = 1000
-    model_ids = ["model-A", "model-B", "model-C"]
+    model_ids = ["model - A", "model - B", "model - C"]
 
     # Insert test metrics
     for i in range(num_metrics):
@@ -160,7 +160,7 @@ def test_custom_metric_definition(metrics_api):
     for i in range(5):
         timestamp = (base_time - timedelta(hours=i)).isoformat()
         custom_metrics = CustomMetrics(
-            model_id="custom-model",
+            model_id="custom - model",
             latency_ms=100.0 + i * 10,
             tokens_per_second=50.0 - i * 2,
             memory_usage_mb=200.0 + i * 20,
@@ -176,7 +176,7 @@ def test_custom_metric_definition(metrics_api):
     conn = sqlite3.connect(metrics_api.monitor.metrics_db.db_path)
     cursor = conn.cursor()
 
-    # Create table with proper schema including time-series support
+    # Create table with proper schema including time - series support
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS custom_metrics (
@@ -195,7 +195,7 @@ def test_custom_metric_definition(metrics_api):
     """
     )
 
-    # Create index on timestamp for time-series queries
+    # Create index on timestamp for time - series queries
     cursor.execute(
         """
         CREATE INDEX IF NOT EXISTS idx_custom_metrics_timestamp 
@@ -228,7 +228,7 @@ def test_custom_metric_definition(metrics_api):
 
     conn.commit()
 
-    # Test time-series queries
+    # Test time - series queries
     # Get metrics for last 3 hours
     cursor.execute(
         """
@@ -245,7 +245,7 @@ def test_custom_metric_definition(metrics_api):
 
     # Verify values are correctly stored and retrieved
     first_metric = recent_metrics[0]
-    assert first_metric[1] == "custom-model"  # model_id
+    assert first_metric[1] == "custom - model"  # model_id
     assert abs(first_metric[3] - 100.0) < 0.001  # latency_ms
     assert first_metric[7] == 15  # input_tokens
     assert first_metric[8] == 40  # custom_metric1
@@ -261,7 +261,7 @@ def test_custom_metric_definition(metrics_api):
         FROM custom_metrics
         WHERE model_id = ?
     """,
-        ("custom-model",),
+        ("custom - model",),
     )
 
     aggs = cursor.fetchone()
@@ -275,7 +275,7 @@ def test_custom_metric_definition(metrics_api):
 
 def test_metric_collection_over_time(metrics_api):
     """Test that metrics can be collected and analyzed over time."""
-    model_id = "time-series-model"
+    model_id = "time - series - model"
 
     # Generate metrics over a time period (simulating 5 days of data)
     now = datetime.now()
@@ -301,7 +301,7 @@ def test_metric_collection_over_time(metrics_api):
 
             metrics_api.monitor.save_enhanced_metrics(metrics)
 
-    # Test time-based queries
+    # Test time - based queries
     # Get metrics for the last 2 days
     two_days_ago = now - timedelta(days=2)
     recent_metrics = metrics_api.monitor.metrics_db.get_metrics(
@@ -312,7 +312,7 @@ def test_metric_collection_over_time(metrics_api):
     expected_count = 10 * 3  # 10 metrics per day for 3 days
     assert len(recent_metrics) == expected_count
 
-    # Test time-based aggregation
+    # Test time - based aggregation
     daily_reports = []
     for day in range(5):
         day_start = (now - timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -341,7 +341,7 @@ def test_metric_collection_over_time(metrics_api):
         if day in [5, 6]:  # Saturday or Sunday
             assert report["avg_latency"] < 120.0
         else:
-            # Weekdays have a mix of peak and off-peak hours
+            # Weekdays have a mix of peak and off - peak hours
             assert 100.0 <= report["avg_latency"] <= 150.0
 
 
@@ -379,12 +379,12 @@ def test_custom_metric_validation(metrics_api):
                     "custom_metric1": {
                         "type": "integer",
                         "range": [0, 100],
-                        "description": "Custom metric 1 with range 0-100",
+                        "description": "Custom metric 1 with range 0 - 100",
                     },
                     "custom_metric2": {
                         "type": "integer",
                         "range": [0, 1000],
-                        "description": "Custom metric 2 with range 0-1000",
+                        "description": "Custom metric 2 with range 0 - 1000",
                     },
                 }
             )
@@ -392,7 +392,7 @@ def test_custom_metric_validation(metrics_api):
 
     # Test valid metric creation
     valid_metrics = ValidatedMetrics(
-        model_id="validated-model",
+        model_id="validated - model",
         latency_ms=100.0,
         tokens_per_second=50.0,
         memory_usage_mb=200.0,
@@ -407,21 +407,21 @@ def test_custom_metric_validation(metrics_api):
     # Test invalid metric1 value
     with pytest.raises(ValueError) as exc_info:
         ValidatedMetrics(
-            model_id="validated-model", latency_ms=100.0, custom_metric1=150  # Invalid: > 100
+            model_id="validated - model", latency_ms=100.0, custom_metric1=150  # Invalid: > 100
         )
     assert "custom_metric1 must be between 0 and 100" in str(exc_info.value)
 
     # Test invalid metric2 value
     with pytest.raises(ValueError) as exc_info:
         ValidatedMetrics(
-            model_id="validated-model", latency_ms=100.0, custom_metric2=1500  # Invalid: > 1000
+            model_id="validated - model", latency_ms=100.0, custom_metric2=1500  # Invalid: > 1000
         )
     assert "custom_metric2 must be between 0 and 1000" in str(exc_info.value)
 
     # Test invalid type
     with pytest.raises(ValueError) as exc_info:
         ValidatedMetrics(
-            model_id="validated-model",
+            model_id="validated - model",
             latency_ms=100.0,
             custom_metric1=50.5,  # Invalid: float instead of int
         )
@@ -438,4 +438,4 @@ def test_custom_metric_validation(metrics_api):
 
 
 if __name__ == "__main__":
-    pytest.main(["-xvs", __file__])
+    pytest.main([" - xvs", __file__])

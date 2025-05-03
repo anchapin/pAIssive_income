@@ -323,7 +323,7 @@ class TestAdvancedFiltering(unittest.TestCase):
                 "id": 1,
                 "name": "Project Alpha",
                 "details": {"category": "AI", "difficulty": "high"},
-                "tags": ["python", "machine-learning", "nlp"],
+                "tags": ["python", "machine - learning", "nlp"],
                 "created_at": self.now - timedelta(days=5),
                 "stats": {"views": 100, "likes": 50},
             },
@@ -339,7 +339,7 @@ class TestAdvancedFiltering(unittest.TestCase):
                 "id": 3,
                 "name": "Project Gamma",
                 "details": {"category": "AI", "difficulty": "medium"},
-                "tags": ["python", "tensorflow", "deep-learning"],
+                "tags": ["python", "tensorflow", "deep - learning"],
                 "created_at": self.now - timedelta(days=1),
                 "stats": {"views": 80, "likes": 40},
             },
@@ -382,7 +382,7 @@ class TestAdvancedFiltering(unittest.TestCase):
         self.assertEqual([item["id"] for item in filtered], [1, 3])
 
     def test_case_insensitive_filtering(self):
-        """Test case-insensitive filtering."""
+        """Test case - insensitive filtering."""
         params = QueryParams(
             filters={"details.category": "ai"},
             filter_operators={"details.category": FilterOperator.EQ},
@@ -453,7 +453,7 @@ class TestAdvancedSorting(unittest.TestCase):
         self.assertEqual([item["id"] for item in final_sorted], expected_order)
 
     def test_case_insensitive_sorting(self):
-        """Test case-insensitive sorting."""
+        """Test case - insensitive sorting."""
         items = [{"id": 1, "name": "alpha"}, {"id": 2, "name": "Beta"}, {"id": 3, "name": "gamma"}]
 
         def case_insensitive_getter(item, field):

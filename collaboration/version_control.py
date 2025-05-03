@@ -169,7 +169,8 @@ class VersionControl:
             try:
                 with open(project_versions_file, "r") as f:
                     self.project_versions = json.load(f)
-                logger.info(f"Loaded version history for {len(self.project_versions)} projects")
+                logger.info(
+                    f"Loaded version history for {len(self.project_versions)} projects")
             except Exception as e:
                 logger.error(f"Failed to load project versions: {e}")
                 self.project_versions = {}
@@ -246,7 +247,8 @@ class VersionControl:
 
         self._save_version_data()
 
-        logger.info(f"Created version {version_info.version_id} for project {project_id}")
+        logger.info(
+            f"Created version {version_info.version_id} for project {project_id}")
         return version_info
 
     def get_version(self, version_id: str) -> Optional[VersionInfo]:
@@ -288,7 +290,8 @@ class VersionControl:
 
         return versions
 
-    def restore_version(self, version_id: str, target_path: str, restore_by: str) -> bool:
+    def restore_version(self, version_id: str, target_path: str, 
+        restore_by: str) -> bool:
         """
         Restore a project to a specific version.
 
@@ -413,11 +416,14 @@ class VersionControl:
                         )
                     )
 
-                comparison_results["differences"].append({"file": file_path, "diff": "".join(diff)})
+                comparison_results["differences"].append({"file": file_path, 
+                    "diff": "".join(diff)})
             elif os.path.exists(file_path1):
-                comparison_results["differences"].append({"file": file_path, "status": "deleted"})
+                comparison_results["differences"].append({"file": file_path, 
+                    "status": "deleted"})
             elif os.path.exists(file_path2):
-                comparison_results["differences"].append({"file": file_path, "status": "added"})
+                comparison_results["differences"].append({"file": file_path, 
+                    "status": "added"})
         else:
             # Compare all files
             files1 = set()
@@ -446,15 +452,18 @@ class VersionControl:
                     content2 = f2.read()
 
                 if content1 != content2:
-                    comparison_results["differences"].append({"file": file, "status": "modified"})
+                    comparison_results["differences"].append({"file": file, 
+                        "status": "modified"})
 
             # Files only in version 1
             for file in files1 - files2:
-                comparison_results["differences"].append({"file": file, "status": "deleted"})
+                comparison_results["differences"].append({"file": file, 
+                    "status": "deleted"})
 
             # Files only in version 2
             for file in files2 - files1:
-                comparison_results["differences"].append({"file": file, "status": "added"})
+                comparison_results["differences"].append({"file": file, 
+                    "status": "added"})
 
         # Clean up temporary directories
         shutil.rmtree(temp_dir1)
@@ -485,7 +494,8 @@ class VersionControl:
         project_id = version_info.project_id
 
         # Remove version from project versions
-        if project_id in self.project_versions and version_id in self.project_versions[project_id]:
+        if project_id in self.project_versions and \
+            version_id in self.project_versions[project_id]:
             self.project_versions[project_id].remove(version_id)
 
         # Remove version info

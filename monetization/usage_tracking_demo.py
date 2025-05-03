@@ -17,7 +17,7 @@ from .usage_tracking import (
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def generate_random_usage(
@@ -87,7 +87,8 @@ def generate_random_usage(
 
         # Random metadata
         metadata = {
-            "endpoint": f"/v1/{random.choice(['completions', 'embeddings', 'chat', 'images'])}",
+            "endpoint": f" / v1/{random.choice(['completions', 'embeddings', 'chat', 
+                'images'])}",
             "status_code": random.choice([200, 200, 200, 400, 500]),
             "latency_ms": random.randint(50, 2000),
         }
@@ -212,7 +213,8 @@ def run_demo():
     print_separator()
 
     # Get usage trends
-    trends = tracker.get_usage_trends(customer_id=customer_id, interval="day", num_intervals=7)
+    trends = tracker.get_usage_trends(customer_id=customer_id, interval="day", 
+        num_intervals=7)
 
     print(f"Usage trends (last 7 days):")
     print(f"Trend direction: {trends['trend']['direction']}")
@@ -221,13 +223,14 @@ def run_demo():
     print("\nDaily trends:")
     for interval_data in trends["intervals"]:
         print(
-            f"- {interval_data['interval']}: {interval_data['count']} records, {interval_data['quantity']} units"
+            f"- {interval_data['interval']}: {interval_data['count']} records, 
+                {interval_data['quantity']} units"
         )
 
     print_separator()
 
-    # Track some real-time usage
-    print("Tracking real-time usage...")
+    # Track some real - time usage
+    print("Tracking real - time usage...")
 
     for i in range(5):
         # Check if usage is allowed
@@ -248,7 +251,7 @@ def run_demo():
                 category=UsageCategory.INFERENCE,
                 resource_id="model_gpt4",
                 resource_type="model",
-                metadata={"endpoint": "/v1/completions"},
+                metadata={"endpoint": " / v1 / completions"},
             )
 
             print(f"Tracked usage: {record}")

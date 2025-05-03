@@ -16,11 +16,11 @@ def mock_config_file(temp_dir):
     """Create a mock configuration file."""
     config = {
         "model_settings": {
-            "researcher": {"model": "custom-model", "temperature": 0.5},
-            "developer": {"model": "custom-model", "temperature": 0.2},
-            "monetization": {"model": "custom-model", "temperature": 0.3},
-            "marketing": {"model": "custom-model", "temperature": 0.7},
-            "feedback": {"model": "custom-model", "temperature": 0.4},
+            "researcher": {"model": "custom - model", "temperature": 0.5},
+            "developer": {"model": "custom - model", "temperature": 0.2},
+            "monetization": {"model": "custom - model", "temperature": 0.3},
+            "marketing": {"model": "custom - model", "temperature": 0.7},
+            "feedback": {"model": "custom - model", "temperature": 0.4},
         },
         "workflow": {
             "auto_progression": True,
@@ -67,7 +67,7 @@ def test_agent_team_init_with_config(mock_config_file):
     # Check that the custom config was loaded
     assert team.config["workflow"]["auto_progression"] is True
     assert team.config["workflow"]["review_required"] is False
-    assert team.config["model_settings"]["researcher"]["model"] == "custom-model"
+    assert team.config["model_settings"]["researcher"]["model"] == "custom - model"
     assert team.config["model_settings"]["researcher"]["temperature"] == 0.5
 
 
@@ -94,11 +94,11 @@ def test_run_niche_analysis(mock_researcher_class):
     team = AgentTeam("Test Team")
 
     # Run niche analysis
-    result = team.run_niche_analysis(["e-commerce", "content creation"])
+    result = team.run_niche_analysis(["e - commerce", "content creation"])
 
     # Check that the researcher's analyze_market_segments method was called
     mock_researcher.analyze_market_segments.assert_called_once_with(
-        ["e-commerce", "content creation"]
+        ["e - commerce", "content creation"]
     )
 
     # Check that the result is the return value from analyze_market_segments
@@ -150,8 +150,8 @@ def test_develop_solution(mock_developer_class):
     niche = {
         "id": "niche1",
         "name": "Niche 1",
-        "market_segment": "e-commerce",
-        "description": "A niche in e-commerce",
+        "market_segment": "e - commerce",
+        "description": "A niche in e - commerce",
         "opportunity_score": 0.8,
         "market_data": {"market_size": "medium", "growth_rate": "high", "competition": "low"},
         "problems": [

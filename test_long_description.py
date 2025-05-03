@@ -3,7 +3,7 @@ import pytest
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 data = {
-    "url": "https://example.com/webhook",
+    "url": "https://example.com / webhook",
     "events": [WebhookEventType.USER_CREATED],
     "description": "a" * 1000,  # Very long description
     "is_active": True,

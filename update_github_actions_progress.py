@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Script to update the GitHub Actions progress file with the latest status.
 
@@ -23,7 +23,7 @@ def run_flake8():
         subprocess.run(["flake8", "--version"], capture_output=True, check=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("flake8 is not installed. Installing...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "flake8"], check=True)
+        subprocess.run([sys.executable, " - m", "pip", "install", "flake8"], check=True)
     
     # Run flake8 with specific error codes
     result = subprocess.run(
@@ -58,7 +58,7 @@ def update_progress_file(issues):
         content = f.read()
     
     # Get current date
-    today = datetime.now().strftime("%B %d, %Y")
+    today = datetime.now().strftime(" % B %d, %Y")
     
     # Update the "Recent Progress" section
     recent_progress_pattern = r"## Recent Progress \(.*?\)"
@@ -69,7 +69,8 @@ def update_progress_file(issues):
     patterns = {
         "F401": r"Unused imports \(F401\): (\d+) out of (\d+) issues",
         "E501": r"Line length issues \(E501\): (\d+) out of (\d+) issues",
-        "E226": r"Missing whitespace around operators \(E226\): (\d+) out of (\d+) issues"
+        "E226": r"Missing whitespace around operators \(
+            E226\): (\d+) out of (\d+) issues"
     }
     
     for code, pattern in patterns.items():

@@ -23,13 +23,13 @@ from ..services.api_key_service import APIKeyService
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/api-keys", tags=["API Keys"])
+router = APIRouter(prefix=" / api - keys", tags=["API Keys"])
 
 # Create API key service
 api_key_service = APIKeyService()
 
 
-@router.post("/", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED)
+@router.post(" / ", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED)
 async def create_api_key(
     data: APIKeyCreate = Body(...), current_user: Dict[str, Any] = Depends(get_current_user)
 ):
@@ -56,7 +56,7 @@ async def create_api_key(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/", response_model=APIKeyList)
+@router.get(" / ", response_model=APIKeyList)
 async def list_api_keys(
     current_user: Dict[str, Any] = Depends(get_current_user),
     page: int = Query(1, ge=1),

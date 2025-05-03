@@ -28,7 +28,7 @@ class APIKeyRepository:
             storage_path: Path to the storage file
         """
         self.storage_path = storage_path or os.path.join(
-            os.path.dirname(__file__), "../data/api_keys.json"
+            os.path.dirname(__file__), "../data / api_keys.json"
         )
         self.api_keys: Dict[str, APIKey] = {}
         self.key_to_id: Dict[str, str] = {}

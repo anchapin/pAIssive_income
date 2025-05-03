@@ -1,7 +1,7 @@
 """
 TensorRT adapter for the AI Models module.
 
-This module provides an adapter for using TensorRT for GPU-accelerated inference.
+This module provides an adapter for using TensorRT for GPU - accelerated inference.
 """
 
 import logging
@@ -12,7 +12,7 @@ import numpy as np
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -52,13 +52,13 @@ except ImportError:
 
 class TensorRTAdapter:
     """
-    Adapter for using TensorRT for GPU-accelerated inference.
+    Adapter for using TensorRT for GPU - accelerated inference.
     """
 
     def __init__(
         self,
         engine_path: str,
-        model_type: str = "text-generation",
+        model_type: str = "text - generation",
         tokenizer_path: Optional[str] = None,
         max_batch_size: int = 1,
         **kwargs,
@@ -68,7 +68,7 @@ class TensorRTAdapter:
 
         Args:
             engine_path: Path to the TensorRT engine file
-            model_type: Type of model (text-generation, image-classification, etc.)
+            model_type: Type of model (text - generation, image - classification, etc.)
             tokenizer_path: Optional path to the tokenizer (for text models)
             max_batch_size: Maximum batch size for inference
             **kwargs: Additional parameters for the adapter
@@ -104,7 +104,7 @@ class TensorRTAdapter:
 
         # Load the tokenizer if needed
         if (
-            self.model_type in ["text-generation", "text-classification", "embedding"]
+            self.model_type in ["text - generation", "text - classification", "embedding"]
             and self.tokenizer_path
         ):
             self._load_tokenizer()
@@ -274,14 +274,14 @@ class TensorRTAdapter:
             prompt: Input prompt
             max_tokens: Maximum number of tokens to generate
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             **kwargs: Additional parameters for text generation
 
         Returns:
             Generated text
         """
-        if self.model_type != "text-generation":
+        if self.model_type != "text - generation":
             raise ValueError(f"Model type {self.model_type} does not support text generation")
 
         if not self.tokenizer:
@@ -355,7 +355,7 @@ class TensorRTAdapter:
         Returns:
             Dictionary of class labels and scores
         """
-        if self.model_type != "text-classification":
+        if self.model_type != "text - classification":
             raise ValueError(f"Model type {self.model_type} does not support text classification")
 
         if not self.tokenizer:
@@ -476,7 +476,7 @@ class TensorRTAdapter:
                     ).numpy()
                 else:
                     # Manual normalization
-                    norms = np.sqrt(np.sum(embeddings**2, axis=1, keepdims=True))
+                    norms = np.sqrt(np.sum(embeddings** 2, axis=1, keepdims=True))
                     embeddings = embeddings / norms
 
             return embeddings
@@ -496,7 +496,7 @@ class TensorRTAdapter:
         Returns:
             Dictionary of class labels and scores
         """
-        if self.model_type != "image-classification":
+        if self.model_type != "image - classification":
             raise ValueError(f"Model type {self.model_type} does not support image classification")
 
         try:
@@ -632,14 +632,14 @@ if __name__ == "__main__":
         exit(1)
 
     # Example engine path (replace with an actual TensorRT engine path)
-    engine_path = "path/to/engine.trt"
+    engine_path = "path / to / engine.trt"
 
     if os.path.exists(engine_path):
         # Create TensorRT adapter
         adapter = TensorRTAdapter(
             engine_path=engine_path,
-            model_type="text-generation",
-            tokenizer_path="path/to/tokenizer",
+            model_type="text - generation",
+            tokenizer_path="path / to / tokenizer",
         )
 
         # Get metadata

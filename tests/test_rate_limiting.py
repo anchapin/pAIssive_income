@@ -29,10 +29,11 @@ class TestRateLimiting(unittest.TestCase):
             rate_limit_requests=100,
             rate_limit_period=60,
             rate_limit_burst=50,
-            rate_limit_tiers={"default": 100, "basic": 300, "premium": 1000, "unlimited": 0},
-            endpoint_rate_limits={"/api/v1/ai-models/inference": 20},
+            rate_limit_tiers={"default": 100, "basic": 300, "premium": 1000, 
+                "unlimited": 0},
+            endpoint_rate_limits={" / api / v1 / ai - models / inference": 20},
             rate_limit_exempt_ips={"127.0.0.1"},
-            rate_limit_exempt_api_keys={"test-api-key"},
+            rate_limit_exempt_api_keys={"test - api - key"},
         )
         self.manager = RateLimitManager(self.config)
 
@@ -128,15 +129,16 @@ class TestRateLimiting(unittest.TestCase):
         self.assertEqual(limit, 100)
 
         # Test basic tier
-        limit = self.manager.get_rate_limit_tier("basic-api-key")
-        self.assertEqual(limit, 100)  # Default tier since we don't have tier lookup implemented
+        limit = self.manager.get_rate_limit_tier("basic - api - key")
+        self.assertEqual(limit, 
+            100)  # Default tier since we don't have tier lookup implemented
 
     def test_endpoint_specific_limits(self):
-        """Test endpoint-specific rate limits."""
+        """Test endpoint - specific rate limits."""
         client_id = "test_client"
-        endpoint = "/api/v1/ai-models/inference"
+        endpoint = " / api / v1 / ai - models / inference"
 
-        # Test endpoint-specific limit
+        # Test endpoint - specific limit
         for _ in range(20):
             allowed, info = self.manager.check_rate_limit(client_id, endpoint)
             self.assertTrue(allowed)
@@ -153,7 +155,8 @@ class TestRateLimiting(unittest.TestCase):
         self.assertEqual(info["limit"], 0)  # 0 means no limit
 
         # Test exempt API key
-        allowed, info = self.manager.check_rate_limit("non-exempt-ip", api_key="test-api-key")
+        allowed, info = self.manager.check_rate_limit("non - exempt - ip", 
+            api_key="test - api - key")
         self.assertTrue(allowed)
         self.assertEqual(info["limit"], 0)
 
@@ -161,21 +164,23 @@ class TestRateLimiting(unittest.TestCase):
         """Test rate limit headers."""
         client_id = "test_client"
 
-        # Make some requests to get non-zero rate limit info
+        # Make some requests to get non - zero rate limit info
         _, limit_info = self.manager.check_rate_limit(client_id)
 
         # Get headers
         headers = self.manager.get_rate_limit_headers(limit_info)
 
         # Verify required headers are present
-        self.assertIn("X-RateLimit-Limit", headers)
-        self.assertIn("X-RateLimit-Remaining", headers)
-        self.assertIn("X-RateLimit-Reset", headers)
+        self.assertIn("X - RateLimit - Limit", headers)
+        self.assertIn("X - RateLimit - Remaining", headers)
+        self.assertIn("X - RateLimit - Reset", headers)
 
         # Verify header values
-        self.assertEqual(headers["X-RateLimit-Limit"], str(limit_info["limit"]))
-        self.assertEqual(headers["X-RateLimit-Remaining"], str(limit_info["remaining"]))
-        self.assertEqual(headers["X-RateLimit-Reset"], str(int(limit_info["reset"])))
+        self.assertEqual(headers["X - RateLimit - Limit"], str(limit_info["limit"]))
+        self.assertEqual(headers["X - RateLimit - Remaining"], 
+            str(limit_info["remaining"]))
+        self.assertEqual(headers["X - RateLimit - Reset"], 
+            str(int(limit_info["reset"])))
 
 
 if __name__ == "__main__":

@@ -19,14 +19,14 @@ def mock_model():
     """Create a mock model."""
     model = MagicMock()
     model.name = "Test Model"
-    model.id = "test-model"
+    model.id = "test - model"
     return model
 
 
 def test_inference_metrics_init():
     """Test InferenceMetrics initialization."""
     metrics = InferenceMetrics(
-        model_id="test-model",
+        model_id="test - model",
         latency_ms=100,
         tokens_per_second=10,
         memory_usage_mb=1000,
@@ -35,7 +35,7 @@ def test_inference_metrics_init():
     )
 
     # Check that the metrics have the expected attributes
-    assert metrics.model_id == "test-model"
+    assert metrics.model_id == "test - model"
     assert metrics.latency_ms == 100
     assert metrics.tokens_per_second == 10
     assert metrics.memory_usage_mb == 1000
@@ -47,7 +47,7 @@ def test_inference_metrics_init():
 def test_inference_metrics_to_dict():
     """Test to_dict method of InferenceMetrics."""
     metrics = InferenceMetrics(
-        model_id="test-model",
+        model_id="test - model",
         latency_ms=100,
         tokens_per_second=10,
         memory_usage_mb=1000,
@@ -68,7 +68,7 @@ def test_inference_metrics_to_dict():
     assert "timestamp" in metrics_dict
 
     # Check that the values are correct
-    assert metrics_dict["model_id"] == "test-model"
+    assert metrics_dict["model_id"] == "test - model"
     assert metrics_dict["latency_ms"] == 100
     assert metrics_dict["tokens_per_second"] == 10
     assert metrics_dict["memory_usage_mb"] == 1000
@@ -79,10 +79,10 @@ def test_inference_metrics_to_dict():
 def test_inference_tracker_init():
     """Test InferenceTracker initialization."""
     monitor = PerformanceMonitor()
-    tracker = InferenceTracker(monitor=monitor, model_id="test-model")
+    tracker = InferenceTracker(monitor=monitor, model_id="test - model")
 
     # Check that the tracker has the expected attributes
-    assert tracker.model_id == "test-model"
+    assert tracker.model_id == "test - model"
     assert tracker.monitor == monitor
     assert hasattr(tracker, "start_time")
     assert hasattr(tracker, "end_time")
@@ -232,7 +232,7 @@ def test_performance_monitor_generate_report(mock_model):
 def test_model_performance_report_init():
     """Test ModelPerformanceReport initialization."""
     report = ModelPerformanceReport(
-        model_id="test-model",
+        model_id="test - model",
         num_inferences=10,
         avg_latency_ms=150,
         avg_tokens_per_second=15,
@@ -242,7 +242,7 @@ def test_model_performance_report_init():
     )
 
     # Check that the report has the expected attributes
-    assert report.model_id == "test-model"
+    assert report.model_id == "test - model"
     assert report.num_inferences == 10
     assert report.avg_latency_ms == 150
     assert report.avg_tokens_per_second == 15
@@ -255,7 +255,7 @@ def test_model_performance_report_init():
 def test_model_performance_report_to_dict():
     """Test to_dict method of ModelPerformanceReport."""
     report = ModelPerformanceReport(
-        model_id="test-model",
+        model_id="test - model",
         num_inferences=10,
         avg_latency_ms=150,
         avg_tokens_per_second=15,
@@ -278,7 +278,7 @@ def test_model_performance_report_to_dict():
     assert "timestamp" in report_dict
 
     # Check that the values are correct
-    assert report_dict["model_id"] == "test-model"
+    assert report_dict["model_id"] == "test - model"
     assert report_dict["num_inferences"] == 10
     assert report_dict["avg_latency_ms"] == 150
     assert report_dict["avg_tokens_per_second"] == 15

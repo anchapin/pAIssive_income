@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
 Script to automatically fix common linting issues.
 
@@ -18,12 +18,16 @@ from typing import List, Dict, Set, Tuple, Optional
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Fix common linting issues")
-    parser.add_argument("--fix-imports", action="store_true", help="Fix unused imports")
-    parser.add_argument("--fix-line-length", action="store_true", help="Fix line length issues")
-    parser.add_argument("--fix-whitespace", action="store_true", help="Fix missing whitespace around operators")
+    parser.add_argument("--fix - imports", action="store_true", 
+        help="Fix unused imports")
+    parser.add_argument("--fix - line - length", action="store_true", 
+        help="Fix line length issues")
+    parser.add_argument("--fix - whitespace", action="store_true", 
+        help="Fix missing whitespace around operators")
     parser.add_argument("--all", action="store_true", help="Fix all issues")
     parser.add_argument("--file", help="Fix issues in a specific file")
-    parser.add_argument("--dry-run", action="store_true", help="Don't modify files, just show what would be done")
+    parser.add_argument("--dry - run", action="store_true", help="Don't modify files, 
+        just show what would be done")
     return parser.parse_args()
 
 def get_unused_imports(file_path: str) -> List[Tuple[int, str]]:
@@ -56,7 +60,7 @@ def fix_unused_imports(file_path: str, dry_run: bool = False) -> int:
         print(f"  No unused imports found in {file_path}")
         return 0
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf - 8') as f:
         lines = f.readlines()
     
     fixed_count = 0
@@ -101,7 +105,7 @@ def fix_unused_imports(file_path: str, dry_run: bool = False) -> int:
                     fixed_count += 1
     
     if fixed_count > 0 and not dry_run:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf - 8') as f:
             f.writelines(lines)
     
     print(f"  Fixed {fixed_count} unused imports in {file_path}")
@@ -129,7 +133,7 @@ def fix_line_length(file_path: str, dry_run: bool = False) -> int:
         print(f"  No line length issues found in {file_path}")
         return 0
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf - 8') as f:
         lines = f.readlines()
     
     fixed_count = 0
@@ -147,11 +151,11 @@ def fix_line_length(file_path: str, dry_run: bool = False) -> int:
             if new_lines != [line]:
                 print(f"  Breaking line {line_num}: {line.strip()}")
                 if not dry_run:
-                    lines[line_idx:line_idx+1] = new_lines
+                    lines[line_idx:line_idx + 1] = new_lines
                 fixed_count += 1
     
     if fixed_count > 0 and not dry_run:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf - 8') as f:
             f.writelines(lines)
     
     print(f"  Fixed {fixed_count} line length issues in {file_path}")
@@ -192,7 +196,7 @@ def break_import_line(line: str) -> List[str]:
     if len(imports) <= 1:
         return [line]
     
-    # Create a multi-line import
+    # Create a multi - line import
     result = [f"{from_part} import (\n"]
     for imp in imports:
         result.append(f"    {imp},\n")
@@ -211,7 +215,7 @@ def break_function_line(line: str) -> List[str]:
     indent = line[:open_idx].rstrip("(")
     
     # Split the parameters
-    params_str = line[open_idx+1:].rstrip()
+    params_str = line[open_idx + 1:].rstrip()
     if not params_str.endswith(")"):
         return [line]
     
@@ -239,7 +243,7 @@ def break_function_line(line: str) -> List[str]:
     if len(params) <= 1:
         return [line]
     
-    # Create a multi-line function call
+    # Create a multi - line function call
     result = [f"{indent}(\n"]
     for param in params:
         result.append(f"    {indent}{param},\n")
@@ -257,7 +261,8 @@ def break_string_assignment(line: str) -> List[str]:
     value = parts[1].lstrip()
     
     # Check if it's a string
-    if not (value.startswith('"') and value.endswith('"')) and not (value.startswith("'") and value.endswith("'")):
+    if not (value.startswith('"') and \
+        value.endswith('"')) and not (value.startswith("'") and value.endswith("'")):
         return [line]
     
     # Break into multiple lines using string concatenation
@@ -270,8 +275,8 @@ def break_string_assignment(line: str) -> List[str]:
             break_point -= 1
         
         if break_point > 0:
-            first_part = value[:break_point+1]
-            second_part = value[break_point+1:]
+            first_part = value[:break_point + 1]
+            second_part = value[break_point + 1:]
             
             # Ensure proper string formatting
             if first_part.startswith('"'):
@@ -299,8 +304,8 @@ def break_list_or_dict(line: str, open_char: str, close_char: str) -> List[str]:
         return [line]
     
     prefix = line[:open_idx]
-    content = line[open_idx+1:close_idx]
-    suffix = line[close_idx+1:]
+    content = line[open_idx + 1:close_idx]
+    suffix = line[close_idx + 1:]
     
     # Split by commas, but respect nested structures
     items = []
@@ -324,7 +329,7 @@ def break_list_or_dict(line: str, open_char: str, close_char: str) -> List[str]:
     if len(items) <= 1:
         return [line]
     
-    # Create a multi-line list or dict
+    # Create a multi - line list or dict
     indent = " " * len(prefix)
     result = [f"{prefix}{open_char}\n"]
     for item in items:
@@ -356,7 +361,7 @@ def fix_whitespace(file_path: str, dry_run: bool = False) -> int:
         print(f"  No whitespace issues found in {file_path}")
         return 0
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf - 8') as f:
         lines = f.readlines()
     
     fixed_count = 0
@@ -370,17 +375,18 @@ def fix_whitespace(file_path: str, dry_run: bool = False) -> int:
             continue
         
         # Find the operator at the column
-        operators = ['+', '-', '*', '/', '%', '**', '//', '=', '+=', '-=', '*=', '/=', '%=', '**=', '//=']
+        operators = [' + ', ' - ', ' * ', ' / ', ' % ', '** ', ' // ', '=', '+=', '-=', 
+            '*=', '/=', '%=', '**=', '//=']
         found_operator = None
         for op in sorted(operators, key=len, reverse=True):
-            if col_num < len(line) and line[col_num-1:col_num-1+len(op)] == op:
+            if col_num < len(line) and line[col_num - 1:col_num - 1 + len(op)] == op:
                 found_operator = op
                 break
         
         if found_operator:
             # Fix the whitespace around the operator
-            before = line[:col_num-1].rstrip()
-            after = line[col_num-1+len(found_operator):].lstrip()
+            before = line[:col_num - 1].rstrip()
+            after = line[col_num - 1 + len(found_operator):].lstrip()
             new_line = f"{before} {found_operator} {after}"
             
             print(f"  Fixing line {line_num}: {line.strip()} -> {new_line.strip()}")
@@ -389,7 +395,7 @@ def fix_whitespace(file_path: str, dry_run: bool = False) -> int:
             fixed_count += 1
     
     if fixed_count > 0 and not dry_run:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf - 8') as f:
             f.writelines(lines)
     
     print(f"  Fixed {fixed_count} whitespace issues in {file_path}")

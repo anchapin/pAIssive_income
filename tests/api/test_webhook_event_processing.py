@@ -38,7 +38,7 @@ class TestEventFiltering:
 
             # Webhook 1: USER events only
             webhook1_data = {
-                "url": "https://example.com/webhook1",
+                "url": "https://example.com / webhook1",
                 "events": [WebhookEventType.USER_CREATED, WebhookEventType.USER_UPDATED],
                 "description": "User events webhook",
                 "is_active": True,
@@ -47,7 +47,7 @@ class TestEventFiltering:
 
             # Webhook 2: PAYMENT events only
             webhook2_data = {
-                "url": "https://example.com/webhook2",
+                "url": "https://example.com / webhook2",
                 "events": [WebhookEventType.PAYMENT_RECEIVED],
                 "description": "Payment events webhook",
                 "is_active": True,
@@ -56,7 +56,7 @@ class TestEventFiltering:
 
             # Webhook 3: All events
             webhook3_data = {
-                "url": "https://example.com/webhook3",
+                "url": "https://example.com / webhook3",
                 "events": [
                     WebhookEventType.USER_CREATED,
                     WebhookEventType.USER_UPDATED,
@@ -97,9 +97,9 @@ class TestEventFiltering:
 
                 # USER_CREATED event
                 user_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 await service.trigger_event(
@@ -108,10 +108,10 @@ class TestEventFiltering:
 
                 # PAYMENT_RECEIVED event
                 payment_data = {
-                    "payment_id": "payment-123",
+                    "payment_id": "payment - 123",
                     "amount": 100.00,
                     "currency": "USD",
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                 }
 
                 await service.trigger_event(
@@ -120,9 +120,9 @@ class TestEventFiltering:
 
                 # SUBSCRIPTION_CREATED event
                 subscription_data = {
-                    "subscription_id": "sub-123",
+                    "subscription_id": "sub - 123",
                     "plan": "premium",
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "start_date": datetime.utcnow().isoformat(),
                 }
 
@@ -168,7 +168,7 @@ class TestPayloadValidation:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -184,9 +184,9 @@ class TestPayloadValidation:
             with patch("httpx.AsyncClient.post", return_value=success_response):
                 # Valid payload
                 valid_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 # Deliver event with valid payload
@@ -230,7 +230,7 @@ class TestEventCorrelation:
 
             # Webhook 1: USER events
             webhook1_data = {
-                "url": "https://example.com/webhook1",
+                "url": "https://example.com / webhook1",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "User events webhook",
                 "is_active": True,
@@ -239,7 +239,7 @@ class TestEventCorrelation:
 
             # Webhook 2: PAYMENT events
             webhook2_data = {
-                "url": "https://example.com/webhook2",
+                "url": "https://example.com / webhook2",
                 "events": [WebhookEventType.PAYMENT_RECEIVED],
                 "description": "Payment events webhook",
                 "is_active": True,
@@ -267,9 +267,9 @@ class TestEventCorrelation:
 
                 # Trigger a USER_CREATED event
                 user_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                     "correlation_id": correlation_id,
                 }
 
@@ -279,10 +279,10 @@ class TestEventCorrelation:
 
                 # Trigger a related PAYMENT_RECEIVED event
                 payment_data = {
-                    "payment_id": "payment-123",
+                    "payment_id": "payment - 123",
                     "amount": 100.00,
                     "currency": "USD",
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "correlation_id": correlation_id,
                 }
 
@@ -326,7 +326,7 @@ class TestEventBatching:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_UPDATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -352,7 +352,7 @@ class TestEventBatching:
                 # Trigger multiple events in quick succession
                 for i in range(10):
                     event_data = {
-                        "user_id": "user-123",
+                        "user_id": "user - 123",
                         "username": f"testuser-{i}",
                         "email": f"test{i}@example.com",
                     }
@@ -387,7 +387,7 @@ class TestEventBatching:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_UPDATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -413,15 +413,15 @@ class TestEventBatching:
                 # Trigger multiple updates to the same user in quick succession
                 for i in range(5):
                     event_data = {
-                        "user_id": "user-123",
+                        "user_id": "user - 123",
                         "username": f"testuser-{i}",  # Changing username each time
-                        "email": "test@example.com",
+                        "email": "test @ example.com",
                     }
 
                     await service.trigger_event(
                         event_type=WebhookEventType.USER_UPDATED,
                         event_data=event_data,
-                        debounce_key="user-123",  # Use user_id as debounce key
+                        debounce_key="user - 123",  # Use user_id as debounce key
                     )
 
                     # Small delay between events
@@ -432,7 +432,7 @@ class TestEventBatching:
 
                 # Verify that only the last event was delivered
                 assert len(delivered_events) == 1
-                assert delivered_events[0]["data"]["username"] == "testuser-4"  # Last update
+                assert delivered_events[0]["data"]["username"] == "testuser - 4"  # Last update
 
         finally:
             # Stop the service
@@ -465,7 +465,7 @@ class TestEventTransformation:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -490,9 +490,9 @@ class TestEventTransformation:
             with patch("httpx.AsyncClient.post", mock_post):
                 # Trigger an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 await service.trigger_event(
@@ -525,10 +525,10 @@ class TestCustomHeaders:
         try:
             # Register a webhook with custom headers
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
-                "headers": {"X-API-Key": "test-api-key", "X-Custom-Header": "custom-value"},
+                "headers": {"X - API - Key": "test - api - key", "X - Custom - Header": "custom - value"},
                 "is_active": True,
             }
             webhook = await service.register_webhook(webhook_data)
@@ -551,9 +551,9 @@ class TestCustomHeaders:
             with patch("httpx.AsyncClient.post", mock_post):
                 # Trigger an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 await service.trigger_event(
@@ -565,15 +565,15 @@ class TestCustomHeaders:
 
                 # Verify that custom headers were included
                 assert len(request_headers) == 1
-                assert "X-API-Key" in request_headers[0]
-                assert request_headers[0]["X-API-Key"] == "test-api-key"
-                assert "X-Custom-Header" in request_headers[0]
-                assert request_headers[0]["X-Custom-Header"] == "custom-value"
+                assert "X - API - Key" in request_headers[0]
+                assert request_headers[0]["X - API - Key"] == "test - api - key"
+                assert "X - Custom - Header" in request_headers[0]
+                assert request_headers[0]["X - Custom - Header"] == "custom - value"
 
                 # Verify that standard headers were also included
-                assert "Content-Type" in request_headers[0]
-                assert request_headers[0]["Content-Type"] == "application/json"
-                assert "User-Agent" in request_headers[0]
+                assert "Content - Type" in request_headers[0]
+                assert request_headers[0]["Content - Type"] == "application / json"
+                assert "User - Agent" in request_headers[0]
 
         finally:
             # Stop the service

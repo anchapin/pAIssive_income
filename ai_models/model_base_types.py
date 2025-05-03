@@ -22,7 +22,7 @@ from interfaces.model_interfaces import IModelInfo
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ModelInfo(IModelInfo):
     _description: str = ""
     size_mb: float = 0.0
     format: str = ""  # gguf, onnx, pytorch, etc.
-    quantization: str = ""  # 4-bit, 8-bit, etc.
+    quantization: str = ""  # 4 - bit, 8 - bit, etc.
     capabilities: List[str] = None
     _metadata: Dict[str, Any] = None
     performance: Dict[str, Any] = None
@@ -85,7 +85,7 @@ class ModelInfo(IModelInfo):
         self.updated_at = updated_at
         self.version = version
 
-        # Run post-initialization logic
+        # Run post - initialization logic
         self.__post_init__()
 
     @property
@@ -137,7 +137,7 @@ class ModelInfo(IModelInfo):
             self.performance = {}
 
         # Set timestamps if not provided
-        current_time = time.strftime("%Y-%m-%dT%H:%M:%S")
+        current_time = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
         if not self.created_at:
             self.created_at = current_time
@@ -146,7 +146,7 @@ class ModelInfo(IModelInfo):
             self.updated_at = current_time
 
         if not self.last_updated:
-            self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
+            self.last_updated = time.strftime(" % Y-%m-%d %H:%M:%S")
 
         # Calculate size if path exists and size is not provided
         if self.size_mb == 0.0 and os.path.exists(self._path):
@@ -209,8 +209,8 @@ class ModelInfo(IModelInfo):
         """
         Update the last_updated and updated_at timestamps.
         """
-        self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.last_updated = time.strftime(" % Y-%m-%d %H:%M:%S")
+        self.updated_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
         # For compatibility with datetime.now().isoformat() in tests
         if hasattr(datetime, "now"):

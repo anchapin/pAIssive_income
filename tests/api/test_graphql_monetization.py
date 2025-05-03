@@ -233,8 +233,8 @@ class TestMonetizationGraphQLAPI:
         variables = {
             "strategyId": strategy_id,
             "timeframe": {
-                "startDate": "2025-05-01",
-                "endDate": "2026-04-30",
+                "startDate": "2025 - 05 - 01",
+                "endDate": "2026 - 04 - 30",
                 "periodicity": "MONTHLY",
             },
         }

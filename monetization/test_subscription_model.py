@@ -28,7 +28,8 @@ def test_subscription_model():
     # Add tiers
     tier1 = model.add_tier(name="Tier 1", description="Test tier 1", price_monthly=9.99)
 
-    tier2 = model.add_tier(name="Tier 2", description="Test tier 2", price_monthly=19.99)
+    tier2 = model.add_tier(name="Tier 2", description="Test tier 2", 
+        price_monthly=19.99)
 
     # Assign features to tiers
     model.assign_feature_to_tier(feature1["id"], tier1["id"])
@@ -37,13 +38,15 @@ def test_subscription_model():
 
     # Test getting tier features
     tier1_features = model.get_tier_features(tier1["id"])
-    assert len(tier1_features) == 1, f"Expected 1 feature in tier 1, got {len(tier1_features)}"
+    assert len(tier1_features) == 1, f"Expected 1 feature in tier 1, 
+        got {len(tier1_features)}"
     assert (
         tier1_features[0]["name"] == "Feature 1"
     ), f"Expected 'Feature 1', got '{tier1_features[0]['name']}'"
 
     tier2_features = model.get_tier_features(tier2["id"])
-    assert len(tier2_features) == 2, f"Expected 2 features in tier 2, got {len(tier2_features)}"
+    assert len(tier2_features) == 2, f"Expected 2 features in tier 2, 
+        got {len(tier2_features)}"
 
     # Test updating tier price
     model.update_tier_price(tier1["id"], price_monthly=14.99)
@@ -65,7 +68,8 @@ def test_subscription_model():
     model.save_to_file(test_file)
 
     loaded_model = SubscriptionModel.load_from_file(test_file)
-    assert loaded_model.name == model.name, f"Expected '{model.name}', got '{loaded_model.name}'"
+    assert loaded_model.name == model.name, f"Expected '{model.name}', 
+        got '{loaded_model.name}'"
     assert len(loaded_model.tiers) == len(
         model.tiers
     ), f"Expected {len(model.tiers)} tiers, got {len(loaded_model.tiers)}"

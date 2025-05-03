@@ -1,7 +1,7 @@
 """
-In-Memory Service Registry
+In - Memory Service Registry
 
-This module provides an in-memory implementation of the ServiceRegistry interface.
+This module provides an in - memory implementation of the ServiceRegistry interface.
 """
 
 import time
@@ -13,15 +13,15 @@ from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
 
 class InMemoryServiceRegistry(ServiceRegistry):
     """
-    An in-memory implementation of ServiceRegistry.
+    An in - memory implementation of ServiceRegistry.
 
     This implementation stores service instances in memory and is suitable
-    for development, testing, or single-node deployments.
+    for development, testing, or single - node deployments.
     """
 
     def __init__(self, heartbeat_timeout_seconds: int = 30):
         """
-        Initialize the in-memory service registry.
+        Initialize the in - memory service registry.
 
         Args:
             heartbeat_timeout_seconds: Number of seconds after which a service

@@ -68,7 +68,7 @@ class QueryParamsMiddleware(BaseHTTPMiddleware):
         Returns:
             Response
         """
-        # Skip processing for non-GET requests
+        # Skip processing for non - GET requests
         if request.method != "GET":
             return await call_next(request)
 

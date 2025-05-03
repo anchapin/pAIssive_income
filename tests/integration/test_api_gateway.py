@@ -44,15 +44,15 @@ class TestAPIGateway:
         # Register test routes
         routes = [
             {
-                "path": "/api/v1/users",
-                "service": "user-service",
+                "path": " / api / v1 / users",
+                "service": "user - service",
                 "methods": ["GET", "POST"],
                 "version": "1.0",
                 "timeout": 5000,
             },
             {
-                "path": "/api/v1/orders",
-                "service": "order-service",
+                "path": " / api / v1 / orders",
+                "service": "order - service",
                 "methods": ["GET", "POST", "PUT"],
                 "version": "1.0",
                 "timeout": 10000,
@@ -63,27 +63,27 @@ class TestAPIGateway:
             self.route_manager.register_route(**route)
 
         # Test route resolution
-        resolved = self.route_manager.resolve_route(path="/api/v1/users", method="GET")
-        assert resolved["service"] == "user-service"
+        resolved = self.route_manager.resolve_route(path=" / api / v1 / users", method="GET")
+        assert resolved["service"] == "user - service"
         assert "GET" in resolved["methods"]
 
-        # Test version-based routing
+        # Test version - based routing
         self.route_manager.register_route(
-            path="/api/v2/users", service="user-service-v2", methods=["GET"], version="2.0"
+            path=" / api / v2 / users", service="user - service - v2", methods=["GET"], version="2.0"
         )
 
-        v2_route = self.route_manager.resolve_route(path="/api/v2/users", method="GET")
-        assert v2_route["service"] == "user-service-v2"
+        v2_route = self.route_manager.resolve_route(path=" / api / v2 / users", method="GET")
+        assert v2_route["service"] == "user - service - v2"
         assert v2_route["version"] == "2.0"
 
         # Test method not allowed
         with pytest.raises(RoutingError) as exc:
-            self.route_manager.resolve_route(path="/api/v1/users", method="DELETE")
+            self.route_manager.resolve_route(path=" / api / v1 / users", method="DELETE")
         assert "Method not allowed" in str(exc.value)
 
         # Test route not found
         with pytest.raises(RoutingError) as exc:
-            self.route_manager.resolve_route(path="/api/v1/invalid", method="GET")
+            self.route_manager.resolve_route(path=" / api / v1 / invalid", method="GET")
         assert "Route not found" in str(exc.value)
 
     def test_authentication(self):
@@ -118,7 +118,7 @@ class TestAPIGateway:
         with pytest.raises(AuthenticationError):
             self.auth_manager.authenticate("invalid.token.here")
 
-        # Test role-based authorization
+        # Test role - based authorization
         admin_payload = {
             "user_id": "456",
             "roles": ["admin"],
@@ -146,7 +146,7 @@ class TestAPIGateway:
     def test_rate_limiting(self):
         """Test rate limiting functionality."""
         client_id = "test_client"
-        path = "/api/test"
+        path = " / api / test"
 
         # Test successful requests within limit
         for _ in range(5):
@@ -170,14 +170,14 @@ class TestAPIGateway:
         assert self.rate_limiter.check_rate_limit(client_id, path)
 
         # Test different paths have separate limits
-        other_path = "/api/other"
+        other_path = " / api / other"
         assert self.rate_limiter.check_rate_limit(client_id, other_path)
 
     def test_request_lifecycle(self):
         """Test complete request lifecycle through gateway."""
         # Setup test route
         self.route_manager.register_route(
-            path="/api/test", service="test-service", methods=["GET"], version="1.0"
+            path=" / api / test", service="test - service", methods=["GET"], version="1.0"
         )
 
         # Create auth token
@@ -193,7 +193,7 @@ class TestAPIGateway:
 
             # Make request through gateway
             response = requests.get(
-                "http://localhost:8000/api/test",
+                "http://localhost:8000 / api / test",
                 headers={"Authorization": f"Bearer {token}"},
                 timeout=30,
             )
@@ -205,7 +205,7 @@ class TestAPIGateway:
             # Verify request was properly processed
             mock_forward.assert_called_once()
             call_args = mock_forward.call_args[0][0]
-            assert call_args["path"] == "/api/test"
+            assert call_args["path"] == " / api / test"
             assert call_args["method"] == "GET"
             assert call_args["user_id"] == "123"
 
@@ -214,15 +214,15 @@ class TestAPIGateway:
         # Test invalid route configuration
         with pytest.raises(RoutingError):
             self.route_manager.register_route(
-                path="/invalid/path/",  # Missing leading /api
-                service="test-service",
+                path=" / invalid / path / ",  # Missing leading /api
+                service="test - service",
                 methods=["GET"],
             )
 
         # Test service timeout
         self.route_manager.register_route(
-            path="/api/slow",
-            service="slow-service",
+            path=" / api / slow",
+            service="slow - service",
             methods=["GET"],
             timeout=100,  # Very short timeout
         )
@@ -230,22 +230,22 @@ class TestAPIGateway:
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
             mock_forward.side_effect = TimeoutError("Service timeout")
 
-            response = requests.get("http://localhost:8000/api/slow", timeout=30)
+            response = requests.get("http://localhost:8000 / api / slow", timeout=30)
             assert response.status_code == 504  # Gateway Timeout
 
         # Test service unavailable
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
             mock_forward.side_effect = ConnectionError("Service unavailable")
 
-            response = requests.get("http://localhost:8000/api/test", timeout=30)
+            response = requests.get("http://localhost:8000 / api / test", timeout=30)
             assert response.status_code == 503  # Service Unavailable
 
     def test_request_transformation(self):
-        """Test request/response transformation."""
+        """Test request / response transformation."""
         # Register route with transforms
         self.route_manager.register_route(
-            path="/api/transform",
-            service="transform-service",
+            path=" / api / transform",
+            service="transform - service",
             methods=["POST"],
             request_transform="camelToSnake",
             response_transform="snakeToCamel",
@@ -261,7 +261,7 @@ class TestAPIGateway:
             }
 
             response = requests.post(
-                "http://localhost:8000/api/transform", json=request_data, timeout=30
+                "http://localhost:8000 / api / transform", json=request_data, timeout=30
             )
 
             # Verify request transformation
@@ -277,4 +277,4 @@ class TestAPIGateway:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_api_gateway.py"])
+    pytest.main([" - v", "test_api_gateway.py"])

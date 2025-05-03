@@ -1,7 +1,7 @@
 """
 UI Service for pAIssive income microservices architecture.
 
-This module provides the UI Service implementation, which serves the web-based
+This module provides the UI Service implementation, which serves the web - based
 user interface for the pAIssive income platform.
 """
 
@@ -25,7 +25,7 @@ from services.service_discovery.registration import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -39,10 +39,10 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify actual origins
+    allow_origins=[" * "],  # In production, specify actual origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=[" * "],
+    allow_headers=[" * "],
 )
 
 # Get the directory for static files and templates
@@ -56,7 +56,7 @@ os.makedirs(templates_dir, exist_ok=True)
 
 # Set up static files and templates
 try:
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    app.mount(" / static", StaticFiles(directory=static_dir), name="static")
     templates = Jinja2Templates(directory=templates_dir)
 except Exception as e:
     logger.error(f"Error setting up static files or templates: {str(e)}")
@@ -67,7 +67,7 @@ service_registration = None
 service_discovery_client = None
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get(" / ", response_class=HTMLResponse)
 async def root(request: Request):
     """Root endpoint for UI Service, serves the main UI page."""
     # For now, return a simple HTML page
@@ -76,33 +76,33 @@ async def root(request: Request):
     <html>
     <head>
         <title>pAIssive Income Platform</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf - 8">
+        <meta name="viewport" content="width=device - width, initial - scale=1">
         <style>
             body {
-                font-family: Arial, sans-serif;
+                font - family: Arial, sans - serif;
                 margin: 0;
                 padding: 20px;
-                line-height: 1.6;
+                line - height: 1.6;
             }
             h1 { color: #333; }
             .container {
-                max-width: 800px;
+                max - width: 800px;
                 margin: 0 auto;
                 padding: 20px;
                 border: 1px solid #ddd;
-                border-radius: 5px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border - radius: 5px;
+                box - shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            .service-list {
-                margin-top: 20px;
+            .service - list {
+                margin - top: 20px;
             }
-            .service-item {
+            .service - item {
                 padding: 10px;
-                border-bottom: 1px solid #eee;
+                border - bottom: 1px solid #eee;
             }
-            .service-item:last-child {
-                border-bottom: none;
+            .service - item:last - child {
+                border - bottom: none;
             }
         </style>
     </head>
@@ -110,9 +110,9 @@ async def root(request: Request):
         <div class="container">
             <h1>pAIssive Income Platform</h1>
             <p>Welcome to the pAIssive Income microservices platform!</p>
-            <p>This is a placeholder UI that will eventually be replaced with a React-based frontend.</p>
+            <p>This is a placeholder UI that will eventually be replaced with a React - based frontend.</p>
 
-            <div class="service-list">
+            <div class="service - list">
                 <h2>Available Services</h2>
                 <p>Loading services...</p>
                 <div id="services"></div>
@@ -121,7 +121,7 @@ async def root(request: Request):
 
         <script>
             // Fetch services from the API Gateway
-            fetch('/api/service-info')
+            fetch(' / api / service - info')
                 .then(response => response.json())
                 .then(data => {
                     const servicesList = document.getElementById('services');
@@ -130,7 +130,7 @@ async def root(request: Request):
                     if (data.services && Object.keys(data.services).length > 0) {
                         for (const [name, instances] of Object.entries(data.services)) {
                             const serviceDiv = document.createElement('div');
-                            serviceDiv.className = 'service-item';
+                            serviceDiv.className = 'service - item';
                             serviceDiv.innerHTML = `<strong>${name}</strong>: ${instances.length} instance(s)`;
                             servicesList.appendChild(serviceDiv);
                         }
@@ -148,13 +148,13 @@ async def root(request: Request):
     """
 
 
-@app.get("/api/status")
+@app.get(" / api / status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "ui-service"}
+    return {"status": "ok", "version": "1.0.0", "service": "ui - service"}
 
 
-@app.get("/api/service-info")
+@app.get(" / api / service - info")
 async def get_services():
     """Get information about available services."""
     if not service_discovery_client:
@@ -209,10 +209,10 @@ def register_with_service_registry(port: int):
     # Register service
     service_registration = register_service(
         app=app,
-        service_name="ui-service",
+        service_name="ui - service",
         port=port,
         version="1.0.0",
-        health_check_path="/health",
+        health_check_path=" / health",
         check_functions=[check_service_health],
         tags=tags,
         metadata=metadata,

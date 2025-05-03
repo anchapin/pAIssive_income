@@ -399,7 +399,7 @@ class TestAgentTeamGraphQLAPI:
                 "task": {
                     "type": "analyze_niche",
                     "parameters": {
-                        "marketSegment": "e-commerce",
+                        "marketSegment": "e - commerce",
                         "targetAudience": "small businesses",
                     },
                 },

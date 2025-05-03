@@ -1,7 +1,7 @@
 """
-Evaluation tools for fine-tuned AI models.
+Evaluation tools for fine - tuned AI models.
 
-This module provides tools for evaluating fine-tuned AI models, including
+This module provides tools for evaluating fine - tuned AI models, including
 performance measurement, comparison, and report generation.
 """
 
@@ -99,7 +99,7 @@ class EvaluationConfig:
 
 class ModelEvaluator:
     """
-    Class for evaluating fine-tuned models.
+    Class for evaluating fine - tuned models.
     """
 
     def __init__(self, config: EvaluationConfig):
@@ -535,10 +535,10 @@ class ModelEvaluator:
         os.makedirs(results_dir, exist_ok=True)
 
         # Save results as JSON
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        timestamp = time.strftime(" % Y%m % d-%H % M%S")
         results_path = os.path.join(results_dir, f"results_{timestamp}.json")
 
-        with open(results_path, "w", encoding="utf-8") as f:
+        with open(results_path, "w", encoding="utf - 8") as f:
             json.dump(
                 {
                     "model_path": self.config.model_path,
@@ -576,7 +576,7 @@ class ModelEvaluator:
             if output_path is None and self.config.output_dir:
                 output_dir = os.path.join(self.config.output_dir, "visualizations")
                 os.makedirs(output_dir, exist_ok=True)
-                timestamp = time.strftime("%Y%m%d-%H%M%S")
+                timestamp = time.strftime(" % Y%m % d-%H % M%S")
                 output_path = os.path.join(output_dir, f"evaluation_viz_{timestamp}.png")
 
             if output_path is None:
@@ -615,7 +615,7 @@ class ModelEvaluator:
             plt.xlabel("Metric")
             plt.ylabel("Value")
 
-            # Rotate x-axis labels for better readability
+            # Rotate x - axis labels for better readability
             plt.xticks(rotation=45, ha="right")
 
             # Adjust layout
@@ -769,14 +769,14 @@ class ModelEvaluator:
             plt.xlabel("Metric")
             plt.ylabel("Value")
 
-            # Rotate x-axis labels for better readability
+            # Rotate x - axis labels for better readability
             plt.xticks(rotation=45, ha="right")
 
             # Adjust layout
             plt.tight_layout()
 
             # Save figure
-            timestamp = time.strftime("%Y%m%d-%H%M%S")
+            timestamp = time.strftime(" % Y%m % d-%H % M%S")
             output_path = os.path.join(output_dir, f"model_comparison_{timestamp}.png")
             plt.savefig(output_path)
             plt.close()
@@ -819,7 +819,7 @@ class ModelEvaluator:
 
             # Add header
             report_content.append("# Model Evaluation Report")
-            report_content.append(f"Generated on: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            report_content.append(f"Generated on: {time.strftime(' % Y-%m-%d %H:%M:%S')}")
             report_content.append("")
 
             # Add summary
@@ -911,7 +911,7 @@ class ModelEvaluator:
                     report_content.append("")
 
             # Write report to file
-            with open(output_path, "w", encoding="utf-8") as f:
+            with open(output_path, "w", encoding="utf - 8") as f:
                 f.write("\n".join(report_content))
 
             logger.info(f"Saved evaluation report to {output_path}")
@@ -937,7 +937,7 @@ def evaluate_model(
     **kwargs,
 ) -> Dict[str, Any]:
     """
-    Evaluate a fine-tuned model.
+    Evaluate a fine - tuned model.
 
     Args:
         model_path: Path to the model
@@ -979,7 +979,7 @@ def compare_models(
     **kwargs,
 ) -> Dict[str, Dict[str, Any]]:
     """
-    Compare multiple fine-tuned models.
+    Compare multiple fine - tuned models.
 
     Args:
         model_paths: List of paths to the models

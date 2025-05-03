@@ -36,7 +36,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    " / ",
     response_model=AuditEventList,
     dependencies=[Depends(require_scopes(["audit:read"]))],
     responses={

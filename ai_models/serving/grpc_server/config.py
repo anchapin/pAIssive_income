@@ -19,7 +19,7 @@ class GRPCConfig(ServerConfig):
     # Override default protocol
     protocol: ServerProtocol = ServerProtocol.GRPC
 
-    # gRPC-specific configuration
+    # gRPC - specific configuration
     max_message_length: int = 100 * 1024 * 1024  # 100 MB
     max_concurrent_rpcs: int = 100
     enable_reflection: bool = True

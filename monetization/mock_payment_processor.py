@@ -49,7 +49,8 @@ class MockPaymentProcessor(PaymentProcessor):
         )
 
         # Set supported currencies
-        self.supported_currencies = config.get("supported_currencies", ["USD", "EUR", "GBP"])
+        self.supported_currencies = config.get("supported_currencies", ["USD", "EUR", 
+            "GBP"])
 
     def _generate_id(self, prefix: str) -> str:
         """
@@ -215,7 +216,8 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Delete associated payment methods
         payment_method_ids = [
-            pm_id for pm_id, pm in self.payment_methods.items() if pm["customer_id"] == customer_id
+            pm_id for pm_id, 
+                pm in self.payment_methods.items() if pm["customer_id"] == customer_id
         ]
 
         for pm_id in payment_method_ids:
@@ -417,17 +419,20 @@ class MockPaymentProcessor(PaymentProcessor):
             if payment_type == "card":
                 # Update card details
                 if "exp_month" in payment_details:
-                    payment_method["details"]["exp_month"] = payment_details["exp_month"]
+                    payment_method["details"]["exp_month"] = \
+                        payment_details["exp_month"]
 
                 if "exp_year" in payment_details:
                     payment_method["details"]["exp_year"] = payment_details["exp_year"]
             elif payment_type == "bank_account":
                 # Update bank account details
                 if "bank_name" in payment_details:
-                    payment_method["details"]["bank_name"] = payment_details["bank_name"]
+                    payment_method["details"]["bank_name"] = \
+                        payment_details["bank_name"]
 
                 if "account_type" in payment_details:
-                    payment_method["details"]["account_type"] = payment_details["account_type"]
+                    payment_method["details"]["account_type"] = \
+                        payment_details["account_type"]
             else:
                 # For other payment types, just update the details
                 payment_method["details"].update(payment_details)
@@ -521,7 +526,8 @@ class MockPaymentProcessor(PaymentProcessor):
             "metadata": metadata or {},
             "status": "succeeded" if success else "failed",
             "error": (
-                None if success else {"code": "card_declined", "message": "Your card was declined."}
+                None if success else {"code": "card_declined", 
+                    "message": "Your card was declined."}
             ),
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
@@ -798,7 +804,8 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Check if subscription is active
         if subscription["status"] != "active":
-            raise ValueError(f"Cannot update subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot update subscription with status: {subscription['status']}")
 
         # Update plan ID
         if plan_id is not None:
@@ -852,7 +859,8 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Check if subscription is active
         if subscription["status"] != "active":
-            raise ValueError(f"Cannot cancel subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot cancel subscription with status: {subscription['status']}")
 
         # Update subscription
         subscription["cancel_at_period_end"] = cancel_at_period_end

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ChannelStrategy:
     """
     Base class for all marketing channel strategies.
-    This class provides a common interface for all channel-specific strategies.
+    This class provides a common interface for all channel - specific strategies.
     """
 
     def __init__(
@@ -74,7 +74,8 @@ class ChannelStrategy:
             }
         )
 
-    def add_metric(self, name: str, description: str, target: Optional[str] = None) -> None:
+    def add_metric(self, name: str, description: str, 
+        target: Optional[str] = None) -> None:
         """
         Add a metric to track for this channel strategy.
 
@@ -84,10 +85,12 @@ class ChannelStrategy:
             target: Optional target value for this metric
         """
         self.metrics.append(
-            {"id": str(uuid.uuid4()), "name": name, "description": description, "target": target}
+            {"id": str(uuid.uuid4()), "name": name, "description": description, 
+                "target": target}
         )
 
-    def add_resource(self, name: str, description: str, cost: Optional[float] = None) -> None:
+    def add_resource(self, name: str, description: str, 
+        cost: Optional[float] = None) -> None:
         """
         Add a resource required for this channel strategy.
 
@@ -97,7 +100,8 @@ class ChannelStrategy:
             cost: Optional cost of the resource
         """
         self.resources.append(
-            {"id": str(uuid.uuid4()), "name": name, "description": description, "cost": cost}
+            {"id": str(uuid.uuid4()), "name": name, "description": description, 
+                "cost": cost}
         )
 
     def get_summary(self) -> Dict[str, Any]:
@@ -171,7 +175,8 @@ class ChannelStrategy:
 
         for channel in self.channels:
             if total_efficiency > 0:
-                allocation = (channel["cost_efficiency"] / total_efficiency) * total_budget
+                allocation = (channel["cost_efficiency"] / total_efficiency) * \
+                    total_budget
             else:
                 allocation = total_budget / len(self.channels)
             allocations[channel["name"]] = allocation
@@ -242,7 +247,8 @@ class MarketingStrategy:
         self.metrics = []
         self.budget_allocation = {}
 
-    def add_tactic(self, tactic: str, description: str, priority: str = "medium") -> None:
+    def add_tactic(self, tactic: str, description: str, 
+        priority: str = "medium") -> None:
         """
         Add a tactic to the marketing strategy.
 
@@ -292,7 +298,8 @@ class MarketingStrategy:
             {"id": str(uuid.uuid4()), "name": name, "description": description}
         )
 
-    def add_metric(self, name: str, description: str, target: Optional[str] = None) -> None:
+    def add_metric(self, name: str, description: str, 
+        target: Optional[str] = None) -> None:
         """
         Add a metric to track for this marketing strategy.
 
@@ -302,7 +309,8 @@ class MarketingStrategy:
             target: Optional target value for this metric
         """
         self.metrics.append(
-            {"id": str(uuid.uuid4()), "name": name, "description": description, "target": target}
+            {"id": str(uuid.uuid4()), "name": name, "description": description, 
+                "target": target}
         )
 
     def set_budget_allocation(self, allocations: Dict[str, str]) -> None:
@@ -383,8 +391,10 @@ class MarketingStrategy:
                         "name": "Content Marketing",
                         "type": "content_marketing",
                         "description": "Create valuable content to attract and engage the target audience",
+                            
                         "budget_allocation": budget * 0.4,
-                        "priority_score": 0.9,  # High priority for content marketing in low budget
+                        "priority_score": 0.9,  
+                            # High priority for content marketing in low budget
                         "focus": "lead_generation",
                         "audience_fit_score": self._calculate_audience_fit(
                             "content_marketing", audience_characteristics
@@ -394,6 +404,7 @@ class MarketingStrategy:
                         "name": "Social Media (Organic)",
                         "type": "social_media_organic",
                         "description": "Use organic social media to promote content and engage with the audience",
+                            
                         "budget_allocation": budget * 0.3,
                         "priority_score": 0.8,  # High priority for organic social
                         "focus": "brand_awareness",
@@ -405,8 +416,9 @@ class MarketingStrategy:
                         "name": "Email Marketing",
                         "type": "email_marketing",
                         "description": "Build an email list and nurture leads through email campaigns",
+                            
                         "budget_allocation": budget * 0.3,
-                        "priority_score": 0.7,  # Medium-high priority for email
+                        "priority_score": 0.7,  # Medium - high priority for email
                         "focus": "customer_retention",
                         "audience_fit_score": self._calculate_audience_fit(
                             "email_marketing", audience_characteristics
@@ -421,6 +433,7 @@ class MarketingStrategy:
                         "name": "Content Marketing",
                         "type": "content_marketing",
                         "description": "Create valuable content to attract and engage the target audience",
+                            
                         "budget_allocation": budget * 0.3,
                         "priority_score": 0.9,  # High priority for content marketing
                         "focus": "lead_generation",
@@ -432,6 +445,7 @@ class MarketingStrategy:
                         "name": "Social Media (Paid)",
                         "type": "social_media_paid",
                         "description": "Use paid social media advertising to reach target audience",
+                            
                         "budget_allocation": budget * 0.25,
                         "priority_score": 0.85,  # High priority for paid social
                         "focus": "brand_awareness",
@@ -443,6 +457,7 @@ class MarketingStrategy:
                         "name": "Email Marketing",
                         "type": "email_marketing",
                         "description": "Build an email list and nurture leads through email campaigns",
+                            
                         "budget_allocation": budget * 0.2,
                         "priority_score": 0.8,  # High priority for email
                         "focus": "lead_generation",
@@ -455,7 +470,7 @@ class MarketingStrategy:
                         "type": "paid_advertising",
                         "description": "Use paid advertising to reach target audience",
                         "budget_allocation": budget * 0.15,
-                        "priority_score": 0.75,  # Medium-high priority for paid ads
+                        "priority_score": 0.75,  # Medium - high priority for paid ads
                         "focus": "lead_generation",
                         "audience_fit_score": self._calculate_audience_fit(
                             "paid_advertising", audience_characteristics
@@ -465,8 +480,10 @@ class MarketingStrategy:
                         "name": "Influencer Marketing",
                         "type": "influencer_marketing",
                         "description": "Partner with influencers to reach target audience",
+                            
                         "budget_allocation": budget * 0.1,
-                        "priority_score": 0.7,  # Medium priority for influencer marketing
+                        "priority_score": 0.7,  
+                            # Medium priority for influencer marketing
                         "focus": "brand_awareness",
                         "audience_fit_score": self._calculate_audience_fit(
                             "influencer_marketing", audience_characteristics
@@ -493,12 +510,12 @@ class MarketingStrategy:
             {
                 "name": "Conversion Rate",
                 "description": "Percentage of visitors who become leads",
-                "target": "10%",
+                "target": "10 % ",
             },
             {
                 "name": "Customer Acquisition Cost",
                 "description": "Cost to acquire a new customer",
-                "target": f"${budget/100} per customer",
+                "target": f"${budget / 100} per customer",
             },
         ]
 
@@ -507,6 +524,7 @@ class MarketingStrategy:
             "id": plan_id,
             "name": f"Marketing Plan for {niche}",
             "description": f"A marketing plan targeting {target_audience} in the {niche} niche",
+                
             "niche": niche,
             "target_audience": target_audience_info,
             "budget": budget,
@@ -537,7 +555,7 @@ class MarketingStrategy:
         if not audience_characteristics:
             return base_score
 
-        # Channel-specific scoring logic
+        # Channel - specific scoring logic
         if channel_type == "content_marketing":
             # Content marketing works well for educated, professional audiences
             if audience_characteristics.get("industry") in [
@@ -547,8 +565,8 @@ class MarketingStrategy:
             ]:
                 base_score += 0.2
             if audience_characteristics.get("business_size") in [
-                "1-50 employees",
-                "51-200 employees",
+                "1 - 50 employees",
+                "51 - 200 employees",
             ]:
                 base_score += 0.1
 
@@ -565,7 +583,8 @@ class MarketingStrategy:
 
         elif channel_type == "email_marketing":
             # Email marketing works well for B2B and professional audiences
-            if audience_characteristics.get("business_size"):  # Any business size indicates B2B
+            if audience_characteristics.get(
+                "business_size"):  # Any business size indicates B2B
                 base_score += 0.2
             if audience_characteristics.get("industry") in [
                 "technology",
@@ -633,7 +652,8 @@ class MarketingStrategy:
             # Create channel actions for each phase
             channel_actions = []
             message_theme = (
-                f"{main_goal.replace('_', ' ').title()} - {phase_name.replace('_', ' ').title()}"
+                f"{main_goal.replace('_', ' ').title()} - {phase_name.replace('_', 
+                    ' ').title()}"
             )
 
             phase_budget = budget / len(timeline)  # Split budget evenly across phases
@@ -651,7 +671,7 @@ class MarketingStrategy:
                     "coordination_points": [
                         "Content consistency",
                         "Timing alignment",
-                        "Cross-promotion",
+                        "Cross - promotion",
                         "Message synchronization",
                     ],
                     "key_metrics": self._get_channel_metrics(channel),
@@ -664,7 +684,8 @@ class MarketingStrategy:
                     "name": phase_name,
                     "duration": duration,
                     "channel_actions": channel_actions,
-                    "timeline": {"start": current_date.isoformat(), "end": phase_end.isoformat()},
+                    "timeline": {"start": current_date.isoformat(), 
+                        "end": phase_end.isoformat()},
                     "goals": {
                         "primary": main_goal,
                         "secondary": ["brand_consistency", "channel_synergy"],
@@ -684,7 +705,8 @@ class MarketingStrategy:
             "main_goal": main_goal,
             "status": "draft",
             "created_at": datetime.now().isoformat(),
-            "metrics": {"overall_roi": None, "channel_performance": {}, "cross_channel_impact": {}},
+            "metrics": {"overall_roi": None, "channel_performance": {}, 
+                "cross_channel_impact": {}},
         }
 
         return campaign
@@ -695,9 +717,10 @@ class MarketingStrategy:
 
         channel_specific_metrics = {
             "social_media": ["Engagement Rate", "Reach", "Share of Voice"],
-            "email": ["Open Rate", "Click-through Rate", "List Growth Rate"],
+            "email": ["Open Rate", "Click - through Rate", "List Growth Rate"],
             "content": ["Page Views", "Time on Page", "Bounce Rate"],
-            "paid_ads": ["Cost per Click", "Cost per Acquisition", "Click-through Rate"],
+            "paid_ads": ["Cost per Click", "Cost per Acquisition", 
+                "Click - through Rate"],
         }
 
         # Clean channel name to match keys
@@ -739,7 +762,7 @@ class MarketingStrategy:
                 cpc = data["spend"] / data["clicks"]
                 channel_metrics["cpc"] = cpc
 
-            # Calculate CTR (Click-through Rate)
+            # Calculate CTR (Click - through Rate)
             if "clicks" in data and "impressions" in data:
                 ctr = data["clicks"] / data["impressions"]
                 channel_metrics["ctr"] = ctr
@@ -749,7 +772,7 @@ class MarketingStrategy:
                 conversion_rate = data["conversions"] / data["clicks"]
                 channel_metrics["conversion_rate"] = conversion_rate
 
-            # Calculate channel-specific metrics
+            # Calculate channel - specific metrics
             if channel == "email_marketing" and "opens" in data and "sends" in data:
                 open_rate = data["opens"] / data["sends"]
                 channel_metrics["open_rate"] = open_rate
@@ -775,8 +798,9 @@ class MarketingStrategy:
         channel_rankings.sort(key=lambda x: x["efficiency_score"], reverse=True)
         metrics["channel_rankings"] = channel_rankings
 
-        # Add cross-channel impact analysis
-        metrics["cross_channel_impact"] = self._analyze_cross_channel_impact(performance_data)
+        # Add cross - channel impact analysis
+        metrics["cross_channel_impact"] = \
+            self._analyze_cross_channel_impact(performance_data)
 
         return metrics
 
@@ -787,8 +811,10 @@ class MarketingStrategy:
         impact_analysis = {}
 
         # Calculate total conversions and revenue
-        total_conversions = sum(data.get("conversions", 0) for data in performance_data.values())
-        total_revenue = sum(data.get("revenue", 0) for data in performance_data.values())
+        total_conversions = sum(data.get("conversions", 
+            0) for data in performance_data.values())
+        total_revenue = sum(data.get("revenue", 
+            0) for data in performance_data.values())
 
         # Calculate contribution percentages
         for channel, data in performance_data.items():
@@ -806,6 +832,7 @@ class MarketingStrategy:
                 "conversion_share": conversion_share,
                 "revenue_share": revenue_share,
                 "efficiency_ratio": revenue_share / conversion_share if conversion_share > 0 else 0,
+                    
             }
 
         return impact_analysis
@@ -867,8 +894,9 @@ class ContentMarketingStrategy(MarketingStrategy):
         """Add default tactics based on selected platforms."""
         platform_tactics = {
             "blog": {
-                "name": "SEO-Optimized Blog Content",
-                "description": "Create SEO-optimized blog content targeting relevant keywords",
+                "name": "SEO - Optimized Blog Content",
+                "description": "Create SEO - optimized blog content targeting relevant keywords",
+                    
                 "priority": "high",
             },
             "youtube": {
@@ -896,20 +924,21 @@ class ContentMarketingStrategy(MarketingStrategy):
         for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
-                self.add_tactic(tactic["name"], tactic["description"], tactic["priority"])
+                self.add_tactic(tactic["name"], tactic["description"], 
+                    tactic["priority"])
 
     def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on selected content types."""
         content_recommendations = {
             "tutorials": {
-                "description": "Step-by-step tutorials solving specific problems",
+                "description": "Step - by - step tutorials solving specific problems",
                 "frequency": self.frequency,
             },
             "case studies": {
                 "description": "Case studies showcasing successful implementations",
                 "frequency": self.frequency,
             },
-            "how-to guides": {
+            "how - to guides": {
                 "description": "Comprehensive guides on specific topics",
                 "frequency": self.frequency,
             },
@@ -926,19 +955,22 @@ class ContentMarketingStrategy(MarketingStrategy):
         for content_type in self.content_types:
             if content_type in content_recommendations:
                 rec = content_recommendations[content_type]
-                self.add_content_recommendation(content_type, rec["description"], rec["frequency"])
+                self.add_content_recommendation(content_type, rec["description"], 
+                    rec["frequency"])
 
     def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
         self.add_engagement_strategy(
-            "Comment Engagement", "Actively respond to comments on all content within 24 hours"
+            "Comment Engagement", 
+                "Actively respond to comments on all content within 24 hours"
         )
         self.add_engagement_strategy(
             "Content Promotion",
             "Share content across social media platforms and relevant communities",
         )
         self.add_engagement_strategy(
-            "Email Distribution", "Send new content to email subscribers with personalized notes"
+            "Email Distribution", 
+                "Send new content to email subscribers with personalized notes"
         )
 
     def _add_default_metrics(self) -> None:
@@ -946,12 +978,12 @@ class ContentMarketingStrategy(MarketingStrategy):
         self.add_metric(
             "Traffic",
             "Website traffic from content marketing efforts",
-            "Increase by 20% quarter-over-quarter",
+            "Increase by 20% quarter - over - quarter",
         )
         self.add_metric(
             "Engagement",
             "Likes, comments, shares, and other engagement metrics",
-            "Increase by 15% quarter-over-quarter",
+            "Increase by 15% quarter - over - quarter",
         )
         self.add_metric(
             "Lead Generation",
@@ -961,17 +993,17 @@ class ContentMarketingStrategy(MarketingStrategy):
         self.add_metric(
             "Conversion Rate",
             "Percentage of content consumers who convert to customers",
-            "2-5% conversion rate",
+            "2 - 5% conversion rate",
         )
 
     def _set_default_budget_allocation(self) -> None:
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
-                "content_creation": "50%",
-                "content_promotion": "20%",
-                "tools_and_software": "15%",
-                "freelancers_and_contractors": "15%",
+                "content_creation": "50 % ",
+                "content_promotion": "20 % ",
+                "tools_and_software": "15 % ",
+                "freelancers_and_contractors": "15 % ",
             }
         )
 
@@ -1070,14 +1102,14 @@ class ContentMarketingStrategy(MarketingStrategy):
         # Determine publishing frequency
         if self.frequency == "weekly":
             items_per_month = 4
-        elif self.frequency == "bi-weekly":
+        elif self.frequency == "bi - weekly":
             items_per_month = 2
         elif self.frequency == "monthly":
             items_per_month = 1
         elif self.frequency == "daily":
             items_per_month = 20  # Assuming 20 business days per month
         else:
-            items_per_month = 2  # Default to bi-weekly
+            items_per_month = 2  # Default to bi - weekly
 
         # Generate calendar items
         for month in range(1, months + 1):
@@ -1098,7 +1130,9 @@ class ContentMarketingStrategy(MarketingStrategy):
                         "content_type": content_type,
                         "platform": platform,
                         "title": f"{content_type.title()} for {self.target_persona['name']}s - Part {month * item}",
+                            
                         "description": f"Create a {content_type} about {self.target_persona['pain_points'][item % len(self.target_persona['pain_points'])]} for {platform}",
+                            
                         "status": "planned",
                     }
                 )
@@ -1133,7 +1167,8 @@ class SocialMediaStrategy(MarketingStrategy):
             goals: List of marketing goals
             platforms: List of social media platforms
             post_frequency: How often to post on each platform
-            content_mix: Dictionary mapping content types to percentage (e.g., {"educational": 40, "promotional": 20})
+            content_mix: Dictionary mapping content types to percentage (e.g., 
+                {"educational": 40, "promotional": 20})
             budget: Optional budget range for this strategy
             timeline: Optional timeline for implementation
         """
@@ -1141,7 +1176,8 @@ class SocialMediaStrategy(MarketingStrategy):
         self.channel_type = "social_media"
         self.platforms = platforms or ["instagram", "twitter", "facebook", "linkedin"]
         self.post_frequency = post_frequency
-        self.content_mix = content_mix or {"educational": 40, "promotional": 20, "entertaining": 40}
+        self.content_mix = content_mix or {"educational": 40, "promotional": 20, 
+            "entertaining": 40}
 
         # Add default tactics based on platforms
         self._add_default_tactics()
@@ -1169,6 +1205,7 @@ class SocialMediaStrategy(MarketingStrategy):
             "linkedin": {
                 "name": "LinkedIn Networking",
                 "description": "Professional networking and content sharing on LinkedIn",
+                    
                 "priority": "high",
             },
             "facebook": {
@@ -1182,8 +1219,8 @@ class SocialMediaStrategy(MarketingStrategy):
                 "priority": "medium",
             },
             "tiktok": {
-                "name": "TikTok Short-Form Videos",
-                "description": "Create engaging short-form videos for TikTok",
+                "name": "TikTok Short - Form Videos",
+                "description": "Create engaging short - form videos for TikTok",
                 "priority": "medium",
             },
             "reddit": {
@@ -1201,7 +1238,8 @@ class SocialMediaStrategy(MarketingStrategy):
         for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
-                self.add_tactic(tactic["name"], tactic["description"], tactic["priority"])
+                self.add_tactic(tactic["name"], tactic["description"], 
+                    tactic["priority"])
 
     def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on content mix."""
@@ -1210,6 +1248,7 @@ class SocialMediaStrategy(MarketingStrategy):
                 self.add_content_recommendation(
                     "Educational Posts",
                     "Posts that educate your audience about topics related to your niche",
+                        
                     self.post_frequency,
                 )
             elif content_type == "promotional":
@@ -1226,11 +1265,12 @@ class SocialMediaStrategy(MarketingStrategy):
                 )
             elif content_type == "inspirational":
                 self.add_content_recommendation(
-                    "Inspirational Posts", "Posts that inspire your audience", self.post_frequency
+                    "Inspirational Posts", "Posts that inspire your audience", 
+                        self.post_frequency
                 )
-            elif content_type == "user-generated":
+            elif content_type == "user - generated":
                 self.add_content_recommendation(
-                    "User-Generated Content",
+                    "User - Generated Content",
                     "Sharing and highlighting content created by your users",
                     self.post_frequency,
                 )
@@ -1248,7 +1288,8 @@ class SocialMediaStrategy(MarketingStrategy):
             "Hashtag Strategy", "Use relevant hashtags to increase visibility"
         )
         self.add_engagement_strategy(
-            "Cross-Promotion", "Cross-promote content across different social media platforms"
+            "Cross - Promotion", 
+                "Cross - promote content across different social media platforms"
         )
 
     def _add_default_metrics(self) -> None:
@@ -1256,32 +1297,32 @@ class SocialMediaStrategy(MarketingStrategy):
         self.add_metric(
             "Follower Growth",
             "Growth in followers across all platforms",
-            "10% month-over-month growth",
+            "10% month - over - month growth",
         )
         self.add_metric(
             "Engagement Rate",
             "Likes, comments, shares, and other engagement metrics",
-            "3-5% engagement rate",
+            "3 - 5% engagement rate",
         )
         self.add_metric(
-            "Click-Through Rate",
+            "Click - Through Rate",
             "Percentage of people who click on links in your posts",
-            "1-3% click-through rate",
+            "1 - 3% click - through rate",
         )
         self.add_metric(
             "Conversion Rate",
             "Percentage of social media visitors who convert to customers",
-            "1-2% conversion rate",
+            "1 - 2% conversion rate",
         )
 
     def _set_default_budget_allocation(self) -> None:
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
-                "content_creation": "40%",
-                "paid_promotion": "30%",
-                "tools_and_software": "15%",
-                "community_management": "15%",
+                "content_creation": "40 % ",
+                "paid_promotion": "30 % ",
+                "tools_and_software": "15 % ",
+                "community_management": "15 % ",
             }
         )
 
@@ -1315,9 +1356,9 @@ class SocialMediaStrategy(MarketingStrategy):
         if platform == "instagram":
             content_ideas.extend(
                 [
-                    "Behind-the-scenes photos",
+                    "Behind - the - scenes photos",
                     "Product showcases",
-                    "User-generated content",
+                    "User - generated content",
                     "Instagram Stories polls",
                     "IGTV tutorials",
                 ]
@@ -1335,7 +1376,7 @@ class SocialMediaStrategy(MarketingStrategy):
         elif platform == "facebook":
             content_ideas.extend(
                 [
-                    "Longer-form content",
+                    "Longer - form content",
                     "Live videos",
                     "Community discussions",
                     "Event promotions",
@@ -1355,7 +1396,7 @@ class SocialMediaStrategy(MarketingStrategy):
         else:
             content_ideas.extend(
                 [
-                    "Platform-specific content",
+                    "Platform - specific content",
                     "Engaging visuals",
                     "Educational content",
                     "Promotional content",
@@ -1377,7 +1418,7 @@ class SocialMediaStrategy(MarketingStrategy):
                     {
                         "name": "Engagement Rate",
                         "description": "Likes and comments per post",
-                        "target": "3-5%",
+                        "target": "3 - 5 % ",
                     },
                     {
                         "name": "Story Views",
@@ -1400,9 +1441,9 @@ class SocialMediaStrategy(MarketingStrategy):
                         "target": "10 retweets per post",
                     },
                     {
-                        "name": "Click-through Rate",
+                        "name": "Click - through Rate",
                         "description": "Percentage of clicks on links",
-                        "target": "1-2%",
+                        "target": "1 - 2 % ",
                     },
                 ]
             )
@@ -1410,14 +1451,14 @@ class SocialMediaStrategy(MarketingStrategy):
             metrics.extend(
                 [
                     {
-                        "name": "Followers/Connections",
+                        "name": "Followers / Connections",
                         "description": "Number of followers or connections",
                         "target": "Increase by 10% per month",
                     },
                     {
                         "name": "Engagement Rate",
                         "description": "Interactions per post",
-                        "target": "2-4%",
+                        "target": "2 - 4 % ",
                     },
                     {
                         "name": "Reach",
@@ -1481,7 +1522,8 @@ class SocialMediaStrategy(MarketingStrategy):
                     content_type = content_types[content_type_index]
 
                     # Generate post idea based on content type and platform
-                    post_idea = self._generate_post_idea(platform, content_type, week, post)
+                    post_idea = self._generate_post_idea(platform, content_type, week, 
+                        post)
 
                     schedule[platform].append(
                         {
@@ -1522,18 +1564,21 @@ class SocialMediaStrategy(MarketingStrategy):
             return {
                 "title": f"How to solve {pain_point}",
                 "description": f"Educational post about solving {pain_point} for {self.target_persona['name']}s",
+                    
                 "hashtags": ["#tips", "#howto", f"#{platform}tips"],
             }
         elif content_type == "promotional":
             return {
                 "title": f"Introducing our solution for {pain_point}",
                 "description": f"Promotional post highlighting how our product solves {pain_point}",
+                    
                 "hashtags": ["#product", "#solution", "#productivity"],
             }
         elif content_type == "entertaining":
             return {
                 "title": f"The struggle with {pain_point} is real",
                 "description": f"Entertaining post about the challenges of {pain_point}",
+                    
                 "hashtags": ["#relatable", "#thestruggleisreal", "#funny"],
             }
         elif content_type == "inspirational":
@@ -1542,10 +1587,11 @@ class SocialMediaStrategy(MarketingStrategy):
                 "description": f"Inspirational post about overcoming {pain_point}",
                 "hashtags": ["#success", "#motivation", "#overcome"],
             }
-        elif content_type == "user-generated":
+        elif content_type == "user - generated":
             return {
                 "title": f"How our users are solving {pain_point}",
-                "description": f"Sharing user-generated content about solving {pain_point}",
+                "description": f"Sharing user - generated content about solving {pain_point}",
+                    
                 "hashtags": ["#userstories", "#community", "#testimonial"],
             }
         else:
@@ -1589,14 +1635,15 @@ class EmailMarketingStrategy(MarketingStrategy):
         """
         super().__init__(name, description, target_persona, goals, budget, timeline)
         self.channel_type = "email_marketing"
-        self.email_types = email_types or ["newsletter", "promotional", "onboarding", "retention"]
+        self.email_types = email_types or ["newsletter", "promotional", "onboarding", 
+            "retention"]
         self.frequency = frequency
         self.list_building_tactics = list_building_tactics or [
             "Lead magnets",
             "Content upgrades",
             "Webinars and events",
             "Social media promotion",
-            "Website opt-in forms",
+            "Website opt - in forms",
         ]
 
         # Add default tactics
@@ -1622,11 +1669,13 @@ class EmailMarketingStrategy(MarketingStrategy):
         for tactic in self.list_building_tactics:
             if tactic == "lead_magnet":
                 self.add_tactic(
-                    "Lead Magnet", "Create a valuable lead magnet to attract subscribers", "high"
+                    "Lead Magnet", 
+                        "Create a valuable lead magnet to attract subscribers", "high"
                 )
             elif tactic == "content_upgrade":
                 self.add_tactic(
-                    "Content Upgrades", "Create content upgrades for your blog posts", "medium"
+                    "Content Upgrades", "Create content upgrades for your blog posts", 
+                        "medium"
                 )
             elif tactic == "webinar":
                 self.add_tactic(
@@ -1636,12 +1685,14 @@ class EmailMarketingStrategy(MarketingStrategy):
                 )
             elif tactic == "social_media":
                 self.add_tactic(
-                    "Social Media Promotion", "Promote your newsletter on social media", "medium"
+                    "Social Media Promotion", "Promote your newsletter on social media", 
+                        "medium"
                 )
             elif tactic == "referral":
                 self.add_tactic(
                     "Referral Program",
                     "Create a referral program to encourage subscribers to refer others",
+                        
                     "medium",
                 )
 
@@ -1656,12 +1707,14 @@ class EmailMarketingStrategy(MarketingStrategy):
                 )
             elif email_type == "promotional":
                 self.add_content_recommendation(
-                    "Promotional Emails", "Emails promoting your product or service", "monthly"
+                    "Promotional Emails", "Emails promoting your product or service", 
+                        "monthly"
                 )
             elif email_type == "educational":
                 self.add_content_recommendation(
                     "Educational Emails",
                     "Emails that educate your subscribers about topics related to your niche",
+                        
                     self.frequency,
                 )
             elif email_type == "onboarding":
@@ -1670,47 +1723,52 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "Sequence of emails to onboard new subscribers or customers",
                     "triggered",
                 )
-            elif email_type == "re-engagement":
+            elif email_type == "re - engagement":
                 self.add_content_recommendation(
-                    "Re-engagement Campaign",
-                    "Campaign to re-engage inactive subscribers",
+                    "Re - engagement Campaign",
+                    "Campaign to re - engage inactive subscribers",
                     "quarterly",
                 )
 
     def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
         self.add_engagement_strategy(
-            "Personalization", "Personalize emails with subscriber name and relevant content"
+            "Personalization", 
+                "Personalize emails with subscriber name and relevant content"
         )
         self.add_engagement_strategy(
-            "Segmentation", "Segment your email list based on subscriber behavior and preferences"
+            "Segmentation", 
+                "Segment your email list based on subscriber behavior and preferences"
         )
         self.add_engagement_strategy(
-            "A/B Testing", "Test different subject lines, content, and CTAs to optimize performance"
+            "A / B Testing", "Test different subject lines, content, 
+                and CTAs to optimize performance"
         )
         self.add_engagement_strategy(
-            "Clear CTAs", "Include clear and compelling calls-to-action in every email"
+            "Clear CTAs", 
+                "Include clear and compelling calls - to - action in every email"
         )
 
     def _add_default_metrics(self) -> None:
         """Add default metrics to track."""
         self.add_metric(
-            "Open Rate", "Percentage of subscribers who open your emails", "20-30% open rate"
+            "Open Rate", "Percentage of subscribers who open your emails", 
+                "20 - 30% open rate"
         )
         self.add_metric(
-            "Click-Through Rate",
+            "Click - Through Rate",
             "Percentage of subscribers who click on links in your emails",
-            "2-5% click-through rate",
+            "2 - 5% click - through rate",
         )
         self.add_metric(
             "Conversion Rate",
             "Percentage of email clicks that result in a desired action",
-            "1-3% conversion rate",
+            "1 - 3% conversion rate",
         )
         self.add_metric(
             "List Growth Rate",
             "Rate at which your email list is growing",
-            "5-10% month-over-month growth",
+            "5 - 10% month - over - month growth",
         )
         self.add_metric(
             "Unsubscribe Rate",
@@ -1722,10 +1780,10 @@ class EmailMarketingStrategy(MarketingStrategy):
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
-                "email_marketing_platform": "30%",
-                "content_creation": "40%",
-                "lead_generation": "20%",
-                "testing_and_optimization": "10%",
+                "email_marketing_platform": "30 % ",
+                "content_creation": "40 % ",
+                "lead_generation": "20 % ",
+                "testing_and_optimization": "10 % ",
             }
         )
 
@@ -1747,6 +1805,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 "days_after_trigger": 0,
                 "subject": "Welcome to our community!",
                 "content_summary": "Welcome email introducing your brand and what to expect",
+                    
                 "cta": "Explore our resources",
             }
         )
@@ -1767,6 +1826,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 "days_after_trigger": 5,
                 "subject": "Our story and mission",
                 "content_summary": "Share your brand story and mission to connect with subscribers",
+                    
                 "cta": "Connect with us",
             }
         )
@@ -1777,6 +1837,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 "days_after_trigger": 7,
                 "subject": "Exclusive resources for you",
                 "content_summary": "Share exclusive resources and tools for subscribers",
+                    
                 "cta": "Access resources",
             }
         )
@@ -1812,6 +1873,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "days_after_trigger": 4,
                     "subject": "Tips and tricks for success",
                     "content_summary": "Advanced tips and tricks for getting the most out of the product",
+                        
                     "cta": "Learn more",
                 }
             )
@@ -1821,7 +1883,8 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "sequence_position": 4,
                     "days_after_trigger": 7,
                     "subject": "How are you doing?",
-                    "content_summary": "Check-in email to see how the user is doing and offer help",
+                    "content_summary": "Check - in email to see how the user is doing and offer help",
+                        
                     "cta": "Get help",
                 }
             )
@@ -1837,6 +1900,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "days_after_trigger": 0,
                     "subject": "Introducing our new product",
                     "content_summary": "Introduction to the new product and its benefits",
+                        
                     "cta": "Learn more",
                 }
             )
@@ -1847,6 +1911,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "days_after_trigger": 2,
                     "subject": "How our product solves your problems",
                     "content_summary": "Detailed explanation of how the product solves specific problems",
+                        
                     "cta": "See how it works",
                 }
             )
@@ -1857,6 +1922,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "days_after_trigger": 4,
                     "subject": "What our customers are saying",
                     "content_summary": "Testimonials and case studies from satisfied customers",
+                        
                     "cta": "Read testimonials",
                 }
             )
@@ -1866,7 +1932,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "sequence_position": 4,
                     "days_after_trigger": 6,
                     "subject": "Special offer ending soon",
-                    "content_summary": "Limited-time offer with clear deadline",
+                    "content_summary": "Limited - time offer with clear deadline",
                     "cta": "Get the offer",
                 }
             )
@@ -1916,29 +1982,31 @@ class EmailMarketingStrategy(MarketingStrategy):
                 {
                     "name": "Open Rate",
                     "description": "Percentage of subscribers who open your emails",
-                    "target": "25-30%",
+                    "target": "25 - 30 % ",
                 }
             )
             metrics.append(
                 {
                     "name": "Unsubscribe Rate",
                     "description": "Percentage of subscribers who unsubscribe",
-                    "target": "Less than 1%",
+                    "target": "Less than 1 % ",
                 }
             )
 
         if "introduce_product" in goals:
             metrics.append(
                 {
-                    "name": "Click-Through Rate",
+                    "name": "Click - Through Rate",
                     "description": "Percentage of subscribers who click on links in your emails",
-                    "target": "3-5%",
+                        
+                    "target": "3 - 5 % ",
                 }
             )
             metrics.append(
                 {
                     "name": "Website Visit Duration",
                     "description": "How long subscribers stay on your website after clicking",
+                        
                     "target": "2+ minutes",
                 }
             )
@@ -1948,7 +2016,8 @@ class EmailMarketingStrategy(MarketingStrategy):
                 {
                     "name": "Conversion Rate",
                     "description": "Percentage of email clicks that result in a conversion",
-                    "target": "2-3%",
+                        
+                    "target": "2 - 3 % ",
                 }
             )
             metrics.append(
@@ -1966,17 +2035,19 @@ class EmailMarketingStrategy(MarketingStrategy):
                     {
                         "name": "Open Rate",
                         "description": "Percentage of subscribers who open your emails",
-                        "target": "20-25%",
+                        "target": "20 - 25 % ",
                     },
                     {
-                        "name": "Click-Through Rate",
+                        "name": "Click - Through Rate",
                         "description": "Percentage of subscribers who click on links in your emails",
-                        "target": "2-4%",
+                            
+                        "target": "2 - 4 % ",
                     },
                     {
                         "name": "Conversion Rate",
                         "description": "Percentage of email clicks that result in a conversion",
-                        "target": "1-2%",
+                            
+                        "target": "1 - 2 % ",
                     },
                 ]
             )
@@ -2010,14 +2081,14 @@ class EmailMarketingStrategy(MarketingStrategy):
         # Determine emails per month based on frequency
         if self.frequency == "weekly":
             emails_per_month = 4
-        elif self.frequency == "bi-weekly":
+        elif self.frequency == "bi - weekly":
             emails_per_month = 2
         elif self.frequency == "monthly":
             emails_per_month = 1
         elif self.frequency == "daily":
             emails_per_month = 20  # Assuming 20 business days per month
         else:
-            emails_per_month = 2  # Default to bi-weekly
+            emails_per_month = 2  # Default to bi - weekly
 
         # Generate calendar items
         for month in range(1, months + 1):

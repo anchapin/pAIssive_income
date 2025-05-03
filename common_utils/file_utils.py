@@ -20,14 +20,15 @@ logger = logging.getLogger(__name__)
 _file_lock = asyncio.Lock()
 
 
-def read_file(file_path: str, binary: bool = False, encoding: str = "utf-8") -> Union[str, bytes]:
+def read_file(file_path: str, binary: bool = False, 
+    encoding: str = "utf - 8") -> Union[str, bytes]:
     """
     Read content from a file.
 
     Args:
         file_path: Path to the file
         binary: Whether to read in binary mode (default: False)
-        encoding: Encoding to use when reading text (default: utf-8)
+        encoding: Encoding to use when reading text (default: utf - 8)
 
     Returns:
         File content as string or bytes
@@ -57,7 +58,7 @@ def write_file(
     file_path: str,
     content: Union[str, bytes],
     binary: bool = False,
-    encoding: str = "utf-8",
+    encoding: str = "utf - 8",
     create_dirs: bool = True,
 ) -> None:
     """
@@ -67,8 +68,9 @@ def write_file(
         file_path: Path to the file
         content: Content to write
         binary: Whether to write in binary mode (default: False)
-        encoding: Encoding to use when writing text (default: utf-8)
-        create_dirs: Whether to create parent directories if they don't exist (default: True)
+        encoding: Encoding to use when writing text (default: utf - 8)
+        create_dirs: Whether to create parent directories if they don't exist (
+            default: True)
 
     Raises:
         IOError: If there's an issue writing to the file
@@ -152,7 +154,8 @@ def get_directory_path(base_dir: str, *subdirs: str) -> str:
     return os.path.join(base_dir, *subdirs)
 
 
-def list_files(directory: str, pattern: Optional[str] = None, recursive: bool = False) -> List[str]:
+def list_files(directory: str, pattern: Optional[str] = None, 
+    recursive: bool = False) -> List[str]:
     """
     List files in a directory.
 
@@ -181,7 +184,8 @@ def list_files(directory: str, pattern: Optional[str] = None, recursive: bool = 
         else:
             for filename in os.listdir(directory):
                 file_path = os.path.join(directory, filename)
-                if os.path.isfile(file_path) and (pattern is None or pattern in filename):
+                if os.path.isfile(file_path) and \
+                    (pattern is None or pattern in filename):
                     files.append(file_path)
 
         return files
@@ -280,18 +284,18 @@ def get_file_size(file_path: str) -> int:
 
 
 async def read_file_async(
-    file_path: str, binary: bool = False, encoding: str = "utf-8"
+    file_path: str, binary: bool = False, encoding: str = "utf - 8"
 ) -> Union[str, bytes]:
     """
     Read content from a file asynchronously.
 
     This is the asynchronous version of read_file() that doesn't block the
-    main event loop during file I/O operations.
+    main event loop during file I / O operations.
 
     Args:
         file_path: Path to the file
         binary: Whether to read in binary mode (default: False)
-        encoding: Encoding to use when reading text (default: utf-8)
+        encoding: Encoding to use when reading text (default: utf - 8)
 
     Returns:
         File content as string or bytes
@@ -300,7 +304,7 @@ async def read_file_async(
         FileNotFoundError: If the file doesn't exist
         IOError: If there's an issue reading the file
     """
-    # Use run_in_thread to run the blocking I/O operation in a thread pool
+    # Use run_in_thread to run the blocking I / O operation in a thread pool
     try:
         async with _file_lock:
             return await run_in_thread(read_file, file_path, binary, encoding)
@@ -313,28 +317,30 @@ async def write_file_async(
     file_path: str,
     content: Union[str, bytes],
     binary: bool = False,
-    encoding: str = "utf-8",
+    encoding: str = "utf - 8",
     create_dirs: bool = True,
 ) -> None:
     """
     Write content to a file asynchronously.
 
     This is the asynchronous version of write_file() that doesn't block the
-    main event loop during file I/O operations.
+    main event loop during file I / O operations.
 
     Args:
         file_path: Path to the file
         content: Content to write
         binary: Whether to write in binary mode (default: False)
-        encoding: Encoding to use when writing text (default: utf-8)
-        create_dirs: Whether to create parent directories if they don't exist (default: True)
+        encoding: Encoding to use when writing text (default: utf - 8)
+        create_dirs: Whether to create parent directories if they don't exist (
+            default: True)
 
     Raises:
         IOError: If there's an issue writing to the file
     """
     try:
         async with _file_lock:
-            await run_in_thread(write_file, file_path, content, binary, encoding, create_dirs)
+            await run_in_thread(write_file, file_path, content, binary, encoding, 
+                create_dirs)
         logger.debug(f"Successfully wrote to file asynchronously: {file_path}")
     except Exception as e:
         logger.error(f"Error in write_file_async for {file_path}: {e}")
@@ -346,7 +352,7 @@ async def file_exists_async(file_path: str) -> bool:
     Check if a file exists asynchronously.
 
     This is the asynchronous version of file_exists() that doesn't block the
-    main event loop during file I/O operations.
+    main event loop during file I / O operations.
 
     Args:
         file_path: Path to the file
@@ -362,7 +368,7 @@ async def create_directory_async(directory_path: str, exist_ok: bool = True) -> 
     Create a directory asynchronously.
 
     This is the asynchronous version of create_directory() that doesn't block the
-    main event loop during file I/O operations.
+    main event loop during file I / O operations.
 
     Args:
         directory_path: Path to the directory
@@ -386,7 +392,7 @@ async def list_files_async(
     List files in a directory asynchronously.
 
     This is the asynchronous version of list_files() that doesn't block the
-    main event loop during file I/O operations, which is particularly beneficial
+    main event loop during file I / O operations, which is particularly beneficial
     for large directories or network file systems.
 
     Args:
@@ -410,7 +416,7 @@ async def list_directories_async(
     List subdirectories in a directory asynchronously.
 
     This is the asynchronous version of list_directories() that doesn't block the
-    main event loop during file I/O operations, which is particularly beneficial
+    main event loop during file I / O operations, which is particularly beneficial
     for large directories or network file systems.
 
     Args:
@@ -432,7 +438,7 @@ async def get_file_size_async(file_path: str) -> int:
     Get the size of a file in bytes asynchronously.
 
     This is the asynchronous version of get_file_size() that doesn't block the
-    main event loop during file I/O operations.
+    main event loop during file I / O operations.
 
     Args:
         file_path: Path to the file
@@ -446,7 +452,8 @@ async def get_file_size_async(file_path: str) -> int:
     return await run_in_thread(get_file_size, file_path)
 
 
-async def copy_file_async(src_path: str, dest_path: str, overwrite: bool = False) -> None:
+async def copy_file_async(src_path: str, dest_path: str, 
+    overwrite: bool = False) -> None:
     """
     Copy a file asynchronously.
 
@@ -466,13 +473,15 @@ async def copy_file_async(src_path: str, dest_path: str, overwrite: bool = False
         async with _file_lock:
             await run_in_thread(shutil.copy2, src_path, dest_path)
 
-        logger.debug(f"Successfully copied file asynchronously: {src_path} -> {dest_path}")
+        logger.debug(
+            f"Successfully copied file asynchronously: {src_path} -> {dest_path}")
     except Exception as e:
         logger.error(f"Error in copy_file_async: {e}")
         raise
 
 
-async def move_file_async(src_path: str, dest_path: str, overwrite: bool = False) -> None:
+async def move_file_async(src_path: str, dest_path: str, 
+    overwrite: bool = False) -> None:
     """
     Move a file asynchronously.
 
@@ -492,7 +501,8 @@ async def move_file_async(src_path: str, dest_path: str, overwrite: bool = False
         async with _file_lock:
             await run_in_thread(shutil.move, src_path, dest_path)
 
-        logger.debug(f"Successfully moved file asynchronously: {src_path} -> {dest_path}")
+        logger.debug(
+            f"Successfully moved file asynchronously: {src_path} -> {dest_path}")
     except Exception as e:
         logger.error(f"Error in move_file_async: {e}")
         raise
@@ -574,13 +584,14 @@ async def batch_process_files_async(
 async def read_files_batch_async(
     file_paths: List[str],
     binary: bool = False,
-    encoding: str = "utf-8",
+    encoding: str = "utf - 8",
     concurrency: int = 5,
 ) -> List[dict]:
     """
     Read multiple files concurrently.
 
-    This is a high-level utility that uses batch_process_files_async with read_file_async
+    This is a high - \
+        level utility that uses batch_process_files_async with read_file_async
     to efficiently read multiple files in parallel.
 
     Args:
@@ -590,7 +601,8 @@ async def read_files_batch_async(
         concurrency: Maximum number of concurrent read operations
 
     Returns:
-        List of dictionaries with file_path, content (result), success, and error information
+        List of dictionaries with file_path, content (result), success, 
+            and error information
     """
 
     async def read_file_wrapper(file_path):
@@ -602,7 +614,7 @@ async def read_files_batch_async(
 async def write_files_batch_async(
     file_contents: List[tuple],
     binary: bool = False,
-    encoding: str = "utf-8",
+    encoding: str = "utf - 8",
     create_dirs: bool = True,
     concurrency: int = 5,
 ) -> List[dict]:
@@ -625,14 +637,16 @@ async def write_files_batch_async(
     async def write_file_wrapper(file_path, content):
         async with semaphore:
             try:
-                await write_file_async(file_path, content, binary, encoding, create_dirs)
+                await write_file_async(file_path, content, binary, encoding, 
+                    create_dirs)
                 return {"file_path": file_path, "success": True, "error": None}
             except Exception as e:
                 logger.error(f"Error writing to file {file_path}: {e}")
                 return {"file_path": file_path, "success": False, "error": str(e)}
 
     # Create tasks for all files
-    tasks = [write_file_wrapper(file_path, content) for file_path, content in file_contents]
+    tasks = [write_file_wrapper(file_path, content) for file_path, 
+        content in file_contents]
 
     # Wait for all tasks to complete
     results = await asyncio.gather(*tasks)
@@ -679,7 +693,8 @@ async def find_files_with_content_async(
     size_check_tasks = [check_file_size_and_filter(file) for file in all_files]
     size_check_results = await asyncio.gather(*size_check_tasks)
 
-    files_to_search = [file for file, include in zip(all_files, size_check_results) if include]
+    files_to_search = [file for file, include in zip(all_files, 
+        size_check_results) if include]
 
     # Define a function to search a file for content
     async def search_file_for_content(file_path):
@@ -696,7 +711,8 @@ async def find_files_with_content_async(
 
     # Return only files that contain the content
     matching_files = [
-        result["file_path"] for result in search_results if result["success"] and result["result"]
+        result["file_path"] for result in search_results if result["success"] and \
+            result["result"]
     ]
 
     return matching_files

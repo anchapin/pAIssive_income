@@ -137,16 +137,16 @@ class TestFallbackEvent(unittest.TestCase):
     def test_event_initialization(self):
         """Test that a FallbackEvent can be initialized with correct values."""
         event = FallbackEvent(
-            original_model_id="gpt-4",
-            fallback_model_id="gpt-3.5-turbo",
+            original_model_id="gpt - 4",
+            fallback_model_id="gpt - 3.5 - turbo",
             reason="Model unavailable",
             agent_type="researcher",
             task_type="summarization",
             strategy_used=FallbackStrategy.DEFAULT,
         )
 
-        self.assertEqual(event.original_model_id, "gpt-4")
-        self.assertEqual(event.fallback_model_id, "gpt-3.5-turbo")
+        self.assertEqual(event.original_model_id, "gpt - 4")
+        self.assertEqual(event.fallback_model_id, "gpt - 3.5 - turbo")
         self.assertEqual(event.reason, "Model unavailable")
         self.assertEqual(event.agent_type, "researcher")
         self.assertEqual(event.task_type, "summarization")
@@ -155,15 +155,15 @@ class TestFallbackEvent(unittest.TestCase):
     def test_to_dict(self):
         """Test that a FallbackEvent can be converted to a dictionary."""
         event = FallbackEvent(
-            original_model_id="gpt-4",
-            fallback_model_id="gpt-3.5-turbo",
+            original_model_id="gpt - 4",
+            fallback_model_id="gpt - 3.5 - turbo",
             reason="Model unavailable",
             strategy_used=FallbackStrategy.DEFAULT,
         )
 
         event_dict = event.to_dict()
-        self.assertEqual(event_dict["original_model_id"], "gpt-4")
-        self.assertEqual(event_dict["fallback_model_id"], "gpt-3.5-turbo")
+        self.assertEqual(event_dict["original_model_id"], "gpt - 4")
+        self.assertEqual(event_dict["fallback_model_id"], "gpt - 3.5 - turbo")
         self.assertEqual(event_dict["reason"], "Model unavailable")
         self.assertEqual(event_dict["strategy_used"], "default")
 
@@ -176,43 +176,43 @@ class TestFallbackManager(unittest.TestCase):
         # Create mock models with different types and capabilities
         self.models = [
             ModelInfoMock(
-                id="gpt-4",
+                id="gpt - 4",
                 type="openai",
                 capabilities=["chat", "reasoning", "summarization"],
                 size_mb=1000,
                 is_available=True,
             ),
             ModelInfoMock(
-                id="gpt-3.5-turbo",
+                id="gpt - 3.5 - turbo",
                 type="openai",
                 capabilities=["chat", "summarization"],
                 size_mb=500,
                 is_available=True,
             ),
             ModelInfoMock(
-                id="llama-7b",
+                id="llama - 7b",
                 type="llama",
                 capabilities=["chat", "reasoning"],
                 size_mb=700,
                 is_available=True,
             ),
             ModelInfoMock(
-                id="bert-base",
+                id="bert - base",
                 type="huggingface",
                 capabilities=["embeddings", "classification"],
                 size_mb=400,
                 is_available=True,
             ),
             ModelInfoMock(
-                id="t5-base",
+                id="t5 - base",
                 type="huggingface",
                 capabilities=["summarization", "translation"],
                 size_mb=300,
                 is_available=True,
             ),
             ModelInfoMock(
-                id="offline-model",
-                type="general-purpose",
+                id="offline - model",
+                type="general - purpose",
                 capabilities=["chat"],
                 is_available=False,
             ),
@@ -228,7 +228,7 @@ class TestFallbackManager(unittest.TestCase):
         ):
             self.fallback_manager = FallbackManager(
                 model_manager=self.model_manager,
-                default_model_id="gpt-3.5-turbo",
+                default_model_id="gpt - 3.5 - turbo",
                 fallback_preferences={
                     "researcher": ["huggingface", "openai", "llama"],
                     "developer": ["huggingface", "llama", "openai"],
@@ -239,7 +239,7 @@ class TestFallbackManager(unittest.TestCase):
     def test_initialization(self):
         """Test that a FallbackManager can be initialized correctly."""
         self.assertEqual(self.fallback_manager.model_manager, self.model_manager)
-        self.assertEqual(self.fallback_manager.default_model_id, "gpt-3.5-turbo")
+        self.assertEqual(self.fallback_manager.default_model_id, "gpt - 3.5 - turbo")
         self.assertTrue(self.fallback_manager.fallback_enabled)
         self.assertEqual(len(self.fallback_manager.fallback_history), 0)
 
@@ -251,7 +251,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(fallback_enabled=False)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline-model")
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
 
         # Should return None when disabled
         self.assertIsNone(model)
@@ -264,21 +264,21 @@ class TestFallbackManager(unittest.TestCase):
         # Configure to use default model strategy
         self.fallback_manager.configure(default_strategy=FallbackStrategy.DEFAULT)
 
-        # Try to find a fallback model for a non-existent model
+        # Try to find a fallback model for a non - existent model
         try:
             model, event = self.fallback_manager.find_fallback_model(
-                original_model_id="non-existent-model"
+                original_model_id="non - existent - model"
             )
 
             # Should return the default model
             self.assertIsNotNone(model)
-            self.assertEqual(model.id, "gpt-3.5-turbo")
+            self.assertEqual(model.id, "gpt - 3.5 - turbo")
             self.assertIsNotNone(event)
-            self.assertEqual(event.fallback_model_id, "gpt-3.5-turbo")
+            self.assertEqual(event.fallback_model_id, "gpt - 3.5 - turbo")
             self.assertEqual(event.strategy_used, FallbackStrategy.DEFAULT)
         except ModelNotFoundError:
             # If ModelNotFoundError is raised, that's also acceptable
-            # Some implementations might raise an error for non-existent models
+            # Some implementations might raise an error for non - existent models
             pass
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
@@ -288,14 +288,14 @@ class TestFallbackManager(unittest.TestCase):
         # Configure to use similar model strategy
         self.fallback_manager.configure(default_strategy=FallbackStrategy.SIMILAR_MODEL)
 
-        # Try to find a fallback model for gpt-4
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt-4")
+        # Try to find a fallback model for gpt - 4
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
 
-        # Should return gpt-3.5-turbo (similar capabilities)
+        # Should return gpt - 3.5 - turbo (similar capabilities)
         self.assertIsNotNone(model)
-        self.assertEqual(model.id, "gpt-3.5-turbo")
+        self.assertEqual(model.id, "gpt - 3.5 - turbo")
         self.assertIsNotNone(event)
-        self.assertEqual(event.fallback_model_id, "gpt-3.5-turbo")
+        self.assertEqual(event.fallback_model_id, "gpt - 3.5 - turbo")
         self.assertEqual(event.strategy_used, FallbackStrategy.SIMILAR_MODEL)
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
@@ -305,17 +305,17 @@ class TestFallbackManager(unittest.TestCase):
         # Configure to use model type strategy
         self.fallback_manager.configure(default_strategy=FallbackStrategy.MODEL_TYPE)
 
-        # Try to find a fallback model for llama-7b
+        # Try to find a fallback model for llama - 7b
         model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="gpt-4", agent_type="researcher"
+            original_model_id="gpt - 4", agent_type="researcher"
         )
 
         # Should return another openai model
         self.assertIsNotNone(model)
-        self.assertEqual(model.id, "gpt-3.5-turbo")
+        self.assertEqual(model.id, "gpt - 3.5 - turbo")
         self.assertEqual(model.type, "openai")
         self.assertIsNotNone(event)
-        self.assertEqual(event.fallback_model_id, "gpt-3.5-turbo")
+        self.assertEqual(event.fallback_model_id, "gpt - 3.5 - turbo")
         self.assertEqual(event.strategy_used, FallbackStrategy.MODEL_TYPE)
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
@@ -330,9 +330,9 @@ class TestFallbackManager(unittest.TestCase):
 
         # Should return any model (first in the list)
         self.assertIsNotNone(model)
-        self.assertEqual(model.id, "gpt-4")
+        self.assertEqual(model.id, "gpt - 4")
         self.assertIsNotNone(event)
-        self.assertEqual(event.fallback_model_id, "gpt-4")
+        self.assertEqual(event.fallback_model_id, "gpt - 4")
         self.assertEqual(event.strategy_used, FallbackStrategy.ANY_AVAILABLE)
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
@@ -360,8 +360,8 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.SIZE_TIER)
 
         try:
-            # Try to find a fallback model for gpt-4 (1000MB)
-            model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt-4")
+            # Try to find a fallback model for gpt - 4 (1000MB)
+            model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
 
             # Should return a smaller model
             self.assertIsNotNone(model)
@@ -378,7 +378,7 @@ class TestFallbackManager(unittest.TestCase):
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
     @patch("ai_models.fallbacks.fallback_strategy.FallbackEvent", FallbackEvent)
     def test_capability_based_strategy(self):
-        """Test the capability-based fallback strategy."""
+        """Test the capability - based fallback strategy."""
         # Configure to use capability strategy
         self.fallback_manager.configure(default_strategy=FallbackStrategy.CAPABILITY_BASED)
 
@@ -409,7 +409,7 @@ class TestFallbackManager(unittest.TestCase):
         # Should return a model with translation capability
         self.assertIsNotNone(model)
         self.assertIn("translation", model.capabilities)
-        self.assertEqual(model.id, "t5-base")
+        self.assertEqual(model.id, "t5 - base")
         self.assertIsNotNone(event)
         self.assertEqual(event.strategy_used, FallbackStrategy.CAPABILITY_BASED)
 
@@ -420,12 +420,12 @@ class TestFallbackManager(unittest.TestCase):
         try:
             # First fallback
             model1, event1 = self.fallback_manager.find_fallback_model(
-                original_model_id="offline-model", strategy_override=FallbackStrategy.DEFAULT
+                original_model_id="offline - model", strategy_override=FallbackStrategy.DEFAULT
             )
 
             # Second fallback
             model2, event2 = self.fallback_manager.find_fallback_model(
-                original_model_id="gpt-4",  # Use a model that exists to avoid ModelNotFoundError
+                original_model_id="gpt - 4",  # Use a model that exists to avoid ModelNotFoundError
                 strategy_override=FallbackStrategy.ANY_AVAILABLE,
             )
 
@@ -439,7 +439,7 @@ class TestFallbackManager(unittest.TestCase):
             self.assertEqual(metrics[FallbackStrategy.ANY_AVAILABLE.value]["total_count"], 1)
         except ModelNotFoundError:
             # If ModelNotFoundError is raised, that's also acceptable
-            # Some implementations might raise an error for non-existent models
+            # Some implementations might raise an error for non - existent models
             pass
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
@@ -450,7 +450,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.NONE)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline-model")
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
 
         # Should return None
         self.assertIsNone(model)
@@ -462,9 +462,9 @@ class TestFallbackManager(unittest.TestCase):
         """Test that fallback preferences are correctly applied per agent type."""
         # Configure fallback preferences
         custom_preferences = {
-            "researcher": ["huggingface", "openai", "general-purpose"],
-            "developer": ["openai", "huggingface", "general-purpose"],
-            "default": ["general-purpose"],
+            "researcher": ["huggingface", "openai", "general - purpose"],
+            "developer": ["openai", "huggingface", "general - purpose"],
+            "default": ["general - purpose"],
         }
         self.fallback_manager.configure(
             default_strategy=FallbackStrategy.SPECIFIED_LIST,
@@ -500,15 +500,15 @@ class TestFallbackManager(unittest.TestCase):
 
         # First attempt - force a fallback
         model1, event1 = self.fallback_manager.find_fallback_model(
-            original_model_id="offline-model", agent_type="researcher", task_type="summarization"
+            original_model_id="offline - model", agent_type="researcher", task_type="summarization"
         )
 
         # Should get the default model
         self.assertIsNotNone(model1)
-        self.assertEqual(model1.id, "gpt-3.5-turbo")
+        self.assertEqual(model1.id, "gpt - 3.5 - turbo")
         self.assertIsNotNone(event1)
 
-        # Second attempt - use capability-based strategy
+        # Second attempt - use capability - based strategy
         model2, event2 = self.fallback_manager.find_fallback_model(
             required_capabilities=["translation"],
             strategy_override=FallbackStrategy.CAPABILITY_BASED,
@@ -517,7 +517,7 @@ class TestFallbackManager(unittest.TestCase):
         # Should get a model with translation capability
         self.assertIsNotNone(model2)
         self.assertIn("translation", model2.capabilities)
-        self.assertEqual(model2.id, "t5-base")
+        self.assertEqual(model2.id, "t5 - base")
         self.assertIsNotNone(event2)
 
         # Check metrics were updated correctly
@@ -535,14 +535,14 @@ class TestFallbackManager(unittest.TestCase):
     @patch("ai_models.fallbacks.fallback_strategy.FallbackEvent", FallbackEvent)
     def test_cascading_fallback_chain(self):
         """Test that fallback strategies cascade in the correct order."""
-        # Configure a non-existent model as default to force cascading
+        # Configure a non - existent model as default to force cascading
         self.fallback_manager.configure(
-            default_strategy=FallbackStrategy.DEFAULT, default_model_id="non-existent-model"
+            default_strategy=FallbackStrategy.DEFAULT, default_model_id="non - existent - model"
         )
 
         # Try to find a fallback model which should trigger cascading fallbacks
         model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="gpt-4",
+            original_model_id="gpt - 4",
             agent_type="researcher",
             required_capabilities=["chat", "reasoning"],
         )

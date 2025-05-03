@@ -15,7 +15,7 @@ from .webhook_service import WebhookService
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class EventEmitter:
 
     def once(self, event: Union[str, WebhookEventType], listener: Callable) -> Callable:
         """
-        Register a one-time event listener.
+        Register a one - time event listener.
 
         Args:
             event: Event name

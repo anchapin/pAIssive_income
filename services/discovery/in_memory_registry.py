@@ -1,8 +1,8 @@
 """
-In-Memory Service Registry Implementation
+In - Memory Service Registry Implementation
 
-This module provides an in-memory implementation of the ServiceRegistry interface,
-suitable for development, testing, and small-scale deployments.
+This module provides an in - memory implementation of the ServiceRegistry interface,
+suitable for development, testing, and small - scale deployments.
 """
 
 import threading
@@ -15,10 +15,10 @@ from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
 
 class InMemoryServiceRegistry(ServiceRegistry):
     """
-    In-memory implementation of ServiceRegistry.
+    In - memory implementation of ServiceRegistry.
 
     This implementation stores all service information in memory and is suitable for
-    development, testing, or small-scale deployments where persistence is not required.
+    development, testing, or small - scale deployments where persistence is not required.
     """
 
     def __init__(self, ttl_seconds: int = 30):
@@ -26,7 +26,7 @@ class InMemoryServiceRegistry(ServiceRegistry):
         Initialize a new InMemoryServiceRegistry.
 
         Args:
-            ttl_seconds: Time-to-live in seconds for service registrations before they expire
+            ttl_seconds: Time - to - live in seconds for service registrations before they expire
         """
         self._services: Dict[str, ServiceInstance] = {}
         self._last_renewal: Dict[str, float] = {}

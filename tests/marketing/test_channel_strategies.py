@@ -31,7 +31,7 @@ def test_marketing_strategy_create_plan():
 
     # Create a plan
     plan = strategy.create_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience="Small business owners",
         budget=1000,
         timeline="3 months",
@@ -51,7 +51,7 @@ def test_marketing_strategy_create_plan():
     assert "created_at" in plan
 
     # Check specific values
-    assert plan["niche"] == "e-commerce"
+    assert plan["niche"] == "e - commerce"
     assert plan["target_audience"] == "Small business owners"
     assert plan["budget"] == 1000
     assert plan["timeline"] == "3 months"
@@ -86,7 +86,7 @@ def test_content_marketing_strategy_create_content_plan():
 
     # Create a content plan
     plan = strategy.create_content_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience="Small business owners",
         content_types=["blog_posts", "videos", "infographics"],
         frequency="weekly",
@@ -105,7 +105,7 @@ def test_content_marketing_strategy_create_content_plan():
     assert "created_at" in plan
 
     # Check specific values
-    assert plan["niche"] == "e-commerce"
+    assert plan["niche"] == "e - commerce"
     assert plan["target_audience"] == "Small business owners"
     assert plan["content_types"] == ["blog_posts", "videos", "infographics"]
     assert plan["frequency"] == "weekly"
@@ -230,12 +230,12 @@ def test_channel_prioritization():
 
     # Create a plan with specific audience and goals
     plan = strategy.create_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience={
             "primary": "Small business owners",
             "demographics": {
-                "age": "30-50",
-                "business_size": "1-50 employees",
+                "age": "30 - 50",
+                "business_size": "1 - 50 employees",
                 "industry": "retail",
             },
         },
@@ -263,7 +263,7 @@ def test_channel_prioritization():
     primary_channels = [c for c in channels if c["priority_score"] > 0.7]
     assert any(c["focus"] == "lead_generation" for c in primary_channels)
 
-    # Verify channel-audience fit
+    # Verify channel - audience fit
     for channel in channels:
         assert "audience_fit_score" in channel
         assert 0 <= channel["audience_fit_score"] <= 1
@@ -277,20 +277,20 @@ def test_budget_based_channel_strategy():
 
     # Test with different budget levels
     low_budget_plan = strategy.create_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience="Small business owners",
         budget=1000,
         timeline="3 months",
     )
 
     high_budget_plan = strategy.create_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience="Small business owners",
         budget=50000,
         timeline="3 months",
     )
 
-    # Low budget should focus on cost-effective channels
+    # Low budget should focus on cost - effective channels
     low_budget_channels = low_budget_plan["channels"]
     assert len(low_budget_channels) <= 3  # Focus on fewer channels
     assert any(c["type"] == "social_media_organic" for c in low_budget_channels)
@@ -324,7 +324,7 @@ def test_cross_channel_campaign_coordination():
 
     # Check campaign structure
     assert "phases" in campaign
-    assert len(campaign["phases"]) == 3  # pre-launch, launch, post-launch
+    assert len(campaign["phases"]) == 3  # pre - launch, launch, post - launch
 
     # Check channel coordination
     for phase in campaign["phases"]:
@@ -350,7 +350,7 @@ def test_channel_performance_metrics():
 
     # Create a plan with initial metrics
     plan = strategy.create_plan(
-        niche="e-commerce",
+        niche="e - commerce",
         target_audience="Small business owners",
         budget=10000,
         timeline="3 months",

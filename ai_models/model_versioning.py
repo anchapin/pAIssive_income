@@ -22,7 +22,7 @@ from .model_base_types import ModelInfo
 
 # Set up logging with secure defaults
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,8 @@ class ModelVersion:
             semver.parse(version)
         except ValueError as e:
             raise ValueError(
-                f"Invalid version string: {version}. Must follow semver format (e.g., '1.0.0')"
+                f"Invalid version string: {version}. Must follow semver format (e.g., 
+                    '1.0.0')"
             ) from e
 
         self.version: str = version
@@ -137,7 +138,8 @@ class ModelVersion:
         except KeyError as e:
             raise ValueError(f"Missing required field in version data: {e}")
 
-    def is_compatible_with_version(self, other_version: Union[str, "ModelVersion"]) -> bool:
+    def is_compatible_with_version(self, other_version: Union[str, 
+        "ModelVersion"]) -> bool:
         """
         Check if this version is compatible with another version.
 
@@ -229,10 +231,11 @@ class ModelVersionRegistry:
             # Verify file permissions
             stat = os.stat(self.registry_path)
             if stat.st_mode & 0o777 != 0o640:
-                logger.warning(f"Insecure permissions on registry file {self.registry_path}")
+                logger.warning(
+                    f"Insecure permissions on registry file {self.registry_path}")
                 os.chmod(self.registry_path, 0o640)
 
-            with open(self.registry_path, "r", encoding="utf-8") as f:
+            with open(self.registry_path, "r", encoding="utf - 8") as f:
                 data = json.load(f)
 
             for model_id, versions_data in data.items():
@@ -240,7 +243,8 @@ class ModelVersionRegistry:
                     self.versions[model_id] = {}
 
                 for version_str, version_data in versions_data.items():
-                    self.versions[model_id][version_str] = ModelVersion.from_dict(version_data)
+                    self.versions[model_id][version_str] = \
+                        ModelVersion.from_dict(version_data)
 
             logger.info(f"Loaded version registry with {len(self.versions)} models")
 
@@ -273,7 +277,7 @@ class ModelVersionRegistry:
             os.makedirs(os.path.dirname(self.registry_path), mode=0o750, exist_ok=True)
 
             # Write with secure permissions
-            with open(self.registry_path, "w", encoding="utf-8") as f:
+            with open(self.registry_path, "w", encoding="utf - 8") as f:
                 os.chmod(self.registry_path, 0o640)
                 json.dump(registry_data, f, indent=2)
 
@@ -283,7 +287,7 @@ class ModelVersionRegistry:
             logger.error(f"Error saving model version registry: {e}")
 
     # ... Rest of the ModelVersionRegistry class implementation ...
-    # (Note: Previous methods remain unchanged - they operate on in-memory data
+    # (Note: Previous methods remain unchanged - they operate on in - memory data
     # and don't need security enhancements)
 
 
@@ -300,12 +304,13 @@ class ModelMigrationTool:
             version_registry: ModelVersionRegistry instance
         """
         self.version_registry: ModelVersionRegistry = version_registry
-        self.migration_functions: Dict[str, Dict[Tuple[str, str], Callable[..., ModelInfo]]] = {}
+        self.migration_functions: Dict[str, Dict[Tuple[str, str], Callable[..., 
+            ModelInfo]]] = {}
         self.logger: logging.Logger = logging.getLogger(__name__)
 
     # ... Rest of the ModelMigrationTool class implementation ...
     # (Note: Previous methods remain unchanged as they don't involve file operations
-    # or security-sensitive operations)
+    # or security - sensitive operations)
 
 
 class VersionedModelManager:
@@ -325,7 +330,8 @@ class VersionedModelManager:
         self.version_registry: ModelVersionRegistry = ModelVersionRegistry(
             os.path.join(models_dir, "version_registry.json")
         )
-        self.migration_tool: ModelMigrationTool = ModelMigrationTool(self.version_registry)
+        self.migration_tool: ModelMigrationTool = \
+            ModelMigrationTool(self.version_registry)
         self.logger: logging.Logger = logging.getLogger(__name__)
 
     # ... Rest of the VersionedModelManager class implementation ...

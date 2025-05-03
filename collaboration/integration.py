@@ -63,7 +63,8 @@ class CollaborationIntegration:
     def _load_integration_data(self):
         """Load integration data from disk."""
         integrations_file = os.path.join(self.storage_path, "integrations.json")
-        workspace_integrations_file = os.path.join(self.storage_path, "workspace_integrations.json")
+        workspace_integrations_file = os.path.join(self.storage_path, 
+            "workspace_integrations.json")
 
         if os.path.exists(integrations_file):
             try:
@@ -85,7 +86,8 @@ class CollaborationIntegration:
     def _save_integration_data(self):
         """Save integration data to disk."""
         integrations_file = os.path.join(self.storage_path, "integrations.json")
-        workspace_integrations_file = os.path.join(self.storage_path, "workspace_integrations.json")
+        workspace_integrations_file = os.path.join(self.storage_path, 
+            "workspace_integrations.json")
 
         with open(integrations_file, "w") as f:
             json.dump(self.integrations, f, indent=2)
@@ -139,14 +141,16 @@ class CollaborationIntegration:
 
         self._save_integration_data()
 
-        logger.info(f"Added {integration_type.value} integration '{name}' to workspace {workspace_id}")
+        logger.info(
+            f"Added {integration_type.value} integration '{name}' to workspace {workspace_id}")
         return integration
 
     def update_integration(self,
                           integration_id: str,
                           updated_by: str,
                           name: Optional[str] = None,
-                          config: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+                          config: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, 
+                              Any]]:
         """
         Update an integration.
 
@@ -198,7 +202,8 @@ class CollaborationIntegration:
         workspace_id = integration["workspace_id"]
 
         # Remove integration from workspace integrations
-        if workspace_id in self.workspace_integrations and integration_id in self.workspace_integrations[workspace_id]:
+        if workspace_id in self.workspace_integrations and \
+            integration_id in self.workspace_integrations[workspace_id]:
             self.workspace_integrations[workspace_id].remove(integration_id)
 
         # Remove integration
@@ -242,7 +247,8 @@ class CollaborationIntegration:
 
         return integrations
 
-    def get_integrations_by_type(self, workspace_id: str, integration_type: IntegrationType) -> List[Dict[str, Any]]:
+    def get_integrations_by_type(self, workspace_id: str, 
+        integration_type: IntegrationType) -> List[Dict[str, Any]]:
         """
         Get integrations of a specific type for a workspace.
 
@@ -254,7 +260,8 @@ class CollaborationIntegration:
             List of integration information
         """
         integrations = self.get_workspace_integrations(workspace_id)
-        return [i for i in integrations if i["integration_type"] == integration_type.value]
+        return [i for i in integrations if i["integration_type"] == \
+            integration_type.value]
 
     def sync_integration(self, integration_id: str) -> Dict[str, Any]:
         """
@@ -342,12 +349,12 @@ class CollaborationIntegration:
         repo = config["repository"]
         headers = {
             "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application / vnd.github.v3 + json"
         }
 
         try:
             # Get repository information
-            repo_url = f"https://api.github.com/repos/{repo}"
+            repo_url = f"https://api.github.com / repos/{repo}"
             repo_response = requests.get(repo_url, headers=headers)
             repo_response.raise_for_status()
 
@@ -515,13 +522,17 @@ class CollaborationIntegration:
 
         try:
             if integration_type == IntegrationType.SLACK.value:
-                result = self._send_slack_notification(integration, message, channel, title, link)
+                result = self._send_slack_notification(integration, message, channel, 
+                    title, link)
             elif integration_type == IntegrationType.TEAMS.value:
-                result = self._send_teams_notification(integration, message, channel, title, link)
+                result = self._send_teams_notification(integration, message, channel, 
+                    title, link)
             elif integration_type == IntegrationType.DISCORD.value:
-                result = self._send_discord_notification(integration, message, channel, title, link)
+                result = self._send_discord_notification(integration, message, channel, 
+                    title, link)
             else:
-                result["message"] = f"Notifications not implemented for {integration_type}"
+                result["message"] = \
+                    f"Notifications not implemented for {integration_type}"
                 logger.warning(result["message"])
         except Exception as e:
             result["message"] = f"Notification failed: {str(e)}"

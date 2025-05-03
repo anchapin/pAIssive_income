@@ -45,7 +45,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://www.googleapis.com/youtube/v3"
+        self.api_base_url = "https://www.googleapis.com / youtube / v3"
         self.access_token = self.credentials.get("access_token")
         self.refresh_token = self.credentials.get("refresh_token")
         self.client_id = self.credentials.get("client_id")
@@ -59,7 +59,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
             self._connected = True
         elif self.api_key:
-            # For read-only operations, API key can be used
+            # For read - only operations, API key can be used
             self._connected = True
 
     def authenticate(self) -> Dict[str, Any]:
@@ -99,7 +99,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                         "youtube", "No channels found for the authenticated user"
                     )
 
-            # If we have API key but no access token, we can only do read-only operations
+            # If we have API key but no access token, we can only do read - only operations
             elif self.api_key and self.channel_id:
                 # Check if the channel exists
                 response = requests.get(
@@ -129,7 +129,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # If we have refresh token, client ID, and client secret, we can refresh the access token
             elif self.refresh_token and self.client_id and self.client_secret:
                 # Refresh the access token
-                token_url = "https://oauth2.googleapis.com/token"
+                token_url = "https://oauth2.googleapis.com / token"
                 token_data = {
                     "client_id": self.client_id,
                     "client_secret": self.client_secret,
@@ -271,7 +271,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -294,13 +294,13 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # 3. Publish the video
 
             # For demonstration, we'll simulate a successful upload
-            video_id = f"youtube_video_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            video_id = f"youtube_video_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": video_id,
                 "status": "uploaded",
                 "posted_at": datetime.now().isoformat(),
-                "url": f"https://www.youtube.com/watch?v={video_id}",
+                "url": f"https://www.youtube.com / watch?v={video_id}",
                 "platform_data": {
                     "video_id": video_id,
                     "title": content["title"],
@@ -374,7 +374,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # 3. Set the publishAt parameter to schedule the video
 
             # For demonstration, we'll simulate a successful scheduling
-            video_id = f"youtube_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            video_id = f"youtube_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": video_id,
@@ -454,7 +454,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     int(statistics.get("dislikeCount", 0)) if "dislikeCount" in statistics else 0
                 ),
                 "comments": int(statistics.get("commentCount", 0)),
-                "url": f"https://www.youtube.com/watch?v={video['id']}",
+                "url": f"https://www.youtube.com / watch?v={video['id']}",
                 "platform_data": video,
             }
 
@@ -539,8 +539,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific video
             if post_id:
@@ -560,7 +560,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     },
                 }
 
-            # Otherwise, get channel-level analytics
+            # Otherwise, get channel - level analytics
             else:
                 # In a real implementation, we would use the YouTube Analytics API
                 # For demonstration, we'll return mock analytics data
@@ -622,12 +622,12 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_viewers",
                 "demographics": {
                     "age_gender": {
-                        "13-17": {"male": 0.05, "female": 0.03, "other": 0.01},
-                        "18-24": {"male": 0.20, "female": 0.15, "other": 0.02},
-                        "25-34": {"male": 0.25, "female": 0.15, "other": 0.01},
-                        "35-44": {"male": 0.08, "female": 0.04, "other": 0.01},
-                        "45-54": {"male": 0.03, "female": 0.02, "other": 0.00},
-                        "55+": {"male": 0.02, "female": 0.01, "other": 0.00},
+                        "13 - 17": {"male": 0.05, "female": 0.03, "other": 0.01},
+                        "18 - 24": {"male": 0.20, "female": 0.15, "other": 0.02},
+                        "25 - 34": {"male": 0.25, "female": 0.15, "other": 0.01},
+                        "35 - 44": {"male": 0.08, "female": 0.04, "other": 0.01},
+                        "45 - 54": {"male": 0.03, "female": 0.02, "other": 0.00},
+                        "55 + ": {"male": 0.02, "female": 0.01, "other": 0.00},
                     }
                 },
                 "geography": {

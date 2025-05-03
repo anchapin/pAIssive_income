@@ -38,7 +38,8 @@ class ContentTemplate:
             title: Title of the content
             target_persona: The target user persona for this content
             key_points: List of key points to cover in the content
-            tone: Optional tone for the content (e.g., "professional", "casual", "authoritative")
+            tone: Optional tone for the content (e.g., "professional", "casual", 
+                "authoritative")
             call_to_action: Optional call to action for the content
         """
         self.id = str(uuid.uuid4())
@@ -77,6 +78,7 @@ class ContentTemplate:
                     message="Title is required to generate an outline",
                     field="title",
                     validation_errors=[{"field": "title", "error": "Title is required"}],
+                        
                 )
 
             if not self.key_points or len(self.key_points) == 0:
@@ -84,7 +86,8 @@ class ContentTemplate:
                     message="Key points are required to generate an outline",
                     field="key_points",
                     validation_errors=[
-                        {"field": "key_points", "error": "At least one key point is required"}
+                        {"field": "key_points", 
+                            "error": "At least one key point is required"}
                     ],
                 )
 
@@ -109,7 +112,7 @@ class ContentTemplate:
                 sections.append(
                     {
                         "section_type": "body",
-                        "title": f"Section {i+1}: {point}",
+                        "title": f"Section {i + 1}: {point}",
                         "description": f"Details about {point}",
                         "key_elements": [
                             "Explanation of the point",
@@ -129,6 +132,7 @@ class ContentTemplate:
                         "Recap of key points",
                         "Final thoughts",
                         "Call to action" if self.call_to_action else "Closing statement",
+                            
                     ],
                 }
             )
@@ -149,7 +153,7 @@ class ContentTemplate:
             return outline
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
@@ -174,34 +178,36 @@ class ContentTemplate:
             "professional": {
                 "language": "Formal, clear, and precise",
                 "sentence_structure": "Mix of simple and complex sentences",
-                "vocabulary": "Industry-specific terminology with explanations where needed",
+                "vocabulary": "Industry - specific terminology with explanations where needed",
+                    
                 "perspective": "Third person or first person plural (we)",
-                "examples": "Real-world, data-backed examples",
+                "examples": "Real - world, data - backed examples",
             },
             "casual": {
                 "language": "Conversational and approachable",
                 "sentence_structure": "Shorter, simpler sentences",
                 "vocabulary": "Everyday language, minimal jargon",
-                "perspective": "First or second person (I/you)",
+                "perspective": "First or second person (I / you)",
                 "examples": "Relatable, everyday examples",
             },
             "authoritative": {
                 "language": "Confident and assertive",
                 "sentence_structure": "Clear, direct sentences",
                 "vocabulary": "Precise terminology demonstrating expertise",
-                "perspective": "Third person or first person (I/we with authority)",
-                "examples": "Research-backed examples and case studies",
+                "perspective": "Third person or first person (I / we with authority)",
+                "examples": "Research - backed examples and case studies",
             },
             "inspirational": {
                 "language": "Uplifting and motivational",
-                "sentence_structure": "Varied, with rhetorical questions and powerful statements",
+                "sentence_structure": "Varied, 
+                    with rhetorical questions and powerful statements",
                 "vocabulary": "Emotionally resonant words",
                 "perspective": "Mix of perspectives, often second person (you)",
                 "examples": "Success stories and transformational examples",
             },
             "educational": {
                 "language": "Clear and instructional",
-                "sentence_structure": "Logical, step-by-step structure",
+                "sentence_structure": "Logical, step - by - step structure",
                 "vocabulary": "Mix of basic and technical terms with explanations",
                 "perspective": "Second person (you) or first person plural (we)",
                 "examples": "Practical examples and demonstrations",
@@ -209,14 +215,16 @@ class ContentTemplate:
         }
 
         # Get guidelines for the specified tone, or default to professional
-        guidelines = tone_guidelines.get(self.tone.lower(), tone_guidelines["professional"])
+        guidelines = tone_guidelines.get(self.tone.lower(), 
+            tone_guidelines["professional"])
 
-        # Add persona-specific guidelines
+        # Add persona - specific guidelines
         persona_guidelines = {
             "target_audience": self.target_persona["name"],
             "pain_points_to_address": self.target_persona["pain_points"],
             "goals_to_emphasize": self.target_persona["goals"],
-            "knowledge_level": self.target_persona["behavior"].get("tech_savvy", "medium"),
+            "knowledge_level": self.target_persona["behavior"].get("tech_savvy", 
+                "medium"),
         }
 
         return {
@@ -226,7 +234,8 @@ class ContentTemplate:
                 "clarity": "Prioritize clarity over complexity",
                 "specificity": "Use specific examples rather than generalizations",
                 "actionability": "Provide actionable insights and next steps",
-                "engagement": "Use engaging elements like questions, stories, or surprising facts",
+                "engagement": "Use engaging elements like questions, stories, 
+                    or surprising facts",
             },
         }
 
@@ -246,7 +255,8 @@ class ContentTemplate:
         all_words = title_words + key_point_words
 
         # Filter out common stop words (simplified version)
-        stop_words = ["the", "and", "a", "an", "in", "on", "at", "to", "for", "with", "by", "of"]
+        stop_words = ["the", "and", "a", "an", "in", "on", "at", "to", "for", "with", 
+            "by", "of"]
         potential_keywords = [word for word in all_words if word not in stop_words]
 
         # Count occurrences to find most common words
@@ -258,7 +268,8 @@ class ContentTemplate:
                 keyword_counts[word] = 1
 
         # Sort by count and get top keywords
-        sorted_keywords = sorted(keyword_counts.items(), key=lambda x: x[1], reverse=True)
+        sorted_keywords = sorted(keyword_counts.items(), key=lambda x: x[1], 
+            reverse=True)
         top_keywords = [k for k, v in sorted_keywords[:5]]
 
         # Generate keyword phrases
@@ -275,9 +286,11 @@ class ContentTemplate:
             "secondary_keywords": top_keywords[1:] if len(top_keywords) > 1 else [],
             "keyword_phrases": keyword_phrases[:3],
             "recommended_meta_title": self.title,
-            "recommended_meta_description": f"{self.title}: Learn about {', '.join(self.key_points[:2])} and more.",
+            "recommended_meta_description": f"{self.title}: Learn about {', 
+                '.join(self.key_points[:2])} and more.",
             "content_recommendations": [
-                "Include primary keyword in title, first paragraph, and at least one heading",
+                "Include primary keyword in title, first paragraph, 
+                    and at least one heading",
                 "Use secondary keywords throughout the content naturally",
                 "Include at least one image with alt text containing a keyword",
                 "Link to related content on your site",
@@ -420,7 +433,8 @@ class ContentTemplate:
                         )
                     elif section_copy.get("name") == "Conclusion":
                         section_copy["content"] = (
-                            f"In conclusion, {self.title} is valuable for {self.target_persona['name']}."
+                            f"In conclusion, 
+                                {self.title} is valuable for {self.target_persona['name']}."
                         )
                     else:
                         section_copy["content"] = (
@@ -440,7 +454,7 @@ class ContentTemplate:
             return content
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
@@ -509,7 +523,8 @@ class BlogPostTemplate(ContentTemplate):
             include_images: Whether to include image recommendations
             seo_keywords: Optional list of SEO keywords to target
         """
-        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, 
+            call_to_action)
         self.content_type = "blog_post"
         self.target_word_count = target_word_count
         self.include_images = include_images
@@ -529,7 +544,7 @@ class BlogPostTemplate(ContentTemplate):
                 name="Meta Description",
                 description="SEO meta description",
                 content_type="text",
-                placeholder="Enter a meta description (150-160 characters)...",
+                placeholder="Enter a meta description (150 - 160 characters)...",
                 required=True,
             )
 
@@ -575,7 +590,7 @@ class BlogPostTemplate(ContentTemplate):
         # Get base outline from parent class
         outline = super().generate_outline()
 
-        # Add blog-specific elements
+        # Add blog - specific elements
         outline["estimated_length"] = f"{self.target_word_count} words"
         outline["estimated_reading_time"] = f"{self.target_word_count // 200} minutes"
 
@@ -595,7 +610,7 @@ class BlogPostTemplate(ContentTemplate):
                 image_recommendations.append(
                     {
                         "description": f"Image illustrating {point}",
-                        "placement": f"Section {i+1}",
+                        "placement": f"Section {i + 1}",
                         "purpose": "Visualize the concept and break up text",
                     }
                 )
@@ -606,7 +621,7 @@ class BlogPostTemplate(ContentTemplate):
         if self.seo_keywords:
             outline["seo_keywords"] = self.seo_keywords
 
-        # Add blog-specific section recommendations
+        # Add blog - specific section recommendations
         blog_sections = []
 
         # Add table of contents recommendation for longer posts
@@ -624,16 +639,19 @@ class BlogPostTemplate(ContentTemplate):
         suggested_questions = [f"What is the best way to {self.title.lower()}?"]
 
         if self.key_points:
-            suggested_questions.append(f"How long does it take to {self.key_points[0].lower()}?")
+            suggested_questions.append(
+                f"How long does it take to {self.key_points[0].lower()}?")
         else:
-            suggested_questions.append(f"How long does it take to implement {self.title.lower()}?")
+            suggested_questions.append(
+                f"How long does it take to implement {self.title.lower()}?")
 
         if self.target_persona and self.target_persona.get("pain_points"):
             suggested_questions.append(
                 f"What tools do I need for {self.target_persona['pain_points'][0]}?"
             )
         else:
-            suggested_questions.append(f"What tools do I need for {self.title.lower()}?")
+            suggested_questions.append(
+                f"What tools do I need for {self.title.lower()}?")
 
         blog_sections.append(
             {
@@ -669,7 +687,7 @@ class BlogPostTemplate(ContentTemplate):
             f"The Ultimate Guide to {self.title}",
             f"Why {self.title} Matters for {self.target_persona['name']}s",
             f"{self.title}: Tips and Tricks for {self.target_persona['name']}s",
-            f"Mastering {self.title}: A Step-by-Step Guide",
+            f"Mastering {self.title}: A Step - by - Step Guide",
             f"{self.title} 101: Everything You Need to Know",
         ]
 
@@ -727,7 +745,7 @@ class BlogPostTemplate(ContentTemplate):
         # Generate base content
         content = self.generate_content()
 
-        # Add blog-specific elements
+        # Add blog - specific elements
         content["word_count"] = self.target_word_count
         content["reading_time"] = f"{self.target_word_count // 200} minutes"
         content["include_images"] = self.include_images
@@ -738,11 +756,12 @@ class BlogPostTemplate(ContentTemplate):
             "keywords": self.seo_keywords or seo_info.get("secondary_keywords", []),
             "meta_title": seo_info.get("recommended_meta_title", self.title),
             "meta_description": seo_info.get("recommended_meta_description", ""),
-            "url_slug": f"/{'-'.join(self.title.lower().split()[:5])}/",
+            "url_slug": f"/{' - '.join(self.title.lower().split()[:5])}/",
         }
 
         # Add keywords to the main content
-        content["keywords"] = self.seo_keywords or seo_info.get("secondary_keywords", [])
+        content["keywords"] = self.seo_keywords or seo_info.get("secondary_keywords", 
+            [])
 
         # Add image recommendations if enabled
         if self.include_images:
@@ -766,6 +785,7 @@ class BlogPostTemplate(ContentTemplate):
                             "section_index": i,
                             "description": f"Image illustrating {section['title']}",
                             "alt_text": f"{section['title']} - {self.target_persona['name']}",
+                                
                         }
                     )
 
@@ -779,7 +799,7 @@ class BlogPostTemplate(ContentTemplate):
 
     def get_blog_seo_recommendations(self) -> Dict[str, Any]:
         """
-        Get blog-specific SEO recommendations.
+        Get blog - specific SEO recommendations.
 
         Returns:
             Dictionary with blog SEO recommendations
@@ -787,21 +807,21 @@ class BlogPostTemplate(ContentTemplate):
         # Get base SEO recommendations
         base_recommendations = self.get_seo_recommendations()
 
-        # Add blog-specific recommendations
+        # Add blog - specific recommendations
         blog_recommendations = {
             "headline_optimization": [
                 "Include primary keyword in headline",
                 "Keep headline under 60 characters",
                 "Use numbers or power words in headline",
             ],
-            "url_structure": f"/{'-'.join(self.title.lower().split()[:5])}/",
+            "url_structure": f"/{' - '.join(self.title.lower().split()[:5])}/",
             "internal_linking": [
                 "Link to at least 3 other relevant blog posts",
                 "Include links to relevant product or service pages",
             ],
             "content_structure": [
                 "Use H2 and H3 headings with keywords",
-                "Keep paragraphs short (3-4 sentences)",
+                "Keep paragraphs short (3 - 4 sentences)",
                 "Use bullet points and numbered lists",
             ],
             "rich_snippets": [
@@ -851,7 +871,8 @@ class SocialMediaTemplate(ContentTemplate):
             hashtags: Optional list of hashtags to include
             include_image: Whether to include image recommendations
         """
-        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, 
+            call_to_action)
         self.content_type = "social_media"
         self.platform = platform
         self.platforms = platforms or [platform]
@@ -892,7 +913,7 @@ class SocialMediaTemplate(ContentTemplate):
         Returns:
             Dictionary with social media post details
         """
-        # Create platform-specific post variations
+        # Create platform - specific post variations
         platform_posts = {}
 
         for platform in self.platforms:
@@ -929,6 +950,7 @@ class SocialMediaTemplate(ContentTemplate):
                     "linkedin": "1200 x 627 pixels",
                     "facebook": "1200 x 630 pixels",
                     "instagram": "1080 x 1080 pixels (square) or 1080 x 1350 pixels (portrait)",
+                        
                 },
             }
             outline["image_recommendations"] = image_recommendations
@@ -955,7 +977,8 @@ class SocialMediaTemplate(ContentTemplate):
             include_hashtags: Whether to include hashtags
             include_emoji: Whether to include emojis
             include_call_to_action: Whether to include a call to action
-            platform: Optional platform to generate the post for (defaults to self.platform)
+            platform: Optional platform to generate the post for (
+                defaults to self.platform)
 
         Returns:
             Dictionary with post content
@@ -973,7 +996,7 @@ class SocialMediaTemplate(ContentTemplate):
         # Use specified platform or default to the first platform
         platform = platform or self.platform
 
-        # Generate platform-specific post
+        # Generate platform - specific post
         if platform.lower() == "twitter" or platform.lower() == "x":
             post = self._generate_twitter_post()
         elif platform.lower() == "linkedin":
@@ -987,6 +1010,7 @@ class SocialMediaTemplate(ContentTemplate):
             post = {
                 "platform": platform,
                 "content": f"{self.title}\n\n{self.key_points[0] if self.key_points else ''}\n\n{self.call_to_action if self.call_to_action else ''}",
+                    
                 "hashtags": self.hashtags,
                 "character_count": len(
                     f"{self.title}\n\n{self.key_points[0] if self.key_points else ''}\n\n{self.call_to_action if self.call_to_action else ''}"
@@ -1141,7 +1165,8 @@ class SocialMediaTemplate(ContentTemplate):
         main_point = self.key_points[0] if self.key_points else self.title
 
         # Format hashtags
-        hashtag_text = " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]])
+        hashtag_text = " ".join([f"#{tag.replace(' ', 
+            '')}" for tag in self.hashtags[:3]])
 
         # Create call to action
         cta = f" {self.call_to_action}" if self.call_to_action else ""
@@ -1157,7 +1182,7 @@ class SocialMediaTemplate(ContentTemplate):
             "content": post_text[:280],
             "post_text": post_text[:280],  # For backward compatibility
             "estimated_length": len(post_text),
-            "recommended_posting_times": ["8-10am", "12-1pm", "5-6pm"],
+            "recommended_posting_times": ["8 - 10am", "12 - 1pm", "5 - 6pm"],
             "engagement_tips": [
                 "Ask a question to encourage replies",
                 "Tag relevant accounts when appropriate",
@@ -1179,7 +1204,8 @@ class SocialMediaTemplate(ContentTemplate):
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
         # Add hashtags at the end
-        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:5]])
+        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', 
+            '')}" for tag in self.hashtags[:5]])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1190,7 +1216,7 @@ class SocialMediaTemplate(ContentTemplate):
             "content": post_text[:3000],
             "post_text": post_text[:3000],  # For backward compatibility
             "estimated_length": len(post_text),
-            "recommended_posting_times": ["8-9am", "10-11am", "1-2pm"],
+            "recommended_posting_times": ["8 - 9am", "10 - 11am", "1 - 2pm"],
             "engagement_tips": [
                 "Start with a hook or question",
                 "Use line breaks to make the post scannable",
@@ -1209,13 +1235,14 @@ class SocialMediaTemplate(ContentTemplate):
 
         # Add key points
         for i, point in enumerate(self.key_points[:3]):
-            body += f"{i+1}. {point}\n"
+            body += f"{i + 1}. {point}\n"
 
         # Add call to action
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
-        # Add hashtags (fewer than Twitter/Instagram)
-        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]])
+        # Add hashtags (fewer than Twitter / Instagram)
+        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', 
+            '')}" for tag in self.hashtags[:3]])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1225,7 +1252,7 @@ class SocialMediaTemplate(ContentTemplate):
             "content": post_text,
             "post_text": post_text,  # For backward compatibility
             "estimated_length": len(post_text),
-            "recommended_posting_times": ["1-4pm", "6-8pm"],
+            "recommended_posting_times": ["1 - 4pm", "6 - 8pm"],
             "engagement_tips": [
                 "Ask a question to encourage comments",
                 "Consider using emojis to add personality",
@@ -1246,7 +1273,8 @@ class SocialMediaTemplate(ContentTemplate):
         cta = f"{self.call_to_action}\n\n" if self.call_to_action else ""
 
         # Add hashtags (Instagram can have more hashtags)
-        hashtag_text = ".\n.\n.\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags])
+        hashtag_text = ".\n.\n.\n" + " ".join([f"#{tag.replace(' ', 
+            '')}" for tag in self.hashtags])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1256,7 +1284,7 @@ class SocialMediaTemplate(ContentTemplate):
             "content": post_text,
             "post_text": post_text,  # For backward compatibility
             "estimated_length": len(post_text),
-            "recommended_posting_times": ["11am-1pm", "7-9pm"],
+            "recommended_posting_times": ["11am - 1pm", "7 - 9pm"],
             "engagement_tips": [
                 "Start with a hook to grab attention",
                 "Use line breaks to make the caption readable",
@@ -1298,13 +1326,14 @@ class SocialMediaTemplate(ContentTemplate):
         for point in self.key_points:
             point_words = point.lower().split()
             potential_tag = "".join([word.capitalize() for word in point_words[:3]])
-            if potential_tag and len(potential_tag) < 30:  # Avoid excessively long hashtags
+            if potential_tag and \
+                len(potential_tag) < 30:  # Avoid excessively long hashtags
                 recommendations.append(potential_tag)
 
         # Add hashtags based on target persona
         recommendations.append(self.target_persona["name"].replace(" ", ""))
 
-        # Add industry-standard hashtags
+        # Add industry - standard hashtags
         industry_hashtags = [
             "ContentCreation",
             "DigitalMarketing",
@@ -1355,12 +1384,14 @@ class EmailNewsletterTemplate(ContentTemplate):
             tone: Optional tone for the newsletter
             call_to_action: Optional call to action for the newsletter
             subject_line: Optional subject line for the email
-            newsletter_type: Type of newsletter (general, promotional, educational, etc.)
+            newsletter_type: Type of newsletter (general, promotional, educational, 
+                etc.)
             include_images: Whether to include image recommendations
             sender_name: Optional name of the sender
             sender_email: Optional email of the sender
         """
-        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, 
+            call_to_action)
         self.content_type = "email_newsletter"
         self.subject_line = subject_line or title
         self.newsletter_type = newsletter_type
@@ -1382,7 +1413,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 name="Preheader",
                 description="The preheader text that appears in email clients",
                 content_type="text",
-                placeholder="Enter preheader text (50-100 characters)...",
+                placeholder="Enter preheader text (50 - 100 characters)...",
                 required=True,
             )
 
@@ -1464,6 +1495,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "title": "Introduction",
                 "description": "Brief introduction to the newsletter topic",
                 "content": f"Welcome to our newsletter about {self.title}. {self.key_points[0] if self.key_points else ''}",
+                    
             }
         )
 
@@ -1474,20 +1506,22 @@ class EmailNewsletterTemplate(ContentTemplate):
                 sections.append(
                     {
                         "section_type": "content",
-                        "title": f"Section {i+1}: {point}",
+                        "title": f"Section {i + 1}: {point}",
                         "description": f"Content about {point}",
                         "content": f"## {point}\n\nDetails about {point} would go here.",
+                            
                     }
                 )
 
         elif self.newsletter_type == "promotional":
-            # Add product/service highlight section
+            # Add product / service highlight section
             sections.append(
                 {
                     "section_type": "product_highlight",
                     "title": "Product Highlight",
                     "description": "Highlight of the product or service being promoted",
-                    "content": f"## Introducing {self.title}\n\nDetails about the product/service would go here.",
+                    "content": f"## Introducing {self.title}\n\nDetails about the product / service would go here.",
+                        
                 }
             )
 
@@ -1536,10 +1570,11 @@ class EmailNewsletterTemplate(ContentTemplate):
                     "title": "Additional Resources",
                     "description": "Links to additional resources",
                     "content": "## Additional Resources\n\n- Resource 1\n- Resource 2\n- Resource 3",
+                        
                 }
             )
 
-        # Add call-to-action section
+        # Add call - to - action section
         if self.call_to_action:
             sections.append(
                 {
@@ -1558,9 +1593,12 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "section_type": "footer",
                 "title": "Footer",
                 "description": "Email footer with unsubscribe link and contact information",
+                    
                 "content": f"© {datetime.now().year} {self.sender_name or 'Company Name'}. All rights reserved.",
-                "unsubscribe_text": "If you no longer wish to receive these emails, you can {{unsubscribe}}.",
-                "contact_info": self.sender_email or "contact@example.com",
+                    
+                "unsubscribe_text": "If you no longer wish to receive these emails, 
+                    you can {{unsubscribe}}.",
+                "contact_info": self.sender_email or "contact @ example.com",
             }
         )
 
@@ -1714,6 +1752,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "include_images": include_images if include_images is not None else self.include_images,
+                
             "include_personalization": (
                 include_personalization if include_personalization is not None else False
             ),
@@ -1733,7 +1772,8 @@ class EmailNewsletterTemplate(ContentTemplate):
             # Add sample content if the section doesn't have any
             if not section_copy.get("content"):
                 if section_copy.get("name") == "Subject Line":
-                    section_copy["content"] = self.subject_line or f"Newsletter: {self.title}"
+                    section_copy["content"] = \
+                        self.subject_line or f"Newsletter: {self.title}"
                 elif section_copy.get("name") == "Preheader":
                     section_copy["content"] = (
                         f"The latest insights on {self.title} for {self.target_persona['name']}"
@@ -1749,10 +1789,12 @@ class EmailNewsletterTemplate(ContentTemplate):
                         f"Here are the key points about {self.title} that you should know about."
                     )
                 elif section_copy.get("name") == "Call to Action":
-                    section_copy["content"] = self.call_to_action or "Click here to learn more"
+                    section_copy["content"] = \
+                        self.call_to_action or "Click here to learn more"
                 elif section_copy.get("name") == "Footer":
                     section_copy["content"] = (
-                        "Thank you for reading! If you have any questions, please reply to this email."
+                        "Thank you for reading! If you have any questions, 
+                            please reply to this email."
                     )
                 else:
                     section_copy["content"] = (
@@ -1777,11 +1819,13 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "dynamic_content": [
                     {
                         "condition": "industry",
-                        "values": ["technology", "healthcare", "finance", "education", "retail"],
+                        "values": ["technology", "healthcare", "finance", "education", 
+                            "retail"],
                     },
                     {
                         "condition": "role",
-                        "values": ["manager", "executive", "individual contributor", "consultant"],
+                        "values": ["manager", "executive", "individual contributor", 
+                            "consultant"],
                     },
                 ],
             }
@@ -1821,9 +1865,9 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "Personalize with recipient's name when possible",
             ],
             "content": [
-                "Keep paragraphs short (2-3 sentences)",
+                "Keep paragraphs short (2 - 3 sentences)",
                 "Use bullet points for easy scanning",
-                "Include a clear call-to-action",
+                "Include a clear call - to - action",
                 "Balance text and images (60% text, 40% images recommended)",
                 f"Write in a {self.tone} tone that matches your brand",
             ],
@@ -1831,7 +1875,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "Use a responsive email template",
                 "Ensure your email looks good on mobile devices",
                 "Keep the width around 600 pixels",
-                "Use web-safe fonts",
+                "Use web - safe fonts",
                 "Include alt text for all images",
             ],
             "technical": [
@@ -1839,10 +1883,11 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "Include a plain text version",
                 "Ensure all links work correctly",
                 "Include an unsubscribe link",
-                "Follow CAN-SPAM and GDPR requirements",
+                "Follow CAN - SPAM and GDPR requirements",
             ],
             "timing": [
-                "Send at optimal times based on your audience (typically Tuesday-Thursday mornings)",
+                "Send at optimal times based on your audience (typically Tuesday - Thursday mornings)",
+                    
                 "Maintain a consistent sending schedule",
                 "Avoid sending too frequently (usually no more than once per week)",
                 "Consider time zones if you have an international audience",
@@ -1879,7 +1924,7 @@ class VideoScriptTemplate(ContentTemplate):
             call_to_action: Optional call to action for the video
             video_length: Optional target length of the video in minutes
             video_type: Type of video (educational, promotional, tutorial, etc.)
-            include_b_roll: Whether to include B-roll recommendations
+            include_b_roll: Whether to include B - roll recommendations
         """
         super().__init__(title, target_persona, key_points, tone, call_to_action)
         self.content_type = "video_script"
@@ -1914,9 +1959,12 @@ class VideoScriptTemplate(ContentTemplate):
                 "description": "Video introduction and hook",
                 "duration": f"{int(self.video_length * 0.1 * 60)} seconds",
                 "word_count": int(self.target_word_count * 0.1),
-                "script": f"[HOST ON CAMERA]\n\nHi, I'm {{host_name}} and welcome to this video about {self.title}. "
-                f"Today we're going to explore {', '.join(self.key_points[:-1]) + ' and ' + self.key_points[-1] if len(self.key_points) > 1 else self.key_points[0] if self.key_points else ''}. "
-                f"If you've ever struggled with {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'this topic'}, this video is for you.",
+                "script": f"[HOST ON CAMERA]\n\nHi, 
+                    I'm {{host_name}} and welcome to this video about {self.title}. "
+                f"Today we're going to explore {', 
+                    '.join(self.key_points[:-1]) + ' and ' + self.key_points[-1] if len(self.key_points) > 1 else self.key_points[0] if self.key_points else ''}. "
+                f"If you've ever struggled with {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'this topic'}, 
+                    this video is for you.",
             }
         )
 
@@ -1924,12 +1972,12 @@ class VideoScriptTemplate(ContentTemplate):
         for i, point in enumerate(self.key_points):
             b_roll = ""
             if self.include_b_roll:
-                b_roll = f"\n\n[B-ROLL: Footage showing {point}]"
+                b_roll = f"\n\n[B - ROLL: Footage showing {point}]"
 
             script_sections.append(
                 {
                     "section_type": "main_content",
-                    "title": f"Section {i+1}: {point}",
+                    "title": f"Section {i + 1}: {point}",
                     "description": f"Content about {point}",
                     "duration": f"{int(time_per_point * 60)} seconds",
                     "word_count": int(
@@ -1944,11 +1992,13 @@ class VideoScriptTemplate(ContentTemplate):
             )
 
         # Add outro section with call to action
-        outro_script = f"[HOST ON CAMERA]\n\nThanks for watching this video about {self.title}. "
+        outro_script = \
+            f"[HOST ON CAMERA]\n\nThanks for watching this video about {self.title}. "
         if self.call_to_action:
             outro_script += f"Don't forget to {self.call_to_action}. "
         outro_script += (
-            "If you found this helpful, please like and subscribe for more content like this."
+            "If you found this helpful, 
+                please like and subscribe for more content like this."
         )
 
         script_sections.append(
@@ -1976,38 +2026,38 @@ class VideoScriptTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        # Add B-roll recommendations if enabled
+        # Add B - roll recommendations if enabled
         if self.include_b_roll:
             b_roll_recommendations = []
 
-            # Add intro B-roll
+            # Add intro B - roll
             b_roll_recommendations.append(
                 {
                     "description": f"Opening shots related to {self.title}",
                     "placement": "intro",
-                    "duration": "5-10 seconds",
+                    "duration": "5 - 10 seconds",
                     "purpose": "Set the tone and context for the video",
                 }
             )
 
-            # Add B-roll for each key point
+            # Add B - roll for each key point
             for i, point in enumerate(self.key_points):
                 b_roll_recommendations.append(
                     {
                         "description": f"Footage illustrating {point}",
-                        "placement": f"Section {i+1}",
-                        "duration": "10-15 seconds",
+                        "placement": f"Section {i + 1}",
+                        "duration": "10 - 15 seconds",
                         "purpose": "Visualize the concept being explained",
                     }
                 )
 
-            # Add transition B-roll
+            # Add transition B - roll
             if len(self.key_points) > 1:
                 b_roll_recommendations.append(
                     {
                         "description": "Transition shots between sections",
                         "placement": "Between main sections",
-                        "duration": "3-5 seconds each",
+                        "duration": "3 - 5 seconds each",
                         "purpose": "Smooth transition between topics",
                     }
                 )
@@ -2072,9 +2122,9 @@ class VideoScriptTemplate(ContentTemplate):
                 "Include a clear call to action",
             ],
             "visual_elements": [
-                "Change shots every 5-10 seconds to maintain interest",
+                "Change shots every 5 - 10 seconds to maintain interest",
                 "Use text overlays for key points or complex terms",
-                "Include relevant B-roll footage to illustrate concepts",
+                "Include relevant B - roll footage to illustrate concepts",
                 "Consider adding graphics or animations for abstract concepts",
                 "Ensure good lighting and clear audio",
             ],
@@ -2088,13 +2138,13 @@ class VideoScriptTemplate(ContentTemplate):
             "platform_specific": {
                 "youtube": [
                     "Optimize title and description with keywords",
-                    "Create an eye-catching thumbnail",
+                    "Create an eye - catching thumbnail",
                     "Add timestamps for longer videos",
                     "Use end screens and cards to promote other content",
                     "Organize videos into playlists",
                 ],
                 "social_media": [
-                    "Front-load key information in the first 5-10 seconds",
+                    "Front - load key information in the first 5 - 10 seconds",
                     "Design for viewing without sound (captions, text overlays)",
                     "Keep videos under 2 minutes for most platforms",
                     "Use square or vertical format for mobile viewing",
@@ -2140,7 +2190,8 @@ class LandingPageTemplate(ContentTemplate):
         super().__init__(title, target_persona, key_points, tone, call_to_action)
         self.content_type = "landing_page"
         self.unique_selling_proposition = (
-            unique_selling_proposition or f"The best solution for {target_persona['name']}s"
+            unique_selling_proposition or \
+                f"The best solution for {target_persona['name']}s"
         )
         self.features = features or []
         self.testimonials = testimonials or []
@@ -2166,7 +2217,8 @@ class LandingPageTemplate(ContentTemplate):
                     "headline": self.title,
                     "subheadline": self.unique_selling_proposition,
                     "primary_cta": self.call_to_action or "Get Started",
-                    "hero_image": f"Image showing {self.target_persona['name']} using the product/service",
+                    "hero_image": f"Image showing {self.target_persona['name']} using the product / service",
+                        
                 },
             }
         )
@@ -2179,8 +2231,11 @@ class LandingPageTemplate(ContentTemplate):
                 "description": "Describe the problem your target audience faces",
                 "elements": {
                     "headline": f"Are you struggling with {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'this problem'}?",
+                        
                     "description": f"Many {self.target_persona['name']}s face challenges with "
-                    f"{', '.join(self.target_persona['pain_points'][:-1]) + ' and ' + self.target_persona['pain_points'][-1] if len(self.target_persona['pain_points']) > 1 else self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'various issues'}.",
+                    f"{', 
+                        '.join(self.target_persona['pain_points'][:-1]) + ' and ' + self.target_persona['pain_points'][-1] if len(self.target_persona['pain_points']) > 1 else self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'various issues'}.",
+                        
                     "image": f"Image illustrating the problem",
                 },
             }
@@ -2197,7 +2252,7 @@ class LandingPageTemplate(ContentTemplate):
                     "description": f"Our solution helps {self.target_persona['name']}s "
                     f"{self.target_persona['goals'][0] if self.target_persona['goals'] else 'achieve their goals'} "
                     f"without the hassle.",
-                    "image": f"Image or screenshot of the product/service",
+                    "image": f"Image or screenshot of the product / service",
                 },
             }
         )
@@ -2230,6 +2285,7 @@ class LandingPageTemplate(ContentTemplate):
                     "title": "Features Section",
                     "description": "Detail the features of your solution",
                     "elements": {"headline": "Features", "feature_items": self.features},
+                        
                 }
             )
 
@@ -2256,6 +2312,7 @@ class LandingPageTemplate(ContentTemplate):
                 {
                     "question": f"How does {self.title} work?",
                     "answer": f"Our solution is designed specifically for {self.target_persona['name']}s to help them achieve their goals easily and efficiently.",
+                        
                 }
             )
 
@@ -2263,6 +2320,7 @@ class LandingPageTemplate(ContentTemplate):
                 {
                     "question": f"How much does {self.title} cost?",
                     "answer": "We offer flexible pricing options to suit different needs. Contact us for a personalized quote.",
+                        
                 }
             )
 
@@ -2271,13 +2329,15 @@ class LandingPageTemplate(ContentTemplate):
                     {
                         "question": f"How does {self.title} help with {point.lower()}?",
                         "answer": f"Our solution provides specialized tools and features to address {point.lower()} effectively.",
+                            
                     }
                 )
 
             faq_items.append(
                 {
                     "question": "How long does it take to get started?",
-                    "answer": "You can get started in just a few minutes. Our onboarding process is designed to be quick and hassle-free.",
+                    "answer": "You can get started in just a few minutes. Our onboarding process is designed to be quick and hassle - free.",
+                        
                 }
             )
 
@@ -2286,7 +2346,8 @@ class LandingPageTemplate(ContentTemplate):
                     "section_type": "faq",
                     "title": "FAQ Section",
                     "description": "Answer frequently asked questions",
-                    "elements": {"headline": "Frequently Asked Questions", "faq_items": faq_items},
+                    "elements": {"headline": "Frequently Asked Questions", 
+                        "faq_items": faq_items},
                 }
             )
 
@@ -2298,7 +2359,9 @@ class LandingPageTemplate(ContentTemplate):
                 "description": "Final call to action",
                 "elements": {
                     "headline": f"Ready to {self.target_persona['goals'][0] if self.target_persona['goals'] else 'get started'}?",
+                        
                     "description": f"Join thousands of {self.target_persona['name']}s who have already transformed their workflow.",
+                        
                     "cta_button": self.call_to_action or "Get Started Now",
                     "secondary_cta": "Contact Us",
                 },
@@ -2329,7 +2392,7 @@ class LandingPageTemplate(ContentTemplate):
         """
         best_practices = {
             "headline": [
-                "Keep it clear, specific, and benefit-focused",
+                "Keep it clear, specific, and benefit - focused",
                 "Use numbers or specific results when possible",
                 "Address the target persona's main pain point",
                 "Keep it under 15 words",
@@ -2340,20 +2403,20 @@ class LandingPageTemplate(ContentTemplate):
                 "Ensure mobile responsiveness",
                 "Use whitespace effectively",
                 "Maintain consistent branding",
-                "Use high-quality, relevant images",
+                "Use high - quality, relevant images",
                 "Ensure fast loading times",
             ],
             "content": [
                 "Focus on benefits, not features",
-                "Use customer-centric language",
-                "Keep paragraphs short (3-4 lines max)",
+                "Use customer - centric language",
+                "Keep paragraphs short (3 - 4 lines max)",
                 "Use bullet points for easy scanning",
                 "Include social proof (testimonials, reviews, case studies)",
                 "Address objections in FAQ section",
             ],
             "call_to_action": [
                 "Make CTAs stand out visually",
-                "Use action-oriented language",
+                "Use action - oriented language",
                 "Create a sense of urgency",
                 "Reduce friction (minimize form fields)",
                 "Include CTAs throughout the page",
@@ -2385,12 +2448,18 @@ class LandingPageTemplate(ContentTemplate):
         # Generate variations based on common landing page headline patterns
         patterns = [
             f"Introducing {self.title}: The Ultimate Solution for {self.target_persona['name']}s",
+                
             f"How {self.target_persona['name']}s Are {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Achieving Success'} With {self.title}",
+                
             f"Say Goodbye to {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'Challenges'}: Introducing {self.title}",
+                
             f"{self.title}: {len(self.key_points)}X {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Better Results'} for {self.target_persona['name']}s",
+                
             f"The Smart {self.target_persona['name']}'s Guide to {self.title}",
             f"Struggling with {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'Challenges'}? Discover {self.title}",
+                
             f"Unlock Your {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Potential'} with {self.title}",
+                
         ]
 
         # Add variations until we reach the requested count
@@ -2424,7 +2493,7 @@ class ProductDescriptionTemplate(ContentTemplate):
         Initialize a product description template.
 
         Args:
-            title: Title/name of the product
+            title: Title / name of the product
             target_persona: The target user persona for this product
             key_points: List of key points to cover (benefits)
             tone: Optional tone for the product description
@@ -2460,6 +2529,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "content": f"{self.title} is a {self.product_type} designed specifically for {self.target_persona['name']}s. "
                 f"It helps you {self.target_persona['goals'][0] if self.target_persona['goals'] else 'achieve your goals'} "
                 f"while addressing {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'your challenges'}.",
+                    
             }
         )
 
@@ -2467,7 +2537,8 @@ class ProductDescriptionTemplate(ContentTemplate):
         benefit_items = []
         for point in self.key_points:
             benefit_items.append(
-                {"title": point, "description": f"Description of how {point} benefits the user"}
+                {"title": point, 
+                    "description": f"Description of how {point} benefits the user"}
             )
 
         sections.append(
@@ -2486,7 +2557,8 @@ class ProductDescriptionTemplate(ContentTemplate):
         if self.product_features:
             feature_content = "## Features\n\n"
             for feature in self.product_features:
-                feature_content += f"- **{feature.get('name', 'Feature')}**: {feature.get('description', 'Description')}\n"
+                feature_content += f"- **{feature.get('name', 
+                    'Feature')}**: {feature.get('description', 'Description')}\n"
 
             sections.append(
                 {
@@ -2516,7 +2588,8 @@ class ProductDescriptionTemplate(ContentTemplate):
         use_cases = []
         for i, goal in enumerate(self.target_persona.get("goals", [])[:3]):
             use_cases.append(
-                f"- **Use Case {i+1}**: How {self.title} helps {self.target_persona['name']}s {goal.lower()}"
+                f"- **Use Case {i + \
+                    1}**: How {self.title} helps {self.target_persona['name']}s {goal.lower()}"
             )
 
         if use_cases:
@@ -2537,6 +2610,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                     "title": "Pricing",
                     "description": "Pricing information",
                     "content": "## Pricing\n\nContact us for pricing information or visit our pricing page.",
+                        
                 }
             )
 
@@ -2584,7 +2658,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "Start with a compelling overview",
                 "Highlight key benefits early",
                 "Detail features with explanations of why they matter",
-                "Include specifications in an easy-to-scan format",
+                "Include specifications in an easy - to - scan format",
                 "End with a clear call to action",
             ],
             "language": [
@@ -2599,7 +2673,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "Use descriptive subheadings",
                 "Optimize product title for search",
                 "Include product specifications in a structured format",
-                "Consider adding FAQ content for long-tail keywords",
+                "Consider adding FAQ content for long - tail keywords",
             ],
         }
 
@@ -2609,7 +2683,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "Highlight compatibility with different systems",
                 "Mention integration capabilities",
                 "Address security and privacy concerns",
-                "Explain the onboarding/setup process",
+                "Explain the onboarding / setup process",
                 "Mention support and update policies",
             ]
         elif self.product_type == "physical":
@@ -2626,7 +2700,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "Mention timeframes and deliverables",
                 "Address qualifications and expertise",
                 "Explain how the service is delivered",
-                "Include information about support and follow-up",
+                "Include information about support and follow - up",
             ]
 
         return best_practices
@@ -2673,9 +2747,11 @@ class CaseStudyTemplate(ContentTemplate):
         self.client_industry = client_industry or f"{target_persona['name']} industry"
         self.challenge = (
             challenge
-            or f"The {client_name} team was struggling with {target_persona['pain_points'][0] if target_persona['pain_points'] else 'significant challenges'}."
+            or \
+                f"The {client_name} team was struggling with {target_persona['pain_points'][0] if target_persona['pain_points'] else 'significant challenges'}."
         )
-        self.solution = solution or f"We implemented {title} to address their specific needs."
+        self.solution = \
+            solution or f"We implemented {title} to address their specific needs."
         self.results = results or [
             f"Achieved {target_persona['goals'][0] if target_persona['goals'] else 'significant improvements'}"
         ]
@@ -2697,7 +2773,8 @@ class CaseStudyTemplate(ContentTemplate):
                 "section_type": "executive_summary",
                 "title": "Executive Summary",
                 "description": "Brief overview of the case study",
-                "content": f"This case study explores how {self.client_name}, a {self.client_industry} company, "
+                "content": f"This case study explores how {self.client_name}, 
+                    a {self.client_industry} company, "
                 f"overcame {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'significant challenges'} "
                 f"and achieved {self.target_persona['goals'][0] if self.target_persona['goals'] else 'impressive results'} "
                 f"with {self.title}.",
@@ -2712,7 +2789,8 @@ class CaseStudyTemplate(ContentTemplate):
                 "description": "Background information about the client",
                 "content": f"## About {self.client_name}\n\n"
                 f"{self.client_name} is a {self.client_industry} company that [client description]. "
-                f"As a {self.target_persona['name']}, they faced unique challenges in their industry.",
+                f"As a {self.target_persona['name']}, 
+                    they faced unique challenges in their industry.",
             }
         )
 
@@ -2755,16 +2833,20 @@ class CaseStudyTemplate(ContentTemplate):
                 "description": "Description of how the solution was implemented",
                 "content": f"## Implementation Process\n\n"
                 f"The implementation of {self.title} for {self.client_name} followed these key steps:\n\n"
-                f"1. **Discovery and Analysis**: We conducted a thorough analysis of {self.client_name}'s needs and challenges.\n\n"
+                f"1. **Discovery and \
+                    Analysis**: We conducted a thorough analysis of {self.client_name}'s needs and challenges.\n\n"
                 f"2. **Customized Solution Design**: We designed a tailored solution based on their specific requirements.\n\n"
                 f"3. **Implementation**: Our team implemented the solution with minimal disruption to their operations.\n\n"
-                f"4. **Training and Onboarding**: We provided comprehensive training to ensure smooth adoption.\n\n"
+                f"4. **Training and \
+                    Onboarding**: We provided comprehensive training to ensure smooth adoption.\n\n"
                 f"5. **Ongoing Support**: We continue to provide support and optimization.",
+                    
             }
         )
 
         # Add results section
-        results_content = f"## Results\n\nAfter implementing {self.title}, {self.client_name} achieved the following results:\n\n"
+        results_content = f"## Results\n\nAfter implementing {self.title}, 
+            {self.client_name} achieved the following results:\n\n"
         for result in self.results:
             results_content += f"- {result}\n"
 
@@ -2785,10 +2867,10 @@ class CaseStudyTemplate(ContentTemplate):
                     "title": "Client Testimonial",
                     "description": "Testimonial from the client",
                     "content": f"## What {self.client_name} Says\n\n"
-                    f'> "{self.title} has been a game-changer for our team. '
+                    f'> "{self.title} has been a game - changer for our team. '
                     f"We've seen significant improvements in {self.target_persona['goals'][0] if self.target_persona['goals'] else 'our operations'} "
                     f"and would highly recommend this solution to other {self.target_persona['name']}s.\"\n\n"
-                    f"**[Client Representative Name]**\n"
+                    f"** [Client Representative Name]**\n"
                     f"[Client Representative Title], {self.client_name}",
                 }
             )
@@ -2850,7 +2932,7 @@ class CaseStudyTemplate(ContentTemplate):
             ],
             "formatting": [
                 "Use headers and subheaders to organize content",
-                "Include visuals like charts or before/after comparisons",
+                "Include visuals like charts or before / after comparisons",
                 "Highlight key metrics and results",
                 "Keep paragraphs short and scannable",
                 "Use bullet points for lists of features or benefits",
@@ -2858,8 +2940,9 @@ class CaseStudyTemplate(ContentTemplate):
             "storytelling": [
                 "Create an emotional connection through storytelling",
                 "Show the human impact, not just business metrics",
-                "Present a clear problem-solution-outcome narrative",
+                "Present a clear problem - solution - outcome narrative",
                 "Include challenges faced during implementation and how they were overcome",
+                    
                 "Make the client the hero of the story, not your product",
             ],
             "distribution": [
@@ -2888,12 +2971,18 @@ class CaseStudyTemplate(ContentTemplate):
         # Generate variations based on common case study title patterns
         patterns = [
             f"How {self.client_name} {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Achieved Success'} with {self.title}",
+                
             f"Case Study: {self.client_name} Overcomes {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'Challenges'} with {self.title}",
+                
             f"{self.client_name} Success Story: Transforming {self.client_industry} with {self.title}",
+                
             f"From Challenge to Success: {self.client_name}'s Journey with {self.title}",
+                
             f"{self.client_industry} Case Study: {self.client_name} + {self.title}",
             f"Achieving {self.results[0] if self.results else 'Results'}: {self.client_name}'s {self.title} Implementation",
+                
             f"{self.client_name} Increases {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Efficiency'} with {self.title}",
+                
         ]
 
         # Add variations until we reach the requested count
@@ -2928,13 +3017,13 @@ class TestimonialTemplate(ContentTemplate):
         Initialize a testimonial template.
 
         Args:
-            title: Title/subject of the testimonial
+            title: Title / subject of the testimonial
             target_persona: The target user persona for this testimonial
             key_points: List of key points to cover in the testimonial
             tone: Optional tone for the testimonial
             call_to_action: Optional call to action
             client_name: Name of the client giving the testimonial
-            client_title: Optional title/position of the client
+            client_title: Optional title / position of the client
             client_company: Optional company of the client
             testimonial_type: Type of testimonial (product, service, case study)
             include_headshot: Whether to include a client headshot
@@ -2986,7 +3075,7 @@ class TestimonialTemplate(ContentTemplate):
             outline["headshot_recommendation"] = {
                 "description": f"Professional headshot of {self.client_name}",
                 "size": "200 x 200 pixels",
-                "format": "High-quality JPEG or PNG with transparent background",
+                "format": "High - quality JPEG or PNG with transparent background",
                 "style": "Professional, friendly, and approachable",
             }
 
@@ -2999,11 +3088,13 @@ class TestimonialTemplate(ContentTemplate):
         """Generate the testimonial content based on key points and type."""
         # Start with an opening statement based on testimonial type
         if self.testimonial_type == "product":
-            opening = f"{self.title} has been a game-changer for our team. "
+            opening = f"{self.title} has been a game - changer for our team. "
         elif self.testimonial_type == "service":
-            opening = f"Working with the team on {self.title} has been an exceptional experience. "
+            opening = \
+                f"Working with the team on {self.title} has been an exceptional experience. "
         elif self.testimonial_type == "case_study":
-            opening = f"Our experience implementing {self.title} has transformed our business. "
+            opening = \
+                f"Our experience implementing {self.title} has transformed our business. "
         else:
             opening = f"{self.title} has made a significant impact on our work. "
 
@@ -3011,28 +3102,35 @@ class TestimonialTemplate(ContentTemplate):
         middle = ""
         for point in self.key_points:
             middle += (
-                f"Thanks to this {self.testimonial_type}, we've been able to {point.lower()}. "
+                f"Thanks to this {self.testimonial_type}, 
+                    we've been able to {point.lower()}. "
             )
 
         # Add a statement about pain points being solved
         if self.target_persona.get("pain_points"):
             pain_point = self.target_persona["pain_points"][0]
-            middle += f"Before, we struggled with {pain_point.lower()}, but now that's no longer an issue. "
+            middle += f"Before, we struggled with {pain_point.lower()}, 
+                but now that's no longer an issue. "
 
         # Add a statement about goals being achieved
         if self.target_persona.get("goals"):
             goal = self.target_persona["goals"][0]
-            middle += f"We're now able to {goal.lower()} more effectively than ever before. "
+            middle += f"We're now able to {goal.lower(
+                )} more effectively than ever before. "
 
         # Add a closing statement
         if self.testimonial_type == "product":
-            closing = f"I would highly recommend {self.title} to any {self.target_persona['name']} looking to improve their results."
+            closing = \
+                f"I would highly recommend {self.title} to any {self.target_persona['name']} looking to improve their results."
         elif self.testimonial_type == "service":
-            closing = f"The team's expertise in {self.title} has been invaluable, and I wouldn't hesitate to recommend their services."
+            closing = f"The team's expertise in {self.title} has been invaluable, 
+                and I wouldn't hesitate to recommend their services."
         elif self.testimonial_type == "case_study":
-            closing = f"The results speak for themselves, and we're extremely satisfied with our decision to implement {self.title}."
+            closing = f"The results speak for themselves, 
+                and we're extremely satisfied with our decision to implement {self.title}."
         else:
-            closing = f"Overall, our experience with {self.title} has exceeded our expectations in every way."
+            closing = f"Overall, 
+                our experience with {self.title} has exceeded our expectations in every way."
 
         # Combine all parts
         testimonial = opening + middle + closing
@@ -3044,7 +3142,7 @@ class TestimonialTemplate(ContentTemplate):
         # Get the basic testimonial content
         full_testimonial = self._generate_testimonial_content()
 
-        # Create a short version (1-2 sentences)
+        # Create a short version (1 - 2 sentences)
         sentences = full_testimonial.split(". ")
         short_version = ". ".join(sentences[:2]) + "."
         if short_version[-1] != ".":
@@ -3056,11 +3154,13 @@ class TestimonialTemplate(ContentTemplate):
         if medium_version[-1] != ".":
             medium_version += "."
 
-        # Create a one-liner focused on the main benefit
+        # Create a one - liner focused on the main benefit
         if self.key_points:
-            one_liner = f'"{self.title} helped us {self.key_points[0].lower()}." - {self.client_name}, {self.client_company}'
+            one_liner = f'"{self.title} helped us {self.key_points[0].lower()}." - {self.client_name}, 
+                {self.client_company}'
         else:
-            one_liner = f'"{self.title} has been a game-changer for our team." - {self.client_name}, {self.client_company}'
+            one_liner = f'"{self.title} has been a game - changer for our team." - {self.client_name}, 
+                {self.client_company}'
 
         # Create a quote highlight (key quote from the testimonial)
         if len(sentences) > 2:
@@ -3076,7 +3176,8 @@ class TestimonialTemplate(ContentTemplate):
             "medium_version": medium_version,
             "one_liner": one_liner,
             "highlight_quote": highlight,
-            "attribution": f"{self.client_name}, {self.client_title}, {self.client_company}",
+            "attribution": f"{self.client_name}, {self.client_title}, 
+                {self.client_company}",
         }
 
     def get_testimonial_best_practices(self) -> Dict[str, List[str]]:
@@ -3092,13 +3193,13 @@ class TestimonialTemplate(ContentTemplate):
                 "Include concrete metrics when possible",
                 "Address specific pain points that were solved",
                 "Keep it authentic and conversational",
-                "Include before/after comparisons",
+                "Include before / after comparisons",
             ],
             "structure": [
                 "Start with a strong opening statement",
-                "Focus on 1-3 key benefits in the middle",
+                "Focus on 1 - 3 key benefits in the middle",
                 "End with a recommendation or conclusion",
-                "Keep it concise (2-4 sentences for most uses)",
+                "Keep it concise (2 - 4 sentences for most uses)",
                 "Include full name, title, and company for credibility",
             ],
             "presentation": [
@@ -3135,23 +3236,29 @@ class TestimonialTemplate(ContentTemplate):
         """
         request_template = {
             "email_subject": f"Request for Feedback on Your Experience with {self.title}",
+                
             "email_body": f"""
 Dear {self.client_name},
 
-I hope this email finds you well. We value your partnership and would love to hear about your experience with {self.title}.
+I hope this email finds you well. We value your partnership and \
+    would love to hear about your experience with {self.title}.
 
 Would you be willing to share a brief testimonial about how {self.title} has helped your team? Your feedback would be incredibly valuable to us and helpful for other {self.target_persona['name']}s considering our solution.
 
-To make this as easy as possible, I've included a few questions below that might help guide your response:
+To make this as easy as possible, 
+    I've included a few questions below that might help guide your response:
 
 1. What challenges were you facing before using {self.title}?
 2. How has {self.title} helped you address these challenges?
 3. What specific results or benefits have you experienced?
 4. What would you tell someone who is considering {self.title}?
 
-A few sentences would be perfect, but feel free to write as much or as little as you'd like. We may edit for length while preserving the meaning, and we'll be sure to get your approval on the final version before using it.
+A few sentences would be perfect, 
+    but feel free to write as much or as little as you'd like. We may edit for length while preserving the meaning, 
+    and we'll be sure to get your approval on the final version before using it.
 
-If you're comfortable, we'd also love to include your photo alongside your testimonial. This adds a personal touch that resonates with potential clients.
+If you're comfortable, 
+    we'd also love to include your photo alongside your testimonial. This adds a personal touch that resonates with potential clients.
 
 Thank you for considering this request. Your insights are invaluable to us.
 
@@ -3164,7 +3271,8 @@ Dear {self.client_name},
 
 I'm just following up on my previous email requesting your feedback on {self.title}. We would greatly value your perspective and would be honored to feature your testimonial.
 
-If it's easier, I'd be happy to schedule a quick 10-minute call to capture your thoughts directly.
+If it's easier, 
+    I'd be happy to schedule a quick 10 - minute call to capture your thoughts directly.
 
 Thank you for your consideration.
 
@@ -3177,7 +3285,8 @@ Dear {self.client_name},
 
 Thank you so much for providing your testimonial about {self.title}! We truly appreciate you taking the time to share your experience.
 
-I've attached a draft of how we'd like to use your testimonial. Please review it and let me know if you'd like to make any changes or adjustments.
+I've attached a draft of how we'd like to use your testimonial. Please review it and \
+    let me know if you'd like to make any changes or adjustments.
 
 Once again, thank you for your support and partnership.
 

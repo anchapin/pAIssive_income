@@ -140,7 +140,8 @@ class ReceiptItem:
 
     def __str__(self) -> str:
         """String representation of the receipt item."""
-        return f"{self.description}: {self.quantity} x ${self.unit_price:.2f} = ${self.get_total():.2f}"
+        return f"{self.description}: {self.quantity} x ${self.unit_price:.2f} = \
+            ${self.get_total():.2f}"
 
 
 class Receipt:
@@ -360,7 +361,8 @@ class Receipt:
         self.custom_fields[name] = value
         self.metadata["custom_fields"] = self.custom_fields
 
-    def add_additional_fee(self, name: str, amount: float, is_percentage: bool = False) -> None:
+    def add_additional_fee(self, name: str, amount: float, 
+        is_percentage: bool = False) -> None:
         """
         Add an additional fee to the receipt.
 
@@ -560,7 +562,8 @@ class Receipt:
         Returns:
             Total amount
         """
-        return self.get_taxable_amount() + self.get_tax_total() + self.get_additional_fees_total()
+        return self.get_taxable_amount() + \
+            self.get_tax_total() + self.get_additional_fees_total()
 
     def format_amount(self, amount: float) -> str:
         """
@@ -623,7 +626,7 @@ class Receipt:
 
         # Add receipt information
         lines.append(f"Receipt: {self.id}")
-        lines.append(f"Date: {self.date.strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append(f"Date: {self.date.strftime(' % Y-%m-%d %H:%M:%S')}")
 
         if self.transaction_id:
             lines.append(f"Transaction: {self.transaction_id}")
@@ -659,11 +662,11 @@ class Receipt:
 
         # Add items
         lines.append("Items:")
-        lines.append("-" * 80)
+        lines.append(" - " * 80)
         lines.append(
             f"{'Description':<40} {'Quantity':>10} {'Unit Price':>15} {'Discount':>15} {'Total':>15}"
         )
-        lines.append("-" * 80)
+        lines.append(" - " * 80)
 
         for item in self.items:
             lines.append(
@@ -674,19 +677,21 @@ class Receipt:
                 f"{self.format_amount(item.get_total()):>15}"
             )
 
-        lines.append("-" * 80)
+        lines.append(" - " * 80)
 
         # Add totals
         lines.append(f"{'Subtotal:':<65} {self.format_amount(self.get_subtotal()):>15}")
 
         if self.get_discount_total() > 0:
             lines.append(
-                f"{self.discount_name+'s:':<65} {self.format_amount(self.get_discount_total()):>15}"
+                f"{self.discount_name + \
+                    's:':<65} {self.format_amount(self.get_discount_total()):>15}"
             )
 
         if self.get_tax_total() > 0:
             lines.append(
-                f"{self.tax_name+'es:':<65} {self.format_amount(self.get_tax_total()):>15}"
+                f"{self.tax_name + \
+                    'es:':<65} {self.format_amount(self.get_tax_total()):>15}"
             )
 
         # Add additional fees
@@ -699,11 +704,11 @@ class Receipt:
             else:
                 fee_amount = fee["amount"]
 
-            lines.append(f"{fee_name+'s:':<65} {self.format_amount(fee_amount):>15}")
+            lines.append(f"{fee_name + 's:':<65} {self.format_amount(fee_amount):>15}")
 
-        lines.append("-" * 80)
+        lines.append(" - " * 80)
         lines.append(f"{'Total:':<65} {self.format_amount(self.get_total()):>15}")
-        lines.append("-" * 80)
+        lines.append(" - " * 80)
 
         # Add notes
         if self.notes:
@@ -742,25 +747,29 @@ class Receipt:
         html.append("<head>")
         html.append(f"<title>Receipt {self.id}</title>")
         html.append("<style>")
-        html.append("body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }")
+        html.append("body { font - family: Arial, 
+            sans - serif; margin: 0; padding: 20px; }")
         html.append(
-            ".receipt { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }"
+            ".receipt { max - \
+                width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }"
         )
-        html.append(".header { text-align: center; margin-bottom: 20px; }")
-        html.append(".company-name { font-size: 24px; font-weight: bold; }")
-        html.append(".receipt-info { margin-bottom: 20px; }")
-        html.append(".customer-info { margin-bottom: 20px; }")
-        html.append(".payment-info { margin-bottom: 20px; }")
-        html.append(".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }")
-        html.append(".items th, .items td { padding: 8px; text-align: right; }")
-        html.append(".items th:first-child, .items td:first-child { text-align: left; }")
-        html.append(".items th { background-color: #f2f2f2; }")
-        html.append(".items tr:nth-child(even) { background-color: #f9f9f9; }")
-        html.append(".totals { width: 100%; margin-bottom: 20px; }")
-        html.append(".totals td { padding: 8px; text-align: right; }")
-        html.append(".totals td:first-child { text-align: left; }")
-        html.append(".total-row { font-weight: bold; }")
-        html.append(".notes, .terms, .custom-fields { margin-top: 20px; }")
+        html.append(".header { text - align: center; margin - bottom: 20px; }")
+        html.append(".company - name { font - size: 24px; font - weight: bold; }")
+        html.append(".receipt - info { margin - bottom: 20px; }")
+        html.append(".customer - info { margin - bottom: 20px; }")
+        html.append(".payment - info { margin - bottom: 20px; }")
+        html.append(".items { width: 100%; border - \
+            collapse: collapse; margin - bottom: 20px; }")
+        html.append(".items th, .items td { padding: 8px; text - align: right; }")
+        html.append(".items th:first - child, 
+            .items td:first - child { text - align: left; }")
+        html.append(".items th { background - color: #f2f2f2; }")
+        html.append(".items tr:nth - child(even) { background - color: #f9f9f9; }")
+        html.append(".totals { width: 100%; margin - bottom: 20px; }")
+        html.append(".totals td { padding: 8px; text - align: right; }")
+        html.append(".totals td:first - child { text - align: left; }")
+        html.append(".total - row { font - weight: bold; }")
+        html.append(".notes, .terms, .custom - fields { margin - top: 20px; }")
         html.append("</style>")
         html.append("</head>")
         html.append("<body>")
@@ -773,11 +782,11 @@ class Receipt:
 
         if self.company_logo_url:
             html.append(
-                f'<img src="{self.company_logo_url}" alt="{self.company_name}" style="max-height: 100px; margin-bottom: 10px;">'
+                f'<img src="{self.company_logo_url}" alt="{self.company_name}" style="max - height: 100px; margin - bottom: 10px;">'
             )
 
         if self.company_name:
-            html.append(f'<div class="company-name">{self.company_name}</div>')
+            html.append(f'<div class="company - name">{self.company_name}</div>')
 
         if self.company_address:
             html.append(f"<div>{self.company_address}</div>")
@@ -799,18 +808,20 @@ class Receipt:
         html.append("</div>")  # End header
 
         # Receipt information
-        html.append('<div class="receipt-info">')
+        html.append('<div class="receipt - info">')
         html.append(f"<div><strong>Receipt:</strong> {self.id}</div>")
-        html.append(f'<div><strong>Date:</strong> {self.date.strftime("%Y-%m-%d %H:%M:%S")}</div>')
+        html.append(
+            f'<div><strong>Date:</strong> {self.date.strftime(" % Y-%m-%d %H:%M:%S")}</div>')
 
         if self.transaction_id:
-            html.append(f"<div><strong>Transaction:</strong> {self.transaction_id}</div>")
+            html.append(
+                f"<div><strong>Transaction:</strong> {self.transaction_id}</div>")
 
         html.append("</div>")  # End receipt info
 
         # Customer information
         if self.customer_name or self.customer_email or self.customer_address:
-            html.append('<div class="customer-info">')
+            html.append('<div class="customer - info">')
             html.append("<h3>Customer Information</h3>")
 
             if self.customer_name:
@@ -820,20 +831,23 @@ class Receipt:
                 html.append(f"<div><strong>Email:</strong> {self.customer_email}</div>")
 
             if self.customer_address:
-                html.append(f"<div><strong>Address:</strong> {self.customer_address}</div>")
+                html.append(
+                    f"<div><strong>Address:</strong> {self.customer_address}</div>")
 
             html.append("</div>")  # End customer info
 
         # Payment information
         if self.payment_method or self.payment_id:
-            html.append('<div class="payment-info">')
+            html.append('<div class="payment - info">')
             html.append("<h3>Payment Information</h3>")
 
             if self.payment_method:
-                html.append(f"<div><strong>Method:</strong> {self.payment_method}</div>")
+                html.append(
+                    f"<div><strong>Method:</strong> {self.payment_method}</div>")
 
             if self.payment_id:
-                html.append(f"<div><strong>Payment ID:</strong> {self.payment_id}</div>")
+                html.append(
+                    f"<div><strong>Payment ID:</strong> {self.payment_id}</div>")
 
             html.append("</div>")  # End payment info
 
@@ -861,17 +875,20 @@ class Receipt:
         # Totals
         html.append('<table class="totals">')
         html.append(
-            f"<tr><td>Subtotal:</td><td>{self.format_amount(self.get_subtotal())}</td></tr>"
+            f"<tr><td>Subtotal:</td><td>{self.format_amount(
+                self.get_subtotal())}</td></tr>"
         )
 
         if self.get_discount_total() > 0:
             html.append(
-                f"<tr><td>{self.discount_name}s:</td><td>{self.format_amount(self.get_discount_total())}</td></tr>"
+                f"<tr><td>{self.discount_name}s:</td><td>{self.format_amount(
+                    self.get_discount_total())}</td></tr>"
             )
 
         if self.get_tax_total() > 0:
             html.append(
-                f"<tr><td>{self.tax_name}es:</td><td>{self.format_amount(self.get_tax_total())}</td></tr>"
+                f"<tr><td>{self.tax_name}es:</td><td>{self.format_amount(
+                    self.get_tax_total())}</td></tr>"
             )
 
         # Additional fees
@@ -884,10 +901,12 @@ class Receipt:
             else:
                 fee_amount = fee["amount"]
 
-            html.append(f"<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>")
+            html.append(
+                f"<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>")
 
         html.append(
-            f'<tr class="total-row"><td>Total:</td><td>{self.format_amount(self.get_total())}</td></tr>'
+            f'<tr class="total - \
+                row"><td>Total:</td><td>{self.format_amount(self.get_total())}</td></tr>'
         )
         html.append("</table>")
 
@@ -907,7 +926,7 @@ class Receipt:
 
         # Custom fields
         if self.custom_fields:
-            html.append('<div class="custom-fields">')
+            html.append('<div class="custom - fields">')
             html.append("<h3>Additional Information</h3>")
             html.append("<ul>")
 
@@ -940,8 +959,9 @@ class Receipt:
         else:
             raise ValueError(f"Unsupported format: {format}")
 
-        write_file(file_path, content, encoding="utf-8")
+        write_file(file_path, content, encoding="utf - 8")
 
     def __str__(self) -> str:
         """String representation of the receipt."""
-        return f"Receipt({self.id}, {self.date.strftime('%Y-%m-%d')}, {self.format_amount(self.get_total())})"
+        return f"Receipt({self.id}, {self.date.strftime(' % Y-%m-%d')}, 
+            {self.format_amount(self.get_total())})"

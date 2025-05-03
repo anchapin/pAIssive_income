@@ -16,7 +16,7 @@ from ai_models import AgentModelProvider, ModelInfo, ModelManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def main():
 
         # Register a Hugging Face model
         hf_model = ModelInfo(
-            id="example-hf-model",
+            id="example - hf - model",
             name="Example HF Model",
             type="huggingface",
             path="gpt2",  # This is a small model available on Hugging Face
@@ -58,10 +58,10 @@ def main():
 
         # Register an embedding model
         embedding_model = ModelInfo(
-            id="example-embedding-model",
+            id="example - embedding - model",
             name="Example Embedding Model",
             type="embedding",
-            path="all-MiniLM-L6-v2",  # This is a small embedding model
+            path="all - MiniLM - L6 - v2",  # This is a small embedding model
             description="Example embedding model for text similarity",
             format="huggingface",
         )
@@ -87,7 +87,7 @@ def main():
             print(f"Error getting model for {agent_type} agent: {e}")
 
     # Try to get models for different tasks
-    task_types = ["text-generation", "embedding", "classification", "summarization"]
+    task_types = ["text - generation", "embedding", "classification", "summarization"]
 
     print("\nTrying to get models for different tasks...")
     for task_type in task_types:
@@ -112,16 +112,16 @@ def main():
     if all_models:
         model_to_assign = all_models[0]
         print(f"\nManually assigning model {model_to_assign.name} to developer agent...")
-        provider.assign_model_to_agent("developer", model_to_assign.id, "custom-task")
+        provider.assign_model_to_agent("developer", model_to_assign.id, "custom - task")
 
         # Verify the assignment
         assignments = provider.get_agent_model_assignments()
         for agent_type, tasks in assignments.items():
-            if agent_type == "developer" and "custom-task" in tasks:
-                model_id = tasks["custom-task"]
+            if agent_type == "developer" and "custom - task" in tasks:
+                model_id = tasks["custom - task"]
                 model_info = manager.get_model_info(model_id)
                 print(
-                    f"Verified assignment: Agent: developer, Task: custom-task, Model: {model_info.name if model_info else model_id}"
+                    f"Verified assignment: Agent: developer, Task: custom - task, Model: {model_info.name if model_info else model_id}"
                 )
 
     print("\nExample completed successfully!")

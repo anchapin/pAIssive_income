@@ -45,7 +45,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://graph.facebook.com/v18.0"  # Using latest version as of 2023
+        self.api_base_url = "https://graph.facebook.com / v18.0"  # Using latest version as of 2023
         self.app_id = self.credentials.get("app_id")
         self.app_secret = self.credentials.get("app_secret")
         self.access_token = self.credentials.get("access_token")
@@ -94,7 +94,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             # Note: App tokens have limited permissions, user tokens are preferred
             elif self.app_id and self.app_secret:
                 response = self.session.get(
-                    f"{self.api_base_url}/oauth/access_token",
+                    f"{self.api_base_url}/oauth / access_token",
                     params={
                         "client_id": self.app_id,
                         "client_secret": self.app_secret,
@@ -187,7 +187,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -233,7 +233,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 if "url" in content["photo"]:
                     post_data["url"] = content["photo"]["url"]
                 elif "source" in content["photo"]:
-                    # For file uploads, we'd need to handle multipart/form-data
+                    # For file uploads, we'd need to handle multipart / form - data
                     # This is simplified for demonstration
                     post_data["source"] = content["photo"]["source"]
 
@@ -243,7 +243,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 if "url" in content["video"]:
                     post_data["file_url"] = content["video"]["url"]
                 elif "source" in content["video"]:
-                    # For file uploads, we'd need to handle multipart/form-data
+                    # For file uploads, we'd need to handle multipart / form - data
                     # This is simplified for demonstration
                     post_data["source"] = content["video"]["source"]
 
@@ -333,7 +333,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 if "url" in content["photo"]:
                     post_data["url"] = content["photo"]["url"]
                 elif "source" in content["photo"]:
-                    # For file uploads, we'd need to handle multipart/form-data
+                    # For file uploads, we'd need to handle multipart / form - data
                     # This is simplified for demonstration
                     post_data["source"] = content["photo"]["source"]
 
@@ -343,7 +343,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 if "url" in content["video"]:
                     post_data["file_url"] = content["video"]["url"]
                 elif "source" in content["video"]:
-                    # For file uploads, we'd need to handle multipart/form-data
+                    # For file uploads, we'd need to handle multipart / form - data
                     # This is simplified for demonstration
                     post_data["source"] = content["video"]["source"]
 
@@ -480,8 +480,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific post
             if post_id:
@@ -498,7 +498,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
 
                 return analytics
 
-            # Otherwise, get page-level analytics
+            # Otherwise, get page - level analytics
             elif self.page_id:
                 # Get page insights
                 response = self.session.get(
@@ -568,18 +568,18 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_fans",
                 "demographics": {
                     "age_gender": {
-                        "F.13-17": 0.02,
-                        "F.18-24": 0.12,
-                        "F.25-34": 0.18,
-                        "F.35-44": 0.08,
-                        "F.45-54": 0.05,
-                        "F.55+": 0.03,
-                        "M.13-17": 0.03,
-                        "M.18-24": 0.15,
-                        "M.25-34": 0.22,
-                        "M.35-44": 0.07,
-                        "M.45-54": 0.04,
-                        "M.55+": 0.01,
+                        "F.13 - 17": 0.02,
+                        "F.18 - 24": 0.12,
+                        "F.25 - 34": 0.18,
+                        "F.35 - 44": 0.08,
+                        "F.45 - 54": 0.05,
+                        "F.55 + ": 0.03,
+                        "M.13 - 17": 0.03,
+                        "M.18 - 24": 0.15,
+                        "M.25 - 34": 0.22,
+                        "M.35 - 44": 0.07,
+                        "M.45 - 54": 0.04,
+                        "M.55 + ": 0.01,
                     },
                     "location": {
                         "United States": 0.4,

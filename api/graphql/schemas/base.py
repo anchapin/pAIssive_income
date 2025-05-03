@@ -2,7 +2,7 @@
 Base GraphQL schema types.
 
 This module provides the root Query and Mutation types that other
-module-specific types will extend.
+module - specific types will extend.
 """
 
 import logging
@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 

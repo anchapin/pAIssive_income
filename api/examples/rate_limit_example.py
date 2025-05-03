@@ -19,7 +19,7 @@ from api.server import APIServer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -51,14 +51,14 @@ def create_server() -> APIServer:
             "premium": 1000,
             "unlimited": 0,  # 0 means no limit
         },
-        # Endpoint-specific rate limits
+        # Endpoint - specific rate limits
         endpoint_rate_limits={
-            "/api/v1/ai-models/inference": 20,  # Limit expensive endpoints
-            "/api/v2/ai-models/inference": 30,
+            " / api / v1 / ai - models / inference": 20,  # Limit expensive endpoints
+            " / api / v2 / ai - models / inference": 30,
         },
         # Rate limit exemptions
         rate_limit_exempt_ips={"127.0.0.1", "::1"},  # Exempt localhost
-        rate_limit_exempt_api_keys={"test-api-key"},  # Exempt test API key
+        rate_limit_exempt_api_keys={"test - api - key"},  # Exempt test API key
         # Enable all modules
         enable_niche_analysis=True,
         enable_monetization=True,

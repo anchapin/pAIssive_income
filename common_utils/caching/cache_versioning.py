@@ -25,7 +25,7 @@ class CacheVersionManager:
 
     def __init__(self):
         """Initialize the version manager."""
-        # Dictionary to store code versions by function/class ID
+        # Dictionary to store code versions by function / class ID
         self._code_versions = {}
 
         # Dictionary to store namespace versions
@@ -123,7 +123,7 @@ class CacheVersionManager:
         # Get source code and hash it
         try:
             source = inspect.getsource(func)
-            # Using SHA-256 for better security
+            # Using SHA - 256 for better security
             # Note: This is not used for cryptographic security purposes
             version_hash = hashlib.sha256(source.encode()).hexdigest()
 
@@ -134,7 +134,7 @@ class CacheVersionManager:
         except (IOError, TypeError) as e:
             logger.warning(f"Could not get source for function {func_id}: {e}")
             # Fall back to function name and module as version
-            # Using SHA-256 for better security
+            # Using SHA - 256 for better security
             return hashlib.sha256(func_id.encode()).hexdigest()
 
     def get_class_version_hash(self, cls: Type) -> str:
@@ -155,7 +155,7 @@ class CacheVersionManager:
         # Get source code and hash it
         try:
             source = inspect.getsource(cls)
-            # Using SHA-256 for better security
+            # Using SHA - 256 for better security
             # Note: This is not used for cryptographic security purposes
             version_hash = hashlib.sha256(source.encode()).hexdigest()
 
@@ -166,7 +166,7 @@ class CacheVersionManager:
         except (IOError, TypeError) as e:
             logger.warning(f"Could not get source for class {cls_id}: {e}")
             # Fall back to class name and module as version
-            # Using SHA-256 for better security
+            # Using SHA - 256 for better security
             return hashlib.sha256(cls_id.encode()).hexdigest()
 
     def get_data_model_version_hash(self, model_class: Type) -> str:
@@ -197,7 +197,7 @@ class CacheVersionManager:
 
         # Hash the combined information
         combined = f"{cls_hash}:{str(attrs)}"
-        # Using SHA-256 for better security
+        # Using SHA - 256 for better security
         # Note: This is not used for cryptographic security purposes
         return hashlib.sha256(combined.encode()).hexdigest()
 
@@ -224,7 +224,7 @@ class CacheVersionManager:
             pass
 
         # Hash the combined information
-        # Using SHA-256 for better security
+        # Using SHA - 256 for better security
         # Note: This is not used for cryptographic security purposes
         return hashlib.sha256(app_info.encode()).hexdigest()
 
@@ -295,7 +295,7 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
             logger.warning(f"Could not automatically determine caller for namespace {namespace}")
             return
 
-    # Generate new version based on function/class source
+    # Generate new version based on function / class source
     if inspect.isfunction(func_or_class) or inspect.ismethod(func_or_class):
         new_version = version_manager.get_function_version_hash(func_or_class)
     elif inspect.isclass(func_or_class):

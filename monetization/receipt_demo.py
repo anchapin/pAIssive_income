@@ -10,7 +10,7 @@ from .transaction import Transaction, TransactionStatus
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -42,10 +42,10 @@ def run_demo():
         company_info={
             "name": "AI Tools Inc.",
             "address": "123 Main St, San Francisco, CA 94111",
-            "email": "support@aitools.com",
-            "phone": "(555) 123-4567",
+            "email": "support @ aitools.com",
+            "phone": "(555) 123 - 4567",
             "website": "https://aitools.com",
-            "logo_url": "https://example.com/logo.png",
+            "logo_url": "https://example.com / logo.png",
         }
     )
 
@@ -56,7 +56,7 @@ def run_demo():
         transaction=transaction,
         customer_info={
             "name": "Demo Customer",
-            "email": "demo.customer@example.com",
+            "email": "demo.customer @ example.com",
             "address": "456 Oak St, San Francisco, CA 94112",
         },
         items=[
@@ -80,7 +80,8 @@ def run_demo():
     receipt.add_custom_field("Subscription Period", "Jan 1, 2023 - Dec 31, 2023")
 
     # Add terms to the receipt
-    receipt.set_terms("This subscription is subject to our Terms of Service and Privacy Policy.")
+    receipt.set_terms("This subscription is subject to our Terms of Service and \
+        Privacy Policy.")
 
     # Add notes to the receipt
     receipt.set_notes(
@@ -111,7 +112,7 @@ def run_demo():
 
     # Display receipt in text format
     print("Receipt in text format:")
-    print("-" * 80)
+    print(" - " * 80)
     print(receipt.to_text())
 
     print_separator()
@@ -121,7 +122,7 @@ def run_demo():
 
     manager.send_receipt(
         receipt_id=receipt.id,
-        email="demo.customer@example.com",
+        email="demo.customer @ example.com",
         subject="Your AI Tools Inc. Receipt",
         message="Thank you for your purchase! Please find your receipt attached.",
         format="html",
@@ -150,7 +151,7 @@ def run_demo():
         transaction=transaction2,
         customer_info={
             "name": "Demo Customer",
-            "email": "demo.customer@example.com",
+            "email": "demo.customer @ example.com",
             "address": "456 Oak St, San Francisco, CA 94112",
         },
         items=[

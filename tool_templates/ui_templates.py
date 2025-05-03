@@ -2,7 +2,8 @@
 UI Templates for the pAIssive Income project.
 
 This module provides templates for creating user interfaces for different types of applications.
-It includes classes and functions for web applications, desktop applications, and mobile applications.
+It includes classes and functions for web applications, desktop applications, 
+    and mobile applications.
 
 Dependencies:
 - Flask (for web applications)
@@ -21,7 +22,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,8 @@ try:
     PYQT_AVAILABLE = True
 except ImportError:
     PYQT_AVAILABLE = False
-    logger.warning("PyQt5 not available. Desktop application templates (PyQt) will not work.")
+    logger.warning(
+        "PyQt5 not available. Desktop application templates (PyQt) will not work.")
 
 
 class BaseUITemplate(ABC):
@@ -90,7 +92,7 @@ class BaseUITemplate(ABC):
                 "secondary_color": "#f78c6c",
                 "background_color": "#ffffff",
                 "text_color": "#333333",
-                "font_family": "Arial, sans-serif",
+                "font_family": "Arial, sans - serif",
             },
             "layout": {"sidebar": True, "navbar": True, "footer": True},
             "features": {"dark_mode": True, "responsive": True, "animations": True},
@@ -156,7 +158,8 @@ class BaseUITemplate(ABC):
 
     def __str__(self) -> str:
         """String representation of the UI template."""
-        return f"{self.__class__.__name__}(app_name={self.app_name}, version={self.version})"
+        return f"{self.__class__.__name__}(app_name={self.app_name}, 
+            version={self.version})"
 
 
 class WebAppTemplate(BaseUITemplate):
@@ -215,13 +218,13 @@ class WebAppTemplate(BaseUITemplate):
         app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev_key_" + self.id)
 
         # Register default routes
-        @app.route("/")
+        @app.route(" / ")
         def index():
             return render_template(
                 "index.html", app_name=self.app_name, description=self.description
             )
 
-        @app.route("/about")
+        @app.route(" / about")
         def about():
             return render_template(
                 "about.html",
@@ -273,9 +276,11 @@ class WebAppTemplate(BaseUITemplate):
 
         # If app is already created, add the route directly
         if self.app:
-            self.app.add_url_rule(url, endpoint=endpoint, view_func=view_func, methods=methods)
+            self.app.add_url_rule(url, endpoint=endpoint, view_func=view_func, 
+                methods=methods)
 
-    def run(self, host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:
+    def run(self, host: str = "127.0.0.1", port: int = 5000, 
+        debug: bool = False) -> None:
         """
         Run the web application.
 
@@ -304,10 +309,10 @@ class WebAppTemplate(BaseUITemplate):
         base_template = """<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF - 8">
+    <meta name="viewport" content="width=device - width, initial - scale=1.0">
     <title>{% block title %}{{ app_name }}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css / style.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -330,7 +335,7 @@ class WebAppTemplate(BaseUITemplate):
         <p>&copy; {{ now.year }} {{ author or app_name }}. All rights reserved.</p>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js / main.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
@@ -345,21 +350,21 @@ class WebAppTemplate(BaseUITemplate):
 <section class="hero">
     <h1>{{ app_name }}</h1>
     <p>{{ description }}</p>
-    <button class="cta-button">Get Started</button>
+    <button class="cta - button">Get Started</button>
 </section>
 
 <section class="features">
     <h2>Features</h2>
-    <div class="feature-grid">
-        <div class="feature-card">
+    <div class="feature - grid">
+        <div class="feature - card">
             <h3>Feature 1</h3>
             <p>Description of feature 1</p>
         </div>
-        <div class="feature-card">
+        <div class="feature - card">
             <h3>Feature 2</h3>
             <p>Description of feature 2</p>
         </div>
-        <div class="feature-card">
+        <div class="feature - card">
             <h3>Feature 3</h3>
             <p>Description of feature 3</p>
         </div>
@@ -389,99 +394,99 @@ class WebAppTemplate(BaseUITemplate):
         css_content = (
             """/* Base styles */
 :root {
-    --primary-color: """
+    --primary - color: """
             + self.config["theme"]["primary_color"]
             + """;
-    --secondary-color: """
+    --secondary - color: """
             + self.config["theme"]["secondary_color"]
             + """;
-    --background-color: """
+    --background - color: """
             + self.config["theme"]["background_color"]
             + """;
-    --text-color: """
+    --text - color: """
             + self.config["theme"]["text_color"]
             + """;
-    --font-family: """
+    --font - family: """
             + self.config["theme"]["font_family"]
             + """;
 }
 
 body {
-    font-family: var(--font-family);
+    font - family: var(--font - family);
     margin: 0;
     padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
+    background - color: var(--background - color);
+    color: var(--text - color);
 }
 
 /* Header and navigation */
 header {
-    background-color: var(--primary-color);
+    background - color: var(--primary - color);
     color: white;
     padding: 1rem;
 }
 
 nav {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify - content: space - between;
+    align - items: center;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font - size: 1.5rem;
+    font - weight: bold;
 }
 
 nav ul {
     display: flex;
-    list-style: none;
+    list - style: none;
     margin: 0;
     padding: 0;
 }
 
 nav ul li {
-    margin-left: 1rem;
+    margin - left: 1rem;
 }
 
 nav ul li a {
     color: white;
-    text-decoration: none;
+    text - decoration: none;
 }
 
 nav ul li a:hover {
-    text-decoration: underline;
+    text - decoration: underline;
 }
 
 /* Main content */
 main {
-    max-width: 1200px;
+    max - width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
 /* Hero section */
 .hero {
-    text-align: center;
+    text - align: center;
     padding: 3rem 0;
 }
 
 .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font - size: 2.5rem;
+    margin - bottom: 1rem;
 }
 
-.cta-button {
-    background-color: var(--secondary-color);
+.cta - button {
+    background - color: var(--secondary - color);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 4px;
+    font - size: 1rem;
+    border - radius: 4px;
     cursor: pointer;
-    margin-top: 1rem;
+    margin - top: 1rem;
 }
 
-.cta-button:hover {
+.cta - button:hover {
     opacity: 0.9;
 }
 
@@ -491,54 +496,54 @@ main {
 }
 
 .features h2 {
-    text-align: center;
-    margin-bottom: 2rem;
+    text - align: center;
+    margin - bottom: 2rem;
 }
 
-.feature-grid {
+.feature - grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid - template - columns: repeat(auto - fit, minmax(300px, 1fr));
     gap: 2rem;
 }
 
-.feature-card {
-    background-color: white;
-    border-radius: 8px;
+.feature - card {
+    background - color: white;
+    border - radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box - shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.feature-card h3 {
-    color: var(--primary-color);
-    margin-top: 0;
+.feature - card h3 {
+    color: var(--primary - color);
+    margin - top: 0;
 }
 
 /* About page */
 .about {
-    max-width: 800px;
+    max - width: 800px;
     margin: 0 auto;
 }
 
 /* Footer */
 footer {
-    background-color: #f5f5f5;
-    text-align: center;
+    background - color: #f5f5f5;
+    text - align: center;
     padding: 1rem;
-    margin-top: 2rem;
+    margin - top: 2rem;
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max - width: 768px) {
     nav {
-        flex-direction: column;
+        flex - direction: column;
     }
 
     nav ul {
-        margin-top: 1rem;
+        margin - top: 1rem;
     }
 
-    .feature-grid {
-        grid-template-columns: 1fr;
+    .feature - grid {
+        grid - template - columns: 1fr;
     }
 }
 """
@@ -549,7 +554,7 @@ footer {
 
 document.addEventListener('DOMContentLoaded', function() {
     // Get the CTA button
-    const ctaButton = document.querySelector('.cta-button');
+    const ctaButton = document.querySelector('.cta - button');
 
     // Add click event listener if the button exists
     if (ctaButton) {
@@ -569,19 +574,24 @@ function initializeApp() {
 """
 
         # Write files
-        with open(os.path.join(output_dir, self.template_folder, "base.html"), "w") as f:
+        with open(os.path.join(output_dir, self.template_folder, "base.html"), 
+            "w") as f:
             f.write(base_template)
 
-        with open(os.path.join(output_dir, self.template_folder, "index.html"), "w") as f:
+        with open(os.path.join(output_dir, self.template_folder, "index.html"), 
+            "w") as f:
             f.write(index_template)
 
-        with open(os.path.join(output_dir, self.template_folder, "about.html"), "w") as f:
+        with open(os.path.join(output_dir, self.template_folder, "about.html"), 
+            "w") as f:
             f.write(about_template)
 
-        with open(os.path.join(output_dir, self.static_folder, "css", "style.css"), "w") as f:
+        with open(os.path.join(output_dir, self.static_folder, "css", "style.css"), 
+            "w") as f:
             f.write(css_content)
 
-        with open(os.path.join(output_dir, self.static_folder, "js", "main.js"), "w") as f:
+        with open(os.path.join(output_dir, self.static_folder, "js", "main.js"), 
+            "w") as f:
             f.write(js_content)
 
         logger.info(f"Web application templates generated in {output_dir}")
@@ -652,13 +662,14 @@ class DesktopAppTemplate(BaseUITemplate):
         # Add a label with the app description
         description_label = QtWidgets.QLabel(self.description)
         description_label.setAlignment(QtCore.Qt.AlignCenter)
-        description_label.setStyleSheet("font-size: 16px; margin: 20px;")
+        description_label.setStyleSheet("font - size: 16px; margin: 20px;")
         layout.addWidget(description_label)
 
         # Add a button
         button = QtWidgets.QPushButton("Get Started")
         button.setStyleSheet(
-            f"background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;"
+            f"background - \
+                color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font - size: 14px;"
         )
         button.clicked.connect(
             lambda: QtWidgets.QMessageBox.information(
@@ -675,7 +686,7 @@ class DesktopAppTemplate(BaseUITemplate):
 
         # Exit action
         exit_action = QtWidgets.QAction("Exit", main_window)
-        exit_action.setShortcut("Ctrl+Q")
+        exit_action.setShortcut("Ctrl + Q")
         exit_action.triggered.connect(app.quit)
         file_menu.addAction(exit_action)
 
@@ -689,6 +700,7 @@ class DesktopAppTemplate(BaseUITemplate):
                 main_window,
                 f"About {self.app_name}",
                 f"{self.app_name} v{self.version}\n\n{self.description}\n\nCreated by: {self.author or 'Unknown'}",
+                    
             )
         )
         help_menu.addAction(about_action)
@@ -715,8 +727,8 @@ class DesktopAppTemplate(BaseUITemplate):
         Args:
             output_path: Path to save the Python script
         """
-        template = f"""#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+        template = f"""#!/usr / bin / env python3
+# -*- coding: utf - 8 -*-
 
 \"\"\"
 {self.app_name} - {self.description}
@@ -757,12 +769,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add a label with the app description
         description_label = QtWidgets.QLabel(f"{self.description}")
         description_label.setAlignment(QtCore.Qt.AlignCenter)
-        description_label.setStyleSheet("font-size: 16px; margin: 20px;")
+        description_label.setStyleSheet("font - size: 16px; margin: 20px;")
         self.layout.addWidget(description_label)
 
         # Add a button
         button = QtWidgets.QPushButton("Get Started")
-        button.setStyleSheet(f"background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;")
+        button.setStyleSheet(f"background - \
+            color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font - size: 14px;")
         button.clicked.connect(self.on_button_click)
         self.layout.addWidget(button, alignment=QtCore.Qt.AlignCenter)
 
@@ -776,7 +789,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Exit action
         exit_action = QtWidgets.QAction("Exit", self)
-        exit_action.setShortcut("Ctrl+Q")
+        exit_action.setShortcut("Ctrl + Q")
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
@@ -790,7 +803,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_button_click(self):
         \"\"\"Handle button click event.\"\"\"
-        QtWidgets.QMessageBox.information(self, "Welcome", f"Welcome to {self.app_name}!")
+        QtWidgets.QMessageBox.information(self, "Welcome", 
+            f"Welcome to {self.app_name}!")
 
     def show_about_dialog(self):
         \"\"\"Show about dialog.\"\"\"
@@ -830,7 +844,8 @@ class UITemplateFactory:
     """
 
     @staticmethod
-    def create(template_type: str, app_name: str, description: str, **kwargs) -> BaseUITemplate:
+    def create(template_type: str, app_name: str, description: str, 
+        **kwargs) -> BaseUITemplate:
         """
         Create a UI template.
 
@@ -868,7 +883,7 @@ if __name__ == "__main__":
             web_app.generate_templates("./web_app_example")
 
             # Export template configuration
-            web_app.export_template("./web_app_example/template_config.json")
+            web_app.export_template("./web_app_example / template_config.json")
 
             print("Web application template created successfully!")
             print(f"Template ID: {web_app.id}")
@@ -897,10 +912,10 @@ if __name__ == "__main__":
             )
 
             # Generate template
-            desktop_app.generate_template("./desktop_app_example/app.py")
+            desktop_app.generate_template("./desktop_app_example / app.py")
 
             # Export template configuration
-            desktop_app.export_template("./desktop_app_example/template_config.json")
+            desktop_app.export_template("./desktop_app_example / template_config.json")
 
             print("Desktop application template created successfully!")
             print(f"Template ID: {desktop_app.id}")

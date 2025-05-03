@@ -46,7 +46,8 @@ logger = logging.getLogger(__name__)
 SUPPORTED_PLATFORMS = {
     SocialMediaPlatform.TWITTER: {
         "name": "Twitter",
-        "capabilities": ["post_text", "post_media", "analytics", "audience_insights", "scheduling"],
+        "capabilities": ["post_text", "post_media", "analytics", "audience_insights", 
+            "scheduling"],
         "adapter_module": "marketing.social_media_adapters.twitter_adapter",
     },
     SocialMediaPlatform.FACEBOOK: {
@@ -113,7 +114,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         Initialize the social media integration.
 
         Args:
-            storage_path: Optional path to store connection data. If None, data will be stored
+            storage_path: Optional path to store connection data. If None, 
+                data will be stored
                           in memory only.
         """
         self.connections = {}
@@ -137,12 +139,13 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         connections_path = os.path.join(self.storage_path, "connections.json")
         try:
             if os.path.exists(connections_path):
-                with open(connections_path, "r", encoding="utf-8") as file:
+                with open(connections_path, "r", encoding="utf - 8") as file:
                     connections_data = json.load(file)
                     self.connections = connections_data
                     # Initialize adapters for loaded connections
                     for connection_id, connection in self.connections.items():
-                        self._init_platform_adapter(connection["platform"], connection_id)
+                        self._init_platform_adapter(connection["platform"], 
+                            connection_id)
 
         except Exception as e:
             logger.error(f"Error loading social media connections: {e}")
@@ -152,7 +155,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         posts_path = os.path.join(self.storage_path, "posts.json")
         try:
             if os.path.exists(posts_path):
-                with open(posts_path, "r", encoding="utf-8") as file:
+                with open(posts_path, "r", encoding="utf - 8") as file:
                     posts_data = json.load(file)
                     self.posts = posts_data
         except Exception as e:
@@ -163,7 +166,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         campaigns_path = os.path.join(self.storage_path, "campaigns.json")
         try:
             if os.path.exists(campaigns_path):
-                with open(campaigns_path, "r", encoding="utf-8") as file:
+                with open(campaigns_path, "r", encoding="utf - 8") as file:
                     campaigns_data = json.load(file)
                     self.campaigns = campaigns_data
         except Exception as e:
@@ -176,7 +179,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
         connections_path = os.path.join(self.storage_path, "connections.json")
         try:
-            with open(connections_path, "w", encoding="utf-8") as file:
+            with open(connections_path, "w", encoding="utf - 8") as file:
                 json.dump(self.connections, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media connections: {e}")
@@ -188,7 +191,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
         posts_path = os.path.join(self.storage_path, "posts.json")
         try:
-            with open(posts_path, "w", encoding="utf-8") as file:
+            with open(posts_path, "w", encoding="utf - 8") as file:
                 json.dump(self.posts, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media posts: {e}")
@@ -200,7 +203,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
         campaigns_path = os.path.join(self.storage_path, "campaigns.json")
         try:
-            with open(campaigns_path, "w", encoding="utf-8") as file:
+            with open(campaigns_path, "w", encoding="utf - 8") as file:
                 json.dump(self.campaigns, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media campaigns: {e}")
@@ -236,12 +239,14 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 adapter_class = None
                 for attr_name in dir(adapter_module):
                     attr = getattr(adapter_module, attr_name)
-                    if isinstance(attr, type) and attr.__module__ == adapter_module.__name__:
+                    if isinstance(attr, 
+                        type) and attr.__module__ == adapter_module.__name__:
                         adapter_class = attr
                         break
 
                 if not adapter_class:
-                    raise ImportError(f"Could not find adapter class in {adapter_module_path}")
+                    raise ImportError(
+                        f"Could not find adapter class in {adapter_module_path}")
 
                 # Create instance of adapter
                 connection_data = self.connections[connection_id]
@@ -275,15 +280,17 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         return f"{platform}_{uuid.uuid4().hex[:8]}"
 
     def connect_platform(
-        self, platform: str, credentials: Dict[str, Any], settings: Optional[Dict[str, Any]] = None
+        self, platform: str, credentials: Dict[str, Any], settings: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Connect to a social media platform with provided credentials.
 
         Args:
-            platform: Social media platform name (e.g., "twitter", "facebook", "linkedin")
-            credentials: Platform-specific authentication credentials
-            settings: Optional platform-specific settings
+            platform: Social media platform name (e.g., "twitter", "facebook", 
+                "linkedin")
+            credentials: Platform - specific authentication credentials
+            settings: Optional platform - specific settings
 
         Returns:
             Dictionary containing the connection details
@@ -330,7 +337,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                     "account_name": verified_connection.get(
                         "account_name", connection["account_name"]
                     ),
-                    "account_id": verified_connection.get("account_id", connection["account_id"]),
+                    "account_id": verified_connection.get("account_id", 
+                        connection["account_id"]),
                     "profile_url": verified_connection.get(
                         "profile_url", connection["profile_url"]
                     ),
@@ -443,6 +451,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             "content": content,
             "schedule_time": schedule_time.isoformat() if schedule_time else None,
             "schedule_type": PostScheduleType.SCHEDULED if schedule_time else PostScheduleType.NOW,
+                
             "visibility": visibility,
             "targeting": targeting,
             "status": "scheduled" if schedule_time else "pending",
@@ -477,7 +486,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 # Post immediately
                 result = adapter.post_content(content, visibility, targeting)
 
-                # Store the post with the platform-assigned ID
+                # Store the post with the platform - assigned ID
                 post_id = result["id"]
                 post_data["id"] = post_id
                 post_data["status"] = "posted"
@@ -539,7 +548,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                     post_data["platform_data"] = updated_post
                     self._save_posts()
                 except Exception as e:
-                    logger.warning(f"Could not get updated post data for {post_id}: {e}")
+                    logger.warning(
+                        f"Could not get updated post data for {post_id}: {e}")
 
             return post_data
 
@@ -590,10 +600,12 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             raise PlatformNotFoundError(platform_id)
 
         # Check if we have the post locally
-        post_exists_locally = platform_id in self.posts and post_id in self.posts[platform_id]
+        post_exists_locally = \
+            platform_id in self.posts and post_id in self.posts[platform_id]
 
         # If it's a scheduled post that hasn't been posted yet
-        if post_exists_locally and self.posts[platform_id][post_id]["status"] == "scheduled":
+        if post_exists_locally and self.posts[platform_id][post_id]["status"] == \
+            "scheduled":
             # Just remove it from our storage
             del self.posts[platform_id][post_id]
             self._save_posts()
@@ -615,7 +627,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             return result
 
         except Exception as e:
-            raise DeletionError(self.connections[platform_id]["platform"], post_id, str(e))
+            raise DeletionError(self.connections[platform_id]["platform"], post_id, 
+                str(e))
 
     def get_analytics(
         self,
@@ -680,7 +693,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             result = {
                 "platform_id": platform_id,
                 "post_id": post_id,
-                "time_period": {"start": start_date.isoformat(), "end": end_date.isoformat()},
+                "time_period": {"start": start_date.isoformat(), 
+                    "end": end_date.isoformat()},
                 "granularity": granularity,
                 "metrics": analytics_data.get("metrics", {}),
                 "aggregates": analytics_data.get("aggregates", {}),
@@ -696,7 +710,8 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             return {
                 "platform_id": platform_id,
                 "post_id": post_id,
-                "time_period": {"start": start_date.isoformat(), "end": end_date.isoformat()},
+                "time_period": {"start": start_date.isoformat(), 
+                    "end": end_date.isoformat()},
                 "granularity": granularity,
                 "metrics": {},
                 "aggregates": {},
@@ -801,10 +816,11 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
                     except Exception as e:
                         logger.error(f"Error scheduling post to {platform_id}: {e}")
-                        raise SchedulingError(f"Error scheduling to {platform_id}: {str(e)}")
+                        raise SchedulingError(
+                            f"Error scheduling to {platform_id}: {str(e)}")
 
         elif schedule_type == "best_time":
-            # Schedule at optimal times (would need platform-specific logic)
+            # Schedule at optimal times (would need platform - specific logic)
             raise NotImplementedError("Best time scheduling not yet implemented")
 
         else:

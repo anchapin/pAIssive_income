@@ -20,8 +20,8 @@ class QuantizationMethod(enum.Enum):
     INT4 = "int4"
     FLOAT16 = "float16"
     BFLOAT16 = "bfloat16"
-    BITS_AND_BYTES_4BIT = "bitsandbytes-4bit"
-    BITS_AND_BYTES_8BIT = "bitsandbytes-8bit"
+    BITS_AND_BYTES_4BIT = "bitsandbytes - 4bit"
+    BITS_AND_BYTES_8BIT = "bitsandbytes - 8bit"
     AWQ = "awq"
     GPTQ = "gptq"
     GGML = "ggml"
@@ -38,11 +38,11 @@ class QuantizationConfig:
     bits: int = 8
     compute_dtype: Optional[str] = None
 
-    # Method-specific parameters
+    # Method - specific parameters
     use_double_quant: bool = False  # For BitsAndBytes
-    bnb_4bit_quant_type: str = "nf4"  # For BitsAndBytes 4-bit (nf4 or fp4)
-    bnb_4bit_use_double_quant: bool = True  # For BitsAndBytes 4-bit
-    bnb_4bit_compute_dtype: str = "float16"  # For BitsAndBytes 4-bit
+    bnb_4bit_quant_type: str = "nf4"  # For BitsAndBytes 4 - bit (nf4 or fp4)
+    bnb_4bit_use_double_quant: bool = True  # For BitsAndBytes 4 - bit
+    bnb_4bit_compute_dtype: str = "float16"  # For BitsAndBytes 4 - bit
 
     # AWQ parameters
     awq_zero_point: bool = True
@@ -54,7 +54,7 @@ class QuantizationConfig:
     gptq_group_size: int = 128
     gptq_act_order: bool = False
 
-    # GGML/GGUF parameters
+    # GGML / GGUF parameters
     ggml_model_type: str = "llama"
     ggml_ftype: int = 1  # 0: float32, 1: float16, 2: int8, 3: int4
 
@@ -147,7 +147,7 @@ class Quantizer(abc.ABC):
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the quantized model (None for in-place)
+            output_path: Path to save the quantized model (None for in - place)
             **kwargs: Additional parameters for quantization
 
         Returns:

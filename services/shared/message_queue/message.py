@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field, validator
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ class Message(BaseModel):
     # Message expiration time (Unix timestamp, optional)
     expires_at: Optional[float] = Field(default=None)
 
-    # Message correlation ID (for request-response patterns)
+    # Message correlation ID (for request - response patterns)
     correlation_id: Optional[str] = Field(default=None)
 
     # Message payload
@@ -240,7 +240,7 @@ class MessageSchema(Generic[T]):
             payload: Message payload (instance of payload_model or dict)
             message_type: Message type
             priority: Message priority
-            correlation_id: Correlation ID for request-response patterns
+            correlation_id: Correlation ID for request - response patterns
             expires_in: Message expiration time in seconds from now
             headers: Message headers (metadata)
 

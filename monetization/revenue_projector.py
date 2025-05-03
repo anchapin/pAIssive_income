@@ -1,8 +1,9 @@
 """
 Revenue Projector for the pAIssive Income project.
 
-This module provides classes for projecting revenue for AI-powered software tools.
-It includes tools for user acquisition, conversion, churn, and lifetime value calculations.
+This module provides classes for projecting revenue for AI - powered software tools.
+It includes tools for user acquisition, conversion, churn, 
+    and lifetime value calculations.
 """
 
 import copy
@@ -15,7 +16,7 @@ from typing import Any, Dict, List, Optional, Union
 
 class RevenueProjector:
     """
-    Class for projecting revenue for subscription-based software products.
+    Class for projecting revenue for subscription - based software products.
 
     This class provides tools for calculating user acquisition, conversion rates,
     churn rates, lifetime value, and revenue projections.
@@ -41,7 +42,8 @@ class RevenueProjector:
             user_acquisition_rate: Number of new users per month
             conversion_rate: Conversion rate from free to paid
             churn_rate: Monthly churn rate
-            tier_distribution: Distribution of users across tiers (e.g., {"basic": 0.6, "pro": 0.3, "premium": 0.1})
+            tier_distribution: Distribution of users across tiers (e.g., {"basic": 0.6, 
+                "pro": 0.3, "premium": 0.1})
         """
         self.id = str(uuid.uuid4())
         self.name = name
@@ -50,13 +52,15 @@ class RevenueProjector:
         self.user_acquisition_rate = user_acquisition_rate
         self.conversion_rate = conversion_rate
         self.churn_rate = churn_rate
-        self.tier_distribution = tier_distribution or {"basic": 0.6, "pro": 0.3, "premium": 0.1}
+        self.tier_distribution = tier_distribution or {"basic": 0.6, "pro": 0.3, 
+            "premium": 0.1}
         self.created_at = datetime.now().isoformat()
         self.updated_at = self.created_at
 
-    def project_users(self, months: int = 36, growth_rate: float = 0.05) -> List[Dict[str, Any]]:
+    def project_users(self, months: int = 36, 
+        growth_rate: float = 0.05) -> List[Dict[str, Any]]:
         """
-        Project user growth over time using a sophisticated cohort-based growth model.
+        Project user growth over time using a sophisticated cohort - based growth model.
 
         This algorithm implements a comprehensive user growth simulation for
         subscription products with freemium conversion patterns. The implementation
@@ -65,30 +69,30 @@ class RevenueProjector:
         1. MODEL INITIALIZATION AND PARAMETERIZATION:
            - Initializes tracking arrays for all user segments (total, free, paid)
            - Sets up the initial user acquisition rate based on configuration
-           - Prepares for month-by-month iterative calculation
+           - Prepares for month - by - month iterative calculation
            - Creates a foundation for tracking multiple user states simultaneously
 
         2. ITERATIVE GROWTH SIMULATION:
-           - Implements a time-step simulation with discrete monthly calculations
+           - Implements a time - step simulation with discrete monthly calculations
            - Models four key dynamics in each period:
              a) New user acquisition with compound growth
              b) Existing user churn based on configured churn rate
-             c) Free-to-paid conversions based on conversion rate
+             c) Free - to - paid conversions based on conversion rate
              d) Separate paid user churn tracking
            - Maintains proper segment accounting across user categories
            - Ensures mathematical consistency in user flows between states
 
         3. GROWTH COMPOUNDING LOGIC:
            - Applies compound growth to user acquisition rate
-           - Models the accelerating effects of marketing and word-of-mouth
+           - Models the accelerating effects of marketing and word - of - mouth
            - Simulates realistic growth trajectories seen in successful products
            - Integer rounding for realistic user counts at each stage
 
         4. COMPREHENSIVE RESULT FORMATTING:
-           - Transforms raw calculation arrays into structured month-by-month data
+           - Transforms raw calculation arrays into structured month - by - month data
            - Includes all relevant metrics for each time period
            - Preserves raw data internally for other calculations
-           - Returns results in a consistent, test-compatible format
+           - Returns results in a consistent, test - compatible format
 
         The user growth model forms the foundation of all revenue projections and
         incorporates several key business realities:
@@ -110,13 +114,13 @@ class RevenueProjector:
 
         Returns:
             A list of dictionaries, where each dictionary contains:
-            - month: Month number (1-based, so month 1 is the first projected month)
+            - month: Month number (1 - based, so month 1 is the first projected month)
             - total_users: Total number of users in the system
-            - free_users: Number of users on free tier/plan
+            - free_users: Number of users on free tier / plan
             - paid_users: Number of users on paid plans
             - new_users: Number of new users acquired that month
             - churned_users: Number of users lost to churn that month
-            - conversion_rate: Free-to-paid conversion rate used in calculation
+            - conversion_rate: Free - to - paid conversion rate used in calculation
             - churn_rate: Monthly churn rate used in calculation
         """
         # STAGE 1: Initialize tracking arrays for user segments with initial conditions
@@ -129,7 +133,7 @@ class RevenueProjector:
         # Set initial acquisition rate from configuration
         current_acquisition_rate = self.user_acquisition_rate
 
-        # STAGE 2: Perform month-by-month iterative growth simulation
+        # STAGE 2: Perform month - by - month iterative growth simulation
         # For each month, calculate new users, churn, conversions, and resulting totals
         for month in range(1, months + 1):
             # Calculate inflow: new users acquired this month
@@ -148,7 +152,8 @@ class RevenueProjector:
             # - Paid users: previous + conversions - paid churn
             # - Free users: derived as total - paid to ensure consistency
             new_total = total_users[-1] + new_users - churned_users
-            new_paid = paid_users[-1] + new_conversions - int(paid_users[-1] * self.churn_rate)
+            new_paid = paid_users[-1] + \
+                new_conversions - int(paid_users[-1] * self.churn_rate)
             new_free = new_total - new_paid
 
             # Store updated values to arrays for next iteration
@@ -161,19 +166,20 @@ class RevenueProjector:
             # product awareness increases and marketing efforts compound
             current_acquisition_rate = int(current_acquisition_rate * (1 + growth_rate))
 
-        # STAGE 4: Format results as structured month-by-month projections
+        # STAGE 4: Format results as structured month - by - month projections
         # Create a list of dictionaries with all relevant metrics for each month
         user_projections = []
         for month in range(1, months + 1):
             user_projections.append(
                 {
-                    "month": month,  # Month number (1-based)
+                    "month": month,  # Month number (1 - based)
                     "total_users": total_users[month],  # All users
                     "free_users": free_users[month],  # Free tier users
                     "paid_users": paid_users[month],  # Paid tier users
                     "new_users": current_acquisition_rate,  # New user acquisition
-                    "churned_users": int(total_users[month - 1] * self.churn_rate),  # Churn
-                    "conversion_rate": self.conversion_rate,  # Free-to-paid rate
+                    "churned_users": int(total_users[month - 1] * self.churn_rate),  
+                        # Churn
+                    "conversion_rate": self.conversion_rate,  # Free - to - paid rate
                     "churn_rate": self.churn_rate,  # Attrition rate
                 }
             )
@@ -303,7 +309,8 @@ class RevenueProjector:
         """
         Calculate customer lifetime value using the discounted perpetuity model.
 
-        This algorithm implements a sophisticated customer lifetime value (CLV/LTV) calculation
+        This algorithm implements a sophisticated customer lifetime value (CLV / \
+            LTV) calculation
         based on the statistical perpetuity model. The implementation follows these key stages:
 
         1. PARAMETER NORMALIZATION:
@@ -314,13 +321,13 @@ class RevenueProjector:
 
         2. CORE LIFETIME VALUE COMPUTATION:
            - Implements the perpetuity model formula: LTV = ARPU / Churn Rate
-           - Calculates expected customer lifetime as inverse of churn (1/churn)
+           - Calculates expected customer lifetime as inverse of churn (1 / churn)
            - Uses the statistical property that exponential decay processes have
              mean lifetime equal to the inverse of decay rate
            - Applies direct multiplication approach: lifetime × ARPU = total value
 
         3. TEMPORAL VALUE PROJECTIONS:
-           - Calculates constrained time-horizon projections (1/3/5 year values)
+           - Calculates constrained time - horizon projections (1 / 3/5 year values)
            - Applies mathematical minimum function to handle scenarios where
              expected lifetime exceeds the time horizon
            - Creates graduated value projections to facilitate staged forecasting
@@ -338,14 +345,16 @@ class RevenueProjector:
 
         - Provides realistic lifetime value for financial reporting and forecasting
         - Enables CAC:LTV ratio analysis for marketing efficiency
-        - Supports time-bounded value projections for staged business planning
+        - Supports time - bounded value projections for staged business planning
         - Facilitates cohort comparison with standardized metrics
 
         Notes on mathematical properties:
-        - The core formula (ARPU/churn) represents the expected value of a geometric series
-          with first term = ARPU and common ratio = (1-churn)
-        - This converges to ARPU/churn as the number of terms approaches infinity
-        - For time-bounded calculations, we use the partial sum of the geometric series
+        - \
+            The core formula (ARPU / churn) represents the expected value of a geometric series
+          with first term = ARPU and common ratio = (1 - churn)
+        - This converges to ARPU / churn as the number of terms approaches infinity
+        - For time - bounded calculations, 
+            we use the partial sum of the geometric series
           capped at the specified number of periods
 
         Args:
@@ -363,7 +372,7 @@ class RevenueProjector:
             - one_year_value: Expected customer value over first 12 months
             - three_year_value: Expected customer value over first 36 months
             - five_year_value: Expected customer value over first 60 months
-            - timestamp: ISO-formatted timestamp of calculation
+            - timestamp: ISO - formatted timestamp of calculation
         """
         # STAGE 1: Parameter normalization and default handling
         # Use the instance's churn rate if none provided to maintain consistency
@@ -373,14 +382,14 @@ class RevenueProjector:
 
         # STAGE 2: Core lifetime value calculations
         # Calculate expected customer lifetime using the statistical property that
-        # for exponential decay processes, mean lifetime = 1/decay_rate
+        # for exponential decay processes, mean lifetime = 1 / decay_rate
         average_lifetime_months = 1 / churn_rate
 
         # Calculate total lifetime value using the perpetuity formula
         # LTV = ARPU / churn_rate (equivalent to ARPU * average_lifetime_months)
         lifetime_value = average_revenue_per_user * average_lifetime_months
 
-        # STAGE 3: Calculate time-bounded value projections for practical planning
+        # STAGE 3: Calculate time - bounded value projections for practical planning
         # These are minimum of either the full lifetime value or what would be
         # realized within the specific time horizon
         one_year_value = average_revenue_per_user * min(12, average_lifetime_months)
@@ -418,7 +427,7 @@ class RevenueProjector:
            - Takes the customer acquisition cost (CAC) as direct input
            - Uses the average monthly revenue per user (ARPU) for revenue projections
            - Accepts an optional gross margin parameter (defaults to standard 80%)
-           - Allows for business model-specific margin customization
+           - Allows for business model - specific margin customization
 
         2. CONTRIBUTION MARGIN CALCULATION:
            - Calculates the monthly contribution margin per user
@@ -446,7 +455,7 @@ class RevenueProjector:
 
         This implementation specifically addresses the unit economics of
         subscription businesses, where:
-        - Initial acquisition cost is typically higher than single-transaction value
+        - Initial acquisition cost is typically higher than single - transaction value
         - Recovery occurs over an extended customer relationship
         - Gross margin significantly affects recovery timeline
         - Recovery timeline must be substantially shorter than expected lifetime
@@ -466,7 +475,7 @@ class RevenueProjector:
             - gross_margin: Gross margin used in calculation
             - monthly_contribution: Monthly contribution margin per user
             - payback_period_months: Time to recover CAC in months
-            - timestamp: ISO-formatted timestamp of calculation
+            - timestamp: ISO - formatted timestamp of calculation
         """
         # STAGE 1: Parameter validation happens implicitly through Python's type system
         # The method signature ensures appropriate types for the calculation
@@ -566,11 +575,14 @@ class RevenueProjector:
 
     def __str__(self) -> str:
         """String representation of the revenue projector."""
-        return f"{self.name} (acquisition: {self.user_acquisition_rate}/month, conversion: {self.conversion_rate:.1%}, churn: {self.churn_rate:.1%})"
+        return f"{self.name} (acquisition: {self.user_acquisition_rate}/month, 
+            conversion: {self.conversion_rate:.1%}, churn: {self.churn_rate:.1%})"
 
     def __repr__(self) -> str:
         """Detailed string representation of the revenue projector."""
-        return f"RevenueProjector(id={self.id}, name={self.name}, acquisition={self.user_acquisition_rate}, conversion={self.conversion_rate:.1%}, churn={self.churn_rate:.1%})"
+        return f"RevenueProjector(id={self.id}, name={self.name}, 
+            acquisition={self.user_acquisition_rate}, 
+            conversion={self.conversion_rate:.1%}, churn={self.churn_rate:.1%})"
 
 
 # Example usage
@@ -581,7 +593,8 @@ if __name__ == "__main__":
 
     # Create a subscription model
     model = SubscriptionModel(
-        name="AI Tool Subscription", description="Subscription model for an AI-powered tool"
+        name="AI Tool Subscription", 
+            description="Subscription model for an AI - powered tool"
     )
 
     # Add tiers
@@ -609,8 +622,8 @@ if __name__ == "__main__":
     # Create a pricing calculator
     calculator = PricingCalculator(
         name="AI Tool Pricing Calculator",
-        description="Pricing calculator for an AI-powered tool",
-        pricing_strategy="value-based",
+        description="Pricing calculator for an AI - powered tool",
+        pricing_strategy="value - based",
     )
 
     # Calculate prices
@@ -619,7 +632,7 @@ if __name__ == "__main__":
     # Create a revenue projector
     projector = RevenueProjector(
         name="AI Tool Revenue Projector",
-        description="Revenue projector for an AI-powered tool",
+        description="Revenue projector for an AI - powered tool",
         initial_users=0,
         user_acquisition_rate=50,
         conversion_rate=0.2,

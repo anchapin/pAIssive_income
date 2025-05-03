@@ -25,7 +25,7 @@ def mock_agent_team():
         {
             "id": "niche1",
             "name": "AI Inventory Management",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "opportunity_score": 0.85,
         }
     ]
@@ -33,7 +33,7 @@ def mock_agent_team():
     mock_team.develop_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "AI-powered inventory management solution",
+        "description": "AI - powered inventory management solution",
         "features": ["Demand forecasting", "Stock optimization", "Supplier management"],
     }
 
@@ -58,7 +58,7 @@ def mock_agent_team():
     mock_team.create_marketing_plan.return_value = {
         "id": "marketing1",
         "channels": ["content_marketing", "social_media", "email"],
-        "target_audience": "e-commerce store owners",
+        "target_audience": "e - commerce store owners",
         "messaging": "Reduce inventory costs by 30% with AI",
     }
 
@@ -72,8 +72,8 @@ def mock_model_manager():
 
     # Set up mock return values
     mock_manager.list_models.return_value = [
-        {"name": "GPT-4", "type": "text", "provider": "openai"},
-        {"name": "DALL-E 3", "type": "image", "provider": "openai"},
+        {"name": "GPT - 4", "type": "text", "provider": "openai"},
+        {"name": "DALL - E 3", "type": "image", "provider": "openai"},
     ]
 
     return mock_manager
@@ -126,11 +126,11 @@ class TestWebUIIntegration:
         )
 
         # Run niche analysis
-        web_ui.analyze_niches(["e-commerce", "digital-marketing"])
+        web_ui.analyze_niches(["e - commerce", "digital - marketing"])
 
         # Check that the agent team's method was called
         mock_agent_team.run_niche_analysis.assert_called_once_with(
-            ["e-commerce", "digital-marketing"]
+            ["e - commerce", "digital - marketing"]
         )
 
         # Check that the UI has stored the niches
@@ -254,8 +254,8 @@ class TestWebUIIntegration:
 
         # Check that the UI returned the expected results
         assert len(models) == 2
-        assert models[0]["name"] == "GPT-4"
-        assert models[1]["name"] == "DALL-E 3"
+        assert models[0]["name"] == "GPT - 4"
+        assert models[1]["name"] == "DALL - E 3"
 
     def test_web_ui_subscription_manager_integration(self, web_ui, mock_subscription_manager):
         """Test the WebUI integration with subscription manager."""
@@ -278,7 +278,7 @@ class TestWebUIIntegration:
             {
                 "id": "niche1",
                 "name": "AI Inventory Management",
-                "market_segment": "e-commerce",
+                "market_segment": "e - commerce",
                 "opportunity_score": 0.85,
             }
         ]
@@ -296,4 +296,4 @@ class TestWebUIIntegration:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_web_ui_integration.py"])
+    pytest.main([" - v", "test_web_ui_integration.py"])

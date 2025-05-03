@@ -36,7 +36,7 @@ class MockRegionalEndpoint:
         Initialize a mock regional endpoint.
 
         Args:
-            region: Region name (e.g., 'us-east', 'eu-west')
+            region: Region name (e.g., 'us - east', 'eu - west')
             latency: Simulated latency in seconds
             failure_rate: Probability of request failure (0.0 to 1.0)
         """
@@ -107,12 +107,12 @@ class GeoDistributedLoadTester:
         """Initialize the load tester."""
         # Create mock regional endpoints with different latencies
         self.endpoints = {
-            "us-east": MockRegionalEndpoint("us-east", 0.05),
-            "us-west": MockRegionalEndpoint("us-west", 0.08),
-            "eu-west": MockRegionalEndpoint("eu-west", 0.15),
-            "eu-central": MockRegionalEndpoint("eu-central", 0.12),
-            "ap-southeast": MockRegionalEndpoint("ap-southeast", 0.20),
-            "ap-northeast": MockRegionalEndpoint("ap-northeast", 0.18),
+            "us - east": MockRegionalEndpoint("us - east", 0.05),
+            "us - west": MockRegionalEndpoint("us - west", 0.08),
+            "eu - west": MockRegionalEndpoint("eu - west", 0.15),
+            "eu - central": MockRegionalEndpoint("eu - central", 0.12),
+            "ap - southeast": MockRegionalEndpoint("ap - southeast", 0.20),
+            "ap - northeast": MockRegionalEndpoint("ap - northeast", 0.18),
         }
 
         # Initialize results
@@ -139,7 +139,7 @@ class GeoDistributedLoadTester:
             requests_per_region: Number of requests to send to each region
             concurrency: Maximum number of concurrent requests
             request_distribution: Optional distribution of requests across regions
-                                 (e.g., {"us-east": 0.4, "eu-west": 0.3, "ap-southeast": 0.3})
+                                 (e.g., {"us - east": 0.4, "eu - west": 0.3, "ap - southeast": 0.3})
 
         Returns:
             Test results
@@ -279,9 +279,9 @@ async def test_geographically_distributed_load():
 
     # Run a distributed load test with custom distribution
     custom_distribution = {
-        "us-east": 0.4,  # 40% of requests
-        "eu-west": 0.3,  # 30% of requests
-        "ap-southeast": 0.3,  # 30% of requests
+        "us - east": 0.4,  # 40% of requests
+        "eu - west": 0.3,  # 30% of requests
+        "ap - southeast": 0.3,  # 30% of requests
     }
 
     results = await tester.run_distributed_load_test(
@@ -290,9 +290,9 @@ async def test_geographically_distributed_load():
 
     # Verify results
     assert results["total_requests"] == 600  # 100 requests * 6 regions
-    assert results["regional_metrics"]["us-east"]["request_count"] > 200  # ~40% of 600
-    assert results["regional_metrics"]["eu-west"]["request_count"] > 150  # ~30% of 600
-    assert results["regional_metrics"]["ap-southeast"]["request_count"] > 150  # ~30% of 600
+    assert results["regional_metrics"]["us - east"]["request_count"] > 200  # ~40% of 600
+    assert results["regional_metrics"]["eu - west"]["request_count"] > 150  # ~30% of 600
+    assert results["regional_metrics"]["ap - southeast"]["request_count"] > 150  # ~30% of 600
 
     # Print results
     print(json.dumps(results, indent=2))
@@ -303,18 +303,18 @@ async def test_regional_failover():
     # Create the load tester
     tester = GeoDistributedLoadTester()
 
-    # Set up a custom distribution focusing on us-east
+    # Set up a custom distribution focusing on us - east
     distribution = {
-        "us-east": 0.6,  # 60% of requests
-        "us-west": 0.2,  # 20% of requests
-        "eu-west": 0.1,  # 10% of requests
-        "eu-central": 0.1,  # 10% of requests
-        "ap-southeast": 0.0,
-        "ap-northeast": 0.0,
+        "us - east": 0.6,  # 60% of requests
+        "us - west": 0.2,  # 20% of requests
+        "eu - west": 0.1,  # 10% of requests
+        "eu - central": 0.1,  # 10% of requests
+        "ap - southeast": 0.0,
+        "ap - northeast": 0.0,
     }
 
     # Start a background task to simulate a regional failure after 1 second
-    failover_task = asyncio.create_task(tester.simulate_regional_failure("us-east", duration=2.0))
+    failover_task = asyncio.create_task(tester.simulate_regional_failure("us - east", duration=2.0))
 
     # Run a distributed load test
     results = await tester.run_distributed_load_test(
@@ -326,7 +326,7 @@ async def test_regional_failover():
 
     # Verify results
     assert results["failed_requests"] > 0  # Some requests should have failed
-    assert results["regional_metrics"]["us-east"]["failed_requests"] > 0
+    assert results["regional_metrics"]["us - east"]["failed_requests"] > 0
 
     # Print results
     print(json.dumps(results, indent=2))
@@ -339,10 +339,10 @@ async def test_load_balancing_optimization():
 
     # Register services in different regions
     services = []
-    for i, region in enumerate(["us-east", "us-west", "eu-west", "ap-southeast"]):
+    for i, region in enumerate(["us - east", "us - west", "eu - west", "ap - southeast"]):
         service = {
-            "service_id": f"api-service-{i+1}",
-            "service_name": "api-service",
+            "service_id": f"api - service-{i + 1}",
+            "service_name": "api - service",
             "host": f"api-{region}.example.com",
             "port": 8080,
             "region": region,
@@ -356,16 +356,16 @@ async def test_load_balancing_optimization():
         registry.register_service(**service)
         services.append(service)
 
-    # Test round-robin load balancer
+    # Test round - robin load balancer
     round_robin = RoundRobinLoadBalancer()
 
     # Get instances multiple times
     selected_regions = []
     for _ in range(8):  # Should cycle through all instances twice
-        instance = round_robin.get_instance(registry.get_services("api-service"))
+        instance = round_robin.get_instance(registry.get_services("api - service"))
         selected_regions.append(instance["region"])
 
-    # Verify round-robin distribution
+    # Verify round - robin distribution
     assert len(set(selected_regions)) == 4  # All regions used
     assert selected_regions[:4] != selected_regions[4:]  # Different order in cycles
 
@@ -377,25 +377,25 @@ async def test_load_balancing_optimization():
     weighted = WeightedRandomLoadBalancer(weight_function=capacity_weight)
 
     # Select instances multiple times
-    region_counts = {"us-east": 0, "us-west": 0, "eu-west": 0, "ap-southeast": 0}
+    region_counts = {"us - east": 0, "us - west": 0, "eu - west": 0, "ap - southeast": 0}
     for _ in range(1000):
-        instance = weighted.get_instance(registry.get_services("api-service"))
+        instance = weighted.get_instance(registry.get_services("api - service"))
         region_counts[instance["region"]] += 1
 
     # Verify weighted distribution - regions with higher capacity should be selected more often
-    assert region_counts["us-east"] > region_counts["us-west"]
-    assert region_counts["us-west"] > region_counts["eu-west"]
-    assert region_counts["eu-west"] > region_counts["ap-southeast"]
+    assert region_counts["us - east"] > region_counts["us - west"]
+    assert region_counts["us - west"] > region_counts["eu - west"]
+    assert region_counts["eu - west"] > region_counts["ap - southeast"]
 
     # Test least connections load balancer
     least_conn = LeastConnectionsLoadBalancer()
 
     # Simulate connections
     connections = {
-        "api-service-1": 50,  # us-east
-        "api-service-2": 30,  # us-west
-        "api-service-3": 10,  # eu-west
-        "api-service-4": 5,  # ap-southeast
+        "api - service - 1": 50,  # us - east
+        "api - service - 2": 30,  # us - west
+        "api - service - 3": 10,  # eu - west
+        "api - service - 4": 5,  # ap - southeast
     }
 
     for service_id, count in connections.items():
@@ -403,11 +403,11 @@ async def test_load_balancing_optimization():
             least_conn.increment_connections(service_id)
 
     # Select an instance - should be the one with fewest connections
-    instance = least_conn.get_instance(registry.get_services("api-service"))
-    assert instance["region"] == "ap-southeast"  # Should be the one with fewest connections
+    instance = least_conn.get_instance(registry.get_services("api - service"))
+    assert instance["region"] == "ap - southeast"  # Should be the one with fewest connections
 
     # Print results
-    print(f"Round-robin distribution: {selected_regions}")
+    print(f"Round - robin distribution: {selected_regions}")
     print(f"Weighted distribution: {region_counts}")
     print(f"Least connections selected: {instance['region']}")
 

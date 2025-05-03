@@ -24,7 +24,7 @@ def test_analyze_market():
     analyzer = MarketAnalyzer()
 
     # Analyze a market segment
-    result = analyzer.analyze_market("e-commerce")
+    result = analyzer.analyze_market("e - commerce")
 
     # Check that the result has the expected keys
     assert "id" in result
@@ -39,8 +39,8 @@ def test_analyze_market():
     assert "target_users" in result
 
     # Check that the values are as expected
-    assert result["name"] == "E-Commerce"
-    assert "e-commerce" in result["description"].lower()
+    assert result["name"] == "E - Commerce"
+    assert "e - commerce" in result["description"].lower()
 
 
 def test_analyze_market_unknown_segment():

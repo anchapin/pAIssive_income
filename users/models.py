@@ -1,5 +1,5 @@
 """
-User-related models for the pAIssive_income project.
+User - related models for the pAIssive_income project.
 """
 
 from datetime import datetime
@@ -52,8 +52,9 @@ class User(BaseModel):
             raise ValueError("Username must be at least 3 characters")
         if len(v) > 50:
             raise ValueError("Username must be less than 50 characters")
-        if not v.isalnum() and "_" not in v and "-" not in v:
-            raise ValueError("Username can only contain letters, numbers, underscores, and hyphens")
+        if not v.isalnum() and "_" not in v and " - " not in v:
+            raise ValueError("Username can only contain letters, numbers, underscores, 
+                and hyphens")
         return v
 
     model_config = {
@@ -62,7 +63,7 @@ class User(BaseModel):
             "example": {
                 "id": "user123",
                 "username": "johndoe",
-                "email": "john@example.com",
+                "email": "john @ example.com",
                 "name": "John Doe",
                 "roles": ["user"],
                 "is_active": True,

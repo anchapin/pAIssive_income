@@ -20,7 +20,7 @@ except ImportError:
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class CloudConfig:
 
     # Model configuration
     model_path: str = ""
-    model_type: str = "text-generation"
+    model_type: str = "text - generation"
     model_id: str = ""
 
     # Resource configuration
@@ -261,7 +261,7 @@ def _generate_cloudformation_template(config: CloudConfig, output_path: str) -> 
     """
     # Create CloudFormation template content using proper YAML format and !Ref functions
     content = f"""
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: '2010 - 09 - 09'
 Description: 'AI Model Deployment'
 
 Parameters:
@@ -310,15 +310,15 @@ Resources:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: '2012 - 10 - 17'
         Statement:
           - Effect: Allow
             Principal:
               Service: sagemaker.amazonaws.com
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
-        - 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
+        - 'arn:aws:iam::aws:policy / AmazonSageMakerFullAccess'
+        - 'arn:aws:iam::aws:policy / AmazonS3ReadOnlyAccess'
 
   ModelEndpoint:
     Type: 'AWS::SageMaker::Endpoint'
@@ -356,11 +356,11 @@ Outputs:
 
   EndpointUrl:
     Description: URL of the SageMaker endpoint
-    Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com/endpoints/${{ModelEndpoint}}'
+    Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com / endpoints/${{ModelEndpoint}}'
 """
 
     # Write CloudFormation template
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -373,7 +373,7 @@ def _generate_aws_deploy_script(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = f"""#!/bin / bash
 set -e
 
 # Configuration
@@ -387,10 +387,10 @@ echo "Building Docker image..."
 docker build -t $ECR_REPOSITORY:latest .
 
 echo "Logging in to ECR..."
-aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+aws ecr get - login - password --region $REGION | docker login --username AWS --password - stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
 echo "Creating ECR repository if it doesn't exist..."
-aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $REGION || aws ecr create-repository --repository-name $ECR_REPOSITORY --region $REGION
+aws ecr describe - repositories --repository - names $ECR_REPOSITORY --region $REGION || aws ecr create - repository --repository - name $ECR_REPOSITORY --region $REGION
 
 echo "Pushing Docker image to ECR..."
 docker tag $ECR_REPOSITORY:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY:latest
@@ -399,11 +399,11 @@ docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY:latest
 # Deploy CloudFormation stack
 echo "Deploying CloudFormation stack..."
 aws cloudformation deploy \\
-  --template-file cloudformation.yaml \\
-  --stack-name $STACK_NAME \\
+  --template - file cloudformation.yaml \\
+  --stack - name $STACK_NAME \\
   --capabilities CAPABILITY_IAM \\
   --region $REGION \\
-  --parameter-overrides \\
+  --parameter - overrides \\
     ModelName=$MODEL_NAME \\
     ModelPath="{config.model_path}" \\
     ModelType="{config.model_type}" \\
@@ -414,11 +414,11 @@ aws cloudformation deploy \\
     MaxInstances={config.max_instances}
 
 echo "Deployment completed successfully!"
-echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com/endpoints/$MODEL_NAME"
+echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com / endpoints/$MODEL_NAME"
 """
 
     # Write deployment script
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
     # Make script executable
@@ -507,7 +507,7 @@ resource "google_cloud_run_service" "model_service" {{
         # GPU configuration
         resources {{
           limits {{
-            "nvidia.com/gpu" = {config.gpu_count}
+            "nvidia.com / gpu" = {config.gpu_count}
           }}
         }}"""
 
@@ -521,8 +521,8 @@ resource "google_cloud_run_service" "model_service" {{
 
     metadata {{
       annotations = {{
-        "autoscaling.knative.dev/minScale" = "{config.min_instances}"
-        "autoscaling.knative.dev/maxScale" = "{config.max_instances}"
+        "autoscaling.knative.dev / minScale" = "{config.min_instances}"
+        "autoscaling.knative.dev / maxScale" = "{config.max_instances}"
       }}
     }}
   }}
@@ -536,7 +536,7 @@ resource "google_cloud_run_service" "model_service" {{
 resource "google_cloud_run_service_iam_member" "public_access" {{
   service  = google_cloud_run_service.model_service.name
   location = google_cloud_run_service.model_service.location
-  role     = "roles/run.invoker"
+  role     = "roles / run.invoker"
   member   = "allUsers"
 }}
 
@@ -546,7 +546,7 @@ output "service_url" {{
 """
 
     # Write Terraform configuration
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -559,27 +559,27 @@ def _generate_gcp_deploy_script(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = f"""#!/bin / bash
 set -e
 
 # Configuration
-PROJECT_ID=$(gcloud config get-value project)
+PROJECT_ID=$(gcloud config get - value project)
 REGION="{config.region}"
 REPOSITORY="{config.name}"
 IMAGE="{config.name}"
 
 # Build and push Docker image
 echo "Building Docker image..."
-docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest .
+docker build -t $REGION - docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest .
 
 echo "Configuring Docker for Artifact Registry..."
-gcloud auth configure-docker $REGION-docker.pkg.dev
+gcloud auth configure - docker $REGION - docker.pkg.dev
 
 echo "Creating Artifact Registry repository if it doesn't exist..."
-gcloud artifacts repositories create $REPOSITORY --repository-format=docker --location=$REGION --description="Repository for $IMAGE" || true
+gcloud artifacts repositories create $REPOSITORY --repository - format=docker --location=$REGION --description="Repository for $IMAGE" || true
 
 echo "Pushing Docker image to Artifact Registry..."
-docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
+docker push $REGION - docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
 
 # Initialize Terraform
 echo "Initializing Terraform..."
@@ -587,7 +587,7 @@ terraform init
 
 # Apply Terraform configuration
 echo "Applying Terraform configuration..."
-terraform apply -var="project_id=$PROJECT_ID" -auto-approve
+terraform apply -var="project_id=$PROJECT_ID" -auto - approve
 
 # Get service URL
 SERVICE_URL=$(terraform output -raw service_url)
@@ -597,7 +597,7 @@ echo "Service URL: $SERVICE_URL"
 """
 
     # Write deployment script
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
     # Make script executable
@@ -614,7 +614,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     """
     # Create ARM template content
     content = f"""{{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com / schemas / 2019 - 04 - 01 / deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {{
     "containerRegistryName": {{
@@ -640,14 +640,14 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     }}
   }},
   "variables": {{
-    "containerAppEnvironmentName": "[concat(parameters('containerAppName'), '-env')]",
-    "logAnalyticsWorkspaceName": "[concat(parameters('containerAppName'), '-logs')]",
-    "imageName": "[concat(parameters('containerRegistryName'), '.azurecr.io/', parameters('containerAppName'), ':latest')]"
+    "containerAppEnvironmentName": "[concat(parameters('containerAppName'), ' - env')]",
+    "logAnalyticsWorkspaceName": "[concat(parameters('containerAppName'), ' - logs')]",
+    "imageName": "[concat(parameters('containerRegistryName'), '.azurecr.io / ', parameters('containerAppName'), ':latest')]"
   }},
   "resources": [
     {{
-      "type": "Microsoft.ContainerRegistry/registries",
-      "apiVersion": "2021-06-01-preview",
+      "type": "Microsoft.ContainerRegistry / registries",
+      "apiVersion": "2021 - 06 - 01 - preview",
       "name": "[parameters('containerRegistryName')]",
       "location": "[parameters('location')]",
       "sku": {{
@@ -658,8 +658,8 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
       }}
     }},
     {{
-      "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "2021-06-01",
+      "type": "Microsoft.OperationalInsights / workspaces",
+      "apiVersion": "2021 - 06 - 01",
       "name": "[variables('logAnalyticsWorkspaceName')]",
       "location": "[parameters('location')]",
       "properties": {{
@@ -673,30 +673,30 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
       }}
     }},
     {{
-      "type": "Microsoft.App/managedEnvironments",
-      "apiVersion": "2022-03-01",
+      "type": "Microsoft.App / managedEnvironments",
+      "apiVersion": "2022 - 03 - 01",
       "name": "[variables('containerAppEnvironmentName')]",
       "location": "[parameters('location')]",
       "properties": {{
         "appLogsConfiguration": {{
-          "destination": "log-analytics",
+          "destination": "log - analytics",
           "logAnalyticsConfiguration": {{
-            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))).customerId]",
-            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2021-06-01').primarySharedKey]"
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName'))).customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName')), '2021 - 06 - 01').primarySharedKey]"
           }}
         }}
       }},
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+        "[resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName'))]"
       ]
     }},
     {{
-      "type": "Microsoft.App/containerApps",
-      "apiVersion": "2022-03-01",
+      "type": "Microsoft.App / containerApps",
+      "apiVersion": "2022 - 03 - 01",
       "name": "[parameters('containerAppName')]",
       "location": "[parameters('location')]",
       "properties": {{
-        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvironmentName'))]",
+        "managedEnvironmentId": "[resourceId('Microsoft.App / managedEnvironments', variables('containerAppEnvironmentName'))]",
         "configuration": {{
           "ingress": {{
             "external": true,
@@ -712,14 +712,14 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
           "registries": [
             {{
               "server": "[concat(parameters('containerRegistryName'), '.azurecr.io')]",
-              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-06-01-preview').username]",
-              "passwordSecretRef": "registry-password"
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName')), '2021 - 06 - 01 - preview').username]",
+              "passwordSecretRef": "registry - password"
             }}
           ],
           "secrets": [
             {{
-              "name": "registry-password",
-              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-06-01-preview').passwords[0].value]"
+              "name": "registry - password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName')), '2021 - 06 - 01 - preview').passwords[0].value]"
             }}
           ]
         }},
@@ -772,21 +772,21 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
         }}
       }},
       "dependsOn": [
-        "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvironmentName'))]",
-        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
+        "[resourceId('Microsoft.App / managedEnvironments', variables('containerAppEnvironmentName'))]",
+        "[resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName'))]"
       ]
     }}
   ],
   "outputs": {{
     "containerAppFqdn": {{
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
+      "value": "[reference(resourceId('Microsoft.App / containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
     }}
   }}
 }}"""
 
     # Write ARM template
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -799,7 +799,7 @@ def _generate_azure_deploy_script(config: CloudConfig, output_path: str) -> None
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = f"""#!/bin / bash
 set -e
 
 # Configuration
@@ -818,7 +818,7 @@ echo "Building Docker image..."
 docker build -t $IMAGE_NAME:latest .
 
 echo "Creating container registry if it doesn't exist..."
-az acr create --resource-group $RESOURCE_GROUP --name $REGISTRY_NAME --sku Basic --admin-enabled true
+az acr create --resource - group $RESOURCE_GROUP --name $REGISTRY_NAME --sku Basic --admin - enabled true
 
 echo "Logging in to container registry..."
 az acr login --name $REGISTRY_NAME
@@ -830,8 +830,8 @@ docker push $REGISTRY_NAME.azurecr.io/$IMAGE_NAME:latest
 # Deploy ARM template
 echo "Deploying ARM template..."
 az deployment group create \\
-  --resource-group $RESOURCE_GROUP \\
-  --template-file azuredeploy.json \\
+  --resource - group $RESOURCE_GROUP \\
+  --template - file azuredeploy.json \\
   --parameters \\
     containerRegistryName=$REGISTRY_NAME \\
     containerAppName=$CONTAINER_APP_NAME \\
@@ -839,7 +839,7 @@ az deployment group create \\
 
 # Get container app URL
 CONTAINER_APP_URL=$(az deployment group show \\
-  --resource-group $RESOURCE_GROUP \\
+  --resource - group $RESOURCE_GROUP \\
   --name azuredeploy \\
   --query properties.outputs.containerAppFqdn.value \\
   --output tsv)
@@ -849,7 +849,7 @@ echo "Container App URL: https://$CONTAINER_APP_URL"
 """
 
     # Write deployment script
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
     # Make script executable

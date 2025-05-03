@@ -1,8 +1,8 @@
 """
-Demo script for the A/B testing module.
+Demo script for the A / B testing module.
 
-This script demonstrates how to use the A/B testing tools to create and analyze
-A/B tests for various marketing assets.
+This script demonstrates how to use the A / B testing tools to create and analyze
+A / B tests for various marketing assets.
 """
 
 from marketing.ab_testing import ABTesting
@@ -10,16 +10,16 @@ from marketing.user_personas import PersonaCreator
 
 
 def demo_email_subject_testing():
-    """Demonstrate A/B testing for email subject lines."""
-    print("\n=== A/B Testing Demo: Email Subject Lines ===\n")
+    """Demonstrate A / B testing for email subject lines."""
+    print("\n=== A / B Testing Demo: Email Subject Lines ===\n")
 
-    # Create an A/B testing instance
+    # Create an A / B testing instance
     ab_testing = ABTesting()
 
     # Create variants for testing
     variants = [
         {
-            "name": "Problem-focused",
+            "name": "Problem - focused",
             "is_control": True,
             "content": {
                 "subject_line": "Struggling with low conversion rates?",
@@ -27,15 +27,15 @@ def demo_email_subject_testing():
             },
         },
         {
-            "name": "Benefit-focused",
+            "name": "Benefit - focused",
             "is_control": False,
             "content": {
-                "subject_line": "Boost your conversion rates by 30%",
+                "subject_line": "Boost your conversion rates by 30 % ",
                 "preview_text": "Proven strategies to improve your marketing campaigns",
             },
         },
         {
-            "name": "Curiosity-focused",
+            "name": "Curiosity - focused",
             "is_control": False,
             "content": {
                 "subject_line": "The surprising truth about conversion rates",
@@ -44,7 +44,7 @@ def demo_email_subject_testing():
         },
     ]
 
-    # Create an A/B test
+    # Create an A / B test
     test = ab_testing.create_test(
         name="Email Subject Line Test",
         description="Testing different approaches to email subject lines",
@@ -65,8 +65,10 @@ def demo_email_subject_testing():
     # Simulate interactions with the variants
     test_id = test["id"]
     control_id = next(v["id"] for v in test["variants"] if v["is_control"])
-    variant1_id = next(v["id"] for v in test["variants"] if v["name"] == "Benefit-focused")
-    variant2_id = next(v["id"] for v in test["variants"] if v["name"] == "Curiosity-focused")
+    variant1_id = next(v["id"] for v in test["variants"] if v["name"] == "Benefit - \
+        focused")
+    variant2_id = next(v["id"] for v in test["variants"] if v["name"] == "Curiosity - \
+        focused")
 
     # Control variant: 1000 impressions, 150 clicks, 15 conversions
     for _ in range(1000):
@@ -98,12 +100,12 @@ def demo_email_subject_testing():
     print("\nTest Results:")
     print(f"Total impressions: {results['total_impressions']}")
     print(f"Total clicks: {results['total_clicks']}")
-    print(f"Overall click-through rate: {results['overall_click_through_rate']:.2%}")
+    print(f"Overall click - through rate: {results['overall_click_through_rate']:.2%}")
 
     print("\nVariant Results:")
     for variant in results["variants"]:
         print(f"- {variant['name']}:")
-        print(f"  Click-through rate: {variant['metrics']['click_through_rate']:.2%}")
+        print(f"  Click - through rate: {variant['metrics']['click_through_rate']:.2%}")
         print(f"  Conversion rate: {variant['metrics']['conversion_rate']:.2%}")
         if "ctr_lift" in variant:
             print(f"  CTR lift vs control: {variant['ctr_lift']:.2f}%")
@@ -130,15 +132,18 @@ def demo_email_subject_testing():
             print(f"- {variant['name']} (Control)")
         else:
             print(f"- {variant['name']}:")
-            ctr_p_value = variant.get("ctr_p_value", "N/A")
+            ctr_p_value = variant.get("ctr_p_value", "N / A")
             if isinstance(ctr_p_value, (int, float)):
-                print(f"  CTR p-value: {ctr_p_value:.4f}")
+                print(f"  CTR p - value: {ctr_p_value:.4f}")
             else:
-                print(f"  CTR p-value: {ctr_p_value}")
-            print(f"  CTR significant: {variant.get('ctr_is_significant', 'N/A')}")
-            print(f"  Conversion p-value: {variant.get('conversion_p_value', 'N/A'):.4f}")
-            print(f"  Conversion significant: {variant.get('conversion_is_significant', 'N/A')}")
-            print(f"  Better than control: {variant.get('is_better_than_control', 'N/A')}")
+                print(f"  CTR p - value: {ctr_p_value}")
+            print(f"  CTR significant: {variant.get('ctr_is_significant', 'N / A')}")
+            print(f"  Conversion p - value: {variant.get('conversion_p_value', 
+                'N / A'):.4f}")
+            print(f"  Conversion significant: {variant.get('conversion_is_significant', 
+                'N / A')}")
+            print(f"  Better than control: {variant.get('is_better_than_control', 
+                'N / A')}")
 
     # End the test
     end_result = ab_testing.end_test(test_id)
@@ -149,10 +154,10 @@ def demo_email_subject_testing():
 
 
 def demo_landing_page_testing():
-    """Demonstrate A/B testing for landing pages."""
-    print("\n=== A/B Testing Demo: Landing Page Components ===\n")
+    """Demonstrate A / B testing for landing pages."""
+    print("\n=== A / B Testing Demo: Landing Page Components ===\n")
 
-    # Create an A/B testing instance
+    # Create an A / B testing instance
     ab_testing = ABTesting()
 
     # Create a persona creator to get recommendations
@@ -163,7 +168,7 @@ def demo_landing_page_testing():
         name="SaaS Manager",
         description="Product manager at a SaaS company",
         demographics={
-            "age_range": "30-45",
+            "age_range": "30 - 45",
             "gender": "any",
             "education": "college degree or higher",
             "income": "above average",
@@ -207,7 +212,7 @@ def demo_landing_page_testing():
             },
         },
         {
-            "name": "Problem-focused",
+            "name": "Problem - focused",
             "is_control": False,
             "content": {
                 "headline": "Stop Wasting Time on Manual Marketing Analysis",
@@ -216,17 +221,17 @@ def demo_landing_page_testing():
             },
         },
         {
-            "name": "Benefit-focused",
+            "name": "Benefit - focused",
             "is_control": False,
             "content": {
-                "headline": "Increase Marketing ROI by 40%",
+                "headline": "Increase Marketing ROI by 40 % ",
                 "hero_image": "success_graph.jpg",
                 "call_to_action": "Boost My Marketing Results",
             },
         },
     ]
 
-    # Create an A/B test
+    # Create an A / B test
     test = ab_testing.create_test(
         name="Landing Page Headline and CTA Test",
         description="Testing different headline and CTA approaches",
@@ -243,9 +248,9 @@ def demo_landing_page_testing():
 
 def demo_test_recommendation():
     """Demonstrate generating test recommendations for different content types."""
-    print("\n=== A/B Testing Demo: Test Recommendations ===\n")
+    print("\n=== A / B Testing Demo: Test Recommendations ===\n")
 
-    # Create an A/B testing instance
+    # Create an A / B testing instance
     ab_testing = ABTesting()
 
     # Create a persona creator
@@ -253,10 +258,10 @@ def demo_test_recommendation():
 
     # Create a sample persona
     persona = persona_creator.create_persona(
-        name="E-commerce Owner",
-        description="Owner of a medium-sized e-commerce store",
+        name="E - commerce Owner",
+        description="Owner of a medium - sized e - commerce store",
         demographics={
-            "age_range": "25-45",
+            "age_range": "25 - 45",
             "gender": "any",
             "education": "varied",
             "income": "above average",
@@ -268,6 +273,7 @@ def demo_test_recommendation():
             "Difficulty standing out from competitors",
         ],
         goals=["Increase revenue", "Improve customer loyalty", "Reduce marketing costs"],
+            
     )
 
     # Get test recommendations for different content types
@@ -291,7 +297,8 @@ def demo_test_recommendation():
             print(f"- {element['element']} ({element['importance']} importance)")
 
         if recommendations["test_variants"]:
-            print("\nSample variants for", recommendations["test_variants"][0]["element"], ":")
+            print("\nSample variants for", 
+                recommendations["test_variants"][0]["element"], ":")
 
             for variant in recommendations["test_variants"][0]["variants"][:2]:
                 print(f"- {variant['type']}: \"{variant['value']}\"")

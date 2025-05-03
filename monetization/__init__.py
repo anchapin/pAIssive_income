@@ -1,7 +1,7 @@
 """
 Monetization package for the pAIssive Income project.
 
-This package provides tools and templates for monetizing AI-powered software tools
+This package provides tools and templates for monetizing AI - powered software tools
 through subscription models and other revenue streams.
 """
 
@@ -63,7 +63,8 @@ from .revenue_projector import RevenueProjector
 from .subscription import SubscriptionPlan, SubscriptionTier
 
 # Import subscription analytics
-from .subscription_analytics import ChurnAnalysis, SubscriptionForecasting, SubscriptionMetrics
+from .subscription_analytics import ChurnAnalysis, SubscriptionForecasting, 
+    SubscriptionMetrics
 from .subscription_manager import SubscriptionManager
 
 # Import subscription models
@@ -72,7 +73,7 @@ from .tiered_pricing import TieredPricingCalculator, TieredPricingRule, VolumeDi
 from .transaction import Transaction, TransactionStatus, TransactionType
 from .transaction_manager import TransactionManager
 
-# Import usage-based pricing
+# Import usage - based pricing
 from .usage_based_pricing import UsageBasedPricing
 from .usage_pricing_strategies import (
     ConsumptionBasedPricing,
@@ -83,7 +84,8 @@ from .usage_pricing_strategies import (
 from .usage_tracker import UsageTracker
 
 # Import usage tracking
-from .usage_tracking import UsageCategory, UsageLimit, UsageMetric, UsageQuota, UsageRecord
+from .usage_tracking import UsageCategory, UsageLimit, UsageMetric, UsageQuota, 
+    UsageRecord
 from .user_subscription import Subscription, SubscriptionStatus
 
 __all__ = [
@@ -130,7 +132,7 @@ __all__ = [
     "TieredPricingRule",
     "TieredPricingCalculator",
     "ProratedBilling",
-    # Usage-based pricing
+    # Usage - based pricing
     "UsageBasedPricing",
     "PayAsYouGoPricing",
     "TieredUsagePricing",

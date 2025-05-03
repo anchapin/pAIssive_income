@@ -80,7 +80,7 @@ class MarketingAgent:
                 "pain_points": niche["problem_areas"],
                 "goals": ["improve efficiency", "reduce costs", "increase quality"],
                 "demographics": {
-                    "age_range": "25-45",
+                    "age_range": "25 - 45",
                     "education": "college degree",
                     "income": "middle to high",
                 },
@@ -102,7 +102,7 @@ class MarketingAgent:
                 "pain_points": niche["problem_areas"][:2],  # Subset of pain points
                 "goals": ["learn new skills", "improve quality", "save time"],
                 "demographics": {
-                    "age_range": "18-35",
+                    "age_range": "18 - 35",
                     "education": "varied",
                     "income": "low to middle",
                 },
@@ -122,7 +122,7 @@ class MarketingAgent:
                 "name": "Content Marketing",
                 "description": f"Create valuable content related to {niche['name']}",
                 "platforms": ["blog", "youtube", "medium"],
-                "content_types": ["tutorials", "case studies", "how-to guides"],
+                "content_types": ["tutorials", "case studies", "how - to guides"],
                 "target_personas": [persona["id"] for persona in user_personas],
                 "cost_estimate": "$500 - $1,000 per month",
                 "expected_roi": "medium to high",
@@ -159,7 +159,7 @@ class MarketingAgent:
                 "target_personas": [persona["id"] for persona in user_personas],
                 "cost_estimate": "$1,000 - $2,000 per month",
                 "expected_roi": "medium to high",
-                "timeline": "3-6 months",
+                "timeline": "3 - 6 months",
             },
         ]
 
@@ -238,7 +238,7 @@ class MarketingAgent:
                 "Free trial onboarding sequence",
                 "Feature highlight sequence",
                 "Upgrade promotion sequence",
-                "Re-engagement sequence for inactive users",
+                "Re - engagement sequence for inactive users",
             ],
         }
 
@@ -267,10 +267,10 @@ class MarketingAgent:
             "user_expansion": {
                 "target": "30% of users upgrade to higher tier",
                 "strategies": [
-                    "Feature-based upselling",
-                    "Usage-based prompts",
-                    "Success-based prompts",
-                    "Limited-time promotions",
+                    "Feature - based upselling",
+                    "Usage - based prompts",
+                    "Success - based prompts",
+                    "Limited - time promotions",
                 ],
             },
         }
@@ -285,13 +285,13 @@ class MarketingAgent:
             "growth_strategy": growth_strategy,
             "branding": {
                 "name": solution["name"],
-                "tagline": f"AI-powered {niche['name']} solution",
+                "tagline": f"AI - powered {niche['name']} solution",
                 "value_proposition": f"Save time and improve quality in your {niche['name']} process",
                 "brand_voice": "professional, helpful, innovative",
                 "visual_identity": {
                     "color_scheme": "blue and green",
                     "typography": "modern, clean",
-                    "imagery": "professional, tech-focused",
+                    "imagery": "professional, tech - focused",
                 },
             },
             "metrics_and_kpis": {
@@ -321,10 +321,10 @@ class MarketingAgent:
                 "initial": "$5,000 - $10,000",
                 "ongoing": "$2,000 - $5,000 per month",
                 "allocation": {
-                    "content_creation": "30%",
-                    "paid_advertising": "40%",
-                    "tools_and_software": "10%",
-                    "partnerships_and_collaborations": "20%",
+                    "content_creation": "30 % ",
+                    "paid_advertising": "40 % ",
+                    "tools_and_software": "10 % ",
+                    "partnerships_and_collaborations": "20 % ",
                 },
             },
             "timestamp": datetime.now().isoformat(),

@@ -31,7 +31,8 @@ class ConcreteContentGenerator(ContentGenerator):
         self.topics = []
 
     def add_content_type(
-        self, name: str, format: str, frequency: str, goal: str, target_metrics: List[str]
+        self, name: str, format: str, frequency: str, goal: str, 
+            target_metrics: List[str]
     ) -> None:
         """Add a content type to the generator.
 
@@ -85,7 +86,8 @@ class ConcreteContentGenerator(ContentGenerator):
             "id": str(uuid.uuid4()),
             "template_id": template.get("id", str(uuid.uuid4())),
             "timestamp": datetime.now().isoformat(),
-            "content": f"Generated content about {template.get('topic', 'unknown topic')}",
+            "content": f"Generated content about {template.get('topic', 
+                'unknown topic')}",
             "format": template.get("format", "text"),
             "metadata": {
                 "generator": self.name,

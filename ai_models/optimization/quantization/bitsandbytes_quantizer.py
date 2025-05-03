@@ -2,7 +2,7 @@
 BitsAndBytes quantizer for AI models.
 
 This module provides a quantizer that uses the BitsAndBytes library for
-4-bit and 8-bit quantization of transformer models.
+4 - bit and 8 - bit quantization of transformer models.
 """
 
 import logging
@@ -13,7 +13,7 @@ from .base import QuantizationConfig, QuantizationMethod, Quantizer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class BitsAndBytesQuantizer(Quantizer):
         if self.config.method == QuantizationMethod.BITS_AND_BYTES_4BIT:
             if self.config.bnb_4bit_quant_type not in ["nf4", "fp4"]:
                 raise ValueError(
-                    f"Unsupported 4-bit quantization type: {self.config.bnb_4bit_quant_type}. "
+                    f"Unsupported 4 - bit quantization type: {self.config.bnb_4bit_quant_type}. "
                     f"Supported types: nf4, fp4"
                 )
 
@@ -102,7 +102,7 @@ class BitsAndBytesQuantizer(Quantizer):
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the quantized model (None for in-place)
+            output_path: Path to save the quantized model (None for in - place)
             **kwargs: Additional parameters for quantization
 
         Returns:
@@ -165,7 +165,7 @@ class BitsAndBytesQuantizer(Quantizer):
 
         config_path = os.path.join(output_path, "quantization_config.json")
 
-        with open(config_path, "w", encoding="utf-8") as f:
+        with open(config_path, "w", encoding="utf - 8") as f:
             json.dump(self.config.to_dict(), f, indent=2)
 
     def supports_model_type(self, model_type: str) -> bool:
@@ -180,11 +180,11 @@ class BitsAndBytesQuantizer(Quantizer):
         """
         # BitsAndBytes supports most transformer models
         supported_types = [
-            "text-generation",
-            "text-classification",
+            "text - generation",
+            "text - classification",
             "embedding",
-            "causal-lm",
-            "seq2seq-lm",
+            "causal - lm",
+            "seq2seq - lm",
         ]
 
         return model_type in supported_types

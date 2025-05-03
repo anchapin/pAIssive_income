@@ -1,8 +1,8 @@
 """
-Property-based tests for pricing calculations.
+Property - based tests for pricing calculations.
 
 This module tests properties that should hold true for the pricing calculation
-functions in the monetization module, using the Hypothesis framework for property-based testing.
+functions in the monetization module, using the Hypothesis framework for property - based testing.
 """
 
 import pytest
@@ -40,7 +40,7 @@ def subscription_tiers_strategy(draw):
             )
         )
 
-        # Price should be non-negative and rounded to two decimal places
+        # Price should be non - negative and rounded to two decimal places
         # Also include a chance of a free tier (0 price)
         if i == 0 and draw(st.booleans()):  # 50% chance of first tier being free
             price = 0.0
@@ -63,7 +63,7 @@ def user_counts_strategy(draw, tiers):
 
     for tier in tiers:
         tier_id = tier["id"]
-        # User count should be a non-negative integer
+        # User count should be a non - negative integer
         count = draw(st.integers(min_value=0, max_value=10000))
         user_counts[tier_id] = count
 
@@ -101,7 +101,7 @@ def pricing_calculator_params_strategy(draw):
         st.text(alphabet=st.characters(whitelist_categories=("L",)), min_size=1, max_size=20)
     )
     description = draw(st.text(min_size=0, max_size=50))
-    pricing_strategy = draw(st.sampled_from(["value-based", "competitor-based", "cost-plus"]))
+    pricing_strategy = draw(st.sampled_from(["value - based", "competitor - based", "cost - plus"]))
     base_cost = draw(st.floats(min_value=0.1, max_value=100, allow_infinity=False, allow_nan=False))
     profit_margin = draw(
         st.floats(min_value=0.01, max_value=0.9, allow_infinity=False, allow_nan=False)
@@ -160,7 +160,7 @@ def optimal_price_params_strategy(draw):
 
 
 class TestMonetizationCalculatorProperties:
-    """Property-based tests for the MonetizationCalculator class."""
+    """Property - based tests for the MonetizationCalculator class."""
 
     @given(
         tiers=subscription_tiers_strategy(),
@@ -298,7 +298,7 @@ class TestMonetizationCalculatorProperties:
 
 
 class TestPricingCalculatorProperties:
-    """Property-based tests for the PricingCalculator class."""
+    """Property - based tests for the PricingCalculator class."""
 
     @given(params=pricing_calculator_params_strategy())
     def test_pricing_calculator_initialization(self, params):
@@ -324,7 +324,7 @@ class TestPricingCalculatorProperties:
     )
     def test_calculate_price_properties(self, base_value, tier_multiplier, market_adjustment):
         """Test properties of the calculate_price method."""
-        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value-based")
+        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value - based")
 
         price = calculator.calculate_price(base_value, tier_multiplier, market_adjustment)
 
@@ -368,13 +368,13 @@ class TestPricingCalculatorProperties:
         # Property: Price should end in .99
         assert abs((optimal_price * 100) % 100 - 99) < 0.01
 
-        # Property: Price should be at least the break-even price in most cases
-        # However, the weighted pricing strategy can sometimes result in prices below break-even
+        # Property: Price should be at least the break - even price in most cases
+        # However, the weighted pricing strategy can sometimes result in prices below break - even
         # when competitor prices or value perception are very low
         cost_per_user = price_params["cost_per_user"]
         break_even = cost_per_user / (1 - params["profit_margin"])
 
-        # The weighted pricing strategy can result in prices below break-even
+        # The weighted pricing strategy can result in prices below break - even
         # in many scenarios, especially with high profit margins or low competitor prices
 
         # For the test, we'll only verify that:
@@ -382,8 +382,8 @@ class TestPricingCalculatorProperties:
         # 2. The price ends in .99 (already checked above)
         # 3. The price is reasonable given the inputs
 
-        # For cost-plus strategy, we expect prices to be at least close to break-even
-        if params["pricing_strategy"] == "cost-plus" and price_params["tier_name"] != "Pro":
+        # For cost - plus strategy, we expect prices to be at least close to break - even
+        if params["pricing_strategy"] == "cost - plus" and price_params["tier_name"] != "Pro":
             # Allow for significant deviation due to weighting with other strategies
             assert optimal_price >= break_even * 0.5
 
@@ -397,7 +397,7 @@ class TestPricingCalculatorProperties:
     @given(
         params=pricing_calculator_params_strategy(),
         price_params=optimal_price_params_strategy(),
-        strategy=st.sampled_from(["value-based", "competitor-based", "cost-plus"]),
+        strategy=st.sampled_from(["value - based", "competitor - based", "cost - plus"]),
     )
     def test_pricing_strategy_influence(self, params, price_params, strategy):
         """Test that pricing strategy influences the final price."""
@@ -408,7 +408,7 @@ class TestPricingCalculatorProperties:
 
         # Choose a different strategy for the second calculator
         different_strategies = [
-            s for s in ["value-based", "competitor-based", "cost-plus"] if s != strategy
+            s for s in ["value - based", "competitor - based", "cost - plus"] if s != strategy
         ]
         assume(different_strategies)  # Ensure we have a different strategy
 
@@ -435,7 +435,7 @@ class TestPricingCalculatorProperties:
     )
     def test_price_sensitivity_analysis_properties(self, base_price, market_size, price_elasticity):
         """Test properties of the price sensitivity analysis."""
-        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value-based")
+        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value - based")
 
         analysis = calculator.analyze_price_sensitivity(
             base_price=base_price, market_size=market_size, price_elasticity=price_elasticity

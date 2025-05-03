@@ -41,7 +41,7 @@ def metrics_api(temp_db_path):
 
 def test_alert_threshold_accuracy(metrics_api):
     """Test that alerts are triggered accurately at the specified thresholds."""
-    model_id = "threshold-test-model"
+    model_id = "threshold - test - model"
 
     # Set up alert handlers
     alert_handler = MagicMock()
@@ -118,7 +118,7 @@ def test_alert_threshold_accuracy(metrics_api):
 
 def test_alert_correlation_logic(metrics_api):
     """Test that alerts can be correlated across different metrics."""
-    model_id = "correlation-test-model"
+    model_id = "correlation - test - model"
 
     # Set up alert handlers with correlation tracking
     alerts_triggered = []
@@ -254,7 +254,7 @@ def test_alert_correlation_logic(metrics_api):
 
 def test_alert_suppression_rules(metrics_api):
     """Test that alert suppression rules work correctly."""
-    model_id = "suppression-test-model"
+    model_id = "suppression - test - model"
 
     # Set up alert handler
     alert_handler = MagicMock()
@@ -330,7 +330,7 @@ def test_alert_suppression_rules(metrics_api):
 
 def test_alert_suppression_with_severity(metrics_api):
     """Test alert suppression with severity levels."""
-    model_id = "severity-test-model"
+    model_id = "severity - test - model"
 
     # Track alerts with severity
     alerts_with_severity = []
@@ -366,7 +366,7 @@ def test_alert_suppression_with_severity(metrics_api):
 
     metrics_api.register_alert_handler("severity", severity_alert_handler)
 
-    # Set up alert with severity-based suppression
+    # Set up alert with severity - based suppression
     metrics_api.set_alert_threshold(
         model_id=model_id,
         metric_name="latency_ms",
@@ -413,7 +413,7 @@ def test_alert_suppression_with_severity(metrics_api):
         else:
             assert alert["severity"] == "low"
 
-    # Implement a severity-based suppression rule
+    # Implement a severity - based suppression rule
     # Higher severity alerts can override cooldown
 
     # First, clear the alerts and set up a new handler with this logic
@@ -478,7 +478,7 @@ def test_alert_suppression_with_severity(metrics_api):
         notification_channels=["override"],
     )
 
-    # Test severity-based override
+    # Test severity - based override
     # First alert (medium severity)
     alerts_with_override.clear()
     metrics_api.monitor.save_enhanced_metrics(
@@ -554,4 +554,4 @@ def test_alert_suppression_with_severity(metrics_api):
 
 
 if __name__ == "__main__":
-    pytest.main(["-xvs", __file__])
+    pytest.main([" - xvs", __file__])

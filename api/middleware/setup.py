@@ -12,7 +12,7 @@ from ..version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -45,10 +45,10 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
     if config.enable_cors:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # In production, specify allowed origins
+            allow_origins=[" * "],  # In production, specify allowed origins
             allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_methods=[" * "],
+            allow_headers=[" * "],
         )
 
     # Add GZip middleware
@@ -84,26 +84,26 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
 
     # Define allowed sort and filter fields for each endpoint
     allowed_sort_fields = {
-        "/api/v1/niche-analysis/niches": [
+        " / api / v1 / niche - analysis / niches": [
             "name",
             "market_segment",
             "opportunity_score",
             "created_at",
         ],
-        "/api/v1/monetization/subscription-models": ["name", "type", "created_at"],
-        "/api/v1/marketing/campaigns": ["name", "status", "start_date", "end_date"],
-        "/api/v1/ai-models/models": ["name", "type", "size", "created_at"],
-        "/api/v1/agent-team/agents": ["name", "role", "status", "created_at"],
-        "/api/v1/users": ["username", "email", "created_at", "last_login"],
+        " / api / v1 / monetization / subscription - models": ["name", "type", "created_at"],
+        " / api / v1 / marketing / campaigns": ["name", "status", "start_date", "end_date"],
+        " / api / v1 / ai - models / models": ["name", "type", "size", "created_at"],
+        " / api / v1 / agent - team / agents": ["name", "role", "status", "created_at"],
+        " / api / v1 / users": ["username", "email", "created_at", "last_login"],
     }
 
     allowed_filter_fields = {
-        "/api/v1/niche-analysis/niches": ["name", "market_segment", "opportunity_score"],
-        "/api/v1/monetization/subscription-models": ["name", "type", "solution_id"],
-        "/api/v1/marketing/campaigns": ["name", "status", "channel"],
-        "/api/v1/ai-models/models": ["name", "type", "provider"],
-        "/api/v1/agent-team/agents": ["name", "role", "status"],
-        "/api/v1/users": ["username", "email", "status"],
+        " / api / v1 / niche - analysis / niches": ["name", "market_segment", "opportunity_score"],
+        " / api / v1 / monetization / subscription - models": ["name", "type", "solution_id"],
+        " / api / v1 / marketing / campaigns": ["name", "status", "channel"],
+        " / api / v1 / ai - models / models": ["name", "type", "provider"],
+        " / api / v1 / agent - team / agents": ["name", "role", "status"],
+        " / api / v1 / users": ["username", "email", "status"],
     }
 
     setup_query_params_middleware(

@@ -13,7 +13,7 @@ from ..version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ def setup_version_middleware(app: Any, config: APIConfig, version_manager: Versi
 
         # Extract version from the URL path
         path = request.url.path
-        parts = path.split("/")
+        parts = path.split(" / ")
 
         # Find the version part in the URL
         version_str = None

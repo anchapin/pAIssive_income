@@ -1,5 +1,5 @@
 """
-Optimize command for the command-line interface.
+Optimize command for the command - line interface.
 
 This module provides a command for optimizing models.
 """
@@ -14,7 +14,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -29,25 +29,25 @@ class OptimizeCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
         parser.add_argument(
-            "--output-path",
+            "--output - path",
             type=str,
             required=True,
             help="Path to save the optimized model",
         )
         parser.add_argument(
-            "--model-type",
+            "--model - type",
             type=str,
-            default="text-generation",
+            default="text - generation",
             choices=[
-                "text-generation",
-                "text-classification",
+                "text - generation",
+                "text - classification",
                 "embedding",
                 "image",
                 "audio",
@@ -62,14 +62,14 @@ class OptimizeCommand(BaseCommand):
             help="Optimization method",
         )
         parser.add_argument(
-            "--quantization-method",
+            "--quantization - method",
             type=str,
-            default="bitsandbytes-4bit",
-            choices=["bitsandbytes-4bit", "bitsandbytes-8bit", "gptq", "awq"],
+            default="bitsandbytes - 4bit",
+            choices=["bitsandbytes - 4bit", "bitsandbytes - 8bit", "gptq", "awq"],
             help="Quantization method",
         )
         parser.add_argument(
-            "--pruning-method",
+            "--pruning - method",
             type=str,
             default="magnitude",
             choices=["magnitude", "structured"],
@@ -93,15 +93,15 @@ class OptimizeCommand(BaseCommand):
             "--analyze", action="store_true", help="Analyze the effects of optimization"
         )
         parser.add_argument(
-            "--num-samples", type=int, default=5, help="Number of samples for analysis"
+            "--num - samples", type=int, default=5, help="Number of samples for analysis"
         )
         parser.add_argument(
-            "--max-tokens",
+            "--max - tokens",
             type=int,
             default=100,
             help="Maximum number of tokens for analysis",
         )
-        parser.add_argument("--config-file", type=str, help="Path to configuration file")
+        parser.add_argument("--config - file", type=str, help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -118,7 +118,7 @@ class OptimizeCommand(BaseCommand):
             # Load configuration from file if provided
             config_dict = {}
             if self.args.config_file and os.path.exists(self.args.config_file):
-                with open(self.args.config_file, "r", encoding="utf-8") as f:
+                with open(self.args.config_file, "r", encoding="utf - 8") as f:
                     config_dict = json.load(f)
 
             # Perform optimization based on method

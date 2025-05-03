@@ -70,7 +70,8 @@ def validate_json_data(schema_cls: Type[T]) -> T:
         if json_data is None:
             raise ValidationError(
                 message="No JSON data provided or invalid JSON format",
-                validation_errors=[{"field": "body", "error": "Invalid or missing JSON data"}],
+                validation_errors=[{"field": "body", 
+                    "error": "Invalid or missing JSON data"}],
             )
 
         # Validate data
@@ -119,7 +120,7 @@ def sanitize_input(input_value: str) -> str:
     if input_value is None:
         return ""
 
-    # Strip leading/trailing whitespace
+    # Strip leading / trailing whitespace
     sanitized = input_value.strip()
 
     # Replace potentially dangerous characters
@@ -128,7 +129,7 @@ def sanitize_input(input_value: str) -> str:
         ">": "&gt;",
         '"': "&quot;",
         "'": "&#x27;",
-        "/": "&#x2F;",
+        " / ": "&#x2F;",
         "\\": "&#x5C;",
         "`": "&#96;",
     }
@@ -159,4 +160,5 @@ def _handle_validation_error(pydantic_error: PydanticValidationError) -> None:
     logger.warning(f"Validation error: {validation_errors}")
 
     # Raise our custom ValidationError
-    raise ValidationError(message="Input validation failed", validation_errors=validation_errors)
+    raise ValidationError(message="Input validation failed", 
+        validation_errors=validation_errors)

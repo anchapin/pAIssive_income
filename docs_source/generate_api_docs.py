@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
 Script to automatically generate API documentation for the pAIssive_income project.
 This script:
@@ -26,7 +26,7 @@ def write_file(path: str, content: str) -> None:
     """Write content to a file."""
     with open(path, "w") as f:
         f.write(content)
-    print(f"Created/updated: {path}")
+    print(f"Created / updated: {path}")
 
 
 def get_module_docstring(module_name: str) -> str:
@@ -48,7 +48,7 @@ def get_module_members(module_name: str) -> Dict[str, List[str]]:
         module = importlib.import_module(module_name)
 
         for name, obj in inspect.getmembers(module):
-            # Skip private/special members
+            # Skip private / special members
             if name.startswith("_"):
                 continue
 
@@ -86,7 +86,8 @@ def get_submodules(package_name: str) -> List[str]:
     submodules = []
     try:
         package = importlib.import_module(package_name)
-        for _, name, is_pkg in pkgutil.iter_modules(package.__path__, package_name + "."):
+        for _, name, is_pkg in pkgutil.iter_modules(package.__path__, 
+            package_name + "."):
             submodules.append(name)
             if is_pkg:
                 submodules.extend(get_submodules(name))
@@ -112,8 +113,8 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
         "",
         ".. automodule:: " + module_name,
         "   :members:",
-        "   :undoc-members:",
-        "   :show-inheritance:",
+        "   :undoc - members:",
+        "   :show - inheritance:",
         "",
     ]
 
@@ -125,8 +126,8 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
                 [
                     f".. autoclass:: {module_name}.{cls}",
                     "   :members:",
-                    "   :undoc-members:",
-                    "   :show-inheritance:",
+                    "   :undoc - members:",
+                    "   :show - inheritance:",
                     "",
                 ]
             )
@@ -139,7 +140,8 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
     write_file(output_file, "\n".join(lines))
 
 
-def generate_package_index(package_name: str, output_dir: str, submodules: List[str]) -> None:
+def generate_package_index(package_name: str, output_dir: str, 
+    submodules: List[str]) -> None:
     """Generate index.rst file for a package."""
     # Create output directory if it doesn't exist
     create_directory(output_dir)
@@ -176,8 +178,8 @@ def generate_package_index(package_name: str, output_dir: str, submodules: List[
             "",
             f".. automodule:: {package_name}",
             "   :members:",
-            "   :undoc-members:",
-            "   :show-inheritance:",
+            "   :undoc - members:",
+            "   :show - inheritance:",
             "",
         ]
     )
@@ -187,7 +189,8 @@ def generate_package_index(package_name: str, output_dir: str, submodules: List[
     write_file(index_file, "\n".join(lines))
 
 
-def process_module(module_name: str, base_output_dir: str, processed_modules: Set[str]) -> None:
+def process_module(module_name: str, base_output_dir: str, 
+    processed_modules: Set[str]) -> None:
     """Process a module or package to generate documentation."""
     if module_name in processed_modules:
         return

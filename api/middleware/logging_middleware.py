@@ -35,7 +35,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.logging_service = logging_service or LoggingService()
-        self.exclude_paths = exclude_paths or ["/health", "/metrics"]
+        self.exclude_paths = exclude_paths or [" / health", " / metrics"]
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
@@ -53,7 +53,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Generate request ID if not present
-        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        request_id = request.headers.get("X - Request - ID") or str(uuid.uuid4())
 
         # Add request ID to request state
         request.state.request_id = request_id
@@ -63,7 +63,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Get client info
         client_host = request.client.host if request.client else None
-        user_agent = request.headers.get("user-agent")
+        user_agent = request.headers.get("user - agent")
 
         # Get user ID if available
         user_id = None
@@ -76,7 +76,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         try:
             # Add request ID header to response
             response = await call_next(request)
-            response.headers["X-Request-ID"] = request_id
+            response.headers["X - Request - ID"] = request_id
 
             # Calculate duration
             duration_ms = (time.time() - start_time) * 1000
@@ -91,8 +91,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 user_id=user_id,
                 ip_address=client_host,
                 user_agent=user_agent,
-                request_size=int(request.headers.get("content-length", 0)),
-                response_size=int(response.headers.get("content-length", 0)),
+                request_size=int(request.headers.get("content - length", 0)),
+                response_size=int(response.headers.get("content - length", 0)),
             )
 
             return response
@@ -111,11 +111,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 user_id=user_id,
                 ip_address=client_host,
                 user_agent=user_agent,
-                request_size=int(request.headers.get("content-length", 0)),
+                request_size=int(request.headers.get("content - length", 0)),
                 error=str(e),
             )
 
-            # Re-raise exception
+            # Re - raise exception
             raise
 
 
@@ -147,7 +147,7 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
         # Process request
         response = await call_next(request)
 
-        # Check for security-related responses
+        # Check for security - related responses
         if response.status_code == 401:
             # Log authentication failure
             self.logging_service.log_security_event(
@@ -162,7 +162,7 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
                 details={
                     "path": request.url.path,
                     "method": request.method,
-                    "user_agent": request.headers.get("user-agent"),
+                    "user_agent": request.headers.get("user - agent"),
                 },
             )
 
@@ -185,7 +185,7 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
                 details={
                     "path": request.url.path,
                     "method": request.method,
-                    "user_agent": request.headers.get("user-agent"),
+                    "user_agent": request.headers.get("user - agent"),
                 },
             )
 
@@ -208,7 +208,7 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
                 details={
                     "path": request.url.path,
                     "method": request.method,
-                    "user_agent": request.headers.get("user-agent"),
+                    "user_agent": request.headers.get("user - agent"),
                 },
             )
 

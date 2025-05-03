@@ -36,7 +36,7 @@ class TestDeliveryConfirmation:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -52,9 +52,9 @@ class TestDeliveryConfirmation:
             with patch("httpx.AsyncClient.post", return_value=success_response):
                 # Deliver an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 delivery = await service.deliver_event(
@@ -87,7 +87,7 @@ class TestDeliveryConfirmation:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -115,9 +115,9 @@ class TestDeliveryConfirmation:
                 # Deliver the same event twice
                 event_data = {
                     "id": event_id,
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 # First delivery
@@ -160,7 +160,7 @@ class TestSlowEndpoints:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -179,9 +179,9 @@ class TestSlowEndpoints:
             with patch("httpx.AsyncClient.post", mock_slow_response):
                 # Deliver an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 # Set a timeout that's longer than the response time
@@ -222,7 +222,7 @@ class TestIntermittentFailures:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -245,9 +245,9 @@ class TestIntermittentFailures:
             with patch("httpx.AsyncClient.post", side_effect=responses):
                 # Deliver an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 # Set max_attempts to 4 (initial + 3 retries)
@@ -287,7 +287,7 @@ class TestDeliveryOrdering:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -353,7 +353,7 @@ class TestVaryingPayloadSizes:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -368,7 +368,7 @@ class TestVaryingPayloadSizes:
             # Patch the httpx.AsyncClient.post method to return success
             with patch("httpx.AsyncClient.post", return_value=success_response):
                 # Test with small payload
-                small_data = {"user_id": "user-123", "username": "testuser"}
+                small_data = {"user_id": "user - 123", "username": "testuser"}
 
                 small_delivery = await service.deliver_event(
                     webhook_id=webhook["id"],
@@ -378,13 +378,13 @@ class TestVaryingPayloadSizes:
 
                 # Test with medium payload
                 medium_data = {
-                    "user_id": "user-456",
+                    "user_id": "user - 456",
                     "username": "testuser456",
-                    "email": "test456@example.com",
+                    "email": "test456 @ example.com",
                     "profile": {
                         "first_name": "Test",
                         "last_name": "User",
-                        "bio": "This is a test user with a medium-sized payload",
+                        "bio": "This is a test user with a medium - sized payload",
                     },
                 }
 
@@ -396,9 +396,9 @@ class TestVaryingPayloadSizes:
 
                 # Test with large payload
                 large_data = {
-                    "user_id": "user-789",
+                    "user_id": "user - 789",
                     "username": "testuser789",
-                    "email": "test789@example.com",
+                    "email": "test789 @ example.com",
                     "profile": {
                         "first_name": "Test",
                         "last_name": "User",
@@ -446,7 +446,7 @@ class TestDifferentEventTypes:
         try:
             # Register a webhook for multiple event types
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [
                     WebhookEventType.USER_CREATED,
                     WebhookEventType.USER_UPDATED,
@@ -478,9 +478,9 @@ class TestDifferentEventTypes:
 
                 # USER_CREATED event
                 user_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 await service.deliver_event(
@@ -491,9 +491,9 @@ class TestDifferentEventTypes:
 
                 # USER_UPDATED event
                 user_updated_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "updated@example.com",
+                    "email": "updated @ example.com",
                 }
 
                 await service.deliver_event(
@@ -504,10 +504,10 @@ class TestDifferentEventTypes:
 
                 # PAYMENT_RECEIVED event
                 payment_data = {
-                    "payment_id": "payment-123",
+                    "payment_id": "payment - 123",
                     "amount": 100.00,
                     "currency": "USD",
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                 }
 
                 await service.deliver_event(
@@ -518,9 +518,9 @@ class TestDifferentEventTypes:
 
                 # SUBSCRIPTION_CREATED event
                 subscription_data = {
-                    "subscription_id": "sub-123",
+                    "subscription_id": "sub - 123",
                     "plan": "premium",
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "start_date": datetime.utcnow().isoformat(),
                 }
 

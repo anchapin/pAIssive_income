@@ -107,13 +107,13 @@ class MockPaymentGateway:
             True if the card number is valid, False otherwise
         """
         # Remove any spaces or dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Check if the number contains only digits
         if not card_number.isdigit():
             return False
 
-        # Check if the length is valid (most cards are 13-19 digits)
+        # Check if the length is valid (most cards are 13 - 19 digits)
         if not (13 <= len(card_number) <= 19):
             return False
 
@@ -142,7 +142,7 @@ class MockPaymentGateway:
             Card type (visa, mastercard, amex, etc.)
         """
         # Remove any spaces or dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Simplified card type detection based on prefix and length
         if card_number.startswith("4"):
@@ -169,7 +169,7 @@ class MockPaymentGateway:
             Masked credit card number
         """
         # Remove any spaces or dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Determine how many digits to show
         if card_number.startswith(("34", "37")):
@@ -1387,9 +1387,9 @@ class MockStripeGateway(MockPaymentGateway):
         """Initialize the mock Stripe gateway."""
         super().__init__(config)
 
-        # Set Stripe-specific properties
+        # Set Stripe - specific properties
         self.gateway_name = "stripe"
-        self.api_version = "2023-10-16"
+        self.api_version = "2023 - 10 - 16"
 
     def create_token(self, payment_type: str, payment_details: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -1479,7 +1479,7 @@ class MockPayPalGateway(MockPaymentGateway):
         """Initialize the mock PayPal gateway."""
         super().__init__(config)
 
-        # Set PayPal-specific properties
+        # Set PayPal - specific properties
         self.gateway_name = "paypal"
 
     def create_billing_agreement(

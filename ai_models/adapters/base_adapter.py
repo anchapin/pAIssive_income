@@ -101,7 +101,7 @@ class BaseModelAdapter(IModelAdapter):
 
         Args:
             error: The exception that occurred
-            error_message: Human-readable error message
+            error_message: Human - readable error message
             **kwargs: Additional error details
 
         Raises:

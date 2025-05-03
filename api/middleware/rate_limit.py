@@ -14,7 +14,7 @@ from ..rate_limit import RateLimitManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
             HTTP response
         """
         # Skip rate limiting for certain paths
-        if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
+        if request.url.path in [" / docs", " / redoc", " / openapi.json"]:
             return await call_next(request)
 
         # Get client ID based on rate limit scope
@@ -122,13 +122,13 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
         if config.rate_limit_scope == RateLimitScope.IP:
             client_id = request.client.host if request.client else "unknown"
         elif config.rate_limit_scope == RateLimitScope.API_KEY:
-            client_id = request.headers.get("X-API-Key", "unknown")
+            client_id = request.headers.get("X - API - Key", "unknown")
         elif config.rate_limit_scope == RateLimitScope.USER:
             # Get user ID from authentication
             client_id = getattr(request.state, "user_id", "unknown")
 
         # Get API key if available
-        api_key = request.headers.get("X-API-Key")
+        api_key = request.headers.get("X - API - Key")
 
         # Get endpoint path
         endpoint = request.url.path
@@ -143,7 +143,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
             return Response(
                 status_code=429,
                 content='{"detail":"Rate limit exceeded"}',
-                media_type="application/json",
+                media_type="application / json",
                 headers=headers,
             )
 

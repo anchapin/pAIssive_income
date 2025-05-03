@@ -28,10 +28,10 @@ class ExportImport:
 
     def __init__(self, storage_path: Optional[str] = None):
         """
-        Initialize the export/import manager.
+        Initialize the export / import manager.
 
         Args:
-            storage_path: Path where export/import data will be stored
+            storage_path: Path where export / import data will be stored
         """
         self.storage_path = storage_path or "exports"
         os.makedirs(self.storage_path, exist_ok=True)
@@ -273,7 +273,8 @@ class ExportImport:
                                 for root, _, files in os.walk(project_path):
                                     for file in files:
                                         file_path = os.path.join(root, file)
-                                        arcname = os.path.relpath(file_path, project_path)
+                                        arcname = os.path.relpath(file_path, 
+                                            project_path)
                                         project_zipf.write(file_path, arcname)
 
                             zipf.write(project_zip, f"projects/{project_id}.zip")

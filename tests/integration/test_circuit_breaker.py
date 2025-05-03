@@ -36,7 +36,7 @@ class TestCircuitBreaker:
 
     def test_failure_detection(self):
         """Test failure detection mechanisms."""
-        service_name = "test-service"
+        service_name = "test - service"
 
         # Test successful calls
         for _ in range(10):
@@ -63,7 +63,7 @@ class TestCircuitBreaker:
 
     def test_circuit_state_transitions(self):
         """Test circuit breaker state transitions."""
-        service_name = "state-test-service"
+        service_name = "state - test - service"
 
         # Initial state should be CLOSED
         assert self.circuit_breaker.get_state(service_name) == CircuitState.CLOSED
@@ -92,7 +92,7 @@ class TestCircuitBreaker:
 
     def test_request_handling(self):
         """Test request handling through circuit breaker."""
-        service_name = "request-test-service"
+        service_name = "request - test - service"
 
         def service_call():
             return {"status": "success"}
@@ -119,7 +119,7 @@ class TestCircuitBreaker:
 
     def test_fallback_handling(self):
         """Test fallback behavior when circuit is open."""
-        service_name = "fallback-test-service"
+        service_name = "fallback - test - service"
 
         # Register fallback handler
         def fallback_response(error):
@@ -146,7 +146,7 @@ class TestCircuitBreaker:
 
     def test_custom_failure_detection(self):
         """Test custom failure detection rules."""
-        service_name = "custom-failure-service"
+        service_name = "custom - failure - service"
 
         # Define custom failure detector
         def is_failure(response):
@@ -172,7 +172,7 @@ class TestCircuitBreaker:
 
     def test_concurrent_requests(self):
         """Test circuit breaker behavior with concurrent requests."""
-        service_name = "concurrent-test-service"
+        service_name = "concurrent - test - service"
 
         # Simulate concurrent failures
         with patch("threading.Thread") as mock_thread:
@@ -198,7 +198,7 @@ class TestCircuitBreaker:
 
     def test_circuit_breaker_metrics(self):
         """Test circuit breaker metrics collection."""
-        service_name = "metrics-test-service"
+        service_name = "metrics - test - service"
 
         # Record mix of successes and failures
         for _ in range(5):
@@ -220,7 +220,7 @@ class TestCircuitBreaker:
 
     def test_error_categorization(self):
         """Test error categorization and handling."""
-        service_name = "error-test-service"
+        service_name = "error - test - service"
 
         # Register error categories
         self.failure_detector.register_error_category("timeout", [TimeoutError, ConnectionError])
@@ -249,4 +249,4 @@ class TestCircuitBreaker:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_circuit_breaker.py"])
+    pytest.main([" - v", "test_circuit_breaker.py"])

@@ -45,7 +45,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://api.linkedin.com/v2"
+        self.api_base_url = "https://api.linkedin.com / v2"
         self.access_token = self.credentials.get("access_token")
         self.client_id = self.credentials.get("client_id")
         self.client_secret = self.credentials.get("client_secret")
@@ -58,8 +58,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             self.session.headers.update(
                 {
                     "Authorization": f"Bearer {self.access_token}",
-                    "X-Restli-Protocol-Version": "2.0.0",
-                    "Content-Type": "application/json",
+                    "X - Restli - Protocol - Version": "2.0.0",
+                    "Content - Type": "application / json",
                 }
             )
             self._connected = True
@@ -188,7 +188,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -279,7 +279,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -302,7 +302,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
 
             # LinkedIn returns the post URN in the response headers
-            post_urn = response.headers.get("x-restli-id")
+            post_urn = response.headers.get("x - restli - id")
 
             # Extract the post ID from the URN
             post_id = post_urn.split(":")[-1] if post_urn else None
@@ -334,7 +334,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -367,7 +367,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
 
             # LinkedIn returns the post URN in the response headers
-            post_urn = response.headers.get("x-restli-id")
+            post_urn = response.headers.get("x - restli - id")
 
             # Extract the post ID from the URN
             post_id = post_urn.split(":")[-1] if post_urn else None
@@ -399,7 +399,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -411,7 +411,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # 3. Create a post with the asset URN
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"linkedin_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
             return {
@@ -441,7 +441,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -453,7 +453,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # 3. Create a post with the asset URN
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"linkedin_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
             return {
@@ -483,7 +483,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             PostingError: If posting fails
@@ -495,7 +495,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # 3. Create a post with the asset URN
 
             # For demonstration, we'll simulate a successful post
-            post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            post_id = f"linkedin_post_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
             return {
@@ -552,7 +552,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             }
 
             # For demonstration, we'll simulate a successful scheduling
-            scheduled_id = f"linkedin_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            scheduled_id = f"linkedin_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -680,7 +680,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                     "comments",
                     "shares",
                     "engagement",
-                    "engagement-rate",
+                    "engagement - rate",
                 ]
 
             # Set default date range if not provided
@@ -690,8 +690,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific post
             if post_id:
@@ -709,11 +709,11 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                         "comments": 12,
                         "shares": 8,
                         "engagement": 150,
-                        "engagement-rate": 0.12,
+                        "engagement - rate": 0.12,
                     },
                 }
 
-            # Otherwise, get organization-level analytics
+            # Otherwise, get organization - level analytics
             elif self.organization_id:
                 # For demonstration, we'll return mock analytics data
                 return {
@@ -780,14 +780,14 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                         "cxo": 0.05,
                     },
                     "company_size": {
-                        "1-10": 0.10,
-                        "11-50": 0.15,
-                        "51-200": 0.20,
-                        "201-500": 0.15,
-                        "501-1000": 0.10,
-                        "1001-5000": 0.15,
-                        "5001-10000": 0.08,
-                        "10001+": 0.07,
+                        "1 - 10": 0.10,
+                        "11 - 50": 0.15,
+                        "51 - 200": 0.20,
+                        "201 - 500": 0.15,
+                        "501 - 1000": 0.10,
+                        "1001 - 5000": 0.15,
+                        "5001 - 10000": 0.08,
+                        "10001 + ": 0.07,
                     },
                     "industry": {
                         "Technology": 0.35,

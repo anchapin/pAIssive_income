@@ -1,5 +1,5 @@
 """
-Tests for the A/B testing module.
+Tests for the A / B testing module.
 """
 
 from datetime import datetime
@@ -27,16 +27,16 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
         )
 
         assert test.id == "test123"
-        assert test.name == "Test A/B Test"
-        assert test.description == "A test A/B test"
+        assert test.name == "Test A / B Test"
+        assert test.description == "A test A / B test"
         assert test.content_type == "email"
         assert test.test_type == "a_b"
         assert len(test.variants) == 2
@@ -61,8 +61,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -75,8 +75,8 @@ class TestABTest:
         with pytest.raises(InvalidTestConfigurationError):
             ABTest(
                 id="test123",
-                name="Test A/B Test",
-                description="A test A/B test",
+                name="Test A / B Test",
+                description="A test A / B test",
                 content_type="email",
                 test_type="a_b",
                 variants=[],
@@ -88,8 +88,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -98,8 +98,8 @@ class TestABTest:
         test_dict = test.to_dict()
 
         assert test_dict["id"] == "test123"
-        assert test_dict["name"] == "Test A/B Test"
-        assert test_dict["description"] == "A test A/B test"
+        assert test_dict["name"] == "Test A / B Test"
+        assert test_dict["description"] == "A test A / B test"
         assert test_dict["content_type"] == "email"
         assert test_dict["test_type"] == "a_b"
         assert len(test_dict["variants"]) == 2
@@ -118,8 +118,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -180,8 +180,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -205,12 +205,12 @@ class TestABTest:
         results = test.get_results()
 
         assert results["test_id"] == "test123"
-        assert results["name"] == "Test A/B Test"
+        assert results["name"] == "Test A / B Test"
         assert results["status"] == "active"
         assert results["total_impressions"] == 200
         assert results["total_clicks"] == 30
         assert results["total_conversions"] == 8
-        assert results["overall_click_through_rate"] == 0.15  # 30/200
+        assert results["overall_click_through_rate"] == 0.15  # 30 / 200
         assert results["overall_conversion_rate"] == 8 / 30
 
         # Check variant results
@@ -222,20 +222,20 @@ class TestABTest:
         assert control_result["metrics"]["impressions"] == 100
         assert control_result["metrics"]["clicks"] == 10
         assert control_result["metrics"]["conversions"] == 2
-        assert control_result["metrics"]["click_through_rate"] == 0.1  # 10/100
-        assert control_result["metrics"]["conversion_rate"] == 0.2  # 2/10
+        assert control_result["metrics"]["click_through_rate"] == 0.1  # 10 / 100
+        assert control_result["metrics"]["conversion_rate"] == 0.2  # 2 / 10
 
         assert variant_result["metrics"]["impressions"] == 100
         assert variant_result["metrics"]["clicks"] == 20
         assert variant_result["metrics"]["conversions"] == 6
-        assert variant_result["metrics"]["click_through_rate"] == 0.2  # 20/100
-        assert variant_result["metrics"]["conversion_rate"] == 0.3  # 6/20
+        assert variant_result["metrics"]["click_through_rate"] == 0.2  # 20 / 100
+        assert variant_result["metrics"]["conversion_rate"] == 0.3  # 6 / 20
 
         # Check lifts
         assert "ctr_lift" in variant_result
         assert "conversion_lift" in variant_result
-        assert variant_result["ctr_lift"] == 100.0  # (0.2/0.1 - 1) * 100
-        assert variant_result["conversion_lift"] == 50.0  # (0.3/0.2 - 1) * 100
+        assert variant_result["ctr_lift"] == 100.0  # (0.2 / 0.1 - 1) * 100
+        assert variant_result["conversion_lift"] == 50.0  # (0.3 / 0.2 - 1) * 100
 
     def test_analyze_test(self):
         """Test the analyze_test method."""
@@ -246,8 +246,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -275,7 +275,7 @@ class TestABTest:
         analysis = test.analyze_test()
 
         assert analysis["test_id"] == "test123"
-        assert analysis["name"] == "Test A/B Test"
+        assert analysis["name"] == "Test A / B Test"
         assert analysis["confidence_level"] == 0.95
         assert analysis["has_significant_results"] is True
         assert analysis["recommended_winner"] == "variant"
@@ -289,7 +289,7 @@ class TestABTest:
         assert control_analysis["is_control"] is True
         assert variant_analysis["is_control"] is False
 
-        # Verify p-values and significance
+        # Verify p - values and significance
         assert "ctr_p_value" in variant_analysis
         assert "ctr_is_significant" in variant_analysis
         assert "conversion_p_value" in variant_analysis
@@ -309,8 +309,8 @@ class TestABTest:
 
         test = ABTest(
             id="test123",
-            name="Test A/B Test",
-            description="A test A/B test",
+            name="Test A / B Test",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants,
@@ -331,7 +331,7 @@ class TestABTest:
         result = test.end_test("variant")
 
         assert result["test_id"] == "test123"
-        assert result["name"] == "Test A/B Test"
+        assert result["name"] == "Test A / B Test"
         assert result["status"] == "completed"
         assert result["winning_variant_id"] == "variant"
         assert result["ended_at"] is not None
@@ -349,8 +349,8 @@ class TestABTest:
         # Create a new test to test automatic winner selection
         test2 = ABTest(
             id="test456",
-            name="Test A/B Test 2",
-            description="A test A/B test",
+            name="Test A / B Test 2",
+            description="A test A / B test",
             content_type="email",
             test_type="a_b",
             variants=variants.copy(),

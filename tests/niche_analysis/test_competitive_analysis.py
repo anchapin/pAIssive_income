@@ -53,7 +53,7 @@ class TestCompetitiveAnalysis:
             assert "pricing" in competitor
 
     def test_strength_weakness_analysis(self):
-        """Test strength/weakness analysis."""
+        """Test strength / weakness analysis."""
         # Test data
         competitor_data = {
             "name": "CompetitorX",
@@ -137,7 +137,7 @@ class TestCompetitiveAnalysis:
         our_offering = {
             "features": ["code completion", "test generation", "refactoring"],
             "pricing": {"monthly": 25.99},
-            "unique_selling_points": ["AI-powered", "real-time", "customizable"],
+            "unique_selling_points": ["AI - powered", "real - time", "customizable"],
         }
         competitor_offerings = [
             {
@@ -169,9 +169,9 @@ class TestCompetitiveAnalysis:
         """Test competitor trend tracking."""
         # Test data
         competitor_history = [
-            {"date": "2025-01-01", "features": ["code completion"], "pricing": {"monthly": 29.99}},
+            {"date": "2025 - 01 - 01", "features": ["code completion"], "pricing": {"monthly": 29.99}},
             {
-                "date": "2025-04-01",
+                "date": "2025 - 04 - 01",
                 "features": ["code completion", "test generation"],
                 "pricing": {"monthly": 34.99},
             },
@@ -233,4 +233,4 @@ class TestCompetitiveAnalysis:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_competitive_analysis.py"])
+    pytest.main([" - v", "test_competitive_analysis.py"])

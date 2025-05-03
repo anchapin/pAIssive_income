@@ -20,7 +20,7 @@ from errors import APIError, UIError, ValidationError, handle_exception  # noqa:
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Re-export the error classes for convenience
+# Re - export the error classes for convenience
 __all__ = [
     "UIError",
     "APIError",
@@ -50,7 +50,7 @@ class ServiceError(UIError):
         Initialize the service error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             service_name: Name of the service that raised the error
             operation: Operation that failed
             **kwargs: Additional arguments to pass to the base class
@@ -61,7 +61,8 @@ class ServiceError(UIError):
         if operation:
             details["operation"] = operation
 
-        super().__init__(message=message, code="service_error", details=details, **kwargs)
+        super().__init__(message=message, code="service_error", details=details, 
+            **kwargs)
 
 
 class TemplateError(UIError):
@@ -72,7 +73,7 @@ class TemplateError(UIError):
         Initialize the template error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             template_name: Name of the template that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -80,20 +81,22 @@ class TemplateError(UIError):
         if template_name:
             details["template_name"] = template_name
 
-        super().__init__(message=message, code="template_error", details=details, **kwargs)
+        super().__init__(message=message, code="template_error", details=details, 
+            **kwargs)
 
 
 class RouteError(UIError):
     """Error raised when there's an issue with a route."""
 
     def __init__(
-        self, message: str, route: Optional[str] = None, method: Optional[str] = None, **kwargs
+        self, message: str, route: Optional[str] = None, method: Optional[str] = None, 
+            **kwargs
     ):
         """
         Initialize the route error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             route: Route that caused the error
             method: HTTP method used
             **kwargs: Additional arguments to pass to the base class
@@ -115,7 +118,7 @@ class ConfigurationError(UIError):
         Initialize the configuration error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             config_key: Configuration key that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -123,7 +126,8 @@ class ConfigurationError(UIError):
         if config_key:
             details["config_key"] = config_key
 
-        super().__init__(message=message, code="configuration_error", details=details, **kwargs)
+        super().__init__(message=message, code="configuration_error", details=details, 
+            **kwargs)
 
 
 class DataError(UIError):
@@ -140,7 +144,7 @@ class DataError(UIError):
         Initialize the data error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             data_type: Type of data that caused the error
             operation: Operation that failed
             **kwargs: Additional arguments to pass to the base class
@@ -192,6 +196,7 @@ def error_to_json_response(error: Union[UIError, Exception]) -> Dict[str, Any]:
         return error.to_dict()
 
     # Convert standard exception to UIError
-    ui_error = UIError(message=str(error), code=error.__class__.__name__, original_exception=error)
+    ui_error = UIError(message=str(error), code=error.__class__.__name__, 
+        original_exception=error)
 
     return ui_error.to_dict()

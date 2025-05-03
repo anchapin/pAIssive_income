@@ -47,7 +47,7 @@ def cache_model_result(
 
     Args:
         func: Function to decorate
-        ttl: Optional time-to-live in seconds
+        ttl: Optional time - to - live in seconds
         model_id_arg: Name of the model ID argument in the function
 
     Returns:
@@ -82,7 +82,7 @@ def cache_model_result(
             # Determine the operation type from the function name
             operation = f.__name__
 
-            # Extract inputs from args - typically the first non-model_id argument
+            # Extract inputs from args - typically the first non - model_id argument
             inputs = None
             parameters = {}
 
@@ -91,7 +91,7 @@ def cache_model_result(
                     continue
 
                 if inputs is None:
-                    # The first non-model_id argument is considered the primary input
+                    # The first non - model_id argument is considered the primary input
                     inputs = arg_value
                 else:
                     # All other arguments are considered parameters

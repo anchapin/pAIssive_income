@@ -45,8 +45,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://api.twitter.com/2"
-        self.oauth_url = "https://api.twitter.com/oauth2/token"
+        self.api_base_url = "https://api.twitter.com / 2"
+        self.oauth_url = "https://api.twitter.com / oauth2 / token"
         self.api_key = self.credentials.get("api_key")
         self.api_secret = self.credentials.get("api_secret")
         self.access_token = self.credentials.get("access_token")
@@ -76,7 +76,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
         try:
             # If we already have a bearer token, verify it
             if self.bearer_token:
-                response = self.session.get(f"{self.api_base_url}/users/me")
+                response = self.session.get(f"{self.api_base_url}/users / me")
                 response.raise_for_status()
                 user_data = response.json()
 
@@ -102,7 +102,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 self._connected = True
 
                 # Get user information
-                response = self.session.get(f"{self.api_base_url}/users/me")
+                response = self.session.get(f"{self.api_base_url}/users / me")
                 response.raise_for_status()
                 user_data = response.json()
 
@@ -187,7 +187,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -226,7 +226,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             return {
                 "id": tweet_id,
                 "platform_data": result,
-                "url": f"https://twitter.com/user/status/{tweet_id}",
+                "url": f"https://twitter.com / user / status/{tweet_id}",
             }
 
         except ContentValidationError:
@@ -263,11 +263,11 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
         try:
             # Note: Twitter API v2 doesn't directly support scheduled tweets
-            # In a real implementation, we would use a third-party service or
+            # In a real implementation, we would use a third - party service or
             # store the tweet locally and post it at the scheduled time
 
             # For demonstration, we'll return a mock scheduled tweet
-            scheduled_id = f"scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            scheduled_id = f"scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -393,8 +393,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific tweet
             if post_id:
@@ -419,9 +419,9 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
                 return analytics
 
-            # Otherwise, get account-level analytics
+            # Otherwise, get account - level analytics
             else:
-                # Note: Twitter API v2 doesn't directly support account-level analytics
+                # Note: Twitter API v2 doesn't directly support account - level analytics
                 # In a real implementation, we would use the Twitter Analytics API
 
                 # For demonstration, we'll return mock analytics data
@@ -446,8 +446,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 "error": str(e),
                 "post_id": post_id,
                 "period": {
-                    "start_date": start_date.strftime("%Y-%m-%d") if start_date else None,
-                    "end_date": end_date.strftime("%Y-%m-%d") if end_date else None,
+                    "start_date": start_date.strftime(" % Y-%m-%d") if start_date else None,
+                    "end_date": end_date.strftime(" % Y-%m-%d") if end_date else None,
                 },
             }
 
@@ -478,11 +478,11 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_followers",
                 "demographics": {
                     "age_distribution": {
-                        "18-24": 0.15,
-                        "25-34": 0.35,
-                        "35-44": 0.25,
-                        "45-54": 0.15,
-                        "55+": 0.1,
+                        "18 - 24": 0.15,
+                        "25 - 34": 0.35,
+                        "35 - 44": 0.25,
+                        "45 - 54": 0.15,
+                        "55 + ": 0.1,
                     },
                     "gender_distribution": {"male": 0.55, "female": 0.43, "other": 0.02},
                     "location": {

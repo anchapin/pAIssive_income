@@ -122,7 +122,8 @@ class ProjectSharing:
                 and share_info["shared_with_user"] == user_id
                 and not share_info.get("revoked", False)
             ):
-                raise SharingError(f"Project {project_id} is already shared with user {user_id}")
+                raise SharingError(
+                    f"Project {project_id} is already shared with user {user_id}")
 
         # Calculate expiry time if provided
         expires_at = None
@@ -146,7 +147,8 @@ class ProjectSharing:
         self._save_sharing_data()
 
         logger.info(
-            f"Shared project {project_id} with user {user_id} (permission: {permission.value})"
+            f"Shared project {project_id} with user {user_id} (
+                permission: {permission.value})"
         )
         return share_info
 
@@ -212,7 +214,8 @@ class ProjectSharing:
         self._save_sharing_data()
 
         logger.info(
-            f"Shared project {project_id} with workspace {target_workspace_id} (permission: {permission.value})"
+            f"Shared project {project_id} with workspace {target_workspace_id} (
+                permission: {permission.value})"
         )
         return share_info
 
@@ -268,7 +271,8 @@ class ProjectSharing:
         self._save_sharing_data()
 
         logger.info(
-            f"Created sharing link for project {project_id} (permission: {permission.value})"
+            f"Created sharing link for project {project_id} (
+                permission: {permission.value})"
         )
         return link_info
 
@@ -336,7 +340,8 @@ class ProjectSharing:
             Project information
 
         Raises:
-            SharingError: If the link does not exist, is revoked, expired, or password is incorrect
+            SharingError: If the link does not exist, is revoked, expired, 
+                or password is incorrect
         """
         if link_id not in self.shared_links:
             raise SharingError(f"Link {link_id} does not exist")
@@ -354,7 +359,8 @@ class ProjectSharing:
                 raise SharingError(f"Link {link_id} has expired")
 
         # Check if link has reached maximum uses
-        if link_info.get("max_uses") and link_info.get("uses", 0) >= link_info["max_uses"]:
+        if link_info.get("max_uses") and link_info.get("uses", 
+            0) >= link_info["max_uses"]:
             raise SharingError(f"Link {link_id} has reached maximum uses")
 
         # Check password if required
@@ -412,7 +418,8 @@ class ProjectSharing:
         shared_projects = []
 
         for share_info in self.shared_projects.values():
-            if share_info.get("shared_with_workspace") == workspace_id and not share_info.get(
+            if share_info.get("shared_with_workspace") == \
+                workspace_id and not share_info.get(
                 "revoked", False
             ):
 
@@ -439,7 +446,8 @@ class ProjectSharing:
         project_sharing = []
 
         for share_info in self.shared_projects.values():
-            if share_info["project_id"] == project_id and not share_info.get("revoked", False):
+            if share_info["project_id"] == project_id and not share_info.get("revoked", 
+                False):
                 # Check if sharing has expired
                 if share_info.get("expires_at"):
                     expires_at = datetime.fromisoformat(share_info["expires_at"])
@@ -463,7 +471,8 @@ class ProjectSharing:
         project_links = []
 
         for link_info in self.shared_links.values():
-            if link_info["project_id"] == project_id and not link_info.get("revoked", False):
+            if link_info["project_id"] == project_id and not link_info.get("revoked", 
+                False):
                 # Check if link has expired
                 if link_info.get("expires_at"):
                     expires_at = datetime.fromisoformat(link_info["expires_at"])

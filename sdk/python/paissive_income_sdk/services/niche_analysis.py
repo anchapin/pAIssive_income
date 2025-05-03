@@ -21,7 +21,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             List of market segments
         """
-        return self._get("niche-analysis/segments")
+        return self._get("niche - analysis / segments")
 
     def analyze_niches(self, segments: List[str]) -> Dict[str, Any]:
         """
@@ -33,7 +33,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             Analysis results
         """
-        return self._post("niche-analysis/analyze", {"segments": segments})
+        return self._post("niche - analysis / analyze", {"segments": segments})
 
     def get_analysis_results(self, analysis_id: str) -> Dict[str, Any]:
         """
@@ -45,7 +45,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             Analysis results
         """
-        return self._get(f"niche-analysis/results/{analysis_id}")
+        return self._get(f"niche - analysis / results/{analysis_id}")
 
     def get_all_results(self) -> Dict[str, Any]:
         """
@@ -54,7 +54,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             List of analysis results
         """
-        return self._get("niche-analysis/results")
+        return self._get("niche - analysis / results")
 
     def get_problems(self, niche_id: str) -> Dict[str, Any]:
         """
@@ -66,7 +66,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             List of problems
         """
-        return self._get(f"niche-analysis/niches/{niche_id}/problems")
+        return self._get(f"niche - analysis / niches/{niche_id}/problems")
 
     def get_opportunities(self, niche_id: str) -> Dict[str, Any]:
         """
@@ -78,7 +78,7 @@ class NicheAnalysisService(BaseService):
         Returns:
             List of opportunities
         """
-        return self._get(f"niche-analysis/niches/{niche_id}/opportunities")
+        return self._get(f"niche - analysis / niches/{niche_id}/opportunities")
 
     def compare_opportunities(self, opportunity_ids: List[str]) -> Dict[str, Any]:
         """
@@ -91,5 +91,5 @@ class NicheAnalysisService(BaseService):
             Comparison results
         """
         return self._post(
-            "niche-analysis/opportunities/compare", {"opportunity_ids": opportunity_ids}
+            "niche - analysis / opportunities / compare", {"opportunity_ids": opportunity_ids}
         )

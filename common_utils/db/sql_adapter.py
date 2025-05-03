@@ -134,7 +134,7 @@ class SQLiteAdapter(DatabaseInterface):
 
         Args:
             table: Table name
-            data: Column-value pairs to insert
+            data: Column - value pairs to insert
 
         Returns:
             The ID of the inserted row
@@ -166,7 +166,7 @@ class SQLiteAdapter(DatabaseInterface):
 
         Args:
             table: Table name
-            data: Column-value pairs to update
+            data: Column - value pairs to update
             condition: WHERE clause condition
             params: Parameters for the condition
 

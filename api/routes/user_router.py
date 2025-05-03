@@ -36,11 +36,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # OAuth2 scheme for token authentication
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user / login")
 
 
 @router.post(
-    "/register",
+    " / register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
@@ -68,7 +68,7 @@ async def register_user(data: UserRegisterRequest = Body(...)):
 
 
 @router.post(
-    "/login",
+    " / login",
     response_model=UserLoginResponse,
     responses={
         200: {"description": "Login successful"},
@@ -90,7 +90,7 @@ async def login_user(data: UserLoginRequest = Body(...)):
 
 
 @router.get(
-    "/profile",
+    " / profile",
     response_model=UserResponse,
     responses={
         200: {"description": "User profile"},
@@ -103,7 +103,7 @@ async def get_user_profile(token: str = Depends(verify_token)):
         return {
             "id": "test_user_id",
             "username": "testuser",
-            "email": "test@example.com",
+            "email": "test @ example.com",
             "first_name": "Test",
             "last_name": "User",
             "created_at": datetime.now().isoformat(),
@@ -115,7 +115,7 @@ async def get_user_profile(token: str = Depends(verify_token)):
 
 
 @router.put(
-    "/profile",
+    " / profile",
     response_model=UserResponse,
     responses={
         200: {"description": "Profile updated"},
@@ -140,7 +140,7 @@ async def update_user_profile(data: UserProfileUpdateRequest, token: str = Depen
 
 
 @router.post(
-    "/change-password",
+    " / change - password",
     response_model=SuccessResponse,
     responses={
         200: {"description": "Password changed"},
@@ -157,7 +157,7 @@ async def change_password(data: PasswordChangeRequest, token: str = Depends(veri
 
 
 @router.get(
-    "/projects",
+    " / projects",
     response_model=PaginatedProjectList,
     responses={
         200: {"description": "User projects"},
@@ -178,7 +178,7 @@ async def get_user_projects(
 
 
 @router.get(
-    "/teams",
+    " / teams",
     response_model=PaginatedTeamList,
     responses={
         200: {"description": "User teams"},
@@ -199,7 +199,7 @@ async def get_user_teams(
 
 
 @router.get(
-    "/activity",
+    " / activity",
     response_model=PaginatedActivityList,
     responses={
         200: {"description": "User activity"},
@@ -220,7 +220,7 @@ async def get_user_activity(
 
 
 @router.get(
-    "/settings",
+    " / settings",
     response_model=UserSettingsResponse,
     responses={
         200: {"description": "User settings"},
@@ -243,7 +243,7 @@ async def get_user_settings(token: str = Depends(verify_token)):
 
 
 @router.put(
-    "/settings",
+    " / settings",
     response_model=UserSettingsResponse,
     responses={
         200: {"description": "Settings updated"},

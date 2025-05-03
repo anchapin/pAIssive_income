@@ -126,7 +126,8 @@ class CommandLineInterface:
         # Format the response
         response = f"Found {len(self.current_niches)} niches:\n"
         for i, niche in enumerate(self.current_niches):
-            response += f"{i}: {niche['name']} (score: {niche.get('opportunity_score', 'N/A')})\n"
+            response += f"{i}: {niche['name']} (score: {niche.get('opportunity_score', 
+                'N / A')})\n"
 
         return response
 
@@ -183,7 +184,8 @@ class CommandLineInterface:
 
         # Format the response
         response = f"Developed solution: {self.current_solution['name']}\n"
-        response += f"Description: {self.current_solution.get('description', 'N/A')}\n"
+        response += f"Description: {self.current_solution.get('description', 
+            'N / A')}\n"
         response += "Features:\n"
         for feature in self.current_solution.get("features", []):
             response += f"- {feature['name']}\n"
@@ -215,9 +217,11 @@ class CommandLineInterface:
             )
 
             # Format the response
-            response = f"Created monetization strategy: {self.current_monetization['name']}\n"
+            response = \
+                f"Created monetization strategy: {self.current_monetization['name']}\n"
             response += "Subscription tiers:\n"
-            for tier in self.current_monetization.get("subscription_model", {}).get("tiers", []):
+            for tier in self.current_monetization.get("subscription_model", 
+                {}).get("tiers", []):
                 response += f"- {tier['name']}: ${tier.get('price_monthly', 0)}/month\n"
 
             return response
@@ -237,9 +241,11 @@ class CommandLineInterface:
             )
 
             # Format the response
-            response = f"Created marketing plan: {self.current_marketing_plan['name']}\n"
+            response = \
+                f"Created marketing plan: {self.current_marketing_plan['name']}\n"
             response += (
-                f"Target audience: {self.current_marketing_plan.get('target_audience', 'N/A')}\n"
+                f"Target audience: {self.current_marketing_plan.get('target_audience', 
+                    'N / A')}\n"
             )
             response += "Channels:\n"
             for channel in self.current_marketing_plan.get("channels", []):

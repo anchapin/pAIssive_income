@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from interfaces.marketing_interfaces import ICampaignTracker
-from marketing.errors import InvalidParameterError, MarketingCampaignError, MarketingError
+from marketing.errors import InvalidParameterError, MarketingCampaignError, 
+    MarketingError
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class CampaignTrackingError(MarketingError):
         Initialize the campaign tracking error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -41,7 +42,8 @@ class CampaignTrackingError(MarketingError):
         if campaign_id:
             details["campaign_id"] = campaign_id
 
-        super().__init__(message=message, code="campaign_tracking_error", details=details, **kwargs)
+        super().__init__(message=message, code="campaign_tracking_error", 
+            details=details, **kwargs)
 
 
 class CampaignNotFoundError(CampaignTrackingError):
@@ -149,7 +151,8 @@ class CampaignTracker(ICampaignTracker):
         Initialize the campaign tracker.
 
         Args:
-            storage_path: Optional path to store campaign data. If None, data will be stored in memory only.
+            storage_path: Optional path to store campaign data. If None, 
+                data will be stored in memory only.
         """
         self.campaigns = {}
         self.metrics = {}
@@ -160,7 +163,8 @@ class CampaignTracker(ICampaignTracker):
             os.makedirs(storage_path)
 
         # Load existing data if available
-        if storage_path and os.path.exists(os.path.join(storage_path, "campaigns.json")):
+        if storage_path and os.path.exists(os.path.join(storage_path, 
+            "campaigns.json")):
             self._load_campaigns()
 
         if storage_path and os.path.exists(os.path.join(storage_path, "metrics.json")):
@@ -211,9 +215,11 @@ class CampaignTracker(ICampaignTracker):
             "goals": goals,
             "target_metrics": target_metrics,
             "start_date": (
-                start_date.isoformat() if isinstance(start_date, datetime) else start_date
+                start_date.isoformat() if isinstance(start_date, 
+                    datetime) else start_date
             ),
-            "end_date": end_date.isoformat() if isinstance(end_date, datetime) else end_date,
+            "end_date": end_date.isoformat() if isinstance(end_date, 
+                datetime) else end_date,
             "budget": budget,
             "tags": tags or [],
             "metadata": metadata or {},
@@ -430,7 +436,8 @@ class CampaignTracker(ICampaignTracker):
             "name": metric_name,
             "group": metric_group,
             "value": value,
-            "timestamp": timestamp.isoformat() if isinstance(timestamp, datetime) else timestamp,
+            "timestamp": timestamp.isoformat() if isinstance(timestamp, 
+                datetime) else timestamp,
             "channel": channel,
             "metadata": metadata or {},
         }
@@ -545,7 +552,8 @@ class CampaignTracker(ICampaignTracker):
             if aggregation == "sum":
                 result["aggregate"][metric_name] = sum(values)
             elif aggregation == "avg":
-                result["aggregate"][metric_name] = sum(values) / len(values) if values else 0
+                result["aggregate"][metric_name] = sum(values) / \
+                    len(values) if values else 0
             elif aggregation == "min":
                 result["aggregate"][metric_name] = min(values) if values else 0
             elif aggregation == "max":
@@ -569,17 +577,22 @@ class CampaignTracker(ICampaignTracker):
                     result["grouped_data"][channel_name] = {}
                     for metric_name, values in channel_metrics.items():
                         if aggregation == "sum":
-                            result["grouped_data"][channel_name][metric_name] = sum(values)
+                            result["grouped_data"][channel_name][metric_name] = \
+                                sum(values)
                         elif aggregation == "avg":
-                            result["grouped_data"][channel_name][metric_name] = sum(values) / len(
+                            result["grouped_data"][channel_name][metric_name] = \
+                                sum(values) / len(
                                 values
                             )
                         elif aggregation == "min":
-                            result["grouped_data"][channel_name][metric_name] = min(values)
+                            result["grouped_data"][channel_name][metric_name] = \
+                                min(values)
                         elif aggregation == "max":
-                            result["grouped_data"][channel_name][metric_name] = max(values)
+                            result["grouped_data"][channel_name][metric_name] = \
+                                max(values)
                         elif aggregation == "count":
-                            result["grouped_data"][channel_name][metric_name] = len(values)
+                            result["grouped_data"][channel_name][metric_name] = \
+                                len(values)
 
             elif group_by == "metric":
                 # Group by metric name
@@ -604,7 +617,8 @@ class CampaignTracker(ICampaignTracker):
                     if aggregation == "sum":
                         result["grouped_data"][metric_name]["aggregate"] = sum(values)
                     elif aggregation == "avg":
-                        result["grouped_data"][metric_name]["aggregate"] = sum(values) / len(values)
+                        result["grouped_data"][metric_name]["aggregate"] = \
+                            sum(values) / len(values)
                     elif aggregation == "min":
                         result["grouped_data"][metric_name]["aggregate"] = min(values)
                     elif aggregation == "max":
@@ -623,7 +637,8 @@ class CampaignTracker(ICampaignTracker):
                         period_key = metric_time.date().isoformat()
                     elif group_by == "weekly":
                         # Get start of week (Monday)
-                        start_of_week = metric_time - timedelta(days=metric_time.weekday())
+                        start_of_week = metric_time - \
+                            timedelta(days=metric_time.weekday())
                         period_key = start_of_week.date().isoformat()
                     elif group_by == "monthly":
                         period_key = f"{metric_time.year}-{metric_time.month:02d}"
@@ -640,7 +655,8 @@ class CampaignTracker(ICampaignTracker):
                         if aggregation == "sum":
                             result["grouped_data"][period][metric_name] = sum(values)
                         elif aggregation == "avg":
-                            result["grouped_data"][period][metric_name] = sum(values) / len(values)
+                            result["grouped_data"][period][metric_name] = \
+                                sum(values) / len(values)
                         elif aggregation == "min":
                             result["grouped_data"][period][metric_name] = min(values)
                         elif aggregation == "max":
@@ -703,7 +719,8 @@ class CampaignTracker(ICampaignTracker):
             current_value = 0
 
             # Get current value from metrics data
-            if "grouped_data" in metrics_data and metric_name in metrics_data["grouped_data"]:
+            if "grouped_data" in metrics_data and \
+                metric_name in metrics_data["grouped_data"]:
                 current_value = metrics_data["grouped_data"][metric_name]["aggregate"]
 
             # Calculate achievement percentage
@@ -732,13 +749,15 @@ class CampaignTracker(ICampaignTracker):
             # Add to group performance
             group = MetricGroup.METRIC_TO_GROUP.get(metric_name.lower(), "custom")
             if group not in result["groups_performance"]:
-                result["groups_performance"][group] = {"metrics": [], "average_achievement": 0}
+                result["groups_performance"][group] = {"metrics": [], 
+                    "average_achievement": 0}
 
             result["groups_performance"][group]["metrics"].append(metric_name)
 
         # Calculate overall performance
         result["overall_performance"] = (
-            sum(performance_scores) / len(performance_scores) if performance_scores else 0
+            sum(performance_scores) / \
+                len(performance_scores) if performance_scores else 0
         )
 
         # Calculate group average achievements
@@ -834,7 +853,8 @@ class CampaignTracker(ICampaignTracker):
 
             for campaign_id in campaign_ids:
                 analysis = campaign_analyses[campaign_id]
-                performance = analysis.get("metrics_performance", {}).get(metric_name, {})
+                performance = analysis.get("metrics_performance", {}).get(metric_name, 
+                    {})
 
                 if performance:
                     current_value = performance.get("current", 0)
@@ -864,7 +884,8 @@ class CampaignTracker(ICampaignTracker):
                         }
 
             # Calculate averages
-            metric_comparison["average_value"] = sum(values) / len(values) if values else 0
+            metric_comparison["average_value"] = sum(values) / \
+                len(values) if values else 0
             metric_comparison["average_achievement"] = (
                 sum(achievements) / len(achievements) if achievements else 0
             )
@@ -925,6 +946,7 @@ class CampaignTracker(ICampaignTracker):
             "generated_at": datetime.now().isoformat(),
             "time_period": {
                 "start": start_date.isoformat() if start_date else campaign["start_date"],
+                    
                 "end": (
                     end_date.isoformat()
                     if end_date
@@ -936,7 +958,8 @@ class CampaignTracker(ICampaignTracker):
 
         # Get metrics
         metrics_data = self.get_metrics(
-            campaign_id=campaign_id, start_time=start_date, end_time=end_date, group_by="metric"
+            campaign_id=campaign_id, start_time=start_date, end_time=end_date, 
+                group_by="metric"
         )
 
         # Get performance analysis
@@ -987,7 +1010,8 @@ class CampaignTracker(ICampaignTracker):
             )
 
         # Add bottom 5 metrics
-        bottom_metrics = sorted_metrics[-5:] if len(sorted_metrics) >= 5 else sorted_metrics
+        bottom_metrics = \
+            sorted_metrics[-5:] if len(sorted_metrics) >= 5 else sorted_metrics
         for metric_name, achievement in bottom_metrics:
             metric_perf = performance["metrics_performance"][metric_name]
             report["performance_summary"]["bottom_metrics"].append(
@@ -1001,7 +1025,7 @@ class CampaignTracker(ICampaignTracker):
 
         # Add additional details based on report type
         if report_type == "detailed":
-            # Add time-based data
+            # Add time - based data
             time_metrics = self.get_metrics(
                 campaign_id=campaign_id,
                 start_time=start_date,
@@ -1033,7 +1057,7 @@ class CampaignTracker(ICampaignTracker):
                 }
 
         elif report_type == "goals":
-            # Add goals-focused data
+            # Add goals - focused data
             report["goals"] = []
 
             for goal in campaign["goals"]:
@@ -1053,7 +1077,8 @@ class CampaignTracker(ICampaignTracker):
                         goal_achievement += metric_perf["achievement_percentage"]
                         metrics_count += 1
 
-                avg_achievement = goal_achievement / metrics_count if metrics_count > 0 else 0
+                avg_achievement = goal_achievement / \
+                    metrics_count if metrics_count > 0 else 0
 
                 report["goals"].append(
                     {

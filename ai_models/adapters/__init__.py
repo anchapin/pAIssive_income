@@ -2,7 +2,7 @@
 Adapters for different AI model frameworks.
 
 This package provides adapters for connecting to various AI model frameworks,
-including Ollama, LM Studio, OpenAI-compatible APIs, and GPU acceleration libraries.
+including Ollama, LM Studio, OpenAI - compatible APIs, and GPU acceleration libraries.
 """
 
 from .base_adapter import BaseModelAdapter

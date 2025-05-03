@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class KubernetesConfig:
     # Ingress configuration
     enable_ingress: bool = False
     ingress_host: str = ""
-    ingress_path: str = "/"
+    ingress_path: str = " / "
     ingress_tls: bool = False
     ingress_tls_secret: str = ""
 
@@ -167,7 +167,7 @@ def _generate_deployment(config: KubernetesConfig, output_path: str) -> None:
     """
     # Create deployment.yaml content
     content = f"""
-apiVersion: apps/v1
+apiVersion: apps / v1
 kind: Deployment
 metadata:
   name: {config.name}
@@ -204,10 +204,10 @@ spec:
     if config.gpu_request > 0 or config.gpu_limit > 0:
         content += "          requests:\n"
         if config.gpu_request > 0:
-            content += f"            nvidia.com/gpu: {config.gpu_request}\n"
+            content += f"            nvidia.com / gpu: {config.gpu_request}\n"
         content += "          limits:\n"
         if config.gpu_limit > 0:
-            content += f"            nvidia.com/gpu: {config.gpu_limit}\n"
+            content += f"            nvidia.com / gpu: {config.gpu_limit}\n"
 
     # Add environment variables
     if config.env_vars:
@@ -241,7 +241,7 @@ spec:
 """
 
     # Write deployment.yaml
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -278,7 +278,7 @@ spec:
         content += f"    nodePort: {config.node_port}\n"
 
     # Write service.yaml
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -292,7 +292,7 @@ def _generate_ingress(config: KubernetesConfig, output_path: str) -> None:
     """
     # Create ingress.yaml content
     content = f"""
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io / v1
 kind: Ingress
 metadata:
   name: {config.name}
@@ -300,7 +300,7 @@ metadata:
   labels:
     app: {config.name}
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io / ingress.class: nginx
 """
 
     # Add TLS if enabled
@@ -338,7 +338,7 @@ metadata:
 """
 
     # Write ingress.yaml
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -352,7 +352,7 @@ def _generate_hpa(config: KubernetesConfig, output_path: str) -> None:
     """
     # Create hpa.yaml content
     content = f"""
-apiVersion: autoscaling/v2
+apiVersion: autoscaling / v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {config.name}
@@ -361,7 +361,7 @@ metadata:
     app: {config.name}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
+    apiVersion: apps / v1
     kind: Deployment
     name: {config.name}
   minReplicas: {config.min_replicas}
@@ -376,7 +376,7 @@ spec:
 """
 
     # Write hpa.yaml
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())
 
 
@@ -390,7 +390,7 @@ def _generate_kustomization(config: KubernetesConfig, output_path: str) -> None:
     """
     # Create kustomization.yaml content
     content = f"""
-apiVersion: kustomize.config.k8s.io/v1beta1
+apiVersion: kustomize.config.k8s.io / v1beta1
 kind: Kustomization
 namespace: {config.namespace}
 resources:
@@ -407,5 +407,5 @@ resources:
         content += "- hpa.yaml\n"
 
     # Write kustomization.yaml
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf - 8") as f:
         f.write(content.strip())

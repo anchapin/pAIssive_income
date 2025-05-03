@@ -24,7 +24,7 @@ from .service_registry import get_service
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,8 @@ def get_services():
 
 
 def update_task_progress(
-    task_id: str, current: int, total: int, status: str, message: str = None, result: Any = None
+    task_id: str, current: int, total: int, status: str, message: str = None, 
+        result: Any = None
 ):
     """
     Update the progress of a task.
@@ -126,10 +127,12 @@ def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
             time.sleep(2)
 
         # Finalize results
-        result = {"niches": niches, "count": len(niches), "segments_analyzed": market_segments}
+        result = {"niches": niches, "count": len(niches), 
+            "segments_analyzed": market_segments}
 
         # Update final progress
-        update_task_progress(task_id, 100, 100, "SUCCESS", "Niche analysis complete", result)
+        update_task_progress(task_id, 100, 100, "SUCCESS", "Niche analysis complete", 
+            result)
         return result
 
     except Exception as e:
@@ -159,7 +162,8 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
         developer_service = services["developer_service"]
 
         # Update initial progress
-        update_task_progress(task_id, 0, 100, "STARTED", "Starting solution development")
+        update_task_progress(task_id, 0, 100, "STARTED", 
+            "Starting solution development")
 
         # Development stages
         stages = [
@@ -176,7 +180,8 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
             update_task_progress(
-                task_id, progress, 100, "PROGRESS", f"Stage {i + 1}/{len(stages)}: {stage}"
+                task_id, progress, 100, "PROGRESS", 
+                    f"Stage {i + 1}/{len(stages)}: {stage}"
             )
 
             # Simulate work (remove in production)
@@ -237,7 +242,8 @@ def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
             update_task_progress(
-                task_id, progress, 100, "PROGRESS", f"Stage {i + 1}/{len(stages)}: {stage}"
+                task_id, progress, 100, "PROGRESS", 
+                    f"Stage {i + 1}/{len(stages)}: {stage}"
             )
 
             # Simulate work (remove in production)
@@ -279,7 +285,8 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
         marketing_service = services["marketing_service"]
 
         # Update initial progress
-        update_task_progress(task_id, 0, 100, "STARTED", "Starting marketing campaign development")
+        update_task_progress(task_id, 0, 100, "STARTED", 
+            "Starting marketing campaign development")
 
         # Campaign development stages
         stages = [
@@ -296,7 +303,8 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
             update_task_progress(
-                task_id, progress, 100, "PROGRESS", f"Stage {i + 1}/{len(stages)}: {stage}"
+                task_id, progress, 100, "PROGRESS", 
+                    f"Stage {i + 1}/{len(stages)}: {stage}"
             )
 
             # Simulate work (remove in production)
@@ -306,7 +314,8 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
         campaign = marketing_service.create_campaign(solution_id)
 
         # Update final progress
-        update_task_progress(task_id, 100, 100, "SUCCESS", "Marketing campaign complete", campaign)
+        update_task_progress(task_id, 100, 100, "SUCCESS", "Marketing campaign complete", 
+            campaign)
         return campaign
 
     except Exception as e:

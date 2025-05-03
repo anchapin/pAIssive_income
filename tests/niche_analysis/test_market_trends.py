@@ -37,10 +37,10 @@ class TestMarketTrendAnalysis:
         """Test trend identification algorithms."""
         # Test data: simulated market trend data points
         trend_data = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 120},
-            {"date": "2025-03-01", "value": 150},
-            {"date": "2025-04-01", "value": 200},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 120},
+            {"date": "2025 - 03 - 01", "value": 150},
+            {"date": "2025 - 04 - 01", "value": 200},
         ]
 
         # Identify trends
@@ -57,17 +57,17 @@ class TestMarketTrendAnalysis:
         """Test trend severity classification."""
         # Test data with different trend severities
         mild_trend = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 105},
-            {"date": "2025-03-01", "value": 108},
-            {"date": "2025-04-01", "value": 110},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 105},
+            {"date": "2025 - 03 - 01", "value": 108},
+            {"date": "2025 - 04 - 01", "value": 110},
         ]
 
         severe_trend = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 150},
-            {"date": "2025-03-01", "value": 200},
-            {"date": "2025-04-01", "value": 300},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 150},
+            {"date": "2025 - 03 - 01", "value": 200},
+            {"date": "2025 - 04 - 01", "value": 300},
         ]
 
         # Classify trends
@@ -85,11 +85,11 @@ class TestMarketTrendAnalysis:
         """Test historical trend analysis."""
         # Test data: historical market data
         historical_data = [
-            {"date": "2024-01-01", "value": 100},
-            {"date": "2024-04-01", "value": 120},
-            {"date": "2024-07-01", "value": 90},
-            {"date": "2024-10-01", "value": 140},
-            {"date": "2025-01-01", "value": 160},
+            {"date": "2024 - 01 - 01", "value": 100},
+            {"date": "2024 - 04 - 01", "value": 120},
+            {"date": "2024 - 07 - 01", "value": 90},
+            {"date": "2024 - 10 - 01", "value": 140},
+            {"date": "2025 - 01 - 01", "value": 160},
         ]
 
         # Analyze seasonal patterns
@@ -103,10 +103,10 @@ class TestMarketTrendAnalysis:
         assert isinstance(seasonal_patterns["seasonal_peaks"], list)
         assert isinstance(seasonal_patterns["seasonal_troughs"], list)
 
-        # Analyze long-term trends
+        # Analyze long - term trends
         long_term_trends = self.historical_analyzer.analyze_long_term_trends(historical_data)
 
-        # Validate long-term trend analysis
+        # Validate long - term trend analysis
         assert "trend_type" in long_term_trends
         assert "growth_rate" in long_term_trends
         assert long_term_trends["trend_type"] in ["linear", "exponential", "cyclical", "random"]
@@ -116,11 +116,11 @@ class TestMarketTrendAnalysis:
         """Test market cycle detection."""
         # Test data for market cycles
         cycle_data = [
-            {"date": "2024-01-01", "value": 100},  # Start of cycle
-            {"date": "2024-04-01", "value": 150},  # Peak
-            {"date": "2024-07-01", "value": 80},  # Trough
-            {"date": "2024-10-01", "value": 120},  # Recovery
-            {"date": "2025-01-01", "value": 110},  # New cycle
+            {"date": "2024 - 01 - 01", "value": 100},  # Start of cycle
+            {"date": "2024 - 04 - 01", "value": 150},  # Peak
+            {"date": "2024 - 07 - 01", "value": 80},  # Trough
+            {"date": "2024 - 10 - 01", "value": 120},  # Recovery
+            {"date": "2025 - 01 - 01", "value": 110},  # New cycle
         ]
 
         # Detect market cycles
@@ -139,8 +139,8 @@ class TestMarketTrendAnalysis:
     def test_trend_correlation(self):
         """Test trend correlation analysis."""
         # Test data for multiple related trends
-        trend1 = [{"date": "2025-01-01", "value": 100}, {"date": "2025-02-01", "value": 120}]
-        trend2 = [{"date": "2025-01-01", "value": 50}, {"date": "2025-02-01", "value": 55}]
+        trend1 = [{"date": "2025 - 01 - 01", "value": 100}, {"date": "2025 - 02 - 01", "value": 120}]
+        trend2 = [{"date": "2025 - 01 - 01", "value": 50}, {"date": "2025 - 02 - 01", "value": 55}]
 
         # Analyze correlation between trends
         correlation = self.trend_analyzer.analyze_trend_correlation(trend1, trend2)
@@ -155,12 +155,12 @@ class TestMarketTrendAnalysis:
         """Test trend breakpoint detection."""
         # Test data with a clear trend breakpoint
         data = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 110},
-            {"date": "2025-03-01", "value": 120},
-            {"date": "2025-04-01", "value": 90},  # Breakpoint
-            {"date": "2025-05-01", "value": 85},
-            {"date": "2025-06-01", "value": 80},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 110},
+            {"date": "2025 - 03 - 01", "value": 120},
+            {"date": "2025 - 04 - 01", "value": 90},  # Breakpoint
+            {"date": "2025 - 05 - 01", "value": 85},
+            {"date": "2025 - 06 - 01", "value": 80},
         ]
 
         # Detect breakpoints
@@ -178,7 +178,7 @@ class TestMarketTrendAnalysis:
         """Test handling of invalid trend data."""
         # Test with insufficient data points
         with pytest.raises(InsufficientDataError):
-            self.trend_identifier.identify_trends([{"date": "2025-01-01", "value": 100}])
+            self.trend_identifier.identify_trends([{"date": "2025 - 01 - 01", "value": 100}])
 
         # Test with invalid date format
         with pytest.raises(ValueError):
@@ -186,15 +186,15 @@ class TestMarketTrendAnalysis:
 
         # Test with missing values
         with pytest.raises(ValueError):
-            self.trend_identifier.identify_trends([{"date": "2025-01-01"}])
+            self.trend_identifier.identify_trends([{"date": "2025 - 01 - 01"}])
 
     def test_trend_forecasting(self):
         """Test trend forecasting capabilities."""
         # Historical data for forecasting
         historical_data = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 120},
-            {"date": "2025-03-01", "value": 140},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 120},
+            {"date": "2025 - 03 - 01", "value": 140},
         ]
 
         # Generate forecast
@@ -214,10 +214,10 @@ class TestMarketTrendAnalysis:
         """Test trend significance testing."""
         # Test data
         trend_data = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 120},
-            {"date": "2025-03-01", "value": 140},
-            {"date": "2025-04-01", "value": 160},
+            {"date": "2025 - 01 - 01", "value": 100},
+            {"date": "2025 - 02 - 01", "value": 120},
+            {"date": "2025 - 03 - 01", "value": 140},
+            {"date": "2025 - 04 - 01", "value": 160},
         ]
 
         # Test trend significance
@@ -232,7 +232,7 @@ class TestMarketTrendAnalysis:
 
     def test_current_trend_analysis(self, market_analyzer):
         """Test analysis of current trends."""
-        result = market_analyzer.analyze_trends("e-commerce")
+        result = market_analyzer.analyze_trends("e - commerce")
 
         # Verify current trends exist and have correct structure
         assert "current_trends" in result
@@ -253,7 +253,7 @@ class TestMarketTrendAnalysis:
 
     def test_future_predictions(self, market_analyzer):
         """Test future trend predictions."""
-        result = market_analyzer.analyze_trends("e-commerce")
+        result = market_analyzer.analyze_trends("e - commerce")
 
         # Verify future predictions exist and have correct structure
         assert "future_predictions" in result
@@ -270,11 +270,11 @@ class TestMarketTrendAnalysis:
         assert prediction["likelihood"] in ["high", "medium", "low"]
 
         # Verify timeframes are valid
-        assert prediction["timeframe"] in ["1 year", "2-3 years", "5+ years"]
+        assert prediction["timeframe"] in ["1 year", "2 - 3 years", "5+ years"]
 
     def test_technological_shifts(self, market_analyzer):
         """Test technological shift identification."""
-        result = market_analyzer.analyze_trends("e-commerce")
+        result = market_analyzer.analyze_trends("e - commerce")
 
         # Verify technological shifts exist
         assert "technological_shifts" in result
@@ -284,7 +284,7 @@ class TestMarketTrendAnalysis:
         tech_shifts = result["technological_shifts"]
         expected_shifts = [
             "ai integration",
-            "mobile-first approach",
+            "mobile - first approach",
             "voice interfaces",
             "automation",
         ]
@@ -295,20 +295,20 @@ class TestMarketTrendAnalysis:
     def test_trend_caching(self, market_analyzer):
         """Test caching behavior for trend analysis."""
         # First call to get fresh data
-        first_result = market_analyzer.analyze_trends("e-commerce")
+        first_result = market_analyzer.analyze_trends("e - commerce")
 
         # Second call should return cached data
-        second_result = market_analyzer.analyze_trends("e-commerce")
+        second_result = market_analyzer.analyze_trends("e - commerce")
 
         # Results should be identical when using cache
         assert first_result == second_result
 
         # Force refresh should bypass cache
-        fresh_result = market_analyzer.analyze_trends("e-commerce", force_refresh=True)
+        fresh_result = market_analyzer.analyze_trends("e - commerce", force_refresh=True)
 
         # Verify timestamp is updated in fresh result
         assert fresh_result != first_result
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_market_trends.py"])
+    pytest.main([" - v", "test_market_trends.py"])

@@ -158,7 +158,7 @@ class ServiceDiscovery(ABC):
     """
     Interface for service discovery.
 
-    Service discovery provides high-level methods for discovering and selecting
+    Service discovery provides high - level methods for discovering and selecting
     service instances.
     """
 

@@ -28,7 +28,7 @@ async def handle_task_exception(task: asyncio.Task) -> None:
         await task
     except Exception as e:
         logger.error("Task failed with error: {}".format(e))
-        # Re-raise the exception to ensure it's not silently swallowed
+        # Re - raise the exception to ensure it's not silently swallowed
         raise
 
 
@@ -184,7 +184,8 @@ async def stream_processor(
             raise
 
 
-async def process_batch(batch: List[T], process_func: Any, output_queue: asyncio.Queue) -> None:
+async def process_batch(batch: List[T], process_func: Any, 
+    output_queue: asyncio.Queue) -> None:
     """Process a batch of items and put results in output queue.
 
     Args:
@@ -204,7 +205,7 @@ async def process_batch(batch: List[T], process_func: Any, output_queue: asyncio
 async def run_in_thread(func: Callable, *args: Any, **kwargs: Any) -> Any:
     """Run a blocking function in a thread pool.
 
-    This function allows running blocking I/O operations without blocking
+    This function allows running blocking I / O operations without blocking
     the event loop, which is essential for maintaining responsiveness in
     async applications.
 
@@ -340,7 +341,8 @@ class AsyncModelProcessor:
                 model = self.model_manager.load_model(model_id)
 
                 # Generate text
-                result = await run_in_thread(model.generate_text, prompt=prompt, **kwargs)
+                result = await run_in_thread(model.generate_text, prompt=prompt, 
+                    **kwargs)
 
                 return AsyncResult.success_result(result)
             except Exception as e:
@@ -410,7 +412,8 @@ class AsyncModelProcessor:
                 model = self.model_manager.load_model(model_id)
 
                 # Generate embedding
-                result = await run_in_thread(model.generate_embedding, text=text, **kwargs)
+                result = await run_in_thread(model.generate_embedding, text=text, 
+                    **kwargs)
 
                 return AsyncResult.success_result(result)
             except Exception as e:

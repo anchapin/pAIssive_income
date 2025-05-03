@@ -43,7 +43,8 @@ class VersionChange:
             endpoint: The API endpoint that changed
             change_type: Type of change
             description: Description of the change
-            from_version: Version where the change was introduced (for MODIFIED, DEPRECATED)
+            from_version: Version where the change was introduced (for MODIFIED, 
+                DEPRECATED)
             to_version: Version where the endpoint was removed (for REMOVED)
             sunset_date: Date when the deprecated endpoint will be removed
         """
@@ -90,7 +91,8 @@ class VersionManager:
         for version in APIVersion:
             self.changes[version] = []
 
-    def add_endpoint(self, endpoint: str, version: APIVersion, description: str) -> None:
+    def add_endpoint(self, endpoint: str, version: APIVersion, 
+        description: str) -> None:
         """
         Add a new endpoint to a version.
 
@@ -107,7 +109,8 @@ class VersionManager:
         )
         self.changes[version].append(change)
 
-    def modify_endpoint(self, endpoint: str, version: APIVersion, description: str) -> None:
+    def modify_endpoint(self, endpoint: str, version: APIVersion, 
+        description: str) -> None:
         """
         Mark an endpoint as modified in a version.
 
@@ -141,7 +144,8 @@ class VersionManager:
             sunset_date: Date when the endpoint will be removed
         """
         if sunset_date is None:
-            sunset_date = datetime.now() + timedelta(days=self.default_deprecation_period)
+            sunset_date = datetime.now() + \
+                timedelta(days=self.default_deprecation_period)
 
         change = VersionChange(
             endpoint=endpoint,
@@ -252,7 +256,8 @@ class VersionManager:
         for i in range(version_idx + 1):
             current_version = versions[i]
             for change in self.changes.get(current_version, []):
-                if change.endpoint == endpoint and change.change_type == ChangeType.ADDED:
+                if change.endpoint == \
+                    endpoint and change.change_type == ChangeType.ADDED:
                     return True
 
         return False

@@ -83,7 +83,8 @@ class IMarketingStrategy(ABC):
         pass
 
     @abstractmethod
-    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
+    def create_strategy(self, target_persona: Dict[str, Any], 
+        goals: List[str]) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 
@@ -230,7 +231,7 @@ class IContentTemplate(ABC):
 
 
 class IABTesting(ABC):
-    """Interface for A/B testing."""
+    """Interface for A / B testing."""
 
     @abstractmethod
     def create_test(
@@ -242,7 +243,7 @@ class IABTesting(ABC):
         variants: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
-        Create an A/B test.
+        Create an A / B test.
 
         Args:
             name: Test name
@@ -252,17 +253,17 @@ class IABTesting(ABC):
             variants: List of test variants including control
 
         Returns:
-            A/B test dictionary
+            A / B test dictionary
         """
         pass
 
     @abstractmethod
     def get_variants(self, test_id: str) -> List[Dict[str, Any]]:
         """
-        Get variants for an A/B test.
+        Get variants for an A / B test.
 
         Args:
-            test_id: ID of the A/B test
+            test_id: ID of the A / B test
 
         Returns:
             List of variant dictionaries
@@ -282,7 +283,7 @@ class IABTesting(ABC):
         Record an interaction with a variant.
 
         Args:
-            test_id: ID of the A/B test
+            test_id: ID of the A / B test
             variant_id: ID of the variant
             interaction_type: Type of interaction (impression, click, conversion, etc.)
             user_id: Optional ID of the user
@@ -296,10 +297,10 @@ class IABTesting(ABC):
     @abstractmethod
     def get_results(self, test_id: str) -> Dict[str, Any]:
         """
-        Get results for an A/B test.
+        Get results for an A / B test.
 
         Args:
-            test_id: ID of the A/B test
+            test_id: ID of the A / B test
 
         Returns:
             Dictionary with test results
@@ -309,10 +310,10 @@ class IABTesting(ABC):
     @abstractmethod
     def analyze_test(self, test_id: str) -> Dict[str, Any]:
         """
-        Analyze an A/B test for statistical significance.
+        Analyze an A / B test for statistical significance.
 
         Args:
-            test_id: ID of the A/B test
+            test_id: ID of the A / B test
 
         Returns:
             Dictionary with test analysis
@@ -320,12 +321,13 @@ class IABTesting(ABC):
         pass
 
     @abstractmethod
-    def end_test(self, test_id: str, winning_variant_id: Optional[str] = None) -> Dict[str, Any]:
+    def end_test(self, test_id: str, 
+        winning_variant_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        End an A/B test and optionally select a winning variant.
+        End an A / B test and optionally select a winning variant.
 
         Args:
-            test_id: ID of the A/B test
+            test_id: ID of the A / B test
             winning_variant_id: Optional ID of the winning variant
 
         Returns:
@@ -640,7 +642,8 @@ class IROIAnalyzer(ABC):
             revenue_metrics: Metric name(s) to use for revenue calculation
             forecast_period: Number of time units to forecast
             forecast_unit: Unit for forecast period ("days", "weeks", "months")
-            historical_period: Optional tuple of (start_date, end_date) for historical data
+            historical_period: Optional tuple of (start_date, 
+                end_date) for historical data
 
         Returns:
             Dictionary containing ROI forecast results
@@ -766,7 +769,8 @@ class IContentPerformanceAnalyzer(ABC):
 
         Args:
             content_id: ID of the content
-            engagement_type: Type of engagement (view, click, comment, share, conversion, etc.)
+            engagement_type: Type of engagement (view, click, comment, share, conversion, 
+                etc.)
             channel: Channel where the engagement occurred
             count: Number of engagements to record (default 1)
             timestamp: Optional timestamp for the engagement, defaults to current time
@@ -834,7 +838,8 @@ class IContentPerformanceAnalyzer(ABC):
             channels: Optional list of channels to include
             start_time: Optional start time to filter engagements
             end_time: Optional end time to filter engagements
-            group_by: Optional grouping ("channel", "engagement_type", "daily", "weekly", "monthly")
+            group_by: Optional grouping ("channel", "engagement_type", "daily", "weekly", 
+                "monthly")
             aggregation: Aggregation method ("sum", "avg", "min", "max", "count")
 
         Returns:
@@ -884,7 +889,7 @@ class IContentPerformanceAnalyzer(ABC):
         limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """
-        Identify top-performing content based on engagement metrics.
+        Identify top - performing content based on engagement metrics.
 
         Args:
             content_type: Optional filter for content type
@@ -894,7 +899,7 @@ class IContentPerformanceAnalyzer(ABC):
             limit: Maximum number of items to return
 
         Returns:
-            List of top-performing content items with metrics
+            List of top - performing content items with metrics
         """
         pass
 
@@ -926,15 +931,17 @@ class ISocialMediaIntegration(ABC):
 
     @abstractmethod
     def connect_platform(
-        self, platform: str, credentials: Dict[str, Any], settings: Optional[Dict[str, Any]] = None
+        self, platform: str, credentials: Dict[str, Any], settings: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Connect to a social media platform with provided credentials.
 
         Args:
-            platform: Social media platform name (e.g., "twitter", "facebook", "linkedin")
-            credentials: Platform-specific authentication credentials
-            settings: Optional platform-specific settings
+            platform: Social media platform name (e.g., "twitter", "facebook", 
+                "linkedin")
+            credentials: Platform - specific authentication credentials
+            settings: Optional platform - specific settings
 
         Returns:
             Dictionary containing the connection details

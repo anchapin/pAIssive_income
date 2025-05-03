@@ -1,7 +1,7 @@
 """
 Tests for the model versioning system.
 
-These tests cover version compatibility checks, version upgrade/downgrade logic,
+These tests cover version compatibility checks, version upgrade / downgrade logic,
 and conflict resolution in the model versioning system.
 """
 
@@ -22,12 +22,12 @@ from ai_models.model_versioning import (
 def model_info():
     """Fixture providing a basic ModelInfo instance."""
     return ModelInfo(
-        id="test-model",
+        id="test - model",
         name="Test Model",
         description="A test model",
         type="huggingface",
-        path="/path/to/model",
-        capabilities=["text-generation"],
+        path=" / path / to / model",
+        capabilities=["text - generation"],
     )
 
 
@@ -46,8 +46,8 @@ def migration_tool(version_registry):
 
 def test_version_compatibility_same_major():
     """Test compatibility between versions with the same major version."""
-    v1 = ModelVersion(version="1.0.0", model_id="test-model")
-    v2 = ModelVersion(version="1.1.0", model_id="test-model")
+    v1 = ModelVersion(version="1.0.0", model_id="test - model")
+    v2 = ModelVersion(version="1.1.0", model_id="test - model")
 
     # Versions with same major version should be compatible
     assert v1.is_compatible_with_version(v2)
@@ -56,8 +56,8 @@ def test_version_compatibility_same_major():
 
 def test_version_compatibility_different_major():
     """Test compatibility between versions with different major versions."""
-    v1 = ModelVersion(version="1.0.0", model_id="test-model")
-    v2 = ModelVersion(version="2.0.0", model_id="test-model")
+    v1 = ModelVersion(version="1.0.0", model_id="test - model")
+    v2 = ModelVersion(version="2.0.0", model_id="test - model")
 
     # Versions with different major versions should not be compatible
     assert not v1.is_compatible_with_version(v2)
@@ -66,8 +66,8 @@ def test_version_compatibility_different_major():
 
 def test_version_compatibility_explicit():
     """Test explicit version compatibility declarations."""
-    v1 = ModelVersion(version="1.0.0", model_id="test-model", is_compatible_with=["2.0.0"])
-    v2 = ModelVersion(version="2.0.0", model_id="test-model")
+    v1 = ModelVersion(version="1.0.0", model_id="test - model", is_compatible_with=["2.0.0"])
+    v2 = ModelVersion(version="2.0.0", model_id="test - model")
 
     # v1 should be compatible with v2 due to explicit declaration
     assert v1.is_compatible_with_version(v2)
@@ -99,14 +99,14 @@ def test_cross_model_compatibility(version_registry):
     v1 = ModelVersion(
         version="1.0.0",
         model_id="model1",
-        is_compatible_with=["model2:1.0.0"],  # Explicit cross-model compatibility
+        is_compatible_with=["model2:1.0.0"],  # Explicit cross - model compatibility
     )
     v2 = ModelVersion(version="1.0.0", model_id="model2")
 
     version_registry.register_version(v1)
     version_registry.register_version(v2)
 
-    # Check cross-model compatibility
+    # Check cross - model compatibility
     # By default, different models are not compatible unless explicitly specified
     assert not version_registry.check_compatibility(
         source_model_id="model1",
@@ -119,7 +119,7 @@ def test_cross_model_compatibility(version_registry):
 def test_invalid_version_string():
     """Test handling of invalid version strings."""
     with pytest.raises(ValueError, match="Invalid version string"):
-        ModelVersion(version="invalid", model_id="test-model")
+        ModelVersion(version="invalid", model_id="test - model")
 
 
 def test_version_upgrade_path(migration_tool, model_info):
@@ -249,13 +249,13 @@ def test_version_conflict_resolution(version_registry, model_info):
     """Test handling of conflicting version changes."""
     # Create conflicting versions with different hashes
     v1 = ModelVersion(
-        version="1.0.0", model_id=model_info.id, hash_value="abc123", features=["text-generation"]
+        version="1.0.0", model_id=model_info.id, hash_value="abc123", features=["text - generation"]
     )
     v2 = ModelVersion(
         version="1.0.0",
         model_id=model_info.id,
         hash_value="def456",
-        features=["text-generation", "embedding"],
+        features=["text - generation", "embedding"],
     )
 
     # First registration should succeed
@@ -274,12 +274,12 @@ def test_version_hash_verification(version_registry, tmp_path):
 
     # Create ModelInfo with the test file path
     model_info = ModelInfo(
-        id="test-model",
+        id="test - model",
         name="Test Model",
         description="A test model",
         type="huggingface",
         path=str(model_path),
-        capabilities=["text-generation"],
+        capabilities=["text - generation"],
     )
 
     # Create version with hash
@@ -300,15 +300,15 @@ def test_version_hash_verification(version_registry, tmp_path):
 
 def test_concurrent_version_updates(version_registry, model_info):
     """Test handling of concurrent version updates."""
-    base_version = ModelVersion(version="1.0.0", model_id=model_info.id, features=["base-feature"])
+    base_version = ModelVersion(version="1.0.0", model_id=model_info.id, features=["base - feature"])
     version_registry.register_version(base_version)
 
     # Simulate two concurrent updates
     update1 = ModelVersion(
-        version="1.1.0", model_id=model_info.id, features=["base-feature", "feature-a"]
+        version="1.1.0", model_id=model_info.id, features=["base - feature", "feature - a"]
     )
     update2 = ModelVersion(
-        version="1.1.0", model_id=model_info.id, features=["base-feature", "feature-b"]
+        version="1.1.0", model_id=model_info.id, features=["base - feature", "feature - b"]
     )
 
     # First update should succeed
@@ -320,8 +320,8 @@ def test_concurrent_version_updates(version_registry, model_info):
 
     # Verify the first update was preserved
     registered = version_registry.get_version(model_info.id, "1.1.0")
-    assert "feature-a" in registered.features
-    assert "feature-b" not in registered.features
+    assert "feature - a" in registered.features
+    assert "feature - b" not in registered.features
 
 
 def test_version_metadata_conflict(version_registry, model_info):

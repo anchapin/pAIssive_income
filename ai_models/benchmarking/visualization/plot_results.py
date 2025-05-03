@@ -161,7 +161,7 @@ def plot_comparison(
     ax.set_ylabel(metric.capitalize())
     ax.set_title(f"{metric.capitalize()} Comparison")
 
-    # Rotate x-axis labels if there are many models
+    # Rotate x - axis labels if there are many models
     if len(model_names) > 3:
         plt.xticks(rotation=45, ha="right")
 
@@ -346,7 +346,7 @@ def _plot_latency_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) ->
     ax3 = fig.add_subplot(gs[1, :])
 
     # Plot latency over time
-    ax1.plot(result.latency_ms, marker="o", linestyle="-", markersize=3, **kwargs)
+    ax1.plot(result.latency_ms, marker="o", linestyle=" - ", markersize=3, **kwargs)
     ax1.set_xlabel("Run")
     ax1.set_ylabel("Latency (ms)")
     ax1.set_title("Latency over Time")
@@ -434,7 +434,7 @@ def _plot_throughput_results(fig: plt.Figure, result: BenchmarkResult, **kwargs)
     ax.text(
         0,
         result.throughput,
-        f"{result.throughput:.2f} tokens/s",
+        f"{result.throughput:.2f} tokens / s",
         ha="center",
         va="bottom",
     )
@@ -545,7 +545,7 @@ def _plot_accuracy_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -
     # Add value on top of bar
     ax.text(0, result.accuracy, f"{result.accuracy:.2f}%", ha="center", va="bottom")
 
-    # Set y-axis limits
+    # Set y - axis limits
     ax.set_ylim(0, 100)
 
 
@@ -631,5 +631,5 @@ def _plot_rouge_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> N
     ax.set_ylabel("F1 Score")
     ax.set_title("ROUGE Scores")
 
-    # Set y-axis limits
+    # Set y - axis limits
     ax.set_ylim(0, 1)

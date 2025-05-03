@@ -211,11 +211,11 @@ def test_subscription_model_to_revenue_projector_integration():
 
 
 def test_end_to_end_monetization_workflow(temp_subscription_dir):
-    """Test end-to-end workflow for the Monetization module."""
+    """Test end - to - end workflow for the Monetization module."""
     # 1. Create a freemium model
     model = FreemiumModel(
         name="AI Tool Subscription",
-        description="Subscription model for an AI-powered tool",
+        description="Subscription model for an AI - powered tool",
         free_tier_name="Free",
         free_tier_description="Basic features for free users",
         free_tier_limits={"api_calls": 100, "exports": 10},
@@ -231,7 +231,7 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
 
     advanced_feature = model.add_feature(
         name="Advanced Text Generation",
-        description="Generate high-quality text with more control",
+        description="Generate high - quality text with more control",
         feature_type="premium",
         value_proposition="Create professional content faster",
     )

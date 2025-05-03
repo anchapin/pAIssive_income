@@ -75,20 +75,20 @@ class TestMockProviders(unittest.TestCase):
         self.assertTrue(len(models) > 0)
 
         # Test getting model info
-        model_info = provider.get_model_info("gpt-3.5-turbo")
+        model_info = provider.get_model_info("gpt - 3.5 - turbo")
         self.assertIsNotNone(model_info)
-        self.assertEqual(model_info["id"], "gpt-3.5-turbo")
+        self.assertEqual(model_info["id"], "gpt - 3.5 - turbo")
 
         # Test creating a chat completion
         messages = [{"role": "user", "content": "Hello, world!"}]
-        completion = provider.create_chat_completion("gpt-3.5-turbo", messages)
+        completion = provider.create_chat_completion("gpt - 3.5 - turbo", messages)
         self.assertIsInstance(completion, dict)
         self.assertIn("choices", completion)
         self.assertIn("message", completion["choices"][0])
         self.assertIn("content", completion["choices"][0]["message"])
 
         # Test creating an embedding
-        embedding = provider.create_embedding("text-embedding-ada-002", "Hello, world!")
+        embedding = provider.create_embedding("text - embedding - ada - 002", "Hello, world!")
         self.assertIsInstance(embedding, dict)
         self.assertIn("data", embedding)
         self.assertIn("embedding", embedding["data"][0])
@@ -101,7 +101,7 @@ class TestMockProviders(unittest.TestCase):
 
         # Test with invalid model
         with self.assertRaises(ValueError):
-            provider.create_chat_completion("nonexistent-model", messages)
+            provider.create_chat_completion("nonexistent - model", messages)
 
     def test_huggingface_mock_provider(self):
         """Test the Hugging Face mock provider."""
@@ -113,17 +113,17 @@ class TestMockProviders(unittest.TestCase):
         self.assertIn("generated_text", text_gen[0])
 
         # Test embedding
-        embeddings = provider.embedding("all-MiniLM-L6-v2", "Hello, world!")
+        embeddings = provider.embedding("all - MiniLM - L6 - v2", "Hello, world!")
         self.assertIsInstance(embeddings, np.ndarray)
 
         # Test with multiple texts for embedding
-        multi_embeddings = provider.embedding("all-MiniLM-L6-v2", ["Hello", "World"])
+        multi_embeddings = provider.embedding("all - MiniLM - L6 - v2", ["Hello", "World"])
         self.assertIsInstance(multi_embeddings, np.ndarray)
         self.assertEqual(multi_embeddings.shape[0], 2)  # 2 embeddings
 
         # Test with invalid model
         with self.assertRaises(ValueError):
-            provider.text_generation("nonexistent-model", "Hello, world!")
+            provider.text_generation("nonexistent - model", "Hello, world!")
 
         # Test with invalid capability
         with self.assertRaises(ValueError):
@@ -136,18 +136,18 @@ class TestMockProviders(unittest.TestCase):
         provider = MockLocalModelProvider()
 
         # Test completion
-        completion = provider.generate_completion("llama-2-7b-chat.gguf", "Hello, world!")
+        completion = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello, world!")
         self.assertIsInstance(completion, dict)
         self.assertIn("text", completion)
 
         # Test chat completion
         messages = [{"role": "user", "content": "Hello, world!"}]
-        chat_completion = provider.generate_chat_completion("llama-2-7b-chat.gguf", messages)
+        chat_completion = provider.generate_chat_completion("llama - 2-7b - chat.gguf", messages)
         self.assertIsInstance(chat_completion, dict)
         self.assertIn("text", chat_completion)
 
         # Test with streaming
-        stream = provider.generate_completion("llama-2-7b-chat.gguf", "Hello", stream=True)
+        stream = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello", stream=True)
         chunks = list(stream)
         self.assertTrue(len(chunks) > 0)
         self.assertIn("text", chunks[0])
@@ -155,7 +155,7 @@ class TestMockProviders(unittest.TestCase):
 
         # Test with invalid model
         with self.assertRaises(ValueError):
-            provider.generate_completion("nonexistent-model", "Hello, world!")
+            provider.generate_completion("nonexistent - model", "Hello, world!")
 
     def test_onnx_mock_provider(self):
         """Test the ONNX mock provider."""
@@ -163,18 +163,18 @@ class TestMockProviders(unittest.TestCase):
 
         # Test text classification
         inputs = {"input_ids": [1, 2, 3, 4, 5]}
-        result = provider.run_inference("bert-base-onnx", inputs)
+        result = provider.run_inference("bert - base - onnx", inputs)
         self.assertIsInstance(result, dict)
         self.assertIn("label_scores", result)
 
         # Test text generation
-        result = provider.run_inference("gpt2-onnx", {"input_ids": [1, 2, 3, 4, 5]})
+        result = provider.run_inference("gpt2 - onnx", {"input_ids": [1, 2, 3, 4, 5]})
         self.assertIsInstance(result, dict)
         self.assertIn("generated_text", result)
 
         # Test with invalid model
         with self.assertRaises(ValueError):
-            provider.run_inference("nonexistent-model", inputs)
+            provider.run_inference("nonexistent - model", inputs)
 
     def test_integration_with_model_manager(self):
         """Test integrating mock providers with the ModelManager."""
@@ -210,7 +210,7 @@ class TestMockProviders(unittest.TestCase):
         # Register mock models
         # 1. Register a mock Hugging Face model
         hf_model = ModelInfo(
-            id="mock-hf-model",
+            id="mock - hf - model",
             name="Mock HF Model",
             type="huggingface",
             path="gpt2",
@@ -220,10 +220,10 @@ class TestMockProviders(unittest.TestCase):
 
         # 2. Register a mock local GGUF model
         local_model = ModelInfo(
-            id="mock-local-model",
+            id="mock - local - model",
             name="Mock Local Model",
             type="llama",
-            path=os.path.join(temp_dir, "mock-model.gguf"),
+            path=os.path.join(temp_dir, "mock - model.gguf"),
             description="Mock local GGUF model for testing",
             format="gguf",
             quantization="q4_k_m",
@@ -286,7 +286,7 @@ def test_usage_with_pytest(mock_openai_provider, mock_providers):
     """Example test using pytest fixtures."""
     # Test with a single provider fixture
     response = mock_openai_provider.create_chat_completion(
-        "gpt-3.5-turbo", [{"role": "user", "content": "Hello, pytest!"}]
+        "gpt - 3.5 - turbo", [{"role": "user", "content": "Hello, pytest!"}]
     )
     assert "choices" in response
     assert "message" in response["choices"][0]

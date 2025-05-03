@@ -27,11 +27,11 @@ class TestAdvancedAuthentication(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=60,
             jwt_refresh_expires_days=7,
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         self.auth_middleware = AuthMiddleware(self.config)
 
@@ -102,11 +102,11 @@ class TestAdvancedAuthentication(unittest.TestCase):
         """Test refreshing with expired access token but valid refresh token."""
         # Create config with short access token expiry
         config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=0.05,  # 3 seconds
             jwt_refresh_expires_days=7,
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         auth_middleware = AuthMiddleware(config)
 
@@ -132,11 +132,11 @@ class TestAdvancedAuthentication(unittest.TestCase):
         """Test refreshing with expired refresh token."""
         # Create config with short refresh token expiry
         config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=60,
             jwt_refresh_expires_days=0.0001,  # ~8.6 seconds
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         auth_middleware = AuthMiddleware(config)
 
@@ -346,7 +346,7 @@ class TestAdvancedAuthentication(unittest.TestCase):
 
         # Create test session
         user_id = "123"
-        session_id = "test-session"
+        session_id = "test - session"
         self.session_store.add_session(
             user_id, session_id, {"created_at": datetime.now().isoformat()}
         )

@@ -6,7 +6,7 @@ from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 # Test empty events list in WebhookRequest
 def test_webhook_request_empty_events():
-    data = {"url": "https://example.com/webhook", "events": [], "is_active": True}
+    data = {"url": "https://example.com / webhook", "events": [], "is_active": True}
 
     try:
         WebhookRequest(**data)
@@ -30,7 +30,7 @@ def test_webhook_update_empty_events():
 
 # Test null events list in WebhookUpdate (should be allowed)
 def test_webhook_update_null_events():
-    data = {"url": "https://example.com/webhook", "events": None}
+    data = {"url": "https://example.com / webhook", "events": None}
 
     try:
         update = WebhookUpdate(**data)

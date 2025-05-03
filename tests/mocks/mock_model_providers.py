@@ -31,32 +31,32 @@ class MockBaseModelProvider:
             "available_models",
             [
                 {
-                    "id": "gpt-3.5-turbo",
-                    "name": "GPT-3.5 Turbo",
-                    "capabilities": ["text-generation", "chat"],
+                    "id": "gpt - 3.5 - turbo",
+                    "name": "GPT - 3.5 Turbo",
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
+                    "owned_by": "mock - provider",
                 },
                 {
-                    "id": "gpt-4-turbo",
-                    "name": "GPT-4 Turbo",
-                    "capabilities": ["text-generation", "chat"],
+                    "id": "gpt - 4-turbo",
+                    "name": "GPT - 4 Turbo",
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
+                    "owned_by": "mock - provider",
                 },
                 {
-                    "id": "dall-e-3",
-                    "name": "DALL-E 3",
-                    "capabilities": ["image-generation"],
+                    "id": "dall - e-3",
+                    "name": "DALL - E 3",
+                    "capabilities": ["image - generation"],
                     "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
+                    "owned_by": "mock - provider",
                 },
                 {
-                    "id": "text-embedding-ada-002",
+                    "id": "text - embedding - ada - 002",
                     "name": "Text Embedding Ada 002",
                     "capabilities": ["embeddings"],
                     "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
+                    "owned_by": "mock - provider",
                 },
             ],
         )
@@ -106,37 +106,37 @@ class MockOpenAIProvider(MockBaseModelProvider):
             "available_models",
             [
                 {
-                    "id": "gpt-3.5-turbo",
-                    "name": "GPT-3.5 Turbo",
-                    "capabilities": ["text-generation", "chat", "function-calling"],
+                    "id": "gpt - 3.5 - turbo",
+                    "name": "GPT - 3.5 Turbo",
+                    "capabilities": ["text - generation", "chat", "function - calling"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "openai",
                 },
                 {
-                    "id": "gpt-4",
-                    "name": "GPT-4",
-                    "capabilities": ["text-generation", "chat", "function-calling"],
+                    "id": "gpt - 4",
+                    "name": "GPT - 4",
+                    "capabilities": ["text - generation", "chat", "function - calling"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "openai",
                 },
                 {
-                    "id": "gpt-4-turbo",
-                    "name": "GPT-4 Turbo",
-                    "capabilities": ["text-generation", "chat", "function-calling"],
+                    "id": "gpt - 4-turbo",
+                    "name": "GPT - 4 Turbo",
+                    "capabilities": ["text - generation", "chat", "function - calling"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "openai",
                 },
                 {
-                    "id": "text-embedding-ada-002",
+                    "id": "text - embedding - ada - 002",
                     "name": "Text Embedding Ada 002",
                     "capabilities": ["embeddings"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "openai",
                 },
                 {
-                    "id": "dall-e-3",
-                    "name": "DALL-E 3",
-                    "capabilities": ["image-generation"],
+                    "id": "dall - e-3",
+                    "name": "DALL - E 3",
+                    "capabilities": ["image - generation"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "openai",
                 },
@@ -155,10 +155,10 @@ class MockOpenAIProvider(MockBaseModelProvider):
         # Mock responses for each endpoint
         self.mock_responses = {
             "chat_completion": {
-                "id": "chatcmpl-mock-id",
+                "id": "chatcmpl - mock - id",
                 "object": "chat.completion",
                 "created": int(datetime.now().timestamp()),
-                "model": "gpt-3.5-turbo",
+                "model": "gpt - 3.5 - turbo",
                 "choices": [
                     {
                         "index": 0,
@@ -174,10 +174,10 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
             },
             "text_completion": {
-                "id": "cmpl-mock-id",
+                "id": "cmpl - mock - id",
                 "object": "text_completion",
                 "created": int(datetime.now().timestamp()),
-                "model": "gpt-3.5-turbo",
+                "model": "gpt - 3.5 - turbo",
                 "choices": [
                     {
                         "text": self.config.get(
@@ -198,12 +198,12 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         "index": 0,
                     }
                 ],
-                "model": "text-embedding-ada-002",
+                "model": "text - embedding - ada - 002",
                 "usage": {"prompt_tokens": 8, "total_tokens": 8},
             },
             "images": {
                 "created": int(datetime.now().timestamp()),
-                "data": [{"url": "https://mock-url.com/image.png", "b64_json": None}],
+                "data": [{"url": "https://mock - url.com / image.png", "b64_json": None}],
             },
         }
 
@@ -266,7 +266,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 words = text.split()
                 for i, word in enumerate(words):
                     yield {
-                        "id": f"cmpl-mock-id-stream-{i}",
+                        "id": f"cmpl - mock - id - stream-{i}",
                         "object": "text_completion.chunk",
                         "created": int(datetime.now().timestamp()),
                         "model": model,
@@ -333,7 +333,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 words = text.split()
                 for i, word in enumerate(words):
                     yield {
-                        "id": f"chatcmpl-mock-id-stream-{i}",
+                        "id": f"chatcmpl - mock - id - stream-{i}",
                         "object": "chat.completion.chunk",
                         "created": int(datetime.now().timestamp()),
                         "model": model,
@@ -392,12 +392,12 @@ class MockOpenAIProvider(MockBaseModelProvider):
         """Create images from a prompt."""
         self.record_call("create_image", prompt=prompt, model=model, size=size, n=n, **kwargs)
 
-        # Use DALL-E 3 as default model if none specified
-        model = model or "dall-e-3"
+        # Use DALL - E 3 as default model if none specified
+        model = model or "dall - e-3"
 
         # Check if model exists and has image generation capability
         model_info = self.get_model_info(model)
-        if not model_info or "image-generation" not in model_info.get("capabilities", []):
+        if not model_info or "image - generation" not in model_info.get("capabilities", []):
             raise ValueError(self.error_messages["invalid_model"])
 
         response = self.mock_responses["images"].copy()
@@ -407,7 +407,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
             response["data"] = []
             for i in range(n):
                 response["data"].append(
-                    {"url": f"https://mock-url.com/image_{i}.png", "b64_json": None}
+                    {"url": f"https://mock - url.com / image_{i}.png", "b64_json": None}
                 )
 
         return response
@@ -427,21 +427,21 @@ class MockOllamaProvider(MockBaseModelProvider):
                 {
                     "id": "llama2",
                     "name": "Llama 2",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "modified_at": datetime.now().isoformat(),
                     "size": 3791730293,
                 },
                 {
                     "id": "llama2:13b",
                     "name": "Llama 2 13B",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "modified_at": datetime.now().isoformat(),
                     "size": 7323315540,
                 },
                 {
                     "id": "mistral",
                     "name": "Mistral 7B",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "modified_at": datetime.now().isoformat(),
                     "size": 4032639651,
                 },
@@ -606,9 +606,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
             "available_models",
             [
                 {
-                    "id": "local-model",
+                    "id": "local - model",
                     "name": "Local Model",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
                     "owned_by": "user",
                 }
@@ -618,10 +618,10 @@ class MockLMStudioProvider(MockBaseModelProvider):
         # Mock responses - LM Studio uses OpenAI compatible API
         self.mock_responses = {
             "completion": {
-                "id": "cmpl-lmstudio-mock",
+                "id": "cmpl - lmstudio - mock",
                 "object": "text_completion",
                 "created": int(datetime.now().timestamp()),
-                "model": "local-model",
+                "model": "local - model",
                 "choices": [
                     {
                         "text": self.config.get(
@@ -633,10 +633,10 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 ],
             },
             "chat_completion": {
-                "id": "chatcmpl-lmstudio-mock",
+                "id": "chatcmpl - lmstudio - mock",
                 "object": "chat.completion",
                 "created": int(datetime.now().timestamp()),
-                "model": "local-model",
+                "model": "local - model",
                 "choices": [
                     {
                         "index": 0,
@@ -696,7 +696,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 words = text.split()
                 for i, word in enumerate(words):
                     yield {
-                        "id": f"cmpl-lmstudio-mock-stream-{i}",
+                        "id": f"cmpl - lmstudio - mock - stream-{i}",
                         "object": "text_completion.chunk",
                         "created": int(datetime.now().timestamp()),
                         "model": model,
@@ -759,7 +759,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 words = text.split()
                 for i, word in enumerate(words):
                     yield {
-                        "id": f"chatcmpl-lmstudio-mock-stream-{i}",
+                        "id": f"chatcmpl - lmstudio - mock - stream-{i}",
                         "object": "chat.completion.chunk",
                         "created": int(datetime.now().timestamp()),
                         "model": model,
@@ -790,31 +790,31 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             [
                 {
                     "id": "gpt2",
-                    "name": "GPT-2",
-                    "capabilities": ["text-generation"],
+                    "name": "GPT - 2",
+                    "capabilities": ["text - generation"],
                     "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text-generation",
+                    "pipeline_tag": "text - generation",
                 },
                 {
-                    "id": "t5-small",
+                    "id": "t5 - small",
                     "name": "T5 Small",
-                    "capabilities": ["text2text-generation", "summarization", "translation"],
+                    "capabilities": ["text2text - generation", "summarization", "translation"],
                     "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text2text-generation",
+                    "pipeline_tag": "text2text - generation",
                 },
                 {
-                    "id": "distilbert-base-uncased",
+                    "id": "distilbert - base - uncased",
                     "name": "DistilBERT Base Uncased",
-                    "capabilities": ["text-classification", "token-classification"],
+                    "capabilities": ["text - classification", "token - classification"],
                     "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text-classification",
+                    "pipeline_tag": "text - classification",
                 },
                 {
-                    "id": "all-MiniLM-L6-v2",
+                    "id": "all - MiniLM - L6 - v2",
                     "name": "MiniLM L6 v2",
-                    "capabilities": ["embedding", "sentence-similarity"],
+                    "capabilities": ["embedding", "sentence - similarity"],
                     "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "feature-extraction",
+                    "pipeline_tag": "feature - extraction",
                 },
             ],
         )
@@ -844,8 +844,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 {"label": "NEGATIVE", "score": 0.05},
             ],
             "token_classification": [
-                {"entity": "B-PER", "score": 0.98, "word": "John", "start": 0, "end": 4},
-                {"entity": "I-PER", "score": 0.92, "word": "Doe", "start": 5, "end": 8},
+                {"entity": "B - PER", "score": 0.98, "word": "John", "start": 0, "end": 4},
+                {"entity": "I - PER", "score": 0.92, "word": "Doe", "start": 5, "end": 8},
             ],
             "embeddings": np.random.rand(1, 384).tolist(),  # Common embedding size for MiniLM
         }
@@ -881,7 +881,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         # Check if model exists and has text generation capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text-generation" not in model_info.get("capabilities", []):
+        if not model_info or "text - generation" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text generation")
 
         response = self.mock_responses["text_generation"].copy()
@@ -905,7 +905,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         # Check if model exists and has text2text generation capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text2text-generation" not in model_info.get("capabilities", []):
+        if not model_info or "text2text - generation" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text2text generation")
 
         response = self.mock_responses["text2text_generation"].copy()
@@ -983,7 +983,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         # Check if model exists and has text classification capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text-classification" not in model_info.get("capabilities", []):
+        if not model_info or "text - classification" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text classification")
 
         response = self.mock_responses["text_classification"].copy()
@@ -996,7 +996,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         # Check if model exists and has token classification capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "token-classification" not in model_info.get("capabilities", []):
+        if not model_info or "token - classification" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support token classification")
 
         response = self.mock_responses["token_classification"].copy()
@@ -1021,12 +1021,12 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             embeddings = []
             for i, t in enumerate(text):
                 # Add a small offset based on the index for deterministic but different vectors
-                offset = np.random.RandomState(hash(t) % 2**32).rand(*base_embedding.shape) * 0.1
+                offset = np.random.RandomState(hash(t) % 2** 32).rand(*base_embedding.shape) * 0.1
                 embeddings.append(base_embedding + offset)
             return np.vstack(embeddings)
         else:
             # Add a small random offset for determinism based on text hash
-            offset = np.random.RandomState(hash(text) % 2**32).rand(*base_embedding.shape) * 0.1
+            offset = np.random.RandomState(hash(text) % 2** 32).rand(*base_embedding.shape) * 0.1
             return base_embedding + offset
 
 
@@ -1042,41 +1042,41 @@ class MockLocalModelProvider(MockBaseModelProvider):
             "available_models",
             [
                 {
-                    "id": "llama-2-7b-chat.gguf",
+                    "id": "llama - 2-7b - chat.gguf",
                     "name": "Llama 2 7B Chat",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-2-7b-chat.gguf",
+                    "path": " / path / to / llama - 2-7b - chat.gguf",
                     "size_mb": 3900,
                     "format": "gguf",
                     "quantization": "q4_k_m",
                 },
                 {
-                    "id": "llama-3-8b-instruct.gguf",
+                    "id": "llama - 3-8b - instruct.gguf",
                     "name": "Llama 3 8B Instruct",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-3-8b-instruct.gguf",
+                    "path": " / path / to / llama - 3-8b - instruct.gguf",
                     "size_mb": 4200,
                     "format": "gguf",
                     "quantization": "q5_k_m",
                 },
                 {
-                    "id": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                    "id": "mistral - 7b - instruct - v0.2.Q4_K_M.gguf",
                     "name": "Mistral 7B Instruct",
-                    "capabilities": ["text-generation", "chat"],
+                    "capabilities": ["text - generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                    "path": " / path / to / mistral - 7b - instruct - v0.2.Q4_K_M.gguf",
                     "size_mb": 3800,
                     "format": "gguf",
                     "quantization": "q4_k_m",
                 },
                 {
-                    "id": "phi-2.Q4_K_M.gguf",
-                    "name": "Phi-2",
-                    "capabilities": ["text-generation"],
+                    "id": "phi - 2.Q4_K_M.gguf",
+                    "name": "Phi - 2",
+                    "capabilities": ["text - generation"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/phi-2.Q4_K_M.gguf",
+                    "path": " / path / to / phi - 2.Q4_K_M.gguf",
                     "size_mb": 1700,
                     "format": "gguf",
                     "quantization": "q4_k_m",
@@ -1236,25 +1236,25 @@ class MockONNXProvider(MockBaseModelProvider):
             "available_models",
             [
                 {
-                    "id": "bert-base-onnx",
+                    "id": "bert - base - onnx",
                     "name": "BERT Base ONNX",
-                    "capabilities": ["text-classification", "feature-extraction"],
+                    "capabilities": ["text - classification", "feature - extraction"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/bert-base.onnx",
+                    "path": " / path / to / bert - base.onnx",
                 },
                 {
-                    "id": "resnet50-onnx",
+                    "id": "resnet50 - onnx",
                     "name": "ResNet 50 ONNX",
-                    "capabilities": ["image-classification"],
+                    "capabilities": ["image - classification"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/resnet50.onnx",
+                    "path": " / path / to / resnet50.onnx",
                 },
                 {
-                    "id": "gpt2-onnx",
-                    "name": "GPT-2 ONNX",
-                    "capabilities": ["text-generation"],
+                    "id": "gpt2 - onnx",
+                    "name": "GPT - 2 ONNX",
+                    "capabilities": ["text - generation"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/gpt2.onnx",
+                    "path": " / path / to / gpt2.onnx",
                 },
             ],
         )
@@ -1299,13 +1299,13 @@ class MockONNXProvider(MockBaseModelProvider):
         # Get capabilities
         capabilities = model_info.get("capabilities", [])
 
-        if "text-classification" in capabilities:
+        if "text - classification" in capabilities:
             return self.mock_responses["text_classification"].copy()
-        elif "feature-extraction" in capabilities:
+        elif "feature - extraction" in capabilities:
             return self.mock_responses["feature_extraction"].copy()
-        elif "image-classification" in capabilities:
+        elif "image - classification" in capabilities:
             return self.mock_responses["image_classification"].copy()
-        elif "text-generation" in capabilities:
+        elif "text - generation" in capabilities:
             return self.mock_responses["text_generation"].copy()
         else:
             raise ValueError(f"Unsupported capability for model {model_id}")

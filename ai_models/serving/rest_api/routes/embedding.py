@@ -27,7 +27,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1", tags=["Embeddings"])
+    router = APIRouter(prefix=" / v1", tags=["Embeddings"])
 else:
     router = None
 
@@ -64,7 +64,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.post("/embeddings", response_model=EmbeddingResponse)
+    @router.post(" / embeddings", response_model=EmbeddingResponse)
     async def get_embeddings(request: EmbeddingRequest, model=None):
         """
         Get embeddings for text.

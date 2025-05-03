@@ -56,12 +56,12 @@ class TestUIStateManagement:
     def test_state_transition(self, state_manager):
         """Test state transition."""
         # Transition to a new state
-        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
 
         # Check new state
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
         assert state_manager.previous_state == UIState.INITIAL
-        assert state_manager.state_data == {"market_segments": ["e-commerce"]}
+        assert state_manager.state_data == {"market_segments": ["e - commerce"]}
 
         # Transition to another state
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
@@ -74,7 +74,7 @@ class TestUIStateManagement:
     def test_state_history(self, state_manager):
         """Test state history tracking."""
         # Transition through several states
-        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
         state_manager.transition_to(UIState.MONETIZATION, {"solution_id": "solution1"})
 
@@ -89,7 +89,7 @@ class TestUIStateManagement:
     def test_state_rollback(self, state_manager):
         """Test state rollback."""
         # Transition through several states
-        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
 
         # Rollback to previous state
@@ -97,7 +97,7 @@ class TestUIStateManagement:
 
         # Check current state
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
-        assert state_manager.state_data == {"market_segments": ["e-commerce"]}
+        assert state_manager.state_data == {"market_segments": ["e - commerce"]}
 
         # Rollback again
         state_manager.rollback()
@@ -111,7 +111,7 @@ class TestUIStateManagement:
         ui = web_ui_with_state
 
         # Simulate user actions that change state
-        ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
 
         # Check UI state
         assert ui.state_manager.current_state == UIState.NICHE_ANALYSIS
@@ -127,7 +127,7 @@ class TestUIStateManagement:
         ui = cli_ui_with_state
 
         # Simulate user commands that change state
-        ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
 
         # Check UI state
         assert ui.state_manager.current_state == UIState.NICHE_ANALYSIS
@@ -184,7 +184,7 @@ class TestUIStateManagement:
 
         # Test transition with validation
         state_manager.transition_to(
-            UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]}, validate=True
+            UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]}, validate=True
         )
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
 
@@ -195,7 +195,7 @@ class TestUIStateManagement:
     def test_state_persistence(self, state_manager):
         """Test state persistence."""
         # Transition to a state
-        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
+        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]})
 
         # Save state
         state_data = state_manager.serialize()
@@ -208,7 +208,7 @@ class TestUIStateManagement:
 
         # Check state
         assert new_state_manager.current_state == UIState.NICHE_ANALYSIS
-        assert new_state_manager.state_data == {"market_segments": ["e-commerce"]}
+        assert new_state_manager.state_data == {"market_segments": ["e - commerce"]}
 
     def test_cross_ui_state_synchronization(self, web_ui_with_state, cli_ui_with_state):
         """Test state synchronization between different UI components."""
@@ -220,12 +220,12 @@ class TestUIStateManagement:
 
         # Change state in web UI
         web_ui.state_manager.transition_to(
-            UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]}
+            UIState.NICHE_ANALYSIS, {"market_segments": ["e - commerce"]}
         )
 
         # Check state in CLI UI
         assert cli_ui.state_manager.current_state == UIState.NICHE_ANALYSIS
-        assert cli_ui.state_manager.state_data == {"market_segments": ["e-commerce"]}
+        assert cli_ui.state_manager.state_data == {"market_segments": ["e - commerce"]}
 
         # Change state in CLI UI
         cli_ui.state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
@@ -236,4 +236,4 @@ class TestUIStateManagement:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_ui_state_management.py"])
+    pytest.main([" - v", "test_ui_state_management.py"])

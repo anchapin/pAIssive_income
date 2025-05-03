@@ -31,7 +31,7 @@ class BaseError(Exception):
         Initialize the base error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             code: Error code for programmatic handling
             details: Additional error details
             http_status: HTTP status code for API responses
@@ -84,7 +84,8 @@ class BaseError(Exception):
         Args:
             level: Logging level
         """
-        logger.log(level, f"{self.code}: {self.message}", exc_info=self.original_exception)
+        logger.log(level, f"{self.code}: {self.message}", 
+            exc_info=self.original_exception)
 
 
 # Configuration Errors
@@ -98,7 +99,7 @@ class ConfigurationError(BaseError):
         Initialize the configuration error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             config_key: The configuration key that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -127,7 +128,7 @@ class ValidationError(BaseError):
         Initialize the validation error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             field: The field that failed validation
             validation_errors: List of validation errors
             **kwargs: Additional arguments to pass to the base class
@@ -149,14 +150,14 @@ class ValidationError(BaseError):
 
 
 class ModelError(BaseError):
-    """Base class for all model-related errors."""
+    """Base class for all model - related errors."""
 
     def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
         """
         Initialize the model error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -179,7 +180,7 @@ class ModelNotFoundError(ModelError):
         Initialize the model not found error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that was not found
             **kwargs: Additional arguments to pass to the base class
         """
@@ -198,7 +199,7 @@ class ModelLoadError(ModelError):
         Initialize the model load error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that failed to load
             **kwargs: Additional arguments to pass to the base class
         """
@@ -217,7 +218,7 @@ class ModelInferenceError(ModelError):
         Initialize the model inference error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that failed during inference
             **kwargs: Additional arguments to pass to the base class
         """
@@ -232,13 +233,14 @@ class ModelAPIError(ModelError):
     """Error raised when there's an issue with the model API."""
 
     def __init__(
-        self, message: str, model_id: Optional[str] = None, endpoint: Optional[str] = None, **kwargs
+        self, message: str, model_id: Optional[str] = None, 
+            endpoint: Optional[str] = None, **kwargs
     ):
         """
         Initialize the model API error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that had an API issue
             endpoint: API endpoint that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -258,13 +260,14 @@ class ModelDownloadError(ModelError):
     """Error raised when model download fails."""
 
     def __init__(
-        self, message: str, model_id: Optional[str] = None, source: Optional[str] = None, **kwargs
+        self, message: str, model_id: Optional[str] = None, source: Optional[str] = None, 
+            **kwargs
     ):
         """
         Initialize the model download error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             model_id: ID of the model that failed to download
             source: Source of the model download
             **kwargs: Additional arguments to pass to the base class
@@ -284,14 +287,14 @@ class ModelDownloadError(ModelError):
 
 
 class MonetizationError(BaseError):
-    """Base class for all monetization-related errors."""
+    """Base class for all monetization - related errors."""
 
     def __init__(self, message: str, **kwargs):
         """
         Initialize the monetization error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
@@ -315,7 +318,7 @@ class SubscriptionError(MonetizationError):
         Initialize the subscription error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             subscription_id: ID of the subscription
             user_id: ID of the user
             **kwargs: Additional arguments to pass to the base class
@@ -347,7 +350,7 @@ class PaymentError(MonetizationError):
         Initialize the payment error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             transaction_id: ID of the transaction
             payment_method: Payment method used
             **kwargs: Additional arguments to pass to the base class
@@ -369,14 +372,14 @@ class PaymentError(MonetizationError):
 
 
 class NicheAnalysisError(BaseError):
-    """Base class for all niche analysis-related errors."""
+    """Base class for all niche analysis - related errors."""
 
     def __init__(self, message: str, **kwargs):
         """
         Initialize the niche analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
@@ -394,7 +397,7 @@ class MarketAnalysisError(NicheAnalysisError):
         Initialize the market analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -417,7 +420,7 @@ class OpportunityScoringError(NicheAnalysisError):
         Initialize the opportunity scoring error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -443,7 +446,7 @@ class SecurityError(BaseError):
         Initialize the security error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             security_type: Type of security issue
             **kwargs: Additional arguments to pass to the base class
         """
@@ -462,14 +465,14 @@ class SecurityError(BaseError):
 
 
 class AgentTeamError(BaseError):
-    """Base class for all agent team-related errors."""
+    """Base class for all agent team - related errors."""
 
     def __init__(self, message: str, **kwargs):
         """
         Initialize the agent team error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
@@ -487,7 +490,7 @@ class AgentError(AgentTeamError):
         Initialize the agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             agent_name: Name of the agent that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -506,14 +509,14 @@ class AgentError(AgentTeamError):
 
 
 class MarketingError(BaseError):
-    """Base class for all marketing-related errors."""
+    """Base class for all marketing - related errors."""
 
     def __init__(self, message: str, **kwargs):
         """
         Initialize the marketing error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
@@ -531,7 +534,7 @@ class StrategyGenerationError(MarketingError):
         Initialize the strategy generation error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             strategy_type: Type of strategy that failed to generate
             **kwargs: Additional arguments to pass to the base class
         """
@@ -550,14 +553,14 @@ class StrategyGenerationError(MarketingError):
 
 
 class UIError(BaseError):
-    """Base class for all UI-related errors."""
+    """Base class for all UI - related errors."""
 
     def __init__(self, message: str, **kwargs):
         """
         Initialize the UI error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
@@ -571,13 +574,14 @@ class APIError(UIError):
     """Error raised when an API operation fails."""
 
     def __init__(
-        self, message: str, endpoint: Optional[str] = None, method: Optional[str] = None, **kwargs
+        self, message: str, endpoint: Optional[str] = None, method: Optional[str] = None, 
+            **kwargs
     ):
         """
         Initialize the API error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             endpoint: API endpoint that caused the error
             method: HTTP method used
             **kwargs: Additional arguments to pass to the base class

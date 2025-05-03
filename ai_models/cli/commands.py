@@ -1,5 +1,5 @@
 """
-Command implementations for the command-line interface.
+Command implementations for the command - line interface.
 
 This module provides the implementation of all commands for the CLI.
 """
@@ -23,7 +23,7 @@ from .base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -38,9 +38,9 @@ class DownloadCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID or name of the model to download")
+        parser.add_argument("--model - id", required=True, help="ID or name of the model to download")
         parser.add_argument(
             "--source",
             choices=["huggingface", "local", "url"],
@@ -48,7 +48,7 @@ class DownloadCommand(BaseCommand):
             help="Source of the model",
         )
         parser.add_argument(
-            "--output-dir",
+            "--output - dir",
             help="Directory to save the model to (default: models directory from config)",
         )
         parser.add_argument("--config", help="Path to a configuration file")
@@ -139,7 +139,7 @@ class ListCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
         parser.add_argument("--type", help="Filter models by type")
         parser.add_argument(
@@ -218,9 +218,9 @@ class InfoCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID of the model")
+        parser.add_argument("--model - id", required=True, help="ID of the model")
         parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
         )
@@ -309,12 +309,12 @@ class ServeRESTCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
         parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
         parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
         parser.add_argument(
-            "--model-id",
+            "--model - id",
             help="ID of the model to serve (if not specified, all models will be available)",
         )
         parser.add_argument("--config", help="Path to a configuration file")
@@ -356,12 +356,12 @@ class ServeGRPCCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
         parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
         parser.add_argument("--port", type=int, default=50051, help="Port to bind to")
         parser.add_argument(
-            "--model-id",
+            "--model - id",
             help="ID of the model to serve (if not specified, all models will be available)",
         )
         parser.add_argument("--config", help="Path to a configuration file")
@@ -403,16 +403,16 @@ class OptimizeCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID of the model to optimize")
+        parser.add_argument("--model - id", required=True, help="ID of the model to optimize")
         parser.add_argument(
             "--method",
             choices=["quantize", "prune", "distill"],
             default="quantize",
             help="Optimization method",
         )
-        parser.add_argument("--output-dir", help="Directory to save the optimized model")
+        parser.add_argument("--output - dir", help="Directory to save the optimized model")
         parser.add_argument("--config", help="Path to a configuration file")
 
     def run(self) -> int:
@@ -452,12 +452,12 @@ class BenchmarkCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID of the model to benchmark")
+        parser.add_argument("--model - id", required=True, help="ID of the model to benchmark")
         parser.add_argument("--iterations", type=int, default=10, help="Number of iterations")
         parser.add_argument(
-            "--input-text", default="Hello, world!", help="Input text for benchmarking"
+            "--input - text", default="Hello, world!", help="Input text for benchmarking"
         )
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -498,16 +498,16 @@ class DeployCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID of the model to deploy")
+        parser.add_argument("--model - id", required=True, help="ID of the model to deploy")
         parser.add_argument(
             "--target",
             choices=["docker", "kubernetes", "aws", "azure", "gcp"],
             default="docker",
             help="Deployment target",
         )
-        parser.add_argument("--output-dir", help="Directory to save deployment artifacts")
+        parser.add_argument("--output - dir", help="Directory to save deployment artifacts")
         parser.add_argument("--config", help="Path to a configuration file")
 
     def run(self) -> int:
@@ -547,10 +547,10 @@ class ValidateCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model-id", required=True, help="ID of the model to validate")
-        parser.add_argument("--test-data", help="Path to test data")
+        parser.add_argument("--model - id", required=True, help="ID of the model to validate")
+        parser.add_argument("--test - data", help="Path to test data")
         parser.add_argument("--config", help="Path to a configuration file")
 
     def run(self) -> int:
@@ -590,7 +590,7 @@ class VersionCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
         subparsers = parser.add_subparsers(
             dest="version_command", help="Version management command"
@@ -598,33 +598,33 @@ class VersionCommand(BaseCommand):
 
         # Create a new version
         create_parser = subparsers.add_parser("create", help="Create a new version for a model")
-        create_parser.add_argument("--model-id", required=True, help="ID of the model")
+        create_parser.add_argument("--model - id", required=True, help="ID of the model")
         create_parser.add_argument(
             "--version",
             required=True,
             help="Version string in semver format (e.g., '1.0.0')",
         )
         create_parser.add_argument(
-            "--features", nargs="*", help="Features supported by this version"
+            "--features", nargs=" * ", help="Features supported by this version"
         )
         create_parser.add_argument(
             "--dependencies",
-            nargs="*",
+            nargs=" * ",
             help="Dependencies in the format 'name:version'",
         )
         create_parser.add_argument(
             "--compatibility",
-            nargs="*",
+            nargs=" * ",
             help="Compatible versions in the format 'model_id:version'",
         )
         create_parser.add_argument(
-            "--metadata-file", help="Path to a JSON file with additional metadata"
+            "--metadata - file", help="Path to a JSON file with additional metadata"
         )
         create_parser.add_argument("--config", help="Path to a configuration file")
 
         # List versions
         list_parser = subparsers.add_parser("list", help="List versions of a model")
-        list_parser.add_argument("--model-id", required=True, help="ID of the model")
+        list_parser.add_argument("--model - id", required=True, help="ID of the model")
         list_parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
         )
@@ -632,7 +632,7 @@ class VersionCommand(BaseCommand):
 
         # Get version info
         info_parser = subparsers.add_parser("info", help="Get information about a specific version")
-        info_parser.add_argument("--model-id", required=True, help="ID of the model")
+        info_parser.add_argument("--model - id", required=True, help="ID of the model")
         info_parser.add_argument("--version", required=True, help="Version string")
         info_parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
@@ -641,17 +641,17 @@ class VersionCommand(BaseCommand):
 
         # Check compatibility
         check_parser = subparsers.add_parser(
-            "check-compatibility", help="Check if two model versions are compatible"
+            "check - compatibility", help="Check if two model versions are compatible"
         )
-        check_parser.add_argument("--model-id1", required=True, help="ID of the first model")
+        check_parser.add_argument("--model - id1", required=True, help="ID of the first model")
         check_parser.add_argument("--version1", required=True, help="Version of the first model")
-        check_parser.add_argument("--model-id2", required=True, help="ID of the second model")
+        check_parser.add_argument("--model - id2", required=True, help="ID of the second model")
         check_parser.add_argument("--version2", required=True, help="Version of the second model")
         check_parser.add_argument("--config", help="Path to a configuration file")
 
         # Load a specific version
         load_parser = subparsers.add_parser("load", help="Load a specific version of a model")
-        load_parser.add_argument("--model-id", required=True, help="ID of the model")
+        load_parser.add_argument("--model - id", required=True, help="ID of the model")
         load_parser.add_argument("--version", required=True, help="Version string")
         load_parser.add_argument("--config", help="Path to a configuration file")
 
@@ -680,7 +680,7 @@ class VersionCommand(BaseCommand):
             return self._list_versions(model_manager)
         elif version_command == "info":
             return self._get_version_info(model_manager)
-        elif version_command == "check-compatibility":
+        elif version_command == "check - compatibility":
             return self._check_compatibility(model_manager)
         elif version_command == "load":
             return self._load_version(model_manager)
@@ -911,7 +911,7 @@ class VersionCommand(BaseCommand):
 
             logger.info(f"Successfully loaded model version {self._get_arg('version')}")
 
-            # Basic info about the loaded model (type-specific)
+            # Basic info about the loaded model (type - specific)
             print("Loaded model information:")
             print(f"- Type: {type(model).__name__}")
 
@@ -974,7 +974,7 @@ class PerformanceCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
         """
         subparsers = parser.add_subparsers(
             dest="perf_command", help="Performance monitoring command"
@@ -984,9 +984,9 @@ class PerformanceCommand(BaseCommand):
         report_parser = subparsers.add_parser(
             "report", help="Generate a performance report for a model"
         )
-        report_parser.add_argument("--model-id", required=True, help="ID of the model")
+        report_parser.add_argument("--model - id", required=True, help="ID of the model")
         report_parser.add_argument(
-            "--model-name",
+            "--model - name",
             help="Name of the model (defaults to model ID if not provided)",
         )
         report_parser.add_argument(
@@ -1009,11 +1009,11 @@ class PerformanceCommand(BaseCommand):
             "compare", help="Compare the performance of multiple models"
         )
         compare_parser.add_argument(
-            "--model-ids", required=True, nargs="+", help="IDs of the models to compare"
+            "--model - ids", required=True, nargs=" + ", help="IDs of the models to compare"
         )
         compare_parser.add_argument(
-            "--model-names",
-            nargs="+",
+            "--model - names",
+            nargs=" + ",
             help="Names of the models (defaults to model IDs if not provided)",
         )
         compare_parser.add_argument(
@@ -1029,10 +1029,10 @@ class PerformanceCommand(BaseCommand):
         visualize_parser = subparsers.add_parser(
             "visualize", help="Generate visualizations of model performance metrics"
         )
-        visualize_parser.add_argument("--model-id", required=True, help="ID of the model")
+        visualize_parser.add_argument("--model - id", required=True, help="ID of the model")
         visualize_parser.add_argument(
             "--metrics",
-            nargs="+",
+            nargs=" + ",
             default=[
                 "total_time",
                 "latency_ms",
@@ -1048,21 +1048,21 @@ class PerformanceCommand(BaseCommand):
             help="Number of days to include in the visualization",
         )
         visualize_parser.add_argument(
-            "--output-dir", help="Directory to save the visualizations to"
+            "--output - dir", help="Directory to save the visualizations to"
         )
         visualize_parser.add_argument("--config", help="Path to a configuration file")
 
         # Export metrics to CSV
         export_parser = subparsers.add_parser("export", help="Export performance metrics to CSV")
-        export_parser.add_argument("--model-id", required=True, help="ID of the model")
+        export_parser.add_argument("--model - id", required=True, help="ID of the model")
         export_parser.add_argument("--output", help="Path to save the CSV file to")
         export_parser.add_argument("--config", help="Path to a configuration file")
 
         # Set performance alert threshold
         alert_parser = subparsers.add_parser(
-            "set-alert", help="Set an alert threshold for a model metric"
+            "set - alert", help="Set an alert threshold for a model metric"
         )
-        alert_parser.add_argument("--model-id", required=True, help="ID of the model")
+        alert_parser.add_argument("--model - id", required=True, help="ID of the model")
         alert_parser.add_argument(
             "--metric",
             required=True,
@@ -1078,7 +1078,7 @@ class PerformanceCommand(BaseCommand):
         )
         alert_parser.add_argument("--threshold", required=True, type=float, help="Threshold value")
         alert_parser.add_argument(
-            "--upper-bound",
+            "--upper - bound",
             action="store_true",
             help="If set, alert when value exceeds threshold; otherwise alert when below",
         )
@@ -1086,13 +1086,13 @@ class PerformanceCommand(BaseCommand):
 
         # Track a simple inference for performance monitoring
         track_parser = subparsers.add_parser(
-            "track-inference",
+            "track - inference",
             help="Track a simple inference run for performance monitoring",
         )
-        track_parser.add_argument("--model-id", required=True, help="ID of the model")
+        track_parser.add_argument("--model - id", required=True, help="ID of the model")
         track_parser.add_argument("--input", required=True, help="Input text for inference")
         track_parser.add_argument(
-            "--show-metrics", action="store_true", help="Show the resulting metrics"
+            "--show - metrics", action="store_true", help="Show the resulting metrics"
         )
         track_parser.add_argument("--config", help="Path to a configuration file")
 
@@ -1124,9 +1124,9 @@ class PerformanceCommand(BaseCommand):
             return self._visualize_metrics(model_manager, performance_monitor)
         elif perf_command == "export":
             return self._export_metrics(model_manager, performance_monitor)
-        elif perf_command == "set-alert":
+        elif perf_command == "set - alert":
             return self._set_alert(model_manager, performance_monitor)
-        elif perf_command == "track-inference":
+        elif perf_command == "track - inference":
             return self._track_inference(model_manager, performance_monitor)
         else:
             logger.error(f"Unknown performance command: {perf_command}")
@@ -1452,7 +1452,7 @@ class PerformanceCommand(BaseCommand):
                 display_metrics = {
                     "avg_inference_time": "Avg Inference Time (s)",
                     "avg_latency_ms": "Avg Latency (ms)",
-                    "avg_tokens_per_second": "Avg Tokens/sec",
+                    "avg_tokens_per_second": "Avg Tokens / sec",
                     "avg_time_to_first_token": "Avg Time to 1st Token (s)",
                     "avg_memory_usage_mb": "Avg Memory (MB)",
                 }
@@ -1465,7 +1465,7 @@ class PerformanceCommand(BaseCommand):
                     )
                     print(f"{model_name:<20}", end="")
                 print("")
-                print("-" * (25 + 20 * len(comparison.comparison_metrics)))
+                print(" - " * (25 + 20 * len(comparison.comparison_metrics)))
 
                 # Metrics
                 for metric, display_name in display_metrics.items():
@@ -1480,7 +1480,7 @@ class PerformanceCommand(BaseCommand):
 
                 print("")
                 print("Percent Differences (compared to best model)")
-                print("-" * (25 + 20 * len(comparison.comparison_metrics)))
+                print(" - " * (25 + 20 * len(comparison.comparison_metrics)))
 
                 for metric, display_name in display_metrics.items():
                     diff_metric = f"{metric}_percent_diff"
@@ -1495,7 +1495,7 @@ class PerformanceCommand(BaseCommand):
                     "Note: For time metrics, lower values are better (negative % diff means faster)."
                 )
                 print(
-                    "      For tokens/sec, higher values are better (negative % diff means slower)."
+                    "      For tokens / sec, higher values are better (negative % diff means slower)."
                 )
 
             return 0
@@ -1701,7 +1701,7 @@ class PerformanceCommand(BaseCommand):
                 print("Performance Metrics:")
                 print(f"- Total time: {metrics.total_time:.2f}s")
                 print(f"- Latency: {metrics.latency_ms:.2f}ms")
-                print(f"- Tokens/sec: {metrics.tokens_per_second:.2f}")
+                print(f"- Tokens / sec: {metrics.tokens_per_second:.2f}")
                 if metrics.time_to_first_token:
                     print(f"- Time to first token: {metrics.time_to_first_token:.2f}s")
                 print(f"- Memory usage: {metrics.memory_usage_mb:.2f} MB")

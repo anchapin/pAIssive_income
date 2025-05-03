@@ -43,7 +43,7 @@ class CacheService:
 
         Args:
             backend_type: Type of cache backend to use ('memory', 'disk', 'sqlite', 'redis')
-            ttl: Default time-to-live in seconds (default: 1 hour)
+            ttl: Default time - to - live in seconds (default: 1 hour)
             max_size: Maximum size of the cache (for memory backend)
             cache_dir: Directory for disk cache
             db_path: Path to SQLite database
@@ -54,7 +54,7 @@ class CacheService:
             enabled=True, backend=backend_type, ttl=ttl, max_size=max_size, backend_config={}
         )
 
-        # Add backend-specific configuration
+        # Add backend - specific configuration
         if backend_type == "disk" and cache_dir:
             config.backend_config["disk"] = {"cache_dir": cache_dir}
         elif backend_type == "sqlite" and db_path:
@@ -103,7 +103,7 @@ class CacheService:
         Args:
             key: Cache key
             value: Value to cache
-            ttl: Time-to-live in seconds (optional, uses default if not specified)
+            ttl: Time - to - live in seconds (optional, uses default if not specified)
             namespace: Namespace for the cache key
 
         Returns:
@@ -289,7 +289,7 @@ class CacheService:
         Set the default TTL for cache entries.
 
         Args:
-            ttl: Time-to-live in seconds
+            ttl: Time - to - live in seconds
         """
         self.default_ttl = ttl
 
@@ -313,7 +313,7 @@ def _generate_cache_key(func: Callable, args: Tuple, kwargs: Dict[str, Any]) -> 
     # Create a representation of the arguments
     arg_dict = {"args": args, "kwargs": kwargs}
 
-    # Convert to a string and hash using SHA-256 for better security
+    # Convert to a string and hash using SHA - 256 for better security
     arg_str = json.dumps(arg_dict, sort_keys=True, default=str)
     key = f"{module}.{name}:{hashlib.sha256(arg_str.encode()).hexdigest()}"
 
@@ -329,7 +329,7 @@ def cached(
     Decorator to cache function return values.
 
     Args:
-        ttl: Time-to-live in seconds (optional)
+        ttl: Time - to - live in seconds (optional)
         namespace: Cache namespace (optional, defaults to function's module)
         key_generator: Custom function to generate cache keys (optional)
 

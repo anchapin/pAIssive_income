@@ -25,7 +25,7 @@ class IModelConfig(ABC):
     @property
     @abstractmethod
     def auto_discover(self) -> bool:
-        """Get whether to auto-discover models."""
+        """Get whether to auto - discover models."""
 
     @property
     @abstractmethod
@@ -257,7 +257,8 @@ class IPerformanceMonitor(ABC):
         """
 
     @abstractmethod
-    def end_tracking(self, tracking_id: str, result_size: Optional[int] = None) -> Dict[str, Any]:
+    def end_tracking(self, tracking_id: str, 
+        result_size: Optional[int] = None) -> Dict[str, Any]:
         """
         End tracking performance for a model operation.
 

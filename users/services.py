@@ -23,9 +23,9 @@ USER_DB: Dict[str, User] = {
     "user1": User(
         id="user1",
         username="demo",
-        email="demo@example.com",
+        email="demo @ example.com",
         name="Demo User",
-        password_hash=hash_password("password"),  # In real app, would be pre-hashed
+        password_hash=hash_password("password"),  # In real app, would be pre - hashed
         roles=["user"],
         is_active=True,
         created_at=datetime.utcnow(),
@@ -33,9 +33,9 @@ USER_DB: Dict[str, User] = {
     "user2": User(
         id="user2",
         username="creator",
-        email="creator@example.com",
+        email="creator @ example.com",
         name="Creator User",
-        password_hash=hash_password("creator123"),  # In real app, would be pre-hashed
+        password_hash=hash_password("creator123"),  # In real app, would be pre - hashed
         roles=["creator"],
         is_active=True,
         created_at=datetime.utcnow(),
@@ -43,9 +43,9 @@ USER_DB: Dict[str, User] = {
     "user3": User(
         id="user3",
         username="admin",
-        email="admin@example.com",
+        email="admin @ example.com",
         name="Admin User",
-        password_hash=hash_password("admin123"),  # In real app, would be pre-hashed
+        password_hash=hash_password("admin123"),  # In real app, would be pre - hashed
         roles=["admin"],
         is_active=True,
         created_at=datetime.utcnow(),
@@ -72,7 +72,7 @@ def authenticate_user(username: str, password: str) -> Optional[User]:
     # Find user by username
     user_id = USERNAME_INDEX.get(username)
     if not user_id:
-        logger.warning(f"Authentication attempt for non-existent user: {username}")
+        logger.warning(f"Authentication attempt for non - existent user: {username}")
         return None
 
     user = USER_DB.get(user_id)
@@ -172,7 +172,7 @@ def update_user(user_id: str, user_data: UserUpdate) -> Optional[User]:
     # Check if user exists
     user = USER_DB.get(user_id)
     if not user:
-        logger.warning(f"Attempted to update non-existent user ID: {user_id}")
+        logger.warning(f"Attempted to update non - existent user ID: {user_id}")
         return None
 
     # Update email if provided

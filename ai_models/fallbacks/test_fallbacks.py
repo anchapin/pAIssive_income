@@ -36,30 +36,30 @@ def setup_test_environment():
             id="model1",
             name="Primary Model",
             type="huggingface",
-            path="/path/to/model1",
-            capabilities=["text-generation", "classification"],
+            path=" / path / to / model1",
+            capabilities=["text - generation", "classification"],
         ),
         ModelInfo(
             id="model2",
             name="Secondary Model",
             type="llama",
-            path="/path/to/model2",
-            capabilities=["text-generation"],
+            path=" / path / to / model2",
+            capabilities=["text - generation"],
         ),
         ModelInfo(
             id="model3",
             name="Embedding Model",
             type="embedding",
-            path="/path/to/model3",
+            path=" / path / to / model3",
             capabilities=["embedding"],
         ),
         ModelInfo(
             id="model4",
             name="Small Model",
             type="huggingface",
-            path="/path/to/model4",
+            path=" / path / to / model4",
             size_mb=100,
-            capabilities=["text-generation"],
+            capabilities=["text - generation"],
         ),
     ]
 
@@ -90,17 +90,17 @@ def test_basic_fallback(manager: ModelManager):
         },
     )
 
-    # Assign a non-existent model to the researcher agent
+    # Assign a non - existent model to the researcher agent
     try:
-        # Force a fallback by trying to use a non-existent model
-        provider.agent_models["researcher"] = {"text-generation": "non_existent_model"}
+        # Force a fallback by trying to use a non - existent model
+        provider.agent_models["researcher"] = {"text - generation": "non_existent_model"}
 
         # Try to get a model for the researcher agent
-        model = provider.get_model_for_agent("researcher", "text-generation")
+        model = provider.get_model_for_agent("researcher", "text - generation")
 
         # Check which model was used as fallback
         assignments = provider.get_agent_model_assignments()
-        model_id = assignments["researcher"]["text-generation"]
+        model_id = assignments["researcher"]["text - generation"]
         model_info = manager.get_model_info(model_id)
 
         print(
@@ -140,7 +140,7 @@ def test_fallback_strategies(manager: ModelManager):
         fallback_model, event = fallback_manager.find_fallback_model(
             original_model_id="non_existent_model",
             agent_type="researcher",
-            task_type="text-generation",
+            task_type="text - generation",
             strategy_override=strategy,
         )
 
@@ -149,10 +149,10 @@ def test_fallback_strategies(manager: ModelManager):
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 
-    # Test capability-based strategy with specific capabilities
-    print("\nTesting capability-based with specific requirements:")
+    # Test capability - based strategy with specific capabilities
+    print("\nTesting capability - based with specific requirements:")
     fallback_model, _ = fallback_manager.find_fallback_model(
-        required_capabilities=["text-generation", "classification"],
+        required_capabilities=["text - generation", "classification"],
         strategy_override=FallbackStrategy.CAPABILITY_BASED,
     )
 
@@ -222,11 +222,11 @@ def test_agent_integration(manager: ModelManager):
 
     for agent_type in agent_types:
         try:
-            model = provider.get_model_for_agent(agent_type, "text-generation")
+            model = provider.get_model_for_agent(agent_type, "text - generation")
 
             # Get the model info
             assignments = provider.get_agent_model_assignments()
-            model_id = assignments[agent_type]["text-generation"]
+            model_id = assignments[agent_type]["text - generation"]
             model_info = manager.get_model_info(model_id)
 
             print(f"Agent: {agent_type}, Assigned Model: {model_info.name}")

@@ -63,7 +63,7 @@ class TestMeteredBilling:
                 "billing_period": BillingPeriod.MONTHLY,
                 "billing_day": 1,  # Bill on the 1st of each month
                 "payment_method": "credit_card",
-                "email": "customer1@example.com",
+                "email": "customer1 @ example.com",
             },
             "customer2": {
                 "id": "customer2",
@@ -72,7 +72,7 @@ class TestMeteredBilling:
                 "billing_period": BillingPeriod.MONTHLY,
                 "billing_day": 15,  # Bill on the 15th of each month
                 "payment_method": "bank_transfer",
-                "email": "customer2@example.com",
+                "email": "customer2 @ example.com",
             },
             "customer3": {
                 "id": "customer3",
@@ -81,7 +81,7 @@ class TestMeteredBilling:
                 "billing_period": BillingPeriod.QUARTERLY,
                 "billing_day": 1,  # Bill on the 1st of each quarter
                 "payment_method": "invoice",
-                "email": "customer3@example.com",
+                "email": "customer3 @ example.com",
             },
         }
 
@@ -238,7 +238,7 @@ class TestMeteredBilling:
         assert low_billing_amount == expected_low_amount
 
     def test_billing_thresholds(self):
-        """Test minimum/maximum billing thresholds."""
+        """Test minimum / maximum billing thresholds."""
         customer_id = "customer1"
 
         # Test minimum threshold
@@ -332,13 +332,13 @@ class TestMeteredBilling:
         )
 
         # For monthly billing on the 1st, changing on the 15th
-        # 16 days remaining in 31-day month (July)
+        # 16 days remaining in 31 - day month (July)
         # Premium plan costs more, so additional charge
-        expected_proration = Decimal("16.13")  # (Premium - Basic) * (16/31)
+        expected_proration = Decimal("16.13")  # (Premium - Basic) * (16 / 31)
 
         assert abs(prorated_amount - expected_proration) < Decimal("0.01")
 
-        # Test mid-period usage calculation
+        # Test mid - period usage calculation
         # Record usage for first half of month
         first_half_usage = {"api_calls": 2000, "storage_gb": 2, "compute_hours": 10}
 
@@ -461,4 +461,4 @@ class TestMeteredBilling:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_metered_billing.py"])
+    pytest.main([" - v", "test_metered_billing.py"])

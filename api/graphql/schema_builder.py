@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ def build_schema():
     return schema
 
 
-def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
+def create_graphql_router(path: str = " / graphql", graphiql: bool = True):
     """
     Create a GraphQL router for FastAPI.
 

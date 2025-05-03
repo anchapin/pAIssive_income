@@ -147,8 +147,8 @@ class InvoiceManager:
         """
         Generate an invoice from usage data for metered billing scenarios.
 
-        This algorithm implements a critical usage-to-invoice transformation process
-        that powers metered and consumption-based billing models. The implementation
+        This algorithm implements a critical usage - to - invoice transformation process
+        that powers metered and consumption - based billing models. The implementation
         follows these key stages:
 
         1. USAGE DATA ACQUISITION AND COST CALCULATION:
@@ -160,31 +160,34 @@ class InvoiceManager:
         2. INVOICE CREATION WITH APPROPRIATE METADATA:
            - Generates a properly structured invoice object with customer context
            - Sets appropriate default values for invoice dates and payment terms
-           - Preserves billing period information for accurate record-keeping
+           - Preserves billing period information for accurate record - keeping
            - Ensures proper attribution of the invoice to the correct customer
 
         3. LINE ITEM GENERATION FROM USAGE METRICS:
-           - Converts usage-based cost calculations into structured invoice line items
+           - Converts usage - based cost calculations into structured invoice line items
            - Creates descriptive item entries that clearly identify the billed services
            - Calculates proper unit prices based on total costs and quantities
-           - Maintains detailed metadata linking each line item to its source usage records
+           - \
+               Maintains detailed metadata linking each line item to its source usage records
 
         4. BUSINESS RULE APPLICATION:
            - Applies standardized payment terms (e.g., Net 30)
            - Adds contextual notes about the billing period
            - Ensures consistent invoice structure across billing periods
-           - Handles edge cases like zero-usage periods appropriately
+           - Handles edge cases like zero - usage periods appropriately
 
-        This usage-based invoice generation algorithm addresses several critical requirements:
+        This usage - \
+            based invoice generation algorithm addresses several critical requirements:
         - Accurate translation of metered usage into billable items
-        - Clear and transparent presentation of usage-based charges
+        - Clear and transparent presentation of usage - based charges
         - Proper record keeping for financial reporting and reconciliation
-        - Support for various usage-based business models
+        - Support for various usage - based business models
 
-        The implementation specifically supports common SaaS and cloud billing scenarios:
-        - API call-based billing (pay per request)
-        - Storage-based billing (pay per GB)
-        - User-based billing (pay per seat with usage tracking)
+        The implementation specifically supports common SaaS and \
+            cloud billing scenarios:
+        - API call - based billing (pay per request)
+        - Storage - based billing (pay per GB)
+        - User - based billing (pay per seat with usage tracking)
         - Resource consumption billing (compute time, bandwidth, etc.)
         - Mixed billing models (subscription + usage)
 
@@ -194,16 +197,18 @@ class InvoiceManager:
             end_time: End of the billing period for usage records
             due_date: When the invoice payment is due (defaults to end_time + 30 days)
             currency: Currency code for the invoice (e.g., USD, EUR)
-            customer_info: Optional dictionary with customer details (name, address, etc.)
+            customer_info: Optional dictionary with customer details (name, address, 
+                etc.)
             metadata: Additional invoice metadata to include
 
         Returns:
-            The generated Invoice object containing usage-based line items,
+            The generated Invoice object containing usage - based line items,
             or None if no billable usage was found for the period
         """
         if not self.billing_calculator or not self.usage_tracker:
             raise ValueError(
-                "Billing calculator and usage tracker are required to generate an invoice from usage"
+                "Billing calculator and \
+                    usage tracker are required to generate an invoice from usage"
             )
 
         # STAGE 1: Calculate usage cost by calling the billing calculator
@@ -221,13 +226,14 @@ class InvoiceManager:
             customer_id=customer_id,
             date=end_time,  # Invoice date is the end of the billing period
             due_date=due_date
-            or (end_time + timedelta(days=30)),  # Default due date is 30 days after billing period
+            or (end_time + timedelta(days=30)),  
+                # Default due date is 30 days after billing period
             currency=currency,
             customer_info=customer_info,
             metadata=metadata or {},
         )
 
-        # Store billing period information for record-keeping and auditing
+        # Store billing period information for record - keeping and auditing
         invoice.metadata["billing_period_start"] = start_time.isoformat()
         invoice.metadata["billing_period_end"] = end_time.isoformat()
 
@@ -235,11 +241,12 @@ class InvoiceManager:
         for item in usage_cost["items"]:
             # Create a descriptive line item that identifies the service clearly
             invoice.add_item(
-                description=f"{item['metric']} ({item['category']}, {item['resource_type']})",
+                description=f"{item['metric']} ({item['category']}, 
+                    {item['resource_type']})",
                 quantity=item["quantity"],
                 unit_price=(
                     item["cost"] / item["quantity"] if item["quantity"] > 0 else 0.0
-                ),  # Handle zero-quantity case
+                ),  # Handle zero - quantity case
                 metadata={
                     # Preserve the connection to usage data for auditing and disputes
                     "metric": item["metric"],
@@ -255,7 +262,8 @@ class InvoiceManager:
 
         # Add a descriptive note about the billing period for customer clarity
         invoice.set_notes(
-            f"Usage from {start_time.strftime('%Y-%m-%d')} to {end_time.strftime('%Y-%m-%d')}"
+            f"Usage from {start_time.strftime(
+                ' % Y-%m-%d')} to {end_time.strftime(' % Y-%m-%d')}"
         )
 
         # Save the generated invoice to persistent storage if configured
@@ -408,12 +416,12 @@ class InvoiceManager:
 
         4. PAYMENT PERSISTENCE:
            - Ensures durable storage of payment information
-           - Maintains consistency between in-memory and persistent states
+           - Maintains consistency between in - memory and persistent states
            - Supports system recovery in case of failure
-           - Enables proper financial record-keeping and audit trails
+           - Enables proper financial record - keeping and audit trails
 
         This payment processing algorithm addresses several critical requirements:
-        - Accurate financial record-keeping for accounting compliance
+        - Accurate financial record - keeping for accounting compliance
         - Support for diverse payment reconciliation scenarios
         - Robust transaction history for financial reporting
         - Clear audit trails for payment verification
@@ -421,7 +429,7 @@ class InvoiceManager:
         The implementation specifically supports common payment scenarios:
         - Full invoice payment in a single transaction
         - Partial payments with remaining balance tracking
-        - Multi-payment reconciliation over time
+        - Multi - payment reconciliation over time
         - Payment method tracking for financial analysis
         - Transaction ID linkage for payment verification
 
@@ -429,7 +437,8 @@ class InvoiceManager:
             invoice_id: ID of the invoice to apply payment to
             amount: Payment amount to be applied to the invoice
             date: Date when payment was received (defaults to current datetime)
-            payment_method: Method used for payment (e.g., "credit_card", "bank_transfer")
+            payment_method: Method used for payment (e.g., "credit_card", 
+                "bank_transfer")
             transaction_id: External payment processor transaction ID for reconciliation
             metadata: Additional payment metadata for extended context
 
@@ -540,21 +549,22 @@ class InvoiceManager:
         """
         Generate a comprehensive financial summary across multiple invoices.
 
-        This algorithm implements a multi-dimensional invoice aggregation system
+        This algorithm implements a multi - dimensional invoice aggregation system
         that provides critical financial insights for business reporting and analysis.
         The implementation follows these key stages:
 
         1. DATA COLLECTION AND FILTERING:
-           - Dynamically selects invoices based on customer scope (single customer or all customers)
+           - \
+               Dynamically selects invoices based on customer scope (single customer or all customers)
            - Applies temporal constraints through date range filtering
            - Creates a clean dataset for accurate aggregation
            - Handles edge cases like missing invoices or invalid date ranges
 
-        2. MULTI-DIMENSIONAL AGGREGATION:
+        2. MULTI - DIMENSIONAL AGGREGATION:
            - Performs aggregation across three primary dimensions:
              a) Financial status (paid, unpaid, overdue, etc.)
              b) Time periods (monthly breakdown)
-             c) Currency types (multi-currency support)
+             c) Currency types (multi - currency support)
            - Creates nested hierarchical data structures for complex reporting
            - Maintains proper financial accounting principles during aggregation
            - Ensures consistent calculation of totals, subtotals, and counts
@@ -566,11 +576,12 @@ class InvoiceManager:
              c) Outstanding balances
              d) Invoice counts
            - Provides complete visibility into financial health
-           - Enables trend analysis through consistent time-series data
-           - Facilitates reconciliation through multi-dimensional breakdowns
+           - Enables trend analysis through consistent time - series data
+           - Facilitates reconciliation through multi - dimensional breakdowns
 
         4. CURRENCY HANDLING:
-           - Supports multi-currency environments through currency-specific subtotals
+           - \
+               Supports multi - currency environments through currency - specific subtotals
            - Preserves currency context for accurate financial reporting
            - Avoids currency conversion errors by maintaining separation
            - Provides foundation for potential currency conversion if needed
@@ -586,11 +597,12 @@ class InvoiceManager:
         - Monthly revenue recognition reports
         - Accounts receivable aging analysis
         - Collection prioritization based on overdue amounts
-        - Customer-specific payment history reports
-        - Multi-currency financial statements
+        - Customer - specific payment history reports
+        - Multi - currency financial statements
 
         Args:
-            customer_id: If provided, summarizes invoices for this specific customer only.
+            customer_id: If provided, 
+                summarizes invoices for this specific customer only.
                          If None, summarizes all invoices across all customers.
             start_date: Optional start date to filter invoices by date range
             end_date: Optional end date to filter invoices by date range
@@ -602,8 +614,9 @@ class InvoiceManager:
             - total_paid: Total payments received across all included invoices
             - total_due: Total outstanding balance across all included invoices
             - currencies: Breakdown of totals by currency code
-            - by_status: Breakdown of metrics by invoice status (draft, sent, paid, etc.)
-            - by_month: Time-series breakdown of metrics by month (YYYY-MM format)
+            - by_status: Breakdown of metrics by invoice status (draft, sent, paid, 
+                etc.)
+            - by_month: Time - series breakdown of metrics by month (YYYY - MM format)
         """
         # STAGE 1: Get invoices to summarize with appropriate filtering
         if customer_id:
@@ -633,7 +646,7 @@ class InvoiceManager:
 
                 invoices = filtered_invoices
 
-        # STAGE 2: Initialize the multi-dimensional summary data structure
+        # STAGE 2: Initialize the multi - dimensional summary data structure
         summary = {
             "total_count": len(invoices),
             "total_amount": 0.0,
@@ -644,7 +657,7 @@ class InvoiceManager:
             "by_month": {},  # Time dimension
         }
 
-        # STAGE 3: Populate the summary through multi-dimensional aggregation
+        # STAGE 3: Populate the summary through multi - dimensional aggregation
         for invoice in invoices:
             # STATUS DIMENSION: Aggregate metrics by invoice status
             if invoice.status not in summary["by_status"]:
@@ -660,8 +673,8 @@ class InvoiceManager:
             summary["by_status"][invoice.status]["paid"] += invoice.get_total_paid()
             summary["by_status"][invoice.status]["due"] += invoice.get_balance_due()
 
-            # TIME DIMENSION: Aggregate metrics by month (YYYY-MM format)
-            month_key = invoice.date.strftime("%Y-%m")
+            # TIME DIMENSION: Aggregate metrics by month (YYYY - MM format)
+            month_key = invoice.date.strftime(" % Y-%m")
 
             if month_key not in summary["by_month"]:
                 summary["by_month"][month_key] = {
@@ -689,7 +702,7 @@ class InvoiceManager:
             summary["currencies"][invoice.currency]["total_paid"] += invoice.get_total_paid()
             summary["currencies"][invoice.currency]["total_due"] += invoice.get_balance_due()
 
-            # GLOBAL TOTALS: Accumulate the top-level totals
+            # GLOBAL TOTALS: Accumulate the top - level totals
             summary["total_amount"] += invoice.get_total()
             summary["total_paid"] += invoice.get_total_paid()
             summary["total_due"] += invoice.get_balance_due()
@@ -713,7 +726,7 @@ class InvoiceManager:
                 file_path = os.path.join(self.storage_dir, filename)
 
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with open(file_path, "r", encoding="utf - 8") as f:
                         data = json.load(f)
 
                     # Create invoice
@@ -743,7 +756,7 @@ class InvoiceManager:
 
         file_path = os.path.join(self.storage_dir, f"{invoice.id}.json")
 
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             f.write(invoice.to_json())
 
     def batch_generate_invoices(
@@ -755,10 +768,10 @@ class InvoiceManager:
         currency: str = "USD",
     ) -> Dict[str, Any]:
         """
-        Generate usage-based invoices for multiple customers in a single operation.
+        Generate usage - based invoices for multiple customers in a single operation.
 
-        This algorithm implements an enterprise-grade batch invoicing system
-        designed for high-volume, multi-tenant SaaS environments. The implementation
+        This algorithm implements an enterprise - grade batch invoicing system
+        designed for high - volume, multi - tenant SaaS environments. The implementation
         follows these key phases:
 
         1. CUSTOMER SCOPE DETERMINATION:
@@ -771,9 +784,10 @@ class InvoiceManager:
         2. PARALLEL PROCESSING ARCHITECTURE:
            - Implements optimized batch processing for large customer sets
            - Uses efficient data structures to minimize memory overhead
-           - Handles error isolation to prevent single-customer failures from affecting the batch
+           - \
+               Handles error isolation to prevent single - customer failures from affecting the batch
            - Provides comprehensive error reporting and recovery mechanisms
-           - Maintains performance under high-volume invoice generation
+           - Maintains performance under high - volume invoice generation
 
         3. BILLING PERIOD MANAGEMENT:
            - Applies consistent billing period boundaries across all invoices
@@ -784,20 +798,20 @@ class InvoiceManager:
 
         4. RESULTS AGGREGATION AND REPORTING:
            - Aggregates results across all customer invoices
-           - Provides detailed success/failure metrics
+           - Provides detailed success / failure metrics
            - Creates comprehensive batch processing summary
            - Maintains proper auditing and traceability
-           - Enables batch-level operations like approvals or notifications
+           - Enables batch - level operations like approvals or notifications
 
         This batch invoice generation algorithm addresses several critical requirements:
         - Scalable processing for large customer bases
         - Consistent billing period alignment across customers
         - Error isolation and comprehensive reporting
-        - Efficiency for high-volume invoice processing
+        - Efficiency for high - volume invoice processing
 
         The implementation specifically supports common enterprise billing scenarios:
-        - Month-end billing for all customers
-        - Cohort-based billing cycles
+        - Month - end billing for all customers
+        - Cohort - based billing cycles
         - Special invoice runs for specific customers
         - Testing and verification of billing logic
         - Customer migration between billing systems
@@ -826,7 +840,8 @@ class InvoiceManager:
 
         if not self.billing_calculator or not self.usage_tracker:
             raise ValueError(
-                "Billing calculator and usage tracker are required to generate invoices from usage"
+                "Billing calculator and \
+                    usage tracker are required to generate invoices from usage"
             )
 
         # STAGE 1: Determine the set of customers to process
@@ -895,8 +910,8 @@ if __name__ == "__main__":
         company_info={
             "name": "AI Tools Inc.",
             "address": "123 Main St, San Francisco, CA 94111",
-            "email": "billing@aitools.com",
-            "phone": "(555) 123-4567",
+            "email": "billing @ aitools.com",
+            "phone": "(555) 123 - 4567",
             "website": "https://aitools.com",
         },
     )
@@ -906,7 +921,7 @@ if __name__ == "__main__":
         customer_id="cust_123",
         customer_info={
             "name": "John Doe",
-            "email": "john.doe@example.com",
+            "email": "john.doe @ example.com",
             "address": "456 Oak St, San Francisco, CA 94112",
         },
     )
@@ -931,7 +946,8 @@ if __name__ == "__main__":
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     # Update status to sent
-    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, "Invoice sent to customer")
+    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, 
+        "Invoice sent to customer")
 
     print(f"\nUpdated status: {invoice.status}")
 

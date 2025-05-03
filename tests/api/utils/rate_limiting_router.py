@@ -49,13 +49,13 @@ def create_rate_limiting_router() -> APIRouter:
 
     # Store rate limit state
     rate_limits = {
-        "test-rate-limit": {"limit": 3, "window": 60},
-        "test-rate-limit-reset": {"limit": 3, "window": 60},
-        "test-custom-rate-limit": {"limit": 10, "window": 1},  # 10 per second
-        "test-ip-rate-limit": {"limit": 3, "window": 60},
-        "test-concurrent-throttling": {"limit": 3, "window": 60},
-        "test-degradation": {"limit": 20, "window": 60},
-        "test-quota-limit": {"limit": 10, "window": 60},
+        "test - rate - limit": {"limit": 3, "window": 60},
+        "test - rate - limit - reset": {"limit": 3, "window": 60},
+        "test - custom - rate - limit": {"limit": 10, "window": 1},  # 10 per second
+        "test - ip - rate - limit": {"limit": 3, "window": 60},
+        "test - concurrent - throttling": {"limit": 3, "window": 60},
+        "test - degradation": {"limit": 20, "window": 60},
+        "test - quota - limit": {"limit": 10, "window": 60},
     }
 
     # Store request history
@@ -75,7 +75,7 @@ def create_rate_limiting_router() -> APIRouter:
     @router.get("/{endpoint}")
     async def rate_limited_endpoint(endpoint: str, request: Request, response: Response):
         """
-        Generic rate-limited endpoint.
+        Generic rate - limited endpoint.
 
         Args:
             endpoint: Endpoint name
@@ -88,20 +88,20 @@ def create_rate_limiting_router() -> APIRouter:
         # Get client identifier
         client_id = get_client_id(request)
 
-        # Handle IP-based rate limiting
-        if endpoint == "test-ip-rate-limit":
-            client_id = request.headers.get("X-Forwarded-For", client_id)
+        # Handle IP - based rate limiting
+        if endpoint == "test - ip - rate - limit":
+            client_id = request.headers.get("X - Forwarded - For", client_id)
 
         # Handle throttling
-        if endpoint == "test-concurrent-throttling":
+        if endpoint == "test - concurrent - throttling":
             return await handle_throttling(client_id, response)
 
         # Handle degradation testing
-        if endpoint == "test-degradation":
+        if endpoint == "test - degradation":
             return await handle_degradation(request, response)
 
-        # Handle quota-based limiting
-        if endpoint == "test-quota-limit":
+        # Handle quota - based limiting
+        if endpoint == "test - quota - limit":
             return await handle_quota(client_id, response)
 
         # Get rate limit configuration
@@ -121,7 +121,7 @@ def create_rate_limiting_router() -> APIRouter:
         # Return success response
         return {"status": "ok", "endpoint": endpoint, "client_id": client_id}
 
-    @router.post("/config")
+    @router.post(" / config")
     async def configure_rate_limits(config: RateLimitConfig, response: Response):
         """
         Configure custom rate limits.
@@ -135,7 +135,7 @@ def create_rate_limiting_router() -> APIRouter:
         """
         # Update rate limit configuration for custom rate limit endpoint
         if "requests_per_second" in config.limits:
-            rate_limits["test-custom-rate-limit"] = {
+            rate_limits["test - custom - rate - limit"] = {
                 "limit": config.limits["requests_per_second"],
                 "window": 1,  # 1 second window
             }
@@ -147,7 +147,7 @@ def create_rate_limiting_router() -> APIRouter:
             "limits": config.limits,
         }
 
-    @router.post("/throttle-config")
+    @router.post(" / throttle - config")
     async def configure_throttling(config: ThrottleConfig, response: Response):
         """
         Configure request throttling.
@@ -169,10 +169,10 @@ def create_rate_limiting_router() -> APIRouter:
             "config": throttle_config,
         }
 
-    @router.post("/quota")
+    @router.post(" / quota")
     async def configure_quota(config: QuotaConfig, response: Response):
         """
-        Configure customer-specific quota.
+        Configure customer - specific quota.
 
         Args:
             config: Quota configuration
@@ -217,7 +217,7 @@ def create_rate_limiting_router() -> APIRouter:
 
             if active_count >= throttle_config["max_concurrent_requests"]:
                 response.status_code = 429
-                response.headers["Retry-After"] = str(throttle_config["timeout_seconds"])
+                response.headers["Retry - After"] = str(throttle_config["timeout_seconds"])
                 return {
                     "error": {
                         "message": "Too many concurrent requests",
@@ -271,7 +271,7 @@ def create_rate_limiting_router() -> APIRouter:
         response_time = time.time() - start_time
 
         # Add response time header
-        response.headers["X-Response-Time"] = str(response_time)
+        response.headers["X - Response - Time"] = str(response_time)
 
         # Return success response
         return {
@@ -282,7 +282,7 @@ def create_rate_limiting_router() -> APIRouter:
 
     async def handle_quota(client_id: str, response: Response) -> Dict[str, Any]:
         """
-        Handle quota-based limiting.
+        Handle quota - based limiting.
 
         Args:
             client_id: Client identifier
@@ -293,7 +293,7 @@ def create_rate_limiting_router() -> APIRouter:
         """
         # Get the customer ID from the request headers or use a default
         # In a real implementation, this would come from authentication
-        customer_id = list(quota_config.keys())[0] if quota_config else "test-customer"
+        customer_id = list(quota_config.keys())[0] if quota_config else "test - customer"
 
         # If no quota is configured, create a default one for testing
         if customer_id not in quota_config:
@@ -342,12 +342,12 @@ def create_rate_limiting_router() -> APIRouter:
         quota_usage[customer_id] = usage
 
         # Add quota headers
-        response.headers["X-Daily-Quota-Limit"] = str(config["daily_limit"])
-        response.headers["X-Daily-Quota-Remaining"] = str(
+        response.headers["X - Daily - Quota - Limit"] = str(config["daily_limit"])
+        response.headers["X - Daily - Quota - Remaining"] = str(
             max(0, config["daily_limit"] - usage["daily"])
         )
-        response.headers["X-Monthly-Quota-Limit"] = str(config["monthly_limit"])
-        response.headers["X-Monthly-Quota-Remaining"] = str(
+        response.headers["X - Monthly - Quota - Limit"] = str(config["monthly_limit"])
+        response.headers["X - Monthly - Quota - Remaining"] = str(
             max(0, config["monthly_limit"] - usage["monthly"])
         )
 
@@ -425,11 +425,11 @@ def create_rate_limiting_router() -> APIRouter:
             response: FastAPI response
             info: Rate limit information
         """
-        response.headers["X-RateLimit-Limit"] = str(info["limit"])
-        response.headers["X-RateLimit-Remaining"] = str(info["remaining"])
-        response.headers["X-RateLimit-Reset"] = str(int(info["reset"]))  # Convert to integer
+        response.headers["X - RateLimit - Limit"] = str(info["limit"])
+        response.headers["X - RateLimit - Remaining"] = str(info["remaining"])
+        response.headers["X - RateLimit - Reset"] = str(int(info["reset"]))  # Convert to integer
 
         if info["retry_after"] > 0:
-            response.headers["Retry-After"] = str(int(info["retry_after"]))  # Convert to integer
+            response.headers["Retry - After"] = str(int(info["retry_after"]))  # Convert to integer
 
     return router

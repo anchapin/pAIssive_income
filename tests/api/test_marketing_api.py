@@ -40,7 +40,7 @@ class TestMarketingAPI:
         data = generate_marketing_strategy_data()
 
         # Make request
-        response = api_test_client.post("marketing/strategies", data)
+        response = api_test_client.post("marketing / strategies", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -63,7 +63,7 @@ class TestMarketingAPI:
     def test_get_marketing_strategies(self, api_test_client: APITestClient):
         """Test getting all marketing strategies."""
         # Make request
-        response = api_test_client.get("marketing/strategies")
+        response = api_test_client.get("marketing / strategies")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -77,7 +77,7 @@ class TestMarketingAPI:
         strategy_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"marketing/strategies/{strategy_id}")
+        response = api_test_client.get(f"marketing / strategies/{strategy_id}")
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -108,7 +108,7 @@ class TestMarketingAPI:
         data = generate_marketing_strategy_data()
 
         # Make request
-        response = api_test_client.put(f"marketing/strategies/{strategy_id}", data)
+        response = api_test_client.put(f"marketing / strategies/{strategy_id}", data)
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -136,7 +136,7 @@ class TestMarketingAPI:
         strategy_id = generate_id()
 
         # Make request
-        response = api_test_client.delete(f"marketing/strategies/{strategy_id}")
+        response = api_test_client.delete(f"marketing / strategies/{strategy_id}")
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -147,7 +147,7 @@ class TestMarketingAPI:
     def test_get_personas(self, api_test_client: APITestClient):
         """Test getting all user personas."""
         # Make request
-        response = api_test_client.get("marketing/personas")
+        response = api_test_client.get("marketing / personas")
 
         # Validate response
         result = validate_success_response(response)
@@ -159,7 +159,7 @@ class TestMarketingAPI:
     def test_get_channels(self, api_test_client: APITestClient):
         """Test getting all marketing channels."""
         # Make request
-        response = api_test_client.get("marketing/channels")
+        response = api_test_client.get("marketing / channels")
 
         # Validate response
         result = validate_success_response(response)
@@ -183,7 +183,7 @@ class TestMarketingAPI:
         }
 
         # Make request
-        response = api_test_client.post(f"marketing/strategies/{strategy_id}/content", data)
+        response = api_test_client.post(f"marketing / strategies/{strategy_id}/content", data)
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -205,7 +205,7 @@ class TestMarketingAPI:
         strategies = [generate_marketing_strategy_data() for _ in range(3)]
 
         # Make request
-        response = api_test_client.bulk_create("marketing/strategies", strategies)
+        response = api_test_client.bulk_create("marketing / strategies", strategies)
 
         # Validate response
         result = validate_bulk_response(response, 201)  # Created
@@ -217,7 +217,7 @@ class TestMarketingAPI:
         """Test filtering marketing strategies."""
         # Make request with filter
         response = api_test_client.get(
-            "marketing/strategies",
+            "marketing / strategies",
             params={
                 "filter": "content_types:contains:blog_posts",
                 "sort": "created_at:desc",
@@ -241,7 +241,7 @@ class TestMarketingAPI:
     def test_invalid_marketing_strategy_request(self, api_test_client: APITestClient):
         """Test invalid marketing strategy request."""
         # Make request with invalid data
-        response = api_test_client.post("marketing/strategies", {})
+        response = api_test_client.post("marketing / strategies", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -249,10 +249,10 @@ class TestMarketingAPI:
     def test_nonexistent_marketing_strategy(self, api_test_client: APITestClient):
         """Test getting a nonexistent marketing strategy."""
         # Generate a random ID that is unlikely to exist
-        strategy_id = "nonexistent-" + generate_id()
+        strategy_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = api_test_client.get(f"marketing/strategies/{strategy_id}")
+        response = api_test_client.get(f"marketing / strategies/{strategy_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found
@@ -264,13 +264,13 @@ class TestMarketingAPI:
             "name": "Test Campaign",
             "description": "A test marketing campaign",
             "strategy_id": generate_id(),
-            "start_date": "2025-05-01",
-            "end_date": "2025-05-31",
+            "start_date": "2025 - 05 - 01",
+            "end_date": "2025 - 05 - 31",
             "budget": 1000.00,
             "channels": ["social_media", "email", "content"],
             "target_audience": {
                 "demographics": {
-                    "age_range": ["25-34", "35-44"],
+                    "age_range": ["25 - 34", "35 - 44"],
                     "locations": ["US", "UK"],
                     "interests": ["technology", "business"],
                 },
@@ -286,7 +286,7 @@ class TestMarketingAPI:
         }
 
         # Make request
-        response = api_test_client.post("marketing/campaigns", data)
+        response = api_test_client.post("marketing / campaigns", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -318,7 +318,7 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.get(f"marketing / campaigns/{campaign_id}")
 
         # This might return 404 if the campaign doesn't exist
         if response.status_code == 404:
@@ -346,10 +346,10 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Generate test data
-        data = {"status": "active", "activation_date": "2025-05-01T00:00:00Z"}
+        data = {"status": "active", "activation_date": "2025 - 05 - 01T00:00:00Z"}
 
         # Make request
-        response = api_test_client.patch(f"marketing/campaigns/{campaign_id}/status", data)
+        response = api_test_client.patch(f"marketing / campaigns/{campaign_id}/status", data)
 
         # This might return 404 if the campaign doesn't exist
         if response.status_code == 404:
@@ -372,10 +372,10 @@ class TestMarketingAPI:
 
         # Make request
         response = api_test_client.get(
-            f"marketing/campaigns/{campaign_id}/metrics",
+            f"marketing / campaigns/{campaign_id}/metrics",
             params={
-                "start_date": "2025-05-01",
-                "end_date": "2025-05-31",
+                "start_date": "2025 - 05 - 01",
+                "end_date": "2025 - 05 - 31",
                 "metrics": ["conversions", "engagement", "reach"],
             },
         )
@@ -422,14 +422,14 @@ class TestMarketingAPI:
         data = {
             "name": "Updated Campaign",
             "description": "Updated marketing campaign",
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30",
+            "start_date": "2025 - 06 - 01",
+            "end_date": "2025 - 06 - 30",
             "budget": 2000.00,
             "status": "active",
             "channels": ["social_media", "email", "content", "ppc"],
             "target_audience": {
                 "demographics": {
-                    "age_range": ["25-34", "35-44", "45-54"],
+                    "age_range": ["25 - 34", "35 - 44", "45 - 54"],
                     "locations": ["US", "UK", "CA"],
                     "interests": ["technology", "business", "marketing"],
                 },
@@ -455,7 +455,7 @@ class TestMarketingAPI:
         }
 
         # Make request
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", data)
 
         # This might return 404 if the campaign doesn't exist
         if response.status_code == 404:
@@ -505,24 +505,24 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Test with empty data
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {})
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", {})
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test with invalid date format
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}", {"start_date": "invalid-date"}
+            f"marketing / campaigns/{campaign_id}", {"start_date": "invalid - date"}
         )
         validate_error_response(response, 422)
 
         # Test with end date before start date
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}",
-            {"start_date": "2025-06-01", "end_date": "2025-05-01"},
+            f"marketing / campaigns/{campaign_id}",
+            {"start_date": "2025 - 06 - 01", "end_date": "2025 - 05 - 01"},
         )
         validate_error_response(response, 422)
 
         # Test with invalid budget
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {"budget": -1000.00})
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", {"budget": -1000.00})
         validate_error_response(response, 422)
 
     def test_delete_campaign(self, api_test_client: APITestClient):
@@ -531,7 +531,7 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Make request
-        response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.delete(f"marketing / campaigns/{campaign_id}")
 
         # This might return 404 if the campaign doesn't exist
         if response.status_code == 404:
@@ -542,15 +542,15 @@ class TestMarketingAPI:
     def test_delete_campaign_errors(self, api_test_client: APITestClient):
         """Test error cases for deleting a campaign."""
         # Test deleting with invalid ID format
-        response = api_test_client.delete("marketing/campaigns/invalid-id-format")
+        response = api_test_client.delete("marketing / campaigns / invalid - id - format")
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test deleting already deleted campaign
         campaign_id = generate_id()
-        response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.delete(f"marketing / campaigns/{campaign_id}")
         if response.status_code == 404:
             # Try deleting again
-            response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
+            response = api_test_client.delete(f"marketing / campaigns/{campaign_id}")
             validate_error_response(response, 404)  # Not Found
 
     def test_bulk_update_campaigns(self, api_test_client: APITestClient):
@@ -572,7 +572,7 @@ class TestMarketingAPI:
         ]
 
         # Make request
-        response = api_test_client.bulk_update("marketing/campaigns", campaigns)
+        response = api_test_client.bulk_update("marketing / campaigns", campaigns)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -604,7 +604,7 @@ class TestMarketingAPI:
         campaign_ids = [generate_id() for _ in range(3)]
 
         # Make request
-        response = api_test_client.bulk_delete("marketing/campaigns", campaign_ids)
+        response = api_test_client.bulk_delete("marketing / campaigns", campaign_ids)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -630,23 +630,23 @@ class TestMarketingAPI:
     def test_invalid_bulk_campaign_operations(self, api_test_client: APITestClient):
         """Test invalid bulk update and delete operations for campaigns."""
         # Test bulk update with empty list
-        response = api_test_client.bulk_update("marketing/campaigns", [])
+        response = api_test_client.bulk_update("marketing / campaigns", [])
         validate_error_response(response, 422)
 
         # Test bulk update with invalid data
         response = api_test_client.bulk_update(
-            "marketing/campaigns",
-            [{"id": "invalid-id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
+            "marketing / campaigns",
+            [{"id": "invalid - id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
         )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
-        response = api_test_client.bulk_delete("marketing/campaigns", [])
+        response = api_test_client.bulk_delete("marketing / campaigns", [])
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
         response = api_test_client.bulk_delete(
-            "marketing/campaigns", ["invalid-id-1", "invalid-id-2"]
+            "marketing / campaigns", ["invalid - id - 1", "invalid - id - 2"]
         )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)
@@ -656,8 +656,8 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Test invalid date range
-        data = {"start_date": "2025-05-31", "end_date": "2025-05-01"}  # End date before start date
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
+        data = {"start_date": "2025 - 05 - 31", "end_date": "2025 - 05 - 01"}  # End date before start date
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", data)
         validate_error_response(response, 422)
 
         # Test invalid budget allocation
@@ -668,7 +668,7 @@ class TestMarketingAPI:
                 {"name": "email", "allocation": 400},  # Total allocation exceeds budget
             ],
         }
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", data)
         validate_error_response(response, 422)
 
         # Test invalid metrics configuration
@@ -678,29 +678,29 @@ class TestMarketingAPI:
                 "targets": {"invalid_metric": 100},
             }
         }
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
+        response = api_test_client.put(f"marketing / campaigns/{campaign_id}", data)
         validate_error_response(response, 422)
 
     def test_delete_active_campaign(self, api_test_client: APITestClient):
         """Test attempting to delete an active campaign."""
         # First create a campaign
         data = generate_marketing_strategy_data()
-        response = api_test_client.post("marketing/campaigns", data)
+        response = api_test_client.post("marketing / campaigns", data)
         result = validate_success_response(response, 201)
         campaign_id = result["id"]
 
         # Activate the campaign
         response = api_test_client.patch(
-            f"marketing/campaigns/{campaign_id}/status", {"status": "active"}
+            f"marketing / campaigns/{campaign_id}/status", {"status": "active"}
         )
         validate_success_response(response)
 
         # Attempt to delete the active campaign
-        response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.delete(f"marketing / campaigns/{campaign_id}")
         validate_error_response(response, 409)  # Conflict
 
         # Verify campaign still exists
-        response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.get(f"marketing / campaigns/{campaign_id}")
         result = validate_success_response(response)
         validate_field_equals(result, "status", "active")
 
@@ -708,26 +708,26 @@ class TestMarketingAPI:
         """Test handling concurrent updates to a campaign."""
         # Create initial campaign
         data = generate_marketing_strategy_data()
-        response = api_test_client.post("marketing/campaigns", data)
+        response = api_test_client.post("marketing / campaigns", data)
         result = validate_success_response(response, 201)
         campaign_id = result["id"]
 
         # Get initial version
-        response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
+        response = api_test_client.get(f"marketing / campaigns/{campaign_id}")
         initial_version = response.headers.get("ETag")
 
         # Attempt update with wrong version
-        headers = {"If-Match": "wrong-version"}
+        headers = {"If - Match": "wrong - version"}
         update_data = {"name": "Updated Campaign"}
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}", update_data, headers=headers
+            f"marketing / campaigns/{campaign_id}", update_data, headers=headers
         )
         validate_error_response(response, 412)  # Precondition Failed
 
         # Update with correct version
-        headers = {"If-Match": initial_version}
+        headers = {"If - Match": initial_version}
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}", update_data, headers=headers
+            f"marketing / campaigns/{campaign_id}", update_data, headers=headers
         )
         result = validate_success_response(response)
         validate_field_equals(result, "name", "Updated Campaign")

@@ -1,7 +1,7 @@
 """
 SQLite cache backend for the model cache system.
 
-This module provides a SQLite-based cache backend.
+This module provides a SQLite - based cache backend.
 """
 
 import json
@@ -17,7 +17,7 @@ from .base import CacheBackend
 
 class SQLiteCache(CacheBackend):
     """
-    SQLite-based cache backend.
+    SQLite - based cache backend.
     """
 
     def __init__(self, db_path: str, serialization: str = "json", **kwargs):
@@ -496,7 +496,7 @@ class SQLiteCache(CacheBackend):
             Serialized value
         """
         # Always use JSON for security reasons
-        return json.dumps(value).encode("utf-8")
+        return json.dumps(value).encode("utf - 8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -509,7 +509,7 @@ class SQLiteCache(CacheBackend):
             Deserialized value
         """
         # Always use JSON for security reasons
-        return json.loads(value_blob.decode("utf-8"))
+        return json.loads(value_blob.decode("utf - 8"))
 
     def _load_stats(self) -> None:
         """

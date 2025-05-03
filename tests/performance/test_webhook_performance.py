@@ -46,7 +46,7 @@ class MockResponse:
         if self.status_code >= 400:
             raise httpx.HTTPStatusError(
                 f"HTTP Error {self.status_code}",
-                request=httpx.Request("POST", "https://example.com/webhook"),
+                request=httpx.Request("POST", "https://example.com / webhook"),
                 response=self,
             )
 
@@ -56,10 +56,10 @@ async def create_test_webhooks(service: WebhookService, count: int) -> List[Dict
     webhooks = []
     for i in range(count):
         webhook_data = {
-            "url": f"https://example.com/webhook/{i}",
+            "url": f"https://example.com / webhook/{i}",
             "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
             "description": f"Test webhook {i}",
-            "headers": {"Authorization": f"Bearer test-token-{i}"},
+            "headers": {"Authorization": f"Bearer test - token-{i}"},
             "is_active": True,
         }
         webhook = await service.register_webhook(webhook_data)
@@ -307,7 +307,7 @@ async def run_performance_tests():
                     results.append(result)
 
                     print(
-                        f"    Completed in {result['total_time']:.2f}s, {result['deliveries_per_second']:.2f} deliveries/second"
+                        f"    Completed in {result['total_time']:.2f}s, {result['deliveries_per_second']:.2f} deliveries / second"
                     )
 
                     # Clean up webhooks
@@ -332,7 +332,7 @@ async def run_performance_tests():
                         results.append(result)
 
                         print(
-                            f"    Completed in {result['total_time']:.2f}s, {result['deliveries_per_second']:.2f} deliveries/second"
+                            f"    Completed in {result['total_time']:.2f}s, {result['deliveries_per_second']:.2f} deliveries / second"
                         )
 
                         # Clean up webhooks
@@ -389,10 +389,10 @@ async def run_performance_tests():
         if sequential_results:
             print("\n  Sequential delivery:")
             print(
-                f"    Average deliveries/second: {statistics.mean([r['deliveries_per_second'] for r in sequential_results]):.2f}"
+                f"    Average deliveries / second: {statistics.mean([r['deliveries_per_second'] for r in sequential_results]):.2f}"
             )
             print(
-                f"    Max deliveries/second: {max([r['deliveries_per_second'] for r in sequential_results]):.2f}"
+                f"    Max deliveries / second: {max([r['deliveries_per_second'] for r in sequential_results]):.2f}"
             )
 
         # Concurrent delivery summary
@@ -400,10 +400,10 @@ async def run_performance_tests():
         if concurrent_results:
             print("\n  Concurrent delivery:")
             print(
-                f"    Average deliveries/second: {statistics.mean([r['deliveries_per_second'] for r in concurrent_results]):.2f}"
+                f"    Average deliveries / second: {statistics.mean([r['deliveries_per_second'] for r in concurrent_results]):.2f}"
             )
             print(
-                f"    Max deliveries/second: {max([r['deliveries_per_second'] for r in concurrent_results]):.2f}"
+                f"    Max deliveries / second: {max([r['deliveries_per_second'] for r in concurrent_results]):.2f}"
             )
 
             # Group by concurrency
@@ -413,7 +413,7 @@ async def run_performance_tests():
                 ]
                 if concurrency_results:
                     print(
-                        f"    Concurrency {concurrency}: {statistics.mean([r['deliveries_per_second'] for r in concurrency_results]):.2f} deliveries/second"
+                        f"    Concurrency {concurrency}: {statistics.mean([r['deliveries_per_second'] for r in concurrency_results]):.2f} deliveries / second"
                     )
 
         # Retry performance summary
@@ -421,7 +421,7 @@ async def run_performance_tests():
         if retry_results:
             print("\n  Retry performance:")
             print(
-                f"    Average time ratio (actual/expected): {statistics.mean([r['total_time'] / r['expected_time'] for r in retry_results]):.2f}"
+                f"    Average time ratio (actual / expected): {statistics.mean([r['total_time'] / r['expected_time'] for r in retry_results]):.2f}"
             )
 
         # Memory usage summary

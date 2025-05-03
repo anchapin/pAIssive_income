@@ -86,7 +86,8 @@ def authenticate(f: Callable) -> Callable:
     return decorated_function
 
 
-def require_permission(permission: str, level: Optional[PERMISSION_LEVELS] = None) -> Callable:
+def require_permission(permission: str, 
+    level: Optional[PERMISSION_LEVELS] = None) -> Callable:
     """
     Decorator to enforce permissions for API routes.
 
@@ -108,20 +109,23 @@ def require_permission(permission: str, level: Optional[PERMISSION_LEVELS] = Non
             if not hasattr(g, "user_roles"):
                 logger.error("require_permission used without authenticate decorator")
                 return (
-                    jsonify({"error": "Server Error", "message": "Internal server error"}),
+                    jsonify({"error": "Server Error", 
+                        "message": "Internal server error"}),
                     500,
                 )
 
             # Check permission
             if not has_permission(g.user_roles, permission, level):
                 logger.warning(
-                    f"Permission denied: {permission} (level {level}) for user roles {g.user_roles}"
+                    f"Permission denied: {permission} (
+                        level {level}) for user roles {g.user_roles}"
                 )
                 return (
                     jsonify(
                         {
                             "error": "Permission Denied",
                             "message": "You don't have permission to access this resource",
+                                
                         }
                     ),
                     403,
@@ -169,7 +173,8 @@ def audit_log(action: str, resource_type: str) -> Callable:
             else:
                 outcome = "failure"
 
-            logger.info(f"AUDIT: User {user_id} {action} on {resource_type} - {outcome}")
+            logger.info(f"AUDIT: User {user_id} {action} on {resource_type} - \
+                {outcome}")
 
             return result
 

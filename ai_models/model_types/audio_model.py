@@ -2,7 +2,7 @@
 Audio model implementation for the AI Models module.
 
 This module provides specialized classes for working with audio models,
-including speech recognition, text-to-speech, and audio classification.
+including speech recognition, text - to - speech, and audio classification.
 """
 
 import json
@@ -14,7 +14,7 @@ import numpy as np
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class AudioModel:
     def __init__(
         self,
         model_path: str,
-        model_type: str = "speech-recognition",
+        model_type: str = "speech - recognition",
         processor_path: Optional[str] = None,
         device: str = "auto",
         **kwargs,
@@ -78,7 +78,7 @@ class AudioModel:
 
         Args:
             model_path: Path to the model file or directory
-            model_type: Type of model (speech-recognition, text-to-speech, audio-classification)
+            model_type: Type of model (speech - recognition, text - to - speech, audio - classification)
             processor_path: Optional path to the audio processor
             device: Device to run the model on (auto, cpu, cuda, etc.)
             **kwargs: Additional parameters for model initialization
@@ -161,7 +161,7 @@ class AudioModel:
 
         try:
             # Load processor and model based on model type
-            if self.model_type == "speech-recognition":
+            if self.model_type == "speech - recognition":
                 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
 
                 self.processor = AutoProcessor.from_pretrained(self.processor_path)
@@ -169,7 +169,7 @@ class AudioModel:
                     self.model_path, **self.kwargs
                 )
 
-            elif self.model_type == "text-to-speech":
+            elif self.model_type == "text - to - speech":
                 from transformers import AutoModelForTextToSpeech, AutoProcessor
 
                 self.processor = AutoProcessor.from_pretrained(self.processor_path)
@@ -177,7 +177,7 @@ class AudioModel:
                     self.model_path, **self.kwargs
                 )
 
-            elif self.model_type == "audio-classification":
+            elif self.model_type == "audio - classification":
                 from transformers import (
                     AutoFeatureExtractor,
                     AutoModelForAudioClassification,
@@ -253,17 +253,17 @@ class AudioModel:
         try:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
-                if self.model_type == "speech-recognition":
+                if self.model_type == "speech - recognition":
                     from transformers import AutoProcessor
 
                     self.processor = AutoProcessor.from_pretrained(self.processor_path)
 
-                elif self.model_type == "text-to-speech":
+                elif self.model_type == "text - to - speech":
                     from transformers import AutoProcessor
 
                     self.processor = AutoProcessor.from_pretrained(self.processor_path)
 
-                elif self.model_type == "audio-classification":
+                elif self.model_type == "audio - classification":
                     from transformers import AutoFeatureExtractor
 
                     self.processor = AutoFeatureExtractor.from_pretrained(self.processor_path)
@@ -296,12 +296,12 @@ class AudioModel:
                     if model_type == "wav2vec2":
                         from transformers import Wav2Vec2ForCTC
 
-                        self.model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+                        self.model = Wav2Vec2ForCTC.from_pretrained("facebook / wav2vec2 - base - 960h")
                     elif model_type == "whisper":
                         from transformers import WhisperForConditionalGeneration
 
                         self.model = WhisperForConditionalGeneration.from_pretrained(
-                            "openai/whisper-small"
+                            "openai / whisper - small"
                         )
                     else:
                         raise ValueError(f"Unsupported model type: {model_type}")
@@ -341,17 +341,17 @@ class AudioModel:
         try:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
-                if self.model_type == "speech-recognition":
+                if self.model_type == "speech - recognition":
                     from transformers import AutoProcessor
 
                     self.processor = AutoProcessor.from_pretrained(self.processor_path)
 
-                elif self.model_type == "text-to-speech":
+                elif self.model_type == "text - to - speech":
                     from transformers import AutoProcessor
 
                     self.processor = AutoProcessor.from_pretrained(self.processor_path)
 
-                elif self.model_type == "audio-classification":
+                elif self.model_type == "audio - classification":
                     from transformers import AutoFeatureExtractor
 
                     self.processor = AutoFeatureExtractor.from_pretrained(self.processor_path)
@@ -403,7 +403,7 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "speech-recognition":
+        if self.model_type != "speech - recognition":
             raise ValueError(f"Model type {self.model_type} does not support speech recognition")
 
         try:
@@ -714,8 +714,8 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "text-to-speech":
-            raise ValueError(f"Model type {self.model_type} does not support text-to-speech")
+        if self.model_type != "text - to - speech":
+            raise ValueError(f"Model type {self.model_type} does not support text - to - speech")
 
         try:
             if self.model_format == "huggingface":
@@ -1036,7 +1036,7 @@ class AudioModel:
 
     def get_available_voices(self) -> List[Dict[str, Any]]:
         """
-        Get a list of available voices for text-to-speech.
+        Get a list of available voices for text - to - speech.
 
         Returns:
             List of voice information dictionaries
@@ -1044,8 +1044,8 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "text-to-speech":
-            raise ValueError(f"Model type {self.model_type} does not support text-to-speech")
+        if self.model_type != "text - to - speech":
+            raise ValueError(f"Model type {self.model_type} does not support text - to - speech")
 
         voices = []
 
@@ -1082,7 +1082,7 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "audio-classification":
+        if self.model_type != "audio - classification":
             raise ValueError(f"Model type {self.model_type} does not support audio classification")
 
         try:
@@ -1368,7 +1368,7 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "audio-classification" and self.model_type != "sound-event-detection":
+        if self.model_type != "audio - classification" and self.model_type != "sound - event - detection":
             raise ValueError(f"Model type {self.model_type} does not support sound event detection")
 
         try:
@@ -1440,7 +1440,7 @@ class AudioModel:
             "device": self.device,
         }
 
-        # Add model-specific metadata
+        # Add model - specific metadata
         if self.model_format == "huggingface" and self.model:
             config = getattr(self.model, "config", None)
             if config:
@@ -1457,11 +1457,11 @@ class AudioModel:
 # Example usage
 if __name__ == "__main__":
     # Example model path (replace with an actual model path)
-    model_path = "path/to/model"
+    model_path = "path / to / model"
 
     if os.path.exists(model_path):
         # Create audio model
-        model = AudioModel(model_path=model_path, model_type="speech-recognition")
+        model = AudioModel(model_path=model_path, model_type="speech - recognition")
 
         # Load the model
         model.load()

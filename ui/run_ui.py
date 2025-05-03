@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 UI Runner Script for pAIssive Income Framework
 This script starts both the React development server and the Flask API server.
@@ -31,7 +31,8 @@ def validate_path(path, expected_base_path, path_type="directory"):
     resolved_base = os.path.realpath(expected_base_path)
 
     if not resolved_path.startswith(resolved_base):
-        raise ValueError(f"Security error: {path_type} path is outside of the expected base path")
+        raise ValueError(
+            f"Security error: {path_type} path is outside of the expected base path")
 
     return path
 
@@ -44,7 +45,8 @@ validate_path(REACT_APP_DIR, PROJECT_ROOT, "React app directory")
 def start_flask_server():
     """Start the Flask API server"""
     print("Starting Flask API server...")
-    flask_script = validate_path(os.path.join(UI_DIR, "api_server.py"), UI_DIR, "API server script")
+    flask_script = validate_path(os.path.join(UI_DIR, "api_server.py"), UI_DIR, 
+        "API server script")
 
     # Use a list for command arguments for security (no shell=True)
     flask_cmd = [sys.executable, flask_script]
@@ -70,7 +72,8 @@ def start_react_dev_server():
     # Validate node_modules path and create it if needed
     node_modules_path = (
         validate_path(
-            os.path.join(REACT_APP_DIR, "node_modules"), REACT_APP_DIR, "node_modules directory"
+            os.path.join(REACT_APP_DIR, "node_modules"), REACT_APP_DIR, 
+                "node_modules directory"
         )
         if os.path.exists(os.path.join(REACT_APP_DIR, "node_modules"))
         else os.path.join(REACT_APP_DIR, "node_modules")
@@ -82,7 +85,8 @@ def start_react_dev_server():
             # Check if npm is available in PATH
             npm_path = shutil.which("npm")
             if not npm_path:
-                raise EnvironmentError("npm not found in PATH. Please install Node.js and npm.")
+                raise EnvironmentError(
+                    "npm not found in PATH. Please install Node.js and npm.")
 
             # Use safer subprocess.run with explicit arguments
             result = subprocess.run(
@@ -92,7 +96,7 @@ def start_react_dev_server():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                timeout=300,  # 5-minute timeout for npm install
+                timeout=300,  # 5 - minute timeout for npm install
             )
             # Log output for debugging
             if result.stdout:
@@ -129,10 +133,12 @@ def start_react_dev_server():
         if react_process.poll() is not None:
             exit_code = react_process.poll()
             stderr_output = (
-                react_process.stderr.read() if react_process.stderr else "No error output available"
+                react_process.stderr.read(
+                    ) if react_process.stderr else "No error output available"
             )
             raise RuntimeError(
-                f"React process failed to start (exit code {exit_code}): {stderr_output[:500]}"
+                f"React process failed to start (
+                    exit code {exit_code}): {stderr_output[:500]}"
             )
 
         return react_process
@@ -144,8 +150,9 @@ def start_react_dev_server():
 def open_browser(url="http://localhost:3000", delay=5):
     """Open the browser after a delay"""
     # Validate URL for security
-    if not re.match(r"^https?://localhost(:[0-9]+)?(/.*)?$", url):
-        print(f"Warning: Untrusted URL detected: {url}. Only localhost URLs are allowed.")
+    if not re.match(r"^https?://localhost(:[0 - 9]+)?(/.*)?$", url):
+        print(
+            f"Warning: Untrusted URL detected: {url}. Only localhost URLs are allowed.")
         return
 
     def _open_browser():
@@ -169,12 +176,14 @@ def monitor_process_output(process, name, max_lines=1000):
                 if line_count < max_lines:
                     print(f"{name} ({stream_name}): {line.strip()}")
                 elif line_count == max_lines:
-                    print(f"{name}: Output truncated after {max_lines} lines for security")
+                    print(
+                        f"{name}: Output truncated after {max_lines} lines for security")
                 line_count += 1
 
-                # Check for security-related messages
+                # Check for security - related messages
                 lower_line = line.lower()
-                if "error" in lower_line or "warning" in lower_line or "exception" in lower_line:
+                if "error" in lower_line or \
+                    "warning" in lower_line or "exception" in lower_line:
                     # Log potential security issues with more visibility
                     print(f"ALERT - Potential issue in {name}: {line.strip()}")
 
@@ -208,7 +217,7 @@ def main():
 
     try:
         # Keep the script running
-        print("\nServers are running. Press Ctrl+C to stop...\n")
+        print("\nServers are running. Press Ctrl + C to stop...\n")
         while True:
             # Check if processes are still running
             if flask_process.poll() is not None:

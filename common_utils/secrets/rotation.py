@@ -21,7 +21,7 @@ from .secrets_manager import (
 logger = logging.getLogger(__name__)
 
 # Default path for rotation metadata
-DEFAULT_ROTATION_METADATA_FILE = os.path.expanduser("~/.paissive/rotation_metadata.json")
+DEFAULT_ROTATION_METADATA_FILE = os.path.expanduser("~/.paissive / rotation_metadata.json")
 
 
 class RotationPolicy:
@@ -328,7 +328,7 @@ DEFAULT_POLICIES = {
     "low_risk": RotationPolicy(
         interval_days=180,
         warning_days=30,
-        description="Low risk policy for non-critical secrets (180 days)",
+        description="Low risk policy for non - critical secrets (180 days)",
     ),
 }
 

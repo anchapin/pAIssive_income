@@ -1,7 +1,7 @@
 """
 Redis cache backend for the model cache system.
 
-This module provides a Redis-based cache backend.
+This module provides a Redis - based cache backend.
 """
 
 import json
@@ -22,7 +22,7 @@ except ImportError:
 
 class RedisCache(CacheBackend):
     """
-    Redis-based cache backend.
+    Redis - based cache backend.
     """
 
     def __init__(
@@ -251,7 +251,7 @@ class RedisCache(CacheBackend):
         prefix_len = len(f"{self.prefix}value:")
 
         for redis_key in redis_keys:
-            key = redis_key.decode("utf-8")[prefix_len:]
+            key = redis_key.decode("utf - 8")[prefix_len:]
             keys.append(key)
 
         if pattern is None:
@@ -379,7 +379,7 @@ class RedisCache(CacheBackend):
             Serialized value
         """
         # Always use JSON for security reasons
-        return json.dumps(value).encode("utf-8")
+        return json.dumps(value).encode("utf - 8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -392,7 +392,7 @@ class RedisCache(CacheBackend):
             Deserialized value
         """
         # Always use JSON for security reasons
-        return json.loads(value_blob.decode("utf-8"))
+        return json.loads(value_blob.decode("utf - 8"))
 
     def _load_stats(self) -> None:
         """

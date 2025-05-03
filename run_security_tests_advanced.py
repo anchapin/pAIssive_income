@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Run advanced security tests for the pAIssive income platform.
 

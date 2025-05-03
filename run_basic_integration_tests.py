@@ -26,7 +26,7 @@ class WebhookSignatureVerifier:
         """Verify a webhook signature."""
         expected_signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
-        # Use constant-time comparison to prevent timing attacks
+        # Use constant - time comparison to prevent timing attacks
         return hmac.compare_digest(expected_signature, signature)
 
     @staticmethod
@@ -34,10 +34,10 @@ class WebhookSignatureVerifier:
         secret: str,
         payload: str,
         headers: Dict[str, str],
-        signature_header: str = "X-Webhook-Signature",
+        signature_header: str = "X - Webhook - Signature",
     ) -> bool:
         """Verify a webhook request signature from headers."""
-        # Get signature from headers (case-insensitive)
+        # Get signature from headers (case - insensitive)
         signature = None
         for header, value in headers.items():
             if header.lower() == signature_header.lower():
@@ -157,15 +157,15 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
     def test_signature_verification(self):
         """Test signature verification."""
         # Create a secret
-        secret = "test-secret-key"
+        secret = "test - secret - key"
 
         # Create a payload
         payload = json.dumps(
             {
-                "id": "evt-123",
+                "id": "evt - 123",
                 "type": "user.created",
-                "created_at": "2025-04-30T21:30:00Z",
-                "data": {"user_id": "user-123", "username": "testuser"},
+                "created_at": "2025 - 04 - 30T21:30:00Z",
+                "data": {"user_id": "user - 123", "username": "testuser"},
             }
         )
 
@@ -173,22 +173,28 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
         signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
         # Verify the signature
-        self.assertTrue(WebhookSignatureVerifier.verify_signature(secret, payload, signature))
+        self.assertTrue(WebhookSignatureVerifier.verify_signature(secret, payload, 
+            signature))
 
         # Verify with headers
-        headers = {"Content-Type": "application/json", "X-Webhook-Signature": signature}
-        self.assertTrue(WebhookSignatureVerifier.verify_request_signature(secret, payload, headers))
+        headers = {"Content - Type": "application / json", 
+            "X - Webhook - Signature": signature}
+        self.assertTrue(WebhookSignatureVerifier.verify_request_signature(secret, 
+            payload, headers))
 
         # Test invalid signature
-        invalid_signature = WebhookSignatureVerifier.create_signature("wrong-secret", payload)
+        invalid_signature = WebhookSignatureVerifier.create_signature("wrong - secret", 
+            payload)
         self.assertFalse(
-            WebhookSignatureVerifier.verify_signature(secret, payload, invalid_signature)
+            WebhookSignatureVerifier.verify_signature(secret, payload, 
+                invalid_signature)
         )
 
         # Test invalid payload
         modified_payload = payload + "modified"
         self.assertFalse(
-            WebhookSignatureVerifier.verify_signature(secret, modified_payload, signature)
+            WebhookSignatureVerifier.verify_signature(secret, modified_payload, 
+                signature)
         )
 
     def test_ip_allowlist(self):
@@ -219,36 +225,36 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
         rate_limiter = WebhookRateLimiter(limit=3, window_seconds=1)
 
         # Initially not rate limited
-        self.assertFalse(rate_limiter.is_rate_limited("test-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("test-key"), 3)
+        self.assertFalse(rate_limiter.is_rate_limited("test - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("test - key"), 3)
 
         # Add requests
-        rate_limiter.add_request("test-key")
-        self.assertFalse(rate_limiter.is_rate_limited("test-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("test-key"), 2)
+        rate_limiter.add_request("test - key")
+        self.assertFalse(rate_limiter.is_rate_limited("test - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("test - key"), 2)
 
-        rate_limiter.add_request("test-key")
-        self.assertFalse(rate_limiter.is_rate_limited("test-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("test-key"), 1)
+        rate_limiter.add_request("test - key")
+        self.assertFalse(rate_limiter.is_rate_limited("test - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("test - key"), 1)
 
-        rate_limiter.add_request("test-key")
-        self.assertTrue(rate_limiter.is_rate_limited("test-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("test-key"), 0)
+        rate_limiter.add_request("test - key")
+        self.assertTrue(rate_limiter.is_rate_limited("test - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("test - key"), 0)
 
         # Different key should not be rate limited
-        self.assertFalse(rate_limiter.is_rate_limited("other-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("other-key"), 3)
+        self.assertFalse(rate_limiter.is_rate_limited("other - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("other - key"), 3)
 
         # Get reset time
-        reset_time = rate_limiter.get_reset_time("test-key")
+        reset_time = rate_limiter.get_reset_time("test - key")
         self.assertIsNotNone(reset_time)
 
         # Wait for the rate limit to reset
         time.sleep(1.1)
 
         # Should not be rate limited anymore
-        self.assertFalse(rate_limiter.is_rate_limited("test-key"))
-        self.assertEqual(rate_limiter.get_remaining_requests("test-key"), 3)
+        self.assertFalse(rate_limiter.is_rate_limited("test - key"))
+        self.assertEqual(rate_limiter.get_remaining_requests("test - key"), 3)
 
     def test_security_integration(self):
         """Test integration of security features."""
@@ -261,7 +267,7 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
 
         # Check if request is allowed and not rate limited
         client_ip = "192.168.1.1"
-        request_key = f"{client_ip}:/webhooks/test"
+        request_key = f"{client_ip}:/webhooks / test"
 
         # Check IP allowlist
         is_allowed = ip_allowlist.is_allowed(client_ip)
@@ -280,22 +286,25 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
         self.assertTrue(is_rate_limited)
 
         # Create a payload and signature
-        secret = "test-secret-key"
+        secret = "test - secret - key"
         payload = json.dumps({"test": "data"})
         signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
         # Create headers
-        headers = {"Content-Type": "application/json", "X-Webhook-Signature": signature}
+        headers = {"Content - Type": "application / json", 
+            "X - Webhook - Signature": signature}
 
         # Verify signature
-        is_valid = WebhookSignatureVerifier.verify_request_signature(secret, payload, headers)
+        is_valid = WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+            headers)
         self.assertTrue(is_valid)
 
         # Simulate a complete request check
         can_proceed = (
             ip_allowlist.is_allowed(client_ip)
             and not rate_limiter.is_rate_limited(request_key)
-            and WebhookSignatureVerifier.verify_request_signature(secret, payload, headers)
+            and WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+                headers)
         )
 
         # Should not proceed due to rate limiting
@@ -308,7 +317,8 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
         can_proceed = (
             ip_allowlist.is_allowed(client_ip)
             and not rate_limiter.is_rate_limited(request_key)
-            and WebhookSignatureVerifier.verify_request_signature(secret, payload, headers)
+            and WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+                headers)
         )
 
         self.assertTrue(can_proceed)

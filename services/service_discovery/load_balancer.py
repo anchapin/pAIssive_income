@@ -31,13 +31,13 @@ class LoadBalancerStrategy(Generic[T], abc.ABC):
 
 
 class RoundRobinStrategy(LoadBalancerStrategy[T]):
-    """Round-robin load balancing strategy."""
+    """Round - robin load balancing strategy."""
 
     def __init__(self):
         self.counter = 0
 
     def select(self, instances: List[T]) -> Optional[T]:
-        """Select an instance using round-robin strategy."""
+        """Select an instance using round - robin strategy."""
         if not instances:
             return None
 

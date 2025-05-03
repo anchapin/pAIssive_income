@@ -48,7 +48,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.api_key_service = api_key_service or APIKeyService()
-        self.public_paths = public_paths or ["/docs", "/redoc", "/openapi.json", "/health"]
+        self.public_paths = public_paths or [" / docs", " / redoc", " / openapi.json", " / health"]
         self.auth_header = auth_header
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -178,7 +178,7 @@ async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
     # Get user from database
     # This would typically use a user service or repository
     # For now, we'll just return a placeholder user
-    user = User(id=user_id, username="user", email="user@example.com")
+    user = User(id=user_id, username="user", email="user @ example.com")
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

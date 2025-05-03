@@ -1,9 +1,9 @@
 """
-Usage-based pricing strategies for the pAIssive Income project.
+Usage - based pricing strategies for the pAIssive Income project.
 
 This module provides specialized classes for implementing different
-usage-based pricing strategies, such as pay-as-you-go, tiered usage,
-and consumption-based pricing.
+usage - based pricing strategies, such as pay - as - you - go, tiered usage,
+and consumption - based pricing.
 """
 
 import copy
@@ -26,21 +26,21 @@ from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
 
 class PayAsYouGoPricing(UsageBasedPricing):
     """
-    Pay-as-you-go pricing model.
+    Pay - as - you - go pricing model.
 
     This model charges customers based on their actual usage with a simple
-    per-unit pricing structure. There are no upfront commitments or minimum fees.
+    per - unit pricing structure. There are no upfront commitments or minimum fees.
     """
 
     def __init__(
         self,
-        name: str = "Pay-As-You-Go Pricing",
-        description: str = "Simple usage-based pricing with no commitments",
+        name: str = "Pay - As - You - Go Pricing",
+        description: str = "Simple usage - based pricing with no commitments",
         billing_calculator: Optional[BillingCalculator] = None,
         usage_tracker: Optional[UsageTracker] = None,
     ):
         """
-        Initialize a pay-as-you-go pricing model.
+        Initialize a pay - as - you - go pricing model.
 
         Args:
             name: Name of the pricing model
@@ -94,7 +94,7 @@ class TieredUsagePricing(UsageBasedPricing):
     def __init__(
         self,
         name: str = "Tiered Usage Pricing",
-        description: str = "Volume-based pricing with tiered discounts",
+        description: str = "Volume - based pricing with tiered discounts",
         graduated: bool = True,
         billing_calculator: Optional[BillingCalculator] = None,
         usage_tracker: Optional[UsageTracker] = None,
@@ -147,7 +147,7 @@ class TieredUsagePricing(UsageBasedPricing):
 
 class ConsumptionBasedPricing(UsageBasedPricing):
     """
-    Consumption-based pricing model.
+    Consumption - based pricing model.
 
     This model charges customers based on their resource consumption,
     such as compute time, storage, or bandwidth. It's commonly used for
@@ -156,13 +156,13 @@ class ConsumptionBasedPricing(UsageBasedPricing):
 
     def __init__(
         self,
-        name: str = "Consumption-Based Pricing",
+        name: str = "Consumption - Based Pricing",
         description: str = "Pricing based on resource consumption",
         billing_calculator: Optional[BillingCalculator] = None,
         usage_tracker: Optional[UsageTracker] = None,
     ):
         """
-        Initialize a consumption-based pricing model.
+        Initialize a consumption - based pricing model.
 
         Args:
             name: Name of the pricing model
@@ -242,14 +242,14 @@ class HybridUsagePricing(UsageBasedPricing):
     """
     Hybrid usage pricing model.
 
-    This model combines a base subscription fee with usage-based pricing
+    This model combines a base subscription fee with usage - based pricing
     for consumption beyond what's included in the base subscription.
     """
 
     def __init__(
         self,
         name: str = "Hybrid Usage Pricing",
-        description: str = "Base subscription plus usage-based pricing",
+        description: str = "Base subscription plus usage - based pricing",
         base_fee: float = 0.0,
         billing_calculator: Optional[BillingCalculator] = None,
         usage_tracker: Optional[UsageTracker] = None,
@@ -336,12 +336,13 @@ class HybridUsagePricing(UsageBasedPricing):
 
 # Example usage
 if __name__ == "__main__":
-    # Create a pay-as-you-go pricing model
+    # Create a pay - as - you - go pricing model
     payg_model = PayAsYouGoPricing()
 
     # Add pricing for API calls
     payg_model.add_metric_pricing(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     # Create a tiered usage pricing model
@@ -358,7 +359,7 @@ if __name__ == "__main__":
         category=UsageCategory.INFERENCE,
     )
 
-    # Create a consumption-based pricing model
+    # Create a consumption - based pricing model
     consumption_model = ConsumptionBasedPricing()
 
     # Add pricing for compute, storage, and bandwidth

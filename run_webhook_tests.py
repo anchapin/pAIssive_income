@@ -14,25 +14,25 @@ from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
 
 # Test data
-TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK_ID = "test - webhook - 123"
 TEST_WEBHOOK = {
     "id": TEST_WEBHOOK_ID,
-    "url": "https://example.com/webhook",
+    "url": "https://example.com / webhook",
     "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
     "description": "Test webhook",
-    "headers": {"Authorization": "Bearer test-token"},
+    "headers": {"Authorization": "Bearer test - token"},
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key",
+    "secret": "test - secret - key",
 }
 
 TEST_EVENT = {
     "type": WebhookEventType.USER_CREATED,
     "data": {
-        "user_id": "user-123",
+        "user_id": "user - 123",
         "username": "testuser",
-        "email": "test@example.com",
+        "email": "test @ example.com",
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
@@ -66,7 +66,8 @@ class WebhookDeliveryTest(unittest.TestCase):
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
                 self.assertEqual(delivery["status"], WebhookDeliveryStatus.SUCCESS)
                 self.assertEqual(len(delivery["attempts"]), 1)
-                self.assertEqual(delivery["attempts"][0]["status"], WebhookDeliveryStatus.SUCCESS)
+                self.assertEqual(delivery["attempts"][0]["status"], 
+                    WebhookDeliveryStatus.SUCCESS)
                 self.assertEqual(delivery["attempts"][0]["response_code"], 200)
 
     async def test_webhook_delivery_failure(self):
@@ -101,9 +102,11 @@ class WebhookDeliveryTest(unittest.TestCase):
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
                 self.assertEqual(delivery["status"], WebhookDeliveryStatus.FAILED)
                 self.assertEqual(len(delivery["attempts"]), 1)
-                self.assertEqual(delivery["attempts"][0]["status"], WebhookDeliveryStatus.FAILED)
+                self.assertEqual(delivery["attempts"][0]["status"], 
+                    WebhookDeliveryStatus.FAILED)
                 self.assertEqual(delivery["attempts"][0]["response_code"], 500)
-                self.assertIn("Internal Server Error", delivery["attempts"][0]["error_message"])
+                self.assertIn("Internal Server Error", 
+                    delivery["attempts"][0]["error_message"])
 
     async def test_webhook_connection_error(self):
         """Test handling of connection errors during webhook delivery."""
@@ -114,7 +117,8 @@ class WebhookDeliveryTest(unittest.TestCase):
         with mock.patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
             # Patch httpx.AsyncClient.post to raise a connection error
             with mock.patch(
-                "httpx.AsyncClient.post", side_effect=httpx.ConnectError("Connection refused")
+                "httpx.AsyncClient.post", 
+                    side_effect=httpx.ConnectError("Connection refused")
             ):
                 # Deliver an event
                 delivery = await service.deliver_event(
@@ -128,9 +132,11 @@ class WebhookDeliveryTest(unittest.TestCase):
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
                 self.assertEqual(delivery["status"], WebhookDeliveryStatus.FAILED)
                 self.assertEqual(len(delivery["attempts"]), 1)
-                self.assertEqual(delivery["attempts"][0]["status"], WebhookDeliveryStatus.FAILED)
+                self.assertEqual(delivery["attempts"][0]["status"], 
+                    WebhookDeliveryStatus.FAILED)
                 self.assertIsNone(delivery["attempts"][0]["response_code"])
-                self.assertIn("Connection refused", delivery["attempts"][0]["error_message"])
+                self.assertIn("Connection refused", 
+                    delivery["attempts"][0]["error_message"])
 
 
 if __name__ == "__main__":

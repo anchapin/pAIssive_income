@@ -1,7 +1,7 @@
 """
-Fine-tuning tools for AI models.
+Fine - tuning tools for AI models.
 
-This module provides tools for fine-tuning AI models using various methods
+This module provides tools for fine - tuning AI models using various methods
 and configurations.
 """
 
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 class FineTuningMethod(Enum):
     """
-    Enum for fine-tuning methods.
+    Enum for fine - tuning methods.
     """
 
     FULL = "full"
@@ -54,14 +54,14 @@ class FineTuningMethod(Enum):
 @dataclass
 class FineTuningConfig:
     """
-    Configuration for fine-tuning.
+    Configuration for fine - tuning.
     """
 
     # Model information
     model_path: str
     output_dir: str
 
-    # Fine-tuning method
+    # Fine - tuning method
     method: FineTuningMethod = FineTuningMethod.LORA
 
     # Dataset information
@@ -73,7 +73,7 @@ class FineTuningConfig:
     per_device_train_batch_size: int = 4
     per_device_eval_batch_size: int = 4
     gradient_accumulation_steps: int = 1
-    learning_rate: float = 5e-5
+    learning_rate: float = 5e - 5
     weight_decay: float = 0.01
     warmup_steps: int = 0
     max_steps: int = -1
@@ -117,15 +117,15 @@ class FineTuningConfig:
 
 class FineTuner:
     """
-    Class for fine-tuning AI models.
+    Class for fine - tuning AI models.
     """
 
     def __init__(self, config: FineTuningConfig):
         """
-        Initialize the fine-tuner.
+        Initialize the fine - tuner.
 
         Args:
-            config: Configuration for fine-tuning
+            config: Configuration for fine - tuning
         """
         self.config = config
         self.trainer = None
@@ -143,7 +143,7 @@ class FineTuner:
 
     def prepare(self) -> None:
         """
-        Prepare for fine-tuning by loading the model, tokenizer, and dataset.
+        Prepare for fine - tuning by loading the model, tokenizer, and dataset.
         """
         # Load dataset
         self._load_dataset()
@@ -185,7 +185,7 @@ class FineTuner:
         with open(os.path.join(self.config.output_dir, "training_args.json"), "w") as f:
             json.dump(self.trainer.args.to_dict(), f, indent=2)
 
-        # Save fine-tuning configuration
+        # Save fine - tuning configuration
         self._save_config()
 
         # Return metrics
@@ -245,7 +245,7 @@ class FineTuner:
 
     def save(self, output_dir: Optional[str] = None) -> str:
         """
-        Save the fine-tuned model.
+        Save the fine - tuned model.
 
         Args:
             output_dir: Directory to save the model
@@ -269,14 +269,14 @@ class FineTuner:
             logger.info(f"Saving tokenizer to {output_dir}")
             self.tokenizer.save_pretrained(output_dir)
 
-        # Save fine-tuning configuration
+        # Save fine - tuning configuration
         self._save_config(output_dir)
 
         return output_dir
 
     def _load_dataset(self) -> None:
         """
-        Load the dataset for fine-tuning.
+        Load the dataset for fine - tuning.
         """
         # Check if dataset is provided directly
         if self.config.dataset is not None:
@@ -319,7 +319,7 @@ class FineTuner:
 
     def _load_tokenizer(self) -> None:
         """
-        Load the tokenizer for fine-tuning.
+        Load the tokenizer for fine - tuning.
         """
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.config.model_path)
@@ -335,14 +335,14 @@ class FineTuner:
 
     def _prepare_dataset(self) -> None:
         """
-        Prepare the dataset for fine-tuning.
+        Prepare the dataset for fine - tuning.
         """
         if self.dataset is None or self.tokenizer is None:
             raise ValueError("Dataset and tokenizer must be loaded before preparing the dataset")
 
         # Convert to DatasetDict if it's not already
         if not isinstance(self.dataset, DatasetDict):
-            # Check if it has train/validation splits
+            # Check if it has train / validation splits
             if "train" in self.dataset and "validation" in self.dataset:
                 self.dataset = DatasetDict(
                     {"train": self.dataset["train"], "validation": self.dataset["validation"]}
@@ -387,14 +387,14 @@ class FineTuner:
         )
 
         self.dataset = tokenized_dataset
-        logger.info("Dataset prepared for fine-tuning")
+        logger.info("Dataset prepared for fine - tuning")
 
     def _load_model(self) -> None:
         """
-        Load the model for fine-tuning.
+        Load the model for fine - tuning.
         """
         try:
-            # Load model based on fine-tuning method
+            # Load model based on fine - tuning method
             if self.config.method == FineTuningMethod.FULL:
                 self._load_full_model()
             elif self.config.method == FineTuningMethod.LORA:
@@ -406,7 +406,7 @@ class FineTuner:
             elif self.config.method == FineTuningMethod.PROMPT_TUNING:
                 self._load_prompt_tuning_model()
             else:
-                raise ValueError(f"Unsupported fine-tuning method: {self.config.method}")
+                raise ValueError(f"Unsupported fine - tuning method: {self.config.method}")
 
             logger.info(
                 f"Loaded model from {self.config.model_path} using {self.config.method.value} method"
@@ -417,7 +417,7 @@ class FineTuner:
 
     def _load_full_model(self) -> None:
         """
-        Load the model for full fine-tuning.
+        Load the model for full fine - tuning.
         """
         self.model = AutoModelForCausalLM.from_pretrained(
             self.config.model_path, device_map=self.device
@@ -425,7 +425,7 @@ class FineTuner:
 
     def _load_lora_model(self) -> None:
         """
-        Load the model for LoRA fine-tuning.
+        Load the model for LoRA fine - tuning.
         """
         # Load base model
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -447,7 +447,7 @@ class FineTuner:
 
     def _load_qlora_model(self) -> None:
         """
-        Load the model for QLoRA fine-tuning.
+        Load the model for QLoRA fine - tuning.
         """
         # Load base model with quantization
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -457,7 +457,7 @@ class FineTuner:
             load_in_8bit=self.config.quantization_bits == 8,
         )
 
-        # Prepare model for k-bit training
+        # Prepare model for k - bit training
         self.model = prepare_model_for_kbit_training(self.model)
 
         # Create LoRA configuration
@@ -513,7 +513,7 @@ class FineTuner:
 
     def _create_trainer(self) -> None:
         """
-        Create the trainer for fine-tuning.
+        Create the trainer for fine - tuning.
         """
         if self.model is None or self.dataset is None:
             raise ValueError("Model and dataset must be loaded before creating the trainer")
@@ -564,7 +564,7 @@ class FineTuner:
 
     def _save_config(self, output_dir: Optional[str] = None) -> None:
         """
-        Save the fine-tuning configuration.
+        Save the fine - tuning configuration.
 
         Args:
             output_dir: Directory to save the configuration
@@ -609,24 +609,24 @@ class FineTuner:
 
         # Save configuration
         config_path = os.path.join(output_dir, "fine_tuning_config.json")
-        with open(config_path, "w", encoding="utf-8") as f:
+        with open(config_path, "w", encoding="utf - 8") as f:
             json.dump(config_dict, f, indent=2)
 
 
 def fine_tune_model(config: FineTuningConfig) -> str:
     """
-    Fine-tune a model.
+    Fine - tune a model.
 
     Args:
-        config: Configuration for fine-tuning
+        config: Configuration for fine - tuning
 
     Returns:
-        Path to the fine-tuned model
+        Path to the fine - tuned model
     """
-    # Create fine-tuner
+    # Create fine - tuner
     fine_tuner = FineTuner(config)
 
-    # Prepare for fine-tuning
+    # Prepare for fine - tuning
     fine_tuner.prepare()
 
     # Train the model
@@ -640,21 +640,21 @@ def fine_tune_model(config: FineTuningConfig) -> str:
 
 def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) -> str:
     """
-    Resume fine-tuning from a checkpoint.
+    Resume fine - tuning from a checkpoint.
 
     Args:
-        output_dir: Directory containing the fine-tuning configuration
+        output_dir: Directory containing the fine - tuning configuration
         checkpoint_dir: Directory containing the checkpoint
 
     Returns:
-        Path to the fine-tuned model
+        Path to the fine - tuned model
     """
     # Load configuration
     config_path = os.path.join(output_dir, "fine_tuning_config.json")
     if not os.path.exists(config_path):
-        raise ValueError(f"Fine-tuning configuration not found at {config_path}")
+        raise ValueError(f"Fine - tuning configuration not found at {config_path}")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, "r", encoding="utf - 8") as f:
         config_dict = json.load(f)
 
     # Convert method to enum
@@ -674,7 +674,7 @@ def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) ->
         per_device_train_batch_size=config_dict.get("per_device_train_batch_size", 4),
         per_device_eval_batch_size=config_dict.get("per_device_eval_batch_size", 4),
         gradient_accumulation_steps=config_dict.get("gradient_accumulation_steps", 1),
-        learning_rate=config_dict.get("learning_rate", 5e-5),
+        learning_rate=config_dict.get("learning_rate", 5e - 5),
         weight_decay=config_dict.get("weight_decay", 0.01),
         warmup_steps=config_dict.get("warmup_steps", 0),
         max_steps=config_dict.get("max_steps", -1),
@@ -696,10 +696,10 @@ def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) ->
         metadata=config_dict.get("metadata", {}),
     )
 
-    # Create fine-tuner
+    # Create fine - tuner
     fine_tuner = FineTuner(config)
 
-    # Prepare for fine-tuning
+    # Prepare for fine - tuning
     fine_tuner.prepare()
 
     # Resume training
@@ -713,10 +713,10 @@ def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) ->
 
 def stop_fine_tuning(output_dir: str) -> bool:
     """
-    Stop fine-tuning by creating a stop file.
+    Stop fine - tuning by creating a stop file.
 
     Args:
-        output_dir: Directory containing the fine-tuning process
+        output_dir: Directory containing the fine - tuning process
 
     Returns:
         True if the stop file was created, False otherwise
@@ -725,7 +725,7 @@ def stop_fine_tuning(output_dir: str) -> bool:
         # Create stop file
         stop_file = os.path.join(output_dir, "stop_fine_tuning")
         with open(stop_file, "w") as f:
-            f.write(f"Stop requested at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            f.write(f"Stop requested at {time.strftime(' % Y-%m-%d %H:%M:%S')}")
 
         return True
     except Exception as e:

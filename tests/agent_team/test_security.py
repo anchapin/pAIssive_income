@@ -78,4 +78,4 @@ def test_hash_operations():
     # Test hash creation with usedforsecurity=False
     result = analyzer.generate_niche_hash("test_niche")
     assert isinstance(result, str)
-    assert len(result) == 64  # SHA-256 hex string length
+    assert len(result) == 64  # SHA - 256 hex string length

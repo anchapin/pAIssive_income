@@ -11,7 +11,7 @@ import re
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
-# Third-party imports
+# Third - party imports
 try:
     import nltk
     from nltk.corpus import stopwords
@@ -36,7 +36,7 @@ class StyleAdjuster:
     # Define style categories
     STYLE_CATEGORIES = {
         "formal": {
-            "description": "Professional, academic, or business-like style",
+            "description": "Professional, academic, or business - like style",
             "avoid_words": [
                 "awesome",
                 "cool",
@@ -134,7 +134,7 @@ class StyleAdjuster:
             "voice": "active preferred",
         },
         "persuasive": {
-            "description": "Convincing, compelling, or sales-oriented style",
+            "description": "Convincing, compelling, or sales - oriented style",
             "avoid_words": [
                 "perhaps",
                 "maybe",
@@ -313,11 +313,11 @@ class StyleAdjuster:
             "I feel": ["I know", "I am certain", "I guarantee"],
             "unclear": ["proven", "established", "confirmed"],
             "uncertain": ["proven", "established", "confirmed"],
-            "unknown": ["well-known", "established", "recognized"],
+            "unknown": ["well - known", "established", "recognized"],
             "undetermined": ["verified", "confirmed", "established"],
         },
         "informative": {
-            # Casual/subjective to informative word replacements
+            # Casual / subjective to informative word replacements
             "I guess": ["research indicates", "evidence suggests", "data shows"],
             "I suppose": ["research indicates", "evidence suggests", "data shows"],
             "I assume": ["research indicates", "evidence suggests", "data shows"],
@@ -382,14 +382,20 @@ class StyleAdjuster:
             ],
             "pattern": r"^[^,;:]{10,30},[^,;:]{10,30}[.!?]$",
         },
-        "compound-complex": {
+        "compound - complex": {
             "description": "Multiple independent clauses with one or more dependent clauses",
+                
             "examples": [
-                "When you implement our system, efficiency improves, and costs decrease.",
-                "Although the market is competitive, our product stands out, and customers recognize the difference.",
-                "If you're looking for results, our solution delivers, and our support team ensures your success.",
-                "Because we understand your challenges, we've designed this tool, and we continue to enhance it.",
-                "While traditional methods work, our approach is innovative, and it produces superior outcomes.",
+                "When you implement our system, efficiency improves, 
+                    and costs decrease.",
+                "Although the market is competitive, our product stands out, 
+                    and customers recognize the difference.",
+                "If you're looking for results, our solution delivers, 
+                    and our support team ensures your success.",
+                "Because we understand your challenges, we've designed this tool, 
+                    and we continue to enhance it.",
+                "While traditional methods work, our approach is innovative, 
+                    and it produces superior outcomes.",
             ],
             "pattern": r"^[^,;:]{10,30},[^,;:]{10,30},[^,;:]{10,30}[.!?]$",
         },
@@ -422,7 +428,7 @@ class StyleAdjuster:
         # Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
-                nltk.data.find("tokenizers/punkt")
+                nltk.data.find("tokenizers / punkt")
             except LookupError:
                 nltk.download("punkt")
 
@@ -435,13 +441,15 @@ class StyleAdjuster:
         """
         return {
             "max_suggestions": 10,  # Maximum number of suggestions to generate
-            "min_suggestion_confidence": 0.7,  # Minimum confidence score for suggestions
-            "prioritize_by": "impact",  # How to prioritize suggestions: impact, confidence, or position
+            "min_suggestion_confidence": 0.7,  
+                # Minimum confidence score for suggestions
+            "prioritize_by": "impact",  # How to prioritize suggestions: impact, 
+                confidence, or position
             "adjust_word_choice": True,  # Whether to adjust word choice
             "adjust_sentence_structure": True,  # Whether to adjust sentence structure
             "adjust_paragraph_structure": True,  # Whether to adjust paragraph structure
             "adjust_punctuation": True,  # Whether to adjust punctuation
-            "adjust_voice": True,  # Whether to adjust voice (active/passive)
+            "adjust_voice": True,  # Whether to adjust voice (active / passive)
             "target_style": self.target_style,  # Target style
             "timestamp": datetime.datetime.now().isoformat(),
         }
@@ -466,7 +474,8 @@ class StyleAdjuster:
         # Check if target style is valid
         if self.target_style and self.target_style not in self.STYLE_CATEGORIES:
             errors.append(
-                f"Invalid target style: {self.target_style}. Must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
+                f"Invalid target style: {self.target_style}. Must be one of: {', 
+                    '.join(self.STYLE_CATEGORIES.keys())}"
             )
 
         return len(errors) == 0, errors
@@ -494,7 +503,8 @@ class StyleAdjuster:
 
         # Validate field types and values
         if "max_suggestions" in self.config and not (
-            isinstance(self.config["max_suggestions"], int) and self.config["max_suggestions"] > 0
+            isinstance(self.config["max_suggestions"], 
+                int) and self.config["max_suggestions"] > 0
         ):
             errors.append("max_suggestions must be a positive integer")
 
@@ -515,7 +525,8 @@ class StyleAdjuster:
             "target_style" in self.config
             and self.config["target_style"] not in self.STYLE_CATEGORIES
         ):
-            errors.append(f"target_style must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}")
+            errors.append(f"target_style must be one of: {', 
+                '.join(self.STYLE_CATEGORIES.keys())}")
 
         # Check boolean fields
         boolean_fields = [
@@ -551,7 +562,8 @@ class StyleAdjuster:
         """
         if target_style not in self.STYLE_CATEGORIES:
             raise ValueError(
-                f"Invalid target style: {target_style}. Must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
+                f"Invalid target style: {target_style}. Must be one of: {', 
+                    '.join(self.STYLE_CATEGORIES.keys())}"
             )
 
         self.target_style = target_style
@@ -690,7 +702,7 @@ class StyleAdjuster:
         else:
             # Simple sentence tokenization
             # Split on periods, exclamation points, and question marks
-            sentences = re.split(r"(?<=[.!?])\s+", text)
+            sentences = re.split(r"(?<=[.!?])\s + ", text)
 
             # Filter out empty sentences
             return [s.strip() for s in sentences if s.strip()]
@@ -972,9 +984,9 @@ class StyleAdjuster:
         """
         # Simple passive voice detection patterns
         passive_patterns = [
-            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+ed)\b",
-            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+en)\b",
-            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+t)\b",
+            r"\b(?:am|is|are|was|were|be|being|been)\s + (\w + ed)\b",
+            r"\b(?:am|is|are|was|were|be|being|been)\s + (\w + en)\b",
+            r"\b(?:am|is|are|was|were|be|being|been)\s + (\w + t)\b",
         ]
 
         # Check if any pattern matches
@@ -999,15 +1011,17 @@ class StyleAdjuster:
 
         # Passive voice patterns and their active voice transformations
         passive_patterns = [
-            (r"\b(am|is|are)\s+(\w+ed)\s+by\s+(.+)", r"\3 \2s \1"),
-            (r"\b(was|were)\s+(\w+ed)\s+by\s+(.+)", r"\3 \2ed \1"),
-            (r"\b(am|is|are)\s+being\s+(\w+ed)\s+by\s+(.+)", r"\3 is \2ing \1"),
-            (r"\b(was|were)\s+being\s+(\w+ed)\s+by\s+(.+)", r"\3 was \2ing \1"),
-            (r"\b(have|has)\s+been\s+(\w+ed)\s+by\s+(.+)", r"\3 has \2ed \1"),
-            (r"\b(had)\s+been\s+(\w+ed)\s+by\s+(.+)", r"\3 had \2ed \1"),
-            (r"\b(will|shall)\s+be\s+(\w+ed)\s+by\s+(.+)", r"\3 will \2 \1"),
+            (r"\b(am|is|are)\s + (\w + ed)\s + by\s + (.+)", r"\3 \2s \1"),
+            (r"\b(was|were)\s + (\w + ed)\s + by\s + (.+)", r"\3 \2ed \1"),
+            (r"\b(am|is|are)\s + being\s + (\w + ed)\s + by\s + (.+)", 
+                r"\3 is \2ing \1"),
+            (r"\b(was|were)\s + being\s + (\w + ed)\s + by\s + (.+)", 
+                r"\3 was \2ing \1"),
+            (r"\b(have|has)\s + been\s + (\w + ed)\s + by\s + (.+)", r"\3 has \2ed \1"),
+            (r"\b(had)\s + been\s + (\w + ed)\s + by\s + (.+)", r"\3 had \2ed \1"),
+            (r"\b(will|shall)\s + be\s + (\w + ed)\s + by\s + (.+)", r"\3 will \2 \1"),
             (
-                r"\b(would|should|could|might)\s+be\s+(\w+ed)\s+by\s+(.+)",
+                r"\b(would|should|could|might)\s + be\s + (\w + ed)\s + by\s + (.+)",
                 r"\3 would \2 \1",
             ),
         ]
@@ -1035,14 +1049,14 @@ class StyleAdjuster:
 
         # Active voice patterns and their passive voice transformations
         active_patterns = [
-            (r"\b(.+)\s+(\w+s)\s+(.+)", r"\3 is \2ed by \1"),
-            (r"\b(.+)\s+(\w+ed)\s+(.+)", r"\3 was \2ed by \1"),
-            (r"\b(.+)\s+is\s+(\w+ing)\s+(.+)", r"\3 is being \2ed by \1"),
-            (r"\b(.+)\s+was\s+(\w+ing)\s+(.+)", r"\3 was being \2ed by \1"),
-            (r"\b(.+)\s+has\s+(\w+ed)\s+(.+)", r"\3 has been \2ed by \1"),
-            (r"\b(.+)\s+had\s+(\w+ed)\s+(.+)", r"\3 had been \2ed by \1"),
-            (r"\b(.+)\s+will\s+(\w+)\s+(.+)", r"\3 will be \2ed by \1"),
-            (r"\b(.+)\s+would\s+(\w+)\s+(.+)", r"\3 would be \2ed by \1"),
+            (r"\b(.+)\s + (\w + s)\s + (.+)", r"\3 is \2ed by \1"),
+            (r"\b(.+)\s + (\w + ed)\s + (.+)", r"\3 was \2ed by \1"),
+            (r"\b(.+)\s + is\s + (\w + ing)\s + (.+)", r"\3 is being \2ed by \1"),
+            (r"\b(.+)\s + was\s + (\w + ing)\s + (.+)", r"\3 was being \2ed by \1"),
+            (r"\b(.+)\s + has\s + (\w + ed)\s + (.+)", r"\3 has been \2ed by \1"),
+            (r"\b(.+)\s + had\s + (\w + ed)\s + (.+)", r"\3 had been \2ed by \1"),
+            (r"\b(.+)\s + will\s + (\w+)\s + (.+)", r"\3 will be \2ed by \1"),
+            (r"\b(.+)\s + would\s + (\w+)\s + (.+)", r"\3 would be \2ed by \1"),
         ]
 
         # Try each pattern
@@ -1064,10 +1078,11 @@ class StyleAdjuster:
             Sentence structure type
         """
         # Count clauses
-        independent_clauses = len(re.findall(r"[^,;:]+(?:[,;:]|$)", sentence))
+        independent_clauses = len(re.findall(r"[^,;:] + (?:[,;:]|$)", sentence))
         dependent_clauses = len(
             re.findall(
-                r"(?:because|although|while|if|when|after|before|since|unless|until|as|though)[^,;:.]*[,;:]",
+                r"(?:because|although|while|if|when|after|before|since|unless|until|as|though)[^,
+                    ;:.] * [,;:]",
                 sentence,
             )
         )
@@ -1080,7 +1095,7 @@ class StyleAdjuster:
         elif independent_clauses == 1 and dependent_clauses >= 1:
             return "complex"
         elif independent_clauses > 1 and dependent_clauses >= 1:
-            return "compound-complex"
+            return "compound - complex"
         else:
             return "unknown"
 
@@ -1099,7 +1114,7 @@ class StyleAdjuster:
         word_count = len(words)
 
         # Count clauses
-        clauses = len(re.findall(r"[^,;:]+(?:[,;:]|$)", sentence))
+        clauses = len(re.findall(r"[^,;:] + (?:[,;:]|$)", sentence))
 
         # Count commas, semicolons, and colons
         punctuation_count = len(re.findall(r"[,;:]", sentence))
@@ -1511,7 +1526,8 @@ class StyleAdjuster:
                 conjunctions = [", and ", ", but ", ", or ", ", yet ", ", so "]
                 conjunction = random.choice(conjunctions)
 
-                return sentence + conjunction + next_sentence[0].lower() + next_sentence[1:]
+                return sentence + \
+                    conjunction + next_sentence[0].lower() + next_sentence[1:]
 
         # Add a dependent clause
         dependent_clauses = [
@@ -1609,7 +1625,8 @@ class StyleAdjuster:
                                             paragraph, adjusted_paragraph
                                         )
 
-            elif "long" in target_paragraph_length and word_count < 50 and len(paragraphs) > 1:
+            elif "long" in target_paragraph_length and \
+                word_count < 50 and len(paragraphs) > 1:
                 # Try to combine with adjacent paragraph
                 index = paragraphs.index(paragraph)
 
@@ -1694,13 +1711,14 @@ class StyleAdjuster:
             question_count = sentence.count("?")
             ellipsis_count = sentence.count("...")
             semicolon_count = sentence.count(";")
-            dash_count = sentence.count("-") + sentence.count("—")
+            dash_count = sentence.count(" - ") + sentence.count("—")
 
             # Check if adjustment needed
             if "emphatic" in target_punctuation:
                 # Add more emphatic punctuation
                 if (
-                    not any([exclamation_count, question_count, ellipsis_count, dash_count])
+                    not any([exclamation_count, question_count, ellipsis_count, 
+                        dash_count])
                     and len(sentence) > 20
                 ):
                     # Replace period with exclamation point or add emphasis
@@ -1987,7 +2005,8 @@ class StyleAdjuster:
 
         return suggestions
 
-    def _prioritize_adjustments(self, adjustments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _prioritize_adjustments(self, adjustments: List[Dict[str, 
+        Any]]) -> List[Dict[str, Any]]:
         """
         Prioritize adjustments.
 
@@ -2061,7 +2080,7 @@ class StyleAdjuster:
             "impact": adjustment.get("impact", "low"),
         }
 
-        # Add type-specific fields
+        # Add type - specific fields
         if adjustment["type"] == "word_choice":
             suggestion["message"] = (
                 f"Replace '{adjustment['original']}' with '{adjustment['replacement']}' for a more {self.target_style} style."
@@ -2072,9 +2091,11 @@ class StyleAdjuster:
 
         elif adjustment["type"] == "sentence_structure":
             if "simple" in adjustment.get("target_structure", ""):
-                suggestion["message"] = "Simplify this sentence for a more direct style."
+                suggestion["message"] = \
+                    "Simplify this sentence for a more direct style."
                 suggestion["explanation"] = (
-                    "This sentence is too complex for the target style. Breaking it into shorter, simpler sentences will improve readability and match the desired style better."
+                    "This sentence is too complex for the target style. Breaking it into shorter, 
+                        simpler sentences will improve readability and match the desired style better."
                 )
             else:
                 suggestion["message"] = (
@@ -2122,7 +2143,8 @@ class StyleAdjuster:
             else:
                 suggestion["message"] = "Convert this sentence to passive voice."
                 suggestion["explanation"] = (
-                    "The target style allows or prefers passive voice in some contexts. Converting active voice to passive voice can make the content more formal or objective."
+                    "The target style allows or \
+                        prefers passive voice in some contexts. Converting active voice to passive voice can make the content more formal or objective."
                 )
 
         # Add examples
@@ -2185,7 +2207,7 @@ class StyleAdjuster:
         # Update content
         self.content = adjusted_content
 
-        # Re-analyze
+        # Re - analyze
         self.analyze()
 
         return self.content
@@ -2233,7 +2255,8 @@ class StyleAdjuster:
             "sentiment": analysis["sentiment_analysis"]["dominant_sentiment"],
             "sentiment_consistency": analysis["sentiment_analysis"]["consistency"],
             "readability": {
-                "grade_level": analysis.get("readability_scores", {}).get("grade_level", 0),
+                "grade_level": analysis.get("readability_scores", {}).get("grade_level", 
+                    0),
                 "reading_ease": analysis.get("readability_scores", {})
                 .get("flesch_reading_ease", {})
                 .get("score", 0),
@@ -2406,7 +2429,7 @@ class StyleAdjuster:
         Calculate the potential for improvement.
 
         Returns:
-            Improvement potential score (0-1)
+            Improvement potential score (0 - 1)
         """
         # Get all adjustments
         all_adjustments = []
@@ -2432,5 +2455,5 @@ class StyleAdjuster:
         else:
             normalized_impact = 0
 
-        # Clamp to 0-1 range
+        # Clamp to 0 - 1 range
         return min(1.0, normalized_impact / 10)

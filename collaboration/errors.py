@@ -81,7 +81,7 @@ def handle_exception(func: Callable) -> Callable:
     """
     Decorator to handle exceptions in collaboration module functions.
 
-    This decorator catches exceptions, logs them, and re-raises them as
+    This decorator catches exceptions, logs them, and re - raises them as
     appropriate collaboration module exceptions.
 
     Args:
@@ -95,7 +95,7 @@ def handle_exception(func: Callable) -> Callable:
         try:
             return func(*args, **kwargs)
         except CollaborationError:
-            # Re-raise collaboration module exceptions
+            # Re - raise collaboration module exceptions
             raise
         except Exception as e:
             # Log the exception
@@ -105,13 +105,16 @@ def handle_exception(func: Callable) -> Callable:
             # Determine the appropriate exception type based on the function name
             if "workspace" in func.__name__.lower():
                 raise WorkspaceError(f"Workspace operation failed: {str(e)}", e)
-            elif "permission" in func.__name__.lower() or "role" in func.__name__.lower():
+            elif "permission" in func.__name__.lower() or \
+                "role" in func.__name__.lower():
                 raise PermissionError(f"Permission operation failed: {str(e)}", e)
             elif "shar" in func.__name__.lower():
                 raise SharingError(f"Sharing operation failed: {str(e)}", e)
             elif "version" in func.__name__.lower():
-                raise VersionControlError(f"Version control operation failed: {str(e)}", e)
-            elif "comment" in func.__name__.lower() or "reaction" in func.__name__.lower():
+                raise VersionControlError(f"Version control operation failed: {str(e)}", 
+                    e)
+            elif "comment" in func.__name__.lower() or \
+                "reaction" in func.__name__.lower():
                 raise CommentError(f"Comment operation failed: {str(e)}", e)
             elif "integrat" in func.__name__.lower():
                 raise IntegrationError(f"Integration operation failed: {str(e)}", e)

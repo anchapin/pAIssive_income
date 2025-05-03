@@ -17,7 +17,7 @@ from .secrets_manager import (
 )
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format=" % (levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -85,7 +85,7 @@ def handle_set_command(args: argparse.Namespace) -> int:
         args: Command line arguments
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     name = args.name
     value = args.value
@@ -110,7 +110,7 @@ def handle_get_command(args: argparse.Namespace) -> int:
         args: Command line arguments
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     name = args.name
     value = get_secret(name, backend=args.backend)
@@ -132,7 +132,7 @@ def handle_delete_command(args: argparse.Namespace) -> int:
         args: Command line arguments
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     name = args.name
 
@@ -152,7 +152,7 @@ def handle_list_command(args: argparse.Namespace) -> int:
         args: Command line arguments
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     secrets = list_secret_names(backend=args.backend)
 
@@ -171,7 +171,7 @@ def main() -> int:
     Main entry point for the CLI.
 
     Returns:
-        Exit code (0 for success, non-zero for error)
+        Exit code (0 for success, non - zero for error)
     """
     parser = setup_parser()
     args = parser.parse_args()

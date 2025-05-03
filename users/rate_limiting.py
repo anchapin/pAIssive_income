@@ -2,7 +2,7 @@
 Rate limiting functionality for the pAIssive_income project.
 
 This module provides functions for rate limiting authentication attempts
-and other security-sensitive operations.
+and other security - sensitive operations.
 """
 
 import logging
@@ -16,9 +16,9 @@ from flask import g, jsonify, request
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# In-memory storage for rate limiting
+# In - memory storage for rate limiting
 # In a production environment, this would be stored in a distributed cache like Redis
-LOGIN_ATTEMPTS = defaultdict(list)  # username/ip -> list of timestamps
+LOGIN_ATTEMPTS = defaultdict(list)  # username / ip -> list of timestamps
 BLOCKED_IPS = {}  # ip -> unblock_time
 
 
@@ -29,9 +29,9 @@ def get_client_ip() -> str:
     Returns:
         Client IP address
     """
-    # Check for X-Forwarded-For header (for clients behind proxies)
-    if request.headers.get("X-Forwarded-For"):
-        ip = request.headers.get("X-Forwarded-For").split(",")[0].strip()
+    # Check for X - Forwarded - For header (for clients behind proxies)
+    if request.headers.get("X - Forwarded - For"):
+        ip = request.headers.get("X - Forwarded - For").split(",")[0].strip()
     else:
         ip = request.remote_addr or "unknown"
     return ip
@@ -141,6 +141,7 @@ def rate_limit_login(f):
                     {
                         "error": "Too Many Requests",
                         "message": "Too many failed login attempts. Please try again later.",
+                            
                     }
                 ),
                 429,
@@ -156,7 +157,8 @@ def rate_limit_login(f):
         ip_identifier = f"ip:{ip}"
 
         # Check rate limits
-        username_limited, username_remaining = record_login_attempt(username_identifier, False)
+        username_limited, username_remaining = record_login_attempt(username_identifier, 
+            False)
         ip_limited, ip_remaining = record_login_attempt(ip_identifier, False)
 
         if username_limited or ip_limited:
@@ -169,6 +171,7 @@ def rate_limit_login(f):
                     {
                         "error": "Too Many Requests",
                         "message": "Too many failed login attempts. Please try again later.",
+                            
                     }
                 ),
                 429,
@@ -222,6 +225,7 @@ def cleanup_rate_limiting_data() -> Tuple[int, int]:
             removed_blocks += 1
 
     logger.info(
-        f"Cleaned up rate limiting data: {removed_attempts} attempts, {removed_blocks} blocks"
+        f"Cleaned up rate limiting data: {removed_attempts} attempts, 
+            {removed_blocks} blocks"
     )
     return removed_attempts, removed_blocks

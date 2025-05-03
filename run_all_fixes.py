@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Script to run all linting fixes in sequence.
 
@@ -41,18 +41,21 @@ def run_flake8(directory="."):
     print_header("Running flake8 to check for remaining issues")
     
     # Use the virtual environment's flake8 if available
-    flake8_cmd = ".venv/bin/flake8" if os.path.exists(".venv/bin/flake8") else "flake8"
+    flake8_cmd = ".venv / \
+        bin / flake8" if os.path.exists(".venv / bin / flake8") else "flake8"
     
     # Run flake8 with specific error codes
     try:
         result = subprocess.run(
-            [flake8_cmd, directory, "--select=E226,E501,F401", "--count", "--statistics"],
+            [flake8_cmd, directory, "--select=E226,E501,F401", "--count", 
+                "--statistics"],
             capture_output=True,
             text=True
         )
     except FileNotFoundError:
         print("flake8 not found. Please install it in your virtual environment.")
-        print("Try: python -m venv .venv && source .venv/bin/activate && pip install flake8")
+        print("Try: python -m venv .venv && source .venv / \
+            bin / activate && pip install flake8")
         return {}
     
     print(result.stdout)
@@ -109,7 +112,8 @@ def main():
         initial = initial_issues.get(code, 0)
         final = final_issues.get(code, 0)
         if initial > final:
-            print(f"{code}: {initial} → {final} issues ({initial - final} fixed, {100 * (initial - final) / initial:.1f}% improvement)")
+            print(f"{code}: {initial} → {final} issues ({initial - final} fixed, 
+                {100 * (initial - final) / initial:.1f}% improvement)")
         elif initial == final:
             print(f"{code}: {initial} → {final} issues (no change)")
         else:
@@ -120,7 +124,8 @@ def main():
     final_total = sum(final_issues.values())
     if initial_total > 0:
         improvement = 100 * (initial_total - final_total) / initial_total
-        print(f"\nOverall: {initial_total} → {final_total} issues ({initial_total - final_total} fixed, {improvement:.1f}% improvement)")
+        print(f"\nOverall: {initial_total} → {final_total} issues ({initial_total - final_total} fixed, 
+            {improvement:.1f}% improvement)")
     
 
 if __name__ == "__main__":

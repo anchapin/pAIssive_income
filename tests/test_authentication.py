@@ -39,9 +39,9 @@ class TestAuthentication(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         # Create a test user
-        self.user_id = "test-user-id"
+        self.user_id = "test - user - id"
         self.username = "testuser"
-        self.email = "test@example.com"
+        self.email = "test @ example.com"
         self.password = "TestPassword123"
         self.password_hash = hash_password(self.password)
         self.roles = ["user"]

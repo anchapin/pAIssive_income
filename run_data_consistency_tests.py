@@ -39,14 +39,14 @@ def run_tests():
     # Add concurrent operation test cases
     test_loader = unittest.TestLoader()
     concurrent_ops_module = __import__(
-        "tests.common_utils.db.test_concurrent_operations", fromlist=["*"]
+        "tests.common_utils.db.test_concurrent_operations", fromlist=[" * "]
     )
     concurrent_ops_tests = test_loader.loadTestsFromModule(concurrent_ops_module)
     test_suite.addTests(concurrent_ops_tests)
 
     # Add cache coherency test cases
     cache_coherency_module = __import__(
-        "tests.common_utils.db.test_cache_coherency", fromlist=["*"]
+        "tests.common_utils.db.test_cache_coherency", fromlist=[" * "]
     )
     cache_coherency_tests = test_loader.loadTestsFromModule(cache_coherency_module)
     test_suite.addTests(cache_coherency_tests)

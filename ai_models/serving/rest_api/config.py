@@ -19,10 +19,10 @@ class RESTConfig(ServerConfig):
     # Override default protocol
     protocol: ServerProtocol = ServerProtocol.REST
 
-    # REST-specific configuration
-    docs_url: str = "/docs"
-    openapi_url: str = "/openapi.json"
-    redoc_url: str = "/redoc"
+    # REST - specific configuration
+    docs_url: str = " / docs"
+    openapi_url: str = " / openapi.json"
+    redoc_url: str = " / redoc"
 
     # Middleware configuration
     enable_cors: bool = True
@@ -42,11 +42,11 @@ class RESTConfig(ServerConfig):
 
     # Health check configuration
     enable_health_check: bool = True
-    health_check_path: str = "/health"
+    health_check_path: str = " / health"
 
     # Metrics configuration
     enable_metrics: bool = False
-    metrics_path: str = "/metrics"
+    metrics_path: str = " / metrics"
 
     def to_dict(self) -> Dict[str, Any]:
         """

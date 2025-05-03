@@ -40,7 +40,7 @@ class TestAgentTeamAPI:
         data = generate_agent_team_data()
 
         # Make request
-        response = api_test_client.post("agent-team/teams", data)
+        response = api_test_client.post("agent - team / teams", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -61,7 +61,7 @@ class TestAgentTeamAPI:
     def test_get_teams(self, api_test_client: APITestClient):
         """Test getting all agent teams."""
         # Make request
-        response = api_test_client.get("agent-team/teams")
+        response = api_test_client.get("agent - team / teams")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -75,7 +75,7 @@ class TestAgentTeamAPI:
         team_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"agent-team/teams/{team_id}")
+        response = api_test_client.get(f"agent - team / teams/{team_id}")
 
         # This might return 404 if the team doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -104,7 +104,7 @@ class TestAgentTeamAPI:
         data = generate_agent_team_data()
 
         # Make request
-        response = api_test_client.put(f"agent-team/teams/{team_id}", data)
+        response = api_test_client.put(f"agent - team / teams/{team_id}", data)
 
         # This might return 404 if the team doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -130,7 +130,7 @@ class TestAgentTeamAPI:
         team_id = generate_id()
 
         # Make request
-        response = api_test_client.delete(f"agent-team/teams/{team_id}")
+        response = api_test_client.delete(f"agent - team / teams/{team_id}")
 
         # This might return 404 if the team doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -141,7 +141,7 @@ class TestAgentTeamAPI:
     def test_get_agents(self, api_test_client: APITestClient):
         """Test getting all agents."""
         # Make request
-        response = api_test_client.get("agent-team/agents")
+        response = api_test_client.get("agent - team / agents")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -155,7 +155,7 @@ class TestAgentTeamAPI:
         agent_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"agent-team/agents/{agent_id}")
+        response = api_test_client.get(f"agent - team / agents/{agent_id}")
 
         # This might return 404 if the agent doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -178,7 +178,7 @@ class TestAgentTeamAPI:
     def test_get_workflows(self, api_test_client: APITestClient):
         """Test getting all workflows."""
         # Make request
-        response = api_test_client.get("agent-team/workflows")
+        response = api_test_client.get("agent - team / workflows")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -192,7 +192,7 @@ class TestAgentTeamAPI:
         workflow_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"agent-team/workflows/{workflow_id}")
+        response = api_test_client.get(f"agent - team / workflows/{workflow_id}")
 
         # This might return 404 if the workflow doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -220,13 +220,13 @@ class TestAgentTeamAPI:
         data = {
             "workflow_id": workflow_id,
             "parameters": {
-                "market_segments": ["e-commerce", "digital-marketing"],
+                "market_segments": ["e - commerce", "digital - marketing"],
                 "target_audience": "small businesses",
             },
         }
 
         # Make request
-        response = api_test_client.post(f"agent-team/teams/{team_id}/run", data)
+        response = api_test_client.post(f"agent - team / teams/{team_id}/run", data)
 
         # This might return 404 if the team or workflow doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -248,7 +248,7 @@ class TestAgentTeamAPI:
         teams = [generate_agent_team_data() for _ in range(3)]
 
         # Make request
-        response = api_test_client.bulk_create("agent-team/teams", teams)
+        response = api_test_client.bulk_create("agent - team / teams", teams)
 
         # Validate response
         result = validate_bulk_response(response, 201)  # Created
@@ -260,7 +260,7 @@ class TestAgentTeamAPI:
         """Test filtering agent teams."""
         # Make request with filter
         response = api_test_client.get(
-            "agent-team/teams",
+            "agent - team / teams",
             params={
                 "filter": "name:contains:Team",
                 "sort": "created_at:desc",
@@ -284,7 +284,7 @@ class TestAgentTeamAPI:
     def test_invalid_team_request(self, api_test_client: APITestClient):
         """Test invalid team request."""
         # Make request with invalid data
-        response = api_test_client.post("agent-team/teams", {})
+        response = api_test_client.post("agent - team / teams", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -292,10 +292,10 @@ class TestAgentTeamAPI:
     def test_nonexistent_team(self, api_test_client: APITestClient):
         """Test getting a nonexistent team."""
         # Generate a random ID that is unlikely to exist
-        team_id = "nonexistent-" + generate_id()
+        team_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = api_test_client.get(f"agent-team/teams/{team_id}")
+        response = api_test_client.get(f"agent - team / teams/{team_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found

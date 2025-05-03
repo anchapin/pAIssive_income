@@ -84,7 +84,8 @@ class IAgentTeamService(IBaseService):
         """
 
     @abstractmethod
-    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update_project(self, project_id: str, updates: Dict[str, 
+        Any]) -> Optional[Dict[str, Any]]:
         """
         Update a project.
 

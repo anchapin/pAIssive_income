@@ -43,7 +43,7 @@ class TestAnalyticsAPI:
     def test_get_analytics_summary(self, auth_api_test_client: APITestClient):
         """Test getting the analytics summary."""
         # Make request
-        response = auth_api_test_client.get("analytics/summary")
+        response = auth_api_test_client.get("analytics / summary")
 
         # Validate response
         result = validate_success_response(response)
@@ -63,7 +63,7 @@ class TestAnalyticsAPI:
     def test_get_request_stats(self, auth_api_test_client: APITestClient):
         """Test getting request statistics."""
         # Make request
-        response = auth_api_test_client.get("analytics/requests")
+        response = auth_api_test_client.get("analytics / requests")
 
         # Validate response
         result = validate_success_response(response)
@@ -83,7 +83,7 @@ class TestAnalyticsAPI:
     def test_get_endpoint_stats(self, auth_api_test_client: APITestClient):
         """Test getting endpoint statistics."""
         # Make request
-        response = auth_api_test_client.get("analytics/endpoints")
+        response = auth_api_test_client.get("analytics / endpoints")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -108,7 +108,7 @@ class TestAnalyticsAPI:
     def test_get_user_stats(self, auth_api_test_client: APITestClient):
         """Test getting user statistics."""
         # Make request
-        response = auth_api_test_client.get("analytics/users")
+        response = auth_api_test_client.get("analytics / users")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -129,7 +129,7 @@ class TestAnalyticsAPI:
     def test_get_api_key_stats(self, auth_api_test_client: APITestClient):
         """Test getting API key statistics."""
         # Make request
-        response = auth_api_test_client.get("analytics/api-keys")
+        response = auth_api_test_client.get("analytics / api - keys")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -148,9 +148,9 @@ class TestAnalyticsAPI:
             validate_field_type(item, "last_request_at", str)
 
     def test_get_real_time_metrics(self, auth_api_test_client: APITestClient):
-        """Test getting real-time metrics."""
+        """Test getting real - time metrics."""
         # Make request
-        response = auth_api_test_client.get("analytics/real-time")
+        response = auth_api_test_client.get("analytics / real - time")
 
         # Validate response
         result = validate_success_response(response)
@@ -170,7 +170,7 @@ class TestAnalyticsAPI:
     def test_get_alerts(self, auth_api_test_client: APITestClient):
         """Test getting alerts."""
         # Make request
-        response = auth_api_test_client.get("analytics/alerts")
+        response = auth_api_test_client.get("analytics / alerts")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -205,7 +205,7 @@ class TestAnalyticsAPI:
         }
 
         # Make request
-        response = auth_api_test_client.post("analytics/alert-thresholds", data)
+        response = auth_api_test_client.post("analytics / alert - thresholds", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -232,7 +232,7 @@ class TestAnalyticsAPI:
     def test_get_alert_thresholds(self, auth_api_test_client: APITestClient):
         """Test getting alert thresholds."""
         # Make request
-        response = auth_api_test_client.get("analytics/alert-thresholds")
+        response = auth_api_test_client.get("analytics / alert - thresholds")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -244,7 +244,7 @@ class TestAnalyticsAPI:
         """Test getting analytics with a date range."""
         # Make request with date range
         response = auth_api_test_client.get(
-            "analytics/summary", params={"start_date": "2023-01-01", "end_date": "2023-12-31"}
+            "analytics / summary", params={"start_date": "2023 - 01 - 01", "end_date": "2023 - 12 - 31"}
         )
 
         # Validate response
@@ -254,8 +254,8 @@ class TestAnalyticsAPI:
         """Test getting analytics with filters."""
         # Make request with filters
         response = auth_api_test_client.get(
-            "analytics/endpoints",
-            params={"method": "GET", "path": "/api/v1/niche-analysis", "min_requests": 10},
+            "analytics / endpoints",
+            params={"method": "GET", "path": " / api / v1 / niche - analysis", "min_requests": 10},
         )
 
         # Validate response
@@ -265,14 +265,14 @@ class TestAnalyticsAPI:
         """Test exporting analytics data."""
         # Make request
         response = auth_api_test_client.get(
-            "analytics/export", params={"format": "csv", "sections": "requests,endpoints,users"}
+            "analytics / export", params={"format": "csv", "sections": "requests,endpoints,users"}
         )
 
         # Validate response
         if response.status_code == 200:
             # Check that the response has the correct content type
-            assert response.headers["Content-Type"] == "text/csv"
-            assert "Content-Disposition" in response.headers
+            assert response.headers["Content - Type"] == "text / csv"
+            assert "Content - Disposition" in response.headers
         else:
             # If the endpoint is not implemented, it might return 501
             validate_error_response(response, 501)  # Not Implemented
@@ -282,7 +282,7 @@ class TestAnalyticsAPI:
         # Make request without authentication to our special test endpoint
         # Add a query parameter to identify this specific test
         response = api_test_client.get(
-            "analytics/unauthorized-test", params={"test": "test_unauthorized_access"}
+            "analytics / unauthorized - test", params={"test": "test_unauthorized_access"}
         )
 
         # Validate error response
@@ -292,7 +292,7 @@ class TestAnalyticsAPI:
         """Test getting analytics dashboard metrics."""
         # Make request
         response = auth_api_test_client.get(
-            "analytics/dashboard", params={"start_date": "2025-04-01", "end_date": "2025-04-30"}
+            "analytics / dashboard", params={"start_date": "2025 - 04 - 01", "end_date": "2025 - 04 - 30"}
         )
 
         # Validate response
@@ -318,17 +318,17 @@ class TestAnalyticsAPI:
             "metrics": ["requests", "users", "response_time", "errors"],
             "dimensions": ["endpoint", "method", "status_code"],
             "filters": {
-                "endpoint": ["api/v1/niche-analysis", "api/v1/marketing"],
+                "endpoint": ["api / v1 / niche - analysis", "api / v1 / marketing"],
                 "method": ["GET", "POST"],
                 "status_code": ["200", "404", "500"],
             },
-            "date_range": {"start_date": "2025-04-01", "end_date": "2025-04-30"},
+            "date_range": {"start_date": "2025 - 04 - 01", "end_date": "2025 - 04 - 30"},
             "sort": [{"field": "requests", "order": "desc"}],
             "limit": 100,
         }
 
         # Make request
-        response = auth_api_test_client.post("analytics/custom-report", data)
+        response = auth_api_test_client.post("analytics / custom - report", data)
 
         # Validate response
         result = validate_success_response(response)
@@ -341,7 +341,7 @@ class TestAnalyticsAPI:
 
         # Get report results
         report_id = result["report_id"]
-        response = auth_api_test_client.get(f"analytics/reports/{report_id}")
+        response = auth_api_test_client.get(f"analytics / reports/{report_id}")
 
         if response.status_code == 202:  # Still processing
             result = validate_success_response(response, 202)
@@ -368,12 +368,12 @@ class TestAnalyticsAPI:
         """Test getting metric trends over time."""
         # Make request for trends
         response = auth_api_test_client.get(
-            "analytics/metrics",
+            "analytics / metrics",
             params={
                 "metrics": ["requests", "errors", "response_time"],
                 "interval": "day",
-                "start_date": "2025-04-01",
-                "end_date": "2025-04-30",
+                "start_date": "2025 - 04 - 01",
+                "end_date": "2025 - 04 - 30",
             },
         )
 
@@ -419,7 +419,7 @@ class TestAnalyticsAPI:
         }
 
         # Make request
-        response = auth_api_test_client.put(f"analytics/alert-thresholds/{threshold_id}", data)
+        response = auth_api_test_client.put(f"analytics / alert - thresholds/{threshold_id}", data)
 
         # This might return 404 if the threshold doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -459,7 +459,7 @@ class TestAnalyticsAPI:
         threshold_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.delete(f"analytics/alert-thresholds/{threshold_id}")
+        response = auth_api_test_client.delete(f"analytics / alert - thresholds/{threshold_id}")
 
         # This might return 404 if the threshold doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -479,17 +479,17 @@ class TestAnalyticsAPI:
             "metrics": ["requests", "latency", "errors", "unique_users"],
             "dimensions": ["endpoint", "method", "status_code", "user_id"],
             "filters": {
-                "endpoint": ["api/v1/analytics", "api/v1/metrics"],
+                "endpoint": ["api / v1 / analytics", "api / v1 / metrics"],
                 "method": ["GET", "POST", "PUT", "DELETE"],
                 "status_code": ["200", "400", "401", "403", "404", "500"],
             },
             "date_range": {"type": "rolling", "period": "day", "count": 7},
             "schedule": {"frequency": "daily", "time": "00:00", "timezone": "UTC"},
-            "delivery": {"type": "email", "recipients": ["analytics@example.com"], "format": "csv"},
+            "delivery": {"type": "email", "recipients": ["analytics @ example.com"], "format": "csv"},
         }
 
         # Make request
-        response = auth_api_test_client.put(f"analytics/reports/{report_id}", data)
+        response = auth_api_test_client.put(f"analytics / reports/{report_id}", data)
 
         # This might return 404 if the report doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -529,7 +529,7 @@ class TestAnalyticsAPI:
         report_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.delete(f"analytics/reports/{report_id}")
+        response = auth_api_test_client.delete(f"analytics / reports/{report_id}")
 
         # This might return 404 if the report doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -565,7 +565,7 @@ class TestAnalyticsAPI:
         ]
 
         # Make request
-        response = auth_api_test_client.bulk_update("analytics/alert-thresholds", thresholds)
+        response = auth_api_test_client.bulk_update("analytics / alert - thresholds", thresholds)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -597,7 +597,7 @@ class TestAnalyticsAPI:
         threshold_ids = [generate_id() for _ in range(3)]
 
         # Make request
-        response = auth_api_test_client.bulk_delete("analytics/alert-thresholds", threshold_ids)
+        response = auth_api_test_client.bulk_delete("analytics / alert - thresholds", threshold_ids)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -645,7 +645,7 @@ class TestAnalyticsAPI:
         ]
 
         # Make request
-        response = auth_api_test_client.bulk_update("analytics/reports", reports)
+        response = auth_api_test_client.bulk_update("analytics / reports", reports)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -677,7 +677,7 @@ class TestAnalyticsAPI:
         report_ids = [generate_id() for _ in range(3)]
 
         # Make request
-        response = auth_api_test_client.bulk_delete("analytics/reports", report_ids)
+        response = auth_api_test_client.bulk_delete("analytics / reports", report_ids)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -705,7 +705,7 @@ class TestAnalyticsAPI:
         # Test invalid alert threshold update
         threshold_id = generate_id()
         response = auth_api_test_client.put(
-            f"analytics/alert-thresholds/{threshold_id}",
+            f"analytics / alert - thresholds/{threshold_id}",
             {"metric": "invalid_metric", "threshold": -1, "operator": "invalid_operator"},
         )
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -713,23 +713,23 @@ class TestAnalyticsAPI:
         # Test invalid custom report update
         report_id = generate_id()
         response = auth_api_test_client.put(
-            f"analytics/reports/{report_id}",
+            f"analytics / reports/{report_id}",
             {"metrics": ["invalid_metric"], "schedule": {"frequency": "invalid_frequency"}},
         )
         validate_error_response(response, 422)
 
         # Test bulk operations with empty lists
-        response = auth_api_test_client.bulk_update("analytics/alert-thresholds", [])
+        response = auth_api_test_client.bulk_update("analytics / alert - thresholds", [])
         validate_error_response(response, 422)
 
-        response = auth_api_test_client.bulk_delete("analytics/reports", [])
+        response = auth_api_test_client.bulk_delete("analytics / reports", [])
         validate_error_response(response, 422)
 
         # Test bulk operations with invalid data
         response = auth_api_test_client.bulk_update(
-            "analytics/alert-thresholds",
+            "analytics / alert - thresholds",
             [
-                {"id": "invalid-id"},  # Missing required fields
+                {"id": "invalid - id"},  # Missing required fields
                 {"metric": "error_rate"},  # Missing ID
             ],
         )
@@ -737,7 +737,7 @@ class TestAnalyticsAPI:
 
         # Test bulk delete with invalid IDs
         response = auth_api_test_client.bulk_delete(
-            "analytics/alert-thresholds", ["invalid-id-1", "invalid-id-2"]
+            "analytics / alert - thresholds", ["invalid - id - 1", "invalid - id - 2"]
         )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)

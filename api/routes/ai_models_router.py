@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ else:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.get("/")
+    @router.get(" / ")
     async def get_ai_models_info():
         """
         Get AI models information.

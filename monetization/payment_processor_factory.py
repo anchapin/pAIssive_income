@@ -1,7 +1,8 @@
 """
 Payment processor factory for the pAIssive Income project.
 
-This module provides a factory class for creating and managing payment processor instances.
+This module provides a factory class for creating and \
+    managing payment processor instances.
 """
 
 import importlib
@@ -24,7 +25,7 @@ class PaymentProcessorFactory:
         self.processor_classes = {}
         self.processor_instances = {}
 
-        # Register built-in payment processors
+        # Register built - in payment processors
         self.register_processor("mock", MockPaymentProcessor)
 
     def register_processor(

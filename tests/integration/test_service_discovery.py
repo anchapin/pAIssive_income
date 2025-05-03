@@ -32,11 +32,11 @@ class TestServiceDiscovery:
         """Test service registration workflow."""
         # Service details
         service_info = {
-            "name": "ai-model-service",
+            "name": "ai - model - service",
             "host": "localhost",
             "port": 5000,
             "tags": ["v1", "production"],
-            "metadata": {"model_type": "gpt-4", "max_tokens": 4096},
+            "metadata": {"model_type": "gpt - 4", "max_tokens": 4096},
         }
 
         # Register service
@@ -48,7 +48,7 @@ class TestServiceDiscovery:
         assert registration["service_status"] == "healthy"
 
         # Verify service is discoverable
-        discovered = self.client.get_service("ai-model-service")
+        discovered = self.client.get_service("ai - model - service")
         assert discovered["name"] == service_info["name"]
         assert discovered["host"] == service_info["host"]
         assert discovered["port"] == service_info["port"]
@@ -61,10 +61,10 @@ class TestServiceDiscovery:
         """Test service health checking mechanisms."""
         # Register service with health check
         service_id = self.registry.register_service(
-            name="health-check-service",
+            name="health - check - service",
             host="localhost",
             port=5001,
-            health_check_endpoint="/health",
+            health_check_endpoint=" / health",
         )["service_id"]
 
         try:
@@ -94,7 +94,7 @@ class TestServiceDiscovery:
         """Test load balancing functionality."""
         # Register multiple instances
         service_instances = [
-            {"name": "api-service", "host": "localhost", "port": port, "weight": 1}
+            {"name": "api - service", "host": "localhost", "port": port, "weight": 1}
             for port in range(5010, 5013)
         ]
 
@@ -105,13 +105,13 @@ class TestServiceDiscovery:
                 reg = self.registry.register_service(**instance)
                 service_ids.append(reg["service_id"])
 
-            # Test round-robin load balancing
+            # Test round - robin load balancing
             selected_ports = []
             for _ in range(6):  # Should cycle through all instances twice
-                instance = self.load_balancer.get_instance("api-service")
+                instance = self.load_balancer.get_instance("api - service")
                 selected_ports.append(instance["port"])
 
-            # Verify round-robin distribution
+            # Verify round - robin distribution
             assert len(set(selected_ports)) == 3  # All instances used
             assert selected_ports[:3] != selected_ports[3:]  # Different order in cycles
 
@@ -123,7 +123,7 @@ class TestServiceDiscovery:
             # Collect weighted distribution
             port_counts = {5010: 0, 5011: 0, 5012: 0}
             for _ in range(100):
-                instance = self.load_balancer.get_instance("api-service", algorithm="weighted")
+                instance = self.load_balancer.get_instance("api - service", algorithm="weighted")
                 port_counts[instance["port"]] += 1
 
             # Verify weighted distribution
@@ -140,22 +140,22 @@ class TestServiceDiscovery:
         # Test registration with invalid data
         with pytest.raises(ServiceRegistrationError):
             self.registry.register_service(
-                name="invalid-service", host="invalid-host", port=-1  # Invalid port
+                name="invalid - service", host="invalid - host", port=-1  # Invalid port
             )
 
-        # Test discovering non-existent service
+        # Test discovering non - existent service
         with pytest.raises(ServiceNotFoundError):
-            self.client.get_service("non-existent-service")
+            self.client.get_service("non - existent - service")
 
         # Test load balancing with no instances
         with pytest.raises(LoadBalancingError):
-            self.load_balancer.get_instance("no-instances-service")
+            self.load_balancer.get_instance("no - instances - service")
 
     def test_service_updates_and_deregistration(self):
         """Test service updates and deregistration."""
         # Register service
         service_id = self.registry.register_service(
-            name="update-test-service", host="localhost", port=5020, metadata={"version": "1.0"}
+            name="update - test - service", host="localhost", port=5020, metadata={"version": "1.0"}
         )["service_id"]
 
         try:
@@ -165,7 +165,7 @@ class TestServiceDiscovery:
             )
 
             # Verify update
-            service = self.client.get_service("update-test-service")
+            service = self.client.get_service("update - test - service")
             assert service["metadata"]["version"] == "1.1"
             assert "beta" in service["metadata"]["feature_flags"]
 
@@ -174,7 +174,7 @@ class TestServiceDiscovery:
 
             # Verify service is no longer discoverable
             with pytest.raises(ServiceNotFoundError):
-                self.client.get_service("update-test-service")
+                self.client.get_service("update - test - service")
 
         finally:
             # Cleanup attempt (ignore errors)
@@ -187,7 +187,7 @@ class TestServiceDiscovery:
         """Test bulk service operations."""
         # Bulk registration
         services = [
-            {"name": "bulk-service", "host": "localhost", "port": port, "tags": [f"instance-{i}"]}
+            {"name": "bulk - service", "host": "localhost", "port": port, "tags": [f"instance-{i}"]}
             for i, port in enumerate(range(5030, 5033))
         ]
 
@@ -201,7 +201,7 @@ class TestServiceDiscovery:
             assert len(service_ids) == len(services)
 
             # Test bulk service discovery
-            discovered = self.client.get_services(service_names=["bulk-service"], tag="instance-1")
+            discovered = self.client.get_services(service_names=["bulk - service"], tag="instance - 1")
             assert len(discovered) == 1
             assert discovered[0]["port"] == 5031
 
@@ -218,12 +218,12 @@ class TestServiceDiscovery:
     def test_service_dependency_resolution(self):
         """Test service dependency resolution."""
         dependencies = {
-            "auth-service": {"host": "localhost", "port": 5040, "dependencies": []},
-            "user-service": {"host": "localhost", "port": 5041, "dependencies": ["auth-service"]},
-            "api-gateway": {
+            "auth - service": {"host": "localhost", "port": 5040, "dependencies": []},
+            "user - service": {"host": "localhost", "port": 5041, "dependencies": ["auth - service"]},
+            "api - gateway": {
                 "host": "localhost",
                 "port": 5042,
-                "dependencies": ["auth-service", "user-service"],
+                "dependencies": ["auth - service", "user - service"],
             },
         }
 
@@ -239,17 +239,17 @@ class TestServiceDiscovery:
                 )
                 service_ids[service_name] = reg["service_id"]
 
-            # Resolve dependencies for api-gateway
-            resolved = self.client.resolve_service_dependencies("api-gateway")
+            # Resolve dependencies for api - gateway
+            resolved = self.client.resolve_service_dependencies("api - gateway")
 
             # Verify dependency resolution
             assert len(resolved) == 3
-            assert resolved[0]["name"] == "auth-service"  # Should be first (no dependencies)
-            assert resolved[1]["name"] == "user-service"
-            assert resolved[2]["name"] == "api-gateway"
+            assert resolved[0]["name"] == "auth - service"  # Should be first (no dependencies)
+            assert resolved[1]["name"] == "user - service"
+            assert resolved[2]["name"] == "api - gateway"
 
             # Test dependency validation
-            assert self.client.validate_service_dependencies("api-gateway")["valid"]
+            assert self.client.validate_service_dependencies("api - gateway")["valid"]
 
         finally:
             # Clean up
@@ -258,4 +258,4 @@ class TestServiceDiscovery:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_service_discovery.py"])
+    pytest.main([" - v", "test_service_discovery.py"])

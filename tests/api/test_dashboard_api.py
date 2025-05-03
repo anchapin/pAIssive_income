@@ -36,7 +36,7 @@ class TestDashboardAPI:
     def test_get_dashboard_overview(self, auth_api_test_client: APITestClient):
         """Test getting the dashboard overview."""
         # Make request
-        response = auth_api_test_client.get("dashboard/overview")
+        response = auth_api_test_client.get("dashboard / overview")
 
         # Validate response
         result = validate_success_response(response)
@@ -58,7 +58,7 @@ class TestDashboardAPI:
     def test_get_revenue_statistics(self, auth_api_test_client: APITestClient):
         """Test getting revenue statistics."""
         # Make request
-        response = auth_api_test_client.get("dashboard/revenue")
+        response = auth_api_test_client.get("dashboard / revenue")
 
         # Validate response
         result = validate_success_response(response)
@@ -78,7 +78,7 @@ class TestDashboardAPI:
     def test_get_subscriber_statistics(self, auth_api_test_client: APITestClient):
         """Test getting subscriber statistics."""
         # Make request
-        response = auth_api_test_client.get("dashboard/subscribers")
+        response = auth_api_test_client.get("dashboard / subscribers")
 
         # Validate response
         result = validate_success_response(response)
@@ -98,7 +98,7 @@ class TestDashboardAPI:
     def test_get_marketing_statistics(self, auth_api_test_client: APITestClient):
         """Test getting marketing statistics."""
         # Make request
-        response = auth_api_test_client.get("dashboard/marketing")
+        response = auth_api_test_client.get("dashboard / marketing")
 
         # Validate response
         result = validate_success_response(response)
@@ -118,7 +118,7 @@ class TestDashboardAPI:
     def test_get_model_usage_statistics(self, auth_api_test_client: APITestClient):
         """Test getting model usage statistics."""
         # Make request
-        response = auth_api_test_client.get("dashboard/model-usage")
+        response = auth_api_test_client.get("dashboard / model - usage")
 
         # Validate response
         result = validate_success_response(response)
@@ -139,7 +139,7 @@ class TestDashboardAPI:
         """Test getting dashboard data with a date range."""
         # Make request with date range
         response = auth_api_test_client.get(
-            "dashboard/overview", params={"start_date": "2023-01-01", "end_date": "2023-12-31"}
+            "dashboard / overview", params={"start_date": "2023 - 01 - 01", "end_date": "2023 - 12 - 31"}
         )
 
         # Validate response
@@ -149,7 +149,7 @@ class TestDashboardAPI:
         """Test getting dashboard data with filters."""
         # Make request with filters
         response = auth_api_test_client.get(
-            "dashboard/revenue", params={"model_id": "model-123", "period": "monthly"}
+            "dashboard / revenue", params={"model_id": "model - 123", "period": "monthly"}
         )
 
         # Validate response
@@ -159,15 +159,15 @@ class TestDashboardAPI:
         """Test exporting dashboard data."""
         # Make request
         response = auth_api_test_client.get(
-            "dashboard/export",
+            "dashboard / export",
             params={"format": "csv", "sections": "revenue,subscribers,marketing"},
         )
 
         # Validate response
         if response.status_code == 200:
             # Check that the response has the correct content type
-            assert response.headers["Content-Type"] == "text/csv"
-            assert "Content-Disposition" in response.headers
+            assert response.headers["Content - Type"] == "text / csv"
+            assert "Content - Disposition" in response.headers
         else:
             # If the endpoint is not implemented, it might return 501
             validate_error_response(response, 501)  # Not Implemented
@@ -175,7 +175,7 @@ class TestDashboardAPI:
     def test_unauthorized_access(self, api_test_client: APITestClient):
         """Test unauthorized access to dashboard endpoints."""
         # Make request without authentication
-        response = api_test_client.get("dashboard/overview")
+        response = api_test_client.get("dashboard / overview")
 
         # Validate error response
         validate_error_response(response, 401)  # Unauthorized

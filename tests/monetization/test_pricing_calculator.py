@@ -27,7 +27,7 @@ def pricing_calculator():
     return PricingCalculator(
         name="Test Pricing Calculator",
         description="A test pricing calculator",
-        pricing_strategy="value-based",
+        pricing_strategy="value - based",
         base_cost=5.0,
         profit_margin=0.3,
         competitor_prices={"basic": 9.99, "pro": 19.99, "premium": 29.99},
@@ -73,7 +73,7 @@ def test_pricing_calculator_init(pricing_calculator):
     # Check that the calculator has the expected attributes
     assert pricing_calculator.name == "Test Pricing Calculator"
     assert pricing_calculator.description == "A test pricing calculator"
-    assert pricing_calculator.pricing_strategy == "value-based"
+    assert pricing_calculator.pricing_strategy == "value - based"
     assert pricing_calculator.base_cost == 5.0
     assert pricing_calculator.profit_margin == 0.3
     assert pricing_calculator.competitor_prices == {
@@ -177,7 +177,7 @@ def test_to_dict(pricing_calculator):
     # Check that the values are correct
     assert calculator_dict["name"] == "Test Pricing Calculator"
     assert calculator_dict["description"] == "A test pricing calculator"
-    assert calculator_dict["pricing_strategy"] == "value-based"
+    assert calculator_dict["pricing_strategy"] == "value - based"
     assert calculator_dict["base_cost"] == 5.0
     assert calculator_dict["profit_margin"] == 0.3
     assert calculator_dict["competitor_prices"] == {

@@ -1,7 +1,7 @@
 """
 Marketing schemas for the API server.
 
-This module provides Pydantic models for marketing-related data.
+This module provides Pydantic models for marketing - related data.
 """
 
 from datetime import datetime

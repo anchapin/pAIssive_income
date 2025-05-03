@@ -19,7 +19,7 @@ from .user_subscription import SubscriptionStatus
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -58,7 +58,8 @@ def run_demo():
     )
 
     enterprise_tier = premium_plan.add_tier(
-        name="Enterprise", description="Enterprise-grade features", price_monthly=99.99
+        name="Enterprise", description="Enterprise - grade features", 
+            price_monthly=99.99
     )
 
     # Add plans to manager
@@ -71,7 +72,8 @@ def run_demo():
     print(f"  - {plus_tier['name']}: ${plus_tier['price_monthly']:.2f}/month")
     print(f"- {premium_plan.name}")
     print(f"  - {pro_tier['name']}: ${pro_tier['price_monthly']:.2f}/month")
-    print(f"  - {enterprise_tier['name']}: ${enterprise_tier['price_monthly']:.2f}/month")
+    print(f"  - \
+        {enterprise_tier['name']}: ${enterprise_tier['price_monthly']:.2f}/month")
 
     print_separator()
 
@@ -80,7 +82,7 @@ def run_demo():
 
     # Create active subscriptions
     for i in range(50):
-        user_id = f"user{i+1}"
+        user_id = f"user{i + 1}"
 
         # Determine plan and tier
         if i < 30:  # 60% basic plan
@@ -111,7 +113,7 @@ def run_demo():
 
     # Create canceled subscriptions
     for i in range(10):
-        user_id = f"canceled_user{i+1}"
+        user_id = f"canceled_user{i + 1}"
 
         # Create subscription
         subscription = manager.create_subscription(
@@ -123,7 +125,8 @@ def run_demo():
 
         # Cancel subscription
         subscription.status = SubscriptionStatus.CANCELED
-        subscription.canceled_at = datetime.now() - timedelta(days=random.randint(1, 30))
+        subscription.canceled_at = datetime.now() - timedelta(days=random.randint(1, 
+            30))
 
         # Add cancellation reason to some subscriptions
         if i < 5:
@@ -138,7 +141,7 @@ def run_demo():
 
     # Create past due subscriptions
     for i in range(5):
-        user_id = f"pastdue_user{i+1}"
+        user_id = f"pastdue_user{i + 1}"
 
         # Create subscription
         subscription = manager.create_subscription(
@@ -228,10 +231,10 @@ def run_demo():
 
     print(f"\nCustomer Lifetime Value: ${ltv:.2f}")
 
-    # Get at-risk subscriptions
+    # Get at - risk subscriptions
     at_risk = churn.get_at_risk_subscriptions()
 
-    print(f"\nAt-Risk Subscriptions: {len(at_risk)}")
+    print(f"\nAt - Risk Subscriptions: {len(at_risk)}")
     for i, subscription in enumerate(at_risk[:3]):
         print(
             f"- User {subscription['user_id']}: {subscription['churn_probability']:.2f}% probability of churning"

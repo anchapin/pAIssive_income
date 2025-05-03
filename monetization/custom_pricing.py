@@ -142,7 +142,8 @@ class CustomPricingRule(PricingRule):
         instance = cls(
             metric=data["metric"],
             name=data.get("name", "Custom Pricing Rule"),
-            description=data.get("description", "Custom pricing rule with specialized logic"),
+            description=data.get("description", 
+                "Custom pricing rule with specialized logic"),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
@@ -239,7 +240,8 @@ class CustomPricingCalculator:
         return None
 
     def get_custom_rules_for_metric(
-        self, metric: str, category: Optional[str] = None, resource_type: Optional[str] = None
+        self, metric: str, category: Optional[str] = None, 
+            resource_type: Optional[str] = None
     ) -> List[CustomPricingRule]:
         """
         Get custom pricing rules for a metric.
@@ -282,11 +284,13 @@ class CustomPricingCalculator:
             Cost for the quantity
         """
         # Get matching rules
-        matching_rules = self.get_custom_rules_for_metric(metric, category, resource_type)
+        matching_rules = self.get_custom_rules_for_metric(metric, category, 
+            resource_type)
 
         if not matching_rules:
             # No custom rules, use standard billing calculator
-            return self.billing_calculator.calculate_cost(metric, quantity, category, resource_type)
+            return self.billing_calculator.calculate_cost(metric, quantity, category, 
+                resource_type)
 
         # Use the first matching custom rule
         # In a more complex implementation, we might want to combine rules or use a priority system
@@ -315,7 +319,8 @@ class CustomPricingCalculator:
 
     @classmethod
     def from_dict(
-        cls, data: Dict[str, Any], billing_calculator: Optional[BillingCalculator] = None
+        cls, data: Dict[str, Any], 
+            billing_calculator: Optional[BillingCalculator] = None
     ) -> "CustomPricingCalculator":
         """
         Create a custom pricing calculator from a dictionary.
@@ -345,10 +350,10 @@ class CustomPricingCalculator:
 
 class TimeBasedPricingRule(CustomPricingRule):
     """
-    Time-based pricing rule.
+    Time - based pricing rule.
 
     This class implements a pricing rule that applies different rates
-    based on the time of day, day of week, or other time-based factors.
+    based on the time of day, day of week, or other time - based factors.
     """
 
     def __init__(
@@ -356,7 +361,7 @@ class TimeBasedPricingRule(CustomPricingRule):
         metric: str,
         time_rates: Dict[str, float],
         default_rate: float = 0.0,
-        name: str = "Time-Based Pricing",
+        name: str = "Time - Based Pricing",
         description: str = "Pricing based on time of day or day of week",
         category: Optional[str] = None,
         resource_type: Optional[str] = None,
@@ -365,7 +370,7 @@ class TimeBasedPricingRule(CustomPricingRule):
         metadata: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initialize a time-based pricing rule.
+        Initialize a time - based pricing rule.
 
         Args:
             metric: Type of usage metric
@@ -380,11 +385,11 @@ class TimeBasedPricingRule(CustomPricingRule):
             metadata: Additional metadata for the custom pricing rule
 
         Time patterns can be specified in the following formats:
-        - "weekday:1-5": Weekdays (Monday to Friday)
-        - "weekend:6-7": Weekends (Saturday and Sunday)
-        - "hour:9-17": Business hours (9 AM to 5 PM)
-        - "hour:0-8,18-23": Non-business hours
-        - "date:2023-12-25": Specific date
+        - "weekday:1 - 5": Weekdays (Monday to Friday)
+        - "weekend:6 - 7": Weekends (Saturday and Sunday)
+        - "hour:9 - 17": Business hours (9 AM to 5 PM)
+        - "hour:0 - 8,18 - 23": Non - business hours
+        - "date:2023 - 12 - 25": Specific date
         - "month:12": Specific month (December)
         - "day:1": Specific day of month (1st)
         """
@@ -402,7 +407,8 @@ class TimeBasedPricingRule(CustomPricingRule):
         self.time_rates = time_rates
         self.default_rate = default_rate
 
-    def calculate_custom_cost(self, quantity: float, timestamp: Optional[datetime] = None) -> float:
+    def calculate_custom_cost(self, quantity: float, 
+        timestamp: Optional[datetime] = None) -> float:
         """
         Calculate the cost based on the time of usage.
 
@@ -468,22 +474,22 @@ class TimeBasedPricingRule(CustomPricingRule):
             is_weekend = weekday >= 6  # Saturday or Sunday
             return is_weekend
 
-        # Check hour pattern (0-23)
+        # Check hour pattern (0 - 23)
         if pattern_type == "hour":
             hour = timestamp.hour
             return self.matches_range_pattern(pattern_value, hour)
 
-        # Check date pattern (YYYY-MM-DD)
+        # Check date pattern (YYYY - MM - DD)
         if pattern_type == "date":
-            date_str = timestamp.strftime("%Y-%m-%d")
+            date_str = timestamp.strftime(" % Y-%m-%d")
             return date_str == pattern_value
 
-        # Check month pattern (1-12)
+        # Check month pattern (1 - 12)
         if pattern_type == "month":
             month = timestamp.month
             return self.matches_range_pattern(pattern_value, month)
 
-        # Check day pattern (1-31)
+        # Check day pattern (1 - 31)
         if pattern_type == "day":
             day = timestamp.day
             return self.matches_range_pattern(pattern_value, day)
@@ -496,7 +502,7 @@ class TimeBasedPricingRule(CustomPricingRule):
         Check if a value matches a range pattern.
 
         Args:
-            pattern: Range pattern to check (e.g., "1-5", "1,3,5", "1-3,5-7")
+            pattern: Range pattern to check (e.g., "1 - 5", "1,3,5", "1 - 3,5 - 7")
             value: Value to check
 
         Returns:
@@ -507,8 +513,8 @@ class TimeBasedPricingRule(CustomPricingRule):
 
         for range_str in ranges:
             # Check if range has a min and max
-            if "-" in range_str:
-                range_min, range_max = map(int, range_str.split("-", 1))
+            if " - " in range_str:
+                range_min, range_max = map(int, range_str.split(" - ", 1))
                 if range_min <= value <= range_max:
                     return True
             else:
@@ -520,22 +526,23 @@ class TimeBasedPricingRule(CustomPricingRule):
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Convert the time-based pricing rule to a dictionary.
+        Convert the time - based pricing rule to a dictionary.
 
         Returns:
-            Dictionary representation of the time-based pricing rule
+            Dictionary representation of the time - based pricing rule
         """
         result = super().to_dict()
-        result.update({"time_rates": self.time_rates, "default_rate": self.default_rate})
+        result.update({"time_rates": self.time_rates, 
+            "default_rate": self.default_rate})
         return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TimeBasedPricingRule":
         """
-        Create a time-based pricing rule from a dictionary.
+        Create a time - based pricing rule from a dictionary.
 
         Args:
-            data: Dictionary with time-based pricing rule data
+            data: Dictionary with time - based pricing rule data
 
         Returns:
             TimeBasedPricingRule instance
@@ -544,8 +551,9 @@ class TimeBasedPricingRule(CustomPricingRule):
             metric=data["metric"],
             time_rates=data.get("time_rates", {}),
             default_rate=data.get("default_rate", 0.0),
-            name=data.get("name", "Time-Based Pricing"),
-            description=data.get("description", "Pricing based on time of day or day of week"),
+            name=data.get("name", "Time - Based Pricing"),
+            description=data.get("description", 
+                "Pricing based on time of day or day of week"),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
@@ -570,7 +578,7 @@ class SeasonalPricingRule(CustomPricingRule):
     Seasonal pricing rule.
 
     This class implements a pricing rule that applies different rates
-    based on seasons, months, or other calendar-based factors.
+    based on seasons, months, or other calendar - based factors.
     """
 
     def __init__(
@@ -607,7 +615,7 @@ class SeasonalPricingRule(CustomPricingRule):
         - "summer": Summer season (June, July, August)
         - "fall": Fall season (September, October, November)
         - "month:1": January
-        - "month:6-8": Summer months (June, July, August)
+        - "month:6 - 8": Summer months (June, July, August)
         - "quarter:1": First quarter (January, February, March)
         - "holiday:christmas": Christmas holiday period
         - "holiday:thanksgiving": Thanksgiving holiday period
@@ -647,7 +655,8 @@ class SeasonalPricingRule(CustomPricingRule):
             "memorialday": (5, 31, 3),  # Last Monday of May (approximate)
         }
 
-    def calculate_custom_cost(self, quantity: float, timestamp: Optional[datetime] = None) -> float:
+    def calculate_custom_cost(self, quantity: float, 
+        timestamp: Optional[datetime] = None) -> float:
         """
         Calculate the cost based on the season.
 
@@ -736,7 +745,7 @@ class SeasonalPricingRule(CustomPricingRule):
         Check if a value matches a range pattern.
 
         Args:
-            pattern: Range pattern to check (e.g., "1-5", "1,3,5", "1-3,5-7")
+            pattern: Range pattern to check (e.g., "1 - 5", "1,3,5", "1 - 3,5 - 7")
             value: Value to check
 
         Returns:
@@ -747,8 +756,8 @@ class SeasonalPricingRule(CustomPricingRule):
 
         for range_str in ranges:
             # Check if range has a min and max
-            if "-" in range_str:
-                range_min, range_max = map(int, range_str.split("-", 1))
+            if " - " in range_str:
+                range_min, range_max = map(int, range_str.split(" - ", 1))
                 if range_min <= value <= range_max:
                     return True
             else:
@@ -766,7 +775,8 @@ class SeasonalPricingRule(CustomPricingRule):
             Dictionary representation of the seasonal pricing rule
         """
         result = super().to_dict()
-        result.update({"seasonal_rates": self.seasonal_rates, "default_rate": self.default_rate})
+        result.update({"seasonal_rates": self.seasonal_rates, 
+            "default_rate": self.default_rate})
         return result
 
     @classmethod
@@ -847,14 +857,14 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         - "tier:enterprise": Enterprise tier customers
         - "industry:healthcare": Healthcare industry customers
         - "industry:finance": Finance industry customers
-        - "size:small": Small businesses (e.g., 1-50 employees)
-        - "size:medium": Medium businesses (e.g., 51-500 employees)
+        - "size:small": Small businesses (e.g., 1 - 50 employees)
+        - "size:medium": Medium businesses (e.g., 51 - 500 employees)
         - "size:large": Large businesses (e.g., 501+ employees)
         - "region:us": Customers in the United States
         - "region:eu": Customers in the European Union
-        - "age:0-30": New customers (0-30 days)
-        - "age:31-90": Recent customers (31-90 days)
-        - "age:91+": Established customers (91+ days)
+        - "age:0 - 30": New customers (0 - 30 days)
+        - "age:31 - 90": Recent customers (31 - 90 days)
+        - "age:91 + ": Established customers (91+ days)
         - "usage:low": Low usage customers
         - "usage:medium": Medium usage customers
         - "usage:high": High usage customers
@@ -918,7 +928,8 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         # Return default rate if no pattern matches
         return self.default_rate
 
-    def matches_segment_pattern(self, pattern: str, customer_data: Dict[str, Any]) -> bool:
+    def matches_segment_pattern(self, pattern: str, customer_data: Dict[str, 
+        Any]) -> bool:
         """
         Check if customer data matches a segment pattern.
 
@@ -981,14 +992,15 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         Check if a value matches a range pattern.
 
         Args:
-            pattern: Range pattern to check (e.g., "1-5", "1,3,5", "1-3,5-7", "91+")
+            pattern: Range pattern to check (e.g., "1 - 5", "1,3,5", "1 - 3,5 - 7", 
+                "91 + ")
             value: Value to check
 
         Returns:
             True if the value matches the pattern, False otherwise
         """
-        # Check for "X+" pattern (X or greater)
-        if pattern.endswith("+"):
+        # Check for "X + " pattern (X or greater)
+        if pattern.endswith(" + "):
             try:
                 min_value = int(pattern[:-1])
                 return value >= min_value
@@ -1000,8 +1012,8 @@ class CustomerSegmentPricingRule(CustomPricingRule):
 
         for range_str in ranges:
             # Check if range has a min and max
-            if "-" in range_str:
-                range_min, range_max = map(int, range_str.split("-", 1))
+            if " - " in range_str:
+                range_min, range_max = map(int, range_str.split(" - ", 1))
                 if range_min <= value <= range_max:
                     return True
             else:
@@ -1022,7 +1034,8 @@ class CustomerSegmentPricingRule(CustomPricingRule):
             Dictionary representation of the customer segment pricing rule
         """
         result = super().to_dict()
-        result.update({"segment_rates": self.segment_rates, "default_rate": self.default_rate})
+        result.update({"segment_rates": self.segment_rates, 
+            "default_rate": self.default_rate})
         return result
 
     @classmethod
@@ -1158,7 +1171,8 @@ class ConditionalPricingRule(CustomPricingRule):
         # Calculate cost
         return quantity * rate
 
-    def get_rate_for_conditions(self, quantity: float, context: Dict[str, Any]) -> float:
+    def get_rate_for_conditions(self, quantity: float, context: Dict[str, 
+        Any]) -> float:
         """
         Get the rate applicable based on conditions.
 
@@ -1189,7 +1203,8 @@ class ConditionalPricingRule(CustomPricingRule):
         # Return default rate if no condition matches
         return self.default_rate
 
-    def prepare_eval_context(self, quantity: float, context: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_eval_context(self, quantity: float, context: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Prepare the evaluation context for condition expressions.
 
@@ -1243,7 +1258,7 @@ class ConditionalPricingRule(CustomPricingRule):
         """
         # Replace variable references with dictionary lookups
         # For example, replace "customer.tier" with "context['customer']['tier']"
-        pattern = r"(customer|time|usage)\.([a-zA-Z_][a-zA-Z0-9_]*)"
+        pattern = r"(customer|time|usage)\.([a - zA - Z_][a - zA - Z0 - 9_]*)"
 
         def replace_var(match):
             category, attr = match.groups()
@@ -1270,7 +1285,8 @@ class ConditionalPricingRule(CustomPricingRule):
             Dictionary representation of the conditional pricing rule
         """
         result = super().to_dict()
-        result.update({"conditions": self.conditions, "default_rate": self.default_rate})
+        result.update({"conditions": self.conditions, 
+            "default_rate": self.default_rate})
         return result
 
     @classmethod
@@ -1311,7 +1327,7 @@ class ConditionalPricingRule(CustomPricingRule):
 
 class FormulaBasedPricingRule(CustomPricingRule):
     """
-    Formula-based pricing rule.
+    Formula - based pricing rule.
 
     This class implements a pricing rule that calculates costs using
     mathematical formulas or expressions.
@@ -1322,7 +1338,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
         metric: str,
         formula: str,
         variables: Optional[Dict[str, Any]] = None,
-        name: str = "Formula-Based Pricing",
+        name: str = "Formula - Based Pricing",
         description: str = "Pricing based on mathematical formulas",
         category: Optional[str] = None,
         resource_type: Optional[str] = None,
@@ -1331,7 +1347,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
         metadata: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initialize a formula-based pricing rule.
+        Initialize a formula - based pricing rule.
 
         Args:
             metric: Type of usage metric
@@ -1355,8 +1371,8 @@ class FormulaBasedPricingRule(CustomPricingRule):
         - Trigonometric functions: sin, cos, tan
 
         Examples:
-        - "q * 0.01": Simple per-unit pricing
-        - "10 + q * 0.005": Base fee plus per-unit pricing
+        - "q * 0.01": Simple per - unit pricing
+        - "10 + q * 0.005": Base fee plus per - unit pricing
         - "q * (1 - discount)": Discounted pricing
         - "base_price * (1 - volume_discount * (q / 1000))": Volume discount pricing
         - "min(q * 0.01, 100)": Capped pricing
@@ -1499,10 +1515,10 @@ class FormulaBasedPricingRule(CustomPricingRule):
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Convert the formula-based pricing rule to a dictionary.
+        Convert the formula - based pricing rule to a dictionary.
 
         Returns:
-            Dictionary representation of the formula-based pricing rule
+            Dictionary representation of the formula - based pricing rule
         """
         result = super().to_dict()
         result.update({"formula": self.formula, "variables": self.variables})
@@ -1511,10 +1527,10 @@ class FormulaBasedPricingRule(CustomPricingRule):
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "FormulaBasedPricingRule":
         """
-        Create a formula-based pricing rule from a dictionary.
+        Create a formula - based pricing rule from a dictionary.
 
         Args:
-            data: Dictionary with formula-based pricing rule data
+            data: Dictionary with formula - based pricing rule data
 
         Returns:
             FormulaBasedPricingRule instance
@@ -1523,8 +1539,9 @@ class FormulaBasedPricingRule(CustomPricingRule):
             metric=data["metric"],
             formula=data.get("formula", "q * 0.01"),
             variables=data.get("variables", {}),
-            name=data.get("name", "Formula-Based Pricing"),
-            description=data.get("description", "Pricing based on mathematical formulas"),
+            name=data.get("name", "Formula - Based Pricing"),
+            description=data.get("description", 
+                "Pricing based on mathematical formulas"),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
@@ -1546,14 +1563,15 @@ class FormulaBasedPricingRule(CustomPricingRule):
 
 # Example usage
 if __name__ == "__main__":
-    # Create a time-based pricing rule
+    # Create a time - based pricing rule
     time_rule = TimeBasedPricingRule(
         metric=UsageMetric.API_CALL,
         time_rates={
-            "weekday:1-5": 0.01,  # $0.01 per API call on weekdays
-            "weekend:6-7": 0.005,  # $0.005 per API call on weekends
-            "hour:9-17": 0.015,  # $0.015 per API call during business hours
-            "hour:0-8,18-23": 0.008,  # $0.008 per API call during non-business hours
+            "weekday:1 - 5": 0.01,  # $0.01 per API call on weekdays
+            "weekend:6 - 7": 0.005,  # $0.005 per API call on weekends
+            "hour:9 - 17": 0.015,  # $0.015 per API call during business hours
+            "hour:0 - 8,18 - 23": 0.008,  
+                # $0.008 per API call during non - business hours
         },
         default_rate=0.01,
         category=UsageCategory.INFERENCE,
@@ -1579,7 +1597,7 @@ if __name__ == "__main__":
             "tier:premium": 0.0015,  # $0.0015 per token for premium tier
             "tier:enterprise": 0.001,  # $0.001 per token for enterprise tier
             "industry:education": 0.0012,  # $0.0012 per token for education industry
-            "age:0-30": 0.0018,  # $0.0018 per token for new customers
+            "age:0 - 30": 0.0018,  # $0.0018 per token for new customers
         },
         default_rate=0.002,
         category=UsageCategory.INFERENCE,
@@ -1606,10 +1624,11 @@ if __name__ == "__main__":
         category=UsageCategory.COMPUTE,
     )
 
-    # Create a formula-based pricing rule
+    # Create a formula - based pricing rule
     formula_rule = FormulaBasedPricingRule(
         metric=UsageMetric.BANDWIDTH,
-        formula="base_fee + q * rate * (1 - volume_discount * min(1, q / discount_threshold))",
+        formula="base_fee + q * rate * (1 - volume_discount * min(1, 
+            q / discount_threshold))",
         variables={
             "base_fee": 5.0,  # $5.00 base fee
             "rate": 0.1,  # $0.10 per GB
@@ -1648,7 +1667,7 @@ if __name__ == "__main__":
             "customer": {
                 "tier": "premium",
                 "industry": "education",
-                "created_at": "2023-01-01T00:00:00",
+                "created_at": "2023 - 01 - 01T00:00:00",
             }
         },
     )

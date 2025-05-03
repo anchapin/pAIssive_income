@@ -1,8 +1,8 @@
 """
-Data collection tools for fine-tuning AI models.
+Data collection tools for fine - tuning AI models.
 
 This module provides tools for collecting, preparing, and exporting datasets
-for fine-tuning AI models.
+for fine - tuning AI models.
 """
 
 import csv
@@ -70,7 +70,7 @@ class DataCollectionConfig:
 
 class DataCollector:
     """
-    Class for collecting and preparing datasets for fine-tuning.
+    Class for collecting and preparing datasets for fine - tuning.
     """
 
     def __init__(self, config: DataCollectionConfig):
@@ -136,7 +136,7 @@ class DataCollector:
 
     def prepare(self) -> DatasetDict:
         """
-        Prepare the dataset for fine-tuning, including train/validation/test splits.
+        Prepare the dataset for fine - tuning, including train / validation / test splits.
 
         Returns:
             Prepared dataset with train, validation, and test splits
@@ -144,7 +144,7 @@ class DataCollector:
         # Collect data
         dataset = self.collect()
 
-        # Create train/validation/test splits
+        # Create train / validation / test splits
         train_test_split = dataset.train_test_split(
             test_size=self.config.validation_split + self.config.test_split, seed=42
         )
@@ -306,7 +306,7 @@ class DataCollector:
 
             # Create a metadata file
             metadata_path = f"{output_path}_metadata.json"
-            with open(metadata_path, "w", encoding="utf-8") as f:
+            with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
                     {"format": "jsonl", "splits": paths, "metadata": self.config.metadata},
                     f,
@@ -341,7 +341,7 @@ class DataCollector:
 
             # Create a metadata file
             metadata_path = f"{output_path}_metadata.json"
-            with open(metadata_path, "w", encoding="utf-8") as f:
+            with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
                     {"format": "csv", "splits": paths, "metadata": self.config.metadata},
                     f,
@@ -376,7 +376,7 @@ class DataCollector:
 
             # Create a metadata file
             metadata_path = f"{output_path}_metadata.json"
-            with open(metadata_path, "w", encoding="utf-8") as f:
+            with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
                     {"format": "parquet", "splits": paths, "metadata": self.config.metadata},
                     f,
@@ -408,7 +408,7 @@ class DataCollector:
 
 def collect_data(config: DataCollectionConfig) -> Dataset:
     """
-    Collect data for fine-tuning.
+    Collect data for fine - tuning.
 
     Args:
         config: Configuration for data collection
@@ -422,7 +422,7 @@ def collect_data(config: DataCollectionConfig) -> Dataset:
 
 def prepare_dataset(config: DataCollectionConfig) -> DatasetDict:
     """
-    Prepare a dataset for fine-tuning.
+    Prepare a dataset for fine - tuning.
 
     Args:
         config: Configuration for data collection

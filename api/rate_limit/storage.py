@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -81,12 +81,12 @@ class RateLimitStorage(ABC):
 
 class InMemoryStorage(RateLimitStorage):
     """
-    In-memory storage backend for rate limiting.
+    In - memory storage backend for rate limiting.
     """
 
     def __init__(self):
         """
-        Initialize the in-memory storage.
+        Initialize the in - memory storage.
         """
         self.data: Dict[str, Dict[str, Any]] = {}
         self.expiry: Dict[str, float] = {}
@@ -198,11 +198,11 @@ class RedisStorage(RateLimitStorage):
             self.redis = redis.from_url(redis_url)
             logger.info("Connected to Redis")
         except ImportError:
-            logger.warning("Redis package not installed, falling back to in-memory storage")
+            logger.warning("Redis package not installed, falling back to in - memory storage")
             self.fallback = InMemoryStorage()
         except Exception as e:
             logger.warning(
-                f"Failed to connect to Redis: {str(e)}, falling back to in-memory storage"
+                f"Failed to connect to Redis: {str(e)}, falling back to in - memory storage"
             )
             self.fallback = InMemoryStorage()
 
@@ -240,13 +240,13 @@ class RedisStorage(RateLimitStorage):
         # Convert Redis hash to dictionary
         result = {}
         for k, v in data.items():
-            k_str = k.decode("utf-8") if isinstance(k, bytes) else k
+            k_str = k.decode("utf - 8") if isinstance(k, bytes) else k
             try:
                 # Try to convert to number
                 result[k_str] = float(v)
             except (ValueError, TypeError):
                 # If not a number, keep as string
-                result[k_str] = v.decode("utf-8") if isinstance(v, bytes) else v
+                result[k_str] = v.decode("utf - 8") if isinstance(v, bytes) else v
 
         return result
 
@@ -347,7 +347,7 @@ def create_storage(storage_type: str, **kwargs) -> RateLimitStorage:
     if storage_type == "memory":
         return InMemoryStorage()
     elif storage_type == "redis":
-        redis_url = kwargs.get("redis_url", "redis://localhost:6379/0")
+        redis_url = kwargs.get("redis_url", "redis://localhost:6379 / 0")
         prefix = kwargs.get("prefix", "rate_limit:")
         return RedisStorage(redis_url, prefix)
     else:

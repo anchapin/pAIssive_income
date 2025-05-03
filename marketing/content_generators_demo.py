@@ -26,7 +26,7 @@ def create_demo_persona():
         name="Professional YouTuber",
         description="Professional content creator on YouTube",
         pain_points=[
-            "time-consuming script writing",
+            "time - consuming script writing",
             "maintaining viewer engagement",
             "staying consistent with uploads",
         ],
@@ -36,7 +36,7 @@ def create_demo_persona():
             "grow audience and engagement",
         ],
         demographics={
-            "age_range": "25-45",
+            "age_range": "25 - 45",
             "education": "college degree",
             "income": "middle to high",
         },
@@ -64,7 +64,7 @@ def demo_blog_post_generator():
         key_points=[
             "The challenges of script writing for YouTube",
             "How AI can help streamline the process",
-            "Step-by-step guide to using AI for script writing",
+            "Step - by - step guide to using AI for script writing",
             "Real results from content creators",
         ],
         tone="conversational",
@@ -125,17 +125,18 @@ def demo_product_description_generator():
         title="AI Script Assistant Pro",
         target_persona=persona,
         key_points=[
-            "AI-powered script generation",
-            "Time-saving templates",
+            "AI - powered script generation",
+            "Time - saving templates",
             "SEO optimization for YouTube",
             "Engagement analytics",
         ],
         tone="professional",
-        call_to_action="Get started with a 14-day free trial",
+        call_to_action="Get started with a 14 - day free trial",
         product_features=[
             {
                 "name": "AI Script Generator",
                 "description": "Generate complete scripts or outlines based on your topic",
+                    
             },
             {
                 "name": "Template Library",
@@ -154,7 +155,7 @@ def demo_product_description_generator():
             "platforms": "Web, iOS, Android",
             "languages": "English, Spanish, French, German",
             "integration": "YouTube, Vimeo, TikTok",
-            "support": "24/7 chat and email support",
+            "support": "24 / 7 chat and email support",
         },
         product_type="software",
         include_pricing=True,
@@ -216,6 +217,7 @@ def demo_case_study_generator():
     # Create a case study template
     template = CaseStudyTemplate(
         title="How VideoStar Increased Production Speed by 40% with AI Script Assistant Pro",
+            
         target_persona=persona,
         key_points=[
             "Implementing AI for script creation",
@@ -227,12 +229,15 @@ def demo_case_study_generator():
         call_to_action="Book a demo to see how we can help your content creation team",
         client_name="VideoStar Productions",
         client_industry="Video Production",
-        challenge="VideoStar Productions was struggling to keep up with client demands, with script creation being a major bottleneck in their production process.",
-        solution="We implemented AI Script Assistant Pro to automate and streamline their script creation process, integrated it with their existing workflow, and provided comprehensive training to their team.",
+        challenge="VideoStar Productions was struggling to keep up with client demands, 
+            with script creation being a major bottleneck in their production process.",
+        solution="We implemented AI Script Assistant Pro to automate and streamline their script creation process, 
+            integrated it with their existing workflow, 
+            and provided comprehensive training to their team.",
         results=[
-            "Reduced script creation time by 60%",
-            "Increased overall production speed by 40%",
-            "Improved client satisfaction scores by 35%",
+            "Reduced script creation time by 60 % ",
+            "Increased overall production speed by 40 % ",
+            "Improved client satisfaction scores by 35 % ",
             "Enabled the team to take on 25% more projects",
         ],
         include_testimonial=True,

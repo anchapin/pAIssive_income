@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ except ImportError:
 if FASTAPI_AVAILABLE:
 
     @router.post(
-        "/subscription-models",
+        " / subscription - models",
         response_model=IdResponse,
         responses={
             201: {"description": "Subscription model created"},
@@ -105,7 +105,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/subscription-models",
+        " / subscription - models",
         response_model=PaginatedResponse[SubscriptionModelResponse],
         responses={
             200: {"description": "List of subscription models"},
@@ -240,7 +240,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/subscription-models/{model_id}",
+        " / subscription - models/{model_id}",
         response_model=SubscriptionModelResponse,
         responses={
             200: {"description": "Subscription model details"},
@@ -368,7 +368,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.post(
-        "/revenue-projections",
+        " / revenue - projections",
         response_model=RevenueProjectionResponse,
         responses={
             201: {"description": "Revenue projection created"},
@@ -413,7 +413,7 @@ if FASTAPI_AVAILABLE:
                 # Calculate paid users
                 paid_users = int(total_users * request.conversion_rate)
 
-                # Calculate revenue (assuming $20/month per paid user)
+                # Calculate revenue (assuming $20 / month per paid user)
                 monthly_revenue = paid_users * 20
                 total_revenue += monthly_revenue
 

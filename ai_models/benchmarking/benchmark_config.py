@@ -31,7 +31,7 @@ class BenchmarkConfig:
 
     # Basic configuration
     model_path: str
-    model_type: str = "text-generation"
+    model_type: str = "text - generation"
     benchmark_type: BenchmarkType = BenchmarkType.LATENCY
 
     # Input data

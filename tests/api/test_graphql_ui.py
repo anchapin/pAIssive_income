@@ -1,7 +1,7 @@
 """
-Tests for the UI/Frontend GraphQL API.
+Tests for the UI / Frontend GraphQL API.
 
-This module contains tests for UI/Frontend GraphQL queries and mutations.
+This module contains tests for UI / Frontend GraphQL queries and mutations.
 """
 
 from typing import Any, Dict, List
@@ -21,7 +21,7 @@ from tests.api.utils.test_validators import (
 
 
 class TestUIGraphQLAPI:
-    """Tests for the UI/Frontend GraphQL API."""
+    """Tests for the UI / Frontend GraphQL API."""
 
     def test_ui_components_query(self, api_test_client: APITestClient):
         """Test querying UI components."""

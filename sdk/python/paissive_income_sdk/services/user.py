@@ -27,7 +27,7 @@ class UserService(BaseService):
         Returns:
             Registration result and user data
         """
-        return self._post("user/register", data)
+        return self._post("user / register", data)
 
     def login(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -41,7 +41,7 @@ class UserService(BaseService):
         Returns:
             Login result with authentication token
         """
-        return self._post("user/login", data)
+        return self._post("user / login", data)
 
     def get_profile(self) -> Dict[str, Any]:
         """
@@ -50,7 +50,7 @@ class UserService(BaseService):
         Returns:
             User profile data
         """
-        return self._get("user/profile")
+        return self._get("user / profile")
 
     def update_profile(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -62,7 +62,7 @@ class UserService(BaseService):
         Returns:
             Updated profile
         """
-        return self._put("user/profile", data)
+        return self._put("user / profile", data)
 
     def change_password(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -76,7 +76,7 @@ class UserService(BaseService):
         Returns:
             Password change result
         """
-        return self._post("user/change-password", data)
+        return self._post("user / change - password", data)
 
     def request_password_reset(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -89,7 +89,7 @@ class UserService(BaseService):
         Returns:
             Password reset request result
         """
-        return self._post("user/request-password-reset", data)
+        return self._post("user / request - password - reset", data)
 
     def reset_password(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -103,7 +103,7 @@ class UserService(BaseService):
         Returns:
             Password reset result
         """
-        return self._post("user/reset-password", data)
+        return self._post("user / reset - password", data)
 
     def verify_email(self, token: str) -> Dict[str, Any]:
         """
@@ -115,4 +115,4 @@ class UserService(BaseService):
         Returns:
             Email verification result
         """
-        return self._get(f"user/verify-email/{token}")
+        return self._get(f"user / verify - email/{token}")

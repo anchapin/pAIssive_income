@@ -59,7 +59,7 @@ class APIKey:
         Returns:
             Generated API key
         """
-        # Generate a 32-byte random token
+        # Generate a 32 - byte random token
         return f"pik_{secrets.token_urlsafe(32)}"
 
     def is_valid(self) -> bool:

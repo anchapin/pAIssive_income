@@ -2,7 +2,7 @@
 Tests for the statistical analysis module.
 
 This module tests the statistical analysis framework used in marketing analytics
-and A/B testing.
+and A / B testing.
 """
 
 import numpy as np
@@ -82,13 +82,13 @@ class TestStatisticalAnalysis:
         data = [1, 2, 3, 4, 5]
         mean, std = stats_analysis.mean_and_std(data)
         assert mean == 3.0
-        assert std == pytest.approx(1.5811, abs=1e-4)
+        assert std == pytest.approx(1.5811, abs=1e - 4)
 
         # Test with numpy array
         data = np.array([1, 2, 3, 4, 5])
         mean, std = stats_analysis.mean_and_std(data)
         assert mean == 3.0
-        assert std == pytest.approx(1.5811, abs=1e-4)
+        assert std == pytest.approx(1.5811, abs=1e - 4)
 
         # Test with empty list
         with pytest.raises(InvalidParameterError):
@@ -125,7 +125,7 @@ class TestStatisticalAnalysis:
         assert stats["count"] == 5
         assert stats["mean"] == 3.0
         assert stats["median"] == 3.0
-        assert stats["std"] == pytest.approx(1.5811, abs=1e-4)
+        assert stats["std"] == pytest.approx(1.5811, abs=1e - 4)
         assert stats["min"] == 1.0
         assert stats["max"] == 5.0
         assert stats["q1"] == 2.0  # Using NumPy's default percentile method
@@ -137,7 +137,7 @@ class TestStatisticalAnalysis:
             stats_analysis.summary_statistics([])
 
     def test_chi_square_test(self):
-        """Test chi-square test."""
+        """Test chi - square test."""
         stats_analysis = StatisticalAnalysis()
 
         # Test 2x2 contingency table
@@ -164,7 +164,7 @@ class TestStatisticalAnalysis:
         result = stats_analysis.chi_square_test(observed, expected)
 
         assert result["dof"] == 3
-        assert result["chi2"] == pytest.approx(20.0, abs=1e-10)
+        assert result["chi2"] == pytest.approx(20.0, abs=1e - 10)
 
         # Test with insufficient data
         with pytest.raises(InsufficientDataError):
@@ -193,7 +193,7 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result["test_name"] == "fishers_exact"
-        assert result["alternative"] == "two-sided"
+        assert result["alternative"] == "two - sided"
 
         # Test with different alternative hypotheses
         result_less = stats_analysis.fishers_exact_test(table, alternative="less")
@@ -210,10 +210,10 @@ class TestStatisticalAnalysis:
             stats_analysis.fishers_exact_test([[1, 2], [3, 4]], alternative="invalid")
 
     def test_z_test_proportions(self):
-        """Test z-test for proportions."""
+        """Test z - test for proportions."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test two-sample test
+        # Test two - sample test
         result = stats_analysis.z_test_proportions(count1=40, nobs1=100, count2=30, nobs2=100)
 
         # Check result structure
@@ -237,18 +237,18 @@ class TestStatisticalAnalysis:
         # Check specific values
         assert result["proportion1"] == 0.4
         assert result["proportion2"] == 0.3
-        assert result["difference"] == pytest.approx(0.1, abs=1e-10)
+        assert result["difference"] == pytest.approx(0.1, abs=1e - 10)
         assert result["test_name"] == "z_test_proportions"
-        assert result["test_type"] == "two-sample"
+        assert result["test_type"] == "two - sample"
 
-        # Test one-sample test
+        # Test one - sample test
         result = stats_analysis.z_test_proportions(count1=40, nobs1=100, value=0.3)
 
         assert "proportion1" in result
         assert "proportion2" in result
         assert result["proportion1"] == 0.4
         assert result["proportion2"] == 0.3
-        assert result["test_type"] == "one-sample"
+        assert result["test_type"] == "one - sample"
 
         # Test with different alternative hypotheses
         result_less = stats_analysis.z_test_proportions(
@@ -342,14 +342,14 @@ class TestStatisticalAnalysis:
             count=40, nobs=100, method="wilson"
         )
         result_agresti = stats_analysis.confidence_interval_proportion(
-            count=40, nobs=100, method="agresti-coull"
+            count=40, nobs=100, method="agresti - coull"
         )
         result_exact = stats_analysis.confidence_interval_proportion(
             count=40, nobs=100, method="exact"
         )
 
         assert result_wilson["method"] == "wilson"
-        assert result_agresti["method"] == "agresti-coull"
+        assert result_agresti["method"] == "agresti - coull"
         assert result_exact["method"] == "exact"
 
         # Test with different confidence levels
@@ -403,16 +403,16 @@ class TestStatisticalAnalysis:
         # Check specific values
         assert result["proportion1"] == 0.4
         assert result["proportion2"] == 0.3
-        assert result["difference"] == pytest.approx(0.1, abs=1e-10)
+        assert result["difference"] == pytest.approx(0.1, abs=1e - 10)
         assert result["confidence_level"] == 0.95
         assert result["method"] == "normal"
 
-        # Test with Agresti-Caffo method
+        # Test with Agresti - Caffo method
         result_agresti = stats_analysis.confidence_interval_difference_proportions(
-            count1=40, nobs1=100, count2=30, nobs2=100, method="agresti-caffo"
+            count1=40, nobs1=100, count2=30, nobs2=100, method="agresti - caffo"
         )
 
-        assert result_agresti["method"] == "agresti-caffo"
+        assert result_agresti["method"] == "agresti - caffo"
         assert "adjusted_proportion1" in result_agresti
         assert "adjusted_proportion2" in result_agresti
         assert "adjusted_difference" in result_agresti
@@ -472,7 +472,7 @@ class TestStatisticalAnalysis:
         assert result["n2"] == 5
         assert result["correction_applied"] is False
         assert result["effect_size"] == pytest.approx(
-            -0.632, abs=1e-3
+            -0.632, abs=1e - 3
         )  # Actual value is around -0.632
         assert result["interpretation"] == "medium"  # 0.5 < |d| < 0.8 is medium
 
@@ -508,7 +508,7 @@ class TestStatisticalAnalysis:
         table = [
             [30, 70],
             [10, 90],
-        ]  # [[exposed cases, exposed non-cases], [unexposed cases, unexposed non-cases]]
+        ]  # [[exposed cases, exposed non - cases], [unexposed cases, unexposed non - cases]]
         result = stats_analysis.odds_ratio(table)
 
         # Check result structure
@@ -522,7 +522,7 @@ class TestStatisticalAnalysis:
         assert "table" in result
 
         # Check specific values
-        assert result["odds_ratio"] == pytest.approx(3.857, abs=1e-3)  # (30*90)/(70*10) = 3.857
+        assert result["odds_ratio"] == pytest.approx(3.857, abs=1e - 3)  # (30 * 90) / (70 * 10) = 3.857
         assert result["ci_level"] == 0.95
         assert "positive association" in result["interpretation"]
 
@@ -561,7 +561,7 @@ class TestStatisticalAnalysis:
         table = [
             [30, 70],
             [10, 90],
-        ]  # [[exposed cases, exposed non-cases], [unexposed cases, unexposed non-cases]]
+        ]  # [[exposed cases, exposed non - cases], [unexposed cases, unexposed non - cases]]
         result = stats_analysis.relative_risk(table)
 
         # Check result structure
@@ -577,9 +577,9 @@ class TestStatisticalAnalysis:
         assert "table" in result
 
         # Check specific values
-        assert result["risk_exposed"] == pytest.approx(30 / 100, abs=1e-10)  # 30/(30+70) = 0.3
-        assert result["risk_unexposed"] == pytest.approx(10 / 100, abs=1e-10)  # 10/(10+90) = 0.1
-        assert result["relative_risk"] == pytest.approx(3.0, abs=1e-10)  # 0.3/0.1 = 3.0
+        assert result["risk_exposed"] == pytest.approx(30 / 100, abs=1e - 10)  # 30 / (30 + 70) = 0.3
+        assert result["risk_unexposed"] == pytest.approx(10 / 100, abs=1e - 10)  # 10 / (10 + 90) = 0.1
+        assert result["relative_risk"] == pytest.approx(3.0, abs=1e - 10)  # 0.3 / 0.1 = 3.0
         assert result["ci_level"] == 0.95
         assert "increased risk" in result["interpretation"]
 
@@ -621,7 +621,7 @@ class TestStatisticalAnalysis:
         table = [
             [20, 80],
             [40, 60],
-        ]  # [[treatment cases, treatment non-cases], [control cases, control non-cases]]
+        ]  # [[treatment cases, treatment non - cases], [control cases, control non - cases]]
         result = stats_analysis.number_needed_to_treat(table)
 
         # Check result structure
@@ -636,10 +636,10 @@ class TestStatisticalAnalysis:
         assert "table" in result
 
         # Check specific values
-        assert result["risk_treatment"] == pytest.approx(20 / 100, abs=1e-10)  # 20/(20+80) = 0.2
-        assert result["risk_control"] == pytest.approx(40 / 100, abs=1e-10)  # 40/(40+60) = 0.4
-        assert result["arr"] == pytest.approx(0.2, abs=1e-10)  # 0.4 - 0.2 = 0.2
-        assert result["nnt"] == pytest.approx(5.0, abs=1e-10)  # 1/0.2 = 5
+        assert result["risk_treatment"] == pytest.approx(20 / 100, abs=1e - 10)  # 20 / (20 + 80) = 0.2
+        assert result["risk_control"] == pytest.approx(40 / 100, abs=1e - 10)  # 40 / (40 + 60) = 0.4
+        assert result["arr"] == pytest.approx(0.2, abs=1e - 10)  # 0.4 - 0.2 = 0.2
+        assert result["nnt"] == pytest.approx(5.0, abs=1e - 10)  # 1 / 0.2 = 5
         assert result["ci_level"] == 0.95
         assert "beneficial" in result["interpretation"]
 
@@ -698,7 +698,7 @@ class TestStatisticalAnalysis:
         assert result["effect_size"] == 0.1
         assert result["alpha"] == 0.05
         assert result["power"] == 0.8
-        assert result["alternative"] == "two-sided"
+        assert result["alternative"] == "two - sided"
         assert result["p_null"] == 0.5
         assert result["p_alt"] == 0.6
         assert result["test_type"] == "proportion"
@@ -707,13 +707,13 @@ class TestStatisticalAnalysis:
 
         # Test with custom parameters
         result_custom = stats_analysis.sample_size_for_proportion_test(
-            effect_size=0.2, alpha=0.01, power=0.9, alternative="one-sided", p_null=0.3
+            effect_size=0.2, alpha=0.01, power=0.9, alternative="one - sided", p_null=0.3
         )
 
         assert result_custom["effect_size"] == 0.2
         assert result_custom["alpha"] == 0.01
         assert result_custom["power"] == 0.9
-        assert result_custom["alternative"] == "one-sided"
+        assert result_custom["alternative"] == "one - sided"
         assert result_custom["p_null"] == 0.3
         assert result_custom["p_alt"] == 0.5
 
@@ -774,14 +774,14 @@ class TestStatisticalAnalysis:
         assert result["standardized_effect_size"] == 0.5  # effect_size / std_dev
         assert result["alpha"] == 0.05
         assert result["power"] == 0.8
-        assert result["alternative"] == "two-sided"
+        assert result["alternative"] == "two - sided"
         assert result["test_type"] == "mean"
         assert isinstance(result["sample_size"], int)
         assert result["sample_size"] > 0
 
         # Test with custom parameters
         result_custom = stats_analysis.sample_size_for_mean_test(
-            effect_size=1.0, std_dev=2.0, alpha=0.01, power=0.9, alternative="one-sided"
+            effect_size=1.0, std_dev=2.0, alpha=0.01, power=0.9, alternative="one - sided"
         )
 
         assert result_custom["effect_size"] == 1.0
@@ -789,7 +789,7 @@ class TestStatisticalAnalysis:
         assert result_custom["standardized_effect_size"] == 0.5  # 1.0 / 2.0
         assert result_custom["alpha"] == 0.01
         assert result_custom["power"] == 0.9
-        assert result_custom["alternative"] == "one-sided"
+        assert result_custom["alternative"] == "one - sided"
 
         # Larger effect size should require smaller sample size
         result_large_effect = stats_analysis.sample_size_for_mean_test(effect_size=1.0, std_dev=1.0)
@@ -841,20 +841,20 @@ class TestStatisticalAnalysis:
         assert result["effect_size"] == 0.3
         assert result["alpha"] == 0.05
         assert result["power"] == 0.8
-        assert result["alternative"] == "two-sided"
+        assert result["alternative"] == "two - sided"
         assert result["test_type"] == "correlation"
         assert isinstance(result["sample_size"], int)
         assert result["sample_size"] > 0
 
         # Test with custom parameters
         result_custom = stats_analysis.sample_size_for_correlation(
-            effect_size=0.5, alpha=0.01, power=0.9, alternative="one-sided"
+            effect_size=0.5, alpha=0.01, power=0.9, alternative="one - sided"
         )
 
         assert result_custom["effect_size"] == 0.5
         assert result_custom["alpha"] == 0.01
         assert result_custom["power"] == 0.9
-        assert result_custom["alternative"] == "one-sided"
+        assert result_custom["alternative"] == "one - sided"
 
         # Larger effect size should require smaller sample size
         result_large_effect = stats_analysis.sample_size_for_correlation(effect_size=0.5)
@@ -908,7 +908,7 @@ class TestStatisticalAnalysis:
         assert result_prop["alpha"] == 0.05
         assert result_prop["power"] == 0.8
         assert result_prop["test_type"] == "proportion"
-        assert result_prop["alternative"] == "two-sided"
+        assert result_prop["alternative"] == "two - sided"
         assert result_prop["p_null"] == 0.5
         assert result_prop["effect_size"] > 0
 
@@ -982,7 +982,7 @@ class TestStatisticalAnalysis:
         assert result_prop["sample_size"] == 400
         assert result_prop["alpha"] == 0.05
         assert result_prop["test_type"] == "proportion"
-        assert result_prop["alternative"] == "two-sided"
+        assert result_prop["alternative"] == "two - sided"
         assert result_prop["p_null"] == 0.5
         assert result_prop["p_alt"] == 0.6
         assert 0 <= result_prop["power"] <= 1
@@ -1055,11 +1055,11 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result_prop["type_i_error"] == 0.05
-        assert result_prop["power"] + result_prop["type_ii_error"] == pytest.approx(1.0, abs=1e-10)
+        assert result_prop["power"] + result_prop["type_ii_error"] == pytest.approx(1.0, abs=1e - 10)
         assert result_prop["effect_size"] == 0.1
         assert result_prop["sample_size"] == 400
         assert result_prop["test_type"] == "proportion"
-        assert result_prop["alternative"] == "two-sided"
+        assert result_prop["alternative"] == "two - sided"
         assert result_prop["p_null"] == 0.5
         assert result_prop["p_alt"] == 0.6
 
@@ -1074,7 +1074,7 @@ class TestStatisticalAnalysis:
         assert "std_dev" in result_mean
         assert "standardized_effect_size" in result_mean
         assert result_mean["type_i_error"] == 0.05
-        assert result_mean["power"] + result_mean["type_ii_error"] == pytest.approx(1.0, abs=1e-10)
+        assert result_mean["power"] + result_mean["type_ii_error"] == pytest.approx(1.0, abs=1e - 10)
         assert result_mean["test_type"] == "mean"
 
         # Test for correlation test
@@ -1086,7 +1086,7 @@ class TestStatisticalAnalysis:
         assert "type_ii_error" in result_corr
         assert "power" in result_corr
         assert result_corr["type_i_error"] == 0.05
-        assert result_corr["power"] + result_corr["type_ii_error"] == pytest.approx(1.0, abs=1e-10)
+        assert result_corr["power"] + result_corr["type_ii_error"] == pytest.approx(1.0, abs=1e - 10)
         assert result_corr["test_type"] == "correlation"
 
         # Larger effect size should decrease Type II error
@@ -1120,7 +1120,7 @@ class TestStatisticalAnalysis:
         """Test Bonferroni correction for multiple comparisons."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test with a set of p-values
+        # Test with a set of p - values
         p_values = [0.01, 0.02, 0.03, 0.04, 0.05]
         result = stats_analysis.bonferroni_correction(p_values)
 
@@ -1137,20 +1137,20 @@ class TestStatisticalAnalysis:
         assert result["correction_method"] == "bonferroni"
         assert len(result["adjusted_p_values"]) == 5
 
-        # Check that adjusted p-values are correctly calculated
+        # Check that adjusted p - values are correctly calculated
         expected_adjusted = [0.05, 0.10, 0.15, 0.20, 0.25]  # p * n_tests
         for i in range(5):
-            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e-10)
+            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e - 10)
 
         # Check significance after correction
-        # With default alpha=0.05, none of the adjusted p-values (0.05, 0.10, 0.15, 0.20, 0.25) are significant
+        # With default alpha=0.05, none of the adjusted p - values (0.05, 0.10, 0.15, 0.20, 0.25) are significant
         assert result["significant"] == [False, False, False, False, False]
 
-        # Test with p-values that exceed 1.0 after correction
+        # Test with p - values that exceed 1.0 after correction
         p_values = [0.3, 0.4, 0.5]
         result = stats_analysis.bonferroni_correction(p_values)
 
-        # Adjusted p-values should be capped at 1.0
+        # Adjusted p - values should be capped at 1.0
         assert all(p <= 1.0 for p in result["adjusted_p_values"])
 
         # Test with invalid input
@@ -1158,16 +1158,16 @@ class TestStatisticalAnalysis:
             stats_analysis.bonferroni_correction([])  # Empty list
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.bonferroni_correction([0.1, 1.1, 0.3])  # Invalid p-value > 1
+            stats_analysis.bonferroni_correction([0.1, 1.1, 0.3])  # Invalid p - value > 1
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.bonferroni_correction([0.1, -0.1, 0.3])  # Invalid p-value < 0
+            stats_analysis.bonferroni_correction([0.1, -0.1, 0.3])  # Invalid p - value < 0
 
     def test_holm_bonferroni_correction(self):
-        """Test Holm-Bonferroni correction for multiple comparisons."""
+        """Test Holm - Bonferroni correction for multiple comparisons."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test with a set of p-values
+        # Test with a set of p - values
         p_values = [0.01, 0.02, 0.03, 0.04, 0.05]
         result = stats_analysis.holm_bonferroni_correction(p_values)
 
@@ -1181,25 +1181,25 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result["n_tests"] == 5
-        assert result["correction_method"] == "holm-bonferroni"
+        assert result["correction_method"] == "holm - bonferroni"
         assert len(result["adjusted_p_values"]) == 5
 
-        # Check that adjusted p-values are correctly calculated
-        # For Holm-Bonferroni, the smallest p-value is multiplied by n, the second by (n-1), etc.
+        # Check that adjusted p - values are correctly calculated
+        # For Holm - Bonferroni, the smallest p - value is multiplied by n, the second by (n - 1), etc.
         # The expected values are calculated as p * (n - rank + 1) with monotonicity enforcement
         expected_adjusted = [0.05, 0.08, 0.09, 0.09, 0.09]
         for i in range(5):
-            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e-10)
+            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e - 10)
 
-        # Test with p-values in different order
+        # Test with p - values in different order
         p_values = [0.05, 0.04, 0.03, 0.02, 0.01]
         result = stats_analysis.holm_bonferroni_correction(p_values)
 
-        # The adjusted p-values should be the same as before, but in different order
+        # The adjusted p - values should be the same as before, but in different order
         expected_adjusted = [0.05, 0.08, 0.09, 0.09, 0.09]  # p * (n - rank + 1) with monotonicity
         for i in range(5):
             assert result["adjusted_p_values"][4 - i] == pytest.approx(
-                expected_adjusted[i], abs=1e-10
+                expected_adjusted[i], abs=1e - 10
             )
 
         # Test with invalid input
@@ -1207,13 +1207,13 @@ class TestStatisticalAnalysis:
             stats_analysis.holm_bonferroni_correction([])  # Empty list
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.holm_bonferroni_correction([0.1, 1.1, 0.3])  # Invalid p-value > 1
+            stats_analysis.holm_bonferroni_correction([0.1, 1.1, 0.3])  # Invalid p - value > 1
 
     def test_benjamini_hochberg_correction(self):
-        """Test Benjamini-Hochberg correction for multiple comparisons."""
+        """Test Benjamini - Hochberg correction for multiple comparisons."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test with a set of p-values
+        # Test with a set of p - values
         p_values = [0.01, 0.02, 0.03, 0.04, 0.05]
         result = stats_analysis.benjamini_hochberg_correction(p_values)
 
@@ -1227,20 +1227,20 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result["n_tests"] == 5
-        assert result["correction_method"] == "benjamini-hochberg"
+        assert result["correction_method"] == "benjamini - hochberg"
         assert len(result["adjusted_p_values"]) == 5
 
-        # Check that adjusted p-values are correctly calculated
-        # For Benjamini-Hochberg, p-value is multiplied by n/rank
+        # Check that adjusted p - values are correctly calculated
+        # For Benjamini - Hochberg, p - value is multiplied by n / rank
         expected_adjusted = [0.05, 0.05, 0.05, 0.05, 0.05]  # p * n / rank
         for i in range(5):
-            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e-10)
+            assert result["adjusted_p_values"][i] == pytest.approx(expected_adjusted[i], abs=1e - 10)
 
-        # Test with p-values that would exceed 1.0 after correction
+        # Test with p - values that would exceed 1.0 after correction
         p_values = [0.3, 0.4, 0.5]
         result = stats_analysis.benjamini_hochberg_correction(p_values)
 
-        # Adjusted p-values should be capped at 1.0
+        # Adjusted p - values should be capped at 1.0
         assert all(p <= 1.0 for p in result["adjusted_p_values"])
 
         # Test with invalid input
@@ -1248,13 +1248,13 @@ class TestStatisticalAnalysis:
             stats_analysis.benjamini_hochberg_correction([])  # Empty list
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.benjamini_hochberg_correction([0.1, 1.1, 0.3])  # Invalid p-value > 1
+            stats_analysis.benjamini_hochberg_correction([0.1, 1.1, 0.3])  # Invalid p - value > 1
 
     def test_benjamini_yekutieli_correction(self):
-        """Test Benjamini-Yekutieli correction for multiple comparisons."""
+        """Test Benjamini - Yekutieli correction for multiple comparisons."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test with a set of p-values
+        # Test with a set of p - values
         p_values = [0.01, 0.02, 0.03, 0.04, 0.05]
         result = stats_analysis.benjamini_yekutieli_correction(p_values)
 
@@ -1269,19 +1269,19 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result["n_tests"] == 5
-        assert result["correction_method"] == "benjamini-yekutieli"
+        assert result["correction_method"] == "benjamini - yekutieli"
         assert len(result["adjusted_p_values"]) == 5
 
         # Check that correction factor is correctly calculated
-        # Correction factor is sum of 1/i for i from 1 to n
+        # Correction factor is sum of 1 / i for i from 1 to n
         expected_factor = 1 + 1 / 2 + 1 / 3 + 1 / 4 + 1 / 5
-        assert result["correction_factor"] == pytest.approx(expected_factor, abs=1e-10)
+        assert result["correction_factor"] == pytest.approx(expected_factor, abs=1e - 10)
 
-        # Test with p-values that would exceed 1.0 after correction
+        # Test with p - values that would exceed 1.0 after correction
         p_values = [0.3, 0.4, 0.5]
         result = stats_analysis.benjamini_yekutieli_correction(p_values)
 
-        # Adjusted p-values should be capped at 1.0
+        # Adjusted p - values should be capped at 1.0
         assert all(p <= 1.0 for p in result["adjusted_p_values"])
 
         # Test with invalid input
@@ -1289,13 +1289,13 @@ class TestStatisticalAnalysis:
             stats_analysis.benjamini_yekutieli_correction([])  # Empty list
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.benjamini_yekutieli_correction([0.1, 1.1, 0.3])  # Invalid p-value > 1
+            stats_analysis.benjamini_yekutieli_correction([0.1, 1.1, 0.3])  # Invalid p - value > 1
 
     def test_sidak_correction(self):
         """Test Šidák correction for multiple comparisons."""
         stats_analysis = StatisticalAnalysis()
 
-        # Test with a set of p-values
+        # Test with a set of p - values
         p_values = [0.01, 0.02, 0.03, 0.04, 0.05]
         result = stats_analysis.sidak_correction(p_values)
 
@@ -1312,18 +1312,18 @@ class TestStatisticalAnalysis:
         assert result["correction_method"] == "sidak"
         assert len(result["adjusted_p_values"]) == 5
 
-        # Check that adjusted p-values are correctly calculated
-        # For Šidák, adjusted p-value is 1 - (1 - p)^n
+        # Check that adjusted p - values are correctly calculated
+        # For Šidák, adjusted p - value is 1 - (1 - p)^n
         for i, p in enumerate(p_values):
             expected = 1.0 - (1.0 - p) ** 5
-            assert result["adjusted_p_values"][i] == pytest.approx(expected, abs=1e-10)
+            assert result["adjusted_p_values"][i] == pytest.approx(expected, abs=1e - 10)
 
         # Test with invalid input
         with pytest.raises(InvalidParameterError):
             stats_analysis.sidak_correction([])  # Empty list
 
         with pytest.raises(InvalidParameterError):
-            stats_analysis.sidak_correction([0.1, 1.1, 0.3])  # Invalid p-value > 1
+            stats_analysis.sidak_correction([0.1, 1.1, 0.3])  # Invalid p - value > 1
 
     def test_adjust_alpha(self):
         """Test alpha adjustment for multiple comparisons."""
@@ -1342,14 +1342,14 @@ class TestStatisticalAnalysis:
         assert result["original_alpha"] == 0.05
         assert result["n_tests"] == 5
         assert result["adjustment_method"] == "bonferroni"
-        assert result["adjusted_alpha"] == pytest.approx(0.01, abs=1e-10)  # 0.05 / 5
+        assert result["adjusted_alpha"] == pytest.approx(0.01, abs=1e - 10)  # 0.05 / 5
 
         # Test Šidák adjustment
         result = stats_analysis.adjust_alpha(alpha=0.05, n_tests=5, method="sidak")
 
         # Check specific values
         assert result["adjustment_method"] == "sidak"
-        assert result["adjusted_alpha"] == pytest.approx(1.0 - (1.0 - 0.05) ** 5, abs=1e-10)
+        assert result["adjusted_alpha"] == pytest.approx(1.0 - (1.0 - 0.05) ** 5, abs=1e - 10)
 
         # Test no adjustment
         result = stats_analysis.adjust_alpha(alpha=0.05, n_tests=5, method="none")
@@ -1373,7 +1373,7 @@ class TestStatisticalAnalysis:
     # -------------------------------------------------------------------------
 
     def test_obrien_fleming_boundary(self):
-        """Test O'Brien-Fleming boundary calculation for sequential testing."""
+        """Test O'Brien - Fleming boundary calculation for sequential testing."""
         stats_analysis = StatisticalAnalysis()
 
         # Test with default parameters
@@ -1401,7 +1401,7 @@ class TestStatisticalAnalysis:
         expected_fractions = [1 / 3, 2 / 3, 3 / 3]
         for i in range(3):
             assert result["information_fractions"][i] == pytest.approx(
-                expected_fractions[i], abs=1e-10
+                expected_fractions[i], abs=1e - 10
             )
 
         # Check that boundaries are decreasing (easier to reject as trial progresses)
@@ -1450,12 +1450,12 @@ class TestStatisticalAnalysis:
         expected_fractions = [1 / 3, 2 / 3, 3 / 3]
         for i in range(3):
             assert result["information_fractions"][i] == pytest.approx(
-                expected_fractions[i], abs=1e-10
+                expected_fractions[i], abs=1e - 10
             )
 
-        # Check that z-boundaries are constant across all looks
-        assert result["z_boundaries"][0] == pytest.approx(result["z_boundaries"][1], abs=1e-10)
-        assert result["z_boundaries"][1] == pytest.approx(result["z_boundaries"][2], abs=1e-10)
+        # Check that z - boundaries are constant across all looks
+        assert result["z_boundaries"][0] == pytest.approx(result["z_boundaries"][1], abs=1e - 10)
+        assert result["z_boundaries"][1] == pytest.approx(result["z_boundaries"][2], abs=1e - 10)
 
         # Test with custom parameters
         result_custom = stats_analysis.pocock_boundary(num_looks=4, alpha=0.01)
@@ -1497,14 +1497,14 @@ class TestStatisticalAnalysis:
 
         # Check that information fractions are correctly stored
         for i in range(4):
-            assert result["information_fractions"][i] == pytest.approx(info_fractions[i], abs=1e-10)
+            assert result["information_fractions"][i] == pytest.approx(info_fractions[i], abs=1e - 10)
 
         # Check that cumulative alpha is monotonically increasing
         for i in range(1, 4):
             assert result["cumulative_alpha"][i] >= result["cumulative_alpha"][i - 1]
 
         # Check that final cumulative alpha equals total alpha
-        assert result["cumulative_alpha"][-1] == pytest.approx(0.05, abs=1e-10)
+        assert result["cumulative_alpha"][-1] == pytest.approx(0.05, abs=1e - 10)
 
         # Test with different methods
         methods = ["pocock", "hwang_shih_decosta", "linear"]
@@ -1513,7 +1513,7 @@ class TestStatisticalAnalysis:
                 information_fractions=info_fractions, method=method
             )
             assert result["method"] == method
-            assert result["cumulative_alpha"][-1] == pytest.approx(0.05, abs=1e-10)
+            assert result["cumulative_alpha"][-1] == pytest.approx(0.05, abs=1e - 10)
 
         # Test with invalid input
         with pytest.raises(InvalidParameterError):
@@ -1568,7 +1568,7 @@ class TestStatisticalAnalysis:
         expected_fractions = [1 / 3, 2 / 3, 3 / 3]
         for i in range(3):
             assert result["information_fractions"][i] == pytest.approx(
-                expected_fractions[i], abs=1e-10
+                expected_fractions[i], abs=1e - 10
             )
 
         # Test with custom parameters
@@ -1673,10 +1673,10 @@ class TestStatisticalAnalysis:
 
         # Check that information fractions are correctly stored
         for i in range(4):
-            assert result["information_fractions"][i] == pytest.approx(info_fractions[i], abs=1e-10)
+            assert result["information_fractions"][i] == pytest.approx(info_fractions[i], abs=1e - 10)
 
         # Check that final futility boundary is -inf (no stopping for futility at final analysis)
-        assert result["futility_boundaries"][-1] == float("-inf")
+        assert result["futility_boundaries"][-1] == float(" - inf")
 
         # Test with Pocock method
         result_pocock = stats_analysis.futility_boundary(
@@ -1684,7 +1684,7 @@ class TestStatisticalAnalysis:
         )
 
         assert result_pocock["method"] == "pocock"
-        assert result_pocock["futility_boundaries"][-1] == float("-inf")
+        assert result_pocock["futility_boundaries"][-1] == float(" - inf")
 
         # Test with custom parameters
         result_custom = stats_analysis.futility_boundary(
@@ -1727,7 +1727,7 @@ class TestStatisticalAnalysis:
         assert result["original_p_value"] == 0.04
         assert result["num_looks"] == 5
         assert result["method"] == "bonferroni"
-        assert result["adjusted_p_value"] == pytest.approx(0.04 * 5, abs=1e-10)
+        assert result["adjusted_p_value"] == pytest.approx(0.04 * 5, abs=1e - 10)
 
         # Test with different methods
         result_sidak = stats_analysis.optional_stopping_correction(
@@ -1735,7 +1735,7 @@ class TestStatisticalAnalysis:
         )
 
         assert result_sidak["method"] == "sidak"
-        assert result_sidak["adjusted_p_value"] == pytest.approx(1.0 - (1.0 - 0.04) ** 5, abs=1e-10)
+        assert result_sidak["adjusted_p_value"] == pytest.approx(1.0 - (1.0 - 0.04) ** 5, abs=1e - 10)
 
         result_sequential = stats_analysis.optional_stopping_correction(
             p_value=0.04, num_looks=5, method="sequential"
@@ -1745,7 +1745,7 @@ class TestStatisticalAnalysis:
         assert "z_score" in result_sequential
         assert "adjusted_z_score" in result_sequential
 
-        # Test with p-value that would exceed 1.0 after correction
+        # Test with p - value that would exceed 1.0 after correction
         result_large_p = stats_analysis.optional_stopping_correction(p_value=0.3, num_looks=5)
         assert result_large_p["adjusted_p_value"] <= 1.0
 
@@ -1753,7 +1753,7 @@ class TestStatisticalAnalysis:
         with pytest.raises(InvalidParameterError):
             stats_analysis.optional_stopping_correction(
                 p_value=1.5, num_looks=5
-            )  # Invalid p-value > 1
+            )  # Invalid p - value > 1
 
         with pytest.raises(InvalidParameterError):
             stats_analysis.optional_stopping_correction(
@@ -1766,7 +1766,7 @@ class TestStatisticalAnalysis:
             )  # Invalid method
 
     def test_log_likelihood_ratio_test(self):
-        """Test log-likelihood ratio test for nested model comparison."""
+        """Test log - likelihood ratio test for nested model comparison."""
         stats_analysis = StatisticalAnalysis()
 
         # Test with simple models
@@ -1794,7 +1794,7 @@ class TestStatisticalAnalysis:
         assert "alpha" in result
 
         # Check specific values
-        assert result["test_statistic"] == pytest.approx(10.0, abs=1e-10)  # 2 * ((-95) - (-100))
+        assert result["test_statistic"] == pytest.approx(10.0, abs=1e - 10)  # 2 * ((-95) - (-100))
         assert result["df_diff"] == 2  # 4 - 2
         assert result["test_name"] == "log_likelihood_ratio"
 
@@ -1806,7 +1806,7 @@ class TestStatisticalAnalysis:
         assert "aic_preferred" in result["model_selection"]
         assert "bic_preferred" in result["model_selection"]
 
-        # Test with non-significant difference
+        # Test with non - significant difference
         # Model 1 (simpler model) with 2 parameters
         model1_loglik = -100.0
         df1 = 2
@@ -1821,9 +1821,9 @@ class TestStatisticalAnalysis:
 
         # The difference should not be significant
         assert result_nonsig["test_statistic"] == pytest.approx(
-            2.0, abs=1e-10
+            2.0, abs=1e - 10
         )  # 2 * ((-99) - (-100))
-        # Check that p-value is greater than alpha for non-significance
+        # Check that p - value is greater than alpha for non - significance
         assert result_nonsig["p_value"] > stats_analysis.default_alpha
 
         # Test with invalid inputs
@@ -1861,18 +1861,18 @@ class TestStatisticalAnalysis:
         assert "sample_size" in result
 
         # Check specific values
-        assert result["aic"] == pytest.approx(206.0, abs=1e-10)  # -2 * (-100) + 2 * 3
-        assert result["bic"] == pytest.approx(213.8155, abs=1e-4)  # -2 * (-100) + 3 * ln(100)
+        assert result["aic"] == pytest.approx(206.0, abs=1e - 10)  # -2 * (-100) + 2 * 3
+        assert result["bic"] == pytest.approx(213.8155, abs=1e - 4)  # -2 * (-100) + 3 * ln(100)
 
         # Test AICc calculation
-        # AICc = AIC + (2k(k+1))/(n-k-1)
+        # AICc = AIC + (2k(k + 1)) / (n - k-1)
         expected_aicc = 206.0 + (2 * 3 * (3 + 1)) / (100 - 3 - 1)
-        assert result["aicc"] == pytest.approx(expected_aicc, abs=1e-10)
+        assert result["aicc"] == pytest.approx(expected_aicc, abs=1e - 10)
 
         # Test HQIC calculation
         # HQIC = -2 * loglik + 2k * ln(ln(n))
         expected_hqic = -2 * (-100) + 2 * 3 * np.log(np.log(100))
-        assert result["hqic"] == pytest.approx(expected_hqic, abs=1e-10)
+        assert result["hqic"] == pytest.approx(expected_hqic, abs=1e - 10)
 
         # Test with invalid inputs
         with pytest.raises(InvalidParameterError):

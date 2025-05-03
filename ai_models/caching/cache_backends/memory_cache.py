@@ -1,7 +1,7 @@
 """
 Memory cache backend for the model cache system.
 
-This module provides an in-memory cache backend.
+This module provides an in - memory cache backend.
 """
 
 import re
@@ -14,7 +14,7 @@ from .base import CacheBackend
 
 class MemoryCache(CacheBackend):
     """
-    In-memory cache backend.
+    In - memory cache backend.
     """
 
     def __init__(self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs):
@@ -101,7 +101,7 @@ class MemoryCache(CacheBackend):
             if existing_data:
                 _, _, access_count, _ = existing_data
                 if self.eviction_policy != "lfu":
-                    access_count = 0  # Reset for non-LFU policies
+                    access_count = 0  # Reset for non - LFU policies
             else:
                 access_count = 0
                 # Check if we need to evict an item before adding a new one
@@ -286,7 +286,7 @@ class MemoryCache(CacheBackend):
 
         try:
             if self.eviction_policy == "lru":
-                # Find the least recently used item among non-expired items
+                # Find the least recently used item among non - expired items
                 key_to_evict = min(
                     valid_items, key=lambda x: x[1][3]  # x[1][3] is last_access_time
                 )[0]
@@ -297,7 +297,7 @@ class MemoryCache(CacheBackend):
                     key=lambda x: (x[1][2], -x[1][3]),  # (access_count, -last_access_time)
                 )[0]
             elif self.eviction_policy == "fifo":
-                # First in first out - take the first non-expired item
+                # First in first out - take the first non - expired item
                 key_to_evict = valid_items[0][0]
             else:
                 # Default to LRU

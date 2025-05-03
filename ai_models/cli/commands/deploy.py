@@ -1,5 +1,5 @@
 """
-Deploy command for the command-line interface.
+Deploy command for the command - line interface.
 
 This module provides a command for deploying models.
 """
@@ -14,7 +14,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -29,19 +29,19 @@ class DeployCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
         parser.add_argument(
-            "--model-type",
+            "--model - type",
             type=str,
-            default="text-generation",
+            default="text - generation",
             choices=[
-                "text-generation",
-                "text-classification",
+                "text - generation",
+                "text - classification",
                 "embedding",
                 "image",
                 "audio",
@@ -49,21 +49,21 @@ class DeployCommand(BaseCommand):
             help="Type of the model",
         )
         parser.add_argument(
-            "--deployment-type",
+            "--deployment - type",
             type=str,
             default="docker",
             choices=["docker", "kubernetes", "aws", "gcp", "azure"],
             help="Type of deployment",
         )
         parser.add_argument(
-            "--output-dir",
+            "--output - dir",
             type=str,
             default="deployment",
             help="Directory to save deployment files",
         )
         parser.add_argument("--name", type=str, help="Name of the deployment")
         parser.add_argument(
-            "--server-type",
+            "--server - type",
             type=str,
             default="rest",
             choices=["rest", "grpc"],
@@ -71,15 +71,15 @@ class DeployCommand(BaseCommand):
         )
         parser.add_argument("--port", type=int, default=8000, help="Port to expose")
         parser.add_argument(
-            "--cpu-limit", type=str, default="1", help="CPU limit for the deployment"
+            "--cpu - limit", type=str, default="1", help="CPU limit for the deployment"
         )
         parser.add_argument(
-            "--memory-limit",
+            "--memory - limit",
             type=str,
             default="4Gi",
             help="Memory limit for the deployment",
         )
-        parser.add_argument("--gpu-count", type=int, default=0, help="Number of GPUs to use")
+        parser.add_argument("--gpu - count", type=int, default=0, help="Number of GPUs to use")
         parser.add_argument(
             "--replicas",
             type=int,
@@ -89,13 +89,13 @@ class DeployCommand(BaseCommand):
         parser.add_argument(
             "--region",
             type=str,
-            default="us-west-2",
+            default="us - west - 2",
             help="Region for cloud deployment",
         )
-        parser.add_argument("--instance-type", type=str, help="Instance type for cloud deployment")
-        parser.add_argument("--enable-auth", action="store_true", help="Enable authentication")
-        parser.add_argument("--enable-https", action="store_true", help="Enable HTTPS")
-        parser.add_argument("--config-file", type=str, help="Path to configuration file")
+        parser.add_argument("--instance - type", type=str, help="Instance type for cloud deployment")
+        parser.add_argument("--enable - auth", action="store_true", help="Enable authentication")
+        parser.add_argument("--enable - https", action="store_true", help="Enable HTTPS")
+        parser.add_argument("--config - file", type=str, help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -115,7 +115,7 @@ class DeployCommand(BaseCommand):
             # Load configuration from file if provided
             config_dict = {}
             if self.args.config_file and os.path.exists(self.args.config_file):
-                with open(self.args.config_file, "r", encoding="utf-8") as f:
+                with open(self.args.config_file, "r", encoding="utf - 8") as f:
                     config_dict = json.load(f)
 
             # Generate deployment configuration based on type
@@ -287,7 +287,7 @@ class DeployCommand(BaseCommand):
             instance_type=(
                 self.args.instance_type or "ml.m5.large"
                 if provider == CloudProvider.AWS
-                else "n1-standard-2"
+                else "n1 - standard - 2"
             ),
             cpu_count=(
                 int(self.args.cpu_limit.replace("m", "")) // 1000

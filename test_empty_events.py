@@ -2,7 +2,7 @@ import pytest
 
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
-data = {"url": "https://example.com/webhook", "events": [], "is_active": True}
+data = {"url": "https://example.com / webhook", "events": [], "is_active": True}
 
 try:
     WebhookRequest(**data)

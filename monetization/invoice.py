@@ -155,7 +155,8 @@ class InvoiceItem:
 
     def __str__(self) -> str:
         """String representation of the invoice item."""
-        return f"{self.description}: {self.quantity} x ${self.unit_price:.2f} = ${self.get_total():.2f}"
+        return f"{self.description}: {self.quantity} x ${self.unit_price:.2f} = \
+            ${self.get_total():.2f}"
 
 
 class Invoice:
@@ -223,7 +224,8 @@ class Invoice:
         self.status_history = [
             {
                 "status": self.status,
-                "timestamp": format_datetime(self.created_at, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                "timestamp": format_datetime(self.created_at, 
+                    " % Y-%m-%dT % H:%M:%S.%fZ"),
                 "reason": "Invoice created",
             }
         ]
@@ -238,7 +240,7 @@ class Invoice:
             Invoice number
         """
         # Generate a simple invoice number based on the current date and a random suffix
-        date_str = format_datetime(datetime.now(), "%Y%m%d")
+        date_str = format_datetime(datetime.now(), " % Y%m % d")
         random_suffix = str(uuid.uuid4().int)[:6]
         return f"INV-{date_str}-{random_suffix}"
 
@@ -412,7 +414,8 @@ class Invoice:
         self.metadata["custom_fields"] = self.custom_fields
         self.updated_at = datetime.now()
 
-    def add_additional_fee(self, name: str, amount: float, is_percentage: bool = False) -> None:
+    def add_additional_fee(self, name: str, amount: float, 
+        is_percentage: bool = False) -> None:
         """
         Add an additional fee to the invoice.
 
@@ -460,8 +463,8 @@ class Invoice:
         1. STATE TRANSITION PROCESSING:
            - Records previous state for proper transition tracking
            - Applies the new status to update the invoice lifecycle state
-           - Timestamps the transition for chronological record-keeping
-           - Maintains audit records in a persistent, tamper-evident format
+           - Timestamps the transition for chronological record - keeping
+           - Maintains audit records in a persistent, tamper - evident format
            - Creates a complete audit trail of all status changes
 
         2. BUSINESS RULE ENFORCEMENT FOUNDATION:
@@ -469,7 +472,7 @@ class Invoice:
              a) Preventing invalid state transitions (e.g., Void → Paid)
              b) Enforcing proper authorization rules for status changes
              c) Ensuring proper sequencing of invoice lifecycle events
-             d) Supporting compliance with financial record-keeping requirements
+             d) Supporting compliance with financial record - keeping requirements
 
         3. AUDIT AND COMPLIANCE SUPPORT:
            - Captures the complete history of invoice status changes
@@ -483,7 +486,7 @@ class Invoice:
              a) Customer communications (e.g., payment reminders)
              b) Revenue recognition events
              c) Accounting system integrations
-             d) Collections and payment follow-up activities
+             d) Collections and payment follow - up activities
 
         This status management algorithm addresses several critical requirements:
         - Proper tracking of invoice lifecycle stages
@@ -525,7 +528,8 @@ class Invoice:
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
-        Register a payment and update invoice status through intelligent state management.
+        Register a payment and \
+            update invoice status through intelligent state management.
 
         This algorithm implements a robust payment processing workflow with automatic
         status transitions based on business rules. The implementation follows these key stages:
@@ -574,7 +578,8 @@ class Invoice:
         Args:
             amount: Payment amount received from the customer
             date: Date when the payment was received (defaults to current time)
-            payment_method: Method used for payment (e.g., "Credit Card", "ACH", "Check")
+            payment_method: Method used for payment (e.g., "Credit Card", "ACH", 
+                "Check")
             transaction_id: External reference ID from payment processor
             metadata: Additional payment information for integration or reconciliation
 
@@ -582,7 +587,7 @@ class Invoice:
             Dictionary containing the complete payment record including:
             - id: Unique identifier for this payment
             - amount: Payment amount
-            - date: ISO-formatted payment date
+            - date: ISO - formatted payment date
             - payment_method: How the payment was made
             - transaction_id: External reference for reconciliation
             - metadata: Any additional payment details
@@ -706,16 +711,16 @@ class Invoice:
 
     def get_total(self) -> float:
         """
-        Calculate the final invoice amount through multi-component aggregation.
+        Calculate the final invoice amount through multi - component aggregation.
 
         This algorithm implements a robust invoice total calculation that follows
         standard accounting practices for proper financial aggregation. The implementation
         follows these key stages:
 
-        1. COMPONENT-BASED CALCULATION:
+        1. COMPONENT - BASED CALCULATION:
            - Aggregates multiple financial components rather than a simple sum
-           - Properly accounts for tax-exclusive and tax-inclusive items
-           - Handles additional fees (both fixed and percentage-based)
+           - Properly accounts for tax - exclusive and tax - inclusive items
+           - Handles additional fees (both fixed and percentage - based)
            - Maintains correct calculation order for financial accuracy
 
         2. HIERARCHICAL AGGREGATION:
@@ -725,15 +730,17 @@ class Invoice:
            - Finally adds additional fees for the complete invoice total
 
         3. ACCOUNTING BEST PRACTICES:
-           - Follows proper accounting order-of-operations
-           - Avoids common calculation errors (e.g., calculating tax on already-taxed amounts)
+           - Follows proper accounting order - of - operations
+           - Avoids common calculation errors (e.g., 
+               calculating tax on already - taxed amounts)
            - Properly handles the distinction between gross and net amounts
            - Ensures no mathematical distortion of the true invoice value
 
         4. EXTENSIBILITY CONSIDERATIONS:
-           - Supports both fixed and percentage-based additional fees
+           - Supports both fixed and percentage - based additional fees
            - Allows for future addition of tax categories or discount types
-           - Maintains separation of concerns between line items and invoice-level calculations
+           - \
+               Maintains separation of concerns between line items and invoice - level calculations
            - Provides a solid foundation for complex pricing models
 
         This invoice total calculation algorithm addresses several critical requirements:
@@ -742,11 +749,11 @@ class Invoice:
         - Transparent total calculation that can be audited
         - Support for various business models and fee structures
 
-        The implementation specifically supports common real-world scenarios:
-        - Products/services with different tax rates on the same invoice
+        The implementation specifically supports common real - world scenarios:
+        - Products / services with different tax rates on the same invoice
         - Inclusion of processing fees or service charges
-        - Fixed and percentage-based additional charges
-        - Mix of taxable and non-taxable items
+        - Fixed and percentage - based additional charges
+        - Mix of taxable and non - taxable items
 
         Returns:
             The complete invoice total amount, including taxes and additional fees
@@ -853,7 +860,7 @@ class Invoice:
 
         1. HIERARCHICAL RECONSTRUCTION:
            - Rebuilds the complete invoice structure from flat serialized data
-           - Reestablishes parent-child relationships between invoice and line items
+           - Reestablishes parent - child relationships between invoice and line items
            - Properly reconstructs metadata, payments, and status history
            - Maintains referential integrity throughout the invoice object graph
            - Ensures all calculated properties are properly recomputed
@@ -880,7 +887,7 @@ class Invoice:
            - Properly handles both primitive and complex nested data types
 
         This invoice reconstruction algorithm addresses several critical requirements:
-        - Accurate invoice restoration for long-term data persistence
+        - Accurate invoice restoration for long - term data persistence
         - Reliable data transfer between system components
         - Complete audit trail preservation
         - Format resilience for backward compatibility
@@ -889,7 +896,7 @@ class Invoice:
         - Invoice data loaded from storage (database, files)
         - Invoice data imported from external systems
         - Historical invoice lookup and restoration
-        - Cross-system invoice data synchronization
+        - Cross - system invoice data synchronization
 
         Args:
             data: A dictionary containing the serialized invoice data with all
@@ -950,7 +957,8 @@ class Invoice:
 
     def __str__(self) -> str:
         """String representation of the invoice."""
-        return f"Invoice({self.number}, {self.date.strftime('%Y-%m-%d')}, {self.format_amount(self.get_total())})"
+        return f"Invoice({self.number}, {self.date.strftime(' % Y-%m-%d')}, 
+            {self.format_amount(self.get_total())})"
 
 
 # Example usage
@@ -962,14 +970,14 @@ if __name__ == "__main__":
     invoice.set_company_info(
         name="AI Tools Inc.",
         address="123 Main St, San Francisco, CA 94111",
-        email="billing@aitools.com",
-        phone="(555) 123-4567",
+        email="billing @ aitools.com",
+        phone="(555) 123 - 4567",
         website="https://aitools.com",
     )
 
     invoice.set_customer_info(
         name="John Doe",
-        email="john.doe@example.com",
+        email="john.doe @ example.com",
         address="456 Oak St, San Francisco, CA 94112",
     )
 
@@ -997,8 +1005,8 @@ if __name__ == "__main__":
 
     # Print invoice details
     print(f"Invoice: {invoice.number}")
-    print(f"Date: {invoice.date.strftime('%Y-%m-%d')}")
-    print(f"Due Date: {invoice.due_date.strftime('%Y-%m-%d')}")
+    print(f"Date: {invoice.date.strftime(' % Y-%m-%d')}")
+    print(f"Due Date: {invoice.due_date.strftime(' % Y-%m-%d')}")
     print(f"Status: {invoice.status}")
 
     print("\nItems:")
@@ -1007,7 +1015,8 @@ if __name__ == "__main__":
 
     print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
     print(f"Tax: {invoice.format_amount(invoice.get_tax_total())}")
-    print(f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
+    print(
+        f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     # Update status to sent

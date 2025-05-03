@@ -176,7 +176,7 @@ def mock_http():
 @pytest.fixture
 def mock_http_with_common_responses():
     """
-    Create a mock HTTP requests interface with common API responses pre-configured.
+    Create a mock HTTP requests interface with common API responses pre - configured.
 
     Returns:
         A mock requests interface instance with common responses
@@ -185,12 +185,12 @@ def mock_http_with_common_responses():
 
     # Add mock response for OpenAI API
     mock_requests.add_response(
-        "https://api.openai.com/v1/chat/completions",
+        "https://api.openai.com / v1 / chat / completions",
         {
-            "id": "chatcmpl-123",
+            "id": "chatcmpl - 123",
             "object": "chat.completion",
             "created": 1677652288,
-            "model": "gpt-3.5-turbo-0613",
+            "model": "gpt - 3.5 - turbo - 0613",
             "choices": [
                 {
                     "index": 0,
@@ -206,7 +206,7 @@ def mock_http_with_common_responses():
     )
 
     mock_requests.add_response(
-        "https://api.openai.com/v1/embeddings",
+        "https://api.openai.com / v1 / embeddings",
         {
             "object": "list",
             "data": [
@@ -216,7 +216,7 @@ def mock_http_with_common_responses():
                     "index": 0,
                 }
             ],
-            "model": "text-embedding-ada-002",
+            "model": "text - embedding - ada - 002",
             "usage": {"prompt_tokens": 8, "total_tokens": 8},
         },
         method="POST",
@@ -224,10 +224,10 @@ def mock_http_with_common_responses():
 
     # Add mock response for Ollama API
     mock_requests.add_response(
-        "http://localhost:11434/api/generate",
+        "http://localhost:11434 / api / generate",
         {
             "model": "llama2",
-            "created_at": "2023-01-01T00:00:00Z",
+            "created_at": "2023 - 01 - 01T00:00:00Z",
             "response": "This is a mock response from Ollama.",
             "done": True,
         },
@@ -235,10 +235,10 @@ def mock_http_with_common_responses():
     )
 
     mock_requests.add_response(
-        "http://localhost:11434/api/chat",
+        "http://localhost:11434 / api / chat",
         {
             "model": "llama2",
-            "created_at": "2023-01-01T00:00:00Z",
+            "created_at": "2023 - 01 - 01T00:00:00Z",
             "message": {
                 "role": "assistant",
                 "content": "This is a mock chat response from Ollama.",
@@ -250,12 +250,12 @@ def mock_http_with_common_responses():
 
     # Add mock response for LM Studio API
     mock_requests.add_response(
-        "http://localhost:1234/v1/chat/completions",
+        "http://localhost:1234 / v1 / chat / completions",
         {
-            "id": "chatcmpl-lmstudio",
+            "id": "chatcmpl - lmstudio",
             "object": "chat.completion",
             "created": 1677652288,
-            "model": "local-model",
+            "model": "local - model",
             "choices": [
                 {
                     "index": 0,
@@ -316,7 +316,7 @@ def mock_hf_hub():
 @pytest.fixture
 def mock_hf_hub_with_models():
     """
-    Create a mock Hugging Face Hub instance with common models pre-configured.
+    Create a mock Hugging Face Hub instance with common models pre - configured.
 
     Returns:
         A mock Hugging Face Hub instance with common models
@@ -329,38 +329,38 @@ def mock_hf_hub_with_models():
             "id": "gpt2",
             "downloads": 1000000,
             "likes": 5000,
-            "tags": ["text-generation", "pytorch"],
-            "pipeline_tag": "text-generation",
+            "tags": ["text - generation", "pytorch"],
+            "pipeline_tag": "text - generation",
         }
     )
 
     mock_huggingface_hub.add_repo(
         {
-            "id": "sentence-transformers/all-MiniLM-L6-v2",
+            "id": "sentence - transformers / all - MiniLM - L6 - v2",
             "downloads": 500000,
             "likes": 2000,
-            "tags": ["sentence-similarity", "pytorch"],
-            "pipeline_tag": "feature-extraction",
+            "tags": ["sentence - similarity", "pytorch"],
+            "pipeline_tag": "feature - extraction",
         }
     )
 
     mock_huggingface_hub.add_repo(
         {
-            "id": "mistralai/Mistral-7B-v0.1",
+            "id": "mistralai / Mistral - 7B - v0.1",
             "downloads": 800000,
             "likes": 3000,
-            "tags": ["text-generation", "pytorch"],
-            "pipeline_tag": "text-generation",
+            "tags": ["text - generation", "pytorch"],
+            "pipeline_tag": "text - generation",
         }
     )
 
     mock_huggingface_hub.add_repo(
         {
-            "id": "bert-base-uncased",
+            "id": "bert - base - uncased",
             "downloads": 900000,
             "likes": 4000,
-            "tags": ["fill-mask", "pytorch"],
-            "pipeline_tag": "fill-mask",
+            "tags": ["fill - mask", "pytorch"],
+            "pipeline_tag": "fill - mask",
         }
     )
 
@@ -383,7 +383,7 @@ def mock_hf_hub_with_models():
     )
 
     mock_huggingface_hub.add_file(
-        repo_id="bert-base-uncased",
+        repo_id="bert - base - uncased",
         file_path="config.json",
         content=json.dumps(
             {
@@ -396,7 +396,7 @@ def mock_hf_hub_with_models():
     )
 
     mock_huggingface_hub.add_file(
-        repo_id="sentence-transformers/all-MiniLM-L6-v2",
+        repo_id="sentence - transformers / all - MiniLM - L6 - v2",
         file_path="config.json",
         content=json.dumps(
             {
@@ -556,7 +556,7 @@ def mock_model_inference_result():
     """
     return {
         "id": f"result_{int(datetime.now().timestamp())}",
-        "model": "test-model",
+        "model": "test - model",
         "choices": [
             {
                 "text": "This is a mock model response for testing purposes.",
@@ -581,7 +581,7 @@ def mock_chat_completion_result():
         "id": f"chatcmpl_{int(datetime.now().timestamp())}",
         "object": "chat.completion",
         "created": int(datetime.now().timestamp()),
-        "model": "test-chat-model",
+        "model": "test - chat - model",
         "choices": [
             {
                 "index": 0,
@@ -613,7 +613,7 @@ def mock_embedding_result():
                 "index": 0,
             }
         ],
-        "model": "text-embedding-model",
+        "model": "text - embedding - model",
         "usage": {"prompt_tokens": 8, "total_tokens": 8},
     }
 
@@ -632,7 +632,7 @@ def mock_subscription_data():
     return {
         "customer": {
             "id": f"cus_test_{timestamp}",
-            "email": "test@example.com",
+            "email": "test @ example.com",
             "name": "Test User",
             "created": timestamp,
             "metadata": {"user_id": "user_123"},
@@ -641,7 +641,7 @@ def mock_subscription_data():
             "id": f"sub_test_{timestamp}",
             "status": "active",
             "plan": {
-                "id": "premium-monthly",
+                "id": "premium - monthly",
                 "name": "Premium Monthly",
                 "amount": 1999,
                 "currency": "usd",
@@ -695,10 +695,10 @@ def mock_niche_analysis_data():
                 "target_audience": ["YouTubers", "Bloggers", "Social media influencers"],
             },
             {
-                "name": "AI-powered Personal Finance",
+                "name": "AI - powered Personal Finance",
                 "opportunity_score": 73.8,
                 "market_size": "Medium",
-                "competition_level": "Medium-high",
+                "competition_level": "Medium - high",
                 "growth_trend": "Steady increase",
                 "challenges": ["Regulatory compliance", "Data security", "Trust building"],
                 "target_audience": [
@@ -726,9 +726,9 @@ def mock_marketing_campaign_data():
         "campaign_name": "Spring Product Launch",
         "target_audience": [
             {
-                "name": "Tech-savvy Professionals",
+                "name": "Tech - savvy Professionals",
                 "demographics": {
-                    "age_range": "25-45",
+                    "age_range": "25 - 45",
                     "education": "College degree or higher",
                     "income": "Above average",
                 },
@@ -765,14 +765,14 @@ def mock_marketing_campaign_data():
         ],
         "content_calendar": [
             {
-                "date": (datetime.now().replace(day=1) + timedelta(days=7)).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + timedelta(days=7)).strftime(" % Y-%m-%d"),
                 "channel": "Email",
-                "title": "Introducing Our New AI-Powered Feature",
+                "title": "Introducing Our New AI - Powered Feature",
                 "content_type": "Product announcement",
                 "status": "Draft",
             },
             {
-                "date": (datetime.now().replace(day=1) + timedelta(days=9)).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + timedelta(days=9)).strftime(" % Y-%m-%d"),
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
                 "content_type": "Case study",
@@ -803,12 +803,12 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
     """
     # Set up mock HTTP responses
     patch_requests.add_response(
-        "https://api.openai.com/v1/chat/completions",
+        "https://api.openai.com / v1 / chat / completions",
         {
-            "id": "chatcmpl-123",
+            "id": "chatcmpl - 123",
             "object": "chat.completion",
             "created": 1677652288,
-            "model": "gpt-3.5-turbo-0613",
+            "model": "gpt - 3.5 - turbo - 0613",
             "choices": [
                 {
                     "index": 0,
@@ -824,7 +824,7 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
     )
 
     # Set up mock Hugging Face models
-    patch_huggingface_hub.add_repo({"id": "gpt2", "pipeline_tag": "text-generation"})
+    patch_huggingface_hub.add_repo({"id": "gpt2", "pipeline_tag": "text - generation"})
 
     patch_huggingface_hub.add_file(
         repo_id="gpt2", file_path="config.json", content='{"model_type": "gpt2"}'
@@ -854,7 +854,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
     Create a complete setup for monetization testing.
 
     This fixture provides a comprehensive testing environment
-    for monetization-related functionality.
+    for monetization - related functionality.
 
     Args:
         patch_requests: The patched requests library
@@ -865,7 +865,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
     """
     # Set up mock payment gateway responses
     patch_requests.add_response(
-        "https://api.stripe.com/v1/customers",
+        "https://api.stripe.com / v1 / customers",
         {
             "id": mock_subscription_data["customer"]["id"],
             "email": mock_subscription_data["customer"]["email"],
@@ -877,7 +877,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
     )
 
     patch_requests.add_response(
-        "https://api.stripe.com/v1/subscriptions",
+        "https://api.stripe.com / v1 / subscriptions",
         {
             "id": mock_subscription_data["subscription"]["id"],
             "status": mock_subscription_data["subscription"]["status"],
@@ -913,7 +913,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
     Create a complete setup for marketing testing.
 
     This fixture provides a comprehensive testing environment
-    for marketing-related functionality.
+    for marketing - related functionality.
 
     Args:
         patch_requests: The patched requests library
@@ -924,7 +924,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
     """
     # Set up mock email API responses
     patch_requests.add_response(
-        "https://api.sendgrid.com/v3/mail/send",
+        "https://api.sendgrid.com / v3 / mail / send",
         {"message": "Email sent successfully"},
         method="POST",
         status_code=202,
@@ -932,14 +932,14 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
 
     # Set up mock social media API responses
     patch_requests.add_response(
-        "https://api.twitter.com/2/tweets",
+        "https://api.twitter.com / 2/tweets",
         {"data": {"id": "1234567890", "text": "Test tweet"}},
         method="POST",
         status_code=201,
     )
 
     patch_requests.add_response(
-        "https://api.linkedin.com/v2/ugcPosts",
+        "https://api.linkedin.com / v2 / ugcPosts",
         {"id": "urn:li:share:1234567890"},
         method="POST",
         status_code=201,
@@ -961,7 +961,7 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
     Create a complete setup for niche analysis testing.
 
     This fixture provides a comprehensive testing environment
-    for niche analysis-related functionality.
+    for niche analysis - related functionality.
 
     Args:
         patch_model_providers: The patched model providers
@@ -980,7 +980,7 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
         "competition analysis": "The competition level varies by niche.",
         "target audience": "The primary target audience consists of knowledge workers and small businesses.",
         "analyze market trends": "Market analysis shows positive growth trends in AI inventory management.",
-        "identify target audience": "The target audience is primarily e-commerce businesses and retail chains.",
+        "identify target audience": "The target audience is primarily e - commerce businesses and retail chains.",
         "evaluate competition": "Competition analysis reveals 3 major competitors with basic AI features.",
     }
 

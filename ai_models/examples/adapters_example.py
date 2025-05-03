@@ -2,7 +2,7 @@
 Example usage of the model adapters.
 
 This script demonstrates how to use the different model adapters
-(Ollama, LM Studio, OpenAI-compatible, TensorRT) in the AI Models module.
+(Ollama, LM Studio, OpenAI - compatible, TensorRT) in the AI Models module.
 """
 
 import argparse
@@ -25,7 +25,7 @@ except ImportError:
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -154,7 +154,7 @@ def test_lmstudio_adapter(base_url: str, prompt: str) -> None:
 
 def test_openai_compatible_adapter(base_url: str, api_key: str, prompt: str) -> None:
     """
-    Test the OpenAI-compatible adapter.
+    Test the OpenAI - compatible adapter.
 
     Args:
         base_url: Base URL of the API
@@ -162,11 +162,11 @@ def test_openai_compatible_adapter(base_url: str, api_key: str, prompt: str) -> 
         prompt: Input prompt for text generation
     """
     print("\n" + "=" * 80)
-    print("Testing OpenAI-Compatible Adapter")
+    print("Testing OpenAI - Compatible Adapter")
     print("=" * 80)
 
     try:
-        # Create OpenAI-compatible adapter
+        # Create OpenAI - compatible adapter
         adapter = OpenAICompatibleAdapter(base_url=base_url, api_key=api_key)
 
         # List available models
@@ -208,7 +208,7 @@ def test_openai_compatible_adapter(base_url: str, api_key: str, prompt: str) -> 
             print("\nNo models available")
 
     except Exception as e:
-        print(f"Error testing OpenAI-compatible adapter: {e}")
+        print(f"Error testing OpenAI - compatible adapter: {e}")
 
 
 def test_tensorrt_adapter(engine_path: str, tokenizer_path: str, prompt: str) -> None:
@@ -240,7 +240,7 @@ def test_tensorrt_adapter(engine_path: str, tokenizer_path: str, prompt: str) ->
         # Create TensorRT adapter
         adapter = TensorRTAdapter(
             engine_path=engine_path,
-            model_type="text-generation",
+            model_type="text - generation",
             tokenizer_path=tokenizer_path,
         )
 
@@ -273,11 +273,11 @@ def main():
         choices=["ollama", "lmstudio", "openai", "tensorrt"],
         help="Type of adapter to test",
     )
-    parser.add_argument("--base-url", type=str, help="Base URL for the API")
+    parser.add_argument("--base - url", type=str, help="Base URL for the API")
     parser.add_argument("--model", type=str, help="Model name or ID")
-    parser.add_argument("--api-key", type=str, help="API key for authentication")
-    parser.add_argument("--engine-path", type=str, help="Path to the TensorRT engine file")
-    parser.add_argument("--tokenizer-path", type=str, help="Path to the tokenizer")
+    parser.add_argument("--api - key", type=str, help="API key for authentication")
+    parser.add_argument("--engine - path", type=str, help="Path to the TensorRT engine file")
+    parser.add_argument("--tokenizer - path", type=str, help="Path to the tokenizer")
     parser.add_argument(
         "--prompt",
         type=str,
@@ -299,21 +299,21 @@ def main():
         test_ollama_adapter(base_url, model_name, args.prompt)
 
     elif args.adapter == "lmstudio":
-        base_url = args.base_url or "http://localhost:1234/v1"
+        base_url = args.base_url or "http://localhost:1234 / v1"
         test_lmstudio_adapter(base_url, args.prompt)
 
     elif args.adapter == "openai":
-        base_url = args.base_url or "http://localhost:8000/v1"
-        api_key = args.api_key or "sk-"
+        base_url = args.base_url or "http://localhost:8000 / v1"
+        api_key = args.api_key or "sk - "
         test_openai_compatible_adapter(base_url, api_key, args.prompt)
 
     elif args.adapter == "tensorrt":
         if not args.engine_path:
-            print("Error: --engine-path is required for TensorRT adapter")
+            print("Error: --engine - path is required for TensorRT adapter")
             return
 
         if not args.tokenizer_path:
-            print("Error: --tokenizer-path is required for TensorRT adapter")
+            print("Error: --tokenizer - path is required for TensorRT adapter")
             return
 
         test_tensorrt_adapter(args.engine_path, args.tokenizer_path, args.prompt)

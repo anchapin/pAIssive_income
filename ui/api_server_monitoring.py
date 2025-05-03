@@ -19,10 +19,10 @@ from monitoring.metrics import get_metrics
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-monitoring_bp = Blueprint("monitoring", __name__, url_prefix="/api/monitoring")
+monitoring_bp = Blueprint("monitoring", __name__, url_prefix=" / api / monitoring")
 
 
-@monitoring_bp.route("/health", methods=["GET"])
+@monitoring_bp.route(" / health", methods=["GET"])
 def health():
     """
     Health check endpoint.
@@ -33,7 +33,7 @@ def health():
     return jsonify(health_check())
 
 
-@monitoring_bp.route("/metrics", methods=["GET"])
+@monitoring_bp.route(" / metrics", methods=["GET"])
 def metrics():
     """
     Metrics endpoint.
@@ -44,7 +44,7 @@ def metrics():
     return jsonify(get_metrics())
 
 
-@monitoring_bp.route("/info", methods=["GET"])
+@monitoring_bp.route(" / info", methods=["GET"])
 def info():
     """
     System information endpoint.

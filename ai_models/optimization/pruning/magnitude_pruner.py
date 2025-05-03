@@ -1,7 +1,7 @@
 """
 Magnitude pruner for AI models.
 
-This module provides a pruner that uses magnitude-based pruning to reduce
+This module provides a pruner that uses magnitude - based pruning to reduce
 model size and improve inference speed.
 """
 
@@ -14,7 +14,7 @@ from .base import Pruner, PruningConfig, PruningMethod
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ except ImportError:
 
 class MagnitudePruner(Pruner):
     """
-    Pruner that uses magnitude-based pruning.
+    Pruner that uses magnitude - based pruning.
     """
 
     def __init__(self, config: PruningConfig):
@@ -91,17 +91,17 @@ class MagnitudePruner(Pruner):
 
     def prune(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
-        Prune a model using magnitude-based pruning.
+        Prune a model using magnitude - based pruning.
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the pruned model (None for in-place)
+            output_path: Path to save the pruned model (None for in - place)
             **kwargs: Additional parameters for pruning
 
         Returns:
             Path to the pruned model
         """
-        logger.info(f"Pruning model {model_path} with magnitude-based pruning")
+        logger.info(f"Pruning model {model_path} with magnitude - based pruning")
 
         # Determine output path
         if output_path is None:
@@ -176,13 +176,13 @@ class MagnitudePruner(Pruner):
         self, model, layers_to_prune: List[Tuple[torch.nn.Module, str]]
     ) -> None:
         """
-        Apply one-shot pruning to the model.
+        Apply one - shot pruning to the model.
 
         Args:
             model: PyTorch model
             layers_to_prune: List of (module, name) tuples to prune
         """
-        logger.info(f"Applying one-shot pruning with sparsity {self.config.sparsity}")
+        logger.info(f"Applying one - shot pruning with sparsity {self.config.sparsity}")
 
         for module, name in layers_to_prune:
             torch_prune.l1_unstructured(module, name=name, amount=self.config.sparsity)
@@ -231,7 +231,7 @@ class MagnitudePruner(Pruner):
         """
         config_path = os.path.join(output_path, "pruning_config.json")
 
-        with open(config_path, "w", encoding="utf-8") as f:
+        with open(config_path, "w", encoding="utf - 8") as f:
             json.dump(self.config.to_dict(), f, indent=2)
 
     def supports_model_type(self, model_type: str) -> bool:
@@ -246,13 +246,13 @@ class MagnitudePruner(Pruner):
         """
         # Magnitude pruning supports most model types
         supported_types = [
-            "text-generation",
-            "text-classification",
+            "text - generation",
+            "text - classification",
             "embedding",
-            "causal-lm",
-            "seq2seq-lm",
-            "image-classification",
-            "object-detection",
+            "causal - lm",
+            "seq2seq - lm",
+            "image - classification",
+            "object - detection",
         ]
 
         return model_type in supported_types

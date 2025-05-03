@@ -17,7 +17,7 @@ from ..errors import HTTPStatus, create_error_response
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ except ImportError:
 if FASTAPI_AVAILABLE:
 
     @router.post(
-        "/analyze",
+        " / analyze",
         response_model=IdResponse,
         responses={
             202: {"description": "Analysis started"},
@@ -143,7 +143,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/analyses",
+        " / analyses",
         response_model=PaginatedResponse[NicheAnalysisResponse],
         responses={
             200: {"description": "List of niche analyses"},
@@ -191,7 +191,7 @@ if FASTAPI_AVAILABLE:
             raise HTTPException(status_code=500, detail=f"Error getting niche analyses: {str(e)}")
 
     @router.get(
-        "/analyses/{analysis_id}",
+        " / analyses/{analysis_id}",
         response_model=NicheAnalysisResponse,
         responses={
             200: {"description": "Niche analysis details"},
@@ -240,7 +240,7 @@ if FASTAPI_AVAILABLE:
             raise HTTPException(status_code=500, detail=f"Error getting niche analysis: {str(e)}")
 
     @router.get(
-        "/niches",
+        " / niches",
         response_model=PaginatedResponse[NicheResponse],
         responses={
             200: {"description": "List of niches"},
@@ -293,7 +293,7 @@ if FASTAPI_AVAILABLE:
             niches = [
                 NicheResponse(
                     id="1",
-                    name="AI-powered content optimization",
+                    name="AI - powered content optimization",
                     description="AI tools for content optimization",
                     market_segment="Content Creation",
                     opportunity_score=0.87,
@@ -313,7 +313,7 @@ if FASTAPI_AVAILABLE:
                 ),
                 NicheResponse(
                     id="3",
-                    name="AI-powered financial analysis",
+                    name="AI - powered financial analysis",
                     description="AI tools for financial analysis",
                     market_segment="Finance",
                     opportunity_score=0.75,
@@ -333,7 +333,7 @@ if FASTAPI_AVAILABLE:
                 ),
                 NicheResponse(
                     id="5",
-                    name="AI-powered market research",
+                    name="AI - powered market research",
                     description="AI tools for market research",
                     market_segment="Marketing",
                     opportunity_score=0.79,
@@ -404,7 +404,7 @@ if FASTAPI_AVAILABLE:
             raise HTTPException(status_code=500, detail=f"Error getting niches: {str(e)}")
 
     @router.get(
-        "/niches/{niche_id}",
+        " / niches/{niche_id}",
         response_model=NicheResponse,
         responses={
             200: {"description": "Niche details"},
@@ -448,7 +448,7 @@ if FASTAPI_AVAILABLE:
             if niche_id == "1":
                 niche = NicheResponse(
                     id=niche_id,
-                    name="AI-powered content optimization",
+                    name="AI - powered content optimization",
                     description="AI tools for content optimization",
                     market_segment="Content Creation",
                     opportunity_score=0.87,
@@ -470,7 +470,7 @@ if FASTAPI_AVAILABLE:
             else:
                 niche = NicheResponse(
                     id=niche_id,
-                    name="AI-powered financial analysis",
+                    name="AI - powered financial analysis",
                     description="AI tools for financial analysis",
                     market_segment="Finance",
                     opportunity_score=0.75,
@@ -496,7 +496,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/segments",
+        " / segments",
         response_model=PaginatedResponse[MarketSegmentResponse],
         responses={
             200: {"description": "List of market segments"},
@@ -575,7 +575,7 @@ if FASTAPI_AVAILABLE:
 
     # Bulk operation endpoints
     @router.post(
-        "/niches/bulk",
+        " / niches / bulk",
         response_model=BulkNicheCreateResponse,
         responses={
             201: {"description": "Niches created successfully"},
@@ -655,7 +655,7 @@ if FASTAPI_AVAILABLE:
             raise HTTPException(status_code=500, detail=f"Bulk operation failed: {str(e)}")
 
     @router.put(
-        "/niches/bulk",
+        " / niches / bulk",
         response_model=BulkNicheUpdateResponse,
         responses={
             200: {"description": "Niches updated successfully"},
@@ -742,7 +742,7 @@ if FASTAPI_AVAILABLE:
             raise HTTPException(status_code=500, detail=f"Bulk operation failed: {str(e)}")
 
     @router.delete(
-        "/niches/bulk",
+        " / niches / bulk",
         response_model=BulkNicheDeleteResponse,
         responses={
             200: {"description": "Niches deleted successfully"},

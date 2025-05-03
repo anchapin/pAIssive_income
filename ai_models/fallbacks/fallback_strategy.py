@@ -24,12 +24,12 @@ from interfaces.model_interfaces import IModelInfo, IModelManager
 # Set up logging with secure defaults
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "fallback.log"),
             mode="a",
-            encoding="utf-8",
+            encoding="utf - 8",
         ),
         logging.StreamHandler(),
     ],
@@ -91,14 +91,14 @@ class FallbackEvent:
         """Validate model ID format."""
         import re
 
-        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
+        return bool(re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", model_id))
 
     @staticmethod
     def _is_safe_type_name(type_name: str) -> bool:
         """Validate type name format."""
         import re
 
-        return bool(re.match(r"^[a-zA-Z0-9_\-]+$", type_name))
+        return bool(re.match(r"^[a - zA - Z0 - 9_\-]+$", type_name))
 
     def _sanitize_details(self, details: Dict[str, Any]) -> Dict[str, Any]:
         """Sanitize details dictionary."""
@@ -106,7 +106,7 @@ class FallbackEvent:
         for key, value in details.items():
             # Only allow alphanumeric keys with underscores
             import re
-            if not re.match(r"^[a-zA-Z0-9_]+$", key):
+            if not re.match(r"^[a - zA - Z0 - 9_]+$", key):
                 continue
             # Convert values to strings and limit length
             sanitized[key] = str(value)[:500]
@@ -154,11 +154,11 @@ class FallbackManager:
 
         # Default fallback preferences with secure defaults
         default_preferences = {
-            "researcher": ["huggingface", "llama", "general-purpose"],
-            "developer": ["huggingface", "llama", "general-purpose"],
-            "monetization": ["huggingface", "general-purpose"],
-            "marketing": ["huggingface", "general-purpose"],
-            "default": ["huggingface", "general-purpose"],
+            "researcher": ["huggingface", "llama", "general - purpose"],
+            "developer": ["huggingface", "llama", "general - purpose"],
+            "monetization": ["huggingface", "general - purpose"],
+            "marketing": ["huggingface", "general - purpose"],
+            "default": ["huggingface", "general - purpose"],
         }
 
         # Validate and merge provided preferences
@@ -186,7 +186,7 @@ class FallbackManager:
     def _validate_preferences(self, preferences: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """Validate fallback preferences."""
         validated = {}
-        allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
+        allowed_types = {"huggingface", "llama", "openai", "general - purpose"}
 
         for agent_type, model_types in preferences.items():
             # Validate agent type
@@ -207,14 +207,14 @@ class FallbackManager:
         """Validate model ID format."""
         import re
 
-        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
+        return bool(re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", model_id))
 
     @staticmethod
     def _is_safe_type_name(type_name: str) -> bool:
         """Validate type name format."""
         import re
 
-        return bool(re.match(r"^[a-zA-Z0-9_\-]+$", type_name))
+        return bool(re.match(r"^[a - zA - Z0 - 9_\-]+$", type_name))
 
     def find_fallback_model(
         self,
@@ -361,4 +361,4 @@ class FallbackManager:
             raise SecurityError("Invalid fallback model type")
 
     # ... (rest of the FallbackManager implementation remains the same,
-    # including _apply_*_strategy methods and other utility methods)
+    # including _apply_ * _strategy methods and other utility methods)

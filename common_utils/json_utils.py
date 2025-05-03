@@ -67,7 +67,7 @@ def save_to_json_file(obj: Any, file_path: str, indent: int = 2) -> None:
         IOError: If there's an issue writing to the file
     """
     try:
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             json.dump(obj, f, indent=indent)
         logger.debug(f"Successfully saved object to {file_path}")
     except (TypeError, ValueError) as e:
@@ -94,7 +94,7 @@ def load_from_json_file(file_path: str) -> Any:
         IOError: If there's an issue reading the file
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf - 8") as f:
             obj = json.load(f)
         logger.debug(f"Successfully loaded object from {file_path}")
         return obj

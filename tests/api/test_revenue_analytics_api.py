@@ -38,7 +38,7 @@ class TestRevenueAnalyticsAPI:
         """Test Monthly Recurring Revenue (MRR) calculation."""
         # Make request with time period
         response = api_test_client.get(
-            "analytics/revenue/mrr", params={"date": "2025-04", "include_breakdown": True}
+            "analytics / revenue / mrr", params={"date": "2025 - 04", "include_breakdown": True}
         )
 
         # Validate response
@@ -50,7 +50,7 @@ class TestRevenueAnalyticsAPI:
         validate_field_exists(result, "currency")
         validate_field_type(result, "currency", str)
         validate_field_exists(result, "date")
-        validate_field_equals(result, "date", "2025-04")
+        validate_field_equals(result, "date", "2025 - 04")
 
         # Validate breakdown if included
         if "breakdown" in result:
@@ -66,7 +66,7 @@ class TestRevenueAnalyticsAPI:
         """Test Annual Recurring Revenue (ARR) calculation."""
         # Make request with year
         response = api_test_client.get(
-            "analytics/revenue/arr", params={"year": "2025", "include_breakdown": True}
+            "analytics / revenue / arr", params={"year": "2025", "include_breakdown": True}
         )
 
         # Validate response
@@ -93,11 +93,11 @@ class TestRevenueAnalyticsAPI:
         """Test Customer Lifetime Value (CLV) calculation."""
         # Make request with optional filters
         response = api_test_client.get(
-            "analytics/revenue/clv",
+            "analytics / revenue / clv",
             params={
                 "customer_segment": "enterprise",
                 "subscription_plan": "premium",
-                "time_period": "2025-01/2025-12",
+                "time_period": "2025 - 01 / 2025 - 12",
             },
         )
 
@@ -120,7 +120,7 @@ class TestRevenueAnalyticsAPI:
         """Test churn analysis and metrics."""
         # Make request with period
         response = api_test_client.get(
-            "analytics/revenue/churn", params={"period": "2025-04", "include_reasons": True}
+            "analytics / revenue / churn", params={"period": "2025 - 04", "include_reasons": True}
         )
 
         # Validate response
@@ -152,9 +152,9 @@ class TestRevenueAnalyticsAPI:
         """Test revenue forecasting."""
         # Make request for forecast
         response = api_test_client.get(
-            "analytics/revenue/forecast",
+            "analytics / revenue / forecast",
             params={
-                "start_date": "2025-05-01",
+                "start_date": "2025 - 05 - 01",
                 "periods": 12,
                 "interval": "month",
                 "include_confidence_intervals": True,

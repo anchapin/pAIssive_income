@@ -11,7 +11,7 @@ from typing import Any, Dict, Generator, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class LMStudioAdapter:
 
     def __init__(
         self,
-        base_url: str = "http://localhost:1234/v1",
+        base_url: str = "http://localhost:1234 / v1",
         timeout: int = 60,
         api_key: Optional[str] = None,
         **kwargs,
@@ -145,8 +145,8 @@ class LMStudioAdapter:
             model: ID of the model
             prompt: Input prompt
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -231,7 +231,7 @@ class LMStudioAdapter:
 
         for line in response.iter_lines():
             if line:
-                line = line.decode("utf-8")
+                line = line.decode("utf - 8")
 
                 # Skip empty lines
                 if not line.strip():
@@ -271,8 +271,8 @@ class LMStudioAdapter:
             model: ID of the model
             messages: List of message dictionaries with "role" and "content" keys
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             max_tokens: Maximum number of tokens to generate
             stop: Optional list of stop sequences
             stream: Whether to stream the response
@@ -325,7 +325,7 @@ class LMStudioAdapter:
             Response dictionary
         """
         response = self.session.post(
-            f"{self.base_url}/chat/completions",
+            f"{self.base_url}/chat / completions",
             headers=self.headers,
             json=request_data,
             timeout=self.timeout,
@@ -347,7 +347,7 @@ class LMStudioAdapter:
             Generator yielding response dictionaries
         """
         response = self.session.post(
-            f"{self.base_url}/chat/completions",
+            f"{self.base_url}/chat / completions",
             headers=self.headers,
             json=request_data,
             stream=True,
@@ -357,7 +357,7 @@ class LMStudioAdapter:
 
         for line in response.iter_lines():
             if line:
-                line = line.decode("utf-8")
+                line = line.decode("utf - 8")
 
                 # Skip empty lines
                 if not line.strip():

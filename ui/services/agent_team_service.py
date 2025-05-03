@@ -73,8 +73,8 @@ class AgentTeamService(BaseService, IAgentTeamService):
                 project = {
                     "id": str(uuid.uuid4()),
                     "name": project_name,
-                    "created_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                    "updated_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "created_at": format_datetime(now, " % Y-%m-%dT % H:%M:%S.%fZ"),
+                    "updated_at": format_datetime(now, " % Y-%m-%dT % H:%M:%S.%fZ"),
                     "status": "active",
                     "team_id": team.id if hasattr(team, "id") else str(uuid.uuid4()),
                     "config": config or {},
@@ -138,7 +138,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
                 project.update(updates)
                 from datetime import datetime
 
-                project["updated_at"] = format_datetime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
+                project["updated_at"] = format_datetime(datetime.now(), " % Y-%m-%dT % H:%M:%S.%fZ")
                 projects[i] = project
                 self.save_data(self.projects_file, projects)
                 return project
@@ -181,8 +181,8 @@ class AgentTeamService(BaseService, IAgentTeamService):
         return {
             "id": str(uuid.uuid4()),
             "name": project_name,
-            "created_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "updated_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "created_at": format_datetime(now, " % Y-%m-%dT % H:%M:%S.%fZ"),
+            "updated_at": format_datetime(now, " % Y-%m-%dT % H:%M:%S.%fZ"),
             "status": "active",
             "team_id": str(uuid.uuid4()),
             "config": config or {},

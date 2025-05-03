@@ -2,7 +2,7 @@
 Celery configuration for the pAIssive Income UI.
 
 This module sets up Celery for handling asynchronous tasks and
-integrates with Socket.IO for real-time progress updates.
+integrates with Socket.IO for real - time progress updates.
 """
 
 import logging
@@ -36,8 +36,8 @@ def create_celery_app(app: Flask) -> Celery:
     """
     celery = Celery(
         app.import_name,
-        broker=app.config.get("CELERY_BROKER_URL", "redis://localhost:6379/0"),
-        backend=app.config.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
+        broker=app.config.get("CELERY_BROKER_URL", "redis://localhost:6379 / 0"),
+        backend=app.config.get("CELERY_RESULT_BACKEND", "redis://localhost:6379 / 0"),
     )
 
     # Configure Celery
@@ -87,7 +87,8 @@ def emit_task_event(event_name: str, task_id: str, data: Dict[str, Any]):
 
 
 @after_task_publish.connect
-def task_sent_handler(sender: Optional[str] = None, headers: Optional[Dict] = None, **kwargs):
+def task_sent_handler(sender: Optional[str] = None, headers: Optional[Dict] = None, 
+    **kwargs):
     """
     Handle task publish events.
 
@@ -111,7 +112,7 @@ def task_sent_handler(sender: Optional[str] = None, headers: Optional[Dict] = No
 @task_prerun.connect
 def task_prerun_handler(task_id: str, task: Any, *args, **kwargs):
     """
-    Handle task pre-run events.
+    Handle task pre - run events.
 
     Args:
         task_id: ID of the task

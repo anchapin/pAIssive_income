@@ -17,7 +17,7 @@ from .servicer import ModelServicer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -77,13 +77,13 @@ class GRPCServer(ModelServer):
         self.tokenizer = AutoTokenizer.from_pretrained(self.config.model_path)
 
         # Load model based on type
-        if self.config.model_type == "text-generation":
+        if self.config.model_type == "text - generation":
             from transformers import AutoModelForCausalLM
 
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
-        elif self.config.model_type == "text-classification":
+        elif self.config.model_type == "text - classification":
             from transformers import AutoModelForSequenceClassification
 
             self.model = AutoModelForSequenceClassification.from_pretrained(
@@ -373,7 +373,7 @@ class GRPCServer(ModelServer):
 
         Args:
             data: List of values
-            percentile: Percentile to calculate (0-100)
+            percentile: Percentile to calculate (0 - 100)
 
         Returns:
             Percentile value

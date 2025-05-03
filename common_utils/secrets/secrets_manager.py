@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 # Constants
 DEFAULT_ENV_PREFIX = "PAISSIVE_"
-DEFAULT_SECRETS_FILE = os.path.expanduser("~/.paissive/secrets.enc")
-DEFAULT_SALT_FILE = os.path.expanduser("~/.paissive/salt")
+DEFAULT_SECRETS_FILE = os.path.expanduser("~/.paissive / secrets.enc")
+DEFAULT_SALT_FILE = os.path.expanduser("~/.paissive / salt")
 
-# Initialize storage for in-memory secrets cache
+# Initialize storage for in - memory secrets cache
 _secrets_cache: Dict[str, str] = {}
 
 
@@ -81,7 +81,7 @@ def _generate_or_get_salt() -> bytes:
 
 def _get_encryption_key() -> Fernet:
     """
-    Get the encryption key for file-based secrets.
+    Get the encryption key for file - based secrets.
 
     Returns:
         Fernet encryption key
@@ -174,14 +174,14 @@ def get_secret(
         env_var_name = f"{DEFAULT_ENV_PREFIX}{name.upper()}"
         value = os.environ.get(env_var_name)
 
-        # If not found, try the name as-is
+        # If not found, try the name as - is
         if value is None:
             value = os.environ.get(name.upper())
 
         if value is not None:
             return value
 
-    # Try to get secret from in-memory cache
+    # Try to get secret from in - memory cache
     if backend == SecretsBackend.MEMORY:
         if name in _secrets_cache:
             return _secrets_cache[name]
@@ -217,7 +217,7 @@ def set_secret(name: str, value: str, backend: str = SecretsBackend.ENV_VAR) -> 
         True if successful, False otherwise
     """
     if not name or not isinstance(name, str):
-        raise ValueError("Secret name must be a non-empty string")
+        raise ValueError("Secret name must be a non - empty string")
 
     if value is None:
         raise ValueError("Secret value cannot be None")

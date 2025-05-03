@@ -1,7 +1,7 @@
 """
 Schema definitions for model fallback configurations.
 
-This module provides Pydantic models for validating and serializing/deserializing
+This module provides Pydantic models for validating and serializing / deserializing
 fallback configurations with security features.
 """
 
@@ -30,11 +30,11 @@ class FallbackPreferences(BaseModel):
 
     preferred_model_types: Dict[str, List[str]] = Field(
         default_factory=lambda: {
-            "researcher": ["huggingface", "llama", "general-purpose"],
-            "developer": ["huggingface", "llama", "general-purpose"],
-            "monetization": ["huggingface", "general-purpose"],
-            "marketing": ["huggingface", "general-purpose"],
-            "default": ["huggingface", "general-purpose"],
+            "researcher": ["huggingface", "llama", "general - purpose"],
+            "developer": ["huggingface", "llama", "general - purpose"],
+            "monetization": ["huggingface", "general - purpose"],
+            "marketing": ["huggingface", "general - purpose"],
+            "default": ["huggingface", "general - purpose"],
         },
         description="Mapping of agent types to their preferred model types for fallbacks",
     )
@@ -48,8 +48,8 @@ class FallbackPreferences(BaseModel):
     @classmethod
     def validate_model_types(cls, v: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """Validate model type preferences."""
-        allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
-        agent_pattern = re.compile(r"^[a-zA-Z0-9_\-]+$")
+        allowed_types = {"huggingface", "llama", "openai", "general - purpose"}
+        agent_pattern = re.compile(r"^[a - zA - Z0 - 9_\-]+$")
 
         validated = {}
         for agent_type, model_types in v.items():
@@ -68,7 +68,7 @@ class FallbackPreferences(BaseModel):
 
     def get_preferences_for_agent(self, agent_type: str) -> List[str]:
         """Get fallback preferences for a specific agent type."""
-        if not re.match(r"^[a-zA-Z0-9_\-]+$", agent_type):
+        if not re.match(r"^[a - zA - Z0 - 9_\-]+$", agent_type):
             raise ValueError("Invalid agent type format")
 
         return self.preferred_model_types.get(
@@ -119,7 +119,7 @@ class FallbackConfig(BaseModel):
     )
 
     allowed_model_types: List[str] = Field(
-        default=["huggingface", "llama", "openai", "general-purpose"],
+        default=["huggingface", "llama", "openai", "general - purpose"],
         description="List of allowed model types",
     )
 
@@ -134,9 +134,9 @@ class FallbackConfig(BaseModel):
                 "default_model_id": "a1b2c3d4e5f6",
                 "preferences": {
                     "preferred_model_types": {
-                        "researcher": ["huggingface", "llama", "general-purpose"],
-                        "developer": ["huggingface", "llama", "general-purpose"],
-                        "default": ["huggingface", "general-purpose"],
+                        "researcher": ["huggingface", "llama", "general - purpose"],
+                        "developer": ["huggingface", "llama", "general - purpose"],
+                        "default": ["huggingface", "general - purpose"],
                     }
                 },
                 "logging_level": "INFO",
@@ -150,7 +150,7 @@ class FallbackConfig(BaseModel):
     @classmethod
     def validate_model_id(cls, v: Optional[str]) -> Optional[str]:
         """Validate model ID format."""
-        if v is not None and not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", v):
+        if v is not None and not re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", v):
             raise ValueError("Invalid model ID format")
         return v
 
@@ -158,7 +158,7 @@ class FallbackConfig(BaseModel):
     @classmethod
     def validate_allowed_types(cls, v: List[str]) -> List[str]:
         """Validate allowed model types."""
-        allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
+        allowed_types = {"huggingface", "llama", "openai", "general - purpose"}
         validated = [mt for mt in v if isinstance(mt, str) and mt.lower() in allowed_types]
         if not validated:
             raise ValueError("Must specify at least one valid model type")
@@ -171,12 +171,12 @@ class FallbackEventSchema(BaseModel):
     original_model_id: Optional[str] = Field(
         default=None,
         description="ID of the original model that failed",
-        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$",  # Security: validate model ID format
+        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  # Security: validate model ID format
     )
 
     fallback_model_id: str = Field(
         description="ID of the fallback model that was selected",
-        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$",  # Security: validate model ID format
+        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  # Security: validate model ID format
     )
 
     reason: str = Field(
@@ -186,13 +186,13 @@ class FallbackEventSchema(BaseModel):
     agent_type: Optional[str] = Field(
         default=None,
         description="Type of agent using the model",
-        pattern=r"^[a-zA-Z0-9_\-]+$",  # Security: validate agent type format
+        pattern=r"^[a - zA - Z0 - 9_\-]+$",  # Security: validate agent type format
     )
 
     task_type: Optional[str] = Field(
         default=None,
         description="Type of task being performed",
-        pattern=r"^[a-zA-Z0-9_\-]+$",  # Security: validate task type format
+        pattern=r"^[a - zA - Z0 - 9_\-]+$",  # Security: validate task type format
     )
 
     strategy_used: FallbackStrategyEnum = Field(
@@ -220,7 +220,7 @@ class FallbackEventSchema(BaseModel):
         sanitized = {}
         for key, value in v.items():
             # Only allow alphanumeric keys with underscores
-            if not re.match(r"^[a-zA-Z0-9_]+$", key):
+            if not re.match(r"^[a - zA - Z0 - 9_]+$", key):
                 continue
             # Convert values to strings and limit length
             sanitized[key] = str(value)[:500]
@@ -233,13 +233,13 @@ class FallbackMetrics(BaseModel):
     success_count: int = Field(
         default=0,
         description="Number of successful fallbacks with this strategy",
-        ge=0,  # Security: ensure non-negative count
+        ge=0,  # Security: ensure non - negative count
     )
 
     total_count: int = Field(
         default=0,
         description="Total number of times this strategy was used",
-        ge=0,  # Security: ensure non-negative count
+        ge=0,  # Security: ensure non - negative count
     )
 
     success_rate: float = Field(

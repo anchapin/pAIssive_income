@@ -26,12 +26,12 @@ from .model_downloader import ModelDownloader
 # Set up logging with secure defaults
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "model_manager.log"),
             mode="a",
-            encoding="utf-8",
+            encoding="utf - 8",
         ),
         logging.StreamHandler(),
     ],
@@ -57,7 +57,8 @@ class ModelManager(IModelManager):
         try:
             self._create_secure_directory(self._models_dir)
             self._create_secure_directory(self._cache_dir)
-            self._create_secure_directory(os.path.join(os.path.dirname(__file__), "logs"))
+            self._create_secure_directory(os.path.join(os.path.dirname(__file__), 
+                "logs"))
         except OSError as e:
             raise SecurityError(f"Failed to create secure directories: {e}")
 
@@ -108,20 +109,22 @@ class ModelManager(IModelManager):
                         f"Insecure permissions on models directory: {self._models_dir}"
                     )
 
-            # Auto-discover models in models directory
+            # Auto - discover models in models directory
             for model_dir in os.listdir(self._models_dir):
                 model_path = os.path.join(self._models_dir, model_dir)
                 if os.path.isdir(model_path):
                     try:
                         # Validate model directory name
                         if not self._is_safe_directory_name(model_dir):
-                            logger.warning(f"Skipping directory with unsafe name: {model_dir}")
+                            logger.warning(
+                                f"Skipping directory with unsafe name: {model_dir}")
                             continue
 
                         # Validate model directory permissions
                         st = os.stat(model_path)
                         if st.st_mode & 0o777 != 0o750:
-                            logger.warning(f"Insecure permissions on model directory: {model_path}")
+                            logger.warning(
+                                f"Insecure permissions on model directory: {model_path}")
                             continue
 
                         # Verify read access
@@ -137,7 +140,8 @@ class ModelManager(IModelManager):
                         if model_info:
                             discovered_models.append(model_info)
                     except Exception as e:
-                        logger.warning(f"Failed to register local model {model_dir}: {e}")
+                        logger.warning(
+                            f"Failed to register local model {model_dir}: {e}")
 
         except Exception as e:
             logger.error(f"Error discovering models: {e}")
@@ -147,16 +151,17 @@ class ModelManager(IModelManager):
 
     def _is_safe_directory_name(self, name: str) -> bool:
         """Check if directory name contains only safe characters."""
-        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", name))
+        return bool(re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", name))
 
     def _discover_models(self) -> None:
-        """Internal method to discover models if auto-discover is enabled."""
+        """Internal method to discover models if auto - discover is enabled."""
         if not self.config.auto_discover:
             return
 
         self.discover_models()
 
-    def load_model(self, model_id: str, version: str = None, **kwargs) -> BaseModelAdapter:
+    def load_model(self, model_id: str, version: str = None, 
+        **kwargs) -> BaseModelAdapter:
         """
         Load a model (synchronous version) with security checks.
 
@@ -187,7 +192,8 @@ class ModelManager(IModelManager):
                     try:
                         self._model_downloader.download_model(model_id)
                     except Exception as e:
-                        raise ModelLoadError(f"Failed to download model {model_id}: {e}")
+                        raise ModelLoadError(
+                            f"Failed to download model {model_id}: {e}")
 
                 model_info = self._model_downloader.get_model_info(model_id)
                 if not model_info:
@@ -206,7 +212,7 @@ class ModelManager(IModelManager):
 
     def _is_safe_model_id(self, model_id: str) -> bool:
         """Check if model ID contains only safe characters."""
-        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
+        return bool(re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", model_id))
 
     async def load_model_async(
         self, model_id: str, version: str = None, **kwargs
@@ -269,7 +275,8 @@ class ModelManager(IModelManager):
             raise
         except Exception as e:
             logger.error(f"Failed to create adapter for model {model_info.id}: {e}")
-            raise ModelLoadError(f"Failed to create adapter for model {model_info.id}: {e}")
+            raise ModelLoadError(
+                f"Failed to create adapter for model {model_info.id}: {e}")
 
     def _is_safe_provider(self, provider: str) -> bool:
         """Check if provider name is safe."""

@@ -77,7 +77,7 @@ class MetricsAPI:
 
         Args:
             model_id: ID of the model
-            model_name: Human-readable name of the model
+            model_name: Human - readable name of the model
             prompt_cost_per_1k: Cost per 1000 prompt tokens
             completion_cost_per_1k: Cost per 1000 completion tokens
         """
@@ -123,7 +123,7 @@ class MetricsAPI:
         Args:
             model_id: ID of the model
             input_text: Input text for the inference
-            input_tokens: Optional pre-computed input token count
+            input_tokens: Optional pre - computed input token count
             batch_id: Optional batch ID for grouping related inferences
             user_id: Optional ID of the user making the request
             session_id: Optional ID of the user session
@@ -349,14 +349,14 @@ class MetricsAPI:
             prompt_tokens = token_usage.get("prompt_tokens", 0)
             completion_tokens = token_usage.get("completion_tokens", 0)
 
-            # Fall back to input/output tokens if token usage not available
+            # Fall back to input / output tokens if token usage not available
             if prompt_tokens == 0 and "input_tokens" in metric:
                 prompt_tokens = metric["input_tokens"]
 
             if completion_tokens == 0 and "output_tokens" in metric:
                 completion_tokens = metric["output_tokens"]
 
-            # Update model-specific token counts
+            # Update model - specific token counts
             model_usage[current_model_id]["prompt_tokens"] += prompt_tokens
             model_usage[current_model_id]["completion_tokens"] += completion_tokens
             model_usage[current_model_id]["total_tokens"] += prompt_tokens + completion_tokens

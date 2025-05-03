@@ -92,7 +92,7 @@ class PaymentMethod:
             raise ValueError("Card CVC is required")
 
         # Validate card number
-        card_number = details["number"].replace(" ", "").replace("-", "")
+        card_number = details["number"].replace(" ", "").replace(" - ", "")
         if not self.validate_card_number(card_number):
             raise ValueError("Invalid card number")
 
@@ -149,12 +149,12 @@ class PaymentMethod:
             raise ValueError("Routing number is required")
 
         # Validate account number
-        account_number = details["account_number"].replace(" ", "").replace("-", "")
+        account_number = details["account_number"].replace(" ", "").replace(" - ", "")
         if not account_number.isdigit():
             raise ValueError("Account number must contain only digits")
 
         # Validate routing number
-        routing_number = details["routing_number"].replace(" ", "").replace("-", "")
+        routing_number = details["routing_number"].replace(" ", "").replace(" - ", "")
         if not routing_number.isdigit() or len(routing_number) != 9:
             raise ValueError("Invalid routing number")
 
@@ -243,13 +243,13 @@ class PaymentMethod:
             True if the card number is valid, False otherwise
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Check if the card number contains only digits
         if not card_number.isdigit():
             return False
 
-        # Check length (most card numbers are 13-19 digits)
+        # Check length (most card numbers are 13 - 19 digits)
         if not (13 <= len(card_number) <= 19):
             return False
 
@@ -278,14 +278,14 @@ class PaymentMethod:
             Masked card number
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Keep first 6 and last 4 digits, mask the rest
         if len(card_number) <= 10:
             # For short numbers, just mask all but the last 4
             return "****" + card_number[-4:]
         else:
-            return card_number[:6] + "*" * (len(card_number) - 10) + card_number[-4:]
+            return card_number[:6] + " * " * (len(card_number) - 10) + card_number[-4:]
 
     def get_card_type(self, card_number: str) -> str:
         """
@@ -298,12 +298,13 @@ class PaymentMethod:
             Type of the credit card (e.g., Visa, Mastercard)
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Check for common card types based on prefix
         if card_number.startswith("4"):
             return self.CARD_VISA
-        elif card_number.startswith(("51", "52", "53", "54", "55")) or card_number.startswith(
+        elif card_number.startswith(("51", "52", "53", "54", 
+            "55")) or card_number.startswith(
             (
                 "2221",
                 "2222",
@@ -333,9 +334,11 @@ class PaymentMethod:
             return self.CARD_MASTERCARD
         elif card_number.startswith(("34", "37")):
             return self.CARD_AMEX
-        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", "38")):
+        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", 
+            "38")):
             return self.CARD_DINERS
-        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
+        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", 
+            "65")):
             return self.CARD_DISCOVER
         elif card_number.startswith(("35")):
             return self.CARD_JCB
@@ -355,7 +358,7 @@ class PaymentMethod:
             True if the email is valid, False otherwise
         """
         # Simple email validation regex
-        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        pattern = r"^[a - zA - Z0 - 9._%+-]+@[a - zA - Z0 - 9.-]+\.[a - zA - Z]{2,}$"
         return bool(re.match(pattern, email))
 
     def is_expired(self) -> bool:
@@ -538,7 +541,8 @@ class PaymentMethod:
     def __repr__(self) -> str:
         """Detailed string representation of the payment method."""
         return (
-            f"PaymentMethod(id={self.id}, type={self.payment_type}, customer_id={self.customer_id})"
+            f"PaymentMethod(id={self.id}, type={self.payment_type}, 
+                customer_id={self.customer_id})"
         )
 
 
@@ -589,7 +593,7 @@ if __name__ == "__main__":
     paypal_payment = PaymentMethod(
         customer_id="cust_123",
         payment_type=PaymentMethod.TYPE_PAYPAL,
-        payment_details={"email": "john.doe@example.com", "account_id": "paypal_123"},
+        payment_details={"email": "john.doe @ example.com", "account_id": "paypal_123"},
     )
 
     print(f"\nPayPal payment method: {paypal_payment}")

@@ -44,7 +44,8 @@ class ISubscriptionModel(ABC):
     """Interface for subscription model."""
 
     @abstractmethod
-    def create_subscription_tiers(self, solution: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def create_subscription_tiers(self, solution: Dict[str, Any]) -> List[Dict[str, 
+        Any]]:
         """
         Create subscription tiers for a solution.
 
@@ -203,7 +204,8 @@ class ISubscriptionManager(ABC):
         """
 
     @abstractmethod
-    def update_subscription(self, subscription_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+    def update_subscription(self, subscription_id: str, updates: Dict[str, 
+        Any]) -> Dict[str, Any]:
         """
         Update a subscription.
 
@@ -286,7 +288,8 @@ class IMonetizationCalculator(ABC):
         """
 
     @abstractmethod
-    def calculate_profit(self, revenue: Dict[str, Any], costs: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_profit(self, revenue: Dict[str, Any], costs: Dict[str, 
+        Any]) -> Dict[str, Any]:
         """
         Calculate profit.
 
@@ -299,7 +302,8 @@ class IMonetizationCalculator(ABC):
         """
 
     @abstractmethod
-    def project_growth(self, initial_users: int, growth_rate: float, months: int) -> Dict[str, Any]:
+    def project_growth(self, initial_users: int, growth_rate: float, 
+        months: int) -> Dict[str, Any]:
         """
         Project user growth.
 

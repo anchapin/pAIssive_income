@@ -45,7 +45,7 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
 
         # Create a test customer
         self.customer = self.processor.create_customer(
-            email="test@example.com", name="Test Customer"
+            email="test @ example.com", name="Test Customer"
         )
 
         # Create a test payment method
@@ -228,7 +228,7 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
 
         # Create a customer
         customer = failing_processor.create_customer(
-            email="failing@example.com", name="Failing Customer"
+            email="failing @ example.com", name="Failing Customer"
         )
 
         # Create a payment method
@@ -298,7 +298,7 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
 
         # Create a customer and payment method
         retry_customer = retry_processor.create_customer(
-            email="retry@example.com", name="Retry Customer"
+            email="retry @ example.com", name="Retry Customer"
         )
 
         retry_payment_method = retry_processor.create_payment_method(

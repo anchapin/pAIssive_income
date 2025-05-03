@@ -15,6 +15,7 @@ class ProratedBilling:
     Class for calculating prorated billing.
 
     This class provides methods for calculating prorated billing for subscription changes,
+        
     including upgrades, downgrades, and cancellations.
     """
 
@@ -74,7 +75,8 @@ class ProratedBilling:
                 if current_date.month == 12:
                     current_date = datetime(current_date.year + 1, 1, 1)
                 else:
-                    current_date = datetime(current_date.year, current_date.month + 1, 1)
+                    current_date = datetime(current_date.year, current_date.month + 1, 
+                        1)
 
             return days
         elif period == "yearly":
@@ -105,7 +107,8 @@ class ProratedBilling:
         elif period == "monthly":
             # Move to the same day in the next month
             if period_start_date.month == 12:
-                next_month = datetime(period_start_date.year + 1, 1, period_start_date.day)
+                next_month = datetime(period_start_date.year + 1, 1, 
+                    period_start_date.day)
             else:
                 # Handle cases where the next month doesn't have the same day
                 try:
@@ -145,7 +148,8 @@ class ProratedBilling:
                 # Use the last day of the target month
                 period_end_date = datetime(year, month, 1)
                 period_end_date = period_end_date.replace(
-                    day=calendar.monthrange(period_end_date.year, period_end_date.month)[1]
+                    day=calendar.monthrange(period_end_date.year, 
+                        period_end_date.month)[1]
                 )
         elif period == "yearly":
             # Move to the same day in the next year
@@ -157,7 +161,8 @@ class ProratedBilling:
                 )
             except ValueError:
                 # Handle February 29 in leap years
-                period_end_date = datetime(period_start_date.year + 1, period_start_date.month, 28)
+                period_end_date = datetime(period_start_date.year + 1, 
+                    period_start_date.month, 28)
         else:
             raise ValueError(f"Invalid period: {period}")
 
@@ -169,7 +174,8 @@ class ProratedBilling:
         return days_remaining
 
     @staticmethod
-    def calculate_prorated_amount(full_amount: float, days_used: int, days_in_period: int) -> float:
+    def calculate_prorated_amount(full_amount: float, days_used: int, 
+        days_in_period: int) -> float:
         """
         Calculate a prorated amount.
 
@@ -305,31 +311,33 @@ class ProratedBilling:
         Calculate the amount to charge or refund for a subscription plan change.
 
         This algorithm implements a sophisticated proration system for subscription changes
-        that occur mid-billing cycle. The implementation follows these key stages:
+        that occur mid - billing cycle. The implementation follows these key stages:
 
         1. BILLING PERIOD DETERMINATION:
-           - Calculates the total days in the current billing period based on period type
+           - \
+               Calculates the total days in the current billing period based on period type
            - Handles calendar complexities like varying month lengths and leap years
            - Provides consistent time accounting across different billing frequencies
            - Properly aligns calculation with actual calendar dates for accuracy
 
         2. TEMPORAL POSITION ANALYSIS:
            - Determines the precise position within the billing cycle
-           - Calculates both elapsed time (days_used) and remaining time (days_remaining)
+           - \
+               Calculates both elapsed time (days_used) and remaining time (days_remaining)
            - Creates the foundation for fair and transparent proration calculation
            - Handles edge cases like period boundaries correctly
 
         3. PROPORTIONAL VALUE CALCULATION:
            - Calculates the value of both the old and new plans for the remaining period
-           - Uses the day-level granularity for maximum accuracy
+           - Uses the day - level granularity for maximum accuracy
            - Follows standard accounting practices for subscription businesses
-           - Handles zero-day edge cases safely to prevent division errors
+           - Handles zero - day edge cases safely to prevent division errors
 
         4. DIFFERENTIAL AMOUNT DETERMINATION:
            - Calculates the net financial impact of the plan change
            - Determines whether additional charges or refunds are required
            - Provides directionally correct results for both upgrades and downgrades
-           - Maintains neutrality for equal-value plan switches
+           - Maintains neutrality for equal - value plan switches
 
         5. COMPREHENSIVE RESULT PACKAGING:
            - Creates a structured result with all relevant metrics and decisions
@@ -344,16 +352,16 @@ class ProratedBilling:
           downgrades (which may require refunds)
         - Proper handling of various billing period types (monthly, quarterly, yearly)
 
-        The implementation specifically handles common real-world scenarios:
-        - Mid-month upgrades to more expensive plans
+        The implementation specifically handles common real - world scenarios:
+        - Mid - month upgrades to more expensive plans
         - Downgrades to less expensive plans
         - Cancellations (treated as downgrades to a $0 plan)
         - Plan switches across different billing frequencies
-        - Edge cases like changes on the first/last day of billing periods
+        - Edge cases like changes on the first / last day of billing periods
 
         Args:
-            old_plan_amount: The full-period amount for the customer's current plan
-            new_plan_amount: The full-period amount for the customer's new plan
+            old_plan_amount: The full - period amount for the customer's current plan
+            new_plan_amount: The full - period amount for the customer's new plan
             current_date: The date when the plan change is occurring
             period_start_date: The start date of the current billing period
             period: The billing period type (daily, weekly, monthly, quarterly, yearly)
@@ -378,7 +386,8 @@ class ProratedBilling:
         """
         # STAGE 1: Calculate days in period and days remaining
         # Determine the total length of the billing period and current position within it
-        days_in_period = ProratedBilling.get_days_in_billing_period(period_start_date, period)
+        days_in_period = ProratedBilling.get_days_in_billing_period(period_start_date, 
+            period)
         days_remaining = ProratedBilling.get_days_remaining_in_billing_period(
             current_date, period_start_date, period
         )
@@ -496,4 +505,5 @@ if __name__ == "__main__":
     print(f"Days remaining: {cancellation_result['days_remaining']}")
     print(f"Plan used: ${cancellation_result['old_plan_used']:.2f}")
     print(f"Plan remaining: ${cancellation_result['old_plan_remaining']:.2f}")
-    print(f"Action: {cancellation_result['action']} ${cancellation_result['amount']:.2f}")
+    print(
+        f"Action: {cancellation_result['action']} ${cancellation_result['amount']:.2f}")

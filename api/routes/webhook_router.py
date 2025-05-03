@@ -51,7 +51,7 @@ router = APIRouter(lifespan=lifespan)
 
 
 @router.post(
-    "/",
+    " / ",
     response_model=WebhookResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
@@ -68,7 +68,7 @@ async def register_webhook(
     try:
         # Get client info for audit
         client_host = request.client.host if request.client else None
-        user_agent = request.headers.get("user-agent")
+        user_agent = request.headers.get("user - agent")
 
         webhook = await webhook_service.register_webhook(
             data.dict(), actor_id=current_user.id, ip_address=client_host, user_agent=user_agent
@@ -80,7 +80,7 @@ async def register_webhook(
 
 
 @router.get(
-    "/",
+    " / ",
     response_model=WebhookList,
     responses={
         200: {"description": "List of webhooks"},
@@ -151,7 +151,7 @@ async def update_webhook(
     try:
         # Get client info for audit
         client_host = request.client.host if request.client else None
-        user_agent = request.headers.get("user-agent")
+        user_agent = request.headers.get("user - agent")
 
         webhook = await webhook_service.update_webhook(
             webhook_id,
@@ -185,7 +185,7 @@ async def delete_webhook(
     try:
         # Get client info for audit
         client_host = request.client.host if request.client else None
-        user_agent = request.headers.get("user-agent")
+        user_agent = request.headers.get("user - agent")
 
         if await webhook_service.delete_webhook(
             webhook_id, actor_id=current_user.id, ip_address=client_host, user_agent=user_agent
@@ -243,7 +243,7 @@ async def list_webhook_deliveries(
 
 
 @router.post(
-    "/test",
+    " / test",
     response_model=SuccessResponse,
     responses={
         200: {"description": "Test webhook sent"},
@@ -260,7 +260,7 @@ async def test_webhook(
     try:
         # Create a temporary webhook
         webhook = {
-            "id": "test-webhook",
+            "id": "test - webhook",
             "url": url,
             "events": [event_type],
             "description": "Test webhook",
@@ -273,7 +273,7 @@ async def test_webhook(
 
         # Create a test delivery
         delivery = {
-            "id": f"test-delivery-{uuid.uuid4()}",
+            "id": f"test - delivery-{uuid.uuid4()}",
             "webhook_id": webhook["id"],
             "event_type": event_type,
             "event_data": {

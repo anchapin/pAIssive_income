@@ -13,7 +13,8 @@ from datetime import datetime
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 from . import app
-from .errors import RouteError, ServiceError, UIError, ValidationError, api_error_handler
+from .errors import RouteError, ServiceError, UIError, ValidationError, 
+    api_error_handler
 from .task_manager import cancel_task, get_task_id, get_task_status, store_task_id
 from .tasks import (
     analyze_niches,
@@ -35,7 +36,8 @@ marketing_service = None
 
 def init_services():
     """Initialize services from the dependency container."""
-    global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
+    global agent_team_service, niche_analysis_service, developer_service, 
+        monetization_service, marketing_service
 
     # Import here to avoid circular imports
     from interfaces.ui_interfaces import (
@@ -59,18 +61,19 @@ def init_services():
 
 
 # Home route
-@app.route("/")
+@app.route(" / ")
 def index():
     """Render the home page."""
     return render_template(
         "index.html",
         title="pAIssive Income Framework",
         description="A comprehensive framework for developing and monetizing niche AI agents",
+            
     )
 
 
 # Dashboard route
-@app.route("/dashboard")
+@app.route(" / dashboard")
 def dashboard():
     """Render the dashboard page."""
     # Get project data
@@ -80,7 +83,7 @@ def dashboard():
 
 
 # Niche Analysis routes
-@app.route("/niche-analysis")
+@app.route(" / niche - analysis")
 def niche_analysis():
     """Render the niche analysis page."""
     # Get market segments
@@ -91,7 +94,7 @@ def niche_analysis():
     )
 
 
-@app.route("/niche-analysis/run", methods=["POST"])
+@app.route(" / niche - analysis / run", methods=["POST"])
 def run_niche_analysis():
     """Run niche analysis on selected market segments as a background task."""
     from .validation_schemas import NicheAnalysisRequest
@@ -117,7 +120,7 @@ def run_niche_analysis():
         return redirect(url_for("niche_analysis"))
 
 
-@app.route("/niche-analysis/status")
+@app.route(" / niche - analysis / status")
 def niche_analysis_status():
     """Show status of niche analysis task."""
     # Get task ID from session
@@ -146,26 +149,28 @@ def niche_analysis_status():
     )
 
 
-@app.route("/niche-analysis/results")
+@app.route(" / niche - analysis / results")
 def niche_results():
     """Render the niche analysis results page."""
     # Get niches from session
     niches = session.get("niches", [])
 
-    return render_template("niche_results.html", title="Niche Analysis Results", niches=niches)
+    return render_template("niche_results.html", title="Niche Analysis Results", 
+        niches=niches)
 
 
 # Developer routes
-@app.route("/developer")
+@app.route(" / developer")
 def developer():
     """Render the developer page."""
     # Get niches
     niches = niche_analysis_service.get_niches()
 
-    return render_template("developer.html", title="Solution Development", niches=niches)
+    return render_template("developer.html", title="Solution Development", 
+        niches=niches)
 
 
-@app.route("/developer/solution", methods=["POST"])
+@app.route(" / developer / solution", methods=["POST"])
 def develop_solution():
     """Develop a solution for a selected niche as a background task."""
     from .validation_schemas import DeveloperSolutionRequest
@@ -191,7 +196,7 @@ def develop_solution():
         return redirect(url_for("developer"))
 
 
-@app.route("/developer/status")
+@app.route(" / developer / status")
 def solution_status():
     """Show status of solution development task."""
     # Get task ID from session
@@ -220,26 +225,28 @@ def solution_status():
     )
 
 
-@app.route("/developer/results")
+@app.route(" / developer / results")
 def solution_results():
     """Render the solution results page."""
     # Get solution from session
     solution = session.get("solution", {})
 
-    return render_template("solution_results.html", title="Solution Results", solution=solution)
+    return render_template("solution_results.html", title="Solution Results", 
+        solution=solution)
 
 
 # Monetization routes
-@app.route("/monetization")
+@app.route(" / monetization")
 def monetization():
     """Render the monetization page."""
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template("monetization.html", title="Monetization Strategy", solutions=solutions)
+    return render_template("monetization.html", title="Monetization Strategy", 
+        solutions=solutions)
 
 
-@app.route("/monetization/strategy", methods=["POST"])
+@app.route(" / monetization / strategy", methods=["POST"])
 def create_monetization_strategy_route():
     """Create a monetization strategy for a selected solution as a background task."""
     from .validation_schemas import MonetizationStrategyRequest
@@ -265,7 +272,7 @@ def create_monetization_strategy_route():
         return redirect(url_for("monetization"))
 
 
-@app.route("/monetization/status")
+@app.route(" / monetization / status")
 def monetization_status():
     """Show status of monetization strategy task."""
     # Get task ID from session
@@ -294,28 +301,30 @@ def monetization_status():
     )
 
 
-@app.route("/monetization/results")
+@app.route(" / monetization / results")
 def monetization_results():
     """Render the monetization results page."""
     # Get monetization strategy from session
     strategy = session.get("monetization_strategy", {})
 
     return render_template(
-        "monetization_results.html", title="Monetization Strategy Results", strategy=strategy
+        "monetization_results.html", title="Monetization Strategy Results", 
+            strategy=strategy
     )
 
 
 # Marketing routes
-@app.route("/marketing")
+@app.route(" / marketing")
 def marketing():
     """Render the marketing page."""
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template("marketing.html", title="Marketing Campaign", solutions=solutions)
+    return render_template("marketing.html", title="Marketing Campaign", 
+        solutions=solutions)
 
 
-@app.route("/marketing/campaign", methods=["POST"])
+@app.route(" / marketing / campaign", methods=["POST"])
 def create_marketing_campaign_route():
     """Create a marketing campaign for a selected solution as a background task."""
     from .validation_schemas import MarketingCampaignRequest
@@ -341,7 +350,7 @@ def create_marketing_campaign_route():
         return redirect(url_for("marketing"))
 
 
-@app.route("/marketing/status")
+@app.route(" / marketing / status")
 def marketing_status():
     """Show status of marketing campaign task."""
     # Get task ID from session
@@ -370,7 +379,7 @@ def marketing_status():
     )
 
 
-@app.route("/marketing/results")
+@app.route(" / marketing / results")
 def marketing_results():
     """Render the marketing results page."""
     # Get marketing campaign from session
@@ -382,14 +391,14 @@ def marketing_results():
 
 
 # About route
-@app.route("/about")
+@app.route(" / about")
 def about():
     """Render the about page."""
     return render_template("about.html", title="About pAIssive Income Framework")
 
 
 # Task management API endpoints
-@app.route("/api/task/<task_id>", methods=["GET"])
+@app.route(" / api / task/<task_id>", methods=["GET"])
 def get_task(task_id):
     """API endpoint to get task status."""
     from .validators import sanitize_input
@@ -404,7 +413,8 @@ def get_task(task_id):
         except ValueError:
             raise ValidationError(
                 message="Invalid task ID format",
-                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}],
+                validation_errors=[{"field": "task_id", 
+                    "error": "Task ID must be a valid UUID"}],
             )
 
         status = get_task_status(sanitized_task_id)
@@ -413,7 +423,7 @@ def get_task(task_id):
         return api_error_handler(e)
 
 
-@app.route("/api/task/<task_id>/cancel", methods=["POST"])
+@app.route(" / api / task/<task_id>/cancel", methods=["POST"])
 def cancel_task_route(task_id):
     """API endpoint to cancel a task."""
     from .validators import sanitize_input
@@ -428,7 +438,8 @@ def cancel_task_route(task_id):
         except ValueError:
             raise ValidationError(
                 message="Invalid task ID format",
-                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}],
+                validation_errors=[{"field": "task_id", 
+                    "error": "Task ID must be a valid UUID"}],
             )
 
         result = cancel_task(sanitized_task_id)
@@ -436,6 +447,7 @@ def cancel_task_route(task_id):
             {
                 "success": result,
                 "message": "Task cancelled" if result else "Task could not be cancelled",
+                    
             }
         )
     except Exception as e:
@@ -443,7 +455,7 @@ def cancel_task_route(task_id):
 
 
 # API routes
-@app.route("/api/niches", methods=["GET"])
+@app.route(" / api / niches", methods=["GET"])
 def api_get_niches():
     """API endpoint to get niches."""
     from .validation_schemas import ApiQueryParams
@@ -465,7 +477,7 @@ def api_get_niches():
         return api_error_handler(e)
 
 
-@app.route("/api/solutions", methods=["GET"])
+@app.route(" / api / solutions", methods=["GET"])
 def api_get_solutions():
     """API endpoint to get solutions."""
     from .validation_schemas import ApiQueryParams
@@ -487,7 +499,7 @@ def api_get_solutions():
         return api_error_handler(e)
 
 
-@app.route("/api/monetization-strategies", methods=["GET"])
+@app.route(" / api / monetization - strategies", methods=["GET"])
 def api_get_monetization_strategies():
     """API endpoint to get monetization strategies."""
     from .validation_schemas import ApiQueryParams
@@ -509,7 +521,7 @@ def api_get_monetization_strategies():
         return api_error_handler(e)
 
 
-@app.route("/api/marketing-campaigns", methods=["GET"])
+@app.route(" / api / marketing - campaigns", methods=["GET"])
 def api_get_marketing_campaigns():
     """API endpoint to get marketing campaigns."""
     from .validation_schemas import ApiQueryParams
@@ -542,7 +554,8 @@ def page_not_found(e):
         http_status=404,
     )
     error.log(logging.WARNING)
-    return render_template("errors/404.html", title="Page Not Found", error=error), 404
+    return render_template("errors / 404.html", title="Page Not Found", error=error), 
+        404
 
 
 @app.errorhandler(500)
@@ -560,7 +573,7 @@ def server_error(e):
         )
 
     error.log(logging.ERROR)
-    return render_template("errors/500.html", title="Server Error", error=error), 500
+    return render_template("errors / 500.html", title="Server Error", error=error), 500
 
 
 @app.errorhandler(ValidationError)
@@ -569,7 +582,7 @@ def validation_error(e):
     e.log(logging.WARNING)
 
     # For API requests, return JSON
-    if request.path.startswith("/api/"):
+    if request.path.startswith(" / api / "):
         return api_error_handler(e)
 
     # For form submissions, flash error messages and redirect back
@@ -589,11 +602,12 @@ def service_error(e):
     e.log(logging.ERROR)
 
     # For API requests, return JSON
-    if request.path.startswith("/api/"):
+    if request.path.startswith(" / api / "):
         return api_error_handler(e)
 
     # For regular requests, show error page
-    return render_template("errors/500.html", title="Service Error", error=e), e.http_status
+    return render_template("errors / 500.html", title="Service Error", error=e), 
+        e.http_status
 
 
 @app.errorhandler(Exception)
@@ -609,8 +623,8 @@ def handle_exception(e):
     error.log(logging.ERROR)
 
     # For API requests, return JSON
-    if request.path.startswith("/api/"):
+    if request.path.startswith(" / api / "):
         return api_error_handler(error)
 
     # For regular requests, show error page
-    return render_template("errors/500.html", title="Server Error", error=error), 500
+    return render_template("errors / 500.html", title="Server Error", error=error), 500

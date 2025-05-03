@@ -2,7 +2,7 @@
 Metered billing demo for the pAIssive Income project.
 
 This script demonstrates how to use the metered billing model
-to implement usage-based billing with precise metering.
+to implement usage - based billing with precise metering.
 """
 
 import random
@@ -26,7 +26,7 @@ def print_section(title: str) -> None:
 
 def print_separator() -> None:
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def simulate_real_time_usage(
@@ -36,7 +36,7 @@ def simulate_real_time_usage(
     interval_seconds: int = 5,
 ) -> None:
     """
-    Simulate real-time usage over a period of time.
+    Simulate real - time usage over a period of time.
 
     Args:
         model: Metered billing model
@@ -47,7 +47,7 @@ def simulate_real_time_usage(
     start_time = datetime.now()
     end_time = start_time + timedelta(seconds=duration_seconds)
 
-    print(f"Simulating real-time usage for {duration_seconds} seconds...")
+    print(f"Simulating real - time usage for {duration_seconds} seconds...")
     print(f"Start time: {start_time}")
     print(f"End time: {end_time}")
 
@@ -67,7 +67,7 @@ def simulate_real_time_usage(
             category=UsageCategory.INFERENCE,
             resource_id="model_gpt4",
             resource_type="model",
-            metadata={"endpoint": "/v1/completions", "iteration": iteration},
+            metadata={"endpoint": " / v1 / completions", "iteration": iteration},
         )
 
         # Simulate token usage
@@ -81,7 +81,7 @@ def simulate_real_time_usage(
             category=UsageCategory.INFERENCE,
             resource_id="model_gpt4",
             resource_type="model",
-            metadata={"endpoint": "/v1/completions", "iteration": iteration},
+            metadata={"endpoint": " / v1 / completions", "iteration": iteration},
         )
 
         # Update result with token cost
@@ -92,7 +92,8 @@ def simulate_real_time_usage(
         elapsed = (datetime.now() - start_time).total_seconds()
         progress = min(100, elapsed / duration_seconds * 100)
 
-        print(f"[{progress:.1f}%] Iteration {iteration}: {api_calls} API calls, {tokens} tokens")
+        print(f"[{progress:.1f}%] Iteration {iteration}: {api_calls} API calls, 
+            {tokens} tokens")
         print(f"Current cost: ${result['current_cost']:.4f}")
         print(f"Cost breakdown: {result['cost_breakdown']}")
 
@@ -132,7 +133,8 @@ def simulate_different_metering_intervals(customer_id: str) -> None:
 
         # Add metered metrics
         model.add_metered_metric(
-            metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+            metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+                category=UsageCategory.INFERENCE
         )
 
         # Get the current billing period
@@ -174,7 +176,8 @@ def demonstrate_minimum_maximum_billing(customer_id: str) -> None:
 
     # Add metered metrics
     model.add_metered_metric(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     # Test with low usage (below minimum)
@@ -203,7 +206,8 @@ def demonstrate_minimum_maximum_billing(customer_id: str) -> None:
 
     print("\nHigh usage scenario (above maximum):")
     print(f"Tracked usage: {high_result['quantity']} {high_result['metric']}")
-    print(f"Raw cost: ${high_result['cost_breakdown'].get(UsageMetric.API_CALL, 0):.2f}")
+    print(f"Raw cost: ${high_result['cost_breakdown'].get(UsageMetric.API_CALL, 
+        0):.2f}")
 
     # Generate invoice to see maximum applied
     high_invoice = model.generate_invoice(customer_id=customer_id)
@@ -229,7 +233,8 @@ def demonstrate_custom_billing_period(customer_id: str) -> None:
 
     # Add metered metrics
     model.add_metered_metric(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     # Get the default billing period
@@ -246,7 +251,8 @@ def demonstrate_custom_billing_period(customer_id: str) -> None:
     )
 
     # Get the custom billing period
-    custom_start_result, custom_end_result = model.get_interval_start_end(customer_id=customer_id)
+    custom_start_result, 
+        custom_end_result = model.get_interval_start_end(customer_id=customer_id)
 
     print(f"Custom billing period: {custom_start_result} to {custom_end_result}")
 
@@ -278,7 +284,8 @@ def main() -> None:
 
     # Add metered metrics
     model.add_metered_metric(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     model.add_metered_tiered_metric(
@@ -291,9 +298,10 @@ def main() -> None:
         category=UsageCategory.INFERENCE,
     )
 
-    # Demonstrate real-time usage tracking
-    print_section("Real-Time Usage Tracking")
-    simulate_real_time_usage(model, customer_id, duration_seconds=30, interval_seconds=5)
+    # Demonstrate real - time usage tracking
+    print_section("Real - Time Usage Tracking")
+    simulate_real_time_usage(model, customer_id, duration_seconds=30, 
+        interval_seconds=5)
 
     # Demonstrate different metering intervals
     print_section("Different Metering Intervals")

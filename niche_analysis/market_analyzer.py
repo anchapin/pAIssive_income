@@ -60,7 +60,8 @@ class MarketAnalyzer:
         # Lock for concurrent access to shared resources
         self._lock = asyncio.Lock()
 
-    def analyze_market(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_market(self, segment: str, force_refresh: bool = False) -> Dict[str, 
+        Any]:
         """
         Analyze a market segment to identify potential niches.
 
@@ -79,13 +80,13 @@ class MarketAnalyzer:
             # Validate input
             if not segment or not isinstance(segment, str):
                 raise ValidationError(
-                    message="Market segment must be a non-empty string",
+                    message="Market segment must be a non - empty string",
                     field="segment",
                     validation_errors=[
                         {
                             "field": "segment",
                             "value": segment,
-                            "error": "Must be a non-empty string",
+                            "error": "Must be a non - empty string",
                         }
                     ],
                 )
@@ -95,7 +96,8 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                cached_result = default_cache.get(cache_key, 
+                    namespace="market_analysis")
                 if cached_result is not None:
                     logger.info(f"Using cached market analysis for segment: {segment}")
                     return cached_result
@@ -105,26 +107,27 @@ class MarketAnalyzer:
 
             # Example segment analysis for different segments
             segment_analysis = {
-                "e-commerce": {
+                "e - commerce": {
                     "id": str(uuid.uuid4()),
-                    "name": "E-Commerce",
-                    "description": "Market segment for e-commerce businesses selling goods and services online",
+                    "name": "E - Commerce",
+                    "description": "Market segment for e - commerce businesses selling goods and services online",
+                        
                     "market_size": "large",
                     "growth_rate": "high",
                     "competition": "high",
                     "barriers_to_entry": "medium",
                     "technological_adoption": "high",
                     "potential_niches": [
-                        "inventory management for small e-commerce",
+                        "inventory management for small e - commerce",
                         "product description generation",
                         "pricing optimization",
                         "customer service automation",
                         "return management",
                     ],
                     "target_users": [
-                        "small e-commerce business owners",
-                        "e-commerce marketers",
-                        "e-commerce operations managers",
+                        "small e - commerce business owners",
+                        "e - commerce marketers",
+                        "e - commerce operations managers",
                     ],
                 },
                 "content creation": {
@@ -155,6 +158,7 @@ class MarketAnalyzer:
                     "id": str(uuid.uuid4()),
                     "name": "Freelancing",
                     "description": "Independent professionals offering services to clients",
+                        
                     "market_size": "large",
                     "growth_rate": "high",
                     "competition": "medium",
@@ -226,9 +230,9 @@ class MarketAnalyzer:
             }
 
             # Determine segment name based on input
-            if segment.lower() == "e-commerce":
-                # Special case for e-commerce to match expected capitalization in tests
-                segment_name = "E-Commerce"
+            if segment.lower() == "e - commerce":
+                # Special case for e - commerce to match expected capitalization in tests
+                segment_name = "E - Commerce"
             elif segment.lower() == "unknown_segment":
                 # Special case for unknown_segment to match expected capitalization in tests
                 segment_name = "Unknown_segment"
@@ -260,15 +264,17 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(f"Created default analysis for unknown segment: {segment_name}")
+                logger.info(
+                    f"Created default analysis for unknown segment: {segment_name}")
                 # Cache the result
                 default_cache.set(
-                    cache_key, default_analysis, ttl=self.cache_ttl, namespace="market_analysis"
+                    cache_key, default_analysis, ttl=self.cache_ttl, 
+                        namespace="market_analysis"
                 )
                 return default_analysis
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
@@ -284,7 +290,7 @@ class MarketAnalyzer:
         Analyze a market segment asynchronously to identify potential niches.
 
         This is the asynchronous version of analyze_market() that doesn't block the
-        main event loop during potentially time-consuming operations.
+        main event loop during potentially time - consuming operations.
 
         Args:
             segment: Market segment to analyze
@@ -301,13 +307,13 @@ class MarketAnalyzer:
             # Validate input
             if not segment or not isinstance(segment, str):
                 raise ValidationError(
-                    message="Market segment must be a non-empty string",
+                    message="Market segment must be a non - empty string",
                     field="segment",
                     validation_errors=[
                         {
                             "field": "segment",
                             "value": segment,
-                            "error": "Must be a non-empty string",
+                            "error": "Must be a non - empty string",
                         }
                     ],
                 )
@@ -332,32 +338,34 @@ class MarketAnalyzer:
             async with self._lock:
                 # Example segment analysis for different segments
                 segment_analysis = {
-                    "e-commerce": {
+                    "e - commerce": {
                         "id": str(uuid.uuid4()),
-                        "name": "E-Commerce",
-                        "description": "Market segment for e-commerce businesses selling goods and services online",
+                        "name": "E - Commerce",
+                        "description": "Market segment for e - commerce businesses selling goods and services online",
+                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "high",
                         "barriers_to_entry": "medium",
                         "technological_adoption": "high",
                         "potential_niches": [
-                            "inventory management for small e-commerce",
+                            "inventory management for small e - commerce",
                             "product description generation",
                             "pricing optimization",
                             "customer service automation",
                             "return management",
                         ],
                         "target_users": [
-                            "small e-commerce business owners",
-                            "e-commerce marketers",
-                            "e-commerce operations managers",
+                            "small e - commerce business owners",
+                            "e - commerce marketers",
+                            "e - commerce operations managers",
                         ],
                     },
                     "content creation": {
                         "id": str(uuid.uuid4()),
                         "name": "Content Creation",
                         "description": "Creation of digital content for various platforms",
+                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "medium",
@@ -382,6 +390,7 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "Freelancing",
                         "description": "Independent professionals offering services to clients",
+                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "medium",
@@ -406,6 +415,7 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "Education",
                         "description": "Teaching and learning processes and institutions",
+                            
                         "market_size": "large",
                         "growth_rate": "medium",
                         "competition": "medium",
@@ -453,9 +463,9 @@ class MarketAnalyzer:
                 }
 
                 # Determine segment name based on input
-                if segment.lower() == "e-commerce":
-                    # Special case for e-commerce to match expected capitalization in tests
-                    segment_name = "E-Commerce"
+                if segment.lower() == "e - commerce":
+                    # Special case for e - commerce to match expected capitalization in tests
+                    segment_name = "E - Commerce"
                 elif segment.lower() == "unknown_segment":
                     # Special case for unknown_segment to match expected capitalization in tests
                     segment_name = "Unknown_segment"
@@ -492,7 +502,8 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(f"Created default analysis for unknown segment: {segment_name}")
+                logger.info(
+                    f"Created default analysis for unknown segment: {segment_name}")
                 # Cache the result asynchronously
                 await run_in_thread(
                     default_cache.set,
@@ -504,7 +515,7 @@ class MarketAnalyzer:
                 return default_analysis
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
@@ -513,7 +524,8 @@ class MarketAnalyzer:
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_competition(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_competition(self, niche: str, force_refresh: bool = False) -> Dict[str, 
+        Any]:
         """
         Analyze competition in a specific niche.
 
@@ -532,10 +544,11 @@ class MarketAnalyzer:
             # Validate input
             if not niche or not isinstance(niche, str):
                 raise ValidationError(
-                    message="Niche must be a non-empty string",
+                    message="Niche must be a non - empty string",
                     field="niche",
                     validation_errors=[
-                        {"field": "niche", "value": niche, "error": "Must be a non-empty string"}
+                        {"field": "niche", "value": niche, 
+                            "error": "Must be a non - empty string"}
                     ],
                 )
 
@@ -544,7 +557,8 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                cached_result = default_cache.get(cache_key, 
+                    namespace="market_analysis")
                 if cached_result is not None:
                     logger.info(f"Using cached competition analysis for niche: {niche}")
                     return cached_result
@@ -560,12 +574,12 @@ class MarketAnalyzer:
                 "competitor_count": 5,  # Placeholder, would be determined by AI
                 "top_competitors": [
                     {
-                        "name": f"Competitor {i+1}",
+                        "name": f"Competitor {i + 1}",
                         "description": f"A competitor in the {niche} niche",
                         "market_share": f"{20 - i * 3}%",
                         "strengths": ["feature 1", "feature 2"],
                         "weaknesses": ["weakness 1", "weakness 2"],
-                        "pricing": f"${10 * (i+1)}/month",
+                        "pricing": f"${10 * (i + 1)}/month",
                     }
                     for i in range(3)  # Top 3 competitors
                 ],
@@ -584,20 +598,23 @@ class MarketAnalyzer:
             logger.info(f"Analyzed competition for niche: {niche}")
 
             # Cache the result (shorter TTL for competition analysis as it may change frequently)
-            competition_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for competition analysis
+            competition_ttl = min(self.cache_ttl, 
+                21600)  # 6 hours maximum for competition analysis
             default_cache.set(
-                cache_key, competition_analysis, ttl=competition_ttl, namespace="market_analysis"
+                cache_key, competition_analysis, ttl=competition_ttl, 
+                    namespace="market_analysis"
             )
 
             return competition_analysis
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
-                e, error_class=CompetitionAnalysisError, reraise=True, log_level=logging.ERROR
+                e, error_class=CompetitionAnalysisError, reraise=True, 
+                    log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
 
@@ -608,7 +625,7 @@ class MarketAnalyzer:
         Analyze competition in a specific niche asynchronously.
 
         This is the asynchronous version of analyze_competition() that doesn't block the
-        main event loop during potentially time-consuming operations.
+        main event loop during potentially time - consuming operations.
 
         Args:
             niche: Niche to analyze
@@ -625,10 +642,11 @@ class MarketAnalyzer:
             # Validate input
             if not niche or not isinstance(niche, str):
                 raise ValidationError(
-                    message="Niche must be a non-empty string",
+                    message="Niche must be a non - empty string",
                     field="niche",
                     validation_errors=[
-                        {"field": "niche", "value": niche, "error": "Must be a non-empty string"}
+                        {"field": "niche", "value": niche, 
+                            "error": "Must be a non - empty string"}
                     ],
                 )
 
@@ -657,12 +675,12 @@ class MarketAnalyzer:
                 "competitor_count": 5,  # Placeholder, would be determined by AI
                 "top_competitors": [
                     {
-                        "name": f"Competitor {i+1}",
+                        "name": f"Competitor {i + 1}",
                         "description": f"A competitor in the {niche} niche",
                         "market_share": f"{20 - i * 3}%",
                         "strengths": ["feature 1", "feature 2"],
                         "weaknesses": ["weakness 1", "weakness 2"],
-                        "pricing": f"${10 * (i+1)}/month",
+                        "pricing": f"${10 * (i + 1)}/month",
                     }
                     for i in range(3)  # Top 3 competitors
                 ],
@@ -691,16 +709,18 @@ class MarketAnalyzer:
             return competition_analysis
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
-                e, error_class=CompetitionAnalysisError, reraise=True, log_level=logging.ERROR
+                e, error_class=CompetitionAnalysisError, reraise=True, 
+                    log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_trends(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_trends(self, segment: str, force_refresh: bool = False) -> Dict[str, 
+        Any]:
         """
         Analyze trends in a specific market segment.
 
@@ -729,25 +749,27 @@ class MarketAnalyzer:
             "segment": segment,
             "current_trends": [
                 {
-                    "name": f"Trend {i+1}",
+                    "name": f"Trend {i + 1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
                     "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
+                        
                 }
                 for i in range(3)  # Top 3 trends
             ],
             "future_predictions": [
                 {
-                    "name": f"Prediction {i+1}",
+                    "name": f"Prediction {i + 1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years",
+                    "timeframe": "1 year" if i == 0 else "2 - 3 years" if i == 1 else "5+ years",
+                        
                 }
                 for i in range(3)  # Top 3 predictions
             ],
             "technological_shifts": [
                 "ai integration",
-                "mobile-first approach",
+                "mobile - first approach",
                 "voice interfaces",
                 "automation",
             ],
@@ -757,7 +779,8 @@ class MarketAnalyzer:
 
         # Cache the result (shorter TTL for trends as they change frequently)
         trend_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for trends
-        default_cache.set(cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis")
+        default_cache.set(cache_key, trend_analysis, ttl=trend_ttl, 
+            namespace="market_analysis")
 
         return trend_analysis
 
@@ -768,7 +791,7 @@ class MarketAnalyzer:
         Analyze trends in a specific market segment asynchronously.
 
         This is the asynchronous version of analyze_trends() that doesn't block the
-        main event loop during potentially time-consuming operations.
+        main event loop during potentially time - consuming operations.
 
         Args:
             segment: Market segment to analyze
@@ -801,25 +824,27 @@ class MarketAnalyzer:
             "segment": segment,
             "current_trends": [
                 {
-                    "name": f"Trend {i+1}",
+                    "name": f"Trend {i + 1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
                     "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
+                        
                 }
                 for i in range(3)  # Top 3 trends
             ],
             "future_predictions": [
                 {
-                    "name": f"Prediction {i+1}",
+                    "name": f"Prediction {i + 1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years",
+                    "timeframe": "1 year" if i == 0 else "2 - 3 years" if i == 1 else "5+ years",
+                        
                 }
                 for i in range(3)  # Top 3 predictions
             ],
             "technological_shifts": [
                 "ai integration",
-                "mobile-first approach",
+                "mobile - first approach",
                 "voice interfaces",
                 "automation",
             ],
@@ -830,12 +855,14 @@ class MarketAnalyzer:
         # Cache the result asynchronously (shorter TTL for trends as they change frequently)
         trend_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for trends
         await run_in_thread(
-            default_cache.set, cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis"
+            default_cache.set, cache_key, trend_analysis, ttl=trend_ttl, 
+                namespace="market_analysis"
         )
 
         return trend_analysis
 
-    def analyze_target_users(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_target_users(self, niche: str, force_refresh: bool = False) -> Dict[str, 
+        Any]:
         """
         Analyze target users for a specific niche.
 
@@ -864,7 +891,7 @@ class MarketAnalyzer:
             "niche": niche,
             "user_segments": [
                 {
-                    "name": f"User Segment {i+1}",
+                    "name": f"User Segment {i + 1}",
                     "description": f"A user segment for {niche}",
                     "size": "large" if i == 0 else "medium" if i == 1 else "small",
                     "priority": "high" if i == 0 else "medium" if i == 1 else "low",
@@ -872,19 +899,20 @@ class MarketAnalyzer:
                 for i in range(3)  # Top 3 user segments
             ],
             "demographics": {
-                "age_range": "25-45",
+                "age_range": "25 - 45",
                 "gender": "mixed",
                 "location": "global",
                 "education": "college degree",
-                "income": "middle to upper-middle",
+                "income": "middle to upper - middle",
             },
             "psychographics": {
                 "goals": ["efficiency", "growth", "profitability"],
                 "values": ["quality", "reliability", "innovation"],
-                "challenges": ["time constraints", "resource limitations", "competition"],
+                "challenges": ["time constraints", "resource limitations", 
+                    "competition"],
             },
             "pain_points": [
-                "time-consuming manual processes",
+                "time - consuming manual processes",
                 "lack of specialized tools",
                 "difficulty scaling operations",
             ],
@@ -905,7 +933,8 @@ class MarketAnalyzer:
 
         # Cache the result
         default_cache.set(
-            cache_key, target_user_analysis, ttl=self.cache_ttl, namespace="market_analysis"
+            cache_key, target_user_analysis, ttl=self.cache_ttl, 
+                namespace="market_analysis"
         )
 
         return target_user_analysis
@@ -916,8 +945,9 @@ class MarketAnalyzer:
         """
         Analyze target users for a specific niche asynchronously.
 
-        This is the asynchronous version of analyze_target_users() that doesn't block the
-        main event loop during potentially time-consuming operations.
+        This is the asynchronous version of analyze_target_users(
+            ) that doesn't block the
+        main event loop during potentially time - consuming operations.
 
         Args:
             niche: Niche to analyze
@@ -950,7 +980,7 @@ class MarketAnalyzer:
             "niche": niche,
             "user_segments": [
                 {
-                    "name": f"User Segment {i+1}",
+                    "name": f"User Segment {i + 1}",
                     "description": f"A user segment for {niche}",
                     "size": "large" if i == 0 else "medium" if i == 1 else "small",
                     "priority": "high" if i == 0 else "medium" if i == 1 else "low",
@@ -958,19 +988,20 @@ class MarketAnalyzer:
                 for i in range(3)  # Top 3 user segments
             ],
             "demographics": {
-                "age_range": "25-45",
+                "age_range": "25 - 45",
                 "gender": "mixed",
                 "location": "global",
                 "education": "college degree",
-                "income": "middle to upper-middle",
+                "income": "middle to upper - middle",
             },
             "psychographics": {
                 "goals": ["efficiency", "growth", "profitability"],
                 "values": ["quality", "reliability", "innovation"],
-                "challenges": ["time constraints", "resource limitations", "competition"],
+                "challenges": ["time constraints", "resource limitations", 
+                    "competition"],
             },
             "pain_points": [
-                "time-consuming manual processes",
+                "time - consuming manual processes",
                 "lack of specialized tools",
                 "difficulty scaling operations",
             ],
@@ -1060,7 +1091,8 @@ class MarketAnalyzer:
             List of market analyses
         """
         # Create tasks for analyzing each segment
-        tasks = [self.analyze_market_async(segment, force_refresh) for segment in segments]
+        tasks = [self.analyze_market_async(segment, 
+            force_refresh) for segment in segments]
 
         # Run all tasks concurrently and gather results
         results = await asyncio.gather(*tasks)

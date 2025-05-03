@@ -28,10 +28,10 @@ class ProblemResponse(BaseModel):
     id: str = Field(..., description="Problem ID")
     title: str = Field(..., description="Problem title")
     description: str = Field(..., description="Problem description")
-    severity: float = Field(..., description="Problem severity (0-1)")
-    frequency: float = Field(..., description="Problem frequency (0-1)")
-    impact: float = Field(..., description="Problem impact (0-1)")
-    score: float = Field(..., description="Problem score (0-1)")
+    severity: float = Field(..., description="Problem severity (0 - 1)")
+    frequency: float = Field(..., description="Problem frequency (0 - 1)")
+    impact: float = Field(..., description="Problem impact (0 - 1)")
+    score: float = Field(..., description="Problem score (0 - 1)")
 
 
 class MarketSegmentResponse(BaseModel):
@@ -53,7 +53,7 @@ class OpportunityResponse(BaseModel):
     id: str = Field(..., description="Opportunity ID")
     title: str = Field(..., description="Opportunity title")
     description: str = Field(..., description="Opportunity description")
-    score: float = Field(..., description="Opportunity score (0-1)")
+    score: float = Field(..., description="Opportunity score (0 - 1)")
     market_size: str = Field(..., description="Market size")
     competition: str = Field(..., description="Competition level")
     difficulty: str = Field(..., description="Implementation difficulty")
@@ -68,7 +68,7 @@ class NicheResponse(BaseModel):
     name: str = Field(..., description="Niche name")
     description: str = Field(..., description="Niche description")
     market_segment: str = Field(..., description="Market segment")
-    opportunity_score: float = Field(..., description="Opportunity score (0-1)")
+    opportunity_score: float = Field(..., description="Opportunity score (0 - 1)")
     problems: List[ProblemResponse] = Field(..., description="Problems in the niche")
     opportunities: List[OpportunityResponse] = Field(..., description="Opportunities in the niche")
     created_at: datetime = Field(..., description="Creation timestamp")

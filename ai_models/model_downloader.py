@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,8 @@ try:
 
     HUGGINGFACE_HUB_AVAILABLE = True
 except ImportError:
-    logger.warning("huggingface_hub not available. Hugging Face model downloads will be limited.")
+    logger.warning(
+        "huggingface_hub not available. Hugging Face model downloads will be limited.")
     HUGGINGFACE_HUB_AVAILABLE = False
 
 
@@ -114,7 +115,8 @@ class DownloadTask:
             params: Additional parameters for the download
             callback: Optional callback function for progress updates
         """
-        self.id = hashlib.sha256(f"{model_id}_{source}_{destination}".encode()).hexdigest()[
+        self.id = \
+            hashlib.sha256(f"{model_id}_{source}_{destination}".encode()).hexdigest()[
             :32
         ]  # Truncate to same length as MD5 for compatibility
         self.model_id = model_id
@@ -130,7 +132,7 @@ class DownloadTask:
         self.start_time = 0
         self.last_update_time = 0
         self.last_downloaded_size = 0
-        self.created_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.created_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
         self.updated_at = self.created_at
 
     def start(self) -> None:
@@ -183,7 +185,8 @@ class DownloadTask:
             # Determine the download method based on the source
             if self.source.startswith(("http://", "https://")):
                 self._download_from_url()
-            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(("http://", "https://")):
+            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(("http://", 
+                "https://")):
                 self._download_from_huggingface()
             else:
                 raise ValueError(f"Unsupported source: {self.source}")
@@ -220,7 +223,7 @@ class DownloadTask:
 
         # Send a HEAD request to get the file size
         response = requests.head(self.source, allow_redirects=True)
-        total_size = int(response.headers.get("content-length", 0))
+        total_size = int(response.headers.get("content - length", 0))
         self.progress.total_size = total_size
 
         # Download the file
@@ -290,7 +293,8 @@ class DownloadTask:
                 )
 
                 # Rename the file if necessary
-                downloaded_file = os.path.join(os.path.dirname(self.destination), file_name)
+                downloaded_file = os.path.join(os.path.dirname(self.destination), 
+                    file_name)
                 if downloaded_file != self.destination:
                     shutil.move(downloaded_file, self.destination)
 
@@ -392,14 +396,14 @@ class DownloadTask:
             progress: New progress information
         """
         self.progress = progress
-        self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.updated_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
     def complete(self) -> None:
         """
         Mark the task as completed.
         """
         self.status = "completed"
-        self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.updated_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
     def fail(self, error: str) -> None:
         """
@@ -410,7 +414,7 @@ class DownloadTask:
         """
         self.status = "failed"
         self.error = error
-        self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+        self.updated_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
     def cancel(self) -> None:
         """
@@ -420,7 +424,7 @@ class DownloadTask:
             # We can't directly stop a thread in Python, so we'll just update the status
             self.status = "failed"
             self.error = "Download cancelled by user"
-            self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+            self.updated_at = time.strftime(" % Y-%m-%dT % H:%M:%S")
 
             # Update progress if available
             if self.progress:
@@ -524,13 +528,14 @@ class ModelDownloader:
             # Generate a destination path based on the model type and ID
             if model_type == "huggingface":
                 destination = os.path.join(
-                    self.config.models_dir, "huggingface", model_id.replace("/", "_")
+                    self.config.models_dir, "huggingface", model_id.replace(" / ", "_")
                 )
             elif model_type == "llama":
-                destination = os.path.join(self.config.models_dir, "llama", f"{model_id}.gguf")
+                destination = os.path.join(self.config.models_dir, "llama", 
+                    f"{model_id}.gguf")
             else:
                 destination = os.path.join(
-                    self.config.models_dir, model_type, model_id.replace("/", "_")
+                    self.config.models_dir, model_type, model_id.replace(" / ", "_")
                 )
 
         # Create the download task
@@ -563,7 +568,8 @@ class ModelDownloader:
                     break
 
             if test_name == "test_model_downloader_download_model":
-                self.download_from_url(url=url, destination=destination, progress_callback=callback)
+                self.download_from_url(url=url, destination=destination, 
+                    progress_callback=callback)
 
         return task
 
@@ -647,7 +653,8 @@ class ModelDownloader:
             completed_tasks = [
                 task_id
                 for task_id, task in self.download_tasks.items()
-                if not task.is_running() and task.progress.status in ["completed", "failed"]
+                if not task.is_running() and task.progress.status in ["completed", 
+                    "failed"]
             ]
 
             for task_id in completed_tasks:
@@ -701,7 +708,8 @@ class ModelDownloader:
             ModelInfo object if registration was successful, None otherwise
         """
         if not self.model_manager:
-            logger.warning("No model manager available for registering downloaded models")
+            logger.warning(
+                "No model manager available for registering downloaded models")
             return None
 
         if task.progress.status != "completed":
@@ -712,9 +720,9 @@ class ModelDownloader:
 
         # Extract model name from source
         model_name = os.path.basename(task.source)
-        if "/" in task.source and not task.source.startswith(("http://", "https://")):
+        if " / " in task.source and not task.source.startswith(("http://", "https://")):
             # For Hugging Face models, use the repository name
-            model_name = task.source.split("/")[-1]
+            model_name = task.source.split(" / ")[-1]
 
         # Determine model format
         model_format = ""
@@ -781,7 +789,7 @@ class ModelDownloader:
             "description": description,
         }
 
-        # Create a wrapper callback to handle auto-registration
+        # Create a wrapper callback to handle auto - registration
         original_callback = callback
 
         def wrapped_callback(progress: DownloadProgress):
@@ -789,7 +797,7 @@ class ModelDownloader:
             if original_callback:
                 original_callback(progress)
 
-            # Auto-register the model when download completes
+            # Auto - register the model when download completes
             if auto_register and self.model_manager and progress.status == "completed":
                 try:
                     # Get the task
@@ -810,7 +818,7 @@ class ModelDownloader:
 
                             break
                 except Exception as e:
-                    logger.error(f"Error auto-registering model: {e}")
+                    logger.error(f"Error auto - registering model: {e}")
 
         # Start the download
         return self.download_model(
@@ -820,6 +828,7 @@ class ModelDownloader:
             destination=destination,
             params=params,
             callback=(wrapped_callback if auto_register and self.model_manager else callback),
+                
         )
 
     def download_from_url(
@@ -863,7 +872,7 @@ class ModelDownloader:
             response.raise_for_status()
 
             # Get the total file size
-            total_size = int(response.headers.get("Content-Length", 0))
+            total_size = int(response.headers.get("Content - Length", 0))
 
             # Create a progress object
             progress = DownloadProgress(total_size=total_size)
@@ -888,7 +897,8 @@ class ModelDownloader:
                         if elapsed_time > 0:
                             progress.downloaded_size = downloaded_size
                             progress.percentage = (
-                                (downloaded_size / total_size * 100) if total_size > 0 else 0
+                                (downloaded_size / total_size * \
+                                    100) if total_size > 0 else 0
                             )
                             progress.speed = downloaded_size / elapsed_time
                             progress.eta = (
@@ -955,7 +965,7 @@ class ModelDownloader:
         # Prepare parameters
         params = {"auto_register": auto_register, "description": description}
 
-        # Create a wrapper callback to handle auto-registration
+        # Create a wrapper callback to handle auto - registration
         original_callback = callback
 
         def wrapped_callback(progress: DownloadProgress):
@@ -963,7 +973,7 @@ class ModelDownloader:
             if original_callback:
                 original_callback(progress)
 
-            # Auto-register the model when download completes
+            # Auto - register the model when download completes
             if auto_register and self.model_manager and progress.status == "completed":
                 try:
                     # Get the task
@@ -974,6 +984,7 @@ class ModelDownloader:
                                 download_task=task,
                                 model_type=model_type,
                                 description=description or f"Model downloaded from URL: {url}",
+                                    
                             )
 
                             if model_info:
@@ -983,7 +994,7 @@ class ModelDownloader:
 
                             break
                 except Exception as e:
-                    logger.error(f"Error auto-registering model: {e}")
+                    logger.error(f"Error auto - registering model: {e}")
 
         # Start the download
         return self.download_model(
@@ -994,6 +1005,7 @@ class ModelDownloader:
             destination=destination,
             params=params,
             callback=(wrapped_callback if auto_register and self.model_manager else callback),
+                
         )
 
     def search_huggingface_models(
@@ -1018,10 +1030,10 @@ class ModelDownloader:
         # Prepare filter
         model_filter = None
         if model_type:
-            if model_type == "text-generation":
-                model_filter = "text-generation"
+            if model_type == "text - generation":
+                model_filter = "text - generation"
             elif model_type == "embedding":
-                model_filter = "sentence-transformers"
+                model_filter = "sentence - transformers"
 
         # Search for models
         models = list_models(search=query, filter=model_filter, limit=limit)
@@ -1032,8 +1044,8 @@ class ModelDownloader:
             result.append(
                 {
                     "id": model.id,
-                    "name": model.id.split("/")[-1],
-                    "author": model.id.split("/")[0] if "/" in model.id else "",
+                    "name": model.id.split(" / ")[-1],
+                    "author": model.id.split(" / ")[0] if " / " in model.id else "",
                     "downloads": model.downloads,
                     "likes": model.likes,
                     "tags": model.tags,
@@ -1083,10 +1095,10 @@ class ModelDownloader:
             logger.error(f"File not found: {file_path}")
             return False
 
-        # Prefer SHA-256 for checksum verification
+        # Prefer SHA - 256 for checksum verification
         if len(expected_checksum) == 32:
-            hasher = hashlib.sha256()  # Use SHA-256 for new checksums
-            logger.warning(f"Using SHA-256 for checksum verification of {file_path}")
+            hasher = hashlib.sha256()  # Use SHA - 256 for new checksums
+            logger.warning(f"Using SHA - 256 for checksum verification of {file_path}")
 
         # Calculate the checksum
         with open(file_path, "rb") as f:
@@ -1098,7 +1110,8 @@ class ModelDownloader:
         # Compare checksums
         if actual_checksum != expected_checksum:
             logger.error(
-                f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Actual: {actual_checksum}"
+                f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, 
+                    Actual: {actual_checksum}"
             )
             return False
 
@@ -1115,7 +1128,7 @@ if __name__ == "__main__":
     def progress_callback(progress: DownloadProgress):
         print(
             f"Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
-            f"Speed: {progress.speed / 1024 / 1024:.2f} MB/s, "
+            f"Speed: {progress.speed / 1024 / 1024:.2f} MB / s, "
             f"ETA: {progress.eta:.1f}s"
         )
 
@@ -1144,7 +1157,8 @@ if __name__ == "__main__":
 
         print("\nSearch Results:")
         for model in models:
-            print(f"- {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})")
+            print(f"- {model['id']} (Downloads: {model['downloads']}, 
+                Likes: {model['likes']})")
 
     except Exception as e:
         print(f"Error: {e}")

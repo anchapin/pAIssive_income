@@ -25,25 +25,25 @@ from api.services.webhook_security import (
 from api.services.webhook_service import WebhookService
 
 # Test data
-TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK_ID = "test - webhook - 123"
 TEST_WEBHOOK = {
     "id": TEST_WEBHOOK_ID,
-    "url": "https://example.com/webhook",
+    "url": "https://example.com / webhook",
     "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
     "description": "Test webhook",
-    "headers": {"Authorization": "Bearer test-token"},
+    "headers": {"Authorization": "Bearer test - token"},
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key",
+    "secret": "test - secret - key",
 }
 
 TEST_EVENT = {
     "type": WebhookEventType.USER_CREATED,
     "data": {
-        "user_id": "user-123",
+        "user_id": "user - 123",
         "username": "testuser",
-        "email": "test@example.com",
+        "email": "test @ example.com",
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
@@ -62,7 +62,7 @@ def ip_allowlist():
     allowlist = WebhookIPAllowlist()
     # Add some test IPs and networks
     allowlist.add_ip("192.168.1.1")
-    allowlist.add_network("10.0.0.0/8")
+    allowlist.add_network("10.0.0.0 / 8")
     return allowlist
 
 
@@ -79,19 +79,19 @@ def app(webhook_service, ip_allowlist, rate_limiter):
 
     # Add middleware
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix="/webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
     )
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix="/webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
-    @app.post("/webhooks/test")
+    @app.post(" / webhooks / test")
     async def test_webhook(request: Request):
         client_ip = request.client.host if request.client else "unknown"
         return {"status": "success", "client_ip": client_ip}
 
-    @app.post("/api/other")
+    @app.post(" / api / other")
     async def other_endpoint(request: Request):
         client_ip = request.client.host if request.client else "unknown"
         return {"status": "success", "client_ip": client_ip}
@@ -113,7 +113,7 @@ class TestWebhookSecurityIntegration:
         # Set client IP to an allowed IP
         client.app.user_middleware[0].allowlist.add_ip("testclient")
 
-        response = client.post("/webhooks/test", json={"test": "data"})
+        response = client.post(" / webhooks / test", json={"test": "data"})
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 
@@ -123,17 +123,17 @@ class TestWebhookSecurityIntegration:
         client.app.user_middleware[0].allowlist.allowlisted_ips.clear()
         client.app.user_middleware[0].allowlist.add_ip("192.168.1.2")
 
-        response = client.post("/webhooks/test", json={"test": "data"})
+        response = client.post(" / webhooks / test", json={"test": "data"})
         assert response.status_code == 403
         assert "IP address not allowed" in response.json()["detail"]
 
     def test_ip_allowlist_middleware_non_webhook_path(self, client):
-        """Test that non-webhook paths are not affected by IP allowlisting."""
+        """Test that non - webhook paths are not affected by IP allowlisting."""
         # Clear the allowlist
         client.app.user_middleware[0].allowlist.allowlisted_ips.clear()
 
         # This should work even though the IP is not allowlisted
-        response = client.post("/api/other", json={"test": "data"})
+        response = client.post(" / api / other", json={"test": "data"})
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 
@@ -141,21 +141,21 @@ class TestWebhookSecurityIntegration:
         """Test that rate limiting is applied to webhook endpoints."""
         # Make requests up to the limit
         for _ in range(5):
-            response = client.post("/webhooks/test", json={"test": "data"})
+            response = client.post(" / webhooks / test", json={"test": "data"})
             assert response.status_code == 200
-            assert "X-RateLimit-Remaining" in response.headers
+            assert "X - RateLimit - Remaining" in response.headers
 
         # Next request should be rate limited
-        response = client.post("/webhooks/test", json={"test": "data"})
+        response = client.post(" / webhooks / test", json={"test": "data"})
         assert response.status_code == 429
         assert "Rate limit exceeded" in response.json()["detail"]
-        assert "Retry-After" in response.headers
+        assert "Retry - After" in response.headers
 
     def test_rate_limit_middleware_non_webhook_path(self, client):
-        """Test that non-webhook paths are not affected by rate limiting."""
-        # Make many requests to a non-webhook path
+        """Test that non - webhook paths are not affected by rate limiting."""
+        # Make many requests to a non - webhook path
         for _ in range(10):
-            response = client.post("/api/other", json={"test": "data"})
+            response = client.post(" / api / other", json={"test": "data"})
             assert response.status_code == 200
             assert response.json()["status"] == "success"
 
@@ -163,10 +163,10 @@ class TestWebhookSecurityIntegration:
         """Test signature verification with the webhook service."""
         # Create a webhook
         webhook_data = {
-            "url": "https://example.com/webhook",
+            "url": "https://example.com / webhook",
             "events": [WebhookEventType.USER_CREATED],
             "description": "Test webhook",
-            "headers": {"Authorization": "Bearer test-token"},
+            "headers": {"Authorization": "Bearer test - token"},
             "is_active": True,
         }
 
@@ -177,10 +177,10 @@ class TestWebhookSecurityIntegration:
         # Create a payload
         payload = json.dumps(
             {
-                "id": "evt-123",
+                "id": "evt - 123",
                 "type": WebhookEventType.USER_CREATED,
                 "created_at": datetime.now(timezone.utc).isoformat(),
-                "data": {"user_id": "user-123", "username": "testuser"},
+                "data": {"user_id": "user - 123", "username": "testuser"},
             }
         )
 
@@ -191,7 +191,7 @@ class TestWebhookSecurityIntegration:
         assert WebhookSignatureVerifier.verify_signature(webhook["secret"], payload, signature)
 
         # Verify with headers
-        headers = {"Content-Type": "application/json", "X-Webhook-Signature": signature}
+        headers = {"Content - Type": "application / json", "X - Webhook - Signature": signature}
         assert WebhookSignatureVerifier.verify_request_signature(
             webhook["secret"], payload, headers
         )
@@ -207,11 +207,11 @@ class TestWebhookSecurityIntegration:
         # Create a mock for httpx.AsyncClient.post
         async def mock_post(url, headers=None, json=None, **kwargs):
             # Verify that the signature header is present
-            assert "X-Webhook-Signature" in headers
+            assert "X - Webhook - Signature" in headers
 
             # Verify the signature
             payload = json_dumps(json)
-            signature = headers["X-Webhook-Signature"]
+            signature = headers["X - Webhook - Signature"]
             assert WebhookSignatureVerifier.verify_signature(
                 TEST_WEBHOOK["secret"], payload, signature
             )
@@ -241,18 +241,18 @@ class TestWebhookSecurityIntegration:
                 assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.SUCCESS
 
     def test_end_to_end_webhook_flow(self, webhook_service, ip_allowlist, rate_limiter):
-        """Test the end-to-end webhook flow with security features."""
+        """Test the end - to - end webhook flow with security features."""
         # Create a FastAPI app to receive webhooks
         receiver_app = FastAPI()
         received_webhooks = []
 
-        @receiver_app.post("/webhook")
+        @receiver_app.post(" / webhook")
         async def receive_webhook(request: Request):
             # Get the payload
             payload = await request.json()
 
             # Get the signature
-            signature = request.headers.get("X-Webhook-Signature")
+            signature = request.headers.get("X - Webhook - Signature")
 
             # Store the received webhook
             received_webhooks.append(
@@ -268,7 +268,7 @@ class TestWebhookSecurityIntegration:
                 "url": f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
-                "headers": {"Authorization": "Bearer test-token"},
+                "headers": {"Authorization": "Bearer test - token"},
                 "is_active": True,
             }
 
@@ -292,7 +292,7 @@ class TestWebhookSecurityIntegration:
 
             # Check that the webhook was received
             assert len(received_webhooks) == 1
-            assert "X-Webhook-Signature" in received_webhooks[0]["headers"]
+            assert "X - Webhook - Signature" in received_webhooks[0]["headers"]
 
             # Verify the signature
             payload_str = json.dumps(received_webhooks[0]["payload"])

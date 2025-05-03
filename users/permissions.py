@@ -1,7 +1,8 @@
 """
 Authorization and permission checking utilities for the pAIssive_income project.
 
-This module includes functions for checking user permissions and role-based authorization.
+This module includes functions for checking user permissions and role - \
+    based authorization.
 """
 
 import logging
@@ -189,7 +190,8 @@ def has_permission(
     # If a level is required, check if the user has permissions at or above that level
     if required_level is not None:
         # Check permissions for this resource at or above the required level
-        permission_base = required_permission.split(":")[0]  # e.g., "niche" from "niche:view"
+        permission_base = required_permission.split(":")[0]  # e.g., 
+            "niche" from "niche:view"
 
         for perm in user_permissions:
             if not perm.startswith(permission_base + ":"):

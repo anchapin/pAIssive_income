@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
-Script to generate a CI/CD metrics dashboard.
+Script to generate a CI / CD metrics dashboard.
 
-This script generates a dashboard of CI/CD metrics based on the collected
+This script generates a dashboard of CI / CD metrics based on the collected
 workflow metrics data.
 """
 
@@ -20,14 +20,16 @@ def get_status_class(recent_runs):
     """Return the CSS class based on the status of the most recent run."""
     if recent_runs.empty:
         return ""
-    return "success" if recent_runs.iloc[0]["status"].lower() == "success" else "failure"
+    return "success" if recent_runs.iloc[0]["status"].lower() == \
+        "success" else "failure"
 
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Generate CI/CD metrics dashboard")
+    parser = argparse.ArgumentParser(description="Generate CI / CD metrics dashboard")
     parser.add_argument("--input", required=True, help="Input metrics file path")
-    parser.add_argument("--output-dir", required=True, help="Output directory for dashboard files")
+    parser.add_argument("--output - dir", required=True, 
+        help="Output directory for dashboard files")
     return parser.parse_args()
 
 
@@ -94,7 +96,8 @@ def generate_workflow_duration_chart(df, output_dir):
 
     # Group by workflow and date
     df["date"] = df["timestamp"].dt.date
-    duration_by_workflow = df.groupby(["date", "workflow"])["duration_seconds"].mean().unstack()
+    duration_by_workflow = df.groupby(["date", 
+        "workflow"])["duration_seconds"].mean().unstack()
 
     # Plot
     plt.figure(figsize=(12, 6))
@@ -161,25 +164,28 @@ def generate_html_dashboard(df, chart_paths, output_dir):
     <!DOCTYPE html>
     <html>
     <head>
-        <title>CI/CD Metrics Dashboard</title>
+        <title>CI / CD Metrics Dashboard</title>
         <style>
-            body {{ font-family: Arial, sans-serif; margin: 20px; }}
-            .summary {{ display: flex; justify-content: space-between; margin-bottom: 20px; }}
-            .metric {{ background-color: #f5f5f5; padding: 15px; border-radius: 5px; width: 22%; }}
-            .metric h3 {{ margin-top: 0; color: #333; }}
-            .metric p {{ font-size: 24px; font-weight: bold; margin: 5px 0; }}
-            .chart {{ margin-bottom: 30px; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-            th, td {{ padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }}
-            th {{ background-color: #f2f2f2; }}
-            tr:hover {{ background-color: #f5f5f5; }}
+            body {{ font - family: Arial, sans - serif; margin: 20px; }}
+            .summary {{ display: flex; justify - \
+                content: space - between; margin - bottom: 20px; }}
+            .metric {{ background - \
+                color: #f5f5f5; padding: 15px; border - radius: 5px; width: 22%; }}
+            .metric h3 {{ margin - top: 0; color: #333; }}
+            .metric p {{ font - size: 24px; font - weight: bold; margin: 5px 0; }}
+            .chart {{ margin - bottom: 30px; }}
+            table {{ width: 100%; border - collapse: collapse; margin - top: 20px; }}
+            th, 
+                td {{ padding: 8px; text - align: left; border - bottom: 1px solid #ddd; }}
+            th {{ background - color: #f2f2f2; }}
+            tr:hover {{ background - color: #f5f5f5; }}
             .success {{ color: green; }}
             .failure {{ color: red; }}
         </style>
     </head>
     <body>
-        <h1>CI/CD Metrics Dashboard</h1>
-        <p>Generated on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <h1>CI / CD Metrics Dashboard</h1>
+        <p>Generated on {datetime.datetime.now().strftime(' % Y-%m-%d %H:%M:%S')}</p>
 
         <div class="summary">
             <div class="metric">
@@ -196,8 +202,10 @@ def generate_html_dashboard(df, chart_paths, output_dir):
             </div>
             <div class="metric">
                 <h3>Last Run</h3>
-                <p class="{get_status_class(recent_runs) if not recent_runs.empty else ''}">
-                    {recent_runs.iloc[0]['status'] if not recent_runs.empty else 'N/A'}
+                <p class="{get_status_class(
+                    recent_runs) if not recent_runs.empty else ''}">
+                    {recent_runs.iloc[0]['status'] if not recent_runs.empty else 'N / \
+                        A'}
                 </p>
             </div>
         </div>
@@ -234,7 +242,7 @@ def generate_html_dashboard(df, chart_paths, output_dir):
         status_class = "success" if run["status"].lower() == "success" else "failure"
         html += f"""
             <tr>
-                <td>{run["timestamp"].strftime('%Y-%m-%d %H:%M:%S')}</td>
+                <td>{run["timestamp"].strftime(' % Y-%m-%d %H:%M:%S')}</td>
                 <td>{run["workflow"]}</td>
                 <td class="{status_class}">{run["status"]}</td>
                 <td>{run["duration_seconds"]:.1f}</td>

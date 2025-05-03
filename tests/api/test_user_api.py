@@ -40,7 +40,7 @@ class TestUserAPI:
         data = generate_user_data()
 
         # Make request
-        response = api_test_client.post("user/register", data)
+        response = api_test_client.post("user / register", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -67,7 +67,7 @@ class TestUserAPI:
         data = {"username": "testuser", "password": "testpassword"}
 
         # Make request
-        response = api_test_client.post("user/login", data)
+        response = api_test_client.post("user / login", data)
 
         # This might return 401 if the user doesn't exist, which is fine for testing
         if response.status_code == 401:
@@ -85,7 +85,7 @@ class TestUserAPI:
     def test_get_user_profile(self, auth_api_test_client: APITestClient):
         """Test getting the user profile."""
         # Make request
-        response = auth_api_test_client.get("user/profile")
+        response = auth_api_test_client.get("user / profile")
 
         # Validate response
         result = validate_success_response(response)
@@ -108,10 +108,10 @@ class TestUserAPI:
     def test_update_user_profile(self, auth_api_test_client: APITestClient):
         """Test updating the user profile."""
         # Generate test data
-        data = {"first_name": "Updated", "last_name": "User", "email": "updated@example.com"}
+        data = {"first_name": "Updated", "last_name": "User", "email": "updated @ example.com"}
 
         # Make request
-        response = auth_api_test_client.put("user/profile", data)
+        response = auth_api_test_client.put("user / profile", data)
 
         # Validate response
         result = validate_success_response(response)
@@ -137,7 +137,7 @@ class TestUserAPI:
         data = {"current_password": "testpassword", "new_password": "newtestpassword"}
 
         # Make request
-        response = auth_api_test_client.post("user/change-password", data)
+        response = auth_api_test_client.post("user / change - password", data)
 
         # Validate response
         validate_success_response(response)
@@ -145,7 +145,7 @@ class TestUserAPI:
     def test_get_user_projects(self, auth_api_test_client: APITestClient):
         """Test getting the user's projects."""
         # Make request
-        response = auth_api_test_client.get("user/projects")
+        response = auth_api_test_client.get("user / projects")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -156,7 +156,7 @@ class TestUserAPI:
     def test_get_user_teams(self, auth_api_test_client: APITestClient):
         """Test getting the user's teams."""
         # Make request
-        response = auth_api_test_client.get("user/teams")
+        response = auth_api_test_client.get("user / teams")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -167,7 +167,7 @@ class TestUserAPI:
     def test_get_user_activity(self, auth_api_test_client: APITestClient):
         """Test getting the user's activity."""
         # Make request
-        response = auth_api_test_client.get("user/activity")
+        response = auth_api_test_client.get("user / activity")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -178,7 +178,7 @@ class TestUserAPI:
     def test_get_user_settings(self, auth_api_test_client: APITestClient):
         """Test getting the user's settings."""
         # Make request
-        response = auth_api_test_client.get("user/settings")
+        response = auth_api_test_client.get("user / settings")
 
         # Validate response
         result = validate_success_response(response)
@@ -199,7 +199,7 @@ class TestUserAPI:
         }
 
         # Make request
-        response = auth_api_test_client.put("user/settings", data)
+        response = auth_api_test_client.put("user / settings", data)
 
         # Validate response
         result = validate_success_response(response)
@@ -225,7 +225,7 @@ class TestUserAPI:
             "preferences": {
                 "language": "en",
                 "timezone": "UTC",
-                "date_format": "YYYY-MM-DD",
+                "date_format": "YYYY - MM - DD",
                 "time_format": "24h",
                 "currency": "USD",
                 "communication": {
@@ -238,7 +238,7 @@ class TestUserAPI:
         }
 
         # Make request
-        response = auth_api_test_client.put("user/preferences", data)
+        response = auth_api_test_client.put("user / preferences", data)
 
         # Validate response
         result = validate_success_response(response)
@@ -273,7 +273,7 @@ class TestUserAPI:
     def test_delete_user_account(self, auth_api_test_client: APITestClient):
         """Test deleting a user account."""
         # Make request
-        response = auth_api_test_client.delete("user/account")
+        response = auth_api_test_client.delete("user / account")
 
         # Validate response
         validate_success_response(response, 204)  # No Content
@@ -289,7 +289,7 @@ class TestUserAPI:
 
         # Make request
         response = auth_api_test_client.delete(
-            "user/account", headers={"Content-Type": "application/json"}, json=data
+            "user / account", headers={"Content - Type": "application / json"}, json=data
         )
 
         # Validate response
@@ -305,7 +305,7 @@ class TestUserAPI:
         ]
 
         # Make request
-        response = auth_api_test_client.put("user/roles/bulk", updates)
+        response = auth_api_test_client.put("user / roles / bulk", updates)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -337,7 +337,7 @@ class TestUserAPI:
         user_ids = [generate_id() for _ in range(3)]
 
         # Make request
-        response = auth_api_test_client.bulk_delete("user/accounts", user_ids)
+        response = auth_api_test_client.bulk_delete("user / accounts", user_ids)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -363,23 +363,23 @@ class TestUserAPI:
     def test_invalid_bulk_operations(self, auth_api_test_client: APITestClient):
         """Test invalid bulk operations."""
         # Test bulk role update with empty list
-        response = auth_api_test_client.put("user/roles/bulk", [])
+        response = auth_api_test_client.put("user / roles / bulk", [])
         validate_error_response(response, 422)
 
         # Test bulk role update with invalid data
         response = auth_api_test_client.put(
-            "user/roles/bulk",
-            [{"user_id": "invalid-id"}, {"roles": ["admin"]}],  # Missing roles  # Missing user_id
+            "user / roles / bulk",
+            [{"user_id": "invalid - id"}, {"roles": ["admin"]}],  # Missing roles  # Missing user_id
         )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
-        response = auth_api_test_client.bulk_delete("user/accounts", [])
+        response = auth_api_test_client.bulk_delete("user / accounts", [])
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
         response = auth_api_test_client.bulk_delete(
-            "user/accounts", ["invalid-id-1", "invalid-id-2"]
+            "user / accounts", ["invalid - id - 1", "invalid - id - 2"]
         )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)
@@ -390,7 +390,7 @@ class TestUserAPI:
         data = {"username": "nonexistentuser", "password": "wrongpassword"}
 
         # Make request
-        response = api_test_client.post("user/login", data)
+        response = api_test_client.post("user / login", data)
 
         # Validate error response
         validate_error_response(response, 401)  # Unauthorized
@@ -398,7 +398,7 @@ class TestUserAPI:
     def test_unauthorized_access(self, api_test_client: APITestClient):
         """Test unauthorized access to protected endpoints."""
         # Make request without authentication
-        response = api_test_client.get("user/profile")
+        response = api_test_client.get("user / profile")
 
         # Validate error response
         validate_error_response(response, 401)  # Unauthorized
@@ -406,7 +406,7 @@ class TestUserAPI:
     def test_invalid_registration(self, api_test_client: APITestClient):
         """Test invalid registration."""
         # Make request with invalid data
-        response = api_test_client.post("user/register", {})
+        response = api_test_client.post("user / register", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity

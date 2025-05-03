@@ -2,7 +2,7 @@
 Quantized model implementation for the AI Models module.
 
 This module provides specialized classes for working with quantized models,
-including 4-bit and 8-bit quantized models.
+including 4 - bit and 8 - bit quantized models.
 """
 
 import logging
@@ -11,7 +11,7 @@ from typing import Any, Dict
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ try:
 
     BITSANDBYTES_AVAILABLE = True
 except ImportError:
-    logger.warning("BitsAndBytes not available. 4-bit and 8-bit quantization will be limited.")
+    logger.warning("BitsAndBytes not available. 4 - bit and 8 - bit quantization will be limited.")
     BITSANDBYTES_AVAILABLE = False
 
 try:
@@ -48,7 +48,7 @@ try:
 
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning("llama-cpp-python not available. GGUF model support will be limited.")
+    logger.warning("llama - cpp - python not available. GGUF model support will be limited.")
     LLAMA_CPP_AVAILABLE = False
 
 
@@ -60,7 +60,7 @@ class QuantizedModel:
     def __init__(
         self,
         model_path: str,
-        model_type: str = "text-generation",
+        model_type: str = "text - generation",
         quantization: str = "4bit",
         device: str = "auto",
         **kwargs,
@@ -70,7 +70,7 @@ class QuantizedModel:
 
         Args:
             model_path: Path to the model file or directory
-            model_type: Type of model (text-generation, embedding, etc.)
+            model_type: Type of model (text - generation, embedding, etc.)
             quantization: Quantization level (4bit, 8bit, etc.)
             device: Device to run the model on (auto, cpu, cuda, etc.)
             **kwargs: Additional parameters for model initialization
@@ -152,13 +152,13 @@ class QuantizedModel:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
 
             # Prepare quantization config
-            if self.quantization == "4bit" or self.quantization == "4-bit":
+            if self.quantization == "4bit" or self.quantization == "4 - bit":
                 if not BITSANDBYTES_AVAILABLE:
                     raise ImportError(
                         "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
                     )
 
-                # 4-bit quantization
+                # 4 - bit quantization
                 quantization_config = transformers.BitsAndBytesConfig(
                     load_in_4bit=True,
                     bnb_4bit_compute_dtype=torch.float16,
@@ -166,13 +166,13 @@ class QuantizedModel:
                     bnb_4bit_quant_type="nf4",
                 )
 
-            elif self.quantization == "8bit" or self.quantization == "8-bit":
+            elif self.quantization == "8bit" or self.quantization == "8 - bit":
                 if not BITSANDBYTES_AVAILABLE:
                     raise ImportError(
                         "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
                     )
 
-                # 8-bit quantization
+                # 8 - bit quantization
                 quantization_config = transformers.BitsAndBytesConfig(
                     load_in_8bit=True, llm_int8_threshold=6.0
                 )
@@ -201,7 +201,7 @@ class QuantizedModel:
         """
         if not LLAMA_CPP_AVAILABLE:
             raise ImportError(
-                "llama-cpp-python not available. Please install it with: pip install llama-cpp-python"
+                "llama - cpp - python not available. Please install it with: pip install llama - cpp - python"
             )
 
         logger.info(f"Loading quantized GGUF model: {self.model_path}")
@@ -243,8 +243,8 @@ class QuantizedModel:
             prompt: Input prompt
             max_tokens: Maximum number of tokens to generate
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             **kwargs: Additional parameters for text generation
 
         Returns:
@@ -278,8 +278,8 @@ class QuantizedModel:
             prompt: Input prompt
             max_tokens: Maximum number of tokens to generate
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             **kwargs: Additional parameters for text generation
 
         Returns:
@@ -332,8 +332,8 @@ class QuantizedModel:
             prompt: Input prompt
             max_tokens: Maximum number of tokens to generate
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             **kwargs: Additional parameters for text generation
 
         Returns:
@@ -375,7 +375,7 @@ class QuantizedModel:
             "device": self.device,
         }
 
-        # Add model-specific metadata
+        # Add model - specific metadata
         if self.model_format == "huggingface" and self.model:
             config = self.model.config
             metadata["model_config"] = {
@@ -392,7 +392,7 @@ class QuantizedModel:
 # Example usage
 if __name__ == "__main__":
     # Example model path (replace with an actual model path)
-    model_path = "path/to/model"
+    model_path = "path / to / model"
 
     if os.path.exists(model_path):
         # Create quantized model

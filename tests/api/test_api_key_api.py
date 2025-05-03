@@ -40,7 +40,7 @@ class TestAPIKeyAPI:
         data = generate_api_key_data()
 
         # Make request
-        response = auth_api_test_client.post("api-keys", data)
+        response = auth_api_test_client.post("api - keys", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -66,7 +66,7 @@ class TestAPIKeyAPI:
     def test_get_api_keys(self, auth_api_test_client: APITestClient):
         """Test getting all API keys."""
         # Make request
-        response = auth_api_test_client.get("api-keys")
+        response = auth_api_test_client.get("api - keys")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -84,7 +84,7 @@ class TestAPIKeyAPI:
         key_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.get(f"api-keys/{key_id}")
+        response = auth_api_test_client.get(f"api - keys/{key_id}")
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -122,7 +122,7 @@ class TestAPIKeyAPI:
         }
 
         # Make request
-        response = auth_api_test_client.put(f"api-keys/{key_id}", data)
+        response = auth_api_test_client.put(f"api - keys/{key_id}", data)
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -148,7 +148,7 @@ class TestAPIKeyAPI:
         key_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.delete(f"api-keys/{key_id}")
+        response = auth_api_test_client.delete(f"api - keys/{key_id}")
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -162,7 +162,7 @@ class TestAPIKeyAPI:
         key_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.post(f"api-keys/{key_id}/revoke")
+        response = auth_api_test_client.post(f"api - keys/{key_id}/revoke")
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -176,7 +176,7 @@ class TestAPIKeyAPI:
         key_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.post(f"api-keys/{key_id}/regenerate")
+        response = auth_api_test_client.post(f"api - keys/{key_id}/regenerate")
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -197,7 +197,7 @@ class TestAPIKeyAPI:
         key_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.get(f"api-keys/{key_id}/usage")
+        response = auth_api_test_client.get(f"api - keys/{key_id}/usage")
 
         # This might return 404 if the key doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -220,7 +220,7 @@ class TestAPIKeyAPI:
         # Make request without authentication
         # Create a client with no auth headers
         client = APITestClient(api_test_client.client, {})
-        response = client.get("api-keys")
+        response = client.get("api - keys")
 
         # Validate error response
         validate_error_response(response, 401)  # Unauthorized
@@ -228,7 +228,7 @@ class TestAPIKeyAPI:
     def test_invalid_api_key_request(self, auth_api_test_client: APITestClient):
         """Test invalid API key request."""
         # Make request with invalid data
-        response = auth_api_test_client.post("api-keys", {})
+        response = auth_api_test_client.post("api - keys", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -236,10 +236,10 @@ class TestAPIKeyAPI:
     def test_nonexistent_api_key(self, auth_api_test_client: APITestClient):
         """Test getting a nonexistent API key."""
         # Generate a random ID that is unlikely to exist
-        key_id = "nonexistent-" + generate_id()
+        key_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = auth_api_test_client.get(f"api-keys/{key_id}")
+        response = auth_api_test_client.get(f"api - keys/{key_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found

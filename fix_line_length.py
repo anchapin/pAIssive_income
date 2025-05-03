@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Script to fix line length issues (E501) in Python files.
 
@@ -6,7 +6,7 @@ This script scans Python files in the project and attempts to fix lines
 that exceed the maximum line length (typically 88 or 79 characters).
 
 Usage:
-    python fix_line_length.py [directory] [--max-length=88]
+    python fix_line_length.py [directory] [--max - length=88]
 """
 
 import argparse
@@ -23,7 +23,7 @@ def find_python_files(directory):
 
 def fix_line_length_in_file(file_path, max_length=88):
     """Fix line length issues in a single file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf - 8") as f:
         lines = f.readlines()
 
     modified = False
@@ -47,7 +47,7 @@ def fix_line_length_in_file(file_path, max_length=88):
 
     # Write changes if needed
     if modified:
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             f.writelines(modified_lines)
         return True
 
@@ -77,9 +77,9 @@ def fix_long_line(line, max_length):
         current_length = len(result)
         
         for i in range(1, len(parts), 2):
-            if i+1 < len(parts):
+            if i + 1 < len(parts):
                 comma = parts[i]
-                next_part = parts[i+1]
+                next_part = parts[i + 1]
                 
                 if current_length + len(comma) + len(next_part) > max_length:
                     result += comma + "\n" + indent_str + "    " + next_part.lstrip()
@@ -91,7 +91,8 @@ def fix_long_line(line, max_length):
         return result + "\n"
     
     # Strategy 2: Break at operators in expressions
-    operators = [" + ", " - ", " * ", " / ", " = ", " == ", " != ", " >= ", " <= ", " and ", " or "]
+    operators = [" + ", " - ", " * ", " / ", " = ", " == ", " != ", " >= ", " <= ", 
+        " and ", " or "]
     for op in operators:
         if op in line_stripped:
             parts = line_stripped.split(op, 1)
@@ -104,7 +105,8 @@ def fix_long_line(line, max_length):
     if "(" in line_stripped:
         open_paren_pos = line_stripped.find("(")
         if open_paren_pos < max_length - 5:
-            return line_stripped[:open_paren_pos+1] + "\n" + indent_str + "    " + line_stripped[open_paren_pos+1:] + "\n"
+            return line_stripped[:open_paren_pos + \
+                1] + "\n" + indent_str + "    " + line_stripped[open_paren_pos + 1:] + "\n"
     
     # If we can't fix it automatically, return the original line
     return line
@@ -127,9 +129,11 @@ def fix_line_length(directory, max_length=88):
 
 def main():
     """Main function to run the script."""
-    parser = argparse.ArgumentParser(description="Fix line length issues in Python files")
+    parser = \
+        argparse.ArgumentParser(description="Fix line length issues in Python files")
     parser.add_argument("directory", nargs="?", default=".", help="Directory to scan")
-    parser.add_argument("--max-length", type=int, default=88, help="Maximum line length")
+    parser.add_argument("--max-length", type=int, default=88, 
+        help="Maximum line length")
     
     args = parser.parse_args()
     fixed_files = fix_line_length(args.directory, args.max_length)

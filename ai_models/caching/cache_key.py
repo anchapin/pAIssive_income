@@ -83,9 +83,9 @@ def _hash_string(s: str) -> str:
     Returns:
         Hash of the string
     """
-    # Using SHA-256 for better security
+    # Using SHA - 256 for better security
     # Note: This is not used for cryptographic security purposes
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    return hashlib.sha256(s.encode("utf - 8")).hexdigest()
 
 
 def _hash_list(lst: List[Any]) -> str:
@@ -98,9 +98,9 @@ def _hash_list(lst: List[Any]) -> str:
     Returns:
         Hash of the list
     """
-    # Using SHA-256 for better security
+    # Using SHA - 256 for better security
     # Note: This is not used for cryptographic security purposes
-    return hashlib.sha256(json.dumps(lst, sort_keys=True).encode("utf-8")).hexdigest()
+    return hashlib.sha256(json.dumps(lst, sort_keys=True).encode("utf - 8")).hexdigest()
 
 
 def _hash_dict(d: Dict[str, Any]) -> str:
@@ -113,9 +113,9 @@ def _hash_dict(d: Dict[str, Any]) -> str:
     Returns:
         Hash of the dictionary
     """
-    # Using SHA-256 for better security
+    # Using SHA - 256 for better security
     # Note: This is not used for cryptographic security purposes
-    return hashlib.sha256(json.dumps(d, sort_keys=True).encode("utf-8")).hexdigest()
+    return hashlib.sha256(json.dumps(d, sort_keys=True).encode("utf - 8")).hexdigest()
 
 
 def parse_cache_key(key_str: str) -> CacheKey:

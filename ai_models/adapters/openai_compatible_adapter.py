@@ -1,4 +1,4 @@
-"""OpenAI-compatible model adapter implementation."""
+"""OpenAI - compatible model adapter implementation."""
 
 import logging
 from typing import Any, Dict, List, Optional, Union
@@ -9,12 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAICompatibleAdapter(BaseModelAdapter):
-    """Adapter for OpenAI-compatible API endpoints."""
+    """Adapter for OpenAI - compatible API endpoints."""
 
     def __init__(self, model_id: str, config: Dict[str, Any]):
         """Initialize OpenAI adapter."""
         super().__init__(model_id, config)
-        self.api_base = config.get("api_base", "https://api.openai.com/v1")
+        self.api_base = config.get("api_base", "https://api.openai.com / v1")
         self.api_key = config.get("api_key")
 
     def generate_text(
@@ -30,7 +30,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
         Args:
             prompt: Text prompt to generate from
             max_tokens: Maximum tokens to generate
-            temperature: Sampling temperature (0-1)
+            temperature: Sampling temperature (0 - 1)
             stop: Stop sequence(s) to end generation
 
         Returns:
@@ -86,7 +86,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
         import requests
 
         headers = {
-            "Content-Type": "application/json",
+            "Content - Type": "application / json",
             "Authorization": f"Bearer {self.api_key}",
         }
 

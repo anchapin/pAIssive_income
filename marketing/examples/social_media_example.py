@@ -19,7 +19,7 @@ from marketing import SocialMediaIntegration, SocialMediaPlatform
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 def main():
     """Run the social media integration example."""
     # Create a directory for storing connection data
-    storage_path = Path("./data/social_media")
+    storage_path = Path("./data / social_media")
     storage_path.mkdir(parents=True, exist_ok=True)
 
     # Initialize the social media integration
@@ -95,7 +95,7 @@ def main():
         # Example: Post to Facebook
         facebook_content = {
             "message": "This is a test post from the pAIssive Income social media integration module!",
-            "link": "https://github.com/anchapin/pAIssive_income",
+            "link": "https://github.com / anchapin / pAIssive_income",
         }
 
         facebook_result = social_media.post_content(
@@ -110,7 +110,7 @@ def main():
 
         scheduled_content = {
             "message": "This is a scheduled post from the pAIssive Income social media integration module!",
-            "link": "https://github.com/anchapin/pAIssive_income",
+            "link": "https://github.com / anchapin / pAIssive_income",
         }
 
         scheduled_result = social_media.schedule_post(
@@ -141,7 +141,7 @@ def main():
         # Example: Post an image to Instagram
         instagram_content = {
             "caption": "This is a test post from the pAIssive Income social media integration module! #AITools #PassiveIncome",
-            "image": {"url": "https://example.com/image.jpg"},  # Replace with a real image URL
+            "image": {"url": "https://example.com / image.jpg"},  # Replace with a real image URL
         }
 
         instagram_result = social_media.post_content(
@@ -155,7 +155,7 @@ def main():
         story_content = {
             "story": {
                 "type": "image",
-                "url": "https://example.com/story-image.jpg",  # Replace with a real image URL
+                "url": "https://example.com / story - image.jpg",  # Replace with a real image URL
             }
         }
 
@@ -205,7 +205,7 @@ def main():
             "text": "Check out this great resource for AI tools!",
             "article": {
                 "title": "Generate Passive Income with AI Tools",
-                "url": "https://github.com/anchapin/pAIssive_income",
+                "url": "https://github.com / anchapin / pAIssive_income",
                 "description": "A comprehensive framework for creating passive income streams using AI tools.",
             },
         }
@@ -248,7 +248,7 @@ def main():
             "refresh_token": "YOUR_YOUTUBE_REFRESH_TOKEN",
             "client_id": "YOUR_YOUTUBE_CLIENT_ID",
             "client_secret": "YOUR_YOUTUBE_CLIENT_SECRET",
-            "api_key": "YOUR_YOUTUBE_API_KEY",  # For read-only operations
+            "api_key": "YOUR_YOUTUBE_API_KEY",  # For read - only operations
             "channel_id": "YOUR_YOUTUBE_CHANNEL_ID",
             "account_name": "Your YouTube Channel",
             "account_id": "YourYouTubeID",
@@ -267,7 +267,7 @@ def main():
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
             "privacy_status": "private",  # Use private for testing
-            "video": {"file_path": "path/to/test-video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
         }
 
         youtube_result = social_media.post_content(
@@ -288,7 +288,7 @@ def main():
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
             "privacy_status": "private",  # Use private for testing
-            "video": {"file_path": "path/to/test-video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
         }
 
         youtube_scheduled_result = social_media.schedule_post(
@@ -344,9 +344,9 @@ def main():
                 "board_name": "AI Tools",  # Will create the board if it doesn't exist
                 "media": {
                     "source_type": "image_url",
-                    "url": "https://example.com/image.jpg",  # Replace with a real image URL
+                    "url": "https://example.com / image.jpg",  # Replace with a real image URL
                 },
-                "link": "https://github.com/anchapin/pAIssive_income",
+                "link": "https://github.com / anchapin / pAIssive_income",
             }
         }
 
@@ -393,7 +393,7 @@ def main():
 
         # Example: Post a video to TikTok
         tiktok_content = {
-            "video": {"file_path": "path/to/test-video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
             "caption": "Testing the pAIssive Income social media integration module!",
             "hashtags": ["AITools", "PassiveIncome", "TikTokAPI", "Test"],
         }
@@ -423,7 +423,7 @@ def main():
     except Exception as e:
         logger.error(f"Error in TikTok example: {e}")
 
-    # Example: Create a multi-platform campaign
+    # Example: Create a multi - platform campaign
     try:
         # Define platforms to include in the campaign
         platforms = []
@@ -448,11 +448,11 @@ def main():
             content_items = [
                 {
                     "text": "Check out our new project on GitHub! #AITools #PassiveIncome",
-                    "link": "https://github.com/anchapin/pAIssive_income",
+                    "link": "https://github.com / anchapin / pAIssive_income",
                 },
                 {
                     "text": "Learn how to generate passive income with AI tools! #AITools #PassiveIncome",
-                    "link": "https://github.com/anchapin/pAIssive_income",
+                    "link": "https://github.com / anchapin / pAIssive_income",
                 },
             ]
 

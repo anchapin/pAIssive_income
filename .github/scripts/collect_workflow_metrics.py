@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
 Script to collect GitHub Actions workflow metrics.
 
@@ -15,10 +15,12 @@ import sys
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Collect GitHub Actions workflow metrics")
+    parser = \
+        argparse.ArgumentParser(description="Collect GitHub Actions workflow metrics")
     parser.add_argument("--workflow", required=True, help="Name of the workflow")
     parser.add_argument("--status", required=True, help="Status of the workflow run")
-    parser.add_argument("--duration", required=True, help="Duration of the workflow run")
+    parser.add_argument("--duration", required=True, 
+        help="Duration of the workflow run")
     parser.add_argument("--branch", required=True, help="Branch name")
     parser.add_argument("--commit", required=True, help="Commit SHA")
     parser.add_argument("--output", required=True, help="Output file path")

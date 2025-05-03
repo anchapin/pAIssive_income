@@ -1,5 +1,5 @@
 """
-List command for the command-line interface.
+List command for the command - line interface.
 
 This module provides a command for listing available models.
 """
@@ -12,7 +12,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,13 @@ class ListCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
         parser.add_argument(
-            "--model-dir",
+            "--model - dir",
             type=str,
             default="models",
             help="Directory containing models",
@@ -45,7 +45,7 @@ class ListCommand(BaseCommand):
         )
         parser.add_argument("--output", type=str, help="Output file (default: stdout)")
         parser.add_argument(
-            "--include-details",
+            "--include - details",
             action="store_true",
             help="Include detailed information about each model",
         )
@@ -126,7 +126,7 @@ class ListCommand(BaseCommand):
 
             # Write output
             if self.args.output:
-                with open(self.args.output, "w", encoding="utf-8") as f:
+                with open(self.args.output, "w", encoding="utf - 8") as f:
                     f.write(output)
                 logger.info(f"Model list written to {self.args.output}")
             else:

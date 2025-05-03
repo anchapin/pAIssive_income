@@ -18,11 +18,11 @@ def run_demo():
 
     # Step 1: Create a freemium subscription model
     print("\n1. Creating a Freemium Subscription Model")
-    print("-" * 50)
+    print(" - " * 50)
 
     model = FreemiumModel(
         name="AI Script Generator",
-        description="AI-powered tool for generating YouTube scripts",
+        description="AI - powered tool for generating YouTube scripts",
     )
 
     # Add features
@@ -47,7 +47,7 @@ def run_demo():
 
     feature3 = model.add_feature(
         name="Script Templates",
-        description="Access to pre-made script templates",
+        description="Access to pre - made script templates",
         feature_type="content",
         value_proposition="Start with proven formats",
         development_cost="medium",
@@ -92,7 +92,8 @@ def run_demo():
         price_monthly=19.99,
         target_users="Professional content creators and small channels",
     )
-    print(f"- {pro_tier['name']}: ${pro_tier['price_monthly']}/month - {pro_tier['description']}")
+    print(f"- {pro_tier['name']}: ${pro_tier['price_monthly']}/month - \
+        {pro_tier['description']}")
 
     premium_tier = model.add_paid_tier(
         name="Premium",
@@ -101,7 +102,8 @@ def run_demo():
         target_users="Serious YouTubers and content teams",
     )
     print(
-        f"- {premium_tier['name']}: ${premium_tier['price_monthly']}/month - {premium_tier['description']}"
+        f"- {premium_tier['name']}: ${premium_tier['price_monthly']}/month - \
+            {premium_tier['description']}"
     )
 
     # Assign features to paid tiers
@@ -120,12 +122,12 @@ def run_demo():
 
     # Step 2: Calculate optimal pricing
     print("\n2. Calculating Optimal Pricing")
-    print("-" * 50)
+    print(" - " * 50)
 
     calculator = PricingCalculator(
         name="Script Generator Pricing Calculator",
         description="Pricing calculator for the AI Script Generator",
-        pricing_strategy="value-based",
+        pricing_strategy="value - based",
     )
 
     # Analyze price sensitivity
@@ -141,7 +143,8 @@ def run_demo():
     print("\nPrice points:")
     for point in analysis["price_points"]:
         print(
-            f"- Price: ${point['price']:.2f}, Demand: {point['demand']}, Revenue: ${point['revenue']:.2f}"
+            f"- Price: ${point['price']:.2f}, Demand: {point['demand']}, 
+                Revenue: ${point['revenue']:.2f}"
         )
 
     print(f"\nOptimal price: ${analysis['optimal_price']:.2f}")
@@ -157,7 +160,7 @@ def run_demo():
 
     # Step 3: Project revenue
     print("\n3. Projecting Revenue")
-    print("-" * 50)
+    print(" - " * 50)
 
     projector = RevenueProjector(
         name="Script Generator Revenue Projector",

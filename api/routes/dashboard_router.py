@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.get("/")
+    @router.get(" / ")
     async def get_dashboard_info():
         """
         Get dashboard information.
@@ -94,11 +94,11 @@ if FASTAPI_AVAILABLE:
         return {
             "message": "Dashboard API is available",
             "status": "active",
-            "endpoints": ["/overview", "/revenue", "/subscribers", "/marketing", "/model-usage"],
+            "endpoints": [" / overview", " / revenue", " / subscribers", " / marketing", " / model - usage"],
         }
 
     @router.get(
-        "/overview",
+        " / overview",
         response_model=DashboardOverviewResponse,
         summary="Get dashboard overview",
         description="Get an overview of projects, revenue, and subscribers",
@@ -119,7 +119,7 @@ if FASTAPI_AVAILABLE:
             # Mock data for demonstration
             projects = [
                 {
-                    "id": "project-1",
+                    "id": "project - 1",
                     "name": "AI Writing Assistant",
                     "status": "active",
                     "revenue": 1250.0,
@@ -127,7 +127,7 @@ if FASTAPI_AVAILABLE:
                     "progress": 100,
                 },
                 {
-                    "id": "project-2",
+                    "id": "project - 2",
                     "name": "Local Code Helper",
                     "status": "in_development",
                     "revenue": 0.0,
@@ -135,7 +135,7 @@ if FASTAPI_AVAILABLE:
                     "progress": 65,
                 },
                 {
-                    "id": "project-3",
+                    "id": "project - 3",
                     "name": "Data Analysis Tool",
                     "status": "in_research",
                     "revenue": 0.0,
@@ -163,7 +163,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/revenue",
+        " / revenue",
         response_model=RevenueStatisticsResponse,
         summary="Get revenue statistics",
         description="Get detailed revenue statistics",
@@ -191,14 +191,14 @@ if FASTAPI_AVAILABLE:
             for i in range(days):
                 date = end_date - timedelta(days=i)
                 daily_revenue.append(
-                    {"date": date.strftime("%Y-%m-%d"), "revenue": 1000 + (i % 10) * 100}
+                    {"date": date.strftime(" % Y-%m-%d"), "revenue": 1000 + (i % 10) * 100}
                 )
 
             # Generate monthly revenue data
             for i in range(12):
                 date = end_date - timedelta(days=i * 30)
                 monthly_revenue.append(
-                    {"month": date.strftime("%Y-%m"), "revenue": 3000 + (i % 5) * 500}
+                    {"month": date.strftime(" % Y-%m"), "revenue": 3000 + (i % 5) * 500}
                 )
 
             # Generate revenue by product
@@ -223,7 +223,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/subscribers",
+        " / subscribers",
         response_model=SubscriberStatisticsResponse,
         summary="Get subscriber statistics",
         description="Get detailed subscriber statistics",
@@ -251,7 +251,7 @@ if FASTAPI_AVAILABLE:
             for i in range(days):
                 date = end_date - timedelta(days=i)
                 total = max(0, total - (i % 3))
-                subscriber_growth.append({"date": date.strftime("%Y-%m-%d"), "subscribers": total})
+                subscriber_growth.append({"date": date.strftime(" % Y-%m-%d"), "subscribers": total})
 
             # Generate subscribers by plan
             subscribers_by_plan = [
@@ -276,7 +276,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/marketing",
+        " / marketing",
         response_model=MarketingStatisticsResponse,
         summary="Get marketing statistics",
         description="Get detailed marketing statistics",
@@ -301,7 +301,7 @@ if FASTAPI_AVAILABLE:
             # Generate campaign data
             campaigns = [
                 {
-                    "id": "campaign-1",
+                    "id": "campaign - 1",
                     "name": "Product Launch",
                     "status": "active",
                     "budget": 1000.0,
@@ -310,7 +310,7 @@ if FASTAPI_AVAILABLE:
                     "roi": 2.5,
                 },
                 {
-                    "id": "campaign-2",
+                    "id": "campaign - 2",
                     "name": "Holiday Promotion",
                     "status": "planned",
                     "budget": 500.0,
@@ -342,7 +342,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/model-usage",
+        " / model - usage",
         response_model=ModelUsageStatisticsResponse,
         summary="Get model usage statistics",
         description="Get detailed AI model usage statistics",
@@ -365,10 +365,10 @@ if FASTAPI_AVAILABLE:
 
             # Generate requests by model data
             requests_by_model = [
-                {"model": "gpt-3.5-turbo", "requests": 1200, "tokens": 150000},
-                {"model": "gpt-4", "requests": 300, "tokens": 50000},
-                {"model": "claude-3-opus", "requests": 150, "tokens": 25000},
-                {"model": "llama-3", "requests": 500, "tokens": 75000},
+                {"model": "gpt - 3.5 - turbo", "requests": 1200, "tokens": 150000},
+                {"model": "gpt - 4", "requests": 300, "tokens": 50000},
+                {"model": "claude - 3-opus", "requests": 150, "tokens": 25000},
+                {"model": "llama - 3", "requests": 500, "tokens": 75000},
             ]
 
             # Calculate total requests
@@ -397,7 +397,7 @@ if FASTAPI_AVAILABLE:
             )
 
     @router.get(
-        "/export",
+        " / export",
         summary="Export dashboard data",
         description="Export dashboard data in various formats",
     )

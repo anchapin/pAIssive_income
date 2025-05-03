@@ -44,8 +44,9 @@ class StrategyGenerator(IMarketingStrategy):
         Initialize a strategy generator.
 
         Args:
-            business_type: Type of business (e.g., "SaaS", "E-commerce")
-            business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
+            business_type: Type of business (e.g., "SaaS", "E - commerce")
+            business_size: Size of business (e.g., "Startup", "Small", "Medium", 
+                "Enterprise")
             goals: List of marketing goals
             target_audience: Target audience details
             budget: Budget details
@@ -83,7 +84,8 @@ class StrategyGenerator(IMarketingStrategy):
 
         # Generate a strategy name
         strategy_name = (
-            f"{self.business_type} Marketing Strategy - {datetime.now().strftime('%Y-%m-%d')}"
+            f"{self.business_type} Marketing Strategy - \
+                {datetime.now().strftime(' % Y-%m-%d')}"
         )
 
         # Determine appropriate channels based on business type and target audience
@@ -134,31 +136,37 @@ class StrategyGenerator(IMarketingStrategy):
            - Establishes marketing context (B2B, B2C, hybrid approaches)
 
         2. CHANNEL RELEVANCE DETERMINATION:
-           - Calculates baseline relevance for universal channels (social media, content marketing)
-           - Applies business-specific adjustments based on industry benchmarks
-           - Implements audience-specific modifiers to channel relevance scores
-           - Incorporates goal-oriented weighting to prioritize channels that align with objectives
+           - Calculates baseline relevance for universal channels (social media, 
+               content marketing)
+           - Applies business - specific adjustments based on industry benchmarks
+           - Implements audience - specific modifiers to channel relevance scores
+           - \
+               Incorporates goal - oriented weighting to prioritize channels that align with objectives
 
-        3. PLATFORM-SPECIFIC TARGETING:
+        3. PLATFORM - SPECIFIC TARGETING:
            - Identifies specific platforms within each channel category
-           - Evaluates platform-audience alignment for demographic targeting
+           - Evaluates platform - audience alignment for demographic targeting
            - Assesses platform capabilities against content requirements
-           - Produces platform-specific relevance scores within each channel
+           - Produces platform - specific relevance scores within each channel
 
-        4. MULTI-FACTOR RANKING AND SELECTION:
+        4. MULTI - FACTOR RANKING AND SELECTION:
            - Applies composite scoring based on all analyzed factors
            - Ranks channels by overall effectiveness score
            - Filters channels based on minimum relevance thresholds
            - Optimizes channel mix for comprehensive audience coverage
 
         This algorithm addresses several critical marketing strategy challenges:
-        - Ensures selection of channels that align with specific business characteristics
+        - \
+            Ensures selection of channels that align with specific business characteristics
         - Creates a balanced channel portfolio across different marketing approaches
-        - Identifies industry-specific channels that may have higher conversion potential
-        - Provides data-driven relevance scoring to support budget allocation decisions
+        - \
+            Identifies industry - specific channels that may have higher conversion potential
+        - \
+            Provides data - driven relevance scoring to support budget allocation decisions
 
         Returns:
-            List of marketing channel schemas with complete platform details and relevance scores
+            List of marketing channel schemas with complete platform details and \
+                relevance scores
         """
         # Placeholder implementation - in a real system, this would use more sophisticated logic
         channels = []
@@ -178,6 +186,7 @@ class StrategyGenerator(IMarketingStrategy):
             MarketingChannelSchema(
                 name="Content Marketing",
                 description="Creating and sharing valuable content to attract customers",
+                    
                 platforms=["Blog", "Video", "Infographics", "Podcasts"],
                 relevance_score=0.75,
             )
@@ -193,7 +202,7 @@ class StrategyGenerator(IMarketingStrategy):
             )
         )
 
-        # Add industry-specific channels
+        # Add industry - specific channels
         if self.business_type == "SaaS":
             channels.append(
                 MarketingChannelSchema(
@@ -203,11 +212,12 @@ class StrategyGenerator(IMarketingStrategy):
                     relevance_score=0.65,
                 )
             )
-        elif self.business_type == "E-commerce":
+        elif self.business_type == "E - commerce":
             channels.append(
                 MarketingChannelSchema(
                     name="Shopping Ads",
-                    description="Product-specific advertisements on shopping platforms",
+                    description="Product - specific advertisements on shopping platforms",
+                        
                     platforms=["Google Shopping", "Facebook Shopping"],
                     relevance_score=0.80,
                 )
@@ -258,8 +268,9 @@ class StrategyGenerator(IMarketingStrategy):
                     [
                         MarketingTacticSchema(
                             channel_name=channel.name,
-                            name="SEO-Optimized Blog Content",
+                            name="SEO - Optimized Blog Content",
                             description="Creating blog content targeting specific keywords",
+                                
                             expected_impact=0.65,
                             timeframe="Medium to long term",
                             resources_required=["Content writer", "SEO specialist"],
@@ -268,7 +279,8 @@ class StrategyGenerator(IMarketingStrategy):
                         MarketingTacticSchema(
                             channel_name=channel.name,
                             name="Video Content Production",
-                            description="Creating engaging video content for products/services",
+                            description="Creating engaging video content for products / services",
+                                
                             expected_impact=0.75,
                             timeframe="Medium term",
                             resources_required=[
@@ -286,6 +298,7 @@ class StrategyGenerator(IMarketingStrategy):
                         channel_name=channel.name,
                         name="Email Newsletter Campaign",
                         description="Regular newsletters with valuable content and offers",
+                            
                         expected_impact=0.6,
                         timeframe="Short to medium term",
                         resources_required=[
@@ -298,7 +311,8 @@ class StrategyGenerator(IMarketingStrategy):
 
         return tactics
 
-    def _allocate_budget(self, channels: List[MarketingChannelSchema]) -> Dict[str, float]:
+    def _allocate_budget(self, channels: List[MarketingChannelSchema]) -> Dict[str, 
+        float]:
         """
         Allocate budget across marketing channels using proportional relevance distribution.
 
@@ -307,15 +321,17 @@ class StrategyGenerator(IMarketingStrategy):
         follows these key phases:
 
         1. CHANNEL IMPORTANCE ANALYSIS:
-           - Evaluates each channel's relevance score as a measure of potential effectiveness
-           - Calculates relative importance of each channel within the overall marketing mix
+           - \
+               Evaluates each channel's relevance score as a measure of potential effectiveness
+           - \
+               Calculates relative importance of each channel within the overall marketing mix
            - Normalizes relevance scores to create proportional distribution factors
-           - Accounts for business-specific weighting considerations
+           - Accounts for business - specific weighting considerations
 
         2. BUDGET CONSTRAINT PROCESSING:
            - Identifies total available budget from business budget specifications
            - Applies minimum allocation rules to ensure channel viability
-           - Processes any channel-specific budget constraints or requirements
+           - Processes any channel - specific budget constraints or requirements
            - Implements budget period normalization (monthly, quarterly, annual)
 
         3. PROPORTIONAL ALLOCATION CALCULATION:
@@ -326,12 +342,13 @@ class StrategyGenerator(IMarketingStrategy):
 
         4. ALLOCATION VALIDATION AND ADJUSTMENT:
            - Verifies allocations meet minimum threshold requirements for each channel
-           - Adjusts allocations to account for channel-specific cost structures
-           - Ensures no channel is under-resourced below effectiveness threshold
+           - Adjusts allocations to account for channel - specific cost structures
+           - Ensures no channel is under - resourced below effectiveness threshold
            - Rebalances allocations after adjustments to maintain budget total
 
         This algorithm addresses several critical budget allocation challenges:
-        - Ensures marketing resources are distributed according to potential effectiveness
+        - \
+            Ensures marketing resources are distributed according to potential effectiveness
         - Creates financially viable allocation for each selected marketing channel
         - Prevents resource dilution across too many channels
         - Aligns budget distribution with overall marketing strategy objectives
@@ -356,7 +373,7 @@ class StrategyGenerator(IMarketingStrategy):
 
     def _define_metrics(self) -> List[MarketingMetricSchema]:
         """
-        Define relevant performance metrics using goal-oriented KPI selection.
+        Define relevant performance metrics using goal - oriented KPI selection.
 
         This algorithm implements an intelligent marketing metrics selection system that identifies
         the most appropriate key performance indicators for a given marketing strategy. The implementation
@@ -368,16 +385,17 @@ class StrategyGenerator(IMarketingStrategy):
            - Sets appropriate measurement units for consistent reporting
            - Creates initial target values based on industry benchmarks
 
-        2. GOAL-DRIVEN METRIC SELECTION:
-           - Analyzes declared marketing goals to identify relevant goal-specific metrics
+        2. GOAL - DRIVEN METRIC SELECTION:
+           - \
+               Analyzes declared marketing goals to identify relevant goal - specific metrics
            - Maps marketing objectives to quantifiable performance indicators
            - Prioritizes metrics with direct correlation to strategic objectives
            - Ensures comprehensive coverage of all stated marketing goals
 
-        3. CHANNEL-SPECIFIC METRIC INTEGRATION:
-           - Identifies channel-appropriate performance metrics for selected channels
-           - Incorporates platform-specific metrics for digital marketing channels
-           - Establishes complementary metrics to measure multi-channel synergies
+        3. CHANNEL - SPECIFIC METRIC INTEGRATION:
+           - Identifies channel - appropriate performance metrics for selected channels
+           - Incorporates platform - specific metrics for digital marketing channels
+           - Establishes complementary metrics to measure multi - channel synergies
            - Maintains balanced metrics across various marketing funnel stages
 
         4. TARGET VALUE CALIBRATION:
@@ -402,7 +420,7 @@ class StrategyGenerator(IMarketingStrategy):
                 description="Number of visitors to the website",
                 target_value=1000,
                 current_value=0,
-                unit="visitors/month",
+                unit="visitors / month",
             ),
             MarketingMetricSchema(
                 name="Conversion Rate",
@@ -420,7 +438,7 @@ class StrategyGenerator(IMarketingStrategy):
             ),
         ]
 
-        # Add goal-specific metrics
+        # Add goal - specific metrics
         if "Increase brand awareness" in self.goals:
             metrics.append(
                 MarketingMetricSchema(
@@ -428,7 +446,7 @@ class StrategyGenerator(IMarketingStrategy):
                     description="Number of unique users who see the content",
                     target_value=10000,
                     current_value=2000,
-                    unit="users/month",
+                    unit="users / month",
                 )
             )
 
@@ -439,7 +457,7 @@ class StrategyGenerator(IMarketingStrategy):
                     description="Number of new leads generated",
                     target_value=100,
                     current_value=30,
-                    unit="leads/month",
+                    unit="leads / month",
                 )
             )
 
@@ -450,15 +468,17 @@ class StrategyGenerator(IMarketingStrategy):
                     description="Total sales revenue",
                     target_value=10000.0,
                     current_value=5000.0,
-                    unit="USD/month",
+                    unit="USD / month",
                 )
             )
 
         return metrics
 
-    def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, Any]:
+    def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, 
+        Any]:
         """
-        Evaluate the effectiveness of a marketing strategy using multi-dimensional performance analysis.
+        Evaluate the effectiveness of a marketing strategy using multi - \
+            dimensional performance analysis.
 
         This algorithm implements a comprehensive marketing performance evaluation system that quantifies
         strategy effectiveness across multiple dimensions. The implementation follows these key phases:
@@ -473,10 +493,10 @@ class StrategyGenerator(IMarketingStrategy):
            - Computes achievement percentages for each metric against target values
            - Implements scaled scoring with upper bounds to prevent outlier distortion
            - Calculates composite effectiveness score across all tracked metrics
-           - Generates normalized scores for cross-strategy comparison
+           - Generates normalized scores for cross - strategy comparison
 
         3. TARGETED RECOMMENDATION GENERATION:
-           - Identifies underperforming metrics using threshold-based detection
+           - Identifies underperforming metrics using threshold - based detection
            - Analyzes performance patterns to detect systemic vs. isolated issues
            - Generates specific recommendations for improvement prioritized by impact
            - Creates actionable insights for strategy refinement
@@ -489,7 +509,7 @@ class StrategyGenerator(IMarketingStrategy):
 
         This algorithm addresses several critical marketing evaluation challenges:
         - Enables objective assessment of marketing strategy effectiveness
-        - Supports data-driven marketing decision making through quantitative analysis
+        - Supports data - driven marketing decision making through quantitative analysis
         - Identifies specific areas requiring tactical adjustments
         - Facilitates continuous improvement through iterative strategy refinement
 
@@ -545,7 +565,8 @@ class StrategyGenerator(IMarketingStrategy):
                 target_value = metric.target_value
 
                 if current_value < target_value * 0.7:
-                    recommendations.append(f"Focus more resources on improving {metric.name}")
+                    recommendations.append(
+                        f"Focus more resources on improving {metric.name}")
 
         # Return evaluation results
         return {
@@ -577,17 +598,18 @@ class StrategyGenerator(IMarketingStrategy):
            - Identifies underperforming and overperforming strategy components
            - Calculates variance and deviation patterns across multiple metrics
 
-        2. EFFECTIVENESS-DRIVEN RESOURCE REALLOCATION:
+        2. EFFECTIVENESS - DRIVEN RESOURCE REALLOCATION:
            - Implements inverse performance correlation for budget redistribution
            - Creates a weighted adjustment matrix for tactical resource allocation
-           - Applies bounded compensation factors (0.5-1.5) to prevent overcorrection
+           - Applies bounded compensation factors (0.5 - 1.5) to prevent overcorrection
            - Ensures budget normalization to maintain total spending constraints
 
         3. TACTICAL REFINEMENT:
-           - Identifies metrics-to-tactic relationships through semantic content analysis
+           - \
+               Identifies metrics - to - tactic relationships through semantic content analysis
            - Clusters related tactics by performance patterns and marketing funnel stage
            - Adjusts tactical approaches based on observed effectiveness
-           - Implements channel-specific tactical modifications
+           - Implements channel - specific tactical modifications
 
         4. STRATEGIC CONTINUITY MANAGEMENT:
            - Maintains strategic version history with predecessor relationships
@@ -596,9 +618,10 @@ class StrategyGenerator(IMarketingStrategy):
            - Creates a complete audit trail of strategic modifications
 
         This algorithm addresses several critical marketing optimization challenges:
-        - Enables data-driven adjustment of marketing strategies without manual analysis
+        - \
+            Enables data - driven adjustment of marketing strategies without manual analysis
         - Implements incremental optimization while maintaining strategic direction
-        - Balances resource allocation between high-performing and developing channels
+        - Balances resource allocation between high - performing and developing channels
         - Provides systematic improvement of marketing effectiveness over time
 
         Args:
@@ -606,7 +629,8 @@ class StrategyGenerator(IMarketingStrategy):
             evaluation_results: Results from evaluate_strategy containing performance metrics
 
         Returns:
-            A revised marketing strategy with optimized resource allocations and tactical adjustments
+            A revised marketing strategy with optimized resource allocations and \
+                tactical adjustments
 
         Raises:
             ValueError: If strategy with the specified ID is not found
@@ -677,10 +701,12 @@ class StrategyGenerator(IMarketingStrategy):
                     # Min adjustment is 0.5, max is 1.5
                     adjustment_factor = max(0.5, min(1.5, adjustment_factor))
 
-                    current_allocation = revised_strategy.allocated_budget.get(channel, 0)
+                    current_allocation = revised_strategy.allocated_budget.get(channel, 
+                        0)
                     new_allocations[channel] = current_allocation * adjustment_factor
                 else:
-                    new_allocations[channel] = revised_strategy.allocated_budget.get(channel, 0)
+                    new_allocations[channel] = revised_strategy.allocated_budget.get(channel, 
+                        0)
 
             # Normalize allocations to match total budget
             allocation_sum = sum(new_allocations.values())
@@ -719,7 +745,7 @@ class StrategyGenerator(IMarketingStrategy):
             # Convert to dictionary
             strategy_dict = strategy.model_dump()
 
-            # Remove any non-serializable fields
+            # Remove any non - serializable fields
             if "target_audience" in strategy_dict and isinstance(
                 strategy_dict["target_audience"], dict
             ):
@@ -728,8 +754,10 @@ class StrategyGenerator(IMarketingStrategy):
                 ):
                     for key in ("age_range", "income_range"):
                         if key in strategy_dict["target_audience"]["demographics"]:
-                            value = strategy_dict["target_audience"]["demographics"][key]
-                            if hasattr(value, "__iter__") and not isinstance(value, (str, dict)):
+                            value = \
+                                strategy_dict["target_audience"]["demographics"][key]
+                            if hasattr(value, "__iter__") and not isinstance(value, (str, 
+                                dict)):
                                 strategy_dict["target_audience"]["demographics"][key] = list(value)
 
             # Return JSON string
@@ -737,8 +765,8 @@ class StrategyGenerator(IMarketingStrategy):
         elif format == "markdown":
             # Create a markdown representation
             md = f"# {strategy.name}\n\n"
-            md += f"**ID:** {strategy.id}\n"
-            md += f"**Created:** {strategy.created_at}\n\n"
+            md += f"** ID:** {strategy.id}\n"
+            md += f"** Created:** {strategy.created_at}\n\n"
 
             md += "## Business Profile\n\n"
             md += f"- **Type:** {strategy.business_type}\n"
@@ -777,23 +805,25 @@ class StrategyGenerator(IMarketingStrategy):
 
             md += "## Marketing Channels\n\n"
             for channel in strategy.channels:
-                md += f"### {channel.name} ({channel.relevance_score * 100:.0f}% Relevance)\n\n"
+                md += f"### {channel.name} ({channel.relevance_score * \
+                    100:.0f}% Relevance)\n\n"
                 md += f"{channel.description}\n\n"
-                md += "**Platforms:**\n\n"
+                md += "** Platforms:**\n\n"
                 for platform in channel.platforms:
                     md += f"- {platform}\n"
                 md += "\n"
-                md += f"**Budget Allocation:** ${strategy.allocated_budget.get(channel.name, 0):.2f}\n\n"
+                md += f"** Budget Allocation:** ${strategy.allocated_budget.get(channel.name, 
+                    0):.2f}\n\n"
 
             md += "## Tactics\n\n"
             for tactic in strategy.tactics:
                 md += f"### {tactic.name}\n\n"
-                md += f"**Channel:** {tactic.channel_name}\n\n"
+                md += f"** Channel:** {tactic.channel_name}\n\n"
                 md += f"{tactic.description}\n\n"
                 md += f"- **Expected Impact:** {tactic.expected_impact * 100:.0f}%\n"
                 md += f"- **Timeframe:** {tactic.timeframe}\n"
                 md += f"- **Estimated Cost:** ${tactic.estimated_cost}\n"
-                md += "**Resources Required:**\n\n"
+                md += "** Resources Required:**\n\n"
                 for resource in tactic.resources_required:
                     md += f"- {resource}\n"
                 md += "\n"

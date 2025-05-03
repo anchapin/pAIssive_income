@@ -1,7 +1,7 @@
 """
-Usage-based pricing for the pAIssive Income project.
+Usage - based pricing for the pAIssive Income project.
 
-This module provides classes for implementing usage-based pricing models,
+This module provides classes for implementing usage - based pricing models,
 where customers are charged based on their actual usage of a service.
 """
 
@@ -24,9 +24,9 @@ from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
 
 class UsageBasedPricing:
     """
-    Class for implementing usage-based pricing models.
+    Class for implementing usage - based pricing models.
 
-    This class provides methods for creating and managing usage-based pricing models,
+    This class provides methods for creating and managing usage - based pricing models,
     where customers are charged based on their actual usage of a service.
     """
 
@@ -38,7 +38,7 @@ class UsageBasedPricing:
         usage_tracker: Optional[UsageTracker] = None,
     ):
         """
-        Initialize a usage-based pricing model.
+        Initialize a usage - based pricing model.
 
         Args:
             name: Name of the pricing model
@@ -64,7 +64,7 @@ class UsageBasedPricing:
         maximum_cost: Optional[float] = None,
     ) -> PricingRule:
         """
-        Add a per-unit pricing rule to the model.
+        Add a per - unit pricing rule to the model.
 
         Args:
             metric: Type of usage metric
@@ -197,7 +197,7 @@ class UsageBasedPricing:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Convert the usage-based pricing model to a dictionary.
+        Convert the usage - based pricing model to a dictionary.
 
         Returns:
             Dictionary representation of the model
@@ -218,7 +218,7 @@ class UsageBasedPricing:
         usage_tracker: Optional[UsageTracker] = None,
     ) -> "UsageBasedPricing":
         """
-        Create a usage-based pricing model from a dictionary.
+        Create a usage - based pricing model from a dictionary.
 
         Args:
             data: Dictionary with model data
@@ -244,12 +244,14 @@ class UsageBasedPricing:
 
 # Example usage
 if __name__ == "__main__":
-    # Create a usage-based pricing model
-    model = UsageBasedPricing(name="API Usage Pricing", description="Pricing model for API usage")
+    # Create a usage - based pricing model
+    model = UsageBasedPricing(name="API Usage Pricing", 
+        description="Pricing model for API usage")
 
     # Add pricing rules
     model.add_per_unit_pricing(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     model.add_tiered_pricing(

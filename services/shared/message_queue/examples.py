@@ -22,7 +22,7 @@ from services.shared.message_queue import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -53,17 +53,17 @@ def niche_analysis_service_example():
 
     # Create a message queue client
     client = MessageQueueClient(
-        service_name="niche-analysis-service", exchange_name="paissive_income"
+        service_name="niche - analysis - service", exchange_name="paissive_income"
     )
 
     try:
         # Declare a queue for the service
-        queue_name = client.declare_queue(queue_name="niche-analysis-service", durable=True)
+        queue_name = client.declare_queue(queue_name="niche - analysis - service", durable=True)
 
         # Bind the queue to the exchange with a routing key
         client.bind_queue(
             queue_name=queue_name,
-            routing_key="niche-analysis.#",  # Listen for all niche analysis messages
+            routing_key="niche - analysis.#",  # Listen for all niche analysis messages
         )
 
         # Define a message handler
@@ -88,9 +88,9 @@ def niche_analysis_service_example():
 
             # Create a response message
             response_message = response_schema.create_message(
-                source="niche-analysis-service",
+                source="niche - analysis - service",
                 destination=message.source,
-                subject="niche-analysis.response",
+                subject="niche - analysis.response",
                 payload=response_payload,
                 message_type=MessageType.RESPONSE,
                 correlation_id=message.id,
@@ -146,15 +146,15 @@ async def ai_models_service_example():
 
     # Create an async message queue client
     async with AsyncMessageQueueClient(
-        service_name="ai-models-service", exchange_name="paissive_income"
+        service_name="ai - models - service", exchange_name="paissive_income"
     ) as client:
         # Declare a queue for the service
-        queue = await client.declare_queue(queue_name="ai-models-service", durable=True)
+        queue = await client.declare_queue(queue_name="ai - models - service", durable=True)
 
         # Bind the queue to the exchange with a routing key
         await client.bind_queue(
             queue=queue,
-            routing_key="ai-models.text-generation.#",  # Listen for text generation requests
+            routing_key="ai - models.text - generation.#",  # Listen for text generation requests
         )
 
         # Define a message handler
@@ -180,9 +180,9 @@ async def ai_models_service_example():
 
             # Create a response message
             response_message = response_schema.create_message(
-                source="ai-models-service",
+                source="ai - models - service",
                 destination=message.source,
-                subject="ai-models.text-generation.response",
+                subject="ai - models.text - generation.response",
                 payload=response_payload,
                 message_type=MessageType.RESPONSE,
                 correlation_id=message.id,
@@ -209,7 +209,7 @@ async def ai_models_service_example():
             await client.stop_consuming(consumer_tag)
 
 
-# Example 3: API Gateway - Request-Response Pattern
+# Example 3: API Gateway - Request - Response Pattern
 async def api_gateway_example():
     """Example of using the message queue in the API Gateway."""
 
@@ -225,15 +225,15 @@ async def api_gateway_example():
 
     # Create an async message queue client
     async with AsyncMessageQueueClient(
-        service_name="api-gateway", exchange_name="paissive_income"
+        service_name="api - gateway", exchange_name="paissive_income"
     ) as client:
         # Create a request message
-        request_payload = NicheAnalysisRequest(niche_name="fitness-apps", force_refresh=True)
+        request_payload = NicheAnalysisRequest(niche_name="fitness - apps", force_refresh=True)
 
         request_message = request_schema.create_message(
-            source="api-gateway",
-            destination="niche-analysis-service",
-            subject="niche-analysis.request",
+            source="api - gateway",
+            destination="niche - analysis - service",
+            subject="niche - analysis.request",
             payload=request_payload,
             message_type=MessageType.COMMAND,
         )
@@ -242,7 +242,7 @@ async def api_gateway_example():
 
         # Send the request and wait for a response
         response = await client.request(
-            message=request_message, routing_key="niche-analysis.request", timeout=10.0
+            message=request_message, routing_key="niche - analysis.request", timeout=10.0
         )
 
         if response:
@@ -252,9 +252,9 @@ async def api_gateway_example():
             logger.warning("No response received within timeout")
 
 
-# Example 4: Event-Driven Communication
+# Example 4: Event - Driven Communication
 def event_driven_example():
-    """Example of event-driven communication between services."""
+    """Example of event - driven communication between services."""
 
     # Define message payload schemas
     class NicheAnalysisCompleted(BaseModel):
@@ -270,22 +270,22 @@ def event_driven_example():
 
     # Create a message queue client for the publisher (Niche Analysis Service)
     publisher = MessageQueueClient(
-        service_name="niche-analysis-service", exchange_name="paissive_income"
+        service_name="niche - analysis - service", exchange_name="paissive_income"
     )
 
     # Create a message queue client for the subscriber (Marketing Service)
     subscriber = MessageQueueClient(
-        service_name="marketing-service", exchange_name="paissive_income"
+        service_name="marketing - service", exchange_name="paissive_income"
     )
 
     try:
         # Declare a queue for the subscriber
         queue_name = subscriber.declare_queue(
-            queue_name="marketing-service.niche-events", durable=True
+            queue_name="marketing - service.niche - events", durable=True
         )
 
         # Bind the queue to the exchange with a routing key
-        subscriber.bind_queue(queue_name=queue_name, routing_key="events.niche-analysis.completed")
+        subscriber.bind_queue(queue_name=queue_name, routing_key="events.niche - analysis.completed")
 
         # Define an event handler
         def handle_niche_analysis_completed(message: Message):
@@ -307,20 +307,20 @@ def event_driven_example():
 
         # Publish an event (from Niche Analysis Service)
         event_payload = NicheAnalysisCompleted(
-            niche_id="123456", niche_name="fitness-apps", timestamp=time.time(), score=0.85
+            niche_id="123456", niche_name="fitness - apps", timestamp=time.time(), score=0.85
         )
 
         event_message = event_schema.create_message(
-            source="niche-analysis-service",
-            destination="*",  # Broadcast to all interested services
-            subject="events.niche-analysis.completed",
+            source="niche - analysis - service",
+            destination=" * ",  # Broadcast to all interested services
+            subject="events.niche - analysis.completed",
             payload=event_payload,
             message_type=MessageType.EVENT,
         )
 
         logger.info(f"Publishing niche analysis completed event: {event_message.id}")
 
-        publisher.publish(message=event_message, routing_key="events.niche-analysis.completed")
+        publisher.publish(message=event_message, routing_key="events.niche - analysis.completed")
 
         # Keep the subscriber running
         try:
@@ -342,8 +342,8 @@ if __name__ == "__main__":
     # Example 2: AI Models Service - Asynchronous
     # asyncio.run(ai_models_service_example())
 
-    # Example 3: API Gateway - Request-Response Pattern
+    # Example 3: API Gateway - Request - Response Pattern
     # asyncio.run(api_gateway_example())
 
-    # Example 4: Event-Driven Communication
+    # Example 4: Event - Driven Communication
     event_driven_example()

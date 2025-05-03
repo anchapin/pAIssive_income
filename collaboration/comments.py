@@ -237,7 +237,8 @@ class CommentSystem:
     def _load_comment_data(self):
         """Load comment data from disk."""
         comments_file = os.path.join(self.storage_path, "comments.json")
-        resource_comments_file = os.path.join(self.storage_path, "resource_comments.json")
+        resource_comments_file = os.path.join(self.storage_path, 
+            "resource_comments.json")
         user_comments_file = os.path.join(self.storage_path, "user_comments.json")
 
         if os.path.exists(comments_file):
@@ -268,7 +269,8 @@ class CommentSystem:
     def _save_comment_data(self):
         """Save comment data to disk."""
         comments_file = os.path.join(self.storage_path, "comments.json")
-        resource_comments_file = os.path.join(self.storage_path, "resource_comments.json")
+        resource_comments_file = os.path.join(self.storage_path, 
+            "resource_comments.json")
         user_comments_file = os.path.join(self.storage_path, "user_comments.json")
 
         with open(comments_file, "w") as f:
@@ -335,7 +337,8 @@ class CommentSystem:
         if parent_id:
             if parent_id not in self.resource_comments[resource_key]["replies"]:
                 self.resource_comments[resource_key]["replies"][parent_id] = []
-            self.resource_comments[resource_key]["replies"][parent_id].append(comment.comment_id)
+            self.resource_comments[resource_key]["replies"][parent_id].append(
+                comment.comment_id)
         else:
             self.resource_comments[resource_key]["top_level"].append(comment.comment_id)
 
@@ -346,10 +349,12 @@ class CommentSystem:
 
         self._save_comment_data()
 
-        logger.info(f"Added comment {comment.comment_id} to {resource_type} {resource_id}")
+        logger.info(
+            f"Added comment {comment.comment_id} to {resource_type} {resource_id}")
         return comment
 
-    def update_comment(self, comment_id: str, content: str, user_id: str) -> Optional[Comment]:
+    def update_comment(self, comment_id: str, content: str, 
+        user_id: str) -> Optional[Comment]:
         """
         Update a comment.
 
@@ -359,7 +364,8 @@ class CommentSystem:
             user_id: ID of the user updating the comment
 
         Returns:
-            Updated Comment object or None if the comment does not exist or the user is not authorized
+            Updated Comment object or \
+                None if the comment does not exist or the user is not authorized
         """
         if comment_id not in self.comments:
             logger.error(f"Comment {comment_id} not found")
@@ -369,7 +375,8 @@ class CommentSystem:
 
         # Check if the user is authorized to update the comment
         if comment_data["user_id"] != user_id:
-            logger.error(f"User {user_id} is not authorized to update comment {comment_id}")
+            logger.error(
+                f"User {user_id} is not authorized to update comment {comment_id}")
             return None
 
         # Update comment
@@ -401,7 +408,8 @@ class CommentSystem:
 
         # Check if the user is authorized to delete the comment
         if comment_data["user_id"] != user_id:
-            logger.error(f"User {user_id} is not authorized to delete comment {comment_id}")
+            logger.error(
+                f"User {user_id} is not authorized to delete comment {comment_id}")
             return False
 
         # Get comment information
@@ -473,7 +481,7 @@ class CommentSystem:
 
         comments = []
 
-        # Get top-level comments
+        # Get top - level comments
         for comment_id in self.resource_comments[resource_key]["top_level"]:
             comment = self.get_comment(comment_id)
             if comment:

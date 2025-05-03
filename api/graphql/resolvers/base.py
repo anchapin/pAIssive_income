@@ -2,7 +2,7 @@
 Base GraphQL resolvers.
 
 This module provides the base Query and Mutation classes that other
-module-specific resolvers will extend.
+module - specific resolvers will extend.
 """
 
 import datetime
@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 

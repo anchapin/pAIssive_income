@@ -37,20 +37,20 @@ class TestReplayedSignatures:
 
     def test_replay_protection_with_timestamp(self):
         """Test protection against replayed signatures using timestamps."""
-        # Create a timestamp-based signature verifier
+        # Create a timestamp - based signature verifier
         verifier = WebhookSignatureVerifier()
 
         # Create a payload with timestamp
         payload = {
-            "id": "event-123",
+            "id": "event - 123",
             "type": "user.created",
             "timestamp": int(time.time()),
-            "data": {"user_id": "user-123"},
+            "data": {"user_id": "user - 123"},
         }
         payload_str = json.dumps(payload)
 
         # Create a signature with a secret
-        secret = "test-secret"
+        secret = "test - secret"
         signature = verifier.create_signature(secret, payload_str)
 
         # Verify the signature (should pass)
@@ -62,7 +62,7 @@ class TestReplayedSignatures:
         old_payload_str = json.dumps(old_payload)
         old_signature = verifier.create_signature(secret, old_payload_str)
 
-        # Create a timestamp-aware verifier with a 5-minute tolerance
+        # Create a timestamp - aware verifier with a 5 - minute tolerance
         class TimestampAwareVerifier(WebhookSignatureVerifier):
             def verify_signature(self, secret, payload, signature, max_age_minutes=5):
                 # First verify the signature itself
@@ -88,7 +88,7 @@ class TestReplayedSignatures:
                 except (json.JSONDecodeError, TypeError, ValueError):
                     return False
 
-        # Create the timestamp-aware verifier
+        # Create the timestamp - aware verifier
         ts_verifier = TimestampAwareVerifier()
 
         # Verify the current signature (should pass)
@@ -99,27 +99,27 @@ class TestReplayedSignatures:
 
     def test_replay_protection_with_nonce(self):
         """Test protection against replayed signatures using nonces."""
-        # Create a nonce-based signature verifier
+        # Create a nonce - based signature verifier
         verifier = WebhookSignatureVerifier()
 
         # Create a payload with nonce
-        nonce = "unique-nonce-123"
+        nonce = "unique - nonce - 123"
         payload = {
-            "id": "event-123",
+            "id": "event - 123",
             "type": "user.created",
             "nonce": nonce,
-            "data": {"user_id": "user-123"},
+            "data": {"user_id": "user - 123"},
         }
         payload_str = json.dumps(payload)
 
         # Create a signature with a secret
-        secret = "test-secret"
+        secret = "test - secret"
         signature = verifier.create_signature(secret, payload_str)
 
         # Create a mock nonce store
         used_nonces = set()
 
-        # Create a nonce-aware verifier
+        # Create a nonce - aware verifier
         class NonceAwareVerifier(WebhookSignatureVerifier):
             def verify_signature_with_nonce(self, secret, payload, signature, nonce_store):
                 # First verify the signature itself
@@ -145,7 +145,7 @@ class TestReplayedSignatures:
                 except (json.JSONDecodeError, TypeError, ValueError):
                     return False
 
-        # Create the nonce-aware verifier
+        # Create the nonce - aware verifier
         nonce_verifier = NonceAwareVerifier()
 
         # Verify the signature (should pass and add nonce to store)
@@ -267,16 +267,16 @@ class TestRateLimitBehavior:
 
         # Add requests
         for i in range(4):
-            limiter.add_request("test-key")
+            limiter.add_request("test - key")
 
         # Should not be rate limited yet
-        assert limiter.is_rate_limited("test-key") is False
+        assert limiter.is_rate_limited("test - key") is False
 
         # Add one more request
-        limiter.add_request("test-key")
+        limiter.add_request("test - key")
 
         # Should be rate limited now
-        assert limiter.is_rate_limited("test-key") is True
+        assert limiter.is_rate_limited("test - key") is True
 
         # Test with failing storage
         storage = UnreliableStorage(failure_rate=1.0)  # Always fail
@@ -284,16 +284,16 @@ class TestRateLimitBehavior:
 
         # Add requests
         for i in range(2):
-            limiter.add_request("test-key")
+            limiter.add_request("test - key")
 
         # Should not be rate limited yet (using conservative limit of 2)
-        assert limiter.is_rate_limited("test-key") is False
+        assert limiter.is_rate_limited("test - key") is False
 
         # Add one more request
-        limiter.add_request("test-key")
+        limiter.add_request("test - key")
 
         # Should be rate limited now (conservative limit of 2)
-        assert limiter.is_rate_limited("test-key") is True
+        assert limiter.is_rate_limited("test - key") is True
 
 
 class TestIPAllowlistUpdates:
@@ -306,16 +306,16 @@ class TestIPAllowlistUpdates:
 
         # Add some IPs to the allowlist
         allowlist.add_ip("192.168.1.1")
-        allowlist.add_cidr("10.0.0.0/24")
+        allowlist.add_cidr("10.0.0.0 / 24")
 
         # Create a FastAPI app with the allowlist middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookIPAllowlistMiddleware, allowlist=allowlist, webhook_path_prefix="/webhooks"
+            WebhookIPAllowlistMiddleware, allowlist=allowlist, webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route
-        @app.post("/webhooks/test")
+        @app.post(" / webhooks / test")
         async def test_webhook(request: Request):
             return {"status": "success"}
 
@@ -325,41 +325,41 @@ class TestIPAllowlistUpdates:
         # Test with an allowed IP
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "192.168.1.1"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 200
 
         # Test with another allowed IP in CIDR range
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "10.0.0.5"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 200
 
         # Test with a blocked IP
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "172.16.0.1"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 403
 
         # Update the allowlist during "active connections"
         allowlist.remove_ip("192.168.1.1")
         allowlist.add_ip("172.16.0.1")
 
-        # Test with the now-blocked IP
+        # Test with the now - blocked IP
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "192.168.1.1"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 403
 
-        # Test with the now-allowed IP
+        # Test with the now - allowed IP
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "172.16.0.1"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 200
 
         # Test with an IP that's still allowed via CIDR
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = "10.0.0.10"
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
             assert response.status_code == 200
 
 
@@ -373,14 +373,14 @@ class TestSignatureVerification:
 
         # Create a payload
         payload = {
-            "id": "event-123",
+            "id": "event - 123",
             "type": "user.created",
-            "data": {"user_id": "user-123", "email": "user@example.com"},
+            "data": {"user_id": "user - 123", "email": "user @ example.com"},
         }
         payload_str = json.dumps(payload)
 
         # Create a signature with a secret
-        secret = "test-secret"
+        secret = "test - secret"
         signature = verifier.create_signature(secret, payload_str)
 
         # Verify the signature (should pass)
@@ -388,7 +388,7 @@ class TestSignatureVerification:
 
         # Tamper with the payload
         tampered_payload = payload.copy()
-        tampered_payload["data"]["email"] = "hacker@evil.com"
+        tampered_payload["data"]["email"] = "hacker @ evil.com"
         tampered_payload_str = json.dumps(tampered_payload)
 
         # Verify the signature with tampered payload (should fail)
@@ -403,7 +403,7 @@ class TestSignatureVerification:
     def test_expired_timestamps(self):
         """Test signature verification with expired timestamps."""
 
-        # Create a timestamp-based signature verifier
+        # Create a timestamp - based signature verifier
         class TimestampVerifier(WebhookSignatureVerifier):
             def create_signature_with_timestamp(self, secret, payload, timestamp=None):
                 if timestamp is None:
@@ -449,10 +449,10 @@ class TestSignatureVerification:
         verifier = TimestampVerifier()
 
         # Create a payload
-        payload = json.dumps({"id": "event-123", "type": "user.created"})
+        payload = json.dumps({"id": "event - 123", "type": "user.created"})
 
         # Create a signature with current timestamp
-        secret = "test-secret"
+        secret = "test - secret"
         current_signature = verifier.create_signature_with_timestamp(secret, payload)
 
         # Verify the signature (should pass)
@@ -479,21 +479,21 @@ class TestSignatureVerification:
         verifier = WebhookSignatureVerifier()
 
         # Create a payload
-        payload = json.dumps({"id": "event-123", "type": "user.created"})
+        payload = json.dumps({"id": "event - 123", "type": "user.created"})
 
         # Create a signature with the correct secret
-        correct_secret = "correct-secret"
+        correct_secret = "correct - secret"
         signature = verifier.create_signature(correct_secret, payload)
 
         # Verify the signature with the correct secret (should pass)
         assert verifier.verify_signature(correct_secret, payload, signature) is True
 
         # Verify with an incorrect secret (should fail)
-        incorrect_secret = "incorrect-secret"
+        incorrect_secret = "incorrect - secret"
         assert verifier.verify_signature(incorrect_secret, payload, signature) is False
 
         # Verify with a similar but slightly different secret (should fail)
-        similar_secret = "correct-secre"  # Missing the last 't'
+        similar_secret = "correct - secre"  # Missing the last 't'
         assert verifier.verify_signature(similar_secret, payload, signature) is False
 
         # Verify with an empty secret (should fail)
@@ -510,7 +510,7 @@ class TestIPAllowlistCIDR:
         allowlist = WebhookIPAllowlist()
 
         # Add a CIDR range
-        allowlist.add_cidr("192.168.1.0/24")
+        allowlist.add_cidr("192.168.1.0 / 24")
 
         # Test IPs within the range
         assert allowlist.is_allowed("192.168.1.0") is True  # First IP in range
@@ -524,7 +524,7 @@ class TestIPAllowlistCIDR:
 
         # Test with a smaller CIDR range
         allowlist.clear()
-        allowlist.add_cidr("10.0.0.0/30")  # Only 4 IPs: 10.0.0.0 - 10.0.0.3
+        allowlist.add_cidr("10.0.0.0 / 30")  # Only 4 IPs: 10.0.0.0 - 10.0.0.3
 
         # Test IPs within the range
         assert allowlist.is_allowed("10.0.0.0") is True
@@ -537,8 +537,8 @@ class TestIPAllowlistCIDR:
 
         # Test with overlapping CIDR ranges
         allowlist.clear()
-        allowlist.add_cidr("10.0.0.0/24")  # 10.0.0.0 - 10.0.0.255
-        allowlist.add_cidr("10.0.0.128/25")  # 10.0.0.128 - 10.0.0.255 (overlaps)
+        allowlist.add_cidr("10.0.0.0 / 24")  # 10.0.0.0 - 10.0.0.255
+        allowlist.add_cidr("10.0.0.128 / 25")  # 10.0.0.128 - 10.0.0.255 (overlaps)
 
         # Test IPs in both ranges
         assert allowlist.is_allowed("10.0.0.0") is True
@@ -547,7 +547,7 @@ class TestIPAllowlistCIDR:
         assert allowlist.is_allowed("10.0.0.255") is True
 
         # Test removing a CIDR range
-        allowlist.remove_cidr("10.0.0.0/24")
+        allowlist.remove_cidr("10.0.0.0 / 24")
 
         # Test IPs after removal
         assert allowlist.is_allowed("10.0.0.0") is False
@@ -568,11 +568,11 @@ class TestRateLimitingConcurrent:
         # Create a FastAPI app with the rate limit middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix="/webhooks"
+            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route
-        @app.post("/webhooks/test")
+        @app.post(" / webhooks / test")
         async def test_webhook(request: Request):
             return {"status": "success"}
 
@@ -583,7 +583,7 @@ class TestRateLimitingConcurrent:
         async def make_request(client_ip):
             with patch("fastapi.Request.client") as mock_client:
                 mock_client.host = client_ip
-                return client.post("/webhooks/test")
+                return client.post(" / webhooks / test")
 
         # Make concurrent requests from the same IP
         client_ip = "192.168.1.1"
@@ -625,11 +625,11 @@ class TestRateLimitingHeaders:
         # Create a FastAPI app with the rate limit middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix="/webhooks"
+            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route
-        @app.post("/webhooks/test")
+        @app.post(" / webhooks / test")
         async def test_webhook(request: Request):
             return {"status": "success"}
 
@@ -642,35 +642,35 @@ class TestRateLimitingHeaders:
         # First request
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = client_ip
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
 
         # Check headers
         assert response.status_code == 200
-        assert "X-RateLimit-Limit" in response.headers
-        assert "X-RateLimit-Remaining" in response.headers
-        assert "X-RateLimit-Reset" in response.headers
+        assert "X - RateLimit - Limit" in response.headers
+        assert "X - RateLimit - Remaining" in response.headers
+        assert "X - RateLimit - Reset" in response.headers
 
-        assert int(response.headers["X-RateLimit-Limit"]) == 5
-        assert int(response.headers["X-RateLimit-Remaining"]) == 4
+        assert int(response.headers["X - RateLimit - Limit"]) == 5
+        assert int(response.headers["X - RateLimit - Remaining"]) == 4
 
         # Make more requests until rate limited
         for i in range(4):
             with patch("fastapi.Request.client") as mock_client:
                 mock_client.host = client_ip
-                response = client.post("/webhooks/test")
+                response = client.post(" / webhooks / test")
 
         # This request should be rate limited
         with patch("fastapi.Request.client") as mock_client:
             mock_client.host = client_ip
-            response = client.post("/webhooks/test")
+            response = client.post(" / webhooks / test")
 
         # Check headers for rate limited response
         assert response.status_code == 429
-        assert "X-RateLimit-Limit" in response.headers
-        assert "X-RateLimit-Remaining" in response.headers
-        assert "X-RateLimit-Reset" in response.headers
-        assert "Retry-After" in response.headers
+        assert "X - RateLimit - Limit" in response.headers
+        assert "X - RateLimit - Remaining" in response.headers
+        assert "X - RateLimit - Reset" in response.headers
+        assert "Retry - After" in response.headers
 
-        assert int(response.headers["X-RateLimit-Limit"]) == 5
-        assert int(response.headers["X-RateLimit-Remaining"]) == 0
-        assert int(response.headers["Retry-After"]) > 0
+        assert int(response.headers["X - RateLimit - Limit"]) == 5
+        assert int(response.headers["X - RateLimit - Remaining"]) == 0
+        assert int(response.headers["Retry - After"]) > 0

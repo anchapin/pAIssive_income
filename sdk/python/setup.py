@@ -4,18 +4,18 @@ Setup script for the pAIssive Income Python SDK.
 
 from setuptools import find_packages, setup
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", "r", encoding="utf - 8") as fh:
     long_description = fh.read()
 
 setup(
     name="paissive_income_sdk",
     version="0.1.0",
     author="pAIssive Income Team",
-    author_email="support@paissiveincome.example.com",
+    author_email="support @ paissiveincome.example.com",
     description="Python SDK for the pAIssive Income API",
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/paissive-income/paissive-income-sdk-python",
+    long_description_content_type="text / markdown",
+    url="https://github.com / paissive - income / paissive - income - sdk - python",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",

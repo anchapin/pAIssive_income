@@ -1,8 +1,8 @@
 """
-JWT authentication utilities for service-to-service communication.
+JWT authentication utilities for service - to - service communication.
 
 This module provides utilities for generating and validating JWT tokens
-for secure service-to-service communication in the microservices architecture.
+for secure service - to - service communication in the microservices architecture.
 """
 
 import logging
@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class ServiceTokenError(Exception):
 
 
 class ServiceTokenPayload(BaseModel):
-    """Payload for service-to-service JWT tokens."""
+    """Payload for service - to - service JWT tokens."""
 
     # Service that issued the token
     iss: str = Field(..., description="Issuer (service name)")
@@ -51,13 +51,13 @@ class ServiceTokenPayload(BaseModel):
     # Token issued at time (Unix timestamp)
     iat: int = Field(..., description="Issued at time (Unix timestamp)")
 
-    # Service-specific claims
-    claims: Dict[str, Any] = Field(default_factory=dict, description="Service-specific claims")
+    # Service - specific claims
+    claims: Dict[str, Any] = Field(default_factory=dict, description="Service - specific claims")
 
 
 def get_service_secret_key() -> str:
     """
-    Get the secret key for JWT token signing/validation.
+    Get the secret key for JWT token signing / validation.
 
     The secret key is read from the SERVICE_AUTH_SECRET environment variable.
     If not set, a default development key is used (not secure for production).
@@ -87,14 +87,14 @@ def create_service_token(
     claims: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
-    Create a JWT token for service-to-service authentication.
+    Create a JWT token for service - to - service authentication.
 
     Args:
         issuer: Name of the service issuing the token
         audience: Name of the service the token is intended for
         token_id: Unique token ID (defaults to current timestamp)
         expiration: Token expiration time in seconds (defaults to 15 minutes)
-        claims: Additional service-specific claims
+        claims: Additional service - specific claims
 
     Returns:
         str: The JWT token
@@ -146,7 +146,7 @@ def validate_service_token(
     token: str, audience: str, verify_expiration: bool = True
 ) -> ServiceTokenPayload:
     """
-    Validate a JWT token for service-to-service authentication.
+    Validate a JWT token for service - to - service authentication.
 
     Args:
         token: The JWT token to validate

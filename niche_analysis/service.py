@@ -87,7 +87,7 @@ class NicheAnalysisService:
             {
                 "id": "analysis123",
                 "status": "completed",
-                "created_at": "2023-01-01T00:00:00Z",
+                "created_at": "2023 - 01 - 01T00:00:00Z",
                 "niche_name": "AI Content Generation",
             }
         ]

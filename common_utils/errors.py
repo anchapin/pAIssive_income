@@ -17,7 +17,8 @@ class BaseError(Exception):
 class NicheAnalysisError(BaseError):
     """Error raised during niche analysis operations."""
 
-    def __init__(self, message="An error occurred during niche analysis", *args, **kwargs):
+    def __init__(self, message="An error occurred during niche analysis", *args, 
+        **kwargs):
         super().__init__(message, *args, **kwargs)
 
 

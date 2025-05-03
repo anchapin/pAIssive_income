@@ -38,28 +38,28 @@ class TestValidationUtils(unittest.TestCase):
     def test_is_valid_email(self):
         """Test is_valid_email function."""
         # Valid emails
-        self.assertTrue(is_valid_email("user@example.com"))
-        self.assertTrue(is_valid_email("user.name@example.co.uk"))
-        self.assertTrue(is_valid_email("user+tag@example.com"))
-        self.assertTrue(is_valid_email("user123@example.com"))
+        self.assertTrue(is_valid_email("user @ example.com"))
+        self.assertTrue(is_valid_email("user.name @ example.co.uk"))
+        self.assertTrue(is_valid_email("user + tag @ example.com"))
+        self.assertTrue(is_valid_email("user123 @ example.com"))
 
         # Invalid emails
         self.assertFalse(is_valid_email(""))
         self.assertFalse(is_valid_email("user"))
-        self.assertFalse(is_valid_email("user@"))
-        self.assertFalse(is_valid_email("@example.com"))
-        self.assertFalse(is_valid_email("user@example"))
+        self.assertFalse(is_valid_email("user @ "))
+        self.assertFalse(is_valid_email(" @ example.com"))
+        self.assertFalse(is_valid_email("user @ example"))
         self.assertFalse(is_valid_email("user@.com"))
-        self.assertFalse(is_valid_email("user@example..com"))
+        self.assertFalse(is_valid_email("user @ example..com"))
 
     def test_is_valid_url(self):
         """Test is_valid_url function."""
         # Valid URLs
         self.assertTrue(is_valid_url("http://example.com"))
         self.assertTrue(is_valid_url("https://example.com"))
-        self.assertTrue(is_valid_url("http://example.com/path"))
-        self.assertTrue(is_valid_url("http://example.com/path?query=value"))
-        self.assertTrue(is_valid_url("http://example.com/path#fragment"))
+        self.assertTrue(is_valid_url("http://example.com / path"))
+        self.assertTrue(is_valid_url("http://example.com / path?query=value"))
+        self.assertTrue(is_valid_url("http://example.com / path#fragment"))
 
         # Invalid URLs
         self.assertFalse(is_valid_url(""))
@@ -71,28 +71,28 @@ class TestValidationUtils(unittest.TestCase):
     def test_is_valid_uuid(self):
         """Test is_valid_uuid function."""
         # Valid UUIDs
-        self.assertTrue(is_valid_uuid("123e4567-e89b-12d3-a456-426614174000"))
-        self.assertTrue(is_valid_uuid("00000000-0000-0000-0000-000000000000"))
+        self.assertTrue(is_valid_uuid("123e4567 - e89b - 12d3 - a456 - 426614174000"))
+        self.assertTrue(is_valid_uuid("00000000 - 0000 - 0000 - 0000 - 000000000000"))
 
         # Invalid UUIDs
         self.assertFalse(is_valid_uuid(""))
         self.assertFalse(is_valid_uuid("123e4567"))
-        self.assertFalse(is_valid_uuid("123e4567-e89b-12d3-a456"))
-        self.assertFalse(is_valid_uuid("123e4567-e89b-12d3-a456-42661417400g"))
+        self.assertFalse(is_valid_uuid("123e4567 - e89b - 12d3 - a456"))
+        self.assertFalse(is_valid_uuid("123e4567 - e89b - 12d3 - a456 - 42661417400g"))
 
     def test_is_valid_phone(self):
         """Test is_valid_phone function."""
         # Valid phone numbers
         self.assertTrue(is_valid_phone("1234567890"))
-        self.assertTrue(is_valid_phone("+1 (123) 456-7890"))
-        self.assertTrue(is_valid_phone("123-456-7890"))
+        self.assertTrue(is_valid_phone(" + 1 (123) 456 - 7890"))
+        self.assertTrue(is_valid_phone("123 - 456 - 7890"))
         self.assertTrue(is_valid_phone("123.456.7890"))
 
         # Invalid phone numbers
         self.assertFalse(is_valid_phone(""))
         self.assertFalse(is_valid_phone("123"))
         self.assertFalse(is_valid_phone("abcdefghij"))
-        self.assertFalse(is_valid_phone("123-456-789a"))
+        self.assertFalse(is_valid_phone("123 - 456 - 789a"))
 
     def test_is_valid_username(self):
         """Test is_valid_username function."""
@@ -100,21 +100,21 @@ class TestValidationUtils(unittest.TestCase):
         self.assertTrue(is_valid_username("user"))
         self.assertTrue(is_valid_username("user123"))
         self.assertTrue(is_valid_username("user_name"))
-        self.assertTrue(is_valid_username("user-name"))
+        self.assertTrue(is_valid_username("user - name"))
 
         # Invalid usernames
         self.assertFalse(is_valid_username(""))
         self.assertFalse(is_valid_username("us"))
         self.assertFalse(is_valid_username("user name"))
-        self.assertFalse(is_valid_username("user@name"))
+        self.assertFalse(is_valid_username("user @ name"))
         self.assertFalse(is_valid_username("user_name_that_is_too_long"))
 
     def test_is_valid_password(self):
         """Test is_valid_password function."""
         # Valid passwords
         self.assertTrue(is_valid_password("Password1!"))
-        self.assertTrue(is_valid_password("p@ssw0rd"))
-        self.assertTrue(is_valid_password("SecureP@ss123"))
+        self.assertTrue(is_valid_password("p @ ssw0rd"))
+        self.assertTrue(is_valid_password("SecureP @ ss123"))
 
         # Invalid passwords
         self.assertFalse(is_valid_password(""))
@@ -129,16 +129,16 @@ class TestValidationUtils(unittest.TestCase):
         """Test is_valid_slug function."""
         # Valid slugs
         self.assertTrue(is_valid_slug("slug"))
-        self.assertTrue(is_valid_slug("slug-name"))
-        self.assertTrue(is_valid_slug("slug-123"))
+        self.assertTrue(is_valid_slug("slug - name"))
+        self.assertTrue(is_valid_slug("slug - 123"))
 
         # Invalid slugs
         self.assertFalse(is_valid_slug(""))
         self.assertFalse(is_valid_slug("slug name"))
         self.assertFalse(is_valid_slug("slug_name"))
-        self.assertFalse(is_valid_slug("Slug-Name"))
-        self.assertFalse(is_valid_slug("-slug"))
-        self.assertFalse(is_valid_slug("slug-"))
+        self.assertFalse(is_valid_slug("Slug - Name"))
+        self.assertFalse(is_valid_slug(" - slug"))
+        self.assertFalse(is_valid_slug("slug - "))
 
     def test_is_valid_json(self):
         """Test is_valid_json function."""
@@ -160,24 +160,24 @@ class TestValidationUtils(unittest.TestCase):
     def test_is_valid_date(self):
         """Test is_valid_date function."""
         # Valid dates
-        self.assertTrue(is_valid_date("2023-01-01"))
-        self.assertTrue(is_valid_date("2023-12-31"))
-        self.assertTrue(is_valid_date("01/01/2023", "%m/%d/%Y"))
-        self.assertTrue(is_valid_date("31/12/2023", "%d/%m/%Y"))
+        self.assertTrue(is_valid_date("2023 - 01 - 01"))
+        self.assertTrue(is_valid_date("2023 - 12 - 31"))
+        self.assertTrue(is_valid_date("01 / 01 / 2023", " % m/%d/%Y"))
+        self.assertTrue(is_valid_date("31 / 12 / 2023", " % d/%m/%Y"))
 
         # Invalid dates
         self.assertFalse(is_valid_date(""))
-        self.assertFalse(is_valid_date("2023-13-01"))
-        self.assertFalse(is_valid_date("2023-01-32"))
-        self.assertFalse(is_valid_date("01/01/2023", "%Y-%m-%d"))
-        self.assertFalse(is_valid_date("2023-01-01", "%m/%d/%Y"))
+        self.assertFalse(is_valid_date("2023 - 13 - 01"))
+        self.assertFalse(is_valid_date("2023 - 01 - 32"))
+        self.assertFalse(is_valid_date("01 / 01 / 2023", " % Y-%m-%d"))
+        self.assertFalse(is_valid_date("2023 - 01 - 01", " % m/%d/%Y"))
 
     def test_is_valid_file_path(self):
         """Test is_valid_file_path function."""
         # Valid file paths
         self.assertTrue(is_valid_file_path("file.txt"))
-        self.assertTrue(is_valid_file_path("path/to/file.txt"))
-        self.assertTrue(is_valid_file_path("/absolute/path/to/file.txt"))
+        self.assertTrue(is_valid_file_path("path / to / file.txt"))
+        self.assertTrue(is_valid_file_path(" / absolute / path / to / file.txt"))
         self.assertTrue(is_valid_file_path("C:\\Windows\\file.txt"))
 
         # Invalid file paths
@@ -195,7 +195,7 @@ class TestValidationUtils(unittest.TestCase):
             self.assertTrue(is_valid_file(temp_file_path))
             self.assertTrue(is_valid_file(temp_file_path, must_exist=True))
 
-            # Non-existent file
+            # Non - existent file
             non_existent_file = temp_file_path + ".non_existent"
             self.assertFalse(is_valid_file(non_existent_file))
             self.assertTrue(is_valid_file(non_existent_file, must_exist=False))
@@ -216,7 +216,7 @@ class TestValidationUtils(unittest.TestCase):
             self.assertTrue(is_valid_directory(temp_dir))
             self.assertTrue(is_valid_directory(temp_dir, must_exist=True))
 
-            # Non-existent directory
+            # Non - existent directory
             non_existent_dir = temp_dir + "_non_existent"
             self.assertFalse(is_valid_directory(non_existent_dir))
             self.assertTrue(is_valid_directory(non_existent_dir, must_exist=False))
@@ -259,10 +259,10 @@ class TestValidationUtils(unittest.TestCase):
         # Test sanitization
         self.assertEqual(sanitize_filename("file.txt"), "file.txt")
         self.assertEqual(sanitize_filename("../file.txt"), "file.txt")
-        self.assertEqual(sanitize_filename("file/name.txt"), "name.txt")
+        self.assertEqual(sanitize_filename("file / name.txt"), "name.txt")
         self.assertEqual(sanitize_filename("file\\name.txt"), "name.txt")
         self.assertEqual(sanitize_filename("file:name.txt"), "name.txt")
-        self.assertEqual(sanitize_filename("file*name.txt"), "filename.txt")
+        self.assertEqual(sanitize_filename("file * name.txt"), "filename.txt")
         self.assertEqual(sanitize_filename("file?name.txt"), "filename.txt")
         self.assertEqual(sanitize_filename('file"name.txt'), "filename.txt")
         self.assertEqual(sanitize_filename("file<name.txt"), "filename.txt")
@@ -289,18 +289,18 @@ class TestValidationUtils(unittest.TestCase):
         # Test validation and sanitization
         # Valid input
         self.assertEqual(
-            validate_and_sanitize_input("user@example.com", is_valid_email, sanitize_string),
-            "user@example.com",
+            validate_and_sanitize_input("user @ example.com", is_valid_email, sanitize_string),
+            "user @ example.com",
         )
 
         # Invalid input
         with self.assertRaises(ValueError):
-            validate_and_sanitize_input("invalid-email", is_valid_email, sanitize_string)
+            validate_and_sanitize_input("invalid - email", is_valid_email, sanitize_string)
 
         # Custom error message
         with self.assertRaises(ValueError) as cm:
             validate_and_sanitize_input(
-                "invalid-email", is_valid_email, sanitize_string, "Custom error message"
+                "invalid - email", is_valid_email, sanitize_string, "Custom error message"
             )
         self.assertEqual(str(cm.exception), "Custom error message")
 
@@ -338,7 +338,7 @@ class TestValidationUtils(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_config_file(temp_file_path, TestConfig)
 
-            # Test validation with non-existent file
+            # Test validation with non - existent file
             non_existent_file = temp_file_path + ".non_existent"
             with self.assertRaises(ValueError):
                 validate_config_file(non_existent_file, TestConfig)

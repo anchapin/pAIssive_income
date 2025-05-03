@@ -19,7 +19,7 @@ from .structured_pruner import StructuredPruner
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def prune_model(
     output_path: Optional[str] = None,
     method: Union[str, PruningMethod] = PruningMethod.MAGNITUDE,
     sparsity: float = 0.5,
-    model_type: str = "text-generation",
+    model_type: str = "text - generation",
     **kwargs,
 ) -> str:
     """
@@ -56,7 +56,7 @@ def prune_model(
 
     Args:
         model_path: Path to the model
-        output_path: Path to save the pruned model (None for in-place)
+        output_path: Path to save the pruned model (None for in - place)
         method: Pruning method
         sparsity: Target sparsity (0.0 to 1.0)
         model_type: Type of the model
@@ -111,7 +111,7 @@ def analyze_pruning(
     4. Inference speed measurement: Time the generation of text for both models
     5. Output quality comparison: Calculate similarity between outputs of both models
 
-    The comprehensive report enables data-driven decisions about pruning parameters
+    The comprehensive report enables data - driven decisions about pruning parameters
     by quantifying the tradeoffs between model size, inference speed, and output quality.
 
     Args:
@@ -138,7 +138,7 @@ def analyze_pruning(
     original_tokenizer = AutoTokenizer.from_pretrained(original_model_path)
     original_model = AutoModelForCausalLM.from_pretrained(
         original_model_path,
-        device_map="auto",  # Automatically use best available device (CPU/GPU)
+        device_map="auto",  # Automatically use best available device (CPU / GPU)
     )
 
     # Load pruned model and tokenizer
@@ -146,7 +146,7 @@ def analyze_pruning(
     pruned_tokenizer = AutoTokenizer.from_pretrained(pruned_model_path)
     pruned_model = AutoModelForCausalLM.from_pretrained(
         pruned_model_path,
-        device_map="auto",  # Automatically use best available device (CPU/GPU)
+        device_map="auto",  # Automatically use best available device (CPU / GPU)
     )
 
     # Generate input prompts for testing model generation
@@ -174,7 +174,7 @@ def analyze_pruning(
             prompts.append(prompts[len(prompts) % len(prompts)])
 
     # STAGE 1: Analyze model size and sparsity
-    # This quantifies the memory/storage benefit of pruning
+    # This quantifies the memory / storage benefit of pruning
     original_size = _get_model_size(original_model)
     pruned_size = _get_model_size(pruned_model)
     original_sparsity = _calculate_model_sparsity(original_model)
@@ -267,7 +267,7 @@ def analyze_pruning(
     try:
         pruning_config_path = os.path.join(pruned_model_path, "pruning_config.json")
         if os.path.exists(pruning_config_path):
-            with open(pruning_config_path, "r", encoding="utf-8") as f:
+            with open(pruning_config_path, "r", encoding="utf - 8") as f:
                 pruning_config = json.load(f)
 
             results["pruning_config"] = pruning_config
@@ -281,7 +281,7 @@ def _get_model_size(model) -> float:
     """
     Get the size of a model in megabytes.
 
-    This function calculates the in-memory size of a PyTorch model by:
+    This function calculates the in - memory size of a PyTorch model by:
     1. Summing the size of all parameters (weights and biases)
     2. Summing the size of all buffers (e.g., running stats in batch norm)
     3. Converting the total size to megabytes
@@ -315,7 +315,7 @@ def _calculate_model_sparsity(model) -> float:
     """
     Calculate the sparsity of a model.
 
-    Sparsity is the proportion of zero-valued parameters in a model's weight matrices.
+    Sparsity is the proportion of zero - valued parameters in a model's weight matrices.
     Higher sparsity generally means better compression potential and faster inference
     on hardware that supports sparse operations.
 
@@ -373,7 +373,7 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
     Returns:
         Generated text as a string
     """
-    # Tokenize input and move to model's device (CPU/GPU)
+    # Tokenize input and move to model's device (CPU / GPU)
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
     # Set default generation parameters for reasonable output
@@ -384,7 +384,7 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
         "do_sample": True,  # Use sampling instead of greedy decoding
     }
 
-    # Override defaults with any user-provided parameters
+    # Override defaults with any user - provided parameters
     generation_kwargs.update(kwargs)
 
     # Generate text without computing gradients (for efficiency)
@@ -399,8 +399,8 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
     """
     Calculate similarity between two texts.
 
-    This function implements a character-level Jaccard similarity metric:
-    - Fast and language-agnostic
+    This function implements a character - level Jaccard similarity metric:
+    - Fast and language - agnostic
     - Works for comparing texts of different lengths
     - Provides a normalized score between 0 (completely different) and 1 (identical)
 
@@ -411,8 +411,8 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
 
     For more sophisticated comparisons, consider using:
     - BLEU or ROUGE scores for specific NLP tasks
-    - Embedding-based similarity for semantic comparison
-    - Edit distance for character-level differences
+    - Embedding - based similarity for semantic comparison
+    - Edit distance for character - level differences
 
     Args:
         text1: First text

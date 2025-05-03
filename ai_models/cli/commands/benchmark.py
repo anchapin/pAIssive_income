@@ -1,5 +1,5 @@
 """
-Benchmark command for the command-line interface.
+Benchmark command for the command - line interface.
 
 This module provides a command for benchmarking models.
 """
@@ -13,7 +13,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -28,19 +28,19 @@ class BenchmarkCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
         parser.add_argument(
-            "--model-type",
+            "--model - type",
             type=str,
-            default="text-generation",
+            default="text - generation",
             choices=[
-                "text-generation",
-                "text-classification",
+                "text - generation",
+                "text - classification",
                 "embedding",
                 "image",
                 "audio",
@@ -48,7 +48,7 @@ class BenchmarkCommand(BaseCommand):
             help="Type of the model",
         )
         parser.add_argument(
-            "--benchmark-type",
+            "--benchmark - type",
             type=str,
             default="latency",
             choices=[
@@ -62,31 +62,31 @@ class BenchmarkCommand(BaseCommand):
             help="Type of benchmark to run",
         )
         parser.add_argument(
-            "--output-dir",
+            "--output - dir",
             type=str,
             default="benchmark_results",
             help="Directory to save benchmark results",
         )
         parser.add_argument(
-            "--num-runs",
+            "--num - runs",
             type=int,
             default=20,
             help="Number of runs for latency benchmark",
         )
         parser.add_argument(
-            "--batch-size",
+            "--batch - size",
             type=int,
             default=4,
             help="Batch size for throughput benchmark",
         )
         parser.add_argument(
-            "--num-samples",
+            "--num - samples",
             type=int,
             default=10,
             help="Number of samples for benchmarks",
         )
         parser.add_argument(
-            "--max-tokens",
+            "--max - tokens",
             type=int,
             default=100,
             help="Maximum number of tokens to generate",
@@ -98,23 +98,23 @@ class BenchmarkCommand(BaseCommand):
             choices=["cpu", "cuda"],
             help="Device to use for benchmarking",
         )
-        parser.add_argument("--input-file", type=str, help="Path to input file for benchmarking")
+        parser.add_argument("--input - file", type=str, help="Path to input file for benchmarking")
         parser.add_argument(
-            "--compare-models",
+            "--compare - models",
             type=str,
-            help="Comma-separated list of model paths to compare",
+            help="Comma - separated list of model paths to compare",
         )
         parser.add_argument(
             "--plot", action="store_true", help="Generate plots of benchmark results"
         )
         parser.add_argument(
-            "--plot-format",
+            "--plot - format",
             type=str,
             default="png",
             choices=["png", "pdf", "svg"],
             help="Format for benchmark plots",
         )
-        parser.add_argument("--config-file", type=str, help="Path to configuration file")
+        parser.add_argument("--config - file", type=str, help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -145,7 +145,7 @@ class BenchmarkCommand(BaseCommand):
             # Load configuration from file if provided
             config_dict = {}
             if self.args.config_file and os.path.exists(self.args.config_file):
-                with open(self.args.config_file, "r", encoding="utf-8") as f:
+                with open(self.args.config_file, "r", encoding="utf - 8") as f:
                     config_dict = json.load(f)
 
             # Convert benchmark type string to enum
@@ -177,7 +177,7 @@ class BenchmarkCommand(BaseCommand):
                     "device": self.args.device,
                 }
 
-                # Add benchmark-specific parameters
+                # Add benchmark - specific parameters
                 if benchmark_type == BenchmarkType.LATENCY:
                     params.update(
                         {
@@ -217,25 +217,25 @@ class BenchmarkCommand(BaseCommand):
 
                     if benchmark_type == BenchmarkType.LATENCY and result.latency_ms:
                         latency_stats = result.get_latency_stats()
-                        print(f"{i+1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
+                        print(f"{i + 1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
 
                     elif benchmark_type == BenchmarkType.THROUGHPUT and result.throughput:
-                        print(f"{i+1}. {model_name}: {result.throughput:.2f} tokens/second")
+                        print(f"{i + 1}. {model_name}: {result.throughput:.2f} tokens / second")
 
                     elif benchmark_type == BenchmarkType.MEMORY and result.memory_usage_mb:
                         print(
-                            f"{i+1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB"
+                            f"{i + 1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB"
                         )
 
                     elif benchmark_type == BenchmarkType.ACCURACY and result.accuracy:
-                        print(f"{i+1}. {model_name}: {result.accuracy:.4f} accuracy")
+                        print(f"{i + 1}. {model_name}: {result.accuracy:.4f} accuracy")
 
                     elif benchmark_type == BenchmarkType.PERPLEXITY and result.perplexity:
-                        print(f"{i+1}. {model_name}: {result.perplexity:.4f} perplexity")
+                        print(f"{i + 1}. {model_name}: {result.perplexity:.4f} perplexity")
 
                     elif benchmark_type == BenchmarkType.ROUGE and result.rouge_scores:
                         rouge_l = result.rouge_scores.get("rougeL", 0)
-                        print(f"{i+1}. {model_name}: {rouge_l:.4f} ROUGE-L")
+                        print(f"{i + 1}. {model_name}: {rouge_l:.4f} ROUGE - L")
 
                 # Generate comparison plot if requested
                 if self.args.plot:
@@ -263,7 +263,7 @@ class BenchmarkCommand(BaseCommand):
                     "device": self.args.device,
                 }
 
-                # Add benchmark-specific parameters
+                # Add benchmark - specific parameters
                 if benchmark_type == BenchmarkType.LATENCY:
                     params.update(
                         {
@@ -310,7 +310,7 @@ class BenchmarkCommand(BaseCommand):
 
                 elif benchmark_type == BenchmarkType.THROUGHPUT and result.throughput:
                     print("\nThroughput:")
-                    print(f"{result.throughput:.2f} tokens/second")
+                    print(f"{result.throughput:.2f} tokens / second")
 
                 elif benchmark_type == BenchmarkType.MEMORY and result.memory_usage_mb:
                     print("\nMemory Usage:")

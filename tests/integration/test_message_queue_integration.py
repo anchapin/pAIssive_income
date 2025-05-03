@@ -45,7 +45,7 @@ class TestMessageQueueIntegration:
     def test_service_communication(self):
         """Test communication between services using message queue."""
         # Define test services
-        services = ["auth-service", "user-service", "order-service"]
+        services = ["auth - service", "user - service", "order - service"]
 
         # Create a consumer for each service
         consumers = {service: MessageConsumer(self.config) for service in services}
@@ -91,9 +91,9 @@ class TestMessageQueueIntegration:
         # Send test messages between services
         test_messages = [
             {
-                "from": "auth-service",
-                "to": "user-service",
-                "routing_key": "user-service.events",
+                "from": "auth - service",
+                "to": "user - service",
+                "routing_key": "user - service.events",
                 "message": {
                     "type": "user_authenticated",
                     "user_id": "123",
@@ -101,9 +101,9 @@ class TestMessageQueueIntegration:
                 },
             },
             {
-                "from": "user-service",
-                "to": "order-service",
-                "routing_key": "order-service.events",
+                "from": "user - service",
+                "to": "order - service",
+                "routing_key": "order - service.events",
                 "message": {
                     "type": "user_updated",
                     "user_id": "123",
@@ -111,9 +111,9 @@ class TestMessageQueueIntegration:
                 },
             },
             {
-                "from": "order-service",
-                "to": "auth-service",
-                "routing_key": "auth-service.events",
+                "from": "order - service",
+                "to": "auth - service",
+                "routing_key": "auth - service.events",
                 "message": {
                     "type": "order_created",
                     "order_id": "456",
@@ -157,21 +157,21 @@ class TestMessageQueueIntegration:
             assert matching_messages[0]["headers"]["source"] == msg["from"]
 
     def test_event_driven_workflow(self):
-        """Test event-driven workflow across multiple services."""
+        """Test event - driven workflow across multiple services."""
         # Define workflow steps
         workflow = [
             {
-                "service": "user-service",
+                "service": "user - service",
                 "event": "user_registered",
-                "data": {"user_id": "789", "email": "user@example.com"},
+                "data": {"user_id": "789", "email": "user @ example.com"},
             },
             {
-                "service": "email-service",
+                "service": "email - service",
                 "event": "welcome_email_sent",
-                "data": {"user_id": "789", "email_id": "welcome-123"},
+                "data": {"user_id": "789", "email_id": "welcome - 123"},
             },
             {
-                "service": "auth-service",
+                "service": "auth - service",
                 "event": "user_activated",
                 "data": {"user_id": "789", "status": "active"},
             },
@@ -211,7 +211,7 @@ class TestMessageQueueIntegration:
                             "timestamp": datetime.utcnow().isoformat(),
                         },
                         headers={
-                            "workflow_id": headers.get("workflow_id", "test-workflow"),
+                            "workflow_id": headers.get("workflow_id", "test - workflow"),
                             "step": next_step_index,
                         },
                     )
@@ -255,7 +255,7 @@ class TestMessageQueueIntegration:
                 "data": first_step["data"],
                 "timestamp": datetime.utcnow().isoformat(),
             },
-            headers={"workflow_id": "test-workflow", "step": 0},
+            headers={"workflow_id": "test - workflow", "step": 0},
         )
 
         # Wait for workflow to complete
@@ -273,7 +273,7 @@ class TestMessageQueueIntegration:
 
     def test_message_routing_patterns(self):
         """Test different message routing patterns."""
-        # Test topic-based routing
+        # Test topic - based routing
         topic_handlers = {
             "user.created": [],
             "user.updated": [],
@@ -377,4 +377,4 @@ class TestMessageQueueIntegration:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_message_queue_integration.py"])
+    pytest.main([" - v", "test_message_queue_integration.py"])

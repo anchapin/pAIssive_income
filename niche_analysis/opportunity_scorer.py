@@ -82,6 +82,7 @@ class OpportunityScorer:
 
         This method calculates scores for each evaluation factor and combines them into
         an overall opportunity score. It returns a comprehensive analysis of the opportunity,
+            
         including factor scores, overall assessment, and recommendations.
 
         Algorithm:
@@ -107,9 +108,12 @@ class OpportunityScorer:
             return cached_result
 
         # Calculate factor scores
-        market_size_score = self._score_market_size(market_data.get("market_size", "unknown"))
-        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", "unknown"))
-        competition_score = self._score_competition(market_data.get("competition", "unknown"))
+        market_size_score = self._score_market_size(market_data.get("market_size", 
+            "unknown"))
+        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", 
+            "unknown"))
+        competition_score = self._score_competition(market_data.get("competition", 
+            "unknown"))
         problem_severity_score = self._score_problem_severity(problems)
         solution_feasibility_score = self._score_solution_feasibility(niche, problems)
         monetization_potential_score = self._score_monetization_potential(
@@ -140,12 +144,14 @@ class OpportunityScorer:
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
                 weighted_score=problem_severity_score * self.weights["problem_severity"],
+                    
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
                 weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
+                    
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
             "monetization_potential": FactorScoreSchema(
@@ -154,6 +160,7 @@ class OpportunityScorer:
                 weighted_score=monetization_potential_score
                 * self.weights["monetization_potential"],
                 analysis=self._analyze_monetization_potential(monetization_potential_score),
+                    
             ),
         }
 
@@ -192,7 +199,8 @@ class OpportunityScorer:
         result = opportunity_score.dict()
 
         # Cache the result
-        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores")
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, 
+            namespace="opportunity_scores")
 
         return result
 
@@ -200,10 +208,12 @@ class OpportunityScorer:
         self, niche: str, market_data: Dict[str, Any], problems: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
-        Asynchronously score a niche opportunity based on market data and identified problems.
+        Asynchronously score a niche opportunity based on market data and \
+            identified problems.
 
-        This method is the asynchronous version of score_opportunity() that doesn't block the
-        main event loop during potentially time-consuming operations.
+        This method is the asynchronous version of score_opportunity(
+            ) that doesn't block the
+        main event loop during potentially time - consuming operations.
 
         Args:
             niche: The name of the niche to score
@@ -224,7 +234,7 @@ class OpportunityScorer:
             return cached_result
 
         # Run the scoring operation asynchronously to avoid blocking
-        # We'll use run_in_thread to run the CPU-intensive scoring in a separate thread
+        # We'll use run_in_thread to run the CPU - intensive scoring in a separate thread
         result = await run_in_thread(
             self._score_opportunity_internal, niche, market_data, problems, cache_key
         )
@@ -241,21 +251,25 @@ class OpportunityScorer:
         """
         Internal method that performs the actual opportunity scoring.
 
-        This is used by both the synchronous and asynchronous versions of score_opportunity.
+        This is used by both the synchronous and \
+            asynchronous versions of score_opportunity.
 
         Args:
             niche: The name of the niche to score
             market_data: Dictionary containing market analysis data
             problems: List of dictionaries containing problem data
-            cache_key: Pre-generated cache key
+            cache_key: Pre - generated cache key
 
         Returns:
             Dictionary containing the opportunity score results
         """
         # Calculate factor scores
-        market_size_score = self._score_market_size(market_data.get("market_size", "unknown"))
-        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", "unknown"))
-        competition_score = self._score_competition(market_data.get("competition", "unknown"))
+        market_size_score = self._score_market_size(market_data.get("market_size", 
+            "unknown"))
+        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", 
+            "unknown"))
+        competition_score = self._score_competition(market_data.get("competition", 
+            "unknown"))
         problem_severity_score = self._score_problem_severity(problems)
         solution_feasibility_score = self._score_solution_feasibility(niche, problems)
         monetization_potential_score = self._score_monetization_potential(
@@ -286,12 +300,14 @@ class OpportunityScorer:
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
                 weighted_score=problem_severity_score * self.weights["problem_severity"],
+                    
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
                 weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
+                    
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
             "monetization_potential": FactorScoreSchema(
@@ -300,6 +316,7 @@ class OpportunityScorer:
                 weighted_score=monetization_potential_score
                 * self.weights["monetization_potential"],
                 analysis=self._analyze_monetization_potential(monetization_potential_score),
+                    
             ),
         }
 
@@ -338,7 +355,8 @@ class OpportunityScorer:
         result = opportunity_score.dict()
 
         # Cache the result
-        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores")
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, 
+            namespace="opportunity_scores")
 
         return result
 
@@ -370,7 +388,8 @@ class OpportunityScorer:
         tasks = []
         for i in range(len(niches)):
             tasks.append(
-                self.score_opportunity_async(niches[i], market_data_list[i], problems_list[i])
+                self.score_opportunity_async(niches[i], market_data_list[i], 
+                    problems_list[i])
             )
 
         # Run all tasks concurrently and gather results
@@ -387,7 +406,8 @@ class OpportunityScorer:
         """
         Score multiple opportunities and compare them in one operation asynchronously.
 
-        This method combines scoring and comparison into a single asynchronous operation.
+        This method combines scoring and \
+            comparison into a single asynchronous operation.
 
         Args:
             niches: List of niche names to score
@@ -408,7 +428,8 @@ class OpportunityScorer:
         # Return both individual scores and comparison
         return {"individual_scores": opportunity_scores, "comparison": comparison}
 
-    def compare_opportunities(self, opportunities: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def compare_opportunities(self, opportunities: List[Dict[str, Any]]) -> Dict[str, 
+        Any]:
         """
         Compare multiple opportunities to identify the most promising ones.
 
@@ -418,7 +439,7 @@ class OpportunityScorer:
         Algorithm:
         1. Sort opportunities by overall score
         2. Assign ranks to each opportunity
-        3. Identify the highest-scoring opportunity as the top recommendation
+        3. Identify the highest - scoring opportunity as the top recommendation
         4. Calculate statistics like highest, lowest, average scores
         5. Generate comparative analysis and recommendations
 
@@ -432,7 +453,8 @@ class OpportunityScorer:
         cache_key = self._generate_comparison_cache_key(opportunities)
 
         # Try to get from cache first
-        cached_result = default_cache.get(cache_key, namespace="opportunity_comparisons")
+        cached_result = default_cache.get(cache_key, 
+            namespace="opportunity_comparisons")
         if cached_result is not None:
             return cached_result
 
@@ -531,7 +553,8 @@ class OpportunityScorer:
         """
         Asynchronously compare multiple opportunities to identify the most promising ones.
 
-        This method is the asynchronous version of compare_opportunities and should be used
+        This method is the asynchronous version of compare_opportunities and \
+            should be used
         in an async context. It performs the same ranking and analysis but doesn't block
         the event loop.
 
@@ -587,10 +610,11 @@ class OpportunityScorer:
         # Convert to stable string representation
         key_str = json.dumps(key_data, sort_keys=True)
 
-        # Hash to get a fixed-length key
+        # Hash to get a fixed - length key
         return hashlib.sha256(key_str.encode()).hexdigest()
 
-    def _normalize_problems_for_cache(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _normalize_problems_for_cache(self, problems: List[Dict[str, 
+        Any]]) -> List[Dict[str, Any]]:
         """
         Normalize problem dictionaries to ensure stable cache keys.
 
@@ -614,7 +638,8 @@ class OpportunityScorer:
         # Sort by description for stable order
         return sorted(normalized, key=lambda p: p["description"])
 
-    def _generate_comparison_cache_key(self, opportunities: List[Dict[str, Any]]) -> str:
+    def _generate_comparison_cache_key(self, opportunities: List[Dict[str, 
+        Any]]) -> str:
         """
         Generate a cache key for opportunity comparison results.
 
@@ -649,7 +674,8 @@ class OpportunityScorer:
         Invalidate cached opportunity scores.
 
         Args:
-            niche: Optional niche name to invalidate. If None, invalidates all cached scores.
+            niche: Optional niche name to invalidate. If None, 
+                invalidates all cached scores.
 
         Returns:
             True if successful, False otherwise
@@ -662,12 +688,14 @@ class OpportunityScorer:
             # a mapping of niches to cache keys. For now, we clear all.
             return default_cache.clear(namespace="opportunity_scores")
 
-    async def invalidate_opportunity_cache_async(self, niche: Optional[str] = None) -> bool:
+    async def invalidate_opportunity_cache_async(self, 
+        niche: Optional[str] = None) -> bool:
         """
         Asynchronously invalidate cached opportunity scores.
 
         Args:
-            niche: Optional niche name to invalidate. If None, invalidates all cached scores.
+            niche: Optional niche name to invalidate. If None, 
+                invalidates all cached scores.
 
         Returns:
             True if successful, False otherwise
@@ -791,17 +819,18 @@ class OpportunityScorer:
         )
         return total_severity / len(problems)
 
-    def _score_solution_feasibility(self, niche: str, problems: List[Dict[str, Any]]) -> float:
+    def _score_solution_feasibility(self, niche: str, problems: List[Dict[str, 
+        Any]]) -> float:
         """
         Score the solution feasibility factor.
 
-        This method evaluates how feasible it is to create an AI-powered solution
+        This method evaluates how feasible it is to create an AI - powered solution
         for the identified problems in the niche.
 
         Algorithm:
         1. Base feasibility starts at 0.7 (moderately feasible)
         2. Adjust based on niche characteristics:
-           - Text/content-focused niches (higher feasibility for AI)
+           - Text / content - focused niches (higher feasibility for AI)
            - Data processing niches (higher feasibility)
            - Physical product niches (lower feasibility)
         3. Normalize to ensure score is between 0 and 1
@@ -817,7 +846,7 @@ class OpportunityScorer:
         base_feasibility = 0.7
 
         # Adjust based on niche type
-        # Text/content niches are more feasible for AI solutions
+        # Text / content niches are more feasible for AI solutions
         text_content_niches = [
             "content",
             "writing",
@@ -842,7 +871,7 @@ class OpportunityScorer:
         # Adjust score based on niche keywords
         niche_lower = niche.lower()
 
-        # Check for text/content niche keywords
+        # Check for text / content niche keywords
         if any(keyword in niche_lower for keyword in text_content_niches):
             base_feasibility += 0.2
 
@@ -904,7 +933,7 @@ class OpportunityScorer:
         if problem_severity > 0.7:
             base_potential += 0.1
 
-        # Business-oriented niches typically have higher monetization potential
+        # Business - oriented niches typically have higher monetization potential
         business_keywords = [
             "business",
             "enterprise",
@@ -1033,9 +1062,10 @@ class OpportunityScorer:
 
         Algorithm:
         1. Determine assessment text category based on score range
-        2. Identify strengths (high-scoring factors)
-        3. Identify weaknesses (low-scoring factors)
-        4. Generate actionable recommendations based on the overall assessment and factor scores
+        2. Identify strengths (high - scoring factors)
+        3. Identify weaknesses (low - scoring factors)
+        4. Generate actionable recommendations based on the overall assessment and \
+            factor scores
 
         Args:
             score: Overall opportunity score
@@ -1066,7 +1096,7 @@ class OpportunityScorer:
             recommendations.append("Allocate significant resources")
             recommendations.append("Develop a comprehensive implementation plan")
         elif score >= 0.6:
-            recommendations.append("Proceed with medium-high priority")
+            recommendations.append("Proceed with medium - high priority")
             recommendations.append("Allocate appropriate resources")
             recommendations.append("Develop an implementation plan")
         elif score >= 0.4:
@@ -1095,7 +1125,8 @@ class OpportunityScorer:
 
         # Add recommendations based on strengths
         if "market_size" in strengths:
-            recommendations.append(f"Leverage the large market size in the {niche} niche")
+            recommendations.append(
+                f"Leverage the large market size in the {niche} niche")
 
         if "growth_rate" in strengths:
             recommendations.append(f"Position for rapid growth in the {niche} niche")
@@ -1107,7 +1138,8 @@ class OpportunityScorer:
             recommendations.append("Emphasize the significant pain point being solved")
 
         if "solution_feasibility" in strengths:
-            recommendations.append("Move quickly to implement the technically feasible solution")
+            recommendations.append(
+                "Move quickly to implement the technically feasible solution")
 
         if "monetization_potential" in strengths:
             recommendations.append(
@@ -1117,23 +1149,26 @@ class OpportunityScorer:
         # Add recommendations based on weaknesses
         if "market_size" in weaknesses:
             recommendations.append(
-                "Focus on a specific sub-segment of the market to maximize impact"
+                "Focus on a specific sub - segment of the market to maximize impact"
             )
 
         if "growth_rate" in weaknesses:
-            recommendations.append("Consider a long-term strategy for steady growth")
+            recommendations.append("Consider a long - term strategy for steady growth")
 
         if "competition" in weaknesses:
-            recommendations.append("Develop clear differentiation from existing competitors")
+            recommendations.append(
+                "Develop clear differentiation from existing competitors")
 
         if "problem_severity" in weaknesses:
-            recommendations.append("Focus marketing on establishing the importance of the problem")
+            recommendations.append(
+                "Focus marketing on establishing the importance of the problem")
 
         if "solution_feasibility" in weaknesses:
-            recommendations.append("Allocate additional resources to technical development")
+            recommendations.append(
+                "Allocate additional resources to technical development")
 
         if "monetization_potential" in weaknesses:
-            recommendations.append("Explore freemium or volume-based pricing models")
+            recommendations.append("Explore freemium or volume - based pricing models")
 
         return assessment, recommendations
 
@@ -1148,7 +1183,8 @@ class OpportunityScorer:
             List of next steps
         """
         next_steps = [
-            f"Conduct detailed market research for {top_opportunity.get('niche', 'the niche')}",
+            f"Conduct detailed market research for {top_opportunity.get('niche', 
+                'the niche')}",
             "Develop a prototype solution",
             "Test with potential users",
             "Refine business model",
@@ -1196,7 +1232,8 @@ class OpportunityScorer:
             limited=limited,
         )
 
-    def _generate_comparison_factors(self, opportunities: List[Dict[str, Any]]) -> Dict[str, str]:
+    def _generate_comparison_factors(self, opportunities: List[Dict[str, 
+        Any]]) -> Dict[str, str]:
         """
         Generate comparison factors based on the opportunities being compared.
 
@@ -1211,7 +1248,8 @@ class OpportunityScorer:
             "growth_rate": "Growth rate of the market",
             "competition": "Level of competition in the market",
             "problem_severity": "Severity of the problems being solved",
-            "solution_feasibility": "Feasibility of implementing AI-powered solutions",
+            "solution_feasibility": "Feasibility of implementing AI - powered solutions",
+                
             "monetization_potential": "Potential for profitable monetization",
         }
 
@@ -1247,26 +1285,30 @@ class OpportunityScorer:
         if opportunities:
             top_opp = opportunities[0]
             recommendations.append(
-                f"Prioritize {top_opp.get('niche', 'the top niche')} as the primary opportunity"
+                f"Prioritize {top_opp.get('niche', 
+                    'the top niche')} as the primary opportunity"
             )
 
             # If there's a second best, mention it as well
             if len(opportunities) > 1:
                 second_opp = opportunities[1]
                 recommendations.append(
-                    f"Keep {second_opp.get('niche', 'the second niche')} as a backup opportunity"
+                    f"Keep {second_opp.get('niche', 
+                        'the second niche')} as a backup opportunity"
                 )
 
         # Add portfolio recommendation if there are multiple good opportunities
-        if analysis.score_distribution.excellent + analysis.score_distribution.very_good > 1:
+        if analysis.score_distribution.excellent + \
+            analysis.score_distribution.very_good > 1:
             recommendations.append(
                 "Consider a portfolio approach with multiple opportunities in parallel"
             )
 
-        # Add recommendation for low-scoring opportunities
+        # Add recommendation for low - scoring opportunities
         if analysis.score_distribution.limited > 0:
             recommendations.append(
-                f"Deprioritize or eliminate the {analysis.score_distribution.limited} limited opportunities"
+                f"Deprioritize or \
+                    eliminate the {analysis.score_distribution.limited} limited opportunities"
             )
 
         return recommendations

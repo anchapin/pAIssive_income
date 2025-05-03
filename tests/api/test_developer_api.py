@@ -37,7 +37,7 @@ class TestDeveloperAPI:
     def test_get_niches(self, api_test_client: APITestClient):
         """Test getting all development niches."""
         # Make request
-        response = api_test_client.get("developer/niches")
+        response = api_test_client.get("developer / niches")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -60,7 +60,7 @@ class TestDeveloperAPI:
     def test_get_templates(self, api_test_client: APITestClient):
         """Test getting all development templates."""
         # Make request
-        response = api_test_client.get("developer/templates")
+        response = api_test_client.get("developer / templates")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -88,7 +88,7 @@ class TestDeveloperAPI:
         data = generate_solution_data()
 
         # Make request
-        response = api_test_client.post("developer/solution", data)
+        response = api_test_client.post("developer / solution", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -118,7 +118,7 @@ class TestDeveloperAPI:
         solution_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"developer/solutions/{solution_id}")
+        response = api_test_client.get(f"developer / solutions/{solution_id}")
 
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -151,7 +151,7 @@ class TestDeveloperAPI:
     def test_get_solutions(self, api_test_client: APITestClient):
         """Test getting all development solutions."""
         # Make request
-        response = api_test_client.get("developer/solutions")
+        response = api_test_client.get("developer / solutions")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -166,7 +166,7 @@ class TestDeveloperAPI:
         data = generate_solution_data()
 
         # Make request
-        response = api_test_client.put(f"developer/solutions/{solution_id}", data)
+        response = api_test_client.put(f"developer / solutions/{solution_id}", data)
 
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -195,7 +195,7 @@ class TestDeveloperAPI:
         }
 
         # Make request
-        response = api_test_client.put(f"developer/solutions/{solution_id}", data)
+        response = api_test_client.put(f"developer / solutions/{solution_id}", data)
 
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -233,7 +233,7 @@ class TestDeveloperAPI:
         solution_id = generate_id()
 
         # Make request
-        response = api_test_client.delete(f"developer/solutions/{solution_id}")
+        response = api_test_client.delete(f"developer / solutions/{solution_id}")
 
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -245,7 +245,7 @@ class TestDeveloperAPI:
         """Test filtering development solutions."""
         # Make request with filter
         response = api_test_client.get(
-            "developer/solutions",
+            "developer / solutions",
             params={
                 "status": "in_progress",
                 "technology": "python",
@@ -265,16 +265,16 @@ class TestDeveloperAPI:
         if result["items"]:
             for item in result["items"]:
                 validate_field_equals(item, "status", "in_progress")
-                # Check if any technology in the stack matches 'python' case-insensitively
+                # Check if any technology in the stack matches 'python' case - insensitively
                 tech_match = any(tech.lower() == "python" for tech in item["technology_stack"])
                 assert (
                     tech_match
-                ), f"Technology stack {item['technology_stack']} does not contain 'python' (case-insensitive)"
+                ), f"Technology stack {item['technology_stack']} does not contain 'python' (case - insensitive)"
 
     def test_invalid_solution_request(self, api_test_client: APITestClient):
         """Test invalid solution request."""
         # Make request with invalid data
-        response = api_test_client.post("developer/solution", {})
+        response = api_test_client.post("developer / solution", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -282,10 +282,10 @@ class TestDeveloperAPI:
     def test_nonexistent_solution(self, api_test_client: APITestClient):
         """Test getting a nonexistent solution."""
         # Generate a random ID that is unlikely to exist
-        solution_id = "nonexistent-" + generate_id()
+        solution_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = api_test_client.get(f"developer/solutions/{solution_id}")
+        response = api_test_client.get(f"developer / solutions/{solution_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found
@@ -296,18 +296,18 @@ class TestDeveloperAPI:
         solution_id = generate_id()
 
         # Test with empty data
-        response = api_test_client.put(f"developer/solutions/{solution_id}", {})
+        response = api_test_client.put(f"developer / solutions/{solution_id}", {})
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test with invalid status
         response = api_test_client.put(
-            f"developer/solutions/{solution_id}", {"status": "invalid_status"}
+            f"developer / solutions/{solution_id}", {"status": "invalid_status"}
         )
         validate_error_response(response, 422)
 
         # Test with invalid technology stack format
         response = api_test_client.put(
-            f"developer/solutions/{solution_id}",
+            f"developer / solutions/{solution_id}",
             {"technology_stack": "python,fastapi"},  # Should be a list
         )
         validate_error_response(response, 422)
@@ -315,15 +315,15 @@ class TestDeveloperAPI:
     def test_delete_solution_errors(self, api_test_client: APITestClient):
         """Test error cases for deleting a solution."""
         # Test deleting with invalid ID format
-        response = api_test_client.delete("developer/solutions/invalid-id-format")
+        response = api_test_client.delete("developer / solutions / invalid - id - format")
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test deleting already deleted solution
         solution_id = generate_id()
-        response = api_test_client.delete(f"developer/solutions/{solution_id}")
+        response = api_test_client.delete(f"developer / solutions/{solution_id}")
         if response.status_code == 404:
             # Try deleting again
-            response = api_test_client.delete(f"developer/solutions/{solution_id}")
+            response = api_test_client.delete(f"developer / solutions/{solution_id}")
             validate_error_response(response, 404)  # Not Found
 
     def test_bulk_update_solutions(self, api_test_client: APITestClient):
@@ -340,7 +340,7 @@ class TestDeveloperAPI:
         ]
 
         # Make request
-        response = api_test_client.bulk_update("developer/solutions", solutions)
+        response = api_test_client.bulk_update("developer / solutions", solutions)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -372,7 +372,7 @@ class TestDeveloperAPI:
         solution_ids = [generate_id() for _ in range(3)]
 
         # Make request
-        response = api_test_client.bulk_delete("developer/solutions", solution_ids)
+        response = api_test_client.bulk_delete("developer / solutions", solution_ids)
 
         # Validate response
         result = validate_bulk_response(response)
@@ -398,23 +398,23 @@ class TestDeveloperAPI:
     def test_invalid_bulk_operations(self, api_test_client: APITestClient):
         """Test invalid bulk update and delete operations."""
         # Test bulk update with empty list
-        response = api_test_client.bulk_update("developer/solutions", [])
+        response = api_test_client.bulk_update("developer / solutions", [])
         validate_error_response(response, 422)
 
         # Test bulk update with invalid data
         response = api_test_client.bulk_update(
-            "developer/solutions",
-            [{"id": "invalid-id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
+            "developer / solutions",
+            [{"id": "invalid - id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
         )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
-        response = api_test_client.bulk_delete("developer/solutions", [])
+        response = api_test_client.bulk_delete("developer / solutions", [])
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
         response = api_test_client.bulk_delete(
-            "developer/solutions", ["invalid-id-1", "invalid-id-2"]
+            "developer / solutions", ["invalid - id - 1", "invalid - id - 2"]
         )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)

@@ -28,7 +28,7 @@ class APIKeyService(BaseService):
         Returns:
             Created API key data (including the actual key, which is only returned once)
         """
-        return self._post("api-keys", data)
+        return self._post("api - keys", data)
 
     def get_api_keys(self) -> Dict[str, Any]:
         """
@@ -37,7 +37,7 @@ class APIKeyService(BaseService):
         Returns:
             List of API keys
         """
-        return self._get("api-keys")
+        return self._get("api - keys")
 
     def get_api_key(self, api_key_id: str) -> Dict[str, Any]:
         """
@@ -49,7 +49,7 @@ class APIKeyService(BaseService):
         Returns:
             API key details (excluding the actual key)
         """
-        return self._get(f"api-keys/{api_key_id}")
+        return self._get(f"api - keys/{api_key_id}")
 
     def update_api_key(self, api_key_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -65,7 +65,7 @@ class APIKeyService(BaseService):
         Returns:
             Updated API key details
         """
-        return self._put(f"api-keys/{api_key_id}", data)
+        return self._put(f"api - keys/{api_key_id}", data)
 
     def delete_api_key(self, api_key_id: str) -> Dict[str, Any]:
         """
@@ -77,7 +77,7 @@ class APIKeyService(BaseService):
         Returns:
             Result of the deletion
         """
-        return self._delete(f"api-keys/{api_key_id}")
+        return self._delete(f"api - keys/{api_key_id}")
 
     def revoke_api_key(self, api_key_id: str) -> Dict[str, Any]:
         """
@@ -89,7 +89,7 @@ class APIKeyService(BaseService):
         Returns:
             Result of the revocation
         """
-        return self._post(f"api-keys/{api_key_id}/revoke", {})
+        return self._post(f"api - keys/{api_key_id}/revoke", {})
 
     def get_api_key_scopes(self) -> Dict[str, Any]:
         """
@@ -98,4 +98,4 @@ class APIKeyService(BaseService):
         Returns:
             List of available scopes
         """
-        return self._get("api-keys/scopes")
+        return self._get("api - keys / scopes")

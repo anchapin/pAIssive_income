@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
         "ApiKeyAuth": {
             "type": "apiKey",
             "in": "header",
-            "name": "X-API-Key",
+            "name": "X - API - Key",
             "description": "API key authentication",
         },
         "BearerAuth": {
@@ -76,20 +76,20 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
         "title": title,
         "version": version,
         "description": description,
-        "termsOfService": "https://example.com/terms/",
+        "termsOfService": "https://example.com / terms / ",
         "contact": {
             "name": "pAIssive Income Support",
-            "url": "https://example.com/contact/",
-            "email": "support@example.com",
+            "url": "https://example.com / contact / ",
+            "email": "support @ example.com",
         },
-        "license": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+        "license": {"name": "MIT", "url": "https://opensource.org / licenses / MIT"},
     }
 
     # Add servers
     openapi_schema["servers"] = [
-        {"url": "/", "description": "Current server"},
+        {"url": " / ", "description": "Current server"},
         {"url": "https://api.example.com", "description": "Production server"},
-        {"url": "https://staging-api.example.com", "description": "Staging server"},
+        {"url": "https://staging - api.example.com", "description": "Staging server"},
     ]
 
     # Add tags
@@ -99,7 +99,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to niche analysis",
             "externalDocs": {
                 "description": "Niche Analysis Documentation",
-                "url": "https://example.com/docs/niche-analysis/",
+                "url": "https://example.com / docs / niche - analysis / ",
             },
         },
         {
@@ -107,7 +107,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to monetization",
             "externalDocs": {
                 "description": "Monetization Documentation",
-                "url": "https://example.com/docs/monetization/",
+                "url": "https://example.com / docs / monetization / ",
             },
         },
         {
@@ -115,7 +115,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to marketing",
             "externalDocs": {
                 "description": "Marketing Documentation",
-                "url": "https://example.com/docs/marketing/",
+                "url": "https://example.com / docs / marketing / ",
             },
         },
         {
@@ -123,7 +123,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to AI models",
             "externalDocs": {
                 "description": "AI Models Documentation",
-                "url": "https://example.com/docs/ai-models/",
+                "url": "https://example.com / docs / ai - models / ",
             },
         },
         {
@@ -131,7 +131,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to agent teams",
             "externalDocs": {
                 "description": "Agent Team Documentation",
-                "url": "https://example.com/docs/agent-team/",
+                "url": "https://example.com / docs / agent - team / ",
             },
         },
         {
@@ -139,7 +139,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to users",
             "externalDocs": {
                 "description": "User Documentation",
-                "url": "https://example.com/docs/user/",
+                "url": "https://example.com / docs / user / ",
             },
         },
         {
@@ -147,7 +147,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
             "description": "Operations related to the dashboard",
             "externalDocs": {
                 "description": "Dashboard Documentation",
-                "url": "https://example.com/docs/dashboard/",
+                "url": "https://example.com / docs / dashboard / ",
             },
         },
     ]
@@ -155,7 +155,7 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
     # Add external docs
     openapi_schema["externalDocs"] = {
         "description": "pAIssive Income Documentation",
-        "url": "https://example.com/docs/",
+        "url": "https://example.com / docs / ",
     }
 
     return openapi_schema

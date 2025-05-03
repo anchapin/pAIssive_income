@@ -21,7 +21,7 @@ class MarketingService(BaseService):
         Returns:
             List of solutions
         """
-        return self._get("marketing/solutions")
+        return self._get("marketing / solutions")
 
     def create_marketing_strategy(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -38,7 +38,7 @@ class MarketingService(BaseService):
         Returns:
             Created marketing strategy
         """
-        return self._post("marketing/strategies", data)
+        return self._post("marketing / strategies", data)
 
     def get_marketing_strategies(self) -> Dict[str, Any]:
         """
@@ -47,7 +47,7 @@ class MarketingService(BaseService):
         Returns:
             List of marketing strategies
         """
-        return self._get("marketing/strategies")
+        return self._get("marketing / strategies")
 
     def get_marketing_strategy(self, strategy_id: str) -> Dict[str, Any]:
         """
@@ -59,7 +59,7 @@ class MarketingService(BaseService):
         Returns:
             Marketing strategy details
         """
-        return self._get(f"marketing/strategies/{strategy_id}")
+        return self._get(f"marketing / strategies/{strategy_id}")
 
     def update_marketing_strategy(self, strategy_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -72,7 +72,7 @@ class MarketingService(BaseService):
         Returns:
             Updated marketing strategy
         """
-        return self._put(f"marketing/strategies/{strategy_id}", data)
+        return self._put(f"marketing / strategies/{strategy_id}", data)
 
     def delete_marketing_strategy(self, strategy_id: str) -> Dict[str, Any]:
         """
@@ -84,7 +84,7 @@ class MarketingService(BaseService):
         Returns:
             Result of the deletion
         """
-        return self._delete(f"marketing/strategies/{strategy_id}")
+        return self._delete(f"marketing / strategies/{strategy_id}")
 
     def get_user_personas(self) -> Dict[str, Any]:
         """
@@ -93,7 +93,7 @@ class MarketingService(BaseService):
         Returns:
             List of user personas
         """
-        return self._get("marketing/personas")
+        return self._get("marketing / personas")
 
     def create_user_persona(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -105,7 +105,7 @@ class MarketingService(BaseService):
         Returns:
             Created user persona
         """
-        return self._post("marketing/personas", data)
+        return self._post("marketing / personas", data)
 
     def get_marketing_channels(self) -> Dict[str, Any]:
         """
@@ -114,7 +114,7 @@ class MarketingService(BaseService):
         Returns:
             List of marketing channels
         """
-        return self._get("marketing/channels")
+        return self._get("marketing / channels")
 
     def generate_content(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -128,7 +128,7 @@ class MarketingService(BaseService):
         Returns:
             Generated content
         """
-        return self._post("marketing/content", data)
+        return self._post("marketing / content", data)
 
     def create_content_calendar(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -143,4 +143,4 @@ class MarketingService(BaseService):
         Returns:
             Content calendar
         """
-        return self._post("marketing/content-calendars", data)
+        return self._post("marketing / content - calendars", data)

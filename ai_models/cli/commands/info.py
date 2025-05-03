@@ -1,5 +1,5 @@
 """
-Info command for the command-line interface.
+Info command for the command - line interface.
 
 This module provides a command for getting information about a model.
 """
@@ -13,7 +13,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -28,28 +28,28 @@ class InfoCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
         parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
         )
         parser.add_argument("--output", type=str, help="Output file (default: stdout)")
         parser.add_argument(
-            "--include-files",
+            "--include - files",
             action="store_true",
             help="Include list of files in the model",
         )
         parser.add_argument(
-            "--include-weights",
+            "--include - weights",
             action="store_true",
             help="Include information about model weights",
         )
         parser.add_argument(
-            "--include-performance",
+            "--include - performance",
             action="store_true",
             help="Include performance information",
         )
@@ -160,7 +160,7 @@ class InfoCommand(BaseCommand):
 
             # Write output
             if self.args.output:
-                with open(self.args.output, "w", encoding="utf-8") as f:
+                with open(self.args.output, "w", encoding="utf - 8") as f:
                     f.write(output)
                 logger.info(f"Model information written to {self.args.output}")
             else:

@@ -16,7 +16,7 @@ from .benchmark_result import BenchmarkResult
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ class BenchmarkRunner:
                 raise ValueError(f"Input file not found: {self.config.input_file}")
 
             # Load input file
-            with open(self.config.input_file, "r", encoding="utf-8") as f:
+            with open(self.config.input_file, "r", encoding="utf - 8") as f:
                 if self.config.input_file.endswith(".json"):
                     data = json.load(f)
                     if isinstance(data, list):
@@ -307,7 +307,7 @@ class BenchmarkRunner:
 
         # Save results
         self.result.throughput = throughput
-        logger.info(f"Throughput: {throughput:.2f} tokens/second")
+        logger.info(f"Throughput: {throughput:.2f} tokens / second")
 
     def _run_memory_benchmark(self) -> None:
         """
@@ -520,11 +520,11 @@ class BenchmarkRunner:
         gc.collect()
 
         # Load model based on type
-        if self.config.model_type == "text-generation":
+        if self.config.model_type == "text - generation":
             model = transformers.AutoModelForCausalLM.from_pretrained(
                 self.config.model_path, device_map=self.device
             )
-        elif self.config.model_type == "text-classification":
+        elif self.config.model_type == "text - classification":
             model = transformers.AutoModelForSequenceClassification.from_pretrained(
                 self.config.model_path, device_map=self.device
             )

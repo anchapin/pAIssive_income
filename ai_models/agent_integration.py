@@ -21,12 +21,12 @@ from .model_manager import ModelManager
 # Set up logging with secure defaults
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "agent_integration.log"),
             mode="a",
-            encoding="utf-8",
+            encoding="utf - 8",
         ),
         logging.StreamHandler(),
     ],
@@ -39,6 +39,7 @@ class AgentModelProvider:
     Provider for AI models used by agents.
 
     This class serves as a bridge between the Agent Team module and the AI Models module,
+        
     providing a way for different agent types (researcher, developer, etc.) to access
     appropriate AI models for their specific tasks.
     """
@@ -69,13 +70,14 @@ class AgentModelProvider:
             "max_attempts": 3,  # Maximum number of fallback attempts
             "default_model_id": None,  # Global fallback model ID
             "logging_level": logging.INFO,  # Logging level for fallback events
-            "use_general_purpose_fallback": True,  # Use general purpose models as fallbacks
+            "use_general_purpose_fallback": True,  
+                # Use general purpose models as fallbacks
             "fallback_preferences": {  # Fallback preferences for different agent types
-                "researcher": ["huggingface", "llama", "general-purpose"],
-                "developer": ["huggingface", "llama", "general-purpose"],
-                "monetization": ["huggingface", "general-purpose"],
-                "marketing": ["huggingface", "general-purpose"],
-                "default": ["huggingface", "general-purpose"],
+                "researcher": ["huggingface", "llama", "general - purpose"],
+                "developer": ["huggingface", "llama", "general - purpose"],
+                "monetization": ["huggingface", "general - purpose"],
+                "marketing": ["huggingface", "general - purpose"],
+                "default": ["huggingface", "general - purpose"],
             },
             "secure_mode": True,  # Enable additional security checks
             "allowed_model_types": {  # Restrict model types per agent type
@@ -91,7 +93,8 @@ class AgentModelProvider:
         if fallback_config:
             # Only update allowed keys to prevent injection of malicious config
             allowed_keys = set(default_fallback_config.keys())
-            sanitized_config = {k: v for k, v in fallback_config.items() if k in allowed_keys}
+            sanitized_config = {k: v for k, 
+                v in fallback_config.items() if k in allowed_keys}
             for key, value in sanitized_config.items():
                 default_fallback_config[key] = value
 
@@ -106,7 +109,8 @@ class AgentModelProvider:
             logging_level=default_fallback_config["logging_level"],
         )
 
-    def get_model_for_agent(self, agent_type: str, task_type: Optional[str] = None) -> Any:
+    def get_model_for_agent(self, agent_type: str, 
+        task_type: Optional[str] = None) -> Any:
         """Get a model for a specific agent and task."""
         try:
             # Validate agent type
@@ -144,7 +148,8 @@ class AgentModelProvider:
 
             if not model_info:
                 raise ValueError(
-                    f"No suitable model found for agent type {agent_type} and task type {task_type}"
+                    f"No suitable model found for agent type {agent_type} and \
+                        task type {task_type}"
                 )
 
             # Load and register model
@@ -183,7 +188,8 @@ class AgentModelProvider:
                 try:
                     model = self.model_manager.load_model(fallback_info.id)
                     # Update assignment
-                    self._register_model_assignment(agent_type, fallback_info.id, task_type)
+                    self._register_model_assignment(agent_type, fallback_info.id, 
+                        task_type)
                     return model
                 except Exception as e:
                     if event:
@@ -209,7 +215,8 @@ class AgentModelProvider:
 
         self.agent_models[agent_type][task_type or "default"] = model_id
         logger.info(
-            f"Assigned model {model_id} to agent {agent_type}, task {task_type or 'default'}"
+            f"Assigned model {model_id} to agent {agent_type}, 
+                task {task_type or 'default'}"
         )
 
     def configure_fallback(
@@ -251,9 +258,11 @@ class AgentModelProvider:
             self.fallback_manager.fallback_enabled = fallback_enabled
             self.fallback_manager.max_attempts = default_config["max_attempts"]
             if "default_model_id" in default_config:
-                self.fallback_manager.default_model_id = default_config["default_model_id"]
+                self.fallback_manager.default_model_id = \
+                    default_config["default_model_id"]
             if "fallback_preferences" in default_config:
-                self.fallback_manager.fallback_preferences = default_config["fallback_preferences"]
+                self.fallback_manager.fallback_preferences = \
+                    default_config["fallback_preferences"]
             self.fallback_manager.logging_level = default_config["logging_level"]
 
             logger.info(f"Updated fallback configuration. Enabled: {fallback_enabled}")
@@ -313,7 +322,7 @@ class AgentModelIntegration:
         fallback_preferences: Optional[Dict[str, List[str]]] = None,
         max_retries: int = 3,
     ) -> None:
-        """Initialize secure agent-model integration."""
+        """Initialize secure agent - model integration."""
         self.model_manager = model_manager
         self.model_config = model_config or ModelConfig.get_default()
         self._fallback_manager = FallbackManager(
@@ -322,7 +331,8 @@ class AgentModelIntegration:
             secure_mode=True,  # Enable secure mode by default
         )
 
-    async def get_completion(self, prompt: str, model_id: Optional[str] = None, **kwargs) -> str:
+    async def get_completion(self, prompt: str, model_id: Optional[str] = None, 
+        **kwargs) -> str:
         """Get a secure text completion from an AI model."""
         try:
             # Validate prompt
@@ -332,7 +342,8 @@ class AgentModelIntegration:
             # Limit prompt length for security
             max_prompt_length = 4096  # Reasonable limit
             if len(prompt) > max_prompt_length:
-                raise ValueError(f"Prompt exceeds maximum length of {max_prompt_length}")
+                raise ValueError(
+                    f"Prompt exceeds maximum length of {max_prompt_length}")
 
             # Sanitize kwargs
             allowed_kwargs = {"temperature", "max_tokens", "top_p", "top_k"}
@@ -346,7 +357,7 @@ class AgentModelIntegration:
             return await self._fallback_manager.execute_with_fallbacks(
                 completion_attempt,
                 model_id or self.model_config.default_text_model,
-                capability="text-generation",
+                capability="text - generation",
             )
 
         except Exception as e:

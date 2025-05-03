@@ -511,9 +511,11 @@ class Subscription:
         Args:
             reason: Reason for cancellation
         """
-        self.update_status(SubscriptionStatus.CANCELED, reason or "Subscription canceled")
+        self.update_status(SubscriptionStatus.CANCELED, 
+            reason or "Subscription canceled")
 
-    def pause(self, reason: Optional[str] = None, resume_at: Optional[datetime] = None) -> None:
+    def pause(self, reason: Optional[str] = None, 
+        resume_at: Optional[datetime] = None) -> None:
         """
         Pause the subscription.
 
@@ -653,7 +655,8 @@ class Subscription:
         Get the number of days remaining in the current billing period.
 
         Returns:
-            Number of days remaining in the current billing period or None if not applicable
+            Number of days remaining in the current billing period or \
+                None if not applicable
         """
         if not self.current_period_end:
             return None
@@ -724,6 +727,7 @@ class Subscription:
             plan_id=data["plan_id"],
             start_date=datetime.fromisoformat(data["start_date"]),
             end_date=(datetime.fromisoformat(data["end_date"]) if data.get("end_date") else None),
+                
             status=data["status"],
             metadata=data.get("metadata", {}),
         )
@@ -735,12 +739,14 @@ class Subscription:
         subscription.created_at = datetime.fromisoformat(data["created_at"])
         subscription.updated_at = datetime.fromisoformat(data["updated_at"])
         subscription.canceled_at = (
-            datetime.fromisoformat(data["canceled_at"]) if data.get("canceled_at") else None
+            datetime.fromisoformat(
+                data["canceled_at"]) if data.get("canceled_at") else None
         )
         subscription.trial_end = (
             datetime.fromisoformat(data["trial_end"]) if data.get("trial_end") else None
         )
-        subscription.current_period_start = datetime.fromisoformat(data["current_period_start"])
+        subscription.current_period_start = \
+            datetime.fromisoformat(data["current_period_start"])
         subscription.current_period_end = (
             datetime.fromisoformat(data["current_period_end"])
             if data.get("current_period_end")
@@ -766,7 +772,8 @@ class Subscription:
 
     def __str__(self) -> str:
         """String representation of the subscription."""
-        return f"Subscription({self.id}, {self.customer_id}, {self.plan_id}, {self.status})"
+        return f"Subscription({self.id}, {self.customer_id}, {self.plan_id}, 
+            {self.status})"
 
 
 # Example usage
@@ -817,13 +824,16 @@ if __name__ == "__main__":
     print(f"\nSubscription: {subscription}")
     print(f"Status: {subscription.status}")
     print(
-        f"Trial end: {subscription.trial_end.strftime('%Y-%m-%d') if subscription.trial_end else 'N/A'}"
+        f"Trial end: {subscription.trial_end.strftime(
+            ' % Y-%m-%d') if subscription.trial_end else 'N / A'}"
     )
     print(
-        f"Current period: {subscription.current_period_start.strftime('%Y-%m-%d')} to {subscription.current_period_end.strftime('%Y-%m-%d') if subscription.current_period_end else 'N/A'}"
+        f"Current period: {subscription.current_period_start.strftime(
+            ' % Y-%m-%d')} to {subscription.current_period_end.strftime(' % Y-%m-%d') if subscription.current_period_end else 'N / A'}"
     )
     print(
-        f"Next billing date: {subscription.next_billing_date.strftime('%Y-%m-%d') if subscription.next_billing_date else 'N/A'}"
+        f"Next billing date: {subscription.next_billing_date.strftime(
+            ' % Y-%m-%d') if subscription.next_billing_date else 'N / A'}"
     )
     print(f"Days until next billing: {subscription.get_days_until_next_billing()}")
 
@@ -833,7 +843,8 @@ if __name__ == "__main__":
     print(f"\nAfter cancellation:")
     print(f"Status: {subscription.status}")
     print(
-        f"Canceled at: {subscription.canceled_at.strftime('%Y-%m-%d %H:%M:%S') if subscription.canceled_at else 'N/A'}"
+        f"Canceled at: {subscription.canceled_at.strftime(
+            ' % Y-%m-%d %H:%M:%S') if subscription.canceled_at else 'N / A'}"
     )
 
     # Convert to dictionary and back

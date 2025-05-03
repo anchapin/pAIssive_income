@@ -29,7 +29,7 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
         self,
         app,
         allowlist: Optional[WebhookIPAllowlist] = None,
-        webhook_path_prefix: str = "/api/v1/webhooks",
+        webhook_path_prefix: str = " / api / v1 / webhooks",
         audit_service: Optional[AuditService] = None,
     ):
         """
@@ -84,7 +84,7 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
                         "method": request.method,
                     },
                     ip_address=client_ip,
-                    user_agent=request.headers.get("user-agent"),
+                    user_agent=request.headers.get("user - agent"),
                 )
 
             return JSONResponse(
@@ -102,7 +102,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
         self,
         app,
         rate_limiter: Optional[WebhookRateLimiter] = None,
-        webhook_path_prefix: str = "/api/v1/webhooks",
+        webhook_path_prefix: str = " / api / v1 / webhooks",
         limit: int = 100,
         window_seconds: int = 60,
         audit_service: Optional[AuditService] = None,
@@ -163,7 +163,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
                         "window_seconds": self.rate_limiter.window_seconds,
                     },
                     ip_address=client_ip,
-                    user_agent=request.headers.get("user-agent"),
+                    user_agent=request.headers.get("user - agent"),
                 )
 
             # Get reset time
@@ -177,10 +177,10 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             )
 
             # Add rate limit headers
-            response.headers["X-RateLimit-Limit"] = str(self.rate_limiter.limit)
-            response.headers["X-RateLimit-Remaining"] = "0"
-            response.headers["X-RateLimit-Reset"] = str(int(reset_time)) if reset_time else ""
-            response.headers["Retry-After"] = str(reset_seconds)
+            response.headers["X - RateLimit - Limit"] = str(self.rate_limiter.limit)
+            response.headers["X - RateLimit - Remaining"] = "0"
+            response.headers["X - RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
+            response.headers["Retry - After"] = str(reset_seconds)
 
             return response
 
@@ -194,8 +194,8 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
         remaining = self.rate_limiter.get_remaining_requests(client_ip)
         reset_time = self.rate_limiter.get_reset_time(client_ip)
 
-        response.headers["X-RateLimit-Limit"] = str(self.rate_limiter.limit)
-        response.headers["X-RateLimit-Remaining"] = str(remaining)
-        response.headers["X-RateLimit-Reset"] = str(int(reset_time)) if reset_time else ""
+        response.headers["X - RateLimit - Limit"] = str(self.rate_limiter.limit)
+        response.headers["X - RateLimit - Remaining"] = str(remaining)
+        response.headers["X - RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
 
         return response

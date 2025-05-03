@@ -17,7 +17,7 @@ from errors import MarketingError, ValidationError, handle_exception
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Re-export the error classes for convenience
+# Re - export the error classes for convenience
 __all__ = [
     "MarketingError",
     "ValidationError",
@@ -55,7 +55,7 @@ class InvalidTestConfigurationError(MarketingError):
         Initialize the invalid test configuration error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             test_id: ID of the test with invalid configuration
             **kwargs: Additional arguments to pass to the base class
         """
@@ -64,7 +64,8 @@ class InvalidTestConfigurationError(MarketingError):
             details["test_id"] = test_id
 
         super().__init__(
-            message=message, code="invalid_test_configuration_error", details=details, **kwargs
+            message=message, code="invalid_test_configuration_error", details=details, 
+                **kwargs
         )
 
 
@@ -76,7 +77,7 @@ class TestNotFoundError(MarketingError):
         Initialize the test not found error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             test_id: ID of the test that was not found
             **kwargs: Additional arguments to pass to the base class
         """
@@ -84,7 +85,8 @@ class TestNotFoundError(MarketingError):
         if test_id:
             details["test_id"] = test_id
 
-        super().__init__(message=message, code="test_not_found_error", details=details, **kwargs)
+        super().__init__(message=message, code="test_not_found_error", details=details, 
+            **kwargs)
 
 
 class ContentGenerationError(MarketingError):
@@ -95,7 +97,7 @@ class ContentGenerationError(MarketingError):
         Initialize the content generation error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             content_type: Type of content that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -116,7 +118,7 @@ class StrategyGenerationError(MarketingError):
         Initialize the strategy generation error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             strategy_type: Type of strategy that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -137,7 +139,7 @@ class ChannelStrategyError(MarketingError):
         Initialize the channel strategy error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             channel: Marketing channel that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -145,7 +147,8 @@ class ChannelStrategyError(MarketingError):
         if channel:
             details["channel"] = channel
 
-        super().__init__(message=message, code="channel_strategy_error", details=details, **kwargs)
+        super().__init__(message=message, code="channel_strategy_error", details=details, 
+            **kwargs)
 
 
 class ContentTemplateError(MarketingError):
@@ -156,7 +159,7 @@ class ContentTemplateError(MarketingError):
         Initialize the content template error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             template_type: Type of template that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -179,7 +182,7 @@ class ContentOptimizationError(MarketingError):
         Initialize the content optimization error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             optimization_type: Type of optimization that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -188,7 +191,8 @@ class ContentOptimizationError(MarketingError):
             details["optimization_type"] = optimization_type
 
         super().__init__(
-            message=message, code="content_optimization_error", details=details, **kwargs
+            message=message, code="content_optimization_error", details=details, 
+                **kwargs
         )
 
 
@@ -200,7 +204,7 @@ class UserPersonaError(MarketingError):
         Initialize the user persona error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             persona_name: Name of the persona that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -208,7 +212,8 @@ class UserPersonaError(MarketingError):
         if persona_name:
             details["persona_name"] = persona_name
 
-        super().__init__(message=message, code="user_persona_error", details=details, **kwargs)
+        super().__init__(message=message, code="user_persona_error", details=details, 
+            **kwargs)
 
 
 class MarketingCampaignError(MarketingError):
@@ -219,7 +224,7 @@ class MarketingCampaignError(MarketingError):
         Initialize the marketing campaign error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -240,7 +245,7 @@ class InvalidParameterError(MarketingError):
         Initialize the invalid parameter error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             parameter_name: Name of the parameter that is invalid
             **kwargs: Additional arguments to pass to the base class
         """
@@ -248,7 +253,8 @@ class InvalidParameterError(MarketingError):
         if parameter_name:
             details["parameter_name"] = parameter_name
 
-        super().__init__(message=message, code="invalid_parameter_error", details=details, **kwargs)
+        super().__init__(message=message, code="invalid_parameter_error", 
+            details=details, **kwargs)
 
 
 class ContentNotFoundError(MarketingError):
@@ -265,7 +271,7 @@ class ContentNotFoundError(MarketingError):
         Initialize the content not found error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             content_id: ID of the content that was not found
             content_type: Type of content that was not found
             **kwargs: Additional arguments to pass to the base class
@@ -276,7 +282,8 @@ class ContentNotFoundError(MarketingError):
         if content_type:
             details["content_type"] = content_type
 
-        super().__init__(message=message, code="content_not_found_error", details=details, **kwargs)
+        super().__init__(message=message, code="content_not_found_error", 
+            details=details, **kwargs)
 
 
 class StorageError(MarketingError):
@@ -293,7 +300,7 @@ class StorageError(MarketingError):
         Initialize the storage error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             storage_type: Type of storage that encountered the error
             operation: Operation that was being performed
             **kwargs: Additional arguments to pass to the base class
@@ -304,7 +311,8 @@ class StorageError(MarketingError):
         if operation:
             details["operation"] = operation
 
-        super().__init__(message=message, code="storage_error", details=details, **kwargs)
+        super().__init__(message=message, code="storage_error", details=details, 
+            **kwargs)
 
 
 class InsufficientDataError(MarketingError):
@@ -321,7 +329,7 @@ class InsufficientDataError(MarketingError):
         Initialize the insufficient data error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             data_type: Type of data that is insufficient
             min_required: Minimum amount of data required
             **kwargs: Additional arguments to pass to the base class
@@ -332,7 +340,8 @@ class InsufficientDataError(MarketingError):
         if min_required is not None:
             details["min_required"] = min_required
 
-        super().__init__(message=message, code="insufficient_data_error", details=details, **kwargs)
+        super().__init__(message=message, code="insufficient_data_error", 
+            details=details, **kwargs)
 
 
 class ContentValidationError(MarketingError):
@@ -349,7 +358,7 @@ class ContentValidationError(MarketingError):
         Initialize the content validation error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             content_type: Type of content that failed validation
             validation_errors: List of specific validation errors
             **kwargs: Additional arguments to pass to the base class
@@ -389,14 +398,14 @@ class PlatformNotFoundError(MarketingError):
 
 
 class AuthenticationError(MarketingError):
-    """Error raised when there's an authentication issue with a third-party service."""
+    """Error raised when there's an authentication issue with a third - party service."""
 
     def __init__(self, message: str, service_name: Optional[str] = None, **kwargs):
         """
         Initialize the authentication error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             service_name: Name of the service that failed authentication
             **kwargs: Additional arguments to pass to the base class
         """
@@ -404,20 +413,22 @@ class AuthenticationError(MarketingError):
         if service_name:
             details["service_name"] = service_name
 
-        super().__init__(message=message, code="authentication_error", details=details, **kwargs)
+        super().__init__(message=message, code="authentication_error", details=details, 
+            **kwargs)
 
 
 class PostNotFoundError(MarketingError):
     """Error raised when a social media post is not found."""
 
     def __init__(
-        self, message: str, post_id: Optional[str] = None, platform: Optional[str] = None, **kwargs
+        self, message: str, post_id: Optional[str] = None, 
+            platform: Optional[str] = None, **kwargs
     ):
         """
         Initialize the post not found error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             post_id: ID of the post that was not found
             platform: Social media platform where the post should exist
             **kwargs: Additional arguments to pass to the base class
@@ -428,7 +439,8 @@ class PostNotFoundError(MarketingError):
         if platform:
             details["platform"] = platform
 
-        super().__init__(message=message, code="post_not_found_error", details=details, **kwargs)
+        super().__init__(message=message, code="post_not_found_error", details=details, 
+            **kwargs)
 
 
 class PostingError(MarketingError):
@@ -446,7 +458,7 @@ class PostingError(MarketingError):
         Initialize the posting error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             platform: The platform where the posting failed
             content_id: ID of the content that failed to post
             error_details: Additional details about the error
@@ -460,7 +472,8 @@ class PostingError(MarketingError):
         if error_details:
             details["error_details"] = error_details
 
-        super().__init__(message=message, code="posting_error", details=details, **kwargs)
+        super().__init__(message=message, code="posting_error", details=details, 
+            **kwargs)
 
 
 class DeletionError(MarketingError):
@@ -478,7 +491,7 @@ class DeletionError(MarketingError):
         Initialize the deletion error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             content_type: Type of content that failed to delete
             content_id: ID of the content that failed to delete
             platform: The platform where deletion failed
@@ -492,7 +505,8 @@ class DeletionError(MarketingError):
         if platform:
             details["platform"] = platform
 
-        super().__init__(message=message, code="deletion_error", details=details, **kwargs)
+        super().__init__(message=message, code="deletion_error", details=details, 
+            **kwargs)
 
 
 class SchedulingError(MarketingError):
@@ -510,7 +524,7 @@ class SchedulingError(MarketingError):
         Initialize the scheduling error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             content_id: ID of the content that failed to schedule
             schedule_time: The time when the content was supposed to be scheduled
             platform: The platform where scheduling failed
@@ -524,20 +538,22 @@ class SchedulingError(MarketingError):
         if platform:
             details["platform"] = platform
 
-        super().__init__(message=message, code="scheduling_error", details=details, **kwargs)
+        super().__init__(message=message, code="scheduling_error", details=details, 
+            **kwargs)
 
 
 class NotSupportedError(MarketingError):
     """Error raised when a feature or operation is not supported."""
 
     def __init__(
-        self, message: str, feature: Optional[str] = None, platform: Optional[str] = None, **kwargs
+        self, message: str, feature: Optional[str] = None, 
+            platform: Optional[str] = None, **kwargs
     ):
         """
         Initialize the not supported error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             feature: The feature that is not supported
             platform: The platform or context where the feature is not supported
             **kwargs: Additional arguments to pass to the base class
@@ -548,7 +564,8 @@ class NotSupportedError(MarketingError):
         if platform:
             details["platform"] = platform
 
-        super().__init__(message=message, code="not_supported_error", details=details, **kwargs)
+        super().__init__(message=message, code="not_supported_error", details=details, 
+            **kwargs)
 
 
 class PlatformNotSupportedError(Exception):
@@ -557,4 +574,5 @@ class PlatformNotSupportedError(Exception):
     def __init__(self, platform: str, feature: str):
         self.platform = platform
         self.feature = feature
-        super().__init__(f"Feature '{feature}' is not supported by platform '{platform}'")
+        super(
+            ).__init__(f"Feature '{feature}' is not supported by platform '{platform}'")

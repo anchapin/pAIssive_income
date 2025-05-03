@@ -111,7 +111,8 @@ class IFeedbackAgent(IAgentProfile):
         ...
 
     @abstractmethod
-    def generate_recommendations(self, feedback_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def generate_recommendations(self, feedback_analysis: Dict[str, 
+        Any]) -> List[Dict[str, Any]]:
         """Generate improvement recommendations."""
         ...
 

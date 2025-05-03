@@ -1,8 +1,8 @@
 """
-Integration tests for the niche analysis → market trend → A/B testing workflow.
+Integration tests for the niche analysis → market trend → A / B testing workflow.
 
 This module tests the complete workflow from niche analysis through market trend
-analysis to A/B testing setup and analysis.
+analysis to A / B testing setup and analysis.
 """
 
 import hashlib
@@ -23,7 +23,7 @@ def market_analyzer():
 
 @pytest.fixture
 def ab_testing():
-    """Create an A/B testing instance for testing."""
+    """Create an A / B testing instance for testing."""
     return ABTesting()
 
 
@@ -38,17 +38,17 @@ def mock_agent_team():
 
 def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_team):
     """
-    Test the complete workflow from niche analysis to A/B testing.
+    Test the complete workflow from niche analysis to A / B testing.
 
     This test verifies that:
     1. Market analysis can identify niches
     2. Market trends can be analyzed for those niches
     3. Target users can be identified
-    4. A/B tests can be created based on the niche and user analysis
+    4. A / B tests can be created based on the niche and user analysis
     5. Test results can be analyzed
     """
     # Step 1: Analyze market segment to find niches
-    market_segment = "e-commerce"
+    market_segment = "e - commerce"
     market_analysis = market_analyzer.analyze_market(market_segment)
 
     # Verify market analysis results
@@ -72,7 +72,7 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
     assert "user_segments" in user_analysis
     assert len(user_analysis["user_segments"]) > 0
 
-    # Step 4: Create A/B tests based on the niche and user analysis
+    # Step 4: Create A / B tests based on the niche and user analysis
     # Create variants based on user segments
     variants = []
     for i, segment in enumerate(user_analysis["user_segments"]):
@@ -89,7 +89,7 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
         }
         variants.append(variant)
 
-    # Create the A/B test
+    # Create the A / B test
     test = ab_testing.create_test(
         name=f"Landing Page Test for {selected_niche}",
         description=f"Testing landing page variants for {selected_niche} based on user segments",
@@ -113,8 +113,8 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
 
         # Simulate different conversion rates for different variants
         # Control variant: 10% conversion
-        # Other variants: 8-15% conversion depending on the variant
-        # Use deterministic SHA-256 hash instead of built-in hash() for consistent test results
+        # Other variants: 8 - 15% conversion depending on the variant
+        # Use deterministic SHA - 256 hash instead of built - in hash() for consistent test results
         name_hash = int.from_bytes(
             hashlib.sha256(variant["name"].encode(), usedforsecurity=False).digest(), "big"
         )
@@ -165,12 +165,12 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
     # Step 3: Create multivariate test with different headlines, descriptions, and CTAs
     headlines = [
         "Create Amazing Content Faster",
-        "AI-Powered Content Creation",
+        "AI - Powered Content Creation",
         "Professional Content in Minutes",
     ]
 
     descriptions = [
-        "Our AI tools help you create high-quality content with minimal effort",
+        "Our AI tools help you create high - quality content with minimal effort",
         "Generate blog posts, social media content, and more with our advanced AI",
         "Save time and resources with automated content creation",
     ]

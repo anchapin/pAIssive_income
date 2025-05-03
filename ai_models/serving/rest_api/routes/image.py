@@ -32,7 +32,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1", tags=["Images"])
+    router = APIRouter(prefix=" / v1", tags=["Images"])
 else:
     router = None
 
@@ -70,7 +70,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.post("/images/generations", response_model=ImageGenerationResponse)
+    @router.post(" / images / generations", response_model=ImageGenerationResponse)
     async def generate_images(request: ImageGenerationRequest, model=None):
         """
         Generate images from a prompt.
@@ -93,7 +93,7 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post("/images/classifications", response_model=ImageClassificationResponse)
+    @router.post(" / images / classifications", response_model=ImageClassificationResponse)
     async def classify_image(file: UploadFile = File(...), model=None):
         """
         Classify an image.
@@ -119,7 +119,7 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.get("/images/{image_id}")
+    @router.get(" / images/{image_id}")
     async def get_image(image_id: str, model=None):
         """
         Get a generated image.
@@ -165,12 +165,12 @@ async def _generate_images(model, request):
     for i, image in enumerate(images):
         if request.response_format == "b64_json":
             # Convert image to base64
-            image_b64 = base64.b64encode(image).decode("utf-8")
+            image_b64 = base64.b64encode(image).decode("utf - 8")
             data.append({"b64_json": image_b64})
         else:
             # Store image and return URL
             image_id = model.store_image(image, f"image_{i}.png")
-            data.append({"url": f"/v1/images/{image_id}"})
+            data.append({"url": f" / v1 / images/{image_id}"})
 
     return {"created": int(model.get_current_timestamp()), "data": data}
 

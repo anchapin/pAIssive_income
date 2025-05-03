@@ -1,8 +1,8 @@
 """
-Service client utilities for inter-service communication.
+Service client utilities for inter - service communication.
 
 This module provides utilities for services to communicate with each other
-using service-to-service authentication.
+using service - to - service authentication.
 """
 
 import json
@@ -16,14 +16,14 @@ from .jwt_auth import ServiceTokenError, create_service_token
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 class ServiceClient:
     """
-    Client for service-to-service communication.
+    Client for service - to - service communication.
 
     This client handles authentication and communication between microservices.
     """
@@ -46,7 +46,7 @@ class ServiceClient:
         if api_gateway_url is None:
             api_gateway_url = os.environ.get("API_GATEWAY_URL", "http://localhost:8000")
 
-        self.api_gateway_url = api_gateway_url.rstrip("/")
+        self.api_gateway_url = api_gateway_url.rstrip(" / ")
 
         # Create HTTP client
         self.client = httpx.AsyncClient(timeout=timeout)
@@ -75,7 +75,7 @@ class ServiceClient:
         Args:
             target_service: Name of the target service
             expiration: Token expiration time in seconds
-            claims: Additional service-specific claims
+            claims: Additional service - specific claims
 
         Returns:
             str: The JWT token
@@ -95,7 +95,7 @@ class ServiceClient:
             logger.warning(f"Failed to create service token locally: {str(e)}")
 
             # If local creation fails, request a token from the API Gateway
-            url = f"{self.api_gateway_url}/api/auth/service-token"
+            url = f"{self.api_gateway_url}/api / auth / service - token"
 
             # Prepare request data
             data = {"service_name": self.service_name, "target_service": target_service}
@@ -151,7 +151,7 @@ class ServiceClient:
             httpx.RequestError: If the request fails
         """
         # Normalize path
-        if not path.startswith("/"):
+        if not path.startswith(" / "):
             path = f"/{path}"
 
         # Construct URL through the API Gateway
@@ -162,7 +162,7 @@ class ServiceClient:
 
         # Prepare headers
         request_headers = headers or {}
-        request_headers["X-Service-Token"] = token
+        request_headers["X - Service - Token"] = token
 
         # Send request
         return await self.client.request(

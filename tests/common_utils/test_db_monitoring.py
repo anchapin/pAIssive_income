@@ -437,4 +437,4 @@ def test_real_sqlite_database(temp_db_path):
 
 
 if __name__ == "__main__":
-    pytest.main(["-xvs", __file__])
+    pytest.main([" - xvs", __file__])

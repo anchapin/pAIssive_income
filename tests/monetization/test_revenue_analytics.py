@@ -1,7 +1,7 @@
 """
 Tests for revenue analytics functionality.
 
-This module contains tests for revenue analytics, including MRR/ARR calculation,
+This module contains tests for revenue analytics, including MRR / ARR calculation,
 customer lifetime value predictions, and churn analysis.
 """
 
@@ -197,7 +197,7 @@ class TestRevenueAnalytics:
         ]
 
     def test_mrr_arr_calculation(self):
-        """Test MRR/ARR calculation."""
+        """Test MRR / ARR calculation."""
         # Mock subscription data
         with patch.object(self.revenue_analytics, "get_active_subscriptions") as mock_subs:
             mock_subs.return_value = [s for s in self.subscription_data if s["status"] == "active"]
@@ -255,7 +255,7 @@ class TestRevenueAnalytics:
             # - Expansion: +$40 (sub_006 upgraded from $10 to $50)
             # - Contraction: $0 (no downgrades)
             assert mrr_movements["new"] == Decimal("0.00")
-            assert mrr_movements["churn"] == Decimal("-50.00")
+            assert mrr_movements["churn"] == Decimal(" - 50.00")
             assert mrr_movements["expansion"] == Decimal("40.00")
             assert mrr_movements["contraction"] == Decimal("0.00")
 
@@ -265,7 +265,7 @@ class TestRevenueAnalytics:
             )
 
             # Expected net change: -$50 + $40 = -$10
-            expected_net_change = Decimal("-10.00")
+            expected_net_change = Decimal(" - 10.00")
             assert net_mrr_change == expected_net_change
 
     def test_customer_lifetime_value(self):
@@ -314,7 +314,7 @@ class TestRevenueAnalytics:
                         monthly_revenue=customer["monthly_revenue"],
                         churn_rate=churn_rate,
                         discount_rate=0.1,  # 10% discount rate
-                        months=36,  # 3-year horizon
+                        months=36,  # 3 - year horizon
                     )
 
                     # CLV should be positive and proportional to monthly revenue
@@ -387,7 +387,7 @@ class TestRevenueAnalytics:
                     customer_id, 0.0
                 )
 
-                # Get at-risk customers
+                # Get at - risk customers
                 at_risk_customers = self.churn_analyzer.get_at_risk_customers(risk_threshold=0.5)
 
                 # Only cust_002 should be at risk
@@ -398,7 +398,7 @@ class TestRevenueAnalytics:
                 prevention_strategies = {
                     "cust_002": [
                         "Offer discount",
-                        "Schedule check-in call",
+                        "Schedule check - in call",
                         "Highlight unused features",
                     ]
                 }
@@ -410,13 +410,13 @@ class TestRevenueAnalytics:
                         customer_id, []
                     )
 
-                    # Get prevention strategies for at-risk customer
+                    # Get prevention strategies for at - risk customer
                     strategies = self.churn_analyzer.get_prevention_strategies("cust_002")
 
                     # Verify strategies
                     assert len(strategies) == 3
                     assert "Offer discount" in strategies
-                    assert "Schedule check-in call" in strategies
+                    assert "Schedule check - in call" in strategies
                     assert "Highlight unused features" in strategies
 
     def test_revenue_projections(self):
@@ -485,4 +485,4 @@ class TestRevenueAnalytics:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_revenue_analytics.py"])
+    pytest.main([" - v", "test_revenue_analytics.py"])

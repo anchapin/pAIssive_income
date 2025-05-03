@@ -29,7 +29,7 @@ def cached(
 
     Args:
         namespace: Cache namespace (defaults to function module and name)
-        ttl: Time-to-live in seconds (None for infinite)
+        ttl: Time - to - live in seconds (None for infinite)
         condition: Function that determines if result should be cached
         key_generator: Custom function to generate cache keys
         version_with_code: Whether to include function code in version
@@ -127,7 +127,7 @@ def method_cached(
 
     Args:
         namespace: Cache namespace
-        ttl: Time-to-live in seconds (None for infinite)
+        ttl: Time - to - live in seconds (None for infinite)
         condition: Function that determines if result should be cached
         key_generator: Custom function to generate cache keys
         version_with_code: Whether to include method code in version

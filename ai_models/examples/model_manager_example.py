@@ -16,7 +16,7 @@ from ai_models import ModelManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ def main():
     print("\nDependency Information:")
     for name, info in dependencies.items():
         status = "Installed" if info["installed"] else "Not Installed"
-        version = info.get("version", "N/A")
+        version = info.get("version", "N / A")
         print(f"{name}: {status} (Version: {version})")
 
     # Discover models

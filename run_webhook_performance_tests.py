@@ -12,7 +12,8 @@ async def run_performance_tests():
     parser = argparse.ArgumentParser(description="Run webhook performance tests")
     parser.add_argument(
         "--test",
-        choices=["performance", "load", "scalability", "distribution", "resource", "all"],
+        choices=["performance", "load", "scalability", "distribution", "resource", 
+            "all"],
         default="all",
         help="Which test to run",
     )

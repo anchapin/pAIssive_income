@@ -229,7 +229,7 @@ class TestTargetUserAnalysis:
             )
 
     def test_cross_segment_analysis(self):
-        """Test cross-segment analysis."""
+        """Test cross - segment analysis."""
         # Test data
         segments = {
             "enterprise": {
@@ -242,10 +242,10 @@ class TestTargetUserAnalysis:
             },
         }
 
-        # Analyze cross-segment patterns
+        # Analyze cross - segment patterns
         patterns = self.segmentation_analyzer.analyze_cross_segment_patterns(segments)
 
-        # Validate cross-segment analysis
+        # Validate cross - segment analysis
         assert "common_needs" in patterns
         assert "unique_needs" in patterns
         assert "segment_overlaps" in patterns
@@ -256,4 +256,4 @@ class TestTargetUserAnalysis:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_target_user_analysis.py"])
+    pytest.main([" - v", "test_target_user_analysis.py"])

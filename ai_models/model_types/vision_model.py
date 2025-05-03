@@ -14,7 +14,7 @@ import numpy as np
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class VisionModel:
     def __init__(
         self,
         model_path: str,
-        model_type: str = "image-classification",
+        model_type: str = "image - classification",
         processor_path: Optional[str] = None,
         device: str = "auto",
         **kwargs,
@@ -78,7 +78,7 @@ class VisionModel:
 
         Args:
             model_path: Path to the model file or directory
-            model_type: Type of model (image-classification, object-detection, etc.)
+            model_type: Type of model (image - classification, object - detection, etc.)
             processor_path: Optional path to the image processor
             device: Device to run the model on (auto, cpu, cuda, etc.)
             **kwargs: Additional parameters for model initialization
@@ -161,26 +161,26 @@ class VisionModel:
 
         try:
             # Load processor
-            if self.model_type == "image-classification":
+            if self.model_type == "image - classification":
                 self.processor = AutoImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForImageClassification.from_pretrained(
                     self.model_path, **self.kwargs
                 )
-            elif self.model_type == "object-detection":
+            elif self.model_type == "object - detection":
                 from transformers import AutoModelForObjectDetection
 
                 self.processor = AutoImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForObjectDetection.from_pretrained(
                     self.model_path, **self.kwargs
                 )
-            elif self.model_type == "image-segmentation":
+            elif self.model_type == "image - segmentation":
                 from transformers import AutoModelForImageSegmentation
 
                 self.processor = AutoImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForImageSegmentation.from_pretrained(
                     self.model_path, **self.kwargs
                 )
-            elif self.model_type == "image-to-text":
+            elif self.model_type == "image - to - text":
                 from transformers import AutoModelForVision2Seq, ViTImageProcessor
 
                 self.processor = ViTImageProcessor.from_pretrained(self.processor_path)
@@ -265,7 +265,7 @@ class VisionModel:
                         from transformers import ViTForImageClassification
 
                         self.model = ViTForImageClassification.from_pretrained(
-                            "google/vit-base-patch16-224"
+                            "google / vit - base - patch16 - 224"
                         )
                     else:
                         raise ValueError(f"Unsupported model type: {model_type}")
@@ -389,7 +389,7 @@ class VisionModel:
             outputs = self.model(**inputs)
 
         # Process outputs
-        if self.model_type == "image-classification":
+        if self.model_type == "image - classification":
             # Get logits
             logits = outputs.logits
 
@@ -549,7 +549,7 @@ class VisionModel:
         if not PIL_AVAILABLE:
             raise ImportError("PIL not available. Please install it with: pip install Pillow")
 
-        if self.model_type != "object-detection":
+        if self.model_type != "object - detection":
             raise ValueError(f"Model type {self.model_type} does not support object detection")
 
         try:
@@ -783,7 +783,7 @@ class VisionModel:
             "device": self.device,
         }
 
-        # Add model-specific metadata
+        # Add model - specific metadata
         if self.model_format == "huggingface" and self.model:
             config = getattr(self.model, "config", None)
             if config:
@@ -800,11 +800,11 @@ class VisionModel:
 # Example usage
 if __name__ == "__main__":
     # Example model path (replace with an actual model path)
-    model_path = "path/to/model"
+    model_path = "path / to / model"
 
     if os.path.exists(model_path):
         # Create vision model
-        model = VisionModel(model_path=model_path, model_type="image-classification")
+        model = VisionModel(model_path=model_path, model_type="image - classification")
 
         # Load the model
         model.load()
@@ -816,7 +816,7 @@ if __name__ == "__main__":
             print(f"  {key}: {value}")
 
         # Classify an image
-        image_path = "path/to/image.jpg"
+        image_path = "path / to / image.jpg"
         if os.path.exists(image_path):
             print(f"\nClassifying image: {image_path}")
             results = model.classify_image(image_path)

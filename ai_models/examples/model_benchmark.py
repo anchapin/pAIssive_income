@@ -20,7 +20,7 @@ from ai_models import ModelConfig, ModelInfo, ModelManager, PerformanceMonitor
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -170,7 +170,7 @@ class ModelBenchmark:
 
         # Run the benchmark multiple times
         for i in range(num_runs):
-            logger.info(f"Run {i+1}/{num_runs}")
+            logger.info(f"Run {i + 1}/{num_runs}")
 
             # Track inference
             with self.manager.track_inference(
@@ -360,7 +360,7 @@ class ModelBenchmark:
             model_name = data["name"]
 
             # Calculate a score (lower is better)
-            # Normalize each metric to a 0-1 scale and apply weights
+            # Normalize each metric to a 0 - 1 scale and apply weights
             score = 0
 
             if comparison["fastest_inference"]["time"] > 0:
@@ -413,7 +413,7 @@ def main():
     Main function for the model benchmark tool.
     """
     parser = argparse.ArgumentParser(description="Benchmark AI models")
-    parser.add_argument("--models", type=str, nargs="+", help="Model IDs to benchmark")
+    parser.add_argument("--models", type=str, nargs=" + ", help="Model IDs to benchmark")
     parser.add_argument(
         "--prompt",
         type=str,
@@ -422,7 +422,7 @@ def main():
     )
     parser.add_argument("--runs", type=int, default=3, help="Number of runs per model")
     parser.add_argument(
-        "--max-tokens",
+        "--max - tokens",
         type=int,
         default=100,
         help="Maximum number of tokens to generate",
@@ -446,10 +446,10 @@ def main():
 
         print("Available models:")
         for i, model in enumerate(all_models):
-            print(f"{i+1}. {model.name} (ID: {model.id}, Type: {model.type})")
+            print(f"{i + 1}. {model.name} (ID: {model.id}, Type: {model.type})")
 
         # Ask the user which models to benchmark
-        selection = input("\nEnter model numbers to benchmark (comma-separated): ")
+        selection = input("\nEnter model numbers to benchmark (comma - separated): ")
         selected_indices = [int(i.strip()) - 1 for i in selection.split(",")]
 
         args.models = [all_models[i].id for i in selected_indices if 0 <= i < len(all_models)]
@@ -512,7 +512,7 @@ def main():
 
     if comparison["highest_throughput"]["model"]:
         print(
-            f"Highest throughput: {comparison['highest_throughput']['model']} ({comparison['highest_throughput']['tokens_per_second']:.2f} tokens/second)"
+            f"Highest throughput: {comparison['highest_throughput']['model']} ({comparison['highest_throughput']['tokens_per_second']:.2f} tokens / second)"
         )
 
     if comparison["lowest_latency"]["model"]:
@@ -527,7 +527,7 @@ def main():
 
     print("\nRanking (best to worst):")
     for i, model in enumerate(comparison["ranking"]):
-        print(f"{i+1}. {model['model']} (Score: {model['score']:.4f})")
+        print(f"{i + 1}. {model['model']} (Score: {model['score']:.4f})")
 
     if args.output:
         print(f"\nResults saved to {args.output}")

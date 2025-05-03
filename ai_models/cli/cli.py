@@ -1,7 +1,7 @@
 """
-Command-line interface for AI models.
+Command - line interface for AI models.
 
-This module provides the main entry point for the command-line interface.
+This module provides the main entry point for the command - line interface.
 """
 
 import argparse
@@ -25,7 +25,7 @@ from .commands import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,8 @@ def get_commands() -> Dict[str, Type[BaseCommand]]:
         "list": ListCommand,
         "info": InfoCommand,
         # Serving commands
-        "serve-rest": ServeRESTCommand,
-        "serve-grpc": ServeGRPCCommand,
+        "serve - rest": ServeRESTCommand,
+        "serve - grpc": ServeGRPCCommand,
         # Optimization commands
         "optimize": OptimizeCommand,
         "benchmark": BenchmarkCommand,
@@ -66,13 +66,13 @@ def create_parser() -> argparse.ArgumentParser:
     """
     # Create main parser
     parser = argparse.ArgumentParser(
-        description="Command-line interface for AI models",
+        description="Command - line interface for AI models",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Add global arguments
     parser.add_argument(
-        "--log-level",
+        "--log - level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         default="INFO",
         help="Logging level",
@@ -96,10 +96,10 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: Optional[List[str]] = None) -> int:
     """
-    Main entry point for the command-line interface.
+    Main entry point for the command - line interface.
 
     Args:
-        args: Command-line arguments (defaults to sys.argv[1:])
+        args: Command - line arguments (defaults to sys.argv[1:])
 
     Returns:
         Exit code

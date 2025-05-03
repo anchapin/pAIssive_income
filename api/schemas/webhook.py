@@ -153,7 +153,7 @@ class WebhookDeliveryList(BaseModel):
 
 
 class IPAllowlistConfig(BaseModel):
-    """Request/Response model for IP allowlist configuration."""
+    """Request / Response model for IP allowlist configuration."""
 
     allowed_ips: List[str] = Field(..., description="List of allowed IP addresses or CIDR ranges")
     enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
@@ -189,16 +189,16 @@ class SecretRotationResponse(BaseModel):
 
 
 class RateLimitConfig(BaseModel):
-    """Request/Response model for rate limit configuration."""
+    """Request / Response model for rate limit configuration."""
 
     per_minute: int = Field(..., ge=1, le=1000, description="Maximum requests per minute")
     per_hour: int = Field(..., ge=1, le=10000, description="Maximum requests per hour")
 
     @validator("per_hour")
     def validate_hourly_limit(cls, v, values):
-        """Validate that hourly limit is greater than per-minute limit * 60."""
+        """Validate that hourly limit is greater than per - minute limit * 60."""
         if "per_minute" in values and v < values["per_minute"] * 60:
-            raise ValueError("Hourly limit must be greater than per-minute limit * 60")
+            raise ValueError("Hourly limit must be greater than per - minute limit * 60")
         return v
 
 

@@ -40,7 +40,7 @@ class ROIAnalysisError(MarketingError):
         Initialize the ROI analysis error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -48,7 +48,8 @@ class ROIAnalysisError(MarketingError):
         if campaign_id:
             details["campaign_id"] = campaign_id
 
-        super().__init__(message=message, code="roi_analysis_error", details=details, **kwargs)
+        super().__init__(message=message, code="roi_analysis_error", details=details, 
+            **kwargs)
 
 
 class InsufficientDataError(ROIAnalysisError):
@@ -59,7 +60,7 @@ class InsufficientDataError(ROIAnalysisError):
         Initialize the insufficient data error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
@@ -143,7 +144,8 @@ class ROIAnalyzer(IROIAnalyzer):
 
         for metric_name in revenue_metrics:
             # Check if metric data exists
-            if "grouped_data" in metrics_data and metric_name in metrics_data["grouped_data"]:
+            if "grouped_data" in metrics_data and \
+                metric_name in metrics_data["grouped_data"]:
                 metric_value = metrics_data["grouped_data"][metric_name]["aggregate"]
                 revenue_breakdown[metric_name] = metric_value
                 total_revenue += metric_value
@@ -160,7 +162,8 @@ class ROIAnalyzer(IROIAnalyzer):
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
-            "time_period": {"start": time_period[0].isoformat(), "end": time_period[1].isoformat()},
+            "time_period": {"start": time_period[0].isoformat(), 
+                "end": time_period[1].isoformat()},
             "costs": {"total": total_cost, "breakdown": costs},
             "revenue": {"total": total_revenue, "breakdown": revenue_breakdown},
             "roi": {"value": roi_value, "percentage": roi_percentage},
@@ -170,7 +173,8 @@ class ROIAnalyzer(IROIAnalyzer):
         if include_details:
             # Add cost per acquisition if possible
             conversions = 0
-            if "grouped_data" in metrics_data and "conversions" in metrics_data["grouped_data"]:
+            if "grouped_data" in metrics_data and \
+                "conversions" in metrics_data["grouped_data"]:
                 conversions = metrics_data["grouped_data"]["conversions"]["aggregate"]
 
             cost_per_acquisition = 0
@@ -179,7 +183,8 @@ class ROIAnalyzer(IROIAnalyzer):
 
             # Add cost per click if possible
             clicks = 0
-            if "grouped_data" in metrics_data and "clicks" in metrics_data["grouped_data"]:
+            if "grouped_data" in metrics_data and \
+                "clicks" in metrics_data["grouped_data"]:
                 clicks = metrics_data["grouped_data"]["clicks"]["aggregate"]
 
             cost_per_click = 0
@@ -192,7 +197,8 @@ class ROIAnalyzer(IROIAnalyzer):
                 "cost_per_click": cost_per_click,
                 "revenue_per_cost": total_revenue / total_cost if total_cost > 0 else 0,
                 "break_even_point": (
-                    total_cost / (total_revenue / total_cost) if total_revenue > 0 else float("inf")
+                    total_cost / \
+                        (total_revenue / total_cost) if total_revenue > 0 else float("inf")
                 ),
             }
 
@@ -262,7 +268,7 @@ class ROIAnalyzer(IROIAnalyzer):
         if total_cost <= 0:
             raise InvalidParameterError("Total cost must be greater than zero")
 
-        # Get time-based metrics
+        # Get time - based metrics
         metrics_data = self.campaign_tracker.get_metrics(
             campaign_id=campaign_id,
             start_time=start_date,
@@ -292,7 +298,8 @@ class ROIAnalyzer(IROIAnalyzer):
 
                 # Move to next month
                 if current_date.month == 12:
-                    current_date = current_date.replace(year=current_date.year + 1, month=1)
+                    current_date = current_date.replace(year=current_date.year + 1, 
+                        month=1)
                 else:
                     current_date = current_date.replace(month=current_date.month + 1)
 
@@ -343,7 +350,8 @@ class ROIAnalyzer(IROIAnalyzer):
 
             # Calculate ROI
             roi_value = cumulative_revenue - cumulative_cost
-            roi_percentage = (roi_value / cumulative_cost) * 100 if cumulative_cost > 0 else 0
+            roi_percentage = (roi_value / cumulative_cost) * \
+                100 if cumulative_cost > 0 else 0
 
             # Add to result
             result["cumulative_data"].append(
@@ -365,7 +373,7 @@ class ROIAnalyzer(IROIAnalyzer):
             result["summary"]["final_roi_value"] = last_period["roi_value"]
             result["summary"]["final_roi_percentage"] = last_period["roi_percentage"]
 
-            # Add break-even point if applicable
+            # Add break - even point if applicable
             for i, period_data in enumerate(result["cumulative_data"]):
                 if period_data["cumulative_revenue"] >= period_data["cumulative_cost"]:
                     result["summary"]["break_even_index"] = i
@@ -480,7 +488,8 @@ class ROIAnalyzer(IROIAnalyzer):
                 # Track highest and lowest ROI
                 if (
                     result["roi_comparison"]["highest_roi"]["campaign_id"] is None
-                    or roi_percentage > result["roi_comparison"]["highest_roi"]["percentage"]
+                    or \
+                        roi_percentage > result["roi_comparison"]["highest_roi"]["percentage"]
                 ):
                     result["roi_comparison"]["highest_roi"] = {
                         "campaign_id": campaign_id,
@@ -491,7 +500,8 @@ class ROIAnalyzer(IROIAnalyzer):
 
                 if (
                     result["roi_comparison"]["lowest_roi"]["campaign_id"] is None
-                    or roi_percentage < result["roi_comparison"]["lowest_roi"]["percentage"]
+                    or \
+                        roi_percentage < result["roi_comparison"]["lowest_roi"]["percentage"]
                 ):
                     result["roi_comparison"]["lowest_roi"] = {
                         "campaign_id": campaign_id,
@@ -507,15 +517,18 @@ class ROIAnalyzer(IROIAnalyzer):
                 continue
 
         # Sort comparison lists
-        result["roi_comparison"]["values"].sort(key=lambda x: x["roi_value"], reverse=True)
+        result["roi_comparison"]["values"].sort(key=lambda x: x["roi_value"], 
+            reverse=True)
         result["roi_comparison"]["percentages"].sort(
             key=lambda x: x["roi_percentage"], reverse=True
         )
-        result["roi_comparison"]["revenue_cost_ratios"].sort(key=lambda x: x["ratio"], reverse=True)
+        result["roi_comparison"]["revenue_cost_ratios"].sort(key=lambda x: x["ratio"], 
+            reverse=True)
 
         # Calculate average ROI percentage
         if roi_percentages:
-            result["roi_comparison"]["average_roi_percentage"] = sum(roi_percentages) / len(
+            result["roi_comparison"]["average_roi_percentage"] = \
+                sum(roi_percentages) / len(
                 roi_percentages
             )
 
@@ -550,7 +563,8 @@ class ROIAnalyzer(IROIAnalyzer):
             revenue_metrics: Metric name(s) to use for revenue calculation
             forecast_period: Number of time units to forecast
             forecast_unit: Unit for forecast period ("days", "weeks", "months")
-            historical_period: Optional tuple of (start_date, end_date) for historical data
+            historical_period: Optional tuple of (start_date, 
+                end_date) for historical data
 
         Returns:
             Dictionary containing ROI forecast results
@@ -614,6 +628,7 @@ class ROIAnalyzer(IROIAnalyzer):
         if len(historical_revenue) < min_data_points:
             raise InsufficientDataError(
                 f"Insufficient historical data for forecasting. Need at least {min_data_points} data points.",
+                    
                 campaign_id=campaign_id,
             )
 
@@ -654,7 +669,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 new_date = last_date + timedelta(weeks=i)
                 new_periods.append(new_date.date().isoformat())
         elif interval == "monthly":
-            year, month = map(int, last_period.split("-"))
+            year, month = map(int, last_period.split(" - "))
             for i in range(1, forecast_period + 1):
                 month += 1
                 if month > 12:
@@ -663,7 +678,8 @@ class ROIAnalyzer(IROIAnalyzer):
                 new_periods.append(f"{year}-{month:02d}")
 
         # Generate forecast values
-        x_forecast = np.arange(len(historical_revenue), len(historical_revenue) + forecast_period)
+        x_forecast = np.arange(len(historical_revenue), 
+            len(historical_revenue) + forecast_period)
         forecast_values = slope * x_forecast + intercept
 
         # Apply confidence adjustments
@@ -676,7 +692,7 @@ class ROIAnalyzer(IROIAnalyzer):
 
         # Pessimistic forecast: Lower confidence bound
         lower_forecast = forecast_values - t_value * std_error
-        lower_forecast = np.maximum(lower_forecast, 0)  # Ensure non-negative values
+        lower_forecast = np.maximum(lower_forecast, 0)  # Ensure non - negative values
 
         # Optimistic forecast: Upper confidence bound
         upper_forecast = forecast_values + t_value * std_error
@@ -694,9 +710,12 @@ class ROIAnalyzer(IROIAnalyzer):
             cum_pessimistic += max(0, lower_forecast[i])
 
             # Calculate ROI
-            expected_roi = (cum_expected - cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
-            optimistic_roi = (cum_optimistic - cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
-            pessimistic_roi = (cum_pessimistic - cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
+            expected_roi = (cum_expected - \
+                cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
+            optimistic_roi = (cum_optimistic - \
+                cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
+            pessimistic_roi = (cum_pessimistic - \
+                cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
 
             forecast_data.append(
                 {
@@ -745,13 +764,14 @@ class ROIAnalyzer(IROIAnalyzer):
             },
         }
 
-        # Add break-even points
+        # Add break - even points
         for scenario in ["expected", "pessimistic", "optimistic"]:
             for i, data in enumerate(forecast_data):
                 cum_revenue = data[f"cumulative_{scenario}_revenue"]
                 if cum_revenue >= data["cumulative_cost"]:
                     result["forecast_summary"][f"{scenario}_break_even_index"] = i
-                    result["forecast_summary"][f"{scenario}_break_even_period"] = data["period"]
+                    result["forecast_summary"][f"{scenario}_break_even_period"] = \
+                        data["period"]
                     break
             else:
                 result["forecast_summary"][f"{scenario}_break_even_index"] = None
@@ -807,7 +827,8 @@ class ROIAnalyzer(IROIAnalyzer):
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
-            "time_period": {"start": time_period[0].isoformat(), "end": time_period[1].isoformat()},
+            "time_period": {"start": time_period[0].isoformat(), 
+                "end": time_period[1].isoformat()},
             "channels": {},
             "overall": {
                 "total_cost": sum(channel_costs.values()),
@@ -841,8 +862,10 @@ class ROIAnalyzer(IROIAnalyzer):
 
             for metric_name in revenue_metrics:
                 # Check if metric data exists
-                if "grouped_data" in metrics_data and metric_name in metrics_data["grouped_data"]:
-                    metric_value = metrics_data["grouped_data"][metric_name]["aggregate"]
+                if "grouped_data" in metrics_data and \
+                    metric_name in metrics_data["grouped_data"]:
+                    metric_value = \
+                        metrics_data["grouped_data"][metric_name]["aggregate"]
                     revenue_breakdown[metric_name] = metric_value
                     channel_revenue += metric_value
 
@@ -976,7 +999,7 @@ class ROIAnalyzer(IROIAnalyzer):
             time_period=time_period,
         )
 
-        # Extract revenue-to-cost ratio for each channel
+        # Extract revenue - to - cost ratio for each channel
         channel_efficiencies = {}
         for channel, data in channel_roi["channels"].items():
             cost = data["cost"]
@@ -992,6 +1015,7 @@ class ROIAnalyzer(IROIAnalyzer):
         if not channel_efficiencies:
             raise InsufficientDataError(
                 "Insufficient data for optimization. No channel revenue data available.",
+                    
                 campaign_id=campaign_id,
             )
 
@@ -1058,13 +1082,15 @@ class ROIAnalyzer(IROIAnalyzer):
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
             "total_budget": total_budget,
-            "current_allocation": {channel: cost for channel, cost in channel_costs.items()},
+            "current_allocation": {channel: cost for channel, 
+                cost in channel_costs.items()},
             "current_roi": {
                 "value": channel_roi["overall"]["roi_value"],
                 "percentage": current_roi_percentage,
             },
             "optimized_allocation": budget_allocation,
-            "expected_roi": {"value": expected_roi_value, "percentage": expected_roi_percentage},
+            "expected_roi": {"value": expected_roi_value, 
+                "percentage": expected_roi_percentage},
             "improvement": {
                 "roi_percentage_points": roi_improvement,
                 "relative_improvement": (
@@ -1074,7 +1100,8 @@ class ROIAnalyzer(IROIAnalyzer):
                 ),
             },
             "channel_efficiencies": {
-                channel: efficiency for channel, efficiency in channel_efficiencies.items()
+                channel: efficiency for channel, 
+                    efficiency in channel_efficiencies.items()
             },
             "constraints": constraints,
         }
@@ -1145,7 +1172,8 @@ class ROIAnalyzer(IROIAnalyzer):
             "campaign_name": campaign["name"],
             "report_type": report_type,
             "generated_at": datetime.now().isoformat(),
-            "time_period": {"start": time_period[0].isoformat(), "end": time_period[1].isoformat()},
+            "time_period": {"start": time_period[0].isoformat(), 
+                "end": time_period[1].isoformat()},
             "roi_summary": roi_data,
         }
 
@@ -1177,7 +1205,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 logger.warning(f"Error calculating channel ROI: {e}")
                 report["channel_analysis"] = {"error": str(e)}
 
-        # Add time-based analysis for all report types
+        # Add time - based analysis for all report types
         interval = "daily" if (time_period[1] - time_period[0]).days <= 30 else "weekly"
 
         try:
@@ -1223,7 +1251,8 @@ class ROIAnalyzer(IROIAnalyzer):
                     {
                         "type": "warning",
                         "title": "Negative ROI",
-                        "description": "The campaign currently has a negative ROI. Consider revising strategy, reducing costs, or focusing on better performing channels.",
+                        "description": "The campaign currently has a negative ROI. Consider revising strategy, 
+                            reducing costs, or focusing on better performing channels.",
                     }
                 )
             elif roi_percentage < 50:
@@ -1232,6 +1261,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         "type": "suggestion",
                         "title": "Low ROI",
                         "description": "The campaign has a positive but low ROI. Look for opportunities to improve efficiency or focus on better performing channels.",
+                            
                     }
                 )
             else:
@@ -1239,11 +1269,12 @@ class ROIAnalyzer(IROIAnalyzer):
                     {
                         "type": "positive",
                         "title": "Strong ROI",
-                        "description": "The campaign shows a strong ROI. Consider scaling up investment in well-performing channels.",
+                        "description": "The campaign shows a strong ROI. Consider scaling up investment in well - performing channels.",
+                            
                     }
                 )
 
-            # Channel-specific recommendations
+            # Channel - specific recommendations
             if "channel_analysis" in report and "ranking" in report["channel_analysis"]:
                 # Best performing channel
                 best_channel = (
@@ -1257,6 +1288,7 @@ class ROIAnalyzer(IROIAnalyzer):
                             "type": "opportunity",
                             "title": f"Scale Up {best_channel['channel']}",
                             "description": f"The {best_channel['channel']} channel is performing exceptionally well with {best_channel['roi_percentage']:.1f}% ROI. Consider increasing budget allocation.",
+                                
                         }
                     )
 
@@ -1270,6 +1302,7 @@ class ROIAnalyzer(IROIAnalyzer):
                             "type": "warning",
                             "title": f"Review {channel['channel']}",
                             "description": f"The {channel['channel']} channel has a negative ROI of {channel['roi_percentage']:.1f}%. Consider reducing investment or revising strategy.",
+                                
                         }
                     )
 
@@ -1280,6 +1313,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         "type": "suggestion",
                         "title": "Optimize Budget Allocation",
                         "description": "Consider running budget optimization analysis to maximize overall campaign ROI by reallocating budget across channels.",
+                            
                     }
                 )
 
@@ -1295,11 +1329,13 @@ class ROIAnalyzer(IROIAnalyzer):
 
             if roi_percentage >= 0:
                 summary_points.append(
-                    f"The campaign generated a positive ROI of {roi_percentage:.1f}%, with {roi_value:.2f} in profit from a {roi_data['costs']['total']:.2f} investment."
+                    f"The campaign generated a positive ROI of {roi_percentage:.1f}%, 
+                        with {roi_value:.2f} in profit from a {roi_data['costs']['total']:.2f} investment."
                 )
             else:
                 summary_points.append(
-                    f"The campaign resulted in a negative ROI of {roi_percentage:.1f}%, with a {-roi_value:.2f} loss on a {roi_data['costs']['total']:.2f} investment."
+                    f"The campaign resulted in a negative ROI of {roi_percentage:.1f}%, 
+                        with a {-roi_value:.2f} loss on a {roi_data['costs']['total']:.2f} investment."
                 )
 
             # Best performing channels
@@ -1310,13 +1346,15 @@ class ROIAnalyzer(IROIAnalyzer):
             ):
                 top_channels = report["channel_analysis"]["ranking"][:2]
                 channel_names = [
-                    f"{c['channel']} ({c['roi_percentage']:.1f}% ROI)" for c in top_channels
+                    f"{c['channel']} (
+                        {c['roi_percentage']:.1f}% ROI)" for c in top_channels
                 ]
 
                 if channel_names:
-                    summary_points.append(f"Top performing channels: {', '.join(channel_names)}.")
+                    summary_points.append(f"Top performing channels: {', 
+                        '.join(channel_names)}.")
 
-            # Break-even information
+            # Break - even information
             if (
                 "time_analysis" in report
                 and "summary" in report["time_analysis"]
@@ -1324,15 +1362,19 @@ class ROIAnalyzer(IROIAnalyzer):
             ):
                 break_even = report["time_analysis"]["summary"]["break_even_period"]
                 if break_even:
-                    summary_points.append(f"Campaign reached break-even point on {break_even}.")
+                    summary_points.append(f"Campaign reached break - \
+                        even point on {break_even}.")
                 else:
-                    summary_points.append("Campaign has not yet reached break-even point.")
+                    summary_points.append("Campaign has not yet reached break - \
+                        even point.")
 
             # Forecast highlight
             if "forecast" in report and "forecast_summary" in report["forecast"]:
-                expected_roi = report["forecast"]["forecast_summary"]["final_expected_roi"]
+                expected_roi = \
+                    report["forecast"]["forecast_summary"]["final_expected_roi"]
                 summary_points.append(
-                    f"Based on current trends, the campaign is projected to achieve a {expected_roi:.1f}% ROI in the next {forecast_period} days."
+                    f"Based on current trends, 
+                        the campaign is projected to achieve a {expected_roi:.1f}% ROI in the next {forecast_period} days."
                 )
 
             report["executive_summary"] = summary_points

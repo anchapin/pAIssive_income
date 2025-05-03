@@ -86,7 +86,8 @@ class ReceiptManager:
         # Get transaction if ID was provided
         if isinstance(transaction, str):
             if not self.transaction_manager:
-                raise ValueError("Transaction manager is required to get transaction by ID")
+                raise ValueError(
+                    "Transaction manager is required to get transaction by ID")
 
             transaction_obj = self.transaction_manager.get_transaction(transaction)
 
@@ -128,7 +129,8 @@ class ReceiptManager:
         payment_method_info = "Credit Card"  # Default
 
         if self.payment_method_manager and payment_method_id:
-            payment_method = self.payment_method_manager.get_payment_method(payment_method_id)
+            payment_method = \
+                self.payment_method_manager.get_payment_method(payment_method_id)
 
             if payment_method:
                 if payment_method.payment_type == PaymentMethod.TYPE_CARD:
@@ -444,8 +446,8 @@ if __name__ == "__main__":
         company_info={
             "name": "AI Tools Inc.",
             "address": "123 Main St, San Francisco, CA 94111",
-            "email": "support@aitools.com",
-            "phone": "(555) 123-4567",
+            "email": "support @ aitools.com",
+            "phone": "(555) 123 - 4567",
             "website": "https://aitools.com",
         },
         storage_dir="receipts",
@@ -456,7 +458,7 @@ if __name__ == "__main__":
         transaction=transaction,
         customer_info={
             "name": "John Doe",
-            "email": "john.doe@example.com",
+            "email": "john.doe @ example.com",
             "address": "456 Oak St, San Francisco, CA 94112",
         },
         items=[
@@ -488,7 +490,7 @@ if __name__ == "__main__":
     # Send receipt by email
     manager.send_receipt(
         receipt_id=receipt.id,
-        email="john.doe@example.com",
+        email="john.doe @ example.com",
         subject="Your AI Tools Inc. Receipt",
         format="html",
     )

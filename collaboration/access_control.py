@@ -1,5 +1,5 @@
 """
-Role-based access control for the collaboration module.
+Role - based access control for the collaboration module.
 
 This module provides classes for managing roles and permissions
 to control access to workspaces, projects, and resources.

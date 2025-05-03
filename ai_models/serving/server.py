@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class ServerConfig:
 
     # Model configuration
     model_path: str = ""
-    model_type: str = "text-generation"
+    model_type: str = "text - generation"
     model_id: str = ""
 
     # Server configuration
@@ -53,7 +53,7 @@ class ServerConfig:
     # Security configuration
     enable_auth: bool = False
     api_keys: List[str] = field(default_factory=list)
-    cors_origins: List[str] = field(default_factory=lambda: ["*"])
+    cors_origins: List[str] = field(default_factory=lambda: [" * "])
 
     # Rate limiting
     enable_rate_limit: bool = False
@@ -155,7 +155,7 @@ class ModelServer(abc.ABC):
         if self.config.log_file:
             file_handler = logging.FileHandler(self.config.log_file)
             file_handler.setLevel(log_level)
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter(" % (asctime)s - %(name)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 

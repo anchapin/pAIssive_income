@@ -38,7 +38,8 @@ class MarketingPlan:
         self.conversion_funnels = []
 
     def set_budget(
-        self, total_amount: float, period: str = "monthly", allocation_strategy: str = "equal"
+        self, total_amount: float, period: str = "monthly", 
+            allocation_strategy: str = "equal"
     ):
         """Set the budget for the marketing plan.
 
@@ -106,7 +107,8 @@ class MarketingPlan:
             tier_name: The name of the tier.
             amount: The budget amount allocated to this tier.
             percentage: The percentage of the total budget allocated to this tier.
-            focus_areas: List of focus areas for this tier's budget (e.g., "acquisition", "retention").
+            focus_areas: List of focus areas for this tier's budget (e.g., "acquisition", 
+                "retention").
         """
         self.tier_budget_allocations[tier_name] = {
             "amount": amount,
@@ -133,7 +135,8 @@ class MarketingPlan:
         """Set the frequency for the content calendar.
 
         Args:
-            frequency: The frequency for content creation (e.g., "daily", "weekly", "monthly").
+            frequency: The frequency for content creation (e.g., "daily", "weekly", 
+                "monthly").
         """
         self.content_calendar["frequency"] = frequency
         self.updated_at = datetime.now().isoformat()
@@ -169,7 +172,8 @@ class MarketingPlan:
         return metric
 
     def add_tactic(
-        self, name: str, channel_name: str, description: str, expected_impact: float = 0.5
+        self, name: str, channel_name: str, description: str, 
+            expected_impact: float = 0.5
     ):
         """Add a marketing tactic to the plan.
 
@@ -238,7 +242,8 @@ class MarketingPlan:
         return sum(tactic["expected_impact"] for tactic in self.tactics)
 
     def add_goal(
-        self, name: str, description: str, metric: str, target_value: float, timeframe: str
+        self, name: str, description: str, metric: str, target_value: float, 
+            timeframe: str
     ):
         """Add a goal to the marketing plan.
 
@@ -320,7 +325,8 @@ class MarketingPlan:
         self.updated_at = datetime.now().isoformat()
         return self.messaging_strategy
 
-    def add_conversion_funnel(self, name: str, target_tier: str, stages: List[Dict[str, Any]]):
+    def add_conversion_funnel(self, name: str, target_tier: str, stages: List[Dict[str, 
+        Any]]):
         """Add a conversion funnel to the marketing plan.
 
         Args:

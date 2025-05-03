@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 # Define route handlers
-@router.get("/")
+@router.get(" / ")
 async def get_developer_info():
     """
     Get developer information.
@@ -30,11 +30,11 @@ async def get_developer_info():
     return {
         "message": "Developer API is available",
         "status": "active",
-        "endpoints": ["/niches", "/templates", "/solutions", "/solution"],
+        "endpoints": [" / niches", " / templates", " / solutions", " / solution"],
     }
 
 
-@router.get("/niches")
+@router.get(" / niches")
 async def get_niches(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
@@ -59,13 +59,13 @@ async def get_niches(
         # Mock data for testing
         items = [
             {
-                "id": "niche-1",
+                "id": "niche - 1",
                 "name": "AI Chatbots",
                 "description": "Conversational AI applications for customer service and support",
                 "technical_requirements": ["NLP", "Machine Learning", "API Integration"],
             },
             {
-                "id": "niche-2",
+                "id": "niche - 2",
                 "name": "Data Analytics",
                 "description": "Tools for analyzing and visualizing data",
                 "technical_requirements": [
@@ -97,7 +97,7 @@ async def get_niches(
         )
 
 
-@router.get("/templates")
+@router.get(" / templates")
 async def get_templates(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
@@ -122,14 +122,14 @@ async def get_templates(
         # Mock data for testing
         items = [
             {
-                "id": "template-1",
+                "id": "template - 1",
                 "name": "FastAPI Web Service",
                 "description": "RESTful API service using FastAPI and PostgreSQL",
                 "technology_stack": ["Python", "FastAPI", "PostgreSQL", "Docker"],
                 "features": ["Authentication", "Rate Limiting", "Swagger Documentation"],
             },
             {
-                "id": "template-2",
+                "id": "template - 2",
                 "name": "React Dashboard",
                 "description": "Interactive dashboard using React and D3.js",
                 "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
@@ -162,7 +162,7 @@ async def get_templates(
         )
 
 
-@router.post("/solution", status_code=status.HTTP_201_CREATED)
+@router.post(" / solution", status_code=status.HTTP_201_CREATED)
 async def create_solution(data: Dict[str, Any] = Body(...)):
     """
     Create a development solution.
@@ -208,7 +208,7 @@ async def create_solution(data: Dict[str, Any] = Body(...)):
         )
 
 
-@router.get("/solutions")
+@router.get(" / solutions")
 async def get_solutions(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
@@ -233,40 +233,40 @@ async def get_solutions(
         # Mock data for testing
         items = [
             {
-                "id": "solution-1",
+                "id": "solution - 1",
                 "name": "Customer Support Chatbot",
-                "description": "AI-powered chatbot for customer support",
-                "niche_id": "niche-1",
-                "template_id": "template-1",
+                "description": "AI - powered chatbot for customer support",
+                "niche_id": "niche - 1",
+                "template_id": "template - 1",
                 "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
                 "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
                 "status": "in_progress",
-                "created_at": "2025-04-29T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z",
+                "created_at": "2025 - 04 - 29T21:30:00Z",
+                "updated_at": "2025 - 04 - 29T21:35:00Z",
             },
             {
-                "id": "solution-2",
+                "id": "solution - 2",
                 "name": "Sales Analytics Dashboard",
                 "description": "Interactive dashboard for sales analytics",
-                "niche_id": "niche-2",
-                "template_id": "template-2",
+                "niche_id": "niche - 2",
+                "template_id": "template - 2",
                 "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
                 "features": ["Sales Trends", "Customer Segmentation", "Revenue Forecasting"],
                 "status": "completed",
-                "created_at": "2025-04-28T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z",
+                "created_at": "2025 - 04 - 28T21:30:00Z",
+                "updated_at": "2025 - 04 - 29T21:35:00Z",
             },
             {
-                "id": "solution-3",
+                "id": "solution - 3",
                 "name": "Python Data Processing Tool",
                 "description": "Data processing tool built with Python",
-                "niche_id": "niche-2",
-                "template_id": "template-1",
+                "niche_id": "niche - 2",
+                "template_id": "template - 1",
                 "technology_stack": ["python", "pandas", "numpy", "matplotlib"],
                 "features": ["Data Cleaning", "Data Transformation", "Data Visualization"],
                 "status": "in_progress",
-                "created_at": "2025-04-27T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z",
+                "created_at": "2025 - 04 - 27T21:30:00Z",
+                "updated_at": "2025 - 04 - 29T21:35:00Z",
             },
         ]
 
@@ -301,7 +301,7 @@ async def get_solutions(
         )
 
 
-@router.get("/solutions/{solution_id}")
+@router.get(" / solutions/{solution_id}")
 async def get_solution(solution_id: str = Path(..., description="Solution ID")):
     """
     Get a specific development solution.
@@ -313,8 +313,8 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
         Development solution
     """
     try:
-        # Check if the solution ID starts with "nonexistent-" for testing
-        if solution_id.startswith("nonexistent-"):
+        # Check if the solution ID starts with "nonexistent - " for testing
+        if solution_id.startswith("nonexistent - "):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found")
 
         # Mock data for testing
@@ -322,13 +322,13 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
             "id": solution_id,
             "name": "Test Solution",
             "description": "Test Description",
-            "niche_id": "niche-1",
-            "template_id": "template-1",
+            "niche_id": "niche - 1",
+            "template_id": "template - 1",
             "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
             "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
             "status": "in_progress",
-            "created_at": "2025-04-29T21:30:00Z",
-            "updated_at": "2025-04-29T21:35:00Z",
+            "created_at": "2025 - 04 - 29T21:30:00Z",
+            "updated_at": "2025 - 04 - 29T21:35:00Z",
         }
 
         return solution
@@ -342,7 +342,7 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
         )
 
 
-@router.put("/solutions/{solution_id}")
+@router.put(" / solutions/{solution_id}")
 async def update_solution(
     solution_id: str = Path(..., description="Solution ID"), data: Dict[str, Any] = Body(...)
 ):
@@ -357,8 +357,8 @@ async def update_solution(
         Updated solution
     """
     try:
-        # Check if the solution ID starts with "nonexistent-" for testing
-        if solution_id.startswith("nonexistent-"):
+        # Check if the solution ID starts with "nonexistent - " for testing
+        if solution_id.startswith("nonexistent - "):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found")
 
         # Update solution
@@ -366,8 +366,8 @@ async def update_solution(
             "id": solution_id,
             "name": data.get("name", "Updated Solution"),
             "description": data.get("description", "Updated Description"),
-            "niche_id": data.get("niche_id", "niche-1"),
-            "template_id": data.get("template_id", "template-1"),
+            "niche_id": data.get("niche_id", "niche - 1"),
+            "template_id": data.get("template_id", "template - 1"),
             "technology_stack": data.get(
                 "technology_stack", ["Python", "FastAPI", "TensorFlow", "Docker"]
             ),
@@ -375,7 +375,7 @@ async def update_solution(
                 "features", ["Intent Recognition", "Entity Extraction", "Conversation Management"]
             ),
             "status": data.get("status", "in_progress"),
-            "created_at": "2025-04-29T21:30:00Z",
+            "created_at": "2025 - 04 - 29T21:30:00Z",
             "updated_at": datetime.now().isoformat(),
         }
 
@@ -390,7 +390,7 @@ async def update_solution(
         )
 
 
-@router.delete("/solutions/{solution_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(" / solutions/{solution_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_solution(solution_id: str = Path(..., description="Solution ID")):
     """
     Delete a development solution.
@@ -402,8 +402,8 @@ async def delete_solution(solution_id: str = Path(..., description="Solution ID"
         No content
     """
     try:
-        # Check if the solution ID starts with "nonexistent-" for testing
-        if solution_id.startswith("nonexistent-"):
+        # Check if the solution ID starts with "nonexistent - " for testing
+        if solution_id.startswith("nonexistent - "):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found")
 
         # Delete solution (no content to return)

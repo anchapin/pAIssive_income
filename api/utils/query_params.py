@@ -66,12 +66,12 @@ class QueryParams:
         Initialize query parameters.
 
         Args:
-            page: Page number (1-based)
+            page: Page number (1 - based)
             page_size: Number of items per page
             sort_by: Field to sort by
             sort_dir: Sort direction (asc or desc)
-            filters: Dictionary of field-value pairs for filtering
-            filter_operators: Dictionary of field-operator pairs for filtering
+            filters: Dictionary of field - value pairs for filtering
+            filter_operators: Dictionary of field - operator pairs for filtering
             max_page_size: Maximum allowed page size
         """
         # Validate and set pagination parameters
@@ -386,7 +386,7 @@ def apply_sorting(
         if value is None:
             return (1 if query_params.sort_dir == SortDirection.ASC else -1, None)
 
-        # Handle case-insensitive string sorting
+        # Handle case - insensitive string sorting
         if isinstance(value, str):
             value = value.lower()
 
@@ -398,19 +398,19 @@ def apply_sorting(
                 # For strings in descending order, invert the characters
                 value = "".join(chr(255 - ord(c)) for c in value)
 
-        # Create a composite sort key that includes both fields for multi-field sort
+        # Create a composite sort key that includes both fields for multi - field sort
         if query_params.sort_by == "priority":
             # For primary sort by priority, include stats.score as secondary key
             score = field_getter(item, "stats.score")
             if score is not None and query_params.sort_dir == SortDirection.DESC:
                 score = -score
-            return (0, value, score if score is not None else float("-inf"))
+            return (0, value, score if score is not None else float(" - inf"))
         elif query_params.sort_by == "stats.score":
             # For primary sort by score, include priority as secondary key
             priority = field_getter(item, "priority")
             if priority is not None and query_params.sort_dir == SortDirection.DESC:
                 priority = -priority
-            return (0, value, priority if priority is not None else float("-inf"))
+            return (0, value, priority if priority is not None else float(" - inf"))
 
         return (0, value, 0)
 

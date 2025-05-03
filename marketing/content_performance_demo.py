@@ -29,7 +29,7 @@ def create_demo_content():
 
     # Create a blog post
     blog_post = analyzer.track_content(
-        content_id="blog-001",
+        content_id="blog - 001",
         content_type="blog_post",
         title="10 Ways AI Can Boost Your Marketing ROI",
         channels=["website", "social_media"],
@@ -42,7 +42,7 @@ def create_demo_content():
 
     # Create a social media post
     social_post = analyzer.track_content(
-        content_id="social-001",
+        content_id="social - 001",
         content_type="social_media",
         title="Maximize your marketing efficiency with our AI tools",
         channels=["twitter", "linkedin", "facebook"],
@@ -55,7 +55,7 @@ def create_demo_content():
 
     # Create an email newsletter
     email_newsletter = analyzer.track_content(
-        content_id="email-001",
+        content_id="email - 001",
         content_type="email",
         title="Monthly Marketing AI Update - June Edition",
         channels=["email"],
@@ -68,7 +68,7 @@ def create_demo_content():
 
     # Create a video
     video = analyzer.track_content(
-        content_id="video-001",
+        content_id="video - 001",
         content_type="video",
         title="How to Set Up Your First AI Marketing Campaign",
         channels=["youtube", "website"],
@@ -285,14 +285,17 @@ def demo_content_analysis():
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
     # Analyze blog post performance
-    blog_analysis = analyzer.analyze_performance("blog-001")
+    blog_analysis = analyzer.analyze_performance("blog - 001")
 
     print("\n=== Blog Post Performance Analysis ===")
     print(f"Title: {blog_analysis['title']}")
-    print(f"Overall Performance Score: {blog_analysis['overall_performance_score']:.2f}")
+    print(
+        f"Overall Performance Score: {blog_analysis['overall_performance_score']:.2f}")
     print(f"Rating: {blog_analysis['performance_rating']}")
-    print(f"Engagement Rate: {blog_analysis['engagement_metrics']['engagement_rate']:.2f}%")
-    print(f"Conversion Rate: {blog_analysis['engagement_metrics']['conversion_rate']:.2f}%")
+    print(
+        f"Engagement Rate: {blog_analysis['engagement_metrics']['engagement_rate']:.2f}%")
+    print(
+        f"Conversion Rate: {blog_analysis['engagement_metrics']['conversion_rate']:.2f}%")
 
     print("\nEngagement Metrics:")
     for metric, value in blog_analysis["metrics"].items():
@@ -313,12 +316,13 @@ def demo_content_comparison():
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
     # Compare all content items
-    comparison = analyzer.compare_content(["blog-001", "social-001", "email-001", "video-001"])
+    comparison = analyzer.compare_content(["blog - 001", "social - 001", "email - 001", 
+        "video - 001"])
 
     print("\n=== Content Performance Comparison ===")
     print("Performance Ranking:")
     for i, item in enumerate(comparison["performance_ranking"]):
-        print(f"  {i+1}. {item['title']} (Score: {item['performance_score']:.2f})")
+        print(f"  {i + 1}. {item['title']} (Score: {item['performance_score']:.2f})")
 
     print("\nMetric Comparison (Views):")
     metric_data = comparison["metrics_comparison"].get("view", {})
@@ -338,19 +342,21 @@ def demo_content_comparison():
 
 
 def demo_identify_top_content():
-    """Demonstrate identifying top-performing content."""
+    """Demonstrate identifying top - performing content."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
     # Identify top performing content by views
-    top_content = analyzer.identify_top_performing_content(engagement_metric="view", limit=3)
+    top_content = analyzer.identify_top_performing_content(engagement_metric="view", 
+        limit=3)
 
     print("\n=== Top Performing Content by Views ===")
     for i, content in enumerate(top_content):
-        print(f"{i+1}. {content['title']} ({content['metric_value']} views)")
+        print(f"{i + 1}. {content['title']} ({content['metric_value']} views)")
         print(f"   Content Type: {content['content_type']}")
         print(f"   Channels: {', '.join(content['channels'])}")
         print(
-            f"   Key metrics: {', '.join([f'{k}: {v}' for k, v in list(content['metrics'].items())[:3]])}"
+            f"   Key metrics: {', '.join([f'{k}: {v}' for k, 
+                v in list(content['metrics'].items())[:3]])}"
         )
         print()
 
@@ -360,7 +366,8 @@ def demo_content_reports():
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
     # Generate a summary report for the social post
-    social_report = analyzer.generate_content_report(content_id="social-001", report_type="summary")
+    social_report = analyzer.generate_content_report(content_id="social - 001", 
+        report_type="summary")
 
     print("\n=== Social Media Post Summary Report ===")
     print(f"Title: {social_report['title']}")
@@ -377,14 +384,16 @@ def demo_content_reports():
 
     print("\nTop Metrics:")
     for metric in summary["top_metrics"]:
-        print(f"  {metric['name']}: {metric['value']} ({metric['performance']:.2f}% of benchmark)")
+        print(
+            f"  {metric['name']}: {metric['value']} ({metric['performance']:.2f}% of benchmark)")
 
     print("\nInsights:")
     for insight in summary["insights"]:
         print(f"  [{insight['type']}] {insight['message']}")
 
     # Generate a channel report for the video
-    video_report = analyzer.generate_content_report(content_id="video-001", report_type="channel")
+    video_report = analyzer.generate_content_report(content_id="video - 001", 
+        report_type="channel")
 
     print("\n=== Video Channel Report ===")
     print(f"Title: {video_report['title']}")

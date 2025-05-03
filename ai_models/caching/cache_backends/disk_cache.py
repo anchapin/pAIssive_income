@@ -1,7 +1,7 @@
 """
 Disk cache backend for the model cache system.
 
-This module provides a disk-based cache backend.
+This module provides a disk - based cache backend.
 """
 
 import hashlib
@@ -18,7 +18,7 @@ from .base import CacheBackend
 
 class DiskCache(CacheBackend):
     """
-    Disk-based cache backend.
+    Disk - based cache backend.
     """
 
     def __init__(
@@ -404,9 +404,9 @@ class DiskCache(CacheBackend):
         Returns:
             File path
         """
-        # Hash the key to create a valid filename - using SHA-256 with usedforsecurity=False
+        # Hash the key to create a valid filename - using SHA - 256 with usedforsecurity=False
         # This is not used for security purposes, just for filename generation
-        hashed_key = hashlib.sha256(key.encode("utf-8"), usedforsecurity=False).hexdigest()
+        hashed_key = hashlib.sha256(key.encode("utf - 8"), usedforsecurity=False).hexdigest()
         return os.path.join(self.cache_dir, hashed_key)
 
     def _get_metadata_path(self, key: str) -> str:
@@ -419,9 +419,9 @@ class DiskCache(CacheBackend):
         Returns:
             Metadata file path
         """
-        # Hash the key to create a valid filename - using SHA-256 with usedforsecurity=False
+        # Hash the key to create a valid filename - using SHA - 256 with usedforsecurity=False
         # This is not used for security purposes, just for filename generation
-        hashed_key = hashlib.sha256(key.encode("utf-8"), usedforsecurity=False).hexdigest()
+        hashed_key = hashlib.sha256(key.encode("utf - 8"), usedforsecurity=False).hexdigest()
         return os.path.join(self.metadata_dir, f"{hashed_key}.json")
 
     def _save_value(self, key: str, value: Dict[str, Any]) -> None:
@@ -435,7 +435,7 @@ class DiskCache(CacheBackend):
         file_path = self._get_file_path(key)
 
         # Always use JSON for security reasons
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             json.dump(value, f)
 
     def _load_value(self, key: str) -> Dict[str, Any]:
@@ -451,7 +451,7 @@ class DiskCache(CacheBackend):
         file_path = self._get_file_path(key)
 
         # Always use JSON for security reasons
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf - 8") as f:
             return json.load(f)
 
     def _save_metadata(self, key: str, metadata: Dict[str, Any]) -> None:
@@ -464,7 +464,7 @@ class DiskCache(CacheBackend):
         """
         metadata_path = self._get_metadata_path(key)
 
-        with open(metadata_path, "w", encoding="utf-8") as f:
+        with open(metadata_path, "w", encoding="utf - 8") as f:
             json.dump(metadata, f)
 
     def _load_metadata(self, key: str) -> Dict[str, Any]:
@@ -479,7 +479,7 @@ class DiskCache(CacheBackend):
         """
         metadata_path = self._get_metadata_path(key)
 
-        with open(metadata_path, "r", encoding="utf-8") as f:
+        with open(metadata_path, "r", encoding="utf - 8") as f:
             return json.load(f)
 
     def _load_stats(self) -> None:
@@ -488,7 +488,7 @@ class DiskCache(CacheBackend):
         """
         if os.path.exists(self.stats_file):
             try:
-                with open(self.stats_file, "r", encoding="utf-8") as f:
+                with open(self.stats_file, "r", encoding="utf - 8") as f:
                     self.stats = json.load(f)
             except Exception:
                 self.stats = {
@@ -513,7 +513,7 @@ class DiskCache(CacheBackend):
         """
         Save statistics to disk.
         """
-        with open(self.stats_file, "w", encoding="utf-8") as f:
+        with open(self.stats_file, "w", encoding="utf - 8") as f:
             json.dump(self.stats, f)
 
     def _evict_item(self) -> None:

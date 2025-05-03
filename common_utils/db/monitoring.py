@@ -25,7 +25,7 @@ class DatabaseMetrics:
         self.total_query_time = 0.0
         self.queries = []
         self.slow_threshold = 0.5  # seconds
-        self._lock = threading.RLock()  # Thread-safe metrics updates
+        self._lock = threading.RLock()  # Thread - safe metrics updates
 
     def record_query(self, query: str, params: Optional[Dict[str, Any]], duration: float) -> None:
         """

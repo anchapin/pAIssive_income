@@ -86,9 +86,9 @@ class RevenueProjectionRequest(BaseModel):
 
     subscription_model_id: str = Field(..., description="Subscription model ID")
     initial_users: int = Field(..., description="Initial number of users")
-    growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
-    churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
-    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0-1)")
+    growth_rate: float = Field(..., description="Monthly growth rate (0 - 1)")
+    churn_rate: float = Field(..., description="Monthly churn rate (0 - 1)")
+    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0 - 1)")
     time_period: int = Field(..., description="Projection time period in months")
 
 
@@ -98,9 +98,9 @@ class RevenueProjectionResponse(BaseModel):
     id: str = Field(..., description="Projection ID")
     subscription_model_id: str = Field(..., description="Subscription model ID")
     initial_users: int = Field(..., description="Initial number of users")
-    growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
-    churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
-    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0-1)")
+    growth_rate: float = Field(..., description="Monthly growth rate (0 - 1)")
+    churn_rate: float = Field(..., description="Monthly churn rate (0 - 1)")
+    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0 - 1)")
     time_period: int = Field(..., description="Projection time period in months")
     monthly_projections: List[Dict[str, Any]] = Field(
         ..., description="Monthly revenue projections"

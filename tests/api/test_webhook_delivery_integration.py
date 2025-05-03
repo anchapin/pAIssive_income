@@ -16,25 +16,25 @@ from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
 
 # Test data
-TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK_ID = "test - webhook - 123"
 TEST_WEBHOOK = {
     "id": TEST_WEBHOOK_ID,
-    "url": "https://example.com/webhook",
+    "url": "https://example.com / webhook",
     "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
     "description": "Test webhook",
-    "headers": {"Authorization": "Bearer test-token"},
+    "headers": {"Authorization": "Bearer test - token"},
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key",
+    "secret": "test - secret - key",
 }
 
 TEST_EVENT = {
     "type": WebhookEventType.USER_CREATED,
     "data": {
-        "user_id": "user-123",
+        "user_id": "user - 123",
         "username": "testuser",
-        "email": "test@example.com",
+        "email": "test @ example.com",
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
@@ -44,7 +44,7 @@ TEST_EVENT = {
 def app():
     """Create a FastAPI test application."""
     app = FastAPI()
-    app.include_router(webhook_router, prefix="/webhooks")
+    app.include_router(webhook_router, prefix=" / webhooks")
     return app
 
 
@@ -67,13 +67,13 @@ def mock_webhook_service():
 
         # Setup delivery methods
         mock_delivery = {
-            "id": "delivery-123",
+            "id": "delivery - 123",
             "webhook_id": TEST_WEBHOOK_ID,
             "status": WebhookDeliveryStatus.SUCCESS,
             "timestamp": datetime.now(timezone.utc),
             "attempts": [
                 {
-                    "id": "attempt-123",
+                    "id": "attempt - 123",
                     "webhook_id": TEST_WEBHOOK_ID,
                     "event_type": WebhookEventType.USER_CREATED,
                     "status": WebhookDeliveryStatus.SUCCESS,

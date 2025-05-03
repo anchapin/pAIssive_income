@@ -45,7 +45,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://api.pinterest.com/v5"
+        self.api_base_url = "https://api.pinterest.com / v5"
         self.access_token = self.credentials.get("access_token")
         self.refresh_token = self.credentials.get("refresh_token")
         self.client_id = self.credentials.get("client_id")
@@ -56,7 +56,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         # Set up authentication if access token is provided
         if self.access_token:
             self.session.headers.update(
-                {"Authorization": f"Bearer {self.access_token}", "Content-Type": "application/json"}
+                {"Authorization": f"Bearer {self.access_token}", "Content - Type": "application / json"}
             )
             self._connected = True
 
@@ -92,7 +92,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             # If we have refresh token, client ID, and client secret, we can refresh the access token
             elif self.refresh_token and self.client_id and self.client_secret:
                 # Refresh the access token
-                token_url = "https://api.pinterest.com/v5/oauth/token"
+                token_url = "https://api.pinterest.com / v5 / oauth / token"
                 token_data = {
                     "grant_type": "refresh_token",
                     "refresh_token": self.refresh_token,
@@ -110,7 +110,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 self.session.headers.update(
                     {
                         "Authorization": f"Bearer {self.access_token}",
-                        "Content-Type": "application/json",
+                        "Content - Type": "application / json",
                     }
                 )
                 self._connected = True
@@ -240,7 +240,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -285,7 +285,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             elif source_type == "image_base64":
                 create_pin_data["media_source"] = {
                     "source_type": "image_base64",
-                    "content_type": media.get("content_type", "image/jpeg"),
+                    "content_type": media.get("content_type", "image / jpeg"),
                     "data": media["base64"],
                 }
             elif source_type == "video_url":
@@ -307,7 +307,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 "id": pin_id,
                 "status": "posted",
                 "posted_at": datetime.now().isoformat(),
-                "url": f"https://www.pinterest.com/pin/{pin_id}/",
+                "url": f"https://www.pinterest.com / pin/{pin_id}/",
                 "platform_data": result,
             }
 
@@ -387,11 +387,11 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 raise SchedulingError("pinterest", "Access token is required for scheduling pins")
 
             # Note: Pinterest API v5 doesn't directly support scheduling pins
-            # In a real implementation, we would use a third-party service or
+            # In a real implementation, we would use a third - party service or
             # store the pin locally and post it at the scheduled time
 
             # For demonstration, we'll return a mock scheduled pin
-            scheduled_id = f"pinterest_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            scheduled_id = f"pinterest_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -442,7 +442,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                     "images": result.get("media", {}).get("images", {}),
                     "media_type": result.get("media", {}).get("media_type", ""),
                 },
-                "url": f"https://www.pinterest.com/pin/{result['id']}/",
+                "url": f"https://www.pinterest.com / pin/{result['id']}/",
                 "platform_data": result,
             }
 
@@ -519,8 +519,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific pin
             if post_id:
@@ -544,11 +544,11 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                     "platform_data": result,
                 }
 
-            # Otherwise, get user-level analytics
+            # Otherwise, get user - level analytics
             else:
                 # Get user analytics
                 response = self.session.get(
-                    f"{self.api_base_url}/user_account/analytics",
+                    f"{self.api_base_url}/user_account / analytics",
                     params={
                         "start_date": start_date_str,
                         "end_date": end_date_str,
@@ -631,12 +631,12 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_audience",
                 "demographics": {
                     "age_groups": {
-                        "18-24": 0.15,
-                        "25-34": 0.35,
-                        "35-44": 0.25,
-                        "45-54": 0.15,
-                        "55-64": 0.07,
-                        "65+": 0.03,
+                        "18 - 24": 0.15,
+                        "25 - 34": 0.35,
+                        "35 - 44": 0.25,
+                        "45 - 54": 0.15,
+                        "55 - 64": 0.07,
+                        "65 + ": 0.03,
                     },
                     "gender": {"female": 0.75, "male": 0.24, "other": 0.01},
                 },

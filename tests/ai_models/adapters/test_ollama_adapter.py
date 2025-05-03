@@ -77,12 +77,12 @@ def test_ollama_adapter_get_models(mock_session):
             {
                 "name": "llama2:latest",
                 "size": 3791730298,
-                "modified_at": "2023-10-10T12:34:56Z",
+                "modified_at": "2023 - 10 - 10T12:34:56Z",
             },
             {
                 "name": "mistral:latest",
                 "size": 4289147034,
-                "modified_at": "2023-10-11T12:34:56Z",
+                "modified_at": "2023 - 10 - 11T12:34:56Z",
             },
         ]
     }
@@ -108,4 +108,4 @@ def test_ollama_adapter_get_models(mock_session):
         assert models[1]["name"] == "mistral"
         assert models[1]["type"] == "llm"
         assert models[1]["adapter"] == "ollama"
-        mock_session_instance.get.assert_called_with("http://localhost:11434/api/tags", timeout=60)
+        mock_session_instance.get.assert_called_with("http://localhost:11434 / api / tags", timeout=60)

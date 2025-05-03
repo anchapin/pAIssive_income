@@ -35,11 +35,11 @@ class TeamConfig:
             workflow: Workflow settings
         """
         self.model_settings = model_settings or {
-            "researcher": {"model": "gpt-4", "temperature": 0.7},
-            "developer": {"model": "gpt-4", "temperature": 0.2},
-            "monetization": {"model": "gpt-4", "temperature": 0.5},
-            "marketing": {"model": "gpt-4", "temperature": 0.8},
-            "feedback": {"model": "gpt-4", "temperature": 0.3},
+            "researcher": {"model": "gpt - 4", "temperature": 0.7},
+            "developer": {"model": "gpt - 4", "temperature": 0.2},
+            "monetization": {"model": "gpt - 4", "temperature": 0.5},
+            "marketing": {"model": "gpt - 4", "temperature": 0.8},
+            "feedback": {"model": "gpt - 4", "temperature": 0.3},
         }
         self.workflow = workflow or {"auto_progression": False, "review_required": True}
 
@@ -63,7 +63,8 @@ class TeamConfig:
 class AgentTeam(IAgentTeam):
     """Manages a team of AI agents working on niche analysis and solution development."""
 
-    def __init__(self, model_manager: IModelManager, team_config: Optional[TeamConfig] = None):
+    def __init__(self, model_manager: IModelManager, 
+        team_config: Optional[TeamConfig] = None):
         """Initialize agent team."""
         self.model_manager = model_manager
         self.project_state: Dict = {}

@@ -142,10 +142,10 @@ class TestExternalAPIMocks:
         api = MockPaymentAPI()
 
         # Test customer creation
-        customer = api.create_customer(email="test@example.com", name="Test User")
+        customer = api.create_customer(email="test @ example.com", name="Test User")
         assert isinstance(customer, dict)
         assert "id" in customer
-        assert customer["email"] == "test@example.com"
+        assert customer["email"] == "test @ example.com"
 
         # Test subscription creation
         subscription = api.create_subscription(customer_id=customer["id"], plan_id="plan_monthly")
@@ -167,7 +167,7 @@ class TestExternalAPIMocks:
 
         # Test email sending
         response = api.send_email(
-            to="recipient@example.com", subject="Test Email", content="Test content"
+            to="recipient @ example.com", subject="Test Email", content="Test content"
         )
         assert isinstance(response, dict)
         assert "status" in response
@@ -175,7 +175,7 @@ class TestExternalAPIMocks:
 
         # Test template sending
         template_response = api.send_template(
-            template_id="welcome_email", to="recipient@example.com", variables={"name": "Test User"}
+            template_id="welcome_email", to="recipient @ example.com", variables={"name": "Test User"}
         )
         assert isinstance(template_response, dict)
         assert "status" in template_response
@@ -184,8 +184,8 @@ class TestExternalAPIMocks:
         # Test batch sending
         batch_response = api.send_batch(
             [
-                {"to": "user1@example.com", "subject": "Test 1", "content": "Content 1"},
-                {"to": "user2@example.com", "subject": "Test 2", "content": "Content 2"},
+                {"to": "user1 @ example.com", "subject": "Test 1", "content": "Content 1"},
+                {"to": "user2 @ example.com", "subject": "Test 2", "content": "Content 2"},
             ]
         )
         assert isinstance(batch_response, dict)
@@ -289,7 +289,7 @@ class TestMockResponses:
 
     def test_custom_model_config(self):
         """Test custom model configuration."""
-        config = {"model_name": "custom-model", "max_tokens": 1000, "temperature": 0.8}
+        config = {"model_name": "custom - model", "max_tokens": 1000, "temperature": 0.8}
         provider = MockOpenAIProvider(config)
 
         response = provider.chat_completion(messages=[{"role": "user", "content": "Test"}])
@@ -323,7 +323,7 @@ class TestMockResponses:
         assert all("embedding" in item for item in response["data"])
 
     def test_cross_provider_compatibility(self):
-        """Test cross-provider response compatibility."""
+        """Test cross - provider response compatibility."""
         openai_provider = MockOpenAIProvider()
         hf_provider = MockHuggingFaceProvider()
 

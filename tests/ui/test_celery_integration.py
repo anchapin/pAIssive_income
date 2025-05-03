@@ -24,8 +24,8 @@ def mock_app():
     """Create a mock Flask app with Celery configuration."""
     app = Flask(__name__)
     app.config.update(
-        CELERY_BROKER_URL="redis://localhost:6379/0",
-        CELERY_RESULT_BACKEND="redis://localhost:6379/0",
+        CELERY_BROKER_URL="redis://localhost:6379 / 0",
+        CELERY_RESULT_BACKEND="redis://localhost:6379 / 0",
     )
     return app
 
@@ -59,8 +59,8 @@ class TestCeleryIntegration:
 
         # Check basic configuration
         assert celery.main == mock_app.import_name
-        assert celery.conf["broker_url"] == "redis://localhost:6379/0"
-        assert celery.conf["result_backend"] == "redis://localhost:6379/0"
+        assert celery.conf["broker_url"] == "redis://localhost:6379 / 0"
+        assert celery.conf["result_backend"] == "redis://localhost:6379 / 0"
 
         # Check task configuration
         assert celery.conf["task_serializer"] == "json"
@@ -99,7 +99,7 @@ class TestCeleryIntegration:
 
     @patch("ui.celery_app.emit_task_event")
     def test_task_prerun_handler(self, mock_emit):
-        """Test task pre-run event handling."""
+        """Test task pre - run event handling."""
         task_id = "test_task_id"
         task = MagicMock()
 

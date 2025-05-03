@@ -20,10 +20,10 @@ class TestSecurity(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=60,
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         self.auth_middleware = AuthMiddleware(self.config)
 
@@ -44,41 +44,44 @@ class TestSecurity(unittest.TestCase):
         with patch("jwt.decode") as mock_decode:
             mock_decode.side_effect = jwt.ExpiredSignatureError()
             with self.assertRaises(ValueError) as context:
-                self.auth_middleware.verify_token("expired-token")
+                self.auth_middleware.verify_token("expired - token")
             self.assertEqual(str(context.exception), "Token has expired")
 
         # Test invalid token
         with patch("jwt.decode") as mock_decode:
             mock_decode.side_effect = jwt.InvalidTokenError()
             with self.assertRaises(ValueError) as context:
-                self.auth_middleware.verify_token("invalid-token")
+                self.auth_middleware.verify_token("invalid - token")
             self.assertEqual(str(context.exception), "Invalid token")
 
     def test_api_key_authentication(self):
         """Test API key authentication."""
         # Test valid API key
-        self.assertTrue(self.auth_middleware.verify_api_key("test-api-key"))
+        self.assertTrue(self.auth_middleware.verify_api_key("test - api - key"))
 
         # Test invalid API key
-        self.assertFalse(self.auth_middleware.verify_api_key("invalid-api-key"))
+        self.assertFalse(self.auth_middleware.verify_api_key("invalid - api - key"))
 
         # Test API key service verification
         mock_api_key_service = MagicMock(spec=APIKeyService)
-        mock_api_key_service.verify_api_key.return_value = {"id": "key1", "active": True}
+        mock_api_key_service.verify_api_key.return_value = {"id": "key1", 
+            "active": True}
         self.auth_middleware.api_key_service = mock_api_key_service
 
-        self.assertTrue(self.auth_middleware.verify_api_key("service-api-key"))
-        mock_api_key_service.verify_api_key.assert_called_once_with("service-api-key")
+        self.assertTrue(self.auth_middleware.verify_api_key("service - api - key"))
+        mock_api_key_service.verify_api_key.assert_called_once_with("service - \
+            api - key")
 
     @patch("fastapi.Request")
     def test_authentication_middleware(self, mock_request):
         """Test authentication middleware."""
         # Mock request with valid API key
-        mock_request.headers = {"X-API-Key": "test-api-key"}
-        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X - API - Key": "test - api - key"}
+        mock_request.url.path = " / api / test"
 
         # Test request with valid API key
-        result = self.auth_middleware.verify_api_key(mock_request.headers["X-API-Key"])
+        result = self.auth_middleware.verify_api_key(mock_request.headers["X - \
+            API - Key"])
         self.assertTrue(result)
 
         # Mock request with valid JWT
@@ -117,10 +120,10 @@ class TestSecurity(unittest.TestCase):
         """Test token expiration handling."""
         # Create token with short expiration
         config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=0.1,  # 6 seconds
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         auth_middleware = AuthMiddleware(config)
 
@@ -142,10 +145,10 @@ class TestSecurity(unittest.TestCase):
         self.assertEqual(str(context.exception), "Token has expired")
 
     def test_security_headers(self):
-        """Test security-related headers."""
+        """Test security - related headers."""
         # Test API key header
-        headers = {"X-API-Key": "test-api-key"}
-        self.assertTrue(self.auth_middleware.verify_api_key(headers["X-API-Key"]))
+        headers = {"X - API - Key": "test - api - key"}
+        self.assertTrue(self.auth_middleware.verify_api_key(headers["X - API - Key"]))
 
         # Test JWT auth header
         token = self.auth_middleware.create_token({"user_id": "123"})
@@ -157,7 +160,8 @@ class TestSecurity(unittest.TestCase):
     def test_invalid_configurations(self):
         """Test handling of invalid security configurations."""
         # Test missing JWT secret
-        config = APIConfig(jwt_algorithm="HS256", jwt_expires_minutes=60, api_keys=["test-api-key"])
+        config = APIConfig(jwt_algorithm="HS256", jwt_expires_minutes=60, 
+            api_keys=["test - api - key"])
         auth_middleware = AuthMiddleware(config)
 
         with self.assertRaises(ValueError) as context:
@@ -166,10 +170,10 @@ class TestSecurity(unittest.TestCase):
 
         # Test invalid JWT algorithm
         config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="invalid",
             jwt_expires_minutes=60,
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         auth_middleware = AuthMiddleware(config)
 

@@ -46,7 +46,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         super().__init__(app)
         self.api_keys = api_keys
-        self.api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+        self.api_key_header = APIKeyHeader(name="X - API - Key", auto_error=False)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
@@ -60,18 +60,18 @@ class AuthMiddleware(BaseHTTPMiddleware):
             Response
         """
         # Skip authentication for docs and OpenAPI
-        if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
+        if request.url.path in [" / docs", " / redoc", " / openapi.json"]:
             return await call_next(request)
 
         # Get API key from header
-        api_key = request.headers.get("X-API-Key")
+        api_key = request.headers.get("X - API - Key")
 
         # Check if API key is valid
         if not api_key or api_key not in self.api_keys:
             return Response(
                 content='{"detail":"Invalid or missing API key"}',
                 status_code=401,
-                media_type="application/json",
+                media_type="application / json",
             )
 
         # Continue processing the request
@@ -111,11 +111,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             Response
         """
         # Skip rate limiting for docs and OpenAPI
-        if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
+        if request.url.path in [" / docs", " / redoc", " / openapi.json"]:
             return await call_next(request)
 
         # Get client ID (IP address or API key)
-        client_id = request.headers.get("X-API-Key", request.client.host)
+        client_id = request.headers.get("X - API - Key", request.client.host)
 
         # Get current time
         current_time = time.time()
@@ -136,7 +136,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return Response(
                 content='{"detail":"Rate limit exceeded"}',
                 status_code=429,
-                media_type="application/json",
+                media_type="application / json",
             )
 
         # Add current request to history
@@ -173,8 +173,8 @@ def setup_middleware(app, config):
             CORSMiddleware,
             allow_origins=config.cors_origins,
             allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_methods=[" * "],
+            allow_headers=[" * "],
         )
 
     # Add GZip middleware if enabled

@@ -20,7 +20,7 @@ from .gptq_quantizer import GPTQQuantizer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def quantize_model(
     output_path: Optional[str] = None,
     method: Union[str, QuantizationMethod] = QuantizationMethod.BITS_AND_BYTES_4BIT,
     bits: int = 4,
-    model_type: str = "text-generation",
+    model_type: str = "text - generation",
     **kwargs,
 ) -> str:
     """
@@ -57,7 +57,7 @@ def quantize_model(
 
     Args:
         model_path: Path to the model
-        output_path: Path to save the quantized model (None for in-place)
+        output_path: Path to save the quantized model (None for in - place)
         method: Quantization method
         bits: Number of bits for quantization
         model_type: Type of the model
@@ -138,7 +138,7 @@ def analyze_quantization(
     # Check if quantization config exists
     quant_config_path = os.path.join(quantized_model_path, "quantization_config.json")
     if os.path.exists(quant_config_path):
-        with open(quant_config_path, "r", encoding="utf-8") as f:
+        with open(quant_config_path, "r", encoding="utf - 8") as f:
             quant_config_dict = json.load(f)
 
         quant_config = QuantizationConfig.from_dict(quant_config_dict)
@@ -291,7 +291,7 @@ def analyze_quantization(
     try:
         quant_config_path = os.path.join(quantized_model_path, "quantization_config.json")
         if os.path.exists(quant_config_path):
-            with open(quant_config_path, "r", encoding="utf-8") as f:
+            with open(quant_config_path, "r", encoding="utf - 8") as f:
                 quant_config = json.load(f)
 
             results["quantization_config"] = quant_config
@@ -347,7 +347,7 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
         "do_sample": True,
     }
 
-    # Update with user-provided parameters
+    # Update with user - provided parameters
     generation_kwargs.update(kwargs)
 
     # Generate
@@ -366,9 +366,9 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
         text2: Second text
 
     Returns:
-        Similarity score (0-1)
+        Similarity score (0 - 1)
     """
-    # Simple character-level Jaccard similarity
+    # Simple character - level Jaccard similarity
     set1 = set(text1)
     set2 = set(text2)
 

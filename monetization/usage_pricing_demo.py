@@ -1,7 +1,7 @@
 """
-Usage-based pricing demo for the pAIssive Income project.
+Usage - based pricing demo for the pAIssive Income project.
 
-This script demonstrates how to use the usage-based pricing models
+This script demonstrates how to use the usage - based pricing models
 to implement different pricing strategies.
 """
 
@@ -23,7 +23,7 @@ from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def print_section(title):
@@ -109,8 +109,8 @@ def simulate_usage(tracker, customer_id, days=30):
 
 
 def main():
-    """Run the usage-based pricing demo."""
-    print_section("Usage-Based Pricing Demo")
+    """Run the usage - based pricing demo."""
+    print_section("Usage - Based Pricing Demo")
 
     # Create a usage tracker
     tracker = UsageTracker()
@@ -134,18 +134,20 @@ def main():
     for metric, data in usage_summary.items():
         print(f"- {metric}: {data['total']} {data['unit']}")
 
-    print_section("Pay-As-You-Go Pricing")
+    print_section("Pay - As - You - Go Pricing")
 
-    # Create a pay-as-you-go pricing model
+    # Create a pay - as - you - go pricing model
     payg_model = PayAsYouGoPricing()
 
     # Add pricing for API calls and tokens
     payg_model.add_metric_pricing(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     payg_model.add_metric_pricing(
-        metric=UsageMetric.TOKEN, price_per_unit=0.0001, category=UsageCategory.INFERENCE
+        metric=UsageMetric.TOKEN, price_per_unit=0.0001, 
+            category=UsageCategory.INFERENCE
     )
 
     # Calculate cost
@@ -153,7 +155,7 @@ def main():
         customer_id=customer_id, start_time=start_date, end_time=end_date
     )
 
-    print(f"Pay-As-You-Go cost: ${payg_cost['total']:.2f}")
+    print(f"Pay - As - You - Go cost: ${payg_cost['total']:.2f}")
     print("Breakdown:")
     for metric, cost in payg_cost["breakdown"].items():
         print(f"- {metric}: ${cost:.2f}")
@@ -195,9 +197,9 @@ def main():
     for metric, cost in tiered_cost["breakdown"].items():
         print(f"- {metric}: ${cost:.2f}")
 
-    print_section("Consumption-Based Pricing")
+    print_section("Consumption - Based Pricing")
 
-    # Create a consumption-based pricing model
+    # Create a consumption - based pricing model
     consumption_model = ConsumptionBasedPricing()
 
     # Add pricing for compute, storage, and bandwidth
@@ -210,7 +212,7 @@ def main():
         customer_id=customer_id, start_time=start_date, end_time=end_date
     )
 
-    print(f"Consumption-Based cost: ${consumption_cost['total']:.2f}")
+    print(f"Consumption - Based cost: ${consumption_cost['total']:.2f}")
     print("Breakdown:")
     for metric, cost in consumption_cost["breakdown"].items():
         print(f"- {metric}: ${cost:.2f}")
@@ -254,9 +256,9 @@ def main():
 
     print_section("Pricing Comparison")
 
-    print(f"Pay-As-You-Go cost: ${payg_cost['total']:.2f}")
+    print(f"Pay - As - You - Go cost: ${payg_cost['total']:.2f}")
     print(f"Tiered Usage cost: ${tiered_cost['total']:.2f}")
-    print(f"Consumption-Based cost: ${consumption_cost['total']:.2f}")
+    print(f"Consumption - Based cost: ${consumption_cost['total']:.2f}")
     print(f"Hybrid Usage cost: ${hybrid_cost['total']:.2f}")
 
 

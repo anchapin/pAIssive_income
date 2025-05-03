@@ -24,8 +24,8 @@ def test_huggingface_api():
     assert all(isinstance(m, dict) for m in models)
 
     # Test filtering models
-    filtered = api.list_models({"pipeline_tag": "text-generation"})
-    assert all(m["pipeline_tag"] == "text-generation" for m in filtered)
+    filtered = api.list_models({"pipeline_tag": "text - generation"})
+    assert all(m["pipeline_tag"] == "text - generation" for m in filtered)
 
     # Test getting model info
     model_info = api.get_model_info("gpt2")
@@ -33,12 +33,12 @@ def test_huggingface_api():
     assert model_info["id"] == "gpt2"
 
     # Test downloading model
-    success = api.download_model("gpt2", "/tmp/models")
+    success = api.download_model("gpt2", " / tmp / models")
     assert success is True
 
     # Test invalid model
     with pytest.raises(ValueError):
-        api.download_model("nonexistent-model", "/tmp/models")
+        api.download_model("nonexistent - model", " / tmp / models")
 
 
 def test_payment_api():
@@ -46,8 +46,8 @@ def test_payment_api():
     api = MockPaymentAPI()
 
     # Test customer creation
-    customer = api.create_customer(email="test@example.com", name="Test User")
-    assert customer["email"] == "test@example.com"
+    customer = api.create_customer(email="test @ example.com", name="Test User")
+    assert customer["email"] == "test @ example.com"
     assert customer["name"] == "Test User"
     assert "id" in customer
 
@@ -74,14 +74,14 @@ def test_email_api():
     api = MockEmailAPI()
 
     # Test sending single email
-    result = api.send_email(to="user@example.com", subject="Test Email", content="Test content")
+    result = api.send_email(to="user @ example.com", subject="Test Email", content="Test content")
     assert result["status"] == "sent"
     assert "email_id" in result
 
     # Test template email
     result = api.send_template(
         template_id="welcome_email",
-        to="user@example.com",
+        to="user @ example.com",
         variables={"service_name": "Test Service", "name": "Test User"},
     )
     assert result["status"] == "sent"

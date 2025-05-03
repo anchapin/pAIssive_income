@@ -1,7 +1,7 @@
 """
 Shared event bus utilities for pAIssive income microservices.
 
-This package provides utilities for event-driven architecture in the
+This package provides utilities for event - driven architecture in the
 pAIssive income microservices platform.
 """
 

@@ -54,7 +54,7 @@ class LatencyMetric(BaseMetric):
         Get a percentile of the latency values.
 
         Args:
-            percentile: Percentile to calculate (0-100)
+            percentile: Percentile to calculate (0 - 100)
 
         Returns:
             Percentile value

@@ -55,7 +55,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         if segments_data is None:
             # Default market segments
             segment_names = [
-                "e-commerce",
+                "e - commerce",
                 "content creation",
                 "freelancing",
                 "education",
@@ -214,7 +214,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
 
         # Mock opportunity scores for different niches
         opportunity_scores = {
-            "e-commerce": 0.85,
+            "e - commerce": 0.85,
             "content creation": 0.82,
             "freelancing": 0.78,
             "education": 0.75,
@@ -228,7 +228,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
 
         # Mock descriptions for different niches
         descriptions = {
-            "e-commerce": "AI tools for inventory management and product descriptions",
+            "e - commerce": "AI tools for inventory management and product descriptions",
             "content creation": "AI tools for generating and optimizing content",
             "freelancing": "AI tools for proposal writing and client management",
             "education": "AI tools for study note generation and personalized learning",

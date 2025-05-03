@@ -189,8 +189,8 @@ def create_mock_model_info(name: str = "Test Model") -> Dict[str, Any]:
         "name": name,
         "description": f"A test model for {name}",
         "type": "huggingface",
-        "path": f"/path/to/models/{name.lower().replace(' ', '_')}",
-        "capabilities": ["text-generation", "embedding"],
+        "path": f" / path / to / models/{name.lower().replace(' ', '_')}",
+        "capabilities": ["text - generation", "embedding"],
         "metadata": {
             "model_size": "7B",
             "context_length": 2048,

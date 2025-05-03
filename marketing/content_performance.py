@@ -90,7 +90,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
     1. Track content across different channels
     2. Record various engagement metrics
     3. Analyze content performance
-    4. Identify top-performing content
+    4. Identify top - performing content
     5. Compare content performance
     6. Generate performance reports
     """
@@ -100,7 +100,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         Initialize the content performance analyzer.
 
         Args:
-            storage_path: Optional path to store content data. If None, data will be stored in memory only.
+            storage_path: Optional path to store content data. If None, 
+                data will be stored in memory only.
         """
         self.content = {}
         self.engagements = {}
@@ -121,11 +122,11 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
         try:
             if os.path.exists(content_path):
-                with open(content_path, "r", encoding="utf-8") as file:
+                with open(content_path, "r", encoding="utf - 8") as file:
                     self.content = json.load(file)
 
             if os.path.exists(engagements_path):
-                with open(engagements_path, "r", encoding="utf-8") as file:
+                with open(engagements_path, "r", encoding="utf - 8") as file:
                     self.engagements = json.load(file)
         except Exception as e:
             logger.error(f"Error loading content performance data: {e}")
@@ -140,10 +141,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         engagements_path = os.path.join(self.storage_path, "engagements.json")
 
         try:
-            with open(content_path, "w", encoding="utf-8") as file:
+            with open(content_path, "w", encoding="utf - 8") as file:
                 json.dump(self.content, file, indent=2)
 
-            with open(engagements_path, "w", encoding="utf-8") as file:
+            with open(engagements_path, "w", encoding="utf - 8") as file:
                 json.dump(self.engagements, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving content performance data: {e}")
@@ -178,7 +179,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             content_id = str(uuid.uuid4())
 
         if not content_type or not title or not channels:
-            raise InvalidParameterError("Content type, title, and channels are required parameters")
+            raise InvalidParameterError("Content type, title, 
+                and channels are required parameters")
 
         # Create content object
         now = datetime.now()
@@ -219,7 +221,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
         Args:
             content_id: ID of the content
-            engagement_type: Type of engagement (view, click, comment, share, conversion, etc.)
+            engagement_type: Type of engagement (view, click, comment, share, conversion, 
+                etc.)
             channel: Channel where the engagement occurred
             count: Number of engagements to record (default 1)
             timestamp: Optional timestamp for the engagement, defaults to current time
@@ -238,7 +241,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
         # Validate parameters
         if not engagement_type or not channel or count < 1:
-            raise InvalidParameterError("Engagement type, channel, and positive count are required")
+            raise InvalidParameterError("Engagement type, channel, 
+                and positive count are required")
 
         # Set timestamp if not provided
         if timestamp is None:
@@ -258,7 +262,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "count": count,
             "timestamp": timestamp,
             "metadata": metadata or {},
-            "engagement_category": ENGAGEMENT_TYPES.get(engagement_type.lower(), "other"),
+            "engagement_category": ENGAGEMENT_TYPES.get(engagement_type.lower(), 
+                "other"),
         }
 
         # Store engagement
@@ -361,7 +366,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             channels: Optional list of channels to include
             start_time: Optional start time to filter engagements
             end_time: Optional end time to filter engagements
-            group_by: Optional grouping ("channel", "engagement_type", "daily", "weekly", "monthly")
+            group_by: Optional grouping ("channel", "engagement_type", "daily", "weekly", 
+                "monthly")
             aggregation: Aggregation method ("sum", "avg", "min", "max", "count")
 
         Returns:
@@ -401,7 +407,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         filtered_engagements = []
         for engagement in content_engagements:
             # Filter by engagement type
-            if engagement_types and engagement["engagement_type"] not in engagement_types:
+            if engagement_types and \
+                engagement["engagement_type"] not in engagement_types:
                 continue
 
             # Filter by channel
@@ -463,19 +470,25 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     result["grouped_data"][channel] = {}
                     for engagement_type, values in channel_data.items():
                         if aggregation == "sum":
-                            result["grouped_data"][channel][engagement_type] = sum(values)
+                            result["grouped_data"][channel][engagement_type] = \
+                                sum(values)
                         elif aggregation == "avg":
-                            result["grouped_data"][channel][engagement_type] = sum(values) / len(
+                            result["grouped_data"][channel][engagement_type] = \
+                                sum(values) / len(
                                 values
                             )
                         elif aggregation == "min":
-                            result["grouped_data"][channel][engagement_type] = min(values)
+                            result["grouped_data"][channel][engagement_type] = \
+                                min(values)
                         elif aggregation == "max":
-                            result["grouped_data"][channel][engagement_type] = max(values)
+                            result["grouped_data"][channel][engagement_type] = \
+                                max(values)
                         elif aggregation == "count":
-                            result["grouped_data"][channel][engagement_type] = len(values)
+                            result["grouped_data"][channel][engagement_type] = \
+                                len(values)
                         else:
-                            result["grouped_data"][channel][engagement_type] = sum(values)
+                            result["grouped_data"][channel][engagement_type] = \
+                                sum(values)
 
             elif group_by == "engagement_type":
                 # Group by engagement type
@@ -483,7 +496,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     if aggregation == "sum":
                         result["grouped_data"][engagement_type] = sum(values)
                     elif aggregation == "avg":
-                        result["grouped_data"][engagement_type] = sum(values) / len(values)
+                        result["grouped_data"][engagement_type] = sum(values) / \
+                            len(values)
                     elif aggregation == "min":
                         result["grouped_data"][engagement_type] = min(values)
                     elif aggregation == "max":
@@ -505,13 +519,13 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
                     # Format timestamp based on group_by
                     if group_by == "daily":
-                        period = timestamp.strftime("%Y-%m-%d")
+                        period = timestamp.strftime(" % Y-%m-%d")
                     elif group_by == "weekly":
                         # Get start of the week (Monday)
                         start_of_week = timestamp - timedelta(days=timestamp.weekday())
-                        period = start_of_week.strftime("%Y-%m-%d")
+                        period = start_of_week.strftime(" % Y-%m-%d")
                     elif group_by == "monthly":
-                        period = timestamp.strftime("%Y-%m")
+                        period = timestamp.strftime(" % Y-%m")
 
                     engagement_type = engagement["engagement_type"]
                     time_periods[period][engagement_type].append(engagement["count"])
@@ -521,19 +535,25 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     result["grouped_data"][period] = {}
                     for engagement_type, values in period_data.items():
                         if aggregation == "sum":
-                            result["grouped_data"][period][engagement_type] = sum(values)
+                            result["grouped_data"][period][engagement_type] = \
+                                sum(values)
                         elif aggregation == "avg":
-                            result["grouped_data"][period][engagement_type] = sum(values) / len(
+                            result["grouped_data"][period][engagement_type] = \
+                                sum(values) / len(
                                 values
                             )
                         elif aggregation == "min":
-                            result["grouped_data"][period][engagement_type] = min(values)
+                            result["grouped_data"][period][engagement_type] = \
+                                min(values)
                         elif aggregation == "max":
-                            result["grouped_data"][period][engagement_type] = max(values)
+                            result["grouped_data"][period][engagement_type] = \
+                                max(values)
                         elif aggregation == "count":
-                            result["grouped_data"][period][engagement_type] = len(values)
+                            result["grouped_data"][period][engagement_type] = \
+                                len(values)
                         else:
-                            result["grouped_data"][period][engagement_type] = sum(values)
+                            result["grouped_data"][period][engagement_type] = \
+                                sum(values)
 
         return result
 
@@ -561,7 +581,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         content_type = content["content_type"]
 
         # Get engagement metrics
-        metrics = self.get_engagement_metrics(content_id=content_id, group_by="engagement_type")
+        metrics = self.get_engagement_metrics(content_id=content_id, 
+            group_by="engagement_type")
 
         # Use provided benchmarks or defaults
         benchmarks = benchmark_metrics or DEFAULT_BENCHMARKS.get(content_type, {})
@@ -597,16 +618,19 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             overall_score = 0
 
         # Calculate engagement rate
-        views = metrics["aggregate"].get("view", 0) + metrics["aggregate"].get("impression", 0)
+        views = metrics["aggregate"].get("view", 
+            0) + metrics["aggregate"].get("impression", 0)
         engagements = sum(
-            metrics["aggregate"].get(e, 0) for e in ["click", "like", "comment", "share"]
+            metrics["aggregate"].get(e, 0) for e in ["click", "like", "comment", 
+                "share"]
         )
 
         engagement_rate = (engagements / views) * 100 if views > 0 else 0
 
         # Calculate conversion rate
         conversions = sum(
-            metrics["aggregate"].get(c, 0) for c in ["lead", "signup", "download", "purchase"]
+            metrics["aggregate"].get(c, 0) for c in ["lead", "signup", "download", 
+                "purchase"]
         )
         conversion_rate = (conversions / views) * 100 if views > 0 else 0
 
@@ -650,7 +674,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         else:
             return "poor"
 
-    def _generate_performance_insights(self, analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_performance_insights(self, analysis: Dict[str, Any]) -> List[Dict[str, 
+        Any]]:
         """
         Generate performance insights based on content analysis.
 
@@ -671,6 +696,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 {
                     "type": "positive",
                     "message": "High engagement rate indicates strong audience interest in this content.",
+                        
                 }
             )
         elif engagement_metrics["engagement_rate"] < 1:
@@ -678,6 +704,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 {
                     "type": "negative",
                     "message": "Low engagement rate suggests the content isn't resonating with the audience.",
+                        
                 }
             )
 
@@ -686,35 +713,41 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             insights.append(
                 {
                     "type": "positive",
-                    "message": "Excellent conversion rate indicates effective call-to-action and valuable content.",
+                    "message": "Excellent conversion rate indicates effective call - to - action and valuable content.",
+                        
                 }
             )
-        elif engagement_metrics["conversion_rate"] < 0.5 and engagement_metrics["views"] > 100:
+        elif engagement_metrics["conversion_rate"] < 0.5 and \
+            engagement_metrics["views"] > 100:
             insights.append(
                 {
                     "type": "negative",
-                    "message": "Low conversion rate with good view count suggests a disconnect between content and call-to-action.",
+                    "message": "Low conversion rate with good view count suggests a disconnect between content and call - to - action.",
+                        
                 }
             )
 
-        # Check for high-performing metrics
+        # Check for high - performing metrics
         for metric_name, metric_data in performance.items():
             if metric_data["performance_percentage"] > 150:
                 insights.append(
                     {
                         "type": "positive",
                         "message": f"Exceptional performance in {metric_name} metric at {metric_data['performance_percentage']:.1f}% of benchmark.",
+                            
                     }
                 )
 
         # Check for underperforming metrics
-        underperforming = [m for m, d in performance.items() if d["performance_percentage"] < 50]
+        underperforming = [m for m, 
+            d in performance.items() if d["performance_percentage"] < 50]
         if underperforming:
             metrics_list = ", ".join(underperforming)
             insights.append(
                 {
                     "type": "negative",
                     "message": f"Underperforming metrics that need attention: {metrics_list}.",
+                        
                 }
             )
 
@@ -723,7 +756,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             insights.append(
                 {
                     "type": "positive",
-                    "message": "High share-to-like ratio indicates viral potential.",
+                    "message": "High share - to - like ratio indicates viral potential.",
+                        
                 }
             )
 
@@ -741,6 +775,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     {
                         "type": "neutral",
                         "message": "Content is performing at or below benchmark levels.",
+                            
                     }
                 )
 
@@ -818,14 +853,17 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
                 # Update highest value
                 if value > metric_comparison["highest_value"]["value"]:
-                    metric_comparison["highest_value"] = {"content_id": content_id, "value": value}
+                    metric_comparison["highest_value"] = {"content_id": content_id, 
+                        "value": value}
 
                 # Update lowest value
                 if value < metric_comparison["lowest_value"]["value"]:
-                    metric_comparison["lowest_value"] = {"content_id": content_id, "value": value}
+                    metric_comparison["lowest_value"] = {"content_id": content_id, 
+                        "value": value}
 
             # Calculate average
-            metric_comparison["average_value"] = sum(values) / len(values) if values else 0
+            metric_comparison["average_value"] = sum(values) / \
+                len(values) if values else 0
 
             # Set lowest value to 0 if it was not updated
             if metric_comparison["lowest_value"]["value"] == float("inf"):
@@ -866,7 +904,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """
-        Identify top-performing content based on engagement metrics.
+        Identify top - performing content based on engagement metrics.
 
         Args:
             content_type: Optional filter for content type
@@ -876,7 +914,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             limit: Maximum number of items to return
 
         Returns:
-            List of top-performing content items with metrics
+            List of top - performing content items with metrics
         """
         # Get all content matching filters
         content_list = self.list_content(content_type=content_type, channel=channel)
@@ -964,6 +1002,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "generated_at": datetime.now().isoformat(),
             "time_period": {
                 "start": start_date.isoformat() if start_date else content["created_at"],
+                    
                 "end": end_date.isoformat() if end_date else datetime.now().isoformat(),
             },
         }
@@ -973,7 +1012,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
         # Create report based on type
         if report_type == "summary":
-            # Summary report with high-level metrics
+            # Summary report with high - level metrics
             report["performance_summary"] = {
                 "overall_score": analysis["overall_performance_score"],
                 "rating": analysis["performance_rating"],
@@ -984,7 +1023,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             }
 
             # Add top metrics
-            sorted_metrics = sorted(analysis["metrics"].items(), key=lambda x: x[1], reverse=True)
+            sorted_metrics = sorted(analysis["metrics"].items(), key=lambda x: x[1], 
+                reverse=True)
 
             for metric_name, value in sorted_metrics[:5]:
                 report["performance_summary"]["top_metrics"].append(
@@ -1002,7 +1042,8 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
 
             # Add time series data
             time_metrics = self.get_engagement_metrics(
-                content_id=content_id, start_time=start_date, end_time=end_date, group_by="daily"
+                content_id=content_id, start_time=start_date, end_time=end_date, 
+                    group_by="daily"
             )
 
             report["time_series"] = time_metrics.get("grouped_data", {})
@@ -1064,12 +1105,14 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             # Find best and worst channels
             if channels_data:
                 best_channel = channels_data[0]["channel"]
-                worst_channel = channels_data[-1]["channel"] if len(channels_data) > 1 else None
+                worst_channel = \
+                    channels_data[-1]["channel"] if len(channels_data) > 1 else None
 
                 report["channel_recommendations"].append(
                     {
                         "type": "positive",
                         "message": f"The {best_channel} channel is performing best. Consider allocating more resources to this channel.",
+                            
                     }
                 )
 
@@ -1078,6 +1121,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                         {
                             "type": "negative",
                             "message": f"The {worst_channel} channel is underperforming. Consider reviewing content format or distribution strategy.",
+                                
                         }
                     )
 

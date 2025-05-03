@@ -21,7 +21,7 @@ class MonetizationService(BaseService):
         Returns:
             List of solutions
         """
-        return self._get("monetization/solutions")
+        return self._get("monetization / solutions")
 
     def create_subscription_model(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -37,7 +37,7 @@ class MonetizationService(BaseService):
         Returns:
             Created subscription model
         """
-        return self._post("monetization/subscription-models", data)
+        return self._post("monetization / subscription - models", data)
 
     def get_subscription_models(self) -> Dict[str, Any]:
         """
@@ -46,7 +46,7 @@ class MonetizationService(BaseService):
         Returns:
             List of subscription models
         """
-        return self._get("monetization/subscription-models")
+        return self._get("monetization / subscription - models")
 
     def get_subscription_model(self, model_id: str) -> Dict[str, Any]:
         """
@@ -58,7 +58,7 @@ class MonetizationService(BaseService):
         Returns:
             Subscription model details
         """
-        return self._get(f"monetization/subscription-models/{model_id}")
+        return self._get(f"monetization / subscription - models/{model_id}")
 
     def update_subscription_model(self, model_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -71,7 +71,7 @@ class MonetizationService(BaseService):
         Returns:
             Updated subscription model
         """
-        return self._put(f"monetization/subscription-models/{model_id}", data)
+        return self._put(f"monetization / subscription - models/{model_id}", data)
 
     def delete_subscription_model(self, model_id: str) -> Dict[str, Any]:
         """
@@ -83,7 +83,7 @@ class MonetizationService(BaseService):
         Returns:
             Result of the deletion
         """
-        return self._delete(f"monetization/subscription-models/{model_id}")
+        return self._delete(f"monetization / subscription - models/{model_id}")
 
     def create_revenue_projection(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -100,7 +100,7 @@ class MonetizationService(BaseService):
         Returns:
             Revenue projection
         """
-        return self._post("monetization/revenue-projections", data)
+        return self._post("monetization / revenue - projections", data)
 
     def get_revenue_projections(self) -> Dict[str, Any]:
         """
@@ -109,7 +109,7 @@ class MonetizationService(BaseService):
         Returns:
             List of revenue projections
         """
-        return self._get("monetization/revenue-projections")
+        return self._get("monetization / revenue - projections")
 
     def get_revenue_projection(self, projection_id: str) -> Dict[str, Any]:
         """
@@ -121,4 +121,4 @@ class MonetizationService(BaseService):
         Returns:
             Revenue projection details
         """
-        return self._get(f"monetization/revenue-projections/{projection_id}")
+        return self._get(f"monetization / revenue - projections/{projection_id}")

@@ -23,9 +23,10 @@ logger = logging.getLogger(__name__)
 
 # Constants
 REFRESH_TOKEN_EXPIRY = 30 * 24 * 60 * 60  # 30 days in seconds
-REFRESH_TOKEN_SECRET_KEY = os.environ.get("REFRESH_TOKEN_SECRET_KEY", "dev-refresh-token-secret")
+REFRESH_TOKEN_SECRET_KEY = os.environ.get("REFRESH_TOKEN_SECRET_KEY", 
+    "dev - refresh - token - secret")
 
-# In-memory storage for token blacklist
+# In - memory storage for token blacklist
 # In a production environment, this would be stored in a database
 TOKEN_BLACKLIST: Set[str] = set()
 
@@ -50,22 +51,22 @@ def create_refresh_token(user_id: str) -> str:
     }
 
     # Convert payload to base64
-    payload_json = json.dumps(payload).encode("utf-8")
-    payload_b64 = base64.urlsafe_b64encode(payload_json).decode("utf-8").rstrip("=")
+    payload_json = json.dumps(payload).encode("utf - 8")
+    payload_b64 = base64.urlsafe_b64encode(payload_json).decode("utf - 8").rstrip("=")
 
     # Create header (algorithm information)
     header = {"alg": "HS256", "typ": "JWT"}
-    header_json = json.dumps(header).encode("utf-8")
-    header_b64 = base64.urlsafe_b64encode(header_json).decode("utf-8").rstrip("=")
+    header_json = json.dumps(header).encode("utf - 8")
+    header_b64 = base64.urlsafe_b64encode(header_json).decode("utf - 8").rstrip("=")
 
     # Create signature
     to_sign = f"{header_b64}.{payload_b64}"
     signature = hmac.new(
-        REFRESH_TOKEN_SECRET_KEY.encode("utf-8"),
-        to_sign.encode("utf-8"),
+        REFRESH_TOKEN_SECRET_KEY.encode("utf - 8"),
+        to_sign.encode("utf - 8"),
         hashlib.sha256,
     ).digest()
-    signature_b64 = base64.urlsafe_b64encode(signature).decode("utf-8").rstrip("=")
+    signature_b64 = base64.urlsafe_b64encode(signature).decode("utf - 8").rstrip("=")
 
     # Combine to create token
     token = f"{header_b64}.{payload_b64}.{signature_b64}"
@@ -94,12 +95,12 @@ def verify_refresh_token(token: str) -> Optional[Dict[str, Any]]:
         # Verify signature
         to_verify = f"{header_b64}.{payload_b64}"
         expected_signature = hmac.new(
-            REFRESH_TOKEN_SECRET_KEY.encode("utf-8"),
-            to_verify.encode("utf-8"),
+            REFRESH_TOKEN_SECRET_KEY.encode("utf - 8"),
+            to_verify.encode("utf - 8"),
             hashlib.sha256,
         ).digest()
         expected_signature_b64 = (
-            base64.urlsafe_b64encode(expected_signature).decode("utf-8").rstrip("=")
+            base64.urlsafe_b64encode(expected_signature).decode("utf - 8").rstrip("=")
         )
 
         if signature_b64 != expected_signature_b64:
@@ -109,7 +110,7 @@ def verify_refresh_token(token: str) -> Optional[Dict[str, Any]]:
         # Decode payload
         # Add padding if needed
         padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-        payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
+        payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf - 8")
         payload = json.loads(payload_json)
 
         # Check if token is expired
@@ -219,7 +220,8 @@ def cleanup_blacklist() -> int:
 
                 # Add padding if needed
                 padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-                payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
+                payload_json = base64.urlsafe_b64decode(payload_b64 + \
+                    padding).decode("utf - 8")
                 payload = json.loads(payload_json)
 
                 # Check if token is expired

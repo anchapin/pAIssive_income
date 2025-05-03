@@ -2,7 +2,7 @@
 Example usage of the model evaluation tools.
 
 This script demonstrates how to use the model evaluation tools to evaluate
-and compare fine-tuned models.
+and compare fine - tuned models.
 """
 
 import argparse
@@ -25,7 +25,7 @@ from ai_models.fine_tuning import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -136,22 +136,22 @@ def main():
     """
     Main function.
     """
-    parser = argparse.ArgumentParser(description="Evaluate and compare fine-tuned models")
+    parser = argparse.ArgumentParser(description="Evaluate and compare fine - tuned models")
 
     parser.add_argument("--model", type=str, help="Path to the model to evaluate")
-    parser.add_argument("--models", type=str, nargs="+", help="Paths to the models to compare")
+    parser.add_argument("--models", type=str, nargs=" + ", help="Paths to the models to compare")
     parser.add_argument("--dataset", type=str, required=True, help="Path to the dataset")
     parser.add_argument(
-        "--output-dir", type=str, default="evaluation_results", help="Directory to save the results"
+        "--output - dir", type=str, default="evaluation_results", help="Directory to save the results"
     )
     parser.add_argument(
         "--metrics",
         type=str,
-        nargs="+",
+        nargs=" + ",
         default=["perplexity", "accuracy"],
         help="Metrics to use for evaluation",
     )
-    parser.add_argument("--num-samples", type=int, help="Number of samples to use for evaluation")
+    parser.add_argument("--num - samples", type=int, help="Number of samples to use for evaluation")
 
     args = parser.parse_args()
 

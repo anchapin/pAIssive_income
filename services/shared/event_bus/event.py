@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, validator
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -25,13 +25,13 @@ class EventType(str, Enum):
     # Domain events (business events)
     DOMAIN = "domain"
 
-    # Integration events (cross-service events)
+    # Integration events (cross - service events)
     INTEGRATION = "integration"
 
     # System events (infrastructure events)
     SYSTEM = "system"
 
-    # User events (user-initiated events)
+    # User events (user - initiated events)
     USER = "user"
 
     # Notification events (alerts and notifications)

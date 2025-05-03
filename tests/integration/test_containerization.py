@@ -24,38 +24,38 @@ class TestContainerization:
         # Define test container configuration
         self.container_config = {
             "api_gateway": {
-                "image": "paissive-income/api-gateway:latest",
+                "image": "paissive - income / api - gateway:latest",
                 "port": 8000,
                 "environment": {
-                    "SERVICE_REGISTRY_HOST": "service-registry",
+                    "SERVICE_REGISTRY_HOST": "service - registry",
                     "SERVICE_REGISTRY_PORT": "8500",
                     "LOG_LEVEL": "INFO",
                 },
-                "health_check": "/health",
+                "health_check": " / health",
             },
             "user_service": {
-                "image": "paissive-income/user-service:latest",
+                "image": "paissive - income / user - service:latest",
                 "port": 8001,
                 "environment": {
-                    "SERVICE_REGISTRY_HOST": "service-registry",
+                    "SERVICE_REGISTRY_HOST": "service - registry",
                     "SERVICE_REGISTRY_PORT": "8500",
                     "DB_HOST": "database",
                     "DB_PORT": "5432",
                     "LOG_LEVEL": "INFO",
                 },
-                "health_check": "/health",
+                "health_check": " / health",
             },
             "order_service": {
-                "image": "paissive-income/order-service:latest",
+                "image": "paissive - income / order - service:latest",
                 "port": 8002,
                 "environment": {
-                    "SERVICE_REGISTRY_HOST": "service-registry",
+                    "SERVICE_REGISTRY_HOST": "service - registry",
                     "SERVICE_REGISTRY_PORT": "8500",
                     "DB_HOST": "database",
                     "DB_PORT": "5432",
                     "LOG_LEVEL": "INFO",
                 },
-                "health_check": "/health",
+                "health_check": " / health",
             },
         }
 
@@ -76,7 +76,7 @@ class TestContainerization:
         # Mock Docker container creation
         for service_name, config in self.container_config.items():
             container = MagicMock()
-            container.id = f"{service_name}-container-id"
+            container.id = f"{service_name}-container - id"
             container.name = f"{service_name}-container"
             container.status = "running"
             container.ports = {f"{config['port']}/tcp": config["port"]}
@@ -151,7 +151,7 @@ class TestContainerization:
             )
 
             # Test starting the container environment
-            result = subprocess.run(["docker-compose", "up", "-d"], capture_output=True, text=True)
+            result = subprocess.run(["docker - compose", "up", " - d"], capture_output=True, text=True)
             assert result.returncode == 0
 
             # Verify all containers are running
@@ -173,7 +173,7 @@ class TestContainerization:
                 assert instances[0].service_name == service_name
 
             # Test stopping the container environment
-            result = subprocess.run(["docker-compose", "down"], capture_output=True, text=True)
+            result = subprocess.run(["docker - compose", "down"], capture_output=True, text=True)
             assert result.returncode == 0
 
             # Verify all containers are stopped
@@ -302,7 +302,7 @@ class TestContainerization:
                         service_name = name
                         break
 
-                if service_name and "/health" in url:
+                if service_name and " / health" in url:
                     response = MagicMock()
                     response.status_code = 200 if health_status.get(service_name, False) else 503
                     response.json.return_value = mock_health_check(service_name)
@@ -390,4 +390,4 @@ class TestContainerization:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_containerization.py"])
+    pytest.main([" - v", "test_containerization.py"])

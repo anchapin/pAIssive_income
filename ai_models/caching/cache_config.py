@@ -21,7 +21,7 @@ class CacheConfig:
     eviction_policy: str = "lru"  # Eviction policy (lru, lfu, fifo)
     serialization: str = "json"  # Only JSON serialization is supported for security reasons
 
-    # Backend-specific configuration
+    # Backend - specific configuration
     backend_config: Dict[str, Any] = field(default_factory=dict)
 
     # Cache filters
@@ -71,7 +71,7 @@ class CacheConfig:
             "serialization": self.serialization,
         }
 
-        # Add backend-specific configuration
+        # Add backend - specific configuration
         if backend_name in self.backend_config:
             config.update(self.backend_config[backend_name])
 
@@ -106,7 +106,7 @@ class SQLiteCacheConfig:
     Configuration for the SQLite cache backend.
     """
 
-    db_path: str = "cache/cache.db"
+    db_path: str = "cache / cache.db"
     serialization: str = "json"
 
 

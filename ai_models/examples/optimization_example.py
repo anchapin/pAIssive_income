@@ -24,7 +24,7 @@ from ai_models.optimization import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ except ImportError:
 
 
 def test_quantization(
-    model_path: str, output_dir: str, method: str = "bitsandbytes-4bit", bits: int = 4
+    model_path: str, output_dir: str, method: str = "bitsandbytes - 4bit", bits: int = 4
 ) -> None:
     """
     Test model quantization.
@@ -82,7 +82,7 @@ def test_quantization(
             output_path=output_path,
             method=method,
             bits=bits,
-            model_type="text-generation",
+            model_type="text - generation",
         )
 
         elapsed_time = time.time() - start_time
@@ -115,7 +115,7 @@ def test_quantization(
                 analysis["pruned_model"]["outputs"],
             )
         ):
-            print(f"\nPrompt {i+1}: {prompt}")
+            print(f"\nPrompt {i + 1}: {prompt}")
             print(f"Original: {orig[:100]}...")
             print(f"Quantized: {quant[:100]}...")
 
@@ -147,7 +147,7 @@ def test_pruning(
     os.makedirs(output_dir, exist_ok=True)
 
     # Determine output path
-    output_path = os.path.join(output_dir, f"{method}-{int(sparsity*100)}pct")
+    output_path = os.path.join(output_dir, f"{method}-{int(sparsity * 100)}pct")
 
     try:
         # Prune the model
@@ -159,7 +159,7 @@ def test_pruning(
             output_path=output_path,
             method=method,
             sparsity=sparsity,
-            model_type="text-generation",
+            model_type="text - generation",
         )
 
         elapsed_time = time.time() - start_time
@@ -195,7 +195,7 @@ def test_pruning(
                 analysis["pruned_model"]["outputs"],
             )
         ):
-            print(f"\nPrompt {i+1}: {prompt}")
+            print(f"\nPrompt {i + 1}: {prompt}")
             print(f"Original: {orig[:100]}...")
             print(f"Pruned: {pruned[:100]}...")
 
@@ -208,9 +208,9 @@ def main():
     Main function to demonstrate the model optimization utilities.
     """
     parser = argparse.ArgumentParser(description="Test model optimization utilities")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+    parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
     parser.add_argument(
-        "--output-dir",
+        "--output - dir",
         type=str,
         default="optimized_models",
         help="Directory to save optimized models",
@@ -223,22 +223,22 @@ def main():
         help="Optimization to test",
     )
     parser.add_argument(
-        "--quant-method",
+        "--quant - method",
         type=str,
-        choices=["bitsandbytes-4bit", "bitsandbytes-8bit", "awq", "gptq"],
-        default="bitsandbytes-4bit",
+        choices=["bitsandbytes - 4bit", "bitsandbytes - 8bit", "awq", "gptq"],
+        default="bitsandbytes - 4bit",
         help="Quantization method",
     )
-    parser.add_argument("--quant-bits", type=int, default=4, help="Number of bits for quantization")
+    parser.add_argument("--quant - bits", type=int, default=4, help="Number of bits for quantization")
     parser.add_argument(
-        "--prune-method",
+        "--prune - method",
         type=str,
         choices=["magnitude", "structured"],
         default="magnitude",
         help="Pruning method",
     )
     parser.add_argument(
-        "--prune-sparsity",
+        "--prune - sparsity",
         type=float,
         default=0.5,
         help="Target sparsity for pruning (0.0 to 1.0)",

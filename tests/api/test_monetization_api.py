@@ -44,7 +44,7 @@ class TestMonetizationAPI:
         data = generate_monetization_data()
 
         # Make request
-        response = api_test_client.post("monetization/subscription-models", data)
+        response = api_test_client.post("monetization / subscription - models", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -67,7 +67,7 @@ class TestMonetizationAPI:
     def test_get_subscription_models(self, api_test_client: APITestClient):
         """Test getting all subscription models."""
         # Make request
-        response = api_test_client.get("monetization/subscription-models")
+        response = api_test_client.get("monetization / subscription - models")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -81,7 +81,7 @@ class TestMonetizationAPI:
         model_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"monetization/subscription-models/{model_id}")
+        response = api_test_client.get(f"monetization / subscription - models/{model_id}")
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -112,7 +112,7 @@ class TestMonetizationAPI:
         data = generate_monetization_data()
 
         # Make request
-        response = api_test_client.put(f"monetization/subscription-models/{model_id}", data)
+        response = api_test_client.put(f"monetization / subscription - models/{model_id}", data)
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -140,7 +140,7 @@ class TestMonetizationAPI:
         model_id = generate_id()
 
         # Make request
-        response = api_test_client.delete(f"monetization/subscription-models/{model_id}")
+        response = api_test_client.delete(f"monetization / subscription - models/{model_id}")
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -154,7 +154,7 @@ class TestMonetizationAPI:
         data = generate_revenue_projection_data()
 
         # Make request
-        response = api_test_client.post("monetization/revenue-projections", data)
+        response = api_test_client.post("monetization / revenue - projections", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -179,7 +179,7 @@ class TestMonetizationAPI:
     def test_get_revenue_projections(self, api_test_client: APITestClient):
         """Test getting all revenue projections."""
         # Make request
-        response = api_test_client.get("monetization/revenue-projections")
+        response = api_test_client.get("monetization / revenue - projections")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -193,7 +193,7 @@ class TestMonetizationAPI:
         projection_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"monetization/revenue-projections/{projection_id}")
+        response = api_test_client.get(f"monetization / revenue - projections/{projection_id}")
 
         # This might return 404 if the projection doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -223,7 +223,7 @@ class TestMonetizationAPI:
         models = [generate_monetization_data() for _ in range(3)]
 
         # Make request
-        response = api_test_client.bulk_create("monetization/subscription-models", models)
+        response = api_test_client.bulk_create("monetization / subscription - models", models)
 
         # Validate response
         result = validate_bulk_response(response, 201)  # Created
@@ -235,7 +235,7 @@ class TestMonetizationAPI:
         """Test filtering subscription models."""
         # Make request with filter
         response = api_test_client.get(
-            "monetization/subscription-models",
+            "monetization / subscription - models",
             params={
                 "filter": "subscription_type:eq:freemium",
                 "sort": "base_price:asc",
@@ -259,7 +259,7 @@ class TestMonetizationAPI:
     def test_invalid_subscription_model_request(self, api_test_client: APITestClient):
         """Test invalid subscription model request."""
         # Make request with invalid data
-        response = api_test_client.post("monetization/subscription-models", {})
+        response = api_test_client.post("monetization / subscription - models", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -267,10 +267,10 @@ class TestMonetizationAPI:
     def test_nonexistent_subscription_model(self, api_test_client: APITestClient):
         """Test getting a nonexistent subscription model."""
         # Generate a random ID that is unlikely to exist
-        model_id = "nonexistent-" + generate_id()
+        model_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = api_test_client.get(f"monetization/subscription-models/{model_id}")
+        response = api_test_client.get(f"monetization / subscription - models/{model_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found
@@ -282,11 +282,11 @@ class TestMonetizationAPI:
             "subscription_id": generate_id(),
             "metric": "api_calls",
             "value": 100,
-            "timestamp": "2025-04-29T10:00:00Z",
+            "timestamp": "2025 - 04 - 29T10:00:00Z",
         }
 
         # Make request
-        response = api_test_client.post("monetization/usage/track", data)
+        response = api_test_client.post("monetization / usage / track", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -311,11 +311,11 @@ class TestMonetizationAPI:
 
         # Make request
         response = api_test_client.get(
-            f"monetization/usage/{subscription_id}",
+            f"monetization / usage/{subscription_id}",
             params={
                 "metric": "api_calls",
-                "start_date": "2025-04-01T00:00:00Z",
-                "end_date": "2025-04-30T23:59:59Z",
+                "start_date": "2025 - 04 - 01T00:00:00Z",
+                "end_date": "2025 - 04 - 30T23:59:59Z",
             },
         )
 
@@ -342,8 +342,8 @@ class TestMonetizationAPI:
 
         # Make request
         response = api_test_client.get(
-            f"monetization/billing/{subscription_id}/calculate",
-            params={"billing_period": "2025-04"},
+            f"monetization / billing/{subscription_id}/calculate",
+            params={"billing_period": "2025 - 04"},
         )
 
         # This might return 404 if the subscription doesn't exist
@@ -356,7 +356,7 @@ class TestMonetizationAPI:
             validate_field_exists(result, "subscription_id")
             validate_field_equals(result, "subscription_id", subscription_id)
             validate_field_exists(result, "billing_period")
-            validate_field_equals(result, "billing_period", "2025-04")
+            validate_field_equals(result, "billing_period", "2025 - 04")
             validate_field_exists(result, "total_amount")
             assert isinstance(result["total_amount"], (int, float))
             validate_field_exists(result, "currency")
@@ -388,7 +388,7 @@ class TestMonetizationAPI:
         }
 
         # Make request
-        response = api_test_client.post("monetization/billing/alerts", data)
+        response = api_test_client.post("monetization / billing / alerts", data)
 
         # Validate response
         result = validate_success_response(response, 201)  # Created
@@ -415,7 +415,7 @@ class TestMonetizationAPI:
         subscription_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"monetization/billing/{subscription_id}/alerts")
+        response = api_test_client.get(f"monetization / billing/{subscription_id}/alerts")
 
         # This might return 404 if the subscription doesn't exist
         if response.status_code == 404:

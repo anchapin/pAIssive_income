@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr / bin / env python3
 """
 Script to run GitHub Actions workflows locally.
-This script simulates the GitHub Actions CI/CD pipeline locally.
+This script simulates the GitHub Actions CI / CD pipeline locally.
 """
 
 import argparse
@@ -66,7 +66,7 @@ def run_command(command: List[str], env: Optional[Dict[str, str]] = None) -> int
                 "semgrep",
                 "pylint",
             ]:
-                command = [venv_python, "-m"] + command
+                command = [venv_python, " - m"] + command
 
         result = subprocess.run(command, env={**os.environ, **(env or {})}, check=False)
         return result.returncode
@@ -92,7 +92,7 @@ def run_lint_checks() -> bool:
     if missing_tools:
         print_warning(f"Missing tools: {', '.join(missing_tools)}")
         print_step("Installing missing tools...")
-        run_command([sys.executable, "-m", "pip", "install"] + missing_tools)
+        run_command([sys.executable, " - m", "pip", "install"] + missing_tools)
 
     # Run flake8
     print_step("Running flake8...")
@@ -104,7 +104,7 @@ def run_lint_checks() -> bool:
 
     # Run isort
     print_step("Running isort...")
-    isort_result = run_command(["isort", ".", "--check-only"])
+    isort_result = run_command(["isort", ".", "--check - only"])
 
     # Run mypy
     print_step("Running mypy...")
@@ -112,7 +112,8 @@ def run_lint_checks() -> bool:
 
     # Check results
     all_passed = all(
-        result == 0 for result in [flake8_result, black_result, isort_result, mypy_result]
+        result == 0 for result in [flake8_result, black_result, isort_result, 
+            mypy_result]
     )
 
     if all_passed:
@@ -135,7 +136,7 @@ def run_tests() -> bool:
     """Run tests similar to the GitHub Actions workflow."""
     print_header("Running Tests")
 
-    # Check if pytest and pytest-cov are installed
+    # Check if pytest and pytest - cov are installed
     tools = ["pytest"]
     missing_tools = []
 
@@ -147,11 +148,12 @@ def run_tests() -> bool:
     if missing_tools:
         print_warning(f"Missing tools: {', '.join(missing_tools)}")
         print_step("Installing missing tools...")
-        run_command([sys.executable, "-m", "pip", "install", "pytest", "pytest-cov"])
+        run_command([sys.executable, " - m", "pip", "install", "pytest", 
+            "pytest - cov"])
 
     # Run tests with coverage
     print_step("Running tests with pytest and coverage...")
-    test_result = run_command(["pytest", "tests/", "--cov=./", "--cov-report=xml"])
+    test_result = run_command(["pytest", "tests / ", "--cov=./", "--cov - report=xml"])
 
     if test_result == 0:
         print_success("All tests passed!")
@@ -177,32 +179,36 @@ def run_security_scan() -> bool:
     if missing_tools:
         print_warning(f"Missing tools: {', '.join(missing_tools)}")
         print_step("Installing missing tools...")
-        run_command([sys.executable, "-m", "pip", "install"] + missing_tools)
+        run_command([sys.executable, " - m", "pip", "install"] + missing_tools)
 
     # Run bandit
     print_step("Running bandit...")
     try:
-        bandit_result = run_command(["bandit", "-r", ".", "-c", "pyproject.toml", "-ll"])
+        bandit_result = run_command(["bandit", " - r", ".", " - c", "pyproject.toml", 
+            " - ll"])
     except:
         print_warning(
-            "Failed to run bandit with pyproject.toml config, falling back to default config..."
+            "Failed to run bandit with pyproject.toml config, 
+                falling back to default config..."
         )
-        bandit_result = run_command(["bandit", "-r", ".", "-ll"])
+        bandit_result = run_command(["bandit", " - r", ".", " - ll"])
 
     # Run safety
     print_step("Running safety...")
-    safety_result = run_command(["safety", "check", "-i", "51457", "-i", "51668"])
+    safety_result = run_command(["safety", "check", " - i", "51457", " - i", "51668"])
 
     # Run semgrep
     print_step("Running semgrep...")
-    semgrep_result = run_command(["semgrep", "scan", "--config=auto", "--severity=ERROR"])
+    semgrep_result = run_command(["semgrep", "scan", "--config=auto", 
+        "--severity=ERROR"])
 
     # Run pylint security checks
     print_step("Running pylint security checks...")
     pylint_result = run_command(["pylint", "--disable=all", "--enable=security", "."])
 
-    # Check results - note that pylint often returns non-zero even for warnings
-    all_passed = all(result == 0 for result in [bandit_result, safety_result, semgrep_result])
+    # Check results - note that pylint often returns non - zero even for warnings
+    all_passed = all(result == 0 for result in [bandit_result, safety_result, 
+        semgrep_result])
 
     if all_passed and pylint_result <= 1:  # Allow pylint to have warnings
         print_success("All security scans passed!")

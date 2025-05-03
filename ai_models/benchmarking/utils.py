@@ -14,7 +14,7 @@ from .benchmark_runner import BenchmarkRunner
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 def run_benchmark(
     model_path: str,
     benchmark_type: Union[str, BenchmarkType] = BenchmarkType.LATENCY,
-    model_type: str = "text-generation",
+    model_type: str = "text - generation",
     output_dir: Optional[str] = None,
     **kwargs,
 ) -> BenchmarkResult:
@@ -67,7 +67,7 @@ def run_benchmark(
 def compare_models(
     model_paths: List[str],
     benchmark_type: Union[str, BenchmarkType] = BenchmarkType.LATENCY,
-    model_type: str = "text-generation",
+    model_type: str = "text - generation",
     output_dir: Optional[str] = None,
     **kwargs,
 ) -> List[BenchmarkResult]:

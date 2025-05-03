@@ -60,7 +60,7 @@ class AnalyticsMiddleware:
             Response
         """
         # Skip analytics for docs and OpenAPI
-        if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
+        if request.url.path in [" / docs", " / redoc", " / openapi.json"]:
             return await call_next(request)
 
         # Record start time
@@ -72,8 +72,8 @@ class AnalyticsMiddleware:
 
         # Extract API version from path
         version = None
-        if "/api/" in path:
-            parts = path.split("/")
+        if " / api / " in path:
+            parts = path.split(" / ")
             for i, part in enumerate(parts):
                 if part == "api" and i + 1 < len(parts):
                     version = parts[i + 1]
@@ -81,7 +81,7 @@ class AnalyticsMiddleware:
 
         # Get client information
         client_ip = request.client.host if request.client else None
-        user_agent = request.headers.get("User-Agent")
+        user_agent = request.headers.get("User - Agent")
 
         # Get authentication information
         user_id = None
@@ -94,7 +94,7 @@ class AnalyticsMiddleware:
                 user_id = str(user.id)
 
         # Try to get API key ID from header
-        api_key = request.headers.get("X-API-Key")
+        api_key = request.headers.get("X - API - Key")
         if api_key:
             # Use the API key as the ID for now
             # In a real implementation, you would look up the API key ID
@@ -127,7 +127,7 @@ class AnalyticsMiddleware:
             error_type = type(e).__name__
             error_message = str(e)
 
-            # Re-raise the exception
+            # Re - raise the exception
             raise
 
         finally:
@@ -137,13 +137,13 @@ class AnalyticsMiddleware:
             # Get response size (if available)
             response_size = None
             if response and hasattr(response, "headers"):
-                content_length = response.headers.get("Content-Length")
+                content_length = response.headers.get("Content - Length")
                 if content_length and content_length.isdigit():
                     response_size = int(content_length)
 
             # Get request size (if available)
             request_size = None
-            content_length = request.headers.get("Content-Length")
+            content_length = request.headers.get("Content - Length")
             if content_length and content_length.isdigit():
                 request_size = int(content_length)
 

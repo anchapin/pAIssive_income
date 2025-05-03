@@ -88,20 +88,24 @@ class PersonaCreator:
             matches = sum(
                 1
                 for k, v in persona["demographics"].items()
-                if k in niche["target_demographics"] and v == niche["target_demographics"][k]
+                if k in niche["target_demographics"] and v == \
+                    niche["target_demographics"][k]
             )
-            total = len(niche["target_demographics"]) if niche["target_demographics"] else 1
+            total = \
+                len(niche["target_demographics"]) if niche["target_demographics"] else 1
             demographic_score = matches / total
 
         # Calculate behavior fit score
         behavior_score = 0.0
         if "behaviors" in persona and "target_behaviors" in niche:
-            matches = sum(1 for b in persona["behaviors"] if b in niche["target_behaviors"])
+            matches = \
+                sum(1 for b in persona["behaviors"] if b in niche["target_behaviors"])
             total = len(niche["target_behaviors"]) if niche["target_behaviors"] else 1
             behavior_score = matches / total
 
         # Calculate overall fit score (weighted average)
-        fit_score = (0.5 * pain_point_score) + (0.3 * demographic_score) + (0.2 * behavior_score)
+        fit_score = (0.5 * pain_point_score) + \
+            (0.3 * demographic_score) + (0.2 * behavior_score)
 
         return {
             "persona_id": persona["id"],
@@ -166,6 +170,7 @@ class DemographicAnalyzer:
             },
             "education": {
                 "description": f"Target audience typically has {education} education level",
+                    
                 "marketing_implications": self._get_education_implications(education),
             },
             "income": {
@@ -180,11 +185,12 @@ class DemographicAnalyzer:
             f"Adjust messaging to appeal to {gender} audience",
             f"Consider {location}-specific marketing channels",
             f"Use language appropriate for {education} education level",
-            f"Price products/services appropriately for {income} income level",
+            f"Price products / services appropriately for {income} income level",
         ]
 
         if niche:
-            recommendations.append(f"Tailor marketing to address specific needs of {niche} users")
+            recommendations.append(
+                f"Tailor marketing to address specific needs of {niche} users")
 
         # Return the complete analysis including the recommendations
         return {
@@ -216,23 +222,23 @@ class DemographicAnalyzer:
 
     def _get_age_implications(self, age_range: str) -> List[str]:
         """Get marketing implications for age range."""
-        if "18-24" in age_range or "young" in age_range.lower():
+        if "18 - 24" in age_range or "young" in age_range.lower():
             return [
                 "Use social media platforms popular with younger audiences",
-                "Emphasize mobile-first experiences",
+                "Emphasize mobile - first experiences",
                 "Focus on trendy, visual content",
             ]
-        elif "25-34" in age_range or "30" in age_range:
+        elif "25 - 34" in age_range or "30" in age_range:
             return [
                 "Balance social media with email marketing",
                 "Focus on career advancement and efficiency",
-                "Emphasize value and time-saving benefits",
+                "Emphasize value and time - saving benefits",
             ]
-        elif "35-44" in age_range or "40" in age_range:
+        elif "35 - 44" in age_range or "40" in age_range:
             return [
                 "Focus on professional networks and email",
                 "Emphasize reliability and established solutions",
-                "Address work-life balance concerns",
+                "Address work - life balance concerns",
             ]
         elif "45" in age_range or "50" in age_range or "older" in age_range.lower():
             return [
@@ -251,17 +257,17 @@ class DemographicAnalyzer:
         """Get marketing implications for gender."""
         if gender.lower() == "male":
             return [
-                "Consider male-oriented design elements",
-                "Focus on direct, feature-oriented messaging",
+                "Consider male - oriented design elements",
+                "Focus on direct, feature - oriented messaging",
                 "Target platforms with higher male demographics",
             ]
         elif gender.lower() == "female":
             return [
-                "Consider female-oriented design elements",
-                "Focus on benefit-oriented messaging",
+                "Consider female - oriented design elements",
+                "Focus on benefit - oriented messaging",
                 "Target platforms with higher female demographics",
             ]
-        else:  # mixed, non-binary, etc.
+        else:  # mixed, non - binary, etc.
             return [
                 "Use inclusive design and language",
                 "Focus on universal benefits",
@@ -272,9 +278,9 @@ class DemographicAnalyzer:
         """Get marketing implications for location."""
         if location.lower() == "urban":
             return [
-                "Focus on convenience and time-saving",
+                "Focus on convenience and time - saving",
                 "Consider higher price points",
-                "Target urban-specific pain points",
+                "Target urban - specific pain points",
             ]
         elif location.lower() == "suburban":
             return [
@@ -290,7 +296,7 @@ class DemographicAnalyzer:
             ]
         else:
             return [
-                "Use location-agnostic messaging",
+                "Use location - agnostic messaging",
                 "Consider regional differences in marketing",
                 "Test different approaches across locations",
             ]
@@ -332,7 +338,7 @@ class DemographicAnalyzer:
             return [
                 "Balance value and quality messaging",
                 "Offer tiered pricing options",
-                "Focus on ROI and long-term benefits",
+                "Focus on ROI and long - term benefits",
             ]
         elif "low" in income.lower():
             return [
@@ -358,7 +364,8 @@ class PainPointIdentifier:
         self.name = "Pain Point Identifier"
         self.description = "Identifies and analyzes pain points for user personas"
 
-    def identify_pain_points(self, niche: Union[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def identify_pain_points(self, niche: Union[str, Dict[str, Any]]) -> List[Dict[str, 
+        Any]]:
         """
         Identify potential pain points for a specific niche.
 
@@ -373,60 +380,72 @@ class PainPointIdentifier:
             niche_name = niche
             # Define common pain points for different niches
             niche_pain_points = {
-                "e-commerce": [
+                "e - commerce": [
                     {
                         "name": "Inventory Management",
                         "description": "Difficulty managing inventory levels across multiple platforms",
+                            
                         "severity": "high",
-                        "impact": "Stockouts or excess inventory leading to lost sales or tied-up capital",
+                        "impact": "Stockouts or excess inventory leading to lost sales or tied - up capital",
+                            
                         "current_solutions": {
                             "manual_processes": "Spreadsheets and manual tracking",
                             "basic_tools": "Basic inventory management software",
                             "enterprise_solutions": "Expensive enterprise solutions",
                         },
-                        "solution_gaps": "Affordable, AI-powered inventory forecasting and management",
+                        "solution_gaps": "Affordable, 
+                            AI - powered inventory forecasting and management",
                     },
                     {
                         "name": "Product Descriptions",
-                        "description": "Time-consuming process of writing unique product descriptions",
+                        "description": "Time - consuming process of writing unique product descriptions",
+                            
                         "severity": "medium",
                         "impact": "Generic descriptions leading to poor SEO and lower conversion rates",
+                            
                         "current_solutions": {
                             "manual_writing": "Manual writing by store owners",
                             "outsourcing": "Outsourcing to copywriters",
                             "templates": "Using templates with minor variations",
                         },
-                        "solution_gaps": "AI-powered, unique product description generation",
+                        "solution_gaps": "AI - powered, 
+                            unique product description generation",
                     },
                     {
                         "name": "Customer Support",
                         "description": "Managing customer inquiries efficiently",
                         "severity": "high",
                         "impact": "Slow response times leading to customer dissatisfaction",
+                            
                         "current_solutions": {
                             "manual_responses": "Manual email responses",
-                            "basic_chatbots": "Basic rule-based chatbots",
+                            "basic_chatbots": "Basic rule - based chatbots",
                             "faq_pages": "FAQ pages requiring customer effort",
                         },
-                        "solution_gaps": "AI-powered customer support automation with personalization",
+                        "solution_gaps": "AI - powered customer support automation with personalization",
+                            
                     },
                 ],
                 "content creation": [
                     {
                         "name": "Content Ideas",
                         "description": "Difficulty generating fresh content ideas consistently",
+                            
                         "severity": "high",
-                        "impact": "Content gaps, inconsistent publishing, audience disengagement",
+                        "impact": "Content gaps, inconsistent publishing, 
+                            audience disengagement",
                         "current_solutions": {
                             "brainstorming": "Manual brainstorming sessions",
                             "competitor_research": "Researching competitor content",
                             "trend_monitoring": "Monitoring industry trends",
                         },
-                        "solution_gaps": "AI-powered content idea generation based on audience interests",
+                        "solution_gaps": "AI - powered content idea generation based on audience interests",
+                            
                     },
                     {
                         "name": "SEO Optimization",
                         "description": "Optimizing content for search engines effectively",
+                            
                         "severity": "medium",
                         "impact": "Poor search rankings and reduced organic traffic",
                         "current_solutions": {
@@ -434,7 +453,8 @@ class PainPointIdentifier:
                             "seo_plugins": "Basic SEO plugins and checkers",
                             "trial_and_error": "Trial and error approach",
                         },
-                        "solution_gaps": "AI-powered SEO optimization with predictive analytics",
+                        "solution_gaps": "AI - powered SEO optimization with predictive analytics",
+                            
                     },
                 ],
                 "marketing": [
@@ -448,19 +468,23 @@ class PainPointIdentifier:
                             "templates": "Using campaign templates",
                             "agency_services": "Expensive agency services",
                         },
-                        "solution_gaps": "AI-powered campaign planning and optimization",
+                        "solution_gaps": "AI - powered campaign planning and optimization",
+                            
                     },
                     {
                         "name": "Performance Analysis",
                         "description": "Analyzing marketing performance across channels",
+                            
                         "severity": "medium",
                         "impact": "Difficulty identifying effective strategies and optimizing ROI",
+                            
                         "current_solutions": {
                             "manual_analysis": "Manual data analysis",
                             "basic_analytics": "Basic analytics tools",
                             "multiple_platforms": "Multiple disconnected platforms",
                         },
-                        "solution_gaps": "Integrated AI-powered marketing analytics and insights",
+                        "solution_gaps": "Integrated AI - powered marketing analytics and insights",
+                            
                     },
                 ],
             }
@@ -487,19 +511,22 @@ class PainPointIdentifier:
                         "id": str(uuid.uuid4()),
                         "name": "Time Efficiency",
                         "description": f"Managing time effectively in {niche_name} activities",
+                            
                         "severity": "high",
-                        "impact": "Reduced productivity and work-life balance issues",
+                        "impact": "Reduced productivity and work - life balance issues",
                         "current_solutions": {
                             "manual_processes": "Manual time management",
                             "basic_tools": "Basic productivity tools",
                             "outsourcing": "Outsourcing when possible",
                         },
-                        "solution_gaps": "AI-powered automation and time optimization",
+                        "solution_gaps": "AI - powered automation and time optimization",
+                            
                     },
                     {
                         "id": str(uuid.uuid4()),
                         "name": "Quality Consistency",
                         "description": f"Maintaining consistent quality in {niche_name}",
+                            
                         "severity": "medium",
                         "impact": "Inconsistent results and customer satisfaction",
                         "current_solutions": {
@@ -507,7 +534,8 @@ class PainPointIdentifier:
                             "basic_templates": "Basic templates and guidelines",
                             "training": "Staff training and documentation",
                         },
-                        "solution_gaps": "AI-powered quality assurance and standardization",
+                        "solution_gaps": "AI - powered quality assurance and standardization",
+                            
                     },
                 ]
 
@@ -527,16 +555,20 @@ class PainPointIdentifier:
                     pain_points.append(
                         {
                             "id": str(uuid.uuid4()),
-                            "name": f"Problem {i+1}",
+                            "name": f"Problem {i + 1}",
                             "description": problem,
                             "severity": severity_level,
-                            "impact": f"Significant impact on {niche.get('name', 'business')} operations",
+                            "impact": f"Significant impact on {niche.get('name', 
+                                'business')} operations",
                             "current_solutions": {
                                 "manual_processes": "Users currently solve this manually",
-                                "general_tools": "Users currently use general-purpose tools",
+                                    
+                                "general_tools": "Users currently use general - purpose tools",
+                                    
                                 "outsourcing": "Users currently outsource this task",
                             },
-                            "solution_gaps": f"AI-powered solution for {problem.lower()}",
+                            "solution_gaps": f"AI - powered solution for {problem.lower()}",
+                                
                         }
                     )
 
@@ -555,26 +587,29 @@ class PainPointIdentifier:
                             "basic_tools": "Basic productivity tools",
                             "outsourcing": "Outsourcing to specialists",
                         },
-                        "solution_gaps": "AI-powered automation and optimization",
+                        "solution_gaps": "AI - powered automation and optimization",
                     },
                     {
                         "id": str(uuid.uuid4()),
                         "name": "Decision Making",
-                        "description": f"Making data-driven decisions in {niche_name}",
+                        "description": f"Making data - driven decisions in {niche_name}",
+                            
                         "severity": "medium",
                         "impact": "Suboptimal decisions and missed opportunities",
                         "current_solutions": {
-                            "intuition": "Intuition-based decisions",
+                            "intuition": "Intuition - based decisions",
                             "basic_analytics": "Basic analytics tools",
                             "consultants": "Expensive consultants",
                         },
-                        "solution_gaps": "AI-powered decision support and predictive analytics",
+                        "solution_gaps": "AI - powered decision support and predictive analytics",
+                            
                     },
                 ]
 
             return pain_points
 
-    def analyze_pain_point(self, pain_point: Dict[str, Any], niche: str = None) -> Dict[str, Any]:
+    def analyze_pain_point(self, pain_point: Dict[str, Any], 
+        niche: str = None) -> Dict[str, Any]:
         """
         Analyze a specific pain point in detail.
 
@@ -612,20 +647,23 @@ class PainPointIdentifier:
         # Generate potential solutions
         potential_solutions = [
             {
-                "name": f"AI-powered {name.lower()} assistant",
+                "name": f"AI - powered {name.lower()} assistant",
                 "description": f"An AI tool that helps users with {description.lower()}",
+                    
                 "implementation_complexity": "medium",
                 "expected_impact": "high" if severity == "high" else "medium",
             },
             {
                 "name": f"Automated {name.lower()} system",
                 "description": f"A system that automates the process of {description.lower()}",
+                    
                 "implementation_complexity": "high",
                 "expected_impact": "high",
             },
             {
                 "name": f"{name} templates and frameworks",
-                "description": f"Pre-built templates and frameworks for {description.lower()}",
+                "description": f"Pre - built templates and frameworks for {description.lower()}",
+                    
                 "implementation_complexity": "low",
                 "expected_impact": "medium",
             },
@@ -717,7 +755,8 @@ class GoalMapper:
                 # Check if goal keywords appear in feature name or description
                 goal_words = goal.lower().split()
                 for word in goal_words:
-                    if word in feature["name"].lower() or word in feature["description"].lower():
+                    if word in feature["name"].lower() or \
+                        word in feature["description"].lower():
                         relevance += 1
 
                 if relevance > 0:
@@ -773,22 +812,26 @@ class GoalMapper:
             messages["headlines"].append(f"{solution['name']}: The key to {goal}")
 
             # Generate email subjects
-            messages["email_subjects"].append(f"Want to {goal.lower()}? Try {solution['name']}")
+            messages["email_subjects"].append(
+                f"Want to {goal.lower()}? Try {solution['name']}")
             messages["email_subjects"].append(
                 f"How {persona['name']}s are achieving {goal.lower()}"
             )
 
             # Generate social media posts
             messages["social_media"].append(
-                f"Are you struggling to {goal.lower()}? {solution['name']} can help! #AI #Productivity"
+                f"Are you struggling to {goal.lower(
+                    )}? {solution['name']} can help! #AI #Productivity"
             )
             messages["social_media"].append(
-                f"See how {solution['name']} helps {persona['name']}s {goal.lower()} effortlessly. Try it today!"
+                f"See how {solution['name']} helps {persona['name']}s {goal.lower(
+                    )} effortlessly. Try it today!"
             )
 
             # Generate value propositions
             messages["value_propositions"].append(
-                f"{solution['name']} helps {persona['name']}s {goal.lower()} more efficiently"
+                f"{solution['name']} helps {persona['name']}s {goal.lower(
+                    )} more efficiently"
             )
             messages["value_propositions"].append(
                 f"Designed specifically to help you {goal.lower()}"
@@ -871,7 +914,7 @@ class BehaviorAnalyzer:
                 "discount_responsiveness": "high",
                 "value_demonstration_needs": "extensive",
                 "roi_focus": "strong",
-                "recommended_pricing_strategy": "value-based with clear ROI",
+                "recommended_pricing_strategy": "value - based with clear ROI",
                 "upsell_difficulty": "high",
             },
             "medium": {
@@ -885,7 +928,7 @@ class BehaviorAnalyzer:
             },
             "low": {
                 "prefers_free_tier": False,
-                "trial_importance": "nice-to-have",
+                "trial_importance": "nice - to - have",
                 "discount_responsiveness": "low",
                 "value_demonstration_needs": "minimal",
                 "roi_focus": "weak",
@@ -894,7 +937,8 @@ class BehaviorAnalyzer:
             },
         }
 
-        result = sensitivity_patterns.get(price_sensitivity, sensitivity_patterns["medium"])
+        result = sensitivity_patterns.get(price_sensitivity, 
+            sensitivity_patterns["medium"])
         result["price_sensitivity_level"] = price_sensitivity
 
         return result
@@ -941,7 +985,8 @@ class BehaviorAnalyzer:
             recommendations["marketing_recommendations"].append(
                 "Emphasize ROI and cost savings in marketing materials"
             )
-            recommendations["marketing_recommendations"].append("Offer free tier with upgrade path")
+            recommendations["marketing_recommendations"].append(
+                "Offer free tier with upgrade path")
         else:
             recommendations["marketing_recommendations"].append(
                 "Focus on quality and unique features in marketing"

@@ -34,7 +34,8 @@ class TestErrorHandling(unittest.TestCase):
         """Test base error functionality."""
         # Test basic error creation
         error = BaseError(
-            message="Test error", code="test_error", details={"key": "value"}, http_status=400
+            message="Test error", code="test_error", details={"key": "value"}, 
+                http_status=400
         )
 
         self.assertEqual(error.message, "Test error")
@@ -71,7 +72,7 @@ class TestErrorHandling(unittest.TestCase):
         """Test error response formatting."""
         # Create a test request mock
         request = MagicMock()
-        request.url = "/test/endpoint"
+        request.url = " / test / endpoint"
 
         # Test basic error response
         exc = ValueError("Test error")
@@ -79,7 +80,7 @@ class TestErrorHandling(unittest.TestCase):
 
         self.assertEqual(response.message, "Test error")
         self.assertEqual(response.code, "ValueError")
-        self.assertEqual(response.path, "/test/endpoint")
+        self.assertEqual(response.path, " / test / endpoint")
         self.assertTrue(response.timestamp)
 
         # Test error response with details
@@ -97,20 +98,26 @@ class TestErrorHandling(unittest.TestCase):
     def test_http_status_mapping(self):
         """Test HTTP status code mapping for exceptions."""
         # Test standard exceptions
-        self.assertEqual(get_status_code_for_exception(ValueError()), HTTPStatus.BAD_REQUEST)
-        self.assertEqual(get_status_code_for_exception(FileNotFoundError()), HTTPStatus.NOT_FOUND)
-        self.assertEqual(get_status_code_for_exception(PermissionError()), HTTPStatus.FORBIDDEN)
+        self.assertEqual(get_status_code_for_exception(ValueError()), 
+            HTTPStatus.BAD_REQUEST)
+        self.assertEqual(get_status_code_for_exception(FileNotFoundError()), 
+            HTTPStatus.NOT_FOUND)
+        self.assertEqual(get_status_code_for_exception(PermissionError()), 
+            HTTPStatus.FORBIDDEN)
         self.assertEqual(
-            get_status_code_for_exception(NotImplementedError()), HTTPStatus.NOT_IMPLEMENTED
+            get_status_code_for_exception(NotImplementedError()), 
+                HTTPStatus.NOT_IMPLEMENTED
         )
 
         # Test custom exceptions
         validation_error = ValidationError("Invalid input")
-        self.assertEqual(get_status_code_for_exception(validation_error), HTTPStatus.BAD_REQUEST)
+        self.assertEqual(get_status_code_for_exception(validation_error), 
+            HTTPStatus.BAD_REQUEST)
 
         config_error = ConfigurationError("Config error")
         self.assertEqual(
-            get_status_code_for_exception(config_error), HTTPStatus.INTERNAL_SERVER_ERROR
+            get_status_code_for_exception(config_error), 
+                HTTPStatus.INTERNAL_SERVER_ERROR
         )
 
     def test_error_inheritance(self):
@@ -153,7 +160,8 @@ class TestErrorHandling(unittest.TestCase):
     @patch("logging.Logger.error")
     def test_error_logging(self, mock_logger):
         """Test error logging functionality."""
-        error = BaseError(message="Test error", code="test_error", details={"key": "value"})
+        error = BaseError(message="Test error", code="test_error", 
+            details={"key": "value"})
 
         # Test error logging
         error.log()
@@ -169,15 +177,16 @@ class TestErrorHandling(unittest.TestCase):
         response = ErrorResponse(
             message="Test error",
             code="test_error",
-            details=[ErrorDetail(message="Detail message", code="detail_code", field="test_field")],
-            path="/test/path",
+            details=[ErrorDetail(message="Detail message", code="detail_code", 
+                field="test_field")],
+            path=" / test / path",
         )
 
         response_dict = response.to_dict()
         self.assertTrue("error" in response_dict)
         self.assertEqual(response_dict["error"]["message"], "Test error")
         self.assertEqual(response_dict["error"]["code"], "test_error")
-        self.assertEqual(response_dict["error"]["path"], "/test/path")
+        self.assertEqual(response_dict["error"]["path"], " / test / path")
         self.assertTrue(len(response_dict["error"]["details"]) > 0)
 
 

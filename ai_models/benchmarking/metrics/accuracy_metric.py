@@ -21,7 +21,7 @@ class AccuracyMetric(BaseMetric):
         Args:
             **kwargs: Additional parameters for the metric
         """
-        super().__init__(name="accuracy", unit="%", **kwargs)
+        super().__init__(name="accuracy", unit=" % ", **kwargs)
         self.correct = 0
         self.total = 0
 

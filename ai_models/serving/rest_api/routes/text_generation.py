@@ -28,7 +28,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1", tags=["Text Generation"])
+    router = APIRouter(prefix=" / v1", tags=["Text Generation"])
 else:
     router = None
 
@@ -45,7 +45,7 @@ if FASTAPI_AVAILABLE:
         max_tokens: int = Field(100, description="Maximum number of tokens to generate")
         temperature: float = Field(0.7, description="Sampling temperature")
         top_p: float = Field(0.9, description="Nucleus sampling parameter")
-        top_k: int = Field(50, description="Top-k sampling parameter")
+        top_k: int = Field(50, description="Top - k sampling parameter")
         repetition_penalty: float = Field(1.0, description="Repetition penalty")
         stop_sequences: Optional[List[str]] = Field(
             None, description="Sequences that stop generation"
@@ -80,7 +80,7 @@ if FASTAPI_AVAILABLE:
         max_tokens: int = Field(100, description="Maximum number of tokens to generate")
         temperature: float = Field(0.7, description="Sampling temperature")
         top_p: float = Field(0.9, description="Nucleus sampling parameter")
-        top_k: int = Field(50, description="Top-k sampling parameter")
+        top_k: int = Field(50, description="Top - k sampling parameter")
         repetition_penalty: float = Field(1.0, description="Repetition penalty")
         stop_sequences: Optional[List[str]] = Field(
             None, description="Sequences that stop generation"
@@ -102,7 +102,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.post("/completions", response_model=GenerationResponse)
+    @router.post(" / completions", response_model=GenerationResponse)
     async def generate_text(request: GenerationRequest, model=None):
         """
         Generate text from a prompt.
@@ -122,17 +122,17 @@ if FASTAPI_AVAILABLE:
             if request.stream:
                 return StreamingResponse(
                     _stream_text_generation(model, request),
-                    media_type="text/event-stream",
+                    media_type="text / event - stream",
                 )
 
-            # Generate text (non-streaming)
+            # Generate text (non - streaming)
             result = await _generate_text(model, request)
             return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post("/chat/completions", response_model=ChatResponse)
+    @router.post(" / chat / completions", response_model=ChatResponse)
     async def generate_chat_completion(request: ChatRequest, model=None):
         """
         Generate a chat completion.
@@ -152,10 +152,10 @@ if FASTAPI_AVAILABLE:
             if request.stream:
                 return StreamingResponse(
                     _stream_chat_completion(model, request),
-                    media_type="text/event-stream",
+                    media_type="text / event - stream",
                 )
 
-            # Generate chat completion (non-streaming)
+            # Generate chat completion (non - streaming)
             result = await _generate_chat_completion(model, request)
             return result
 

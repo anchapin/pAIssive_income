@@ -19,7 +19,7 @@ from .usage_tracking import (
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -204,7 +204,8 @@ def run_demo():
     print("\nCost breakdown:")
     for item in usage_cost["items"]:
         print(
-            f"- {item['metric']} ({item['category']}, {item['resource_type']}): {item['quantity']} units, ${item['cost']:.2f}"
+            f"- {item['metric']} ({item['category']}, 
+                {item['resource_type']}): {item['quantity']} units, ${item['cost']:.2f}"
         )
 
     print_separator()
@@ -213,7 +214,8 @@ def run_demo():
     token_usage = sum(
         item["quantity"]
         for item in usage_cost["items"]
-        if item["metric"] == UsageMetric.TOKEN and item["category"] == UsageCategory.INFERENCE
+        if item["metric"] == \
+            UsageMetric.TOKEN and item["category"] == UsageCategory.INFERENCE
     )
 
     print(f"Detailed cost breakdown for {token_usage} tokens (inference):")
@@ -294,7 +296,8 @@ def run_demo():
     print("\nCost breakdown:")
     for item in estimated_cost["items"]:
         print(
-            f"- {item['metric']} ({item['category']}): {item['quantity']} units, ${item['cost']:.2f}"
+            f"- {item['metric']} ({item['category']}): {item['quantity']} units, 
+                ${item['cost']:.2f}"
         )
 
     print_separator()

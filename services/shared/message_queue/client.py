@@ -22,7 +22,7 @@ from .message import Message, MessagePriority, MessageStatus, MessageType
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class MessageQueueClient:
         port: int = 5672,
         username: str = "guest",
         password: str = "guest",
-        virtual_host: str = "/",
+        virtual_host: str = " / ",
         service_name: str = "unknown",
         exchange_type: str = "topic",
         exchange_name: str = "paissive_income",
@@ -193,13 +193,13 @@ class MessageQueueClient:
             message.status = MessageStatus.PUBLISHED
 
             # Convert message to bytes
-            message_bytes = message.to_json().encode("utf-8")
+            message_bytes = message.to_json().encode("utf - 8")
 
             # Set message properties
             properties = pika.BasicProperties(
-                content_type="application/json",
-                content_encoding="utf-8",
-                delivery_mode=2 if persistent else 1,  # 2 = persistent, 1 = non-persistent
+                content_type="application / json",
+                content_encoding="utf - 8",
+                delivery_mode=2 if persistent else 1,  # 2 = persistent, 1 = non - persistent
                 priority=message.priority.value,
                 message_id=message.id,
                 correlation_id=message.correlation_id,
@@ -335,7 +335,7 @@ class MessageQueueClient:
             def on_message(ch, method, properties, body):
                 try:
                     # Parse the message
-                    message_dict = json.loads(body.decode("utf-8"))
+                    message_dict = json.loads(body.decode("utf - 8"))
                     message = Message.from_dict(message_dict)
 
                     # Set message status to DELIVERED
@@ -505,7 +505,7 @@ class AsyncMessageQueueClient:
         port: int = 5672,
         username: str = "guest",
         password: str = "guest",
-        virtual_host: str = "/",
+        virtual_host: str = " / ",
         service_name: str = "unknown",
         exchange_type: str = "topic",
         exchange_name: str = "paissive_income",
@@ -646,7 +646,7 @@ class AsyncMessageQueueClient:
             message.status = MessageStatus.PUBLISHED
 
             # Convert message to bytes
-            message_bytes = message.to_json().encode("utf-8")
+            message_bytes = message.to_json().encode("utf - 8")
 
             # Get the exchange
             exchange = await self.channel.get_exchange(self.exchange_name)
@@ -654,8 +654,8 @@ class AsyncMessageQueueClient:
             # Set message properties
             properties = aio_pika.Message(
                 body=message_bytes,
-                content_type="application/json",
-                content_encoding="utf-8",
+                content_type="application / json",
+                content_encoding="utf - 8",
                 delivery_mode=(
                     aio_pika.DeliveryMode.PERSISTENT
                     if persistent
@@ -799,7 +799,7 @@ class AsyncMessageQueueClient:
                 async with message.process(auto_ack=auto_ack):
                     try:
                         # Parse the message
-                        message_dict = json.loads(message.body.decode("utf-8"))
+                        message_dict = json.loads(message.body.decode("utf - 8"))
                         msg = Message.from_dict(message_dict)
 
                         # Set message status to DELIVERED

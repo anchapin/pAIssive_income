@@ -2,7 +2,7 @@
 Middleware for the API Gateway service.
 
 This module provides middleware for the API Gateway service,
-including authentication, rate limiting, and other cross-cutting concerns.
+including authentication, rate limiting, and other cross - cutting concerns.
 """
 
 import logging
@@ -17,16 +17,16 @@ from services.shared.auth import ServiceTokenError, validate_service_token
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 class ServiceAuthMiddleware(BaseHTTPMiddleware):
     """
-    Middleware for service-to-service authentication.
+    Middleware for service - to - service authentication.
 
-    This middleware validates JWT tokens for service-to-service communication.
+    This middleware validates JWT tokens for service - to - service communication.
     """
 
     def __init__(self, app, exclude_paths: Optional[List[str]] = None, require_auth: bool = True):
@@ -59,7 +59,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Get service token from header
-        service_token = request.headers.get("X-Service-Token")
+        service_token = request.headers.get("X - Service - Token")
 
         # If token is not provided
         if not service_token:
@@ -74,8 +74,8 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
 
         try:
             # Validate the service token
-            # The audience is "api-gateway" since we're validating tokens sent to the API Gateway
-            token_payload = validate_service_token(token=service_token, audience="api-gateway")
+            # The audience is "api - gateway" since we're validating tokens sent to the API Gateway
+            token_payload = validate_service_token(token=service_token, audience="api - gateway")
 
             # Add the token payload to the request state
             request.state.service_token = token_payload
@@ -153,7 +153,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             client_id = request.state.service_token.iss
         else:
             # Otherwise, use the API key or IP address
-            client_id = request.headers.get("X-API-Key", request.client.host)
+            client_id = request.headers.get("X - API - Key", request.client.host)
 
         # Get current time
         current_time = time.time()

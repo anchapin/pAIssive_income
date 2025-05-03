@@ -1,8 +1,8 @@
 """
-Integration tests for the user persona → content strategy → A/B testing workflow.
+Integration tests for the user persona → content strategy → A / B testing workflow.
 
 This module tests the complete workflow from user persona creation through content
-strategy development to A/B testing of content.
+strategy development to A / B testing of content.
 """
 
 from unittest.mock import MagicMock, patch
@@ -48,7 +48,7 @@ def tone_analyzer():
 
 @pytest.fixture
 def ab_testing():
-    """Create an A/B testing instance for testing."""
+    """Create an A / B testing instance for testing."""
     return ABTesting()
 
 
@@ -68,13 +68,13 @@ def test_persona_to_content_to_ab_testing_workflow(
     persona_creator, content_generator, style_adjuster, tone_analyzer, ab_testing, market_analyzer
 ):
     """
-    Test the complete workflow from user persona to A/B testing.
+    Test the complete workflow from user persona to A / B testing.
 
     This test verifies that:
     1. User personas can be created based on market analysis
     2. Content can be generated for specific personas
     3. Content can be adjusted for different tones and styles
-    4. A/B tests can be created to test different content variations
+    4. A / B tests can be created to test different content variations
     5. Test results can be analyzed
     """
     # Step 1: Analyze target users for a niche
@@ -164,7 +164,7 @@ def test_persona_to_content_to_ab_testing_workflow(
                 )
 
         # Create variations with different styles
-        styles = ["direct", "storytelling", "question-based"]
+        styles = ["direct", "storytelling", "question - based"]
         for style in styles:
             if style != "direct":  # Skip the original style
                 style_variation = style_adjuster.adjust_style(
@@ -183,7 +183,7 @@ def test_persona_to_content_to_ab_testing_workflow(
     # Verify variation creation
     assert len(variations) > 0
 
-    # Step 5: Create A/B tests for each persona with its content variations
+    # Step 5: Create A / B tests for each persona with its content variations
     tests = []
     for persona in personas:
         # Get the original content for this persona
@@ -194,7 +194,7 @@ def test_persona_to_content_to_ab_testing_workflow(
         # Get variations for this persona
         persona_variations = [var for var in variations if var["persona_id"] == persona["id"]]
 
-        # Create variants for the A/B test
+        # Create variants for the A / B test
         variants = [{"name": "Control", "is_control": True, "content": original_content}]
 
         for var in persona_variations:
@@ -205,7 +205,7 @@ def test_persona_to_content_to_ab_testing_workflow(
             }
             variants.append(variant)
 
-        # Create the A/B test
+        # Create the A / B test
         test = ab_testing.create_test(
             name=f"Content Test for {persona['name']}",
             description=f"Testing content variations for {persona['segment']} persona",
@@ -237,9 +237,9 @@ def test_persona_to_content_to_ab_testing_workflow(
             base_impressions = 1000
             if "age_range" in persona.get("demographics", {}):
                 age_range = persona["demographics"]["age_range"]
-                if "18-24" in age_range:
+                if "18 - 24" in age_range:
                     base_impressions = 1500  # More impressions for younger audience
-                elif "55+" in age_range:
+                elif "55 + " in age_range:
                     base_impressions = 800  # Fewer impressions for older audience
 
             # Simulate impressions
@@ -254,7 +254,7 @@ def test_persona_to_content_to_ab_testing_workflow(
                 variant_name = variant["name"]
                 if "Tone" in variant_name:
                     tone = variant_name.split(" - ")[1]
-                    # Adjust conversion rate based on persona-tone match
+                    # Adjust conversion rate based on persona - tone match
                     if "professional" in persona.get("psychographics", {}).get(
                         "communication_preference", ""
                     ):
@@ -271,7 +271,7 @@ def test_persona_to_content_to_ab_testing_workflow(
                             base_conversion_rate *= 0.9
                 elif "Style" in variant_name:
                     style = variant_name.split(" - ")[1]
-                    # Adjust conversion rate based on persona-style match
+                    # Adjust conversion rate based on persona - style match
                     if "direct" in persona.get("psychographics", {}).get("decision_making", ""):
                         if style == "direct":
                             base_conversion_rate *= 1.2
@@ -307,7 +307,7 @@ def test_persona_to_multichannel_content_strategy(
     persona_creator, content_generator, channel_strategy, market_analyzer
 ):
     """
-    Test the workflow for creating a multi-channel content strategy based on personas.
+    Test the workflow for creating a multi - channel content strategy based on personas.
 
     This test verifies that:
     1. User personas can be created based on market analysis
@@ -386,8 +386,8 @@ def test_persona_to_multichannel_content_strategy(
     content_calendar = channel_strategy.create_content_calendar(
         personas=personas,
         content_strategy=content_strategy,
-        start_date="2023-01-01",
-        end_date="2023-03-31",
+        start_date="2023 - 01 - 01",
+        end_date="2023 - 03 - 31",
     )
 
     # Verify content calendar

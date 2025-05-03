@@ -50,7 +50,8 @@ class AnalysisBatchProcessor(Generic[T, R]):
     Specialized batch processor for data analysis tasks.
     """
 
-    def __init__(self, processor_func: Callable[[T], R], config: AnalysisBatchConfig = None):
+    def __init__(self, processor_func: Callable[[T], R], 
+        config: AnalysisBatchConfig = None):
         """
         Initialize the analysis batch processor.
 
@@ -67,7 +68,8 @@ class AnalysisBatchProcessor(Generic[T, R]):
             timeout=self.config.timeout,
         )
 
-    def process_dataset(self, items: List[T], batch_size: int = None) -> BatchResult[T, R]:
+    def process_dataset(self, items: List[T], batch_size: int = None) -> BatchResult[T, 
+        R]:
         """
         Process a dataset in batches.
 
@@ -176,18 +178,20 @@ class AnalysisBatchProcessor(Generic[T, R]):
         random_state: int = None,
     ) -> Dict[str, Any]:
         """
-        Perform cross-validation on a dataset.
+        Perform cross - validation on a dataset.
 
         Args:
             items: Dataset items
             labels: Labels for the items
-            model_func: Function that takes (train_items, train_labels) and returns a model
-            eval_func: Function that takes (model, test_items, test_labels) and returns a score
-            n_splits: Number of cross-validation splits
+            model_func: Function that takes (train_items, 
+                train_labels) and returns a model
+            eval_func: Function that takes (model, test_items, 
+                test_labels) and returns a score
+            n_splits: Number of cross - validation splits
             random_state: Seed for random number generator
 
         Returns:
-            Dictionary with cross-validation results
+            Dictionary with cross - validation results
         """
         if random_state is not None:
             np.random.seed(random_state)
@@ -199,7 +203,7 @@ class AnalysisBatchProcessor(Generic[T, R]):
         # Calculate fold size
         fold_size = len(items) // n_splits
 
-        # Perform cross-validation
+        # Perform cross - validation
         scores = []
         fold_results = []
 
@@ -210,7 +214,8 @@ class AnalysisBatchProcessor(Generic[T, R]):
             test_indices = indices[start_idx:end_idx]
 
             # Create train indices (all indices not in test)
-            train_indices = np.array([idx for idx in indices if idx not in test_indices])
+            train_indices = \
+                np.array([idx for idx in indices if idx not in test_indices])
 
             # Split data
             train_items = [items[i] for i in train_indices]

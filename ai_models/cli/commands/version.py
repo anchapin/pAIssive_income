@@ -1,7 +1,7 @@
 """
-Version command for the command-line interface.
+Version command for the command - line interface.
 
-This module provides the version command for the command-line interface.
+This module provides the version command for the command - line interface.
 """
 
 import argparse
@@ -14,7 +14,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class VersionCommand(BaseCommand):
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments.
+        Add command - specific arguments.
 
         Args:
             parser: Argument parser
@@ -46,7 +46,7 @@ class VersionCommand(BaseCommand):
         create_parser.add_argument("model_id", help="ID of the model")
         create_parser.add_argument("version", help="Version string (e.g., '1.0.0')")
         create_parser.add_argument(
-            "--features", nargs="+", help="Features supported by this version"
+            "--features", nargs=" + ", help="Features supported by this version"
         )
 
         # Get version subcommand

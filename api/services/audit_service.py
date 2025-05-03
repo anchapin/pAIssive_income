@@ -1,5 +1,5 @@
 """
-Audit service for tracking security-related events.
+Audit service for tracking security - related events.
 
 This module provides services for recording and retrieving audit logs.
 """
@@ -127,7 +127,7 @@ class AuditService:
             storage_path: Path to the storage file
         """
         self.storage_path = storage_path or os.path.join(
-            os.path.dirname(__file__), "../data/audit_logs.json"
+            os.path.dirname(__file__), "../data / audit_logs.json"
         )
         self.audit_events: List[AuditEvent] = []
 

@@ -1,7 +1,7 @@
 """
 Socket.IO integration for the pAIssive Income UI.
 
-This module provides real-time updates for long-running tasks and
+This module provides real - time updates for long - running tasks and
 user interactions using Socket.IO.
 """
 
@@ -93,7 +93,8 @@ class SocketIONamespace(Namespace):
                 emit("status", status)
                 logger.debug(f"Status sent for task {task_id}: {status}")
             except Exception as e:
-                error_data = {"task_id": task_id, "error": str(e), "type": "status_error"}
+                error_data = {"task_id": task_id, "error": str(e), 
+                    "type": "status_error"}
                 emit("error", error_data)
                 logger.error(f"Error getting status for task {task_id}: {e}")
 
@@ -160,13 +161,13 @@ def init_socketio(app: Flask, async_mode: Optional[str] = None) -> SocketIO:
     socketio = SocketIO(
         app,
         async_mode=async_mode,
-        cors_allowed_origins="*",  # Configure as needed
+        cors_allowed_origins=" * ",  # Configure as needed
         logger=True,
         engineio_logger=True,
     )
 
     # Register namespace
-    socketio.on_namespace(SocketIONamespace("/"))
+    socketio.on_namespace(SocketIONamespace(" / "))
 
     # Register error handler
     @socketio.on_error_default

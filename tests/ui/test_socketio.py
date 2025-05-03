@@ -206,7 +206,7 @@ class TestSocketIOIntegration:
             {
                 "name": "model_update",
                 "data": {
-                    "model_id": "gpt-4",
+                    "model_id": "gpt - 4",
                     "status": "ready",
                     "capabilities": ["text", "chat", "embeddings"],
                 },
@@ -232,14 +232,14 @@ class TestSocketIOIntegration:
 
         # Create Socket.IO instance with custom namespace
         socketio = SocketIO(mock_app)
-        socketio.on_namespace(TestNamespace("/test"))
+        socketio.on_namespace(TestNamespace(" / test"))
 
         # Create test client with custom namespace
-        client = socketio.test_client(mock_app, namespace="/test")
+        client = socketio.test_client(mock_app, namespace=" / test")
 
         # Test custom event handling
-        client.emit("custom_event", {"test": "data"}, namespace="/test")
-        received = client.get_received(namespace="/test")
+        client.emit("custom_event", {"test": "data"}, namespace=" / test")
+        received = client.get_received(namespace=" / test")
         assert len(received) == 1
         assert received[0]["name"] == "custom_response"
         assert received[0]["args"][0]["received"] == {"test": "data"}

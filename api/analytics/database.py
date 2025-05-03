@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 DB_SCHEMA_VERSION = "1.0"
-DEFAULT_DB_PATH = os.path.expanduser("~/.paissive_income/api_analytics.db")
+DEFAULT_DB_PATH = os.path.expanduser("~/.paissive_income / api_analytics.db")
 DEFAULT_ANALYTICS_RETENTION_DAYS = 365  # Keep analytics for 1 year by default
 
 
@@ -218,7 +218,7 @@ class AnalyticsDatabase:
         Update daily aggregated metrics for a specific date.
 
         Args:
-            date: Date string in YYYY-MM-DD format
+            date: Date string in YYYY - MM - DD format
         """
         with self._lock:
             cursor = self.conn.cursor()
@@ -421,8 +421,8 @@ class AnalyticsDatabase:
         Get daily aggregated metrics.
 
         Args:
-            start_date: Start date in YYYY-MM-DD format
-            end_date: End date in YYYY-MM-DD format
+            start_date: Start date in YYYY - MM - DD format
+            end_date: End date in YYYY - MM - DD format
             endpoint: Filter by endpoint
             version: Filter by API version
 
@@ -466,8 +466,8 @@ class AnalyticsDatabase:
         Get user metrics.
 
         Args:
-            start_date: Start date in YYYY-MM-DD format
-            end_date: End date in YYYY-MM-DD format
+            start_date: Start date in YYYY - MM - DD format
+            end_date: End date in YYYY - MM - DD format
             user_id: Filter by user ID
 
         Returns:
@@ -521,8 +521,8 @@ class AnalyticsDatabase:
         Get API key metrics.
 
         Args:
-            start_date: Start date in YYYY-MM-DD format
-            end_date: End date in YYYY-MM-DD format
+            start_date: Start date in YYYY - MM - DD format
+            end_date: End date in YYYY - MM - DD format
             api_key_id: Filter by API key ID
 
         Returns:
@@ -576,8 +576,8 @@ class AnalyticsDatabase:
         Get aggregated statistics for each endpoint.
 
         Args:
-            start_date: Start date in YYYY-MM-DD format
-            end_date: End date in YYYY-MM-DD format
+            start_date: Start date in YYYY - MM - DD format
+            end_date: End date in YYYY - MM - DD format
 
         Returns:
             List of endpoint statistics dictionaries
@@ -641,7 +641,7 @@ class AnalyticsDatabase:
             request_count = cursor.rowcount
 
             # Delete old daily metrics
-            threshold_day = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+            threshold_day = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
             cursor.execute("DELETE FROM daily_metrics WHERE date < ?", (threshold_day,))
             metrics_count = cursor.rowcount
 

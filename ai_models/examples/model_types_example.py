@@ -17,7 +17,7 @@ from ai_models.model_types import AudioModel, ONNXModel, QuantizedModel, VisionM
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def test_onnx_model(model_path: str, input_text: str) -> None:
 
     try:
         # Create ONNX model
-        model = ONNXModel(model_path=model_path, model_type="text-generation")
+        model = ONNXModel(model_path=model_path, model_type="text - generation")
 
         # Load the model
         model.load()
@@ -74,7 +74,7 @@ def test_quantized_model(model_path: str, input_text: str) -> None:
     try:
         # Create quantized model
         model = QuantizedModel(
-            model_path=model_path, model_type="text-generation", quantization="4bit"
+            model_path=model_path, model_type="text - generation", quantization="4bit"
         )
 
         # Load the model
@@ -109,7 +109,7 @@ def test_vision_model(model_path: str, image_path: str) -> None:
 
     try:
         # Create vision model
-        model = VisionModel(model_path=model_path, model_type="image-classification")
+        model = VisionModel(model_path=model_path, model_type="image - classification")
 
         # Load the model
         model.load()
@@ -156,7 +156,7 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
             print("\nTesting Speech Recognition:")
 
             # Create audio model for speech recognition
-            model = AudioModel(model_path=model_path, model_type="speech-recognition")
+            model = AudioModel(model_path=model_path, model_type="speech - recognition")
 
             # Load the model
             model.load()
@@ -174,11 +174,11 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
         else:
             print(f"\nAudio file not found: {audio_path}")
 
-        # Test text-to-speech
-        print("\nTesting Text-to-Speech:")
+        # Test text - to - speech
+        print("\nTesting Text - to - Speech:")
 
-        # Create audio model for text-to-speech
-        model = AudioModel(model_path=model_path, model_type="text-to-speech")
+        # Create audio model for text - to - speech
+        model = AudioModel(model_path=model_path, model_type="text - to - speech")
 
         # Load the model
         model.load()
@@ -214,7 +214,7 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
             print("\nTesting Audio Classification:")
 
             # Create audio model for audio classification
-            model = AudioModel(model_path=model_path, model_type="audio-classification")
+            model = AudioModel(model_path=model_path, model_type="audio - classification")
 
             # Load the model
             model.load()
@@ -254,22 +254,22 @@ def main():
     """
     parser = argparse.ArgumentParser(description="Test different model types")
     parser.add_argument(
-        "--model-type",
+        "--model - type",
         type=str,
         choices=["onnx", "quantized", "vision", "audio"],
         help="Type of model to test",
     )
-    parser.add_argument("--model-path", type=str, help="Path to the model")
+    parser.add_argument("--model - path", type=str, help="Path to the model")
     parser.add_argument(
-        "--input-text",
+        "--input - text",
         type=str,
         default="Hello, world!",
         help="Input text for text generation",
     )
-    parser.add_argument("--image-path", type=str, help="Path to an image file for vision models")
-    parser.add_argument("--audio-path", type=str, help="Path to an audio file for audio models")
+    parser.add_argument("--image - path", type=str, help="Path to an image file for vision models")
+    parser.add_argument("--audio - path", type=str, help="Path to an audio file for audio models")
     parser.add_argument(
-        "--output-path",
+        "--output - path",
         type=str,
         default="output.wav",
         help="Path to save synthesized speech",
@@ -284,7 +284,7 @@ def main():
 
     # Check if model path is provided
     if not args.model_path:
-        print("Error: --model-path is required")
+        print("Error: --model - path is required")
         return
 
     # Test the specified model type
@@ -294,12 +294,12 @@ def main():
         test_quantized_model(args.model_path, args.input_text)
     elif args.model_type == "vision":
         if not args.image_path:
-            print("Error: --image-path is required for vision models")
+            print("Error: --image - path is required for vision models")
             return
         test_vision_model(args.model_path, args.image_path)
     elif args.model_type == "audio":
         if not args.audio_path:
-            print("Error: --audio-path is required for audio models")
+            print("Error: --audio - path is required for audio models")
             return
         test_audio_model(args.model_path, args.audio_path, args.output_path, args.input_text)
 

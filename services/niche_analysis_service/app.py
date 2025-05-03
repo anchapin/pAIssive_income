@@ -26,7 +26,7 @@ from services.service_discovery.registration import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -40,10 +40,10 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=[" * "],  # In production, replace with specific origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=[" * "],
+    allow_headers=[" * "],
 )
 
 # Global variables
@@ -82,19 +82,19 @@ class OpportunityResponse(BaseModel):
 
 
 # Routes
-@app.get("/")
+@app.get(" / ")
 async def root():
     """Root endpoint for Niche Analysis Service."""
     return {"message": "pAIssive Income Niche Analysis Service", "status": "running"}
 
 
-@app.get("/api/status")
+@app.get(" / api / status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "niche-analysis-service"}
+    return {"status": "ok", "version": "1.0.0", "service": "niche - analysis - service"}
 
 
-@app.post("/api/niches/analyze", response_model=NicheResponse)
+@app.post(" / api / niches / analyze", response_model=NicheResponse)
 async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTasks):
     """Analyze potential niches based on market segments."""
     import uuid
@@ -122,7 +122,7 @@ async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTask
         )
 
 
-@app.post("/api/niches/opportunities", response_model=OpportunityResponse)
+@app.post(" / api / niches / opportunities", response_model=OpportunityResponse)
 async def analyze_opportunities(request: OpportunityRequest, background_tasks: BackgroundTasks):
     """Analyze opportunities for a specific niche."""
     import uuid
@@ -154,7 +154,7 @@ async def analyze_opportunities(request: OpportunityRequest, background_tasks: B
         )
 
 
-@app.get("/health")
+@app.get(" / health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
@@ -207,10 +207,10 @@ def register_with_service_registry(port: int):
     # Register service
     service_registration = register_service(
         app=app,
-        service_name="niche-analysis-service",
+        service_name="niche - analysis - service",
         port=port,
         version="1.0.0",
-        health_check_path="/health",
+        health_check_path=" / health",
         check_functions=[check_service_health],
         tags=tags,
         metadata=metadata,

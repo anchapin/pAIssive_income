@@ -28,7 +28,7 @@ class APITestClient:
         """
         self.client = client
         self.headers = headers or {}
-        self.base_url = "/api/v1"  # Default to v1
+        self.base_url = " / api / v1"  # Default to v1
 
     def set_version(self, version: str) -> None:
         """
@@ -37,7 +37,7 @@ class APITestClient:
         Args:
             version: API version (e.g., "v1", "v2")
         """
-        self.base_url = f"/api/{version}"
+        self.base_url = f" / api/{version}"
 
     def get(
         self,
@@ -56,7 +56,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}"
+        url = f"{self.base_url}/{path.lstrip(' / ')}"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.get(url, params=params, headers=request_headers)
 
@@ -79,7 +79,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}"
+        url = f"{self.base_url}/{path.lstrip(' / ')}"
         request_headers = {**self.headers, **(headers or {})}
         if json is not None:
             return self.client.post(url, json=json, headers=request_headers)
@@ -102,7 +102,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}"
+        url = f"{self.base_url}/{path.lstrip(' / ')}"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.put(url, json=data, headers=request_headers)
 
@@ -123,7 +123,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}"
+        url = f"{self.base_url}/{path.lstrip(' / ')}"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.patch(url, json=data, headers=request_headers)
 
@@ -138,7 +138,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}"
+        url = f"{self.base_url}/{path.lstrip(' / ')}"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.delete(url, headers=request_headers)
 
@@ -156,7 +156,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}/bulk"
+        url = f"{self.base_url}/{path.lstrip(' / ')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.post(url, json={"items": items}, headers=request_headers)
 
@@ -174,7 +174,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}/bulk"
+        url = f"{self.base_url}/{path.lstrip(' / ')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.put(url, json={"items": items}, headers=request_headers)
 
@@ -192,7 +192,7 @@ class APITestClient:
         Returns:
             Response from the API
         """
-        url = f"{self.base_url}/{path.lstrip('/')}/bulk"
+        url = f"{self.base_url}/{path.lstrip(' / ')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
         return self.client.delete(url, json={"ids": ids}, headers=request_headers)
 

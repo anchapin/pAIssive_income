@@ -25,7 +25,7 @@ from tests.api.utils.test_data import (
 @pytest.fixture
 def auth_api_test_client():
     """Create an authenticated API test client."""
-    client = APITestClient(base_url="http://localhost:8000/api")
+    client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
 
@@ -66,7 +66,7 @@ class TestWebhookAPIIntegration:
         """Test webhook registration."""
         # Create webhook subscription
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook",
+            url="https://example.com / webhook",
             events=["niche.created", "solution.created"],
             secret="test_webhook_secret",
         )
@@ -95,7 +95,7 @@ class TestWebhookAPIIntegration:
         """Test webhook event triggering."""
         # Create webhook subscription
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook",
+            url="https://example.com / webhook",
             events=["niche.created"],
             secret="test_webhook_secret",
         )
@@ -110,7 +110,7 @@ class TestWebhookAPIIntegration:
 
         # Create a niche analysis (should trigger the webhook)
         niche_data = generate_niche_analysis_data()
-        response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+        response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -133,7 +133,7 @@ class TestWebhookAPIIntegration:
         # Create webhook subscription
         webhook_secret = "test_webhook_secret"
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook", events=["niche.created"], secret=webhook_secret
+            url="https://example.com / webhook", events=["niche.created"], secret=webhook_secret
         )
         response = auth_api_test_client.post("webhooks", webhook_data)
 
@@ -150,14 +150,14 @@ class TestWebhookAPIIntegration:
                 signature = hmac.new(webhook_secret.encode(), payload, hashlib.sha256).hexdigest()
 
                 # Send to mock server
-                headers = {"X-Webhook-Signature": signature, "X-Webhook-Event": event_type}
+                headers = {"X - Webhook - Signature": signature, "X - Webhook - Event": event_type}
                 return mock_webhook_server.receive_event(event_data, headers)
 
             mock_send_event.side_effect = side_effect
 
             # Create a niche analysis (should trigger the webhook)
             niche_data = generate_niche_analysis_data()
-            response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+            response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
             # If the endpoint returns 404 or 501, skip the test
             if response.status_code in (404, 501):
@@ -172,14 +172,14 @@ class TestWebhookAPIIntegration:
             # Verify that the mock server received the event
             assert len(mock_webhook_server.received_events) == 1
             received_event = mock_webhook_server.received_events[0]
-            assert received_event["headers"]["X-Webhook-Event"] == "niche.created"
+            assert received_event["headers"]["X - Webhook - Event"] == "niche.created"
             assert received_event["event_data"]["id"] == niche_result["id"]
 
     def test_webhook_delivery_retry(self, auth_api_test_client):
         """Test webhook delivery retry mechanism."""
         # Create webhook subscription
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook",
+            url="https://example.com / webhook",
             events=["solution.created"],
             secret="test_webhook_secret",
         )
@@ -200,7 +200,7 @@ class TestWebhookAPIIntegration:
 
             # Create a solution (should trigger the webhook)
             solution_data = generate_solution_data()
-            response = auth_api_test_client.post("solutions/develop", solution_data)
+            response = auth_api_test_client.post("solutions / develop", solution_data)
 
             # If the endpoint returns 404 or 501, skip the test
             if response.status_code in (404, 501):
@@ -211,7 +211,7 @@ class TestWebhookAPIIntegration:
 
             # Check webhook delivery status
             time.sleep(1)  # Wait for retries to complete
-            response = auth_api_test_client.get("webhooks/deliveries")
+            response = auth_api_test_client.get("webhooks / deliveries")
             deliveries = self.validate_success_response(response)
 
             # Find the delivery for our event
@@ -232,7 +232,7 @@ class TestWebhookAPIIntegration:
         """Test webhook event filtering."""
         # Create webhook subscription for niche events only
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook1",
+            url="https://example.com / webhook1",
             events=["niche.created", "niche.updated"],
             secret="test_webhook_secret1",
         )
@@ -244,7 +244,7 @@ class TestWebhookAPIIntegration:
 
         # Create webhook subscription for solution events only
         webhook_data = generate_webhook_data(
-            url="https://example.com/webhook2",
+            url="https://example.com / webhook2",
             events=["solution.created", "solution.updated"],
             secret="test_webhook_secret2",
         )
@@ -254,7 +254,7 @@ class TestWebhookAPIIntegration:
         with patch("services.webhook.WebhookService.send_event") as mock_send_event:
             # Create a niche analysis (should trigger only the first webhook)
             niche_data = generate_niche_analysis_data()
-            response = auth_api_test_client.post("niche-analysis/analyze", niche_data)
+            response = auth_api_test_client.post("niche - analysis / analyze", niche_data)
 
             # If the endpoint returns 404 or 501, skip the test
             if response.status_code in (404, 501):
@@ -262,7 +262,7 @@ class TestWebhookAPIIntegration:
 
             # Create a solution (should trigger only the second webhook)
             solution_data = generate_solution_data()
-            response = auth_api_test_client.post("solutions/develop", solution_data)
+            response = auth_api_test_client.post("solutions / develop", solution_data)
 
             # If the endpoint returns 404 or 501, skip the test
             if response.status_code in (404, 501):
@@ -274,13 +274,13 @@ class TestWebhookAPIIntegration:
             # Check the first call (niche.created)
             first_call = mock_send_event.call_args_list[0]
             assert first_call[0][0] == "niche.created"
-            assert first_call[0][2] == "https://example.com/webhook1"
+            assert first_call[0][2] == "https://example.com / webhook1"
 
             # Check the second call (solution.created)
             second_call = mock_send_event.call_args_list[1]
             assert second_call[0][0] == "solution.created"
-            assert second_call[0][2] == "https://example.com/webhook2"
+            assert second_call[0][2] == "https://example.com / webhook2"
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_webhook_api_integration.py"])
+    pytest.main([" - v", "test_webhook_api_integration.py"])

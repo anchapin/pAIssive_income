@@ -16,7 +16,7 @@ from ai_models.caching import (
 )
 
 # Test data
-TEST_MODEL_ID = "test-model"
+TEST_MODEL_ID = "test - model"
 TEST_OPERATION = "generate"
 TEST_INPUT = "Hello, world!"
 TEST_PARAMS = {"temperature": 0.7, "max_tokens": 100}
@@ -174,7 +174,7 @@ def test_cache_persistence(disk_cache_config):
 
 
 def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
-    """Test SQLite-specific cache features."""
+    """Test SQLite - specific cache features."""
     cache = CacheManager(sqlite_cache_config)
 
     # Test basic operations
@@ -228,12 +228,12 @@ def test_cache_statistics(memory_cache_config):
 
 
 def test_cache_enabled_flag(memory_cache_config):
-    """Test cache enabled/disabled functionality."""
+    """Test cache enabled / disabled functionality."""
     # Disable cache
     memory_cache_config.enabled = False
     cache = CacheManager(memory_cache_config)
 
-    # Cache operations should be no-ops when disabled
+    # Cache operations should be no - ops when disabled
     cache.set(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_RESPONSE)
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT)
     assert result is None

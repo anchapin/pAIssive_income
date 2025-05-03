@@ -19,7 +19,7 @@ def strategy_generator():
         goals=["brand_awareness", "lead_generation"],
         target_audience={
             "demographics": {
-                "age_range": "25-45",
+                "age_range": "25 - 45",
                 "gender": "all",
                 "location": "global",
                 "income_level": "middle to high",

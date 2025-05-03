@@ -27,11 +27,11 @@ TEST_DURATION_SECONDS = 60  # Duration of the load test in seconds
 
 # Mock server configuration
 MOCK_SERVERS = [
-    {"url": "https://server1.example.com/webhook", "avg_response_time": 0.05, "error_rate": 0.01},
-    {"url": "https://server2.example.com/webhook", "avg_response_time": 0.1, "error_rate": 0.05},
-    {"url": "https://server3.example.com/webhook", "avg_response_time": 0.2, "error_rate": 0.1},
-    {"url": "https://server4.example.com/webhook", "avg_response_time": 0.5, "error_rate": 0.2},
-    {"url": "https://server5.example.com/webhook", "avg_response_time": 1.0, "error_rate": 0.3},
+    {"url": "https://server1.example.com / webhook", "avg_response_time": 0.05, "error_rate": 0.01},
+    {"url": "https://server2.example.com / webhook", "avg_response_time": 0.1, "error_rate": 0.05},
+    {"url": "https://server3.example.com / webhook", "avg_response_time": 0.2, "error_rate": 0.1},
+    {"url": "https://server4.example.com / webhook", "avg_response_time": 0.5, "error_rate": 0.2},
+    {"url": "https://server5.example.com / webhook", "avg_response_time": 1.0, "error_rate": 0.3},
 ]
 
 
@@ -125,7 +125,7 @@ class LoadTestEnvironment:
                     WebhookEventType.SUBSCRIPTION_CREATED,
                 ],
                 "description": f"Load test webhook {i}",
-                "headers": {"Authorization": f"Bearer test-token-{i}"},
+                "headers": {"Authorization": f"Bearer test - token-{i}"},
                 "is_active": True,
             }
 

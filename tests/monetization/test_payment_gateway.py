@@ -43,7 +43,7 @@ class TestPaymentGateway:
             "customer1": {
                 "id": "customer1",
                 "name": "Test Customer 1",
-                "email": "customer1@example.com",
+                "email": "customer1 @ example.com",
                 "payment_methods": [
                     {
                         "id": "pm_card_visa",
@@ -61,7 +61,7 @@ class TestPaymentGateway:
             "customer2": {
                 "id": "customer2",
                 "name": "Test Customer 2",
-                "email": "customer2@example.com",
+                "email": "customer2 @ example.com",
                 "payment_methods": [
                     {
                         "id": "pm_bank_account",
@@ -111,7 +111,7 @@ class TestPaymentGateway:
         customer = self.test_customers[customer_id]
         payment_method = customer["payment_methods"][0]
 
-        # Test one-time payment
+        # Test one - time payment
         payment_amount = Decimal("25.99")
         payment_currency = "USD"
         payment_description = "Test payment"
@@ -516,4 +516,4 @@ class TestPaymentGateway:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_payment_gateway.py"])
+    pytest.main([" - v", "test_payment_gateway.py"])

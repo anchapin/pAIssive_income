@@ -116,7 +116,7 @@ class TestWebhookAPI:
 
         # Generate test data
         data = {
-            "url": "https://example.com/updated-webhook",
+            "url": "https://example.com / updated - webhook",
             "event_types": ["niche.created", "solution.created"],
             "description": "Updated webhook",
             "is_active": True,
@@ -259,7 +259,7 @@ class TestWebhookAPI:
         webhook_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.post(f"webhooks/{webhook_id}/regenerate-secret")
+        response = auth_api_test_client.post(f"webhooks/{webhook_id}/regenerate - secret")
 
         # This might return 404 if the webhook doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -277,7 +277,7 @@ class TestWebhookAPI:
     def test_get_event_types(self, auth_api_test_client: APITestClient):
         """Test getting all event types."""
         # Make request
-        response = auth_api_test_client.get("webhooks/event-types")
+        response = auth_api_test_client.get("webhooks / event - types")
 
         # Validate response
         result = validate_success_response(response)
@@ -308,7 +308,7 @@ class TestWebhookAPI:
     def test_nonexistent_webhook(self, auth_api_test_client: APITestClient):
         """Test getting a nonexistent webhook."""
         # Generate a random ID that is unlikely to exist
-        webhook_id = "nonexistent-" + generate_id()
+        webhook_id = "nonexistent - " + generate_id()
 
         # Make request
         response = auth_api_test_client.get(f"webhooks/{webhook_id}")

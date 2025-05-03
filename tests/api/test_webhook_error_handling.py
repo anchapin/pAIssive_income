@@ -13,25 +13,25 @@ from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
 
 # Test data
-TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK_ID = "test - webhook - 123"
 TEST_WEBHOOK = {
     "id": TEST_WEBHOOK_ID,
-    "url": "https://example.com/webhook",
+    "url": "https://example.com / webhook",
     "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
     "description": "Test webhook",
-    "headers": {"Authorization": "Bearer test-token"},
+    "headers": {"Authorization": "Bearer test - token"},
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key",
+    "secret": "test - secret - key",
 }
 
 TEST_EVENT = {
     "type": WebhookEventType.USER_CREATED,
     "data": {
-        "user_id": "user-123",
+        "user_id": "user - 123",
         "username": "testuser",
-        "email": "test@example.com",
+        "email": "test @ example.com",
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
@@ -129,16 +129,16 @@ async def test_webhook_invalid_response():
 
 @pytest.mark.asyncio
 async def test_webhook_not_found():
-    """Test handling of non-existent webhook."""
+    """Test handling of non - existent webhook."""
     # Create a real webhook service instance for testing
     service = WebhookService()
 
     # Patch the get_webhook method to return None (webhook not found)
     with patch.object(service, "get_webhook", return_value=None):
-        # Deliver an event to a non-existent webhook
+        # Deliver an event to a non - existent webhook
         with pytest.raises(ValueError) as excinfo:
             await service.deliver_event(
-                webhook_id="non-existent-webhook",
+                webhook_id="non - existent - webhook",
                 event_type=WebhookEventType.USER_CREATED,
                 event_data=TEST_EVENT["data"],
             )

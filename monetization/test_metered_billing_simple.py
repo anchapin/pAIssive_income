@@ -76,7 +76,8 @@ def test_custom_billing_period():
     )
 
     # Get the custom billing period
-    custom_start_result, custom_end_result = model.get_interval_start_end(customer_id=customer_id)
+    custom_start_result, 
+        custom_end_result = model.get_interval_start_end(customer_id=customer_id)
     print(f"Custom billing period: {custom_start_result} to {custom_end_result}")
 
     # Verify that the custom period is used

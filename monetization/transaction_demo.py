@@ -10,7 +10,7 @@ from .transaction_manager import TransactionManager
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -70,7 +70,7 @@ def run_demo():
         currency="USD",
         customer_id=customer_id,
         payment_method_id=payment_method_id,
-        description="Add-on purchase",
+        description="Add - on purchase",
         metadata={"product_id": "prod_demo_123"},
     )
 

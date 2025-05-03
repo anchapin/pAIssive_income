@@ -13,7 +13,7 @@ from .tasks import celery_app
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -139,5 +139,6 @@ def cancel_task(task_id: str) -> bool:
         logger.info(f"Task {task_id} cancelled")
         return True
     else:
-        logger.info(f"Task {task_id} could not be cancelled (state: {task_result.state})")
+        logger.info(
+            f"Task {task_id} could not be cancelled (state: {task_result.state})")
         return False

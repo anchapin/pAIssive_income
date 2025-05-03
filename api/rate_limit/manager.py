@@ -15,7 +15,7 @@ from .storage import RateLimitStorage, create_storage
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class RateLimitManager:
             burst=self.config.rate_limit_burst,
         )
 
-        # Create endpoint-specific rate limiters
+        # Create endpoint - specific rate limiters
         self.endpoint_rate_limiters: Dict[str, RateLimiter] = {}
         for endpoint, limit in self.config.endpoint_rate_limits.items():
             self.endpoint_rate_limiters[endpoint] = create_rate_limiter(
@@ -77,7 +77,7 @@ class RateLimitManager:
         elif self.config.rate_limit_scope == RateLimitScope.USER:
             return f"user:{identifier}"
         else:
-            # Default to IP-based rate limiting
+            # Default to IP - based rate limiting
             return f"ip:{identifier}"
 
     def is_exempt(self, identifier: str) -> bool:
@@ -166,7 +166,7 @@ class RateLimitManager:
         # Get endpoint cost
         cost = self.get_endpoint_cost(endpoint or "")
 
-        # Check endpoint-specific rate limit if applicable
+        # Check endpoint - specific rate limit if applicable
         if endpoint and endpoint in self.endpoint_rate_limiters:
             endpoint_key = f"{key}:{endpoint}"
             allowed, limit_info = self.endpoint_rate_limiters[endpoint].check_rate_limit(
@@ -204,7 +204,7 @@ class RateLimitManager:
         if "reset" in limit_info:
             headers[self.config.rate_limit_reset_header] = str(int(limit_info["reset"]))
 
-        # Add retry-after header if rate limited
+        # Add retry - after header if rate limited
         if "retry_after" in limit_info and limit_info["retry_after"] > 0:
             headers[self.config.rate_limit_retry_after_header] = str(int(limit_info["retry_after"]))
 

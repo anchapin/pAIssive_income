@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr / bin / env python
 """
 Script to fix unused imports (F401) in Python files.
 
@@ -28,26 +28,27 @@ def find_python_files(directory):
 
 def fix_unused_imports_in_file(file_path):
     """Fix unused imports in a single file."""
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf - 8") as f:
         content = f.read()
 
     # Define patterns for different types of unused imports
     patterns = [
 
-        r'import\s+[\w.]+\s*#\s*noqa:\s*F401',
+        r'import\s + [\w.]+\s*#\s * noqa:\s * F401',
         
 
 
         
 
 
-        r'from\s+[\w.]+\s+import\s+\(\s*[\w.]+\s*,\s*#\s*noqa:\s*F401.*?\)',
+        r'from\s + [\w.]+\s + import\s+\(\s * [\w.]+\s*,\s*#\s * noqa:\s * F401.*?\)',
         
 
 
         
-        # Pattern 5: Individual items in a multi-import with specific noqa
-        r'from\s+[\w.]+\s+import\s+(?:[^,\s]+,\s*)*([^,\s]+\s*#\s*noqa:\s*F401)(?:\s*,\s*[^,\s]+)*'
+        # Pattern 5: Individual items in a multi - import with specific noqa
+        r'from\s + [\w.]+\s + import\s + (?:[^,\s]+,\s*) * ([^,
+            \s]+\s*#\s * noqa:\s * F401)(?:\s*,\s * [^,\s]+) * '
     ]
     
     matches = []
@@ -74,11 +75,12 @@ def fix_unused_imports_in_file(file_path):
                 line_end = len(modified_content)
             
             # Remove the line
-            modified_content = modified_content[:line_start] + modified_content[line_end:]
+            modified_content = modified_content[:line_start] + \
+                modified_content[line_end:]
     
     # Check if we need to write changes
     if modified_content != content:
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf - 8") as f:
             f.write(modified_content)
         return True
     

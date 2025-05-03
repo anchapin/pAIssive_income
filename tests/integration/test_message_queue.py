@@ -46,7 +46,7 @@ class TestMessageQueue:
             "action": "profile_update",
             "user_id": "123",
             "timestamp": datetime.utcnow().isoformat(),
-            "data": {"name": "John Doe", "email": "john@example.com"},
+            "data": {"name": "John Doe", "email": "john @ example.com"},
         }
 
         # Publish message
@@ -143,7 +143,7 @@ class TestMessageQueue:
         """Test message acknowledgment patterns."""
         test_message = {"type": "ack_test", "data": "test"}
 
-        # Test auto-ack
+        # Test auto - ack
         self.publisher.publish(routing_key="test.ack", message=test_message)
 
         consumed_auto = self.consumer.consume(
@@ -220,7 +220,7 @@ class TestMessageQueue:
         # Test invalid message format
         with pytest.raises(MessagePublishError):
             self.publisher.publish(
-                routing_key="test.errors", message=object()  # Non-serializable object
+                routing_key="test.errors", message=object()  # Non - serializable object
             )
 
         # Test consumer timeout
@@ -267,4 +267,4 @@ class TestMessageQueue:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_message_queue.py"])
+    pytest.main([" - v", "test_message_queue.py"])

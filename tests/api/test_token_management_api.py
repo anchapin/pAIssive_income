@@ -42,7 +42,7 @@ class TestTokenManagementAPI:
         data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
 
         # Make request
-        response = api_test_client.post("auth/token", data)
+        response = api_test_client.post("auth / token", data)
 
         # Validate response
         result = validate_success_response(response)
@@ -64,14 +64,14 @@ class TestTokenManagementAPI:
         # First get a valid token
         auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
 
-        auth_response = api_test_client.post("auth/token", auth_data)
+        auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
         token = auth_result["access_token"]
 
         # Test token validation
         validation_data = {"token": token}
 
-        response = api_test_client.post("auth/validate", validation_data)
+        response = api_test_client.post("auth / validate", validation_data)
         result = validate_success_response(response)
 
         # Validate fields
@@ -90,14 +90,14 @@ class TestTokenManagementAPI:
         # First get initial tokens
         auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
 
-        auth_response = api_test_client.post("auth/token", auth_data)
+        auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
         refresh_token = auth_result["refresh_token"]
 
         # Test token renewal
         renewal_data = {"grant_type": "refresh_token", "refresh_token": refresh_token}
 
-        response = api_test_client.post("auth/token", renewal_data)
+        response = api_test_client.post("auth / token", renewal_data)
         result = validate_success_response(response)
 
         # Validate new tokens
@@ -114,16 +114,16 @@ class TestTokenManagementAPI:
 
     def test_token_expiration(self, api_test_client: APITestClient):
         """Test token expiration handling."""
-        # Configure short-lived test token
+        # Configure short - lived test token
         config_data = {"access_token_expire_minutes": 1, "refresh_token_expire_days": 1}
 
-        config_response = api_test_client.post("auth/config", config_data)
+        config_response = api_test_client.post("auth / config", config_data)
         validate_success_response(config_response)
 
         # Get test token
         auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
 
-        auth_response = api_test_client.post("auth/token", auth_data)
+        auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
         token = auth_result["access_token"]
 
@@ -132,7 +132,7 @@ class TestTokenManagementAPI:
 
         # Try to use expired token
         headers = {"Authorization": f"Bearer {token}"}
-        response = api_test_client.get("auth/test", headers=headers)
+        response = api_test_client.get("auth / test", headers=headers)
 
         # Should get 401 with specific error about token expiration
         result = validate_error_response(response, 401)
@@ -144,19 +144,19 @@ class TestTokenManagementAPI:
         # Get test token
         auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
 
-        auth_response = api_test_client.post("auth/token", auth_data)
+        auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
         token = auth_result["access_token"]
 
         # Revoke token
         revoke_data = {"token": token}
 
-        response = api_test_client.post("auth/revoke", revoke_data)
+        response = api_test_client.post("auth / revoke", revoke_data)
         validate_success_response(response)
 
         # Try to use revoked token
         headers = {"Authorization": f"Bearer {token}"}
-        response = api_test_client.get("auth/test", headers=headers)
+        response = api_test_client.get("auth / test", headers=headers)
 
         # Should get 401 with specific error about token being revoked
         result = validate_error_response(response, 401)
@@ -168,7 +168,7 @@ class TestTokenManagementAPI:
         # Configure session limits
         config_data = {"max_concurrent_sessions": 2}
 
-        config_response = api_test_client.post("auth/session-config", config_data)
+        config_response = api_test_client.post("auth / session - config", config_data)
         validate_success_response(config_response)
 
         # Create multiple sessions
@@ -176,7 +176,7 @@ class TestTokenManagementAPI:
 
         sessions = []
         for _ in range(3):  # Try to create more sessions than allowed
-            response = api_test_client.post("auth/token", auth_data)
+            response = api_test_client.post("auth / token", auth_data)
             if response.status_code == 200:
                 sessions.append(response.json())
 
@@ -184,7 +184,7 @@ class TestTokenManagementAPI:
         assert len(sessions) == 2, "Should only allow max_concurrent_sessions"
 
         # Try to create another session
-        response = api_test_client.post("auth/token", auth_data)
+        response = api_test_client.post("auth / token", auth_data)
         result = validate_error_response(response, 400)
         validate_field_exists(result, "error")
         validate_field_equals(result["error"], "max_sessions_exceeded")
@@ -203,14 +203,14 @@ class TestTokenManagementAPI:
             },
         }
 
-        response = api_test_client.post("auth/token", auth_data)
+        response = api_test_client.post("auth / token", auth_data)
         result = validate_success_response(response)
 
         # Decode token and verify claims
         token = result["access_token"]
         validation_data = {"token": token}
 
-        response = api_test_client.post("auth/validate", validation_data)
+        response = api_test_client.post("auth / validate", validation_data)
         result = validate_success_response(response)
 
         # Validate custom claims

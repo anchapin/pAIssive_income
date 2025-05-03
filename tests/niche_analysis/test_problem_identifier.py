@@ -22,7 +22,7 @@ def test_identify_problems():
     identifier = ProblemIdentifier()
 
     # Identify problems for a niche
-    problems = identifier.identify_problems("e-commerce")
+    problems = identifier.identify_problems("e - commerce")
 
     # Check that the result is a list of problems
     assert isinstance(problems, list)
@@ -180,7 +180,7 @@ def test_identify_problems_for_multiple_niches():
     identifier = ProblemIdentifier()
 
     # Identify problems for multiple niches
-    niches = ["e-commerce", "content creation", "freelancing"]
+    niches = ["e - commerce", "content creation", "freelancing"]
     all_problems = []
 
     for niche in niches:

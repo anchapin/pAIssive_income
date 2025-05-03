@@ -23,7 +23,7 @@ from services.service_discovery.registration import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -37,10 +37,10 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify actual origins
+    allow_origins=[" * "],  # In production, specify actual origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=[" * "],
+    allow_headers=[" * "],
 )
 
 # Global variables
@@ -55,7 +55,7 @@ class ModelRequest(BaseModel):
     prompt: str = Field(..., description="Prompt for the AI model")
     max_tokens: int = Field(256, description="Maximum number of tokens to generate")
     temperature: float = Field(0.7, description="Sampling temperature")
-    options: Dict[str, Any] = Field({}, description="Additional model-specific options")
+    options: Dict[str, Any] = Field({}, description="Additional model - specific options")
 
 
 class ModelResponse(BaseModel):
@@ -84,53 +84,53 @@ class ModelInfo(BaseModel):
 AVAILABLE_MODELS = {
     "gpt4": ModelInfo(
         name="gpt4",
-        description="GPT-4 large language model",
+        description="GPT - 4 large language model",
         version="1.0",
         provider="OpenAI",
-        capabilities=["text-generation", "chat", "summarization"],
+        capabilities=["text - generation", "chat", "summarization"],
         parameters={"max_tokens": 8192, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-04-01"},
+        metadata={"deployment_date": "2023 - 04 - 01"},
     ),
     "llama2": ModelInfo(
         name="llama2",
-        description="Llama 2 open-source language model",
+        description="Llama 2 open - source language model",
         version="2.0",
         provider="Meta",
-        capabilities=["text-generation", "chat"],
+        capabilities=["text - generation", "chat"],
         parameters={"max_tokens": 4096, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-07-15"},
+        metadata={"deployment_date": "2023 - 07 - 15"},
     ),
     "claude": ModelInfo(
         name="claude",
         description="Claude language model",
         version="2.0",
         provider="Anthropic",
-        capabilities=["text-generation", "chat", "summarization"],
+        capabilities=["text - generation", "chat", "summarization"],
         parameters={"max_tokens": 8192, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-05-01"},
+        metadata={"deployment_date": "2023 - 05 - 01"},
     ),
 }
 
 
-@app.get("/")
+@app.get(" / ")
 async def root():
     """Root endpoint for AI Models Service."""
     return {"message": "pAIssive Income AI Models Service", "status": "running"}
 
 
-@app.get("/api/status")
+@app.get(" / api / status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "ai-models-service"}
+    return {"status": "ok", "version": "1.0.0", "service": "ai - models - service"}
 
 
-@app.get("/api/models", response_model=List[ModelInfo])
+@app.get(" / api / models", response_model=List[ModelInfo])
 async def list_models():
     """Get a list of available AI models."""
     return list(AVAILABLE_MODELS.values())
 
 
-@app.get("/api/models/{model_name}", response_model=ModelInfo)
+@app.get(" / api / models/{model_name}", response_model=ModelInfo)
 async def get_model(model_name: str):
     """Get information about a specific AI model."""
     if model_name not in AVAILABLE_MODELS:
@@ -141,7 +141,7 @@ async def get_model(model_name: str):
     return AVAILABLE_MODELS[model_name]
 
 
-@app.post("/api/generate", response_model=ModelResponse)
+@app.post(" / api / generate", response_model=ModelResponse)
 async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks):
     """Generate text using an AI model."""
     import random
@@ -221,10 +221,10 @@ def register_with_service_registry(port: int):
     # Register service
     service_registration = register_service(
         app=app,
-        service_name="ai-models-service",
+        service_name="ai - models - service",
         port=port,
         version="1.0.0",
-        health_check_path="/health",
+        health_check_path=" / health",
         check_functions=[check_service_health],
         tags=tags,
         metadata=metadata,

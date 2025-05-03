@@ -93,7 +93,7 @@ class CacheControls:
 
         Args:
             category: The category to set TTL for
-            ttl_seconds: Time-to-live in seconds
+            ttl_seconds: Time - to - live in seconds
         """
         if isinstance(category, str):
             try:
@@ -125,7 +125,7 @@ class CacheControls:
         # Clear the disabled namespaces set before reconfiguring
         self.disabled_namespaces.clear()
 
-        # Apply policy-specific settings
+        # Apply policy - specific settings
         if policy == CachingPolicy.DISABLED:
             # Disable all caching
             for namespace in self.namespace_categories.keys():

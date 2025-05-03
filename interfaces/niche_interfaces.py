@@ -118,7 +118,8 @@ class IOpportunityScorer(ABC):
         """
 
     @abstractmethod
-    def rank_opportunities(self, opportunities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def rank_opportunities(self, opportunities: List[Dict[str, Any]]) -> List[Dict[str, 
+        Any]]:
         """
         Rank opportunities.
 

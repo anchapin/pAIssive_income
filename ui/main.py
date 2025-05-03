@@ -20,7 +20,8 @@ def start_ui(config: Optional[Dict[str, Any]] = None) -> None:
     """
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO, 
+            format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     logger = logging.getLogger(__name__)
 

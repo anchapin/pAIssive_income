@@ -48,7 +48,7 @@ class WebhookIPAllowlist:
         Add an IP network to the allowlist.
 
         Args:
-            network: IP network in CIDR notation (e.g., "192.168.1.0/24")
+            network: IP network in CIDR notation (e.g., "192.168.1.0 / 24")
 
         Returns:
             True if added successfully, False otherwise
@@ -156,7 +156,7 @@ class WebhookSignatureVerifier:
             payload: Payload to sign
 
         Returns:
-            Base64-encoded HMAC-SHA256 signature
+            Base64 - encoded HMAC - SHA256 signature
         """
         signature = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest()
         return base64.b64encode(signature).decode()
@@ -176,7 +176,7 @@ class WebhookSignatureVerifier:
         """
         expected_signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
-        # Use constant-time comparison to prevent timing attacks
+        # Use constant - time comparison to prevent timing attacks
         return hmac.compare_digest(expected_signature, signature)
 
     @staticmethod
@@ -184,7 +184,7 @@ class WebhookSignatureVerifier:
         secret: str,
         payload: str,
         headers: Dict[str, str],
-        signature_header: str = "X-Webhook-Signature",
+        signature_header: str = "X - Webhook - Signature",
     ) -> bool:
         """
         Verify a webhook request signature from headers.
@@ -198,7 +198,7 @@ class WebhookSignatureVerifier:
         Returns:
             True if signature is valid, False otherwise
         """
-        # Get signature from headers (case-insensitive)
+        # Get signature from headers (case - insensitive)
         signature = None
         for header, value in headers.items():
             if header.lower() == signature_header.lower():

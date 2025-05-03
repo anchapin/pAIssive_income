@@ -30,7 +30,7 @@ class VolumeDiscount:
 
         Args:
             min_quantity: Minimum quantity for this discount
-            discount_percentage: Discount percentage (0-100)
+            discount_percentage: Discount percentage (0 - 100)
         """
         self.min_quantity = min_quantity
         self.discount_percentage = discount_percentage
@@ -90,7 +90,8 @@ class VolumeDiscount:
 
     def __str__(self) -> str:
         """String representation of the volume discount."""
-        return f"VolumeDiscount({self.min_quantity}+ units, {self.discount_percentage}% off)"
+        return f"VolumeDiscount({self.min_quantity}+ units, 
+            {self.discount_percentage}% off)"
 
 
 class TieredPricingRule(PricingRule):
@@ -150,7 +151,8 @@ class TieredPricingRule(PricingRule):
         cost = super().calculate_cost(quantity)
 
         # Apply volume discounts
-        for discount in sorted(self.volume_discounts, key=lambda d: d.min_quantity, reverse=True):
+        for discount in sorted(self.volume_discounts, key=lambda d: d.min_quantity, 
+            reverse=True):
             if discount.applies_to(quantity):
                 cost = discount.apply_discount(cost)
                 break
@@ -167,7 +169,8 @@ class TieredPricingRule(PricingRule):
         result = super().to_dict()
 
         if self.volume_discounts:
-            result["volume_discounts"] = [discount.to_dict() for discount in self.volume_discounts]
+            result["volume_discounts"] = \
+                [discount.to_dict() for discount in self.volume_discounts]
 
         return result
 
@@ -227,8 +230,10 @@ class TieredPricingCalculator(BillingCalculator):
 
         Args:
             metric: Type of usage metric
-            tiers: List of tier dictionaries with min_quantity, max_quantity, and price_per_unit
-            volume_discounts: List of discount dictionaries with min_quantity and discount_percentage
+            tiers: List of tier dictionaries with min_quantity, max_quantity, 
+                and price_per_unit
+            volume_discounts: List of discount dictionaries with min_quantity and \
+                discount_percentage
             graduated: Whether to use graduated pricing
             category: Category of usage
             resource_type: Type of resource

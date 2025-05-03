@@ -24,7 +24,7 @@ def demo_style_adjuster():
         name="Professional YouTuber",
         description="Professional content creator on YouTube",
         pain_points=[
-            "time-consuming script writing",
+            "time - consuming script writing",
             "maintaining viewer engagement",
             "staying consistent with uploads",
         ],
@@ -34,7 +34,7 @@ def demo_style_adjuster():
             "grow audience and engagement",
         ],
         demographics={
-            "age_range": "25-45",
+            "age_range": "25 - 45",
             "education": "college degree",
             "income": "middle to high",
         },
@@ -52,7 +52,7 @@ def demo_style_adjuster():
         key_points=[
             "The challenges of script writing for YouTube",
             "How AI can help streamline the process",
-            "Step-by-step guide to using AI for script writing",
+            "Step - by - step guide to using AI for script writing",
             "Real results from content creators",
         ],
         tone="conversational",
@@ -111,19 +111,23 @@ def demo_style_adjuster():
         print(f"{i}. {suggestion['message']}")
         print(f"   Original: \"{suggestion['original'][:50]}...\"")
         print(f"   Replacement: \"{suggestion['replacement'][:50]}...\"")
-        print(f"   Impact: {suggestion['impact']}, Confidence: {suggestion['confidence']:.2f}")
+        print(f"   Impact: {suggestion['impact']}, 
+            Confidence: {suggestion['confidence']:.2f}")
 
     # Adjust content
     adjusted_content = adjuster.adjust()
 
     print("\nAdjusted Blog Post (Formal Style):")
     print(f"Title: {adjusted_content['adjusted_content']['title']}")
-    print(f"Introduction: {adjusted_content['adjusted_content']['introduction'][:200]}...")
+    print(
+        f"Introduction: {adjusted_content['adjusted_content']['introduction'][:200]}...")
 
     # Get adjustment statistics
     word_choice_count = len(adjusted_content["adjustments"]["word_choice"])
-    sentence_structure_count = len(adjusted_content["adjustments"]["sentence_structure"])
-    paragraph_structure_count = len(adjusted_content["adjustments"]["paragraph_structure"])
+    sentence_structure_count = \
+        len(adjusted_content["adjustments"]["sentence_structure"])
+    paragraph_structure_count = \
+        len(adjusted_content["adjustments"]["paragraph_structure"])
     punctuation_count = len(adjusted_content["adjustments"]["punctuation"])
     voice_count = len(adjusted_content["adjustments"]["voice"])
 
@@ -134,7 +138,8 @@ def demo_style_adjuster():
     print(f"Punctuation Adjustments: {punctuation_count}")
     print(f"Voice Adjustments: {voice_count}")
     print(
-        f"Total Adjustments: {word_choice_count + sentence_structure_count + paragraph_structure_count + punctuation_count + voice_count}"
+        f"Total Adjustments: {word_choice_count + \
+            sentence_structure_count + paragraph_structure_count + punctuation_count + voice_count}"
     )
 
 

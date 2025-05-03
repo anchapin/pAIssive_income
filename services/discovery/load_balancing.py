@@ -48,7 +48,7 @@ class RandomLoadBalancer(LoadBalancingStrategy):
 
 class RoundRobinLoadBalancer(LoadBalancingStrategy):
     """
-    Round-robin load balancing strategy.
+    Round - robin load balancing strategy.
 
     Selects service instances in a circular order, distributing load evenly.
     """
@@ -59,7 +59,7 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
 
     def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
-        Select an instance in round-robin fashion from the list of healthy instances.
+        Select an instance in round - robin fashion from the list of healthy instances.
 
         Args:
             instances: List of available service instances

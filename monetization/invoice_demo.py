@@ -17,7 +17,7 @@ from .usage_tracker import UsageTracker
 
 def print_separator():
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def run_demo():
@@ -39,8 +39,8 @@ def run_demo():
         company_info={
             "name": "AI Tools Inc.",
             "address": "123 Main St, San Francisco, CA 94111",
-            "email": "billing@aitools.com",
-            "phone": "(555) 123-4567",
+            "email": "billing @ aitools.com",
+            "phone": "(555) 123 - 4567",
             "website": "https://aitools.com",
         },
     )
@@ -52,14 +52,15 @@ def run_demo():
     customer_id = "cust_demo_123"
     customer_info = {
         "name": "Demo Customer",
-        "email": "demo.customer@example.com",
+        "email": "demo.customer @ example.com",
         "address": "456 Oak St, San Francisco, CA 94112",
     }
 
     print(f"Creating invoice for customer: {customer_info['name']}")
 
     # Create an invoice
-    invoice = manager.create_invoice(customer_id=customer_id, customer_info=customer_info)
+    invoice = manager.create_invoice(customer_id=customer_id, 
+        customer_info=customer_info)
 
     # Add items
     invoice.add_item(
@@ -85,8 +86,8 @@ def run_demo():
 
     print(f"Invoice created: {invoice}")
     print(f"Number: {invoice.number}")
-    print(f"Date: {invoice.date.strftime('%Y-%m-%d')}")
-    print(f"Due Date: {invoice.due_date.strftime('%Y-%m-%d')}")
+    print(f"Date: {invoice.date.strftime(' % Y-%m-%d')}")
+    print(f"Due Date: {invoice.due_date.strftime(' % Y-%m-%d')}")
     print(f"Status: {invoice.status}")
 
     print("\nItems:")
@@ -95,14 +96,16 @@ def run_demo():
 
     print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
     print(f"Tax: {invoice.format_amount(invoice.get_tax_total())}")
-    print(f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
+    print(
+        f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     print_separator()
 
     # Update status to sent
     print("Updating invoice status to SENT...")
-    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, "Invoice sent to customer")
+    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, 
+        "Invoice sent to customer")
     print(f"Updated status: {invoice.status}")
 
     print_separator()
@@ -130,16 +133,16 @@ def run_demo():
     os.makedirs("invoice_exports", exist_ok=True)
 
     html_output = delivery.export_invoice(
-        invoice, format="html", output_path="invoice_exports/invoice_example.html"
+        invoice, format="html", output_path="invoice_exports / invoice_example.html"
     )
     text_output = delivery.export_invoice(
-        invoice, format="text", output_path="invoice_exports/invoice_example.txt"
+        invoice, format="text", output_path="invoice_exports / invoice_example.txt"
     )
     csv_output = delivery.export_invoice(
-        invoice, format="csv", output_path="invoice_exports/invoice_example.csv"
+        invoice, format="csv", output_path="invoice_exports / invoice_example.csv"
     )
     json_output = delivery.export_invoice(
-        invoice, format="json", output_path="invoice_exports/invoice_example.json"
+        invoice, format="json", output_path="invoice_exports / invoice_example.json"
     )
 
     print(f"Invoice exported to HTML: {html_output}")
@@ -151,7 +154,8 @@ def run_demo():
 
     # Generate PDF
     print("Generating PDF invoice...")
-    pdf_output = delivery.generate_pdf(invoice, output_path="invoice_exports/invoice_example.pdf")
+    pdf_output = delivery.generate_pdf(invoice, 
+        output_path="invoice_exports / invoice_example.pdf")
     print(f"Invoice exported to PDF: {pdf_output}")
 
     print_separator()
@@ -160,7 +164,7 @@ def run_demo():
     print("Sending invoice by email...")
     delivery.send_invoice_by_email(
         invoice=invoice,
-        email="demo.customer@example.com",
+        email="demo.customer @ example.com",
         subject="Your AI Tools Inc. Invoice",
         message="Thank you for your business!",
         format="html",
@@ -185,7 +189,7 @@ def run_demo():
 
         for j in range(num_items):
             inv.add_item(
-                description=f"Service {j+1}",
+                description=f"Service {j + 1}",
                 quantity=random.randint(1, 5),
                 unit_price=random.uniform(10, 100),
                 tax_rate=0.0825,
@@ -214,7 +218,8 @@ def run_demo():
     print(f"Customer invoices ({len(customer_invoices)}):")
     for inv in customer_invoices:
         print(
-            f"- {inv.number} ({inv.date.strftime('%Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
+            f"- {inv.number} (
+                {inv.date.strftime(' % Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
         )
 
     print_separator()
@@ -231,13 +236,15 @@ def run_demo():
     print("\nBy status:")
     for status, data in summary["by_status"].items():
         print(
-            f"- {status}: {data['count']} invoices, ${data['amount']:.2f} total, ${data['due']:.2f} due"
+            f"- {status}: {data['count']} invoices, ${data['amount']:.2f} total, 
+                ${data['due']:.2f} due"
         )
 
     print("\nBy month:")
     for month, data in sorted(summary["by_month"].items()):
         print(
-            f"- {month}: {data['count']} invoices, ${data['amount']:.2f} total, ${data['due']:.2f} due"
+            f"- {month}: {data['count']} invoices, ${data['amount']:.2f} total, 
+                ${data['due']:.2f} due"
         )
 
     print_separator()
@@ -245,7 +252,8 @@ def run_demo():
     # Export all invoices
     print("Exporting all invoices to CSV...")
     csv_all = delivery.export_invoices(
-        customer_invoices, format="csv", output_path="invoice_exports/all_invoices.csv"
+        customer_invoices, format="csv", 
+            output_path="invoice_exports / all_invoices.csv"
     )
     print(f"All invoices exported to CSV: {csv_all}")
 
@@ -257,7 +265,8 @@ def run_demo():
     print(f"Overdue invoices ({len(overdue_invoices)}):")
     for inv in overdue_invoices:
         print(
-            f"- {inv.number} ({inv.date.strftime('%Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
+            f"- {inv.number} (
+                {inv.date.strftime(' % Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
         )
 
     print_separator()

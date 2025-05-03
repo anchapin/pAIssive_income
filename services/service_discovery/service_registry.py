@@ -87,7 +87,7 @@ class ServiceRegistry(abc.ABC):
     @abc.abstractmethod
     def renew(self, service_id: str) -> bool:
         """
-        Renew a service registration (for TTL-based checks).
+        Renew a service registration (for TTL - based checks).
 
         Args:
             service_id: The unique ID of the service to renew

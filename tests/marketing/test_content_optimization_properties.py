@@ -1,8 +1,8 @@
 """
-Property-based tests for content optimization algorithms.
+Property - based tests for content optimization algorithms.
 
 This module tests properties that should hold true for content optimization algorithms
-in the marketing.content_optimization module, using the Hypothesis framework for property-based testing.
+in the marketing.content_optimization module, using the Hypothesis framework for property - based testing.
 """
 
 import uuid
@@ -261,8 +261,8 @@ def content_dict_strategy(draw, with_keywords=True):
             st.lists(st.sampled_from(SAMPLE_WORDS + keyword_candidates), min_size=2, max_size=6)
         )
         seo_data = {
-            "slug": "-".join(slug_words).lower(),
-            "canonical_url": f"https://example.com/{'-'.join(slug_words)}/",
+            "slug": " - ".join(slug_words).lower(),
+            "canonical_url": f"https://example.com/{' - '.join(slug_words)}/",
             "robots": "index,follow",
         }
 
@@ -307,19 +307,19 @@ def keywords_strategy(draw):
 @composite
 def keyword_analyzer_config_strategy(draw):
     """Strategy for generating valid keyword analyzer configs."""
-    # Generate min/max keyword density with min <= max
+    # Generate min / max keyword density with min <= max
     min_density = draw(st.floats(min_value=0.005, max_value=0.05))
     max_density = draw(st.floats(min_value=min_density, max_value=0.1))
 
-    # Generate min/max word counts with min <= optimal
+    # Generate min / max word counts with min <= optimal
     min_word_count = draw(st.integers(min_value=100, max_value=1000))
     optimal_word_count = draw(st.integers(min_value=min_word_count, max_value=2000))
 
-    # Generate min/max title length with min <= max
+    # Generate min / max title length with min <= max
     min_title_length = draw(st.integers(min_value=20, max_value=40))
     max_title_length = draw(st.integers(min_value=min_title_length, max_value=70))
 
-    # Generate min/max meta description length with min <= max
+    # Generate min / max meta description length with min <= max
     min_meta_desc_length = draw(st.integers(min_value=50, max_value=120))
     max_meta_desc_length = draw(st.integers(min_value=min_meta_desc_length, max_value=160))
 
@@ -350,11 +350,11 @@ def readability_analyzer_config_strategy(draw):
     # Generate target reading level
     reading_level = draw(st.sampled_from(["beginner", "intermediate", "advanced"]))
 
-    # Generate min/max sentence lengths
+    # Generate min / max sentence lengths
     min_sentence_length = draw(st.integers(min_value=3, max_value=8))
     max_sentence_length = draw(st.integers(min_value=min_sentence_length + 5, max_value=35))
 
-    # Generate min/max paragraph lengths
+    # Generate min / max paragraph lengths
     min_paragraph_length = draw(st.integers(min_value=20, max_value=50))
     max_paragraph_length = draw(st.integers(min_value=min_paragraph_length + 30, max_value=200))
 
@@ -391,7 +391,7 @@ def readability_analyzer_config_strategy(draw):
 
 
 class TestKeywordAnalyzerProperties:
-    """Property-based tests for the KeywordAnalyzer class."""
+    """Property - based tests for the KeywordAnalyzer class."""
 
     @given(
         content=content_dict_strategy(),
@@ -454,7 +454,7 @@ class TestKeywordAnalyzerProperties:
                     and "seo_data" in content
                     and "slug" in content["seo_data"]
                 ):
-                    assert keyword.lower().replace(" ", "-") in content["seo_data"]["slug"].lower()
+                    assert keyword.lower().replace(" ", " - ") in content["seo_data"]["slug"].lower()
 
                 # Verify placement_score is calculated correctly based on locations
                 # The actual calculation is more complex in the implementation,
@@ -482,7 +482,7 @@ class TestKeywordAnalyzerProperties:
             # Perform the analysis
             results = analyzer.analyze()
 
-            # Check that recommendations are provided for non-optimal keyword density
+            # Check that recommendations are provided for non - optimal keyword density
             for keyword, data in results["keyword_density"]["keywords"].items():
                 if not data["is_optimal"]:
                     # Should find at least one recommendation for this keyword's density
@@ -586,7 +586,7 @@ class TestKeywordAnalyzerProperties:
 
 
 class TestReadabilityAnalyzerProperties:
-    """Property-based tests for the ReadabilityAnalyzer class."""
+    """Property - based tests for the ReadabilityAnalyzer class."""
 
     @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
     def test_readability_score_bounds(self, content, config):
@@ -605,7 +605,7 @@ class TestReadabilityAnalyzerProperties:
             flesch_score = results["readability_scores"]["flesch_reading_ease"]["score"]
             assert 0.0 <= flesch_score <= 100.0
 
-            # Check that grade level scores are non-negative
+            # Check that grade level scores are non - negative
             grade_level_scores = [
                 results["readability_scores"]["flesch_kincaid_grade"]["score"],
                 results["readability_scores"]["smog_index"]["score"],
@@ -736,28 +736,28 @@ class TestReadabilityAnalyzerProperties:
             # Perform the analysis
             results = analyzer.analyze()
 
-            # Check that recommendations exist for non-optimal Flesch Reading Ease
+            # Check that recommendations exist for non - optimal Flesch Reading Ease
             if not results["readability_scores"]["flesch_reading_ease"]["is_optimal"]:
                 flesch_recommendations = [
                     r for r in results["recommendations"] if r["type"] == "readability_score"
                 ]
                 assert len(flesch_recommendations) > 0
 
-            # Check that recommendations exist for non-optimal grade level
+            # Check that recommendations exist for non - optimal grade level
             if not results["readability_scores"]["flesch_kincaid_grade"]["is_optimal"]:
                 grade_recommendations = [
                     r for r in results["recommendations"] if r["type"] == "grade_level"
                 ]
                 assert len(grade_recommendations) > 0
 
-            # Check that recommendations exist for non-optimal sentence length
+            # Check that recommendations exist for non - optimal sentence length
             if not results["sentence_analysis"]["sentence_length"]["is_optimal"]:
                 sentence_recommendations = [
                     r for r in results["recommendations"] if r["type"] == "sentence_length"
                 ]
                 assert len(sentence_recommendations) > 0
 
-            # Check that recommendations exist for non-optimal paragraph length
+            # Check that recommendations exist for non - optimal paragraph length
             if not results["paragraph_analysis"]["paragraph_length"]["is_optimal"]:
                 paragraph_recommendations = [
                     r for r in results["recommendations"] if r["type"] == "paragraph_length"

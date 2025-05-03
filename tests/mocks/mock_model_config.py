@@ -29,7 +29,7 @@ class MockModelConfig:
             models_dir: Directory containing model files
             cache_dir: Directory for caching model data
             model_sources: List of model sources
-            auto_discover: Whether to auto-discover models on init
+            auto_discover: Whether to auto - discover models on init
             max_threads: Maximum number of threads for model loading
             **kwargs: Additional parameters
         """
@@ -55,7 +55,7 @@ class MockModelConfig:
 
     @property
     def cache_ttl(self) -> int:
-        """Get cache time-to-live in seconds."""
+        """Get cache time - to - live in seconds."""
         return 86400  # 24 hours default
 
     @property
@@ -76,7 +76,7 @@ class MockModelConfig:
     @property
     def default_embedding_model(self) -> Optional[str]:
         """Get default text embedding model ID."""
-        return "all-MiniLM-L6-v2"
+        return "all - MiniLM - L6 - v2"
 
     def to_dict(self) -> Dict[str, Any]:
         """

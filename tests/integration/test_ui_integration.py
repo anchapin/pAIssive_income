@@ -55,7 +55,7 @@ def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initi
 def test_web_ui_niche_analysis_integration(web_ui, mock_agent_team):
     """Test the WebUI integration with agent team for niche analysis."""
     # Simulate a user request to analyze niches
-    market_segments = ["e-commerce", "digital-marketing"]
+    market_segments = ["e - commerce", "digital - marketing"]
     niches = web_ui.analyze_market_segments(market_segments)
 
     # Check that the agent team's method was called with the right parameters
@@ -77,7 +77,7 @@ def test_web_ui_solution_development_integration(web_ui, mock_agent_team):
     selected_niche = {
         "id": "niche1",
         "name": "AI Inventory Management",
-        "market_segment": "e-commerce",
+        "market_segment": "e - commerce",
         "opportunity_score": 0.85,
     }
     web_ui.current_niches = [selected_niche]
@@ -103,7 +103,7 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
     selected_solution = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
+        "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -132,13 +132,13 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
     selected_niche = {
         "id": "niche1",
         "name": "AI Inventory Management",
-        "market_segment": "e-commerce",
+        "market_segment": "e - commerce",
         "opportunity_score": 0.85,
     }
     selected_solution = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
+        "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -170,7 +170,7 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
     # Check that the UI returned the expected results
     assert marketing_plan["name"] == "Inventory Optimizer Marketing Plan"
     assert "content" in marketing_plan["channels"]
-    assert marketing_plan["target_audience"] == "E-commerce store owners"
+    assert marketing_plan["target_audience"] == "E - commerce store owners"
 
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_marketing_plan")
@@ -182,8 +182,8 @@ def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
     # Simulate a complete workflow through the CLI
 
     # Step 1: Run niche analysis
-    cli_ui.handle_command("analyze e-commerce digital-marketing")
-    mock_agent_team.run_niche_analysis.assert_called_once_with(["e-commerce", "digital-marketing"])
+    cli_ui.handle_command("analyze e - commerce digital - marketing")
+    mock_agent_team.run_niche_analysis.assert_called_once_with(["e - commerce", "digital - marketing"])
 
     # Step 2: Select a niche and develop a solution
     cli_ui.handle_command("select niche 0")  # Select the first niche
@@ -246,13 +246,13 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
 def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
     """Test the WebUI AJAX request handling integration."""
     # Simulate an AJAX request
-    request_data = {"action": "analyze_niche", "market_segments": ["e-commerce"]}
+    request_data = {"action": "analyze_niche", "market_segments": ["e - commerce"]}
 
     # Set up the mock to return a success response
     mock_handle_ajax_request.return_value = {
         "success": True,
         "action": "analyze_niche",
-        "data": {"market_segments": ["e-commerce"]},
+        "data": {"market_segments": ["e - commerce"]},
     }
 
     web_ui.process_ajax_request(request_data)
@@ -268,7 +268,7 @@ def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
 
     # Check that the data contains the market_segments
     assert "market_segments" in args[1]
-    assert args[1]["market_segments"] == ["e-commerce"]
+    assert args[1]["market_segments"] == ["e - commerce"]
 
 
 def test_web_ui_model_manager_integration(web_ui, mock_model_manager):
@@ -281,8 +281,8 @@ def test_web_ui_model_manager_integration(web_ui, mock_model_manager):
 
     # Check that the UI returned the expected results
     assert len(models) == 2
-    assert models[0]["name"] == "GPT-4"
-    assert models[1]["name"] == "DALL-E 3"
+    assert models[0]["name"] == "GPT - 4"
+    assert models[1]["name"] == "DALL - E 3"
 
 
 def test_web_ui_subscription_manager_integration(web_ui, mock_subscription_manager):
@@ -309,7 +309,7 @@ def test_web_ui_event_handling_integration(mock_handle_niche_selected, web_ui):
         {
             "id": "niche1",
             "name": "AI Inventory Management",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "opportunity_score": 0.85,
         }
     ]
@@ -334,7 +334,7 @@ def test_cli_ui_input_parsing_integration(cli_ui):
     # Simulate user input for various commands
     commands = [
         "help",
-        "analyze e-commerce healthcare",
+        "analyze e - commerce healthcare",
         "select niche 1",
         "develop solution",
         "create monetization",
@@ -349,7 +349,7 @@ def test_cli_ui_input_parsing_integration(cli_ui):
     # Verify each command was processed correctly
     expected_calls = [
         ("help", []),
-        ("analyze", ["e-commerce", "healthcare"]),
+        ("analyze", ["e - commerce", "healthcare"]),
         ("select", ["niche", "1"]),
         ("develop", ["solution"]),
         ("create", ["monetization"]),

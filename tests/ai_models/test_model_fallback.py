@@ -33,20 +33,20 @@ class TestModelFallback(unittest.TestCase):
         self.primary_model_info = ModelInfo(
             id="primary_model",
             name="Primary Model",
-            description="High-quality but resource-intensive model",
+            description="High - quality but resource - intensive model",
             type="openai",
             path=None,
-            capabilities=["text-generation", "summarization", "reasoning"],
+            capabilities=["text - generation", "summarization", "reasoning"],
             size_mb=1000,
         )
 
         self.fallback_model1_info = ModelInfo(
             id="fallback_model1",
             name="Fallback Model 1",
-            description="Medium-quality fallback model",
+            description="Medium - quality fallback model",
             type="huggingface",
             path=None,
-            capabilities=["text-generation", "summarization"],
+            capabilities=["text - generation", "summarization"],
             size_mb=500,
         )
 
@@ -56,7 +56,7 @@ class TestModelFallback(unittest.TestCase):
             description="Basic fallback model",
             type="ollama",
             path=None,
-            capabilities=["text-generation"],
+            capabilities=["text - generation"],
             size_mb=200,
         )
 
@@ -105,11 +105,11 @@ class TestModelFallback(unittest.TestCase):
         )
 
         # Assign the primary model to an agent
-        self.provider.assign_model_to_agent("researcher", "primary_model", "text-generation")
+        self.provider.assign_model_to_agent("researcher", "primary_model", "text - generation")
 
         # Try to get the model, which should trigger fallback
         model = self.provider.get_model_with_fallback(
-            "researcher", "primary_model", "text-generation"
+            "researcher", "primary_model", "text - generation"
         )
 
         # Verify we got a fallback model
@@ -141,11 +141,11 @@ class TestModelFallback(unittest.TestCase):
         self.provider.fallback_manager.track_fallback_event = MagicMock()
 
         # Assign the primary model to an agent
-        self.provider.assign_model_to_agent("researcher", "primary_model", "text-generation")
+        self.provider.assign_model_to_agent("researcher", "primary_model", "text - generation")
 
         # Try to get the model, which should trigger fallback
         model = self.provider.get_model_with_fallback(
-            "researcher", "primary_model", "text-generation"
+            "researcher", "primary_model", "text - generation"
         )
 
         # Verify we got the fallback model
@@ -196,13 +196,13 @@ class TestModelFallback(unittest.TestCase):
         )
 
         # Assign the primary model to an agent
-        self.provider.assign_model_to_agent("researcher", "primary_model", "text-generation")
+        self.provider.assign_model_to_agent("researcher", "primary_model", "text - generation")
 
         # Measure performance with primary model
         self.model_manager.load_model.side_effect = load_model_primary_case
         self.mock_time = 0.0  # Reset mock time
         model = self.provider.get_model_with_fallback(
-            "researcher", "primary_model", "text-generation"
+            "researcher", "primary_model", "text - generation"
         )
         response = model.generate(prompt="Test prompt")
         primary_time = self.mock_time
@@ -211,7 +211,7 @@ class TestModelFallback(unittest.TestCase):
         self.model_manager.load_model.side_effect = load_model_fallback_case
         self.mock_time = 0.0  # Reset mock time
         model = self.provider.get_model_with_fallback(
-            "researcher", "primary_model", "text-generation"
+            "researcher", "primary_model", "text - generation"
         )
         response = model.generate(prompt="Test prompt")
         fallback_time = self.mock_time

@@ -24,7 +24,7 @@ def test_model_config_init():
     assert "local" in config.model_sources
     assert "huggingface" in config.model_sources
     assert config.default_text_model == "gpt2"
-    assert config.default_embedding_model == "all-MiniLM-L6-v2"
+    assert config.default_embedding_model == "all - MiniLM - L6 - v2"
 
 
 def test_model_config_to_dict():

@@ -1,5 +1,5 @@
 """
-Property-based tests for the RevenueProjector class.
+Property - based tests for the RevenueProjector class.
 
 These tests verify that the RevenueProjector produces sensible
 projections across a wide range of input parameters.
@@ -185,7 +185,7 @@ def test_user_projections_properties(
         total_users = [p["total_users"] for p in user_projections]
         assert all(curr >= prev for prev, curr in zip(total_users, total_users[1:]))
 
-    # Property 5: With high churn and no growth/acquisition, user count should decrease
+    # Property 5: With high churn and no growth / acquisition, user count should decrease
     if (
         growth_rate <= 0
         and churn_rate > 0.2
@@ -254,20 +254,20 @@ def test_lifetime_value_calculation_properties(average_revenue, churn_rate):
         average_revenue_per_user=average_revenue, churn_rate=churn_rate
     )
 
-    # Property 1: Average lifetime should be 1/churn_rate
+    # Property 1: Average lifetime should be 1 / churn_rate
     assert abs(ltv["average_lifetime_months"] - (1 / churn_rate)) < 0.001
 
     # Property 2: Lifetime value should be average_revenue * average_lifetime_months
     assert abs(ltv["lifetime_value"] - (average_revenue * ltv["average_lifetime_months"])) < 0.001
 
-    # Property 3: One-year value should be at most 12 * average_revenue
+    # Property 3: One - year value should be at most 12 * average_revenue
     assert ltv["one_year_value"] <= 12 * average_revenue
 
-    # Property 4: One-year value should be equal to average_revenue * min(12, average_lifetime_months)
+    # Property 4: One - year value should be equal to average_revenue * min(12, average_lifetime_months)
     expected_one_year = average_revenue * min(12, ltv["average_lifetime_months"])
     assert abs(ltv["one_year_value"] - expected_one_year) < 0.001
 
-    # Property 5: Five-year value should be at most 60 * average_revenue
+    # Property 5: Five - year value should be at most 60 * average_revenue
     assert ltv["five_year_value"] <= 60 * average_revenue
 
 
@@ -456,7 +456,7 @@ def test_revenue_projection_monthly_to_annual_conversion(
         )
         annual_revenues.append(yearly_revenue)
 
-    # Property 1: Annual revenue should be non-negative
+    # Property 1: Annual revenue should be non - negative
     for yearly_revenue in annual_revenues:
         assert yearly_revenue >= 0
 

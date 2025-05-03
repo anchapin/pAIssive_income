@@ -40,12 +40,16 @@ class UsageCategory:
 class UsageRecordSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the usage record")
     customer_id: str = Field(..., description="ID of the customer")
-    metric: str = Field(..., description="Type of usage metric (e.g., API_CALL, COMPUTE_TIME)")
+    metric: str = Field(..., description="Type of usage metric (e.g., API_CALL, 
+        COMPUTE_TIME)")
     quantity: float = Field(..., description="Quantity of usage")
-    category: str = Field(..., description="Category of usage (e.g., INFERENCE, TRAINING)")
+    category: str = Field(..., description="Category of usage (e.g., INFERENCE, 
+        TRAINING)")
     timestamp: datetime = Field(..., description="Timestamp of the usage")
-    resource_id: Optional[str] = Field(None, description="ID of the resource being used")
-    resource_type: Optional[str] = Field(None, description="Type of resource being used")
+    resource_id: Optional[str] = Field(None, 
+        description="ID of the resource being used")
+    resource_type: Optional[str] = Field(None, 
+        description="Type of resource being used")
     subscription_id: Optional[str] = Field(None, description="ID of the subscription")
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata for the usage record"
@@ -162,7 +166,8 @@ class UsageRecord:
 
     def __str__(self) -> str:
         """String representation of the usage record."""
-        return f"UsageRecord({self.id}, {self.customer_id}, {self.metric}, {self.quantity}, {self.timestamp.isoformat()})"
+        return f"UsageRecord({self.id}, {self.customer_id}, {self.metric}, 
+            {self.quantity}, {self.timestamp.isoformat()})"
 
 
 class UsageLimit:
@@ -238,7 +243,8 @@ class UsageLimit:
                 reference_time.hour,
             )
         elif self.period == self.PERIOD_DAILY:
-            return datetime(reference_time.year, reference_time.month, reference_time.day)
+            return datetime(reference_time.year, reference_time.month, 
+                reference_time.day)
         elif self.period == self.PERIOD_WEEKLY:
             # Start of the week (Monday)
             days_since_monday = reference_time.weekday()
@@ -394,7 +400,8 @@ class UsageLimit:
 
     def __str__(self) -> str:
         """String representation of the usage limit."""
-        return f"UsageLimit({self.id}, {self.customer_id}, {self.metric}, {self.max_quantity}, {self.period})"
+        return f"UsageLimit({self.id}, {self.customer_id}, {self.metric}, 
+            {self.max_quantity}, {self.period})"
 
 
 class UsageQuota:
@@ -402,7 +409,8 @@ class UsageQuota:
     Class representing a usage quota.
 
     This class provides a structured way to represent quotas for usage of API calls
-    and resources, including the allocated quantity, time period, and associated metadata.
+    and resources, including the allocated quantity, time period, 
+        and associated metadata.
     """
 
     def __init__(
@@ -464,7 +472,8 @@ class UsageQuota:
             # Start of the next week (Monday)
             days_since_monday = now.weekday()
             days_to_next_monday = 7 - days_since_monday
-            return datetime(now.year, now.month, now.day) + timedelta(days=days_to_next_monday)
+            return datetime(now.year, now.month, 
+                now.day) + timedelta(days=days_to_next_monday)
         elif self.period == UsageLimit.PERIOD_MONTHLY:
             # Start of the next month
             if now.month == 12:
@@ -498,7 +507,7 @@ class UsageQuota:
         Get the percentage of the quota that has been used.
 
         Returns:
-            Usage percentage (0-100)
+            Usage percentage (0 - 100)
         """
         if self.allocated_quantity == 0:
             return 100.0
@@ -519,7 +528,7 @@ class UsageQuota:
         Check if the quota is near its limit.
 
         Args:
-            threshold_percentage: Percentage threshold (0-100)
+            threshold_percentage: Percentage threshold (0 - 100)
 
         Returns:
             True if the quota is near its limit, False otherwise
@@ -637,7 +646,8 @@ class UsageQuota:
 
     def __str__(self) -> str:
         """String representation of the usage quota."""
-        return f"UsageQuota({self.id}, {self.customer_id}, {self.metric}, {self.used_quantity}/{self.allocated_quantity}, {self.period})"
+        return f"UsageQuota({self.id}, {self.customer_id}, {self.metric}, 
+            {self.used_quantity}/{self.allocated_quantity}, {self.period})"
 
 
 # Example usage
@@ -650,7 +660,7 @@ if __name__ == "__main__":
         category=UsageCategory.INFERENCE,
         resource_id="model_gpt4",
         resource_type="model",
-        metadata={"endpoint": "/v1/completions"},
+        metadata={"endpoint": " / v1 / completions"},
     )
 
     print(f"Usage record: {record}")

@@ -1,5 +1,5 @@
 """
-AWQ (Activation-aware Weight Quantization) quantizer for AI models.
+AWQ (Activation - aware Weight Quantization) quantizer for AI models.
 
 This module provides a quantizer that uses the AWQ method for
 quantizing transformer models.
@@ -13,7 +13,7 @@ from .base import QuantizationConfig, QuantizationMethod, Quantizer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class AWQQuantizer(Quantizer):
 
         Args:
             model_path: Path to the model
-            output_path: Path to save the quantized model (None for in-place)
+            output_path: Path to save the quantized model (None for in - place)
             **kwargs: Additional parameters for quantization
 
         Returns:
@@ -118,10 +118,10 @@ class AWQQuantizer(Quantizer):
             # Use provided dataset
             calibration_dataset = self.config.calibration_dataset
         else:
-            # Use default dataset (WikiText-2)
+            # Use default dataset (WikiText - 2)
             from datasets import load_dataset
 
-            calibration_dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="train")
+            calibration_dataset = load_dataset("wikitext", "wikitext - 2-raw - v1", split="train")
 
             # Process dataset
             def preprocess_function(examples):
@@ -176,7 +176,7 @@ class AWQQuantizer(Quantizer):
 
         config_path = os.path.join(output_path, "quantization_config.json")
 
-        with open(config_path, "w", encoding="utf-8") as f:
+        with open(config_path, "w", encoding="utf - 8") as f:
             json.dump(self.config.to_dict(), f, indent=2)
 
     def supports_model_type(self, model_type: str) -> bool:
@@ -190,7 +190,7 @@ class AWQQuantizer(Quantizer):
             True if the model type is supported, False otherwise
         """
         # AWQ primarily supports causal language models
-        supported_types = ["text-generation", "causal-lm"]
+        supported_types = ["text - generation", "causal - lm"]
 
         return model_type in supported_types
 

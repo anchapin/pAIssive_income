@@ -25,13 +25,13 @@ def test_create_persona():
     # Create a persona
     persona = creator.create_persona(
         name="Small Business Owner",
-        description="Owner of a small e-commerce business",
+        description="Owner of a small e - commerce business",
         demographics={
-            "age_range": "30-45",
+            "age_range": "30 - 45",
             "gender": "mixed",
             "location": "urban",
             "education": "college degree",
-            "income": "middle to upper-middle",
+            "income": "middle to upper - middle",
         },
         pain_points=[
             "Limited time for marketing",
@@ -44,8 +44,8 @@ def test_create_persona():
             "Improve customer satisfaction",
         ],
         behaviors=[
-            "Price-conscious but willing to invest in time-saving tools",
-            "Tech-savvy but not technical",
+            "Price - conscious but willing to invest in time - saving tools",
+            "Tech - savvy but not technical",
             "Values ease of use and quick results",
         ],
     )
@@ -53,7 +53,7 @@ def test_create_persona():
     # Check that the persona has the expected attributes
     assert "id" in persona
     assert persona["name"] == "Small Business Owner"
-    assert persona["description"] == "Owner of a small e-commerce business"
+    assert persona["description"] == "Owner of a small e - commerce business"
     assert "demographics" in persona
     assert "pain_points" in persona
     assert "goals" in persona
@@ -61,10 +61,10 @@ def test_create_persona():
     assert "created_at" in persona
 
     # Check specific values
-    assert persona["demographics"]["age_range"] == "30-45"
+    assert persona["demographics"]["age_range"] == "30 - 45"
     assert "Limited time for marketing" in persona["pain_points"]
     assert "Increase sales" in persona["goals"]
-    assert "Price-conscious but willing to invest in time-saving tools" in persona["behaviors"]
+    assert "Price - conscious but willing to invest in time - saving tools" in persona["behaviors"]
 
 
 def test_demographic_analyzer_init():
@@ -82,15 +82,15 @@ def test_analyze_demographics():
 
     # Create test demographics
     demographics = {
-        "age_range": "30-45",
+        "age_range": "30 - 45",
         "gender": "mixed",
         "location": "urban",
         "education": "college degree",
-        "income": "middle to upper-middle",
+        "income": "middle to upper - middle",
     }
 
     # Analyze demographics
-    result = analyzer.analyze_demographics(demographics, niche="e-commerce")
+    result = analyzer.analyze_demographics(demographics, niche="e - commerce")
 
     # Check that the result has the expected keys
     assert "id" in result
@@ -101,7 +101,7 @@ def test_analyze_demographics():
     assert "timestamp" in result
 
     # Check specific values
-    assert result["niche"] == "e-commerce"
+    assert result["niche"] == "e - commerce"
     assert result["demographics"] == demographics
     assert "analysis" in result
     assert isinstance(result["recommendations"], list)
@@ -122,7 +122,7 @@ def test_identify_pain_points():
     identifier = PainPointIdentifier()
 
     # Identify pain points for a niche
-    result = identifier.identify_pain_points("e-commerce")
+    result = identifier.identify_pain_points("e - commerce")
 
     # Check that the result is a list of pain points
     assert isinstance(result, list)
@@ -153,7 +153,7 @@ def test_analyze_pain_point():
     }
 
     # Analyze the pain point
-    result = identifier.analyze_pain_point(pain_point, niche="e-commerce")
+    result = identifier.analyze_pain_point(pain_point, niche="e - commerce")
 
     # Check that the result has the expected keys
     assert "id" in result
@@ -166,7 +166,7 @@ def test_analyze_pain_point():
 
     # Check specific values
     assert result["pain_point_id"] == "pp1"
-    assert result["niche"] == "e-commerce"
+    assert result["niche"] == "e - commerce"
     assert isinstance(result["analysis"], dict)
     assert isinstance(result["potential_solutions"], list)
     assert len(result["potential_solutions"]) > 0

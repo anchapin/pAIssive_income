@@ -27,7 +27,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/api",
+    " / api",
     dependencies=[Depends(require_scopes(["logs:read"]))],
     responses={
         200: {"description": "API logs"},
@@ -78,7 +78,7 @@ async def get_api_logs(
 
 
 @router.get(
-    "/security",
+    " / security",
     dependencies=[Depends(require_scopes(["logs:read:security"]))],
     responses={
         200: {"description": "Security logs"},
@@ -142,7 +142,7 @@ async def get_security_logs(
 
 
 @router.get(
-    "/webhook",
+    " / webhook",
     dependencies=[Depends(require_scopes(["logs:read"]))],
     responses={
         200: {"description": "Webhook logs"},

@@ -1,8 +1,8 @@
 """
-Fine-tuning workflows for AI models.
+Fine - tuning workflows for AI models.
 
-This module provides tools for creating and running fine-tuning workflows,
-including data collection, fine-tuning, and evaluation.
+This module provides tools for creating and running fine - tuning workflows,
+including data collection, fine - tuning, and evaluation.
 """
 
 import json
@@ -37,7 +37,7 @@ class WorkflowStep(Enum):
 @dataclass
 class WorkflowConfig:
     """
-    Configuration for fine-tuning workflow.
+    Configuration for fine - tuning workflow.
     """
 
     # Workflow name and output directory
@@ -56,7 +56,7 @@ class WorkflowConfig:
     # Data collection configuration
     data_collection_config: Optional[DataCollectionConfig] = None
 
-    # Fine-tuning configuration
+    # Fine - tuning configuration
     fine_tuning_config: Optional[FineTuningConfig] = None
 
     # Evaluation configuration
@@ -90,7 +90,7 @@ class WorkflowConfig:
 
 class FineTuningWorkflow:
     """
-    Class for running fine-tuning workflows.
+    Class for running fine - tuning workflows.
     """
 
     def __init__(self, config: WorkflowConfig):
@@ -178,23 +178,23 @@ class FineTuningWorkflow:
 
     def _run_fine_tuning(self) -> None:
         """
-        Run the fine-tuning step.
+        Run the fine - tuning step.
         """
         if self.config.fine_tuning_config is None:
-            logger.warning("No fine-tuning configuration provided, skipping step")
+            logger.warning("No fine - tuning configuration provided, skipping step")
             return
 
         try:
-            logger.info("Fine-tuning model")
+            logger.info("Fine - tuning model")
 
-            # Update fine-tuning configuration with dataset if available
+            # Update fine - tuning configuration with dataset if available
             if self.dataset is not None and self.config.fine_tuning_config.dataset is None:
                 self.config.fine_tuning_config.dataset = self.dataset
 
-            # Create fine-tuner
+            # Create fine - tuner
             fine_tuner = FineTuner(self.config.fine_tuning_config)
 
-            # Prepare for fine-tuning
+            # Prepare for fine - tuning
             fine_tuner.prepare()
 
             # Train the model
@@ -209,10 +209,10 @@ class FineTuningWorkflow:
                 "train_metrics": train_metrics,
             }
 
-            logger.info(f"Fine-tuning completed, model saved to {self.model_path}")
+            logger.info(f"Fine - tuning completed, model saved to {self.model_path}")
 
         except Exception as e:
-            logger.error(f"Error in fine-tuning step: {e}")
+            logger.error(f"Error in fine - tuning step: {e}")
             self.results["fine_tuning"] = {"error": str(e)}
 
     def _run_evaluation(self) -> None:
@@ -290,7 +290,7 @@ class FineTuningWorkflow:
         try:
             logger.info("Comparing models")
 
-            # Add the fine-tuned model to the comparison list
+            # Add the fine - tuned model to the comparison list
             model_paths = [self.model_path] + self.config.comparison_models
 
             # Get dataset path
@@ -351,13 +351,13 @@ class FineTuningWorkflow:
             "results": self.results,
             "metadata": self.config.metadata,
             "total_time": total_time,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": time.strftime(" % Y-%m-%d %H:%M:%S"),
         }
 
         # Save results to file
         results_path = os.path.join(self.config.output_dir, "workflow_results.json")
 
-        with open(results_path, "w", encoding="utf-8") as f:
+        with open(results_path, "w", encoding="utf - 8") as f:
             json.dump(workflow_results, f, indent=2)
 
         logger.info(f"Saved workflow results to {results_path}")
@@ -365,20 +365,20 @@ class FineTuningWorkflow:
 
 def create_workflow(config: WorkflowConfig) -> FineTuningWorkflow:
     """
-    Create a fine-tuning workflow.
+    Create a fine - tuning workflow.
 
     Args:
         config: Configuration for the workflow
 
     Returns:
-        Fine-tuning workflow
+        Fine - tuning workflow
     """
     return FineTuningWorkflow(config)
 
 
 def run_workflow(config: WorkflowConfig) -> Dict[str, Any]:
     """
-    Run a fine-tuning workflow.
+    Run a fine - tuning workflow.
 
     Args:
         config: Configuration for the workflow
@@ -413,7 +413,7 @@ def save_workflow(workflow: FineTuningWorkflow, path: str) -> str:
     }
 
     # Save configuration to file
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf - 8") as f:
         json.dump(config_dict, f, indent=2)
 
     logger.info(f"Saved workflow configuration to {path}")
@@ -428,10 +428,10 @@ def load_workflow(path: str) -> FineTuningWorkflow:
         path: Path to the workflow configuration
 
     Returns:
-        Fine-tuning workflow
+        Fine - tuning workflow
     """
     # Load configuration from file
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf - 8") as f:
         config_dict = json.load(f)
 
     # Convert steps to enum

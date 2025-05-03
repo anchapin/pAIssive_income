@@ -2,7 +2,7 @@
 Tests for cache coherency.
 
 This module tests the cache coherency aspects of the system, including
-cache invalidation timing, update propagation, and hit/miss ratios.
+cache invalidation timing, update propagation, and hit / miss ratios.
 """
 
 import threading
@@ -62,14 +62,14 @@ def test_cache_invalidation_timing(memory_cache_config):
     Test cache invalidation timing.
 
     This test verifies that cache entries are invalidated at the correct time
-    based on their TTL (time-to-live).
+    based on their TTL (time - to - live).
     """
     # Create cache with short TTL for testing
     memory_cache_config.ttl = 1  # 1 second TTL
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
     input_text = "Hello, world!"
     response = {"text": "Hello back!"}
@@ -121,7 +121,7 @@ def test_cache_update_propagation(memory_cache_config):
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
     input_text = "Hello, world!"
     response1 = {"text": "Hello back!", "version": 1}
@@ -150,7 +150,7 @@ def test_cache_update_propagation(memory_cache_config):
     def update_cache(thread_id: int):
         """Update cache in a separate thread."""
         for i in range(updates_per_thread):
-            # Update with thread-specific version
+            # Update with thread - specific version
             version = thread_id * 100 + i
             response = {"text": "Hello back!", "version": version, "thread": thread_id}
             cache.set(model_id, operation, input_text, response)
@@ -180,14 +180,14 @@ def test_cache_update_propagation(memory_cache_config):
 
 def test_cache_hit_miss_ratios(memory_cache_config):
     """
-    Test cache hit/miss ratios.
+    Test cache hit / miss ratios.
 
-    This test verifies that the cache correctly tracks and reports hit/miss ratios.
+    This test verifies that the cache correctly tracks and reports hit / miss ratios.
     """
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     # Generate some cache misses
@@ -209,7 +209,7 @@ def test_cache_hit_miss_ratios(memory_cache_config):
         result = cache.get(model_id, operation, f"input-{i}")
         assert result is None
 
-    # Check hit/miss stats
+    # Check hit / miss stats
     stats = cache.get_stats()
     assert stats["hits"] == 5
     assert stats["misses"] == 15
@@ -223,7 +223,7 @@ def test_cache_hit_miss_ratios(memory_cache_config):
         result = cache.get(model_id, operation, f"input-{i}")
         assert result is not None
 
-    # Check updated hit/miss stats
+    # Check updated hit / miss stats
     stats = cache.get_stats()
     assert stats["hits"] == 15
     assert stats["misses"] == 15
@@ -240,7 +240,7 @@ def test_concurrent_cache_access(memory_cache_config):
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     # Number of threads and operations
@@ -260,15 +260,15 @@ def test_concurrent_cache_access(memory_cache_config):
         local_misses = 0
 
         for i in range(operations_per_thread):
-            # Determine operation: 0-4 = set, 5-9 = get
+            # Determine operation: 0 - 4 = set, 5 - 9 = get
             op_type = i % 10
 
-            # Use a mix of shared and thread-specific keys
+            # Use a mix of shared and thread - specific keys
             if i % 2 == 0:
                 # Shared key across all threads
-                key = f"shared-input-{i // 2}"
+                key = f"shared - input-{i // 2}"
             else:
-                # Thread-specific key
+                # Thread - specific key
                 key = f"thread-{thread_id}-input-{i // 2}"
 
             if op_type < 5:
@@ -322,7 +322,7 @@ def test_cache_invalidation_propagation(memory_cache_config):
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     # Add some cache entries
@@ -335,10 +335,10 @@ def test_cache_invalidation_propagation(memory_cache_config):
         assert result is not None
 
     # Invalidate specific entry
-    cache.delete(model_id, operation, "input-5")
+    cache.delete(model_id, operation, "input - 5")
 
     # Verify entry is invalidated
-    result = cache.get(model_id, operation, "input-5")
+    result = cache.get(model_id, operation, "input - 5")
     assert result is None
 
     # Verify other entries are still valid
@@ -356,27 +356,27 @@ def test_cache_invalidation_propagation(memory_cache_config):
         assert result is None
 
     # Add entries for multiple models
-    for model in ["model-1", "model-2"]:
+    for model in ["model - 1", "model - 2"]:
         for i in range(5):
             cache.set(model, operation, f"input-{i}", {"text": f"response-{model}-{i}"})
 
     # Verify entries are in the cache
-    for model in ["model-1", "model-2"]:
+    for model in ["model - 1", "model - 2"]:
         for i in range(5):
             result = cache.get(model, operation, f"input-{i}")
             assert result is not None
 
     # Invalidate one model
-    cache.clear_namespace("model-1")
+    cache.clear_namespace("model - 1")
 
-    # Verify model-1 entries are invalidated
+    # Verify model - 1 entries are invalidated
     for i in range(5):
-        result = cache.get("model-1", operation, f"input-{i}")
+        result = cache.get("model - 1", operation, f"input-{i}")
         assert result is None
 
-    # Verify model-2 entries are still valid
+    # Verify model - 2 entries are still valid
     for i in range(5):
-        result = cache.get("model-2", operation, f"input-{i}")
+        result = cache.get("model - 2", operation, f"input-{i}")
         assert result is not None
 
 
@@ -384,14 +384,14 @@ def test_cache_persistence(disk_cache_config):
     """
     Test cache persistence.
 
-    This test verifies that disk-based caches properly persist data and can
+    This test verifies that disk - based caches properly persist data and can
     recover it after a restart.
     """
     # Create first cache instance
     cache1 = CacheManager(disk_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     for i in range(10):
@@ -412,18 +412,18 @@ def test_cache_persistence(disk_cache_config):
         assert result["text"] == f"response-{i}"
 
     # Modify an entry in the second instance
-    cache2.set(model_id, operation, "input-5", {"text": "modified-response"})
+    cache2.set(model_id, operation, "input - 5", {"text": "modified - response"})
 
     # Verify modification is visible in second instance
-    result = cache2.get(model_id, operation, "input-5")
-    assert result["text"] == "modified-response"
+    result = cache2.get(model_id, operation, "input - 5")
+    assert result["text"] == "modified - response"
 
     # Create third cache instance
     cache3 = CacheManager(disk_cache_config)
 
     # Verify modification is persisted and visible in third instance
-    result = cache3.get(model_id, operation, "input-5")
-    assert result["text"] == "modified-response"
+    result = cache3.get(model_id, operation, "input - 5")
+    assert result["text"] == "modified - response"
 
 
 def test_cache_eviction_policy(memory_cache_config):
@@ -440,7 +440,7 @@ def test_cache_eviction_policy(memory_cache_config):
     cache = CacheManager(memory_cache_config)
 
     # Add test data
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     # Fill the cache to capacity
@@ -456,11 +456,11 @@ def test_cache_eviction_policy(memory_cache_config):
     for i in range(2, 5):
         cache.get(model_id, operation, f"input-{i}")
 
-    # Add a new entry, which should evict the least recently used entry (input-0 or input-1)
-    cache.set(model_id, operation, "input-5", {"text": "response-5"})
+    # Add a new entry, which should evict the least recently used entry (input - 0 or input - 1)
+    cache.set(model_id, operation, "input - 5", {"text": "response - 5"})
 
     # Verify the new entry is in the cache
-    result = cache.get(model_id, operation, "input-5")
+    result = cache.get(model_id, operation, "input - 5")
     assert result is not None
 
     # Verify at least one of the least recently used entries was evicted
@@ -479,4 +479,4 @@ def test_cache_eviction_policy(memory_cache_config):
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_cache_coherency.py"])
+    pytest.main([" - v", "test_cache_coherency.py"])

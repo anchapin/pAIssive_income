@@ -65,7 +65,7 @@ def generate_niche_analysis_data() -> Dict[str, Any]:
         Test data for niche analysis
     """
     return {
-        "market_segments": ["e-commerce", "digital-marketing", "education"],
+        "market_segments": ["e - commerce", "digital - marketing", "education"],
         "target_audience": "small businesses",
         "problem_statement": "Small businesses struggle with inventory management",
         "opportunity_score_threshold": 0.7,
@@ -83,7 +83,7 @@ def generate_niche_data() -> Dict[str, Any]:
         "id": generate_id(),
         "name": f"AI {generate_string(8)} Solution",
         "description": f"An AI solution for {generate_string(12)}",
-        "market_segments": ["e-commerce", "digital-marketing"],
+        "market_segments": ["e - commerce", "digital - marketing"],
         "target_audience": "small businesses",
         "problem_statement": f"Small businesses struggle with {generate_string(15)}",
         "opportunity_score": random.uniform(0.5, 1.0),
@@ -162,7 +162,7 @@ def generate_marketing_strategy_data() -> Dict[str, Any]:
             },
             "psychographics": {
                 "interests": ["technology", "business", "productivity"],
-                "values": ["efficiency", "innovation", "cost-effectiveness"],
+                "values": ["efficiency", "innovation", "cost - effectiveness"],
                 "pain_points": ["time management", "resource allocation", "cost control"],
             },
         },
@@ -205,18 +205,18 @@ def generate_ai_model_data() -> Dict[str, Any]:
         "name": f"Model-{generate_string(6)}",
         "description": f"An AI model for {generate_string(12)}",
         "model_type": random.choice(
-            ["text-generation", "text-classification", "embedding", "image", "audio"]
+            ["text - generation", "text - classification", "embedding", "image", "audio"]
         ),
         "provider": random.choice(["openai", "ollama", "lmstudio", "huggingface"]),
         "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 9)}",
         "capabilities": [
             random.choice(
                 [
-                    "text-generation",
-                    "text-classification",
+                    "text - generation",
+                    "text - classification",
                     "embedding",
-                    "image-generation",
-                    "audio-transcription",
+                    "image - generation",
+                    "audio - transcription",
                 ]
             )
             for _ in range(random.randint(1, 3))
@@ -309,7 +309,7 @@ def generate_webhook_data() -> Dict[str, Any]:
         Test data for webhook
     """
     return {
-        "url": f"https://example.com/webhook/{generate_string(8)}",
+        "url": f"https://example.com / webhook/{generate_string(8)}",
         "event_types": [
             random.choice(
                 ["niche.created", "solution.created", "monetization.created", "marketing.created"]
@@ -346,10 +346,10 @@ def generate_template_data() -> Dict[str, Any]:
         "tech_stack": ["python", "fastapi", "react", "postgresql"],
         "features": ["user_auth", "api", "database"],
         "complexity": "medium",
-        "estimated_time": "2-4 weeks",
+        "estimated_time": "2 - 4 weeks",
         "requirements": {
             "min_experience": "intermediate",
-            "team_size": "1-3",
+            "team_size": "1 - 3",
             "tools": ["git", "docker", "vscode"],
         },
     }

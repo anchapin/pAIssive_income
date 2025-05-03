@@ -14,7 +14,7 @@ import numpy as np
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class ONNXModel:
     def __init__(
         self,
         model_path: str,
-        model_type: str = "text-generation",
+        model_type: str = "text - generation",
         tokenizer_path: Optional[str] = None,
         device: str = "auto",
         providers: Optional[List[str]] = None,
@@ -64,11 +64,11 @@ class ONNXModel:
 
         Args:
             model_path: Path to the ONNX model file
-            model_type: Type of model (text-generation, image-classification, etc.)
+            model_type: Type of model (text - generation, image - classification, etc.)
             tokenizer_path: Optional path to the tokenizer (for text models)
             device: Device to run the model on (auto, cpu, cuda, etc.)
             providers: Optional list of execution providers
-            optimization_level: Optimization level (0-99)
+            optimization_level: Optimization level (0 - 99)
             **kwargs: Additional parameters for model initialization
         """
         if not ONNX_AVAILABLE:
@@ -92,7 +92,7 @@ class ONNXModel:
         self.providers = providers
         if self.providers is None:
             if self.device == "auto":
-                # Auto-detect available providers
+                # Auto - detect available providers
                 available_providers = ort.get_available_providers()
 
                 # Prioritize GPU providers if available
@@ -156,7 +156,7 @@ class ONNXModel:
 
             # Load tokenizer if needed and available
             if (
-                self.model_type in ["text-generation", "text-classification", "embedding"]
+                self.model_type in ["text - generation", "text - classification", "embedding"]
                 and TRANSFORMERS_AVAILABLE
             ):
                 self._load_tokenizer()
@@ -216,9 +216,9 @@ class ONNXModel:
                     if "gpt" in model_name.lower():
                         tokenizer_path = "gpt2"
                     elif "bert" in model_name.lower():
-                        tokenizer_path = "bert-base-uncased"
+                        tokenizer_path = "bert - base - uncased"
                     elif "t5" in model_name.lower():
-                        tokenizer_path = "t5-small"
+                        tokenizer_path = "t5 - small"
                     else:
                         logger.warning(
                             "Could not determine tokenizer. Please specify tokenizer_path."
@@ -248,8 +248,8 @@ class ONNXModel:
             prompt: Input prompt
             max_length: Maximum length of generated text
             temperature: Temperature for sampling
-            top_p: Top-p sampling parameter
-            top_k: Top-k sampling parameter
+            top_p: Top - p sampling parameter
+            top_k: Top - k sampling parameter
             **kwargs: Additional parameters for text generation
 
         Returns:
@@ -294,7 +294,7 @@ class ONNXModel:
             outputs = self.session.run(self.output_names, onnx_inputs)
 
             # Process outputs based on model type
-            if self.model_type == "text-generation":
+            if self.model_type == "text - generation":
                 # Get output IDs
                 output_ids = outputs[0]
 
@@ -430,7 +430,7 @@ class ONNXModel:
                     ).numpy()
                 else:
                     # Manual normalization
-                    norms = np.sqrt(np.sum(embeddings**2, axis=1, keepdims=True))
+                    norms = np.sqrt(np.sum(embeddings** 2, axis=1, keepdims=True))
                     embeddings = embeddings / norms
 
             return embeddings
@@ -601,11 +601,11 @@ if __name__ == "__main__":
         exit(1)
 
     # Example model path (replace with an actual ONNX model path)
-    model_path = "path/to/model.onnx"
+    model_path = "path / to / model.onnx"
 
     if os.path.exists(model_path):
         # Create ONNX model
-        model = ONNXModel(model_path=model_path, model_type="text-generation")
+        model = ONNXModel(model_path=model_path, model_type="text - generation")
 
         # Load the model
         model.load()

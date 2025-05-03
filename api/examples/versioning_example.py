@@ -20,7 +20,7 @@ from api.version_manager import ChangeType, VersionManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -34,49 +34,49 @@ def configure_version_manager(version_manager: VersionManager) -> None:
     """
     # Add changes for v1
     version_manager.add_endpoint(
-        endpoint="/api/v1/niche-analysis/analyze",
+        endpoint=" / api / v1 / niche - analysis / analyze",
         version=APIVersion.V1,
         description="Start a niche analysis",
     )
 
     version_manager.add_endpoint(
-        endpoint="/api/v1/niche-analysis/analyses",
+        endpoint=" / api / v1 / niche - analysis / analyses",
         version=APIVersion.V1,
         description="Get all niche analyses",
     )
 
     version_manager.add_endpoint(
-        endpoint="/api/v1/monetization/subscription-models",
+        endpoint=" / api / v1 / monetization / subscription - models",
         version=APIVersion.V1,
         description="Get all subscription models",
     )
 
     # Add changes for v2
     version_manager.add_endpoint(
-        endpoint="/api/v2/niche-analysis/analyze-batch",
+        endpoint=" / api / v2 / niche - analysis / analyze - batch",
         version=APIVersion.V2,
         description="Start a batch niche analysis",
     )
 
     version_manager.modify_endpoint(
-        endpoint="/api/v2/niche-analysis/analyze",
+        endpoint=" / api / v2 / niche - analysis / analyze",
         version=APIVersion.V2,
         description="Modified to support additional parameters",
     )
 
     # Deprecate an endpoint in v2
     version_manager.deprecate_endpoint(
-        endpoint="/api/v1/niche-analysis/analyses",
+        endpoint=" / api / v1 / niche - analysis / analyses",
         version=APIVersion.V2,
-        description="Use /api/v2/niche-analysis/analyses instead",
+        description="Use /api / v2 / niche - analysis / analyses instead",
         sunset_date=datetime.now() + timedelta(days=180),
     )
 
     # Remove an endpoint in v2
     version_manager.remove_endpoint(
-        endpoint="/api/v1/monetization/subscription-models",
+        endpoint=" / api / v1 / monetization / subscription - models",
         version=APIVersion.V2,
-        description="Replaced by /api/v2/monetization/subscription-models",
+        description="Replaced by /api / v2 / monetization / subscription - models",
         from_version=APIVersion.V1,
     )
 

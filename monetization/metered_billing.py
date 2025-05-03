@@ -45,7 +45,7 @@ class MeteredBillingPricing(UsageBasedPricing):
     on the metered usage.
 
     Key features:
-    - Real-time usage tracking and cost calculation
+    - Real - time usage tracking and cost calculation
     - Support for different metering intervals (hourly, daily, monthly)
     - Automatic invoice generation based on metered usage
     - Flexible pricing rules for different usage metrics
@@ -172,7 +172,8 @@ class MeteredBillingPricing(UsageBasedPricing):
         self.metering_interval = interval
 
     def get_interval_start_end(
-        self, reference_time: Optional[datetime] = None, customer_id: Optional[str] = None
+        self, reference_time: Optional[datetime] = None, 
+            customer_id: Optional[str] = None
     ) -> Tuple[datetime, datetime]:
         """
         Get the start and end times for the current metering interval.
@@ -201,7 +202,8 @@ class MeteredBillingPricing(UsageBasedPricing):
             end = start + timedelta(days=1)
         elif self.metering_interval == MeteringInterval.WEEKLY:
             # Start from Monday of the current week
-            start = datetime(now.year, now.month, now.day) - timedelta(days=now.weekday())
+            start = datetime(now.year, now.month, 
+                now.day) - timedelta(days=now.weekday())
             end = start + timedelta(days=7)
         elif self.metering_interval == MeteringInterval.MONTHLY:
             start = datetime(now.year, now.month, 1)
@@ -287,7 +289,8 @@ class MeteredBillingPricing(UsageBasedPricing):
         if total_cost < self.minimum_bill_amount:
             total_cost = self.minimum_bill_amount
 
-        if self.maximum_bill_amount is not None and total_cost > self.maximum_bill_amount:
+        if self.maximum_bill_amount is not None and \
+            total_cost > self.maximum_bill_amount:
             total_cost = self.maximum_bill_amount
 
         # Calculate due date
@@ -383,10 +386,11 @@ class MeteredBillingPricing(UsageBasedPricing):
         # Check if we need to generate an invoice
         if self.auto_invoice:
             now = datetime.now()
-            _, period_end = self.get_interval_start_end(reference_time=now, customer_id=customer_id)
+            _, period_end = self.get_interval_start_end(reference_time=now, 
+                customer_id=customer_id)
 
             # If we're at the end of the billing period, generate an invoice
-            if now >= period_end - timedelta(minutes=5):  # 5-minute buffer
+            if now >= period_end - timedelta(minutes=5):  # 5 - minute buffer
                 invoice_result = self.generate_invoice(customer_id=customer_id)
                 result["invoice"] = invoice_result
 
@@ -404,7 +408,8 @@ if __name__ == "__main__":
 
     # Add metered metrics
     model.add_metered_metric(
-        metric=UsageMetric.API_CALL, price_per_unit=0.01, category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, price_per_unit=0.01, 
+            category=UsageCategory.INFERENCE
     )
 
     model.add_metered_tiered_metric(
@@ -427,7 +432,7 @@ if __name__ == "__main__":
         category=UsageCategory.INFERENCE,
         resource_id="model_gpt4",
         resource_type="model",
-        metadata={"endpoint": "/v1/completions"},
+        metadata={"endpoint": " / v1 / completions"},
     )
 
     print(f"Tracked usage: {result['quantity']} {result['metric']}")

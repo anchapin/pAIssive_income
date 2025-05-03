@@ -13,7 +13,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
-# Third-party imports
+# Third - party imports
 try:
     import nltk
     from nltk.corpus import stopwords
@@ -167,10 +167,11 @@ class ToneAnalyzer(ContentAnalyzer):
     # Define tone categories
     TONE_CATEGORIES = {
         "formal": {
-            "description": "Professional, academic, or business-like tone",
+            "description": "Professional, academic, or business - like tone",
             "patterns": [
                 r"\b(?:therefore|consequently|furthermore|thus|hence|accordingly)\b",
                 r"\b(?:utilize|implement|facilitate|demonstrate|indicate|necessitate)\b",
+                    
                 r"\b(?:in conclusion|in summary|to summarize|in essence)\b",
                 r"\b(?:it is|there are|this is|these are)\b",
                 r"\b(?:one|we|our|us)\b",
@@ -201,9 +202,10 @@ class ToneAnalyzer(ContentAnalyzer):
             ],
         },
         "persuasive": {
-            "description": "Convincing, compelling, or sales-oriented tone",
+            "description": "Convincing, compelling, or sales - oriented tone",
             "patterns": [
                 r"\b(?:you need|you want|you deserve|you can't afford to miss|you should)\b",
+                    
                 r"\b(?:limited time|exclusive|special offer|bonus|free)\b",
                 r"\b(?:guarantee|proven|results|success|transform)\b",
                 r"\b(?:imagine|picture|consider|what if|how would)\b",
@@ -221,6 +223,7 @@ class ToneAnalyzer(ContentAnalyzer):
             "description": "Educational, explanatory, or factual tone",
             "patterns": [
                 r"\b(?:according to|research shows|studies indicate|data suggests|experts say)\b",
+                    
                 r"\b(?:for example|for instance|such as|including|specifically)\b",
                 r"\b(?:defined as|refers to|means|consists of|comprises)\b",
                 r"\b(?:first|second|third|finally|lastly|next|then)\b",
@@ -458,7 +461,7 @@ class ToneAnalyzer(ContentAnalyzer):
         # Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
-                nltk.data.find("tokenizers/punkt")
+                nltk.data.find("tokenizers / punkt")
             except LookupError:
                 nltk.download("punkt")
 
@@ -472,18 +475,23 @@ class ToneAnalyzer(ContentAnalyzer):
         # Start with base config
         config = super().get_default_config()
 
-        # Add tone-specific config
+        # Add tone - specific config
         config.update(
             {
-                "min_tone_consistency": 0.7,  # Minimum consistency score for the target tone
-                "min_sentiment_consistency": 0.6,  # Minimum consistency score for the target sentiment
+                "min_tone_consistency": 0.7,  
+                    # Minimum consistency score for the target tone
+                "min_sentiment_consistency": 0.6,  
+                    # Minimum consistency score for the target sentiment
                 "tone_pattern_weight": 0.6,  # Weight for tone pattern matching
-                "tone_anti_pattern_weight": 0.4,  # Weight for tone anti-pattern matching
+                "tone_anti_pattern_weight": 0.4,  
+                    # Weight for tone anti - pattern matching
                 "sentiment_weight": 0.3,  # Weight for sentiment analysis
                 "check_tone_consistency": True,  # Whether to check tone consistency
-                "check_sentiment_consistency": True,  # Whether to check sentiment consistency
+                "check_sentiment_consistency": True,  
+                    # Whether to check sentiment consistency
                 "check_style_consistency": True,  # Whether to check style consistency
-                "target_tone": self.target_tone or "conversational",  # Default target tone
+                "target_tone": self.target_tone or "conversational",  
+                    # Default target tone
                 "target_sentiment": "positive",  # Default target sentiment
                 "timestamp": datetime.datetime.now().isoformat(),
             }
@@ -500,7 +508,8 @@ class ToneAnalyzer(ContentAnalyzer):
         """
         if target_tone not in self.TONE_CATEGORIES:
             raise ValueError(
-                f"Invalid target tone: {target_tone}. Must be one of: {', '.join(self.TONE_CATEGORIES.keys())}"
+                f"Invalid target tone: {target_tone}. Must be one of: {', 
+                    '.join(self.TONE_CATEGORIES.keys())}"
             )
 
         self.target_tone = target_tone
@@ -527,7 +536,8 @@ class ToneAnalyzer(ContentAnalyzer):
         # Check if target tone is valid
         if self.target_tone and self.target_tone not in self.TONE_CATEGORIES:
             errors.append(
-                f"Invalid target tone: {self.target_tone}. Must be one of: {', '.join(self.TONE_CATEGORIES.keys())}"
+                f"Invalid target tone: {self.target_tone}. Must be one of: {', 
+                    '.join(self.TONE_CATEGORIES.keys())}"
             )
 
         return len(errors) == 0, errors
@@ -603,7 +613,7 @@ class ToneAnalyzer(ContentAnalyzer):
             for pattern in tone_data["patterns"]:
                 pattern_matches += len(re.findall(pattern, text, re.IGNORECASE))
 
-            # Count anti-pattern matches
+            # Count anti - pattern matches
             anti_pattern_matches = 0
 
             for pattern in tone_data["anti_patterns"]:
@@ -615,14 +625,15 @@ class ToneAnalyzer(ContentAnalyzer):
 
             # Normalize by number of sentences
             pattern_score = pattern_matches / len(sentences) if sentences else 0
-            anti_pattern_score = anti_pattern_matches / len(sentences) if sentences else 0
+            anti_pattern_score = anti_pattern_matches / \
+                len(sentences) if sentences else 0
 
             # Calculate weighted score
             tone_score = (pattern_score * pattern_weight) - (
                 anti_pattern_score * anti_pattern_weight
             )
 
-            # Clamp score to 0-1 range
+            # Clamp score to 0 - 1 range
             tone_score = max(0, min(1, tone_score))
 
             # Store tone score
@@ -640,7 +651,8 @@ class ToneAnalyzer(ContentAnalyzer):
         target_tone = self.config["target_tone"]
         target_score = tone_scores[target_tone]["score"]
         consistency = (
-            target_score / dominant_tone[1]["score"] if dominant_tone[1]["score"] > 0 else 0
+            target_score / \
+                dominant_tone[1]["score"] if dominant_tone[1]["score"] > 0 else 0
         )
 
         return {
@@ -818,7 +830,7 @@ class ToneAnalyzer(ContentAnalyzer):
         else:
             # Simple sentence tokenization
             # Split on periods, exclamation points, and question marks
-            sentences = re.split(r"(?<=[.!?])\s+", text)
+            sentences = re.split(r"(?<=[.!?])\s + ", text)
 
             # Filter out empty sentences
             return [s.strip() for s in sentences if s.strip()]
@@ -839,7 +851,8 @@ class ToneAnalyzer(ContentAnalyzer):
 
             # Remove punctuation and stopwords
             stop_words = set(stopwords.words("english"))
-            tokens = [token for token in tokens if token.isalnum() and token not in stop_words]
+            tokens = \
+                [token for token in tokens if token.isalnum() and token not in stop_words]
         else:
             # Simple word tokenization
             # Remove punctuation
@@ -868,9 +881,11 @@ class ToneAnalyzer(ContentAnalyzer):
         sentence_lengths = [len(self._get_words(sentence)) for sentence in sentences]
 
         # Calculate standard deviation of sentence lengths
-        mean_length = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
+        mean_length = sum(sentence_lengths) / \
+            len(sentence_lengths) if sentence_lengths else 0
         variance = (
-            sum((length - mean_length) ** 2 for length in sentence_lengths) / len(sentence_lengths)
+            sum((length - \
+                mean_length) ** 2 for length in sentence_lengths) / len(sentence_lengths)
             if sentence_lengths
             else 0
         )
@@ -922,7 +937,8 @@ class ToneAnalyzer(ContentAnalyzer):
             # Calculate partial score based on how close to consistent
             consistency = self.results["tone_analysis"]["consistency"]
             min_consistency = self.config["min_tone_consistency"]
-            tone_score += 0.4 * (consistency / min_consistency) if min_consistency > 0 else 0
+            tone_score += 0.4 * \
+                (consistency / min_consistency) if min_consistency > 0 else 0
 
         # Score based on sentiment consistency
         if self.results["sentiment_analysis"]["is_consistent"]:
@@ -931,7 +947,8 @@ class ToneAnalyzer(ContentAnalyzer):
             # Calculate partial score based on how close to consistent
             consistency = self.results["sentiment_analysis"]["consistency"]
             min_consistency = self.config["min_sentiment_consistency"]
-            tone_score += 0.3 * (consistency / min_consistency) if min_consistency > 0 else 0
+            tone_score += 0.3 * \
+                (consistency / min_consistency) if min_consistency > 0 else 0
 
         # Score based on style
         style_score = 0.0
@@ -972,15 +989,18 @@ class ToneAnalyzer(ContentAnalyzer):
                         "id": str(uuid.uuid4()),
                         "type": "tone_consistency",
                         "severity": "high",
-                        "message": f"Content tone is predominantly {dominant_tone}, but the target tone is {target_tone}.",
+                        "message": f"Content tone is predominantly {dominant_tone}, 
+                            but the target tone is {target_tone}.",
                         "suggestion": f"Adjust the content to use more {target_tone} language and less {dominant_tone} language.",
+                            
                     }
                 )
 
         # Check sentiment consistency
         if not self.results["sentiment_analysis"]["is_consistent"]:
             target_sentiment = self.config["target_sentiment"]
-            dominant_sentiment = self.results["sentiment_analysis"]["dominant_sentiment"]
+            dominant_sentiment = \
+                self.results["sentiment_analysis"]["dominant_sentiment"]
 
             if dominant_sentiment != target_sentiment:
                 recommendations.append(
@@ -988,8 +1008,10 @@ class ToneAnalyzer(ContentAnalyzer):
                         "id": str(uuid.uuid4()),
                         "type": "sentiment_consistency",
                         "severity": "medium",
-                        "message": f"Content sentiment is predominantly {dominant_sentiment}, but the target sentiment is {target_sentiment}.",
+                        "message": f"Content sentiment is predominantly {dominant_sentiment}, 
+                            but the target sentiment is {target_sentiment}.",
                         "suggestion": f"Adjust the content to use more {target_sentiment} language and less {dominant_sentiment} language.",
+                            
                     }
                 )
 
@@ -1000,8 +1022,10 @@ class ToneAnalyzer(ContentAnalyzer):
                     "id": str(uuid.uuid4()),
                     "type": "sentence_variety",
                     "severity": "medium",
-                    "message": "Sentence length variety is low, which can make the content monotonous.",
-                    "suggestion": "Mix short, medium, and long sentences to improve flow and engagement.",
+                    "message": "Sentence length variety is low, 
+                        which can make the content monotonous.",
+                    "suggestion": "Mix short, medium, 
+                        and long sentences to improve flow and engagement.",
                 }
             )
 
@@ -1012,8 +1036,10 @@ class ToneAnalyzer(ContentAnalyzer):
                     "id": str(uuid.uuid4()),
                     "type": "vocabulary_variety",
                     "severity": "medium",
-                    "message": "Vocabulary variety is low, which can make the content repetitive.",
+                    "message": "Vocabulary variety is low, 
+                        which can make the content repetitive.",
                     "suggestion": "Use a wider range of words and avoid repeating the same terms frequently.",
+                        
                 }
             )
 
@@ -1027,8 +1053,10 @@ class ToneAnalyzer(ContentAnalyzer):
                         "id": str(uuid.uuid4()),
                         "type": "punctuation",
                         "severity": "low",
-                        "message": "Punctuation usage is low, which can make the content hard to read.",
+                        "message": "Punctuation usage is low, 
+                            which can make the content hard to read.",
                         "suggestion": "Add more punctuation to break up long sentences and improve readability.",
+                            
                     }
                 )
             elif punctuation["density"] > 0.1:
@@ -1037,8 +1065,10 @@ class ToneAnalyzer(ContentAnalyzer):
                         "id": str(uuid.uuid4()),
                         "type": "punctuation",
                         "severity": "low",
-                        "message": "Punctuation usage is high, which can make the content choppy.",
+                        "message": "Punctuation usage is high, 
+                            which can make the content choppy.",
                         "suggestion": "Reduce excessive punctuation and combine some shorter sentences.",
+                            
                     }
                 )
 

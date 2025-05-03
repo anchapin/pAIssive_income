@@ -1,7 +1,8 @@
 """
 Subscription management for the pAIssive Income project.
 
-This module provides classes for managing subscription plans, tiers, and user subscriptions.
+This module provides classes for managing subscription plans, tiers, 
+    and user subscriptions.
 It includes tools for subscription lifecycle management and payment processing.
 """
 
@@ -256,7 +257,8 @@ class SubscriptionPlan:
 
         return feature
 
-    def get_feature(self, feature_id: str) -> Optional[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_feature(self, feature_id: str) -> Optional[Union[Dict[str, Any], 
+        FeatureWrapper]]:
         """
         Get a feature by ID.
 
@@ -529,7 +531,7 @@ class SubscriptionPlan:
             tier_id: ID of the tier
             feature_id: ID of the feature
             value: Value of the feature for this tier
-            limit: Limit for quantity-based features
+            limit: Limit for quantity - based features
 
         Returns:
             The updated tier or None if not found
@@ -588,7 +590,8 @@ class SubscriptionPlan:
 
         return False
 
-    def get_tier_features(self, tier_id: str) -> List[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_tier_features(self, tier_id: str) -> List[Union[Dict[str, Any], 
+        FeatureWrapper]]:
         """
         Get all features for a tier with their details.
 
@@ -681,7 +684,8 @@ class SubscriptionPlan:
         Returns:
             Dictionary with comparison data
         """
-        tiers = [self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)]
+        tiers = \
+            [self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)]
 
         if not tiers:
             return {"tiers": [], "features": []}
@@ -822,15 +826,16 @@ class SubscriptionPlan:
 
     def __repr__(self) -> str:
         """Detailed string representation of the subscription plan."""
-        return f"SubscriptionPlan(id={self.id}, name={self.name}, tiers={len(self.tiers)}, features={len(self.features)})"
+        return f"SubscriptionPlan(id={self.id}, name={self.name}, 
+            tiers={len(self.tiers)}, features={len(self.features)})"
 
 
 class SubscriptionTier:
     """
     Helper class for working with subscription tiers.
 
-    This class provides a more object-oriented interface for working with tiers
-    compared to the dictionary-based approach in SubscriptionPlan.
+    This class provides a more object - oriented interface for working with tiers
+    compared to the dictionary - based approach in SubscriptionPlan.
     """
 
     def __init__(self, plan: SubscriptionPlan, tier_id: str):
@@ -907,14 +912,15 @@ class SubscriptionTier:
         """Get the tier features with their details."""
         return self.plan.get_tier_features(self.tier_id)
 
-    def add_feature(self, feature_id: str, value: Any = True, limit: Optional[int] = None) -> bool:
+    def add_feature(self, feature_id: str, value: Any = True, 
+        limit: Optional[int] = None) -> bool:
         """
         Add a feature to this tier.
 
         Args:
             feature_id: ID of the feature
             value: Value of the feature for this tier
-            limit: Limit for quantity-based features
+            limit: Limit for quantity - based features
 
         Returns:
             True if the feature was added, False otherwise
@@ -1009,7 +1015,7 @@ if __name__ == "__main__":
     # Create a subscription plan
     plan = SubscriptionPlan(
         name="AI Tool Subscription",
-        description="Subscription plan for an AI-powered tool",
+        description="Subscription plan for an AI - powered tool",
     )
 
     # Add features

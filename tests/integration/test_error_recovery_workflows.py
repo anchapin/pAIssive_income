@@ -1,7 +1,7 @@
 """
-Integration tests for error recovery in multi-step workflows.
+Integration tests for error recovery in multi - step workflows.
 
-This module tests error recovery scenarios in cross-module workflows, including
+This module tests error recovery scenarios in cross - module workflows, including
 partial failure recovery, data consistency after interruptions, and transaction
 rollback scenarios.
 """
@@ -27,7 +27,7 @@ def market_analyzer():
 
 @pytest.fixture
 def ab_testing():
-    """Create an A/B testing instance for testing."""
+    """Create an A / B testing instance for testing."""
     return ABTesting()
 
 
@@ -62,7 +62,7 @@ def mock_agent_team():
 
 def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_agent_team):
     """
-    Test recovery from partial failures in a multi-step workflow.
+    Test recovery from partial failures in a multi - step workflow.
 
     This test verifies that:
     1. The workflow can detect and handle failures in intermediate steps
@@ -118,7 +118,7 @@ def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_
         raise last_error
 
     # Step 3: Run the workflow and verify recovery
-    result = niche_analysis_workflow("e-commerce")
+    result = niche_analysis_workflow("e - commerce")
 
     # Verify that the workflow recovered and completed successfully
     assert call_count == 2  # First call failed, second succeeded
@@ -129,7 +129,7 @@ def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_
 
     # Verify that the data is consistent
     assert result["selected_niche"] in result["market_analysis"]["potential_niches"]
-    assert result["market_analysis"]["name"] == "E-Commerce"
+    assert result["market_analysis"]["name"] == "E - Commerce"
 
 
 def test_data_consistency_after_interruption(subscription_model, pricing_calculator):
@@ -224,7 +224,7 @@ def test_data_consistency_after_interruption(subscription_model, pricing_calcula
 
 def test_transaction_rollback_scenarios(ab_testing):
     """
-    Test transaction rollback scenarios in multi-step workflows.
+    Test transaction rollback scenarios in multi - step workflows.
 
     This test verifies that:
     1. Transactions can be rolled back when errors occur
@@ -258,7 +258,7 @@ def test_transaction_rollback_scenarios(ab_testing):
 
                 # Simulate failure at specific point if requested
                 if fail_at is not None and i == fail_at:
-                    raise ValueError(f"Simulated failure after {i+1} interactions")
+                    raise ValueError(f"Simulated failure after {i + 1} interactions")
 
             # If we get here, all interactions were recorded successfully
             return True, recorded, None
@@ -278,7 +278,7 @@ def test_transaction_rollback_scenarios(ab_testing):
     assert success_count == 100
 
     assert fail_result is False
-    assert fail_count == 51  # 0-based index, so fail_at=50 means 51 operations
+    assert fail_count == 51  # 0 - based index, so fail_at=50 means 51 operations
     assert isinstance(fail_error, ValueError)
 
     # Step 5: Test concurrent transactions
@@ -329,18 +329,18 @@ def test_workflow_with_compensating_actions(mock_agent_team):
     # Make develop_solution fail on first call
     mock_agent_team.develop_solution.side_effect = [
         ValueError("Simulated error in solution development"),  # First call fails
-        {"id": "solution-123", "name": "Test Solution"},  # Second call succeeds
+        {"id": "solution - 123", "name": "Test Solution"},  # Second call succeeds
     ]
 
     # Make create_monetization_strategy succeed
     mock_agent_team.create_monetization_strategy.return_value = {
-        "id": "monetization-123",
+        "id": "monetization - 123",
         "name": "Test Monetization Strategy",
     }
 
     # Make create_marketing_plan succeed
     mock_agent_team.create_marketing_plan.return_value = {
-        "id": "marketing-123",
+        "id": "marketing - 123",
         "name": "Test Marketing Plan",
     }
 
@@ -441,7 +441,7 @@ def test_workflow_with_compensating_actions(mock_agent_team):
             return False, None, audit_trail
 
     # Step 3: Run the workflow and verify it fails the first time
-    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche-123")
+    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche - 123")
 
     # Verify the workflow failed and recorded the error
     assert success is False
@@ -450,7 +450,7 @@ def test_workflow_with_compensating_actions(mock_agent_team):
     assert mock_agent_team.develop_solution.call_count == 1
 
     # Step 4: Run the workflow again and verify it succeeds
-    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche-123")
+    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche - 123")
 
     # Verify the workflow succeeded
     assert success is True

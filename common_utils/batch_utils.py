@@ -144,7 +144,8 @@ def process_batch(
     # Filter out None values from results
     final_results = [r for r in results if r is not None]
 
-    return BatchResult(items=items, results=final_results, errors=errors, batch_id=batch_id)
+    return BatchResult(items=items, results=final_results, errors=errors, 
+        batch_id=batch_id)
 
 
 def process_batches(
@@ -219,18 +220,21 @@ def aggregate_batch_results(
     )
 
     # Set start time to the earliest start time of any batch
-    start_times = [result.stats.start_time for result in batch_results if result.stats.start_time]
+    start_times = \
+        [result.stats.start_time for result in batch_results if result.stats.start_time]
     if start_times:
         aggregate_stats.start_time = min(start_times)
 
     # Set end time to the latest end time of any batch
-    end_times = [result.stats.end_time for result in batch_results if result.stats.end_time]
+    end_times = \
+        [result.stats.end_time for result in batch_results if result.stats.end_time]
     if end_times:
         aggregate_stats.end_time = max(end_times)
 
     # Calculate total processing time
     if aggregate_stats.start_time and aggregate_stats.end_time:
-        time_diff = (aggregate_stats.end_time - aggregate_stats.start_time).total_seconds()
+        time_diff = (aggregate_stats.end_time - \
+            aggregate_stats.start_time).total_seconds()
         aggregate_stats.processing_time_ms = time_diff * 1000
 
     # Aggregate results and errors
@@ -282,7 +286,8 @@ class BatchProcessor(Generic[T, R]):
         self.timeout = timeout
         self.batch_results = []
 
-    def process(self, items: List[T], batch_size: Optional[int] = None) -> BatchResult[T, R]:
+    def process(self, items: List[T], batch_size: Optional[int] = None) -> BatchResult[T, 
+        R]:
         """
         Process items in batches and return the aggregated result.
 
@@ -296,7 +301,7 @@ class BatchProcessor(Generic[T, R]):
         effective_batch_size = batch_size or self.batch_size
 
         # Generate a batch ID prefix
-        batch_id_prefix = f"batch-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        batch_id_prefix = f"batch-{datetime.now().strftime(' % Y%m % d-%H % M%S')}"
 
         # Process in batches
         batch_results = process_batches(
@@ -350,7 +355,8 @@ class StreamingBatchProcessor(Generic[T, R]):
         self.max_workers = max_workers
         self.timeout = timeout
 
-    def process_stream(self, items_iterator: Iterator[T]) -> Iterator[Union[R, Exception]]:
+    def process_stream(self, items_iterator: Iterator[T]) -> Iterator[Union[R, 
+        Exception]]:
         """
         Process items from an iterator and yield results as they become available.
 
@@ -420,7 +426,8 @@ def estimate_optimal_batch_size(
         min_batch_size: Minimum batch size to consider
         max_batch_size: Maximum batch size to consider
         target_batch_time_ms: Target processing time for each batch in milliseconds
-        test_sizes: List of batch sizes to test (defaults to [min_batch_size, min*2, min*4])
+        test_sizes: List of batch sizes to test (defaults to [min_batch_size, min * 2, 
+            min * 4])
 
     Returns:
         Recommended batch size

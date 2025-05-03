@@ -1,5 +1,5 @@
 """
-Consul-based implementation of the service registry interface.
+Consul - based implementation of the service registry interface.
 
 This module provides a Consul implementation of the ServiceRegistry interface
 for service discovery in the pAIssive income microservices architecture.
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConsulServiceRegistry(ServiceRegistry):
-    """Consul-based implementation of the service registry."""
+    """Consul - based implementation of the service registry."""
 
     def __init__(self, host: str = "localhost", port: int = 8500):
         """
@@ -84,13 +84,13 @@ class ConsulServiceRegistry(ServiceRegistry):
 
     def renew(self, service_id: str) -> bool:
         """
-        Renew a service registration (for TTL-based checks).
+        Renew a service registration (for TTL - based checks).
 
         Note: This is primarily used for custom TTL checks. With HTTP checks,
         Consul handles the checking automatically based on the interval.
         """
         try:
-            # For TTL-based checks, we would use check.check_pass
+            # For TTL - based checks, we would use check.check_pass
             # This is a simplified version assuming the check is named after the service ID
             self.consul_client.agent.check.ttl_pass(f"service:{service_id}")
             logger.debug(f"Renewed TTL for service {service_id}")

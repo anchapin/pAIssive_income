@@ -22,7 +22,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    " / ",
     response_model=APIKeyResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
@@ -38,7 +38,7 @@ async def create_api_key(data: APIKeyCreate = Body(...), user: dict = Depends(ge
             "id": "test_key_id",
             "name": data.name,
             "key": "test_api_key",
-            "created_at": "2025-04-30T00:00:00Z",
+            "created_at": "2025 - 04 - 30T00:00:00Z",
             "expires_at": None,
             "last_used_at": None,
         }
@@ -48,7 +48,7 @@ async def create_api_key(data: APIKeyCreate = Body(...), user: dict = Depends(ge
 
 
 @router.get(
-    "/",
+    " / ",
     response_model=APIKeyList,
     responses={
         200: {"description": "List of API keys"},
@@ -86,7 +86,7 @@ async def update_api_key(
             "id": api_key_id,
             "name": data.name,
             "key": "test_api_key",
-            "created_at": "2025-04-30T00:00:00Z",
+            "created_at": "2025 - 04 - 30T00:00:00Z",
             "expires_at": data.expires_at,
             "last_used_at": None,
         }

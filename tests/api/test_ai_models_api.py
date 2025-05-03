@@ -37,7 +37,7 @@ class TestAIModelsAPI:
     def test_get_models(self, api_test_client: APITestClient):
         """Test getting all AI models."""
         # Make request
-        response = api_test_client.get("ai-models/models")
+        response = api_test_client.get("ai - models / models")
 
         # Validate response
         result = validate_paginated_response(response)
@@ -51,7 +51,7 @@ class TestAIModelsAPI:
         model_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"ai-models/models/{model_id}")
+        response = api_test_client.get(f"ai - models / models/{model_id}")
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -88,7 +88,7 @@ class TestAIModelsAPI:
         }
 
         # Make request
-        response = api_test_client.post("ai-models/inference", data)
+        response = api_test_client.post("ai - models / inference", data)
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -110,7 +110,7 @@ class TestAIModelsAPI:
         model_id = generate_id()
 
         # Make request
-        response = api_test_client.get(f"ai-models/models/{model_id}/metrics")
+        response = api_test_client.get(f"ai - models / models/{model_id}/metrics")
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -137,7 +137,7 @@ class TestAIModelsAPI:
     def test_get_model_providers(self, api_test_client: APITestClient):
         """Test getting all AI model providers."""
         # Make request
-        response = api_test_client.get("ai-models/providers")
+        response = api_test_client.get("ai - models / providers")
 
         # Validate response
         result = validate_success_response(response)
@@ -149,7 +149,7 @@ class TestAIModelsAPI:
     def test_get_model_types(self, api_test_client: APITestClient):
         """Test getting all AI model types."""
         # Make request
-        response = api_test_client.get("ai-models/types")
+        response = api_test_client.get("ai - models / types")
 
         # Validate response
         result = validate_success_response(response)
@@ -171,7 +171,7 @@ class TestAIModelsAPI:
         }
 
         # Make request
-        response = api_test_client.post("ai-models/batch-inference", data)
+        response = api_test_client.post("ai - models / batch - inference", data)
 
         # This might return 404 if the model doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -191,7 +191,7 @@ class TestAIModelsAPI:
         """Test filtering AI models."""
         # Make request with filter
         response = api_test_client.get(
-            "ai-models/models",
+            "ai - models / models",
             params={"filter": "provider:eq:openai", "sort": "name:asc", "page": 1, "page_size": 10},
         )
 
@@ -210,7 +210,7 @@ class TestAIModelsAPI:
     def test_invalid_inference_request(self, api_test_client: APITestClient):
         """Test invalid inference request."""
         # Make request with invalid data
-        response = api_test_client.post("ai-models/inference", {})
+        response = api_test_client.post("ai - models / inference", {})
 
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
@@ -218,10 +218,10 @@ class TestAIModelsAPI:
     def test_nonexistent_model(self, api_test_client: APITestClient):
         """Test getting a nonexistent AI model."""
         # Generate a random ID that is unlikely to exist
-        model_id = "nonexistent-" + generate_id()
+        model_id = "nonexistent - " + generate_id()
 
         # Make request
-        response = api_test_client.get(f"ai-models/models/{model_id}")
+        response = api_test_client.get(f"ai - models / models/{model_id}")
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found

@@ -63,7 +63,8 @@ class TeamWorkspace:
         }
 
         # Set up storage
-        self.storage_path = storage_path or os.path.join("workspaces", self.workspace_id)
+        self.storage_path = storage_path or os.path.join("workspaces", 
+            self.workspace_id)
         os.makedirs(self.storage_path, exist_ok=True)
 
         # Set up role manager
@@ -121,7 +122,8 @@ class TeamWorkspace:
 
         # Viewer role - can only view
         viewer_role = Role("viewer", "Can only view projects")
-        viewer_permissions = [Permission.VIEW_WORKSPACE, Permission.VIEW_ASSIGNED_PROJECTS]
+        viewer_permissions = [Permission.VIEW_WORKSPACE, 
+            Permission.VIEW_ASSIGNED_PROJECTS]
         for perm in viewer_permissions:
             viewer_role.add_permission(perm)
         self.role_manager.add_role(viewer_role)
@@ -144,7 +146,8 @@ class TeamWorkspace:
             WorkspaceError: If the user is already a member or the role is invalid
         """
         if user_id in self.members:
-            raise WorkspaceError(f"User {user_id} is already a member of this workspace")
+            raise WorkspaceError(
+                f"User {user_id} is already a member of this workspace")
 
         if not self.role_manager.role_exists(role):
             raise WorkspaceError(f"Invalid role: {role}")
@@ -162,7 +165,8 @@ class TeamWorkspace:
         self.updated_at = datetime.now().isoformat()
         self._save_workspace_data()
 
-        logger.info(f"Added user {user_id} to workspace {self.workspace_id} with role {role}")
+        logger.info(
+            f"Added user {user_id} to workspace {self.workspace_id} with role {role}")
         return member_info
 
     def remove_member(self, user_id: str, removed_by: Optional[str] = None) -> bool:
@@ -254,7 +258,8 @@ class TeamWorkspace:
             WorkspaceError: If the project already exists
         """
         if project_id in self.projects:
-            raise WorkspaceError(f"Project {project_id} already exists in this workspace")
+            raise WorkspaceError(
+                f"Project {project_id} already exists in this workspace")
 
         project_info = {
             "project_id": project_id,
@@ -282,7 +287,8 @@ class TeamWorkspace:
         project_dir = os.path.join(self.storage_path, "projects", project_id)
         os.makedirs(project_dir, exist_ok=True)
 
-        logger.info(f"Added project {project_name} ({project_id}) to workspace {self.workspace_id}")
+        logger.info(
+            f"Added project {project_name} ({project_id}) to workspace {self.workspace_id}")
         return project_info
 
     def remove_project(self, project_id: str, removed_by: Optional[str] = None) -> bool:
@@ -300,7 +306,8 @@ class TeamWorkspace:
             WorkspaceError: If the project does not exist
         """
         if project_id not in self.projects:
-            raise WorkspaceError(f"Project {project_id} does not exist in this workspace")
+            raise WorkspaceError(
+                f"Project {project_id} does not exist in this workspace")
 
         del self.projects[project_id]
         self.updated_at = datetime.now().isoformat()
@@ -392,7 +399,8 @@ class TeamWorkspace:
             json.dump(self.to_dict(), f, indent=2)
 
     @classmethod
-    def load(cls, workspace_id: str, storage_path: Optional[str] = None) -> "TeamWorkspace":
+    def load(cls, workspace_id: str, 
+        storage_path: Optional[str] = None) -> "TeamWorkspace":
         """
         Load a workspace from disk.
 
@@ -468,7 +476,8 @@ class WorkspaceManager:
                     logger.error(f"Failed to load workspace {workspace_id}: {e}")
 
     def create_workspace(
-        self, name: str, description: Optional[str] = None, owner_id: Optional[str] = None
+        self, name: str, description: Optional[str] = None, 
+            owner_id: Optional[str] = None
     ) -> TeamWorkspace:
         """
         Create a new workspace.

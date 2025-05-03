@@ -31,21 +31,22 @@ def print_section(title: str) -> None:
 
 def print_separator() -> None:
     """Print a separator line."""
-    print("\n" + "-" * 80 + "\n")
+    print("\n" + " - " * 80 + "\n")
 
 
 def demonstrate_time_based_pricing() -> None:
-    """Demonstrate time-based pricing."""
-    print_section("Time-Based Pricing")
+    """Demonstrate time - based pricing."""
+    print_section("Time - Based Pricing")
 
-    # Create a time-based pricing rule
+    # Create a time - based pricing rule
     rule = TimeBasedPricingRule(
         metric=UsageMetric.API_CALL,
         time_rates={
-            "weekday:1-5": 0.01,  # $0.01 per API call on weekdays
-            "weekend:6-7": 0.005,  # $0.005 per API call on weekends
-            "hour:9-17": 0.015,  # $0.015 per API call during business hours
-            "hour:0-8,18-23": 0.008,  # $0.008 per API call during non-business hours
+            "weekday:1 - 5": 0.01,  # $0.01 per API call on weekdays
+            "weekend:6 - 7": 0.005,  # $0.005 per API call on weekends
+            "hour:9 - 17": 0.015,  # $0.015 per API call during business hours
+            "hour:0 - 8,18 - 23": 0.008,  
+                # $0.008 per API call during non - business hours
         },
         default_rate=0.01,
         category=UsageCategory.INFERENCE,
@@ -74,19 +75,21 @@ def demonstrate_time_based_pricing() -> None:
     for test_time in test_times:
         # Override the current time for testing
         rule.get_rate_for_time = (
-            lambda timestamp=None, test_time=test_time: rule._get_rate_for_time_impl(test_time)
+            lambda timestamp=None, 
+                test_time=test_time: rule._get_rate_for_time_impl(test_time)
         )
 
         # Calculate cost
         cost = calculator.calculate_cost(
-            metric=UsageMetric.API_CALL, quantity=quantity, category=UsageCategory.INFERENCE
+            metric=UsageMetric.API_CALL, quantity=quantity, 
+                category=UsageCategory.INFERENCE
         )
 
         # Determine the applicable rate
         rate = rule.get_rate_for_time()
 
         # Format the time
-        time_str = test_time.strftime("%A at %I:%M %p")
+        time_str = test_time.strftime(" % A at %I:%M %p")
 
         print(f"- {time_str}: ${cost:.2f} (rate: ${rate:.3f} per call)")
 
@@ -137,19 +140,21 @@ def demonstrate_seasonal_pricing() -> None:
     for test_date in test_dates:
         # Override the current time for testing
         rule.get_rate_for_season = (
-            lambda timestamp=None, test_date=test_date: rule._get_rate_for_season_impl(test_date)
+            lambda timestamp=None, 
+                test_date=test_date: rule._get_rate_for_season_impl(test_date)
         )
 
         # Calculate cost
         cost = calculator.calculate_cost(
-            metric=UsageMetric.STORAGE, quantity=quantity, category=UsageCategory.STORAGE
+            metric=UsageMetric.STORAGE, quantity=quantity, 
+                category=UsageCategory.STORAGE
         )
 
         # Determine the applicable rate
         rate = rule.get_rate_for_season()
 
         # Format the date
-        date_str = test_date.strftime("%B %d")
+        date_str = test_date.strftime(" % B %d")
 
         # Determine the season
         month = test_date.month
@@ -168,7 +173,8 @@ def demonstrate_seasonal_pricing() -> None:
         elif month == 1 and test_date.day == 1:
             holiday = " (New Year)"
 
-        print(f"- {date_str} ({season}{holiday}): ${cost:.2f} (rate: ${rate:.3f} per GB)")
+        print(
+            f"- {date_str} ({season}{holiday}): ${cost:.2f} (rate: ${rate:.3f} per GB)")
 
 
 def demonstrate_customer_segment_pricing() -> None:
@@ -185,9 +191,11 @@ def demonstrate_customer_segment_pricing() -> None:
             "industry:education": 0.0012,  # $0.0012 per token for education industry
             "industry:healthcare": 0.0013,  # $0.0013 per token for healthcare industry
             "region:eu": 0.0018,  # $0.0018 per token for EU customers (GDPR compliance)
-            "age:0-30": 0.0018,  # $0.0018 per token for new customers (0-30 days)
-            "age:31-90": 0.0016,  # $0.0016 per token for recent customers (31-90 days)
-            "age:91+": 0.0014,  # $0.0014 per token for established customers (91+ days)
+            "age:0 - 30": 0.0018,  # $0.0018 per token for new customers (0 - 30 days)
+            "age:31 - 90": 0.0016,  
+                # $0.0016 per token for recent customers (31 - 90 days)
+            "age:91 + ": 0.0014,  
+                # $0.0014 per token for established customers (91+ days)
         },
         default_rate=0.002,
         category=UsageCategory.INFERENCE,
@@ -205,7 +213,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "free",
                 "industry": "technology",
                 "region": "us",
-                "created_at": "2023-01-01T00:00:00",
+                "created_at": "2023 - 01 - 01T00:00:00",
             },
         },
         {
@@ -214,7 +222,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "premium",
                 "industry": "finance",
                 "region": "us",
-                "created_at": "2022-01-01T00:00:00",
+                "created_at": "2022 - 01 - 01T00:00:00",
             },
         },
         {
@@ -223,7 +231,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "enterprise",
                 "industry": "manufacturing",
                 "region": "us",
-                "created_at": "2021-01-01T00:00:00",
+                "created_at": "2021 - 01 - 01T00:00:00",
             },
         },
         {
@@ -232,7 +240,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "premium",
                 "industry": "education",
                 "region": "us",
-                "created_at": "2022-06-01T00:00:00",
+                "created_at": "2022 - 06 - 01T00:00:00",
             },
         },
         {
@@ -241,7 +249,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "premium",
                 "industry": "healthcare",
                 "region": "us",
-                "created_at": "2022-06-01T00:00:00",
+                "created_at": "2022 - 06 - 01T00:00:00",
             },
         },
         {
@@ -250,7 +258,7 @@ def demonstrate_customer_segment_pricing() -> None:
                 "tier": "premium",
                 "industry": "technology",
                 "region": "eu",
-                "created_at": "2022-06-01T00:00:00",
+                "created_at": "2022 - 06 - 01T00:00:00",
             },
         },
         {
@@ -288,7 +296,8 @@ def demonstrate_customer_segment_pricing() -> None:
 
     for customer in test_customers:
         # Calculate cost
-        cost = rule.calculate_custom_cost(quantity=quantity, customer_data=customer["data"])
+        cost = rule.calculate_custom_cost(quantity=quantity, 
+            customer_data=customer["data"])
 
         # Determine the applicable rate
         rate = rule.get_rate_for_segment(customer["data"])
@@ -318,7 +327,8 @@ def demonstrate_conditional_pricing() -> None:
             },
             {
                 "condition": "customer.tier == 'enterprise' and usage.average > 50",
-                "rate": 0.07,  # $0.07 per hour for enterprise customers with high average usage
+                "rate": 0.07,  
+                    # $0.07 per hour for enterprise customers with high average usage
             },
             {
                 "condition": "quantity < 10 and customer.tier == 'free'",
@@ -403,18 +413,20 @@ def demonstrate_conditional_pricing() -> None:
         rate = rule.get_rate_for_conditions(scenario["quantity"], scenario["context"])
 
         print(
-            f"- {scenario['name']} ({scenario['quantity']} hours): ${cost:.2f} (rate: ${rate:.2f} per hour)"
+            f"- {scenario['name']} (
+                {scenario['quantity']} hours): ${cost:.2f} (rate: ${rate:.2f} per hour)"
         )
 
 
 def demonstrate_formula_based_pricing() -> None:
-    """Demonstrate formula-based pricing."""
-    print_section("Formula-Based Pricing")
+    """Demonstrate formula - based pricing."""
+    print_section("Formula - Based Pricing")
 
-    # Create a formula-based pricing rule
+    # Create a formula - based pricing rule
     rule = FormulaBasedPricingRule(
         metric=UsageMetric.BANDWIDTH,
-        formula="base_fee + q * rate * (1 - volume_discount * min(1, q / discount_threshold))",
+        formula="base_fee + q * rate * (1 - volume_discount * min(1, 
+            q / discount_threshold))",
         variables={
             "base_fee": 5.0,  # $5.00 base fee
             "rate": 0.1,  # $0.10 per GB
@@ -439,7 +451,8 @@ def demonstrate_formula_based_pricing() -> None:
     for quantity in test_quantities:
         # Calculate cost
         cost = calculator.calculate_cost(
-            metric=UsageMetric.BANDWIDTH, quantity=quantity, category=UsageCategory.NETWORK
+            metric=UsageMetric.BANDWIDTH, quantity=quantity, 
+                category=UsageCategory.NETWORK
         )
 
         # Calculate effective rate
@@ -453,13 +466,15 @@ def demonstrate_formula_based_pricing() -> None:
         )
 
         print(
-            f"- {quantity} GB: ${cost:.2f} (effective rate: ${effective_rate:.3f} per GB, discount: {discount_percentage:.1f}%)"
+            f"- {quantity} GB: ${cost:.2f} (effective rate: ${effective_rate:.3f} per GB, 
+                discount: {discount_percentage:.1f}%)"
         )
 
-    # Create another formula-based pricing rule with a more complex formula
+    # Create another formula - based pricing rule with a more complex formula
     complex_rule = FormulaBasedPricingRule(
         metric=UsageMetric.TOKEN,
-        formula="base_rate * q * (1 - tier_discount) * (1 - seasonal_discount if time_month in [6, 7, 8] else 0) * (1 - loyalty_discount * min(1, customer_age / 365))",
+        formula="base_rate * q * (1 - tier_discount) * (1 - seasonal_discount if time_month in [6, 
+            7, 8] else 0) * (1 - loyalty_discount * min(1, customer_age / 365))",
         variables={
             "base_rate": 0.002,  # $0.002 per token
             "tier_discount": 0.1,  # 10% tier discount
@@ -502,9 +517,11 @@ def demonstrate_formula_based_pricing() -> None:
         * 100
     )
 
-    print(f"- {quantity} tokens: ${cost:.2f} (effective rate: ${effective_rate:.5f} per token)")
     print(
-        f"  Discount breakdown: Tier: {tier_discount:.1f}%, Seasonal: {seasonal_discount:.1f}%, Loyalty: {loyalty_discount:.1f}%"
+        f"- {quantity} tokens: ${cost:.2f} (effective rate: ${effective_rate:.5f} per token)")
+    print(
+        f"  Discount breakdown: Tier: {tier_discount:.1f}%, 
+            Seasonal: {seasonal_discount:.1f}%, Loyalty: {loyalty_discount:.1f}%"
     )
 
 
@@ -515,11 +532,11 @@ def demonstrate_combined_pricing() -> None:
     # Create a calculator with multiple rules
     calculator = CustomPricingCalculator()
 
-    # Add time-based pricing for API calls
+    # Add time - based pricing for API calls
     calculator.add_custom_rule(
         TimeBasedPricingRule(
             metric=UsageMetric.API_CALL,
-            time_rates={"weekday:1-5": 0.01, "weekend:6-7": 0.005},
+            time_rates={"weekday:1 - 5": 0.01, "weekend:6 - 7": 0.005},
             default_rate=0.01,
             category=UsageCategory.INFERENCE,
         )
@@ -550,18 +567,20 @@ def demonstrate_combined_pricing() -> None:
         ConditionalPricingRule(
             metric=UsageMetric.COMPUTE_TIME,
             conditions=[
-                {"condition": "time.is_weekend and customer.tier == 'premium'", "rate": 0.06}
+                {"condition": "time.is_weekend and customer.tier == 'premium'", 
+                    "rate": 0.06}
             ],
             default_rate=0.1,
             category=UsageCategory.COMPUTE,
         )
     )
 
-    # Add formula-based pricing for bandwidth
+    # Add formula - based pricing for bandwidth
     calculator.add_custom_rule(
         FormulaBasedPricingRule(
             metric=UsageMetric.BANDWIDTH,
-            formula="base_fee + q * rate * (1 - volume_discount * min(1, q / discount_threshold))",
+            formula="base_fee + q * rate * (1 - volume_discount * min(1, 
+                q / discount_threshold))",
             variables={
                 "base_fee": 5.0,
                 "rate": 0.1,
@@ -578,9 +597,10 @@ def demonstrate_combined_pricing() -> None:
             "tier": "premium",
             "industry": "technology",
             "region": "us",
-            "created_at": "2023-01-01T00:00:00",
+            "created_at": "2023 - 01 - 01T00:00:00",
         },
-        "time": {"hour": datetime.now().hour, "is_weekend": datetime.now().isoweekday() >= 6},
+        "time": {"hour": datetime.now().hour, 
+            "is_weekend": datetime.now().isoweekday() >= 6},
         "usage": {"total": 1000, "average": 50},
     }
 
@@ -637,15 +657,15 @@ def demonstrate_combined_pricing() -> None:
     print("INVOICE")
     print("=" * 40)
     print(f"Customer: Premium Technology Customer")
-    print(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
+    print(f"Date: {datetime.now().strftime(' % Y-%m-%d')}")
     print(f"Invoice #: INV-{random.randint(10000, 99999)}")
-    print("-" * 40)
+    print(" - " * 40)
     print(f"API Calls: 100 @ variable rate      ${api_cost:.2f}")
     print(f"Storage: 10 GB @ seasonal rate      ${storage_cost:.2f}")
     print(f"Tokens: 1000 @ segment rate         ${token_cost:.2f}")
     print(f"Compute: 10 hours @ conditional rate ${compute_cost:.2f}")
     print(f"Bandwidth: 50 GB @ formula rate     ${bandwidth_cost:.2f}")
-    print("-" * 40)
+    print(" - " * 40)
     print(f"Subtotal:                          ${total_cost:.2f}")
     print(f"Tax (10%):                         ${total_cost * 0.1:.2f}")
     print(f"Total:                             ${total_cost * 1.1:.2f}")

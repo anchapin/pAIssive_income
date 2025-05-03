@@ -28,7 +28,7 @@ from ai_models.serving import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -136,7 +136,7 @@ def test_grpc_server(model_path: str, host: str = "127.0.0.1", port: int = 50051
 
 
 def test_docker_deployment(
-    model_path: str, output_dir: str, image_name: str = "ai-model-server"
+    model_path: str, output_dir: str, image_name: str = "ai - model - server"
 ) -> None:
     """
     Test Docker deployment.
@@ -155,16 +155,16 @@ def test_docker_deployment(
         config = DockerConfig(
             image_name=image_name,
             image_tag="latest",
-            base_image="python:3.9-slim",
+            base_image="python:3.9 - slim",
             server_type="rest",
             model_path=model_path,
-            model_type="text-generation",
+            model_type="text - generation",
             port=8000,
             cpu_limit="1",
             memory_limit="4Gi",
             gpu_count=0,
             env_vars={"LOG_LEVEL": "INFO", "MAX_BATCH_SIZE": "4"},
-            volumes=[{"source": "./models", "target": "/app/models"}],
+            volumes=[{"source": "./models", "target": " / app / models"}],
             additional_packages=[
                 "torch>=1.10.0",
                 "transformers>=4.20.0",
@@ -190,7 +190,7 @@ def test_docker_deployment(
 def test_kubernetes_deployment(
     model_path: str,
     output_dir: str,
-    name: str = "ai-model-server",
+    name: str = "ai - model - server",
     namespace: str = "default",
 ) -> None:
     """
@@ -211,7 +211,7 @@ def test_kubernetes_deployment(
         config = KubernetesConfig(
             name=name,
             namespace=namespace,
-            image="ai-model-server:latest",
+            image="ai - model - server:latest",
             server_type="rest",
             port=8000,
             replicas=1,
@@ -224,7 +224,7 @@ def test_kubernetes_deployment(
             gpu_limit=0,
             env_vars={
                 "MODEL_PATH": model_path,
-                "MODEL_TYPE": "text-generation",
+                "MODEL_TYPE": "text - generation",
                 "SERVER_TYPE": "rest",
                 "PORT": "8000",
                 "LOG_LEVEL": "INFO",
@@ -233,14 +233,14 @@ def test_kubernetes_deployment(
             volumes=[
                 {
                     "type": "persistentVolumeClaim",
-                    "source": "models-pvc",
-                    "target": "/app/models",
+                    "source": "models - pvc",
+                    "target": " / app / models",
                 }
             ],
             service_type="ClusterIP",
             enable_ingress=True,
-            ingress_host="model-server.example.com",
-            ingress_path="/",
+            ingress_host="model - server.example.com",
+            ingress_path=" / ",
             ingress_tls=False,
             enable_hpa=True,
             min_replicas=1,
@@ -265,8 +265,8 @@ def test_cloud_deployment(
     model_path: str,
     output_dir: str,
     provider: str = "aws",
-    name: str = "ai-model-server",
-    region: str = "us-west-2",
+    name: str = "ai - model - server",
+    region: str = "us - west - 2",
 ) -> None:
     """
     Test cloud deployment.
@@ -301,9 +301,9 @@ def test_cloud_deployment(
             server_type="rest",
             port=8000,
             model_path=model_path,
-            model_type="text-generation",
+            model_type="text - generation",
             instance_type=(
-                "ml.m5.large" if cloud_provider == CloudProvider.AWS else "n1-standard-2"
+                "ml.m5.large" if cloud_provider == CloudProvider.AWS else "n1 - standard - 2"
             ),
             cpu_count=2,
             memory_gb=8,
@@ -336,9 +336,9 @@ def main():
     Main function to demonstrate the serving utilities.
     """
     parser = argparse.ArgumentParser(description="Test serving utilities")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+    parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
     parser.add_argument(
-        "--output-dir",
+        "--output - dir",
         type=str,
         default="deployment",
         help="Directory to save deployment files",

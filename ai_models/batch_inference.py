@@ -65,7 +65,8 @@ class BatchInferenceResult(Generic[T, R]):
 
     def get_failed_inputs(self) -> List[Tuple[int, T, Exception]]:
         """Get inputs that resulted in errors along with their exceptions."""
-        return [(idx, self.request.inputs[idx], error) for idx, error in self.errors.items()]
+        return [(idx, self.request.inputs[idx], error) for idx, 
+            error in self.errors.items()]
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -128,7 +129,8 @@ class BatchInferenceProcessor:
             prompts: List of prompts to process
             model_version: Optional version of the model
             batch_size: Size of each batch (defaults to default_batch_size)
-            concurrency: Concurrency level within each batch (defaults to default_concurrency)
+            concurrency: Concurrency level within each batch (
+                defaults to default_concurrency)
             **kwargs: Additional parameters for text generation
 
         Returns:
@@ -219,7 +221,8 @@ class BatchInferenceProcessor:
             texts: List of texts to embed
             model_version: Optional version of the model
             batch_size: Size of each batch (defaults to default_batch_size)
-            concurrency: Concurrency level within each batch (defaults to default_concurrency)
+            concurrency: Concurrency level within each batch (
+                defaults to default_concurrency)
             **kwargs: Additional parameters for embedding generation
 
         Returns:

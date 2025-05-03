@@ -26,10 +26,10 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.config = APIConfig(
-            jwt_secret="test-secret",
+            jwt_secret="test - secret",
             jwt_algorithm="HS256",
             jwt_expires_minutes=60,
-            api_keys=["test-api-key"],
+            api_keys=["test - api - key"],
         )
         self.auth_middleware = AuthMiddleware(self.config)
 
@@ -384,7 +384,7 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
             if "elevated_until" in user_data and "permissions" in user_data:
                 elevated_until = datetime.fromisoformat(user_data["elevated_until"])
                 if elevated_until < datetime.now():
-                    # Elevation has expired, fall back to role-based permissions
+                    # Elevation has expired, fall back to role - based permissions
                     return self._has_permission({"role": user_data["role"]}, permission)
                 else:
                     # Elevation is still valid
@@ -480,7 +480,7 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         self.assertEqual(elevation_request["status"], "pending")
 
         # Approve request
-        approver_id = "admin-456"
+        approver_id = "admin - 456"
         approved_request = approve_elevation(elevation_request["id"], approver_id)
 
         # Create elevated token

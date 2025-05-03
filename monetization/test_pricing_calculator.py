@@ -16,11 +16,12 @@ def test_pricing_calculator():
     calculator = PricingCalculator(
         name="Test Pricing Calculator",
         description="A test pricing calculator",
-        pricing_strategy="value-based",
+        pricing_strategy="value - based",
     )
 
     # Test calculate_price
-    price = calculator.calculate_price(base_value=10.0, tier_multiplier=2.0, market_adjustment=1.0)
+    price = calculator.calculate_price(base_value=10.0, tier_multiplier=2.0, 
+        market_adjustment=1.0)
     assert price == 19.99, f"Expected price to be 19.99, got {price}"
 
     # Create a subscription model for testing
@@ -31,11 +32,13 @@ def test_pricing_calculator():
     # Add tiers
     free_tier = model.add_tier(name="Free", description="Free tier", price_monthly=0.0)
 
-    basic_tier = model.add_tier(name="Basic", description="Basic tier", price_monthly=9.99)
+    basic_tier = model.add_tier(name="Basic", description="Basic tier", 
+        price_monthly=9.99)
 
     pro_tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
 
-    premium_tier = model.add_tier(name="Premium", description="Premium tier", price_monthly=49.99)
+    premium_tier = model.add_tier(name="Premium", description="Premium tier", 
+        price_monthly=49.99)
 
     # Test calculate_optimal_prices
     prices = calculator.calculate_optimal_prices(
@@ -78,7 +81,8 @@ def test_pricing_calculator():
     ), f"Expected 'Test Pricing Calculator', got '{calculator_dict['name']}'"
 
     calculator_json = calculator.to_json()
-    assert isinstance(calculator_json, str), f"Expected string, got {type(calculator_json)}"
+    assert isinstance(calculator_json, str), f"Expected string, 
+        got {type(calculator_json)}"
 
     # Test save_to_file and load_from_file
     test_file = "test_calculator.json"
@@ -90,7 +94,8 @@ def test_pricing_calculator():
     ), f"Expected '{calculator.name}', got '{loaded_calculator.name}'"
     assert (
         loaded_calculator.pricing_strategy == calculator.pricing_strategy
-    ), f"Expected '{calculator.pricing_strategy}', got '{loaded_calculator.pricing_strategy}'"
+    ), f"Expected '{calculator.pricing_strategy}', 
+        got '{loaded_calculator.pricing_strategy}'"
 
     # Clean up
     os.remove(test_file)

@@ -32,7 +32,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1", tags=["Audio"])
+    router = APIRouter(prefix=" / v1", tags=["Audio"])
 else:
     router = None
 
@@ -42,23 +42,23 @@ if FASTAPI_AVAILABLE:
 
     class SpeechToTextRequest(BaseModel):
         """
-        Request model for speech-to-text.
+        Request model for speech - to - text.
         """
 
-        file: str = Field(..., description="Base64-encoded audio file")
+        file: str = Field(..., description="Base64 - encoded audio file")
         model: Optional[str] = Field(None, description="Model to use for transcription")
         language: Optional[str] = Field(None, description="Language of the audio")
 
     class SpeechToTextResponse(BaseModel):
         """
-        Response model for speech-to-text.
+        Response model for speech - to - text.
         """
 
         text: str = Field(..., description="Transcribed text")
 
     class TextToSpeechRequest(BaseModel):
         """
-        Request model for text-to-speech.
+        Request model for text - to - speech.
         """
 
         text: str = Field(..., description="Text to convert to speech")
@@ -67,16 +67,16 @@ if FASTAPI_AVAILABLE:
 
     class TextToSpeechResponse(BaseModel):
         """
-        Response model for text-to-speech.
+        Response model for text - to - speech.
         """
 
-        audio: str = Field(..., description="Base64-encoded audio data")
+        audio: str = Field(..., description="Base64 - encoded audio data")
 
 
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.post("/audio/transcriptions", response_model=SpeechToTextResponse)
+    @router.post(" / audio / transcriptions", response_model=SpeechToTextResponse)
     async def transcribe_audio(
         file: UploadFile = File(...),
         model: Optional[str] = Form(None),
@@ -109,13 +109,13 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post("/audio/speech", response_model=TextToSpeechResponse)
+    @router.post(" / audio / speech", response_model=TextToSpeechResponse)
     async def text_to_speech(request: TextToSpeechRequest, model=None):
         """
         Convert text to speech.
 
         Args:
-            request: Text-to-speech request
+            request: Text - to - speech request
             model: Model instance (injected by dependency)
 
         Returns:
@@ -132,13 +132,13 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post("/audio/speech/stream")
+    @router.post(" / audio / speech / stream")
     async def text_to_speech_stream(request: TextToSpeechRequest, model=None):
         """
         Convert text to speech and stream the audio.
 
         Args:
-            request: Text-to-speech request
+            request: Text - to - speech request
             model: Model instance (injected by dependency)
 
         Returns:
@@ -185,7 +185,7 @@ async def _text_to_speech(model, request):
 
     Args:
         model: Model instance
-        request: Text-to-speech request
+        request: Text - to - speech request
 
     Returns:
         Generated audio
@@ -194,7 +194,7 @@ async def _text_to_speech(model, request):
     audio_data, _ = await _text_to_speech_raw(model, request)
 
     # Convert to base64
-    audio_b64 = base64.b64encode(audio_data).decode("utf-8")
+    audio_b64 = base64.b64encode(audio_data).decode("utf - 8")
 
     # Create response
     return {"audio": audio_b64}
@@ -206,7 +206,7 @@ async def _text_to_speech_raw(model, request):
 
     Args:
         model: Model instance
-        request: Text-to-speech request
+        request: Text - to - speech request
 
     Returns:
         Generated audio data and content type
@@ -217,6 +217,6 @@ async def _text_to_speech_raw(model, request):
     )
 
     # Determine content type
-    content_type = "audio/mpeg" if request.response_format == "mp3" else "audio/wav"
+    content_type = "audio / mpeg" if request.response_format == "mp3" else "audio / wav"
 
     return audio_data, content_type

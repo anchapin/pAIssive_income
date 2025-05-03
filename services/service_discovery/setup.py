@@ -32,7 +32,7 @@ class ServiceDiscoverySetup:
             bool: True if Consul is running, False otherwise
         """
         try:
-            response = requests.get(f"http://{host}:{port}/v1/status/leader", timeout=2)
+            response = requests.get(f"http://{host}:{port}/v1 / status / leader", timeout=2)
             return response.status_code == 200
         except requests.exceptions.RequestException:
             return False
@@ -64,20 +64,20 @@ class ServiceDiscoverySetup:
         os.makedirs(data_dir, exist_ok=True)
 
         # Build command
-        cmd = ["consul", "agent", "-data-dir", data_dir]
+        cmd = ["consul", "agent", " - data - dir", data_dir]
 
         if config_dir:
-            cmd.extend(["-config-dir", config_dir])
+            cmd.extend([" - config - dir", config_dir])
 
         if ui:
-            cmd.append("-ui")
+            cmd.append(" - ui")
 
         if server:
-            cmd.append("-server")
-            cmd.append("-bootstrap-expect=1")
+            cmd.append(" - server")
+            cmd.append(" - bootstrap - expect=1")
 
         if dev_mode:
-            cmd.append("-dev")
+            cmd.append(" - dev")
 
         # Run Consul
         logger.info(f"Starting Consul with command: {' '.join(cmd)}")
@@ -168,49 +168,49 @@ class ServiceDiscoverySetup:
             config_dir: Directory for configuration files
         """
         services = {
-            "api-gateway": {
-                "name": "api-gateway",
+            "api - gateway": {
+                "name": "api - gateway",
                 "port": 8000,
-                "tags": ["api", "gateway", "entry-point"],
-                "check": {"http": "http://localhost:8000/health", "interval": "10s"},
+                "tags": ["api", "gateway", "entry - point"],
+                "check": {"http": "http://localhost:8000 / health", "interval": "10s"},
             },
-            "ui-service": {
-                "name": "ui-service",
+            "ui - service": {
+                "name": "ui - service",
                 "port": 3000,
                 "tags": ["ui", "frontend", "react"],
-                "check": {"http": "http://localhost:3000/health", "interval": "10s"},
+                "check": {"http": "http://localhost:3000 / health", "interval": "10s"},
             },
-            "niche-analysis-service": {
-                "name": "niche-analysis-service",
+            "niche - analysis - service": {
+                "name": "niche - analysis - service",
                 "port": 8001,
                 "tags": ["backend", "analysis"],
-                "check": {"http": "http://localhost:8001/health", "interval": "10s"},
+                "check": {"http": "http://localhost:8001 / health", "interval": "10s"},
             },
-            "ai-models-service": {
-                "name": "ai-models-service",
+            "ai - models - service": {
+                "name": "ai - models - service",
                 "port": 8002,
                 "tags": ["backend", "ai"],
-                "check": {"http": "http://localhost:8002/health", "interval": "10s"},
+                "check": {"http": "http://localhost:8002 / health", "interval": "10s"},
             },
-            "marketing-service": {
-                "name": "marketing-service",
+            "marketing - service": {
+                "name": "marketing - service",
                 "port": 8003,
                 "tags": ["backend", "marketing"],
-                "check": {"http": "http://localhost:8003/health", "interval": "10s"},
+                "check": {"http": "http://localhost:8003 / health", "interval": "10s"},
             },
         }
 
         ServiceDiscoverySetup.generate_consul_config(config_dir=config_dir, services=services)
 
 
-# Command-line interface
+# Command - line interface
 if __name__ == "__main__":
     import argparse
     import sys
 
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     # Parse arguments
@@ -218,34 +218,34 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
     # Start Consul command
-    start_parser = subparsers.add_parser("start-consul", help="Start Consul")
-    start_parser.add_argument("--data-dir", default="./consul_data", help="Data directory")
-    start_parser.add_argument("--config-dir", default=None, help="Configuration directory")
-    start_parser.add_argument("--no-ui", action="store_false", dest="ui", help="Disable UI")
+    start_parser = subparsers.add_parser("start - consul", help="Start Consul")
+    start_parser.add_argument("--data - dir", default="./consul_data", help="Data directory")
+    start_parser.add_argument("--config - dir", default=None, help="Configuration directory")
+    start_parser.add_argument("--no - ui", action="store_false", dest="ui", help="Disable UI")
     start_parser.add_argument(
-        "--no-server", action="store_false", dest="server", help="Disable server mode"
+        "--no - server", action="store_false", dest="server", help="Disable server mode"
     )
     start_parser.add_argument(
-        "--no-dev", action="store_false", dest="dev_mode", help="Disable dev mode"
+        "--no - dev", action="store_false", dest="dev_mode", help="Disable dev mode"
     )
 
     # Generate config command
-    config_parser = subparsers.add_parser("generate-config", help="Generate Consul configuration")
-    config_parser.add_argument("--config-dir", required=True, help="Configuration directory")
+    config_parser = subparsers.add_parser("generate - config", help="Generate Consul configuration")
+    config_parser.add_argument("--config - dir", required=True, help="Configuration directory")
     config_parser.add_argument("--datacenter", default="dc1", help="Datacenter name")
-    config_parser.add_argument("--bind-addr", default="127.0.0.1", help="Bind address")
-    config_parser.add_argument("--client-addr", default="127.0.0.1", help="Client address")
+    config_parser.add_argument("--bind - addr", default="127.0.0.1", help="Bind address")
+    config_parser.add_argument("--client - addr", default="127.0.0.1", help="Client address")
     config_parser.add_argument(
-        "--no-server", action="store_false", dest="server", help="Disable server mode"
+        "--no - server", action="store_false", dest="server", help="Disable server mode"
     )
     config_parser.add_argument(
-        "--no-bootstrap", action="store_false", dest="bootstrap", help="Disable bootstrap mode"
+        "--no - bootstrap", action="store_false", dest="bootstrap", help="Disable bootstrap mode"
     )
-    config_parser.add_argument("--no-ui", action="store_false", dest="ui", help="Disable UI")
+    config_parser.add_argument("--no - ui", action="store_false", dest="ui", help="Disable UI")
 
     # Create demo services command
-    demo_parser = subparsers.add_parser("create-demo", help="Create demo service configurations")
-    demo_parser.add_argument("--config-dir", required=True, help="Configuration directory")
+    demo_parser = subparsers.add_parser("create - demo", help="Create demo service configurations")
+    demo_parser.add_argument("--config - dir", required=True, help="Configuration directory")
 
     # Check status command
     check_parser = subparsers.add_parser("check", help="Check if Consul is running")
@@ -256,7 +256,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Execute command
-    if args.command == "start-consul":
+    if args.command == "start - consul":
         try:
             process = ServiceDiscoverySetup.start_consul_dev(
                 data_dir=args.data_dir,
@@ -267,7 +267,7 @@ if __name__ == "__main__":
             )
 
             # Keep the script running while Consul is running
-            logger.info("Consul started. Press Ctrl+C to stop.")
+            logger.info("Consul started. Press Ctrl + C to stop.")
             try:
                 process.wait()
             except KeyboardInterrupt:
@@ -279,7 +279,7 @@ if __name__ == "__main__":
             logger.error(f"Failed to start Consul: {str(e)}")
             sys.exit(1)
 
-    elif args.command == "generate-config":
+    elif args.command == "generate - config":
         try:
             ServiceDiscoverySetup.generate_consul_config(
                 config_dir=args.config_dir,
@@ -294,7 +294,7 @@ if __name__ == "__main__":
             logger.error(f"Failed to generate Consul configuration: {str(e)}")
             sys.exit(1)
 
-    elif args.command == "create-demo":
+    elif args.command == "create - demo":
         try:
             ServiceDiscoverySetup.create_demo_services_config(args.config_dir)
         except Exception as e:

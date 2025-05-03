@@ -103,8 +103,8 @@ def test_get_tier_by_id():
     # Check that the retrieved tier is the same as the one we added
     assert retrieved_tier == tier
 
-    # Try to get a non-existent tier
-    assert model.get_tier_by_id("non-existent-id") is None
+    # Try to get a non - existent tier
+    assert model.get_tier_by_id("non - existent - id") is None
 
 
 def test_get_feature_by_id():
@@ -124,8 +124,8 @@ def test_get_feature_by_id():
     # Check that the retrieved feature is the same as the one we added
     assert retrieved_feature == feature
 
-    # Try to get a non-existent feature
-    assert model.get_feature_by_id("non-existent-id") is None
+    # Try to get a non - existent feature
+    assert model.get_feature_by_id("non - existent - id") is None
 
 
 def test_update_tier_price():
@@ -149,9 +149,9 @@ def test_update_tier_price():
     assert model.tiers[0]["price_monthly"] == 14.99
     assert model.tiers[0]["price_yearly"] == 149.99
 
-    # Try to update a non-existent tier
+    # Try to update a non - existent tier
     with pytest.raises(Exception):
-        model.update_tier_price("non-existent-id", price_monthly=19.99)
+        model.update_tier_price("non - existent - id", price_monthly=19.99)
 
 
 def test_to_dict():

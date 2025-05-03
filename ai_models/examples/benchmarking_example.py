@@ -26,7 +26,7 @@ from ai_models.benchmarking import (
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ def test_latency_benchmark(
         result = run_benchmark(
             model_path=model_path,
             benchmark_type=BenchmarkType.LATENCY,
-            model_type="text-generation",
+            model_type="text - generation",
             output_dir=output_dir,
             num_runs=num_runs,
             max_tokens=max_tokens,
@@ -155,7 +155,7 @@ def test_throughput_benchmark(
         result = run_benchmark(
             model_path=model_path,
             benchmark_type=BenchmarkType.THROUGHPUT,
-            model_type="text-generation",
+            model_type="text - generation",
             output_dir=output_dir,
             batch_size=batch_size,
             num_samples=num_samples,
@@ -165,7 +165,7 @@ def test_throughput_benchmark(
 
         # Print results
         print("\nThroughput:")
-        print(f"{result.throughput:.2f} tokens/second")
+        print(f"{result.throughput:.2f} tokens / second")
 
         # Plot results
         if MATPLOTLIB_AVAILABLE:
@@ -202,7 +202,7 @@ def test_memory_benchmark(model_path: str, output_dir: str) -> None:
         result = run_benchmark(
             model_path=model_path,
             benchmark_type=BenchmarkType.MEMORY,
-            model_type="text-generation",
+            model_type="text - generation",
             output_dir=output_dir,
             device="cuda" if torch.cuda.is_available() else "cpu",
         )
@@ -265,7 +265,7 @@ def test_model_comparison(
         results = compare_models(
             model_paths=model_paths,
             benchmark_type=benchmark_type,
-            model_type="text-generation",
+            model_type="text - generation",
             output_dir=output_dir,
             num_runs=num_runs,
             max_tokens=max_tokens,
@@ -279,13 +279,13 @@ def test_model_comparison(
 
             if benchmark_type == "latency" and result.latency_ms:
                 latency_stats = result.get_latency_stats()
-                print(f"{i+1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
+                print(f"{i + 1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
 
             elif benchmark_type == "throughput" and result.throughput:
-                print(f"{i+1}. {model_name}: {result.throughput:.2f} tokens/second")
+                print(f"{i + 1}. {model_name}: {result.throughput:.2f} tokens / second")
 
             elif benchmark_type == "memory" and result.memory_usage_mb:
-                print(f"{i+1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB")
+                print(f"{i + 1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB")
 
         # Plot comparison
         if MATPLOTLIB_AVAILABLE and results:
@@ -302,9 +302,9 @@ def main():
     Main function to demonstrate the benchmarking tools.
     """
     parser = argparse.ArgumentParser(description="Test benchmarking tools")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
+    parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
     parser.add_argument(
-        "--output-dir",
+        "--output - dir",
         type=str,
         default="benchmark_results",
         help="Directory to save benchmark results",
@@ -317,21 +317,21 @@ def main():
         help="Benchmark to run",
     )
     parser.add_argument(
-        "--num-runs", type=int, default=20, help="Number of runs for latency benchmark"
+        "--num - runs", type=int, default=20, help="Number of runs for latency benchmark"
     )
     parser.add_argument(
-        "--batch-size", type=int, default=4, help="Batch size for throughput benchmark"
+        "--batch - size", type=int, default=4, help="Batch size for throughput benchmark"
     )
     parser.add_argument(
-        "--max-tokens",
+        "--max - tokens",
         type=int,
         default=100,
         help="Maximum number of tokens to generate",
     )
     parser.add_argument(
-        "--compare-models",
+        "--compare - models",
         type=str,
-        nargs="+",
+        nargs=" + ",
         help="Additional models to compare with the main model",
     )
 

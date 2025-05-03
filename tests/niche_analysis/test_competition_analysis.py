@@ -43,7 +43,7 @@ class TestCompetitionAnalysis:
 
         # Verify market share format
         assert isinstance(competitor["market_share"], str)
-        assert "%" in competitor["market_share"]
+        assert " % " in competitor["market_share"]
 
         # Verify arrays have content
         assert len(competitor["strengths"]) > 0
@@ -54,7 +54,7 @@ class TestCompetitionAnalysis:
         result = market_analyzer.analyze_competition("inventory management")
 
         # Get market shares as numbers for comparison
-        shares = [float(c["market_share"].strip("%")) for c in result["top_competitors"]]
+        shares = [float(c["market_share"].strip(" % ")) for c in result["top_competitors"]]
 
         # Verify competitors are ordered by market share
         assert shares == sorted(shares, reverse=True)

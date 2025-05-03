@@ -13,7 +13,8 @@ from typing import Any, Dict, List, Optional
 from common_utils.caching import cached, default_cache
 
 from .errors import ProblemIdentificationError, ValidationError, handle_exception
-from .schemas import ProblemSchema, ProblemSeverityAnalysisSchema, SeverityAnalysisSchema
+from .schemas import ProblemSchema, ProblemSeverityAnalysisSchema, 
+    SeverityAnalysisSchema
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -32,7 +33,8 @@ class ProblemIdentifier:
         # Cache TTL in seconds (24 hours by default)
         self.cache_ttl = 86400
 
-    def identify_problems(self, niche: str, force_refresh: bool = False) -> List[Dict[str, Any]]:
+    def identify_problems(self, niche: str, 
+        force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Identify problems and pain points in a specific niche.
 
@@ -51,10 +53,11 @@ class ProblemIdentifier:
             # Validate input
             if not niche or not isinstance(niche, str):
                 raise ValidationError(
-                    message="Niche must be a non-empty string",
+                    message="Niche must be a non - empty string",
                     field="niche",
                     validation_errors=[
-                        {"field": "niche", "value": niche, "error": "Must be a non-empty string"}
+                        {"field": "niche", "value": niche, 
+                            "error": "Must be a non - empty string"}
                     ],
                 )
 
@@ -71,38 +74,42 @@ class ProblemIdentifier:
             # In a real implementation, this would use AI to identify problems
             # For now, we'll return a placeholder implementation
 
-            # Convert niche to lowercase for case-insensitive matching
+            # Convert niche to lowercase for case - insensitive matching
             niche = niche.lower()
 
             # Example problems for different niches
             niche_problems = {
-                "inventory management for small e-commerce": [
+                "inventory management for small e - commerce": [
                     self._create_problem(
                         "Overstocking",
-                        "Small e-commerce businesses often overstock inventory, tying up capital",
-                        ["capital inefficiency", "storage costs", "product obsolescence"],
+                        "Small e - commerce businesses often overstock inventory, 
+                            tying up capital",
+                        ["capital inefficiency", "storage costs", 
+                            "product obsolescence"],
                         "high",
                     ),
                     self._create_problem(
                         "Stockouts",
-                        "Small e-commerce businesses often run out of popular products",
+                        "Small e - commerce businesses often run out of popular products",
+                            
                         ["lost sales", "customer dissatisfaction", "reputation damage"],
                         "high",
                     ),
                     self._create_problem(
                         "Manual Inventory Tracking",
-                        "Small e-commerce businesses often track inventory manually",
-                        ["time-consuming", "error-prone", "inefficient"],
+                        "Small e - commerce businesses often track inventory manually",
+                        ["time - consuming", "error - prone", "inefficient"],
                         "medium",
                     ),
                     self._create_problem(
                         "Forecasting Difficulties",
-                        "Small e-commerce businesses struggle to forecast demand",
-                        ["inventory imbalances", "missed opportunities", "cash flow issues"],
+                        "Small e - commerce businesses struggle to forecast demand",
+                        ["inventory imbalances", "missed opportunities", 
+                            "cash flow issues"],
                         "medium",
                     ),
                     self._create_problem(
-                        "Multi-channel Complexity",
+                        "Multi - channel Complexity",
                         "Managing inventory across multiple sales channels is complex",
                         ["synchronization issues", "overselling", "channel conflicts"],
                         "high",
@@ -112,50 +119,59 @@ class ProblemIdentifier:
                     self._create_problem(
                         "Writer's Block",
                         "YouTube creators often experience writer's block when creating scripts",
+                            
                         ["delayed content production", "stress", "inconsistent output"],
                         "high",
                     ),
                     self._create_problem(
-                        "Time-consuming Script Writing",
-                        "Writing scripts for YouTube videos is time-consuming",
-                        ["reduced publishing frequency", "creator burnout", "opportunity cost"],
+                        "Time - consuming Script Writing",
+                        "Writing scripts for YouTube videos is time - consuming",
+                        ["reduced publishing frequency", "creator burnout", 
+                            "opportunity cost"],
                         "high",
                     ),
                     self._create_problem(
                         "Maintaining Viewer Engagement",
                         "Creating scripts that maintain viewer engagement is challenging",
-                        ["high drop-off rates", "low watch time", "reduced recommendations"],
+                            
+                        ["high drop - off rates", "low watch time", 
+                            "reduced recommendations"],
                         "high",
                     ),
                     self._create_problem(
                         "Consistency Across Videos",
                         "Maintaining a consistent style and voice across videos is difficult",
+                            
                         ["brand dilution", "viewer confusion", "reduced recognition"],
                         "medium",
                     ),
                     self._create_problem(
                         "SEO Optimization",
                         "Optimizing scripts for search and recommendations is complex",
-                        ["reduced discoverability", "lower views", "slower channel growth"],
+                        ["reduced discoverability", "lower views", 
+                            "slower channel growth"],
                         "medium",
                     ),
                 ],
                 "freelance proposal writing": [
                     self._create_problem(
-                        "Time-consuming Proposal Creation",
-                        "Creating customized proposals for each client is time-consuming",
+                        "Time - consuming Proposal Creation",
+                        "Creating customized proposals for each client is time - consuming",
+                            
                         ["fewer proposals sent", "opportunity cost", "reduced income"],
                         "high",
                     ),
                     self._create_problem(
                         "Low Conversion Rates",
-                        "Many freelancers have low proposal-to-client conversion rates",
+                        "Many freelancers have low proposal - to - client conversion rates",
+                            
                         ["wasted effort", "reduced income", "demotivation"],
                         "high",
                     ),
                     self._create_problem(
                         "Difficulty Differentiating",
                         "Standing out from other freelancers in proposals is challenging",
+                            
                         ["price competition", "commoditization", "reduced rates"],
                         "medium",
                     ),
@@ -168,32 +184,37 @@ class ProblemIdentifier:
                     self._create_problem(
                         "Pricing Strategy",
                         "Determining the right pricing for each proposal is challenging",
+                            
                         ["underpricing", "lost opportunities", "scope creep"],
                         "high",
                     ),
                 ],
                 "study note generation": [
                     self._create_problem(
-                        "Time-consuming Note Taking",
-                        "Taking comprehensive notes from lectures is time-consuming",
+                        "Time - consuming Note Taking",
+                        "Taking comprehensive notes from lectures is time - consuming",
                         ["missed information", "reduced study time", "student stress"],
                         "high",
                     ),
                     self._create_problem(
                         "Organizing Information",
                         "Organizing notes in a structured and useful way is challenging",
-                        ["information overload", "study inefficiency", "concept confusion"],
+                            
+                        ["information overload", "study inefficiency", 
+                            "concept confusion"],
                         "high",
                     ),
                     self._create_problem(
                         "Missing Important Points",
                         "Students often miss important points during lectures",
-                        ["knowledge gaps", "exam preparation issues", "reduced performance"],
+                        ["knowledge gaps", "exam preparation issues", 
+                            "reduced performance"],
                         "high",
                     ),
                     self._create_problem(
                         "Connecting Concepts",
                         "Connecting related concepts across different lectures is difficult",
+                            
                         [
                             "fragmented understanding",
                             "memorization over comprehension",
@@ -204,39 +225,47 @@ class ProblemIdentifier:
                     self._create_problem(
                         "Personalization",
                         "Creating notes that match individual learning styles is challenging",
-                        ["reduced effectiveness", "longer study time", "lower engagement"],
+                            
+                        ["reduced effectiveness", "longer study time", 
+                            "lower engagement"],
                         "medium",
                     ),
                 ],
                 "property description generation": [
                     self._create_problem(
-                        "Time-consuming Description Writing",
-                        "Writing compelling property descriptions is time-consuming",
+                        "Time - consuming Description Writing",
+                        "Writing compelling property descriptions is time - consuming",
                         ["fewer listings", "delayed marketing", "opportunity cost"],
                         "high",
                     ),
                     self._create_problem(
                         "Highlighting Key Features",
                         "Identifying and highlighting the most appealing features is challenging",
-                        ["reduced interest", "longer time on market", "lower sale price"],
+                            
+                        ["reduced interest", "longer time on market", 
+                            "lower sale price"],
                         "high",
                     ),
                     self._create_problem(
                         "Maintaining Consistency",
                         "Maintaining consistent quality across multiple listings is difficult",
-                        ["variable results", "brand inconsistency", "unpredictable performance"],
+                            
+                        ["variable results", "brand inconsistency", 
+                            "unpredictable performance"],
                         "medium",
                     ),
                     self._create_problem(
                         "SEO Optimization",
                         "Optimizing descriptions for search engines is complex",
-                        ["reduced visibility", "fewer inquiries", "longer time on market"],
+                        ["reduced visibility", "fewer inquiries", 
+                            "longer time on market"],
                         "medium",
                     ),
                     self._create_problem(
                         "Emotional Appeal",
                         "Creating descriptions with emotional appeal is challenging",
-                        ["reduced buyer connection", "fewer showings", "price negotiations"],
+                        ["reduced buyer connection", "fewer showings", 
+                            "price negotiations"],
                         "high",
                     ),
                 ],
@@ -249,24 +278,29 @@ class ProblemIdentifier:
                     return []
 
                 # Check if the niche contains any of these keywords
-                if "e-commerce" in niche or "ecommerce" in niche:
+                if "e - commerce" in niche or "ecommerce" in niche:
                     problems = [
                         self._create_problem(
                             "Inventory Management",
                             "Difficulty managing inventory levels across multiple platforms",
+                                
                             ["stockouts", "excess inventory", "lost sales"],
                             "high",
                         ),
                         self._create_problem(
                             "Product Descriptions",
-                            "Creating unique and compelling product descriptions is time-consuming",
-                            ["generic descriptions", "poor SEO", "lower conversion rates"],
+                            "Creating unique and compelling product descriptions is time - consuming",
+                                
+                            ["generic descriptions", "poor SEO", 
+                                "lower conversion rates"],
                             "medium",
                         ),
                         self._create_problem(
                             "Customer Support",
                             "Managing customer inquiries and support requests efficiently",
-                            ["slow response times", "customer dissatisfaction", "negative reviews"],
+                                
+                            ["slow response times", "customer dissatisfaction", 
+                                "negative reviews"],
                             "high",
                         ),
                     ]
@@ -274,20 +308,24 @@ class ProblemIdentifier:
                     problems = [
                         self._create_problem(
                             "Content Creation",
-                            "Creating high-quality content consistently is time-consuming",
-                            ["inconsistent publishing", "content fatigue", "lower engagement"],
+                            "Creating high - quality content consistently is time - consuming",
+                                
+                            ["inconsistent publishing", "content fatigue", 
+                                "lower engagement"],
                             "high",
                         ),
                         self._create_problem(
                             "SEO Optimization",
                             "Optimizing content for search engines is complex",
-                            ["poor rankings", "low organic traffic", "wasted content efforts"],
+                            ["poor rankings", "low organic traffic", 
+                                "wasted content efforts"],
                             "medium",
                         ),
                         self._create_problem(
                             "Content Ideas",
                             "Coming up with fresh content ideas regularly",
-                            ["content repetition", "audience boredom", "declining engagement"],
+                            ["content repetition", "audience boredom", 
+                                "declining engagement"],
                             "medium",
                         ),
                     ]
@@ -296,19 +334,23 @@ class ProblemIdentifier:
                         self._create_problem(
                             "Client Acquisition",
                             "Finding and securing new clients consistently",
-                            ["income instability", "feast-famine cycle", "time spent not billing"],
+                            ["income instability", "feast - famine cycle", 
+                                "time spent not billing"],
                             "high",
                         ),
                         self._create_problem(
                             "Proposal Writing",
-                            "Creating customized, compelling proposals is time-consuming",
-                            ["low conversion rate", "wasted time", "missed opportunities"],
+                            "Creating customized, 
+                                compelling proposals is time - consuming",
+                            ["low conversion rate", "wasted time", 
+                                "missed opportunities"],
                             "medium",
                         ),
                         self._create_problem(
                             "Time Management",
-                            "Balancing client work, admin tasks, and business development",
-                            ["burnout", "missed deadlines", "work-life imbalance"],
+                            "Balancing client work, admin tasks, 
+                                and business development",
+                            ["burnout", "missed deadlines", "work - life imbalance"],
                             "high",
                         ),
                     ]
@@ -318,13 +360,15 @@ class ProblemIdentifier:
                         self._create_problem(
                             "Time Efficiency",
                             f"Managing time effectively in {niche} activities",
-                            ["reduced productivity", "missed opportunities", "work-life imbalance"],
+                            ["reduced productivity", "missed opportunities", 
+                                "work - life imbalance"],
                             "high",
                         ),
                         self._create_problem(
                             "Knowledge Management",
                             f"Organizing and accessing information related to {niche}",
-                            ["information overload", "duplicated efforts", "missed insights"],
+                            ["information overload", "duplicated efforts", 
+                                "missed insights"],
                             "medium",
                         ),
                         self._create_problem(
@@ -347,18 +391,20 @@ class ProblemIdentifier:
             problems = niche_problems.get(niche, [])
 
             # Cache the result
-            default_cache.set(cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems")
+            default_cache.set(cache_key, problems, ttl=self.cache_ttl, 
+                namespace="niche_problems")
 
             logger.info(f"Identified {len(problems)} problems for niche: {niche}")
             return problems
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
-                e, error_class=ProblemIdentificationError, reraise=True, log_level=logging.ERROR
+                e, error_class=ProblemIdentificationError, reraise=True, 
+                    log_level=logging.ERROR
             )
             return []  # This line won't be reached due to reraise=True
 
@@ -368,11 +414,13 @@ class ProblemIdentifier:
 
         result = {
             "id": problem.get("id"),
-            "problem_id": problem.get("id"),  # Include both id and problem_id for compatibility
+            "problem_id": problem.get("id"),  
+                # Include both id and problem_id for compatibility
             "name": problem.get("name"),
             "description": problem.get("description"),
             "severity": severity,
-            "has_existing_solution": False,  # This would be determined by actual analysis
+            "has_existing_solution": False,  
+                # This would be determined by actual analysis
             "potential_impact_of_solution": severity,
             "user_willingness_to_pay": severity,  # Align with severity level
             "analysis_summary": f"Problem has {severity} severity and needs attention",
@@ -442,12 +490,13 @@ class ProblemIdentifier:
             "severity": severity,
             "current_solutions": {
                 "manual_processes": "Users currently solve this manually",
-                "general_tools": "Users currently use general-purpose tools",
+                "general_tools": "Users currently use general - purpose tools",
                 "outsourcing": "Users currently outsource this task",
             },
             "solution_gaps": {
                 "automation": "Current solutions lack automation",
                 "specialization": "Current solutions are not specialized for this niche",
+                    
                 "integration": "Current solutions don't integrate with other tools",
             },
             "timestamp": datetime.now().isoformat(),

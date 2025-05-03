@@ -245,7 +245,7 @@ def test_compare_opportunities():
     assert result["ranked_opportunities"][1]["id"] == "opportunity2"
     assert result["ranked_opportunities"][2]["id"] == "opportunity3"
 
-    # Check that the top recommendation is the highest-scoring opportunity
+    # Check that the top recommendation is the highest - scoring opportunity
     assert result["top_recommendation"]["id"] == "opportunity1"
 
     # Check that the comparison factors include the expected keys

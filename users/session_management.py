@@ -15,7 +15,7 @@ from .token_refresh import blacklist_token
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# In-memory storage for active sessions
+# In - memory storage for active sessions
 # In a production environment, this would be stored in a database
 ACTIVE_SESSIONS: Dict[str, Dict] = {}  # session_id -> session_data
 
@@ -32,7 +32,7 @@ class Session:
         Args:
             user_id: ID of the user
             token: Authentication token
-            device_info: Information about the device/browser
+            device_info: Information about the device / browser
         """
         self.id = str(uuid.uuid4())
         self.user_id = user_id
@@ -96,7 +96,7 @@ def create_session(
     Args:
         user_id: ID of the user
         token: Authentication token
-        device_info: Information about the device/browser
+        device_info: Information about the device / browser
         ip_address: IP address of the client
 
     Returns:

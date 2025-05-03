@@ -1,5 +1,5 @@
 """
-Integration tests for the solution-to-monetization workflow.
+Integration tests for the solution - to - monetization workflow.
 """
 
 from unittest.mock import MagicMock, patch
@@ -16,7 +16,7 @@ def mock_solution():
     return {
         "id": "solution1",
         "name": "AI Inventory Manager",
-        "description": "An AI-powered solution for inventory management",
+        "description": "An AI - powered solution for inventory management",
         "features": [
             {
                 "id": "feature1",
@@ -40,11 +40,11 @@ def mock_solution():
                 "description": "Get insights into your inventory performance",
                 "complexity": "medium",
                 "development_cost": "medium",
-                "value_proposition": "Make data-driven inventory decisions",
+                "value_proposition": "Make data - driven inventory decisions",
             },
         ],
         "market_data": {
-            "target_audience": "E-commerce store owners and inventory managers",
+            "target_audience": "E - commerce store owners and inventory managers",
             "market_size": "large",
             "competition": "medium",
         },
@@ -59,7 +59,7 @@ def mock_agents():
     mock_developer.design_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Manager",
-        "description": "An AI-powered solution for inventory management",
+        "description": "An AI - powered solution for inventory management",
         "features": [
             {
                 "id": "feature1",
@@ -108,7 +108,7 @@ def mock_agents():
 def test_solution_to_monetization_workflow(
     mock_monetization_class, mock_developer_class, mock_agents, mock_solution
 ):
-    """Test the solution-to-monetization workflow."""
+    """Test the solution - to - monetization workflow."""
     # Set up the mock agents
     mock_developer_class.return_value = mock_agents["developer"]
     mock_monetization_class.return_value = mock_agents["monetization"]
@@ -307,7 +307,7 @@ def test_solution_to_revenue_projector_integration(mock_solution):
 
 
 def test_end_to_end_solution_to_monetization_workflow(mock_solution):
-    """Test end-to-end workflow from solution to monetization."""
+    """Test end - to - end workflow from solution to monetization."""
     # 1. Create a subscription model based on the solution
     model = SubscriptionModel(
         name=f"{mock_solution['name']} Subscription",

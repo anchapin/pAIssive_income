@@ -25,7 +25,7 @@ def mock_agent_team():
         {
             "id": "niche1",
             "name": "AI Inventory Management",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "opportunity_score": 0.85,
         }
     ]
@@ -33,7 +33,7 @@ def mock_agent_team():
     mock_team.develop_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "AI-powered inventory management solution",
+        "description": "AI - powered inventory management solution",
         "features": ["Demand forecasting", "Stock optimization", "Supplier management"],
     }
 
@@ -58,7 +58,7 @@ def mock_agent_team():
     mock_team.create_marketing_plan.return_value = {
         "id": "marketing1",
         "channels": ["content_marketing", "social_media", "email"],
-        "target_audience": "e-commerce store owners",
+        "target_audience": "e - commerce store owners",
         "messaging": "Reduce inventory costs by 30% with AI",
     }
 
@@ -72,8 +72,8 @@ def mock_model_manager():
 
     # Set up mock return values
     mock_manager.list_models.return_value = [
-        {"name": "GPT-4", "type": "text", "provider": "openai"},
-        {"name": "DALL-E 3", "type": "image", "provider": "openai"},
+        {"name": "GPT - 4", "type": "text", "provider": "openai"},
+        {"name": "DALL - E 3", "type": "image", "provider": "openai"},
     ]
 
     return mock_manager
@@ -115,11 +115,11 @@ class TestCLIUIIntegration:
     def test_cli_ui_niche_analysis_integration(self, cli_ui, mock_agent_team):
         """Test CLI UI integration with niche analysis service."""
         # Run niche analysis command
-        result = cli_ui.handle_command("analyze e-commerce digital-marketing")
+        result = cli_ui.handle_command("analyze e - commerce digital - marketing")
 
         # Check that the agent team's method was called
         mock_agent_team.run_niche_analysis.assert_called_once_with(
-            ["e-commerce", "digital-marketing"]
+            ["e - commerce", "digital - marketing"]
         )
 
         # Check that the result contains information about the niches
@@ -128,7 +128,7 @@ class TestCLIUIIntegration:
     def test_cli_ui_solution_development_integration(self, cli_ui, mock_agent_team):
         """Test CLI UI integration with solution development service."""
         # First, run niche analysis to populate current_niches
-        cli_ui.handle_command("analyze e-commerce")
+        cli_ui.handle_command("analyze e - commerce")
 
         # Select a niche
         cli_ui.handle_command("select niche 0")
@@ -145,7 +145,7 @@ class TestCLIUIIntegration:
     def test_cli_ui_monetization_integration(self, cli_ui, mock_agent_team):
         """Test CLI UI integration with monetization service."""
         # Set up the state for monetization
-        cli_ui.handle_command("analyze e-commerce")
+        cli_ui.handle_command("analyze e - commerce")
         cli_ui.handle_command("select niche 0")
         cli_ui.handle_command("develop solution")
 
@@ -164,7 +164,7 @@ class TestCLIUIIntegration:
     def test_cli_ui_marketing_integration(self, cli_ui, mock_agent_team):
         """Test CLI UI integration with marketing service."""
         # Set up the state for marketing
-        cli_ui.handle_command("analyze e-commerce")
+        cli_ui.handle_command("analyze e - commerce")
         cli_ui.handle_command("select niche 0")
         cli_ui.handle_command("develop solution")
         cli_ui.handle_command("create monetization")
@@ -203,9 +203,9 @@ class TestCLIUIIntegration:
         # Simulate a complete workflow through the CLI
 
         # Step 1: Run niche analysis
-        cli_ui.handle_command("analyze e-commerce digital-marketing")
+        cli_ui.handle_command("analyze e - commerce digital - marketing")
         mock_agent_team.run_niche_analysis.assert_called_once_with(
-            ["e-commerce", "digital-marketing"]
+            ["e - commerce", "digital - marketing"]
         )
 
         # Step 2: Select a niche and develop a solution
@@ -228,4 +228,4 @@ class TestCLIUIIntegration:
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_cli_ui_integration.py"])
+    pytest.main([" - v", "test_cli_ui_integration.py"])

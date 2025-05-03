@@ -22,7 +22,7 @@ class ThroughputMetric(BaseMetric):
         Args:
             **kwargs: Additional parameters for the metric
         """
-        super().__init__(name="throughput", unit="tokens/s", **kwargs)
+        super().__init__(name="throughput", unit="tokens / s", **kwargs)
 
     def measure(self, func: Callable, token_counter: Callable, *args, **kwargs) -> float:
         """

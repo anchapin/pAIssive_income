@@ -188,8 +188,10 @@ class ActivityTracker:
     def _load_activity_data(self):
         """Load activity data from disk."""
         activities_file = os.path.join(self.storage_path, "activities.json")
-        workspace_activities_file = os.path.join(self.storage_path, "workspace_activities.json")
-        project_activities_file = os.path.join(self.storage_path, "project_activities.json")
+        workspace_activities_file = os.path.join(self.storage_path, 
+            "workspace_activities.json")
+        project_activities_file = os.path.join(self.storage_path, 
+            "project_activities.json")
         user_activities_file = os.path.join(self.storage_path, "user_activities.json")
 
         if os.path.exists(activities_file):
@@ -228,8 +230,10 @@ class ActivityTracker:
     def _save_activity_data(self):
         """Save activity data to disk."""
         activities_file = os.path.join(self.storage_path, "activities.json")
-        workspace_activities_file = os.path.join(self.storage_path, "workspace_activities.json")
-        project_activities_file = os.path.join(self.storage_path, "project_activities.json")
+        workspace_activities_file = os.path.join(self.storage_path, 
+            "workspace_activities.json")
+        project_activities_file = os.path.join(self.storage_path, 
+            "project_activities.json")
         user_activities_file = os.path.join(self.storage_path, "user_activities.json")
 
         with open(activities_file, "w") as f:
@@ -504,7 +508,8 @@ class NotificationManager:
     def _load_notification_data(self):
         """Load notification data from disk."""
         notifications_file = os.path.join(self.storage_path, "notifications.json")
-        user_notifications_file = os.path.join(self.storage_path, "user_notifications.json")
+        user_notifications_file = os.path.join(self.storage_path, 
+            "user_notifications.json")
 
         if os.path.exists(notifications_file):
             try:
@@ -526,7 +531,8 @@ class NotificationManager:
     def _save_notification_data(self):
         """Save notification data to disk."""
         notifications_file = os.path.join(self.storage_path, "notifications.json")
-        user_notifications_file = os.path.join(self.storage_path, "user_notifications.json")
+        user_notifications_file = os.path.join(self.storage_path, 
+            "user_notifications.json")
 
         with open(notifications_file, "w") as f:
             json.dump(self.notifications, f, indent=2)
@@ -633,7 +639,8 @@ class NotificationManager:
                 and not self.notifications[notification_id]["read"]
             ):
                 self.notifications[notification_id]["read"] = True
-                self.notifications[notification_id]["read_at"] = datetime.now().isoformat()
+                self.notifications[notification_id]["read_at"] = \
+                    datetime.now().isoformat()
                 count += 1
 
         self._save_notification_data()
@@ -785,66 +792,82 @@ class NotificationManager:
         # Generate based on activity type
         if activity.activity_type == ActivityType.WORKSPACE_CREATED:
             title = "New workspace created"
-            message = f"A new workspace has been created: {activity.metadata.get('workspace_name', 'Unnamed workspace')}"
+            message = f"A new workspace has been created: {activity.metadata.get('workspace_name', 
+                'Unnamed workspace')}"
 
         elif activity.activity_type == ActivityType.WORKSPACE_UPDATED:
             title = "Workspace updated"
-            message = f"A workspace has been updated: {activity.metadata.get('workspace_name', 'Unnamed workspace')}"
+            message = f"A workspace has been updated: {activity.metadata.get('workspace_name', 
+                'Unnamed workspace')}"
 
         elif activity.activity_type == ActivityType.WORKSPACE_DELETED:
             title = "Workspace deleted"
-            message = f"A workspace has been deleted: {activity.metadata.get('workspace_name', 'Unnamed workspace')}"
+            message = f"A workspace has been deleted: {activity.metadata.get('workspace_name', 
+                'Unnamed workspace')}"
 
         elif activity.activity_type == ActivityType.MEMBER_ADDED:
             title = "New member added"
-            message = f"A new member has been added to the workspace: {activity.metadata.get('member_name', 'Unknown member')}"
+            message = f"A new member has been added to the workspace: {activity.metadata.get('member_name', 
+                'Unknown member')}"
 
         elif activity.activity_type == ActivityType.MEMBER_REMOVED:
             title = "Member removed"
-            message = f"A member has been removed from the workspace: {activity.metadata.get('member_name', 'Unknown member')}"
+            message = f"A member has been removed from the workspace: {activity.metadata.get('member_name', 
+                'Unknown member')}"
 
         elif activity.activity_type == ActivityType.MEMBER_ROLE_UPDATED:
             title = "Member role updated"
-            message = f"A member's role has been updated: {activity.metadata.get('member_name', 'Unknown member')}"
+            message = f"A member's role has been updated: {activity.metadata.get('member_name', 
+                'Unknown member')}"
 
         elif activity.activity_type == ActivityType.PROJECT_CREATED:
             title = "New project created"
-            message = f"A new project has been created: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A new project has been created: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.PROJECT_UPDATED:
             title = "Project updated"
-            message = f"A project has been updated: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A project has been updated: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.PROJECT_DELETED:
             title = "Project deleted"
-            message = f"A project has been deleted: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A project has been deleted: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.PROJECT_SHARED:
             title = "Project shared"
-            message = f"A project has been shared: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A project has been shared: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.PROJECT_UNSHARED:
             title = "Project unshared"
-            message = f"A project is no longer shared: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A project is no longer shared: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.VERSION_CREATED:
             title = "New version created"
-            message = f"A new version has been created for project: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A new version has been created for project: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.VERSION_RESTORED:
             title = "Version restored"
-            message = f"A version has been restored for project: {activity.metadata.get('project_name', 'Unnamed project')}"
+            message = f"A version has been restored for project: {activity.metadata.get('project_name', 
+                'Unnamed project')}"
 
         elif activity.activity_type == ActivityType.COMMENT_ADDED:
             title = "New comment"
-            message = f"A new comment has been added to: {activity.metadata.get('resource_name', 'Unknown resource')}"
+            message = f"A new comment has been added to: {activity.metadata.get('resource_name', 
+                'Unknown resource')}"
 
         elif activity.activity_type == ActivityType.COMMENT_UPDATED:
             title = "Comment updated"
-            message = f"A comment has been updated on: {activity.metadata.get('resource_name', 'Unknown resource')}"
+            message = f"A comment has been updated on: {activity.metadata.get('resource_name', 
+                'Unknown resource')}"
 
         elif activity.activity_type == ActivityType.COMMENT_DELETED:
             title = "Comment deleted"
-            message = f"A comment has been deleted from: {activity.metadata.get('resource_name', 'Unknown resource')}"
+            message = f"A comment has been deleted from: {activity.metadata.get('resource_name', 
+                'Unknown resource')}"
 
         return title, message

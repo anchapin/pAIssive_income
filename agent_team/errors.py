@@ -23,7 +23,7 @@ from errors import (  # noqa: E402
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Re-export the error classes for convenience
+# Re - export the error classes for convenience
 __all__ = [
     "AgentTeamError",
     "AgentError",
@@ -49,12 +49,13 @@ class AgentInitializationError(AgentError):
         Initialize the agent initialization error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             agent_name: Name of the agent that failed to initialize
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message, agent_name=agent_name, code="agent_initialization_error", **kwargs
+            message=message, agent_name=agent_name, code="agent_initialization_error", 
+                **kwargs
         )
 
 
@@ -72,7 +73,7 @@ class AgentCommunicationError(AgentError):
         Initialize the agent communication error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             source_agent: Name of the source agent
             target_agent: Name of the target agent
             **kwargs: Additional arguments to pass to the base class
@@ -100,7 +101,7 @@ class WorkflowError(AgentTeamError):
         Initialize the workflow error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             workflow_step: Name of the workflow step that failed
             **kwargs: Additional arguments to pass to the base class
         """
@@ -108,7 +109,8 @@ class WorkflowError(AgentTeamError):
         if workflow_step:
             details["workflow_step"] = workflow_step
 
-        super().__init__(message=message, code="workflow_error", details=details, **kwargs)
+        super().__init__(message=message, code="workflow_error", details=details, 
+            **kwargs)
 
 
 class ResearchAgentError(AgentError):
@@ -119,11 +121,12 @@ class ResearchAgentError(AgentError):
         Initialize the Research Agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message, agent_name="Research Agent", code="research_agent_error", **kwargs
+            message=message, agent_name="Research Agent", code="research_agent_error", 
+                **kwargs
         )
 
 
@@ -135,11 +138,12 @@ class DeveloperAgentError(AgentError):
         Initialize the Developer Agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message, agent_name="Developer Agent", code="developer_agent_error", **kwargs
+            message=message, agent_name="Developer Agent", code="developer_agent_error", 
+                **kwargs
         )
 
 
@@ -151,7 +155,7 @@ class MonetizationAgentError(AgentError):
         Initialize the Monetization Agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
@@ -170,11 +174,12 @@ class MarketingAgentError(AgentError):
         Initialize the Marketing Agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message, agent_name="Marketing Agent", code="marketing_agent_error", **kwargs
+            message=message, agent_name="Marketing Agent", code="marketing_agent_error", 
+                **kwargs
         )
 
 
@@ -186,11 +191,12 @@ class FeedbackAgentError(AgentError):
         Initialize the Feedback Agent error.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message, agent_name="Feedback Agent", code="feedback_agent_error", **kwargs
+            message=message, agent_name="Feedback Agent", code="feedback_agent_error", 
+                **kwargs
         )
 
 

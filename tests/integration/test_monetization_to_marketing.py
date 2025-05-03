@@ -1,5 +1,5 @@
 """
-Integration tests for the monetization-to-marketing workflow.
+Integration tests for the monetization - to - marketing workflow.
 """
 
 from unittest.mock import MagicMock, patch
@@ -52,12 +52,12 @@ def mock_monetization_strategy():
         "target_audience": {
             "segments": [
                 "Small businesses",
-                "E-commerce store owners",
+                "E - commerce store owners",
                 "Retail inventory managers",
             ],
             "user_personas": {
                 "free_tier": "Small business owners looking for basic inventory management",
-                "pro_tier": "Growing e-commerce businesses with moderate inventory needs",
+                "pro_tier": "Growing e - commerce businesses with moderate inventory needs",
                 "business_tier": "Established businesses with complex inventory requirements",
             },
         },
@@ -79,7 +79,7 @@ def mock_solution():
     return {
         "id": "solution1",
         "name": "AI Inventory Manager",
-        "description": "An AI-powered solution for inventory management",
+        "description": "An AI - powered solution for inventory management",
         "features": [
             {
                 "id": "feature1",
@@ -111,7 +111,7 @@ def mock_solution():
             },
         ],
         "market_data": {
-            "target_audience": "E-commerce store owners and inventory managers",
+            "target_audience": "E - commerce store owners and inventory managers",
             "market_size": "large",
             "competition": "medium",
         },
@@ -124,7 +124,7 @@ def mock_niche():
     return {
         "id": "niche1",
         "name": "Inventory Management",
-        "market_segment": "e-commerce",
+        "market_segment": "e - commerce",
         "description": "AI tools for inventory management",
         "opportunity_score": 0.8,
         "market_data": {
@@ -153,7 +153,7 @@ def mock_agents():
         "name": "Inventory Manager Marketing Plan",
         "description": "A marketing plan for the AI Inventory Manager",
         "channels": ["content", "social", "email", "ads"],
-        "target_audience": "E-commerce store owners",
+        "target_audience": "E - commerce store owners",
         "budget": {
             "amount": 5000,
             "period": "monthly",
@@ -172,7 +172,7 @@ def mock_agents():
 def test_monetization_to_marketing_workflow(
     mock_marketing_class, mock_agents, mock_monetization_strategy, mock_solution, mock_niche
 ):
-    """Test the monetization-to-marketing workflow."""
+    """Test the monetization - to - marketing workflow."""
     # Set up the mock agents
     mock_marketing_class.return_value = mock_agents["marketing"]
 
@@ -196,7 +196,7 @@ def test_monetization_to_marketing_workflow(
     assert "content" in marketing_plan["channels"]
     assert "social" in marketing_plan["channels"]
     assert "email" in marketing_plan["channels"]
-    assert marketing_plan["target_audience"] == "E-commerce store owners"
+    assert marketing_plan["target_audience"] == "E - commerce store owners"
 
 
 def test_subscription_tiers_to_channel_strategy_integration(
@@ -254,7 +254,7 @@ def test_subscription_tiers_to_channel_strategy_integration(
     channel_strategy.add_channel(
         name="Paid Search",
         audience=["business_tier"],
-        description="Google Ads for high-intent business keywords",
+        description="Google Ads for high - intent business keywords",
         tiers_focus=["business_tier"],
         cost_efficiency=0.6,
         primary_metrics=["clicks", "conversions", "ROI"],
@@ -324,7 +324,7 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
             )
             generator.add_content_type(
                 name="Social Media Posts",
-                format="text+image",
+                format="text + image",
                 frequency="daily",
                 goal="engagement",
                 target_metrics=["likes", "shares", "clicks"],
@@ -358,7 +358,7 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
             )
             generator.add_content_type(
                 name="Integration Guides",
-                format="text+code",
+                format="text + code",
                 frequency="as_needed",
                 goal="retention",
                 target_metrics=["api_adoption", "feature_usage"],
@@ -370,7 +370,7 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
             generator.add_topic(
                 name=feature,
                 description=f"Content about {feature}",
-                keywords=[feature.lower().replace(" ", "-"), feature.lower()],
+                keywords=[feature.lower().replace(" ", " - "), feature.lower()],
             )
 
         content_generators[tier_name] = generator
@@ -573,7 +573,7 @@ def test_revenue_projections_to_marketing_budget_allocation(mock_monetization_st
 def test_end_to_end_monetization_to_marketing_workflow(
     mock_monetization_strategy, mock_solution, mock_niche
 ):
-    """Test end-to-end workflow from monetization strategy to marketing plan."""
+    """Test end - to - end workflow from monetization strategy to marketing plan."""
     # Step 1: Extract key information from monetization strategy
     subscription_model = mock_monetization_strategy["subscription_model"]
     tiers = subscription_model["tiers"]
@@ -667,7 +667,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
         primary_goal="engagement",
         target_tiers=["free_tier", "pro_tier"],
         strategies=[
-            "Platform-specific content strategy",
+            "Platform - specific content strategy",
             "Community building",
             "User testimonials and case studies",
         ],
@@ -680,22 +680,22 @@ def test_end_to_end_monetization_to_marketing_workflow(
         primary_goal="conversion",
         target_tiers=["free_tier", "pro_tier"],
         strategies=[
-            "Free-to-Pro upgrade campaigns",
+            "Free - to - Pro upgrade campaigns",
             "Feature announcements",
             "Case studies showcasing ROI",
         ],
     )
 
-    # Business tier - focus on high-value acquisition
+    # Business tier - focus on high - value acquisition
     marketing_plan.add_channel(
         name="Paid Advertising",
         budget_percentage=0.25,
         primary_goal="acquisition",
         target_tiers=["pro_tier", "business_tier"],
         strategies=[
-            "Google Ads for high-intent keywords",
+            "Google Ads for high - intent keywords",
             "Retargeting campaigns",
-            "LinkedIn ads for business decision-makers",
+            "LinkedIn ads for business decision - makers",
         ],
     )
 
@@ -706,14 +706,14 @@ def test_end_to_end_monetization_to_marketing_workflow(
         target_tiers=["business_tier"],
         strategies=[
             "Outbound sales campaigns",
-            "Demo requests follow-up",
+            "Demo requests follow - up",
             "Partner referral program",
         ],
     )
 
     # Step 7: Create content strategy aligned with monetization tiers
     marketing_plan.add_content_strategy(
-        name="Tier-Based Content Strategy",
+        name="Tier - Based Content Strategy",
         description="Content strategy aligned with subscription tiers",
         content_types=[
             {

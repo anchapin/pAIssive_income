@@ -11,7 +11,7 @@ from ..config import APIConfig
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -33,9 +33,9 @@ class CORSMiddleware:
 
     def __init__(
         self,
-        allow_origins: List[str] = ["*"],
-        allow_methods: List[str] = ["*"],
-        allow_headers: List[str] = ["*"],
+        allow_origins: List[str] = [" * "],
+        allow_methods: List[str] = [" * "],
+        allow_headers: List[str] = [" * "],
         allow_credentials: bool = True,
         expose_headers: List[str] = [],
         max_age: int = 600,
@@ -74,8 +74,8 @@ def setup_cors_middleware(app: Any, config: APIConfig) -> None:
     # Add CORS middleware
     app.add_middleware(
         FastAPICORSMiddleware,
-        allow_origins=["*"],  # In production, specify allowed origins
+        allow_origins=[" * "],  # In production, specify allowed origins
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=[" * "],
+        allow_headers=[" * "],
     )

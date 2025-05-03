@@ -21,10 +21,11 @@ async def test_webhook_service():
     try:
         # Register a webhook
         webhook_data = {
-            "url": "https://example.com/webhook",
+            "url": "https://example.com / webhook",
             "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
+                
             "description": "Test webhook",
-            "headers": {"Authorization": "Bearer test-token"},
+            "headers": {"Authorization": "Bearer test - token"},
             "is_active": True,
         }
 
@@ -44,7 +45,8 @@ async def test_webhook_service():
 
         updated_webhook = await service.update_webhook(webhook["id"], updated_data)
         print(
-            f"Updated webhook: {updated_webhook['description']}, active: {updated_webhook['is_active']}"
+            f"Updated webhook: {updated_webhook['description']}, 
+                active: {updated_webhook['is_active']}"
         )
 
         # Reactivate webhook for delivery test
@@ -53,9 +55,9 @@ async def test_webhook_service():
         # Try to deliver an event
         try:
             event_data = {
-                "user_id": "user-123",
+                "user_id": "user - 123",
                 "username": "testuser",
-                "email": "test@example.com",
+                "email": "test @ example.com",
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
 

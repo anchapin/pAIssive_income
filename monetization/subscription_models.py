@@ -2,8 +2,8 @@
 Subscription Models for the pAIssive Income project.
 
 This module provides classes for creating and managing different subscription models
-for AI-powered software tools. It includes base classes and specific implementations
-for various subscription models like freemium, tiered, usage-based, and hybrid models.
+for AI - powered software tools. It includes base classes and specific implementations
+for various subscription models like freemium, tiered, usage - based, and hybrid models.
 """
 
 import copy
@@ -135,7 +135,8 @@ class SubscriptionModel:
             "id": str(uuid.uuid4()),
             "name": name,
             "description": description,
-            "feature_type": feature_type,  # Changed from "type" to "feature_type" to match tests
+            "feature_type": feature_type,  
+                # Changed from "type" to "feature_type" to match tests
             "type": feature_type,  # Keep "type" for backward compatibility
             "value_proposition": value_proposition,
             "development_cost": development_cost,
@@ -186,10 +187,12 @@ class SubscriptionModel:
             if feature_id not in tier["features"]:
                 tier["features"].append(feature_id)
                 self.updated_at = datetime.now().isoformat()
-                logger.info(f"Assigned feature '{feature['name']}' to tier '{tier['name']}'")
+                logger.info(
+                    f"Assigned feature '{feature['name']}' to tier '{tier['name']}'")
                 return True
 
-            logger.debug(f"Feature '{feature['name']}' already assigned to tier '{tier['name']}'")
+            logger.debug(
+                f"Feature '{feature['name']}' already assigned to tier '{tier['name']}'")
             return False
 
         except (TierNotFoundError, FeatureNotFoundError) as e:
@@ -295,7 +298,7 @@ class SubscriptionModel:
             return True
 
         except ValidationError:
-            # Re-raise validation errors
+            # Re - raise validation errors
             raise
         except Exception as e:
             # Handle unexpected errors
@@ -368,7 +371,8 @@ class SubscriptionModel:
         """
         try:
             save_to_json_file(self.to_dict(), file_path)
-            logger.info(f"Successfully saved subscription model '{self.name}' to {file_path}")
+            logger.info(
+                f"Successfully saved subscription model '{self.name}' to {file_path}")
         except (IOError, OSError) as e:
             from .errors import MonetizationError
 
@@ -396,7 +400,8 @@ class SubscriptionModel:
 
         1. FILE LOADING AND FORMAT VALIDATION:
            - Attempts to read and parse the JSON file with proper error handling
-           - Validates the basic JSON structure before proceeding with model construction
+           - \
+               Validates the basic JSON structure before proceeding with model construction
            - Uses common_utils for consistent file handling across the application
            - Converts parsing exceptions into specific ValidationError types for clarity
 
@@ -414,26 +419,26 @@ class SubscriptionModel:
 
         4. SPECIALIZED FREEMIUM MODEL HANDLING:
            - Applies special logic for FreemiumModel instances
-           - Validates freemium-specific fields like free_tier_id
+           - Validates freemium - specific fields like free_tier_id
            - Handles the special free tier replacement logic
            - Maintains the integrity of the free tier relationship
 
         5. IDENTITY AND METADATA PRESERVATION:
            - Preserves original identifiers across serialization cycles
            - Maintains creation and modification timestamps
-           - Ensures data consistency in round-trip serialization scenarios
+           - Ensures data consistency in round - trip serialization scenarios
            - Supports proper audit trails and version tracking
 
         6. COMPREHENSIVE ERROR HANDLING:
            - Implements specialized error handling for each failure category
-           - Maps low-level exceptions to domain-specific error types
+           - Maps low - level exceptions to domain - specific error types
            - Provides detailed context in error messages
            - Maintains error handling consistency through helper functions
 
         This implementation specifically addresses several critical needs:
         - Safe deserialization of potentially complex data structures
         - Proper handling of inheritance relationships in serialized form
-        - Maintaining object identity across save/load cycles
+        - Maintaining object identity across save / load cycles
         - Comprehensive validation to prevent invalid model states
 
         Args:
@@ -477,10 +482,12 @@ class SubscriptionModel:
             if missing_fields:
                 # Generate detailed validation error with specific missing fields
                 raise ValidationError(
-                    message=f"Missing required fields in subscription model data: {', '.join(missing_fields)}",
+                    message=f"Missing required fields in subscription model data: {', 
+                        '.join(missing_fields)}",
                     field="file_content",
                     validation_errors=[
-                        {"field": field, "error": "Field is required"} for field in missing_fields
+                        {"field": field, 
+                            "error": "Field is required"} for field in missing_fields
                     ],
                 )
 
@@ -490,10 +497,11 @@ class SubscriptionModel:
 
             # STAGE 3A: Handle the FreemiumModel specialized case
             if model_type == "freemium" and cls.__name__ == "FreemiumModel":
-                # Additional validation for freemium-specific requirements
+                # Additional validation for freemium - specific requirements
                 if "free_tier_id" not in data:
                     raise ValidationError(
                         message="Missing required field 'free_tier_id' for FreemiumModel",
+                            
                         field="free_tier_id",
                     )
 
@@ -506,13 +514,14 @@ class SubscriptionModel:
                 )
 
                 # STAGE 3B: Handle the special free tier replacement logic
-                # The FreemiumModel constructor auto-creates a free tier,
+                # The FreemiumModel constructor auto - creates a free tier,
                 # but we need to replace it with the one from the saved data
                 free_tier_id = data["free_tier_id"]
-                free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), None)
+                free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), 
+                    None)
 
                 if free_tier:
-                    # Find and remove the auto-created free tier
+                    # Find and remove the auto - created free tier
                     for i, tier in enumerate(model.tiers):
                         if tier["id"] == model.free_tier["id"]:
                             model.tiers.pop(i)
@@ -523,7 +532,8 @@ class SubscriptionModel:
                     model.free_tier = free_tier
                 else:
                     # Warn if the referenced free tier is missing in the data
-                    logger.warning(f"Free tier with ID {free_tier_id} not found in loaded data")
+                    logger.warning(
+                        f"Free tier with ID {free_tier_id} not found in loaded data")
 
                 # Add all other tiers from the loaded data
                 for tier in data["tiers"]:
@@ -546,15 +556,16 @@ class SubscriptionModel:
             model.created_at = data["created_at"]
             model.updated_at = data["updated_at"]
 
-            logger.info(f"Successfully loaded subscription model '{model.name}' from {file_path}")
+            logger.info(
+                f"Successfully loaded subscription model '{model.name}' from {file_path}")
             return model
 
         # STAGE 5: Comprehensive error handling for different failure scenarios
         except (ValidationError, MonetizationError):
-            # Re-raise domain-specific errors that have already been properly categorized
+            # Re - raise domain - specific errors that have already been properly categorized
             raise
         except FileNotFoundError as e:
-            # Convert file not found into a domain-specific error
+            # Convert file not found into a domain - specific error
             from .errors import MonetizationError
 
             error = MonetizationError(
@@ -575,7 +586,8 @@ class SubscriptionModel:
 
     def __repr__(self) -> str:
         """Detailed string representation of the subscription model."""
-        return f"SubscriptionModel(id={self.id}, name={self.name}, tiers={len(self.tiers)}, features={len(self.features)})"
+        return f"SubscriptionModel(id={self.id}, name={self.name}, 
+            tiers={len(self.tiers)}, features={len(self.features)})"
 
 
 class FreemiumModel(SubscriptionModel):
@@ -621,7 +633,8 @@ class FreemiumModel(SubscriptionModel):
             description=free_tier_description,
             price_monthly=0.0,
             price_yearly=0.0,
-            limits=free_tier_limits or {"usage": "limited", "api_calls": 100, "exports": 5},
+            limits=free_tier_limits or {"usage": "limited", "api_calls": 100, 
+                "exports": 5},
             target_users="Free users and trial users",
         )
 
@@ -746,7 +759,7 @@ if __name__ == "__main__":
     # Create a freemium subscription model
     model = FreemiumModel(
         name="AI Tool Freemium Subscription",
-        description="Freemium subscription model for an AI-powered tool",
+        description="Freemium subscription model for an AI - powered tool",
     )
 
     # Add features
@@ -760,7 +773,7 @@ if __name__ == "__main__":
 
     feature2 = model.add_feature(
         name="Advanced Text Generation",
-        description="Generate high-quality text with more control",
+        description="Generate high - quality text with more control",
         feature_type="functional",
         value_proposition="Create professional content faster",
         development_cost="medium",
@@ -768,7 +781,7 @@ if __name__ == "__main__":
 
     feature3 = model.add_feature(
         name="Template Library",
-        description="Access to pre-made templates",
+        description="Access to pre - made templates",
         feature_type="content",
         value_proposition="Start with proven formats",
         development_cost="medium",

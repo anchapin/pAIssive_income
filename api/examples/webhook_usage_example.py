@@ -13,7 +13,7 @@ from ..services.webhook_service import WebhookService
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class NicheAnalysisService:
                     {
                         "keyword": "gaming laptop under 1000",
                         "volume": 8500,
-                        "difficulty": "Medium-High",
+                        "difficulty": "Medium - High",
                     },
                     {
                         "keyword": "affordable gaming laptop reviews",
@@ -95,7 +95,7 @@ class NicheAnalysisService:
                 {"analysis_id": analysis_id, "niche": niche, "error": error},
             )
 
-            # Re-raise the exception
+            # Re - raise the exception
             raise
 
 
@@ -126,8 +126,8 @@ class MonetizationService:
             "user_id": user_id,
             "plan_id": plan_id,
             "status": "active",
-            "created_at": "2025-04-28T12:00:00Z",
-            "current_period_end": "2025-05-28T12:00:00Z",
+            "created_at": "2025 - 04 - 28T12:00:00Z",
+            "current_period_end": "2025 - 05 - 28T12:00:00Z",
             "payment_method": payment_method,
         }
 
@@ -157,7 +157,7 @@ class MonetizationService:
             "amount": amount,
             "currency": "USD",
             "status": "succeeded",
-            "created_at": "2025-04-28T12:05:00Z",
+            "created_at": "2025 - 04 - 28T12:05:00Z",
         }
 
         # Trigger payment received event
@@ -177,7 +177,7 @@ async def main():
     # Example: Register webhook
     webhook_service = WebhookService()
     webhook = await webhook_service.register_webhook(
-        url="https://example.com/webhook",
+        url="https://example.com / webhook",
         events=[
             WebhookEventType.NICHE_ANALYSIS_STARTED,
             WebhookEventType.NICHE_ANALYSIS_COMPLETED,
@@ -186,7 +186,7 @@ async def main():
             WebhookEventType.PAYMENT_RECEIVED,
         ],
         description="Example webhook for notifications",
-        secret="your-webhook-secret",
+        secret="your - webhook - secret",
     )
     logger.info(f"Registered webhook: {webhook['id']}")
 

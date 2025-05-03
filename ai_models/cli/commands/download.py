@@ -1,5 +1,5 @@
 """
-Download command for the command-line interface.
+Download command for the command - line interface.
 
 This module provides a command for downloading models.
 """
@@ -12,7 +12,7 @@ from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -27,16 +27,16 @@ class DownloadCommand(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
-        Add command-specific arguments to the parser.
+        Add command - specific arguments to the parser.
 
         Args:
             parser: Argument parser
         """
         parser.add_argument(
-            "--model-id", type=str, required=True, help="Model ID or URL to download"
+            "--model - id", type=str, required=True, help="Model ID or URL to download"
         )
         parser.add_argument(
-            "--output-dir",
+            "--output - dir",
             type=str,
             default="models",
             help="Directory to save the model",
@@ -49,30 +49,30 @@ class DownloadCommand(BaseCommand):
             action="store_true",
             help="Force download even if the model already exists",
         )
-        parser.add_argument("--cache-dir", type=str, help="Cache directory for downloaded models")
+        parser.add_argument("--cache - dir", type=str, help="Cache directory for downloaded models")
         parser.add_argument(
-            "--auth-token", type=str, help="Authentication token for private models"
+            "--auth - token", type=str, help="Authentication token for private models"
         )
         parser.add_argument(
-            "--use-auth-token",
+            "--use - auth - token",
             action="store_true",
             help="Use the Hugging Face token from the environment",
         )
         parser.add_argument(
-            "--local-files-only",
+            "--local - files - only",
             action="store_true",
             help="Use only local files (no downloads)",
         )
         parser.add_argument(
-            "--resume-download", action="store_true", help="Resume incomplete downloads"
+            "--resume - download", action="store_true", help="Resume incomplete downloads"
         )
         parser.add_argument(
             "--proxies",
             type=str,
-            help="Dictionary of proxies for HTTP/HTTPS connections",
+            help="Dictionary of proxies for HTTP / HTTPS connections",
         )
         parser.add_argument(
-            "--max-workers",
+            "--max - workers",
             type=int,
             default=8,
             help="Maximum number of workers for parallel downloads",

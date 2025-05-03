@@ -1,7 +1,7 @@
 """
 Service discovery client for pAIssive income microservices.
 
-This module provides a high-level client for microservices to register
+This module provides a high - level client for microservices to register
 themselves and discover other services in the system.
 """
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceDiscoveryClient:
-    """High-level client for service discovery operations."""
+    """High - level client for service discovery operations."""
 
     def __init__(
         self,
@@ -40,7 +40,7 @@ class ServiceDiscoveryClient:
         version: str = "1.0.0",
         tags: Optional[List[str]] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        health_check_url: str = "/health",
+        health_check_url: str = " / health",
         registry_host: str = "localhost",
         registry_port: int = 8500,
         auto_register: bool = True,
@@ -59,7 +59,7 @@ class ServiceDiscoveryClient:
         # Generate a unique service ID
         self.service_id = f"{service_name}-{str(uuid.uuid4())[:8]}"
 
-        # Auto-detect host if not provided
+        # Auto - detect host if not provided
         if host is None:
             self.host = self._get_local_ip()
         else:
@@ -75,7 +75,7 @@ class ServiceDiscoveryClient:
         self._service_cache: Dict[str, Tuple[float, List[ServiceInstance]]] = {}
         self._cache_ttl = 10.0  # Cache TTL in seconds
 
-        # Register this service if auto-register is True
+        # Register this service if auto - register is True
         if auto_register and port > 0:
             self.register_self()
 
@@ -158,7 +158,7 @@ class ServiceDiscoveryClient:
         # Use load balancer to select an instance
         return self.load_balancer.select(instances)
 
-    def get_service_url(self, service_name: str, path: str = "/") -> Optional[str]:
+    def get_service_url(self, service_name: str, path: str = " / ") -> Optional[str]:
         """Get the URL for a service, automatically selecting an instance."""
         instance = self.get_service_instance(service_name)
         if not instance:
@@ -185,7 +185,7 @@ class ServiceDiscoveryClient:
         return False
 
     def set_cache_ttl(self, ttl_seconds: float) -> None:
-        """Set the time-to-live for the service instance cache."""
+        """Set the time - to - live for the service instance cache."""
         self._cache_ttl = max(0.0, ttl_seconds)
 
     def clear_cache(self) -> None:
@@ -197,10 +197,10 @@ class ServiceDiscoveryClient:
     ) -> Callable[[str], Optional[str]]:
         """Return a function that builds URLs for the specified service."""
 
-        def url_builder(path: str = "/") -> Optional[str]:
+        def url_builder(path: str = " / ") -> Optional[str]:
             url = self.get_service_url(service_name, path)
             if url is None and fallback_url:
-                return f"{fallback_url.rstrip('/')}{path}"
+                return f"{fallback_url.rstrip(' / ')}{path}"
             return url
 
         return url_builder

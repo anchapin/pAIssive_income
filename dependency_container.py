@@ -109,7 +109,8 @@ class DependencyContainer:
         interface_name = interface_type.__name__
 
         # Check if we have a singleton instance
-        if interface_name in self._singletons and self._singletons[interface_name] is not None:
+        if interface_name in self._singletons and \
+            self._singletons[interface_name] is not None:
             return cast(T, self._singletons[interface_name])
 
         # Check if we have a factory

@@ -1,7 +1,7 @@
 """
-Commands for the command-line interface.
+Commands for the command - line interface.
 
-This package provides commands for the command-line interface.
+This package provides commands for the command - line interface.
 """
 
 from .benchmark import BenchmarkCommand

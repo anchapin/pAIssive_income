@@ -89,7 +89,8 @@ def test_register_instance(container):
 def test_singleton(container):
     """Test singleton behavior."""
     # Register a singleton
-    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), singleton=True)
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), 
+        singleton=True)
 
     # Resolve the singleton twice
     service1 = container.resolve(ITestService)
@@ -100,9 +101,10 @@ def test_singleton(container):
 
 
 def test_non_singleton(container):
-    """Test non-singleton behavior."""
-    # Register a non-singleton
-    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), singleton=False)
+    """Test non - singleton behavior."""
+    # Register a non - singleton
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), 
+        singleton=False)
 
     # Resolve the service twice
     service1 = container.resolve(ITestService)
@@ -130,7 +132,8 @@ def test_clear(container):
     """Test clearing the container."""
     # Register some dependencies
     container.register(ITestService, lambda: TestServiceImpl(name="TestService"))
-    container.register(IListService, lambda: ListService(items=["item1", "item2", "item3"]))
+    container.register(IListService, lambda: ListService(items=["item1", "item2", 
+        "item3"]))
     container.register_instance("test_service", TestServiceImpl(name="TestService"))
 
     # Clear the container

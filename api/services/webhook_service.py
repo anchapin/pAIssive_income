@@ -459,10 +459,10 @@ class WebhookService:
 
         # Prepare headers
         headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "pAIssive-Income-Webhook/1.0",
-            "X-Webhook-ID": webhook["id"],
-            "X-Webhook-Signature": signature,
+            "Content - Type": "application / json",
+            "User - Agent": "pAIssive - Income - Webhook / 1.0",
+            "X - Webhook - ID": webhook["id"],
+            "X - Webhook - Signature": signature,
         }
 
         # Add custom headers

@@ -88,7 +88,7 @@ class MonetizationAgent:
                 "price_yearly": int(base_price * 2 * 10),  # 2 months free for yearly
                 "features": pro_features,
                 "description": f"Advanced features for professional {niche['name']} users",
-                "target_users": "Professional users and medium-sized businesses",
+                "target_users": "Professional users and medium - sized businesses",
             },
             {
                 "id": str(uuid.uuid4()),
@@ -110,7 +110,7 @@ class MonetizationAgent:
                     "id": str(uuid.uuid4()),
                     "name": "Custom Integration Services",
                     "description": f"Custom integration with existing {niche['name']} tools",
-                    "pricing_model": "one-time fee",
+                    "pricing_model": "one - time fee",
                     "price_range": "$500 - $2,000",
                     "target_users": "Enterprise users",
                 }
@@ -122,7 +122,7 @@ class MonetizationAgent:
                     "id": str(uuid.uuid4()),
                     "name": "Training and Onboarding",
                     "description": f"Training and onboarding for {niche['name']} teams",
-                    "pricing_model": "one-time fee",
+                    "pricing_model": "one - time fee",
                     "price_range": "$200 - $1,000",
                     "target_users": "Teams and businesses",
                 }
@@ -195,7 +195,7 @@ class MonetizationAgent:
                 "payout_schedule": "monthly",
             },
             "pricing_strategy": {
-                "positioning": "value-based",
+                "positioning": "value - based",
                 "competitor_comparison": "competitive",
                 "discount_strategy": "yearly discount",
             },
@@ -253,7 +253,7 @@ class MonetizationAgent:
             },
             "recommendations": {
                 "initial_pricing": "as proposed",
-                "discount_strategy": "offer limited-time launch discount",
+                "discount_strategy": "offer limited - time launch discount",
                 "upsell_opportunities": "focus on yearly subscriptions",
             },
             "timestamp": datetime.now().isoformat(),

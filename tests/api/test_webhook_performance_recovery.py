@@ -37,7 +37,7 @@ class TestDeliveryRecovery:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -96,7 +96,7 @@ class TestDeliveryRecovery:
                 recovery_events = []
                 for i in range(5):
                     event_data = {
-                        "user_id": f"recovery-user-{i}",
+                        "user_id": f"recovery - user-{i}",
                         "username": f"recoveryuser{i}",
                         "email": f"recovery{i}@example.com",
                     }
@@ -143,7 +143,7 @@ class TestBackpressureHandling:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -176,9 +176,9 @@ class TestBackpressureHandling:
                 # Try to add one more event, which should be rejected due to backpressure
                 with pytest.raises(Exception, match="Queue full"):
                     event_data = {
-                        "user_id": "overflow-user",
+                        "user_id": "overflow - user",
                         "username": "overflowuser",
-                        "email": "overflow@example.com",
+                        "email": "overflow @ example.com",
                     }
                     await service.queue_event(
                         webhook_id=webhook["id"],
@@ -196,7 +196,7 @@ class TestQueuePrioritization:
 
     @pytest.mark.asyncio
     async def test_queue_prioritization(self):
-        """Test that high-priority events are processed before low-priority events."""
+        """Test that high - priority events are processed before low - priority events."""
         # Create a webhook service
         service = WebhookService()
         await service.start()
@@ -204,7 +204,7 @@ class TestQueuePrioritization:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [
                     WebhookEventType.USER_CREATED,
                     WebhookEventType.PAYMENT_RECEIVED,
@@ -242,7 +242,7 @@ class TestQueuePrioritization:
                     await service.queue_event(
                         webhook_id=webhook["id"],
                         event_type=WebhookEventType.SUBSCRIPTION_CREATED,
-                        event_data={"subscription_id": "sub-123"},
+                        event_data={"subscription_id": "sub - 123"},
                         priority=0,  # Low priority
                     )
 
@@ -250,7 +250,7 @@ class TestQueuePrioritization:
                     await service.queue_event(
                         webhook_id=webhook["id"],
                         event_type=WebhookEventType.USER_CREATED,
-                        event_data={"user_id": "user-123"},
+                        event_data={"user_id": "user - 123"},
                         priority=1,  # Medium priority
                     )
 
@@ -258,7 +258,7 @@ class TestQueuePrioritization:
                     await service.queue_event(
                         webhook_id=webhook["id"],
                         event_type=WebhookEventType.PAYMENT_RECEIVED,
-                        event_data={"payment_id": "payment-123"},
+                        event_data={"payment_id": "payment - 123"},
                         priority=2,  # High priority
                     )
 
@@ -288,7 +288,7 @@ class TestExponentialBackoff:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -315,9 +315,9 @@ class TestExponentialBackoff:
                 with patch("httpx.AsyncClient.post", return_value=fail_response):
                     # Deliver an event that will fail and trigger retries
                     event_data = {
-                        "user_id": "user-123",
+                        "user_id": "user - 123",
                         "username": "testuser",
-                        "email": "test@example.com",
+                        "email": "test @ example.com",
                     }
 
                     # Set max_attempts to 4 (initial + 3 retries)
@@ -362,7 +362,7 @@ class TestDeliveryTimeout:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -380,9 +380,9 @@ class TestDeliveryTimeout:
             with patch("httpx.AsyncClient.post", side_effect=asyncio.TimeoutError):
                 # Deliver an event
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 delivery = await service.deliver_event(
@@ -418,7 +418,7 @@ class TestQueuePersistence:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -494,7 +494,7 @@ class TestDeadLetterQueue:
         try:
             # Register a webhook
             webhook_data = {
-                "url": "https://example.com/webhook",
+                "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "is_active": True,
@@ -510,9 +510,9 @@ class TestDeadLetterQueue:
             with patch("httpx.AsyncClient.post", return_value=fail_response):
                 # Deliver an event that will fail
                 event_data = {
-                    "user_id": "user-123",
+                    "user_id": "user - 123",
                     "username": "testuser",
-                    "email": "test@example.com",
+                    "email": "test @ example.com",
                 }
 
                 # Set max_attempts to 3 (initial + 2 retries)

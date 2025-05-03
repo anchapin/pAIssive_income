@@ -91,7 +91,8 @@ class MeteredBillingPricing:
             end = start + timedelta(days=1)
         elif self.metering_interval == MeteringInterval.WEEKLY:
             # Start from Monday of the current week
-            start = datetime(now.year, now.month, now.day) - timedelta(days=now.weekday())
+            start = datetime(now.year, now.month, 
+                now.day) - timedelta(days=now.weekday())
             end = start + timedelta(days=7)
         elif self.metering_interval == MeteringInterval.MONTHLY:
             start = datetime(now.year, now.month, 1)
@@ -144,7 +145,7 @@ class TestMeteredBilling(unittest.TestCase):
         # Test monthly interval
         self.model.set_metering_interval(MeteringInterval.MONTHLY)
         start, end = self.model.get_interval_start_end()
-        # This will vary by month, but should be roughly 28-31 days
+        # This will vary by month, but should be roughly 28 - 31 days
         self.assertTrue(28 <= (end - start).days <= 31)
 
     def test_custom_billing_period(self):

@@ -9,8 +9,8 @@ This module provides statistical analysis tools for marketing data, including:
 - Multiple comparison corrections
 - Sequential analysis
 
-These tools are designed to support data-driven decision making in marketing,
-particularly for A/B testing, campaign performance analysis, and ROI calculations.
+These tools are designed to support data - driven decision making in marketing,
+particularly for A / B testing, campaign performance analysis, and ROI calculations.
 """
 
 import logging
@@ -121,11 +121,13 @@ class StatisticalAnalysis:
         # Check sequence length
         if min_length is not None and hasattr(data, "__len__"):
             if len(data) < min_length:
-                raise InvalidParameterError(f"Sequence must have at least {min_length} elements")
+                raise InvalidParameterError(
+                    f"Sequence must have at least {min_length} elements")
 
         return True
 
-    def check_sufficient_data(self, data: Union[List, np.ndarray], min_samples: int = 30) -> bool:
+    def check_sufficient_data(self, data: Union[List, np.ndarray], 
+        min_samples: int = 30) -> bool:
         """
         Check if there is sufficient data for statistical analysis.
 
@@ -141,7 +143,8 @@ class StatisticalAnalysis:
         """
         if len(data) < min_samples:
             raise InsufficientDataError(
-                f"Insufficient data: {len(data)} samples, minimum required: {min_samples}"
+                f"Insufficient data: {len(data)} samples, 
+                    minimum required: {min_samples}"
             )
         return True
 
@@ -162,7 +165,8 @@ class StatisticalAnalysis:
         self.validate_data(data, (list, np.ndarray), min_length=1)
         return np.mean(data), np.std(data, ddof=1)  # ddof=1 for sample std dev
 
-    def median_and_iqr(self, data: Union[List[float], np.ndarray]) -> Tuple[float, float]:
+    def median_and_iqr(self, data: Union[List[float], np.ndarray]) -> Tuple[float, 
+        float]:
         """
         Calculate median and interquartile range.
 
@@ -192,7 +196,8 @@ class StatisticalAnalysis:
 
         return median, iqr
 
-    def summary_statistics(self, data: Union[List[float], np.ndarray]) -> Dict[str, float]:
+    def summary_statistics(self, data: Union[List[float], np.ndarray]) -> Dict[str, 
+        float]:
         """
         Calculate summary statistics for a dataset.
 
@@ -235,7 +240,7 @@ class StatisticalAnalysis:
         expected: Optional[Union[List[List[float]], np.ndarray]] = None,
     ) -> Dict[str, Any]:
         """
-        Perform a chi-square test for independence or goodness of fit.
+        Perform a chi - square test for independence or goodness of fit.
 
         For a contingency table (observed counts), this tests for independence
         between rows and columns. For a 1D array compared against expected values,
@@ -243,13 +248,14 @@ class StatisticalAnalysis:
 
         Args:
             observed: Observed frequencies (counts) as a 2D array or list of lists
-            expected: Expected frequencies (optional) - if not provided, will be calculated
+            expected: Expected frequencies (optional) - if not provided, 
+                will be calculated
                      assuming independence between rows and columns
 
         Returns:
             Dictionary with test results including:
-            - chi2: Chi-square statistic
-            - p_value: P-value for the test
+            - chi2: Chi - square statistic
+            - p_value: P - value for the test
             - dof: Degrees of freedom
             - expected: Expected frequencies
             - residuals: Standardized residuals
@@ -286,16 +292,17 @@ class StatisticalAnalysis:
             # Ensure we have sufficient data
             if np.sum(observed) < 20:
                 raise InsufficientDataError(
-                    "Chi-square test requires at least 20 total observations"
+                    "Chi - square test requires at least 20 total observations"
                 )
 
             # Check if any expected value is too small
             if np.any(expected < 5):
                 self.logger.warning(
-                    "Some expected frequencies are less than 5, chi-square may not be valid"
+                    "Some expected frequencies are less than 5, 
+                        chi - square may not be valid"
                 )
 
-            # Calculate chi-square statistic
+            # Calculate chi - square statistic
             chi2_stat = np.sum((observed - expected) ** 2 / expected)
             dof = len(observed) - 1
 
@@ -307,7 +314,7 @@ class StatisticalAnalysis:
             # Check for sufficient data
             if np.sum(observed) < 20:
                 raise InsufficientDataError(
-                    "Chi-square test requires at least 20 total observations"
+                    "Chi - square test requires at least 20 total observations"
                 )
 
             # Calculate expected frequencies if not provided
@@ -320,17 +327,18 @@ class StatisticalAnalysis:
             # Check if any expected value is too small
             if np.any(expected < 5):
                 self.logger.warning(
-                    "Some expected frequencies are less than 5, chi-square may not be valid"
+                    "Some expected frequencies are less than 5, 
+                        chi - square may not be valid"
                 )
 
-            # Calculate chi-square statistic
+            # Calculate chi - square statistic
             chi2_stat = np.sum((observed - expected) ** 2 / expected)
             dof = (observed.shape[0] - 1) * (observed.shape[1] - 1)
 
         else:
             raise InvalidParameterError("Observed data must be a 1D or 2D array")
 
-        # Calculate p-value
+        # Calculate p - value
         p_value = 1 - stats.chi2.cdf(chi2_stat, dof)
 
         # Calculate standardized residuals
@@ -343,34 +351,39 @@ class StatisticalAnalysis:
             "chi2": chi2_stat,
             "p_value": p_value,
             "dof": dof,
-            "expected": expected.tolist() if isinstance(expected, np.ndarray) else expected,
-            "residuals": residuals.tolist() if isinstance(residuals, np.ndarray) else residuals,
+            "expected": expected.tolist() if isinstance(expected, 
+                np.ndarray) else expected,
+            "residuals": residuals.tolist() if isinstance(residuals, 
+                np.ndarray) else residuals,
             "is_significant": is_significant,
             "test_name": "chi_square",
             "alpha": self.default_alpha,
         }
 
     def fishers_exact_test(
-        self, table: Union[List[List[int]], np.ndarray], alternative: str = "two-sided"
+        self, table: Union[List[List[int]], np.ndarray], 
+            alternative: str = "two - sided"
     ) -> Dict[str, Any]:
         """
         Perform Fisher's exact test on a 2x2 contingency table.
 
-        This test is used when sample sizes are small and the chi-square test
+        This test is used when sample sizes are small and the chi - square test
         may not be valid. It calculates the exact probability of observing a
         table at least as extreme as the one provided.
 
         Args:
             table: 2x2 contingency table as a list of lists or numpy array
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "less": one-tailed test (probability of a more extreme table with a smaller odds ratio)
-                        "greater": one-tailed test (probability of a more extreme table with a larger odds ratio)
+                        "two - sided" (default): two - tailed test
+                        "less": one - \
+                            tailed test (probability of a more extreme table with a smaller odds ratio)
+                        "greater": one - \
+                            tailed test (probability of a more extreme table with a larger odds ratio)
 
         Returns:
             Dictionary with test results including:
             - odds_ratio: The odds ratio
-            - p_value: P-value for the test
+            - p_value: P - value for the test
             - is_significant: Whether the result is significant at alpha level
 
         Raises:
@@ -383,14 +396,15 @@ class StatisticalAnalysis:
         self.validate_data(table, np.ndarray, min_length=1)
 
         if table.shape != (2, 2):
-            raise InvalidParameterError("Fisher's exact test requires a 2x2 contingency table")
-
-        if alternative not in ["two-sided", "less", "greater"]:
             raise InvalidParameterError(
-                "Alternative must be one of: 'two-sided', 'less', 'greater'"
+                "Fisher's exact test requires a 2x2 contingency table")
+
+        if alternative not in ["two - sided", "less", "greater"]:
+            raise InvalidParameterError(
+                "Alternative must be one of: 'two - sided', 'less', 'greater'"
             )
 
-        # Calculate odds ratio and p-value
+        # Calculate odds ratio and p - value
         odds_ratio, p_value = stats.fisher_exact(table, alternative=alternative)
 
         # Determine significance
@@ -413,30 +427,32 @@ class StatisticalAnalysis:
         count2: int = None,
         nobs2: int = None,
         value: float = None,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
     ) -> Dict[str, Any]:
         """
-        Perform a z-test for proportions.
+        Perform a z - test for proportions.
 
         This test can be used to:
-        1. Compare a single proportion to a known value (one-sample test)
-        2. Compare two proportions (two-sample test)
+        1. Compare a single proportion to a known value (one - sample test)
+        2. Compare two proportions (two - sample test)
 
         Args:
             count1: Number of successes in first sample
             nobs1: Number of observations in first sample
-            count2: Number of successes in second sample (for two-sample test)
-            nobs2: Number of observations in second sample (for two-sample test)
-            value: Known proportion to compare against (for one-sample test)
+            count2: Number of successes in second sample (for two - sample test)
+            nobs2: Number of observations in second sample (for two - sample test)
+            value: Known proportion to compare against (for one - sample test)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "less": one-tailed test (proportion is less than value or proportion2)
-                        "greater": one-tailed test (proportion is greater than value or proportion2)
+                        "two - sided" (default): two - tailed test
+                        "less": one - \
+                            tailed test (proportion is less than value or proportion2)
+                        "greater": one - \
+                            tailed test (proportion is greater than value or proportion2)
 
         Returns:
             Dictionary with test results including:
-            - z_score: Z-statistic
-            - p_value: P-value for the test
+            - z_score: Z - statistic
+            - p_value: P - value for the test
             - proportion1: First sample proportion
             - proportion2: Second sample proportion or comparison value
             - is_significant: Whether the result is significant at alpha level
@@ -448,9 +464,9 @@ class StatisticalAnalysis:
         self.validate_data(count1, int, min_value=0)
         self.validate_data(nobs1, int, min_value=count1)
 
-        if alternative not in ["two-sided", "less", "greater"]:
+        if alternative not in ["two - sided", "less", "greater"]:
             raise InvalidParameterError(
-                "Alternative must be one of: 'two-sided', 'less', 'greater'"
+                "Alternative must be one of: 'two - sided', 'less', 'greater'"
             )
 
         # Calculate first proportion
@@ -458,7 +474,7 @@ class StatisticalAnalysis:
 
         # Determine test type
         if count2 is not None and nobs2 is not None:
-            # Two-sample test
+            # Two - sample test
             self.validate_data(count2, int, min_value=0)
             self.validate_data(nobs2, int, min_value=count2)
 
@@ -481,11 +497,11 @@ class StatisticalAnalysis:
             # Calculate standard error
             se = math.sqrt(pooled_prop * (1 - pooled_prop) * (1 / nobs1 + 1 / nobs2))
 
-            # Calculate z-score
+            # Calculate z - score
             z_score = (proportion1 - proportion2) / se
 
-            # Calculate p-value
-            if alternative == "two-sided":
+            # Calculate p - value
+            if alternative == "two - sided":
                 p_value = 2 * (1 - stats.norm.cdf(abs(z_score)))
             elif alternative == "less":
                 p_value = stats.norm.cdf(z_score)
@@ -500,11 +516,11 @@ class StatisticalAnalysis:
                 "difference": proportion1 - proportion2,
                 "pooled_proportion": pooled_prop,
                 "standard_error": se,
-                "test_type": "two-sample",
+                "test_type": "two - sample",
             }
 
         elif value is not None:
-            # One-sample test
+            # One - sample test
             self.validate_data(value, float, min_value=0.0, max_value=1.0)
 
             # Check normal approximation conditions
@@ -516,11 +532,11 @@ class StatisticalAnalysis:
             # Calculate standard error
             se = math.sqrt(value * (1 - value) / nobs1)
 
-            # Calculate z-score
+            # Calculate z - score
             z_score = (proportion1 - value) / se
 
-            # Calculate p-value
-            if alternative == "two-sided":
+            # Calculate p - value
+            if alternative == "two - sided":
                 p_value = 2 * (1 - stats.norm.cdf(abs(z_score)))
             elif alternative == "less":
                 p_value = stats.norm.cdf(z_score)
@@ -534,11 +550,12 @@ class StatisticalAnalysis:
                 "proportion2": value,
                 "difference": proportion1 - value,
                 "standard_error": se,
-                "test_type": "one-sample",
+                "test_type": "one - sample",
             }
 
         else:
-            raise InvalidParameterError("Either (count2, nobs2) or value must be provided")
+            raise InvalidParameterError("Either (count2, 
+                nobs2) or value must be provided")
 
         # Add common fields
         result.update(
@@ -610,7 +627,7 @@ class StatisticalAnalysis:
         # Calculate degrees of freedom
         degrees_of_freedom = n - 1
 
-        # Calculate t-value for the given confidence level
+        # Calculate t - value for the given confidence level
         alpha = 1 - confidence_level
         t_value = stats.t.ppf(1 - alpha / 2, degrees_of_freedom)
 
@@ -635,7 +652,8 @@ class StatisticalAnalysis:
         }
 
     def confidence_interval_proportion(
-        self, count: int, nobs: int, confidence_level: float = 0.95, method: str = "normal"
+        self, count: int, nobs: int, confidence_level: float = 0.95, 
+            method: str = "normal"
     ) -> Dict[str, Any]:
         """
         Calculate confidence interval for a proportion.
@@ -647,8 +665,8 @@ class StatisticalAnalysis:
             method: Method to use for calculation:
                    "normal": Normal approximation (default)
                    "wilson": Wilson score interval (better for small samples)
-                   "agresti-coull": Agresti-Coull interval (adjusted Wald)
-                   "exact": Exact (Clopper-Pearson) interval
+                   "agresti - coull": Agresti - Coull interval (adjusted Wald)
+                   "exact": Exact (Clopper - Pearson) interval
 
         Returns:
             Dictionary with confidence interval information including:
@@ -666,9 +684,9 @@ class StatisticalAnalysis:
         self.validate_data(nobs, int, min_value=count)
         self.validate_data(confidence_level, float, min_value=0.0, max_value=1.0)
 
-        if method not in ["normal", "wilson", "agresti-coull", "exact"]:
+        if method not in ["normal", "wilson", "agresti - coull", "exact"]:
             raise InvalidParameterError(
-                "Method must be one of: 'normal', 'wilson', 'agresti-coull', 'exact'"
+                "Method must be one of: 'normal', 'wilson', 'agresti - coull', 'exact'"
             )
 
         # Calculate proportion
@@ -677,7 +695,7 @@ class StatisticalAnalysis:
         # Calculate alpha
         alpha = 1 - confidence_level
 
-        # Calculate z-value for the given confidence level
+        # Calculate z - value for the given confidence level
         z_value = stats.norm.ppf(1 - alpha / 2)
 
         # Calculate confidence interval based on the specified method
@@ -698,15 +716,17 @@ class StatisticalAnalysis:
             lower_bound = max(0.0, proportion - margin_of_error)
             upper_bound = min(1.0, proportion + margin_of_error)
 
-            result = {"standard_error": standard_error, "margin_of_error": margin_of_error}
+            result = {"standard_error": standard_error, 
+                "margin_of_error": margin_of_error}
 
         elif method == "wilson":
             # Wilson score interval (better for small samples)
-            denominator = 1 + z_value**2 / nobs
-            center = (proportion + z_value**2 / (2 * nobs)) / denominator
+            denominator = 1 + z_value** 2 / nobs
+            center = (proportion + z_value** 2 / (2 * nobs)) / denominator
             margin = (
                 z_value
-                * math.sqrt(proportion * (1 - proportion) / nobs + z_value**2 / (4 * nobs**2))
+                * math.sqrt(proportion * (1 - proportion) / nobs + \
+                    z_value** 2 / (4 * nobs** 2))
                 / denominator
             )
 
@@ -715,10 +735,10 @@ class StatisticalAnalysis:
 
             result = {"center": center, "margin": margin}
 
-        elif method == "agresti-coull":
-            # Agresti-Coull interval (adjusted Wald)
-            n_tilde = nobs + z_value**2
-            p_tilde = (count + z_value**2 / 2) / n_tilde
+        elif method == "agresti - coull":
+            # Agresti - Coull interval (adjusted Wald)
+            n_tilde = nobs + z_value** 2
+            p_tilde = (count + z_value** 2 / 2) / n_tilde
 
             # Calculate standard error
             standard_error = math.sqrt(p_tilde * (1 - p_tilde) / n_tilde)
@@ -738,10 +758,12 @@ class StatisticalAnalysis:
             }
 
         else:  # method == "exact"
-            # Exact (Clopper-Pearson) interval
-            lower_bound = stats.beta.ppf(alpha / 2, count, nobs - count + 1) if count > 0 else 0.0
+            # Exact (Clopper - Pearson) interval
+            lower_bound = stats.beta.ppf(alpha / 2, count, 
+                nobs - count + 1) if count > 0 else 0.0
             upper_bound = (
-                stats.beta.ppf(1 - alpha / 2, count + 1, nobs - count) if count < nobs else 1.0
+                stats.beta.ppf(1 - alpha / 2, count + 1, 
+                    nobs - count) if count < nobs else 1.0
             )
 
             result = {}
@@ -782,7 +804,8 @@ class StatisticalAnalysis:
             confidence_level: Confidence level (default: 0.95)
             method: Method to use for calculation:
                    "normal": Normal approximation (default)
-                   "agresti-caffo": Agresti-Caffo interval (better for small samples)
+                   "agresti - \
+                       caffo": Agresti - Caffo interval (better for small samples)
 
         Returns:
             Dictionary with confidence interval information including:
@@ -804,8 +827,9 @@ class StatisticalAnalysis:
         self.validate_data(nobs2, int, min_value=count2)
         self.validate_data(confidence_level, float, min_value=0.0, max_value=1.0)
 
-        if method not in ["normal", "agresti-caffo"]:
-            raise InvalidParameterError("Method must be one of: 'normal', 'agresti-caffo'")
+        if method not in ["normal", "agresti - caffo"]:
+            raise InvalidParameterError("Method must be one of: 'normal', 
+                'agresti - caffo'")
 
         # Calculate proportions
         proportion1 = count1 / nobs1
@@ -815,7 +839,7 @@ class StatisticalAnalysis:
         # Calculate alpha
         alpha = 1 - confidence_level
 
-        # Calculate z-value for the given confidence level
+        # Calculate z - value for the given confidence level
         z_value = stats.norm.ppf(1 - alpha / 2)
 
         # Calculate confidence interval based on the specified method
@@ -833,7 +857,8 @@ class StatisticalAnalysis:
 
             # Calculate standard error
             standard_error = math.sqrt(
-                proportion1 * (1 - proportion1) / nobs1 + proportion2 * (1 - proportion2) / nobs2
+                proportion1 * (1 - proportion1) / nobs1 + \
+                    proportion2 * (1 - proportion2) / nobs2
             )
 
             # Calculate margin of error
@@ -843,10 +868,11 @@ class StatisticalAnalysis:
             lower_bound = difference - margin_of_error
             upper_bound = difference + margin_of_error
 
-            result = {"standard_error": standard_error, "margin_of_error": margin_of_error}
+            result = {"standard_error": standard_error, 
+                "margin_of_error": margin_of_error}
 
-        else:  # method == "agresti-caffo"
-            # Agresti-Caffo interval (better for small samples)
+        else:  # method == "agresti - caffo"
+            # Agresti - Caffo interval (better for small samples)
             # Add 1 to each cell of the 2x2 table
             adjusted_count1 = count1 + 1
             adjusted_nobs1 = nobs1 + 2
@@ -960,7 +986,8 @@ class StatisticalAnalysis:
         std2 = np.std(group2_array, ddof=1)
 
         # Calculate pooled standard deviation
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+        pooled_std = np.sqrt(((n1 - 1) * std1** 2 + \
+            (n2 - 1) * std2** 2) / (n1 + n2 - 2))
 
         # Calculate Cohen's d
         d = (mean1 - mean2) / pooled_std
@@ -1004,8 +1031,8 @@ class StatisticalAnalysis:
 
         Args:
             table: 2x2 contingency table as [[a, b], [c, d]] where:
-                  a = exposed cases, b = exposed non-cases
-                  c = unexposed cases, d = unexposed non-cases
+                  a = exposed cases, b = exposed non - cases
+                  c = unexposed cases, d = unexposed non - cases
             ci_level: Confidence level for confidence interval
 
         Returns:
@@ -1028,7 +1055,8 @@ class StatisticalAnalysis:
         self.validate_data(ci_level, float, min_value=0.0, max_value=1.0)
 
         if table.shape != (2, 2):
-            raise InvalidParameterError("Odds ratio calculation requires a 2x2 contingency table")
+            raise InvalidParameterError(
+                "Odds ratio calculation requires a 2x2 contingency table")
 
         # Extract values from the table
         a, b = table[0]
@@ -1038,7 +1066,8 @@ class StatisticalAnalysis:
         if b == 0 or c == 0:
             # Apply Haldane correction (add 0.5 to all cells)
             self.logger.warning(
-                "Zero cell detected, applying Haldane correction (adding 0.5 to all cells)"
+                "Zero cell detected, 
+                    applying Haldane correction (adding 0.5 to all cells)"
             )
             a += 0.5
             b += 0.5
@@ -1095,8 +1124,8 @@ class StatisticalAnalysis:
 
         Args:
             table: 2x2 contingency table as [[a, b], [c, d]] where:
-                  a = exposed cases, b = exposed non-cases
-                  c = unexposed cases, d = unexposed non-cases
+                  a = exposed cases, b = exposed non - cases
+                  c = unexposed cases, d = unexposed non - cases
             ci_level: Confidence level for confidence interval
 
         Returns:
@@ -1196,8 +1225,8 @@ class StatisticalAnalysis:
 
         Args:
             table: 2x2 contingency table as [[a, b], [c, d]] where:
-                  a = treatment cases, b = treatment non-cases
-                  c = control cases, d = control non-cases
+                  a = treatment cases, b = treatment non - cases
+                  c = control cases, d = control non - cases
             ci_level: Confidence level for confidence interval
 
         Returns:
@@ -1219,7 +1248,8 @@ class StatisticalAnalysis:
         self.validate_data(ci_level, float, min_value=0.0, max_value=1.0)
 
         if table.shape != (2, 2):
-            raise InvalidParameterError("NNT calculation requires a 2x2 contingency table")
+            raise InvalidParameterError(
+                "NNT calculation requires a 2x2 contingency table")
 
         # Extract values from the table
         a, b = table[0]  # treatment group
@@ -1261,14 +1291,16 @@ class StatisticalAnalysis:
                 ci_lower = 1 / arr_ci_upper if arr_ci_upper > 0 else float("inf")
                 ci_upper = 1 / arr_ci_lower if arr_ci_lower > 0 else float("inf")
             else:
-                ci_lower = 1 / arr_ci_lower if arr_ci_lower < 0 else float("-inf")
-                ci_upper = 1 / arr_ci_upper if arr_ci_upper < 0 else float("-inf")
+                ci_lower = 1 / arr_ci_lower if arr_ci_lower < 0 else float(" - inf")
+                ci_upper = 1 / arr_ci_upper if arr_ci_upper < 0 else float(" - inf")
 
             # Interpret NNT
             if arr > 0:
-                interpretation = f"beneficial (need to treat {int(nnt) if nnt < float('inf') else 'infinite'} patients to prevent one bad outcome)"
+                interpretation = \
+                    f"beneficial (need to treat {int(nnt) if nnt < float('inf') else 'infinite'} patients to prevent one bad outcome)"
             else:
-                interpretation = f"harmful (treating {int(nnt) if nnt < float('inf') else 'infinite'} patients leads to one additional bad outcome)"
+                interpretation = \
+                    f"harmful (treating {int(nnt) if nnt < float('inf') else 'infinite'} patients leads to one additional bad outcome)"
 
         return {
             "nnt": nnt,
@@ -1291,7 +1323,7 @@ class StatisticalAnalysis:
         effect_size: float,
         alpha: float = 0.05,
         power: float = 0.8,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
         p_null: float = 0.5,
     ) -> Dict[str, Any]:
         """
@@ -1305,8 +1337,8 @@ class StatisticalAnalysis:
             alpha: Significance level (Type I error rate, default: 0.05)
             power: Statistical power (1 - Type II error rate, default: 0.8)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
             p_null: Null hypothesis proportion (default: 0.5)
 
         Returns:
@@ -1329,8 +1361,9 @@ class StatisticalAnalysis:
         self.validate_data(power, float, min_value=0.0, max_value=1.0)
         self.validate_data(p_null, float, min_value=0.0, max_value=1.0)
 
-        if alternative not in ["two-sided", "one-sided"]:
-            raise InvalidParameterError("Alternative must be one of: 'two-sided', 'one-sided'")
+        if alternative not in ["two - sided", "one - sided"]:
+            raise InvalidParameterError("Alternative must be one of: 'two - sided', 
+                'one - sided'")
 
         # Calculate alternative proportion
         p_alt = p_null + effect_size
@@ -1338,13 +1371,14 @@ class StatisticalAnalysis:
         # Ensure p_alt is within valid range
         if p_alt < 0 or p_alt > 1:
             raise InvalidParameterError(
-                f"Alternative proportion (p_null + effect_size = {p_alt}) must be between 0 and 1"
+                f"Alternative proportion (p_null + \
+                    effect_size = {p_alt}) must be between 0 and 1"
             )
 
-        # Calculate z-values for alpha and power
+        # Calculate z - values for alpha and power
         z_alpha = (
             stats.norm.ppf(1 - alpha / 2)
-            if alternative == "two-sided"
+            if alternative == "two - sided"
             else stats.norm.ppf(1 - alpha)
         )
         z_beta = stats.norm.ppf(power)
@@ -1379,13 +1413,13 @@ class StatisticalAnalysis:
         std_dev: float,
         alpha: float = 0.05,
         power: float = 0.8,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
     ) -> Dict[str, Any]:
         """
         Calculate the required sample size for a mean test.
 
         This method calculates the sample size needed to detect a specified effect size
-        with the desired statistical power for a mean test (t-test).
+        with the desired statistical power for a mean test (t - test).
 
         Args:
             effect_size: Minimum detectable effect size (difference in means)
@@ -1393,8 +1427,8 @@ class StatisticalAnalysis:
             alpha: Significance level (Type I error rate, default: 0.05)
             power: Statistical power (1 - Type II error rate, default: 0.8)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
 
         Returns:
             Dictionary with sample size calculation results including:
@@ -1415,16 +1449,17 @@ class StatisticalAnalysis:
         self.validate_data(alpha, float, min_value=0.001, max_value=0.5)
         self.validate_data(power, float, min_value=0.0, max_value=1.0)
 
-        if alternative not in ["two-sided", "one-sided"]:
-            raise InvalidParameterError("Alternative must be one of: 'two-sided', 'one-sided'")
+        if alternative not in ["two - sided", "one - sided"]:
+            raise InvalidParameterError("Alternative must be one of: 'two - sided', 
+                'one - sided'")
 
         # Calculate standardized effect size (Cohen's d)
         d = effect_size / std_dev
 
-        # Calculate z-values for alpha and power
+        # Calculate z - values for alpha and power
         z_alpha = (
             stats.norm.ppf(1 - alpha / 2)
-            if alternative == "two-sided"
+            if alternative == "two - sided"
             else stats.norm.ppf(1 - alpha)
         )
         z_beta = stats.norm.ppf(power)
@@ -1448,7 +1483,7 @@ class StatisticalAnalysis:
         effect_size: float,
         alpha: float = 0.05,
         power: float = 0.8,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
     ) -> Dict[str, Any]:
         """
         Calculate the required sample size for a correlation test.
@@ -1461,8 +1496,8 @@ class StatisticalAnalysis:
             alpha: Significance level (Type I error rate, default: 0.05)
             power: Statistical power (1 - Type II error rate, default: 0.8)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
 
         Returns:
             Dictionary with sample size calculation results including:
@@ -1481,16 +1516,17 @@ class StatisticalAnalysis:
         self.validate_data(alpha, float, min_value=0.001, max_value=0.5)
         self.validate_data(power, float, min_value=0.0, max_value=1.0)
 
-        if alternative not in ["two-sided", "one-sided"]:
-            raise InvalidParameterError("Alternative must be one of: 'two-sided', 'one-sided'")
+        if alternative not in ["two - sided", "one - sided"]:
+            raise InvalidParameterError("Alternative must be one of: 'two - sided', 
+                'one - sided'")
 
         # Use absolute value of correlation for calculation
         r = abs(effect_size)
 
-        # Calculate z-values for alpha and power
+        # Calculate z - values for alpha and power
         z_alpha = (
             stats.norm.ppf(1 - alpha / 2)
-            if alternative == "two-sided"
+            if alternative == "two - sided"
             else stats.norm.ppf(1 - alpha)
         )
         z_beta = stats.norm.ppf(power)
@@ -1516,7 +1552,7 @@ class StatisticalAnalysis:
         alpha: float = 0.05,
         power: float = 0.8,
         test_type: str = "proportion",
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
         **kwargs,
     ) -> Dict[str, Any]:
         """
@@ -1531,11 +1567,11 @@ class StatisticalAnalysis:
             power: Statistical power (1 - Type II error rate, default: 0.8)
             test_type: Type of test, one of:
                       "proportion": Test for proportions
-                      "mean": Test for means (t-test)
+                      "mean": Test for means (t - test)
                       "correlation": Test for correlation
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
             **kwargs: Additional parameters specific to the test type:
                      - For "proportion": p_null (default: 0.5)
                      - For "mean": std_dev (required)
@@ -1548,7 +1584,7 @@ class StatisticalAnalysis:
             - power: Statistical power
             - test_type: Type of test
             - alternative: Alternative hypothesis
-            - Additional test-specific parameters
+            - Additional test - specific parameters
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -1563,13 +1599,14 @@ class StatisticalAnalysis:
                 "Test type must be one of: 'proportion', 'mean', 'correlation'"
             )
 
-        if alternative not in ["two-sided", "one-sided"]:
-            raise InvalidParameterError("Alternative must be one of: 'two-sided', 'one-sided'")
+        if alternative not in ["two - sided", "one - sided"]:
+            raise InvalidParameterError("Alternative must be one of: 'two - sided', 
+                'one - sided'")
 
-        # Calculate z-values for alpha and power
+        # Calculate z - values for alpha and power
         z_alpha = (
             stats.norm.ppf(1 - alpha / 2)
-            if alternative == "two-sided"
+            if alternative == "two - sided"
             else stats.norm.ppf(1 - alpha)
         )
         z_beta = stats.norm.ppf(power)
@@ -1589,7 +1626,8 @@ class StatisticalAnalysis:
 
             # Calculate minimum detectable effect size for proportion test
             # This is an approximation using the normal approximation
-            effect_size = (z_alpha + z_beta) * math.sqrt(2 * p_null * (1 - p_null) / sample_size)
+            effect_size = (z_alpha + \
+                z_beta) * math.sqrt(2 * p_null * (1 - p_null) / sample_size)
 
             result.update({"effect_size": effect_size, "p_null": p_null})
 
@@ -1626,7 +1664,7 @@ class StatisticalAnalysis:
         effect_size: float,
         sample_size: int,
         alpha: float = 0.05,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
         **kwargs,
     ) -> Dict[str, Any]:
         """
@@ -1638,14 +1676,14 @@ class StatisticalAnalysis:
         Args:
             test_type: Type of test, one of:
                       "proportion": Test for proportions
-                      "mean": Test for means (t-test)
+                      "mean": Test for means (t - test)
                       "correlation": Test for correlation
             effect_size: Effect size to detect
             sample_size: Available sample size
             alpha: Significance level (Type I error rate, default: 0.05)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
             **kwargs: Additional parameters specific to the test type:
                      - For "proportion": p_null (default: 0.5)
                      - For "mean": std_dev (required)
@@ -1658,7 +1696,7 @@ class StatisticalAnalysis:
             - alpha: Significance level
             - test_type: Type of test
             - alternative: Alternative hypothesis
-            - Additional test-specific parameters
+            - Additional test - specific parameters
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -1673,13 +1711,14 @@ class StatisticalAnalysis:
                 "Test type must be one of: 'proportion', 'mean', 'correlation'"
             )
 
-        if alternative not in ["two-sided", "one-sided"]:
-            raise InvalidParameterError("Alternative must be one of: 'two-sided', 'one-sided'")
+        if alternative not in ["two - sided", "one - sided"]:
+            raise InvalidParameterError("Alternative must be one of: 'two - sided', 
+                'one - sided'")
 
         # Calculate critical value
         z_alpha = (
             stats.norm.ppf(1 - alpha / 2)
-            if alternative == "two-sided"
+            if alternative == "two - sided"
             else stats.norm.ppf(1 - alpha)
         )
 
@@ -1702,16 +1741,17 @@ class StatisticalAnalysis:
             # Ensure p_alt is within valid range
             if p_alt < 0 or p_alt > 1:
                 raise InvalidParameterError(
-                    f"Alternative proportion (p_null + effect_size = {p_alt}) must be between 0 and 1"
+                    f"Alternative proportion (p_null + \
+                        effect_size = {p_alt}) must be between 0 and 1"
                 )
 
             # Calculate standard error under null and alternative
             se_null = math.sqrt(p_null * (1 - p_null) / sample_size)
             se_alt = math.sqrt(p_alt * (1 - p_alt) / sample_size)
 
-            # Calculate non-centrality parameter
-            if alternative == "two-sided":
-                # For two-sided test, we need to consider both tails
+            # Calculate non - centrality parameter
+            if alternative == "two - sided":
+                # For two - sided test, we need to consider both tails
                 critical_value = p_null + z_alpha * se_null
                 z_power = (p_alt - critical_value) / se_alt
                 power = stats.norm.cdf(z_power)
@@ -1724,7 +1764,7 @@ class StatisticalAnalysis:
                 # Total power is the sum of powers in both tails
                 power = power + power_lower
             else:
-                # For one-sided test
+                # For one - sided test
                 if effect_size > 0:  # Greater alternative
                     critical_value = p_null + z_alpha * se_null
                     z_power = (p_alt - critical_value) / se_alt
@@ -1749,11 +1789,11 @@ class StatisticalAnalysis:
             # Calculate standardized effect size (Cohen's d)
             d = effect_size / std_dev
 
-            # Calculate non-centrality parameter
+            # Calculate non - centrality parameter
             ncp = d * math.sqrt(sample_size / 2)
 
             # Calculate power
-            if alternative == "two-sided":
+            if alternative == "two - sided":
                 power = stats.norm.cdf(ncp - z_alpha) + stats.norm.cdf(-ncp - z_alpha)
             else:
                 if effect_size > 0:  # Greater alternative
@@ -1761,7 +1801,8 @@ class StatisticalAnalysis:
                 else:  # Less alternative
                     power = stats.norm.cdf(-ncp - z_alpha)
 
-            result.update({"power": power, "std_dev": std_dev, "standardized_effect_size": d})
+            result.update({"power": power, "std_dev": std_dev, 
+                "standardized_effect_size": d})
 
         elif test_type == "correlation":
             # Use absolute value of correlation for calculation
@@ -1773,11 +1814,11 @@ class StatisticalAnalysis:
             # Calculate standard error
             se = 1 / math.sqrt(sample_size - 3)
 
-            # Calculate non-centrality parameter
+            # Calculate non - centrality parameter
             ncp = z_r / se
 
             # Calculate power
-            if alternative == "two-sided":
+            if alternative == "two - sided":
                 power = stats.norm.cdf(ncp - z_alpha) + stats.norm.cdf(-ncp - z_alpha)
             else:
                 power = stats.norm.cdf(ncp - z_alpha)
@@ -1792,26 +1833,27 @@ class StatisticalAnalysis:
         effect_size: float,
         sample_size: int,
         alpha: float = 0.05,
-        alternative: str = "two-sided",
+        alternative: str = "two - sided",
         **kwargs,
     ) -> Dict[str, Any]:
         """
         Calculate Type I and Type II error rates for a statistical test.
 
         This method calculates the probability of Type I error (false positive) and
-        Type II error (false negative) for a specified test, effect size, and sample size.
+        Type II error (false negative) for a specified test, effect size, 
+            and sample size.
 
         Args:
             test_type: Type of test, one of:
                       "proportion": Test for proportions
-                      "mean": Test for means (t-test)
+                      "mean": Test for means (t - test)
                       "correlation": Test for correlation
             effect_size: Effect size to detect
             sample_size: Available sample size
             alpha: Significance level (Type I error rate, default: 0.05)
             alternative: Alternative hypothesis, one of:
-                        "two-sided" (default): two-tailed test
-                        "one-sided": one-tailed test
+                        "two - sided" (default): two - tailed test
+                        "one - sided": one - tailed test
             **kwargs: Additional parameters specific to the test type:
                      - For "proportion": p_null (default: 0.5)
                      - For "mean": std_dev (required)
@@ -1825,7 +1867,7 @@ class StatisticalAnalysis:
             - sample_size: Specified sample size
             - test_type: Type of test
             - alternative: Alternative hypothesis
-            - Additional test-specific parameters
+            - Additional test - specific parameters
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -1854,13 +1896,14 @@ class StatisticalAnalysis:
             "alternative": alternative,
         }
 
-        # Add test-specific parameters
+        # Add test - specific parameters
         if test_type == "proportion":
             result["p_null"] = power_result.get("p_null", 0.5)
             result["p_alt"] = power_result.get("p_alt")
         elif test_type == "mean":
             result["std_dev"] = power_result.get("std_dev")
-            result["standardized_effect_size"] = power_result.get("standardized_effect_size")
+            result["standardized_effect_size"] = \
+                power_result.get("standardized_effect_size")
 
         return result
 
@@ -1868,23 +1911,25 @@ class StatisticalAnalysis:
     # Multiple Comparison Corrections
     # -------------------------------------------------------------------------
 
-    def bonferroni_correction(self, p_values: Union[List[float], np.ndarray]) -> Dict[str, Any]:
+    def bonferroni_correction(self, p_values: Union[List[float], 
+        np.ndarray]) -> Dict[str, Any]:
         """
-        Apply Bonferroni correction to a set of p-values.
+        Apply Bonferroni correction to a set of p - values.
 
         The Bonferroni correction is a simple but conservative method to control
-        the family-wise error rate (FWER) when performing multiple hypothesis tests.
-        It multiplies each p-value by the number of tests to maintain the overall
+        the family - wise error rate (FWER) when performing multiple hypothesis tests.
+        It multiplies each p - value by the number of tests to maintain the overall
         significance level.
 
         Args:
-            p_values: List or array of p-values from multiple hypothesis tests
+            p_values: List or array of p - values from multiple hypothesis tests
 
         Returns:
             Dictionary with correction results including:
-            - original_p_values: Original p-values
-            - adjusted_p_values: Bonferroni-adjusted p-values
-            - significant: Boolean array indicating which tests are significant after correction
+            - original_p_values: Original p - values
+            - adjusted_p_values: Bonferroni - adjusted p - values
+            - \
+                significant: Boolean array indicating which tests are significant after correction
             - alpha: Significance level
             - n_tests: Number of tests
             - correction_method: Name of the correction method
@@ -1898,9 +1943,9 @@ class StatisticalAnalysis:
         # Convert to numpy array for consistent handling
         p_values_array = np.array(p_values)
 
-        # Check if p-values are valid
+        # Check if p - values are valid
         if np.any((p_values_array < 0) | (p_values_array > 1)):
-            raise InvalidParameterError("P-values must be between 0 and 1")
+            raise InvalidParameterError("P - values must be between 0 and 1")
 
         # Get number of tests
         n_tests = len(p_values_array)
@@ -1924,20 +1969,21 @@ class StatisticalAnalysis:
         self, p_values: Union[List[float], np.ndarray]
     ) -> Dict[str, Any]:
         """
-        Apply Holm-Bonferroni correction to a set of p-values.
+        Apply Holm - Bonferroni correction to a set of p - values.
 
-        The Holm-Bonferroni method is a step-down procedure that is more powerful
+        The Holm - Bonferroni method is a step - down procedure that is more powerful
         than the standard Bonferroni correction while still controlling the
-        family-wise error rate (FWER).
+        family - wise error rate (FWER).
 
         Args:
-            p_values: List or array of p-values from multiple hypothesis tests
+            p_values: List or array of p - values from multiple hypothesis tests
 
         Returns:
             Dictionary with correction results including:
-            - original_p_values: Original p-values
-            - adjusted_p_values: Holm-Bonferroni-adjusted p-values
-            - significant: Boolean array indicating which tests are significant after correction
+            - original_p_values: Original p - values
+            - adjusted_p_values: Holm - Bonferroni - adjusted p - values
+            - \
+                significant: Boolean array indicating which tests are significant after correction
             - alpha: Significance level
             - n_tests: Number of tests
             - correction_method: Name of the correction method
@@ -1951,25 +1997,25 @@ class StatisticalAnalysis:
         # Convert to numpy array for consistent handling
         p_values_array = np.array(p_values)
 
-        # Check if p-values are valid
+        # Check if p - values are valid
         if np.any((p_values_array < 0) | (p_values_array > 1)):
-            raise InvalidParameterError("P-values must be between 0 and 1")
+            raise InvalidParameterError("P - values must be between 0 and 1")
 
         # Get number of tests
         n_tests = len(p_values_array)
 
-        # Get the indices that would sort p-values in ascending order
+        # Get the indices that would sort p - values in ascending order
         sorted_indices = np.argsort(p_values_array)
 
-        # Initialize adjusted p-values array
+        # Initialize adjusted p - values array
         adjusted_p_values = np.ones_like(p_values_array)
 
-        # Apply Holm-Bonferroni correction
+        # Apply Holm - Bonferroni correction
         for i, idx in enumerate(sorted_indices):
-            # Adjust p-value: p * (n - rank + 1)
+            # Adjust p - value: p * (n - rank + 1)
             adjusted_p_values[idx] = min(p_values_array[idx] * (n_tests - i), 1.0)
 
-        # Ensure adjusted p-values are monotonically increasing
+        # Ensure adjusted p - values are monotonically increasing
         for i in range(1, n_tests):
             idx_prev = sorted_indices[i - 1]
             idx_curr = sorted_indices[i]
@@ -1986,27 +2032,29 @@ class StatisticalAnalysis:
             "significant": significant.tolist(),
             "alpha": self.default_alpha,
             "n_tests": n_tests,
-            "correction_method": "holm-bonferroni",
+            "correction_method": "holm - bonferroni",
         }
 
     def benjamini_hochberg_correction(
         self, p_values: Union[List[float], np.ndarray]
     ) -> Dict[str, Any]:
         """
-        Apply Benjamini-Hochberg correction to a set of p-values.
+        Apply Benjamini - Hochberg correction to a set of p - values.
 
-        The Benjamini-Hochberg procedure controls the false discovery rate (FDR),
+        The Benjamini - Hochberg procedure controls the false discovery rate (FDR),
         which is the expected proportion of false positives among all rejected hypotheses.
-        This method is less conservative than FWER-controlling methods like Bonferroni.
+        This method is less conservative than FWER - \
+            controlling methods like Bonferroni.
 
         Args:
-            p_values: List or array of p-values from multiple hypothesis tests
+            p_values: List or array of p - values from multiple hypothesis tests
 
         Returns:
             Dictionary with correction results including:
-            - original_p_values: Original p-values
-            - adjusted_p_values: Benjamini-Hochberg-adjusted p-values
-            - significant: Boolean array indicating which tests are significant after correction
+            - original_p_values: Original p - values
+            - adjusted_p_values: Benjamini - Hochberg - adjusted p - values
+            - \
+                significant: Boolean array indicating which tests are significant after correction
             - alpha: Significance level
             - n_tests: Number of tests
             - correction_method: Name of the correction method
@@ -2020,26 +2068,26 @@ class StatisticalAnalysis:
         # Convert to numpy array for consistent handling
         p_values_array = np.array(p_values)
 
-        # Check if p-values are valid
+        # Check if p - values are valid
         if np.any((p_values_array < 0) | (p_values_array > 1)):
-            raise InvalidParameterError("P-values must be between 0 and 1")
+            raise InvalidParameterError("P - values must be between 0 and 1")
 
         # Get number of tests
         n_tests = len(p_values_array)
 
-        # Get the indices that would sort p-values in ascending order
+        # Get the indices that would sort p - values in ascending order
         sorted_indices = np.argsort(p_values_array)
 
-        # Initialize adjusted p-values array
+        # Initialize adjusted p - values array
         adjusted_p_values = np.ones_like(p_values_array)
 
-        # Apply Benjamini-Hochberg correction
+        # Apply Benjamini - Hochberg correction
         for i, idx in enumerate(sorted_indices):
-            # Adjust p-value: p * n / rank
+            # Adjust p - value: p * n / rank
             rank = i + 1
             adjusted_p_values[idx] = p_values_array[idx] * n_tests / rank
 
-        # Ensure adjusted p-values are monotonically decreasing
+        # Ensure adjusted p - values are monotonically decreasing
         for i in range(n_tests - 2, -1, -1):
             idx_next = sorted_indices[i + 1]
             idx_curr = sorted_indices[i]
@@ -2047,7 +2095,7 @@ class StatisticalAnalysis:
                 adjusted_p_values[idx_curr], adjusted_p_values[idx_next]
             )
 
-        # Cap adjusted p-values at 1.0
+        # Cap adjusted p - values at 1.0
         adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
 
         # Determine which tests are significant after correction
@@ -2059,27 +2107,28 @@ class StatisticalAnalysis:
             "significant": significant.tolist(),
             "alpha": self.default_alpha,
             "n_tests": n_tests,
-            "correction_method": "benjamini-hochberg",
+            "correction_method": "benjamini - hochberg",
         }
 
     def benjamini_yekutieli_correction(
         self, p_values: Union[List[float], np.ndarray]
     ) -> Dict[str, Any]:
         """
-        Apply Benjamini-Yekutieli correction to a set of p-values.
+        Apply Benjamini - Yekutieli correction to a set of p - values.
 
-        The Benjamini-Yekutieli procedure is a more conservative version of the
-        Benjamini-Hochberg procedure that controls the false discovery rate (FDR)
+        The Benjamini - Yekutieli procedure is a more conservative version of the
+        Benjamini - Hochberg procedure that controls the false discovery rate (FDR)
         under arbitrary dependence assumptions.
 
         Args:
-            p_values: List or array of p-values from multiple hypothesis tests
+            p_values: List or array of p - values from multiple hypothesis tests
 
         Returns:
             Dictionary with correction results including:
-            - original_p_values: Original p-values
-            - adjusted_p_values: Benjamini-Yekutieli-adjusted p-values
-            - significant: Boolean array indicating which tests are significant after correction
+            - original_p_values: Original p - values
+            - adjusted_p_values: Benjamini - Yekutieli - adjusted p - values
+            - \
+                significant: Boolean array indicating which tests are significant after correction
             - alpha: Significance level
             - n_tests: Number of tests
             - correction_method: Name of the correction method
@@ -2093,29 +2142,30 @@ class StatisticalAnalysis:
         # Convert to numpy array for consistent handling
         p_values_array = np.array(p_values)
 
-        # Check if p-values are valid
+        # Check if p - values are valid
         if np.any((p_values_array < 0) | (p_values_array > 1)):
-            raise InvalidParameterError("P-values must be between 0 and 1")
+            raise InvalidParameterError("P - values must be between 0 and 1")
 
         # Get number of tests
         n_tests = len(p_values_array)
 
-        # Calculate the correction factor (sum of 1/i)
+        # Calculate the correction factor (sum of 1 / i)
         correction_factor = np.sum(1.0 / np.arange(1, n_tests + 1))
 
-        # Get the indices that would sort p-values in ascending order
+        # Get the indices that would sort p - values in ascending order
         sorted_indices = np.argsort(p_values_array)
 
-        # Initialize adjusted p-values array
+        # Initialize adjusted p - values array
         adjusted_p_values = np.ones_like(p_values_array)
 
-        # Apply Benjamini-Yekutieli correction
+        # Apply Benjamini - Yekutieli correction
         for i, idx in enumerate(sorted_indices):
-            # Adjust p-value: p * n * c / rank
+            # Adjust p - value: p * n * c / rank
             rank = i + 1
-            adjusted_p_values[idx] = p_values_array[idx] * n_tests * correction_factor / rank
+            adjusted_p_values[idx] = p_values_array[idx] * \
+                n_tests * correction_factor / rank
 
-        # Ensure adjusted p-values are monotonically decreasing
+        # Ensure adjusted p - values are monotonically decreasing
         for i in range(n_tests - 2, -1, -1):
             idx_next = sorted_indices[i + 1]
             idx_curr = sorted_indices[i]
@@ -2123,7 +2173,7 @@ class StatisticalAnalysis:
                 adjusted_p_values[idx_curr], adjusted_p_values[idx_next]
             )
 
-        # Cap adjusted p-values at 1.0
+        # Cap adjusted p - values at 1.0
         adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
 
         # Determine which tests are significant after correction
@@ -2136,24 +2186,26 @@ class StatisticalAnalysis:
             "alpha": self.default_alpha,
             "n_tests": n_tests,
             "correction_factor": correction_factor,
-            "correction_method": "benjamini-yekutieli",
+            "correction_method": "benjamini - yekutieli",
         }
 
-    def sidak_correction(self, p_values: Union[List[float], np.ndarray]) -> Dict[str, Any]:
+    def sidak_correction(self, p_values: Union[List[float], np.ndarray]) -> Dict[str, 
+        Any]:
         """
-        Apply Šidák correction to a set of p-values.
+        Apply Šidák correction to a set of p - values.
 
-        The Šidák correction is a method to control the family-wise error rate (FWER)
+        The Šidák correction is a method to control the family - wise error rate (FWER)
         that is slightly less conservative than the Bonferroni correction.
 
         Args:
-            p_values: List or array of p-values from multiple hypothesis tests
+            p_values: List or array of p - values from multiple hypothesis tests
 
         Returns:
             Dictionary with correction results including:
-            - original_p_values: Original p-values
-            - adjusted_p_values: Šidák-adjusted p-values
-            - significant: Boolean array indicating which tests are significant after correction
+            - original_p_values: Original p - values
+            - adjusted_p_values: Šidák - adjusted p - values
+            - \
+                significant: Boolean array indicating which tests are significant after correction
             - alpha: Significance level
             - n_tests: Number of tests
             - correction_method: Name of the correction method
@@ -2167,9 +2219,9 @@ class StatisticalAnalysis:
         # Convert to numpy array for consistent handling
         p_values_array = np.array(p_values)
 
-        # Check if p-values are valid
+        # Check if p - values are valid
         if np.any((p_values_array < 0) | (p_values_array > 1)):
-            raise InvalidParameterError("P-values must be between 0 and 1")
+            raise InvalidParameterError("P - values must be between 0 and 1")
 
         # Get number of tests
         n_tests = len(p_values_array)
@@ -2221,10 +2273,12 @@ class StatisticalAnalysis:
         self.validate_data(n_tests, int, min_value=1)
 
         if method not in ["bonferroni", "sidak", "none"]:
-            raise InvalidParameterError("Method must be one of: 'bonferroni', 'sidak', 'none'")
+            raise InvalidParameterError("Method must be one of: 'bonferroni', 'sidak', 
+                'none'")
 
         # Initialize result dictionary
-        result = {"original_alpha": alpha, "n_tests": n_tests, "adjustment_method": method}
+        result = {"original_alpha": alpha, "n_tests": n_tests, 
+            "adjustment_method": method}
 
         # Apply the selected adjustment method
         if method == "bonferroni":
@@ -2233,7 +2287,7 @@ class StatisticalAnalysis:
             result["adjusted_alpha"] = adjusted_alpha
 
         elif method == "sidak":
-            # Šidák correction: 1 - (1 - alpha)^(1/n)
+            # Šidák correction: 1 - (1 - alpha)^(1 / n)
             adjusted_alpha = 1.0 - (1.0 - alpha) ** (1.0 / n_tests)
             result["adjusted_alpha"] = adjusted_alpha
 
@@ -2247,11 +2301,13 @@ class StatisticalAnalysis:
     # Sequential Analysis
     # -------------------------------------------------------------------------
 
-    def obrien_fleming_boundary(self, num_looks: int, alpha: float = 0.05) -> Dict[str, Any]:
+    def obrien_fleming_boundary(self, num_looks: int, alpha: float = 0.05) -> Dict[str, 
+        Any]:
         """
-        Calculate O'Brien-Fleming stopping boundaries for group sequential testing.
+        Calculate O'Brien - Fleming stopping boundaries for group sequential testing.
 
-        The O'Brien-Fleming approach uses more conservative boundaries early in the trial
+        The O'Brien - \
+            Fleming approach uses more conservative boundaries early in the trial
         and less conservative boundaries later, making it harder to stop early.
 
         Args:
@@ -2262,7 +2318,7 @@ class StatisticalAnalysis:
             Dictionary with boundary calculation results including:
             - boundaries: List of alpha spending at each look
             - cumulative_alpha: Cumulative alpha spent at each look
-            - z_boundaries: Z-score boundaries at each look
+            - z_boundaries: Z - score boundaries at each look
             - information_fractions: Fraction of information at each look
             - num_looks: Number of looks
             - alpha: Overall significance level
@@ -2276,19 +2332,20 @@ class StatisticalAnalysis:
         self.validate_data(alpha, float, min_value=0.001, max_value=0.5)
 
         # Calculate information fractions (assuming equal spacing)
-        information_fractions = np.array([(i + 1) / num_looks for i in range(num_looks)])
+        information_fractions = np.array([(i + \
+            1) / num_looks for i in range(num_looks)])
 
-        # Calculate O'Brien-Fleming boundaries
+        # Calculate O'Brien - Fleming boundaries
         z_boundaries = []
         boundaries = []
         cumulative_alpha = []
 
         for i, fraction in enumerate(information_fractions):
-            # O'Brien-Fleming Z-score boundary
+            # O'Brien - Fleming Z - score boundary
             z_boundary = stats.norm.ppf(1 - alpha / 2) / np.sqrt(fraction)
             z_boundaries.append(z_boundary)
 
-            # Convert Z-score to alpha level
+            # Convert Z - score to alpha level
             if i == 0:
                 # First look
                 boundary = 2 * (1 - stats.norm.cdf(z_boundary))
@@ -2296,7 +2353,8 @@ class StatisticalAnalysis:
             else:
                 # Subsequent looks
                 # Calculate incremental alpha spent at this look
-                boundary = 2 * (1 - stats.norm.cdf(z_boundary)) - cumulative_alpha[i - 1]
+                boundary = 2 * (1 - \
+                    stats.norm.cdf(z_boundary)) - cumulative_alpha[i - 1]
                 cumulative = cumulative_alpha[i - 1] + boundary
 
             boundaries.append(boundary)
@@ -2317,7 +2375,7 @@ class StatisticalAnalysis:
         Calculate Pocock stopping boundaries for group sequential testing.
 
         The Pocock approach uses constant boundaries across all looks,
-        making it easier to stop early compared to O'Brien-Fleming.
+        making it easier to stop early compared to O'Brien - Fleming.
 
         Args:
             num_looks: Number of interim analyses (including final analysis)
@@ -2327,7 +2385,7 @@ class StatisticalAnalysis:
             Dictionary with boundary calculation results including:
             - boundaries: List of alpha spending at each look
             - cumulative_alpha: Cumulative alpha spent at each look
-            - z_boundaries: Z-score boundaries at each look
+            - z_boundaries: Z - score boundaries at each look
             - information_fractions: Fraction of information at each look
             - num_looks: Number of looks
             - alpha: Overall significance level
@@ -2341,15 +2399,16 @@ class StatisticalAnalysis:
         self.validate_data(alpha, float, min_value=0.001, max_value=0.5)
 
         # Calculate information fractions (assuming equal spacing)
-        information_fractions = np.array([(i + 1) / num_looks for i in range(num_looks)])
+        information_fractions = np.array([(i + \
+            1) / num_looks for i in range(num_looks)])
 
         # Calculate Pocock boundaries
-        # For Pocock, the same nominal p-value is used at each look
-        # We need to find the nominal p-value that gives the overall alpha
+        # For Pocock, the same nominal p - value is used at each look
+        # We need to find the nominal p - value that gives the overall alpha
 
-        # Function to solve for the nominal p-value
+        # Function to solve for the nominal p - value
         def cumulative_alpha_error(nominal_p):
-            # Convert nominal p-value to z-score
+            # Convert nominal p - value to z - score
             z = stats.norm.ppf(1 - nominal_p / 2)
 
             # Calculate cumulative alpha spent over all looks
@@ -2366,7 +2425,7 @@ class StatisticalAnalysis:
 
             return cum_alpha - alpha
 
-        # Solve for nominal p-value
+        # Solve for nominal p - value
         from scipy.optimize import brentq
 
         try:
@@ -2375,7 +2434,7 @@ class StatisticalAnalysis:
             # If brentq fails, use a simple approximation
             nominal_p = alpha / num_looks
 
-        # Calculate z-score boundary
+        # Calculate z - score boundary
         z_boundary = stats.norm.ppf(1 - nominal_p / 2)
 
         # Create results
@@ -2407,12 +2466,13 @@ class StatisticalAnalysis:
 
         Args:
             information_fractions: List or array of information fractions at each look
-                                  (values between 0 and 1, with the last value typically being 1)
+                                  (values between 0 and 1, 
+                                      with the last value typically being 1)
             alpha: Overall significance level (default: 0.05)
             method: Method to use for alpha spending, one of:
-                   "obrien_fleming": O'Brien-Fleming spending function (default)
+                   "obrien_fleming": O'Brien - Fleming spending function (default)
                    "pocock": Pocock spending function
-                   "hwang_shih_decosta": Hwang-Shih-DeCosta spending function
+                   "hwang_shih_decosta": Hwang - Shih - DeCosta spending function
                    "linear": Linear spending function
 
         Returns:
@@ -2433,7 +2493,8 @@ class StatisticalAnalysis:
 
         if method not in ["obrien_fleming", "pocock", "hwang_shih_decosta", "linear"]:
             raise InvalidParameterError(
-                "Method must be one of: 'obrien_fleming', 'pocock', 'hwang_shih_decosta', 'linear'"
+                "Method must be one of: 'obrien_fleming', 'pocock', 'hwang_shih_decosta', 
+                    'linear'"
             )
 
         # Convert to numpy array for consistent handling
@@ -2445,7 +2506,8 @@ class StatisticalAnalysis:
 
         # Check if information fractions are in ascending order
         if not np.all(np.diff(info_fractions) >= 0):
-            raise InvalidParameterError("Information fractions must be in ascending order")
+            raise InvalidParameterError(
+                "Information fractions must be in ascending order")
 
         # Number of looks
         num_looks = len(info_fractions)
@@ -2454,7 +2516,7 @@ class StatisticalAnalysis:
         cumulative_alpha = np.zeros(num_looks)
 
         if method == "obrien_fleming":
-            # O'Brien-Fleming spending function
+            # O'Brien - Fleming spending function
             for i, t in enumerate(info_fractions):
                 if t > 0:
                     cumulative_alpha[i] = 2 * (
@@ -2469,10 +2531,10 @@ class StatisticalAnalysis:
                 cumulative_alpha[i] = alpha * np.log(1 + (np.e - 1) * t)
 
         elif method == "hwang_shih_decosta":
-            # Hwang-Shih-DeCosta spending function
+            # Hwang - Shih - DeCosta spending function
             for i, t in enumerate(info_fractions):
                 if t > 0:
-                    cumulative_alpha[i] = alpha * t**1.5
+                    cumulative_alpha[i] = alpha * t** 1.5
                 else:
                     cumulative_alpha[i] = 0
 
@@ -2507,30 +2569,33 @@ class StatisticalAnalysis:
         Analyze results from a sequential test with multiple looks.
 
         This method evaluates whether stopping boundaries were crossed at any look
-        and provides adjusted p-values for sequential testing.
+        and provides adjusted p - values for sequential testing.
 
         Args:
-            z_scores: List or array of Z-scores at each look
+            z_scores: List or array of Z - scores at each look
             information_fractions: List or array of information fractions at each look
-                                  (values between 0 and 1, with the last value typically being 1)
+                                  (values between 0 and 1, 
+                                      with the last value typically being 1)
                                   If None, assumes equal spacing
             alpha: Overall significance level (default: 0.05)
             method: Method to use for boundary calculation, one of:
-                   "obrien_fleming": O'Brien-Fleming boundaries (default)
+                   "obrien_fleming": O'Brien - Fleming boundaries (default)
                    "pocock": Pocock boundaries
 
         Returns:
             Dictionary with sequential test analysis results including:
-            - z_scores: Z-scores at each look
+            - z_scores: Z - scores at each look
             - boundaries: Stopping boundaries at each look
-            - crossed: Boolean array indicating whether boundaries were crossed at each look
-            - adjusted_p_values: P-values adjusted for sequential testing
+            - \
+                crossed: Boolean array indicating whether boundaries were crossed at each look
+            - adjusted_p_values: P - values adjusted for sequential testing
             - information_fractions: Information fractions at each look
             - num_looks: Number of looks
             - alpha: Overall significance level
             - method: Method used for boundary calculation
             - stop_early: Whether the test should have stopped early
-            - first_significant_look: Index of the first look where boundaries were crossed (or None)
+            - \
+                first_significant_look: Index of the first look where boundaries were crossed (or None)
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -2540,7 +2605,8 @@ class StatisticalAnalysis:
         self.validate_data(alpha, float, min_value=0.001, max_value=0.5)
 
         if method not in ["obrien_fleming", "pocock"]:
-            raise InvalidParameterError("Method must be one of: 'obrien_fleming', 'pocock'")
+            raise InvalidParameterError("Method must be one of: 'obrien_fleming', 
+                'pocock'")
 
         # Convert to numpy array for consistent handling
         z_scores_array = np.array(z_scores)
@@ -2552,20 +2618,23 @@ class StatisticalAnalysis:
         if information_fractions is None:
             info_fractions = np.array([(i + 1) / num_looks for i in range(num_looks)])
         else:
-            self.validate_data(information_fractions, (list, np.ndarray), min_length=num_looks)
+            self.validate_data(information_fractions, (list, np.ndarray), 
+                min_length=num_looks)
             info_fractions = np.array(information_fractions)
 
             # Check if information fractions are valid
             if np.any((info_fractions < 0) | (info_fractions > 1)):
-                raise InvalidParameterError("Information fractions must be between 0 and 1")
+                raise InvalidParameterError(
+                    "Information fractions must be between 0 and 1")
 
             # Check if information fractions are in ascending order
             if not np.all(np.diff(info_fractions) >= 0):
-                raise InvalidParameterError("Information fractions must be in ascending order")
+                raise InvalidParameterError(
+                    "Information fractions must be in ascending order")
 
         # Calculate boundaries based on method
         if method == "obrien_fleming":
-            # O'Brien-Fleming boundaries
+            # O'Brien - Fleming boundaries
             boundaries = stats.norm.ppf(1 - alpha / 2) / np.sqrt(info_fractions)
         else:  # method == "pocock"
             # Pocock boundaries - constant across all looks
@@ -2585,16 +2654,18 @@ class StatisticalAnalysis:
                 break
 
         # Determine if the test should have stopped early
-        stop_early = first_significant_look is not None and first_significant_look < num_looks - 1
+        stop_early = \
+            first_significant_look is not None and first_significant_look < num_looks - 1
 
-        # Calculate adjusted p-values
+        # Calculate adjusted p - values
         adjusted_p_values = []
         for i, z in enumerate(z_scores_array):
-            # For each look, calculate the adjusted p-value
+            # For each look, calculate the adjusted p - value
             # This is an approximation; in practice, more complex calculations would be used
             if method == "obrien_fleming":
-                # O'Brien-Fleming adjustment
-                adjusted_p = 2 * (1 - stats.norm.cdf(np.abs(z) * np.sqrt(info_fractions[i])))
+                # O'Brien - Fleming adjustment
+                adjusted_p = 2 * (1 - \
+                    stats.norm.cdf(np.abs(z) * np.sqrt(info_fractions[i])))
             else:  # method == "pocock"
                 # Pocock adjustment
                 adjusted_p = 2 * (1 - stats.norm.cdf(np.abs(z))) * num_looks
@@ -2630,23 +2701,24 @@ class StatisticalAnalysis:
         final analysis, given the current data.
 
         Args:
-            current_z: Current Z-score
+            current_z: Current Z - score
             information_fraction: Current fraction of information (between 0 and 1)
             target_effect: Target effect size (standardized) to detect
                           If None, uses observed_effect
             observed_effect: Observed effect size (standardized) from current data
-                            If None and target_effect is None, uses current_z / sqrt(information_fraction)
+                            If None and target_effect is None, 
+                                uses current_z / sqrt(information_fraction)
             alpha: Significance level (default: 0.05)
 
         Returns:
             Dictionary with conditional power calculation results including:
             - conditional_power: Probability of rejecting null at final analysis
-            - current_z: Current Z-score
+            - current_z: Current Z - score
             - information_fraction: Current fraction of information
             - target_effect: Target effect size used in calculation
             - observed_effect: Observed effect size from current data
             - alpha: Significance level
-            - z_critical: Critical Z-score for final analysis
+            - z_critical: Critical Z - score for final analysis
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -2662,7 +2734,7 @@ class StatisticalAnalysis:
         if observed_effect is not None:
             self.validate_data(observed_effect, float)
 
-        # Critical Z-score for final analysis
+        # Critical Z - score for final analysis
         z_critical = stats.norm.ppf(1 - alpha / 2)
 
         # Determine effect size to use in calculation
@@ -2677,12 +2749,13 @@ class StatisticalAnalysis:
         # Calculate conditional power
         remaining_info = 1 - information_fraction
 
-        # Mean of the distribution of the final Z-score, conditional on current Z
-        conditional_mean = current_z * np.sqrt(information_fraction / 1) + effect * np.sqrt(
+        # Mean of the distribution of the final Z - score, conditional on current Z
+        conditional_mean = current_z * np.sqrt(information_fraction / 1) + \
+            effect * np.sqrt(
             remaining_info
         )
 
-        # Standard deviation of the distribution of the final Z-score, conditional on current Z
+        # Standard deviation of the distribution of the final Z - score, conditional on current Z
         conditional_sd = np.sqrt(remaining_info)
 
         # Calculate probability that final Z > z_critical
@@ -2721,15 +2794,16 @@ class StatisticalAnalysis:
 
         Args:
             information_fractions: List or array of information fractions at each look
-                                  (values between 0 and 1, with the last value typically being 1)
+                                  (values between 0 and 1, 
+                                      with the last value typically being 1)
             beta: Type II error rate (1 - power, default: 0.2)
             method: Method to use for boundary calculation, one of:
-                   "obrien_fleming": O'Brien-Fleming-like boundaries (default)
-                   "pocock": Pocock-like boundaries
+                   "obrien_fleming": O'Brien - Fleming - like boundaries (default)
+                   "pocock": Pocock - like boundaries
 
         Returns:
             Dictionary with futility boundary calculation results including:
-            - futility_boundaries: Z-score boundaries for futility at each look
+            - futility_boundaries: Z - score boundaries for futility at each look
             - information_fractions: Information fractions at each look
             - num_looks: Number of looks
             - beta: Type II error rate
@@ -2743,7 +2817,8 @@ class StatisticalAnalysis:
         self.validate_data(beta, float, min_value=0.001, max_value=0.5)
 
         if method not in ["obrien_fleming", "pocock"]:
-            raise InvalidParameterError("Method must be one of: 'obrien_fleming', 'pocock'")
+            raise InvalidParameterError("Method must be one of: 'obrien_fleming', 
+                'pocock'")
 
         # Convert to numpy array for consistent handling
         info_fractions = np.array(information_fractions)
@@ -2754,7 +2829,8 @@ class StatisticalAnalysis:
 
         # Check if information fractions are in ascending order
         if not np.all(np.diff(info_fractions) >= 0):
-            raise InvalidParameterError("Information fractions must be in ascending order")
+            raise InvalidParameterError(
+                "Information fractions must be in ascending order")
 
         # Number of looks
         num_looks = len(info_fractions)
@@ -2763,18 +2839,19 @@ class StatisticalAnalysis:
         futility_boundaries = np.zeros(num_looks)
 
         if method == "obrien_fleming":
-            # O'Brien-Fleming-like futility boundaries
+            # O'Brien - Fleming - like futility boundaries
             for i, t in enumerate(info_fractions):
                 if t < 1:  # No futility boundary at final analysis
                     futility_boundaries[i] = stats.norm.ppf(beta) / np.sqrt(1 - t)
                 else:
                     futility_boundaries[i] = float(
-                        "-inf"
+                        " - inf"
                     )  # No stopping for futility at final analysis
         else:  # method == "pocock"
-            # Pocock-like futility boundaries - constant across all looks
+            # Pocock - like futility boundaries - constant across all looks
             z_boundary = stats.norm.ppf(beta)
-            futility_boundaries = np.array([z_boundary] * (num_looks - 1) + [float("-inf")])
+            futility_boundaries = np.array([z_boundary] * (num_looks - 1) + \
+                [float(" - inf")])
 
         return {
             "futility_boundaries": futility_boundaries.tolist(),
@@ -2788,23 +2865,26 @@ class StatisticalAnalysis:
         self, model1_loglik: float, model2_loglik: float, df1: int, df2: int
     ) -> Dict[str, Any]:
         """
-        Perform a log-likelihood ratio test for nested model comparison.
+        Perform a log - likelihood ratio test for nested model comparison.
 
         This test compares two nested models to determine if the more complex model
-        (with more parameters) provides a significantly better fit than the simpler model.
-        The test statistic follows a chi-square distribution with degrees of freedom
+        (
+            with more parameters) provides a significantly better fit than the simpler model.
+        The test statistic follows a chi - square distribution with degrees of freedom
         equal to the difference in the number of parameters between the models.
 
         Args:
-            model1_loglik: Log-likelihood of the simpler model (null model)
-            model2_loglik: Log-likelihood of the more complex model (alternative model)
+            model1_loglik: Log - likelihood of the simpler model (null model)
+            model2_loglik: Log - \
+                likelihood of the more complex model (alternative model)
             df1: Degrees of freedom (number of parameters) in the simpler model
             df2: Degrees of freedom (number of parameters) in the more complex model
 
         Returns:
             Dictionary with test results including:
-            - test_statistic: Log-likelihood ratio test statistic (2 * (loglik2 - loglik1))
-            - p_value: P-value for the test
+            - \
+                test_statistic: Log - likelihood ratio test statistic (2 * (loglik2 - loglik1))
+            - p_value: P - value for the test
             - df_diff: Difference in degrees of freedom between models
             - is_significant: Whether the result is significant at alpha level
             - model_selection: Dictionary with model selection criteria (AIC, BIC)
@@ -2821,17 +2901,18 @@ class StatisticalAnalysis:
 
         if df2 <= df1:
             raise InvalidParameterError(
-                "The more complex model (model2) must have more parameters than the simpler model (model1)"
+                "The more complex model (
+                    model2) must have more parameters than the simpler model (model1)"
             )
 
         # Calculate test statistic: 2 * (loglik2 - loglik1)
-        # The factor of 2 makes the statistic follow a chi-square distribution
+        # The factor of 2 makes the statistic follow a chi - square distribution
         test_statistic = 2 * (model2_loglik - model1_loglik)
 
         # Calculate degrees of freedom difference
         df_diff = df2 - df1
 
-        # Calculate p-value from chi-square distribution
+        # Calculate p - value from chi - square distribution
         # We use 1 - cdf because we're testing if test_statistic is significantly large
         p_value = 1 - stats.chi2.cdf(test_statistic, df_diff)
 
@@ -2886,11 +2967,12 @@ class StatisticalAnalysis:
         Calculate model selection criteria for a given model.
 
         This method calculates various information criteria used for model selection,
-        including AIC (Akaike Information Criterion), BIC (Bayesian Information Criterion),
+        including AIC (Akaike Information Criterion), 
+            BIC (Bayesian Information Criterion),
         and others.
 
         Args:
-            loglik: Log-likelihood of the model
+            loglik: Log - likelihood of the model
             df: Degrees of freedom (number of parameters) in the model
             sample_size: Number of observations used to fit the model
 
@@ -2899,7 +2981,7 @@ class StatisticalAnalysis:
             - aic: Akaike Information Criterion
             - bic: Bayesian Information Criterion
             - aicc: AIC with correction for small sample sizes
-            - hqic: Hannan-Quinn Information Criterion
+            - hqic: Hannan - Quinn Information Criterion
 
         Raises:
             InvalidParameterError: If inputs are invalid
@@ -2915,7 +2997,7 @@ class StatisticalAnalysis:
         # Calculate BIC: -2 * loglik + k * ln(n)
         bic = -2 * loglik + df * np.log(sample_size)
 
-        # Calculate AICc: AIC + (2k(k+1))/(n-k-1)
+        # Calculate AICc: AIC + (2k(k + 1)) / (n - k-1)
         # This is a correction for small sample sizes
         aicc = aic + (2 * df * (df + 1)) / (sample_size - df - 1)
 
@@ -2938,11 +3020,11 @@ class StatisticalAnalysis:
         """
         Apply correction for optional stopping in sequential testing.
 
-        This method adjusts p-values to account for multiple looks at the data,
+        This method adjusts p - values to account for multiple looks at the data,
         which can inflate Type I error rates.
 
         Args:
-            p_value: Uncorrected p-value
+            p_value: Uncorrected p - value
             num_looks: Number of potential looks at the data
             method: Method to use for correction, one of:
                    "bonferroni": Bonferroni correction (default)
@@ -2951,8 +3033,8 @@ class StatisticalAnalysis:
 
         Returns:
             Dictionary with correction results including:
-            - original_p_value: Original uncorrected p-value
-            - adjusted_p_value: P-value adjusted for optional stopping
+            - original_p_value: Original uncorrected p - value
+            - adjusted_p_value: P - value adjusted for optional stopping
             - num_looks: Number of potential looks
             - method: Method used for correction
 
@@ -2987,19 +3069,19 @@ class StatisticalAnalysis:
             # This is an approximation based on the expected maximum of num_looks independent tests
             # In practice, more complex calculations would be used
 
-            # Convert p-value to z-score
+            # Convert p - value to z - score
             if p_value > 0:
                 z = stats.norm.ppf(1 - p_value / 2)
             else:
                 z = float("inf")
 
-            # Adjust z-score for multiple looks
+            # Adjust z - score for multiple looks
             # This is based on the expected maximum of num_looks independent standard normal variables
             # E[max(Z_1, ..., Z_n)] ≈ sqrt(2 * log(n))
             adjustment = np.sqrt(2 * np.log(num_looks))
             adjusted_z = z - adjustment
 
-            # Convert back to p-value
+            # Convert back to p - value
             if adjusted_z < 0:
                 adjusted_p = 1.0
             else:

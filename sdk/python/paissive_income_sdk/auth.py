@@ -43,7 +43,7 @@ class APIKeyAuth(Auth):
         Returns:
             Authentication headers
         """
-        return {"X-API-Key": self.api_key}
+        return {"X - API - Key": self.api_key}
 
 
 class JWTAuth(Auth):

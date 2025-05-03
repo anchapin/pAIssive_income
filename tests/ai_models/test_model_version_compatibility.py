@@ -54,8 +54,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
         # Register test model versions
         self.v1_0_0 = ModelVersion(
             version="1.0.0",
-            model_id="test-model",
-            timestamp="2023-01-01T00:00:00",
+            model_id="test - model",
+            timestamp="2023 - 01 - 01T00:00:00",
             metadata={
                 "description": "Initial release",
                 "api_schema": {"input": {"text": "string"}, "output": {"text": "string"}},
@@ -64,8 +64,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
 
         self.v1_1_0 = ModelVersion(
             version="1.1.0",
-            model_id="test-model",
-            timestamp="2023-02-01T00:00:00",
+            model_id="test - model",
+            timestamp="2023 - 02 - 01T00:00:00",
             metadata={
                 "description": "Minor update",
                 "api_schema": {
@@ -77,8 +77,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
 
         self.v2_0_0 = ModelVersion(
             version="2.0.0",
-            model_id="test-model",
-            timestamp="2023-03-01T00:00:00",
+            model_id="test - model",
+            timestamp="2023 - 03 - 01T00:00:00",
             metadata={
                 "description": "Major update",
                 "api_schema": {
@@ -95,12 +95,12 @@ class TestModelVersionCompatibility(unittest.TestCase):
 
         # Create test model info
         self.model_info = ModelInfo(
-            id="test-model",
+            id="test - model",
             name="Test Model",
             description="A test model",
             type="huggingface",
-            path="/path/to/model",
-            capabilities=["text-generation"],
+            path=" / path / to / model",
+            capabilities=["text - generation"],
         )
 
     def tearDown(self):
@@ -112,9 +112,9 @@ class TestModelVersionCompatibility(unittest.TestCase):
         # Test compatibility between 1.1.0 and 1.0.0 (should be compatible)
         self.assertTrue(
             self.version_registry.check_compatibility(
-                source_model_id="test-model",
+                source_model_id="test - model",
                 source_version="1.1.0",
-                target_model_id="test-model",
+                target_model_id="test - model",
                 target_version="1.0.0",
             )
         )
@@ -122,27 +122,27 @@ class TestModelVersionCompatibility(unittest.TestCase):
         # Test compatibility between 2.0.0 and 1.0.0 (should not be compatible)
         self.assertFalse(
             self.version_registry.check_compatibility(
-                source_model_id="test-model",
+                source_model_id="test - model",
                 source_version="2.0.0",
-                target_model_id="test-model",
+                target_model_id="test - model",
                 target_version="1.0.0",
             )
         )
 
         # Get the existing version and modify it to add compatibility
-        v2 = self.version_registry.get_version("test-model", "2.0.0")
+        v2 = self.version_registry.get_version("test - model", "2.0.0")
         v2.is_compatible_with = ["1.0.0"]
 
         # Force update the registry
-        self.version_registry.versions["test-model"]["2.0.0"] = v2
+        self.version_registry.versions["test - model"]["2.0.0"] = v2
         self.version_registry._save_registry()
 
         # Now they should be compatible
         self.assertTrue(
             self.version_registry.check_compatibility(
-                source_model_id="test-model",
+                source_model_id="test - model",
                 source_version="2.0.0",
-                target_model_id="test-model",
+                target_model_id="test - model",
                 target_version="1.0.0",
             )
         )
@@ -166,7 +166,7 @@ class TestModelVersionCompatibility(unittest.TestCase):
             return new_info
 
         def migrate_1_1_0_to_2_0_0(model_info, **kwargs):
-            """Migrate from 1.1.0 to 2.0.0 by changing input/output fields."""
+            """Migrate from 1.1.0 to 2.0.0 by changing input / output fields."""
             # In a real implementation, this would modify the model's behavior
             # For testing, we'll just return a modified copy
             new_info = ModelInfo(
@@ -181,14 +181,14 @@ class TestModelVersionCompatibility(unittest.TestCase):
 
         # Register migration functions
         self.migration_tool.register_migration_function(
-            model_id="test-model",
+            model_id="test - model",
             source_version="1.0.0",
             target_version="1.1.0",
             migration_fn=migrate_1_0_0_to_1_1_0,
         )
 
         self.migration_tool.register_migration_function(
-            model_id="test-model",
+            model_id="test - model",
             source_version="1.1.0",
             target_version="2.0.0",
             migration_fn=migrate_1_1_0_to_2_0_0,
@@ -209,20 +209,20 @@ class TestModelVersionCompatibility(unittest.TestCase):
         self.assertIn("(migrated to 2.0.0)", migrated_info.description)
 
     def test_version_specific_feature_availability(self):
-        """Test version-specific feature availability."""
+        """Test version - specific feature availability."""
         # Create versions with different feature sets
         v1_basic = ModelVersion(
-            version="1.0.0", model_id="feature-model", features=["text-generation"]
+            version="1.0.0", model_id="feature - model", features=["text - generation"]
         )
 
         v1_enhanced = ModelVersion(
-            version="1.1.0", model_id="feature-model", features=["text-generation", "summarization"]
+            version="1.1.0", model_id="feature - model", features=["text - generation", "summarization"]
         )
 
         v2_advanced = ModelVersion(
             version="2.0.0",
-            model_id="feature-model",
-            features=["text-generation", "summarization", "translation"],
+            model_id="feature - model",
+            features=["text - generation", "summarization", "translation"],
         )
 
         # Register versions
@@ -232,31 +232,31 @@ class TestModelVersionCompatibility(unittest.TestCase):
 
         # Mock the model manager to return different features based on version
         def get_model_with_version(model_id, version):
-            if model_id == "feature-model":
+            if model_id == "feature - model":
                 if version == "1.0.0":
-                    return MagicMock(features=["text-generation"])
+                    return MagicMock(features=["text - generation"])
                 elif version == "1.1.0":
-                    return MagicMock(features=["text-generation", "summarization"])
+                    return MagicMock(features=["text - generation", "summarization"])
                 elif version == "2.0.0":
-                    return MagicMock(features=["text-generation", "summarization", "translation"])
+                    return MagicMock(features=["text - generation", "summarization", "translation"])
             return None
 
         self.model_manager.get_model_with_version.side_effect = get_model_with_version
 
         # Test feature availability in different versions
-        model_v1_0 = self.model_manager.get_model_with_version("feature-model", "1.0.0")
-        model_v1_1 = self.model_manager.get_model_with_version("feature-model", "1.1.0")
-        model_v2_0 = self.model_manager.get_model_with_version("feature-model", "2.0.0")
+        model_v1_0 = self.model_manager.get_model_with_version("feature - model", "1.0.0")
+        model_v1_1 = self.model_manager.get_model_with_version("feature - model", "1.1.0")
+        model_v2_0 = self.model_manager.get_model_with_version("feature - model", "2.0.0")
 
         # Check features
-        self.assertIn("text-generation", model_v1_0.features)
+        self.assertIn("text - generation", model_v1_0.features)
         self.assertNotIn("summarization", model_v1_0.features)
 
-        self.assertIn("text-generation", model_v1_1.features)
+        self.assertIn("text - generation", model_v1_1.features)
         self.assertIn("summarization", model_v1_1.features)
         self.assertNotIn("translation", model_v1_1.features)
 
-        self.assertIn("text-generation", model_v2_0.features)
+        self.assertIn("text - generation", model_v2_0.features)
         self.assertIn("summarization", model_v2_0.features)
         self.assertIn("translation", model_v2_0.features)
 

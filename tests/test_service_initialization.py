@@ -74,11 +74,11 @@ def test_register_configuration_with_config(mock_model_config, mock_container):
     mock_model_config.return_value = mock_config_instance
 
     # Call the function with a config dictionary
-    config = {"model_config": {"models_dir": "/path/to/models"}}
+    config = {"model_config": {"models_dir": " / path / to / models"}}
     _register_configuration(mock_container, config)
 
     # Verify that ModelConfig was called with the config
-    mock_model_config.assert_called_once_with(models_dir="/path/to/models")
+    mock_model_config.assert_called_once_with(models_dir=" / path / to / models")
 
     # Verify that the container.register was called with the correct interface
     mock_container.register.assert_called_once()
@@ -109,7 +109,8 @@ def test_register_configuration_without_config(mock_model_config, mock_container
 
 @patch("service_initialization.ModelManager")
 @patch("service_initialization.get_adapter_factory")
-def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, mock_container):
+def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, 
+    mock_container):
     """Test _register_ai_models function."""
     # Mock the ModelManager class
     mock_manager_instance = MagicMock()

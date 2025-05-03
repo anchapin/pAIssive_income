@@ -30,11 +30,11 @@ class TestStatisticalFramework:
         self.sequential_analyzer = SequentialAnalyzer()
 
     def test_chi_square_test(self):
-        """Test chi-square test implementation."""
+        """Test chi - square test implementation."""
         # Test data: 2x2 contingency table
-        observed = np.array([[100, 50], [80, 70]])  # Clicks vs No-clicks for A/B
+        observed = np.array([[100, 50], [80, 70]])  # Clicks vs No - clicks for A / B
 
-        # Run chi-square test
+        # Run chi - square test
         result = self.test_runner.run_chi_square_test(observed)
 
         # Validate results
@@ -62,14 +62,14 @@ class TestStatisticalFramework:
         assert 0 <= result["p_value"] <= 1
 
     def test_z_test_proportions(self):
-        """Test z-test for proportions."""
+        """Test z - test for proportions."""
         # Test data
         success_a = 150
         total_a = 1000
         success_b = 180
         total_b = 1000
 
-        # Run z-test
+        # Run z - test
         result = self.test_runner.run_z_test_proportions(success_a, total_a, success_b, total_b)
 
         # Validate results
@@ -120,7 +120,7 @@ class TestStatisticalFramework:
 
     def test_multiple_testing_adjustment(self):
         """Test multiple testing correction methods."""
-        # Test data: multiple p-values
+        # Test data: multiple p - values
         p_values = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
 
         # Test Bonferroni correction
@@ -219,8 +219,8 @@ class TestStatisticalFramework:
         test_type = self.test_runner.select_appropriate_test(
             sample_a=large_sample, sample_b=large_sample
         )
-        assert test_type in ["chi_square", "z_test"]  # Should select chi-square or z-test
+        assert test_type in ["chi_square", "z_test"]  # Should select chi - square or z - test
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "test_statistical_framework.py"])
+    pytest.main([" - v", "test_statistical_framework.py"])

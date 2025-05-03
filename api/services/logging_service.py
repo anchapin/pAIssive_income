@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class SecurityLogFilter(logging.Filter):
-    """Filter for security-related log events."""
+    """Filter for security - related log events."""
 
     def __init__(self, security_levels: List[str] = None):
         """
@@ -75,7 +75,7 @@ class JsonFormatter(logging.Formatter):
             record: Log record
 
         Returns:
-            JSON-formatted log message
+            JSON - formatted log message
         """
         log_data = {
             "level": record.levelname,
@@ -185,7 +185,7 @@ class LoggingService:
         if self.json_format:
             formatter = JsonFormatter()
         else:
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter(" % (asctime)s - %(name)s - %(levelname)s - %(message)s")
 
         # Add console handler if enabled
         if self.console_output:
@@ -495,14 +495,14 @@ class LoggingService:
 
                     if start_time and "timestamp" in log_entry:
                         log_time = datetime.fromisoformat(
-                            log_entry["timestamp"].replace("Z", "+00:00")
+                            log_entry["timestamp"].replace("Z", " + 00:00")
                         )
                         if log_time < start_time:
                             continue
 
                     if end_time and "timestamp" in log_entry:
                         log_time = datetime.fromisoformat(
-                            log_entry["timestamp"].replace("Z", "+00:00")
+                            log_entry["timestamp"].replace("Z", " + 00:00")
                         )
                         if log_time > end_time:
                             continue
@@ -518,7 +518,7 @@ class LoggingService:
 
                     logs.append(log_entry)
                 except json.JSONDecodeError:
-                    # Skip non-JSON lines
+                    # Skip non - JSON lines
                     continue
 
         # Sort logs by timestamp (newest first)

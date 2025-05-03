@@ -23,11 +23,11 @@ def mock_team():
     mock_team = MagicMock(spec=IAgentTeam)
     mock_team.config = {
         "model_settings": {
-            "researcher": {"model": "gpt-4", "temperature": 0.7},
-            "developer": {"model": "gpt-4", "temperature": 0.2},
-            "monetization": {"model": "gpt-4", "temperature": 0.5},
-            "marketing": {"model": "gpt-4", "temperature": 0.8},
-            "feedback": {"model": "gpt-4", "temperature": 0.3},
+            "researcher": {"model": "gpt - 4", "temperature": 0.7},
+            "developer": {"model": "gpt - 4", "temperature": 0.2},
+            "monetization": {"model": "gpt - 4", "temperature": 0.5},
+            "marketing": {"model": "gpt - 4", "temperature": 0.8},
+            "feedback": {"model": "gpt - 4", "temperature": 0.3},
         },
         "workflow": {
             "auto_progression": False,
@@ -92,7 +92,7 @@ def test_research_agent_analyze_market_segments(mock_team):
     agent = ResearchAgent(team=mock_team)
 
     # Analyze market segments
-    segments = ["e-commerce", "content creation"]
+    segments = ["e - commerce", "content creation"]
     result = agent.analyze_market_segments(segments)
 
     # Check that the result is a list
@@ -141,7 +141,7 @@ def test_developer_agent_design_solution(mock_team):
                 "frontend": ["React", "TypeScript"],
                 "backend": ["Python", "FastAPI"],
                 "database": "PostgreSQL",
-                "ai_models": ["GPT-4", "BERT"],
+                "ai_models": ["GPT - 4", "BERT"],
             },
             "implementation_plan": {
                 "phases": [
@@ -237,7 +237,7 @@ def test_monetization_agent_create_strategy(mock_team):
                 "payout_schedule": "monthly",
             },
             "pricing_strategy": {
-                "positioning": "value-based",
+                "positioning": "value - based",
                 "competitor_comparison": "competitive",
                 "discount_strategy": "yearly discount",
             },
@@ -302,7 +302,7 @@ def test_marketing_agent_create_plan(mock_team):
                     "name": "Small Business Owners",
                     "description": "Owners of small businesses looking to improve efficiency",
                     "demographics": {
-                        "age_range": "30-50",
+                        "age_range": "30 - 50",
                         "education": "college degree",
                         "income": "middle to high",
                     },
@@ -351,8 +351,8 @@ def test_marketing_agent_create_plan(mock_team):
                 ]
             },
             "kpis": {
-                "website_traffic": "1000 visitors/month",
-                "conversion_rate": "2%",
+                "website_traffic": "1000 visitors / month",
+                "conversion_rate": "2 % ",
                 "customer_acquisition_cost": "$50",
                 "lifetime_value": "$500",
             },

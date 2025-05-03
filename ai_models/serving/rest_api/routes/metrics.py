@@ -28,7 +28,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1/metrics", tags=["Metrics"])
+    router = APIRouter(prefix=" / v1 / metrics", tags=["Metrics"])
 else:
     router = None
 
@@ -78,7 +78,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.get("/metrics", response_model=MetricsResponse)
+    @router.get(" / metrics", response_model=MetricsResponse)
     async def get_metrics(server=None):
         """
         Get server metrics.
@@ -95,7 +95,7 @@ if FASTAPI_AVAILABLE:
         # Create response
         return {"metrics": metrics}
 
-    @router.get("/metrics/prometheus", response_class=PlainTextResponse)
+    @router.get(" / metrics / prometheus", response_class=PlainTextResponse)
     async def get_prometheus_metrics(server=None):
         """
         Get server metrics in Prometheus format.
@@ -140,7 +140,7 @@ if FASTAPI_AVAILABLE:
             throughput=100.0,
             memory_mb=1024.0,
             error_rate=0.1,
-            timestamp="2025-04-30T12:00:00Z",
+            timestamp="2025 - 04 - 30T12:00:00Z",
         )
 
     @router.get("/{model_id}/stats", response_model=ModelStats)
@@ -153,6 +153,6 @@ if FASTAPI_AVAILABLE:
             p95_latency_ms=45.6,
             p99_latency_ms=98.3,
             success_rate=99.9,
-            start_time="2025-04-30T00:00:00Z",
-            end_time="2025-04-30T12:00:00Z",
+            start_time="2025 - 04 - 30T00:00:00Z",
+            end_time="2025 - 04 - 30T12:00:00Z",
         )

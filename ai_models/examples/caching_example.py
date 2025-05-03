@@ -30,7 +30,7 @@ except ImportError:
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,7 @@ def _run_cache_test(cache_manager: CacheManager) -> None:
         cache_manager: Cache manager to test
     """
     # Define model and operation
-    model_id = "test-model"
+    model_id = "test - model"
     operation = "generate"
 
     # Define inputs
@@ -210,10 +210,10 @@ def _run_cache_test(cache_manager: CacheManager) -> None:
         cached_response = cache_manager.get(model_id, operation, text, parameters)
 
         if cached_response:
-            print(f"Cache hit for input {i+1}: {text}")
+            print(f"Cache hit for input {i + 1}: {text}")
             print(f"Cached response: {cached_response}")
         else:
-            print(f"Cache miss for input {i+1}: {text}")
+            print(f"Cache miss for input {i + 1}: {text}")
 
             # Run inference
             response = simulate_model_inference(text)

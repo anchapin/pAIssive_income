@@ -12,7 +12,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 
-def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str, Any]] = None):
+def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str, 
+    Any]] = None):
     """
     Get a payment gateway of the specified type.
 
@@ -73,7 +74,8 @@ class PaymentProcessor(ABC):
 
     @abstractmethod
     def refund_payment(
-        self, payment_id: str, amount: Optional[float] = None, reason: Optional[str] = None
+        self, payment_id: str, amount: Optional[float] = None, 
+            reason: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Refund a payment.
@@ -125,7 +127,8 @@ class PaymentProcessor(ABC):
 
     @abstractmethod
     def create_customer(
-        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None
+        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a customer.
@@ -406,13 +409,13 @@ class PaymentProcessor(ABC):
             True if the card number is valid, False otherwise
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Check if the card number contains only digits
         if not card_number.isdigit():
             return False
 
-        # Check length (most card numbers are 13-19 digits)
+        # Check length (most card numbers are 13 - 19 digits)
         if not (13 <= len(card_number) <= 19):
             return False
 
@@ -441,14 +444,14 @@ class PaymentProcessor(ABC):
             Masked card number
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Keep first 6 and last 4 digits, mask the rest
         if len(card_number) <= 10:
             # For short numbers, just mask all but the last 4
             return "****" + card_number[-4:]
         else:
-            return card_number[:6] + "*" * (len(card_number) - 10) + card_number[-4:]
+            return card_number[:6] + " * " * (len(card_number) - 10) + card_number[-4:]
 
     def get_card_type(self, card_number: str) -> str:
         """
@@ -461,12 +464,13 @@ class PaymentProcessor(ABC):
             Type of the credit card (e.g., Visa, Mastercard)
         """
         # Remove spaces and dashes
-        card_number = card_number.replace(" ", "").replace("-", "")
+        card_number = card_number.replace(" ", "").replace(" - ", "")
 
         # Check for common card types based on prefix
         if card_number.startswith("4"):
             return "Visa"
-        elif card_number.startswith(("51", "52", "53", "54", "55")) or card_number.startswith(
+        elif card_number.startswith(("51", "52", "53", "54", 
+            "55")) or card_number.startswith(
             (
                 "2221",
                 "2222",
@@ -496,9 +500,11 @@ class PaymentProcessor(ABC):
             return "Mastercard"
         elif card_number.startswith(("34", "37")):
             return "American Express"
-        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", "38")):
+        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", 
+            "38")):
             return "Diners Club"
-        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
+        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", 
+            "65")):
             return "Discover"
         elif card_number.startswith(("35")):
             return "JCB"

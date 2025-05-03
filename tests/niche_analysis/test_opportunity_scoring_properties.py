@@ -1,8 +1,8 @@
 """
-Property-based tests for opportunity scoring algorithms.
+Property - based tests for opportunity scoring algorithms.
 
 This module tests properties that should hold true for opportunity scoring algorithms
-in the niche_analysis module, using the Hypothesis framework for property-based testing.
+in the niche_analysis module, using the Hypothesis framework for property - based testing.
 """
 
 import uuid
@@ -81,7 +81,7 @@ def factor_weights_strategy(draw):
     factor_weights = dict(zip(factor_names, weights))
 
     # Verify weights sum to 1.0 (with floating point tolerance)
-    epsilon = 1e-9
+    epsilon = 1e - 9
     sum_weights = sum(factor_weights.values())
     assert abs(sum_weights - 1.0) < epsilon, f"Weights sum to {sum_weights}, not 1.0"
 
@@ -120,7 +120,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
     Args:
         factors: Dictionary of factor names to factor values
         weights: Dictionary of factor names to factor weights
-        apply_weight_bias: Whether to apply a small bias based on the weight of the highest-value factor
+        apply_weight_bias: Whether to apply a small bias based on the weight of the highest - value factor
                           (used for weight influence testing)
     """
     # Create factor scores
@@ -144,14 +144,14 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
         )
 
     # The overall score is the sum of weighted scores
-    # Handle floating-point precision - ensure score is at most 1.0
+    # Handle floating - point precision - ensure score is at most 1.0
     overall_score = min(1.0, weighted_sum)
 
-    # Add a small bias based on the weight of the highest-value factor
-    # This ensures that different weights for high-value factors produce different scores
+    # Add a small bias based on the weight of the highest - value factor
+    # This ensures that different weights for high - value factors produce different scores
     # Only apply this for the weight influence test
     if apply_weight_bias and max_factor and max_factor_value > 0.0:
-        # The bias is proportional to the weight of the highest-value factor
+        # The bias is proportional to the weight of the highest - value factor
         # but small enough not to disrupt other tests
         weight_bias = weights[max_factor] * 0.0001
         overall_score = min(1.0, overall_score + weight_bias)
@@ -173,7 +173,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
     elif overall_score >= 0.6:
         assessment = "Very good opportunity worth pursuing"
         recommendations = [
-            "Proceed with medium-high priority",
+            "Proceed with medium - high priority",
             "Allocate appropriate resources",
             "Develop an implementation plan",
         ]
@@ -216,7 +216,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
 
 
 class TestOpportunityScoringAlgorithmProperties:
-    """Property-based tests for opportunity scoring algorithms."""
+    """Property - based tests for opportunity scoring algorithms."""
 
     @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_score_bounds(self, factors, weights):
@@ -364,7 +364,7 @@ class TestOpportunityScoringAlgorithmProperties:
         score1 = calculate_opportunity_score(factors, weights1).overall_score
         score2 = calculate_opportunity_score(factors, weights2).overall_score
 
-        # Property: When the highest-value factor has significantly more weight,
+        # Property: When the highest - value factor has significantly more weight,
         # it should result in a higher overall score
         assert score1 > score2
 
@@ -395,7 +395,7 @@ class TestOpportunityScoringAlgorithmProperties:
         if result.overall_score >= 0.8:
             assert any("high priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.6:
-            assert any("medium-high priority" in r.lower() for r in result.recommendations)
+            assert any("medium - high priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.4:
             assert any("medium priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.2:

@@ -48,7 +48,7 @@ else:
 
 
 @router.get(
-    "/summary",
+    " / summary",
     response_model=AnalyticsSummaryResponse,
     summary="Get API usage summary",
     description="Get a summary of API usage statistics",
@@ -72,7 +72,7 @@ async def get_summary(days: int = Query(30, description="Number of days to inclu
 
 
 @router.get(
-    "/requests",
+    " / requests",
     response_model=List[RequestStatsResponse],
     summary="Get API request statistics",
     description="Get detailed statistics for API requests",
@@ -121,7 +121,7 @@ async def get_requests(
 
 
 @router.get(
-    "/endpoints",
+    " / endpoints",
     response_model=List[EndpointStatsResponse],
     summary="Get endpoint statistics",
     description="Get statistics for each API endpoint",
@@ -145,7 +145,7 @@ async def get_endpoint_stats(days: int = Query(30, description="Number of days t
 
 
 @router.get(
-    "/users",
+    " / users",
     response_model=List[UserStatsResponse],
     summary="Get user statistics",
     description="Get statistics for API usage by users",
@@ -173,7 +173,7 @@ async def get_user_stats(
 
 
 @router.get(
-    "/api-keys",
+    " / api - keys",
     response_model=List[ApiKeyStatsResponse],
     summary="Get API key statistics",
     description="Get statistics for API usage by API keys",
@@ -201,7 +201,7 @@ async def get_api_key_stats(
 
 
 @router.get(
-    "/export/requests",
+    " / export / requests",
     summary="Export API requests to CSV",
     description="Export detailed API request data to CSV format",
 )
@@ -231,14 +231,14 @@ async def export_requests_csv(
         )
 
         # Generate filename
-        date_str = datetime.now().strftime("%Y%m%d")
+        date_str = datetime.now().strftime(" % Y%m % d")
         filename = f"api_requests_{date_str}.csv"
 
         # Return CSV file
         return StreamingResponse(
             iter([csv_data]),
-            media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            media_type="text / csv",
+            headers={"Content - Disposition": f"attachment; filename={filename}"},
         )
     except Exception as e:
         logger.error(f"Error exporting requests to CSV: {e}")
@@ -246,7 +246,7 @@ async def export_requests_csv(
 
 
 @router.get(
-    "/export/metrics",
+    " / export / metrics",
     summary="Export daily metrics to CSV",
     description="Export daily aggregated metrics to CSV format",
 )
@@ -264,14 +264,14 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
         csv_data = analytics_service.export_metrics_csv(days=days)
 
         # Generate filename
-        date_str = datetime.now().strftime("%Y%m%d")
+        date_str = datetime.now().strftime(" % Y%m % d")
         filename = f"api_metrics_{date_str}.csv"
 
         # Return CSV file
         return StreamingResponse(
             iter([csv_data]),
-            media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            media_type="text / csv",
+            headers={"Content - Disposition": f"attachment; filename={filename}"},
         )
     except Exception as e:
         logger.error(f"Error exporting metrics to CSV: {e}")
@@ -279,22 +279,22 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
 
 
 @router.get(
-    "/real-time",
+    " / real - time",
     response_model=RealTimeMetricsResponse,
-    summary="Get real-time API metrics",
-    description="Get real-time metrics for API usage in the last few minutes",
+    summary="Get real - time API metrics",
+    description="Get real - time metrics for API usage in the last few minutes",
 )
 async def get_real_time_metrics(
     minutes: int = Query(5, description="Number of minutes to include")
 ):
     """
-    Get real-time metrics for API usage in the last few minutes.
+    Get real - time metrics for API usage in the last few minutes.
 
     Args:
         minutes: Number of minutes to include
 
     Returns:
-        Real-time metrics
+        Real - time metrics
     """
     try:
         metrics = analytics_service.get_real_time_metrics(minutes)
@@ -302,12 +302,12 @@ async def get_real_time_metrics(
         metrics["timestamp"] = datetime.now().isoformat()
         return metrics
     except Exception as e:
-        logger.error(f"Error getting real-time metrics: {e}")
+        logger.error(f"Error getting real - time metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post(
-    "/alerts/thresholds",
+    " / alerts / thresholds",
     response_model=AlertThresholdResponse,
     summary="Set alert threshold",
     description="Set a threshold for a specific metric that will trigger alerts when exceeded",
@@ -335,7 +335,7 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
 
 
 @router.post(
-    "/cleanup",
+    " / cleanup",
     response_model=SuccessResponse,
     summary="Clean up old analytics data",
     description="Remove analytics data older than the specified number of days",

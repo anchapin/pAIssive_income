@@ -52,13 +52,13 @@ def truncate(s: str, max_length: int, suffix: str = "...") -> str:
     return s[: max_length - len(suffix)] + suffix
 
 
-def slugify(s: str, separator: str = "-") -> str:
+def slugify(s: str, separator: str = " - ") -> str:
     """
     Convert a string to a slug.
 
     Args:
         s: String to convert
-        separator: Separator to use (default: "-")
+        separator: Separator to use (default: " - ")
 
     Returns:
         Slug
@@ -69,10 +69,10 @@ def slugify(s: str, separator: str = "-") -> str:
     # Remove accents
     s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
 
-    # Replace non-alphanumeric characters with separator
-    s = re.sub(r"[^a-z0-9]+", separator, s)
+    # Replace non - alphanumeric characters with separator
+    s = re.sub(r"[^a - z0 - 9] + ", separator, s)
 
-    # Remove leading/trailing separators
+    # Remove leading / trailing separators
     s = s.strip(separator)
 
     return s
@@ -89,7 +89,7 @@ def camel_to_snake(s: str) -> str:
         snake_case string
     """
     # Insert underscore before uppercase letters
-    s = re.sub(r"(?<!^)(?=[A-Z])", "_", s)
+    s = re.sub(r"(?<!^)(?=[A - Z])", "_", s)
 
     # Convert to lowercase
     return s.lower()
@@ -115,7 +115,8 @@ def snake_to_camel(s: str, capitalize_first: bool = False) -> str:
     return parts[0] + "".join(part.capitalize() for part in parts[1:])
 
 
-def format_currency(amount: Union[int, float], currency: str = "$", decimal_places: int = 2) -> str:
+def format_currency(amount: Union[int, float], currency: str = "$", 
+    decimal_places: int = 2) -> str:
     """
     Format a number as currency.
 

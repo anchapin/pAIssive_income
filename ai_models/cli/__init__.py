@@ -1,7 +1,7 @@
 """
-Command-line interface for AI models.
+Command - line interface for AI models.
 
-This package provides a command-line interface for managing AI models,
+This package provides a command - line interface for managing AI models,
 including downloading, serving, and optimizing models.
 """
 

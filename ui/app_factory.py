@@ -60,7 +60,8 @@ def _configure_logging(app: Flask) -> None:
     if not app.logger.handlers:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(log_level)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(" % (asctime)s - \
+            %(name)s - %(levelname)s - %(message)s")
         console_handler.setFormatter(formatter)
         app.logger.addHandler(console_handler)
 
@@ -95,6 +96,6 @@ def _register_blueprints(app: Flask) -> None:
     from .routes import api_bp, main_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(api_bp, url_prefix=" / api")
 
     app.logger.info("Blueprints registered")

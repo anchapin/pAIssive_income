@@ -23,13 +23,13 @@ def mock_agent_team():
         {
             "id": "niche1",
             "name": "AI Inventory Management",
-            "market_segment": "e-commerce",
+            "market_segment": "e - commerce",
             "opportunity_score": 0.85,
         },
         {
             "id": "niche2",
             "name": "Content Generation for Marketing",
-            "market_segment": "digital-marketing",
+            "market_segment": "digital - marketing",
             "opportunity_score": 0.78,
         },
     ]
@@ -38,7 +38,7 @@ def mock_agent_team():
     team.develop_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
+        "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -63,7 +63,7 @@ def mock_agent_team():
         "id": "marketing1",
         "name": "Inventory Optimizer Marketing Plan",
         "channels": ["content", "social", "email"],
-        "target_audience": "E-commerce store owners",
+        "target_audience": "E - commerce store owners",
     }
 
     return team
@@ -76,8 +76,8 @@ def mock_model_manager():
 
     # Mock the list_models method
     manager.list_models.return_value = [
-        {"id": "model1", "name": "GPT-4", "capabilities": ["text-generation"]},
-        {"id": "model2", "name": "DALL-E 3", "capabilities": ["image-generation"]},
+        {"id": "model1", "name": "GPT - 4", "capabilities": ["text - generation"]},
+        {"id": "model2", "name": "DALL - E 3", "capabilities": ["image - generation"]},
     ]
 
     return manager
@@ -96,8 +96,8 @@ def mock_subscription_manager():
             "user_id": "user1",
             "plan_name": "Pro Plan",
             "status": "active",
-            "created_at": "2025-04-01T10:00:00Z",
-            "expires_at": "2026-04-01T10:00:00Z",
+            "created_at": "2025 - 04 - 01T10:00:00Z",
+            "expires_at": "2026 - 04 - 01T10:00:00Z",
         }
     ]
 

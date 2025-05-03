@@ -48,7 +48,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.get("/health", response_model=HealthResponse)
+    @router.get(" / health", response_model=HealthResponse)
     async def health_check(server=None):
         """
         Check the health of the server.

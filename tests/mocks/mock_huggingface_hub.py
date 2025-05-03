@@ -42,8 +42,8 @@ class MockRepoInfo:
             self.card_data = {}
 
         # Extract author from repo ID if not provided
-        if not self.author and "/" in self.id:
-            self.author = self.id.split("/")[0]
+        if not self.author and " / " in self.id:
+            self.author = self.id.split(" / ")[0]
 
         # Set SHA if not provided
         if not self.sha:
@@ -95,7 +95,7 @@ class MockHuggingFaceHub:
 
         # Automatically add to models or datasets
         if repo_info.pipeline_tag or any(
-            tag in repo_info.tags for tag in ["model", "text-generation", "fill-mask"]
+            tag in repo_info.tags for tag in ["model", "text - generation", "fill - mask"]
         ):
             self.models[repo_info.id] = repo_info
         elif "dataset" in repo_info.tags:
@@ -126,9 +126,9 @@ class MockHuggingFaceHub:
 
         # Convert content to bytes
         if isinstance(content, dict):
-            content = json.dumps(content).encode("utf-8")
+            content = json.dumps(content).encode("utf - 8")
         elif isinstance(content, str):
-            content = content.encode("utf-8")
+            content = content.encode("utf - 8")
 
         # Determine file size if not provided
         if file_size is None:
@@ -142,7 +142,7 @@ class MockHuggingFaceHub:
         }
 
         # Create the file in the temp directory
-        repo_dir = os.path.join(self.temp_dir, repo_id.replace("/", "_"))
+        repo_dir = os.path.join(self.temp_dir, repo_id.replace(" / ", "_"))
         os.makedirs(repo_dir, exist_ok=True)
 
         file_path_full = os.path.join(repo_dir, file_path)
@@ -231,7 +231,7 @@ class MockHuggingFaceHub:
             dest_path = os.path.join(dest_dir, filename)
         else:
             # Simulate cache structure
-            repo_dir = repo_id.replace("/", "--")
+            repo_dir = repo_id.replace(" / ", "--")
             dest_path = os.path.join(dest_dir, repo_dir, revision, filename)
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
@@ -301,7 +301,7 @@ class MockHuggingFaceHub:
 
         # Determine destination path
         dest_dir = local_dir or os.path.join(
-            cache_dir or self.temp_dir, repo_id.replace("/", "--"), revision
+            cache_dir or self.temp_dir, repo_id.replace(" / ", "--"), revision
         )
         os.makedirs(dest_dir, exist_ok=True)
 
@@ -311,7 +311,7 @@ class MockHuggingFaceHub:
 
         # Calculate total size first
         for file_key, file_info in self.files.items():
-            if file_key.startswith(repo_id + "/"):
+            if file_key.startswith(repo_id + " / "):
                 file_path = file_key[len(repo_id) + 1 :]
 
                 # Check patterns
@@ -328,7 +328,7 @@ class MockHuggingFaceHub:
 
         # Now copy files
         for file_key, file_info in self.files.items():
-            if file_key.startswith(repo_id + "/"):
+            if file_key.startswith(repo_id + " / "):
                 file_path = file_key[len(repo_id) + 1 :]
 
                 # Check patterns
@@ -470,17 +470,17 @@ if __name__ == "__main__":
     # Add a repository
     mock_huggingface_hub.add_repo(
         {
-            "id": "user/model",
+            "id": "user / model",
             "downloads": 1000,
             "likes": 50,
-            "tags": ["text-generation", "gpt"],
-            "pipeline_tag": "text-generation",
+            "tags": ["text - generation", "gpt"],
+            "pipeline_tag": "text - generation",
         }
     )
 
     # Add a file
     mock_huggingface_hub.add_file(
-        repo_id="user/model",
+        repo_id="user / model",
         file_path="config.json",
         content=json.dumps({"model_type": "gpt", "vocab_size": 50257}),
     )
@@ -488,7 +488,7 @@ if __name__ == "__main__":
     # Download a file
     try:
         file_path = mock_huggingface_hub.hf_hub_download(
-            repo_id="user/model", filename="config.json"
+            repo_id="user / model", filename="config.json"
         )
         print(f"Downloaded file to {file_path}")
 

@@ -27,7 +27,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(prefix="/v1", tags=["Text Classification"])
+    router = APIRouter(prefix=" / v1", tags=["Text Classification"])
 else:
     router = None
 
@@ -63,7 +63,7 @@ if FASTAPI_AVAILABLE:
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
-    @router.post("/classify", response_model=ClassificationResponse)
+    @router.post(" / classify", response_model=ClassificationResponse)
     async def classify_text(request: ClassificationRequest, model=None):
         """
         Classify text.

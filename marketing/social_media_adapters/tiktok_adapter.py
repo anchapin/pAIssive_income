@@ -45,7 +45,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://open.tiktokapis.com/v2"
+        self.api_base_url = "https://open.tiktokapis.com / v2"
         self.access_token = self.credentials.get("access_token")
         self.refresh_token = self.credentials.get("refresh_token")
         self.client_key = self.credentials.get("client_key")
@@ -56,7 +56,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
         # Set up authentication if access token is provided
         if self.access_token:
             self.session.headers.update(
-                {"Authorization": f"Bearer {self.access_token}", "Content-Type": "application/json"}
+                {"Authorization": f"Bearer {self.access_token}", "Content - Type": "application / json"}
             )
             self._connected = True
 
@@ -75,7 +75,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             if self.access_token and self.open_id:
                 # Check if the token is valid by getting user info
                 response = self.session.get(
-                    f"{self.api_base_url}/user/info/",
+                    f"{self.api_base_url}/user / info / ",
                     params={"fields": "open_id,union_id,avatar_url,display_name,bio_description"},
                 )
                 response.raise_for_status()
@@ -93,7 +93,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # If we have refresh token, client key, and client secret, we can refresh the access token
             elif self.refresh_token and self.client_key and self.client_secret:
                 # Refresh the access token
-                token_url = "https://open-api.tiktok.com/oauth/refresh_token/"
+                token_url = "https://open - api.tiktok.com / oauth / refresh_token / "
                 token_data = {
                     "client_key": self.client_key,
                     "client_secret": self.client_secret,
@@ -112,14 +112,14 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 self.session.headers.update(
                     {
                         "Authorization": f"Bearer {self.access_token}",
-                        "Content-Type": "application/json",
+                        "Content - Type": "application / json",
                     }
                 )
                 self._connected = True
 
                 # Get user information
                 response = self.session.get(
-                    f"{self.api_base_url}/user/info/",
+                    f"{self.api_base_url}/user / info / ",
                     params={"fields": "open_id,union_id,avatar_url,display_name,bio_description"},
                 )
                 response.raise_for_status()
@@ -202,7 +202,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             targeting: Optional audience targeting parameters
 
         Returns:
-            Dictionary containing the post details and platform-assigned ID
+            Dictionary containing the post details and platform - assigned ID
 
         Raises:
             ContentValidationError: If content validation fails
@@ -224,7 +224,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # 3. Set the caption, hashtags, and other metadata
 
             # For demonstration, we'll simulate a successful upload
-            video_id = f"tiktok_video_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            video_id = f"tiktok_video_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             # Format hashtags if present
             hashtags = content.get("hashtags", [])
@@ -308,11 +308,11 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 )
 
             # Note: TikTok API doesn't directly support scheduling posts
-            # In a real implementation, we would use a third-party service or
+            # In a real implementation, we would use a third - party service or
             # store the video locally and post it at the scheduled time
 
             # For demonstration, we'll return a mock scheduled video
-            scheduled_id = f"tiktok_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            scheduled_id = f"tiktok_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             # Format hashtags if present
             hashtags = content.get("hashtags", [])
@@ -373,7 +373,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 "id": post_id,
                 "caption": "This is a test video #AITools #PassiveIncome",
                 "create_time": (datetime.now() - timedelta(days=1)).isoformat(),
-                "cover_image_url": "https://example.com/cover.jpg",
+                "cover_image_url": "https://example.com / cover.jpg",
                 "share_url": f"https://www.tiktok.com/@{self.open_id}/video/{post_id}",
                 "video_description": "This is a test video created with the pAIssive Income social media integration module.",
                 "duration": 15,  # seconds
@@ -473,8 +473,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 end_date = datetime.now()
 
             # Format dates for API
-            start_date_str = start_date.strftime("%Y-%m-%d")
-            end_date_str = end_date.strftime("%Y-%m-%d")
+            start_date_str = start_date.strftime(" % Y-%m-%d")
+            end_date_str = end_date.strftime(" % Y-%m-%d")
 
             # If post_id is provided, get analytics for a specific video
             if post_id:
@@ -494,7 +494,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                     },
                 }
 
-            # Otherwise, get account-level analytics
+            # Otherwise, get account - level analytics
             else:
                 # In a real implementation, we would use the TikTok API to get account analytics
                 # For demonstration, we'll return mock analytics data
@@ -556,12 +556,12 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 "segment": segment or "all_followers",
                 "demographics": {
                     "age_groups": {
-                        "13-17": 0.25,
-                        "18-24": 0.40,
-                        "25-34": 0.20,
-                        "35-44": 0.10,
-                        "45-54": 0.03,
-                        "55+": 0.02,
+                        "13 - 17": 0.25,
+                        "18 - 24": 0.40,
+                        "25 - 34": 0.20,
+                        "35 - 44": 0.10,
+                        "45 - 54": 0.03,
+                        "55 + ": 0.02,
                     },
                     "gender": {"female": 0.60, "male": 0.38, "other": 0.02},
                 },

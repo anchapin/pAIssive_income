@@ -90,7 +90,7 @@ class ErrorDetail:
         Initialize error detail.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             code: Error code for programmatic handling
             field: Field that caused the error (for validation errors)
             params: Additional parameters for the error
@@ -137,7 +137,7 @@ class ErrorResponse:
         Initialize error response.
 
         Args:
-            message: Human-readable error message
+            message: Human - readable error message
             code: Error code for programmatic handling
             details: List of error details
             path: Path where the error occurred
@@ -241,7 +241,8 @@ def create_error_response(
         # Add details from the exception
         if hasattr(exception, "details") and exception.details:
             for key, value in exception.details.items():
-                details.append(ErrorDetail(message=str(value), code=key, params={key: value}))
+                details.append(ErrorDetail(message=str(value), code=key, 
+                    params={key: value}))
     else:
         message = str(exception)
         code = exception.__class__.__name__
@@ -257,9 +258,11 @@ def create_error_response(
 
     # Add traceback if requested
     if include_traceback:
-        tb = traceback.format_exception(type(exception), exception, exception.__traceback__)
+        tb = traceback.format_exception(type(exception), exception, 
+            exception.__traceback__)
         response.details.append(
-            ErrorDetail(message="Traceback", code="traceback", params={"traceback": "".join(tb)})
+            ErrorDetail(message="Traceback", code="traceback", 
+                params={"traceback": "".join(tb)})
         )
 
     return response
@@ -276,7 +279,8 @@ if FASTAPI_AVAILABLE:
             Dictionary of exception handlers
         """
 
-        def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+        def handle_validation_error(request: Request, 
+            exc: RequestValidationError) -> JSONResponse:
             """
             Handle validation errors.
 
@@ -312,7 +316,8 @@ if FASTAPI_AVAILABLE:
             )
 
             # Return JSON response
-            return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content=response.to_dict())
+            return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, 
+                content=response.to_dict())
 
         def handle_base_error(request: Request, exc: BaseError) -> JSONResponse:
             """

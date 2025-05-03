@@ -21,7 +21,7 @@ class DashboardService(BaseService):
         Returns:
             Dashboard overview data
         """
-        return self._get("dashboard/overview")
+        return self._get("dashboard / overview")
 
     def get_revenue_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -36,7 +36,7 @@ class DashboardService(BaseService):
         Returns:
             Revenue statistics
         """
-        return self._get("dashboard/revenue", params=params)
+        return self._get("dashboard / revenue", params=params)
 
     def get_subscriber_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -51,7 +51,7 @@ class DashboardService(BaseService):
         Returns:
             Subscriber statistics
         """
-        return self._get("dashboard/subscribers", params=params)
+        return self._get("dashboard / subscribers", params=params)
 
     def get_traffic_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -66,7 +66,7 @@ class DashboardService(BaseService):
         Returns:
             Traffic statistics
         """
-        return self._get("dashboard/traffic", params=params)
+        return self._get("dashboard / traffic", params=params)
 
     def get_conversion_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -81,7 +81,7 @@ class DashboardService(BaseService):
         Returns:
             Conversion statistics
         """
-        return self._get("dashboard/conversions", params=params)
+        return self._get("dashboard / conversions", params=params)
 
     def get_performance_metrics(self) -> Dict[str, Any]:
         """
@@ -90,4 +90,4 @@ class DashboardService(BaseService):
         Returns:
             Performance metrics
         """
-        return self._get("dashboard/performance")
+        return self._get("dashboard / performance")

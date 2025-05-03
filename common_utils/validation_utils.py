@@ -24,16 +24,22 @@ T = TypeVar("T")
 
 # Regular expressions for common validations
 EMAIL_REGEX = re.compile(
-    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
+    r"^[a - zA - Z0 - 9._%+-]+@[a - zA - Z0 - 9](?:[a - zA - Z0 - 9-]{0,
+        61}[a - zA - Z0 - 9])?(?:\.[a - zA - Z0 - 9](?:[a - zA - Z0 - 9-]{0,
+        61}[a - zA - Z0 - 9])?)+$"
 )
 URL_REGEX = re.compile(
-    r"^https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+(/[-\w%!$&\'()*+,;=:]+)*(?:\?[-\w%!$&\'()*+,;=:/?]+)?(?:#[-\w%!$&\'()*+,;=:/?]+)?$"
+    r"^https?://(?:[-\w.]|(?:%[\da - fA - F]{2})) + (/[-\w%!$&\'()*+,
+        ;=:]+) * (?:\?[-\w%!$&\'()*+,;=:/?]+)?(?:#[-\w%!$&\'()*+,;=:/?]+)?$"
 )
-UUID_REGEX = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
-PHONE_REGEX = re.compile(r"^\+?[0-9]{1,3}?[-. ]?\(?[0-9]{1,3}\)?[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,4}$")
-USERNAME_REGEX = re.compile(r"^[a-zA-Z0-9_-]{3,16}$")
-PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$")
-SLUG_REGEX = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+UUID_REGEX = re.compile(r"^[0 - \
+    9a - f]{8}-[0 - 9a - f]{4}-[0 - 9a - f]{4}-[0 - 9a - f]{4}-[0 - 9a - f]{12}$")
+PHONE_REGEX = re.compile(r"^\+?[0 - 9]{1,3}?[-. ]?\(?[0 - 9]{1,3}\)?[-. ]?[0 - 9]{1,
+    4}[-. ]?[0 - 9]{1,4}$")
+USERNAME_REGEX = re.compile(r"^[a - zA - Z0 - 9_-]{3,16}$")
+PASSWORD_REGEX = re.compile(r"^(?=.*[A - Za - z])(?=.*\d)(?=.*[@$!%*#?&])[A - Za - z\d@$!%*#?&]{8,
+    }$")
+SLUG_REGEX = re.compile(r"^[a - z0 - 9] + (?:-[a - z0 - 9]+)*$")
 
 
 def is_valid_email(email: str) -> bool:
@@ -173,13 +179,13 @@ def is_valid_json(json_str: str) -> bool:
         return False
 
 
-def is_valid_date(date_str: str, format_str: str = "%Y-%m-%d") -> bool:
+def is_valid_date(date_str: str, format_str: str = " % Y-%m-%d") -> bool:
     """
     Validate a date string.
 
     Args:
         date_str: Date string to validate
-        format_str: Date format string (default: "%Y-%m-%d")
+        format_str: Date format string (default: " % Y-%m-%d")
 
     Returns:
         True if the date is valid, False otherwise
@@ -247,6 +253,7 @@ def is_valid_directory(dir_path: str, must_exist: bool = True) -> bool:
 
     Returns:
         True if the directory path is valid and the directory exists (if must_exist is True),
+            
         False otherwise
     """
     if not is_valid_file_path(dir_path):

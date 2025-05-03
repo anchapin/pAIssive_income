@@ -1,5 +1,5 @@
 """
-Consul-based service registry implementation for pAIssive income microservices.
+Consul - based service registry implementation for pAIssive income microservices.
 
 This module provides a Consul client implementation of the ServiceRegistry interface,
 allowing microservices to register with Consul and discover other services.
@@ -148,7 +148,7 @@ class ConsulServiceRegistry(ServiceRegistry):
 
     def renew(self, service_id: str) -> bool:
         """
-        Renew a service registration (for TTL-based checks).
+        Renew a service registration (for TTL - based checks).
 
         Args:
             service_id: The unique ID of the service to renew
@@ -215,7 +215,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                     service_name=node.get("ServiceName", ""),
                     host=node.get("ServiceAddress", "") or node.get("Address", ""),
                     port=node.get("ServicePort", 0),
-                    health_check_url="/health",  # Default health check path
+                    health_check_url=" / health",  # Default health check path
                     metadata=metadata,
                     version=version,
                     is_secure=is_secure,
@@ -275,7 +275,7 @@ class ConsulServiceRegistry(ServiceRegistry):
             for check in checks:
                 if check["Status"] != "passing":
                     logger.warning(
-                        f"Service {service_id} has non-passing check: {check['Name']} - {check['Status']}"
+                        f"Service {service_id} has non - passing check: {check['Name']} - {check['Status']}"
                     )
                     return False
 

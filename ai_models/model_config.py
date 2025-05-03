@@ -23,10 +23,12 @@ class ModelConfig(IModelConfig):
 
     # Base directories - using restricted permissions by default
     _models_dir: str = field(
-        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models")
+        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", 
+            "models")
     )
     _cache_dir: str = field(
-        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "cache")
+        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", 
+            "cache")
     )
 
     # Cache settings
@@ -44,7 +46,7 @@ class ModelConfig(IModelConfig):
 
     # Default models
     default_text_model: str = "gpt2"
-    default_embedding_model: str = "all-MiniLM-L6-v2"
+    default_embedding_model: str = "all - MiniLM - L6 - v2"
 
     def __post_init__(self):
         """Create necessary directories with secure permissions after initialization."""
@@ -96,12 +98,12 @@ class ModelConfig(IModelConfig):
 
     @property
     def auto_discover(self) -> bool:
-        """Get whether to auto-discover models."""
+        """Get whether to auto - discover models."""
         return self._auto_discover
 
     @auto_discover.setter
     def auto_discover(self, value: bool) -> None:
-        """Set whether to auto-discover models."""
+        """Set whether to auto - discover models."""
         self._auto_discover = value
 
     def to_dict(self) -> Dict[str, Any]:
@@ -149,7 +151,7 @@ class ModelConfig(IModelConfig):
             os.makedirs(os.path.dirname(config_path), mode=0o750, exist_ok=True)
 
             # Write config with secure permissions
-            with open(config_path, "w", encoding="utf-8") as f:
+            with open(config_path, "w", encoding="utf - 8") as f:
                 os.chmod(config_path, 0o640)  # Secure file permissions
                 json.dump(self.to_dict(), f, indent=2)
         except Exception as e:
@@ -174,7 +176,7 @@ class ModelConfig(IModelConfig):
 
         try:
             # Load raw config from file
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, "r", encoding="utf - 8") as f:
                 config_dict = json.load(f)
 
             # Validate using Pydantic if available
@@ -191,7 +193,8 @@ class ModelConfig(IModelConfig):
                 private_dict = {
                     (
                         f"_{key}"
-                        if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"}
+                        if key in {"models_dir", "cache_dir", "max_threads", 
+                            "auto_discover"}
                         else key
                     ): value
                     for key, value in validated_dict.items()
@@ -201,20 +204,24 @@ class ModelConfig(IModelConfig):
 
             except ImportError:
                 # Fallback to basic validation if Pydantic isn't available
-                print("Warning: Pydantic validation not available - using basic validation")
+                print("Warning: Pydantic validation not available - \
+                    using basic validation")
 
                 # Basic validation of required fields and types
-                required_fields = {"models_dir", "cache_dir", "cache_enabled", "cache_ttl"}
+                required_fields = {"models_dir", "cache_dir", "cache_enabled", 
+                    "cache_ttl"}
                 if not all(field in config_dict for field in required_fields):
                     raise ValueError(
-                        f"Missing required fields: {required_fields - set(config_dict.keys())}"
+                        f"Missing required fields: {required_fields - \
+                            set(config_dict.keys())}"
                     )
 
                 # Convert public field names to private ones
                 private_dict = {
                     (
                         f"_{key}"
-                        if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"}
+                        if key in {"models_dir", "cache_dir", "max_threads", 
+                            "auto_discover"}
                         else key
                     ): value
                     for key, value in config_dict.items()
