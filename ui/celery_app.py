@@ -1,23 +1,43 @@
 """
+"""
+Celery configuration for the pAIssive Income UI.
 Celery configuration for the pAIssive Income UI.
 
+
+This module sets up Celery for background task processing.
 This module sets up Celery for background task processing.
 """
+"""
+
 
 import logging
+import logging
+import os
 import os
 import time
+import time
+
 
 from celery import Celery
+from celery import Celery
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 def create_celery_app(app=None):
+    def create_celery_app(app=None):
     """Create and configure Celery application."""
 
     # Initialize Celery

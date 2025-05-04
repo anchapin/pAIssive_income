@@ -1,24 +1,45 @@
 """
+"""
+Tests for the model versioning system.
 Tests for the model versioning system.
 
+
+These tests cover version compatibility checks, version upgrade/downgrade logic,
 These tests cover version compatibility checks, version upgrade/downgrade logic,
 and conflict resolution in the model versioning system.
+and conflict resolution in the model versioning system.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 
+
+from ai_models.model_base_types import ModelInfo
 from ai_models.model_base_types import ModelInfo
 
+
+(
 (
 ModelMigrationTool,
+ModelMigrationTool,
+ModelVersion,
 ModelVersion,
 ModelVersionRegistry,
+ModelVersionRegistry,
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def model_info():
+    def model_info():
     """Fixture providing a basic ModelInfo instance."""
     return ModelInfo(
     id="test-model",

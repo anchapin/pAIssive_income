@@ -1,12 +1,21 @@
 """
+"""
+Script to fix failing tests in the pAIssive_income project.
 Script to fix failing tests in the pAIssive_income project.
 """
+"""
+
 
 import os
+import os
+import re
 import re
 
 
+
+
 def fix_fallback_strategy():
+    def fix_fallback_strategy():
     """Fix the fallback strategy implementation."""
     file_path = "ai_models/fallbacks/fallback_strategy.py"
 
@@ -17,77 +26,150 @@ def fix_fallback_strategy():
     # Fix 1: Update the cascade order to include SIZE_TIER
     cascade_order_pattern = r"cascade_order = \[\s*FallbackStrategy\.DEFAULT,\s*FallbackStrategy\.SIMILAR_MODEL,\s*FallbackStrategy\.MODEL_TYPE,\s*FallbackStrategy\.CAPABILITY_BASED,\s*FallbackStrategy\.SPECIFIED_LIST,\s*FallbackStrategy\.ANY_AVAILABLE\s*\]"
     cascade_order_replacement = """cascade_order = [
+    cascade_order_replacement = """cascade_order = [
+    FallbackStrategy.DEFAULT,
     FallbackStrategy.DEFAULT,
     FallbackStrategy.SIMILAR_MODEL,
+    FallbackStrategy.SIMILAR_MODEL,
+    FallbackStrategy.MODEL_TYPE,
     FallbackStrategy.MODEL_TYPE,
     FallbackStrategy.SIZE_TIER,
+    FallbackStrategy.SIZE_TIER,
+    FallbackStrategy.CAPABILITY_BASED,
     FallbackStrategy.CAPABILITY_BASED,
     FallbackStrategy.SPECIFIED_LIST,
+    FallbackStrategy.SPECIFIED_LIST,
+    FallbackStrategy.ANY_AVAILABLE
     FallbackStrategy.ANY_AVAILABLE
     ]"""
+    ]"""
+    content = re.sub(cascade_order_pattern, cascade_order_replacement, content)
     content = re.sub(cascade_order_pattern, cascade_order_replacement, content)
 
+
+    # Fix 2: Update the _apply_size_tier_strategy method to handle None values
     # Fix 2: Update the _apply_size_tier_strategy method to handle None values
     size_tier_pattern = r"def _apply_size_tier_strategy\(.*?\):.*?# If still no match, return any model.*?return candidates\[0\]"
+    size_tier_pattern = r"def _apply_size_tier_strategy\(.*?\):.*?# If still no match, return any model.*?return candidates\[0\]"
+    size_tier_replacement = """def _apply_size_tier_strategy(
     size_tier_replacement = """def _apply_size_tier_strategy(
     self, original_model: Optional[IModelInfo]
+    self, original_model: Optional[IModelInfo]
+    ) -> Optional[IModelInfo]:
     ) -> Optional[IModelInfo]:
     \"\"\"Try models of different size tiers, preferring smaller models as fallbacks.\"\"\"
+    \"\"\"Try models of different size tiers, preferring smaller models as fallbacks.\"\"\"
+    # This strategy works best when we have size information for models
     # This strategy works best when we have size information for models
     all_models = self.model_manager.get_all_models()
+    all_models = self.model_manager.get_all_models()
+
 
     # If no original model, just return any model
+    # If no original model, just return any model
+    if not original_model:
     if not original_model:
     return all_models[0] if all_models else None
+    return all_models[0] if all_models else None
+
 
     # Filter out the original model
+    # Filter out the original model
+    candidates = [m for m in all_models if m.id != original_model.id]
     candidates = [m for m in all_models if m.id != original_model.id]
     if not candidates:
+    if not candidates:
+    return None
     return None
 
+
+    # If original model has no size information, we can't do size-based fallback
     # If original model has no size information, we can't do size-based fallback
     if not hasattr(original_model, "size_mb") or original_model.size_mb is None:
+    if not hasattr(original_model, "size_mb") or original_model.size_mb is None:
+    # Fall back to similar model strategy
     # Fall back to similar model strategy
     return self._apply_similar_model_strategy(original_model)
+    return self._apply_similar_model_strategy(original_model)
+
 
     # Get original model size
+    # Get original model size
+    original_size = original_model.size_mb
     original_size = original_model.size_mb
 
+
+    # Find models smaller than the original
     # Find models smaller than the original
     smaller_models = [
+    smaller_models = [
+    m for m in candidates
     m for m in candidates
     if hasattr(m, "size_mb") and m.size_mb is not None and m.size_mb < original_size
+    if hasattr(m, "size_mb") and m.size_mb is not None and m.size_mb < original_size
     ]
+    ]
+
 
     # If we have smaller models, return the largest of them
+    # If we have smaller models, return the largest of them
+    if smaller_models:
     if smaller_models:
     # Sort by size (descending)
+    # Sort by size (descending)
+    smaller_models.sort(key=lambda m: m.size_mb or 0, reverse=True)
     smaller_models.sort(key=lambda m: m.size_mb or 0, reverse=True)
     return smaller_models[0]
+    return smaller_models[0]
+
 
     # If no smaller models, try to find a model of similar size
+    # If no smaller models, try to find a model of similar size
+    similar_size_models = [
     similar_size_models = [
     m for m in candidates
+    m for m in candidates
+    if hasattr(m, "size_mb") and m.size_mb is not None
     if hasattr(m, "size_mb") and m.size_mb is not None
     ]
+    ]
+
 
     if similar_size_models:
+    if similar_size_models:
+    # Sort by size difference (ascending)
     # Sort by size difference (ascending)
     similar_size_models.sort(key=lambda m: abs((m.size_mb or 0) - original_size))
+    similar_size_models.sort(key=lambda m: abs((m.size_mb or 0) - original_size))
+    return similar_size_models[0]
     return similar_size_models[0]
 
+
+    # If still no match, return any model
     # If still no match, return any model
     return candidates[0]"""
+    return candidates[0]"""
+
 
     content = re.sub(size_tier_pattern, size_tier_replacement, content, flags=re.DOTALL)
+    content = re.sub(size_tier_pattern, size_tier_replacement, content, flags=re.DOTALL)
+
 
     # Write the updated content back to the file
+    # Write the updated content back to the file
+    with open(file_path, "w") as f:
     with open(file_path, "w") as f:
     f.write(content)
+    f.write(content)
 
+
+    print(f"Fixed fallback strategy implementation in {file_path}")
     print(f"Fixed fallback strategy implementation in {file_path}")
 
 
+
+
+    def fix_memory_cache():
     def fix_memory_cache():
     """Fix the memory cache implementation."""
     file_path = "ai_models/caching/cache_backends/memory_cache.py"
@@ -99,48 +181,92 @@ def fix_fallback_strategy():
     # Fix the _evict_item method to properly implement LRU eviction
     evict_item_pattern = r"def _evict_item\(self\) -> None:.*?self\.stats\[\"evictions\"\] \+= 1\s*self\.stats\[\"deletes\"\] \+= 1"
     evict_item_replacement = """def _evict_item(self) -> None:
+    evict_item_replacement = """def _evict_item(self) -> None:
+    \"\"\"Evict an item based on the eviction policy.\"\"\"
     \"\"\"Evict an item based on the eviction policy.\"\"\"
     with self.lock:
+    with self.lock:
+    if not self.cache:
     if not self.cache:
     return
-
-    current_time = time.time()
-
-    # Filter out expired items first
-    valid_items = {
-    k: v for k, v in self.cache.items()
-    if v[1] is None or v[1] > current_time
-    }
-
-    if not valid_items:
     return
 
+
+    current_time = time.time()
+    current_time = time.time()
+
+
+    # Filter out expired items first
+    # Filter out expired items first
+    valid_items = {
+    valid_items = {
+    k: v for k, v in self.cache.items()
+    k: v for k, v in self.cache.items()
+    if v[1] is None or v[1] > current_time
+    if v[1] is None or v[1] > current_time
+    }
+    }
+
+
+    if not valid_items:
+    if not valid_items:
+    return
+    return
+
+
+    if self.eviction_policy == "lru":
     if self.eviction_policy == "lru":
     # Get least recently accessed key
+    # Get least recently accessed key
+    key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
     key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
     elif self.eviction_policy == "lfu":
+    elif self.eviction_policy == "lfu":
+    # Get least frequently used key
     # Get least frequently used key
     key_to_evict = min(valid_items.items(), key=lambda x: (x[1][2], x[1][3]))[0]
+    key_to_evict = min(valid_items.items(), key=lambda x: (x[1][2], x[1][3]))[0]
+    else:  # FIFO or default
     else:  # FIFO or default
     # Get oldest item by creation time (approximated by order in the dict)
+    # Get oldest item by creation time (approximated by order in the dict)
+    key_to_evict = next(iter(valid_items))
     key_to_evict = next(iter(valid_items))
 
+
+    if key_to_evict in self.cache:
     if key_to_evict in self.cache:
     del self.cache[key_to_evict]
+    del self.cache[key_to_evict]
+    self.stats["evictions"] += 1
     self.stats["evictions"] += 1
     self.stats["deletes"] += 1"""
+    self.stats["deletes"] += 1"""
+
 
     content = re.sub(
+    content = re.sub(
+    evict_item_pattern, evict_item_replacement, content, flags=re.DOTALL
     evict_item_pattern, evict_item_replacement, content, flags=re.DOTALL
     )
+    )
+
 
     # Write the updated content back to the file
+    # Write the updated content back to the file
+    with open(file_path, "w") as f:
     with open(file_path, "w") as f:
     f.write(content)
+    f.write(content)
 
+
+    print(f"Fixed memory cache implementation in {file_path}")
     print(f"Fixed memory cache implementation in {file_path}")
 
 
+
+
+    def fix_pydantic_warnings():
     def fix_pydantic_warnings():
     """Fix Pydantic warnings about protected namespace conflicts."""
     # Find all model classes that use Pydantic

@@ -1,32 +1,61 @@
 """
+"""
+Service discovery client for pAIssive income microservices.
 Service discovery client for pAIssive income microservices.
 
+
+This module provides a high-level client for microservices to register
 This module provides a high-level client for microservices to register
 themselves and discover other services in the system.
+themselves and discover other services in the system.
+"""
 """
 
 
+
+
+import logging
 import logging
 import socket
+import socket
+import time
 import time
 import uuid
+import uuid
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+
+from services.service_discovery.consul_registry import ConsulServiceRegistry
 from services.service_discovery.consul_registry import ConsulServiceRegistry
 
+
+(
 (
 LoadBalancer,
+LoadBalancer,
+RandomStrategy,
 RandomStrategy,
 RoundRobinStrategy,
+RoundRobinStrategy,
+)
 )
 from services.service_discovery.service_registry import (ServiceInstance,
+from services.service_discovery.service_registry import (ServiceInstance,
+ServiceLookupError)
 ServiceLookupError)
 
+
 # Set up logging
+# Set up logging
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 class ServiceDiscoveryClient:
+    class ServiceDiscoveryClient:
     """High-level client for service discovery operations."""
 
     def __init__(

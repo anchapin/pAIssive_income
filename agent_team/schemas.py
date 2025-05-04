@@ -1,15 +1,27 @@
 """
+"""
+Pydantic schemas for the Agent Team module.
 Pydantic schemas for the Agent Team module.
 
+
+This module provides Pydantic models for data validation in the Agent Team module.
 This module provides Pydantic models for data validation in the Agent Team module.
 """
+"""
+
 
 from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
+
+
 class ModelSettingSchema(BaseModel):
+    class ModelSettingSchema(BaseModel):
     """Pydantic model for agent model settings."""
 
     model: str = Field(..., description="The AI model to use for the agent")
@@ -60,60 +72,113 @@ class ModelSettingSchema(BaseModel):
 
 
     class AgentProfileSchema(BaseModel):
-    """Pydantic model for agent profiles."""
+
 
     name: str = Field(..., description="Name of the agent profile")
+    name: str = Field(..., description="Name of the agent profile")
+    description: str = Field(..., description="Description of the agent profile")
     description: str = Field(..., description="Description of the agent profile")
     capabilities: List[str] = Field(
+    capabilities: List[str] = Field(
+    default_factory=list, description="List of agent capabilities"
     default_factory=list, description="List of agent capabilities"
     )
+    )
+    parameters: Dict[str, Any] = Field(
     parameters: Dict[str, Any] = Field(
     default_factory=dict, description="Dictionary of parameters"
+    default_factory=dict, description="Dictionary of parameters"
     )
+    )
+
+
 
 
     class NicheSchema(BaseModel):
+    class NicheSchema(BaseModel):
+
 
     id: str = Field(..., description="Unique identifier for the niche")
+    id: str = Field(..., description="Unique identifier for the niche")
+    name: str = Field(..., description="Name of the niche")
     name: str = Field(..., description="Name of the niche")
     market_segment: str = Field(..., description="Market segment of the niche")
+    market_segment: str = Field(..., description="Market segment of the niche")
+    opportunity_score: float = Field(
     opportunity_score: float = Field(
     ..., description="Opportunity score of the niche", ge=0.0, le=1.0
+    ..., description="Opportunity score of the niche", ge=0.0, le=1.0
+    )
     )
     description: Optional[str] = Field(None, description="Description of the niche")
+    description: Optional[str] = Field(None, description="Description of the niche")
+    problems: Optional[List[Dict[str, Any]]] = Field(
     problems: Optional[List[Dict[str, Any]]] = Field(
     None, description="Problems identified in the niche"
+    None, description="Problems identified in the niche"
+    )
     )
     target_audience: Optional[List[str]] = Field(
+    target_audience: Optional[List[str]] = Field(
+    None, description="Target audience for the niche"
     None, description="Target audience for the niche"
     )
+    )
+    competition: Optional[Dict[str, Any]] = Field(
     competition: Optional[Dict[str, Any]] = Field(
     None, description="Competition analysis for the niche"
+    None, description="Competition analysis for the niche"
+    )
     )
 
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
     model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
+
+
+    class TechnologyStackSchema(BaseModel):
     class TechnologyStackSchema(BaseModel):
 
+
+    language: str = Field(..., description="Programming language")
     language: str = Field(..., description="Programming language")
     frameworks: List[str] = Field(..., description="Frameworks used")
+    frameworks: List[str] = Field(..., description="Frameworks used")
+    apis: Optional[List[str]] = Field(None, description="APIs used")
     apis: Optional[List[str]] = Field(None, description="APIs used")
     databases: Optional[List[str]] = Field(None, description="Databases used")
+    databases: Optional[List[str]] = Field(None, description="Databases used")
+    hosting: Optional[str] = Field(None, description="Hosting platform")
     hosting: Optional[str] = Field(None, description="Hosting platform")
 
 
+
+
+    class FeatureSchema(BaseModel):
     class FeatureSchema(BaseModel):
 
+
+    name: str = Field(..., description="Name of the feature")
     name: str = Field(..., description="Name of the feature")
     description: str = Field(..., description="Description of the feature")
+    description: str = Field(..., description="Description of the feature")
+    priority: str = Field(
     priority: str = Field(
     ..., description="Priority of the feature (high, medium, low)"
+    ..., description="Priority of the feature (high, medium, low)"
+    )
     )
     complexity: Optional[str] = Field(None, description="Complexity of the feature")
+    complexity: Optional[str] = Field(None, description="Complexity of the feature")
+
 
     @field_validator("priority")
+    @field_validator("priority")
     @classmethod
+    @classmethod
+    def validate_priority(cls, v):
     def validate_priority(cls, v):
     """Validate that priority is one of the allowed values."""
     if v.lower() not in ["high", "medium", "low"]:
@@ -203,39 +268,74 @@ class ModelSettingSchema(BaseModel):
 
 
     class FeedbackItemSchema(BaseModel):
-    """Pydantic model for a feedback item."""
+
 
     id: str = Field(..., description="Unique identifier for the feedback")
+    id: str = Field(..., description="Unique identifier for the feedback")
+    user_id: str = Field(..., description="ID of the user providing feedback")
     user_id: str = Field(..., description="ID of the user providing feedback")
     solution_id: str = Field(..., description="ID of the solution")
+    solution_id: str = Field(..., description="ID of the solution")
+    content: str = Field(..., description="Feedback content")
     content: str = Field(..., description="Feedback content")
     rating: Optional[int] = Field(None, description="Numerical rating", ge=1, le=5)
+    rating: Optional[int] = Field(None, description="Numerical rating", ge=1, le=5)
     category: Optional[str] = Field(None, description="Feedback category")
+    category: Optional[str] = Field(None, description="Feedback category")
+    timestamp: str = Field(..., description="Timestamp of the feedback")
     timestamp: str = Field(..., description="Timestamp of the feedback")
 
 
+
+
+    class ProjectStateSchema(BaseModel):
     class ProjectStateSchema(BaseModel):
 
+
+    id: str = Field(..., description="Unique identifier for the project")
     id: str = Field(..., description="Unique identifier for the project")
     name: str = Field(..., description="Name of the project")
+    name: str = Field(..., description="Name of the project")
+    identified_niches: List[Dict[str, Any]] = Field(
     identified_niches: List[Dict[str, Any]] = Field(
     default_factory=list, description="Identified niches"
+    default_factory=list, description="Identified niches"
+    )
     )
     selected_niche: Optional[Dict[str, Any]] = Field(None, description="Selected niche")
+    selected_niche: Optional[Dict[str, Any]] = Field(None, description="Selected niche")
+    user_problems: List[Dict[str, Any]] = Field(
     user_problems: List[Dict[str, Any]] = Field(
     default_factory=list, description="User problems"
+    default_factory=list, description="User problems"
+    )
     )
     solution_design: Optional[Dict[str, Any]] = Field(
+    solution_design: Optional[Dict[str, Any]] = Field(
+    None, description="Solution design"
     None, description="Solution design"
     )
+    )
+    monetization_strategy: Optional[Dict[str, Any]] = Field(
     monetization_strategy: Optional[Dict[str, Any]] = Field(
     None, description="Monetization strategy"
+    None, description="Monetization strategy"
+    )
     )
     marketing_plan: Optional[Dict[str, Any]] = Field(None, description="Marketing plan")
+    marketing_plan: Optional[Dict[str, Any]] = Field(None, description="Marketing plan")
+    feedback_data: List[Dict[str, Any]] = Field(
     feedback_data: List[Dict[str, Any]] = Field(
     default_factory=list, description="Feedback data"
+    default_factory=list, description="Feedback data"
+    )
     )
     created_at: str = Field(..., description="Creation timestamp")
+    created_at: str = Field(..., description="Creation timestamp")
+    updated_at: str = Field(..., description="Last update timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
 
+
     model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
+

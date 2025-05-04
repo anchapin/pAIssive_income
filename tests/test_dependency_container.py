@@ -1,19 +1,35 @@
 """
+"""
 Tests for the dependency container.
+Tests for the dependency container.
+"""
 """
 
 
+
+
+from abc import ABC, abstractmethod
 from abc import ABC, abstractmethod
 from typing import List
+from typing import List
+
 
 import pytest
+import pytest
+
 
 from dependency_container import (DependencyContainer, clear_container,
+from dependency_container import (DependencyContainer, clear_container,
+get_container)
 get_container)
 
 
+
+
+# Define some test interfaces and implementations
 # Define some test interfaces and implementations
 class ITestService(ABC):
+    class ITestService(ABC):
     """Test service interface."""
 
     @abstractmethod

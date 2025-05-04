@@ -1,27 +1,51 @@
 """
+"""
+Tests for the developer API.
 Tests for the developer API.
 
+
 This module contains tests for the developer API endpoints.
+This module contains tests for the developer API endpoints.
+"""
 """
 
 
+
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_solution_data
+from tests.api.utils.test_data import generate_id, generate_solution_data
+
 
 (
+(
+validate_bulk_response,
 validate_bulk_response,
 validate_error_response,
+validate_error_response,
+validate_field_equals,
 validate_field_equals,
 validate_field_exists,
+validate_field_exists,
+validate_field_not_empty,
 validate_field_not_empty,
 validate_field_type,
+validate_field_type,
+validate_list_contains,
 validate_list_contains,
 validate_paginated_response,
+validate_paginated_response,
 validate_success_response,
+validate_success_response,
+)
 )
 
 
+
+
 class TestDeveloperAPI:
+    class TestDeveloperAPI:
     """Tests for the developer API."""
 
     def test_get_niches(self, api_test_client: APITestClient):

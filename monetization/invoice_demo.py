@@ -1,22 +1,42 @@
 """
+"""
+Invoice generation and management demo for the pAIssive Income project.
 Invoice generation and management demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the invoice generation and management system.
+This script demonstrates how to use the invoice generation and management system.
+"""
 """
 
 
+
+
+import os
 import os
 import random
+import random
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 
+
+from .billing_calculator import BillingCalculator
 from .billing_calculator import BillingCalculator
 from .invoice import InvoiceStatus
+from .invoice import InvoiceStatus
+from .invoice_delivery import InvoiceDelivery
 from .invoice_delivery import InvoiceDelivery
 from .invoice_manager import InvoiceManager
+from .invoice_manager import InvoiceManager
+from .usage_tracker import UsageTracker
 from .usage_tracker import UsageTracker
 
 
+
+
 def print_separator():
+    def print_separator():
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")

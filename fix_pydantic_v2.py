@@ -1,18 +1,33 @@
 """
+"""
+Script to fix Pydantic models to use V2 style.
 Script to fix Pydantic models to use V2 style.
 
+
+This script updates Pydantic models to use the new V2 style with field_validator
 This script updates Pydantic models to use the new V2 style with field_validator
 instead of validator and adds model_config = ConfigDict(protected_namespaces=())
+instead of validator and adds model_config = ConfigDict(protected_namespaces=())
 to all models to prevent namespace conflicts.
+to all models to prevent namespace conflicts.
+"""
 """
 
 
+
+
+import os
 import os
 import re
+import re
+import sys
 import sys
 
 
+
+
 def fix_pydantic_model(file_path):
+    def fix_pydantic_model(file_path):
     """Fix Pydantic models in a file to use V2 style."""
     print(f"Processing {file_path}...")
 

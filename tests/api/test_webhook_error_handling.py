@@ -1,43 +1,83 @@
 """
+"""
+Tests for webhook service error handling scenarios.
 Tests for webhook service error handling scenarios.
 """
+"""
+
 
 from datetime import datetime, timezone
+from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import httpx
 import httpx
 import pytest
+import pytest
+
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
+from api.services.webhook_service import WebhookService
 from api.services.webhook_service import WebhookService
 
+
+# Test data
 # Test data
 TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK_ID = "test-webhook-123"
+TEST_WEBHOOK = {
 TEST_WEBHOOK = {
 "id": TEST_WEBHOOK_ID,
+"id": TEST_WEBHOOK_ID,
+"url": "https://example.com/webhook",
 "url": "https://example.com/webhook",
 "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
+"events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
+"description": "Test webhook",
 "description": "Test webhook",
 "headers": {"Authorization": "Bearer test-token"},
+"headers": {"Authorization": "Bearer test-token"},
+"is_active": True,
 "is_active": True,
 "created_at": datetime.now(timezone.utc),
+"created_at": datetime.now(timezone.utc),
+"last_called_at": None,
 "last_called_at": None,
 "secret": "test-secret-key",
+"secret": "test-secret-key",
+}
 }
 
+
+TEST_EVENT = {
 TEST_EVENT = {
 "type": WebhookEventType.USER_CREATED,
+"type": WebhookEventType.USER_CREATED,
+"data": {
 "data": {
 "user_id": "user-123",
+"user_id": "user-123",
+"username": "testuser",
 "username": "testuser",
 "email": "test@example.com",
+"email": "test@example.com",
+"created_at": datetime.now(timezone.utc).isoformat(),
 "created_at": datetime.now(timezone.utc).isoformat(),
 },
+},
 }
+}
+
+
 
 
 @pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_webhook_connection_error():
+    async def test_webhook_connection_error():
     """Test handling of connection errors during webhook delivery."""
     # Create a real webhook service instance for testing
     service = WebhookService()

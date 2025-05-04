@@ -1,45 +1,87 @@
 """
+"""
+End-to-end tests for the webhook system.
 End-to-end tests for the webhook system.
 
+
+This module tests the complete webhook flow from registration to delivery,
 This module tests the complete webhook flow from registration to delivery,
 including security features.
+including security features.
+"""
 """
 
 
+
+
+import asyncio
 import asyncio
 import json
+import json
+import uuid
 import uuid
 from datetime import datetime, timezone
+from datetime import datetime, timezone
+from unittest.mock import patch
 from unittest.mock import patch
 
+
+import pytest
 import pytest
 from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI, Request, Response, status
+from fastapi.testclient import TestClient
 from fastapi.testclient import TestClient
 
+
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
+from api.services.webhook_service import WebhookService
+
 
 (
+(
+WebhookIPAllowlistMiddleware,
 WebhookIPAllowlistMiddleware,
 WebhookRateLimitMiddleware,
+WebhookRateLimitMiddleware,
+)
 )
 (
+(
+WebhookIPAllowlist,
 WebhookIPAllowlist,
 WebhookRateLimiter,
+WebhookRateLimiter,
+WebhookSignatureVerifier,
 WebhookSignatureVerifier,
 )
+)
+# Test data
 # Test data
 TEST_SECRET = "test-webhook-secret-key"
+TEST_SECRET = "test-webhook-secret-key"
+TEST_EVENT_DATA = {
 TEST_EVENT_DATA = {
 "user_id": "user-123",
+"user_id": "user-123",
+"username": "testuser",
 "username": "testuser",
 "email": "test@example.com",
+"email": "test@example.com",
 "created_at": datetime.now(timezone.utc).isoformat(),
+"created_at": datetime.now(timezone.utc).isoformat(),
+}
 }
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def webhook_service():
+    def webhook_service():
     """Create a webhook service for testing."""
     service = WebhookService()
     asyncio.run(service.start())

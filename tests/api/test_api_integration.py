@@ -1,27 +1,51 @@
 """
+"""
+Integration tests for the API.
 Integration tests for the API.
 
+
 This module contains integration tests that span multiple API endpoints.
+This module contains integration tests that span multiple API endpoints.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 
+
+(
 (
 generate_agent_team_data,
+generate_agent_team_data,
+generate_marketing_strategy_data,
 generate_marketing_strategy_data,
 generate_monetization_data,
+generate_monetization_data,
+generate_niche_analysis_data,
 generate_niche_analysis_data,
 )
+)
+from tests.api.utils.test_validators import (validate_field_exists,
 from tests.api.utils.test_validators import (validate_field_exists,
 validate_field_type,
+validate_field_type,
 validate_paginated_response,
+validate_paginated_response,
+validate_success_response)
 validate_success_response)
 
 
+
+
 class TestAPIIntegration:
+    class TestAPIIntegration:
     """Integration tests for the API."""
 
     def test_niche_to_solution_workflow(self, auth_api_test_client: APITestClient):

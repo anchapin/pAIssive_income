@@ -1,20 +1,37 @@
 """
+"""
+Schema definitions for model fallback configurations.
 Schema definitions for model fallback configurations.
 
+
+This module provides Pydantic models for validating and serializing/deserializing
 This module provides Pydantic models for validating and serializing/deserializing
 fallback configurations.
+fallback configurations.
+"""
 """
 
 
+
+
+from enum import Enum
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+class FallbackStrategyEnum
 class FallbackStrategyEnum
 
+
 (str, Enum):
+    (str, Enum):
     """Enumeration of fallback strategy types for Pydantic models."""
 
     NONE = "none"  # No fallback, just fail

@@ -1,22 +1,41 @@
 """
+"""
 Tests for the query parameter utilities.
+Tests for the query parameter utilities.
+"""
 """
 
 
+
+
+import unittest
 import unittest
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+
 
 (
+(
+FilterOperator,
 FilterOperator,
 QueryParams,
+QueryParams,
+SortDirection,
 SortDirection,
 apply_filtering,
+apply_filtering,
+apply_pagination,
 apply_pagination,
 apply_sorting,
+apply_sorting,
+)
 )
 
 
+
+
 class TestQueryParams(unittest.TestCase):
+    class TestQueryParams(unittest.TestCase):
     """Tests for the QueryParams class."""
 
     def test_init(self):

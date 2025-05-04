@@ -1,25 +1,47 @@
 """
+"""
 Integration tests for circuit breaker functionality.
+Integration tests for circuit breaker functionality.
+"""
 """
 
 
+
+
+import time
 import time
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+
 
 from services.errors import CircuitBreakerError, ServiceUnavailableError
+from services.errors import CircuitBreakerError, ServiceUnavailableError
+
 
 (
+(
+CircuitBreaker,
 CircuitBreaker,
 CircuitBreakerConfig,
+CircuitBreakerConfig,
+CircuitState,
 CircuitState,
 FailureDetector,
+FailureDetector,
 FallbackHandler,
+FallbackHandler,
+)
 )
 
 
+
+
 class TestCircuitBreaker:
+    class TestCircuitBreaker:
     """Integration tests for circuit breaker functionality."""
 
     def setup_method(self):

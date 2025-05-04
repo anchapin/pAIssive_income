@@ -1,26 +1,50 @@
 """
+"""
+Standalone tests for model fallback functionality.
 Standalone tests for model fallback functionality.
 
+
+This module contains tests for model fallback functionality without
 This module contains tests for model fallback functionality without
 relying on the actual implementation to avoid circular import issues.
+relying on the actual implementation to avoid circular import issues.
+"""
 """
 
 
+
+
+import logging
 import logging
 import os
+import os
+import sys
 import sys
 import time
+import time
+import unittest
 import unittest
 from enum import Enum
+from enum import Enum
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+# Add the project root to the Python path
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 if parent_dir not in sys.path:
+    if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
     sys.path.insert(0, parent_dir)
 
 
+
+
     # Create our own error classes to avoid importing from errors.py
+    # Create our own error classes to avoid importing from errors.py
+    class ModelError(Exception):
     class ModelError(Exception):
     """Base class for all model-related errors."""
 
@@ -50,18 +74,29 @@ if parent_dir not in sys.path:
 
 
     class FallbackEvent:
-    """Class representing a model fallback event."""
+
 
     def __init__(
+    def __init__(
+    self,
     self,
     original_model_id: Optional[str],
+    original_model_id: Optional[str],
+    fallback_model_id: str,
     fallback_model_id: str,
     reason: str,
+    reason: str,
+    agent_type: Optional[str] = None,
     agent_type: Optional[str] = None,
     task_type: Optional[str] = None,
+    task_type: Optional[str] = None,
+    strategy_used: FallbackStrategy = FallbackStrategy.DEFAULT,
     strategy_used: FallbackStrategy = FallbackStrategy.DEFAULT,
     timestamp: Optional[float] = None,
+    timestamp: Optional[float] = None,
     details: Optional[Dict[str, Any]] = None,
+    details: Optional[Dict[str, Any]] = None,
+    ):
     ):
     """Initialize a fallback event."""
     self.original_model_id = original_model_id
@@ -138,21 +173,38 @@ if parent_dir not in sys.path:
 
     class FallbackManagerMock:
     """
+    """
+    Mock implementation of the FallbackManager class for testing.
     Mock implementation of the FallbackManager class for testing.
 
+
+    This class mimics the behavior of the actual FallbackManager class
     This class mimics the behavior of the actual FallbackManager class
     but is implemented independently to avoid circular import issues.
+    but is implemented independently to avoid circular import issues.
+    """
     """
 
+
+    def __init__(
     def __init__(
     self,
+    self,
+    model_manager: ModelManagerMock,
     model_manager: ModelManagerMock,
     fallback_enabled: bool = True,
+    fallback_enabled: bool = True,
+    default_strategy: FallbackStrategy = FallbackStrategy.DEFAULT,
     default_strategy: FallbackStrategy = FallbackStrategy.DEFAULT,
     max_attempts: int = 3,
+    max_attempts: int = 3,
+    default_model_id: Optional[str] = None,
     default_model_id: Optional[str] = None,
     fallback_preferences: Optional[Dict[str, List[str]]] = None,
+    fallback_preferences: Optional[Dict[str, List[str]]] = None,
     logging_level: int = logging.INFO,
+    logging_level: int = logging.INFO,
+    ):
     ):
     """Initialize the fallback manager."""
     self.model_manager = model_manager
@@ -193,288 +245,572 @@ if parent_dir not in sys.path:
     strategy_override: Optional[FallbackStrategy] = None,
     ) -> tuple[Optional[ModelInfoMock], Optional[FallbackEvent]]:
     """
+    """
+    Find a fallback model when the primary model is unavailable.
     Find a fallback model when the primary model is unavailable.
 
+
+    Args:
     Args:
     original_model_id: ID of the original model that failed (if any)
+    original_model_id: ID of the original model that failed (if any)
+    agent_type: Type of agent requesting the model (for preference matching)
     agent_type: Type of agent requesting the model (for preference matching)
     task_type: Type of task the model will perform
+    task_type: Type of task the model will perform
+    required_capabilities: List of required model capabilities
     required_capabilities: List of required model capabilities
     strategy_override: Optional override for the fallback strategy
+    strategy_override: Optional override for the fallback strategy
+
 
     Returns:
+    Returns:
+    Tuple containing:
     Tuple containing:
     - ModelInfo of the fallback model or None if no fallback found
+    - ModelInfo of the fallback model or None if no fallback found
+    - FallbackEvent describing the fallback or None if no fallback found
     - FallbackEvent describing the fallback or None if no fallback found
     """
+    """
+    if not self.fallback_enabled:
     if not self.fallback_enabled:
     return None, None
+    return None, None
+
 
     # Select strategy to use
+    # Select strategy to use
+    strategy = strategy_override or self.default_strategy
     strategy = strategy_override or self.default_strategy
 
+
+    # Track the original model info if available
     # Track the original model info if available
     original_model_info = None
+    original_model_info = None
+    if original_model_id:
     if original_model_id:
     try:
+    try:
+    original_model_info = self.model_manager.get_model_info(
     original_model_info = self.model_manager.get_model_info(
     original_model_id
+    original_model_id
     )
+    )
+except ModelNotFoundError:
 except ModelNotFoundError:
     # For test_default_model_strategy, we'll handle the case differently
+    # For test_default_model_strategy, we'll handle the case differently
+    if strategy == FallbackStrategy.DEFAULT and self.default_model_id:
     if strategy == FallbackStrategy.DEFAULT and self.default_model_id:
     try:
-    fallback_model = self.model_manager.get_model_info(
-    self.default_model_id
-    )
-    event = self._create_event(
-    original_model_id,
-    fallback_model,
-    strategy,
-    agent_type,
-    task_type,
-    )
-    self.track_fallback_event(event)
-    return fallback_model, event
-except ModelNotFoundError:
-    pass
-    return None, None
-
-    # Execute the selected fallback strategy
-    if strategy == FallbackStrategy.NONE:
-    # No fallback, just return None
-    return None, None
-
-    elif strategy == FallbackStrategy.DEFAULT:
-    # Use the default model if specified
-    if self.default_model_id:
     try:
     fallback_model = self.model_manager.get_model_info(
+    fallback_model = self.model_manager.get_model_info(
+    self.default_model_id
     self.default_model_id
     )
-    if fallback_model:
+    )
     event = self._create_event(
+    event = self._create_event(
+    original_model_id,
     original_model_id,
     fallback_model,
+    fallback_model,
+    strategy,
     strategy,
     agent_type,
+    agent_type,
+    task_type,
     task_type,
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return fallback_model, event
+    return fallback_model, event
+except ModelNotFoundError:
 except ModelNotFoundError:
     pass
+    pass
+    return None, None
+    return None, None
+
+
+    # Execute the selected fallback strategy
+    # Execute the selected fallback strategy
+    if strategy == FallbackStrategy.NONE:
+    if strategy == FallbackStrategy.NONE:
+    # No fallback, just return None
+    # No fallback, just return None
+    return None, None
+    return None, None
+
+
+    elif strategy == FallbackStrategy.DEFAULT:
+    elif strategy == FallbackStrategy.DEFAULT:
+    # Use the default model if specified
+    # Use the default model if specified
+    if self.default_model_id:
+    if self.default_model_id:
+    try:
+    try:
+    fallback_model = self.model_manager.get_model_info(
+    fallback_model = self.model_manager.get_model_info(
+    self.default_model_id
+    self.default_model_id
+    )
+    )
+    if fallback_model:
+    if fallback_model:
+    event = self._create_event(
+    event = self._create_event(
+    original_model_id,
+    original_model_id,
+    fallback_model,
+    fallback_model,
+    strategy,
+    strategy,
+    agent_type,
+    agent_type,
+    task_type,
+    task_type,
+    )
+    )
+    self.track_fallback_event(event)
+    self.track_fallback_event(event)
+    return fallback_model, event
+    return fallback_model, event
+except ModelNotFoundError:
+except ModelNotFoundError:
+    pass
+    pass
+
 
     elif strategy == FallbackStrategy.SIMILAR_MODEL:
+    elif strategy == FallbackStrategy.SIMILAR_MODEL:
+    # Find a model with similar capabilities
     # Find a model with similar capabilities
     if (
+    if (
+    original_model_info
     original_model_info
     and hasattr(original_model_info, "capabilities")
+    and hasattr(original_model_info, "capabilities")
+    and original_model_info.capabilities
     and original_model_info.capabilities
     ):
+    ):
+    all_models = self.model_manager.get_all_models()
     all_models = self.model_manager.get_all_models()
     candidates = [m for m in all_models if m.id != original_model_id]
+    candidates = [m for m in all_models if m.id != original_model_id]
+
 
     # Find models with similar capabilities
+    # Find models with similar capabilities
+    for model in candidates:
     for model in candidates:
     if hasattr(model, "capabilities") and model.capabilities:
+    if hasattr(model, "capabilities") and model.capabilities:
+    if any(
     if any(
     cap in model.capabilities
+    cap in model.capabilities
+    for cap in original_model_info.capabilities
     for cap in original_model_info.capabilities
     ):
+    ):
     event = self._create_event(
+    event = self._create_event(
+    original_model_id,
     original_model_id,
     model,
+    model,
+    strategy,
     strategy,
     agent_type,
+    agent_type,
+    task_type,
     task_type,
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return model, event
+    return model, event
+
 
     # If no model with similar capabilities, try same type
+    # If no model with similar capabilities, try same type
+    same_type_models = [
     same_type_models = [
     m for m in candidates if m.type == original_model_info.type
+    m for m in candidates if m.type == original_model_info.type
     ]
+    ]
+    if same_type_models:
     if same_type_models:
     model = same_type_models[0]
+    model = same_type_models[0]
+    event = self._create_event(
     event = self._create_event(
     original_model_id, model, strategy, agent_type, task_type
+    original_model_id, model, strategy, agent_type, task_type
+    )
     )
     self.track_fallback_event(event)
+    self.track_fallback_event(event)
     return model, event
+    return model, event
+
 
     elif strategy == FallbackStrategy.MODEL_TYPE:
+    elif strategy == FallbackStrategy.MODEL_TYPE:
+    # Try other models of the same type
     # Try other models of the same type
     if original_model_info:
+    if original_model_info:
+    same_type_models = self.model_manager.get_models_by_type(
     same_type_models = self.model_manager.get_models_by_type(
     original_model_info.type
+    original_model_info.type
+    )
     )
     filtered_models = [
+    filtered_models = [
+    m for m in same_type_models if m.id != original_model_id
     m for m in same_type_models if m.id != original_model_id
     ]
+    ]
+    if filtered_models:
     if filtered_models:
     model = filtered_models[0]
+    model = filtered_models[0]
+    event = self._create_event(
     event = self._create_event(
     original_model_id, model, strategy, agent_type, task_type
+    original_model_id, model, strategy, agent_type, task_type
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return model, event
+    return model, event
+
 
     # Try using agent preferences
+    # Try using agent preferences
+    if agent_type and agent_type in self.fallback_preferences:
     if agent_type and agent_type in self.fallback_preferences:
     for model_type in self.fallback_preferences[agent_type]:
+    for model_type in self.fallback_preferences[agent_type]:
+    models = self.model_manager.get_models_by_type(model_type)
     models = self.model_manager.get_models_by_type(model_type)
     if models:
+    if models:
+    event = self._create_event(
     event = self._create_event(
     original_model_id,
+    original_model_id,
+    models[0],
     models[0],
     strategy,
+    strategy,
+    agent_type,
     agent_type,
     task_type,
+    task_type,
+    )
     )
     self.track_fallback_event(event)
+    self.track_fallback_event(event)
     return models[0], event
+    return models[0], event
+
 
     # Try default preferences
+    # Try default preferences
+    if "default" in self.fallback_preferences:
     if "default" in self.fallback_preferences:
     for model_type in self.fallback_preferences["default"]:
+    for model_type in self.fallback_preferences["default"]:
+    models = self.model_manager.get_models_by_type(model_type)
     models = self.model_manager.get_models_by_type(model_type)
     if models:
+    if models:
     event = self._create_event(
+    event = self._create_event(
+    original_model_id,
     original_model_id,
     models[0],
+    models[0],
+    strategy,
     strategy,
     agent_type,
+    agent_type,
+    task_type,
     task_type,
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return models[0], event
+    return models[0], event
+
 
     elif strategy == FallbackStrategy.ANY_AVAILABLE:
+    elif strategy == FallbackStrategy.ANY_AVAILABLE:
+    # Use any available model as a fallback
     # Use any available model as a fallback
     all_models = self.model_manager.get_all_models()
+    all_models = self.model_manager.get_all_models()
+    if all_models:
     if all_models:
     event = self._create_event(
+    event = self._create_event(
+    original_model_id, all_models[0], strategy, agent_type, task_type
     original_model_id, all_models[0], strategy, agent_type, task_type
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return all_models[0], event
+    return all_models[0], event
+
 
     elif strategy == FallbackStrategy.SPECIFIED_LIST:
+    elif strategy == FallbackStrategy.SPECIFIED_LIST:
+    # Try models in a specified order based on agent type
     # Try models in a specified order based on agent type
     preferred_types = self.fallback_preferences.get(
+    preferred_types = self.fallback_preferences.get(
+    agent_type, self.fallback_preferences.get("default", [])
     agent_type, self.fallback_preferences.get("default", [])
     )
+    )
+
 
     for model_type in preferred_types:
+    for model_type in preferred_types:
+    models = self.model_manager.get_models_by_type(model_type)
     models = self.model_manager.get_models_by_type(model_type)
     if models:
+    if models:
+    event = self._create_event(
     event = self._create_event(
     original_model_id, models[0], strategy, agent_type, task_type
+    original_model_id, models[0], strategy, agent_type, task_type
     )
+    )
+    self.track_fallback_event(event)
     self.track_fallback_event(event)
     return models[0], event
+    return models[0], event
+
 
     elif strategy == FallbackStrategy.SIZE_TIER:
+    elif strategy == FallbackStrategy.SIZE_TIER:
+    # Try models of different size tiers
     # Try models of different size tiers
     all_models = self.model_manager.get_all_models()
+    all_models = self.model_manager.get_all_models()
+    if not all_models:
     if not all_models:
     return None, None
+    return None, None
+
 
     if original_model_info:
+    if original_model_info:
+    original_size = getattr(original_model_info, "size_mb", 0)
     original_size = getattr(original_model_info, "size_mb", 0)
 
+
+    # Filter out the original model
     # Filter out the original model
     candidates = [m for m in all_models if m.id != original_model_id]
+    candidates = [m for m in all_models if m.id != original_model_id]
+    if not candidates:
     if not candidates:
     return None, None
-
-    # If size is available, prefer smaller models
-    if original_size > 0:
-    # Ensure all models have a size (use infinity for those without)
-    sized_models = []
-    for model in candidates:
-    size = getattr(model, "size_mb", None)
-    if size is not None:
-    sized_models.append((model, size))
-
-    # Sort by size (smallest first)
-    sized_models.sort(key=lambda x: x[1])
-
-    # Filter for models smaller than the original
-    smaller_models = [
-    m for m, size in sized_models if size < original_size
-    ]
-
-    if smaller_models:
-    event = self._create_event(
-    original_model_id,
-    smaller_models[-1],
-    strategy,
-    agent_type,
-    task_type,
-    )
-    self.track_fallback_event(event)
-    return smaller_models[-1], event
-
-    # If no size info or no smaller models, fall back to same type
-    same_type_models = [
-    m for m in candidates if m.type == original_model_info.type
-    ]
-    if same_type_models:
-    event = self._create_event(
-    original_model_id,
-    same_type_models[0],
-    strategy,
-    agent_type,
-    task_type,
-    )
-    self.track_fallback_event(event)
-    return same_type_models[0], event
-
-    # If no match by size or type, return any model
-    event = self._create_event(
-    original_model_id, all_models[0], strategy, agent_type, task_type
-    )
-    self.track_fallback_event(event)
-    return all_models[0], event
-
-    elif strategy == FallbackStrategy.CAPABILITY_BASED:
-    # Find a model that has all the required capabilities
-    if required_capabilities:
-    all_models = self.model_manager.get_all_models()
-
-    # Filter models that have all required capabilities
-    capable_models = []
-    for model in all_models:
-    if not hasattr(model, "capabilities") or not model.capabilities:
-    continue
-
-    if all(cap in model.capabilities for cap in required_capabilities):
-    capable_models.append(model)
-
-    if capable_models:
-    event = self._create_event(
-    original_model_id,
-    capable_models[0],
-    strategy,
-    agent_type,
-    task_type,
-    )
-    self.track_fallback_event(event)
-    return capable_models[0], event
-
-    # No fallback model found
     return None, None
 
+
+    # If size is available, prefer smaller models
+    # If size is available, prefer smaller models
+    if original_size > 0:
+    if original_size > 0:
+    # Ensure all models have a size (use infinity for those without)
+    # Ensure all models have a size (use infinity for those without)
+    sized_models = []
+    sized_models = []
+    for model in candidates:
+    for model in candidates:
+    size = getattr(model, "size_mb", None)
+    size = getattr(model, "size_mb", None)
+    if size is not None:
+    if size is not None:
+    sized_models.append((model, size))
+    sized_models.append((model, size))
+
+
+    # Sort by size (smallest first)
+    # Sort by size (smallest first)
+    sized_models.sort(key=lambda x: x[1])
+    sized_models.sort(key=lambda x: x[1])
+
+
+    # Filter for models smaller than the original
+    # Filter for models smaller than the original
+    smaller_models = [
+    smaller_models = [
+    m for m, size in sized_models if size < original_size
+    m for m, size in sized_models if size < original_size
+    ]
+    ]
+
+
+    if smaller_models:
+    if smaller_models:
+    event = self._create_event(
+    event = self._create_event(
+    original_model_id,
+    original_model_id,
+    smaller_models[-1],
+    smaller_models[-1],
+    strategy,
+    strategy,
+    agent_type,
+    agent_type,
+    task_type,
+    task_type,
+    )
+    )
+    self.track_fallback_event(event)
+    self.track_fallback_event(event)
+    return smaller_models[-1], event
+    return smaller_models[-1], event
+
+
+    # If no size info or no smaller models, fall back to same type
+    # If no size info or no smaller models, fall back to same type
+    same_type_models = [
+    same_type_models = [
+    m for m in candidates if m.type == original_model_info.type
+    m for m in candidates if m.type == original_model_info.type
+    ]
+    ]
+    if same_type_models:
+    if same_type_models:
+    event = self._create_event(
+    event = self._create_event(
+    original_model_id,
+    original_model_id,
+    same_type_models[0],
+    same_type_models[0],
+    strategy,
+    strategy,
+    agent_type,
+    agent_type,
+    task_type,
+    task_type,
+    )
+    )
+    self.track_fallback_event(event)
+    self.track_fallback_event(event)
+    return same_type_models[0], event
+    return same_type_models[0], event
+
+
+    # If no match by size or type, return any model
+    # If no match by size or type, return any model
+    event = self._create_event(
+    event = self._create_event(
+    original_model_id, all_models[0], strategy, agent_type, task_type
+    original_model_id, all_models[0], strategy, agent_type, task_type
+    )
+    )
+    self.track_fallback_event(event)
+    self.track_fallback_event(event)
+    return all_models[0], event
+    return all_models[0], event
+
+
+    elif strategy == FallbackStrategy.CAPABILITY_BASED:
+    elif strategy == FallbackStrategy.CAPABILITY_BASED:
+    # Find a model that has all the required capabilities
+    # Find a model that has all the required capabilities
+    if required_capabilities:
+    if required_capabilities:
+    all_models = self.model_manager.get_all_models()
+    all_models = self.model_manager.get_all_models()
+
+
+    # Filter models that have all required capabilities
+    # Filter models that have all required capabilities
+    capable_models = []
+    capable_models = []
+    for model in all_models:
+    for model in all_models:
+    if not hasattr(model, "capabilities") or not model.capabilities:
+    if not hasattr(model, "capabilities") or not model.capabilities:
+    continue
+    continue
+
+
+    if all(cap in model.capabilities for cap in required_capabilities):
+    if all(cap in model.capabilities for cap in required_capabilities):
+    capable_models.append(model)
+    capable_models.append(model)
+
+
+    if capable_models:
+    if capable_models:
+    event = self._create_event(
+    event = self._create_event(
+    original_model_id,
+    original_model_id,
+    capable_models[0],
+    capable_models[0],
+    strategy,
+    strategy,
+    agent_type,
+    agent_type,
+    task_type,
+    task_type,
+    )
+    )
+    self.track_fallback_event(event)
+    self.track_fallback_event(event)
+    return capable_models[0], event
+    return capable_models[0], event
+
+
+    # No fallback model found
+    # No fallback model found
+    return None, None
+    return None, None
+
+
+    def _create_event(
     def _create_event(
     self,
+    self,
+    original_model_id: Optional[str],
     original_model_id: Optional[str],
     fallback_model: ModelInfoMock,
+    fallback_model: ModelInfoMock,
+    strategy: FallbackStrategy,
     strategy: FallbackStrategy,
     agent_type: Optional[str] = None,
+    agent_type: Optional[str] = None,
     task_type: Optional[str] = None,
+    task_type: Optional[str] = None,
+    ) -> FallbackEvent:
     ) -> FallbackEvent:
     """Create a fallback event."""
     original_model_type = None
@@ -504,57 +840,110 @@ except ModelNotFoundError:
     self, event: FallbackEvent, was_successful: bool = True
     ) -> None:
     """
+    """
+    Track a fallback event and update metrics.
     Track a fallback event and update metrics.
 
+
+    Args:
     Args:
     event: The fallback event to track
+    event: The fallback event to track
+    was_successful: Whether the fallback was successful
     was_successful: Whether the fallback was successful
     """
+    """
+    # Add to history
     # Add to history
     self.fallback_history.append(event)
+    self.fallback_history.append(event)
+
 
     # Update metrics
+    # Update metrics
+    strategy = event.strategy_used
     strategy = event.strategy_used
     self.fallback_metrics[strategy]["total_count"] += 1
+    self.fallback_metrics[strategy]["total_count"] += 1
+    if was_successful:
     if was_successful:
     self.fallback_metrics[strategy]["success_count"] += 1
+    self.fallback_metrics[strategy]["success_count"] += 1
+
 
     def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
+    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
+    """
     """
     Get metrics about fallback effectiveness.
+    Get metrics about fallback effectiveness.
 
+
+    Returns:
     Returns:
     Dictionary mapping strategy names to their metrics
+    Dictionary mapping strategy names to their metrics
+    """
     """
     metrics = {}
+    metrics = {}
+    for strategy in FallbackStrategy:
     for strategy in FallbackStrategy:
     strategy_metrics = self.fallback_metrics[strategy]
+    strategy_metrics = self.fallback_metrics[strategy]
+    success_rate = 0
     success_rate = 0
     if strategy_metrics["total_count"] > 0:
+    if strategy_metrics["total_count"] > 0:
+    success_rate = (
     success_rate = (
     strategy_metrics["success_count"] / strategy_metrics["total_count"]
+    strategy_metrics["success_count"] / strategy_metrics["total_count"]
+    )
     )
 
+
+    metrics[strategy.value] = {
     metrics[strategy.value] = {
     "success_count": strategy_metrics["success_count"],
+    "success_count": strategy_metrics["success_count"],
+    "total_count": strategy_metrics["total_count"],
     "total_count": strategy_metrics["total_count"],
     "success_rate": success_rate,
+    "success_rate": success_rate,
+    }
     }
 
+
+    return metrics
     return metrics
 
+
+    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
     def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
     """
+    """
+    Get history of fallback events.
     Get history of fallback events.
 
+
+    Args:
     Args:
     limit: Maximum number of events to return (most recent first)
+    limit: Maximum number of events to return (most recent first)
+
 
     Returns:
+    Returns:
+    List of fallback events as dictionaries
     List of fallback events as dictionaries
     """
+    """
+    return [event.to_dict() for event in self.fallback_history[-limit:]]
     return [event.to_dict() for event in self.fallback_history[-limit:]]
 
+
+    def configure(self, **kwargs) -> None:
     def configure(self, **kwargs) -> None:
     """Configure the fallback manager."""
     if "fallback_enabled" in kwargs:

@@ -1,19 +1,36 @@
 """
+"""
+Marketing schemas for the API server.
 Marketing schemas for the API server.
 
+
 This module provides Pydantic models for marketing-related data.
+This module provides Pydantic models for marketing-related data.
+"""
 """
 
 
+
+
+from datetime import datetime
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+class MarketingStrategyRequest
 class MarketingStrategyRequest
 
+
 (BaseModel):
+    (BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Request model for creating a marketing strategy."""
     niche_id: str = Field(..., description="ID of the target niche")

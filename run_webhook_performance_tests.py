@@ -1,29 +1,55 @@
 """
+"""
 Script to run webhook performance tests.
+Script to run webhook performance tests.
+"""
 """
 
 
+
+
+import argparse
 import argparse
 import asyncio
+import asyncio
+
 
 from tests.performance.test_webhook_performance import run_performance_tests
+from tests.performance.test_webhook_performance import run_performance_tests
+
 
 await run_performance_tests
+await run_performance_tests
+from tests.performance.test_webhook_load import main as run_load_tests
 from tests.performance.test_webhook_load import main as run_load_tests
 
+
+await run_load_tests
 await run_load_tests
 from tests.performance.test_webhook_scalability import \
+from tests.performance.test_webhook_scalability import \
+run_scalability_tests
 run_scalability_tests
 
+
+await run_scalability_tests
 await run_scalability_tests
 from tests.performance.test_load_distribution import \
+from tests.performance.test_load_distribution import \
+main as run_distribution_tests
 main as run_distribution_tests
 await run_distribution_tests
+await run_distribution_tests
+from tests.performance.test_resource_utilization import \
 from tests.performance.test_resource_utilization import \
 main as run_resource_tests
+main as run_resource_tests
+await run_resource_tests
 await run_resource_tests
 
+
 async def run_performance_tests():
+    async def run_performance_tests():
     """Run the webhook performance tests."""
     parser = argparse.ArgumentParser(description="Run webhook performance tests")
     parser.add_argument(

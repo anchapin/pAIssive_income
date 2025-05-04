@@ -1,16 +1,29 @@
 """
+"""
+Tests for the AdapterFactory class.
 Tests for the AdapterFactory class.
 """
+"""
+
 
 import pytest
+import pytest
+
 
 from ai_models.adapters import (AdapterFactory, BaseModelAdapter,
+from ai_models.adapters import (AdapterFactory, BaseModelAdapter,
+adapter_factory, get_adapter_factory)
 adapter_factory, get_adapter_factory)
 from errors import ModelError
+from errors import ModelError
+from interfaces.model_interfaces import IModelAdapter
 from interfaces.model_interfaces import IModelAdapter
 
 
+
+
 class MockAdapter(BaseModelAdapter):
+    class MockAdapter(BaseModelAdapter):
     """Mock adapter for testing."""
 
     def __init__(self, **kwargs):

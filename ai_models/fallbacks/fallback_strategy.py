@@ -10,27 +10,50 @@ from errors import ModelNotFoundError
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 """
+"""
+Fallback strategy for AI models.
 Fallback strategy for AI models.
 
+
+This module provides classes and functions for implementing fallback mechanisms
 This module provides classes and functions for implementing fallback mechanisms
 when primary model selection fails. It includes configurable strategies for
+when primary model selection fails. It includes configurable strategies for
 selecting alternative models based on various criteria.
+selecting alternative models based on various criteria.
+"""
 """
 
 
 
 
+
+
+
+
+# Add the project root to the Python path to import the errors module
 # Add the project root to the Python path to import the errors module
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
+    if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
     sys.path.insert(0, parent_dir)
     # Set up logging
+    # Set up logging
+    logging.basicConfig(
     logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
+    )
+    logger = logging.getLogger(__name__)
     logger = logging.getLogger(__name__)
 
 
+
+
+    class FallbackStrategy(Enum):
     class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
 
@@ -58,27 +81,50 @@ if parent_dir not in sys.path:
     details: Optional[Dict[str, Any]] = None,
     ):
     """
+    """
+    Initialize a fallback event.
     Initialize a fallback event.
 
+
+    Args:
     Args:
     original_model_id: ID of the original model that failed (or None if no initial model)
+    original_model_id: ID of the original model that failed (or None if no initial model)
+    fallback_model_id: ID of the fallback model that was selected
     fallback_model_id: ID of the fallback model that was selected
     reason: Reason for the fallback
+    reason: Reason for the fallback
+    agent_type: Optional type of agent using the model
     agent_type: Optional type of agent using the model
     task_type: Optional type of task being performed
+    task_type: Optional type of task being performed
+    strategy_used: The fallback strategy that was used
     strategy_used: The fallback strategy that was used
     timestamp: Optional timestamp of the fallback event (defaults to current time)
+    timestamp: Optional timestamp of the fallback event (defaults to current time)
+    details: Optional additional details about the fallback
     details: Optional additional details about the fallback
     """
+    """
+    self.original_model_id = original_model_id
     self.original_model_id = original_model_id
     self.fallback_model_id = fallback_model_id
+    self.fallback_model_id = fallback_model_id
+    self.reason = reason
     self.reason = reason
     self.agent_type = agent_type
+    self.agent_type = agent_type
+    self.task_type = task_type
     self.task_type = task_type
     self.strategy_used = strategy_used
+    self.strategy_used = strategy_used
+    self.timestamp = timestamp or time.time()
     self.timestamp = timestamp or time.time()
     self.details = details or {}
+    self.details = details or {}
 
+
+    def to_dict(self) -> Dict[str, Any]:
     def to_dict(self) -> Dict[str, Any]:
     """Convert the fallback event to a dictionary."""
     return {
@@ -95,364 +141,724 @@ if parent_dir not in sys.path:
 
     class FallbackManager:
     """
+    """
+    Manager class for handling model fallbacks.
     Manager class for handling model fallbacks.
 
+
+    This class provides a comprehensive strategy for managing model fallbacks
     This class provides a comprehensive strategy for managing model fallbacks
     when the primary model selection fails, including:
+    when the primary model selection fails, including:
+
 
     1. Configurable strategies for selecting fallback models
+    1. Configurable strategies for selecting fallback models
+    2. Logging of fallback events for monitoring and analysis
     2. Logging of fallback events for monitoring and analysis
     3. Performance tracking of fallback selections
+    3. Performance tracking of fallback selections
+    4. Dynamic adjustment of fallback preferences based on success rates
     4. Dynamic adjustment of fallback preferences based on success rates
     """
+    """
+
 
     def __init__(
+    def __init__(
+    self,
     self,
     model_manager: IModelManager,
+    model_manager: IModelManager,
+    fallback_enabled: bool = True,
     fallback_enabled: bool = True,
     default_strategy: FallbackStrategy = FallbackStrategy.DEFAULT,
+    default_strategy: FallbackStrategy = FallbackStrategy.DEFAULT,
+    max_attempts: int = 3,
     max_attempts: int = 3,
     default_model_id: Optional[str] = None,
+    default_model_id: Optional[str] = None,
+    fallback_preferences: Optional[Dict[str, List[str]]] = None,
     fallback_preferences: Optional[Dict[str, List[str]]] = None,
     logging_level: int = logging.INFO,
+    logging_level: int = logging.INFO,
     ):
+    ):
+    """
     """
     Initialize the fallback manager.
+    Initialize the fallback manager.
 
+
+    Args:
     Args:
     model_manager: The model manager to use for model operations
+    model_manager: The model manager to use for model operations
+    fallback_enabled: Whether fallback mechanisms are enabled
     fallback_enabled: Whether fallback mechanisms are enabled
     default_strategy: Default fallback strategy to use
+    default_strategy: Default fallback strategy to use
+    max_attempts: Maximum number of fallback attempts
     max_attempts: Maximum number of fallback attempts
     default_model_id: ID of the default fallback model
+    default_model_id: ID of the default fallback model
+    fallback_preferences: Dictionary mapping agent types to lists of preferred model types
     fallback_preferences: Dictionary mapping agent types to lists of preferred model types
     logging_level: Logging level for fallback events
+    logging_level: Logging level for fallback events
+    """
     """
     self.model_manager = model_manager
+    self.model_manager = model_manager
+    self.fallback_enabled = fallback_enabled
     self.fallback_enabled = fallback_enabled
     self.default_strategy = default_strategy
+    self.default_strategy = default_strategy
+    self.max_attempts = max_attempts
     self.max_attempts = max_attempts
     self.default_model_id = default_model_id
+    self.default_model_id = default_model_id
+
 
     # Default fallback preferences if none provided
+    # Default fallback preferences if none provided
+    self.fallback_preferences = fallback_preferences or {
     self.fallback_preferences = fallback_preferences or {
     "researcher": ["huggingface", "llama", "general-purpose"],
+    "researcher": ["huggingface", "llama", "general-purpose"],
+    "developer": ["huggingface", "llama", "general-purpose"],
     "developer": ["huggingface", "llama", "general-purpose"],
     "monetization": ["huggingface", "general-purpose"],
+    "monetization": ["huggingface", "general-purpose"],
+    "marketing": ["huggingface", "general-purpose"],
     "marketing": ["huggingface", "general-purpose"],
     "default": ["huggingface", "general-purpose"],
+    "default": ["huggingface", "general-purpose"],
     }
+    }
+
 
     # History of fallback events for analysis
+    # History of fallback events for analysis
+    self.fallback_history: List[FallbackEvent] = []
     self.fallback_history: List[FallbackEvent] = []
 
+
+    # Fallback success metrics to track effectiveness
     # Fallback success metrics to track effectiveness
     # Structure: {strategy: {success_count: int, total_count: int}}
+    # Structure: {strategy: {success_count: int, total_count: int}}
+    self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
     self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
     strategy: {"success_count": 0, "total_count": 0}
+    strategy: {"success_count": 0, "total_count": 0}
+    for strategy in FallbackStrategy
     for strategy in FallbackStrategy
     }
-
-    # Set up dedicated logger for fallback events
-    self.logger = logging.getLogger(__name__ + ".fallback")
-    self.logger.setLevel(logging_level)
-
-    def find_fallback_model(
-    self,
-    original_model_id: Optional[str] = None,
-    agent_type: Optional[str] = None,
-    task_type: Optional[str] = None,
-    required_capabilities: Optional[List[str]] = None,
-    strategy_override: Optional[FallbackStrategy] = None,
-    ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
-    """
-    Find a fallback model when the primary model is unavailable.
-
-    This method implements the core fallback algorithm:
-    1. If strategy_override is provided, use that strategy
-    2. Otherwise, try strategies in cascading order
-    3. Execute each strategy until a fallback model is found
-    4. Track the fallback event and return results
-
-    Args:
-    original_model_id: ID of the original model that failed (if any)
-    agent_type: Type of agent requesting the model (for preference matching)
-    task_type: Type of task the model will perform
-    required_capabilities: List of required model capabilities
-    strategy_override: Optional override for the fallback strategy
-
-    Returns:
-    Tuple containing:
-    - ModelInfo of the fallback model or None if no fallback found
-    - FallbackEvent describing the fallback or None if no fallback found
-    """
-    if not self.fallback_enabled:
-    self.logger.info("Fallback is disabled, not attempting model fallback")
-    return None, None
-
-    # Track the original model info if available
-    original_model_info = None
-    if original_model_id:
-    try:
-    original_model_info = self.model_manager.get_model_info(
-    original_model_id
-    )
-except ModelNotFoundError:
-    pass
-
-    # Define the cascade order for strategies
-
-    # Build the list of strategies to try
-    strategies_to_try = []
-
-    if strategy_override is not None and strategy_override != FallbackStrategy.NONE:
-    # When a strategy is overridden, use only that strategy
-    strategies_to_try = [strategy_override]
-    elif self.default_strategy == FallbackStrategy.NONE:
-    # If configured to not use fallbacks, don't try any strategies
-    return None, None
-    else:
-    # Always start with default strategy
-    strategies_to_try.append(self.default_strategy)
-
-    # If this isn't a strategy override request, use the normal cascade
-    if original_model_info:
-    # Define the cascade order for strategies
-    cascade_strategies = [
-    FallbackStrategy.DEFAULT,
-    FallbackStrategy.SIMILAR_MODEL,
-    FallbackStrategy.MODEL_TYPE,
-    FallbackStrategy.SIZE_TIER,
-    ]
-
-    # Add strategies in cascade order if they're not already included
-    for strategy in cascade_strategies:
-    if (
-    strategy != self.default_strategy
-    and strategy not in strategies_to_try
-    ):
-    strategies_to_try.append(strategy)
-
-    # Add capability strategy if we have required capabilities
-    if (
-    required_capabilities
-    and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try
-    ):
-    strategies_to_try.append(FallbackStrategy.CAPABILITY_BASED)
-
-    # Add specified list if we have agent type
-    if agent_type and FallbackStrategy.SPECIFIED_LIST not in strategies_to_try:
-    strategies_to_try.append(FallbackStrategy.SPECIFIED_LIST)
-
-    # Always include ANY_AVAILABLE as a last resort
-    if FallbackStrategy.ANY_AVAILABLE not in strategies_to_try:
-    strategies_to_try.append(FallbackStrategy.ANY_AVAILABLE)
-
-    # Try each strategy in sequence until we find a model
-    reason = "Primary model selection failed"
-    attempts = 0
-
-    for current_strategy in strategies_to_try:
-    attempts += 1
-    self.logger.info(
-    f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})"
-    )
-
-    try:
-    # Execute the selected fallback strategy
-    if current_strategy == FallbackStrategy.DEFAULT:
-    fallback_model = self._apply_default_model_strategy()
-    elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
-    fallback_model = self._apply_similar_model_strategy(
-    original_model_info
-    )
-    elif current_strategy == FallbackStrategy.MODEL_TYPE:
-    fallback_model = self._apply_model_type_strategy(
-    original_model_info, agent_type, task_type
-    )
-    elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
-    fallback_model = self._apply_any_available_strategy()
-    elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
-    fallback_model = self._apply_specified_list_strategy(agent_type)
-    elif current_strategy == FallbackStrategy.SIZE_TIER:
-    fallback_model = self._apply_size_tier_strategy(original_model_info)
-    elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
-    fallback_model = self._apply_capability_strategy(
-    required_capabilities
-    )
-    else:
-    fallback_model = None
-except Exception as e:
-    self.logger.warning(
-    f"Strategy {current_strategy.value} failed with error: {str(e)}"
-    )
-    fallback_model = None
-
-    # Create and track the attempt
-    event = FallbackEvent(
-    original_model_id=original_model_id,
-    fallback_model_id=fallback_model.id if fallback_model else None,
-    reason=reason,
-    agent_type=agent_type,
-    task_type=task_type,
-    strategy_used=current_strategy,
-    details={
-    "attempts": attempts,
-    "original_model_type": (
-    original_model_info.type if original_model_info else None
-    ),
-    "fallback_model_type": (
-    fallback_model.type if fallback_model else None
-    ),
-    "success": fallback_model is not None,
-    },
-    )
-
-    # Always track the attempt, even if unsuccessful
-    self.track_fallback_event(event, was_successful=fallback_model is not None)
-
-    # If we found a model, return it
-    if fallback_model:
-    return fallback_model, event
-
-    self.logger.warning(
-    f"Strategy {current_strategy.value} failed to find a fallback model"
-    )
-
-    # If we get here, we've tried all strategies and found no fallback
-    event = FallbackEvent(
-    original_model_id=original_model_id,
-    fallback_model_id="none",
-    reason=f"No fallback found after {attempts} attempts",
-    agent_type=agent_type,
-    task_type=task_type,
-    strategy_used=strategies_to_try[-1],
-    details={
-    "attempts": attempts,
-    "original_model_type": (
-    original_model_info.type if original_model_info else None
-    ),
-    },
-    )
-    self.track_fallback_event(event, was_successful=False)
-    self.logger.warning(
-    f"No fallback model found after trying {attempts} strategies"
-    )
-    return None, event
-
-    def track_fallback_event(
-    self, event: FallbackEvent, was_successful: bool = True
-    ) -> None:
-    """
-    Track a fallback event and update metrics.
-
-    Args:
-    event: The fallback event to track
-    was_successful: Whether the fallback was successful
-    """
-    # Add to history
-    self.fallback_history.append(event)
-
-    # Update metrics
-    strategy = event.strategy_used
-    self.fallback_metrics[strategy]["total_count"] += 1
-    if was_successful:
-    self.fallback_metrics[strategy]["success_count"] += 1
-
-    # Log the event
-    if was_successful:
-    self.logger.info(
-    f"Fallback successful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
-    f"using strategy {strategy.value}"
-    )
-    else:
-    self.logger.warning(
-    f"Fallback unsuccessful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
-    f"using strategy {strategy.value}"
-    )
-
-    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
-    """
-    Get metrics about fallback effectiveness.
-
-    Returns:
-    Dictionary mapping strategy names to their metrics
-    """
-    metrics = {}
-    for strategy in FallbackStrategy:
-    strategy_metrics = self.fallback_metrics[strategy]
-    success_rate = 0
-    if strategy_metrics["total_count"] > 0:
-    success_rate = (
-    strategy_metrics["success_count"] / strategy_metrics["total_count"]
-    )
-
-    metrics[strategy.value] = {
-    "success_count": strategy_metrics["success_count"],
-    "total_count": strategy_metrics["total_count"],
-    "success_rate": success_rate,
     }
 
-    return metrics
 
-    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
+    # Set up dedicated logger for fallback events
+    # Set up dedicated logger for fallback events
+    self.logger = logging.getLogger(__name__ + ".fallback")
+    self.logger = logging.getLogger(__name__ + ".fallback")
+    self.logger.setLevel(logging_level)
+    self.logger.setLevel(logging_level)
+
+
+    def find_fallback_model(
+    def find_fallback_model(
+    self,
+    self,
+    original_model_id: Optional[str] = None,
+    original_model_id: Optional[str] = None,
+    agent_type: Optional[str] = None,
+    agent_type: Optional[str] = None,
+    task_type: Optional[str] = None,
+    task_type: Optional[str] = None,
+    required_capabilities: Optional[List[str]] = None,
+    required_capabilities: Optional[List[str]] = None,
+    strategy_override: Optional[FallbackStrategy] = None,
+    strategy_override: Optional[FallbackStrategy] = None,
+    ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
+    ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
     """
-    Get history of fallback events.
+    """
+    Find a fallback model when the primary model is unavailable.
+    Find a fallback model when the primary model is unavailable.
+
+
+    This method implements the core fallback algorithm:
+    This method implements the core fallback algorithm:
+    1. If strategy_override is provided, use that strategy
+    1. If strategy_override is provided, use that strategy
+    2. Otherwise, try strategies in cascading order
+    2. Otherwise, try strategies in cascading order
+    3. Execute each strategy until a fallback model is found
+    3. Execute each strategy until a fallback model is found
+    4. Track the fallback event and return results
+    4. Track the fallback event and return results
+
 
     Args:
-    limit: Maximum number of events to return (most recent first)
+    Args:
+    original_model_id: ID of the original model that failed (if any)
+    original_model_id: ID of the original model that failed (if any)
+    agent_type: Type of agent requesting the model (for preference matching)
+    agent_type: Type of agent requesting the model (for preference matching)
+    task_type: Type of task the model will perform
+    task_type: Type of task the model will perform
+    required_capabilities: List of required model capabilities
+    required_capabilities: List of required model capabilities
+    strategy_override: Optional override for the fallback strategy
+    strategy_override: Optional override for the fallback strategy
+
 
     Returns:
-    List of fallback events as dictionaries
+    Returns:
+    Tuple containing:
+    Tuple containing:
+    - ModelInfo of the fallback model or None if no fallback found
+    - ModelInfo of the fallback model or None if no fallback found
+    - FallbackEvent describing the fallback or None if no fallback found
+    - FallbackEvent describing the fallback or None if no fallback found
     """
-    return [event.to_dict() for event in self.fallback_history[-limit:]]
+    """
+    if not self.fallback_enabled:
+    if not self.fallback_enabled:
+    self.logger.info("Fallback is disabled, not attempting model fallback")
+    self.logger.info("Fallback is disabled, not attempting model fallback")
+    return None, None
+    return None, None
 
-    def configure(self, **kwargs) -> None:
+
+    # Track the original model info if available
+    # Track the original model info if available
+    original_model_info = None
+    original_model_info = None
+    if original_model_id:
+    if original_model_id:
+    try:
+    try:
+    original_model_info = self.model_manager.get_model_info(
+    original_model_info = self.model_manager.get_model_info(
+    original_model_id
+    original_model_id
+    )
+    )
+except ModelNotFoundError:
+except ModelNotFoundError:
+    pass
+    pass
+
+
+    # Define the cascade order for strategies
+    # Define the cascade order for strategies
+
+
+    # Build the list of strategies to try
+    # Build the list of strategies to try
+    strategies_to_try = []
+    strategies_to_try = []
+
+
+    if strategy_override is not None and strategy_override != FallbackStrategy.NONE:
+    if strategy_override is not None and strategy_override != FallbackStrategy.NONE:
+    # When a strategy is overridden, use only that strategy
+    # When a strategy is overridden, use only that strategy
+    strategies_to_try = [strategy_override]
+    strategies_to_try = [strategy_override]
+    elif self.default_strategy == FallbackStrategy.NONE:
+    elif self.default_strategy == FallbackStrategy.NONE:
+    # If configured to not use fallbacks, don't try any strategies
+    # If configured to not use fallbacks, don't try any strategies
+    return None, None
+    return None, None
+    else:
+    else:
+    # Always start with default strategy
+    # Always start with default strategy
+    strategies_to_try.append(self.default_strategy)
+    strategies_to_try.append(self.default_strategy)
+
+
+    # If this isn't a strategy override request, use the normal cascade
+    # If this isn't a strategy override request, use the normal cascade
+    if original_model_info:
+    if original_model_info:
+    # Define the cascade order for strategies
+    # Define the cascade order for strategies
+    cascade_strategies = [
+    cascade_strategies = [
+    FallbackStrategy.DEFAULT,
+    FallbackStrategy.DEFAULT,
+    FallbackStrategy.SIMILAR_MODEL,
+    FallbackStrategy.SIMILAR_MODEL,
+    FallbackStrategy.MODEL_TYPE,
+    FallbackStrategy.MODEL_TYPE,
+    FallbackStrategy.SIZE_TIER,
+    FallbackStrategy.SIZE_TIER,
+    ]
+    ]
+
+
+    # Add strategies in cascade order if they're not already included
+    # Add strategies in cascade order if they're not already included
+    for strategy in cascade_strategies:
+    for strategy in cascade_strategies:
+    if (
+    if (
+    strategy != self.default_strategy
+    strategy != self.default_strategy
+    and strategy not in strategies_to_try
+    and strategy not in strategies_to_try
+    ):
+    ):
+    strategies_to_try.append(strategy)
+    strategies_to_try.append(strategy)
+
+
+    # Add capability strategy if we have required capabilities
+    # Add capability strategy if we have required capabilities
+    if (
+    if (
+    required_capabilities
+    required_capabilities
+    and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try
+    and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try
+    ):
+    ):
+    strategies_to_try.append(FallbackStrategy.CAPABILITY_BASED)
+    strategies_to_try.append(FallbackStrategy.CAPABILITY_BASED)
+
+
+    # Add specified list if we have agent type
+    # Add specified list if we have agent type
+    if agent_type and FallbackStrategy.SPECIFIED_LIST not in strategies_to_try:
+    if agent_type and FallbackStrategy.SPECIFIED_LIST not in strategies_to_try:
+    strategies_to_try.append(FallbackStrategy.SPECIFIED_LIST)
+    strategies_to_try.append(FallbackStrategy.SPECIFIED_LIST)
+
+
+    # Always include ANY_AVAILABLE as a last resort
+    # Always include ANY_AVAILABLE as a last resort
+    if FallbackStrategy.ANY_AVAILABLE not in strategies_to_try:
+    if FallbackStrategy.ANY_AVAILABLE not in strategies_to_try:
+    strategies_to_try.append(FallbackStrategy.ANY_AVAILABLE)
+    strategies_to_try.append(FallbackStrategy.ANY_AVAILABLE)
+
+
+    # Try each strategy in sequence until we find a model
+    # Try each strategy in sequence until we find a model
+    reason = "Primary model selection failed"
+    reason = "Primary model selection failed"
+    attempts = 0
+    attempts = 0
+
+
+    for current_strategy in strategies_to_try:
+    for current_strategy in strategies_to_try:
+    attempts += 1
+    attempts += 1
+    self.logger.info(
+    self.logger.info(
+    f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})"
+    f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})"
+    )
+    )
+
+
+    try:
+    try:
+    # Execute the selected fallback strategy
+    # Execute the selected fallback strategy
+    if current_strategy == FallbackStrategy.DEFAULT:
+    if current_strategy == FallbackStrategy.DEFAULT:
+    fallback_model = self._apply_default_model_strategy()
+    fallback_model = self._apply_default_model_strategy()
+    elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
+    elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
+    fallback_model = self._apply_similar_model_strategy(
+    fallback_model = self._apply_similar_model_strategy(
+    original_model_info
+    original_model_info
+    )
+    )
+    elif current_strategy == FallbackStrategy.MODEL_TYPE:
+    elif current_strategy == FallbackStrategy.MODEL_TYPE:
+    fallback_model = self._apply_model_type_strategy(
+    fallback_model = self._apply_model_type_strategy(
+    original_model_info, agent_type, task_type
+    original_model_info, agent_type, task_type
+    )
+    )
+    elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
+    elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
+    fallback_model = self._apply_any_available_strategy()
+    fallback_model = self._apply_any_available_strategy()
+    elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
+    elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
+    fallback_model = self._apply_specified_list_strategy(agent_type)
+    fallback_model = self._apply_specified_list_strategy(agent_type)
+    elif current_strategy == FallbackStrategy.SIZE_TIER:
+    elif current_strategy == FallbackStrategy.SIZE_TIER:
+    fallback_model = self._apply_size_tier_strategy(original_model_info)
+    fallback_model = self._apply_size_tier_strategy(original_model_info)
+    elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
+    elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
+    fallback_model = self._apply_capability_strategy(
+    fallback_model = self._apply_capability_strategy(
+    required_capabilities
+    required_capabilities
+    )
+    )
+    else:
+    else:
+    fallback_model = None
+    fallback_model = None
+except Exception as e:
+except Exception as e:
+    self.logger.warning(
+    self.logger.warning(
+    f"Strategy {current_strategy.value} failed with error: {str(e)}"
+    f"Strategy {current_strategy.value} failed with error: {str(e)}"
+    )
+    )
+    fallback_model = None
+    fallback_model = None
+
+
+    # Create and track the attempt
+    # Create and track the attempt
+    event = FallbackEvent(
+    event = FallbackEvent(
+    original_model_id=original_model_id,
+    original_model_id=original_model_id,
+    fallback_model_id=fallback_model.id if fallback_model else None,
+    fallback_model_id=fallback_model.id if fallback_model else None,
+    reason=reason,
+    reason=reason,
+    agent_type=agent_type,
+    agent_type=agent_type,
+    task_type=task_type,
+    task_type=task_type,
+    strategy_used=current_strategy,
+    strategy_used=current_strategy,
+    details={
+    details={
+    "attempts": attempts,
+    "attempts": attempts,
+    "original_model_type": (
+    "original_model_type": (
+    original_model_info.type if original_model_info else None
+    original_model_info.type if original_model_info else None
+    ),
+    ),
+    "fallback_model_type": (
+    "fallback_model_type": (
+    fallback_model.type if fallback_model else None
+    fallback_model.type if fallback_model else None
+    ),
+    ),
+    "success": fallback_model is not None,
+    "success": fallback_model is not None,
+    },
+    },
+    )
+    )
+
+
+    # Always track the attempt, even if unsuccessful
+    # Always track the attempt, even if unsuccessful
+    self.track_fallback_event(event, was_successful=fallback_model is not None)
+    self.track_fallback_event(event, was_successful=fallback_model is not None)
+
+
+    # If we found a model, return it
+    # If we found a model, return it
+    if fallback_model:
+    if fallback_model:
+    return fallback_model, event
+    return fallback_model, event
+
+
+    self.logger.warning(
+    self.logger.warning(
+    f"Strategy {current_strategy.value} failed to find a fallback model"
+    f"Strategy {current_strategy.value} failed to find a fallback model"
+    )
+    )
+
+
+    # If we get here, we've tried all strategies and found no fallback
+    # If we get here, we've tried all strategies and found no fallback
+    event = FallbackEvent(
+    event = FallbackEvent(
+    original_model_id=original_model_id,
+    original_model_id=original_model_id,
+    fallback_model_id="none",
+    fallback_model_id="none",
+    reason=f"No fallback found after {attempts} attempts",
+    reason=f"No fallback found after {attempts} attempts",
+    agent_type=agent_type,
+    agent_type=agent_type,
+    task_type=task_type,
+    task_type=task_type,
+    strategy_used=strategies_to_try[-1],
+    strategy_used=strategies_to_try[-1],
+    details={
+    details={
+    "attempts": attempts,
+    "attempts": attempts,
+    "original_model_type": (
+    "original_model_type": (
+    original_model_info.type if original_model_info else None
+    original_model_info.type if original_model_info else None
+    ),
+    ),
+    },
+    },
+    )
+    )
+    self.track_fallback_event(event, was_successful=False)
+    self.track_fallback_event(event, was_successful=False)
+    self.logger.warning(
+    self.logger.warning(
+    f"No fallback model found after trying {attempts} strategies"
+    f"No fallback model found after trying {attempts} strategies"
+    )
+    )
+    return None, event
+    return None, event
+
+
+    def track_fallback_event(
+    def track_fallback_event(
+    self, event: FallbackEvent, was_successful: bool = True
+    self, event: FallbackEvent, was_successful: bool = True
+    ) -> None:
+    ) -> None:
     """
-    Configure the fallback manager.
+    """
+    Track a fallback event and update metrics.
+    Track a fallback event and update metrics.
+
 
     Args:
+    Args:
+    event: The fallback event to track
+    event: The fallback event to track
+    was_successful: Whether the fallback was successful
+    was_successful: Whether the fallback was successful
+    """
+    """
+    # Add to history
+    # Add to history
+    self.fallback_history.append(event)
+    self.fallback_history.append(event)
+
+
+    # Update metrics
+    # Update metrics
+    strategy = event.strategy_used
+    strategy = event.strategy_used
+    self.fallback_metrics[strategy]["total_count"] += 1
+    self.fallback_metrics[strategy]["total_count"] += 1
+    if was_successful:
+    if was_successful:
+    self.fallback_metrics[strategy]["success_count"] += 1
+    self.fallback_metrics[strategy]["success_count"] += 1
+
+
+    # Log the event
+    # Log the event
+    if was_successful:
+    if was_successful:
+    self.logger.info(
+    self.logger.info(
+    f"Fallback successful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
+    f"Fallback successful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
+    f"using strategy {strategy.value}"
+    f"using strategy {strategy.value}"
+    )
+    )
+    else:
+    else:
+    self.logger.warning(
+    self.logger.warning(
+    f"Fallback unsuccessful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
+    f"Fallback unsuccessful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
+    f"using strategy {strategy.value}"
+    f"using strategy {strategy.value}"
+    )
+    )
+
+
+    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
+    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
+    """
+    """
+    Get metrics about fallback effectiveness.
+    Get metrics about fallback effectiveness.
+
+
+    Returns:
+    Returns:
+    Dictionary mapping strategy names to their metrics
+    Dictionary mapping strategy names to their metrics
+    """
+    """
+    metrics = {}
+    metrics = {}
+    for strategy in FallbackStrategy:
+    for strategy in FallbackStrategy:
+    strategy_metrics = self.fallback_metrics[strategy]
+    strategy_metrics = self.fallback_metrics[strategy]
+    success_rate = 0
+    success_rate = 0
+    if strategy_metrics["total_count"] > 0:
+    if strategy_metrics["total_count"] > 0:
+    success_rate = (
+    success_rate = (
+    strategy_metrics["success_count"] / strategy_metrics["total_count"]
+    strategy_metrics["success_count"] / strategy_metrics["total_count"]
+    )
+    )
+
+
+    metrics[strategy.value] = {
+    metrics[strategy.value] = {
+    "success_count": strategy_metrics["success_count"],
+    "success_count": strategy_metrics["success_count"],
+    "total_count": strategy_metrics["total_count"],
+    "total_count": strategy_metrics["total_count"],
+    "success_rate": success_rate,
+    "success_rate": success_rate,
+    }
+    }
+
+
+    return metrics
+    return metrics
+
+
+    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
+    """
+    """
+    Get history of fallback events.
+    Get history of fallback events.
+
+
+    Args:
+    Args:
+    limit: Maximum number of events to return (most recent first)
+    limit: Maximum number of events to return (most recent first)
+
+
+    Returns:
+    Returns:
+    List of fallback events as dictionaries
+    List of fallback events as dictionaries
+    """
+    """
+    return [event.to_dict() for event in self.fallback_history[-limit:]]
+    return [event.to_dict() for event in self.fallback_history[-limit:]]
+
+
+    def configure(self, **kwargs) -> None:
+    def configure(self, **kwargs) -> None:
+    """
+    """
+    Configure the fallback manager.
+    Configure the fallback manager.
+
+
+    Args:
+    Args:
+    **kwargs: Configuration parameters
     **kwargs: Configuration parameters
     - fallback_enabled: Whether fallback is enabled
+    - fallback_enabled: Whether fallback is enabled
+    - default_strategy: Default fallback strategy
     - default_strategy: Default fallback strategy
     - max_attempts: Maximum number of fallback attempts
+    - max_attempts: Maximum number of fallback attempts
+    - default_model_id: ID of the default fallback model
     - default_model_id: ID of the default fallback model
     - fallback_preferences: Mapping of agent types to model type preferences
+    - fallback_preferences: Mapping of agent types to model type preferences
+    - logging_level: Logging level for fallback events
     - logging_level: Logging level for fallback events
     """
+    """
+    if "fallback_enabled" in kwargs:
     if "fallback_enabled" in kwargs:
     self.fallback_enabled = kwargs["fallback_enabled"]
+    self.fallback_enabled = kwargs["fallback_enabled"]
+
 
     if "default_strategy" in kwargs:
+    if "default_strategy" in kwargs:
+    strategy_value = kwargs["default_strategy"]
     strategy_value = kwargs["default_strategy"]
     if isinstance(strategy_value, str):
+    if isinstance(strategy_value, str):
+    try:
     try:
     self.default_strategy = FallbackStrategy(strategy_value)
+    self.default_strategy = FallbackStrategy(strategy_value)
+except ValueError:
 except ValueError:
     self.logger.warning(
+    self.logger.warning(
+    f"Invalid fallback strategy: {strategy_value}, using DEFAULT"
     f"Invalid fallback strategy: {strategy_value}, using DEFAULT"
     )
+    )
+    self.default_strategy = FallbackStrategy.DEFAULT
     self.default_strategy = FallbackStrategy.DEFAULT
     elif isinstance(strategy_value, FallbackStrategy):
+    elif isinstance(strategy_value, FallbackStrategy):
+    self.default_strategy = strategy_value
     self.default_strategy = strategy_value
 
+
+    if "max_attempts" in kwargs:
     if "max_attempts" in kwargs:
     self.max_attempts = kwargs["max_attempts"]
+    self.max_attempts = kwargs["max_attempts"]
+
 
     if "default_model_id" in kwargs:
+    if "default_model_id" in kwargs:
+    self.default_model_id = kwargs["default_model_id"]
     self.default_model_id = kwargs["default_model_id"]
 
+
+    if "fallback_preferences" in kwargs:
     if "fallback_preferences" in kwargs:
     self.fallback_preferences = kwargs["fallback_preferences"]
+    self.fallback_preferences = kwargs["fallback_preferences"]
+
 
     if "logging_level" in kwargs:
+    if "logging_level" in kwargs:
+    self.logger.setLevel(kwargs["logging_level"])
     self.logger.setLevel(kwargs["logging_level"])
 
+
+    self.logger.info(
     self.logger.info(
     f"Fallback manager configuration updated: enabled={self.fallback_enabled}, "
+    f"Fallback manager configuration updated: enabled={self.fallback_enabled}, "
+    f"strategy={self.default_strategy.value}"
     f"strategy={self.default_strategy.value}"
     )
+    )
 
+
+    def _apply_default_model_strategy(self) -> Optional[IModelInfo]:
     def _apply_default_model_strategy(self) -> Optional[IModelInfo]:
     """Apply the default model fallback strategy."""
     if self.default_model_id:

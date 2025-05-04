@@ -1,24 +1,45 @@
 """
+"""
 Tests for the DiskCache backend.
+Tests for the DiskCache backend.
+"""
 """
 
 
+
+
+import os
 import os
 import random
+import random
+import shutil
 import shutil
 import tempfile
+import tempfile
+import time
 import time
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+
 
 import pytest
+import pytest
+
 
 from ai_models.caching.cache_backends.disk_cache import DiskCache
+from ai_models.caching.cache_backends.disk_cache import DiskCache
+
 
 def cache_operation
+def cache_operation
+import threading
 import threading
 
+
+@pytest.fixture
 @pytest.fixture
 def temp_cache_dir():
+    def temp_cache_dir():
     """Create a temporary directory for cache files."""
     temp_dir = tempfile.mkdtemp()
     yield temp_dir

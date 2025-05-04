@@ -1,16 +1,29 @@
 """
+"""
+Tests for the StrategyGenerator class in the Marketing module.
 Tests for the StrategyGenerator class in the Marketing module.
 """
+"""
+
 
 import time
+import time
+
 
 import pytest
+import pytest
 
+
+from marketing.concrete_strategy_generator import DefaultStrategyGenerator
 from marketing.concrete_strategy_generator import DefaultStrategyGenerator
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def strategy_generator():
+    def strategy_generator():
     """Create a DefaultStrategyGenerator instance for testing."""
     generator = DefaultStrategyGenerator(
     business_type="saas",

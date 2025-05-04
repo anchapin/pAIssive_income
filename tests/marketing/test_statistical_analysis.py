@@ -1,23 +1,43 @@
 """
+"""
+Tests for the statistical analysis module.
 Tests for the statistical analysis module.
 
+
+This module tests the statistical analysis framework used in marketing analytics
 This module tests the statistical analysis framework used in marketing analytics
 and A/B testing.
+and A/B testing.
+"""
 """
 
 
+
+
+import numpy
 import numpy
 import pytest
+import pytest
 
+
+as np
 as np
 
 
+
+
+from marketing.statistical_analysis import (InsufficientDataError,
 from marketing.statistical_analysis import (InsufficientDataError,
 InvalidParameterError,
+InvalidParameterError,
+StatisticalAnalysis)
 StatisticalAnalysis)
 
 
+
+
 class TestStatisticalAnalysis:
+    class TestStatisticalAnalysis:
     """Tests for the StatisticalAnalysis class."""
 
     def test_init(self):

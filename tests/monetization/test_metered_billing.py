@@ -1,28 +1,53 @@
 """
+"""
+Tests for metered billing functionality.
 Tests for metered billing functionality.
 
+
+This module contains tests for the metered billing system, including
 This module contains tests for the metered billing system, including
 usage tracking, billing calculation, and billing thresholds.
+usage tracking, billing calculation, and billing thresholds.
+"""
 """
 
 
+
+
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from decimal import Decimal
+from decimal import Decimal
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+(
 (
 BillingCalculator,
+BillingCalculator,
+BillingConfig,
 BillingConfig,
 BillingPeriod,
+BillingPeriod,
+BillingThreshold,
 BillingThreshold,
 MeteredBillingService,
+MeteredBillingService,
 UsageTracker,
+UsageTracker,
+)
 )
 
 
+
+
 class TestMeteredBilling:
+    class TestMeteredBilling:
     """Tests for metered billing functionality."""
 
     def setup_method(self):

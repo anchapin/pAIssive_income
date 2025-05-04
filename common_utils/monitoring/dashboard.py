@@ -1,70 +1,138 @@
 """
+"""
+Monitoring dashboard for pAIssive_income application.
 Monitoring dashboard for pAIssive_income application.
 
+
+This module provides a web-based dashboard for visualizing metrics, logs, and system
 This module provides a web-based dashboard for visualizing metrics, logs, and system
 health information. It integrates with the monitoring system and can be embedded
+health information. It integrates with the monitoring system and can be embedded
+in the application or run as a standalone service.
 in the application or run as a standalone service.
 """
+"""
+
 
 import json
+import json
+import os
 import os
 import time
+import time
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+import pkg_resources
 import pkg_resources
 
+
+from common_utils.logging import get_logger
 from common_utils.logging import get_logger
 from common_utils.monitoring.health import get_health_status
+from common_utils.monitoring.health import get_health_status
+from common_utils.monitoring.metrics import export_metrics, get_metrics
 from common_utils.monitoring.metrics import export_metrics, get_metrics
 from common_utils.monitoring.system import (get_system_metrics,
+from common_utils.monitoring.system import (get_system_metrics,
+monitor_resources)
 monitor_resources)
 
+
+logger
 logger
 import dash
+import dash
+import pandas as pd
 import pandas as pd
 import plotly.graph_objs as go
+import plotly.graph_objs as go
+from dash import dcc, html
 from dash import dcc, html
 DASHBOARD_AVAILABLE
+DASHBOARD_AVAILABLE
+
 
 import random
+import random
+import argparse
 import argparse
 
+
+= get_logger(__name__)
 = get_logger(__name__)
 
+
+# Check if dashboard dependencies are installed
 # Check if dashboard dependencies are installed
 DASHBOARD_AVAILABLE = False
+DASHBOARD_AVAILABLE = False
 try:
+    try:
+
 
     = True
+    = True
 except ImportError:
+except ImportError:
+    logger.warning("Dashboard dependencies not installed. Run 'pip install dash plotly pandas' to enable the monitoring dashboard.")
     logger.warning("Dashboard dependencies not installed. Run 'pip install dash plotly pandas' to enable the monitoring dashboard.")
 
 
+
+
+    class MonitoringDashboard:
     class MonitoringDashboard:
     """
+    """
+    Web-based dashboard for monitoring application metrics and logs.
     Web-based dashboard for monitoring application metrics and logs.
 
+
+    This class provides a Dash application for visualizing metrics,
     This class provides a Dash application for visualizing metrics,
     system health, and logs in a web browser.
+    system health, and logs in a web browser.
     """
+    """
+
 
     def __init__(self, app_name: str = "pAIssive Income Monitoring"):
+    def __init__(self, app_name: str = "pAIssive Income Monitoring"):
+    """
     """
     Initialize the monitoring dashboard.
+    Initialize the monitoring dashboard.
+
 
     Args:
+    Args:
+    app_name: Name of the application to display in the dashboard
     app_name: Name of the application to display in the dashboard
     """
+    """
+    if not DASHBOARD_AVAILABLE:
     if not DASHBOARD_AVAILABLE:
     raise ImportError("Dashboard dependencies not installed. Run 'pip install dash plotly pandas' to enable the monitoring dashboard.")
+    raise ImportError("Dashboard dependencies not installed. Run 'pip install dash plotly pandas' to enable the monitoring dashboard.")
+
 
     self.app_name = app_name
+    self.app_name = app_name
+    self.dash_app = dash.Dash(__name__, suppress_callback_exceptions=True)
     self.dash_app = dash.Dash(__name__, suppress_callback_exceptions=True)
     self.setup_layout()
+    self.setup_layout()
+    self.register_callbacks()
     self.register_callbacks()
 
+
+    def setup_layout(self):
     def setup_layout(self):
     """Set up the dashboard layout."""
     self.dash_app.layout = html.Div([
@@ -632,62 +700,122 @@ except ImportError:
 
     def run_server(self, host: str = '0.0.0.0', port: int = 8050, debug: bool = False):
     """
+    """
+    Run the dashboard server.
     Run the dashboard server.
 
+
+    Args:
     Args:
     host: Host to bind the server to
+    host: Host to bind the server to
+    port: Port to bind the server to
     port: Port to bind the server to
     debug: Whether to run in debug mode
+    debug: Whether to run in debug mode
+    """
     """
     logger.info(f"Starting monitoring dashboard on http://{host}:{port}")
+    logger.info(f"Starting monitoring dashboard on http://{host}:{port}")
+
 
     # Start system monitoring in the background
+    # Start system monitoring in the background
+    monitor_resources(interval=15, start_monitoring=True)
     monitor_resources(interval=15, start_monitoring=True)
 
+
+    # Run the Dash application
     # Run the Dash application
     self.dash_app.run_server(
+    self.dash_app.run_server(
+    host=host,
     host=host,
     port=port,
+    port=port,
     debug=debug
+    debug=debug
+    )
     )
 
 
+
+
+    # Function to start the dashboard
     # Function to start the dashboard
     def start_dashboard(
+    def start_dashboard(
+    host: str = '0.0.0.0',
     host: str = '0.0.0.0',
     port: int = 8050,
+    port: int = 8050,
+    debug: bool = False,
     debug: bool = False,
     open_browser: bool = True
+    open_browser: bool = True
+    ):
     ):
     """
+    """
+    Start the monitoring dashboard.
     Start the monitoring dashboard.
 
+
+    Args:
     Args:
     host: Host to bind the server to
+    host: Host to bind the server to
+    port: Port to bind the server to
     port: Port to bind the server to
     debug: Whether to run in debug mode
+    debug: Whether to run in debug mode
+    open_browser: Whether to automatically open the dashboard in a browser
     open_browser: Whether to automatically open the dashboard in a browser
     """
+    """
+    try:
     try:
     dashboard = MonitoringDashboard()
+    dashboard = MonitoringDashboard()
+    dashboard.run_server(host, port, debug)
     dashboard.run_server(host, port, debug)
 except ImportError as e:
+except ImportError as e:
+    logger.error(f"Could not start dashboard: {e}")
     logger.error(f"Could not start dashboard: {e}")
     print("Could not start the monitoring dashboard. Please install the required dependencies:")
+    print("Could not start the monitoring dashboard. Please install the required dependencies:")
+    print("pip install dash plotly pandas")
     print("pip install dash plotly pandas")
 except Exception as e:
+except Exception as e:
     logger.error(f"Error starting dashboard: {e}")
+    logger.error(f"Error starting dashboard: {e}")
+    print(f"Error starting dashboard: {e}")
     print(f"Error starting dashboard: {e}")
 
 
+
+
     if __name__ == "__main__":
+    if __name__ == "__main__":
+    # This allows running the dashboard as a standalone module
     # This allows running the dashboard as a standalone module
 
 
+
+
+    parser = argparse.ArgumentParser(description="Start the monitoring dashboard")
     parser = argparse.ArgumentParser(description="Start the monitoring dashboard")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--port", type=int, default=8050, help="Port to bind the server to")
     parser.add_argument("--port", type=int, default=8050, help="Port to bind the server to")
     parser.add_argument("--debug", action="store_true", help="Run in debug mode")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
+    args = parser.parse_args()
     args = parser.parse_args()
 
+
+    start_dashboard(args.host, args.port, args.debug)
     start_dashboard(args.host, args.port, args.debug)

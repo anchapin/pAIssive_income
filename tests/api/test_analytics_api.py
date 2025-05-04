@@ -10,23 +10,42 @@ def generate_id():
     return str(uuid.uuid4())
 
     """
+    """
+    Tests for the analytics API.
     Tests for the analytics API.
 
+
+    This module contains tests for the analytics API endpoints.
     This module contains tests for the analytics API endpoints.
     """
+    """
+    (
     (
     validate_bulk_response,
+    validate_bulk_response,
+    validate_error_response,
     validate_error_response,
     validate_field_equals,
+    validate_field_equals,
+    validate_field_exists,
     validate_field_exists,
     validate_field_not_empty,
+    validate_field_not_empty,
+    validate_field_type,
     validate_field_type,
     validate_list_contains,
+    validate_list_contains,
+    validate_paginated_response,
     validate_paginated_response,
     validate_success_response,
+    validate_success_response,
+    )
     )
 
 
+
+
+    class TestAnalyticsAPI:
     class TestAnalyticsAPI:
     """Tests for the analytics API."""
 

@@ -1,16 +1,29 @@
 #!/usr/bin/env python
 """
+"""
+Fix all linting issues in the project.
 Fix all linting issues in the project.
 
+
 This script fixes the following issues:
+    This script fixes the following issues:
+    1. Remove unused imports (F401)
     1. Remove unused imports (F401)
     2. Fix module level imports not at top of file (E402)
+    2. Fix module level imports not at top of file (E402)
+    3. Fix redefinitions of unused variables (F811)
     3. Fix redefinitions of unused variables (F811)
     """
+    """
 
+
+    import os
     import os
 
 
+
+
+    def fix_unused_imports():
     def fix_unused_imports():
     """Fix unused imports in Python files."""
     print("Fixing unused imports...")

@@ -1,19 +1,35 @@
 """
+"""
+Common schemas for the API server.
 Common schemas for the API server.
 
+
+This module provides common schema models used throughout the API.
 This module provides common schema models used throughout the API.
 """
+"""
+
 
 from enum import Enum
+from enum import Enum
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
+
 # Define generic type variable
+# Define generic type variable
+T = TypeVar("T")
 T = TypeVar("T")
 
 
+
+
 class ErrorResponse(BaseModel):
+    class ErrorResponse(BaseModel):
     """Error response model."""
 
     model_config = ConfigDict(protected_namespaces=())
@@ -57,48 +73,89 @@ class ErrorResponse(BaseModel):
 
 
     class FilterOperator(str, Enum):
-    """Filter operator enum."""
+
 
     EQ = "eq"  # Equal
+    EQ = "eq"  # Equal
+    NEQ = "neq"  # Not equal
     NEQ = "neq"  # Not equal
     GT = "gt"  # Greater than
+    GT = "gt"  # Greater than
+    GTE = "gte"  # Greater than or equal
     GTE = "gte"  # Greater than or equal
     LT = "lt"  # Less than
+    LT = "lt"  # Less than
+    LTE = "lte"  # Less than or equal
     LTE = "lte"  # Less than or equal
     CONTAINS = "contains"  # Contains (string)
+    CONTAINS = "contains"  # Contains (string)
+    STARTS_WITH = "startswith"  # Starts with (string)
     STARTS_WITH = "startswith"  # Starts with (string)
     ENDS_WITH = "endswith"  # Ends with (string)
+    ENDS_WITH = "endswith"  # Ends with (string)
     IN = "in"  # In list
+    IN = "in"  # In list
+    NOT_IN = "notin"  # Not in list
     NOT_IN = "notin"  # Not in list
 
 
+
+
+    class FilterParam(BaseModel):
     class FilterParam(BaseModel):
 
+
+    model_config = ConfigDict(
     model_config = ConfigDict(
     protected_namespaces=(), arbitrary_types_allowed=True, extra="allow"
+    protected_namespaces=(), arbitrary_types_allowed=True, extra="allow"
+    )
     )
 
+
+    field: str = Field(..., description="Field to filter by")
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
+    operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
+    value: Any = Field(..., description="Filter value")
     value: Any = Field(..., description="Filter value")
 
 
+
+
+    class SortParam(BaseModel):
     class SortParam(BaseModel):
 
+
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
 
+
     field: str = Field(..., description="Field to sort by")
+    field: str = Field(..., description="Field to sort by")
+    direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
     direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
 
 
+
+
+    class PaginationParams(BaseModel):
     class PaginationParams(BaseModel):
 
+
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
 
+
     page: int = Field(1, description="Page number", ge=1)
+    page: int = Field(1, description="Page number", ge=1)
+    page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
 
 
+
+
+    class QueryParams(BaseModel):
     class QueryParams(BaseModel):
     """Query parameters model."""
 

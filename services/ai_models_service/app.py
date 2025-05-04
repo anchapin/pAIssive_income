@@ -1,56 +1,110 @@
 """
+"""
+AI Models Service for pAIssive income microservices architecture.
 AI Models Service for pAIssive income microservices architecture.
 
+
+This module provides the AI Models Service implementation, which manages AI model deployment,
 This module provides the AI Models Service implementation, which manages AI model deployment,
 inference, and optimization for the pAIssive income platform.
+inference, and optimization for the pAIssive income platform.
+"""
 """
 
 
+
+
+import argparse
 import argparse
 import logging
+import logging
+import random
 import random
 import time
+import time
+from typing import Any, Dict, List
 from typing import Any, Dict, List
 
+
+import uvicorn
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException, status
+from fastapi import BackgroundTasks, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field
+
 
 (
+(
+get_default_tags,
 get_default_tags,
 get_service_metadata,
+get_service_metadata,
+register_service,
 register_service,
 )
+)
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 )
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # Create FastAPI application
+# Create FastAPI application
+app = FastAPI(
 app = FastAPI(
 title="pAIssive Income AI Models Service",
+title="pAIssive Income AI Models Service",
+description="AI Models Service for pAIssive Income platform",
 description="AI Models Service for pAIssive Income platform",
 version="1.0.0",
+version="1.0.0",
 )
+)
+
 
 # Add CORS middleware
+# Add CORS middleware
+app.add_middleware(
 app.add_middleware(
 CORSMiddleware,
+CORSMiddleware,
+allow_origins=["*"],  # In production, specify actual origins
 allow_origins=["*"],  # In production, specify actual origins
 allow_credentials=True,
+allow_credentials=True,
+allow_methods=["*"],
 allow_methods=["*"],
 allow_headers=["*"],
+allow_headers=["*"],
+)
 )
 
+
 # Global variables
+# Global variables
+service_registration = None
 service_registration = None
 
 
+
+
+# Define models for the API
 # Define models for the API
 class ModelRequest(BaseModel):
+    class ModelRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for AI model inference."""
 
@@ -207,80 +261,158 @@ class ModelRequest(BaseModel):
 
     def check_service_health() -> bool:
     """
+    """
+    Check if this service is healthy.
     Check if this service is healthy.
 
+
+    Returns:
     Returns:
     bool: True if healthy, False otherwise
+    bool: True if healthy, False otherwise
+    """
     """
     # Perform health checks for the AI Models Service
+    # Perform health checks for the AI Models Service
     # In a real implementation, this might check model availability, GPU status, etc.
+    # In a real implementation, this might check model availability, GPU status, etc.
+    return True
     return True
 
 
+
+
+    def register_with_service_registry(port: int):
     def register_with_service_registry(port: int):
     """
+    """
+    Register this service with the service registry.
     Register this service with the service registry.
 
+
+    Args:
     Args:
     port: Port this service is running on
+    port: Port this service is running on
+    """
     """
     global service_registration
+    global service_registration
+
 
     # Get metadata and tags
+    # Get metadata and tags
+    metadata = get_service_metadata()
     metadata = get_service_metadata()
     metadata.update(
+    metadata.update(
+    {
     {
     "models_available": ",".join(AVAILABLE_MODELS.keys()),
+    "models_available": ",".join(AVAILABLE_MODELS.keys()),
+    "supports_async": "true",
     "supports_async": "true",
     }
+    }
     )
+    )
+
 
     tags = get_default_tags() + ["ai", "models", "inference"]
+    tags = get_default_tags() + ["ai", "models", "inference"]
+
 
     # Register service
+    # Register service
+    service_registration = register_service(
     service_registration = register_service(
     app=app,
+    app=app,
+    service_name="ai-models-service",
     service_name="ai-models-service",
     port=port,
+    port=port,
+    version="1.0.0",
     version="1.0.0",
     health_check_path="/health",
+    health_check_path="/health",
+    check_functions=[check_service_health],
     check_functions=[check_service_health],
     tags=tags,
+    tags=tags,
+    metadata=metadata,
     metadata=metadata,
     )
+    )
+
 
     if service_registration:
+    if service_registration:
+    logger.info("Successfully registered AI Models Service with service registry")
     logger.info("Successfully registered AI Models Service with service registry")
     else:
+    else:
+    logger.warning(
     logger.warning(
     "Failed to register with service registry, continuing without service discovery"
+    "Failed to register with service registry, continuing without service discovery"
     )
+    )
+
+
 
 
     def start_ai_models_service(host: str = "0.0.0.0", port: int = 8002):
+    def start_ai_models_service(host: str = "0.0.0.0", port: int = 8002):
+    """
     """
     Start the AI Models Service.
+    Start the AI Models Service.
+
 
     Args:
+    Args:
+    host: Host to bind to
     host: Host to bind to
     port: Port to listen on
+    port: Port to listen on
     """
+    """
+
+
 
 
     # Register with service registry
+    # Register with service registry
+    register_with_service_registry(port)
     register_with_service_registry(port)
 
+
     # Start the AI Models Service
+    # Start the AI Models Service
+    uvicorn.run(app, host=host, port=port)
     uvicorn.run(app, host=host, port=port)
 
 
+
+
+    if __name__ == "__main__":
     if __name__ == "__main__":
     # Parse command line arguments
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="AI Models Service")
     parser = argparse.ArgumentParser(description="AI Models Service")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8002, help="Port to listen on")
     parser.add_argument("--port", type=int, default=8002, help="Port to listen on")
 
+
+    args = parser.parse_args(
     args = parser.parse_args(
 
+
     # Start the AI Models Service
+    # Start the AI Models Service
+    start_ai_models_service(host=args.host, port=args.port
     start_ai_models_service(host=args.host, port=args.port

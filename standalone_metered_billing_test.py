@@ -1,18 +1,33 @@
 """
+"""
+Standalone test for the metered billing implementation.
 Standalone test for the metered billing implementation.
 
+
+This script tests the basic functionality of the metered billing module
 This script tests the basic functionality of the metered billing module
 without importing the entire module structure.
+without importing the entire module structure.
+"""
 """
 
+
+import time
 import time
 import unittest
+import unittest
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
 from unittest.mock import MagicMock
 
 
+
+
+# Define the classes we need for testing
 # Define the classes we need for testing
 class MeteringInterval:
+    class MeteringInterval:
     """Enumeration of metering intervals."""
 
     HOURLY = "hourly"
@@ -35,24 +50,44 @@ class MeteringInterval:
 
     class MeteredBillingPricing:
     """
+    """
+    Metered billing pricing model.
     Metered billing pricing model.
 
+
+    This model implements metered billing, where customers are charged based on
     This model implements metered billing, where customers are charged based on
     their actual measured usage of a service over a specific time period.
+    their actual measured usage of a service over a specific time period.
+    """
     """
 
+
+    def __init__(
     def __init__(
     self,
+    self,
+    name="Metered Billing",
     name="Metered Billing",
     description="Pay only for what you use with precise metering",
+    description="Pay only for what you use with precise metering",
+    billing_calculator=None,
     billing_calculator=None,
     usage_tracker=None,
+    usage_tracker=None,
+    invoice_manager=None,
     invoice_manager=None,
     metering_interval=MeteringInterval.MONTHLY,
+    metering_interval=MeteringInterval.MONTHLY,
+    minimum_bill_amount=0.0,
     minimum_bill_amount=0.0,
     maximum_bill_amount=None,
+    maximum_bill_amount=None,
+    auto_invoice=True,
     auto_invoice=True,
     prorate_partial_periods=True,
+    prorate_partial_periods=True,
+    ):
     ):
     """Initialize a metered billing pricing model."""
     self.name = name

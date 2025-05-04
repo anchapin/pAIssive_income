@@ -1,29 +1,55 @@
 """
+"""
+Tests for the marketing API.
 Tests for the marketing API.
 
+
+This module contains tests for the marketing API endpoints.
 This module contains tests for the marketing API endpoints.
 """
+"""
+
 
 import time
+import time
+
 
 from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_data import (generate_id,
 from tests.api.utils.test_data import (generate_id,
 generate_marketing_strategy_data)
+generate_marketing_strategy_data)
+
 
 (
+(
+validate_bulk_response,
 validate_bulk_response,
 validate_error_response,
+validate_error_response,
+validate_field_equals,
 validate_field_equals,
 validate_field_exists,
+validate_field_exists,
+validate_field_not_empty,
 validate_field_not_empty,
 validate_field_type,
+validate_field_type,
+validate_list_contains,
 validate_list_contains,
 validate_paginated_response,
+validate_paginated_response,
 validate_success_response,
+validate_success_response,
+)
 )
 
 
+
+
 class TestMarketingAPI:
+    class TestMarketingAPI:
     """Tests for the marketing API."""
 
     def test_create_marketing_strategy(self, api_test_client: APITestClient):

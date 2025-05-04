@@ -1,18 +1,33 @@
 """
+"""
 Integration tests for the AI Models module.
+Integration tests for the AI Models module.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
 from agent_team import AgentTeam
+from agent_team import AgentTeam
+from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_model_manager():
+    def mock_model_manager():
     """Create a mock ModelManager."""
     manager = MagicMock(spec=ModelManager)
 

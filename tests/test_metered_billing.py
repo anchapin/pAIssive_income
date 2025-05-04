@@ -14,21 +14,37 @@ MeteringInterval)
 # noqa: E402, F811
 
 """
+"""
 Tests for the metered billing module.
+Tests for the metered billing module.
+"""
 """
 
 
+
+
+# We'll use direct imports to avoid circular import issues
 # We'll use direct imports to avoid circular import issues
 
+
+# noqa: F811
 # noqa: F811
 # noqa: E402, F811
 # noqa: E402, F811
+# noqa: E402, F811
+# noqa: E402, F811
 
+
+sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath(".."))
 
 
+
+
+# Define constants to avoid importing from the actual modules
 # Define constants to avoid importing from the actual modules
 class UsageMetric:
+    class UsageMetric:
     """Enumeration of usage metric types."""
 
     API_CALL = "api_call"

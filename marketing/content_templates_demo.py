@@ -1,19 +1,36 @@
 """
+"""
+Demo script for the Content Templates module.
 Demo script for the Content Templates module.
 
+
+This script demonstrates how to use the various content templates
 This script demonstrates how to use the various content templates
 to create marketing content for different channels.
+to create marketing content for different channels.
+"""
 """
 
+
+import time
 import time
 
+
+from user_personas import PersonaCreator
 from user_personas import PersonaCreator
 
 
+
+
 def main():
+    def main():
+    from content_templates import (BlogPostTemplate, EmailNewsletterTemplate,
     from content_templates import (BlogPostTemplate, EmailNewsletterTemplate,
     LandingPageTemplate, SocialMediaTemplate,
+    LandingPageTemplate, SocialMediaTemplate,
     VideoScriptTemplate)
+    VideoScriptTemplate)
+    ():
     ():
     """Main function to demonstrate the Content Templates module."""
     print("=" * 80)

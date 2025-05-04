@@ -1,74 +1,145 @@
 """
+"""
+Routes for the pAIssive Income UI.
 Routes for the pAIssive Income UI.
 
+
+This module defines the routes for the web interface, handling requests
 This module defines the routes for the web interface, handling requests
 for different parts of the application.
+for different parts of the application.
+"""
 """
 
 
+
+
+import logging
 import logging
 import os
+import os
+import traceback
 import traceback
 import uuid
+import uuid
+from datetime import datetime
 from datetime import datetime
 
+
+from flask import (flash, jsonify, redirect, render_template, request, session,
 from flask import (flash, jsonify, redirect, render_template, request, session,
 url_for)
+url_for)
+
 
 from . import app
+from . import app
+from .service_registry import get_ui_service
 from .service_registry import get_ui_service
 from .validation_schemas import (DeveloperSolutionRequest,
+from .validation_schemas import (DeveloperSolutionRequest,
+MarketingCampaignRequest,
 MarketingCampaignRequest,
 MonetizationStrategyRequest,
+MonetizationStrategyRequest,
+NicheAnalysisRequest)
 NicheAnalysisRequest)
 from .validators import sanitize_input, validate_form_data
+from .validators import sanitize_input, validate_form_data
 
+
+try
 try
 from .validators import sanitize_input
+from .validators import sanitize_input
 
+
+try
 try
 from .validation_schemas import ApiQueryParams
-from .validators import validate_query_params
-
-try
 from .validation_schemas import ApiQueryParams
 from .validators import validate_query_params
-
-try
-from .validation_schemas import ApiQueryParams
 from .validators import validate_query_params
 
-try
-from .validation_schemas import ApiQueryParams
-from .validators import validate_query_params
 
 try
+try
+from .validation_schemas import ApiQueryParams
+from .validation_schemas import ApiQueryParams
+from .validators import validate_query_params
+from .validators import validate_query_params
+
+
+try
+try
+from .validation_schemas import ApiQueryParams
+from .validation_schemas import ApiQueryParams
+from .validators import validate_query_params
+from .validators import validate_query_params
+
+
+try
+try
+from .validation_schemas import ApiQueryParams
+from .validation_schemas import ApiQueryParams
+from .validators import validate_query_params
+from .validators import validate_query_params
+
+
+try
+try
+
 
 (
+(
+RouteError,
 RouteError,
 ServiceError,
+ServiceError,
+UIError,
 UIError,
 ValidationError,
+ValidationError,
+api_error_handler,
 api_error_handler,
 handle_exception,
+handle_exception,
+)
 )
 from .task_manager import (cancel_task, get_task_id, get_task_status,
+from .task_manager import (cancel_task, get_task_id, get_task_status,
+store_task_id)
 store_task_id)
 from .tasks import (analyze_niches, create_marketing_campaign,
+from .tasks import (analyze_niches, create_marketing_campaign,
+create_monetization_strategy, create_solution)
 create_monetization_strategy, create_solution)
 
+
+# Set up logging
 # Set up logging
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # Services - these will be initialized later
+# Services - these will be initialized later
+agent_team_service = None
 agent_team_service = None
 niche_analysis_service = None
+niche_analysis_service = None
+developer_service = None
 developer_service = None
 monetization_service = None
+monetization_service = None
+marketing_service = None
 marketing_service = None
 
 
+
+
 def init_services():
+    def init_services():
     """Initialize services from the dependency container."""
     global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
 

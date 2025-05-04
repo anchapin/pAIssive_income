@@ -1,19 +1,36 @@
 """
+"""
+Bulk operation schemas for the API server.
 Bulk operation schemas for the API server.
 
+
+This module provides Pydantic models for bulk operation API request and response validation.
 This module provides Pydantic models for bulk operation API request and response validation.
 """
+"""
+
 
 from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
 
 from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field
+
 
 # Define generic type variable for bulk operations
+# Define generic type variable for bulk operations
 T = TypeVar("T")
+T = TypeVar("T")
+R = TypeVar("R")
 R = TypeVar("R")
 
 
+
+
 class BulkOperationStats(BaseModel):
+    class BulkOperationStats(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Statistics for a bulk operation."""
 
@@ -55,42 +72,77 @@ class BulkOperationStats(BaseModel):
 
 
     class BulkCreateResponse(BaseModel, Generic[R]):
-    """Generic response model for bulk create operations."""
+
 
     items: List[R] = Field(..., description="List of created items")
+    items: List[R] = Field(..., description="List of created items")
+    errors: List[BulkOperationError] = Field(..., description="List of errors")
     errors: List[BulkOperationError] = Field(..., description="List of errors")
     stats: BulkOperationStats = Field(..., description="Operation statistics")
+    stats: BulkOperationStats = Field(..., description="Operation statistics")
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
+    operation_id: str = Field(..., description="Unique ID for the bulk operation")
+
+
 
 
     class BulkUpdateRequest(BaseModel, Generic[T]):
+    class BulkUpdateRequest(BaseModel, Generic[T]):
+
 
     items: List[Dict[str, Any]] = Field(
+    items: List[Dict[str, Any]] = Field(
+    ..., description="List of items to update with IDs"
     ..., description="List of items to update with IDs"
     )
+    )
+    options: Optional[Dict[str, Any]] = Field(
     options: Optional[Dict[str, Any]] = Field(
     None, description="Optional parameters for the operation"
+    None, description="Optional parameters for the operation"
     )
+    )
+
+
 
 
     class BulkUpdateResponse(BaseModel, Generic[R]):
+    class BulkUpdateResponse(BaseModel, Generic[R]):
+
 
     items: List[R] = Field(..., description="List of updated items")
+    items: List[R] = Field(..., description="List of updated items")
+    errors: List[BulkOperationError] = Field(..., description="List of errors")
     errors: List[BulkOperationError] = Field(..., description="List of errors")
     stats: BulkOperationStats = Field(..., description="Operation statistics")
+    stats: BulkOperationStats = Field(..., description="Operation statistics")
+    operation_id: str = Field(..., description="Unique ID for the bulk operation")
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
 
+
+
+    class BulkDeleteRequest(BaseModel):
     class BulkDeleteRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     ids: List[str] = Field(..., description="List of IDs to delete")
+    ids: List[str] = Field(..., description="List of IDs to delete")
+    options: Optional[Dict[str, Any]] = Field(
     options: Optional[Dict[str, Any]] = Field(
     None, description="Optional parameters for the operation"
+    None, description="Optional parameters for the operation"
+    )
     )
 
 
+
+
     class BulkDeleteResponse(BaseModel):
+    class BulkDeleteResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Response model for bulk delete operations."""
 

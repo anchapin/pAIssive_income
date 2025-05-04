@@ -1,18 +1,34 @@
 """
+"""
+API schemas for analytics.
 API schemas for analytics.
 
+
+This module provides Pydantic models for API analytics.
 This module provides Pydantic models for API analytics.
 """
+"""
+
 
 import time
+import time
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+class RequestStatsResponse
 class RequestStatsResponse
 
+
 (BaseModel):
+    (BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for API request statistics."""
 
@@ -101,66 +117,125 @@ class RequestStatsResponse
 
     class ApiKeyStatsResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Pydantic model for API key statistics."""
+
 
     date: str = Field(..., description="Date in YYYY-MM-DD format")
+    date: str = Field(..., description="Date in YYYY-MM-DD format")
+    api_key_id: str = Field(..., description="API key ID")
     api_key_id: str = Field(..., description="API key ID")
     request_count: int = Field(..., description="Number of requests")
+    request_count: int = Field(..., description="Number of requests")
+    error_count: int = Field(..., description="Number of errors")
     error_count: int = Field(..., description="Number of errors")
     total_response_time: float = Field(
+    total_response_time: float = Field(
+    ..., description="Total response time in seconds"
     ..., description="Total response time in seconds"
     )
+    )
+    endpoints_used: List[str] = Field(..., description="List of endpoints used")
     endpoints_used: List[str] = Field(..., description="List of endpoints used")
 
 
+
+
+    class AnalyticsSummaryResponse(BaseModel):
     class AnalyticsSummaryResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     total_requests: int = Field(..., description="Total number of requests")
+    total_requests: int = Field(..., description="Total number of requests")
+    total_errors: int = Field(..., description="Total number of errors")
     total_errors: int = Field(..., description="Total number of errors")
     error_rate: float = Field(..., description="Error rate (errors / total requests)")
+    error_rate: float = Field(..., description="Error rate (errors / total requests)")
+    avg_response_time: float = Field(
     avg_response_time: float = Field(
     ..., description="Average response time in seconds"
+    ..., description="Average response time in seconds"
+    )
     )
     unique_users: int = Field(..., description="Number of unique users")
+    unique_users: int = Field(..., description="Number of unique users")
+    unique_api_keys: int = Field(..., description="Number of unique API keys")
     unique_api_keys: int = Field(..., description="Number of unique API keys")
     top_endpoints: List[EndpointStatsResponse] = Field(
+    top_endpoints: List[EndpointStatsResponse] = Field(
+    ..., description="Top endpoints by request count"
     ..., description="Top endpoints by request count"
     )
+    )
+
+
 
 
     class EndpointRealTimeMetrics(BaseModel):
+    class EndpointRealTimeMetrics(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    request_count: int = Field(..., description="Number of requests")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
+    error_count: int = Field(..., description="Number of errors")
+    error_rate: float = Field(..., description="Error rate")
     error_rate: float = Field(..., description="Error rate")
     avg_response_time: float = Field(
+    avg_response_time: float = Field(
+    ..., description="Average response time in milliseconds"
     ..., description="Average response time in milliseconds"
     )
+    )
     requests_per_minute: float = Field(..., description="Requests per minute")
+    requests_per_minute: float = Field(..., description="Requests per minute")
+
+
 
 
     class RealTimeMetricsResponse(BaseModel):
+    class RealTimeMetricsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    request_count: int = Field(..., description="Total number of requests")
     request_count: int = Field(..., description="Total number of requests")
     error_count: int = Field(..., description="Total number of errors")
+    error_count: int = Field(..., description="Total number of errors")
+    error_rate: float = Field(..., description="Error rate")
     error_rate: float = Field(..., description="Error rate")
     avg_response_time: float = Field(
+    avg_response_time: float = Field(
+    ..., description="Average response time in milliseconds"
     ..., description="Average response time in milliseconds"
     )
+    )
+    p95_response_time: float = Field(
     p95_response_time: float = Field(
     ..., description="95th percentile response time in milliseconds"
+    ..., description="95th percentile response time in milliseconds"
+    )
     )
     requests_per_minute: float = Field(..., description="Requests per minute")
+    requests_per_minute: float = Field(..., description="Requests per minute")
+    endpoints: Dict[str, EndpointRealTimeMetrics] = Field(
     endpoints: Dict[str, EndpointRealTimeMetrics] = Field(
     ..., description="Metrics by endpoint"
+    ..., description="Metrics by endpoint"
     )
+    )
+    timestamp: str = Field(..., description="Timestamp of the metrics")
     timestamp: str = Field(..., description="Timestamp of the metrics")
 
 
+
+
     class AlertResponse(BaseModel):
+    class AlertResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Schema for API alert."""
 

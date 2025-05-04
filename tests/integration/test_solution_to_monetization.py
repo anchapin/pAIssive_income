@@ -1,18 +1,33 @@
 """
+"""
+Integration tests for the solution-to-monetization workflow.
 Integration tests for the solution-to-monetization workflow.
 """
+"""
+
 
 import time
+import time
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
 from agent_team import AgentTeam
+from agent_team import AgentTeam
+from monetization import PricingCalculator, RevenueProjector, SubscriptionModel
 from monetization import PricingCalculator, RevenueProjector, SubscriptionModel
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_solution():
+    def mock_solution():
     """Create a mock solution for testing."""
     return {
     "id": "solution1",

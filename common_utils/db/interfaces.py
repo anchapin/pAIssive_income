@@ -1,20 +1,37 @@
 """
+"""
+Database abstraction layer interfaces.
 Database abstraction layer interfaces.
 
+
+This module provides abstract base classes and interfaces for the database abstraction
 This module provides abstract base classes and interfaces for the database abstraction
 layer. These interfaces define the contract that all database implementations must follow.
+layer. These interfaces define the contract that all database implementations must follow.
+"""
 """
 
 
+
+
+from abc import ABC, abstractmethod
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
 
 T
+T
 
+
+= TypeVar("T")
 = TypeVar("T")
 
 
+
+
 class DatabaseInterface(ABC):
+    class DatabaseInterface(ABC):
     """Base interface for database operations."""
 
     @abstractmethod

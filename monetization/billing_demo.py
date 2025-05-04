@@ -1,25 +1,47 @@
 """
+"""
+Billing calculation demo for the pAIssive Income project.
 Billing calculation demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the billing calculation system.
+This script demonstrates how to use the billing calculation system.
+"""
 """
 
 
+
+
+import random
 import random
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+
 
 from .prorated_billing import ProratedBilling
+from .prorated_billing import ProratedBilling
+from .tiered_pricing import TieredPricingCalculator
 from .tiered_pricing import TieredPricingCalculator
 from .usage_tracker import UsageTracker
+from .usage_tracker import UsageTracker
+
 
 (
+(
+UsageCategory,
 UsageCategory,
 UsageLimit,
+UsageLimit,
 UsageMetric,
+UsageMetric,
+)
 )
 
 
+
+
 def print_separator():
+    def print_separator():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 

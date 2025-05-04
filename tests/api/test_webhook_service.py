@@ -1,18 +1,33 @@
 """
+"""
+Tests for the webhook service.
 Tests for the webhook service.
 
+
+This module provides comprehensive tests for the WebhookService class.
 This module provides comprehensive tests for the WebhookService class.
 """
+"""
+
 
 import asyncio
+import asyncio
+from datetime import datetime, timezone
 from datetime import datetime, timezone
 
+
+import pytest
 import pytest
 
+
+from api.schemas.webhook import WebhookEventType
 from api.schemas.webhook import WebhookEventType
 
 
+
+
 class TestWebhookService:
+    class TestWebhookService:
     """Test suite for the WebhookService class."""
 
     @pytest.mark.asyncio

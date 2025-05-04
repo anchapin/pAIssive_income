@@ -1,38 +1,73 @@
 """
+"""
+API key router for the API server.
 API key router for the API server.
 
+
+This module provides route handlers for API key operations.
 This module provides route handlers for API key operations.
 """
+"""
+
 
 import logging
+import logging
+
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
+
 
 from ..middleware.auth import get_current_user
+from ..middleware.auth import get_current_user
+from ..schemas.api_key import (APIKeyCreate, APIKeyList, APIKeyResponse,
 from ..schemas.api_key import (APIKeyCreate, APIKeyList, APIKeyResponse,
 APIKeyUpdate)
+APIKeyUpdate)
+from ..schemas.common import ErrorResponse, SuccessResponse
 from ..schemas.common import ErrorResponse, SuccessResponse
 
+
+# Set up logging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
+
 # Create router
+# Create router
+router = APIRouter()
 router = APIRouter()
 
 
+
+
+@router.post(
 @router.post(
 "/",
+"/",
+response_model=APIKeyResponse,
 response_model=APIKeyResponse,
 status_code=status.HTTP_201_CREATED,
+status_code=status.HTTP_201_CREATED,
+responses={
 responses={
 201: {"description": "API key created"},
+201: {"description": "API key created"},
+401: {"model": ErrorResponse, "description": "Not authenticated"},
 401: {"model": ErrorResponse, "description": "Not authenticated"},
 },
+},
+)
 )
 async def create_api_key(
+async def create_api_key(
+data: APIKeyCreate = Body(...), user: dict = Depends(get_current_user)
 data: APIKeyCreate = Body(...), user: dict = Depends(get_current_user)
 ):
+    ):
     """Create a new API key."""
     try:
     # TODO: Implement API key creation

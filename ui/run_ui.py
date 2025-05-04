@@ -9,8 +9,12 @@ from pathlib import Path
 
 #!/usr/bin/env python
 """
+"""
+UI Runner Script for pAIssive Income Framework
 UI Runner Script for pAIssive Income Framework
 This script starts both the React development server and the Flask API server.
+This script starts both the React development server and the Flask API server.
+"""
 """
 
 
@@ -18,13 +22,26 @@ This script starts both the React development server and the Flask API server.
 
 
 
+
+
+
+
+
+
+# Get the absolute path of the project
 # Get the absolute path of the project
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 UI_DIR = os.path.join(PROJECT_ROOT, "ui")
+UI_DIR = os.path.join(PROJECT_ROOT, "ui")
+REACT_APP_DIR = os.path.join(UI_DIR, "react_frontend")
 REACT_APP_DIR = os.path.join(UI_DIR, "react_frontend")
 
 
+
+
 def start_flask_server():
+    def start_flask_server():
     """Start the Flask API server"""
     print("Starting Flask API server...")
     flask_cmd = [sys.executable, os.path.join(UI_DIR, "api_server.py")]

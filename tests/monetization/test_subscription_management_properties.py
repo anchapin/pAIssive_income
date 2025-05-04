@@ -1,31 +1,59 @@
 """
+"""
+Property-based tests for the subscription management logic.
 Property-based tests for the subscription management logic.
 
+
+These tests verify that subscription management operations work correctly
 These tests verify that subscription management operations work correctly
 across a wide range of input parameters.
+across a wide range of input parameters.
+"""
 """
 
 
+
+
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 
+
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
+from hypothesis import strategies as st
+from monetization.subscription import SubscriptionPlan
 from monetization.subscription import SubscriptionPlan
 from monetization.subscription_manager import SubscriptionManager
+from monetization.subscription_manager import SubscriptionManager
+from monetization.user_subscription import Subscription, SubscriptionStatus
 from monetization.user_subscription import Subscription, SubscriptionStatus
 
+
+# Strategies for generating subscription data
 # Strategies for generating subscription data
 user_ids = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
+user_ids = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
+tier_names = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
 tier_names = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
 tier_prices = st.floats(min_value=0.01, max_value=999.99)
+tier_prices = st.floats(min_value=0.01, max_value=999.99)
+billing_cycles = st.sampled_from(["monthly", "annual"])
 billing_cycles = st.sampled_from(["monthly", "annual"])
 start_dates = st.datetimes(
+start_dates = st.datetimes(
 min_value=datetime(2020, 1, 1), max_value=datetime(2030, 1, 1)
+min_value=datetime(2020, 1, 1), max_value=datetime(2030, 1, 1)
+)
 )
 
 
+
+
+@st.composite
 @st.composite
 def subscription_plans(draw):
+    def subscription_plans(draw):
     """Generate a valid subscription plan."""
     plan = SubscriptionPlan(
     name=draw(st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")),
@@ -267,159 +295,311 @@ def subscription_plans(draw):
     )
     @settings(suppress_health_check=[HealthCheck.filter_too_much])
     def test_change_billing_cycle_properties(subscription, new_billing_cycle):
-    """Test properties of changing billing cycles."""
+
 
     # Only test with active subscriptions and ensure we're changing to a different cycle
+    # Only test with active subscriptions and ensure we're changing to a different cycle
+    assume(subscription.status == SubscriptionStatus.ACTIVE)
     assume(subscription.status == SubscriptionStatus.ACTIVE)
     assume(subscription.billing_cycle != new_billing_cycle)
+    assume(subscription.billing_cycle != new_billing_cycle)
+
 
     # Create a SubscriptionManager instance with our generated subscription
+    # Create a SubscriptionManager instance with our generated subscription
+    manager = SubscriptionManager()
     manager = SubscriptionManager()
     manager.add_subscription(subscription)
+    manager.add_subscription(subscription)
+
 
     # Store original values
+    # Store original values
+    original_billing_cycle = subscription.billing_cycle
     original_billing_cycle = subscription.billing_cycle
     original_price = subscription.price
+    original_price = subscription.price
+
 
     # Print debug info
+    # Print debug info
+    print(f"Subscription plan ID: {subscription.plan_id}")
     print(f"Subscription plan ID: {subscription.plan_id}")
     print(f"Subscription tier ID: {subscription.tier_id}")
+    print(f"Subscription tier ID: {subscription.tier_id}")
+    print(f"Current billing cycle: {subscription.billing_cycle}")
     print(f"Current billing cycle: {subscription.billing_cycle}")
     print(f"New billing cycle: {new_billing_cycle}")
+    print(f"New billing cycle: {new_billing_cycle}")
+
 
     # Change billing cycle
+    # Change billing cycle
+    result = manager.change_billing_cycle(subscription.id, new_billing_cycle)
     result = manager.change_billing_cycle(subscription.id, new_billing_cycle)
 
+
+    # Print result
     # Print result
     print(f"Result: {result}")
+    print(f"Result: {result}")
+
 
     # Make sure the method returned a subscription
+    # Make sure the method returned a subscription
+    assert result is not None
     assert result is not None
 
+
+    # Get the updated subscription
     # Get the updated subscription
     updated_sub = manager.get_subscription(subscription.id)
+    updated_sub = manager.get_subscription(subscription.id)
+
 
     # Property 1: The billing cycle should be updated
+    # Property 1: The billing cycle should be updated
+    assert updated_sub.billing_cycle == new_billing_cycle
     assert updated_sub.billing_cycle == new_billing_cycle
     assert result.billing_cycle == new_billing_cycle
+    assert result.billing_cycle == new_billing_cycle
+
 
     # Property 2: The price should change according to the new billing cycle
+    # Property 2: The price should change according to the new billing cycle
+    if new_billing_cycle == "monthly":
     if new_billing_cycle == "monthly":
     # Monthly price should be different from annual
+    # Monthly price should be different from annual
+    if original_billing_cycle == "annual":
     if original_billing_cycle == "annual":
     assert updated_sub.price != original_price
+    assert updated_sub.price != original_price
+    else:  # annual
     else:  # annual
     # Annual price should be different from monthly
+    # Annual price should be different from monthly
+    if original_billing_cycle == "monthly":
     if original_billing_cycle == "monthly":
     assert updated_sub.price != original_price
+    assert updated_sub.price != original_price
+
 
     # Property 3: The current_period_end should be adjusted according to the new billing cycle
+    # Property 3: The current_period_end should be adjusted according to the new billing cycle
+    if new_billing_cycle == "monthly":
     if new_billing_cycle == "monthly":
     # A monthly period is shorter than an annual period
+    # A monthly period is shorter than an annual period
     assert (
+    assert (
+    updated_sub.current_period_end - updated_sub.current_period_start
     updated_sub.current_period_end - updated_sub.current_period_start
     ).days <= 31
+    ).days <= 31
+    else:  # annual
     else:  # annual
     # An annual period is longer than a monthly period
+    # An annual period is longer than a monthly period
+    assert (
     assert (
     updated_sub.current_period_end - updated_sub.current_period_start
+    updated_sub.current_period_end - updated_sub.current_period_start
+    ).days >= 364
     ).days >= 364
 
 
+
+
+    @given(subscription=subscriptions())
     @given(subscription=subscriptions())
     def test_feature_access_properties(subscription):
+    def test_feature_access_properties(subscription):
+
 
     # Create a SubscriptionManager instance with our generated subscription
+    # Create a SubscriptionManager instance with our generated subscription
+    manager = SubscriptionManager()
     manager = SubscriptionManager()
     manager.add_subscription(subscription)
+    manager.add_subscription(subscription)
+
 
     # Get the tier and its features
+    # Get the tier and its features
+    tier_features = subscription.get_features()
     tier_features = subscription.get_features()
 
+
+    # Property 1: The subscription should have access to all features in its tier
     # Property 1: The subscription should have access to all features in its tier
     for feature in tier_features:
+    for feature in tier_features:
+    if (
     if (
     isinstance(feature, dict) and feature.get("value") and "name" in feature
+    isinstance(feature, dict) and feature.get("value") and "name" in feature
+    ):  # Only check features that are enabled
     ):  # Only check features that are enabled
     assert manager.has_feature_access(subscription.id, feature["name"])
+    assert manager.has_feature_access(subscription.id, feature["name"])
+
 
     # Property 2: Subscription should not have access to non-existent features
+    # Property 2: Subscription should not have access to non-existent features
+    assert manager.has_feature_access(subscription.id, "Non-existent Feature") is False
     assert manager.has_feature_access(subscription.id, "Non-existent Feature") is False
 
+
+    # Property 3: Features with limits should respect those limits
     # Property 3: Features with limits should respect those limits
     for feature in tier_features:
+    for feature in tier_features:
+    # Skip if feature is not a dictionary or doesn't have the expected keys
     # Skip if feature is not a dictionary or doesn't have the expected keys
     if not isinstance(feature, dict):
+    if not isinstance(feature, dict):
+    continue
     continue
 
+
+    if (
     if (
     "limit" in feature
+    "limit" in feature
+    and feature["limit"] is not None
     and feature["limit"] is not None
     and "id" in feature
+    and "id" in feature
+    and "name" in feature
     and "name" in feature
     ):
+    ):
+    # Check that the usage limit matches what's defined in the tier
     # Check that the usage limit matches what's defined in the tier
     limit = manager.get_usage_limit(subscription.id, feature["name"])
+    limit = manager.get_usage_limit(subscription.id, feature["name"])
+    assert limit is not None
     assert limit is not None
     assert limit == feature["limit"]
+    assert limit == feature["limit"]
+
 
     # Test usage tracking
+    # Test usage tracking
+    # Reset usage first
     # Reset usage first
     subscription.reset_feature_usage(feature["id"])
+    subscription.reset_feature_usage(feature["id"])
+    assert subscription.get_feature_usage(feature["id"]) == 0
     assert subscription.get_feature_usage(feature["id"]) == 0
 
+
+    # Increment usage to just under the limit
     # Increment usage to just under the limit
     subscription.increment_feature_usage(feature["id"], feature["limit"] - 1)
+    subscription.increment_feature_usage(feature["id"], feature["limit"] - 1)
+    assert subscription.is_feature_limit_reached(feature["id"]) is False
     assert subscription.is_feature_limit_reached(feature["id"]) is False
 
+
+    # Increment once more to reach the limit
     # Increment once more to reach the limit
     subscription.increment_feature_usage(feature["id"], 1)
+    subscription.increment_feature_usage(feature["id"], 1)
+    assert subscription.is_feature_limit_reached(feature["id"])
     assert subscription.is_feature_limit_reached(feature["id"])
 
 
+
+
+    @given(subscription=subscriptions())
     @given(subscription=subscriptions())
     def test_subscription_state_transitions(subscription):
+    def test_subscription_state_transitions(subscription):
+
 
     # Create a SubscriptionManager instance with our generated subscription
+    # Create a SubscriptionManager instance with our generated subscription
+    manager = SubscriptionManager()
     manager = SubscriptionManager()
     manager.add_subscription(subscription)
+    manager.add_subscription(subscription)
+
 
     # Property 1: Canceling an active subscription should make it canceled or
+    # Property 1: Canceling an active subscription should make it canceled or
+    # set cancel_at_period_end flag
     # set cancel_at_period_end flag
     if subscription.status == SubscriptionStatus.ACTIVE:
+    if subscription.status == SubscriptionStatus.ACTIVE:
+    manager.cancel_subscription(subscription.id, cancel_at_period_end=True)
     manager.cancel_subscription(subscription.id, cancel_at_period_end=True)
     updated_sub = manager.get_subscription(subscription.id)
+    updated_sub = manager.get_subscription(subscription.id)
+    assert updated_sub.get_metadata("cancel_at_period_end")
     assert updated_sub.get_metadata("cancel_at_period_end")
 
+
+    # If immediate cancellation instead of at period end
     # If immediate cancellation instead of at period end
     manager.cancel_subscription(subscription.id, cancel_at_period_end=False)
+    manager.cancel_subscription(subscription.id, cancel_at_period_end=False)
+    updated_sub = manager.get_subscription(subscription.id)
     updated_sub = manager.get_subscription(subscription.id)
     assert updated_sub.status == SubscriptionStatus.CANCELED
+    assert updated_sub.status == SubscriptionStatus.CANCELED
+
 
     # Property 2: A canceled subscription can be reactivated
+    # Property 2: A canceled subscription can be reactivated
+    if subscription.status == SubscriptionStatus.CANCELED:
     if subscription.status == SubscriptionStatus.CANCELED:
     manager.reactivate_subscription(subscription.id)
+    manager.reactivate_subscription(subscription.id)
+    updated_sub = manager.get_subscription(subscription.id)
     updated_sub = manager.get_subscription(subscription.id)
     assert updated_sub.status in [
+    assert updated_sub.status in [
+    SubscriptionStatus.ACTIVE,
     SubscriptionStatus.ACTIVE,
     SubscriptionStatus.TRIAL,
+    SubscriptionStatus.TRIAL,
+    ]
     ]
 
+
+    # Property 3: Updating subscription status directly should work
     # Property 3: Updating subscription status directly should work
     new_status = SubscriptionStatus.PAST_DUE
+    new_status = SubscriptionStatus.PAST_DUE
+    manager.update_subscription_status(
     manager.update_subscription_status(
     subscription.id, new_status, "Testing status change"
+    subscription.id, new_status, "Testing status change"
+    )
     )
     updated_sub = manager.get_subscription(subscription.id)
+    updated_sub = manager.get_subscription(subscription.id)
+    assert updated_sub.status == new_status
     assert updated_sub.status == new_status
 
+
+    # Property 4: Status history should be updated after status changes
     # Property 4: Status history should be updated after status changes
     assert len(updated_sub.status_history) >= 2  # Initial + our change
+    assert len(updated_sub.status_history) >= 2  # Initial + our change
     last_entry = updated_sub.status_history[-1]
+    last_entry = updated_sub.status_history[-1]
+    assert last_entry["status"] == new_status
     assert last_entry["status"] == new_status
 
 
+
+
     @given(subscription=subscriptions())
+    @given(subscription=subscriptions())
+    def test_trial_expiration_properties(subscription):
     def test_trial_expiration_properties(subscription):
     """Test properties of trial expirations."""
     # Force the subscription into trial mode

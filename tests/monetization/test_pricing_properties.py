@@ -1,22 +1,41 @@
 """
+"""
+Property-based tests for pricing calculations.
 Property-based tests for pricing calculations.
 
+
+This module tests properties that should hold true for the pricing calculation
 This module tests properties that should hold true for the pricing calculation
 functions in the monetization module, using the Hypothesis framework for property-based testing.
+functions in the monetization module, using the Hypothesis framework for property-based testing.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 from hypothesis.strategies import composite
+from hypothesis.strategies import composite
+
 
 from hypothesis import assume, example, given
+from hypothesis import assume, example, given
+from hypothesis import strategies as st
 from hypothesis import strategies as st
 from monetization.calculator import MonetizationCalculator
+from monetization.calculator import MonetizationCalculator
+from monetization.pricing_calculator import PricingCalculator
 from monetization.pricing_calculator import PricingCalculator
 
 
+
+
+@composite
 @composite
 def subscription_tiers_strategy(draw):
+    def subscription_tiers_strategy(draw):
     """Strategy for generating valid subscription tiers."""
     num_tiers = draw(st.integers(min_value=1, max_value=5))
 

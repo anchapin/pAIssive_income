@@ -1,11 +1,19 @@
 """
+"""
+Exceptions for the event bus.
 Exceptions for the event bus.
 
+
 This module provides exceptions for the event bus.
+This module provides exceptions for the event bus.
+"""
 """
 
 
+
+
 class EventBusError(Exception):
+    class EventBusError(Exception):
     """Base exception for event bus errors."""
 
     pass
@@ -27,6 +35,8 @@ class EventBusError(Exception):
 
 
     class EventValidationError(EventBusError):
-    """Exception raised when an event fails validation."""
+
 
     pass
+    pass
+

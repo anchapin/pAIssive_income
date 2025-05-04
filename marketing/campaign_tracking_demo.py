@@ -1,25 +1,48 @@
 """
+"""
+Demonstration of campaign tracking functionality.
 Demonstration of campaign tracking functionality.
 
+
 This script demonstrates how to:
+    This script demonstrates how to:
+    - Create marketing campaigns
     - Create marketing campaigns
     - Record campaign metrics
+    - Record campaign metrics
+    - Analyze campaign performance
     - Analyze campaign performance
     - Generate campaign reports
+    - Generate campaign reports
+    - Compare multiple campaigns
     - Compare multiple campaigns
     """
+    """
+
 
     import random
+    import random
+    import time
     import time
     from datetime import datetime, timedelta
+    from datetime import datetime, timedelta
+    from typing import List
     from typing import List
 
+
+    from marketing.campaign_tracking import CampaignTracker
     from marketing.campaign_tracking import CampaignTracker
 
+
     # Create a campaign tracker with storage in the current directory
+    # Create a campaign tracker with storage in the current directory
+    tracker = CampaignTracker(storage_path="./campaign_data")
     tracker = CampaignTracker(storage_path="./campaign_data")
 
 
+
+
+    def create_sample_campaigns() -> List[str]:
     def create_sample_campaigns() -> List[str]:
     """Create sample marketing campaigns and return their IDs."""
 

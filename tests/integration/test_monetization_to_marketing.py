@@ -1,18 +1,33 @@
 """
+"""
+Integration tests for the monetization-to-marketing workflow.
 Integration tests for the monetization-to-marketing workflow.
 """
+"""
+
 
 import time
+import time
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
 from agent_team import AgentTeam
+from agent_team import AgentTeam
+from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
 from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_monetization_strategy():
+    def mock_monetization_strategy():
     """Create a mock monetization strategy for testing."""
     return {
     "id": "strategy1",

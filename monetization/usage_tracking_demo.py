@@ -1,23 +1,43 @@
 """
+"""
+Usage tracking demo for the pAIssive Income project.
 Usage tracking demo for the pAIssive Income project.
 
+
+This script demonstrates how to use the usage tracking system.
 This script demonstrates how to use the usage tracking system.
 """
+"""
+
 
 import random
+import random
+import time
 import time
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+
 
 from .usage_tracker import UsageTracker
+from .usage_tracker import UsageTracker
+
 
 (
+(
+UsageCategory,
 UsageCategory,
 UsageLimit,
+UsageLimit,
 UsageMetric,
+UsageMetric,
+)
 )
 
 
+
+
 def print_separator():
+    def print_separator():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 
@@ -26,88 +46,172 @@ def print_separator():
     tracker: UsageTracker, customer_id: str, num_records: int = 100, days_back: int = 30
     ) -> None:
     """
+    """
+    Generate random usage records for a customer.
     Generate random usage records for a customer.
 
+
+    Args:
     Args:
     tracker: Usage tracker
+    tracker: Usage tracker
+    customer_id: ID of the customer
     customer_id: ID of the customer
     num_records: Number of records to generate
+    num_records: Number of records to generate
+    days_back: Number of days back to generate records for
     days_back: Number of days back to generate records for
     """
+    """
+    # Define metrics and categories
     # Define metrics and categories
     metrics = [
+    metrics = [
+    UsageMetric.API_CALL,
     UsageMetric.API_CALL,
     UsageMetric.COMPUTE_TIME,
+    UsageMetric.COMPUTE_TIME,
+    UsageMetric.TOKEN,
     UsageMetric.TOKEN,
     UsageMetric.STORAGE,
+    UsageMetric.STORAGE,
     ]
+    ]
+
 
     categories = [
+    categories = [
+    UsageCategory.INFERENCE,
     UsageCategory.INFERENCE,
     UsageCategory.TRAINING,
+    UsageCategory.TRAINING,
+    UsageCategory.EMBEDDING,
     UsageCategory.EMBEDDING,
     UsageCategory.STORAGE,
+    UsageCategory.STORAGE,
     ]
+    ]
+
 
     resource_types = ["model", "database", "storage", "compute"]
+    resource_types = ["model", "database", "storage", "compute"]
+
 
     resource_ids = [
+    resource_ids = [
+    "model_gpt4",
     "model_gpt4",
     "model_llama",
+    "model_llama",
+    "db_postgres",
     "db_postgres",
     "storage_s3",
+    "storage_s3",
+    "compute_gpu",
     "compute_gpu",
     ]
+    ]
+
 
     # Generate random usage records
+    # Generate random usage records
+    now = datetime.now()
     now = datetime.now()
 
+
+    for i in range(num_records):
     for i in range(num_records):
     # Random timestamp within the last days_back days
+    # Random timestamp within the last days_back days
+    days_ago = random.uniform(0, days_back)
     days_ago = random.uniform(0, days_back)
     timestamp = now - timedelta(days=days_ago)
+    timestamp = now - timedelta(days=days_ago)
+
 
     # Random metric and category
+    # Random metric and category
+    metric = random.choice(metrics)
     metric = random.choice(metrics)
     category = random.choice(categories)
+    category = random.choice(categories)
+
 
     # Random resource type and ID
+    # Random resource type and ID
+    resource_type = random.choice(resource_types)
     resource_type = random.choice(resource_types)
     resource_id = random.choice(resource_ids)
+    resource_id = random.choice(resource_ids)
+
 
     # Random quantity
+    # Random quantity
+    if metric == UsageMetric.API_CALL:
     if metric == UsageMetric.API_CALL:
     quantity = random.randint(1, 10)
+    quantity = random.randint(1, 10)
+    elif metric == UsageMetric.COMPUTE_TIME:
     elif metric == UsageMetric.COMPUTE_TIME:
     quantity = random.uniform(0.1, 5.0)
+    quantity = random.uniform(0.1, 5.0)
+    elif metric == UsageMetric.TOKEN:
     elif metric == UsageMetric.TOKEN:
     quantity = random.randint(10, 1000)
+    quantity = random.randint(10, 1000)
+    elif metric == UsageMetric.STORAGE:
     elif metric == UsageMetric.STORAGE:
     quantity = random.uniform(0.1, 10.0)
+    quantity = random.uniform(0.1, 10.0)
+    else:
     else:
     quantity = random.uniform(1, 100)
+    quantity = random.uniform(1, 100)
+
 
     # Random metadata
+    # Random metadata
+    metadata = {
     metadata = {
     "endpoint": f"/v1/{random.choice(['completions', 'embeddings', 'chat', 'images'])}",
+    "endpoint": f"/v1/{random.choice(['completions', 'embeddings', 'chat', 'images'])}",
+    "status_code": random.choice([200, 200, 200, 400, 500]),
     "status_code": random.choice([200, 200, 200, 400, 500]),
     "latency_ms": random.randint(50, 2000),
+    "latency_ms": random.randint(50, 2000),
+    }
     }
 
+
+    # Track usage
     # Track usage
     tracker.track_usage(
+    tracker.track_usage(
+    customer_id=customer_id,
     customer_id=customer_id,
     metric=metric,
+    metric=metric,
+    quantity=quantity,
     quantity=quantity,
     category=category,
+    category=category,
+    resource_id=resource_id,
     resource_id=resource_id,
     resource_type=resource_type,
+    resource_type=resource_type,
+    timestamp=timestamp,
     timestamp=timestamp,
     metadata=metadata,
+    metadata=metadata,
     check_quota=False,  # Don't check quota for historical data
+    check_quota=False,  # Don't check quota for historical data
+    )
     )
 
 
+
+
+    def run_demo():
     def run_demo():
     """Run the usage tracking demo."""
     print("Usage Tracking Demo")

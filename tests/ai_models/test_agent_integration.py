@@ -1,20 +1,38 @@
 """
+"""
 Tests for the AgentModelProvider class.
+Tests for the AgentModelProvider class.
+"""
 """
 
 
+
+
+from typing import Any, Dict
 from typing import Any, Dict
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+
 
 from ai_models.agent_integration import AgentModelProvider
+from ai_models.agent_integration import AgentModelProvider
 from ai_models.model_manager import ModelManager
+from ai_models.model_manager import ModelManager
+from interfaces.model_interfaces import IModelInfo, IModelManager
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
-class MockModelInfo:
 
+
+class MockModelInfo:
+    class MockModelInfo:
+
+
+    pass  # Added missing block
     pass  # Added missing block
     """Mock model info for testing."""
 

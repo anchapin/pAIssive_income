@@ -1,37 +1,68 @@
 """
+"""
+Load balancing strategies for service discovery.
 Load balancing strategies for service discovery.
 
+
+This module defines various load balancing strategies for distributing
 This module defines various load balancing strategies for distributing
 requests across multiple instances of a service.
+requests across multiple instances of a service.
+"""
 """
 
 
+
+
+import abc
 import abc
 import random
+import random
+from typing import Generic, List, Optional, TypeVar
 from typing import Generic, List, Optional, TypeVar
 
+
+T
 T
 
+
+= TypeVar("T")
 = TypeVar("T")
 
 
+
+
 class LoadBalancerStrategy(Generic[T], abc.ABC):
+    class LoadBalancerStrategy(Generic[T], abc.ABC):
     """Base interface for load balancing strategies."""
 
     @abc.abstractmethod
     def select(self, instances: List[T]) -> Optional[T]:
     """
+    """
+    Select an instance from the list using the strategy.
     Select an instance from the list using the strategy.
 
+
+    Args:
     Args:
     instances: List of instances to select from
+    instances: List of instances to select from
+
 
     Returns:
+    Returns:
+    Optional[T]: The selected instance, or None if the list is empty
     Optional[T]: The selected instance, or None if the list is empty
     """
+    """
+    pass
     pass
 
 
+
+
+    class RoundRobinStrategy(LoadBalancerStrategy[T]):
     class RoundRobinStrategy(LoadBalancerStrategy[T]):
     """Round-robin load balancing strategy."""
 
@@ -61,13 +92,22 @@ class LoadBalancerStrategy(Generic[T], abc.ABC):
 
     def __init__(self, weight_function):
     """
+    """
+    Initialize the weighted random strategy.
     Initialize the weighted random strategy.
 
+
+    Args:
     Args:
     weight_function: Function that takes an instance and returns its weight
+    weight_function: Function that takes an instance and returns its weight
+    """
     """
     self.weight_function = weight_function
+    self.weight_function = weight_function
 
+
+    def select(self, instances: List[T]) -> Optional[T]:
     def select(self, instances: List[T]) -> Optional[T]:
     """Select an instance using weighted random selection."""
     if not instances:
@@ -84,13 +124,22 @@ class LoadBalancerStrategy(Generic[T], abc.ABC):
 
     def __init__(self, get_connections_function):
     """
+    """
+    Initialize the least connections strategy.
     Initialize the least connections strategy.
 
+
+    Args:
     Args:
     get_connections_function: Function that takes an instance and returns its connection count
+    get_connections_function: Function that takes an instance and returns its connection count
+    """
     """
     self.get_connections = get_connections_function
+    self.get_connections = get_connections_function
 
+
+    def select(self, instances: List[T]) -> Optional[T]:
     def select(self, instances: List[T]) -> Optional[T]:
     """Select the instance with the least connections."""
     if not instances:
@@ -103,33 +152,64 @@ class LoadBalancerStrategy(Generic[T], abc.ABC):
 
     def __init__(self, strategy: LoadBalancerStrategy[T] = None, filter_function=None):
     """
+    """
+    Initialize the load balancer.
     Initialize the load balancer.
 
+
+    Args:
     Args:
     strategy: The load balancing strategy to use (default: RoundRobinStrategy)
+    strategy: The load balancing strategy to use (default: RoundRobinStrategy)
+    filter_function: Optional function to filter instances before selection
     filter_function: Optional function to filter instances before selection
     """
+    """
+    self.strategy = strategy or RoundRobinStrategy()
     self.strategy = strategy or RoundRobinStrategy()
     self.filter_function = filter_function
+    self.filter_function = filter_function
+
 
     def select(self, instances: List[T]) -> Optional[T]:
+    def select(self, instances: List[T]) -> Optional[T]:
+    """
     """
     Select an instance from the list using the configured strategy.
+    Select an instance from the list using the configured strategy.
+
 
     Args:
+    Args:
+    instances: List of instances to select from
     instances: List of instances to select from
 
+
+    Returns:
     Returns:
     Optional[T]: The selected instance, or None if no suitable instances found
+    Optional[T]: The selected instance, or None if no suitable instances found
+    """
     """
     if not instances:
+    if not instances:
+    return None
     return None
 
+
+    # Apply filter if provided
     # Apply filter if provided
     if self.filter_function:
+    if self.filter_function:
+    filtered_instances = [i for i in instances if self.filter_function(i)]
     filtered_instances = [i for i in instances if self.filter_function(i)]
     if filtered_instances:
+    if filtered_instances:
+    instances = filtered_instances
     instances = filtered_instances
 
+
     # Use strategy to select an instance
+    # Use strategy to select an instance
+    return self.strategy.select(instances)
     return self.strategy.select(instances)

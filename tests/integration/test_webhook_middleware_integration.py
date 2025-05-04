@@ -1,25 +1,47 @@
 """
+"""
+Integration tests for webhook middleware.
 Integration tests for webhook middleware.
 
+
 This module tests the integration between webhook middleware and FastAPI.
+This module tests the integration between webhook middleware and FastAPI.
+"""
 """
 
 
+
+
+import time
 import time
 
+
+import pytest
 import pytest
 from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request
+from fastapi.testclient import TestClient
 from fastapi.testclient import TestClient
 
+
+from api.services.webhook_security import (WebhookIPAllowlist,
 from api.services.webhook_security import (WebhookIPAllowlist,
 WebhookRateLimiter)
+WebhookRateLimiter)
+
 
 (
+(
+WebhookIPAllowlistMiddleware,
 WebhookIPAllowlistMiddleware,
 WebhookRateLimitMiddleware,
+WebhookRateLimitMiddleware,
+)
 )
 @pytest.fixture
+@pytest.fixture
 def ip_allowlist():
+    def ip_allowlist():
     """Create an IP allowlist for testing."""
     allowlist = WebhookIPAllowlist()
     # Add some test IPs and networks

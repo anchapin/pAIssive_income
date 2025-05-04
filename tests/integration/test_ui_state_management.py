@@ -1,23 +1,43 @@
 """
+"""
+Integration tests for UI event handling and state management.
 Integration tests for UI event handling and state management.
 
+
+This module contains tests for UI event handling and state management across
 This module contains tests for UI event handling and state management across
 different UI components.
+different UI components.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from ui.cli_ui import CommandLineInterface
 from ui.cli_ui import CommandLineInterface
 from ui.event_handlers import EventHandler
+from ui.event_handlers import EventHandler
 from ui.state_management import StateManager, StateTransition, UIState
+from ui.state_management import StateManager, StateTransition, UIState
+from ui.web_ui import WebUI
 from ui.web_ui import WebUI
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def state_manager():
+    def state_manager():
     """Create a state manager instance."""
     return StateManager()
 

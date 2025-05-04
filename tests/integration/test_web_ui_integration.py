@@ -1,23 +1,43 @@
 """
+"""
+Integration tests for Web UI integration with backend services.
 Integration tests for Web UI integration with backend services.
 
+
 This module contains tests for the Web UI integration with backend services.
+This module contains tests for the Web UI integration with backend services.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from agent_team.agent_team import AgentTeam
 from agent_team.agent_team import AgentTeam
 from ai_models.model_manager import ModelManager
+from ai_models.model_manager import ModelManager
+from monetization.subscription_manager import SubscriptionManager
 from monetization.subscription_manager import SubscriptionManager
 from niche_analysis.market_analyzer import MarketAnalyzer
+from niche_analysis.market_analyzer import MarketAnalyzer
+from ui.web_ui import WebUI
 from ui.web_ui import WebUI
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_agent_team():
+    def mock_agent_team():
     """Create a mock agent team."""
     mock_team = MagicMock(spec=AgentTeam)
 

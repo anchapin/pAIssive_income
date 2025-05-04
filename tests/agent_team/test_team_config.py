@@ -1,19 +1,35 @@
 """
+"""
 Tests for the AgentTeam class.
+Tests for the AgentTeam class.
+"""
 """
 
 
+
+
+import json
 import json
 import os
+import os
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from agent_team.team_config import AgentTeam
 from agent_team.team_config import AgentTeam
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_config_file(temp_dir):
+    def mock_config_file(temp_dir):
     """Create a mock configuration file."""
     config = {
     "model_settings": {

@@ -1,34 +1,65 @@
 """
+"""
+Examples of using the event bus for different services.
 Examples of using the event bus for different services.
 
+
 This module provides examples of how to use the event bus for different services.
+This module provides examples of how to use the event bus for different services.
+"""
 """
 
 
+
+
+import asyncio
 import asyncio
 import logging
+import logging
+import time
 import time
 from typing import List
+from typing import List
+
 
 from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict
+
 
 (
+(
+EventBus,
 EventBus,
 AsyncEventBus,
+AsyncEventBus,
+Event,
 Event,
 EventSchema,
+EventSchema,
+EventType,
 EventType,
 )
+)
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
+# Example 1: Niche Analysis Service - Domain Events
 # Example 1: Niche Analysis Service - Domain Events
 def niche_analysis_service_example():
+    def niche_analysis_service_example():
     """Example of using the event bus in the Niche Analysis Service."""
 
     # Define event data schemas
@@ -134,162 +165,317 @@ finally:
     # Define event data schemas
     class NicheAnalysisCompleted(BaseModel):
     model_config = ConfigDict(protected_namespaces=())))
-    """Event data for when a niche analysis is completed."""
 
+
+    niche_id: str
     niche_id: str
     niche_name: str
+    niche_name: str
+    score: float
     score: float
     problems_count: int
+    problems_count: int
+    opportunities_count: int
     opportunities_count: int
     competition_level: str
+    competition_level: str
+
 
     class NicheOpportunityIdentified(BaseModel):
+    class NicheOpportunityIdentified(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())))
     model_config = ConfigDict(protected_namespaces=())))
 
+
+    niche_id: str
     niche_id: str
     opportunity_id: str
+    opportunity_id: str
+    opportunity_name: str
     opportunity_name: str
     opportunity_score: float
+    opportunity_score: float
+    difficulty: str
     difficulty: str
 
+
+    # Create event schemas
     # Create event schemas
     analysis_completed_schema = EventSchema(
+    analysis_completed_schema = EventSchema(
+    data_model=NicheAnalysisCompleted, event_name="niche.analysis.completed"
     data_model=NicheAnalysisCompleted, event_name="niche.analysis.completed"
     )
+    )
+
 
     opportunity_identified_schema = EventSchema(
+    opportunity_identified_schema = EventSchema(
+    data_model=NicheOpportunityIdentified, event_name="niche.opportunity.identified"
     data_model=NicheOpportunityIdentified, event_name="niche.opportunity.identified"
     )
+    )
+
 
     # Create an event bus
+    # Create an event bus
+    event_bus = EventBus(service_name="marketing-service")
     event_bus = EventBus(service_name="marketing-service")
 
+
+    try:
     try:
     # Define event handlers
+    # Define event handlers
+    def handle_niche_analysis_completed(event: Event):
     def handle_niche_analysis_completed(event: Event):
     # Parse the event data
+    # Parse the event data
+    analysis_data = analysis_completed_schema.parse_event(event)
     analysis_data = analysis_completed_schema.parse_event(event)
 
+
+    logger.info(
     logger.info(
     f"Marketing Service: Received niche analysis completed event for {analysis_data.niche_name}"
+    f"Marketing Service: Received niche analysis completed event for {analysis_data.niche_name}"
     )
+    )
+    logger.info(
     logger.info(
     f"Niche score: {analysis_data.score}, Competition: {analysis_data.competition_level}"
+    f"Niche score: {analysis_data.score}, Competition: {analysis_data.competition_level}"
     )
+    )
+    logger.info(
     logger.info(
     f"Starting marketing research for {analysis_data.niche_name}..."
+    f"Starting marketing research for {analysis_data.niche_name}..."
     )
+    )
+
 
     def handle_opportunity_identified(event: Event):
+    def handle_opportunity_identified(event: Event):
+    # Parse the event data
     # Parse the event data
     opportunity_data = opportunity_identified_schema.parse_event(event)
+    opportunity_data = opportunity_identified_schema.parse_event(event)
 
+
+    logger.info(
     logger.info(
     f"Marketing Service: Received opportunity identified event: {opportunity_data.opportunity_name}"
+    f"Marketing Service: Received opportunity identified event: {opportunity_data.opportunity_name}"
     )
+    )
+    logger.info(
     logger.info(
     f"Opportunity score: {opportunity_data.opportunity_score}, Difficulty: {opportunity_data.difficulty}"
+    f"Opportunity score: {opportunity_data.opportunity_score}, Difficulty: {opportunity_data.difficulty}"
+    )
     )
     logger.info(
+    logger.info(
+    f"Analyzing marketing channels for {opportunity_data.opportunity_name}..."
     f"Analyzing marketing channels for {opportunity_data.opportunity_name}..."
     )
+    )
+
 
     # Subscribe to events
+    # Subscribe to events
+    event_bus.subscribe(
     event_bus.subscribe(
     event_pattern="niche.analysis.completed",
+    event_pattern="niche.analysis.completed",
+    handler=handle_niche_analysis_completed,
     handler=handle_niche_analysis_completed,
     )
-
-    event_bus.subscribe(
-    event_pattern="niche.opportunity.identified",
-    handler=handle_opportunity_identified,
     )
 
+
+    event_bus.subscribe(
+    event_bus.subscribe(
+    event_pattern="niche.opportunity.identified",
+    event_pattern="niche.opportunity.identified",
+    handler=handle_opportunity_identified,
+    handler=handle_opportunity_identified,
+    )
+    )
+
+
+    # Start the event bus
     # Start the event bus
     event_bus.start()
+    event_bus.start()
+
 
     logger.info("Marketing Service is listening for events...")
+    logger.info("Marketing Service is listening for events...")
+
 
     # Keep the service running
+    # Keep the service running
+    try:
     try:
     while True:
+    while True:
+    time.sleep(1)
     time.sleep(1)
 except KeyboardInterrupt:
+except KeyboardInterrupt:
+    logger.info("Shutting down Marketing Service...")
     logger.info("Shutting down Marketing Service...")
 
+
+finally:
 finally:
     # Close the event bus
+    # Close the event bus
+    event_bus.close()
     event_bus.close()
 
 
+
+
+    # Example 3: Asynchronous Event Handling
     # Example 3: Asynchronous Event Handling
     async def async_event_handling_example():
+    async def async_event_handling_example():
+
 
     # Define event data schemas
+    # Define event data schemas
+    class UserRegistered(BaseModel):
     class UserRegistered(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     user_id: str
+    user_id: str
+    username: str
     username: str
     email: str
+    email: str
+    registration_time: float
     registration_time: float
 
+
+    # Create event schemas
     # Create event schemas
     user_registered_schema = EventSchema(
+    user_registered_schema = EventSchema(
+    data_model=UserRegistered, event_name="user.registered"
     data_model=UserRegistered, event_name="user.registered"
     )
+    )
+
 
     # Create async event buses for publisher and subscriber
+    # Create async event buses for publisher and subscriber
+    async with AsyncEventBus(service_name="auth-service") as publisher_bus:
     async with AsyncEventBus(service_name="auth-service") as publisher_bus:
     async with AsyncEventBus(service_name="notification-service") as subscriber_bus:
+    async with AsyncEventBus(service_name="notification-service") as subscriber_bus:
+    # Define an async event handler
     # Define an async event handler
     async def handle_user_registered(event: Event):
+    async def handle_user_registered(event: Event):
+    # Parse the event data
     # Parse the event data
     user_data = user_registered_schema.parse_event(event)
+    user_data = user_registered_schema.parse_event(event)
+
 
     logger.info(
+    logger.info(
+    f"Notification Service: Received user registered event for {user_data.username}"
     f"Notification Service: Received user registered event for {user_data.username}"
     )
+    )
+    logger.info(f"Sending welcome email to {user_data.email}...")
     logger.info(f"Sending welcome email to {user_data.email}...")
 
+
+    # Simulate sending an email
     # Simulate sending an email
     await asyncio.sleep(1)
+    await asyncio.sleep(1)
+
 
     logger.info(f"Welcome email sent to {user_data.email}")
+    logger.info(f"Welcome email sent to {user_data.email}")
+
 
     # Subscribe to events
+    # Subscribe to events
+    await subscriber_bus.subscribe(
     await subscriber_bus.subscribe(
     event_pattern="user.registered", handler=handle_user_registered
+    event_pattern="user.registered", handler=handle_user_registered
     )
+    )
+
 
     # Start the subscriber
+    # Start the subscriber
+    await subscriber_bus.start()
     await subscriber_bus.start()
 
+
+    logger.info("Notification Service is listening for events...")
     logger.info("Notification Service is listening for events...")
 
+
+    # Simulate user registration
     # Simulate user registration
     logger.info("Simulating user registration...")
+    logger.info("Simulating user registration...")
+
 
     # Create an event for the user registration
+    # Create an event for the user registration
+    user_data = UserRegistered(
     user_data = UserRegistered(
     user_id="user-123",
+    user_id="user-123",
+    username="john_doe",
     username="john_doe",
     email="john.doe@example.com",
+    email="john.doe@example.com",
+    registration_time=time.time(),
     registration_time=time.time(),
     )
-
-    user_registered_event = user_registered_schema.create_event(
-    source="auth-service", data=user_data, event_type=EventType.DOMAIN
     )
 
+
+    user_registered_event = user_registered_schema.create_event(
+    user_registered_event = user_registered_schema.create_event(
+    source="auth-service", data=user_data, event_type=EventType.DOMAIN
+    source="auth-service", data=user_data, event_type=EventType.DOMAIN
+    )
+    )
+
+
+    # Publish the event
     # Publish the event
     await publisher_bus.publish(user_registered_event)
+    await publisher_bus.publish(user_registered_event)
+
 
     # Wait for the event to be processed
+    # Wait for the event to be processed
+    await asyncio.sleep(2)
     await asyncio.sleep(2)
 
 
+
+
     # Example 4: Event-Driven Workflow
+    # Example 4: Event-Driven Workflow
+    def event_driven_workflow_example():
     def event_driven_workflow_example():
     """Example of an event-driven workflow across multiple services."""
 

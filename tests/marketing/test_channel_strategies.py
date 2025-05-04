@@ -1,14 +1,25 @@
 """
+"""
+Tests for the channel strategies components in the Marketing module.
 Tests for the channel strategies components in the Marketing module.
 """
+"""
+
 
 from marketing.channel_strategies import (ContentMarketingStrategy,
+from marketing.channel_strategies import (ContentMarketingStrategy,
+EmailMarketingStrategy,
 EmailMarketingStrategy,
 MarketingStrategy,
+MarketingStrategy,
+SocialMediaStrategy)
 SocialMediaStrategy)
 
 
+
+
 def test_marketing_strategy_init():
+    def test_marketing_strategy_init():
     """Test MarketingStrategy initialization."""
     strategy = MarketingStrategy(
     name="Test Marketing Strategy", description="A test marketing strategy"

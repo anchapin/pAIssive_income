@@ -1,25 +1,48 @@
 """
+"""
 Schema definitions for marketing tools.
+Schema definitions for marketing tools.
+"""
 """
 
 
+
+
+import uuid
 import uuid
 from datetime import datetime
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
+
+from marketing.enums import (BusinessSize, BusinessType, PriorityLevel,
 from marketing.enums import (BusinessSize, BusinessType, PriorityLevel,
 TimeframeUnit)
+TimeframeUnit)
+from marketing.schemas.budget import BudgetSchema
 from marketing.schemas.budget import BudgetSchema
 from marketing.schemas.demographics import DemographicsSchema
+from marketing.schemas.demographics import DemographicsSchema
 from marketing.schemas.strategy import MarketingStrategySchema
+from marketing.schemas.strategy import MarketingStrategySchema
+from marketing.schemas.target_audience import TargetAudienceSchema
 from marketing.schemas.target_audience import TargetAudienceSchema
 
 
+
+
+class TimeframeSchema
 class TimeframeSchema
 
+
 (BaseModel):
+    (BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Schema for timeframe specifications."""
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)

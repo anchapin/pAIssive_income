@@ -1,20 +1,38 @@
 """
+"""
+Tests for the ModelDownloader class.
 Tests for the ModelDownloader class.
 """
+"""
+
 
 import os
+import os
+import shutil
 import shutil
 import tempfile
+import tempfile
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
 from ai_models.model_downloader import (DownloadProgress, DownloadTask,
+from ai_models.model_downloader import (DownloadProgress, DownloadTask,
+ModelDownloader)
 ModelDownloader)
 
 
-def test_download_progress_init():
 
+
+def test_download_progress_init():
+    def test_download_progress_init():
+
+
+    pass  # Added missing block
     pass  # Added missing block
     """Test DownloadProgress initialization."""
     progress = DownloadProgress(

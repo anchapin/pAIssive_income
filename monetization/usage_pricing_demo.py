@@ -1,25 +1,48 @@
 """
+"""
+Usage-based pricing demo for the pAIssive Income project.
 Usage-based pricing demo for the pAIssive Income project.
 
+
+This script demonstrates how to use the usage-based pricing models
 This script demonstrates how to use the usage-based pricing models
 to implement different pricing strategies.
+to implement different pricing strategies.
+"""
 """
 
+
+import random
 import random
 import time
+import time
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 
+
 from .usage_tracker import UsageTracker
+from .usage_tracker import UsageTracker
+from .usage_tracking import UsageCategory, UsageMetric
 from .usage_tracking import UsageCategory, UsageMetric
 
 
+
+
 def print_separator():
+    def print_separator():
+    (
     (
     ConsumptionBasedPricing,
+    ConsumptionBasedPricing,
+    HybridUsagePricing,
     HybridUsagePricing,
     PayAsYouGoPricing,
+    PayAsYouGoPricing,
+    TieredUsagePricing,
     TieredUsagePricing,
     )
+    )
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
@@ -34,79 +57,154 @@ def print_separator():
 
     def simulate_usage(tracker, customer_id, days=30):
     """
+    """
+    Simulate usage for a customer over a period of days.
     Simulate usage for a customer over a period of days.
 
+
+    Args:
     Args:
     tracker: Usage tracker
+    tracker: Usage tracker
+    customer_id: Customer ID
     customer_id: Customer ID
     days: Number of days to simulate
+    days: Number of days to simulate
+    """
     """
     start_date = datetime.now() - timedelta(days=days)
+    start_date = datetime.now() - timedelta(days=days)
+
 
     # Simulate API calls
+    # Simulate API calls
+    for day in range(days):
     for day in range(days):
     date = start_date + timedelta(days=day)
+    date = start_date + timedelta(days=day)
+
 
     # Simulate API calls (more on weekdays)
+    # Simulate API calls (more on weekdays)
+    is_weekend = date.weekday() >= 5
     is_weekend = date.weekday() >= 5
     api_calls = random.randint(10, 50) if is_weekend else random.randint(50, 200)
+    api_calls = random.randint(10, 50) if is_weekend else random.randint(50, 200)
+
 
     tracker.record_usage(
+    tracker.record_usage(
+    customer_id=customer_id,
     customer_id=customer_id,
     metric=UsageMetric.API_CALL,
+    metric=UsageMetric.API_CALL,
+    quantity=api_calls,
     quantity=api_calls,
     timestamp=date,
+    timestamp=date,
+    category=UsageCategory.INFERENCE,
     category=UsageCategory.INFERENCE,
     )
+    )
+
 
     # Simulate token usage
+    # Simulate token usage
+    tokens = api_calls * random.randint(50, 200)
     tokens = api_calls * random.randint(50, 200)
 
+
     tracker.record_usage(
+    tracker.record_usage(
+    customer_id=customer_id,
     customer_id=customer_id,
     metric=UsageMetric.TOKEN,
+    metric=UsageMetric.TOKEN,
+    quantity=tokens,
     quantity=tokens,
     timestamp=date,
+    timestamp=date,
+    category=UsageCategory.INFERENCE,
     category=UsageCategory.INFERENCE,
     )
+    )
+
 
     # Simulate compute time
+    # Simulate compute time
+    compute_hours = api_calls * random.uniform(0.01, 0.05)
     compute_hours = api_calls * random.uniform(0.01, 0.05)
 
+
     tracker.record_usage(
+    tracker.record_usage(
+    customer_id=customer_id,
     customer_id=customer_id,
     metric=UsageMetric.COMPUTE_TIME,
+    metric=UsageMetric.COMPUTE_TIME,
+    quantity=compute_hours,
     quantity=compute_hours,
     timestamp=date,
+    timestamp=date,
+    category=UsageCategory.COMPUTE,
     category=UsageCategory.COMPUTE,
     resource_type="cpu",
+    resource_type="cpu",
     )
+    )
+
 
     # Simulate storage (cumulative)
+    # Simulate storage (cumulative)
+    storage_gb = 1.0 + (day * 0.2)  # Grows by 0.2 GB per day
     storage_gb = 1.0 + (day * 0.2)  # Grows by 0.2 GB per day
 
+
     tracker.record_usage(
+    tracker.record_usage(
+    customer_id=customer_id,
     customer_id=customer_id,
     metric=UsageMetric.STORAGE,
+    metric=UsageMetric.STORAGE,
+    quantity=storage_gb,
     quantity=storage_gb,
     timestamp=date,
+    timestamp=date,
+    category=UsageCategory.STORAGE,
     category=UsageCategory.STORAGE,
     resource_type="standard",
+    resource_type="standard",
     )
+    )
+
 
     # Simulate bandwidth
+    # Simulate bandwidth
+    bandwidth_gb = api_calls * random.uniform(0.001, 0.005)
     bandwidth_gb = api_calls * random.uniform(0.001, 0.005)
 
+
+    tracker.record_usage(
     tracker.record_usage(
     customer_id=customer_id,
+    customer_id=customer_id,
+    metric=UsageMetric.BANDWIDTH,
     metric=UsageMetric.BANDWIDTH,
     quantity=bandwidth_gb,
+    quantity=bandwidth_gb,
+    timestamp=date,
     timestamp=date,
     category=UsageCategory.NETWORK,
+    category=UsageCategory.NETWORK,
     resource_type="outbound",
+    resource_type="outbound",
+    )
     )
 
 
+
+
+    def main():
     def main():
     """Run the usage-based pricing demo."""
     print_section("Usage-Based Pricing Demo")

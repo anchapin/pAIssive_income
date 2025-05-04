@@ -1,23 +1,43 @@
 """
+"""
+Webhook example for the pAIssive Income API.
 Webhook example for the pAIssive Income API.
 
+
 This example demonstrates how to register webhooks and emit events.
+This example demonstrates how to register webhooks and emit events.
+"""
 """
 
 
+
+
+import asyncio
 import asyncio
 import json
+import json
+
 
 from ..config import WebhookEventType
+from ..config import WebhookEventType
 from ..services.event_emitter import EventEmitter
+from ..services.event_emitter import EventEmitter
+from ..services.webhook_service import WebhookService
 from ..services.webhook_service import WebhookService
 
 
+
+
+async def register_webhook_example
 async def register_webhook_example
 import hashlib
+import hashlib
+import hmac
 import hmac
 
+
 ():
+    ():
     """Example of registering a webhook."""
 
     # Get webhook service

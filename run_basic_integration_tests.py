@@ -1,20 +1,38 @@
 """
+"""
 Basic integration tests for webhook security features.
+Basic integration tests for webhook security features.
+"""
 """
 
 
+
+
+import base64
 import base64
 import hashlib
+import hashlib
+import hmac
 import hmac
 import json
+import json
+import sys
 import sys
 import time
+import time
 import unittest
+import unittest
+from typing import Dict, List, Optional, Set
 from typing import Dict, List, Optional, Set
 
 
-class WebhookSignatureVerifier:
 
+
+class WebhookSignatureVerifier:
+    class WebhookSignatureVerifier:
+
+
+    pass  # Added missing block
     pass  # Added missing block
     """Webhook signature verification."""
 

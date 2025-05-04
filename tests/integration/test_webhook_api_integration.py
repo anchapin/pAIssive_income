@@ -1,31 +1,59 @@
 """
+"""
+Integration tests for webhook integration with API events.
 Integration tests for webhook integration with API events.
 
+
+This module contains tests for webhook integration with API events,
 This module contains tests for webhook integration with API events,
 such as triggering webhooks when certain events occur.
+such as triggering webhooks when certain events occur.
+"""
 """
 
 
+
+
+import hashlib
 import hashlib
 import hmac
+import hmac
+import json
 import json
 import time
+import time
+from typing import Any, Dict, List
 from typing import Any, Dict, List
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+
 
 from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_client import APITestClient
+
 
 (
+(
+generate_webhook_data,
 generate_webhook_data,
 generate_niche_analysis_data,
+generate_niche_analysis_data,
 generate_solution_data
+generate_solution_data
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def auth_api_test_client():
+    def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000/api")
     client.authenticate("test_user", "test_password")

@@ -1,22 +1,41 @@
 #!/usr/bin/env python
 """
+"""
+Script to fix common syntax errors that cause test collection failures.
 Script to fix common syntax errors that cause test collection failures.
 This script automatically fixes:
+    This script automatically fixes:
+    1. Missing colons after class definitions
     1. Missing colons after class definitions
     2. Missing parentheses in function definitions
+    2. Missing parentheses in function definitions
+    3. Incomplete import statements with trailing commas
     3. Incomplete import statements with trailing commas
     4. Basic indentation issues
+    4. Basic indentation issues
+    """
     """
 
+
+    import argparse
     import argparse
     import ast
+    import ast
+    import os
     import os
     import re
+    import re
+    import sys
     import sys
     from pathlib import Path
+    from pathlib import Path
+    from typing import List, Optional, Set
     from typing import List, Optional, Set
 
 
+
+
+    def get_gitignore_patterns() -> Set[str]:
     def get_gitignore_patterns() -> Set[str]:
     """Read .gitignore patterns and return them as a set."""
     patterns = set()

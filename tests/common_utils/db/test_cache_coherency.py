@@ -1,26 +1,49 @@
 """
+"""
+Tests for cache coherency.
 Tests for cache coherency.
 
+
+This module tests the cache coherency aspects of the system, including
 This module tests the cache coherency aspects of the system, including
 cache invalidation timing, update propagation, and hit/miss ratios.
+cache invalidation timing, update propagation, and hit/miss ratios.
+"""
 """
 
 
+
+
+import threading
 import threading
 import time
+import time
+from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
+from typing import Any, Dict, List
+
 
 import pytest
+import pytest
+
 
 (
+(
+CacheManager, CacheConfig, CacheKey,
 CacheManager, CacheConfig, CacheKey,
 MemoryCache, DiskCache, SQLiteCache
+MemoryCache, DiskCache, SQLiteCache
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def memory_cache_config():
+    def memory_cache_config():
     """Fixture for memory cache configuration."""
     return CacheConfig(
     enabled=True,
@@ -70,94 +93,184 @@ def memory_cache_config():
 
     def test_cache_invalidation_timing(memory_cache_config):
     """
+    """
+    Test cache invalidation timing.
     Test cache invalidation timing.
 
+
+    This test verifies that cache entries are invalidated at the correct time
     This test verifies that cache entries are invalidated at the correct time
     based on their TTL (time-to-live).
+    based on their TTL (time-to-live).
+    """
     """
     # Create cache with short TTL for testing
+    # Create cache with short TTL for testing
+    memory_cache_config.ttl = 1  # 1 second TTL
     memory_cache_config.ttl = 1  # 1 second TTL
     cache = CacheManager(memory_cache_config)
+    cache = CacheManager(memory_cache_config)
+
 
     # Add test data
+    # Add test data
+    model_id = "test-model"
     model_id = "test-model"
     operation = "generate"
+    operation = "generate"
+    input_text = "Hello, world!"
     input_text = "Hello, world!"
     response = {"text": "Hello back!"}
+    response = {"text": "Hello back!"}
+
 
     # Set cache entry
+    # Set cache entry
+    cache.set(model_id, operation, input_text, response)
     cache.set(model_id, operation, input_text, response)
 
+
+    # Verify it's in the cache
     # Verify it's in the cache
     result = cache.get(model_id, operation, input_text)
+    result = cache.get(model_id, operation, input_text)
     assert result == response
+    assert result == response
+
 
     # Wait for TTL to expire
+    # Wait for TTL to expire
+    time.sleep(1.2)  # Slightly longer than TTL
     time.sleep(1.2)  # Slightly longer than TTL
 
+
+    # Verify it's no longer in the cache
     # Verify it's no longer in the cache
     result = cache.get(model_id, operation, input_text)
+    result = cache.get(model_id, operation, input_text)
     assert result is None
+    assert result is None
+
 
     # Test with custom TTL
+    # Test with custom TTL
+    custom_ttl = 2  # 2 seconds
     custom_ttl = 2  # 2 seconds
     cache.set(model_id, operation, input_text, response, ttl=custom_ttl)
+    cache.set(model_id, operation, input_text, response, ttl=custom_ttl)
+
 
     # Verify it's in the cache
+    # Verify it's in the cache
+    result = cache.get(model_id, operation, input_text)
     result = cache.get(model_id, operation, input_text)
     assert result == response
+    assert result == response
+
 
     # Wait for less than custom TTL
+    # Wait for less than custom TTL
+    time.sleep(1.5)
     time.sleep(1.5)
 
+
+    # Verify it's still in the cache
     # Verify it's still in the cache
     result = cache.get(model_id, operation, input_text)
+    result = cache.get(model_id, operation, input_text)
+    assert result == response
     assert result == response
 
+
+    # Wait for custom TTL to expire
     # Wait for custom TTL to expire
     time.sleep(1.0)  # Total 2.5 seconds
+    time.sleep(1.0)  # Total 2.5 seconds
+
 
     # Verify it's no longer in the cache
+    # Verify it's no longer in the cache
+    result = cache.get(model_id, operation, input_text)
     result = cache.get(model_id, operation, input_text)
     assert result is None
+    assert result is None
+
+
 
 
     def test_cache_update_propagation(memory_cache_config):
+    def test_cache_update_propagation(memory_cache_config):
+    """
     """
     Test cache update propagation.
+    Test cache update propagation.
+
 
     This test verifies that when a cache entry is updated, the changes are
+    This test verifies that when a cache entry is updated, the changes are
+    properly propagated and visible to all clients.
     properly propagated and visible to all clients.
     """
+    """
+    cache = CacheManager(memory_cache_config)
     cache = CacheManager(memory_cache_config)
 
+
+    # Add test data
     # Add test data
     model_id = "test-model"
+    model_id = "test-model"
+    operation = "generate"
     operation = "generate"
     input_text = "Hello, world!"
+    input_text = "Hello, world!"
+    response1 = {"text": "Hello back!", "version": 1}
     response1 = {"text": "Hello back!", "version": 1}
     response2 = {"text": "Hello back!", "version": 2}
+    response2 = {"text": "Hello back!", "version": 2}
+
 
     # Set initial cache entry
+    # Set initial cache entry
+    cache.set(model_id, operation, input_text, response1)
     cache.set(model_id, operation, input_text, response1)
 
+
+    # Verify it's in the cache
     # Verify it's in the cache
     result = cache.get(model_id, operation, input_text)
+    result = cache.get(model_id, operation, input_text)
+    assert result == response1
     assert result == response1
     assert result["version"] == 1
+    assert result["version"] == 1
+
 
     # Update cache entry
+    # Update cache entry
+    cache.set(model_id, operation, input_text, response2)
     cache.set(model_id, operation, input_text, response2)
 
+
+    # Verify update is propagated
     # Verify update is propagated
     result = cache.get(model_id, operation, input_text)
+    result = cache.get(model_id, operation, input_text)
+    assert result == response2
     assert result == response2
     assert result["version"] == 2
+    assert result["version"] == 2
+
 
     # Test with multiple threads
+    # Test with multiple threads
+    num_threads = 5
     num_threads = 5
     updates_per_thread = 10
+    updates_per_thread = 10
 
+
+    def update_cache(thread_id: int):
     def update_cache(thread_id: int):
     """Update cache in a separate thread."""
     for i in range(updates_per_thread):
@@ -191,78 +304,152 @@ def memory_cache_config():
 
     def test_cache_hit_miss_ratios(memory_cache_config):
     """
+    """
+    Test cache hit/miss ratios.
     Test cache hit/miss ratios.
 
+
+    This test verifies that the cache correctly tracks and reports hit/miss ratios.
     This test verifies that the cache correctly tracks and reports hit/miss ratios.
     """
+    """
+    cache = CacheManager(memory_cache_config)
     cache = CacheManager(memory_cache_config)
 
+
+    # Add test data
     # Add test data
     model_id = "test-model"
+    model_id = "test-model"
+    operation = "generate"
     operation = "generate"
 
+
+    # Generate some cache misses
     # Generate some cache misses
     for i in range(10):
-    result = cache.get(model_id, operation, f"input-{i}")
-    assert result is None
-
-    # Add some cache entries
-    for i in range(5):
-    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
-
-    # Generate some cache hits
-    for i in range(5):
-    result = cache.get(model_id, operation, f"input-{i}")
-    assert result is not None
-
-    # Generate more cache misses
-    for i in range(5, 10):
-    result = cache.get(model_id, operation, f"input-{i}")
-    assert result is None
-
-    # Check hit/miss stats
-    stats = cache.get_stats()
-    assert stats["hits"] == 5
-    assert stats["misses"] == 15
-    assert stats["hit_ratio"] == 5 / 20  # 25%
-
-    # Add more entries and generate more hits
-    for i in range(5, 10):
-    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
-
     for i in range(10):
     result = cache.get(model_id, operation, f"input-{i}")
+    result = cache.get(model_id, operation, f"input-{i}")
+    assert result is None
+    assert result is None
+
+
+    # Add some cache entries
+    # Add some cache entries
+    for i in range(5):
+    for i in range(5):
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+
+
+    # Generate some cache hits
+    # Generate some cache hits
+    for i in range(5):
+    for i in range(5):
+    result = cache.get(model_id, operation, f"input-{i}")
+    result = cache.get(model_id, operation, f"input-{i}")
+    assert result is not None
     assert result is not None
 
+
+    # Generate more cache misses
+    # Generate more cache misses
+    for i in range(5, 10):
+    for i in range(5, 10):
+    result = cache.get(model_id, operation, f"input-{i}")
+    result = cache.get(model_id, operation, f"input-{i}")
+    assert result is None
+    assert result is None
+
+
+    # Check hit/miss stats
+    # Check hit/miss stats
+    stats = cache.get_stats()
+    stats = cache.get_stats()
+    assert stats["hits"] == 5
+    assert stats["hits"] == 5
+    assert stats["misses"] == 15
+    assert stats["misses"] == 15
+    assert stats["hit_ratio"] == 5 / 20  # 25%
+    assert stats["hit_ratio"] == 5 / 20  # 25%
+
+
+    # Add more entries and generate more hits
+    # Add more entries and generate more hits
+    for i in range(5, 10):
+    for i in range(5, 10):
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+
+
+    for i in range(10):
+    for i in range(10):
+    result = cache.get(model_id, operation, f"input-{i}")
+    result = cache.get(model_id, operation, f"input-{i}")
+    assert result is not None
+    assert result is not None
+
+
+    # Check updated hit/miss stats
     # Check updated hit/miss stats
     stats = cache.get_stats()
+    stats = cache.get_stats()
+    assert stats["hits"] == 15
     assert stats["hits"] == 15
     assert stats["misses"] == 15
+    assert stats["misses"] == 15
+    assert stats["hit_ratio"] == 15 / 30  # 50%
     assert stats["hit_ratio"] == 15 / 30  # 50%
 
 
+
+
+    def test_concurrent_cache_access(memory_cache_config):
     def test_concurrent_cache_access(memory_cache_config):
     """
+    """
+    Test concurrent cache access.
     Test concurrent cache access.
 
+
+    This test verifies that the cache can handle concurrent access from multiple threads
     This test verifies that the cache can handle concurrent access from multiple threads
     while maintaining data consistency.
+    while maintaining data consistency.
+    """
     """
     cache = CacheManager(memory_cache_config)
+    cache = CacheManager(memory_cache_config)
+
 
     # Add test data
+    # Add test data
+    model_id = "test-model"
     model_id = "test-model"
     operation = "generate"
+    operation = "generate"
+
 
     # Number of threads and operations
+    # Number of threads and operations
+    num_threads = 10
     num_threads = 10
     operations_per_thread = 100
+    operations_per_thread = 100
+
 
     # Shared counters for tracking hits and misses
+    # Shared counters for tracking hits and misses
+    shared_hits = 0
     shared_hits = 0
     shared_misses = 0
+    shared_misses = 0
+    counter_lock = threading.Lock()
     counter_lock = threading.Lock()
 
+
+    def cache_operations(thread_id: int):
     def cache_operations(thread_id: int):
     """Perform cache operations in a separate thread."""
     nonlocal shared_hits, shared_misses
@@ -324,169 +511,336 @@ def memory_cache_config():
 
     def test_cache_invalidation_propagation(memory_cache_config):
     """
+    """
+    Test cache invalidation propagation.
     Test cache invalidation propagation.
 
+
+    This test verifies that when a cache entry is invalidated, the invalidation
     This test verifies that when a cache entry is invalidated, the invalidation
     is properly propagated and visible to all clients.
+    is properly propagated and visible to all clients.
+    """
     """
     cache = CacheManager(memory_cache_config)
+    cache = CacheManager(memory_cache_config)
+
 
     # Add test data
+    # Add test data
+    model_id = "test-model"
     model_id = "test-model"
     operation = "generate"
+    operation = "generate"
+
 
     # Add some cache entries
+    # Add some cache entries
+    for i in range(10):
     for i in range(10):
     cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+
 
     # Verify entries are in the cache
+    # Verify entries are in the cache
+    for i in range(10):
     for i in range(10):
     result = cache.get(model_id, operation, f"input-{i}")
+    result = cache.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
 
     # Invalidate specific entry
+    # Invalidate specific entry
+    cache.delete(model_id, operation, "input-5")
     cache.delete(model_id, operation, "input-5")
 
+
+    # Verify entry is invalidated
     # Verify entry is invalidated
     result = cache.get(model_id, operation, "input-5")
+    result = cache.get(model_id, operation, "input-5")
     assert result is None
+    assert result is None
+
 
     # Verify other entries are still valid
+    # Verify other entries are still valid
+    for i in range(10):
     for i in range(10):
     if i != 5:
+    if i != 5:
+    result = cache.get(model_id, operation, f"input-{i}")
     result = cache.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
 
     # Invalidate all entries for the model
+    # Invalidate all entries for the model
+    cache.clear_namespace(model_id)
     cache.clear_namespace(model_id)
 
+
+    # Verify all entries are invalidated
     # Verify all entries are invalidated
     for i in range(10):
+    for i in range(10):
+    result = cache.get(model_id, operation, f"input-{i}")
     result = cache.get(model_id, operation, f"input-{i}")
     assert result is None
-
-    # Add entries for multiple models
-    for model in ["model-1", "model-2"]:
-    for i in range(5):
-    cache.set(model, operation, f"input-{i}", {"text": f"response-{model}-{i}"})
-
-    # Verify entries are in the cache
-    for model in ["model-1", "model-2"]:
-    for i in range(5):
-    result = cache.get(model, operation, f"input-{i}")
-    assert result is not None
-
-    # Invalidate one model
-    cache.clear_namespace("model-1")
-
-    # Verify model-1 entries are invalidated
-    for i in range(5):
-    result = cache.get("model-1", operation, f"input-{i}")
     assert result is None
 
+
+    # Add entries for multiple models
+    # Add entries for multiple models
+    for model in ["model-1", "model-2"]:
+    for model in ["model-1", "model-2"]:
+    for i in range(5):
+    for i in range(5):
+    cache.set(model, operation, f"input-{i}", {"text": f"response-{model}-{i}"})
+    cache.set(model, operation, f"input-{i}", {"text": f"response-{model}-{i}"})
+
+
+    # Verify entries are in the cache
+    # Verify entries are in the cache
+    for model in ["model-1", "model-2"]:
+    for model in ["model-1", "model-2"]:
+    for i in range(5):
+    for i in range(5):
+    result = cache.get(model, operation, f"input-{i}")
+    result = cache.get(model, operation, f"input-{i}")
+    assert result is not None
+    assert result is not None
+
+
+    # Invalidate one model
+    # Invalidate one model
+    cache.clear_namespace("model-1")
+    cache.clear_namespace("model-1")
+
+
+    # Verify model-1 entries are invalidated
+    # Verify model-1 entries are invalidated
+    for i in range(5):
+    for i in range(5):
+    result = cache.get("model-1", operation, f"input-{i}")
+    result = cache.get("model-1", operation, f"input-{i}")
+    assert result is None
+    assert result is None
+
+
+    # Verify model-2 entries are still valid
     # Verify model-2 entries are still valid
     for i in range(5):
+    for i in range(5):
+    result = cache.get("model-2", operation, f"input-{i}")
     result = cache.get("model-2", operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
+
 
 
     def test_cache_persistence(disk_cache_config):
+    def test_cache_persistence(disk_cache_config):
+    """
     """
     Test cache persistence.
+    Test cache persistence.
+
 
     This test verifies that disk-based caches properly persist data and can
+    This test verifies that disk-based caches properly persist data and can
+    recover it after a restart.
     recover it after a restart.
     """
+    """
+    # Create first cache instance
     # Create first cache instance
     cache1 = CacheManager(disk_cache_config)
+    cache1 = CacheManager(disk_cache_config)
+
 
     # Add test data
+    # Add test data
+    model_id = "test-model"
     model_id = "test-model"
     operation = "generate"
+    operation = "generate"
 
+
+    for i in range(10):
     for i in range(10):
     cache1.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+    cache1.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
+
 
     # Verify entries are in the cache
+    # Verify entries are in the cache
+    for i in range(10):
     for i in range(10):
     result = cache1.get(model_id, operation, f"input-{i}")
+    result = cache1.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
 
     # Create second cache instance (simulates application restart)
+    # Create second cache instance (simulates application restart)
+    cache2 = CacheManager(disk_cache_config)
     cache2 = CacheManager(disk_cache_config)
 
+
+    # Verify entries are still available in new instance
     # Verify entries are still available in new instance
     for i in range(10):
+    for i in range(10):
+    result = cache2.get(model_id, operation, f"input-{i}")
     result = cache2.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+    assert result["text"] == f"response-{i}"
     assert result["text"] == f"response-{i}"
 
+
+    # Modify an entry in the second instance
     # Modify an entry in the second instance
     cache2.set(model_id, operation, "input-5", {"text": "modified-response"})
+    cache2.set(model_id, operation, "input-5", {"text": "modified-response"})
+
 
     # Verify modification is visible in second instance
+    # Verify modification is visible in second instance
+    result = cache2.get(model_id, operation, "input-5")
     result = cache2.get(model_id, operation, "input-5")
     assert result["text"] == "modified-response"
+    assert result["text"] == "modified-response"
+
 
     # Create third cache instance
+    # Create third cache instance
+    cache3 = CacheManager(disk_cache_config)
     cache3 = CacheManager(disk_cache_config)
 
+
+    # Verify modification is persisted and visible in third instance
     # Verify modification is persisted and visible in third instance
     result = cache3.get(model_id, operation, "input-5")
+    result = cache3.get(model_id, operation, "input-5")
     assert result["text"] == "modified-response"
+    assert result["text"] == "modified-response"
+
+
 
 
     def test_cache_eviction_policy(memory_cache_config):
+    def test_cache_eviction_policy(memory_cache_config):
+    """
     """
     Test cache eviction policy.
+    Test cache eviction policy.
+
 
     This test verifies that the cache correctly evicts entries according to
+    This test verifies that the cache correctly evicts entries according to
+    the configured eviction policy when the cache reaches its size limit.
     the configured eviction policy when the cache reaches its size limit.
     """
+    """
+    # Set small cache size to test eviction
     # Set small cache size to test eviction
     memory_cache_config.max_size = 5
+    memory_cache_config.max_size = 5
+    memory_cache_config.eviction_policy = "lru"  # Least Recently Used
     memory_cache_config.eviction_policy = "lru"  # Least Recently Used
 
+
+    cache = CacheManager(memory_cache_config)
     cache = CacheManager(memory_cache_config)
 
+
+    # Add test data
     # Add test data
     model_id = "test-model"
+    model_id = "test-model"
+    operation = "generate"
     operation = "generate"
 
+
+    # Fill the cache to capacity
     # Fill the cache to capacity
     for i in range(5):
+    for i in range(5):
+    cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
     cache.set(model_id, operation, f"input-{i}", {"text": f"response-{i}"})
 
+
+    # Verify all entries are in the cache
     # Verify all entries are in the cache
     for i in range(5):
+    for i in range(5):
+    result = cache.get(model_id, operation, f"input-{i}")
     result = cache.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
 
     # Access some entries to update their "recently used" status
+    # Access some entries to update their "recently used" status
+    for i in range(2, 5):
     for i in range(2, 5):
     cache.get(model_id, operation, f"input-{i}")
+    cache.get(model_id, operation, f"input-{i}")
+
 
     # Add a new entry, which should evict the least recently used entry (input-0 or input-1)
+    # Add a new entry, which should evict the least recently used entry (input-0 or input-1)
+    cache.set(model_id, operation, "input-5", {"text": "response-5"})
     cache.set(model_id, operation, "input-5", {"text": "response-5"})
 
+
+    # Verify the new entry is in the cache
     # Verify the new entry is in the cache
     result = cache.get(model_id, operation, "input-5")
+    result = cache.get(model_id, operation, "input-5")
     assert result is not None
+    assert result is not None
+
 
     # Verify at least one of the least recently used entries was evicted
+    # Verify at least one of the least recently used entries was evicted
+    evicted = False
     evicted = False
     for i in range(2):
+    for i in range(2):
+    if cache.get(model_id, operation, f"input-{i}") is None:
     if cache.get(model_id, operation, f"input-{i}") is None:
     evicted = True
+    evicted = True
+    break
     break
 
+
+    assert evicted, "No entries were evicted according to LRU policy"
     assert evicted, "No entries were evicted according to LRU policy"
 
+
+    # Verify more recently used entries are still in the cache
     # Verify more recently used entries are still in the cache
     for i in range(2, 5):
+    for i in range(2, 5):
+    result = cache.get(model_id, operation, f"input-{i}")
     result = cache.get(model_id, operation, f"input-{i}")
     assert result is not None
+    assert result is not None
+
+
 
 
     if __name__ == "__main__":
+    if __name__ == "__main__":
+    pytest.main(["-v", "test_cache_coherency.py"])
     pytest.main(["-v", "test_cache_coherency.py"])

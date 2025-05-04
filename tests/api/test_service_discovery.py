@@ -1,19 +1,36 @@
 """
+"""
+Tests for service discovery functionality.
 Tests for service discovery functionality.
 
+
+This module contains tests for the service discovery and registration.
 This module contains tests for the service discovery and registration.
 """
+"""
+
 
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+
 
 from api.config import APIConfig
+from api.config import APIConfig
+from api.service_discovery import ServiceDiscovery, ServiceRegistration
 from api.service_discovery import ServiceDiscovery, ServiceRegistration
 
 
-class TestServiceDiscovery:
 
+
+class TestServiceDiscovery:
+    class TestServiceDiscovery:
+
+
+    pass  # Added missing block
     pass  # Added missing block
     """Tests for service discovery functionality."""
 

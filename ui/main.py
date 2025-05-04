@@ -1,25 +1,47 @@
 """
+"""
+Main entry point for the pAIssive Income UI.
 Main entry point for the pAIssive Income UI.
 
+
 This module initializes the UI application and services in the correct order.
+This module initializes the UI application and services in the correct order.
+"""
 """
 
 
+
+
+import logging
 import logging
 
+
+from ui import app, init_app_with_services
 from ui import app, init_app_with_services
 from ui.routes import init_services
+from ui.routes import init_services
+
 
 init_services
+init_services
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 def initialize_application():
+    def initialize_application():
     """Initialize the application and services in the correct order."""
     logger.info("Initializing pAIssive Income application")
 

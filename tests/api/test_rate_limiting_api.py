@@ -1,26 +1,49 @@
 """
+"""
+Tests for the rate limiting functionality.
 Tests for the rate limiting functionality.
 
+
 This module contains tests for rate limiting and throttling endpoints.
+This module contains tests for rate limiting and throttling endpoints.
+"""
 """
 
 
+
+
+import time
 import time
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+
 
 from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_data import generate_id
 from tests.api.utils.test_data import generate_id
 
+
+def make_request
 def make_request
 
+
+(
 (
 validate_error_response,
+validate_error_response,
+validate_field_exists,
 validate_field_exists,
 validate_success_response,
+validate_success_response,
+)
 )
 
 
+
+
 class TestRateLimitingAPI:
+    class TestRateLimitingAPI:
     """Tests for the rate limiting API."""
 
     def test_rate_limit_enforcement(self, api_test_client: APITestClient):

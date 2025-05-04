@@ -1,11 +1,19 @@
 """
+"""
+Exceptions for the message queue.
 Exceptions for the message queue.
 
+
 This module provides exceptions for the message queue client.
+This module provides exceptions for the message queue client.
+"""
 """
 
 
+
+
 class MessageQueueError(Exception):
+    class MessageQueueError(Exception):
     """Base exception for message queue errors."""
 
     pass
@@ -27,6 +35,8 @@ class MessageQueueError(Exception):
 
 
     class SchemaError(MessageQueueError):
-    """Exception raised when a message does not match its schema."""
+
 
     pass
+    pass
+

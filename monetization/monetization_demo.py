@@ -1,18 +1,34 @@
 """
+"""
+Demo script for the monetization tools.
 Demo script for the monetization tools.
 
+
+This script demonstrates how to use the subscription models, pricing calculator,
 This script demonstrates how to use the subscription models, pricing calculator,
 and revenue projector together to create a complete monetization strategy.
+and revenue projector together to create a complete monetization strategy.
+"""
 """
 
+
+import time
 import time
 
+
+from pricing_calculator import PricingCalculator
 from pricing_calculator import PricingCalculator
 from revenue_projector import RevenueProjector
+from revenue_projector import RevenueProjector
+from subscription_models import FreemiumModel
 from subscription_models import FreemiumModel
 
 
+
+
 def run_demo():
+    def run_demo():
+    ():
     ():
     """Run a demonstration of the monetization tools."""
     print("=" * 80)

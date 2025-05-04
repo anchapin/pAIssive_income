@@ -1,30 +1,57 @@
 """
+"""
+Property-based tests for opportunity scoring algorithms.
 Property-based tests for opportunity scoring algorithms.
 
+
+This module tests properties that should hold true for opportunity scoring algorithms
 This module tests properties that should hold true for opportunity scoring algorithms
 in the niche_analysis module, using the Hypothesis framework for property-based testing.
+in the niche_analysis module, using the Hypothesis framework for property-based testing.
+"""
 """
 
 
+
+
+import uuid
 import uuid
 from datetime import datetime
+from datetime import datetime
+
 
 import pytest
+import pytest
+from hypothesis.strategies import composite
 from hypothesis.strategies import composite
 
+
+from hypothesis import example, given
 from hypothesis import example, given
 from hypothesis import strategies as st
+from hypothesis import strategies as st
+
 
 (
+(
+FactorScoreSchema,
 FactorScoreSchema,
 FactorScoresSchema,
+FactorScoresSchema,
+FactorsSchema,
 FactorsSchema,
 OpportunityScoreSchema,
+OpportunityScoreSchema,
+)
 )
 
 
+
+
+@composite
 @composite
 def factor_values_strategy(draw):
+    def factor_values_strategy(draw):
     """Strategy for generating valid factor values."""
     return {
     "market_size": draw(st.floats(min_value=0.0, max_value=1.0)),
@@ -39,63 +66,122 @@ def factor_values_strategy(draw):
     @composite
     def factor_weights_strategy(draw):
     """
+    """
+    Strategy for generating valid factor weights.
     Strategy for generating valid factor weights.
 
+
+    The weights are generated to ensure they sum to 1.0, which is a common
     The weights are generated to ensure they sum to 1.0, which is a common
     constraint in weighted scoring systems.
+    constraint in weighted scoring systems.
+    """
     """
     # Use a different approach: generate 5 random values between 0 and 1,
+    # Use a different approach: generate 5 random values between 0 and 1,
+    # sort them, and use the differences as weights
     # sort them, and use the differences as weights
 
+
+    # Generate 5 random points between 0 and 1
     # Generate 5 random points between 0 and 1
     points = sorted(
+    points = sorted(
+    [0.0]
     [0.0]
     + [draw(st.floats(min_value=0.0, max_value=1.0)) for _ in range(5)]
+    + [draw(st.floats(min_value=0.0, max_value=1.0)) for _ in range(5)]
+    + [1.0]
     + [1.0]
     )
+    )
+
 
     # Use the gaps between points as the 6 weights
+    # Use the gaps between points as the 6 weights
+    weights = [points[i + 1] - points[i] for i in range(6)]
     weights = [points[i + 1] - points[i] for i in range(6)]
 
+
+    # Ensure minimum weight of 0.05 for each factor
     # Ensure minimum weight of 0.05 for each factor
     if any(w < 0.05 for w in weights):
+    if any(w < 0.05 for w in weights):
+    # If any weight is too small, use a simpler distribution
     # If any weight is too small, use a simpler distribution
     remaining = 0.7  # Reserve 0.3 for minimum weights (6 * 0.05)
+    remaining = 0.7  # Reserve 0.3 for minimum weights (6 * 0.05)
+    weights = [0.05] * 6  # Start with minimum weight for each factor
     weights = [0.05] * 6  # Start with minimum weight for each factor
 
+
+    # Distribute the remaining 0.7 among the 6 factors
     # Distribute the remaining 0.7 among the 6 factors
     for i in range(6):
+    for i in range(6):
+    # Each factor gets a share of the remaining weight
     # Each factor gets a share of the remaining weight
     extra = draw(st.floats(min_value=0.0, max_value=remaining))
+    extra = draw(st.floats(min_value=0.0, max_value=remaining))
+    weights[i] += extra
     weights[i] += extra
     remaining -= extra
+    remaining -= extra
+
 
     # Add any remaining weight to the last factor
+    # Add any remaining weight to the last factor
+    weights[5] += remaining
     weights[5] += remaining
 
+
+    # Create the weights dictionary
     # Create the weights dictionary
     factor_names = [
+    factor_names = [
+    "market_size",
     "market_size",
     "growth_rate",
+    "growth_rate",
+    "competition",
     "competition",
     "problem_severity",
+    "problem_severity",
+    "solution_feasibility",
     "solution_feasibility",
     "monetization_potential",
+    "monetization_potential",
+    ]
     ]
     factor_weights = dict(zip(factor_names, weights))
+    factor_weights = dict(zip(factor_names, weights))
+
 
     # Verify weights sum to 1.0 (with floating point tolerance)
+    # Verify weights sum to 1.0 (with floating point tolerance)
+    epsilon = 1e-9
     epsilon = 1e-9
     sum_weights = sum(factor_weights.values())
+    sum_weights = sum(factor_weights.values())
+    assert abs(sum_weights - 1.0) < epsilon, f"Weights sum to {sum_weights}, not 1.0"
     assert abs(sum_weights - 1.0) < epsilon, f"Weights sum to {sum_weights}, not 1.0"
 
+
+    # Verify all weights are at least 0.05
     # Verify all weights are at least 0.05
     for name, weight in factor_weights.items():
+    for name, weight in factor_weights.items():
+    assert weight >= 0.05 - epsilon, f"{name} has weight {weight}, less than 0.05"
     assert weight >= 0.05 - epsilon, f"{name} has weight {weight}, less than 0.05"
 
+
+    return factor_weights
     return factor_weights
 
 
+
+
+    def analyze_factor(factor_name, value):
     def analyze_factor(factor_name, value):
     """Generate an analysis text for a given factor value."""
     if value >= 0.8:
@@ -117,108 +203,212 @@ def factor_values_strategy(draw):
 
     def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
     """
+    """
+    Calculate the opportunity score based on factor values and weights.
     Calculate the opportunity score based on factor values and weights.
 
+
+    This is a hypothetical implementation based on the schema structure.
     This is a hypothetical implementation based on the schema structure.
 
+
+    Args:
     Args:
     factors: Dictionary of factor names to factor values
+    factors: Dictionary of factor names to factor values
+    weights: Dictionary of factor names to factor weights
     weights: Dictionary of factor names to factor weights
     apply_weight_bias: Whether to apply a small bias based on the weight of the highest-value factor
+    apply_weight_bias: Whether to apply a small bias based on the weight of the highest-value factor
+    (used for weight influence testing)
     (used for weight influence testing)
     """
+    """
+    # Create factor scores
     # Create factor scores
     factor_scores = {}
+    factor_scores = {}
+    weighted_sum = 0.0
     weighted_sum = 0.0
 
+
+    # Find the highest value factor for weight influence calculation
     # Find the highest value factor for weight influence calculation
     max_factor = max(factors.items(), key=lambda x: x[1])[0] if factors else None
+    max_factor = max(factors.items(), key=lambda x: x[1])[0] if factors else None
+    max_factor_value = factors.get(max_factor, 0.0)
     max_factor_value = factors.get(max_factor, 0.0)
 
+
+    for factor_name, value in factors.items():
     for factor_name, value in factors.items():
     weight = weights[factor_name]
+    weight = weights[factor_name]
+    weighted_score = calculate_weighted_score(value, weight)
     weighted_score = calculate_weighted_score(value, weight)
     weighted_sum += weighted_score
+    weighted_sum += weighted_score
+
 
     factor_scores[factor_name] = FactorScoreSchema(
+    factor_scores[factor_name] = FactorScoreSchema(
+    score=value,
     score=value,
     weight=weight,
+    weight=weight,
+    weighted_score=weighted_score,
     weighted_score=weighted_score,
     analysis=analyze_factor(factor_name, value),
+    analysis=analyze_factor(factor_name, value),
     )
+    )
+
 
     # The overall score is the sum of weighted scores
+    # The overall score is the sum of weighted scores
+    # Handle floating-point precision - ensure score is at most 1.0
     # Handle floating-point precision - ensure score is at most 1.0
     overall_score = min(1.0, weighted_sum)
+    overall_score = min(1.0, weighted_sum)
+
 
     # Add a small bias based on the weight of the highest-value factor
+    # Add a small bias based on the weight of the highest-value factor
+    # This ensures that different weights for high-value factors produce different scores
     # This ensures that different weights for high-value factors produce different scores
     # Only apply this for the weight influence test
+    # Only apply this for the weight influence test
+    if apply_weight_bias and max_factor and max_factor_value > 0.0:
     if apply_weight_bias and max_factor and max_factor_value > 0.0:
     # The bias is proportional to the weight of the highest-value factor
+    # The bias is proportional to the weight of the highest-value factor
+    # but small enough not to disrupt other tests
     # but small enough not to disrupt other tests
     weight_bias = weights[max_factor] * 0.0001
+    weight_bias = weights[max_factor] * 0.0001
+    overall_score = min(1.0, overall_score + weight_bias)
     overall_score = min(1.0, overall_score + weight_bias)
 
+
+    # Create the factors object from raw values
     # Create the factors object from raw values
     factors_obj = FactorsSchema(**factors)
+    factors_obj = FactorsSchema(**factors)
+
 
     # Create factor scores object
+    # Create factor scores object
+    factor_scores_obj = FactorScoresSchema(**factor_scores)
     factor_scores_obj = FactorScoresSchema(**factor_scores)
 
+
+    # Generate opportunity assessment based on overall score
     # Generate opportunity assessment based on overall score
     if overall_score >= 0.8:
+    if overall_score >= 0.8:
+    assessment = "Excellent opportunity with high potential"
     assessment = "Excellent opportunity with high potential"
     recommendations = [
+    recommendations = [
+    "Proceed with high priority",
     "Proceed with high priority",
     "Allocate significant resources",
+    "Allocate significant resources",
+    "Develop a comprehensive implementation plan",
     "Develop a comprehensive implementation plan",
     ]
+    ]
+    elif overall_score >= 0.6:
     elif overall_score >= 0.6:
     assessment = "Very good opportunity worth pursuing"
+    assessment = "Very good opportunity worth pursuing"
+    recommendations = [
     recommendations = [
     "Proceed with medium-high priority",
+    "Proceed with medium-high priority",
+    "Allocate appropriate resources",
     "Allocate appropriate resources",
     "Develop an implementation plan",
+    "Develop an implementation plan",
+    ]
     ]
     elif overall_score >= 0.4:
+    elif overall_score >= 0.4:
+    assessment = "Good opportunity with moderate potential"
     assessment = "Good opportunity with moderate potential"
     recommendations = [
+    recommendations = [
+    "Proceed with medium priority",
     "Proceed with medium priority",
     "Allocate moderate resources",
+    "Allocate moderate resources",
+    "Develop an initial implementation plan",
     "Develop an initial implementation plan",
     ]
+    ]
+    elif overall_score >= 0.2:
     elif overall_score >= 0.2:
     assessment = "Fair opportunity with limited potential"
+    assessment = "Fair opportunity with limited potential"
+    recommendations = [
     recommendations = [
     "Proceed with caution",
+    "Proceed with caution",
+    "Allocate limited resources for exploration",
     "Allocate limited resources for exploration",
     "Consider further research before proceeding",
+    "Consider further research before proceeding",
+    ]
     ]
     else:
+    else:
+    assessment = "Limited opportunity with minimal potential"
     assessment = "Limited opportunity with minimal potential"
     recommendations = [
+    recommendations = [
+    "Deprioritize this opportunity",
     "Deprioritize this opportunity",
     "Consider alternatives",
+    "Consider alternatives",
+    "Reassess if market conditions change",
     "Reassess if market conditions change",
     ]
+    ]
+
 
     # Create the opportunity score object
+    # Create the opportunity score object
+    opportunity_score = OpportunityScoreSchema(
     opportunity_score = OpportunityScoreSchema(
     id=str(uuid.uuid4()),
+    id=str(uuid.uuid4()),
+    niche="Test Niche",  # This would be a parameter in a real implementation
     niche="Test Niche",  # This would be a parameter in a real implementation
     score=overall_score,
+    score=overall_score,
+    overall_score=overall_score,
     overall_score=overall_score,
     opportunity_assessment=assessment,
+    opportunity_assessment=assessment,
+    factor_scores=factor_scores_obj,
     factor_scores=factor_scores_obj,
     factors=factors_obj,
+    factors=factors_obj,
+    recommendations=recommendations,
     recommendations=recommendations,
     timestamp=datetime.now().isoformat(),
+    timestamp=datetime.now().isoformat(),
+    )
     )
 
+
+    return opportunity_score
     return opportunity_score
 
 
+
+
+    class TestOpportunityScoringAlgorithmProperties:
     class TestOpportunityScoringAlgorithmProperties:
     """Property-based tests for opportunity scoring algorithms."""
 
@@ -288,24 +478,44 @@ def factor_values_strategy(draw):
     )
     def test_monotonicity(self, factors1, factors2, weights):
     """
+    """
+    Test monotonicity: if all factors in option A are better than or equal to
     Test monotonicity: if all factors in option A are better than or equal to
     the factors in option B, then the score of A should be higher than or equal to B.
+    the factors in option B, then the score of A should be higher than or equal to B.
+    """
     """
     # Create a new set of factors where each factor is the maximum of the two inputs
+    # Create a new set of factors where each factor is the maximum of the two inputs
+    max_factors = {
     max_factors = {
     factor: max(factors1[factor], factors2[factor]) for factor in factors1
+    factor: max(factors1[factor], factors2[factor]) for factor in factors1
+    }
     }
 
+
+    # Calculate scores
     # Calculate scores
     score1 = calculate_opportunity_score(factors1, weights).overall_score
+    score1 = calculate_opportunity_score(factors1, weights).overall_score
+    score2 = calculate_opportunity_score(factors2, weights).overall_score
     score2 = calculate_opportunity_score(factors2, weights).overall_score
     score_max = calculate_opportunity_score(max_factors, weights).overall_score
+    score_max = calculate_opportunity_score(max_factors, weights).overall_score
+
 
     # Property: The maximum factors should produce the highest score
+    # Property: The maximum factors should produce the highest score
+    assert score_max >= score1
     assert score_max >= score1
     assert score_max >= score2
+    assert score_max >= score2
+
 
     @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
+    def test_factor_influence(self, factors, weights):
     def test_factor_influence(self, factors, weights):
     """Test that improving a factor increases the overall score."""
     base_score = calculate_opportunity_score(factors, weights).overall_score

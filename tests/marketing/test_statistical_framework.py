@@ -1,26 +1,49 @@
 """
+"""
 Tests for the statistical analysis framework used in marketing.
+Tests for the statistical analysis framework used in marketing.
+"""
 """
 
 
+
+
+import numpy
 import numpy
 import pytest
+import pytest
+
 
 from marketing.errors import (InsufficientDataError,
+from marketing.errors import (InsufficientDataError,
+InvalidTestConfigurationError)
 InvalidTestConfigurationError)
 
+
+as np
 as np
 
+
+(
 (
 ConfidenceIntervalCalculator,
+ConfidenceIntervalCalculator,
+EffectSizeEstimator,
 EffectSizeEstimator,
 MultipleTestingAdjuster,
+MultipleTestingAdjuster,
+SequentialAnalyzer,
 SequentialAnalyzer,
 StatisticalTestRunner,
+StatisticalTestRunner,
+)
 )
 
 
+
+
 class TestStatisticalFramework:
+    class TestStatisticalFramework:
     """Test cases for statistical analysis framework."""
 
     def setup_method(self):

@@ -1,76 +1,150 @@
 """
+"""
+Webhook router for the API server.
 Webhook router for the API server.
 
+
+This module provides route handlers for webhook operations.
 This module provides route handlers for webhook operations.
 """
+"""
+
 
 import logging
+import logging
+import uuid
 import uuid
 from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
+from datetime import datetime
 from datetime import datetime
 from typing import Optional
+from typing import Optional
+
 
 from ..middleware.auth import get_current_user
+from ..middleware.auth import get_current_user
+from ..models.user import User
 from ..models.user import User
 from ..schemas.common import ErrorResponse, SuccessResponse
+from ..schemas.common import ErrorResponse, SuccessResponse
+from ..services.webhook_service import WebhookService
 from ..services.webhook_service import WebhookService
 
+
+(
 (
 APIRouter,
+APIRouter,
+Body,
 Body,
 Depends,
+Depends,
+HTTPException,
 HTTPException,
 Path,
+Path,
+Query,
 Query,
 Request,
+Request,
+status,
 status,
 )
+)
+(
 (
 WebhookDeliveryList,
+WebhookDeliveryList,
+WebhookDeliveryStatus,
 WebhookDeliveryStatus,
 WebhookEventType,
+WebhookEventType,
+WebhookList,
 WebhookList,
 WebhookRequest,
+WebhookRequest,
+WebhookResponse,
 WebhookResponse,
 WebhookUpdate,
+WebhookUpdate,
+)
 )
 # Configure logging
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # Create webhook service
+# Create webhook service
+webhook_service = WebhookService()
 webhook_service = WebhookService()
 
 
+
+
+# Define lifespan context manager for FastAPI lifecycle events
 # Define lifespan context manager for FastAPI lifecycle events
 @asynccontextmanager
+@asynccontextmanager
 async def lifespan(app):
+    async def lifespan(app):
+    # Startup: Start webhook service
     # Startup: Start webhook service
     logger.info("Starting webhook service")
+    logger.info("Starting webhook service")
+    await webhook_service.start()
     await webhook_service.start()
     yield
+    yield
+    # Shutdown: Stop webhook service
     # Shutdown: Stop webhook service
     logger.info("Stopping webhook service")
+    logger.info("Stopping webhook service")
+    await webhook_service.stop()
     await webhook_service.stop()
 
 
+
+
     # Create router with lifespan
+    # Create router with lifespan
+    router = APIRouter(lifespan=lifespan)
     router = APIRouter(lifespan=lifespan)
 
 
+
+
+    @router.post(
     @router.post(
     "/",
+    "/",
+    response_model=WebhookResponse,
     response_model=WebhookResponse,
     status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_201_CREATED,
+    responses={
     responses={
     201: {"description": "Webhook registered"},
+    201: {"description": "Webhook registered"},
+    400: {"model": ErrorResponse, "description": "Bad request"},
     400: {"model": ErrorResponse, "description": "Bad request"},
     },
+    },
+    )
     )
     async def register_webhook(
+    async def register_webhook(
+    request: Request,
     request: Request,
     data: WebhookRequest = Body(...),
+    data: WebhookRequest = Body(...),
     current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
+    ):
     ):
     """Register a new webhook."""
     try:

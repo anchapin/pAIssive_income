@@ -1,32 +1,61 @@
 """
+"""
 Tests for the service initialization module.
+Tests for the service initialization module.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from dependency_container import DependencyContainer
 from dependency_container import DependencyContainer
 from interfaces.agent_interfaces import (IAgentProfile, IAgentTeam,
+from interfaces.agent_interfaces import (IAgentProfile, IAgentTeam,
+IResearchAgent)
 IResearchAgent)
 from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.model_interfaces import IModelConfig, IModelManager
 from interfaces.model_interfaces import IModelConfig, IModelManager
 from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.niche_interfaces import INicheAnalyzer
 from ui.service_registry import get_service
+from ui.service_registry import get_service
+
 
 (
+(
+_register_agent_team,
 _register_agent_team,
 _register_ai_models,
+_register_ai_models,
+_register_configuration,
 _register_configuration,
 _register_marketing,
+_register_marketing,
+_register_monetization,
 _register_monetization,
 _register_niche_analysis,
+_register_niche_analysis,
+initialize_services,
 initialize_services,
 )
+)
+@pytest.fixture
 @pytest.fixture
 def mock_container():
+    def mock_container():
     """Create a mock dependency container."""
     container = MagicMock(spec=DependencyContainer)
     return container

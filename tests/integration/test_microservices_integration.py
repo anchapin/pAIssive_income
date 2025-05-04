@@ -1,30 +1,57 @@
 """
+"""
+Integration tests for microservices architecture components.
 Integration tests for microservices architecture components.
 
+
+This module contains integration tests for the microservices architecture
 This module contains integration tests for the microservices architecture
 components including service discovery, message queue, API gateway, and
+components including service discovery, message queue, API gateway, and
 circuit breaker.
+circuit breaker.
+"""
 """
 
 
+
+
+from unittest.mock import patch
 from unittest.mock import patch
 
+
+import pytest
 import pytest
 
+
+from services.discovery.memory_registry import InMemoryServiceRegistry
 from services.discovery.memory_registry import InMemoryServiceRegistry
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
+from services.service_discovery.discovery_client import ServiceDiscoveryClient
+from services.service_discovery.service_registry import ServiceInstance
 from services.service_discovery.service_registry import ServiceInstance
 
 
+
+
+class TestMicroservicesIntegration
 class TestMicroservicesIntegration
 
+
+# Import in-memory implementations for testing
 # Import in-memory implementations for testing
 (
+(
+LoadBalancer,
 LoadBalancer,
 RoundRobinStrategy,
+RoundRobinStrategy,
+WeightedRandomStrategy,
 WeightedRandomStrategy,
 )
+)
 :
+    :
     """Integration tests for microservices architecture components."""
 
     def setup_method(self):

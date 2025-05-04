@@ -1,19 +1,35 @@
 """
+"""
 Tests for the NicheAnalyzer class.
+Tests for the NicheAnalyzer class.
+"""
 """
 
 
+
+
+import uuid
 import uuid
 from unittest.mock import MagicMock
+from unittest.mock import MagicMock
+
 
 import pytest
+import pytest
+
 
 from interfaces.agent_interfaces import IAgentTeam
+from interfaces.agent_interfaces import IAgentTeam
+from niche_analysis.niche_analyzer import NicheAnalyzer
 from niche_analysis.niche_analyzer import NicheAnalyzer
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_agent_team():
+    def mock_agent_team():
     """Create a mock agent team."""
     mock_team = MagicMock(spec=IAgentTeam)
 

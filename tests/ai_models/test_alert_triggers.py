@@ -1,29 +1,55 @@
 """
+"""
+Tests for alert trigger functionality.
 Tests for alert trigger functionality.
 
+
+This module tests the alert threshold accuracy, alert correlation logic,
 This module tests the alert threshold accuracy, alert correlation logic,
 and alert suppression rules in the AI models monitoring system.
+and alert suppression rules in the AI models monitoring system.
+"""
 """
 
 
+
+
+import os
 import os
 import tempfile
+import tempfile
+import threading
 import threading
 import time
+import time
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+
 
 from ai_models.metrics.api import MetricsAPI
+from ai_models.metrics.api import MetricsAPI
+from ai_models.performance_monitor import AlertConfig
 from ai_models.performance_monitor import AlertConfig
 
+
+(
 (
 EnhancedInferenceMetrics,
+EnhancedInferenceMetrics,
+EnhancedPerformanceMonitor
 EnhancedPerformanceMonitor
 )
+)
+@pytest.fixture
 @pytest.fixture
 def temp_db_path():
+    def temp_db_path():
     """Create a temporary database file for testing."""
     with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
     db_path = f.name

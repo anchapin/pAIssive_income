@@ -1,42 +1,79 @@
 """
+"""
+Consul-based implementation of the service registry interface.
 Consul-based implementation of the service registry interface.
 
+
+This module provides a Consul implementation of the ServiceRegistry interface
 This module provides a Consul implementation of the ServiceRegistry interface
 for service discovery in the pAIssive income microservices architecture.
+for service discovery in the pAIssive income microservices architecture.
+"""
 """
 
 
+
+
+import logging
 import logging
 from typing import Dict, List
+from typing import Dict, List
+
 
 import consul
+import consul
+
 
 (
+(
+ServiceDeregistrationError,
 ServiceDeregistrationError,
 ServiceHealthCheckError,
+ServiceHealthCheckError,
+ServiceInstance,
 ServiceInstance,
 ServiceLookupError,
+ServiceLookupError,
+ServiceRegistrationError,
 ServiceRegistrationError,
 ServiceRegistry,
+ServiceRegistry,
+)
 )
 
+
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 class ConsulServiceRegistry(ServiceRegistry):
+    class ConsulServiceRegistry(ServiceRegistry):
     """Consul-based implementation of the service registry."""
 
     def __init__(self, host: str = "localhost", port: int = 8500):
     """
+    """
+    Initialize the Consul service registry client.
     Initialize the Consul service registry client.
 
+
+    Args:
     Args:
     host: Consul server host
+    host: Consul server host
+    port: Consul server port
     port: Consul server port
     """
+    """
+    self.consul_client = consul.Consul(host=host, port=port)
     self.consul_client = consul.Consul(host=host, port=port)
     logger.info(f"Initialized Consul service registry client at {host}:{port}")
+    logger.info(f"Initialized Consul service registry client at {host}:{port}")
 
+
+    def register(self, service_instance: ServiceInstance) -> bool:
     def register(self, service_instance: ServiceInstance) -> bool:
     """Register a service instance with Consul."""
     try:
@@ -86,21 +123,38 @@ except Exception as e:
 
     def renew(self, service_id: str) -> bool:
     """
+    """
+    Renew a service registration (for TTL-based checks).
     Renew a service registration (for TTL-based checks).
 
+
+    Note: This is primarily used for custom TTL checks. With HTTP checks,
     Note: This is primarily used for custom TTL checks. With HTTP checks,
     Consul handles the checking automatically based on the interval.
+    Consul handles the checking automatically based on the interval.
+    """
     """
     try:
+    try:
+    # For TTL-based checks, we would use check.check_pass
     # For TTL-based checks, we would use check.check_pass
     # This is a simplified version assuming the check is named after the service ID
+    # This is a simplified version assuming the check is named after the service ID
+    self.consul_client.agent.check.ttl_pass(f"service:{service_id}")
     self.consul_client.agent.check.ttl_pass(f"service:{service_id}")
     logger.debug(f"Renewed TTL for service {service_id}")
+    logger.debug(f"Renewed TTL for service {service_id}")
+    return True
     return True
 except Exception as e:
+except Exception as e:
+    logger.warning(f"Failed to renew TTL for service {service_id}: {str(e)}")
     logger.warning(f"Failed to renew TTL for service {service_id}: {str(e)}")
     return False
+    return False
 
+
+    def get_service(self, service_name: str) -> List[ServiceInstance]:
     def get_service(self, service_name: str) -> List[ServiceInstance]:
     """Get all instances of a service by name from Consul."""
     try:

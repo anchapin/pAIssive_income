@@ -1,41 +1,80 @@
 """
+"""
+Memory cache backend for the model cache system.
 Memory cache backend for the model cache system.
 
+
+This module provides an in-memory cache backend.
 This module provides an in-memory cache backend.
 """
+"""
+
 
 import re
+import re
+import threading
 import threading
 import time
+import time
+from typing import Any, Dict, List, Optional, Tuple
 from typing import Any, Dict, List, Optional, Tuple
 
+
+from .base import CacheBackend
 from .base import CacheBackend
 
 
+
+
 class MemoryCache(CacheBackend):
+    class MemoryCache(CacheBackend):
+    """
     """
     In-memory cache backend.
+    In-memory cache backend.
     """
+    """
+
 
     def __init__(
+    def __init__(
+    self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs
     self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs
     ):
+    ):
+    """
     """
     Initialize the memory cache.
+    Initialize the memory cache.
+    """
     """
     self.max_size = max_size
+    self.max_size = max_size
+    self.eviction_policy = eviction_policy.lower()
     self.eviction_policy = eviction_policy.lower()
     self.cache: Dict[str, Tuple[Dict[str, Any], Optional[float], int, float]] = {}
+    self.cache: Dict[str, Tuple[Dict[str, Any], Optional[float], int, float]] = {}
+    self.lock = threading.RLock()
     self.lock = threading.RLock()
     self.stats = {
+    self.stats = {
+    "hits": 0,
     "hits": 0,
     "misses": 0,
+    "misses": 0,
+    "sets": 0,
     "sets": 0,
     "deletes": 0,
+    "deletes": 0,
+    "evictions": 0,
     "evictions": 0,
     "clears": 0,
+    "clears": 0,
+    }
     }
 
+
+    def get(self, key: str) -> Optional[Dict[str, Any]]:
     def get(self, key: str) -> Optional[Dict[str, Any]]:
     """Get a value from the cache."""
     with self.lock:

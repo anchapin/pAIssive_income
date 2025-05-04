@@ -1,27 +1,51 @@
 """
+"""
+Integration tests for message queue integration with other services.
 Integration tests for message queue integration with other services.
 
+
+This module contains integration tests for the message queue service
 This module contains integration tests for the message queue service
 and its integration with other microservices.
+and its integration with other microservices.
+"""
 """
 
 
+
+
+import threading
 import threading
 import time
+import time
+from datetime import datetime
 from datetime import datetime
 
+
+import pytest
 import pytest
 
+
+(
 (
 DeadLetterQueue,
+DeadLetterQueue,
+MessageConsumer,
 MessageConsumer,
 MessagePublisher,
+MessagePublisher,
+MessageQueueClient,
 MessageQueueClient,
 QueueConfig,
+QueueConfig,
+)
 )
 
 
+
+
 class TestMessageQueueIntegration:
+    class TestMessageQueueIntegration:
     """Integration tests for message queue integration with other services."""
 
     def setup_method(self):

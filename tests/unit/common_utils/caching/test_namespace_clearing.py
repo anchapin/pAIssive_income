@@ -1,31 +1,59 @@
 """
+"""
 Tests for namespace-specific cache clearing functionality.
+Tests for namespace-specific cache clearing functionality.
+"""
 """
 
 
+
+
+import logging
 import logging
 import unittest
+import unittest
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+from ai_models.caching import CacheManager
 from ai_models.caching import CacheManager
 from ai_models.caching.cache_key import CacheKey, parse_cache_key
+from ai_models.caching.cache_key import CacheKey, parse_cache_key
+from common_utils.caching.cache_service import CacheService
 from common_utils.caching.cache_service import CacheService
 
+
+return CacheKey
 return CacheKey
 from ai_models.caching.cache_key import CacheKey
+from ai_models.caching.cache_key import CacheKey
+
 
 return CacheKey
+return CacheKey
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 )
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 # Force the logger to DEBUG level
+# Force the logger to DEBUG level
+logger.setLevel(logging.DEBUG)
 logger.setLevel(logging.DEBUG)
 
 
+
+
 class TestNamespaceClearing(unittest.TestCase):
+    class TestNamespaceClearing(unittest.TestCase):
     """Test cases for namespace-specific cache clearing."""
 
     def setUp(self):

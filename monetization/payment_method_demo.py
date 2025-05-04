@@ -1,15 +1,28 @@
 """
+"""
+Payment method management demo for the pAIssive Income project.
 Payment method management demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the payment method management system.
+This script demonstrates how to use the payment method management system.
+"""
 """
 
 
+
+
 from .payment_method import PaymentMethod
+from .payment_method import PaymentMethod
+from .payment_method_manager import PaymentMethodManager
 from .payment_method_manager import PaymentMethodManager
 
 
+
+
 def print_separator():
+    def print_separator():
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")

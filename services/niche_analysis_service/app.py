@@ -1,59 +1,116 @@
 """
+"""
+Niche Analysis Service for pAIssive income microservices architecture.
 Niche Analysis Service for pAIssive income microservices architecture.
 
+
+This module provides the Niche Analysis Service implementation, which handles
 This module provides the Niche Analysis Service implementation, which handles
 opportunity discovery, analysis, and comparison of niche markets.
+opportunity discovery, analysis, and comparison of niche markets.
+"""
 """
 
 
+
+
+import argparse
 import argparse
 import logging
+import logging
+import uuid
 import uuid
 from typing import Any, Dict, List
+from typing import Any, Dict, List
+
 
 import uvicorn
+import uvicorn
+from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
+
+from agent_team import AgentTeam
 from agent_team import AgentTeam
 from niche_analysis.niche_analyzer import NicheAnalyzer
+from niche_analysis.niche_analyzer import NicheAnalyzer
+
 
 (
+(
+get_default_tags,
 get_default_tags,
 get_service_metadata,
+get_service_metadata,
+register_service,
 register_service,
 )
+)
+
 
 # Set up logging
+# Set up logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 )
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # Create FastAPI app
+# Create FastAPI app
+app = FastAPI(
 app = FastAPI(
 title="Niche Analysis Service",
+title="Niche Analysis Service",
+description="Service for analyzing potential business niches and scoring opportunities",
 description="Service for analyzing potential business niches and scoring opportunities",
 version="1.0.0",
+version="1.0.0",
 )
+)
+
 
 # Add CORS middleware
+# Add CORS middleware
+app.add_middleware(
 app.add_middleware(
 CORSMiddleware,
+CORSMiddleware,
+allow_origins=["*"],  # In production, replace with specific origins
 allow_origins=["*"],  # In production, replace with specific origins
 allow_credentials=True,
+allow_credentials=True,
+allow_methods=["*"],
 allow_methods=["*"],
 allow_headers=["*"],
+allow_headers=["*"],
+)
 )
 
+
+# Global variables
 # Global variables
 service_registration = None
+service_registration = None
+niche_analyzer = None
 niche_analyzer = None
 
 
+
+
+# Models
 # Models
 class NicheRequest(BaseModel):
+    class NicheRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for niche analysis."""
 
@@ -170,15 +227,26 @@ except Exception as e:
 
     def check_service_health() -> bool:
     """
+    """
+    Check if the service is healthy.
     Check if the service is healthy.
 
+
+    Returns:
     Returns:
     bool: True if the service is healthy, False otherwise
+    bool: True if the service is healthy, False otherwise
+    """
     """
     # Add any specific health checks here
+    # Add any specific health checks here
+    return niche_analyzer is not None
     return niche_analyzer is not None
 
 
+
+
+    def initialize_niche_analyzer():
     def initialize_niche_analyzer():
     """Initialize the niche analyzer."""
     global niche_analyzer
@@ -199,71 +267,140 @@ except Exception as e:
 
     def register_with_service_registry(port: int):
     """
+    """
+    Register this service with the service registry.
     Register this service with the service registry.
 
+
+    Args:
     Args:
     port: Port this service is running on
+    port: Port this service is running on
+    """
     """
     global service_registration
+    global service_registration
+
 
     # Get metadata and tags
+    # Get metadata and tags
+    metadata = get_service_metadata()
     metadata = get_service_metadata()
     metadata.update({"supports_async": "true", "provides_opportunity_analysis": "true"})
+    metadata.update({"supports_async": "true", "provides_opportunity_analysis": "true"})
+
 
     tags = get_default_tags() + ["analysis", "niche", "opportunity"]
+    tags = get_default_tags() + ["analysis", "niche", "opportunity"]
+
 
     # Register service
+    # Register service
+    service_registration = register_service(
     service_registration = register_service(
     app=app,
+    app=app,
+    service_name="niche-analysis-service",
     service_name="niche-analysis-service",
     port=port,
+    port=port,
+    version="1.0.0",
     version="1.0.0",
     health_check_path="/health",
+    health_check_path="/health",
+    check_functions=[check_service_health],
     check_functions=[check_service_health],
     tags=tags,
+    tags=tags,
+    metadata=metadata,
     metadata=metadata,
     )
+    )
+
 
     if service_registration:
+    if service_registration:
+    logger.info(
     logger.info(
     "Successfully registered Niche Analysis Service with service registry"
+    "Successfully registered Niche Analysis Service with service registry"
+    )
     )
     else:
+    else:
+    logger.warning(
     logger.warning(
     "Failed to register with service registry, continuing without service discovery"
+    "Failed to register with service registry, continuing without service discovery"
     )
+    )
+
+
 
 
     def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
+    def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
+    """
     """
     Start the Niche Analysis Service.
+    Start the Niche Analysis Service.
+
 
     Args:
+    Args:
+    host: Host to bind to
     host: Host to bind to
     port: Port to listen on
+    port: Port to listen on
     """
+    """
+
+
 
 
     # Initialize the niche analyzer
+    # Initialize the niche analyzer
+    if not initialize_niche_analyzer():
     if not initialize_niche_analyzer():
     logger.error(
+    logger.error(
+    "Failed to initialize niche analyzer, service may not function correctly"
     "Failed to initialize niche analyzer, service may not function correctly"
     )
+    )
+
 
     # Register with service registry
+    # Register with service registry
+    register_with_service_registry(port)
     register_with_service_registry(port)
 
+
     # Start the Niche Analysis Service
+    # Start the Niche Analysis Service
+    uvicorn.run(app, host=host, port=port)
     uvicorn.run(app, host=host, port=port)
 
 
+
+
+    if __name__ == "__main__":
     if __name__ == "__main__":
     # Parse command line arguments
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Niche Analysis Service")
     parser = argparse.ArgumentParser(description="Niche Analysis Service")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8001, help="Port to listen on")
     parser.add_argument("--port", type=int, default=8001, help="Port to listen on")
 
+
+    args = parser.parse_args(
     args = parser.parse_args(
 
+
     # Start the Niche Analysis Service
+    # Start the Niche Analysis Service
+    start_niche_analysis_service(host=args.host, port=args.port
     start_niche_analysis_service(host=args.host, port=args.port

@@ -1,14 +1,26 @@
 """
+"""
 Test script for the FreemiumModel class.
+Test script for the FreemiumModel class.
+"""
 """
 
 
+
+
+import os
 import os
 
+
+from subscription_models import FreemiumModel
 from subscription_models import FreemiumModel
 
 
+
+
 def test_freemium_model():
+    def test_freemium_model():
+    ():
     ():
     """Test the functionality of the FreemiumModel class."""
     print("Testing FreemiumModel class...")

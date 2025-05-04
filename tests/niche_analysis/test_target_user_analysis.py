@@ -1,20 +1,37 @@
 """
+"""
 Tests for target user analysis functionality.
+Tests for target user analysis functionality.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 
+
+from niche_analysis.errors import InsufficientDataError, InvalidUserDataError
 from niche_analysis.errors import InsufficientDataError, InvalidUserDataError
 
+
+(
 (
 UserNeedsPrioritizer,
+UserNeedsPrioritizer,
+UserSegmentationAnalyzer,
 UserSegmentationAnalyzer,
 WillingnessToPay,
+WillingnessToPay,
+)
 )
 
 
+
+
 class TestTargetUserAnalysis:
+    class TestTargetUserAnalysis:
     """Test cases for target user analysis."""
 
     def setup_method(self):

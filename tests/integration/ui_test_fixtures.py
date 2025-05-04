@@ -1,21 +1,39 @@
 """
+"""
 Fixtures for UI integration tests.
+Fixtures for UI integration tests.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock
 from unittest.mock import MagicMock
 
+
+import pytest
 import pytest
 
+
+from dependency_container import get_container
 from dependency_container import get_container
 from interfaces.agent_interfaces import IAgentTeam
+from interfaces.agent_interfaces import IAgentTeam
+from interfaces.model_interfaces import IModelManager
 from interfaces.model_interfaces import IModelManager
 from interfaces.monetization_interfaces import ISubscriptionManager
+from interfaces.monetization_interfaces import ISubscriptionManager
+from interfaces.ui_interfaces import IAgentTeamService
 from interfaces.ui_interfaces import IAgentTeamService
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_agent_team():
+    def mock_agent_team():
     """Create a mock agent team."""
     team = MagicMock()
 

@@ -1,16 +1,28 @@
 #!/usr/bin/env python
 """
+"""
+Script to fix common syntax errors in Python files.
 Script to fix common syntax errors in Python files.
 This script helps fix syntax errors that are causing GitHub Actions to fail.
+This script helps fix syntax errors that are causing GitHub Actions to fail.
+"""
 """
 
+
+import os
 import os
 import re
+import re
 import sys
+import sys
+from pathlib import Path
 from pathlib import Path
 
 
+
+
 def fix_missing_colons(file_path):
+    def fix_missing_colons(file_path):
     """Fix missing colons after class and function definitions."""
     with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()

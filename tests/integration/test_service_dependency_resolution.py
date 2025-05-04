@@ -1,27 +1,51 @@
 """
+"""
+Integration tests for service dependency resolution.
 Integration tests for service dependency resolution.
 
+
+This module contains tests for service dependency resolution in the
 This module contains tests for service dependency resolution in the
 microservices architecture.
+microservices architecture.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+(
 (
 ServiceDiscoveryClient,
+ServiceDiscoveryClient,
+ServiceInstance,
 ServiceInstance,
 ServiceRegistry,
+ServiceRegistry,
+InMemoryServiceRegistry
 InMemoryServiceRegistry
 )
+)
 from services.dependency import (CircularDependencyError, DependencyGraph,
+from services.dependency import (CircularDependencyError, DependencyGraph,
+DependencyResolver)
 DependencyResolver)
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def in_memory_registry():
+    def in_memory_registry():
     """Create an in-memory service registry."""
     registry = InMemoryServiceRegistry()
 

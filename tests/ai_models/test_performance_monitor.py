@@ -1,23 +1,43 @@
 """
+"""
 Tests for the PerformanceMonitor class.
+Tests for the PerformanceMonitor class.
+"""
 """
 
 
+
+
+import time
 import time
 from unittest.mock import MagicMock
+from unittest.mock import MagicMock
+
 
 import pytest
+import pytest
+
 
 (
+(
+InferenceMetrics,
 InferenceMetrics,
 InferenceTracker,
+InferenceTracker,
+ModelPerformanceReport,
 ModelPerformanceReport,
 PerformanceMonitor,
+PerformanceMonitor,
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_model():
+    def mock_model():
     """Create a mock model."""
     model = MagicMock()
     model.name = "Test Model"

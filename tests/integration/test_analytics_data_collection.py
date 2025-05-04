@@ -1,29 +1,55 @@
 """
+"""
+Integration tests for analytics data collection across APIs.
 Integration tests for analytics data collection across APIs.
 
+
+This module contains tests for analytics data collection across different
 This module contains tests for analytics data collection across different
 API endpoints and services.
+API endpoints and services.
+"""
 """
 
 
+
+
+import time
 import time
 from typing import Any, Dict, List
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 
+
+(
 (
 generate_niche_analysis_data,
+generate_niche_analysis_data,
+generate_solution_data,
 generate_solution_data,
 generate_monetization_data,
+generate_monetization_data,
 generate_marketing_strategy_data
+generate_marketing_strategy_data
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def auth_api_test_client():
+    def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000/api")
     client.authenticate("test_user", "test_password")

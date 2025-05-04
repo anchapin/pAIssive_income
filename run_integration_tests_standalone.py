@@ -1,25 +1,47 @@
 """
+"""
 Standalone script to run webhook integration tests without dependencies.
+Standalone script to run webhook integration tests without dependencies.
+"""
 """
 
 
+
+
+import asyncio
 import asyncio
 import base64
+import base64
+import hashlib
 import hashlib
 import hmac
+import hmac
+import json
 import json
 import sys
+import sys
+import time
 import time
 import unittest
+import unittest
+import uuid
 import uuid
 from datetime import datetime, timezone
+from datetime import datetime, timezone
+from enum import Enum
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
 
+
+
+# Define enums and constants
 # Define enums and constants
 class WebhookEventType(str, Enum):
+    class WebhookEventType(str, Enum):
     """Types of webhook events."""
 
     USER_CREATED = "user.created"

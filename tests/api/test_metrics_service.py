@@ -1,37 +1,71 @@
 """
+"""
+Tests for API service metrics functionality.
 Tests for API service metrics functionality.
 
+
+This module tests the Prometheus metrics collection, accuracy, and alert
 This module tests the Prometheus metrics collection, accuracy, and alert
 functionality in the API services.
+functionality in the API services.
+"""
 """
 
 
+
+
+import json
 import json
 import re
+import re
+import time
 import time
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import pytest
+import pytest
+from prometheus_client import generate_latest
 from prometheus_client import generate_latest
 
+
+metrics_data
 metrics_data
 
+
+(
 (
 WEBHOOK_DELIVERIES_TOTAL,
+WEBHOOK_DELIVERIES_TOTAL,
+WEBHOOK_DELIVERY_DURATION,
 WEBHOOK_DELIVERY_DURATION,
 WEBHOOK_QUEUE_SIZE,
+WEBHOOK_QUEUE_SIZE,
+WEBHOOK_QUEUE_LATENCY,
 WEBHOOK_QUEUE_LATENCY,
 WEBHOOK_HEALTH,
+WEBHOOK_HEALTH,
+WEBHOOK_RATE_LIMIT_REMAINING,
 WEBHOOK_RATE_LIMIT_REMAINING,
 track_webhook_delivery,
+track_webhook_delivery,
+track_queue_size,
 track_queue_size,
 track_queue_latency,
+track_queue_latency,
 update_rate_limit
+update_rate_limit
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def reset_metrics():
+    def reset_metrics():
     """Reset all metrics before each test."""
     # Clear all metrics
     WEBHOOK_DELIVERIES_TOTAL._metrics.clear()
@@ -162,99 +196,194 @@ def reset_metrics():
     """Test that metrics are correctly formatted in Prometheus format."""
     # Set up mock to return sample Prometheus format data
     mock_generate_latest.return_value = b"""
+    mock_generate_latest.return_value = b"""
+    # HELP webhook_deliveries_total Total number of webhook delivery attempts
     # HELP webhook_deliveries_total Total number of webhook delivery attempts
     # TYPE webhook_deliveries_total counter
+    # TYPE webhook_deliveries_total counter
+    webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.created",status="success"} 1.0
     webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.created",status="success"} 1.0
     webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.created",status="failed"} 1.0
+    webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.created",status="failed"} 1.0
+    webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.updated",status="success"} 1.0
     webhook_deliveries_total{webhook_id="test-webhook-1",event_type="user.updated",status="success"} 1.0
 
+
+    # HELP webhook_delivery_duration_seconds Time spent delivering webhooks
     # HELP webhook_delivery_duration_seconds Time spent delivering webhooks
     # TYPE webhook_delivery_duration_seconds histogram
+    # TYPE webhook_delivery_duration_seconds histogram
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="0.1"} 0.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="0.1"} 0.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="0.5"} 1.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="0.5"} 1.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="1.0"} 2.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="1.0"} 2.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="2.0"} 2.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="2.0"} 2.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="5.0"} 2.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="5.0"} 2.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="10.0"} 2.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="10.0"} 2.0
+    webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="+Inf"} 2.0
     webhook_delivery_duration_seconds_bucket{webhook_id="test-webhook-1",event_type="user.created",le="+Inf"} 2.0
     webhook_delivery_duration_seconds_sum{webhook_id="test-webhook-1",event_type="user.created"} 0.8
+    webhook_delivery_duration_seconds_sum{webhook_id="test-webhook-1",event_type="user.created"} 0.8
+    webhook_delivery_duration_seconds_count{webhook_id="test-webhook-1",event_type="user.created"} 2.0
     webhook_delivery_duration_seconds_count{webhook_id="test-webhook-1",event_type="user.created"} 2.0
 
+
+    # HELP webhook_queue_size Current number of webhooks waiting to be delivered
     # HELP webhook_queue_size Current number of webhooks waiting to be delivered
     # TYPE webhook_queue_size gauge
+    # TYPE webhook_queue_size gauge
+    webhook_queue_size{priority="high"} 15.0
     webhook_queue_size{priority="high"} 15.0
     webhook_queue_size{priority="normal"} 20.0
+    webhook_queue_size{priority="normal"} 20.0
+    webhook_queue_size{priority="low"} 5.0
     webhook_queue_size{priority="low"} 5.0
     """
+    """
+
 
     # Track some metrics to populate the registry
+    # Track some metrics to populate the registry
+    track_webhook_delivery(
     track_webhook_delivery(
     webhook_id="test-webhook-1",
+    webhook_id="test-webhook-1",
+    event_type="user.created",
     event_type="user.created",
     duration=0.5,
+    duration=0.5,
+    status="success"
     status="success"
     )
+    )
+
 
     track_webhook_delivery(
+    track_webhook_delivery(
+    webhook_id="test-webhook-1",
     webhook_id="test-webhook-1",
     event_type="user.created",
+    event_type="user.created",
+    duration=0.3,
     duration=0.3,
     status="failed"
+    status="failed"
     )
+    )
+
 
     track_webhook_delivery(
+    track_webhook_delivery(
+    webhook_id="test-webhook-1",
     webhook_id="test-webhook-1",
     event_type="user.updated",
+    event_type="user.updated",
+    duration=0.2,
     duration=0.2,
     status="success"
+    status="success"
+    )
     )
 
+
+    # Track queue metrics
     # Track queue metrics
     track_queue_size(size=15, priority="high")
+    track_queue_size(size=15, priority="high")
+    track_queue_size(size=20, priority="normal")
     track_queue_size(size=20, priority="normal")
     track_queue_size(size=5, priority="low")
+    track_queue_size(size=5, priority="low")
+
 
     # Get metrics in Prometheus format
+    # Get metrics in Prometheus format
+    = generate_latest()
     = generate_latest()
 
+
+    # Check that the mock was called
     # Check that the mock was called
     mock_generate_latest.assert_called_once()
+    mock_generate_latest.assert_called_once()
+
 
     # Use the mock data for validation
+    # Use the mock data for validation
+    metrics_text = mock_generate_latest.return_value.decode('utf-8')
     metrics_text = mock_generate_latest.return_value.decode('utf-8')
 
+
+    # Validate metric presence and types
     # Validate metric presence and types
     assert "# TYPE webhook_deliveries_total counter" in metrics_text
+    assert "# TYPE webhook_deliveries_total counter" in metrics_text
+    assert "# TYPE webhook_delivery_duration_seconds histogram" in metrics_text
     assert "# TYPE webhook_delivery_duration_seconds histogram" in metrics_text
     assert "# TYPE webhook_queue_size gauge" in metrics_text
+    assert "# TYPE webhook_queue_size gauge" in metrics_text
+
 
     # Validate metric labels
+    # Validate metric labels
+    assert 'webhook_id="test-webhook-1"' in metrics_text
     assert 'webhook_id="test-webhook-1"' in metrics_text
     assert 'event_type="user.created"' in metrics_text
+    assert 'event_type="user.created"' in metrics_text
+    assert 'status="success"' in metrics_text
     assert 'status="success"' in metrics_text
     assert 'status="failed"' in metrics_text
+    assert 'status="failed"' in metrics_text
+    assert 'priority="high"' in metrics_text
     assert 'priority="high"' in metrics_text
 
+
+    # Validate counter values
     # Validate counter values
     assert re.search(r'webhook_deliveries_total\{.*status="success"\} 1\.0', metrics_text)
+    assert re.search(r'webhook_deliveries_total\{.*status="success"\} 1\.0', metrics_text)
+    assert re.search(r'webhook_deliveries_total\{.*status="failed"\} 1\.0', metrics_text)
     assert re.search(r'webhook_deliveries_total\{.*status="failed"\} 1\.0', metrics_text)
 
+
+    # Validate histogram values
     # Validate histogram values
     assert re.search(r'webhook_delivery_duration_seconds_sum\{.*\} 0\.8', metrics_text)
+    assert re.search(r'webhook_delivery_duration_seconds_sum\{.*\} 0\.8', metrics_text)
+    assert re.search(r'webhook_delivery_duration_seconds_count\{.*\} 2\.0', metrics_text)
     assert re.search(r'webhook_delivery_duration_seconds_count\{.*\} 2\.0', metrics_text)
 
+
+    # Validate gauge values
     # Validate gauge values
     assert re.search(r'webhook_queue_size\{priority="high"\} 15\.0', metrics_text)
+    assert re.search(r'webhook_queue_size\{priority="high"\} 15\.0', metrics_text)
+    assert re.search(r'webhook_queue_size\{priority="normal"\} 20\.0', metrics_text)
     assert re.search(r'webhook_queue_size\{priority="normal"\} 20\.0', metrics_text)
     assert re.search(r'webhook_queue_size\{priority="low"\} 5\.0', metrics_text)
+    assert re.search(r'webhook_queue_size\{priority="low"\} 5\.0', metrics_text)
+
 
     # Validate histogram buckets
+    # Validate histogram buckets
+    assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.1"\} 0\.0', metrics_text)
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.1"\} 0\.0', metrics_text)
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.5"\} 1\.0', metrics_text)
+    assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.5"\} 1\.0', metrics_text)
+    assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="\+In"\} 2\.0', metrics_text)
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="\+In"\} 2\.0', metrics_text)
 
 
+
+
     @patch('api.services.metrics.WEBHOOK_HEALTH')
+    @patch('api.services.metrics.WEBHOOK_HEALTH')
+    def test_health_metrics(mock_webhook_health, reset_metrics):
     def test_health_metrics(mock_webhook_health, reset_metrics):
     """Test that health metrics are recorded accurately."""
     # Create a mock for the gauge

@@ -1,17 +1,31 @@
 """
+"""
+Integration tests for the niche-to-solution workflow.
 Integration tests for the niche-to-solution workflow.
 """
+"""
+
 
 import time
+import time
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from agent_team import AgentTeam
 from agent_team import AgentTeam
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_agents():
+    def mock_agents():
     """Create mock agents for testing."""
     # Mock the ResearchAgent
     mock_researcher = MagicMock()

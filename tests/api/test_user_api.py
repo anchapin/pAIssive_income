@@ -1,26 +1,49 @@
 """
+"""
+Tests for the user API.
 Tests for the user API.
 
+
 This module contains tests for the user API endpoints.
+This module contains tests for the user API endpoints.
+"""
 """
 
 
+
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_user_data
+from tests.api.utils.test_data import generate_id, generate_user_data
+
 
 (
+(
+validate_bulk_response,
 validate_bulk_response,
 validate_error_response,
+validate_error_response,
+validate_field_equals,
 validate_field_equals,
 validate_field_exists,
+validate_field_exists,
+validate_field_not_empty,
 validate_field_not_empty,
 validate_field_type,
+validate_field_type,
+validate_paginated_response,
 validate_paginated_response,
 validate_success_response,
+validate_success_response,
+)
 )
 
 
+
+
 class TestUserAPI:
+    class TestUserAPI:
     """Tests for the user API."""
 
     def test_register_user(self, api_test_client: APITestClient):

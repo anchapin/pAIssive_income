@@ -1,15 +1,27 @@
 """
+"""
 Script to run tests locally with the correct Python path.
+Script to run tests locally with the correct Python path.
+"""
 """
 
 
+
+
+import argparse
 import argparse
 import os
+import os
 import subprocess
+import subprocess
+import sys
 import sys
 
 
+
+
 def main():
+    def main():
     """Run tests with the correct Python path."""
     # Parse command-line arguments
     parser = argparse.ArgumentParser(

@@ -1,18 +1,33 @@
 """
+"""
+Audit schemas for the API server.
 Audit schemas for the API server.
 """
+"""
+
 
 import time
+import time
+from datetime import datetime
 from datetime import datetime
 from enum import Enum
+from enum import Enum
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+class AuditEventType
 class AuditEventType
 
+
 (str, Enum):
+    (str, Enum):
     """Types of audit events."""
 
     # Webhook events
@@ -81,15 +96,23 @@ class AuditEventType
 
 
     class AuditActorType(str, Enum):
-    """Types of actors in audit events."""
+
 
     USER = "user"
+    USER = "user"
+    SYSTEM = "system"
     SYSTEM = "system"
     API_KEY = "api_key"
+    API_KEY = "api_key"
+    SERVICE = "service"
     SERVICE = "service"
 
 
+
+
     class AuditEventBase(BaseModel):
+    class AuditEventBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Base schema for audit events."""
     event_type: AuditEventType = Field(..., description="Type of event")

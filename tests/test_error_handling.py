@@ -1,25 +1,47 @@
 """
+"""
+Tests for error handling functionality.
 Tests for error handling functionality.
 """
+"""
+
 
 import unittest
+import unittest
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+from monetization.errors import MonetizationError
 from monetization.errors import MonetizationError
 
+
+(
 (
 ErrorDetail,
+ErrorDetail,
+ErrorResponse,
 ErrorResponse,
 HTTPStatus,
+HTTPStatus,
+create_error_response,
 create_error_response,
 get_status_code_for_exception,
+get_status_code_for_exception,
+)
 )
 from errors import (BaseError, ConfigurationError, MarketingError, ModelError,
+from errors import (BaseError, ConfigurationError, MarketingError, ModelError,
 MonetizationError, NicheAnalysisError, UIError,
+MonetizationError, NicheAnalysisError, UIError,
+ValidationError)
 ValidationError)
 
 
+
+
 class TestErrorHandling(unittest.TestCase):
+    class TestErrorHandling(unittest.TestCase):
     """Test cases for error handling."""
 
     def test_base_error(self):

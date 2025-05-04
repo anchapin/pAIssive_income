@@ -1,31 +1,59 @@
 """
+"""
+Tests for the niche analysis API.
 Tests for the niche analysis API.
 
+
 This module contains tests for the niche analysis API endpoints.
+This module contains tests for the niche analysis API endpoints.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 
+
+(
 (
 generate_id,
+generate_id,
+generate_niche_analysis_data,
 generate_niche_analysis_data,
 generate_niche_data,
+generate_niche_data,
+)
 )
 from tests.api.utils.test_validators import (validate_bulk_response,
+from tests.api.utils.test_validators import (validate_bulk_response,
+validate_error_response,
 validate_error_response,
 validate_field_equals,
+validate_field_equals,
+validate_field_exists,
 validate_field_exists,
 validate_field_not_empty,
+validate_field_not_empty,
+validate_field_type,
 validate_field_type,
 validate_list_contains,
+validate_list_contains,
 validate_paginated_response,
+validate_paginated_response,
+validate_success_response)
 validate_success_response)
 
 
+
+
 class TestNicheAnalysisAPI:
+    class TestNicheAnalysisAPI:
     """Tests for the niche analysis API."""
 
     def test_analyze_niche(self, api_test_client: APITestClient):

@@ -5,14 +5,23 @@ import sys
 
 #!/usr/bin/env python
 """
+"""
 Script to automatically format Python files using Black and isort.
+Script to automatically format Python files using Black and isort.
+"""
 """
 
 
 
 
 
+
+
+
+
+
 def format_file(file_path):
+    def format_file(file_path):
     """Format a file using Black and isort."""
     print(f"\nFormatting {file_path}...")
 

@@ -1,16 +1,28 @@
 #!/usr/bin/env python
 """
+"""
+Setup script for pre-commit hooks.
 Setup script for pre-commit hooks.
 
+
+This script installs pre-commit and sets up the hooks defined in .pre-commit-config.yaml.
 This script installs pre-commit and sets up the hooks defined in .pre-commit-config.yaml.
 """
+"""
+
 
 import os
+import os
 import subprocess
+import subprocess
+import sys
 import sys
 
 
+
+
 def check_pre_commit_installed():
+    def check_pre_commit_installed():
     """Check if pre-commit is installed."""
     try:
     subprocess.run(

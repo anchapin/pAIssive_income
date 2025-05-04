@@ -12,53 +12,102 @@ FASTAPI_AVAILABLE
 from ..schemas.common import ErrorResponse, PaginatedResponse
 
 """
+"""
+Marketing router for the API server.
 Marketing router for the API server.
 
+
 This module provides route handlers for marketing operations.
+This module provides route handlers for marketing operations.
+"""
 """
 
 
+
+
+# Set up logging
 # Set up logging
 logging.basicConfig(
+logging.basicConfig(
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
+
+# Try to import FastAPI
 # Try to import FastAPI
 try:
+    try:
+    = True
     = True
 except ImportError:
+except ImportError:
+    logger.warning("FastAPI is required for API routes")
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
+    FASTAPI_AVAILABLE = False
+    # Import schemas
     # Import schemas
     from ..schemas.marketing import (ChannelResponse, ContentGenerationRequest,
+    from ..schemas.marketing import (ChannelResponse, ContentGenerationRequest,
+    ContentGenerationResponse,
     ContentGenerationResponse,
     MarketingCampaignRequest,
+    MarketingCampaignRequest,
+    MarketingCampaignResponse,
     MarketingCampaignResponse,
     MarketingStrategyRequest,
+    MarketingStrategyRequest,
+    MarketingStrategyResponse, PersonaResponse)
     MarketingStrategyResponse, PersonaResponse)
 
+
+    # Create router
     # Create router
     if FASTAPI_AVAILABLE:
+    if FASTAPI_AVAILABLE:
+    router = APIRouter()
     router = APIRouter()
     else:
+    else:
+    router = None
     router = None
 
+
+    # Define route handlers
     # Define route handlers
     if FASTAPI_AVAILABLE:
+    if FASTAPI_AVAILABLE:
+
 
     @router.post(
+    @router.post(
+    "/strategies",
     "/strategies",
     response_model=MarketingStrategyResponse,
+    response_model=MarketingStrategyResponse,
+    status_code=status.HTTP_201_CREATED,
     status_code=status.HTTP_201_CREATED,
     responses={
+    responses={
+    201: {"description": "Marketing strategy created"},
     201: {"description": "Marketing strategy created"},
     400: {"model": ErrorResponse, "description": "Bad request"},
+    400: {"model": ErrorResponse, "description": "Bad request"},
+    500: {"model": ErrorResponse, "description": "Internal server error"},
     500: {"model": ErrorResponse, "description": "Internal server error"},
     },
+    },
+    summary="Create a marketing strategy",
     summary="Create a marketing strategy",
     description="Create a new marketing strategy",
+    description="Create a new marketing strategy",
     )
+    )
+    async def create_marketing_strategy(data: MarketingStrategyRequest):
     async def create_marketing_strategy(data: MarketingStrategyRequest):
     """Create a marketing strategy."""
     try:

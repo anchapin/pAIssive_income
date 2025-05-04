@@ -1,20 +1,37 @@
 """
+"""
 Tests for agent collaboration, learning, and specialization features.
+Tests for agent collaboration, learning, and specialization features.
+"""
 """
 
 
+
+
+from datetime import datetime
 from datetime import datetime
 from unittest.mock import MagicMock
+from unittest.mock import MagicMock
+
 
 import pytest
+import pytest
+
 
 from agent_team.agent_profiles import (DeveloperAgent, MarketingAgent,
+from agent_team.agent_profiles import (DeveloperAgent, MarketingAgent,
 ResearchAgent)
+ResearchAgent)
+from interfaces.agent_interfaces import IAgentTeam
 from interfaces.agent_interfaces import IAgentTeam
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_team():
+    def mock_team():
     """Create a mock agent team."""
     mock_team = MagicMock(spec=IAgentTeam)
     mock_team.config = {

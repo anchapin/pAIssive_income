@@ -1,23 +1,43 @@
 """
+"""
 Tests for market trend analysis functionality.
+Tests for market trend analysis functionality.
+"""
 """
 
 
+
+
+import pytest
 import pytest
 
+
+from niche_analysis.errors import InsufficientDataError
 from niche_analysis.errors import InsufficientDataError
 from niche_analysis.market_analyzer import MarketAnalyzer
+from niche_analysis.market_analyzer import MarketAnalyzer
+
 
 (
+(
+HistoricalTrendAnalyzer,
 HistoricalTrendAnalyzer,
 MarketTrendAnalyzer,
+MarketTrendAnalyzer,
+TrendIdentifier,
 TrendIdentifier,
 TrendSeverityClassifier,
+TrendSeverityClassifier,
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def market_analyzer():
+    def market_analyzer():
     """Create a MarketAnalyzer instance for testing."""
     return MarketAnalyzer()
 

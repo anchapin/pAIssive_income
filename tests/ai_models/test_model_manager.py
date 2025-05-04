@@ -1,21 +1,39 @@
 """
+"""
 Tests for the ModelManager class.
+Tests for the ModelManager class.
+"""
 """
 
 
+
+
+import json
 import json
 import os
+import os
+import shutil
 import shutil
 import tempfile
+import tempfile
+from unittest.mock import MagicMock
 from unittest.mock import MagicMock
 
+
+import pytest
 import pytest
 
+
+from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def temp_model_dir():
+    def temp_model_dir():
     """Create a temporary directory for models."""
     temp_dir = tempfile.mkdtemp()
     yield temp_dir

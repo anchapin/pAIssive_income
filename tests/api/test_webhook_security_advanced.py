@@ -1,42 +1,82 @@
 """
+"""
+Advanced tests for webhook security features.
 Advanced tests for webhook security features.
 
+
 This module tests advanced security features for the webhook system:
+    This module tests advanced security features for the webhook system:
+    1. Handling of replayed webhook signatures
     1. Handling of replayed webhook signatures
     2. Rate limit behavior during partial system outages
+    2. Rate limit behavior during partial system outages
+    3. IP allowlist updates during active connections
     3. IP allowlist updates during active connections
     4. Signature verification with tampered payloads
+    4. Signature verification with tampered payloads
+    5. Signature verification with expired timestamps
     5. Signature verification with expired timestamps
     6. Signature verification with incorrect secrets
+    6. Signature verification with incorrect secrets
+    7. IP allowlist with CIDR range boundaries
     7. IP allowlist with CIDR range boundaries
     8. Rate limiting with concurrent requests
+    8. Rate limiting with concurrent requests
     9. Rate limiting headers in responses
+    9. Rate limiting headers in responses
+    """
     """
 
 
+
+
+    import asyncio
     import asyncio
     import ipaddress
+    import ipaddress
+    import json
     import json
     import time
+    import time
+    from datetime import datetime, timedelta
     from datetime import datetime, timedelta
     from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, MagicMock, patch
+
 
     import pytest
+    import pytest
     from fastapi import FastAPI, Request, Response, status
+    from fastapi import FastAPI, Request, Response, status
+    from fastapi.testclient import TestClient
     from fastapi.testclient import TestClient
 
 
+
+
+    class TestReplayedSignatures
     class TestReplayedSignatures
     import random
+    import random
+
 
     (
+    (
+    WebhookIPAllowlist,
     WebhookIPAllowlist,
     WebhookSignatureVerifier,
+    WebhookSignatureVerifier,
+    WebhookRateLimiter
     WebhookRateLimiter
     )
+    )
+    from api.middleware.webhook_security import (WebhookIPAllowlistMiddleware,
     from api.middleware.webhook_security import (WebhookIPAllowlistMiddleware,
     WebhookRateLimitMiddleware)
+    WebhookRateLimitMiddleware)
 
+
+    :
     :
     """Tests for handling replayed webhook signatures."""
 

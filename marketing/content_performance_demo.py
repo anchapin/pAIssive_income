@@ -1,20 +1,38 @@
 """
+"""
+Demo script for the content performance analytics module.
 Demo script for the content performance analytics module.
 
+
+This script demonstrates how to track and analyze the performance of marketing content
 This script demonstrates how to track and analyze the performance of marketing content
 across different channels using the ContentPerformanceAnalyzer.
+across different channels using the ContentPerformanceAnalyzer.
+"""
 """
 
+
+import random
 import random
 import time
+import time
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path
+from typing import Any, Dict
 from typing import Any, Dict
 
+
+from marketing.content_performance import ContentPerformanceAnalyzer
 from marketing.content_performance import ContentPerformanceAnalyzer
 
 
+
+
 def create_demo_storage():
+    def create_demo_storage():
+    ():
     ():
     """Create a directory for demo storage if it doesn't exist."""
     storage_dir = Path("./demo_storage")

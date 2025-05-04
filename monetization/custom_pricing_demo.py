@@ -1,26 +1,50 @@
 """
+"""
+Custom pricing demo for the pAIssive Income project.
 Custom pricing demo for the pAIssive Income project.
 
+
+This script demonstrates how to use the custom pricing rules
 This script demonstrates how to use the custom pricing rules
 to implement complex pricing strategies.
+to implement complex pricing strategies.
+"""
 """
 
+
+import random
 import random
 import time
+import time
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 
+
+from .usage_tracking import UsageCategory, UsageMetric
 from .usage_tracking import UsageCategory, UsageMetric
 
 
+
+
 def print_section():
+    def print_section():
+    (
     (
     ConditionalPricingRule,
+    ConditionalPricingRule,
+    CustomerSegmentPricingRule,
     CustomerSegmentPricingRule,
     CustomPricingCalculator,
+    CustomPricingCalculator,
+    FormulaBasedPricingRule,
     FormulaBasedPricingRule,
     SeasonalPricingRule,
+    SeasonalPricingRule,
+    TimeBasedPricingRule,
     TimeBasedPricingRule,
     )
+    )
+    (title: str) -> None:
     (title: str) -> None:
     """Print a section title."""
     print("\n" + "=" * 80)

@@ -1,28 +1,53 @@
 """
+"""
+Integration tests for API gateway with circuit breaker.
 Integration tests for API gateway with circuit breaker.
 
+
+This module contains integration tests for the API gateway service
 This module contains integration tests for the API gateway service
 with circuit breaker pattern for resilience.
+with circuit breaker pattern for resilience.
+"""
 """
 
 
+
+
+import time
 import time
 from unittest.mock import patch
+from unittest.mock import patch
+
 
 import pytest
+import pytest
+import requests
 import requests
 
+
+from services.gateway import APIGateway, GatewayConfig, RouteManager
 from services.gateway import APIGateway, GatewayConfig, RouteManager
 
+
+(
 (
 CircuitBreaker,
+CircuitBreaker,
+CircuitBreakerConfig,
 CircuitBreakerConfig,
 CircuitState,
+CircuitState,
 FallbackHandler,
+FallbackHandler,
+)
 )
 
 
+
+
 class TestAPIGatewayCircuitBreaker:
+    class TestAPIGatewayCircuitBreaker:
     """Integration tests for API gateway with circuit breaker."""
 
     def setup_method(self):

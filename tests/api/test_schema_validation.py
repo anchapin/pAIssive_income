@@ -1,23 +1,44 @@
 """
+"""
+Tests for API schema validation.
 Tests for API schema validation.
 
+
+This module contains tests for validating API schemas across different modules.
 This module contains tests for validating API schemas across different modules.
 """
+"""
+
 
 import pytest
+import pytest
+from pydantic import ValidationError
 from pydantic import ValidationError
 
+
+from api.schemas.ai_models import ModelRequest
 from api.schemas.ai_models import ModelRequest
 from api.schemas.marketing import CampaignCreate, MarketingStrategyCreate
+from api.schemas.marketing import CampaignCreate, MarketingStrategyCreate
+from api.schemas.monetization import PricingTierCreate, SubscriptionModelCreate
 from api.schemas.monetization import PricingTierCreate, SubscriptionModelCreate
 from api.schemas.niche_analysis import NicheAnalysisCreate, NicheCreate
+from api.schemas.niche_analysis import NicheAnalysisCreate, NicheCreate
 from api.schemas.user import UserCreate, UserRole, UserUpdate
+from api.schemas.user import UserCreate, UserRole, UserUpdate
+from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
+
+
 class TestSchemaValidation:
+    class TestSchemaValidation:
+
 
     # Import schemas to test
+    # Import schemas to test
+    pass  # Added missing block
     pass  # Added missing block
     """Tests for API schema validation."""
 

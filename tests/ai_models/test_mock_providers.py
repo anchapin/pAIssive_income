@@ -1,38 +1,73 @@
 """
+"""
+Tests for mock model providers.
 Tests for mock model providers.
 
+
 This module demonstrates how to use the mock model providers in tests.
+This module demonstrates how to use the mock model providers in tests.
+"""
 """
 
 
+
+
+import os
 import os
 import sys
+import sys
+import tempfile
 import tempfile
 import unittest
+import unittest
+
 
 import numpy
+import numpy
+import pytest
 import pytest
 
+
+from ai_models.model_config import ModelConfig
 from ai_models.model_config import ModelConfig
 from ai_models.model_manager import ModelInfo
+from ai_models.model_manager import ModelInfo
 
+
+as np
 as np
 
 
+
+
+# Add project root to path for imports
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+(
 (
 MockHuggingFaceProvider,
+MockHuggingFaceProvider,
+MockLMStudioProvider,
 MockLMStudioProvider,
 MockLocalModelProvider,
+MockLocalModelProvider,
+MockOllamaProvider,
 MockOllamaProvider,
 MockONNXProvider,
+MockONNXProvider,
+MockOpenAIProvider,
 MockOpenAIProvider,
 create_mock_provider,
+create_mock_provider,
+)
 )
 
 
+
+
 class TestMockProviders(unittest.TestCase):
+    class TestMockProviders(unittest.TestCase):
     """Test the mock AI model providers."""
 
     def test_create_mock_provider(self):

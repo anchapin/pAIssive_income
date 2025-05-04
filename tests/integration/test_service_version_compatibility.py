@@ -1,27 +1,51 @@
 """
+"""
+Integration tests for service version compatibility.
 Integration tests for service version compatibility.
 
+
+This module contains tests for version compatibility between services in the
 This module contains tests for version compatibility between services in the
 microservices architecture.
+microservices architecture.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+(
 (
 ServiceDiscoveryClient,
+ServiceDiscoveryClient,
+ServiceInstance,
 ServiceInstance,
 ServiceRegistry,
+ServiceRegistry,
+InMemoryServiceRegistry
 InMemoryServiceRegistry
 )
+)
 from services.versioning import (SemanticVersion, VersionCompatibilityChecker,
+from services.versioning import (SemanticVersion, VersionCompatibilityChecker,
+VersionManager, VersionMismatchError)
 VersionManager, VersionMismatchError)
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def in_memory_registry():
+    def in_memory_registry():
     """Create an in-memory service registry with versioned services."""
     registry = InMemoryServiceRegistry()
 

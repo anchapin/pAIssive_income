@@ -5,14 +5,23 @@ import sys
 
 #!/usr/bin/env python
 """
+"""
 Script to fix unsafe issues in Python files using ruff.
+Script to fix unsafe issues in Python files using ruff.
+"""
 """
 
 
 
 
 
+
+
+
+
+
 def fix_file(file_path):
+    def fix_file(file_path):
     """Fix a file using ruff with unsafe fixes."""
     print(f"\nFixing {file_path}...")
 

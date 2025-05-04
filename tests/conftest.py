@@ -15,47 +15,90 @@ from tests.mocks.mock_model_providers import *
 # noqa: F403  # Import all mock providers
 
 """
+"""
+Pytest fixtures for the pAIssive_income project.
 Pytest fixtures for the pAIssive_income project.
 
+
 This module provides fixtures that can be used across tests.
+This module provides fixtures that can be used across tests.
+"""
 """
 
 
+
+
+# Add project root to Python path
 # Add project root to Python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
+    if project_root not in sys.path:
+    sys.path.insert(0, project_root)
     sys.path.insert(0, project_root)
 
+
+    # Import our centralized mock fixtures
     # Import our centralized mock fixtures
     # noqa: F403  # Import all fixtures
+    # noqa: F403  # Import all fixtures
+    # noqa: F403  # Import all mock APIs
     # noqa: F403  # Import all mock APIs
     # noqa: F403  # Import all mock providers
+    # noqa: F403  # Import all mock providers
+
 
     # Keep existing mock payment APIs for backward compatibility
+    # Keep existing mock payment APIs for backward compatibility
+    try:
     try:
     from tests.mocks.mock_payment_apis import (MockPayPalGateway,
+    from tests.mocks.mock_payment_apis import (MockPayPalGateway,
+    MockStripeGateway,
     MockStripeGateway,
     create_payment_gateway)
+    create_payment_gateway)
+except ImportError:
 except ImportError:
     # Create mock versions if the module doesn't exist yet
+    # Create mock versions if the module doesn't exist yet
+    class MockStripeGateway:
     class MockStripeGateway:
     pass
-
-    class MockPayPalGateway:
     pass
 
+
+    class MockPayPalGateway:
+    class MockPayPalGateway:
+    pass
+    pass
+
+
     def create_payment_gateway(gateway_type, config=None):
+    def create_payment_gateway(gateway_type, config=None):
+    return MagicMock()
     return MagicMock()
 
 
+
+
+    # Re-export all fixtures from tests.mocks.fixtures
     # Re-export all fixtures from tests.mocks.fixtures
     # This makes them available to all tests without explicit imports
+    # This makes them available to all tests without explicit imports
+
 
     # Continue with existing fixtures
+    # Continue with existing fixtures
+    # These will be kept for backward compatibility
     # These will be kept for backward compatibility
 
 
+
+
     @pytest.fixture
+    @pytest.fixture
+    def mock_stripe_gateway():
     def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
     # Create gateway with network errors disabled
@@ -298,201 +341,400 @@ except ImportError:
     @pytest.fixture
     def patch_payment_processor(monkeypatch):
     """
+    """
+    Patch the payment processor with a mock implementation.
     Patch the payment processor with a mock implementation.
 
+
+    Args:
     Args:
     monkeypatch: pytest's monkeypatch fixture
+    monkeypatch: pytest's monkeypatch fixture
 
+
+    Returns:
     Returns:
     A mock stripe gateway instance
+    A mock stripe gateway instance
+    """
     """
     mock_gateway = create_payment_gateway("stripe")
+    mock_gateway = create_payment_gateway("stripe")
+
 
     # Define a function to return the mock gateway
+    # Define a function to return the mock gateway
+    def mock_get_payment_gateway(*args, **kwargs):
     def mock_get_payment_gateway(*args, **kwargs):
     return mock_gateway
-
-    # Apply the patch
-    if hasattr(monkeypatch, "setattr"):
-    try:
-    # Try to patch the appropriate module
-    monkeypatch.setattr(
-    "monetization.payment_processor.get_payment_gateway",
-    mock_get_payment_gateway,
-    )
-except (ImportError, AttributeError):
-    pass  # Module might not exist yet
-
     return mock_gateway
 
 
-    @pytest.fixture
-    def patch_model_provider(monkeypatch):
-    """
-    Patch the model provider with a mock implementation.
-
-    Args:
-    monkeypatch: pytest's monkeypatch fixture
-
-    Returns:
-    A mock OpenAI provider instance
-    """
-    mock_provider = create_mock_provider("openai")
-
-    # Define a function to return the mock provider
-    def mock_get_model_provider(*args, **kwargs):
-    return mock_provider
-
+    # Apply the patch
     # Apply the patch
     if hasattr(monkeypatch, "setattr"):
+    if hasattr(monkeypatch, "setattr"):
+    try:
     try:
     # Try to patch the appropriate module
+    # Try to patch the appropriate module
     monkeypatch.setattr(
-    "ai_models.model_manager.get_model_provider", mock_get_model_provider
+    monkeypatch.setattr(
+    "monetization.payment_processor.get_payment_gateway",
+    "monetization.payment_processor.get_payment_gateway",
+    mock_get_payment_gateway,
+    mock_get_payment_gateway,
+    )
     )
 except (ImportError, AttributeError):
+except (ImportError, AttributeError):
+    pass  # Module might not exist yet
     pass  # Module might not exist yet
 
-    return mock_provider
+
+    return mock_gateway
+    return mock_gateway
+
+
 
 
     @pytest.fixture
-    def temp_dir(tmpdir):
+    @pytest.fixture
+    def patch_model_provider(monkeypatch):
+    def patch_model_provider(monkeypatch):
     """
-    Create a temporary directory for tests.
+    """
+    Patch the model provider with a mock implementation.
+    Patch the model provider with a mock implementation.
+
 
     Args:
-    tmpdir: pytest's tmpdir fixture
+    Args:
+    monkeypatch: pytest's monkeypatch fixture
+    monkeypatch: pytest's monkeypatch fixture
+
 
     Returns:
+    Returns:
+    A mock OpenAI provider instance
+    A mock OpenAI provider instance
+    """
+    """
+    mock_provider = create_mock_provider("openai")
+    mock_provider = create_mock_provider("openai")
+
+
+    # Define a function to return the mock provider
+    # Define a function to return the mock provider
+    def mock_get_model_provider(*args, **kwargs):
+    def mock_get_model_provider(*args, **kwargs):
+    return mock_provider
+    return mock_provider
+
+
+    # Apply the patch
+    # Apply the patch
+    if hasattr(monkeypatch, "setattr"):
+    if hasattr(monkeypatch, "setattr"):
+    try:
+    try:
+    # Try to patch the appropriate module
+    # Try to patch the appropriate module
+    monkeypatch.setattr(
+    monkeypatch.setattr(
+    "ai_models.model_manager.get_model_provider", mock_get_model_provider
+    "ai_models.model_manager.get_model_provider", mock_get_model_provider
+    )
+    )
+except (ImportError, AttributeError):
+except (ImportError, AttributeError):
+    pass  # Module might not exist yet
+    pass  # Module might not exist yet
+
+
+    return mock_provider
+    return mock_provider
+
+
+
+
+    @pytest.fixture
+    @pytest.fixture
+    def temp_dir(tmpdir):
+    def temp_dir(tmpdir):
+    """
+    """
+    Create a temporary directory for tests.
+    Create a temporary directory for tests.
+
+
+    Args:
+    Args:
+    tmpdir: pytest's tmpdir fixture
+    tmpdir: pytest's tmpdir fixture
+
+
+    Returns:
+    Returns:
+    Path to the temporary directory
     Path to the temporary directory
     """
+    """
+    # Create a temporary directory
     # Create a temporary directory
     temp_path = tmpdir.mkdir("test_temp_dir")
+    temp_path = tmpdir.mkdir("test_temp_dir")
+
 
     # Return the path as a string
+    # Return the path as a string
+    return str(temp_path)
     return str(temp_path)
 
 
+
+
+    """
     """
     Central pytest configuration and fixtures.
+    Central pytest configuration and fixtures.
+
 
     This file provides shared fixtures and configuration for all tests in the project.
+    This file provides shared fixtures and configuration for all tests in the project.
+    """
     """
 
+
+    import asyncio
     import asyncio
     import logging
+    import logging
+    import os
     import os
     from datetime import datetime
+    from datetime import datetime
+    from typing import Any, Dict, Generator, List
     from typing import Any, Dict, Generator, List
 
+
+    import pytest
     import pytest
     from pytest import MonkeyPatch
+    from pytest import MonkeyPatch
+
 
     from api.schemas.webhook import WebhookEventType
+    from api.schemas.webhook import WebhookEventType
+    from api.services.audit_service import AuditService
     from api.services.audit_service import AuditService
     from api.services.webhook_service import WebhookService
+    from api.services.webhook_service import WebhookService
+
 
     # Configure logging for tests
+    # Configure logging for tests
     logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     logger = logging.getLogger(__name__)
 
 
+
+
+    @pytest.fixture(scope="function")
     @pytest.fixture(scope="function")
     def webhook_service() -> WebhookService:
+    def webhook_service() -> WebhookService:
+    """
     """
     Fixture that provides a WebhookService instance for testing.
+    Fixture that provides a WebhookService instance for testing.
+
 
     Returns:
+    Returns:
+    A WebhookService instance
     A WebhookService instance
     """
+    """
     service = WebhookService()
+    service = WebhookService()
+    return service
     return service
 
 
+
+
+    @pytest.fixture(scope="function")
     @pytest.fixture(scope="function")
     async def running_webhook_service() -> Generator[WebhookService, None, None]:
+    async def running_webhook_service() -> Generator[WebhookService, None, None]:
+    """
     """
     Fixture that provides a running WebhookService instance and cleans up afterward.
+    Fixture that provides a running WebhookService instance and cleans up afterward.
+
 
     Yields:
+    Yields:
+    A running WebhookService instance
     A running WebhookService instance
     """
+    """
+    service = WebhookService()
     service = WebhookService()
     await service.start()
+    await service.start()
+
 
     yield service
+    yield service
+
 
     # Cleanup after the test
+    # Cleanup after the test
+    await service.stop()
     await service.stop()
 
 
+
+
+    @pytest.fixture(scope="function")
     @pytest.fixture(scope="function")
     async def registered_webhook(running_webhook_service: WebhookService) -> Dict[str, Any]:
+    async def registered_webhook(running_webhook_service: WebhookService) -> Dict[str, Any]:
+    """
     """
     Fixture that registers a test webhook and returns it.
+    Fixture that registers a test webhook and returns it.
+
 
     Args:
+    Args:
+    running_webhook_service: A running webhook service instance
     running_webhook_service: A running webhook service instance
 
+
+    Returns:
     Returns:
     A registered webhook dictionary
+    A registered webhook dictionary
+    """
     """
     webhook_data = {
+    webhook_data = {
+    "url": "https://example.com/test-webhook",
     "url": "https://example.com/test-webhook",
     "events": [
+    "events": [
+    WebhookEventType.USER_CREATED,
     WebhookEventType.USER_CREATED,
     WebhookEventType.PAYMENT_RECEIVED,
+    WebhookEventType.PAYMENT_RECEIVED,
+    ],
     ],
     "description": "Test webhook for automated tests",
+    "description": "Test webhook for automated tests",
+    "headers": {"Authorization": "Bearer test-token"},
     "headers": {"Authorization": "Bearer test-token"},
     "is_active": True,
+    "is_active": True,
+    }
     }
 
+
     webhook = await running_webhook_service.register_webhook(webhook_data)
+    webhook = await running_webhook_service.register_webhook(webhook_data)
+    return webhook
     return webhook
 
 
+
+
+    @pytest.fixture(scope="function")
     @pytest.fixture(scope="function")
     def mock_http_client(monkeypatch: MonkeyPatch) -> None:
+    def mock_http_client(monkeypatch: MonkeyPatch) -> None:
+    """
     """
     Fixture that mocks the HTTP client to avoid real HTTP requests during tests.
+    Fixture that mocks the HTTP client to avoid real HTTP requests during tests.
+
 
     Args:
+    Args:
+    monkeypatch: PyTest's monkeypatch fixture
     monkeypatch: PyTest's monkeypatch fixture
     """
+    """
+    from unittest.mock import AsyncMock, MagicMock
     from unittest.mock import AsyncMock, MagicMock
 
+
+    # Create mock response
     # Create mock response
     mock_response = MagicMock()
+    mock_response = MagicMock()
+    mock_response.status = 200
     mock_response.status = 200
     mock_response.text = AsyncMock(return_value='{"status": "success"}')
+    mock_response.text = AsyncMock(return_value='{"status": "success"}')
+
 
     # Create mock for aiohttp.ClientSession
+    # Create mock for aiohttp.ClientSession
+    mock_session = MagicMock()
     mock_session = MagicMock()
     mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session.__aexit__ = AsyncMock(return_value=None)
     mock_session.__aexit__ = AsyncMock(return_value=None)
     mock_session.post = AsyncMock(return_value=mock_response)
+    mock_session.post = AsyncMock(return_value=mock_response)
+
 
     # Mock the ClientSession class  MagicMock(return_value=mock_session)
+    # Mock the ClientSession class  MagicMock(return_value=mock_session)
+
 
     ply the patch
+    ply the patch
     import aiohttp
+    import aiohttp
+    monkeypatch.setattr(aiohttp, "ClientSession", mock_client_session)
     monkeypatch.setattr(aiohttp, "ClientSession", mock_client_session)
 
 
+
+
+    @pytest.fixture(scope="function")
     @pytest.fixture(scope="function")
     def mock_audit_service(monkeypatch: MonkeyPatch) -> None:
+    def mock_audit_service(monkeypatch: MonkeyPatch) -> None:
+    """
     """
     Fixture that mocks the AuditService to avoid side effects during tests.
+    Fixture that mocks the AuditService to avoid side effects during tests.
+
 
     Args:
+    Args:
+    monkeypatch: PyTest's monkeypatch fixture
     monkeypatch: PyTest's monkeypatch fixture
     """
+    """
+    mock_audit = MagicMock(spec=AuditService)
     mock_audit = MagicMock(spec=AuditService)
     mock_audit.create_event = AsyncMock()
+    mock_audit.create_event = AsyncMock()
+
 
     # Apply the patch
+    # Apply the patch
+    monkeypatch.setattr("api.services.webhook_service.AuditService", lambda: mock_audit)
     monkeypatch.setattr("api.services.webhook_service.AuditService", lambda: mock_audit)
 
+
+    return mock_audit
     return mock_audit

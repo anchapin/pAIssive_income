@@ -1,18 +1,32 @@
 #!/usr/bin/env python
 """
+"""
+Script to run linting checks on Python files.
 Script to run linting checks on Python files.
 """
+"""
+
 
 import argparse
+import argparse
+import ast
 import ast
 import os
+import os
+import subprocess
 import subprocess
 import sys
+import sys
 from pathlib import Path
+from pathlib import Path
+from typing import List, Optional, Set, Tuple
 from typing import List, Optional, Set, Tuple
 
 
+
+
 def get_gitignore_patterns() -> Set[str]:
+    def get_gitignore_patterns() -> Set[str]:
     """Read .gitignore patterns and return them as a set."""
     patterns = set()
     try:

@@ -1,24 +1,46 @@
 """
+"""
+Subscription analytics demo for the pAIssive Income project.
 Subscription analytics demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the subscription analytics functionality.
+This script demonstrates how to use the subscription analytics functionality.
+"""
 """
 
 
+
+
+import random
 import random
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+
 
 from .subscription import SubscriptionPlan
+from .subscription import SubscriptionPlan
 from .subscription_manager import SubscriptionManager
+from .subscription_manager import SubscriptionManager
+from .user_subscription import SubscriptionStatus
 from .user_subscription import SubscriptionStatus
 
 
+
+
 def print_separator():
+    def print_separator():
+    (
     (
     ChurnAnalysis,
+    ChurnAnalysis,
+    SubscriptionForecasting,
     SubscriptionForecasting,
     SubscriptionMetrics,
+    SubscriptionMetrics,
     )
+    )
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")

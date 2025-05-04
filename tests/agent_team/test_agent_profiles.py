@@ -1,24 +1,45 @@
 """
+"""
 Tests for the agent profiles in the agent_team module.
+Tests for the agent profiles in the agent_team module.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from interfaces.agent_interfaces import IAgentTeam
 from interfaces.agent_interfaces import IAgentTeam
 
+
+(
 (
 AgentProfile,
+AgentProfile,
+DeveloperAgent,
 DeveloperAgent,
 FeedbackAgent,
+FeedbackAgent,
+MarketingAgent,
 MarketingAgent,
 MonetizationAgent,
+MonetizationAgent,
+ResearchAgent,
 ResearchAgent,
 )
+)
+@pytest.fixture
 @pytest.fixture
 def mock_team():
+    def mock_team():
     """Create a mock agent team."""
     mock_team = MagicMock(spec=IAgentTeam)
     mock_team.config = {

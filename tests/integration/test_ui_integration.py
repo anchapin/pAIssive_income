@@ -1,24 +1,45 @@
 """
+"""
 Integration tests for UI interactions with backend services.
+Integration tests for UI interactions with backend services.
+"""
 """
 
 
+
+
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from ui.cli_ui import CommandLineInterface
 from ui.cli_ui import CommandLineInterface
 from ui.routes import init_services
+from ui.routes import init_services
+from ui.web_ui import WebUI
 from ui.web_ui import WebUI
 
+
+init_services
 init_services
 
+
 # Import UI modules
+# Import UI modules
+# Import test fixtures
 # Import test fixtures
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def initialize_ui_services(register_mock_services):
+    def initialize_ui_services(register_mock_services):
     """Initialize UI services for testing."""
     # Initialize routes services
     ()

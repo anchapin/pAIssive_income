@@ -1,21 +1,39 @@
 """
+"""
 Tests for the PricingCalculator class.
+Tests for the PricingCalculator class.
+"""
 """
 
 
+
+
+import json
 import json
 import os
+import os
+import shutil
 import shutil
 import tempfile
+import tempfile
+
 
 import pytest
+import pytest
+
 
 from monetization.pricing_calculator import PricingCalculator
+from monetization.pricing_calculator import PricingCalculator
+from monetization.subscription_models import SubscriptionModel
 from monetization.subscription_models import SubscriptionModel
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def temp_dir():
+    def temp_dir():
     """Create a temporary directory for test files."""
     temp_dir = tempfile.mkdtemp()
     yield temp_dir

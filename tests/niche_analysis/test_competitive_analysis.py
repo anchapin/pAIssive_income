@@ -1,21 +1,40 @@
 """
+"""
+Tests for competitive analysis functionality.
 Tests for competitive analysis functionality.
 """
+"""
+
 
 import time
+import time
+
 
 import pytest
+import pytest
 
+
+from niche_analysis.errors import InvalidCompetitorDataError
 from niche_analysis.errors import InvalidCompetitorDataError
 
 
+
+
 class TestCompetitiveAnalysis:
+    class TestCompetitiveAnalysis:
+
 
     pass  # Added missing block
+    pass  # Added missing block
+    CompetitorAnalyzer,
     CompetitorAnalyzer,
     MarketPositionMapper,
+    MarketPositionMapper,
+    StrengthWeaknessAnalyzer,
     StrengthWeaknessAnalyzer,
     )
+    )
+    :
     :
     """Test cases for competitive analysis."""
 

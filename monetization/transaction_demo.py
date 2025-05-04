@@ -1,15 +1,28 @@
 """
+"""
+Transaction management demo for the pAIssive Income project.
 Transaction management demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the transaction management system.
+This script demonstrates how to use the transaction management system.
+"""
 """
 
 
+
+
 from .mock_payment_processor import MockPaymentProcessor
+from .mock_payment_processor import MockPaymentProcessor
+from .transaction_manager import TransactionManager
 from .transaction_manager import TransactionManager
 
 
+
+
 def print_separator():
+    def print_separator():
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")

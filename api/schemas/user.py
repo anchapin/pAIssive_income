@@ -1,16 +1,30 @@
 """
+"""
 User schemas for the API server.
+User schemas for the API server.
+"""
 """
 
 
+
+
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
+
+
+class UserRegisterRequest
 class UserRegisterRequest
 
+
 (BaseModel):
+    (BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Request model for user registration."""
     username: str = Field(..., description="Username")

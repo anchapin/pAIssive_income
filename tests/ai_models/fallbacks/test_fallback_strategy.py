@@ -14,22 +14,40 @@ from errors import ModelLoadError, ModelNotFoundError
 class ModelInfoMock
 
 """
+"""
+Tests for the fallback strategy implementation.
 Tests for the fallback strategy implementation.
 
+
+This module contains tests for the FallbackManager and related classes
 This module contains tests for the FallbackManager and related classes
 to ensure the fallback mechanism works correctly in different scenarios.
+to ensure the fallback mechanism works correctly in different scenarios.
+"""
 """
 
 
 
 
+
+
+
+
+# Add the project root to the Python path
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 if parent_dir not in sys.path:
+    if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
     sys.path.insert(0, parent_dir)
 
+
+    # Import the errors module
     # Import the errors module
     # Mock the FallbackStrategy enum to avoid import issues
+    # Mock the FallbackStrategy enum to avoid import issues
+    class FallbackStrategy(Enum):
     class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
 

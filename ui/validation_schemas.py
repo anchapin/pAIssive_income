@@ -1,21 +1,40 @@
 """
+"""
+Validation schemas for the UI module.
 Validation schemas for the UI module.
 
+
+This module provides Pydantic models for validating user input in the UI.
 This module provides Pydantic models for validating user input in the UI.
 These schemas ensure that data received through web forms and API endpoints
+These schemas ensure that data received through web forms and API endpoints
+is properly validated before being processed.
 is properly validated before being processed.
 """
+"""
+
 
 import uuid
+import uuid
+from typing import List, Optional
 from typing import List, Optional
 from uuid import UUID
+from uuid import UUID
 
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
+
+
+class NicheAnalysisRequest
 class NicheAnalysisRequest
 
+
 (BaseModel):
+    (BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Schema for niche analysis request validation."""
 

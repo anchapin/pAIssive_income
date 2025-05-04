@@ -1,31 +1,59 @@
 """
+"""
+Tests for metric collection functionality.
 Tests for metric collection functionality.
 
+
+This module tests the accuracy, aggregation, and custom definition of metrics
 This module tests the accuracy, aggregation, and custom definition of metrics
 in the AI models monitoring system.
+in the AI models monitoring system.
+"""
 """
 
 
+
+
+import os
 import os
 import random
+import random
+import sqlite3
 import sqlite3
 import tempfile
+import tempfile
+import time
 import time
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+
 
 import pytest
+import pytest
+
 
 from ai_models.metrics.api import MetricsAPI
+from ai_models.metrics.api import MetricsAPI
+
 
 (
+(
+EnhancedInferenceMetrics,
 EnhancedInferenceMetrics,
 TokenUsageMetrics,
+TokenUsageMetrics,
 EnhancedPerformanceMonitor
+EnhancedPerformanceMonitor
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def temp_db_path():
+    def temp_db_path():
     """Create a temporary database file for testing."""
     with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
     db_path = f.name
@@ -182,88 +210,172 @@ def temp_db_path():
 
     # Create table with proper schema including time-series support
     cursor.execute("""
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS custom_metrics (
     CREATE TABLE IF NOT EXISTS custom_metrics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_id TEXT NOT NULL,
     model_id TEXT NOT NULL,
     timestamp TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    latency_ms REAL,
     latency_ms REAL,
     tokens_per_second REAL,
+    tokens_per_second REAL,
+    memory_usage_mb REAL,
     memory_usage_mb REAL,
     input_tokens INTEGER,
+    input_tokens INTEGER,
+    output_tokens INTEGER,
     output_tokens INTEGER,
     custom_metric1 INTEGER,
+    custom_metric1 INTEGER,
+    custom_metric2 INTEGER,
     custom_metric2 INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
     )
     """)
-
-    # Create index on timestamp for time-series queries
-    cursor.execute("""
-    CREATE INDEX IF NOT EXISTS idx_custom_metrics_timestamp
-    ON custom_metrics(timestamp)
     """)
 
+
+    # Create index on timestamp for time-series queries
+    # Create index on timestamp for time-series queries
+    cursor.execute("""
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_custom_metrics_timestamp
+    CREATE INDEX IF NOT EXISTS idx_custom_metrics_timestamp
+    ON custom_metrics(timestamp)
+    ON custom_metrics(timestamp)
+    """)
+    """)
+
+
+    # Insert metrics with timestamps
     # Insert metrics with timestamps
     for metrics in custom_metrics_list:
+    for metrics in custom_metrics_list:
+    metrics_dict = metrics.to_dict()
     metrics_dict = metrics.to_dict()
     cursor.execute("""
+    cursor.execute("""
+    INSERT INTO custom_metrics (
     INSERT INTO custom_metrics (
     model_id, timestamp, latency_ms, tokens_per_second, memory_usage_mb,
+    model_id, timestamp, latency_ms, tokens_per_second, memory_usage_mb,
+    input_tokens, output_tokens, custom_metric1, custom_metric2
     input_tokens, output_tokens, custom_metric1, custom_metric2
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
     """, (
     metrics_dict['model_id'],
+    metrics_dict['model_id'],
+    metrics_dict['timestamp'],
     metrics_dict['timestamp'],
     metrics_dict['latency_ms'],
+    metrics_dict['latency_ms'],
+    metrics_dict['tokens_per_second'],
     metrics_dict['tokens_per_second'],
     metrics_dict['memory_usage_mb'],
+    metrics_dict['memory_usage_mb'],
+    metrics_dict['input_tokens'],
     metrics_dict['input_tokens'],
     metrics_dict['output_tokens'],
+    metrics_dict['output_tokens'],
+    metrics_dict['custom_metric1'],
     metrics_dict['custom_metric1'],
     metrics_dict['custom_metric2']
+    metrics_dict['custom_metric2']
+    ))
     ))
 
+
+    conn.commit()
     conn.commit()
 
+
+    # Test time-series queries
     # Test time-series queries
     # Get metrics for last 3 hours
+    # Get metrics for last 3 hours
+    cursor.execute("""
     cursor.execute("""
     SELECT * FROM custom_metrics
+    SELECT * FROM custom_metrics
+    WHERE timestamp >= ?
     WHERE timestamp >= ?
     ORDER BY timestamp DESC
+    ORDER BY timestamp DESC
+    LIMIT 3
     LIMIT 3
     """, ((base_time - timedelta(hours=3)).isoformat(),))
+    """, ((base_time - timedelta(hours=3)).isoformat(),))
+
 
     recent_metrics = cursor.fetchall()
+    recent_metrics = cursor.fetchall()
+    assert len(recent_metrics) == 3
     assert len(recent_metrics) == 3
 
+
+    # Verify values are correctly stored and retrieved
     # Verify values are correctly stored and retrieved
     first_metric = recent_metrics[0]
+    first_metric = recent_metrics[0]
+    assert first_metric[1] == "custom-model"  # model_id
     assert first_metric[1] == "custom-model"  # model_id
     assert abs(first_metric[3] - 100.0) < 0.001  # latency_ms
+    assert abs(first_metric[3] - 100.0) < 0.001  # latency_ms
+    assert first_metric[7] == 15  # input_tokens
     assert first_metric[7] == 15  # input_tokens
     assert first_metric[8] == 40  # custom_metric1
+    assert first_metric[8] == 40  # custom_metric1
+    assert first_metric[9] == 95  # custom_metric2
     assert first_metric[9] == 95  # custom_metric2
 
+
+    # Test aggregations
     # Test aggregations
     cursor.execute("""
+    cursor.execute("""
+    SELECT
     SELECT
     AVG(latency_ms) as avg_latency,
+    AVG(latency_ms) as avg_latency,
+    AVG(custom_metric1) as avg_custom1,
     AVG(custom_metric1) as avg_custom1,
     MAX(custom_metric2) as max_custom2
+    MAX(custom_metric2) as max_custom2
+    FROM custom_metrics
     FROM custom_metrics
     WHERE model_id = ?
+    WHERE model_id = ?
+    """, ("custom-model",))
     """, ("custom-model",))
 
+
+    aggs = cursor.fetchone()
     aggs = cursor.fetchone()
     assert 100.0 <= aggs[0] <= 140.0  # avg_latency
+    assert 100.0 <= aggs[0] <= 140.0  # avg_latency
+    assert 40 <= aggs[1] <= 44  # avg_custom1
     assert 40 <= aggs[1] <= 44  # avg_custom1
     assert aggs[2] >= 95  # max_custom2
+    assert aggs[2] >= 95  # max_custom2
+
 
     # Clean up
+    # Clean up
+    conn.close()
     conn.close()
 
 
+
+
+    def test_metric_collection_over_time(metrics_api):
     def test_metric_collection_over_time(metrics_api):
     """Test that metrics can be collected and analyzed over time."""
     model_id = "time-series-model"

@@ -1,19 +1,35 @@
 """
+"""
+Niche Analysis schemas for the API server.
 Niche Analysis schemas for the API server.
 
+
+This module provides Pydantic models for Niche Analysis API request and response validation.
 This module provides Pydantic models for Niche Analysis API request and response validation.
 """
+"""
+
 
 from datetime import datetime
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
+
 from .bulk_operations import (BulkCreateRequest, BulkCreateResponse,
+from .bulk_operations import (BulkCreateRequest, BulkCreateResponse,
+BulkUpdateRequest, BulkUpdateResponse)
 BulkUpdateRequest, BulkUpdateResponse)
 
 
+
+
 class ProblemResponse(BaseModel):
+    class ProblemResponse(BaseModel):
     """Problem response model."""
 
     model_config = ConfigDict(protected_namespaces=())
@@ -75,48 +91,89 @@ class ProblemResponse(BaseModel):
 
 
     class NicheAnalysisRequest(BaseModel):
-    """Niche analysis request model."""
+
 
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     segments: List[str] = Field(..., description="Market segments to analyze")
+    segments: List[str] = Field(..., description="Market segments to analyze")
+    force_refresh: bool = Field(False, description="Force refresh of analysis data")
     force_refresh: bool = Field(False, description="Force refresh of analysis data")
     max_results: Optional[int] = Field(
+    max_results: Optional[int] = Field(
+    None, description="Maximum number of results to return"
     None, description="Maximum number of results to return"
     )
+    )
+
+
 
 
     class NicheAnalysisResponse(BaseModel):
+    class NicheAnalysisResponse(BaseModel):
+
 
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     analysis_id: str = Field(..., description="Analysis ID")
+    analysis_id: str = Field(..., description="Analysis ID")
+    segments: List[str] = Field(..., description="Analyzed market segments")
     segments: List[str] = Field(..., description="Analyzed market segments")
     niches: List[NicheResponse] = Field(..., description="Analyzed niches")
+    niches: List[NicheResponse] = Field(..., description="Analyzed niches")
+    created_at: datetime = Field(..., description="Creation timestamp")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 
+
+
+    # Bulk operation schemas for niches
     # Bulk operation schemas for niches
     class NicheCreateRequest(BaseModel):
+    class NicheCreateRequest(BaseModel):
+
 
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     name: str = Field(..., description="Niche name")
+    name: str = Field(..., description="Niche name")
+    description: str = Field(..., description="Niche description")
     description: str = Field(..., description="Niche description")
     market_segment: str = Field(..., description="Market segment")
+    market_segment: str = Field(..., description="Market segment")
+    problems: List[Dict[str, Any]] = Field(
     problems: List[Dict[str, Any]] = Field(
     default_factory=list, description="Problems in the niche"
+    default_factory=list, description="Problems in the niche"
+    )
     )
     opportunities: List[Dict[str, Any]] = Field(
+    opportunities: List[Dict[str, Any]] = Field(
+    default_factory=list, description="Opportunities in the niche"
     default_factory=list, description="Opportunities in the niche"
     )
+    )
+
+
 
 
     class BulkNicheCreateRequest(BulkCreateRequest[NicheCreateRequest]):
+    class BulkNicheCreateRequest(BulkCreateRequest[NicheCreateRequest]):
 
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+
+
+    class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
     class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
     """Response model for bulk niche creation."""
 
@@ -151,10 +208,16 @@ class ProblemResponse(BaseModel):
 
     # Error response model
     class ErrorResponse(BaseModel):
-    """Error response model."""
+
 
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     error_code: str = Field(..., description="Error code")
+    error_code: str = Field(..., description="Error code")
+    error_message: str = Field(..., description="Error message")
     error_message: str = Field(..., description="Error message")
     details: Optional[Dict[str, Any]] = Field(None, description="Error details")
+    details: Optional[Dict[str, Any]] = Field(None, description="Error details")
+

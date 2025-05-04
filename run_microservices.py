@@ -8,10 +8,16 @@ import time
 
 #!/usr/bin/env python
 """
+"""
+Startup script for the pAIssive income microservices architecture.
 Startup script for the pAIssive income microservices architecture.
 
+
+This script starts all the required components for the microservices architecture,
 This script starts all the required components for the microservices architecture,
 including the service registry and the microservices.
+including the service registry and the microservices.
+"""
 """
 
 
@@ -20,133 +26,268 @@ including the service registry and the microservices.
 
 
 
+
+
+
+
+
+
+
+# Set up logging
 # Set up logging
 logging.basicConfig(
+logging.basicConfig(
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 def check_consul_installation() -> bool:
+    def check_consul_installation() -> bool:
+    """
     """
     Check if Consul is installed.
+    Check if Consul is installed.
+
 
     Returns:
+    Returns:
+    bool: True if Consul is installed, False otherwise
     bool: True if Consul is installed, False otherwise
     """
+    """
+    try:
     try:
     result = subprocess.run(
+    result = subprocess.run(
+    ["consul", "--version"],
     ["consul", "--version"],
     stdout=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True,
+    text=True,
+    )
     )
     return result.returncode == 0
+    return result.returncode == 0
 except FileNotFoundError:
+except FileNotFoundError:
+    return False
     return False
 
 
+
+
+    def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subprocess.Popen:
     def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subprocess.Popen:
     """
+    """
+    Start Consul in development mode.
     Start Consul in development mode.
 
+
+    Args:
     Args:
     data_dir: Directory for Consul data (default: "./consul_data")
+    data_dir: Directory for Consul data (default: "./consul_data")
+    port: Port for Consul HTTP API (default: 8500)
     port: Port for Consul HTTP API (default: 8500)
 
+
+    Returns:
     Returns:
     subprocess.Popen: The Consul process
+    subprocess.Popen: The Consul process
+    """
     """
     # Create data directory if it doesn't exist
+    # Create data directory if it doesn't exist
+    os.makedirs(data_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
 
+
+    # Command to start Consul in development mode
     # Command to start Consul in development mode
     cmd = [
+    cmd = [
+    "consul",
     "consul",
     "agent",
+    "agent",
+    "-dev",
     "-dev",
     "-data-dir",
+    "-data-dir",
+    data_dir,
     data_dir,
     "-ui",
+    "-ui",
+    "-bind",
     "-bind",
     "127.0.0.1",
+    "127.0.0.1",
+    "-client",
     "-client",
     "0.0.0.0",
+    "0.0.0.0",
+    ]
     ]
 
+
+    if port != 8500:
     if port != 8500:
     cmd.extend(["-http-port", str(port)])
+    cmd.extend(["-http-port", str(port)])
+
 
     logger.info(f"Starting Consul with command: {' '.join(cmd)}")
+    logger.info(f"Starting Consul with command: {' '.join(cmd)}")
+    process = subprocess.Popen(
     process = subprocess.Popen(
     cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
+    )
+
 
     # Wait for Consul to start
+    # Wait for Consul to start
+    max_attempts = 10
     max_attempts = 10
     attempt = 0
+    attempt = 0
+
 
     while attempt < max_attempts:
+    while attempt < max_attempts:
+    try:
     try:
     result = subprocess.run(
+    result = subprocess.run(
+    ["consul", "catalog", "services"],
     ["consul", "catalog", "services"],
     stdout=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True,
+    text=True,
+    )
     )
     if result.returncode == 0:
+    if result.returncode == 0:
+    logger.info("Consul is running")
     logger.info("Consul is running")
     break
+    break
+except Exception:
 except Exception:
     pass
+    pass
+
 
     logger.info(
+    logger.info(
+    f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})..."
     f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})..."
     )
+    )
+    time.sleep(1)
     time.sleep(1)
     attempt += 1
+    attempt += 1
+
 
     if attempt == max_attempts:
+    if attempt == max_attempts:
+    logger.warning("Consul may not have started properly")
     logger.warning("Consul may not have started properly")
 
+
     return process
+    return process
+
+
 
 
     def start_service(service_name: str, script_path: str, port: int) -> subprocess.Popen:
+    def start_service(service_name: str, script_path: str, port: int) -> subprocess.Popen:
+    """
     """
     Start a microservice.
+    Start a microservice.
+
 
     Args:
+    Args:
+    service_name: Name of the service
     service_name: Name of the service
     script_path: Path to the service script
+    script_path: Path to the service script
+    port: Port for the service to listen on
     port: Port for the service to listen on
 
+
+    Returns:
     Returns:
     subprocess.Popen: The service process
+    subprocess.Popen: The service process
+    """
     """
     # Make sure the directory exists
+    # Make sure the directory exists
+    os.makedirs(os.path.dirname(script_path), exist_ok=True)
     os.makedirs(os.path.dirname(script_path), exist_ok=True)
 
+
+    logger.info(f"Starting {service_name} on port {port}")
     logger.info(f"Starting {service_name} on port {port}")
 
+
+    # Set up environment variables for service registration
     # Set up environment variables for service registration
     env = os.environ.copy()
+    env = os.environ.copy()
+    env["SERVICE_REGISTRY_HOST"] = "localhost"
     env["SERVICE_REGISTRY_HOST"] = "localhost"
     env["SERVICE_REGISTRY_PORT"] = "8500"
+    env["SERVICE_REGISTRY_PORT"] = "8500"
+    env["ENVIRONMENT"] = "development"
     env["ENVIRONMENT"] = "development"
     env["PYTHONPATH"] = os.getcwd()
+    env["PYTHONPATH"] = os.getcwd()
+
 
     process = subprocess.Popen(
+    process = subprocess.Popen(
+    [sys.executable, script_path, "--port", str(port)],
     [sys.executable, script_path, "--port", str(port)],
     stdout=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True,
+    text=True,
+    env=env,
     env=env,
     )
+    )
 
+
+    return process
     return process
 
 
+
+
+    def main():
     def main():
     """Main function to start all services."""
     parser = argparse.ArgumentParser(description="Start pAIssive income microservices")

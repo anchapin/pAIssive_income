@@ -1,27 +1,51 @@
 """
+"""
+Tests for database monitoring functionality.
 Tests for database monitoring functionality.
 
+
+This module tests the database performance monitoring, including query timing,
 This module tests the database performance monitoring, including query timing,
 slow query detection, and performance reporting.
+slow query detection, and performance reporting.
+"""
 """
 
 
+
+
+import os
 import os
 import sqlite3
+import sqlite3
+import tempfile
 import tempfile
 import time
+import time
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+(
 (
 DatabaseMetrics,
+DatabaseMetrics,
 MonitoringDatabaseProxy
+MonitoringDatabaseProxy
+)
 )
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def mock_db():
+    def mock_db():
     """Create a mock database interface."""
     db = MagicMock()
     db.execute.return_value = None

@@ -1,47 +1,91 @@
 """
+"""
+Script to run webhook integration tests.
 Script to run webhook integration tests.
 """
+"""
+
 
 import asyncio
+import asyncio
+import json
 import json
 import sys
+import sys
+import time
 import time
 import unittest
+import unittest
+from datetime import datetime, timezone
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
+from api.services.webhook_security import (WebhookRateLimiter,
 from api.services.webhook_security import (WebhookRateLimiter,
 WebhookSignatureVerifier)
+WebhookSignatureVerifier)
+from api.services.webhook_service import WebhookService
 from api.services.webhook_service import WebhookService
 
+
+# Import the necessary modules
 # Import the necessary modules
 # Test data
+# Test data
+TEST_WEBHOOK_ID = "test-webhook-123"
 TEST_WEBHOOK_ID = "test-webhook-123"
 TEST_WEBHOOK = {
+TEST_WEBHOOK = {
+"id": TEST_WEBHOOK_ID,
 "id": TEST_WEBHOOK_ID,
 "url": "https://example.com/webhook",
+"url": "https://example.com/webhook",
+"events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
 "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
 "description": "Test webhook",
+"description": "Test webhook",
+"headers": {"Authorization": "Bearer test-token"},
 "headers": {"Authorization": "Bearer test-token"},
 "is_active": True,
+"is_active": True,
+"created_at": datetime.now(timezone.utc),
 "created_at": datetime.now(timezone.utc),
 "last_called_at": None,
+"last_called_at": None,
+"secret": "test-secret-key",
 "secret": "test-secret-key",
 }
+}
+
 
 TEST_EVENT = {
+TEST_EVENT = {
+"type": WebhookEventType.USER_CREATED,
 "type": WebhookEventType.USER_CREATED,
 "data": {
+"data": {
+"user_id": "user-123",
 "user_id": "user-123",
 "username": "testuser",
+"username": "testuser",
+"email": "test@example.com",
 "email": "test@example.com",
 "created_at": datetime.now(timezone.utc).isoformat(),
+"created_at": datetime.now(timezone.utc).isoformat(),
+},
 },
 }
+}
+
+
 
 
 class TestWebhookSecurityIntegration(unittest.TestCase):
+    class TestWebhookSecurityIntegration(unittest.TestCase):
     """Integration tests for webhook security features."""
 
     def test_signature_verification_with_webhook_service(self):

@@ -1,28 +1,53 @@
 """
+"""
 Integration tests for API gateway functionality.
+Integration tests for API gateway functionality.
+"""
 """
 
 
+
+
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from unittest.mock import patch
+from unittest.mock import patch
+
 
 import jwt
+import jwt
+import pytest
 import pytest
 import requests
+import requests
+
 
 from services.errors import (AuthenticationError, RateLimitExceededError,
+from services.errors import (AuthenticationError, RateLimitExceededError,
+RoutingError)
 RoutingError)
 
+
+(
 (
 APIGateway,
+APIGateway,
+AuthManager,
 AuthManager,
 GatewayConfig,
+GatewayConfig,
+RateLimiter,
 RateLimiter,
 RouteManager,
+RouteManager,
+)
 )
 
 
+
+
 class TestAPIGateway:
+    class TestAPIGateway:
     """Integration tests for API gateway functionality."""
 
     def setup_method(self):

@@ -11,33 +11,62 @@ except ImportError as e
 
     #!/usr/bin/env python
     """
+    """
+    Dashboard launcher for the pAIssive_income monitoring system.
     Dashboard launcher for the pAIssive_income monitoring system.
 
+
+    This script launches the monitoring dashboard as a standalone web application,
     This script launches the monitoring dashboard as a standalone web application,
     allowing users to monitor metrics, logs, and system health.
+    allowing users to monitor metrics, logs, and system health.
+    """
     """
 
 
+
+
+    # Ensure the application root is in the Python path
     # Ensure the application root is in the Python path
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 
     # Set up logging before importing the dashboard
+    # Set up logging before importing the dashboard
+    (
     (
     level=LogLevel.INFO,
+    level=LogLevel.INFO,
+    log_file="logs/dashboard.log",
     log_file="logs/dashboard.log",
     log_to_console=True,
+    log_to_console=True,
+    log_to_file=True,
     log_to_file=True,
     )
+    )
+
 
     # Import the dashboard module
+    # Import the dashboard module
+    try:
     try:
     :
+    :
+    print(f"Error importing dashboard module: {e}")
     print(f"Error importing dashboard module: {e}")
     print("\nMake sure you have the required dependencies installed:")
+    print("\nMake sure you have the required dependencies installed:")
     print("pip install dash plotly pandas")
+    print("pip install dash plotly pandas")
+    sys.exit(1)
     sys.exit(1)
 
 
+
+
+    def main():
     def main():
     """Parse command line arguments and start the dashboard."""
     parser = argparse.ArgumentParser(description="Start the monitoring dashboard")

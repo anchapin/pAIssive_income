@@ -1,20 +1,37 @@
 """
+"""
+Monetization schemas for the API server.
 Monetization schemas for the API server.
 
+
+This module provides Pydantic models for Monetization API request and response validation.
 This module provides Pydantic models for Monetization API request and response validation.
 """
+"""
+
 
 import time
+import time
+from datetime import datetime
 from datetime import datetime
 from enum import Enum
+from enum import Enum
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+class SubscriptionType
 class SubscriptionType
 
+
 (str, Enum):
+    (str, Enum):
     """Subscription type enumeration."""
 
     FREEMIUM = "freemium"
@@ -61,58 +78,111 @@ class SubscriptionType
 
     class SubscriptionModelRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Subscription model request model."""
+
 
     name: str = Field(..., description="Model name")
+    name: str = Field(..., description="Model name")
+    description: str = Field(..., description="Model description")
     description: str = Field(..., description="Model description")
     solution_id: str = Field(..., description="Solution ID")
+    solution_id: str = Field(..., description="Solution ID")
+    model_type: SubscriptionType = Field(..., description="Subscription model type")
     model_type: SubscriptionType = Field(..., description="Subscription model type")
     features: List[Dict[str, Any]] = Field(..., description="Features to include")
+    features: List[Dict[str, Any]] = Field(..., description="Features to include")
+    tiers: List[Dict[str, Any]] = Field(..., description="Pricing tiers")
     tiers: List[Dict[str, Any]] = Field(..., description="Pricing tiers")
 
 
+
+
+    class SubscriptionModelResponse(BaseModel):
     class SubscriptionModelResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     id: str = Field(..., description="Model ID")
+    id: str = Field(..., description="Model ID")
+    name: str = Field(..., description="Model name")
     name: str = Field(..., description="Model name")
     description: str = Field(..., description="Model description")
+    description: str = Field(..., description="Model description")
+    solution_id: str = Field(..., description="Solution ID")
     solution_id: str = Field(..., description="Solution ID")
     model_type: SubscriptionType = Field(..., description="Subscription model type")
+    model_type: SubscriptionType = Field(..., description="Subscription model type")
+    features: List[FeatureResponse] = Field(..., description="Features included")
     features: List[FeatureResponse] = Field(..., description="Features included")
     tiers: List[PricingTierResponse] = Field(..., description="Pricing tiers")
+    tiers: List[PricingTierResponse] = Field(..., description="Pricing tiers")
     created_at: datetime = Field(..., description="Creation timestamp")
+    created_at: datetime = Field(..., description="Creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
 
+
+
+    class RevenueProjectionRequest(BaseModel):
     class RevenueProjectionRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     subscription_model_id: str = Field(..., description="Subscription model ID")
+    subscription_model_id: str = Field(..., description="Subscription model ID")
+    initial_users: int = Field(..., description="Initial number of users")
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
+    growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
+    churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     conversion_rate: float = Field(
+    conversion_rate: float = Field(
+    ..., description="Conversion rate from free to paid (0-1)"
     ..., description="Conversion rate from free to paid (0-1)"
     )
+    )
     time_period: int = Field(..., description="Projection time period in months")
+    time_period: int = Field(..., description="Projection time period in months")
+
+
 
 
     class RevenueProjectionResponse(BaseModel):
+    class RevenueProjectionResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(..., description="Projection ID")
     id: str = Field(..., description="Projection ID")
     subscription_model_id: str = Field(..., description="Subscription model ID")
+    subscription_model_id: str = Field(..., description="Subscription model ID")
+    initial_users: int = Field(..., description="Initial number of users")
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
+    growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
+    churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     conversion_rate: float = Field(
+    conversion_rate: float = Field(
+    ..., description="Conversion rate from free to paid (0-1)"
     ..., description="Conversion rate from free to paid (0-1)"
     )
+    )
+    time_period: int = Field(..., description="Projection time period in months")
     time_period: int = Field(..., description="Projection time period in months")
     monthly_projections: List[Dict[str, Any]] = Field(
+    monthly_projections: List[Dict[str, Any]] = Field(
+    ..., description="Monthly revenue projections"
     ..., description="Monthly revenue projections"
     )
+    )
+    total_revenue: float = Field(..., description="Total projected revenue")
     total_revenue: float = Field(..., description="Total projected revenue")
     total_users: int = Field(..., description="Total projected users"
+    total_users: int = Field(..., description="Total projected users"
+    created_at: datetime = Field(..., description="Creation timestamp"
     created_at: datetime = Field(..., description="Creation timestamp"

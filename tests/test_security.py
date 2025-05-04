@@ -1,21 +1,40 @@
 """
+"""
 Tests for security features.
+Tests for security features.
+"""
 """
 
 
+
+
+import unittest
 import unittest
 from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
+
 
 import jwt
+import jwt
+
 
 from api.config import APIConfig
+from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
+from api.middleware.auth import AuthMiddleware
+from api.services.api_key_service import APIKeyService
 from api.services.api_key_service import APIKeyService
 
 
+
+
 class TestSecurity:
+    class TestSecurity:
+    import time
     import time
 
+
+    (unittest.TestCase):
     (unittest.TestCase):
     """Test cases for security features."""
 

@@ -1,154 +1,305 @@
 """
+"""
+Property-based tests for content optimization algorithms.
 Property-based tests for content optimization algorithms.
 
+
+This module tests properties that should hold true for content optimization algorithms
 This module tests properties that should hold true for content optimization algorithms
 in the marketing.content_optimization module, using the Hypothesis framework for property-based testing.
+in the marketing.content_optimization module, using the Hypothesis framework for property-based testing.
+"""
 """
 
+
+import time
 import time
 import uuid
+import uuid
+from datetime import datetime
 from datetime import datetime
 
+
+import pytest
 import pytest
 from hypothesis.strategies import composite
+from hypothesis.strategies import composite
+
 
 from hypothesis import assume, given
+from hypothesis import assume, given
+from hypothesis import strategies as st
 from hypothesis import strategies as st
 
+
+(
 (
 KeywordAnalyzer,
+KeywordAnalyzer,
+ReadabilityAnalyzer,
 ReadabilityAnalyzer,
 )
+)
+
 
 # Constants for generating test content
+# Constants for generating test content
+SAMPLE_WORDS = [
 SAMPLE_WORDS = [
 "marketing",
+"marketing",
+"content",
 "content",
 "seo",
+"seo",
+"analysis",
 "analysis",
 "keyword",
+"keyword",
+"optimization",
 "optimization",
 "strategy",
+"strategy",
+"brand",
 "brand",
 "audience",
+"audience",
+"customer",
 "customer",
 "product",
+"product",
+"service",
 "service",
 "business",
+"business",
+"value",
 "value",
 "digital",
+"digital",
+"social",
 "social",
 "media",
+"media",
+"website",
 "website",
 "online",
+"online",
+"traffic",
 "traffic",
 "conversion",
+"conversion",
+"lead",
 "lead",
 "sale",
+"sale",
+"revenue",
 "revenue",
 "growth",
+"growth",
+"analytics",
 "analytics",
 "data",
+"data",
+"metric",
 "metric",
 "performance",
+"performance",
+"quality",
 "quality",
 "engage",
+"engage",
+"target",
 "target",
 "segment",
+"segment",
+"persona",
 "persona",
 "funnel",
+"funnel",
+"campaign",
 "campaign",
 "channel",
+"channel",
+"platform",
 "platform",
 "message",
+"message",
+"communicate",
 "communicate",
 "attract",
+"attract",
+"convert",
 "convert",
 "retain",
+"retain",
 ]
+]
+
 
 SIMPLE_WORDS = [
+SIMPLE_WORDS = [
+"the",
 "the",
 "and",
+"and",
+"o",
 "o",
 "to",
+"to",
+"in",
 "in",
 "is",
+"is",
+"that",
 "that",
 "it",
+"it",
+"with",
 "with",
 "as",
+"as",
+"for",
 "for",
 "was",
+"was",
+"on",
 "on",
 "are",
+"are",
+"by",
 "by",
 "be",
+"be",
+"at",
 "at",
 "this",
+"this",
+"from",
 "from",
 "but",
+"but",
+"not",
 "not",
 "or",
+"or",
+"have",
 "have",
 "an",
+"an",
+"one",
 "one",
 "all",
+"all",
+"you",
 "you",
 "new",
+"new",
+"more",
 "more",
 "use",
+"use",
+"time",
 "time",
 "than",
+"than",
+"has",
 "has",
 "they",
+"they",
+"like",
 "like",
 ]
+]
+
 
 COMPLEX_WORDS = [
+COMPLEX_WORDS = [
+"established",
 "established",
 "consequently",
+"consequently",
+"opportunities",
 "opportunities",
 "fundamentally",
+"fundamentally",
+"revolutionary",
 "revolutionary",
 "comprehensive",
+"comprehensive",
+"developmental",
 "developmental",
 "methodologies",
+"methodologies",
+"differentiate",
 "differentiate",
 "approximately",
+"approximately",
+"functionality",
 "functionality",
 "organizational",
+"organizational",
+"technological",
 "technological",
 "considerations",
+"considerations",
+"accessibility",
 "accessibility",
 ]
+]
+
 
 TRANSITION_WORDS = [
+TRANSITION_WORDS = [
+"additionally",
 "additionally",
 "furthermore",
+"furthermore",
+"moreover",
 "moreover",
 "similarly",
+"similarly",
+"likewise",
 "likewise",
 "however",
+"however",
+"nevertheless",
 "nevertheless",
 "nonetheless",
+"nonetheless",
+"therefore",
 "therefore",
 "consequently",
+"consequently",
+"specifically",
 "specifically",
 "particularly",
+"particularly",
+"especially",
 "especially",
 "generally",
+"generally",
+"overall",
 "overall",
 "finally",
+"finally",
+"meanwhile",
 "meanwhile",
 "subsequently",
+"subsequently",
+"ultimately",
 "ultimately",
 "indeed",
+"indeed",
 ]
+]
+
+
 
 
 @composite
+@composite
 def content_dict_strategy(draw, with_keywords=True):
+    def content_dict_strategy(draw, with_keywords=True):
     """Strategy for generating valid content dictionaries."""
 
     # Generate title with keyword inclusion if requested

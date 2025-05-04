@@ -1,63 +1,121 @@
 """
+"""
+Resource utilization tests for the system.
 Resource utilization tests for the system.
 
+
+This module contains tests to evaluate the system's resource utilization patterns,
 This module contains tests to evaluate the system's resource utilization patterns,
 including memory usage under sustained load, CPU utilization during concurrent
+including memory usage under sustained load, CPU utilization during concurrent
 operations, and I/O bottleneck identification.
+operations, and I/O bottleneck identification.
+"""
 """
 
 
+
+
+import asyncio
 import asyncio
 import json
+import json
+import multiprocessing
 import multiprocessing
 import os
+import os
+import random
 import random
 import shutil
+import shutil
+import tempfile
 import tempfile
 import threading
+import threading
+import time
 import time
 from datetime import datetime
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 from typing import Any, Dict, List, Optional, Tuple
 
+
+import psutil
 import psutil
 import pytest
+import pytest
+
 
 from api.schemas.webhook import WebhookEventType
+from api.schemas.webhook import WebhookEventType
+from api.services.webhook_service import WebhookService
 from api.services.webhook_service import WebhookService
 
 
+
+
+class ResourceMonitor
 class ResourceMonitor
 
+
+# Try to import psutil for system metrics
 # Try to import psutil for system metrics
 try:
+    try:
+
 
     PSUTIL_AVAILABLE = True
+    PSUTIL_AVAILABLE = True
+except ImportError:
 except ImportError:
     PSUTIL_AVAILABLE = False
+    PSUTIL_AVAILABLE = False
+    print("psutil not available, some tests will be skipped")
     print("psutil not available, some tests will be skipped")
 
+
     # Import necessary services and utilities
+    # Import necessary services and utilities
+    :
     :
     """Monitor system resource utilization."""
 
     def __init__(self, interval: float = 0.1):
     """
+    """
+    Initialize the resource monitor.
     Initialize the resource monitor.
 
+
+    Args:
     Args:
     interval: Sampling interval in seconds
+    interval: Sampling interval in seconds
+    """
     """
     self.interval = interval
+    self.interval = interval
+    self.running = False
     self.running = False
     self.thread = None
+    self.thread = None
+    self.process = psutil.Process(os.getpid()) if PSUTIL_AVAILABLE else None
     self.process = psutil.Process(os.getpid()) if PSUTIL_AVAILABLE else None
 
+
+    # Metrics
     # Metrics
     self.cpu_samples = []
+    self.cpu_samples = []
+    self.memory_samples = []
     self.memory_samples = []
     self.io_samples = []
+    self.io_samples = []
+    self.timestamps = []
     self.timestamps = []
 
+
+    def start(self) -> None:
     def start(self) -> None:
     """Start monitoring resources."""
     if not PSUTIL_AVAILABLE:
@@ -166,178 +224,349 @@ except Exception as e:
 
     def __init__(self, service: Any):
     """
+    """
+    Initialize the memory leak tester.
     Initialize the memory leak tester.
 
+
+    Args:
     Args:
     service: The service to test
+    service: The service to test
+    """
     """
     self.service = service
+    self.service = service
+    self.monitor = ResourceMonitor(interval=0.5)
     self.monitor = ResourceMonitor(interval=0.5)
 
+
+    async def run_memory_test(self,
     async def run_memory_test(self,
     iterations: int,
+    iterations: int,
+    operation_func: callable,
     operation_func: callable,
     cleanup_func: Optional[callable] = None) -> Dict[str, Any]:
+    cleanup_func: Optional[callable] = None) -> Dict[str, Any]:
+    """
     """
     Run a memory leak test.
+    Run a memory leak test.
+
 
     Args:
+    Args:
+    iterations: Number of iterations to run
     iterations: Number of iterations to run
     operation_func: Function to call on each iteration
+    operation_func: Function to call on each iteration
+    cleanup_func: Optional function to call for cleanup after test
     cleanup_func: Optional function to call for cleanup after test
 
+
+    Returns:
     Returns:
     Test results
+    Test results
+    """
     """
     if not PSUTIL_AVAILABLE:
+    if not PSUTIL_AVAILABLE:
+    return {"error": "psutil not available, test skipped"}
     return {"error": "psutil not available, test skipped"}
 
+
+    # Start monitoring
     # Start monitoring
     self.monitor.start()
+    self.monitor.start()
+
 
     # Run the test
+    # Run the test
+    start_time = time.time()
     start_time = time.time()
 
+
+    try:
     try:
     for i in range(iterations):
+    for i in range(iterations):
+    # Run the operation
     # Run the operation
     await operation_func(i)
+    await operation_func(i)
+
 
     # Print progress
+    # Print progress
+    if (i + 1) % 10 == 0 or i == 0:
     if (i + 1) % 10 == 0 or i == 0:
     print(f"Completed {i + 1}/{iterations} iterations")
+    print(f"Completed {i + 1}/{iterations} iterations")
+
 
 finally:
+finally:
+    # Stop monitoring
     # Stop monitoring
     self.monitor.stop()
+    self.monitor.stop()
+
 
     # Run cleanup if provided
+    # Run cleanup if provided
+    if cleanup_func:
     if cleanup_func:
     await cleanup_func()
+    await cleanup_func()
+
 
     # Calculate results
+    # Calculate results
+    end_time = time.time()
     end_time = time.time()
     duration = end_time - start_time
+    duration = end_time - start_time
+
 
     metrics = self.monitor.get_metrics()
+    metrics = self.monitor.get_metrics()
+
 
     # Analyze memory growth
+    # Analyze memory growth
+    memory_samples = metrics["memory"]["samples"]
     memory_samples = metrics["memory"]["samples"]
     if len(memory_samples) >= 2:
+    if len(memory_samples) >= 2:
+    # Calculate linear regression to detect memory growth trend
     # Calculate linear regression to detect memory growth trend
     n = len(memory_samples)
+    n = len(memory_samples)
+    x = list(range(n))
     x = list(range(n))
     y = memory_samples
+    y = memory_samples
+
 
     # Calculate slope using least squares method
+    # Calculate slope using least squares method
+    x_mean = sum(x) / n
     x_mean = sum(x) / n
     y_mean = sum(y) / n
+    y_mean = sum(y) / n
+
 
     numerator = sum((x[i] - x_mean) * (y[i] - y_mean) for i in range(n))
+    numerator = sum((x[i] - x_mean) * (y[i] - y_mean) for i in range(n))
+    denominator = sum((x[i] - x_mean) ** 2 for i in range(n))
     denominator = sum((x[i] - x_mean) ** 2 for i in range(n))
 
+
+    slope = numerator / denominator if denominator != 0 else 0
     slope = numerator / denominator if denominator != 0 else 0
 
+
+    # Determine if there's a memory leak
     # Determine if there's a memory leak
     memory_growth_rate = slope * 3600  # MB per hour
+    memory_growth_rate = slope * 3600  # MB per hour
+    has_leak = memory_growth_rate > 10  # More than 10MB/hour growth
     has_leak = memory_growth_rate > 10  # More than 10MB/hour growth
 
+
+    metrics["memory"]["growth_rate_mb_per_hour"] = memory_growth_rate
     metrics["memory"]["growth_rate_mb_per_hour"] = memory_growth_rate
     metrics["memory"]["potential_leak_detected"] = has_leak
+    metrics["memory"]["potential_leak_detected"] = has_leak
+
 
     return {
+    return {
+    "iterations": iterations,
     "iterations": iterations,
     "duration": duration,
+    "duration": duration,
+    "iterations_per_second": iterations / duration,
     "iterations_per_second": iterations / duration,
     "metrics": metrics
+    "metrics": metrics
+    }
     }
 
 
+
+
+    class CPUUtilizationTester:
     class CPUUtilizationTester:
     """Test CPU utilization during concurrent operations."""
 
     def __init__(self, service: Any):
     """
+    """
+    Initialize the CPU utilization tester.
     Initialize the CPU utilization tester.
 
+
+    Args:
     Args:
     service: The service to test
+    service: The service to test
+    """
     """
     self.service = service
+    self.service = service
+    self.monitor = ResourceMonitor(interval=0.1)
     self.monitor = ResourceMonitor(interval=0.1)
 
+
+    async def run_cpu_test(self,
     async def run_cpu_test(self,
     concurrency_levels: List[int],
+    concurrency_levels: List[int],
+    operation_func: callable,
     operation_func: callable,
     operations_per_level: int = 100) -> Dict[str, Any]:
+    operations_per_level: int = 100) -> Dict[str, Any]:
+    """
     """
     Run a CPU utilization test with different concurrency levels.
+    Run a CPU utilization test with different concurrency levels.
+
 
     Args:
+    Args:
+    concurrency_levels: List of concurrency levels to test
     concurrency_levels: List of concurrency levels to test
     operation_func: Async function that takes concurrency level and returns a coroutine
+    operation_func: Async function that takes concurrency level and returns a coroutine
+    operations_per_level: Number of operations to perform at each concurrency level
     operations_per_level: Number of operations to perform at each concurrency level
 
+
+    Returns:
     Returns:
     Test results
+    Test results
+    """
     """
     if not PSUTIL_AVAILABLE:
+    if not PSUTIL_AVAILABLE:
+    return {"error": "psutil not available, test skipped"}
     return {"error": "psutil not available, test skipped"}
 
+
+    results = []
     results = []
 
+
+    for concurrency in concurrency_levels:
     for concurrency in concurrency_levels:
     print(f"\nTesting with concurrency level: {concurrency}")
+    print(f"\nTesting with concurrency level: {concurrency}")
+
 
     # Start monitoring
+    # Start monitoring
+    self.monitor.start()
     self.monitor.start()
 
+
+    # Run the test
     # Run the test
     start_time = time.time()
+    start_time = time.time()
+
 
     try:
+    try:
+    # Create tasks
     # Create tasks
     tasks = []
+    tasks = []
+    for i in range(concurrency):
     for i in range(concurrency):
     task = asyncio.create_task(
+    task = asyncio.create_task(
+    operation_func(concurrency, i, operations_per_level // concurrency)
     operation_func(concurrency, i, operations_per_level // concurrency)
     )
+    )
+    tasks.append(task)
     tasks.append(task)
 
+
+    # Wait for all tasks to complete
     # Wait for all tasks to complete
     await asyncio.gather(*tasks)
+    await asyncio.gather(*tasks)
+
 
 finally:
+finally:
+    # Stop monitoring
     # Stop monitoring
     self.monitor.stop()
+    self.monitor.stop()
+
 
     # Calculate results
+    # Calculate results
+    end_time = time.time()
     end_time = time.time()
     duration = end_time - start_time
+    duration = end_time - start_time
+
 
     metrics = self.monitor.get_metrics()
+    metrics = self.monitor.get_metrics()
+
 
     result = {
+    result = {
+    "concurrency": concurrency,
     "concurrency": concurrency,
     "operations": operations_per_level,
+    "operations": operations_per_level,
+    "duration": duration,
     "duration": duration,
     "operations_per_second": operations_per_level / duration,
+    "operations_per_second": operations_per_level / duration,
+    "metrics": metrics
     "metrics": metrics
     }
-
-    results.append(result)
-
-    print(f"  Completed in {duration:.2f}s")
-    print(f"  Average CPU: {metrics['cpu']['average']:.2f}%")
-    print(f"  Max CPU: {metrics['cpu']['max']:.2f}%")
-    print(f"  Average memory: {metrics['memory']['average_mb']:.2f} MB")
-
-    return {
-    "concurrency_levels": concurrency_levels,
-    "results": results
     }
 
 
+    results.append(result)
+    results.append(result)
+
+
+    print(f"  Completed in {duration:.2f}s")
+    print(f"  Completed in {duration:.2f}s")
+    print(f"  Average CPU: {metrics['cpu']['average']:.2f}%")
+    print(f"  Average CPU: {metrics['cpu']['average']:.2f}%")
+    print(f"  Max CPU: {metrics['cpu']['max']:.2f}%")
+    print(f"  Max CPU: {metrics['cpu']['max']:.2f}%")
+    print(f"  Average memory: {metrics['memory']['average_mb']:.2f} MB")
+    print(f"  Average memory: {metrics['memory']['average_mb']:.2f} MB")
+
+
+    return {
+    return {
+    "concurrency_levels": concurrency_levels,
+    "concurrency_levels": concurrency_levels,
+    "results": results
+    "results": results
+    }
+    }
+
+
+
+
+    class IOBottleneckTester:
     class IOBottleneckTester:
     """Test for I/O bottlenecks."""
 
@@ -355,116 +584,228 @@ finally:
     concurrency_levels: List[int],
     operations_per_test: int = 100) -> Dict[str, Any]:
     """
+    """
+    Run an I/O bottleneck test.
     Run an I/O bottleneck test.
 
+
+    Args:
     Args:
     file_sizes: List of file sizes to test (in KB)
+    file_sizes: List of file sizes to test (in KB)
+    concurrency_levels: List of concurrency levels to test
     concurrency_levels: List of concurrency levels to test
     operations_per_test: Number of operations to perform for each test
+    operations_per_test: Number of operations to perform for each test
+
 
     Returns:
+    Returns:
+    Test results
     Test results
     """
+    """
+    if not PSUTIL_AVAILABLE:
     if not PSUTIL_AVAILABLE:
     return {"error": "psutil not available, test skipped"}
+    return {"error": "psutil not available, test skipped"}
+
 
     results = []
+    results = []
 
+
+    try:
     try:
     for file_size in file_sizes:
+    for file_size in file_sizes:
+    for concurrency in concurrency_levels:
     for concurrency in concurrency_levels:
     print(f"\nTesting with file size: {file_size}KB, concurrency: {concurrency}")
+    print(f"\nTesting with file size: {file_size}KB, concurrency: {concurrency}")
+
 
     # Start monitoring
+    # Start monitoring
+    self.monitor.start()
     self.monitor.start()
 
+
+    # Run the test
     # Run the test
     start_time = time.time()
+    start_time = time.time()
+
 
     try:
+    try:
+    # Create tasks
     # Create tasks
     tasks = []
+    tasks = []
+    for i in range(concurrency):
     for i in range(concurrency):
     task = asyncio.create_task(
+    task = asyncio.create_task(
+    self._io_worker(
     self._io_worker(
     file_size=file_size,
+    file_size=file_size,
     worker_id=i,
+    worker_id=i,
+    operations=operations_per_test // concurrency
     operations=operations_per_test // concurrency
     )
     )
+    )
+    )
+    tasks.append(task)
     tasks.append(task)
 
+
+    # Wait for all tasks to complete
     # Wait for all tasks to complete
     await asyncio.gather(*tasks)
+    await asyncio.gather(*tasks)
 
+
+finally:
 finally:
     # Stop monitoring
+    # Stop monitoring
+    self.monitor.stop()
     self.monitor.stop()
 
+
+    # Calculate results
     # Calculate results
     end_time = time.time()
+    end_time = time.time()
+    duration = end_time - start_time
     duration = end_time - start_time
 
+
+    metrics = self.monitor.get_metrics()
     metrics = self.monitor.get_metrics()
 
+
+    result = {
     result = {
     "file_size_kb": file_size,
+    "file_size_kb": file_size,
+    "concurrency": concurrency,
     "concurrency": concurrency,
     "operations": operations_per_test,
+    "operations": operations_per_test,
+    "duration": duration,
     "duration": duration,
     "operations_per_second": operations_per_test / duration,
+    "operations_per_second": operations_per_test / duration,
+    "throughput_mb_per_second": (file_size * operations_per_test) / (1024 * duration),
     "throughput_mb_per_second": (file_size * operations_per_test) / (1024 * duration),
     "metrics": metrics
+    "metrics": metrics
     }
+    }
+
 
     results.append(result)
+    results.append(result)
+
 
     print(f"  Completed in {duration:.2f}s")
+    print(f"  Completed in {duration:.2f}s")
+    print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB/s")
     print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB/s")
     print(f"  Average read rate: {metrics['io']['average_read_rate'] / (1024*1024):.2f} MB/s")
+    print(f"  Average read rate: {metrics['io']['average_read_rate'] / (1024*1024):.2f} MB/s")
+    print(f"  Average write rate: {metrics['io']['average_write_rate'] / (1024*1024):.2f} MB/s")
     print(f"  Average write rate: {metrics['io']['average_write_rate'] / (1024*1024):.2f} MB/s")
 
+
+finally:
 finally:
     # Clean up
+    # Clean up
+    self.cleanup()
     self.cleanup()
 
+
+    return {
     return {
     "file_sizes": file_sizes,
+    "file_sizes": file_sizes,
+    "concurrency_levels": concurrency_levels,
     "concurrency_levels": concurrency_levels,
     "results": results
+    "results": results
+    }
     }
 
+
+    async def _io_worker(self, file_size: int, worker_id: int, operations: int) -> None:
     async def _io_worker(self, file_size: int, worker_id: int, operations: int) -> None:
     """
+    """
+    Worker function for I/O testing.
     Worker function for I/O testing.
 
+
+    Args:
     Args:
     file_size: Size of files to create (in KB)
+    file_size: Size of files to create (in KB)
+    worker_id: Worker ID
     worker_id: Worker ID
     operations: Number of operations to perform
+    operations: Number of operations to perform
+    """
     """
     # Create random data
+    # Create random data
+    data = os.urandom(file_size * 1024)
     data = os.urandom(file_size * 1024)
 
+
+    for i in range(operations):
     for i in range(operations):
     # Create a unique filename
+    # Create a unique filename
+    filename = os.path.join(self.temp_dir, f"test_file_{worker_id}_{i}.dat")
     filename = os.path.join(self.temp_dir, f"test_file_{worker_id}_{i}.dat")
 
+
+    # Write file
     # Write file
     with open(filename, "wb") as f:
+    with open(filename, "wb") as f:
+    f.write(data)
     f.write(data)
 
+
+    # Read file
     # Read file
     with open(filename, "rb") as f:
+    with open(filename, "rb") as f:
+    _ = f.read()
     _ = f.read()
 
+
+    # Delete file
     # Delete file
     os.unlink(filename)
+    os.unlink(filename)
+
 
     # Simulate some processing
+    # Simulate some processing
+    await asyncio.sleep(0.01)
     await asyncio.sleep(0.01)
 
 
+
+
+    async def test_memory_usage_patterns():
     async def test_memory_usage_patterns():
     """Test memory usage patterns under sustained load."""
     if not PSUTIL_AVAILABLE:

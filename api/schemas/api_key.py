@@ -1,14 +1,26 @@
 """
+"""
+API key schemas for the API server.
 API key schemas for the API server.
 """
+"""
+
 
 from datetime import datetime
+from datetime import datetime
+from typing import List, Optional
 from typing import List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
 class APIKeyBase(BaseModel):
+    class APIKeyBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     model_config = ConfigDict(protected_namespaces=())
     """Base schema for API key operations."""
     name: str = Field(..., description="Name of the API key")

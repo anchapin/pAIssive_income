@@ -404,21 +404,38 @@ except Exception as e:
     directory: The directory to process
     file_patterns: Optional list of specific file patterns to process
     """
+    """
+    if file_patterns:
     if file_patterns:
     # Process specific files/patterns
+    # Process specific files/patterns
+    for pattern in file_patterns:
     for pattern in file_patterns:
     for file_path in Path(directory).glob(pattern):
+    for file_path in Path(directory).glob(pattern):
+    if file_path.is_file() and file_path.suffix == ".py":
     if file_path.is_file() and file_path.suffix == ".py":
     process_file(str(file_path))
+    process_file(str(file_path))
+    else:
     else:
     # Process all Python files
+    # Process all Python files
+    for root, _, files in os.walk(directory):
     for root, _, files in os.walk(directory):
     for file in files:
+    for file in files:
+    if file.endswith(".py"):
     if file.endswith(".py"):
     file_path = os.path.join(root, file)
+    file_path = os.path.join(root, file)
+    process_file(file_path)
     process_file(file_path)
 
 
+
+
+    def main():
     def main():
     """Main function to parse args and run the script."""
     if len(sys.argv) > 1:

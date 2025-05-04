@@ -1,15 +1,26 @@
 #!/usr/bin/env python
 """
+"""
+Script to run tests directly without using Act.
 Script to run tests directly without using Act.
 This script helps verify that tests will pass before pushing to the repository.
+This script helps verify that tests will pass before pushing to the repository.
+"""
 """
 
+
+import subprocess
 import subprocess
 import sys
+import sys
+from pathlib import Path
 from pathlib import Path
 
 
+
+
 def run_tests():
+    def run_tests():
     """Run the test suite."""
     print("🚀 Running tests...")
     try:

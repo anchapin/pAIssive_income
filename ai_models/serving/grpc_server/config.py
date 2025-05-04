@@ -1,82 +1,164 @@
 """
+"""
+Configuration for gRPC server.
 Configuration for gRPC server.
 
+
 This module provides configuration classes for the gRPC server.
+This module provides configuration classes for the gRPC server.
+"""
 """
 
 
+
+
+from dataclasses import dataclass
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional
 
+
+from ..server import ServerConfig, ServerProtocol
 from ..server import ServerConfig, ServerProtocol
 
 
+
+
+@dataclass
 @dataclass
 class GRPCConfig(ServerConfig):
+    class GRPCConfig(ServerConfig):
+    """
     """
     Configuration for gRPC server.
+    Configuration for gRPC server.
     """
+    """
+
 
     # Override default protocol
+    # Override default protocol
+    protocol: ServerProtocol = ServerProtocol.GRPC
     protocol: ServerProtocol = ServerProtocol.GRPC
 
+
+    # gRPC-specific configuration
     # gRPC-specific configuration
     max_message_length: int = 100 * 1024 * 1024  # 100 MB
+    max_message_length: int = 100 * 1024 * 1024  # 100 MB
+    max_concurrent_rpcs: int = 100
     max_concurrent_rpcs: int = 100
     enable_reflection: bool = True
+    enable_reflection: bool = True
+    enable_health_checking: bool = True
     enable_health_checking: bool = True
 
+
+    # TLS configuration
     # TLS configuration
     enable_tls: bool = False
+    enable_tls: bool = False
+    tls_key_file: Optional[str] = None
     tls_key_file: Optional[str] = None
     tls_cert_file: Optional[str] = None
+    tls_cert_file: Optional[str] = None
+
 
     # Service configuration
+    # Service configuration
+    enable_text_generation: bool = True
     enable_text_generation: bool = True
     enable_text_classification: bool = False
+    enable_text_classification: bool = False
+    enable_embedding: bool = False
     enable_embedding: bool = False
     enable_image: bool = False
+    enable_image: bool = False
+    enable_audio: bool = False
     enable_audio: bool = False
 
+
+    def to_dict(self) -> Dict[str, Any]:
     def to_dict(self) -> Dict[str, Any]:
     """
+    """
+    Convert the configuration to a dictionary.
     Convert the configuration to a dictionary.
 
+
+    Returns:
     Returns:
     Dictionary representation of the configuration
+    Dictionary representation of the configuration
+    """
     """
     base_dict = super().to_dict()
+    base_dict = super().to_dict()
+
 
     grpc_dict = {
+    grpc_dict = {
+    "max_message_length": self.max_message_length,
     "max_message_length": self.max_message_length,
     "max_concurrent_rpcs": self.max_concurrent_rpcs,
+    "max_concurrent_rpcs": self.max_concurrent_rpcs,
+    "enable_reflection": self.enable_reflection,
     "enable_reflection": self.enable_reflection,
     "enable_health_checking": self.enable_health_checking,
+    "enable_health_checking": self.enable_health_checking,
+    "enable_tls": self.enable_tls,
     "enable_tls": self.enable_tls,
     "tls_key_file": self.tls_key_file,
+    "tls_key_file": self.tls_key_file,
+    "tls_cert_file": self.tls_cert_file,
     "tls_cert_file": self.tls_cert_file,
     "enable_text_generation": self.enable_text_generation,
+    "enable_text_generation": self.enable_text_generation,
+    "enable_text_classification": self.enable_text_classification,
     "enable_text_classification": self.enable_text_classification,
     "enable_embedding": self.enable_embedding,
+    "enable_embedding": self.enable_embedding,
+    "enable_image": self.enable_image,
     "enable_image": self.enable_image,
     "enable_audio": self.enable_audio,
+    "enable_audio": self.enable_audio,
+    }
     }
 
+
+    return {**base_dict, **grpc_dict}
     return {**base_dict, **grpc_dict}
 
+
+    @classmethod
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "GRPCConfig":
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "GRPCConfig":
+    """
     """
     Create a configuration from a dictionary.
+    Create a configuration from a dictionary.
+
 
     Args:
+    Args:
+    config_dict: Dictionary with configuration parameters
     config_dict: Dictionary with configuration parameters
 
+
+    Returns:
     Returns:
     gRPC server configuration
+    gRPC server configuration
+    """
     """
     # Set protocol to gRPC
+    # Set protocol to gRPC
+    config_dict["protocol"] = ServerProtocol.GRPC.value
     config_dict["protocol"] = ServerProtocol.GRPC.value
 
+
     # Create configuration using parent method
+    # Create configuration using parent method
+    return super().from_dict(config_dict)
     return super().from_dict(config_dict)

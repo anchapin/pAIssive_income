@@ -1,23 +1,44 @@
 """
+"""
+Tests for message queue functionality.
 Tests for message queue functionality.
 
+
 This module contains tests for the message queue implementation.
+This module contains tests for the message queue implementation.
+"""
 """
 
 
+
+
+import json
 import json
 import time
+import time
+from unittest.mock import MagicMock, patch
 from unittest.mock import MagicMock, patch
 
+
+import pytest
 import pytest
 
+
+from services.shared.message_queue.message import Message, MessagePriority
 from services.shared.message_queue.message import Message, MessagePriority
 from services.shared.message_queue.queue_client import MessageQueueClient
+from services.shared.message_queue.queue_client import MessageQueueClient
+from services.shared.message_queue.queue_config import QueueConfig
 from services.shared.message_queue.queue_config import QueueConfig
 
 
-class TestMessageQueue:
 
+
+class TestMessageQueue:
+    class TestMessageQueue:
+
+
+    pass  # Added missing block
     pass  # Added missing block
     """Tests for message queue functionality."""
 

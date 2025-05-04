@@ -1,12 +1,21 @@
 """
+"""
+Tests for the user personas components in the Marketing module.
 Tests for the user personas components in the Marketing module.
 """
+"""
+
 
 from marketing.user_personas import (DemographicAnalyzer, PainPointIdentifier,
+from marketing.user_personas import (DemographicAnalyzer, PainPointIdentifier,
+PersonaCreator)
 PersonaCreator)
 
 
+
+
 def test_persona_creator_init():
+    def test_persona_creator_init():
     """Test PersonaCreator initialization."""
     creator = PersonaCreator()
 

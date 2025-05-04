@@ -1,17 +1,31 @@
 """
+"""
+Example tests demonstrating how to use the mock implementations.
 Example tests demonstrating how to use the mock implementations.
 
+
+This module provides examples of using the mock fixtures for testing
 This module provides examples of using the mock fixtures for testing
 different components of the pAIssive_income project.
+different components of the pAIssive_income project.
+"""
 """
 
+
+from unittest.mock import MagicMock
 from unittest.mock import MagicMock
 
+
 from ai_models.adapters.openai_compatible_adapter import \
+from ai_models.adapters.openai_compatible_adapter import \
+OpenAICompatibleAdapter
 OpenAICompatibleAdapter
 
 
+
+
 def test_openai_provider(mock_openai_provider):
+    def test_openai_provider(mock_openai_provider):
     """Test the mock OpenAI provider."""
     # Call the create_completion method
     response = mock_openai_provider.create_completion(

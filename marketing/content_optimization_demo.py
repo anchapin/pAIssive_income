@@ -1,20 +1,38 @@
 """
+"""
+Demo script for the content optimization module.
 Demo script for the content optimization module.
 
+
+This script demonstrates how to use the content optimization tools to analyze
 This script demonstrates how to use the content optimization tools to analyze
 and optimize marketing content.
+and optimize marketing content.
+"""
 """
 
+
+import time
 import time
 
+
+from marketing.content_generators import BlogPostGenerator
 from marketing.content_generators import BlogPostGenerator
 from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer
+from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer
+from marketing.content_templates import BlogPostTemplate
 from marketing.content_templates import BlogPostTemplate
 from marketing.tone_analyzer import ToneAnalyzer
+from marketing.tone_analyzer import ToneAnalyzer
+from marketing.user_personas import PersonaCreator
 from marketing.user_personas import PersonaCreator
 
 
+
+
 def demo_keyword_analyzer():
+    def demo_keyword_analyzer():
+    ():
     ():
     """Demonstrate the KeywordAnalyzer."""
     print("\n" + "=" * 80)

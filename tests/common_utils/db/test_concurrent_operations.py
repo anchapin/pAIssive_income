@@ -1,26 +1,49 @@
 """
+"""
+Tests for data consistency during concurrent operations.
 Tests for data consistency during concurrent operations.
 
+
+This module tests the database layer's ability to maintain data consistency
 This module tests the database layer's ability to maintain data consistency
 during concurrent operations, handle race conditions, and enforce transaction
+during concurrent operations, handle race conditions, and enforce transaction
 isolation levels.
+isolation levels.
+"""
 """
 
 
+
+
+import random
 import random
 import threading
+import threading
+import time
 import time
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict, List
 from typing import Any, Dict, List
 
+
+import pytest
 import pytest
 
+
 from common_utils.db.factory import DatabaseFactory
+from common_utils.db.factory import DatabaseFactory
+from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 
 
+
+
+@pytest.fixture
 @pytest.fixture
 def sqlite_db():
+    def sqlite_db():
     """Fixture for SQLite database."""
     db_config = {'db_path': ':memory:'}
     db = DatabaseFactory.create_database('sqlite', db_config)
@@ -56,14 +79,24 @@ def sqlite_db():
 
     def test_parallel_updates_consistency(sqlite_db):
     """
+    """
+    Test data consistency during parallel updates.
     Test data consistency during parallel updates.
 
+
+    This test verifies that when multiple threads update the same record,
     This test verifies that when multiple threads update the same record,
     all updates are properly applied and the final state is consistent.
+    all updates are properly applied and the final state is consistent.
+    """
     """
     num_threads = 10
+    num_threads = 10
+    updates_per_thread = 5
     updates_per_thread = 5
 
+
+    def update_counter(thread_id: int):
     def update_counter(thread_id: int):
     """Update counter in a separate thread."""
     for i in range(updates_per_thread):
@@ -114,14 +147,24 @@ def sqlite_db():
 
     def test_transaction_prevents_race_conditions(sqlite_db, sqlite_uow):
     """
+    """
+    Test that transactions prevent race conditions.
     Test that transactions prevent race conditions.
 
+
+    This test verifies that when using transactions, race conditions are prevented
     This test verifies that when using transactions, race conditions are prevented
     and all updates are properly applied.
+    and all updates are properly applied.
+    """
     """
     num_threads = 10
+    num_threads = 10
+    updates_per_thread = 5
     updates_per_thread = 5
 
+
+    def update_counter_with_transaction(thread_id: int):
     def update_counter_with_transaction(thread_id: int):
     """Update counter using a transaction."""
     for i in range(updates_per_thread):
@@ -174,83 +217,162 @@ def sqlite_db():
 
     def test_transaction_isolation_levels(sqlite_db):
     """
+    """
+    Test transaction isolation levels.
     Test transaction isolation levels.
 
+
+    This test verifies that different transaction isolation levels work as expected.
     This test verifies that different transaction isolation levels work as expected.
     SQLite supports the following isolation levels:
+    SQLite supports the following isolation levels:
+    - DEFERRED (default): Locks are acquired when needed
     - DEFERRED (default): Locks are acquired when needed
     - IMMEDIATE: Write lock is acquired immediately
+    - IMMEDIATE: Write lock is acquired immediately
+    - EXCLUSIVE: Exclusive lock is acquired immediately
     - EXCLUSIVE: Exclusive lock is acquired immediately
     """
+    """
+    # Reset counter
     # Reset counter
     sqlite_db.execute(
-    'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
-    (0, 'init', 1)
-    )
-
-    # Test with different isolation levels
-    isolation_levels = ['DEFERRED', 'IMMEDIATE', 'EXCLUSIVE']
-
-    for level in isolation_levels:
-    # Start a transaction with specific isolation level
-    sqlite_db.execute(f'BEGIN {level} TRANSACTION')
-
-    # Read current value
-    result = sqlite_db.fetch_one(
-    'SELECT counter FROM test_concurrent WHERE id = ?',
-    (1,)
-    )
-    current_counter = result['counter']
-
-    # Update with incremented value
     sqlite_db.execute(
     'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
-    (current_counter + 1, f'isolation-{level}', 1)
+    'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
+    (0, 'init', 1)
+    (0, 'init', 1)
+    )
     )
 
-    # Commit transaction
-    sqlite_db.connection.commit()
 
-    # Verify counter was incremented
+    # Test with different isolation levels
+    # Test with different isolation levels
+    isolation_levels = ['DEFERRED', 'IMMEDIATE', 'EXCLUSIVE']
+    isolation_levels = ['DEFERRED', 'IMMEDIATE', 'EXCLUSIVE']
+
+
+    for level in isolation_levels:
+    for level in isolation_levels:
+    # Start a transaction with specific isolation level
+    # Start a transaction with specific isolation level
+    sqlite_db.execute(f'BEGIN {level} TRANSACTION')
+    sqlite_db.execute(f'BEGIN {level} TRANSACTION')
+
+
+    # Read current value
+    # Read current value
     result = sqlite_db.fetch_one(
-    'SELECT counter, last_updated_by FROM test_concurrent WHERE id = ?',
+    result = sqlite_db.fetch_one(
+    'SELECT counter FROM test_concurrent WHERE id = ?',
+    'SELECT counter FROM test_concurrent WHERE id = ?',
+    (1,)
     (1,)
     )
+    )
+    current_counter = result['counter']
+    current_counter = result['counter']
+
+
+    # Update with incremented value
+    # Update with incremented value
+    sqlite_db.execute(
+    sqlite_db.execute(
+    'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
+    'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
+    (current_counter + 1, f'isolation-{level}', 1)
+    (current_counter + 1, f'isolation-{level}', 1)
+    )
+    )
+
+
+    # Commit transaction
+    # Commit transaction
+    sqlite_db.connection.commit()
+    sqlite_db.connection.commit()
+
+
+    # Verify counter was incremented
+    # Verify counter was incremented
+    result = sqlite_db.fetch_one(
+    result = sqlite_db.fetch_one(
+    'SELECT counter, last_updated_by FROM test_concurrent WHERE id = ?',
+    'SELECT counter, last_updated_by FROM test_concurrent WHERE id = ?',
+    (1,)
+    (1,)
+    )
+    )
     assert result['counter'] == current_counter + 1
+    assert result['counter'] == current_counter + 1
+    assert result['last_updated_by'] == f'isolation-{level}'
     assert result['last_updated_by'] == f'isolation-{level}'
 
 
+
+
+    def test_deadlock_prevention(sqlite_db):
     def test_deadlock_prevention(sqlite_db):
     """
+    """
+    Test deadlock prevention.
     Test deadlock prevention.
 
+
+    This test verifies that the database layer can prevent or detect deadlocks
     This test verifies that the database layer can prevent or detect deadlocks
     when multiple transactions are trying to update the same records in different order.
+    when multiple transactions are trying to update the same records in different order.
+    """
     """
     # Create additional test table
+    # Create additional test table
+    sqlite_db.execute('''
     sqlite_db.execute('''
     CREATE TABLE IF NOT EXISTS test_concurrent_2 (
+    CREATE TABLE IF NOT EXISTS test_concurrent_2 (
+    id INTEGER PRIMARY KEY,
     id INTEGER PRIMARY KEY,
     counter INTEGER NOT NULL,
+    counter INTEGER NOT NULL,
+    last_updated_by TEXT
     last_updated_by TEXT
     )
+    )
+    ''')
     ''')
 
+
+    # Insert initial data
     # Insert initial data
     sqlite_db.execute(
+    sqlite_db.execute(
+    'INSERT INTO test_concurrent_2 (id, counter, last_updated_by) VALUES (?, ?, ?)',
     'INSERT INTO test_concurrent_2 (id, counter, last_updated_by) VALUES (?, ?, ?)',
     (1, 0, 'init')
+    (1, 0, 'init')
     )
+    )
+
 
     # Reset first table counter
+    # Reset first table counter
+    sqlite_db.execute(
     sqlite_db.execute(
     'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
+    'UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?',
+    (0, 'init', 1)
     (0, 'init', 1)
     )
+    )
+
 
     # Flag to track if deadlock was detected
+    # Flag to track if deadlock was detected
+    deadlock_detected = False
     deadlock_detected = False
 
+
+    def transaction_1():
     def transaction_1():
     """First transaction that updates table 1 then table 2."""
     try:
@@ -337,23 +459,42 @@ except Exception as e:
 
     def test_concurrent_batch_operations(sqlite_db):
     """
+    """
+    Test concurrent batch operations.
     Test concurrent batch operations.
 
+
+    This test verifies that the database layer can handle concurrent batch operations
     This test verifies that the database layer can handle concurrent batch operations
     while maintaining data consistency.
+    while maintaining data consistency.
+    """
     """
     # Create test table for batch operations
+    # Create test table for batch operations
+    sqlite_db.execute('''
     sqlite_db.execute('''
     CREATE TABLE IF NOT EXISTS test_batch (
+    CREATE TABLE IF NOT EXISTS test_batch (
+    id INTEGER PRIMARY KEY,
     id INTEGER PRIMARY KEY,
     value TEXT,
+    value TEXT,
+    created_by TEXT
     created_by TEXT
     )
+    )
+    ''')
     ''')
 
+
+    num_threads = 5
     num_threads = 5
     items_per_thread = 20
+    items_per_thread = 20
 
+
+    def batch_insert(thread_id: int):
     def batch_insert(thread_id: int):
     """Insert multiple records in a batch."""
     # Prepare batch data

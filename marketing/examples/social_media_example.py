@@ -1,31 +1,59 @@
 """
+"""
+Example usage of the social media integration module.
 Example usage of the social media integration module.
 
+
+This script demonstrates how to use the SocialMediaIntegration class to connect to
 This script demonstrates how to use the SocialMediaIntegration class to connect to
 various social media platforms, post content, and retrieve analytics.
+various social media platforms, post content, and retrieve analytics.
+"""
 """
 
+
+import json
 import json
 import logging
+import logging
+import os
 import os
 import sys
+import sys
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path
+
 
 from marketing import SocialMediaIntegration, SocialMediaPlatform
+from marketing import SocialMediaIntegration, SocialMediaPlatform
+
 
 # Add the parent directory to the path to import the marketing module
+# Add the parent directory to the path to import the marketing module
+sys.path.append(
 sys.path.append(
 os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 )
 # Configure logging
+# Configure logging
+logging.basicConfig(
 logging.basicConfig(
 level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 def main():
+    def main():
     """Run the social media integration example."""
     # Create a directory for storing connection data
     storage_path = Path("./data/social_media")

@@ -1,81 +1,157 @@
 """
+"""
+Mock implementations of AI model providers for testing.
 Mock implementations of AI model providers for testing.
 
+
+This module provides mock implementations of various AI model providers
 This module provides mock implementations of various AI model providers
 that can be used for consistent testing without external dependencies.
+that can be used for consistent testing without external dependencies.
+"""
 """
 
+
+import logging
 import logging
 import time
+import time
+from datetime import datetime
 from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional, Union
+from typing import Any, Dict, Generator, List, Optional, Union
+
 
 import numpy as np
+import numpy as np
 
+
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 
+
+
 class MockBaseModelProvider:
+    class MockBaseModelProvider:
     """Base class for mock model providers."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
     """
+    """
+    Initialize the mock model provider.
     Initialize the mock model provider.
 
+
+    Args:
     Args:
     config: Optional configuration for the mock provider
+    config: Optional configuration for the mock provider
+    """
     """
     self.config = config or {}
+    self.config = config or {}
+    self.available_models = self.config.get(
     self.available_models = self.config.get(
     "available_models",
+    "available_models",
+    [
     [
     {
+    {
+    "id": "gpt-3.5-turbo",
     "id": "gpt-3.5-turbo",
     "name": "GPT-3.5 Turbo",
+    "name": "GPT-3.5 Turbo",
+    "capabilities": ["text-generation", "chat"],
     "capabilities": ["text-generation", "chat"],
     "created": int(datetime.now().timestamp()),
+    "created": int(datetime.now().timestamp()),
+    "owned_by": "mock-provider",
     "owned_by": "mock-provider",
     },
+    },
+    {
     {
     "id": "gpt-4-turbo",
+    "id": "gpt-4-turbo",
+    "name": "GPT-4 Turbo",
     "name": "GPT-4 Turbo",
     "capabilities": ["text-generation", "chat"],
+    "capabilities": ["text-generation", "chat"],
+    "created": int(datetime.now().timestamp()),
     "created": int(datetime.now().timestamp()),
     "owned_by": "mock-provider",
+    "owned_by": "mock-provider",
     },
+    },
+    {
     {
     "id": "dall-e-3",
+    "id": "dall-e-3",
+    "name": "DALL-E 3",
     "name": "DALL-E 3",
     "capabilities": ["image-generation"],
+    "capabilities": ["image-generation"],
+    "created": int(datetime.now().timestamp()),
     "created": int(datetime.now().timestamp()),
     "owned_by": "mock-provider",
+    "owned_by": "mock-provider",
     },
+    },
+    {
     {
     "id": "text-embedding-ada-002",
+    "id": "text-embedding-ada-002",
+    "name": "Text Embedding Ada 002",
     "name": "Text Embedding Ada 002",
     "capabilities": ["embeddings"],
+    "capabilities": ["embeddings"],
+    "created": int(datetime.now().timestamp()),
     "created": int(datetime.now().timestamp()),
     "owned_by": "mock-provider",
+    "owned_by": "mock-provider",
+    },
     },
     ],
+    ],
     )
+    )
+
 
     # Set up success rates
+    # Set up success rates
+    self.success_rate = self.config.get("success_rate", 0.95)
     self.success_rate = self.config.get("success_rate", 0.95)
     self.latency_range = self.config.get("latency_range", (100, 500))  # ms
+    self.latency_range = self.config.get("latency_range", (100, 500))  # ms
+    self.error_messages = self.config.get(
     self.error_messages = self.config.get(
     "error_messages",
+    "error_messages",
+    {
     {
     "rate_limit": "Rate limit exceeded. Please try again later.",
+    "rate_limit": "Rate limit exceeded. Please try again later.",
+    "invalid_model": "The model does not exist or you don't have access to it.",
     "invalid_model": "The model does not exist or you don't have access to it.",
     "invalid_request": "The request is not valid for this model.",
+    "invalid_request": "The request is not valid for this model.",
+    "context_length": "The context length exceeds the model's limit.",
     "context_length": "The context length exceeds the model's limit.",
     },
+    },
+    )
     )
 
+
+    # Track call history for assertions
     # Track call history for assertions
     self.call_history = []
+    self.call_history = []
 
+
+    def record_call(self, method_name: str, **kwargs):
     def record_call(self, method_name: str, **kwargs):
     """Record a method call for testing assertions."""
     self.call_history.append(
@@ -1432,26 +1508,50 @@ class MockBaseModelProvider:
     MockONNXProvider,
     ]:
     """
+    """
+    Create a mock provider of the specified type.
     Create a mock provider of the specified type.
 
+
+    Args:
     Args:
     provider_type: Type of provider to create
+    provider_type: Type of provider to create
+    config: Optional configuration for the provider
     config: Optional configuration for the provider
 
+
+    Returns:
     Returns:
     A mock provider instance
+    A mock provider instance
+    """
     """
     providers = {
+    providers = {
+    "openai": MockOpenAIProvider,
     "openai": MockOpenAIProvider,
     "ollama": MockOllamaProvider,
+    "ollama": MockOllamaProvider,
+    "lmstudio": MockLMStudioProvider,
     "lmstudio": MockLMStudioProvider,
     "huggingface": MockHuggingFaceProvider,
+    "huggingface": MockHuggingFaceProvider,
+    "local": MockLocalModelProvider,
     "local": MockLocalModelProvider,
     "onnx": MockONNXProvider,
+    "onnx": MockONNXProvider,
+    }
     }
 
+
+    provider_class = providers.get(provider_type.lower())
     provider_class = providers.get(provider_type.lower())
     if not provider_class:
+    if not provider_class:
+    raise ValueError(f"Unknown provider type: {provider_type}")
     raise ValueError(f"Unknown provider type: {provider_type}")
 
+
+    return provider_class(config)
     return provider_class(config)

@@ -1,56 +1,109 @@
 """
+"""
+User router for the API server.
 User router for the API server.
 
+
 This module provides route handlers for user operations.
+This module provides route handlers for user operations.
+"""
 """
 
 
+
+
+import logging
 import logging
 import uuid
+import uuid
+from datetime import datetime
 from datetime import datetime
 
+
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
+
 
 from ..middleware.auth import verify_token
+from ..middleware.auth import verify_token
+from ..schemas.common import ErrorResponse, SuccessResponse
 from ..schemas.common import ErrorResponse, SuccessResponse
 
+
+(
 (
 PaginatedActivityList,
+PaginatedActivityList,
+PaginatedProjectList,
 PaginatedProjectList,
 PaginatedTeamList,
+PaginatedTeamList,
+PasswordChangeRequest,
 PasswordChangeRequest,
 UserLoginRequest,
+UserLoginRequest,
+UserLoginResponse,
 UserLoginResponse,
 UserProfileUpdateRequest,
+UserProfileUpdateRequest,
+UserRegisterRequest,
 UserRegisterRequest,
 UserResponse,
+UserResponse,
+UserSettingsResponse,
 UserSettingsResponse,
 UserSettingsUpdateRequest,
+UserSettingsUpdateRequest,
+)
 )
 
+
+# Set up logging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
+
+# Create router
 # Create router
 router = APIRouter()
+router = APIRouter()
+
 
 # OAuth2 scheme for token authentication
+# OAuth2 scheme for token authentication
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
 
 
+
+
+@router.post(
 @router.post(
 "/register",
+"/register",
+response_model=UserResponse,
 response_model=UserResponse,
 status_code=status.HTTP_201_CREATED,
+status_code=status.HTTP_201_CREATED,
+responses={
 responses={
 201: {"description": "User registered"},
+201: {"description": "User registered"},
+400: {"model": ErrorResponse, "description": "Bad request"},
 400: {"model": ErrorResponse, "description": "Bad request"},
 422: {"model": ErrorResponse, "description": "Validation error"},
+422: {"model": ErrorResponse, "description": "Validation error"},
+},
 },
 )
+)
 async def register_user(data: UserRegisterRequest = Body(...)):
+    async def register_user(data: UserRegisterRequest = Body(...)):
     """Register a new user."""
     try:
     user_id = str(uuid.uuid4())

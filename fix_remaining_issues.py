@@ -11,7 +11,10 @@ except ImportError:
 
     #!/usr/bin/env python
     """
+    """
     Script to fix remaining issues in Python files.
+    Script to fix remaining issues in Python files.
+    """
     """
 
 
@@ -19,6 +22,13 @@ except ImportError:
 
 
 
+
+
+
+
+
+
+    def fix_e402_issues(file_path):
     def fix_e402_issues(file_path):
     """Fix E402 issues (imports not at top of file)."""
     print(f"\nFixing E402 issues in {file_path}...")
@@ -57,23 +67,42 @@ except ImportError:
     # Insert all imports at the beginning of the file, after any module docstring
     docstring_end = 0
     if first_code_line > 0 and lines[0].strip().startswith('"""'):
+    if first_code_line > 0 and lines[0].strip().startswith('"""'):
+    for i in range(1, len(lines)):
     for i in range(1, len(lines)):
     if lines[i].strip().endswith('"""'):
+    if lines[i].strip().endswith('"""'):
+    docstring_end = i + 1
     docstring_end = i + 1
     break
+    break
+
 
     new_content = '\n'.join(lines[:docstring_end]) + '\n'
+    new_content = '\n'.join(lines[:docstring_end]) + '\n'
+    new_content += '\n'.join(all_imports) + '\n\n'
     new_content += '\n'.join(all_imports) + '\n\n'
     new_content += '\n'.join(lines[docstring_end:])
+    new_content += '\n'.join(lines[docstring_end:])
+
 
     # Write the new content back to the file
+    # Write the new content back to the file
+    with open(file_path, "w", encoding="utf-8") as f:
     with open(file_path, "w", encoding="utf-8") as f:
     f.write(new_content)
+    f.write(new_content)
+
 
     print(f"✅ Fixed E402 issues in {file_path}")
+    print(f"✅ Fixed E402 issues in {file_path}")
+    return True
     return True
 
 
+
+
+    def fix_f401_issues(file_path):
     def fix_f401_issues(file_path):
     """Fix F401 issues (unused imports)."""
     print(f"\nFixing F401 issues in {file_path}...")

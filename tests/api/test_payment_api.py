@@ -1,24 +1,45 @@
 """
+"""
+Tests for the payment API.
 Tests for the payment API.
 
+
 This module contains tests for the payment gateway integration endpoints.
+This module contains tests for the payment gateway integration endpoints.
+"""
 """
 
 
+
+
+from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id
+from tests.api.utils.test_data import generate_id
+
 
 (
+(
+validate_error_response,
 validate_error_response,
 validate_field_equals,
+validate_field_equals,
+validate_field_exists,
 validate_field_exists,
 validate_field_not_empty,
+validate_field_not_empty,
+validate_field_type,
 validate_field_type,
 validate_success_response,
+validate_success_response,
+)
 )
 
 
+
+
 class TestPaymentAPI:
+    class TestPaymentAPI:
     """Tests for the payment API."""
 
     def test_process_payment(self, api_test_client: APITestClient):

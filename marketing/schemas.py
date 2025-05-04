@@ -1,20 +1,37 @@
 """
+"""
+Pydantic schemas for the Marketing module.
 Pydantic schemas for the Marketing module.
 
+
+This module provides Pydantic models for data validation in the Marketing module.
 This module provides Pydantic models for data validation in the Marketing module.
 """
+"""
+
 
 import time
+import time
+import uuid
 import uuid
 from datetime import datetime
+from datetime import datetime
+from enum import Enum
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
+
+# Enums
 # Enums
 class PriorityLevel(str, Enum):
+    class PriorityLevel(str, Enum):
     """Enum for priority levels."""
 
     HIGH = "high"
@@ -48,36 +65,65 @@ class PriorityLevel(str, Enum):
 
 
     class BusinessSize(str, Enum):
-    """Enum for business sizes."""
+
 
     SMALL = "small"
+    SMALL = "small"
     MEDIUM = "medium"
+    MEDIUM = "medium"
+    LARGE = "large"
     LARGE = "large"
 
 
+
+
+    class BillingPeriod(str, Enum):
     class BillingPeriod(str, Enum):
 
+
+    MONTHLY = "monthly"
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
+    QUARTERLY = "quarterly"
+    ANNUALLY = "annually"
     ANNUALLY = "annually"
 
 
+
+
+    class TimeframeUnit(str, Enum):
     class TimeframeUnit(str, Enum):
 
+
+    DAYS = "days"
     DAYS = "days"
     WEEKS = "weeks"
+    WEEKS = "weeks"
+    MONTHS = "months"
     MONTHS = "months"
     QUARTERS = "quarters"
+    QUARTERS = "quarters"
+    YEARS = "years"
     YEARS = "years"
 
 
+
+
+    class ChannelType(str, Enum):
     class ChannelType(str, Enum):
 
+
+    SINGLE_CHANNEL = "single-channel"
     SINGLE_CHANNEL = "single-channel"
     MULTI_CHANNEL = "multi-channel"
+    MULTI_CHANNEL = "multi-channel"
+    OMNI_CHANNEL = "omni-channel"
     OMNI_CHANNEL = "omni-channel"
 
 
+
+
+    class DifficultyLevel(str, Enum):
     class DifficultyLevel(str, Enum):
     """Enum for difficulty levels."""
 
@@ -127,36 +173,65 @@ class PriorityLevel(str, Enum):
 
 
     class PostScheduleType(str, Enum):
-    """Enum for post scheduling types."""
+
 
     NOW = "now"
+    NOW = "now"
+    SCHEDULED = "scheduled"
     SCHEDULED = "scheduled"
     OPTIMAL = "optimal"
+    OPTIMAL = "optimal"
+    RECURRING = "recurring"
     RECURRING = "recurring"
 
 
+
+
+    # Base schemas that don't depend on other schemas
     # Base schemas that don't depend on other schemas
     class ConfigSchema(BaseModel):
+    class ConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str = Field(...)
+    name: str = Field(...)
+    description: str = Field(...)
     description: str = Field(...)
     settings: Dict[str, Any] = Field(default_factory=dict)
+    settings: Dict[str, Any] = Field(default_factory=dict)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     updated_at: Optional[str] = Field(default=None)
+    updated_at: Optional[str] = Field(default=None)
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class TimeframeSchema(BaseModel):
+    class TimeframeSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
+    unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
 
+
+    def __str__(self) -> str:
     def __str__(self) -> str:
     """Return a string representation of the timeframe."""
     return f"{self.value} {self.unit.value}"
@@ -216,74 +291,141 @@ class PriorityLevel(str, Enum):
 
     class TargetAudienceSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Pydantic model for target audience."""
+
 
     demographics: DemographicsSchema = Field(
+    demographics: DemographicsSchema = Field(
+    default_factory=DemographicsSchema, description="Demographic information"
     default_factory=DemographicsSchema, description="Demographic information"
     )
+    )
+    interests: List[str] = Field(
     interests: List[str] = Field(
     default_factory=list, description="Interests of the target audience"
+    default_factory=list, description="Interests of the target audience"
+    )
     )
     behaviors: List[str] = Field(
+    behaviors: List[str] = Field(
+    default_factory=list, description="Behaviors of the target audience"
     default_factory=list, description="Behaviors of the target audience"
     )
+    )
+    pain_points: List[str] = Field(
     pain_points: List[str] = Field(
     default_factory=list, description="Pain points of the target audience"
+    default_factory=list, description="Pain points of the target audience"
+    )
     )
     goals: List[str] = Field(
+    goals: List[str] = Field(
+    default_factory=list, description="Goals of the target audience"
     default_factory=list, description="Goals of the target audience"
     )
+    )
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     # Content-related schemas
+    # Content-related schemas
+    class ContentItemSchema(BaseModel):
     class ContentItemSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = Field(...)
     title: str = Field(...)
     description: str = Field(...)
+    description: str = Field(...)
+    content_type: str = Field(...)
     content_type: str = Field(...)
     channel: str = Field(...)
+    channel: str = Field(...)
+    publish_date: str = Field(...)
     publish_date: str = Field(...)
     status: str = Field(default="draft")
+    status: str = Field(default="draft")
+    assigned_to: Optional[str] = Field(default=None)
     assigned_to: Optional[str] = Field(default=None)
     priority: PriorityLevel = Field(default=PriorityLevel.MEDIUM)
+    priority: PriorityLevel = Field(default=PriorityLevel.MEDIUM)
+    keywords: List[str] = Field(default_factory=list)
     keywords: List[str] = Field(default_factory=list)
     notes: Optional[str] = Field(default=None)
+    notes: Optional[str] = Field(default=None)
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class ContentCalendarSchema(BaseModel):
+    class ContentCalendarSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str = Field(...)
+    name: str = Field(...)
+    description: str = Field(...)
     description: str = Field(...)
     start_date: str = Field(...)
+    start_date: str = Field(...)
+    end_date: str = Field(...)
     end_date: str = Field(...)
     items: List[ContentItemSchema] = Field(default_factory=list)
+    items: List[ContentItemSchema] = Field(default_factory=list)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     updated_at: Optional[str] = Field(default=None)
+    updated_at: Optional[str] = Field(default=None)
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class ContentTemplateSchema(BaseModel):
+    class ContentTemplateSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str = Field(...)
+    title: str = Field(...)
+    description: str = Field(...)
     description: str = Field(...)
     target_persona: Dict[str, Any] = Field(...)
+    target_persona: Dict[str, Any] = Field(...)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     updated_at: Optional[str] = Field(default=None)
+    updated_at: Optional[str] = Field(default=None)
 
+
+    model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="allow")
 
 
+
+
+    class BlogPostTemplateSchema(ContentTemplateSchema):
     class BlogPostTemplateSchema(ContentTemplateSchema):
     """Schema for blog post templates."""
 
@@ -385,200 +527,393 @@ class PriorityLevel(str, Enum):
 
     class GeneratedSocialMediaPostSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Schema for generated social media posts."""
+
 
     id: str = Field(
+    id: str = Field(
+    default_factory=lambda: str(uuid.uuid4()),
     default_factory=lambda: str(uuid.uuid4()),
     description="Unique identifier for the post",
+    description="Unique identifier for the post",
+    )
     )
     template_id: str = Field(
+    template_id: str = Field(
+    ..., description="ID of the template used to generate the post"
     ..., description="ID of the template used to generate the post"
     )
+    )
+    timestamp: str = Field(
     timestamp: str = Field(
     default_factory=lambda: datetime.now().isoformat(),
+    default_factory=lambda: datetime.now().isoformat(),
+    description="Generation timestamp",
     description="Generation timestamp",
     )
+    )
+    platform: str = Field(..., description="Social media platform")
     platform: str = Field(..., description="Social media platform")
     content: str = Field(..., description="Content of the post")
+    content: str = Field(..., description="Content of the post")
+    hashtags: List[str] = Field(..., description="Hashtags for the post")
     hashtags: List[str] = Field(..., description="Hashtags for the post")
     image_suggestions: Optional[List[Dict[str, Any]]] = Field(
+    image_suggestions: Optional[List[Dict[str, Any]]] = Field(
+    default=None, description="Image suggestions"
     default=None, description="Image suggestions"
     )
+    )
+    link: Optional[str] = Field(default=None, description="Link to include in the post")
     link: Optional[str] = Field(default=None, description="Link to include in the post")
     call_to_action: Optional[str] = Field(default=None, description="Call to action")
+    call_to_action: Optional[str] = Field(default=None, description="Call to action")
+    optimal_posting_times: Optional[List[str]] = Field(
     optimal_posting_times: Optional[List[str]] = Field(
     default=None, description="Optimal posting times"
+    default=None, description="Optimal posting times"
+    )
     )
 
+
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class GeneratedEmailNewsletterSchema(BaseModel):
+    class GeneratedEmailNewsletterSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the newsletter",
     description="Unique identifier for the newsletter",
     )
+    )
+    template_id: str = Field(
     template_id: str = Field(
     ..., description="ID of the template used to generate the newsletter"
+    ..., description="ID of the template used to generate the newsletter"
+    )
     )
     timestamp: str = Field(
+    timestamp: str = Field(
+    default_factory=lambda: datetime.now().isoformat(),
     default_factory=lambda: datetime.now().isoformat(),
     description="Generation timestamp",
+    description="Generation timestamp",
+    )
     )
     subject_line: str = Field(..., description="Subject line of the email")
+    subject_line: str = Field(..., description="Subject line of the email")
+    preview_text: str = Field(..., description="Preview text of the email")
     preview_text: str = Field(..., description="Preview text of the email")
     content_sections: List[Dict[str, Any]] = Field(
+    content_sections: List[Dict[str, Any]] = Field(
+    ..., description="Content sections of the email"
     ..., description="Content sections of the email"
     )
+    )
+    header: Optional[Dict[str, Any]] = Field(
     header: Optional[Dict[str, Any]] = Field(
     default=None, description="Header of the email"
+    default=None, description="Header of the email"
+    )
     )
     footer: Dict[str, Any] = Field(..., description="Footer of the email")
+    footer: Dict[str, Any] = Field(..., description="Footer of the email")
+    call_to_action: Dict[str, Any] = Field(..., description="Call to action")
     call_to_action: Dict[str, Any] = Field(..., description="Call to action")
     images: Optional[List[Dict[str, Any]]] = Field(
+    images: Optional[List[Dict[str, Any]]] = Field(
+    default=None, description="Images to include in the email"
     default=None, description="Images to include in the email"
     )
+    )
+    links: Optional[List[Dict[str, Any]]] = Field(
     links: Optional[List[Dict[str, Any]]] = Field(
     default=None, description="Links to include in the email"
+    default=None, description="Links to include in the email"
+    )
     )
     spam_score: Optional[float] = Field(
+    spam_score: Optional[float] = Field(
+    default=None, description="Spam score of the email"
     default=None, description="Spam score of the email"
     )
+    )
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class ContentGeneratorConfigSchema(BaseModel):
+    class ContentGeneratorConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    creativity_level: float = Field(
     creativity_level: float = Field(
     default=0.7, description="Creativity level (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.7, description="Creativity level (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     tone_consistency: float = Field(
+    tone_consistency: float = Field(
+    default=0.8, description="Tone consistency (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.8, description="Tone consistency (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    max_length: int = Field(default=2000, description="Maximum content length")
     max_length: int = Field(default=2000, description="Maximum content length")
     min_length: int = Field(default=500, description="Minimum content length")
+    min_length: int = Field(default=500, description="Minimum content length")
+    include_images: bool = Field(default=True, description="Whether to include images")
     include_images: bool = Field(default=True, description="Whether to include images")
     include_links: bool = Field(default=True, description="Whether to include links")
+    include_links: bool = Field(default=True, description="Whether to include links")
+    seo_optimization: bool = Field(
     seo_optimization: bool = Field(
     default=True, description="Whether to optimize for SEO"
+    default=True, description="Whether to optimize for SEO"
+    )
     )
     target_reading_level: ReadingLevel = Field(
+    target_reading_level: ReadingLevel = Field(
+    default=ReadingLevel.INTERMEDIATE, description="Target reading level"
     default=ReadingLevel.INTERMEDIATE, description="Target reading level"
     )
+    )
+    language: str = Field(default="en-US", description="Content language")
     language: str = Field(default="en-US", description="Content language")
     content_format: ContentFormat = Field(
+    content_format: ContentFormat = Field(
+    default=ContentFormat.MARKDOWN, description="Content format"
     default=ContentFormat.MARKDOWN, description="Content format"
     )
+    )
+    include_metadata: bool = Field(
     include_metadata: bool = Field(
     default=True, description="Whether to include metadata"
+    default=True, description="Whether to include metadata"
+    )
     )
     use_ai_enhancement: bool = Field(
+    use_ai_enhancement: bool = Field(
+    default=True, description="Whether to use AI enhancement"
     default=True, description="Whether to use AI enhancement"
     )
+    )
+    ai_enhancement_level: float = Field(
     ai_enhancement_level: float = Field(
     default=0.5, description="AI enhancement level (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.5, description="AI enhancement level (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     include_analytics_tags: bool = Field(
+    include_analytics_tags: bool = Field(
+    default=False, description="Whether to include analytics tags"
     default=False, description="Whether to include analytics tags"
     )
+    )
+    include_call_to_action: bool = Field(
     include_call_to_action: bool = Field(
     default=True, description="Whether to include a call to action"
+    default=True, description="Whether to include a call to action"
+    )
     )
     call_to_action_strength: float = Field(
+    call_to_action_strength: float = Field(
+    default=0.7, description="Call to action strength (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.7, description="Call to action strength (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    personalization_level: float = Field(
     personalization_level: float = Field(
     default=0.5, description="Personalization level (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.5, description="Personalization level (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     content_freshness: float = Field(
+    content_freshness: float = Field(
+    default=0.8, description="Content freshness (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.8, description="Content freshness (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    content_uniqueness: float = Field(
     content_uniqueness: float = Field(
     default=0.9, description="Content uniqueness (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.9, description="Content uniqueness (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     content_relevance: float = Field(
+    content_relevance: float = Field(
+    default=0.9, description="Content relevance (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.9, description="Content relevance (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    content_engagement: float = Field(
     content_engagement: float = Field(
     default=0.8, description="Content engagement (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.8, description="Content engagement (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     content_conversion: float = Field(
+    content_conversion: float = Field(
+    default=0.7, description="Content conversion (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.7, description="Content conversion (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    content_authority: float = Field(
     content_authority: float = Field(
     default=0.6, description="Content authority (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.6, description="Content authority (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     content_trustworthiness: float = Field(
+    content_trustworthiness: float = Field(
+    default=0.9, description="Content trustworthiness (0.0 to 1.0)", ge=0.0, le=1.0
     default=0.9, description="Content trustworthiness (0.0 to 1.0)", ge=0.0, le=1.0
     )
+    )
+    content_expertise: float = Field(
     content_expertise: float = Field(
     default=0.8, description="Content expertise (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.8, description="Content expertise (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     timestamp: str = Field(
+    timestamp: str = Field(
+    default_factory=lambda: datetime.now().isoformat(),
     default_factory=lambda: datetime.now().isoformat(),
     description="Configuration timestamp",
+    description="Configuration timestamp",
+    )
     )
 
+
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class MarketingChannelSchema(BaseModel):
+    class MarketingChannelSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())))
     model_config = ConfigDict(protected_namespaces=())))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the channel",
     description="Unique identifier for the channel",
     )
+    )
+    name: str = Field(..., description="Name of the channel")
     name: str = Field(..., description="Name of the channel")
     category: ChannelCategory = Field(
+    category: ChannelCategory = Field(
+    default=ChannelCategory.OTHER, description="Category of the channel"
     default=ChannelCategory.OTHER, description="Category of the channel"
     )
+    )
+    description: str = Field(..., description="Description of the channel")
     description: str = Field(..., description="Description of the channel")
     cost_structure: Dict[str, Any] = Field(
+    cost_structure: Dict[str, Any] = Field(
+    default_factory=dict, description="Cost structure information"
     default_factory=dict, description="Cost structure information"
     )
+    )
+    audience_demographics: Dict[str, Any] = Field(
     audience_demographics: Dict[str, Any] = Field(
     default_factory=dict, description="Typical audience demographics"
+    default_factory=dict, description="Typical audience demographics"
+    )
     )
     typical_roi: Optional[Dict[str, Any]] = Field(
+    typical_roi: Optional[Dict[str, Any]] = Field(
+    None, description="Typical ROI information"
     None, description="Typical ROI information"
     )
+    )
+    best_practices: List[str] = Field(
     best_practices: List[str] = Field(
     default_factory=list, description="Best practices for this channel"
+    default_factory=list, description="Best practices for this channel"
+    )
     )
     metrics: List[str] = Field(
+    metrics: List[str] = Field(
+    default_factory=list, description="Key metrics for this channel"
     default_factory=list, description="Key metrics for this channel"
     )
+    )
+    implementation_difficulty: DifficultyLevel = Field(
     implementation_difficulty: DifficultyLevel = Field(
     DifficultyLevel.MEDIUM, description="Difficulty level of implementation"
+    DifficultyLevel.MEDIUM, description="Difficulty level of implementation"
+    )
     )
     time_to_results: str = Field(
+    time_to_results: str = Field(
+    default="medium-term", description="Typical time to see results"
     default="medium-term", description="Typical time to see results"
     )
+    )
+    scalability: float = Field(
     scalability: float = Field(
     default=0.5, description="Scalability score (0.0 to 1.0)", ge=0.0, le=1.0
+    default=0.5, description="Scalability score (0.0 to 1.0)", ge=0.0, le=1.0
+    )
     )
     required_resources: List[str] = Field(
+    required_resources: List[str] = Field(
+    default_factory=list, description="Required resources for implementation"
     default_factory=list, description="Required resources for implementation"
     )
+    )
+    platforms: List[str] = Field(
     platforms: List[str] = Field(
     default_factory=list, description="Platforms within this channel"
+    default_factory=list, description="Platforms within this channel"
+    )
     )
     relevance_score: float = Field(
+    relevance_score: float = Field(
+    default=0.5,
     default=0.5,
     description="Relevance score for this channel (0.0 to 1.0)",
+    description="Relevance score for this channel (0.0 to 1.0)",
+    ge=0.0,
     ge=0.0,
     le=1.0,
+    le=1.0,
+    )
     )
 
+
+    model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="allow")
 
 
+
+
     class MarketingTacticSchema(BaseModel):
+    class MarketingTacticSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for marketing tactic."""
 
@@ -684,127 +1019,247 @@ class PriorityLevel(str, Enum):
 
     class MarketingStrategyResultsSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Schema for marketing strategy results."""
+
 
     id: str = Field(
+    id: str = Field(
+    default_factory=lambda: str(uuid.uuid4()),
     default_factory=lambda: str(uuid.uuid4()),
     description="Unique identifier for the results",
+    description="Unique identifier for the results",
+    )
     )
     strategy_id: str = Field(..., description="ID of the strategy")
+    strategy_id: str = Field(..., description="ID of the strategy")
+    metrics: List[MetricSchema] = Field(
     metrics: List[MetricSchema] = Field(
     default_factory=list, description="Results metrics"
+    default_factory=list, description="Results metrics"
+    )
     )
     roi: float = Field(..., description="Return on investment")
+    roi: float = Field(..., description="Return on investment")
+    achievements: List[str] = Field(default_factory=list, description="Achievements")
     achievements: List[str] = Field(default_factory=list, description="Achievements")
     challenges: List[str] = Field(default_factory=list, description="Challenges faced")
+    challenges: List[str] = Field(default_factory=list, description="Challenges faced")
+    lessons_learned: List[str] = Field(
     lessons_learned: List[str] = Field(
     default_factory=list, description="Lessons learned"
+    default_factory=list, description="Lessons learned"
+    )
     )
     recommendations: List[str] = Field(
+    recommendations: List[str] = Field(
+    default_factory=list, description="Recommendations for future"
     default_factory=list, description="Recommendations for future"
     )
+    )
+    timestamp: str = Field(
     timestamp: str = Field(
     default_factory=lambda: datetime.now().isoformat(),
+    default_factory=lambda: datetime.now().isoformat(),
+    description="Results timestamp",
     description="Results timestamp",
     )
+    )
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class MarketingPlanSchema(BaseModel):
+    class MarketingPlanSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the plan",
     description="Unique identifier for the plan",
     )
+    )
+    name: str = Field(..., description="Name of the plan")
     name: str = Field(..., description="Name of the plan")
     description: str = Field(..., description="Description of the plan")
+    description: str = Field(..., description="Description of the plan")
+    start_date: str = Field(..., description="Start date of the plan")
     start_date: str = Field(..., description="Start date of the plan")
     end_date: str = Field(..., description="End date of the plan")
+    end_date: str = Field(..., description="End date of the plan")
+    goals: List[str] = Field(..., description="Goals of the plan")
     goals: List[str] = Field(..., description="Goals of the plan")
     strategies: List[MarketingStrategySchema] = Field(
+    strategies: List[MarketingStrategySchema] = Field(
+    default_factory=list, description="Strategies for the plan"
     default_factory=list, description="Strategies for the plan"
     )
+    )
+    budget: BudgetSchema = Field(..., description="Budget for the plan")
     budget: BudgetSchema = Field(..., description="Budget for the plan")
     metrics: List[MetricSchema] = Field(
+    metrics: List[MetricSchema] = Field(
+    default_factory=list, description="Metrics for the plan"
     default_factory=list, description="Metrics for the plan"
     )
+    )
+    content_calendar: Optional[ContentCalendarSchema] = Field(
     content_calendar: Optional[ContentCalendarSchema] = Field(
     default=None, description="Content calendar for the plan"
+    default=None, description="Content calendar for the plan"
+    )
     )
     created_at: str = Field(
+    created_at: str = Field(
+    default_factory=lambda: datetime.now().isoformat(),
     default_factory=lambda: datetime.now().isoformat(),
     description="Creation timestamp",
+    description="Creation timestamp",
+    )
     )
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+
 
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class PersonaSchema(BaseModel):
+    class PersonaSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the persona",
     description="Unique identifier for the persona",
     )
+    )
+    name: str = Field(..., description="Name of the persona")
     name: str = Field(..., description="Name of the persona")
     description: str = Field(..., description="Description of the persona")
+    description: str = Field(..., description="Description of the persona")
+    demographics: DemographicsSchema = Field(
     demographics: DemographicsSchema = Field(
     default_factory=DemographicsSchema, description="Demographics of the persona"
+    default_factory=DemographicsSchema, description="Demographics of the persona"
+    )
     )
     goals: List[str] = Field(..., description="Goals of the persona")
+    goals: List[str] = Field(..., description="Goals of the persona")
+    pain_points: List[str] = Field(..., description="Pain points of the persona")
     pain_points: List[str] = Field(..., description="Pain points of the persona")
     behaviors: List[str] = Field(..., description="Behaviors of the persona")
+    behaviors: List[str] = Field(..., description="Behaviors of the persona")
+    motivations: List[str] = Field(..., description="Motivations of the persona")
     motivations: List[str] = Field(..., description="Motivations of the persona")
     preferences: Dict[str, Any] = Field(
+    preferences: Dict[str, Any] = Field(
+    default_factory=dict, description="Preferences of the persona"
     default_factory=dict, description="Preferences of the persona"
     )
+    )
+    created_at: str = Field(
     created_at: str = Field(
     default_factory=lambda: datetime.now().isoformat(),
+    default_factory=lambda: datetime.now().isoformat(),
+    description="Creation timestamp",
     description="Creation timestamp",
     )
+    )
+    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
 
+
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class ChannelAnalysisSchema(BaseModel):
+    class ChannelAnalysisSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the analysis",
     description="Unique identifier for the analysis",
     )
+    )
+    channel_name: str = Field(..., description="Name of the channel")
     channel_name: str = Field(..., description="Name of the channel")
     metrics: List[MetricSchema] = Field(
+    metrics: List[MetricSchema] = Field(
+    default_factory=list, description="Metrics for the channel"
     default_factory=list, description="Metrics for the channel"
     )
+    )
+    strengths: List[str] = Field(
     strengths: List[str] = Field(
     default_factory=list, description="Strengths of the channel"
+    default_factory=list, description="Strengths of the channel"
+    )
     )
     weaknesses: List[str] = Field(
+    weaknesses: List[str] = Field(
+    default_factory=list, description="Weaknesses of the channel"
     default_factory=list, description="Weaknesses of the channel"
     )
+    )
+    opportunities: List[str] = Field(
     opportunities: List[str] = Field(
     default_factory=list, description="Opportunities for the channel"
+    default_factory=list, description="Opportunities for the channel"
+    )
     )
     threats: List[str] = Field(
+    threats: List[str] = Field(
+    default_factory=list, description="Threats for the channel"
     default_factory=list, description="Threats for the channel"
     )
+    )
+    recommendations: List[str] = Field(
     recommendations: List[str] = Field(
     default_factory=list, description="Recommendations for the channel"
+    default_factory=list, description="Recommendations for the channel"
+    )
     )
     timestamp: str = Field(
+    timestamp: str = Field(
+    default_factory=lambda: datetime.now().isoformat(),
     default_factory=lambda: datetime.now().isoformat(),
     description="Analysis timestamp",
+    description="Analysis timestamp",
+    )
     )
 
+
+    model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="allow")
 
 
+
+
     class AudienceAnalysisSchema(BaseModel):
+    class AudienceAnalysisSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Schema for audience analysis."""
 
@@ -925,107 +1380,207 @@ class PriorityLevel(str, Enum):
 
     class SocialMediaAnalyticsSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Pydantic model for social media analytics data."""
+
 
     platform_id: str = Field(..., description="ID of the connected platform")
+    platform_id: str = Field(..., description="ID of the connected platform")
+    post_id: Optional[str] = Field(
     post_id: Optional[str] = Field(
     None, description="ID of the specific post (if applicable)"
+    None, description="ID of the specific post (if applicable)"
+    )
     )
     time_period: Dict[str, datetime] = Field(
+    time_period: Dict[str, datetime] = Field(
+    ..., description="Time period for the analytics data"
     ..., description="Time period for the analytics data"
     )
+    )
+    granularity: str = Field("day", description="Data granularity (day, week, month)")
     granularity: str = Field("day", description="Data granularity (day, week, month)")
     metrics: Dict[str, List[SocialMediaAnalyticsMetricSchema]] = Field(
+    metrics: Dict[str, List[SocialMediaAnalyticsMetricSchema]] = Field(
+    ..., description="Metrics data"
     ..., description="Metrics data"
     )
+    )
+    aggregates: Dict[str, Union[int, float, str]] = Field(
     aggregates: Dict[str, Union[int, float, str]] = Field(
     ..., description="Aggregate values for metrics"
+    ..., description="Aggregate values for metrics"
+    )
     )
     insights: List[Dict[str, Any]] = Field(
+    insights: List[Dict[str, Any]] = Field(
+    default_factory=list, description="Insights derived from analytics"
     default_factory=list, description="Insights derived from analytics"
     )
+    )
+
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
+
+
 
 
     class MarketingChannelSchema(BaseModel):
+    class MarketingChannelSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())))
     model_config = ConfigDict(protected_namespaces=())))
 
+
+    id: str = Field(..., description="Unique identifier for the channel")
     id: str = Field(..., description="Unique identifier for the channel")
     name: str = Field(..., description="Channel name")
+    name: str = Field(..., description="Channel name")
+    type: str = Field(..., description="Channel type")
     type: str = Field(..., description="Channel type")
     description: str = Field(..., description="Channel description")
+    description: str = Field(..., description="Channel description")
+    audience_reach: Optional[int] = Field(None, description="Estimated audience reach")
     audience_reach: Optional[int] = Field(None, description="Estimated audience reach")
     cost_per_engagement: Optional[float] = Field(
+    cost_per_engagement: Optional[float] = Field(
+    None, description="Average cost per engagement"
     None, description="Average cost per engagement"
     )
+    )
+    effectiveness_score: Optional[float] = Field(
     effectiveness_score: Optional[float] = Field(
     None, description="Effectiveness score (0-1)"
+    None, description="Effectiveness score (0-1)"
+    )
     )
     metrics: List[str] = Field(
+    metrics: List[str] = Field(
+    default_factory=list, description="Metrics tracked for this channel"
     default_factory=list, description="Metrics tracked for this channel"
     )
+    )
+    best_practices: List[str] = Field(
     best_practices: List[str] = Field(
     default_factory=list, description="Best practices for this channel"
+    default_factory=list, description="Best practices for this channel"
+    )
     )
 
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
     model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
+
+
+    class SocialMediaAuthSchema(BaseModel):
     class SocialMediaAuthSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
+    model_config = ConfigDict(protected_namespaces=()))
+
 
     access_token: str = Field(..., description="OAuth access token")
+    access_token: str = Field(..., description="OAuth access token")
+    token_type: str = Field(..., description="Token type (e.g., Bearer)")
     token_type: str = Field(..., description="Token type (e.g., Bearer)")
     refresh_token: Optional[str] = Field(None, description="OAuth refresh token")
+    refresh_token: Optional[str] = Field(None, description="OAuth refresh token")
+    expires_at: Optional[str] = Field(None, description="Token expiration timestamp")
     expires_at: Optional[str] = Field(None, description="Token expiration timestamp")
     scope: Optional[List[str]] = Field(
+    scope: Optional[List[str]] = Field(
+    default_factory=list, description="Granted OAuth scopes"
     default_factory=list, description="Granted OAuth scopes"
     )
+    )
+    api_key: Optional[str] = Field(None, description="API key for the platform")
     api_key: Optional[str] = Field(None, description="API key for the platform")
     api_secret: Optional[str] = Field(None, description="API secret for the platform")
+    api_secret: Optional[str] = Field(None, description="API secret for the platform")
+    access_token_secret: Optional[str] = Field(
     access_token_secret: Optional[str] = Field(
     None, description="Access token secret for the platform"
+    None, description="Access token secret for the platform"
+    )
     )
     oauth_verifier: Optional[str] = Field(
+    oauth_verifier: Optional[str] = Field(
+    None, description="OAuth verifier for the platform"
     None, description="OAuth verifier for the platform"
     )
+    )
+    user_id: Optional[str] = Field(None, description="User ID on the platform")
     user_id: Optional[str] = Field(None, description="User ID on the platform")
 
+
     model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
+
+
 
 
     class SocialMediaConnectionSchema(BaseModel):
+    class SocialMediaConnectionSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
 
+
+    id: str = Field(
     id: str = Field(
     default_factory=lambda: str(uuid.uuid4()),
+    default_factory=lambda: str(uuid.uuid4()),
+    description="Unique identifier for the connection",
     description="Unique identifier for the connection",
     )
+    )
+    platform: SocialMediaPlatform = Field(..., description="Social media platform")
     platform: SocialMediaPlatform = Field(..., description="Social media platform")
     account_name: str = Field(..., description="Connected account name")
+    account_name: str = Field(..., description="Connected account name")
+    account_id: str = Field(..., description="Platform-specific account ID")
     account_id: str = Field(..., description="Platform-specific account ID")
     profile_url: Optional[str] = Field(
+    profile_url: Optional[str] = Field(
+    None, description="URL to the social media profile"
     None, description="URL to the social media profile"
     )
+    )
+    connected_at: str = Field(
     connected_at: str = Field(
     default_factory=lambda: datetime.now().isoformat(),
+    default_factory=lambda: datetime.now().isoformat(),
+    description="Connection timestamp",
     description="Connection timestamp",
     )
+    )
+    last_synced_at: Optional[str] = Field(None, description="Last data sync timestamp")
     last_synced_at: Optional[str] = Field(None, description="Last data sync timestamp")
     status: str = Field(default="active", description="Connection status")
+    status: str = Field(default="active", description="Connection status")
+    capabilities: List[str] = Field(
     capabilities: List[str] = Field(
     default_factory=list, description="Available platform capabilities"
+    default_factory=list, description="Available platform capabilities"
+    )
     )
     settings: Dict[str, Any] = Field(
+    settings: Dict[str, Any] = Field(
+    default_factory=dict, description="Platform-specific settings"
     default_factory=dict, description="Platform-specific settings"
     )
+    )
+    auth: SocialMediaAuthSchema = Field(..., description="Authentication information")
     auth: SocialMediaAuthSchema = Field(..., description="Authentication information")
 
+
+    model_config = ConfigDict(extra="allow")
     model_config = ConfigDict(extra="allow")
 
 
+
+
     class SocialMediaPostSchema(BaseModel):
+    class SocialMediaPostSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=()))
     model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media posts."""
 

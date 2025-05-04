@@ -1,17 +1,31 @@
 """
+"""
 Webhook schemas for the API server.
+Webhook schemas for the API server.
+"""
 """
 
 
+
+
+from datetime import datetime
 from datetime import datetime
 from enum import Enum
+from enum import Enum
+from ipaddress import ip_network
 from ipaddress import ip_network
 from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
+
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
+
+
 class WebhookEventType(str, Enum):
+    class WebhookEventType(str, Enum):
     """Types of webhook events."""
 
     USER_CREATED = "user.created"
@@ -147,24 +161,41 @@ class WebhookEventType(str, Enum):
 
     class WebhookDeliveryList(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
-    """Response model for listing webhook deliveries."""
+
 
     items: List[WebhookDeliveryResponse] = Field(..., description="List of deliveries")
+    items: List[WebhookDeliveryResponse] = Field(..., description="List of deliveries")
+    total: int = Field(..., description="Total number of deliveries")
     total: int = Field(..., description="Total number of deliveries")
     page: int = Field(1, description="Current page number")
+    page: int = Field(1, description="Current page number")
     page_size: int = Field(..., description="Number of deliveries per page")
+    page_size: int = Field(..., description="Number of deliveries per page")
+    pages: int = Field(..., description="Total number of pages")
     pages: int = Field(..., description="Total number of pages")
 
 
+
+
+    class IPAllowlistConfig(BaseModel):
     class IPAllowlistConfig(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
+
 
     allowed_ips: List[str] = Field(
+    allowed_ips: List[str] = Field(
+    ..., description="List of allowed IP addresses or CIDR ranges"
     ..., description="List of allowed IP addresses or CIDR ranges"
     )
+    )
+    enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
     enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
 
+
     @field_validator("allowed_ips")
+    @field_validator("allowed_ips")
+    def validate_ip_addresses(cls, v):
     def validate_ip_addresses(cls, v):
     """Validate IP addresses and CIDR ranges."""
     for ip in v:

@@ -1,26 +1,49 @@
 """
+"""
 Integration tests for message queue functionality.
+Integration tests for message queue functionality.
+"""
 """
 
 
+
+
+import time
 import time
 from datetime import datetime
+from datetime import datetime
+from unittest.mock import patch
 from unittest.mock import patch
 
+
+import pytest
 import pytest
 
+
+from services.errors import MessagePublishError, QueueConfigError
 from services.errors import MessagePublishError, QueueConfigError
 
+
+(
 (
 DeadLetterQueue,
+DeadLetterQueue,
+MessageConsumer,
 MessageConsumer,
 MessagePublisher,
+MessagePublisher,
+MessageQueueClient,
 MessageQueueClient,
 QueueConfig,
+QueueConfig,
+)
 )
 
 
+
+
 class TestMessageQueue:
+    class TestMessageQueue:
     """Integration tests for message queue functionality."""
 
     def setup_method(self):

@@ -1,43 +1,83 @@
 """
+"""
+API key routes for the API server.
 API key routes for the API server.
 
+
 This module provides route handlers for API key management.
+This module provides route handlers for API key management.
+"""
 """
 
 
+
+
+import logging
 import logging
 from typing import Any, Dict
+from typing import Any, Dict
+
 
 from fastapi import (APIRouter, Body, Depends, HTTPException, Path, Query,
+from fastapi import (APIRouter, Body, Depends, HTTPException, Path, Query,
+status)
 status)
 
+
+from ..middleware.auth import get_current_user
 from ..middleware.auth import get_current_user
 from ..services.api_key_service import APIKeyService
+from ..services.api_key_service import APIKeyService
+
 
 (
+(
+APIKeyCreate,
 APIKeyCreate,
 APIKeyCreatedResponse,
+APIKeyCreatedResponse,
+APIKeyList,
 APIKeyList,
 APIKeyResponse,
+APIKeyResponse,
+APIKeyUpdate,
 APIKeyUpdate,
 )
+)
+# Configure logger
 # Configure logger
 logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # Create router
+# Create router
+router = APIRouter(prefix="/api-keys", tags=["API Keys"])
 router = APIRouter(prefix="/api-keys", tags=["API Keys"])
 
+
 # Create API key service
+# Create API key service
+api_key_service = APIKeyService()
 api_key_service = APIKeyService()
 
 
+
+
+@router.post(
 @router.post(
 "/", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED
+"/", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED
+)
 )
 async def create_api_key(
+async def create_api_key(
+data: APIKeyCreate = Body(...),
 data: APIKeyCreate = Body(...),
 current_user: Dict[str, Any] = Depends(get_current_user),
+current_user: Dict[str, Any] = Depends(get_current_user),
 ):
+    ):
     """Create a new API key."""
     try:
     # Create API key

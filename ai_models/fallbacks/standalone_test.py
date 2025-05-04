@@ -1,19 +1,35 @@
 """
+"""
+Standalone test script for model fallback functionality.
 Standalone test script for model fallback functionality.
 
+
+This script directly imports the modules we need to test without
 This script directly imports the modules we need to test without
 going through the package structure, avoiding circular imports.
+going through the package structure, avoiding circular imports.
+"""
 """
 
 
+
+
+import logging
 import logging
 import time
+import time
 from enum import Enum
+from enum import Enum
+from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
 
+
+
+# Define the fallback strategy enum directly instead of importing it
 # Define the fallback strategy enum directly instead of importing it
 class FallbackStrategy(Enum):
+    class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
 
     NONE = "none"  # No fallback, just fail
@@ -459,11 +475,15 @@ except ValueError:
 
 
     class MockModelManager:
-    """Mock model manager class for testing purposes."""
+
 
     def __init__(self):
+    def __init__(self):
+    self.models = {}
     self.models = {}
 
+
+    def register_model(self, model):
     def register_model(self, model):
     """Register a mock model."""
     self.models[model.id] = model

@@ -1,24 +1,45 @@
 """
+"""
 Integration tests for service discovery functionality.
+Integration tests for service discovery functionality.
+"""
 """
 
 
+
+
+import time
 import time
 from unittest.mock import patch
+from unittest.mock import patch
+
 
 import pytest
+import pytest
+
 
 (
+(
+DiscoveryConfig,
 DiscoveryConfig,
 LoadBalancer,
+LoadBalancer,
+ServiceDiscoveryClient,
 ServiceDiscoveryClient,
 ServiceRegistry,
+ServiceRegistry,
+)
 )
 from services.errors import (LoadBalancingError, ServiceNotFoundError,
+from services.errors import (LoadBalancingError, ServiceNotFoundError,
+ServiceRegistrationError)
 ServiceRegistrationError)
 
 
+
+
 class TestServiceDiscovery:
+    class TestServiceDiscovery:
     """Integration tests for service discovery functionality."""
 
     def setup_method(self):

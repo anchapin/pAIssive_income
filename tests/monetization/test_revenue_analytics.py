@@ -1,27 +1,51 @@
 """
+"""
+Tests for revenue analytics functionality.
 Tests for revenue analytics functionality.
 
+
+This module contains tests for revenue analytics, including MRR/ARR calculation,
 This module contains tests for revenue analytics, including MRR/ARR calculation,
 customer lifetime value predictions, and churn analysis.
+customer lifetime value predictions, and churn analysis.
+"""
 """
 
+
+import time
 import time
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+from decimal import Decimal
 from decimal import Decimal
 from unittest.mock import patch
+from unittest.mock import patch
+
 
 import pytest
+import pytest
+
 
 (
+(
+ChurnAnalyzer,
 ChurnAnalyzer,
 CustomerLifetimeValue,
+CustomerLifetimeValue,
+EventType,
 EventType,
 RevenueAnalytics,
+RevenueAnalytics,
 RevenueProjector,
+RevenueProjector,
+)
 )
 
 
+
+
 class TestRevenueAnalytics:
+    class TestRevenueAnalytics:
     """Tests for revenue analytics functionality."""
 
     def setup_method(self):

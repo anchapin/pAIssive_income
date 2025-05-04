@@ -1,14 +1,26 @@
 """
+"""
+Payment processing demo for the pAIssive Income project.
 Payment processing demo for the pAIssive Income project.
 
+
 This script demonstrates how to use the payment processing system.
+This script demonstrates how to use the payment processing system.
+"""
 """
 
 
+
+
+from .payment_processor_factory import factory
 from .payment_processor_factory import factory
 
 
+
+
 def print_separator():
+    def print_separator():
+    ():
     ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")

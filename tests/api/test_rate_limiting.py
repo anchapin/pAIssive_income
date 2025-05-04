@@ -1,23 +1,43 @@
 """
+"""
 Tests for API rate limiting functionality.
+Tests for API rate limiting functionality.
+"""
 """
 
 
+
+
+import time
 import time
 from unittest.mock import patch
+from unittest.mock import patch
+
 
 import pytest
+import pytest
+
 
 from api.config import APIConfig, RateLimitStrategy
+from api.config import APIConfig, RateLimitStrategy
+from api.middleware.rate_limit import RateLimitMiddleware
 from api.middleware.rate_limit import RateLimitMiddleware
 from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_client import APITestClient
+
 
 (
+(
 validate_error_response,
+validate_error_response,
+)
 )
 
 
+
+
 class TestRateLimiting:
+    class TestRateLimiting:
     """Test cases for API rate limiting."""
 
     def test_rate_limit_headers(self, api_test_client: APITestClient):
