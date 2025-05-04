@@ -14,11 +14,11 @@ from flask_socketio import SocketIO, emit
 
 from .tasks import celery_app
 
-task_result
+
 
 # Set up logging
 logging.basicConfig(
-level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -39,87 +39,91 @@ def init_socketio(app):
     # Define socket events
     @socketio.on("connect")
     def handle_connect():
-    """Handle client connection."""
-    logger.info(f"Client connected: {socketio.request.sid}")
-    emit("connect_response", {"status": "connected"})
+        """Handle client connection."""
+        logger.info(f"Client connected: {socketio.request.sid}")
+        emit("connect_response", {"status": "connected"})
 
     @socketio.on("disconnect")
     def handle_disconnect():
-    """Handle client disconnection."""
-    logger.info(f"Client disconnected: {socketio.request.sid}")
+        """Handle client disconnection."""
+        logger.info(f"Client disconnected: {socketio.request.sid}")
 
     @socketio.on("subscribe")
     def handle_subscribe(data):
-    """
-    Handle client subscription to task updates.
+        """
+        Handle client subscription to task updates.
 
-    Args:
-    data: Dictionary with task_id
-    """
-    task_id = data.get("task_id")
-    if not task_id:
-    emit("error", {"message": "No task ID provided"})
-    return logger.info(f"Client {socketio.request.sid} subscribed to task {task_id}")
+        Args:
+            data: Dictionary with task_id
+        """
+        task_id = data.get("task_id")
+        if not task_id:
+            emit("error", {"message": "No task ID provided"})
+            return
 
-    # Join a room named after the task ID
-    socketio.join_room(task_id)
+        logger.info(f"Client {socketio.request.sid} subscribed to task {task_id}")
 
-    # Send initial task status
-    = AsyncResult(task_id, app=celery_app)
+        # Join a room named after the task ID
+        socketio.join_room(task_id)
 
-    if task_result.state == "PENDING":
-    response = {
-    "state": task_result.state,
-    "current": 0,
-    "total": 100,
-    "status": "Pending...",
-    "result": {},
-    }
-    elif task_result.state == "FAILURE":
-    response = {
-    "state": task_result.state,
-    "current": 0,
-    "total": 100,
-    "status": str(task_result.info),
-    "result": {},
-    }
-    else:
-    response = task_result.info if task_result.info else {}
-    if "result" not in response:
-    response["result"] = {}
+        # Send initial task status
+        task_result = AsyncResult(task_id, app=celery_app)
 
-    emit("task_update", response)
+        if task_result.state == "PENDING":
+            response = {
+                "state": task_result.state,
+                "current": 0,
+                "total": 100,
+                "status": "Pending...",
+                "result": {},
+            }
+        elif task_result.state == "FAILURE":
+            response = {
+                "state": task_result.state,
+                "current": 0,
+                "total": 100,
+                "status": str(task_result.info),
+                "result": {},
+            }
+        else:
+            response = task_result.info if task_result.info else {}
+            if "result" not in response:
+                response["result"] = {}
+
+        emit("task_update", response)
 
     @socketio.on("unsubscribe")
     def handle_unsubscribe(data):
-    """
-    Handle client unsubscription from task updates.
+        """
+        Handle client unsubscription from task updates.
 
-    Args:
-    data: Dictionary with task_id
-    """
-    task_id = data.get("task_id")
-    if not task_id:
-    emit("error", {"message": "No task ID provided"})
-    return logger.info(f"Client {socketio.request.sid} unsubscribed from task {task_id}")
+        Args:
+            data: Dictionary with task_id
+        """
+        task_id = data.get("task_id")
+        if not task_id:
+            emit("error", {"message": "No task ID provided"})
+            return
 
-    # Leave the room named after the task ID
-    socketio.leave_room(task_id)
-    emit("unsubscribe_response", {"status": "unsubscribed"})
+        logger.info(f"Client {socketio.request.sid} unsubscribed from task {task_id}")
+
+        # Leave the room named after the task ID
+        socketio.leave_room(task_id)
+        emit("unsubscribe_response", {"status": "unsubscribed"})
 
     @socketio.on_error()
     def handle_error(e):
-    """Handle socket error."""
-    logger.error(f"SocketIO error: {str(e)}")
+        """Handle socket error."""
+        logger.error(f"SocketIO error: {str(e)}")
 
 
     def emit_task_update(task_id: str, data: Dict[str, Any]):
-    """
-    Emit task update to subscribed clients.
+        """
+        Emit task update to subscribed clients.
 
-    Args:
-    task_id: ID of the task
-    data: Dictionary with task status and progress
-    """
-    socketio.emit("task_update", data, room=task_id)
-    logger.debug(f"Task update emitted for {task_id}: {data}")
+        Args:
+            task_id: ID of the task
+            data: Dictionary with task status and progress
+        """
+        socketio.emit("task_update", data, room=task_id)
+        logger.debug(f"Task update emitted for {task_id}: {data}")
