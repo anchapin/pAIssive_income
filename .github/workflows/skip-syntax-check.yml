@@ -61,10 +61,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-lint-
 
-    # Skip the syntax check step that was failing
-    - name: Skip syntax check
+    - name: Syntax check with Python
       run: |
-        echo "Skipping syntax check for this PR"
+        echo "Running syntax check for all Python files"
+        python -m py_compile $(find . -name "*.py" -not -path "./venv/*" -not -path "./.venv/*")
 
     - name: Lint with Ruff
       run: |
