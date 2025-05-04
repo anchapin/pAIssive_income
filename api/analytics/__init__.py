@@ -1,34 +1,14 @@
 """
-"""
-API Analytics module.
-API Analytics module.
-
-
-This module provides tools for collecting, analyzing, and reporting on API usage.
-This module provides tools for collecting, analyzing, and reporting on API usage.
-"""
+__init__.py - Module for the pAIssive Income project.
 """
 
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
+def main():
+    """Main function."""
+    pass
 
-
-from .database import AnalyticsDatabase
-from .database import AnalyticsDatabase
-from .service import AnalyticsService, analytics_service
-from .service import AnalyticsService, analytics_service
-
-
-__all__
-__all__
-
-
-= [
-= [
-"AnalyticsService",
-"AnalyticsService",
-"AnalyticsDatabase",
-"AnalyticsDatabase",
-"analytics_service",
-"analytics_service",
-]
-]
+if __name__ == "__main__":
+    main()

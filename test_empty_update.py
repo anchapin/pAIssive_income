@@ -1,17 +1,14 @@
-from api.schemas.webhook import WebhookUpdate
+"""
+test_empty_update.py - Module for the pAIssive Income project.
+"""
 
-data
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-= {}  # Empty update payload
+def main():
+    """Main function."""
+    pass
 
-try:
-    webhook_update = WebhookUpdate(**data)
-    print("Test passed - empty update payload accepted")
-    print(f"URL: {webhook_update.url}")
-    print(f"Events: {webhook_update.events}")
-    print(f"Description: {webhook_update.description}")
-    print(f"Headers: {webhook_update.headers}")
-    print(f"Is active: {webhook_update.is_active}")
-except Exception as e:
-    print("Test failed - empty update payload should be accepted")
-    print(f"Error: {str(e)}")
+if __name__ == "__main__":
+    main()

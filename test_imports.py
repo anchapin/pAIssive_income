@@ -1,5 +1,5 @@
-"""
-Test script to verify that imports work correctly.
+""""""
+"""Test script to verify that imports work correctly."""
 """
 
 from ai_models.model_manager import ModelManager
@@ -12,3 +12,4 @@ model_manager = ModelManager()
 
 # Print success message
 print("All imports successful!")
+"""

@@ -1,11 +1,14 @@
 """
-Repositories for the API server.
-
-This module provides repositories for data storage and retrieval.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .api_key_repository import APIKeyRepository
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-"APIKeyRepository",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()

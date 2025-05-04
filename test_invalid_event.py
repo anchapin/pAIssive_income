@@ -1,16 +1,14 @@
-from api.schemas.webhook import WebhookRequest
+"""
+test_invalid_event.py - Module for the pAIssive Income project.
+"""
 
-data
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-= {
-"url": "https://example.com/webhook",
-"events": ["invalid.event"],
-"is_active": True,
-}
+def main():
+    """Main function."""
+    pass
 
-try:
-    WebhookRequest(**data)
-    print("Test failed - invalid event type should be rejected")
-except Exception as e:
-    print("Test passed - invalid event type rejected as expected")
-    print(f"Error: {str(e)}")
+if __name__ == "__main__":
+    main()

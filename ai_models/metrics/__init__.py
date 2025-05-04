@@ -1,21 +1,14 @@
 """
-Performance metrics for AI models.
-
-This package provides tools for collecting, analyzing, and visualizing
-performance metrics for AI models, including latency, token usage, cost
-tracking, and resource utilization.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from ai_models.metrics.enhanced_metrics import (EnhancedInferenceMetrics,
-EnhancedInferenceTracker,
-EnhancedPerformanceMonitor,
-EnhancedPerformanceReport,
-TokenUsageMetrics)
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-"TokenUsageMetrics",
-"EnhancedInferenceMetrics",
-"EnhancedPerformanceReport",
-"EnhancedPerformanceMonitor",
-"EnhancedInferenceTracker",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()

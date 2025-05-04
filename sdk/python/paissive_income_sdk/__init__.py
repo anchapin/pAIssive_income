@@ -1,7 +1,7 @@
-"""
-pAIssive Income SDK for Python.
+""""""
+"""pAIssive Income SDK for Python."""
 
-This package provides a Python client for the pAIssive Income API.
+"""This package provides a Python client for the pAIssive Income API."""
 """
 
 from .auth import APIKeyAuth, JWTAuth
@@ -17,9 +17,8 @@ MarketingService,
 MonetizationService,
 NicheAnalysisService,
 UserService,
-)
 
-__all__ = [
+__all__ = []
 "Client",
 "APIKeyAuth",
 "JWTAuth",
@@ -31,4 +30,4 @@ __all__ = [
 "UserService",
 "DashboardService",
 "APIKeyService",
-]
+"""

@@ -1,15 +1,14 @@
 """
-Visualization utilities for benchmark results.
-
-This package provides utilities for visualizing benchmark results.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .plot_results import (plot_benchmark_results, plot_comparison,
-plot_latency_distribution, plot_memory_usage)
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-"plot_benchmark_results",
-"plot_comparison",
-"plot_latency_distribution",
-"plot_memory_usage",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()

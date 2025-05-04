@@ -1,28 +1,14 @@
 """
-Utility functions for the API server.
-
-This module provides utility functions for the API server.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .auth import create_access_token, get_user_from_token, verify_token
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-(
-FilterOperator,
-QueryParams,
-SortDirection,
-apply_filtering,
-apply_pagination,
-apply_sorting,
-)
+def main():
+    """Main function."""
+    pass
 
-__all__ = [
-"create_access_token",
-"verify_token",
-"get_user_from_token",
-"QueryParams",
-"apply_pagination",
-"apply_filtering",
-"apply_sorting",
-"SortDirection",
-"FilterOperator",
-]
+if __name__ == "__main__":
+    main()

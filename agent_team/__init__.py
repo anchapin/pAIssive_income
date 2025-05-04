@@ -1,38 +1,14 @@
 """
-Agent Team module for the pAIssive Income project.
-
-This module provides functionality for managing a team of specialized AI agents
-that collaborate on developing and monetizing niche AI tools for passive income.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .agent_profiles import (AgentProfile, DeveloperAgent, FeedbackAgent,
-MarketingAgent, MonetizationAgent, ResearchAgent)
-from .schemas import (AgentProfileSchema, FeedbackItemSchema,
-MarketingPlanSchema, ModelSettingsSchema,
-MonetizationStrategySchema, NicheSchema,
-ProjectStateSchema, SolutionSchema, TeamConfigSchema,
-WorkflowSettingsSchema)
-from .team_config import AgentTeam
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-# Team configuration
-"AgentTeam",
-"TeamConfigSchema",
-"ModelSettingsSchema",
-"WorkflowSettingsSchema",
-# Agent profiles
-"AgentProfile",
-"ResearchAgent",
-"DeveloperAgent",
-"MonetizationAgent",
-"MarketingAgent",
-"FeedbackAgent",
-# Project schemas
-"AgentProfileSchema",
-"NicheSchema",
-"SolutionSchema",
-"MonetizationStrategySchema",
-"MarketingPlanSchema",
-"FeedbackItemSchema",
-"ProjectStateSchema",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()

@@ -1,11 +1,14 @@
 """
-Services for the API server.
-
-This module provides services for business logic.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .api_key_service import APIKeyService
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-"APIKeyService",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()

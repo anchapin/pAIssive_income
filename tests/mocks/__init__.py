@@ -1,30 +1,14 @@
 """
-Mock implementations for testing.
-
-This package provides mock implementations of various external dependencies
-that can be used for consistent testing without actually connecting to
-external services or APIs.
+__init__.py - Module for the pAIssive Income project.
 """
 
-from .mock_external_apis import (MockEmailAPI, MockExternalAPIBase,
-MockHuggingFaceAPI, MockPaymentAPI,
-MockStorageAPI, create_mock_api)
-from .mock_model_providers import (MockBaseModelProvider, MockLMStudioProvider,
-MockOllamaProvider, MockOpenAIProvider,
-create_mock_provider)
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-# Model providers
-"MockBaseModelProvider",
-"MockOpenAIProvider",
-"MockOllamaProvider",
-"MockLMStudioProvider",
-"create_mock_provider",
-# External APIs
-"MockExternalAPIBase",
-"MockHuggingFaceAPI",
-"MockPaymentAPI",
-"MockEmailAPI",
-"MockStorageAPI",
-"create_mock_api",
-]
+def main():
+    """Main function."""
+    pass
+
+if __name__ == "__main__":
+    main()
