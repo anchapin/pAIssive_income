@@ -1,33 +1,22 @@
 """
-"""
 Webhook schemas for the API server.
-Webhook schemas for the API server.
-"""
 """
 
 
 
 
 from datetime import datetime
-from datetime import datetime
-from enum import Enum
 from enum import Enum
 from ipaddress import ip_network
-from ipaddress import ip_network
-from typing import Any, Dict, List, Optional
 from typing import Any, Dict, List, Optional
 
-
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
 
 
 class WebhookEventType(str, Enum):
-    class WebhookEventType(str, Enum):
     """Types of webhook events."""
-
     USER_CREATED = "user.created"
     USER_UPDATED = "user.updated"
     USER_DELETED = "user.deleted"
@@ -47,8 +36,7 @@ class WebhookEventType(str, Enum):
     PAYMENT_RECEIVED = "payment.received"
 
 
-    class WebhookDeliveryStatus(str, Enum):
-
+class WebhookDeliveryStatus(str, Enum):
     PENDING = "pending"
     SUCCESS = "success"
     FAILED = "failed"
@@ -56,7 +44,7 @@ class WebhookEventType(str, Enum):
     MAX_RETRIES_EXCEEDED = "max_retries_exceeded"
 
 
-    class WebhookRequest(BaseModel):
+class WebhookRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     url: HttpUrl = Field(..., description="Webhook URL")
@@ -67,20 +55,20 @@ class WebhookEventType(str, Enum):
 
     @field_validator("events")
     def events_not_empty(cls, v):
-    """Validate that events list is not empty."""
-    if not v:
-    raise ValueError(
-    "events list cannot be empty, at least one event type must be specified"
-    )
-    return v
+        """Validate that events list is not empty."""
+        if not v:
+            raise ValueError(
+                "events list cannot be empty, at least one event type must be specified"
+            )
+        return v
 
 
-    class WebhookUpdate(BaseModel):
+class WebhookUpdate(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     url: Optional[HttpUrl] = Field(None, description="New webhook URL")
     events: Optional[List[WebhookEventType]] = Field(
-    None, description="New list of events to subscribe to"
+        None, description="New list of events to subscribe to"
     )
     description: Optional[str] = Field(None, description="New webhook description")
     headers: Optional[Dict[str, str]] = Field(None, description="New custom headers")
@@ -88,15 +76,15 @@ class WebhookEventType(str, Enum):
 
     @field_validator("events")
     def events_not_empty_if_provided(cls, v):
-    """Validate that events list is not empty if provided."""
-    if v is not None and not v:
-    raise ValueError(
-    "events list cannot be empty, at least one event type must be specified"
-    )
-    return v
+        """Validate that events list is not empty if provided."""
+        if v is not None and not v:
+            raise ValueError(
+                "events list cannot be empty, at least one event type must be specified"
+            )
+        return v
 
 
-    class WebhookResponse(BaseModel):
+class WebhookResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Webhook ID")
@@ -107,21 +95,21 @@ class WebhookEventType(str, Enum):
     is_active: bool = Field(True, description="Whether the webhook is active")
     created_at: datetime = Field(..., description="Creation timestamp")
     last_called_at: Optional[datetime] = Field(
-    None, description="Last delivery timestamp"
+        None, description="Last delivery timestamp"
     )
     secret: str = Field(..., description="Webhook secret for signature verification")
 
     @field_validator("events")
     def events_not_empty(cls, v):
-    """Validate that events list is not empty."""
-    if not v:
-    raise ValueError(
-    "events list cannot be empty, at least one event type must be specified"
-    )
-    return v
+        """Validate that events list is not empty."""
+        if not v:
+            raise ValueError(
+                "events list cannot be empty, at least one event type must be specified"
+            )
+        return v
 
 
-    class WebhookList(BaseModel):
+class WebhookList(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     items: List[WebhookResponse] = Field(..., description="List of webhooks")
@@ -131,7 +119,7 @@ class WebhookEventType(str, Enum):
     pages: int = Field(..., description="Total number of pages")
 
 
-    class WebhookDeliveryAttempt(BaseModel):
+class WebhookDeliveryAttempt(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Attempt ID")
@@ -149,7 +137,7 @@ class WebhookEventType(str, Enum):
     next_retry: Optional[datetime] = Field(None, description="Next retry timestamp")
 
 
-    class WebhookDeliveryResponse(BaseModel):
+class WebhookDeliveryResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Delivery ID")
@@ -159,91 +147,75 @@ class WebhookEventType(str, Enum):
     attempts: List[WebhookDeliveryAttempt] = Field(..., description="Delivery attempts")
 
 
-    class WebhookDeliveryList(BaseModel):
+class WebhookDeliveryList(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
-
-    items: List[WebhookDeliveryResponse] = Field(..., description="List of deliveries")
     items: List[WebhookDeliveryResponse] = Field(..., description="List of deliveries")
     total: int = Field(..., description="Total number of deliveries")
-    total: int = Field(..., description="Total number of deliveries")
-    page: int = Field(1, description="Current page number")
     page: int = Field(1, description="Current page number")
     page_size: int = Field(..., description="Number of deliveries per page")
-    page_size: int = Field(..., description="Number of deliveries per page")
-    pages: int = Field(..., description="Total number of pages")
     pages: int = Field(..., description="Total number of pages")
 
 
 
 
-    class IPAllowlistConfig(BaseModel):
-    class IPAllowlistConfig(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+class IPAllowlistConfig(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
-
     allowed_ips: List[str] = Field(
-    allowed_ips: List[str] = Field(
-    ..., description="List of allowed IP addresses or CIDR ranges"
-    ..., description="List of allowed IP addresses or CIDR ranges"
-    )
+        ..., description="List of allowed IP addresses or CIDR ranges"
     )
     enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
-    enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
-
 
     @field_validator("allowed_ips")
-    @field_validator("allowed_ips")
     def validate_ip_addresses(cls, v):
-    def validate_ip_addresses(cls, v):
-    """Validate IP addresses and CIDR ranges."""
-    for ip in v:
-    try:
-    ip_network(ip)
-except ValueError:
-    raise ValueError(f"Invalid IP address or CIDR range: {ip}")
-    return v
+        """Validate IP addresses and CIDR ranges."""
+        for ip in v:
+            try:
+                ip_network(ip)
+            except ValueError:
+                raise ValueError(f"Invalid IP address or CIDR range: {ip}")
+        return v
 
 
-    class IPAllowlistResponse(BaseModel):
+class IPAllowlistResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
     allowed_ips: List[str] = Field(
-    ..., description="List of allowed IP addresses or CIDR ranges"
+        ..., description="List of allowed IP addresses or CIDR ranges"
     )
     enabled: bool = Field(..., description="Whether IP allowlisting is enabled")
     updated_at: datetime = Field(..., description="Last update timestamp")
 
 
-    class SecretRotationResponse(BaseModel):
+class SecretRotationResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
     new_secret: str = Field(..., description="New webhook secret")
     old_secret_expiry: datetime = Field(
-    ..., description="Expiration timestamp for the old secret"
+        ..., description="Expiration timestamp for the old secret"
     )
 
 
-    class RateLimitConfig(BaseModel):
+class RateLimitConfig(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     per_minute: int = Field(
-    ..., ge=1, le=1000, description="Maximum requests per minute"
+        ..., ge=1, le=1000, description="Maximum requests per minute"
     )
     per_hour: int = Field(..., ge=1, le=10000, description="Maximum requests per hour")
 
     @field_validator("per_hour")
     def validate_hourly_limit(cls, v, values):
-    """Validate that hourly limit is greater than per-minute limit * 60."""
-    if "per_minute" in values and v < values["per_minute"] * 60:
-    raise ValueError("Hourly limit must be greater than per-minute limit * 60")
-    return v
+        """Validate that hourly limit is greater than per-minute limit * 60."""
+        if "per_minute" in values and v < values["per_minute"] * 60:
+            raise ValueError("Hourly limit must be greater than per-minute limit * 60")
+        return v
 
 
-    class RateLimitResponse(BaseModel):
+class RateLimitResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
