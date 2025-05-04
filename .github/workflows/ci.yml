@@ -90,7 +90,13 @@ jobs:
           done <<< "$PYTHON_FILES"
 
           if [ -n "$FILTERED_FILES" ]; then
-            echo "$FILTERED_FILES" | xargs python fix_test_collection_warnings.py --check
+            echo "Checking Python files one by one..."
+            echo "$FILTERED_FILES" | while read -r file; do
+              if [ -n "$file" ]; then
+                echo "Checking $file"
+                python fix_test_collection_warnings.py --check "$file" || exit 1
+              fi
+            done
           else
             echo "No Python files to check after applying ignore patterns."
           fi
