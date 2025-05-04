@@ -268,7 +268,9 @@ def fix_file(file_path, check_only=False):
                     print(f"✅ Fixed: {file_path}")
                     return True
                 except SyntaxError as e:
-                    print(f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}")
+                    print(
+                        f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}"
+                    )
 
         # If automatic fixes didn't work, check if the file has syntax errors
         try:
@@ -310,9 +312,7 @@ if __name__ == "__main__":
 
 def main():
     """Main function to parse arguments and fix syntax errors."""
-    parser = argparse.ArgumentParser(
-        description="Fix syntax errors in Python files"
-    )
+    parser = argparse.ArgumentParser(description="Fix syntax errors in Python files")
 
     parser.add_argument(
         "path", nargs="?", default=".", help="Path to file or directory to check/fix"
@@ -320,16 +320,12 @@ def main():
     parser.add_argument(
         "--check", action="store_true", help="Check for issues without fixing"
     )
-    parser.add_argument(
-        "--specific-file", help="Specific file to check/fix"
-    )
+    parser.add_argument("--specific-file", help="Specific file to check/fix")
 
     args = parser.parse_args()
 
     # Find Python files to check/fix
-    python_files = find_python_files(
-        args.path, specific_file=args.specific_file
-    )
+    python_files = find_python_files(args.path, specific_file=args.specific_file)
 
     if not python_files:
         print("No Python files found to check.")
