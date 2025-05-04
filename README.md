@@ -1,6 +1,6 @@
 # pAIssive Income
 
-A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI.
+A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
 
 ## Overview
 
