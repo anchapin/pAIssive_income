@@ -15,7 +15,13 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixed docstring formatting
    - Properly indented method definitions and code blocks
 
-3. Modified the CI workflow to check Python files one by one:
+3. Fixed syntax errors in the `ai_models/fine_tuning/workflows.py` file:
+   - Removed duplicate code and fixed indentation issues
+   - Fixed docstring formatting
+   - Properly indented method definitions and code blocks
+   - Fixed import statements
+
+4. Modified the CI workflow to check Python files one by one:
    - Updated the workflow to process files individually rather than passing multiple files at once
    - This prevents errors when the script doesn't handle multiple file arguments correctly
 
@@ -56,6 +62,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
 1. Fixed syntax errors in multiple Python files:
    - `fix_test_collection_warnings.py`
    - `dependency_container.py`
+   - `ai_models/fine_tuning/workflows.py`
    - Various schema files
    - Test files
 
