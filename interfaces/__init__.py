@@ -1,4 +1,5 @@
 """"""
+
 """Interfaces for the pAIssive Income project."""
 
 """This module provides interfaces for key components to enable dependency injection"""

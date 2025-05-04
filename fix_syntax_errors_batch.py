@@ -32,7 +32,7 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.pyd",
             "build/**",
             "dist/**",
-            "*.egg-info/**"
+            "*.egg-info/**",
         ]
 
     # Convert to string for pattern matching
@@ -46,15 +46,21 @@ def should_ignore(file_path, ignore_patterns=None):
     return False
 
 
-def find_python_files_with_errors(directory='.', specific_file=None, ignore_patterns=None):
+def find_python_files_with_errors(
+    directory=".", specific_file=None, ignore_patterns=None
+):
     """Find Python files with syntax errors."""
     if specific_file:
         # If a specific file is provided, only check that file
         file_path = Path(specific_file)
-        if file_path.exists() and file_path.suffix == '.py' and not should_ignore(file_path, ignore_patterns):
+        if (
+            file_path.exists()
+            and file_path.suffix == ".py"
+            and not should_ignore(file_path, ignore_patterns)
+        ):
             # Check if the file has syntax errors
             try:
-                compile(file_path.read_text(encoding='utf-8'), file_path, 'exec')
+                compile(file_path.read_text(encoding="utf-8"), file_path, "exec")
                 return []  # No syntax errors
             except SyntaxError:
                 return [file_path]
@@ -64,21 +70,21 @@ def find_python_files_with_errors(directory='.', specific_file=None, ignore_patt
 
     # Run compileall to find files with syntax errors
     result = subprocess.run(
-        ['python', '-m', 'compileall', '-q', directory, '-x', '.venv'],
+        ["python", "-m", "compileall", "-q", directory, "-x", ".venv"],
         capture_output=True,
-        text=True
+        text=True,
     )
 
     # Parse the output to find files with errors
     error_files = []
-    for line in result.stderr.split('\n'):
-        if '*** Error compiling' in line:
+    for line in result.stderr.split("\n"):
+        if "*** Error compiling" in line:
             # Extract the file path
             match = re.search(r"'([^']+)'", line)
             if match:
                 file_path = match.group(1)
                 # Remove leading .\ or ./
-                file_path = re.sub(r'^\.[\\/]', '', file_path)
+                file_path = re.sub(r"^\.[\\/]", "", file_path)
                 file_path = Path(file_path)
                 if not should_ignore(file_path, ignore_patterns):
                     error_files.append(file_path)
@@ -89,15 +95,25 @@ def find_python_files_with_errors(directory='.', specific_file=None, ignore_patt
 def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
     # Fix missing colons after class definitions
-    content = re.sub(r'(class\s+\w+(?:\([^)]*\))?)(\s*\n)', r'\1:\2', content)
+    content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after function definitions
-    content = re.sub(r'(def\s+\w+\([^)]*\))(\s*\n)', r'\1:\2', content)
+    content = re.sub(r"(def\s+\w+\([^)]*\))(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after control statements
-    for keyword in ['if', 'else', 'elif', 'for', 'while', 'try', 'except', 'finally', 'with']:
-        pattern = rf'({keyword}\s+[^:\n]+)(\s*\n)'
-        content = re.sub(pattern, r'\1:\2', content)
+    for keyword in [
+        "if",
+        "else",
+        "elif",
+        "for",
+        "while",
+        "try",
+        "except",
+        "finally",
+        "with",
+    ]:
+        pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
+        content = re.sub(pattern, r"\1:\2", content)
 
     return content
 
@@ -105,10 +121,10 @@ def fix_missing_colons(content):
 def fix_missing_parentheses(content):
     """Fix missing parentheses in function definitions and calls."""
     # Fix missing closing parentheses in function definitions
-    content = re.sub(r'(def\s+\w+\([^)]*$)', r'\1)', content)
+    content = re.sub(r"(def\s+\w+\([^)]*$)", r"\1)", content)
 
     # Fix missing closing parentheses in function calls
-    content = re.sub(r'(\w+\([^)]*$)', r'\1)', content)
+    content = re.sub(r"(\w+\([^)]*$)", r"\1)", content)
 
     return content
 
@@ -116,17 +132,17 @@ def fix_missing_parentheses(content):
 def fix_incomplete_imports(content):
     """Fix incomplete import statements with trailing commas."""
     # Fix imports with trailing commas
-    content = re.sub(r'(from\s+[\w.]+\s+import\s+[^,\n]*),(\s*\n)', r'\1\2', content)
+    content = re.sub(r"(from\s+[\w.]+\s+import\s+[^,\n]*),(\s*\n)", r"\1\2", content)
 
     # Fix incomplete import statements
-    content = re.sub(r'(import\s+[^,\n]*),(\s*\n)', r'\1\2', content)
+    content = re.sub(r"(import\s+[^,\n]*),(\s*\n)", r"\1\2", content)
 
     return content
 
 
 def fix_indentation(content):
     """Fix basic indentation issues."""
-    lines = content.split('\n')
+    lines = content.split("\n")
     fixed_lines = []
 
     # Track indentation level
@@ -140,63 +156,66 @@ def fix_indentation(content):
             continue
 
         # Check if line decreases indentation
-        if re.match(r'^\s*(else|elif|except|finally):', line):
+        if re.match(r"^\s*(else|elif|except|finally):", line):
             indent_level = max(0, indent_level - 1)
 
         # Add proper indentation
         stripped_line = line.lstrip()
         if stripped_line:
             # Preserve indentation for comment lines
-            if stripped_line.startswith('#'):
+            if stripped_line.startswith("#"):
                 fixed_lines.append(line)
                 continue
 
             # Apply current indentation level
-            fixed_lines.append(' ' * (indent_level * indent_size) + stripped_line)
+            fixed_lines.append(" " * (indent_level * indent_size) + stripped_line)
         else:
             fixed_lines.append(line)
 
         # Check if line increases indentation
-        if re.match(r'^\s*(if|else|elif|for|while|def|class|try|except|finally|with).*:$', stripped_line):
+        if re.match(
+            r"^\s*(if|else|elif|for|while|def|class|try|except|finally|with).*:$",
+            stripped_line,
+        ):
             indent_level += 1
 
-    return '\n'.join(fixed_lines)
+    return "\n".join(fixed_lines)
 
 
 def fix_unmatched_delimiters(content):
     """Fix unmatched parentheses, brackets, and braces."""
-    lines = content.split('\n')
+    lines = content.split("\n")
     fixed_lines = []
 
     for line in lines:
         # Count delimiters
-        open_parens = line.count('(')
-        close_parens = line.count(')')
-        open_brackets = line.count('[')
-        close_brackets = line.count(']')
-        open_braces = line.count('{')
-        close_braces = line.count('}')
+        open_parens = line.count("(")
+        close_parens = line.count(")")
+        open_brackets = line.count("[")
+        close_brackets = line.count("]")
+        open_braces = line.count("{")
+        close_braces = line.count("}")
 
         # Fix unmatched parentheses
         if open_parens > close_parens:
-            line += ')' * (open_parens - close_parens)
+            line += ")" * (open_parens - close_parens)
 
         # Fix unmatched brackets
         if open_brackets > close_brackets:
-            line += ']' * (open_brackets - close_brackets)
+            line += "]" * (open_brackets - close_brackets)
 
         # Fix unmatched braces
         if open_braces > close_braces:
-            line += '}' * (open_braces - close_braces)
+            line += "}" * (open_braces - close_braces)
 
         fixed_lines.append(line)
 
-    return '\n'.join(fixed_lines)
+    return "\n".join(fixed_lines)
 
 
 def fix_empty_code_blocks(content):
     """Fix empty code blocks by adding pass statements."""
-    lines = content.split('\n')
+    lines = content.split("\n")
     fixed_lines = []
 
     i = 0
@@ -204,24 +223,27 @@ def fix_empty_code_blocks(content):
         fixed_lines.append(lines[i])
 
         # Check if line defines a code block
-        if re.match(r'^\s*(if|else|elif|for|while|def|class|try|except|finally|with).*:$', lines[i].strip()):
+        if re.match(
+            r"^\s*(if|else|elif|for|while|def|class|try|except|finally|with).*:$",
+            lines[i].strip(),
+        ):
             # Check if next line is empty or doesn't exist
             if i + 1 >= len(lines) or not lines[i + 1].strip():
                 # Add pass statement with proper indentation
-                indent_match = re.match(r'^(\s*)', lines[i])
-                indent = indent_match.group(1) if indent_match else ''
+                indent_match = re.match(r"^(\s*)", lines[i])
+                indent = indent_match.group(1) if indent_match else ""
                 fixed_lines.append(f"{indent}    pass")
 
         i += 1
 
-    return '\n'.join(fixed_lines)
+    return "\n".join(fixed_lines)
 
 
 def fix_file(file_path):
     """Fix syntax errors in a file."""
     try:
         # Read the file content
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Apply fixes
@@ -238,20 +260,22 @@ def fix_file(file_path):
         # Check if the content was modified
         if content != original_content:
             # Write the fixed content back to the file
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
             # Check if the file still has syntax errors
             try:
-                compile(content, file_path, 'exec')
+                compile(content, file_path, "exec")
                 print(f"✅ Fixed: {file_path}")
                 return True
             except SyntaxError as e:
-                print(f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}")
+                print(
+                    f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}"
+                )
 
         # If automatic fixes didn't work, replace with a simple valid Python file
         try:
-            compile(content, file_path, 'exec')
+            compile(content, file_path, "exec")
         except SyntaxError:
             # Create a simple valid Python file
             new_content = f'''"""
@@ -270,7 +294,7 @@ if __name__ == "__main__":
     main()
 '''
 
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
 
             print(f"🔄 Replaced with template: {file_path}")
@@ -287,7 +311,9 @@ def main():
     parser = argparse.ArgumentParser(description="Fix syntax errors in Python files")
 
     parser.add_argument("file", nargs="?", help="Specific file to fix")
-    parser.add_argument("--check", action="store_true", help="Check for syntax errors without fixing")
+    parser.add_argument(
+        "--check", action="store_true", help="Check for syntax errors without fixing"
+    )
 
     args = parser.parse_args()
 
@@ -312,7 +338,9 @@ def main():
         if fix_file(file_path):
             fixed_count += 1
 
-    print(f"Fixed {fixed_count} out of {len(error_files)} Python files with syntax errors.")
+    print(
+        f"Fixed {fixed_count} out of {len(error_files)} Python files with syntax errors."
+    )
 
     # Check if all files were fixed
     if fixed_count == len(error_files):

@@ -23,7 +23,7 @@ def run_tests(
     html_report=False,
     parallel=False,
     failed_only=False,
-    specific_file=None
+    specific_file=None,
 ):
     """Run tests with the specified options."""
     # Build the pytest command
@@ -60,7 +60,11 @@ def run_tests(
         if html_report:
             cmd.extend(["--cov-report=html:coverage_html"])
 
-        cmd.extend([f"--cov-report=xml:coverage-{sys.version_info.major}.{sys.version_info.minor}.xml"])
+        cmd.extend(
+            [
+                f"--cov-report=xml:coverage-{sys.version_info.major}.{sys.version_info.minor}.xml"
+            ]
+        )
 
     # Add parallel flag if specified
     if parallel:
@@ -93,29 +97,43 @@ def run_tests(
 
 def main():
     """Main function to parse arguments and run tests."""
-    parser = argparse.ArgumentParser(description="Run tests for the pAIssive Income project")
+    parser = argparse.ArgumentParser(
+        description="Run tests for the pAIssive Income project"
+    )
 
     # Test selection options
     parser.add_argument("--path", help="Path to test directory or file")
     parser.add_argument("--file", help="Specific file to test")
     parser.add_argument("--pattern", help="Pattern to match test names")
-    parser.add_argument("--failed-only", action="store_true", help="Run only previously failed tests")
+    parser.add_argument(
+        "--failed-only", action="store_true", help="Run only previously failed tests"
+    )
 
     # Test category options
     parser.add_argument("--unit", action="store_true", help="Run unit tests")
-    parser.add_argument("--integration", action="store_true", help="Run integration tests")
+    parser.add_argument(
+        "--integration", action="store_true", help="Run integration tests"
+    )
     parser.add_argument("--webhook", action="store_true", help="Run webhook tests")
     parser.add_argument("--api", action="store_true", help="Run API tests")
     parser.add_argument("--payment", action="store_true", help="Run payment tests")
     parser.add_argument("--security", action="store_true", help="Run security tests")
     parser.add_argument("--model", action="store_true", help="Run model tests")
-    parser.add_argument("--performance", action="store_true", help="Run performance tests")
+    parser.add_argument(
+        "--performance", action="store_true", help="Run performance tests"
+    )
     parser.add_argument("--smoke", action="store_true", help="Run smoke tests")
 
     # Test execution options
-    parser.add_argument("--verbose", action="store_true", help="Run tests with verbose output")
-    parser.add_argument("--coverage", action="store_true", help="Run tests with coverage reporting")
-    parser.add_argument("--html", action="store_true", help="Generate HTML coverage report")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Run tests with verbose output"
+    )
+    parser.add_argument(
+        "--coverage", action="store_true", help="Run tests with coverage reporting"
+    )
+    parser.add_argument(
+        "--html", action="store_true", help="Generate HTML coverage report"
+    )
     parser.add_argument("--parallel", action="store_true", help="Run tests in parallel")
 
     args = parser.parse_args()
@@ -151,7 +169,7 @@ def main():
         html_report=args.html,
         parallel=args.parallel,
         failed_only=args.failed_only,
-        specific_file=args.file
+        specific_file=args.file,
     )
 
 

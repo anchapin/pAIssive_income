@@ -26,7 +26,7 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.pyd",
             "build/**",
             "dist/**",
-            "*.egg-info/**"
+            "*.egg-info/**",
         ]
 
     # Convert to string for pattern matching
@@ -40,12 +40,16 @@ def should_ignore(file_path, ignore_patterns=None):
     return False
 
 
-def find_python_files(directory='.', specific_file=None, ignore_patterns=None):
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     """Find Python files to lint."""
     if specific_file:
         # If a specific file is provided, only lint that file
         file_path = Path(specific_file)
-        if file_path.exists() and file_path.suffix == '.py' and not should_ignore(file_path, ignore_patterns):
+        if (
+            file_path.exists()
+            and file_path.suffix == ".py"
+            and not should_ignore(file_path, ignore_patterns)
+        ):
             return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
@@ -55,7 +59,7 @@ def find_python_files(directory='.', specific_file=None, ignore_patterns=None):
     python_files = []
     for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 file_path = Path(root) / file
                 if not should_ignore(file_path, ignore_patterns):
                     python_files.append(file_path)
@@ -71,7 +75,7 @@ def run_flake8(files):
     strict_result = subprocess.run(
         ["flake8", "--select=E9,F63,F7,F82", "--show-source"] + files,
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if strict_result.returncode != 0:
@@ -82,9 +86,15 @@ def run_flake8(files):
 
     # Then run with more relaxed settings for style issues
     style_result = subprocess.run(
-        ["flake8", "--max-complexity=10", "--max-line-length=88", "--extend-ignore=E203"] + files,
+        [
+            "flake8",
+            "--max-complexity=10",
+            "--max-line-length=88",
+            "--extend-ignore=E203",
+        ]
+        + files,
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if style_result.stdout:
@@ -184,7 +194,9 @@ def main():
     """Main function to parse arguments and run linting checks."""
     parser = argparse.ArgumentParser(description="Run linting checks on Python files")
 
-    parser.add_argument("path", nargs="?", default=".", help="Path to file or directory to lint")
+    parser.add_argument(
+        "path", nargs="?", default=".", help="Path to file or directory to lint"
+    )
     parser.add_argument("--fix", action="store_true", help="Fix issues when possible")
     parser.add_argument("--files", nargs="+", help="Specific file patterns to lint")
 
@@ -196,7 +208,7 @@ def main():
         python_files = []
         for pattern in args.files:
             for file in Path(".").glob(pattern):
-                if file.suffix == '.py' and not should_ignore(file):
+                if file.suffix == ".py" and not should_ignore(file):
                     python_files.append(str(file))
     else:
         # Otherwise, use the provided path

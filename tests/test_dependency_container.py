@@ -2,7 +2,6 @@
 test_dependency_container.py - Tests for the dependency container.
 """
 
-import pytest
 
 
 class TestDependencyContainer:

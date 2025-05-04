@@ -4,8 +4,6 @@ Script to fix the remaining files with syntax errors.
 """
 
 import os
-import sys
-from pathlib import Path
 
 # List of files with syntax errors
 FILES_WITH_ERRORS = [
@@ -300,8 +298,9 @@ FILES_WITH_ERRORS = [
     "tests/ai_models/test_model_manager.py",
     "tests/ai_models/test_model_version_compatibility.py",
     "tests/ai_models/test_model_versioning.py",
-    "tests/ai_models/test_performance_monitor.py"
+    "tests/ai_models/test_performance_monitor.py",
 ]
+
 
 def fix_file(file_path):
     """Fix a file with syntax errors."""
@@ -322,8 +321,8 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
+
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         print(f"Fixed: {file_path}")
         return True
@@ -331,16 +330,20 @@ if __name__ == "__main__":
         print(f"Error processing {file_path}: {e}")
         return False
 
+
 def main():
     """Main function."""
     fixed_count = 0
-    
+
     for file_path in FILES_WITH_ERRORS:
         if os.path.exists(file_path):
             if fix_file(file_path):
                 fixed_count += 1
-    
-    print(f"Fixed {fixed_count} files out of {len(FILES_WITH_ERRORS)} files with errors.")
 
-if __name__ == '__main__':
+    print(
+        f"Fixed {fixed_count} files out of {len(FILES_WITH_ERRORS)} files with errors."
+    )
+
+
+if __name__ == "__main__":
     main()

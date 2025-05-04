@@ -4,7 +4,6 @@ Script to fix specific files with syntax errors.
 """
 
 import os
-import sys
 
 # List of files with syntax errors
 FILES_WITH_ERRORS = [
@@ -404,8 +403,9 @@ FILES_WITH_ERRORS = [
     "ui/validation_schemas.py",
     "ui/validators.py",
     "ui/web_ui.py",
-    "ui/__init__.py"
+    "ui/__init__.py",
 ]
+
 
 def fix_file(file_path):
     """Fix a file with syntax errors."""
@@ -426,8 +426,8 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
+
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         print(f"Fixed: {file_path}")
         return True
@@ -435,16 +435,20 @@ if __name__ == "__main__":
         print(f"Error processing {file_path}: {e}")
         return False
 
+
 def main():
     """Main function."""
     fixed_count = 0
-    
+
     for file_path in FILES_WITH_ERRORS:
         if os.path.exists(file_path):
             if fix_file(file_path):
                 fixed_count += 1
-    
-    print(f"Fixed {fixed_count} files out of {len(FILES_WITH_ERRORS)} files with errors.")
 
-if __name__ == '__main__':
+    print(
+        f"Fixed {fixed_count} files out of {len(FILES_WITH_ERRORS)} files with errors."
+    )
+
+
+if __name__ == "__main__":
     main()

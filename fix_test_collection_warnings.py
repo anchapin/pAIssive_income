@@ -26,7 +26,7 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.pyd",
             "build/**",
             "dist/**",
-            "*.egg-info/**"
+            "*.egg-info/**",
         ]
 
     # Convert to string for pattern matching
@@ -40,12 +40,16 @@ def should_ignore(file_path, ignore_patterns=None):
     return False
 
 
-def find_python_files(directory='.', specific_file=None, ignore_patterns=None):
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     """Find Python files to check."""
     if specific_file:
         # If a specific file is provided, only check that file
         file_path = Path(specific_file)
-        if file_path.exists() and file_path.suffix == '.py' and not should_ignore(file_path, ignore_patterns):
+        if (
+            file_path.exists()
+            and file_path.suffix == ".py"
+            and not should_ignore(file_path, ignore_patterns)
+        ):
             return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
@@ -55,7 +59,7 @@ def find_python_files(directory='.', specific_file=None, ignore_patterns=None):
     python_files = []
     for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 file_path = Path(root) / file
                 if not should_ignore(file_path, ignore_patterns):
                     python_files.append(file_path)
@@ -66,15 +70,25 @@ def find_python_files(directory='.', specific_file=None, ignore_patterns=None):
 def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
     # Fix missing colons after class definitions
-    content = re.sub(r'(class\s+\w+(?:\([^)]*\))?)(\s*\n)', r'\1:\2', content)
+    content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after function definitions
-    content = re.sub(r'(def\s+\w+\([^)]*\))(\s*\n)', r'\1:\2', content)
+    content = re.sub(r"(def\s+\w+\([^)]*\))(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after control statements
-    for keyword in ['if', 'else', 'elif', 'for', 'while', 'try', 'except', 'finally', 'with']:
-        pattern = rf'({keyword}\s+[^:\n]+)(\s*\n)'
-        content = re.sub(pattern, r'\1:\2', content)
+    for keyword in [
+        "if",
+        "else",
+        "elif",
+        "for",
+        "while",
+        "try",
+        "except",
+        "finally",
+        "with",
+    ]:
+        pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
+        content = re.sub(pattern, r"\1:\2", content)
 
     return content
 
@@ -82,7 +96,7 @@ def fix_missing_colons(content):
 def fix_class_definitions(content):
     """Fix common issues with class definitions."""
     # Fix class definitions split across multiple lines
-    lines = content.split('\n')
+    lines = content.split("\n")
     fixed_lines = []
 
     i = 0
@@ -90,23 +104,23 @@ def fix_class_definitions(content):
         line = lines[i]
 
         # Check if line starts a class definition but doesn't end with a colon
-        if re.match(r'^\s*class\s+\w+(?:\([^)]*)?$', line.strip()):
+        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
             # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
 
-            while j < len(lines) and not re.search(r'[:,]', lines[j]):
-                class_def += ' ' + lines[j].strip()
+            while j < len(lines) and not re.search(r"[:,]", lines[j]):
+                class_def += " " + lines[j].strip()
                 j += 1
 
             # If we found a line with a colon or comma, add it
             if j < len(lines):
-                class_def += ' ' + lines[j].strip()
+                class_def += " " + lines[j].strip()
                 j += 1
 
             # Add the fixed class definition
-            if not class_def.strip().endswith(':'):
-                class_def += ':'
+            if not class_def.strip().endswith(":"):
+                class_def += ":"
 
             fixed_lines.append(class_def)
             i = j
@@ -114,14 +128,16 @@ def fix_class_definitions(content):
             fixed_lines.append(line)
             i += 1
 
-    return '\n'.join(fixed_lines)
+    return "\n".join(fixed_lines)
 
 
 def fix_test_class_init(content):
     """Fix test classes with __init__ methods that prevent collection."""
     # Find test classes with __init__ methods
-    test_class_pattern = r'(class\s+Test\w+\(?.*\)?:.*?)(?=\n\s*class|\n\s*def|\Z)'
-    init_method_pattern = r'(\s+def\s+__init__\s*\([^)]*\):.*?)(?=\n\s+def|\n\s*class|\Z)'
+    test_class_pattern = r"(class\s+Test\w+\(?.*\)?:.*?)(?=\n\s*class|\n\s*def|\Z)"
+    init_method_pattern = (
+        r"(\s+def\s+__init__\s*\([^)]*\):.*?)(?=\n\s+def|\n\s*class|\Z)"
+    )
 
     # Function to process each test class match
     def process_test_class(match):
@@ -132,13 +148,15 @@ def fix_test_class_init(content):
         if init_match:
             # Replace __init__ with setup_method
             init_method = init_match.group(1)
-            setup_method = init_method.replace('__init__', 'setup_method')
+            setup_method = init_method.replace("__init__", "setup_method")
 
             # Replace self parameter with self, method=None if not already present
-            if 'method' not in setup_method:
-                setup_method = re.sub(r'(\s+def\s+setup_method\s*\()([^)]*?)(\):)',
-                                     lambda m: m.group(1) + m.group(2) + ', method=None' + m.group(3),
-                                     setup_method)
+            if "method" not in setup_method:
+                setup_method = re.sub(
+                    r"(\s+def\s+setup_method\s*\()([^)]*?)(\):)",
+                    lambda m: m.group(1) + m.group(2) + ", method=None" + m.group(3),
+                    setup_method,
+                )
 
             # Replace the __init__ method with setup_method
             test_class = test_class.replace(init_method, setup_method)
@@ -155,7 +173,7 @@ def fix_file(file_path, check_only=False):
     """Fix common issues in a file that prevent test collection."""
     try:
         # Read the file content
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Apply fixes
@@ -177,7 +195,7 @@ def fix_file(file_path, check_only=False):
                 return False
             else:
                 # Write the fixed content back to the file
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 print(f"Fixed: {file_path}")
@@ -196,10 +214,12 @@ def main():
         description="Fix common issues that prevent pytest from collecting tests"
     )
 
-    parser.add_argument("path", nargs="?", default=".",
-                       help="Path to file or directory to check/fix")
-    parser.add_argument("--check", action="store_true",
-                       help="Check for issues without fixing")
+    parser.add_argument(
+        "path", nargs="?", default=".", help="Path to file or directory to check/fix"
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Check for issues without fixing"
+    )
 
     args = parser.parse_args()
 
