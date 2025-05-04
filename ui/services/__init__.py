@@ -11,12 +11,12 @@ from .marketing_service import MarketingService
 from .monetization_service import MonetizationService
 from .niche_analysis_service import NicheAnalysisService
 
-__all__ 
+__all__
 
 = [
-    "AgentTeamService",
-    "NicheAnalysisService",
-    "DeveloperService",
-    "MonetizationService",
-    "MarketingService",
+"AgentTeamService",
+"NicheAnalysisService",
+"DeveloperService",
+"MonetizationService",
+"MarketingService",
 ]

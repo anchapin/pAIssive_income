@@ -15,303 +15,301 @@ class IModelConfig:
     pass  # Added missing block
     """Interface for model configuration."""
 
-@property
+    @property
     @abstractmethod
     def models_dir(self) -> str:
-        """Get the models directory."""
-        pass
+    """Get the models directory."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def cache_dir(self) -> str:
-        """Get the cache directory."""
-        pass
+    """Get the cache directory."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def auto_discover(self) -> bool:
-        """Get whether to auto-discover models."""
-        pass
+    """Get whether to auto-discover models."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def max_threads(self) -> int:
-        """Get the maximum number of threads to use."""
-        pass
+    """Get the maximum number of threads to use."""
+    pass
 
-@classmethod
+    @classmethod
     @abstractmethod
     def get_default(cls) -> "IModelConfig":
-        """Get the default configuration."""
-        pass
+    """Get the default configuration."""
+    pass
 
 
-class IModelInfo(ABC):
-    """Interface for model information."""
+    class IModelInfo(ABC):
 
-@property
+    @property
     @abstractmethod
     def id(self) -> str:
-        """Get the model ID."""
-        pass
+    """Get the model ID."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def name(self) -> str:
-        """Get the model name."""
-        pass
+    """Get the model name."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def description(self) -> str:
-        """Get the model description."""
-        pass
+    """Get the model description."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def type(self) -> str:
-        """Get the model type."""
-        pass
+    """Get the model type."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def path(self) -> str:
-        """Get the model path."""
-        pass
+    """Get the model path."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def metadata(self) -> Dict[str, Any]:
-        """Get the model metadata."""
-        pass
+    """Get the model metadata."""
+    pass
 
 
-class IModelManager(ABC):
-    """Interface for model manager."""
+    class IModelManager(ABC):
 
-@property
+    @property
     @abstractmethod
     def config(self) -> IModelConfig:
-        """Get the model configuration."""
-        pass
+    """Get the model configuration."""
+    pass
 
-@abstractmethod
+    @abstractmethod
     def get_model_info(self, model_id: str) -> IModelInfo:
-        """
-        Get information about a model.
+    """
+    Get information about a model.
 
-Args:
-            model_id: ID of the model
+    Args:
+    model_id: ID of the model
 
-Returns:
-            Model information
-        """
-        pass
+    Returns:
+    Model information
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def list_models(self) -> List[IModelInfo]:
-        """
-        List all available models.
+    """
+    List all available models.
 
-Returns:
-            List of model information
-        """
-        pass
+    Returns:
+    List of model information
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def load_model(self, model_id: str, **kwargs) -> Any:
-        """
-        Load a model.
+    """
+    Load a model.
 
-Args:
-            model_id: ID of the model to load
-            **kwargs: Additional arguments to pass to the model loader
+    Args:
+    model_id: ID of the model to load
+    **kwargs: Additional arguments to pass to the model loader
 
-Returns:
-            Loaded model
-        """
-        pass
+    Returns:
+    Loaded model
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def unload_model(self, model_id: str) -> bool:
-        """
-        Unload a model.
+    """
+    Unload a model.
 
-Args:
-            model_id: ID of the model to unload
+    Args:
+    model_id: ID of the model to unload
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def discover_models(self) -> List[IModelInfo]:
-        """
-        Discover models in the models directory.
+    """
+    Discover models in the models directory.
 
-Returns:
-            List of discovered model information
-        """
-        pass
+    Returns:
+    List of discovered model information
+    """
+    pass
 
 
-class IModelAdapter(ABC):
+    class IModelAdapter(ABC):
     """Interface for model adapters."""
 
-@property
+    @property
     @abstractmethod
     def name(self) -> str:
-        """Get the adapter name."""
-        pass
+    """Get the adapter name."""
+    pass
 
-@property
+    @property
     @abstractmethod
     def description(self) -> str:
-        """Get the adapter description."""
-        pass
+    """Get the adapter description."""
+    pass
 
-@abstractmethod
+    @abstractmethod
     def is_available(self) -> bool:
-        """
-        Check if the adapter is available.
+    """
+    Check if the adapter is available.
 
-Returns:
-            True if available, False otherwise
-        """
-        pass
+    Returns:
+    True if available, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def connect(self, **kwargs) -> bool:
-        """
-        Connect to the adapter.
+    """
+    Connect to the adapter.
 
-Args:
-            **kwargs: Connection parameters
+    Args:
+    **kwargs: Connection parameters
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def disconnect(self) -> bool:
-        """
-        Disconnect from the adapter.
+    """
+    Disconnect from the adapter.
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def get_models(self) -> List[Dict[str, Any]]:
-        """
-        Get available models from the adapter.
+    """
+    Get available models from the adapter.
 
-Returns:
-            List of model dictionaries
-        """
-        pass
+    Returns:
+    List of model dictionaries
+    """
+    pass
 
 
-class ICacheManager(ABC):
+    class ICacheManager(ABC):
     """Interface for cache manager."""
 
-@abstractmethod
+    @abstractmethod
     def get(self, key: str) -> Any:
-        """
-        Get a value from the cache.
+    """
+    Get a value from the cache.
 
-Args:
-            key: Cache key
+    Args:
+    key: Cache key
 
-Returns:
-            Cached value, or None if not found
-        """
-        pass
+    Returns:
+    Cached value, or None if not found
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
-        """
-        Set a value in the cache.
+    """
+    Set a value in the cache.
 
-Args:
-            key: Cache key
-            value: Value to cache
-            ttl: Time to live in seconds
+    Args:
+    key: Cache key
+    value: Value to cache
+    ttl: Time to live in seconds
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def delete(self, key: str) -> bool:
-        """
-        Delete a value from the cache.
+    """
+    Delete a value from the cache.
 
-Args:
-            key: Cache key
+    Args:
+    key: Cache key
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def clear(self) -> bool:
-        """
-        Clear the cache.
+    """
+    Clear the cache.
 
-Returns:
-            True if successful, False otherwise
-        """
-        pass
+    Returns:
+    True if successful, False otherwise
+    """
+    pass
 
 
-class IPerformanceMonitor(ABC):
+    class IPerformanceMonitor(ABC):
     """Interface for performance monitor."""
 
-@abstractmethod
+    @abstractmethod
     def start_tracking(self, model_id: str, operation: str) -> str:
-        """
-        Start tracking performance for a model operation.
+    """
+    Start tracking performance for a model operation.
 
-Args:
-            model_id: ID of the model
-            operation: Operation being performed
+    Args:
+    model_id: ID of the model
+    operation: Operation being performed
 
-Returns:
-            Tracking ID
-        """
-        pass
+    Returns:
+    Tracking ID
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def end_tracking(
-        self, tracking_id: str, result_size: Optional[int] = None
+    self, tracking_id: str, result_size: Optional[int] = None
     ) -> Dict[str, Any]:
-        """
-        End tracking performance for a model operation.
+    """
+    End tracking performance for a model operation.
 
-Args:
-            tracking_id: Tracking ID
-            result_size: Size of the result in bytes
+    Args:
+    tracking_id: Tracking ID
+    result_size: Size of the result in bytes
 
-Returns:
-            Performance metrics
-        """
-        pass
+    Returns:
+    Performance metrics
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def get_metrics(self, model_id: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Get performance metrics.
+    """
+    Get performance metrics.
 
-Args:
-            model_id: Optional model ID to filter metrics
+    Args:
+    model_id: Optional model ID to filter metrics
 
-Returns:
-            Performance metrics
-        """
-        pass
+    Returns:
+    Performance metrics
+    """
+    pass

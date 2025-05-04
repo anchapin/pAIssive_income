@@ -15,11 +15,9 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
 import msgpack
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
-
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,8 +41,7 @@ class MessageType(str, Enum):
     ERROR = "error"
 
 
-class MessagePriority(int, Enum):
-    """Priority levels for messages."""
+    class MessagePriority(int, Enum):
 
     # Highest priority (urgent messages)
     HIGH = 0
@@ -56,8 +53,7 @@ class MessagePriority(int, Enum):
     LOW = 2
 
 
-class MessageStatus(str, Enum):
-    """Status of a message."""
+    class MessageStatus(str, Enum):
 
     # Message has been created but not yet published
     CREATED = "created"
@@ -75,7 +71,7 @@ class MessageStatus(str, Enum):
     FAILED = "failed"
 
 
-class Message(BaseModel):
+    class Message(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """
     Base message schema for all messages sent through the message queue.
@@ -119,170 +115,170 @@ class Message(BaseModel):
 
     @field_validator("correlation_id", pre=True, always=True)
     def set_correlation_id(cls, v, values):
-        """Set correlation ID if not provided."""
-        if v is None and "id" in values:
-                    return values["id"]
-                return v
+    """Set correlation ID if not provided."""
+    if v is None and "id" in values:
+    return values["id"]
+    return v
 
     def is_expired(self) -> bool:
-        """
-        Check if the message has expired.
+    """
+    Check if the message has expired.
 
-        Returns:
-            bool: True if the message has expired, False otherwise
-        """
-        if self.expires_at is None:
-                    return False
+    Returns:
+    bool: True if the message has expired, False otherwise
+    """
+    if self.expires_at is None:
+    return False
 
-                return time.time() > self.expires_at
+    return time.time() > self.expires_at
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the message to a dictionary.
+    """
+    Convert the message to a dictionary.
 
-        Returns:
-            Dict[str, Any]: Dictionary representation of the message
-        """
-                return self.dict()
+    Returns:
+    Dict[str, Any]: Dictionary representation of the message
+    """
+    return self.dict()
 
     def to_json(self) -> str:
-        """
-        Convert the message to a JSON string.
+    """
+    Convert the message to a JSON string.
 
-        Returns:
-            str: JSON string representation of the message
-        """
-                return self.json()
+    Returns:
+    str: JSON string representation of the message
+    """
+    return self.json()
 
     def to_msgpack(self) -> bytes:
-        """
-        Convert the message to a MessagePack binary.
+    """
+    Convert the message to a MessagePack binary.
 
-        Returns:
-            bytes: MessagePack binary representation of the message
-        """
-                return msgpack.packb(self.dict(), use_bin_type=True)
+    Returns:
+    bytes: MessagePack binary representation of the message
+    """
+    return msgpack.packb(self.dict(), use_bin_type=True)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Message":
-        """
-        Create a message from a dictionary.
+    """
+    Create a message from a dictionary.
 
-        Args:
-            data: Dictionary representation of the message
+    Args:
+    data: Dictionary representation of the message
 
-        Returns:
-            Message: Message instance
-        """
-                return cls(**data)
+    Returns:
+    Message: Message instance
+    """
+    return cls(**data)
 
     @classmethod
     def from_json(cls, data: str) -> "Message":
-        """
-        Create a message from a JSON string.
+    """
+    Create a message from a JSON string.
 
-        Args:
-            data: JSON string representation of the message
+    Args:
+    data: JSON string representation of the message
 
-        Returns:
-            Message: Message instance
-        """
-                return cls(**json.loads(data))
+    Returns:
+    Message: Message instance
+    """
+    return cls(**json.loads(data))
 
     @classmethod
     def from_msgpack(cls, data: bytes) -> "Message":
-        """
-        Create a message from a MessagePack binary.
+    """
+    Create a message from a MessagePack binary.
 
-        Args:
-            data: MessagePack binary representation of the message
+    Args:
+    data: MessagePack binary representation of the message
 
-        Returns:
-            Message: Message instance
-        """
-                return cls(**msgpack.unpackb(data, raw=False))
-
-
-# Generic type for message payload
-T = TypeVar("T", bound=BaseModel)
+    Returns:
+    Message: Message instance
+    """
+    return cls(**msgpack.unpackb(data, raw=False))
 
 
-class MessageSchema(Generic[T]):
+    # Generic type for message payload
+    T = TypeVar("T", bound=BaseModel)
+
+
+    class MessageSchema(Generic[T]):
     """
     Schema for messages with a specific payload type.
     """
 
     def __init__(self, payload_model: Type[T]):
-        """
-        Initialize the message schema.
+    """
+    Initialize the message schema.
 
-        Args:
-            payload_model: Pydantic model for the message payload
-        """
-        self.payload_model = payload_model
+    Args:
+    payload_model: Pydantic model for the message payload
+    """
+    self.payload_model = payload_model
 
     def create_message(
-        self,
-        source: str,
-        destination: str,
-        subject: str,
-        payload: Union[T, Dict[str, Any]],
-        message_type: MessageType = MessageType.EVENT,
-        priority: MessagePriority = MessagePriority.NORMAL,
-        correlation_id: Optional[str] = None,
-        expires_in: Optional[float] = None,
-        headers: Optional[Dict[str, Any]] = None,
+    self,
+    source: str,
+    destination: str,
+    subject: str,
+    payload: Union[T, Dict[str, Any]],
+    message_type: MessageType = MessageType.EVENT,
+    priority: MessagePriority = MessagePriority.NORMAL,
+    correlation_id: Optional[str] = None,
+    expires_in: Optional[float] = None,
+    headers: Optional[Dict[str, Any]] = None,
     ) -> Message:
-        """
-        Create a message with the specified payload.
+    """
+    Create a message with the specified payload.
 
-        Args:
-            source: Source service name
-            destination: Destination service name or exchange
-            subject: Message subject (topic or command name)
-            payload: Message payload (instance of payload_model or dict)
-            message_type: Message type
-            priority: Message priority
-            correlation_id: Correlation ID for request-response patterns
-            expires_in: Message expiration time in seconds from now
-            headers: Message headers (metadata)
+    Args:
+    source: Source service name
+    destination: Destination service name or exchange
+    subject: Message subject (topic or command name)
+    payload: Message payload (instance of payload_model or dict)
+    message_type: Message type
+    priority: Message priority
+    correlation_id: Correlation ID for request-response patterns
+    expires_in: Message expiration time in seconds from now
+    headers: Message headers (metadata)
 
-        Returns:
-            Message: Message instance
-        """
-        # Convert payload to dict if it's a model instance
-        if isinstance(payload, BaseModel):
-            payload_dict = payload.dict()
-        else:
-            # Validate payload against the model
-            payload_dict = self.payload_model(**payload).dict()
+    Returns:
+    Message: Message instance
+    """
+    # Convert payload to dict if it's a model instance
+    if isinstance(payload, BaseModel):
+    payload_dict = payload.dict()
+    else:
+    # Validate payload against the model
+    payload_dict = self.payload_model(**payload).dict()
 
-        # Calculate expiration time if provided
-        expires_at = None
-        if expires_in is not None:
-            expires_at = time.time() + expires_in
+    # Calculate expiration time if provided
+    expires_at = None
+    if expires_in is not None:
+    expires_at = time.time() + expires_in
 
-        # Create the message
-                return Message(
-            type=message_type,
-            source=source,
-            destination=destination,
-            subject=subject,
-            payload=payload_dict,
-            priority=priority,
-            correlation_id=correlation_id,
-            expires_at=expires_at,
-            headers=headers or {},
-        )
+    # Create the message
+    return Message(
+    type=message_type,
+    source=source,
+    destination=destination,
+    subject=subject,
+    payload=payload_dict,
+    priority=priority,
+    correlation_id=correlation_id,
+    expires_at=expires_at,
+    headers=headers or {},
+    )
 
     def parse_message(self, message: Message) -> T:
-        """
-        Parse the payload of a message.
+    """
+    Parse the payload of a message.
 
-        Args:
-            message: Message instance
+    Args:
+    message: Message instance
 
-        Returns:
-            T: Parsed payload
-        """
-                return self.payload_model(**message.payload
+    Returns:
+    T: Parsed payload
+    """
+    return self.payload_model(**message.payload

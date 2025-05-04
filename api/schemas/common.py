@@ -15,6 +15,7 @@ T = TypeVar("T")
 
 class ErrorResponse(BaseModel):
     """Error response model."""
+
     model_config = ConfigDict(protected_namespaces=())
 
     detail: str = Field(..., description="Error message")
@@ -22,18 +23,18 @@ class ErrorResponse(BaseModel):
     path: Optional[str] = Field(None, description="Path where the error occurred")
     timestamp: Optional[str] = Field(None, description="Timestamp of the error")
     error: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Error details",
-        example={
-            "code": "invalid_request",
-            "message": "Invalid request parameters",
-            "details": {"field": "email", "reason": "Invalid email format"},
-        },
+    None,
+    description="Error details",
+    example={
+    "code": "invalid_request",
+    "message": "Invalid request parameters",
+    "details": {"field": "email", "reason": "Invalid email format"},
+    },
     )
 
 
-class SuccessResponse(BaseModel):
-    """Success response model."""
+    class SuccessResponse(BaseModel):
+
     model_config = ConfigDict(protected_namespaces=())
 
     success: bool = Field(..., description="Success status")
@@ -41,22 +42,21 @@ class SuccessResponse(BaseModel):
     data: Optional[Dict[str, Any]] = Field(None, description="Additional data")
 
 
-class IdResponse(BaseModel):
-    """ID response model."""
+    class IdResponse(BaseModel):
+
     model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Resource ID")
     message: Optional[str] = Field(None, description="Success message")
 
 
-class SortDirection(str, Enum):
-    """Sort direction enum."""
+    class SortDirection(str, Enum):
 
     ASC = "asc"
     DESC = "desc"
 
 
-class FilterOperator(str, Enum):
+    class FilterOperator(str, Enum):
     """Filter operator enum."""
 
     EQ = "eq"  # Equal
@@ -72,48 +72,51 @@ class FilterOperator(str, Enum):
     NOT_IN = "notin"  # Not in list
 
 
-class FilterParam(BaseModel):
-    """Filter parameter model."""
-    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True, extra="allow")
+    class FilterParam(BaseModel):
+
+    model_config = ConfigDict(
+    protected_namespaces=(), arbitrary_types_allowed=True, extra="allow"
+    )
 
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
     value: Any = Field(..., description="Filter value")
 
 
-class SortParam(BaseModel):
-    """Sort parameter model."""
+    class SortParam(BaseModel):
+
     model_config = ConfigDict(protected_namespaces=())
 
     field: str = Field(..., description="Field to sort by")
     direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
 
 
-class PaginationParams(BaseModel):
-    """Pagination parameters model."""
+    class PaginationParams(BaseModel):
+
     model_config = ConfigDict(protected_namespaces=())
 
     page: int = Field(1, description="Page number", ge=1)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
 
 
-class QueryParams(BaseModel):
+    class QueryParams(BaseModel):
     """Query parameters model."""
+
     model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
 
     page: int = Field(1, description="Page number", ge=1)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
     sort_by: Optional[str] = Field(None, description="Field to sort by")
     sort_direction: SortDirection = Field(
-        SortDirection.ASC, description="Sort direction"
+    SortDirection.ASC, description="Sort direction"
     )
     filters: List[FilterParam] = Field(
-        default_factory=list, description="Filter parameters"
+    default_factory=list, description="Filter parameters"
     )
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
-    """Paginated response model."""
+    class PaginatedResponse(BaseModel, Generic[T]):
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     items: List[T] = Field(..., description="List of items")

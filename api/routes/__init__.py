@@ -17,18 +17,18 @@ from .niche_analysis_router import router as niche_analysis_router
 from .user_router import router as user_router
 from .webhook_router import router as webhook_router
 
-__all__ 
+__all__
 
 = [
-    "niche_analysis_router",
-    "monetization_router",
-    "marketing_router",
-    "ai_models_router",
-    "agent_team_router",
-    "user_router",
-    "dashboard_router",
-    "webhook_router",
-    "analytics_router",
-    "developer_router",
-    "api_key_router",
+"niche_analysis_router",
+"monetization_router",
+"marketing_router",
+"ai_models_router",
+"agent_team_router",
+"user_router",
+"dashboard_router",
+"webhook_router",
+"analytics_router",
+"developer_router",
+"api_key_router",
 ]

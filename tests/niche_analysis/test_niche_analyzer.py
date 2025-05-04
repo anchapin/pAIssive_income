@@ -12,8 +12,6 @@ from interfaces.agent_interfaces import IAgentTeam
 from niche_analysis.niche_analyzer import NicheAnalyzer
 
 
-
-
 @pytest.fixture
 def mock_agent_team():
     """Create a mock agent team."""
@@ -22,48 +20,48 @@ def mock_agent_team():
     # Create a mock researcher agent
     mock_researcher = MagicMock()
     mock_researcher.analyze_problems.return_value = [
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Problem 1",
-            "description": "Description of problem 1",
-            "severity": "high",
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Problem 2",
-            "description": "Description of problem 2",
-            "severity": "medium",
-        },
+    {
+    "id": str(uuid.uuid4()),
+    "name": "Problem 1",
+    "description": "Description of problem 1",
+    "severity": "high",
+    },
+    {
+    "id": str(uuid.uuid4()),
+    "name": "Problem 2",
+    "description": "Description of problem 2",
+    "severity": "medium",
+    },
     ]
 
     mock_researcher.identify_niches.return_value = [
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Niche 1",
-            "description": "Description of niche 1",
-            "opportunity_score": 0.8,
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Niche 2",
-            "description": "Description of niche 2",
-            "opportunity_score": 0.7,
-        },
+    {
+    "id": str(uuid.uuid4()),
+    "name": "Niche 1",
+    "description": "Description of niche 1",
+    "opportunity_score": 0.8,
+    },
+    {
+    "id": str(uuid.uuid4()),
+    "name": "Niche 2",
+    "description": "Description of niche 2",
+    "opportunity_score": 0.7,
+    },
     ]
 
     # Set up the mock team to return the mock researcher
     mock_team.get_agent.return_value = mock_researcher
 
-            return mock_team
+    return mock_team
 
 
-@pytest.fixture
-def niche_analyzer(mock_agent_team):
+    @pytest.fixture
+    def niche_analyzer(mock_agent_team):
     """Create a NicheAnalyzer instance for testing."""
-            return NicheAnalyzer(agent_team=mock_agent_team)
+    return NicheAnalyzer(agent_team=mock_agent_team)
 
 
-def test_niche_analyzer_init():
+    def test_niche_analyzer_init():
     """Test NicheAnalyzer initialization."""
     # Test initialization without agent team
     analyzer = NicheAnalyzer()
@@ -75,7 +73,7 @@ def test_niche_analyzer_init():
     assert analyzer.agent_team == mock_team
 
 
-def test_analyze_niche(niche_analyzer, mock_agent_team):
+    def test_analyze_niche(niche_analyzer, mock_agent_team):
     """Test analyze_niche method."""
     # Analyze a niche
     result = niche_analyzer.analyze_niche("test niche")
@@ -104,7 +102,7 @@ def test_analyze_niche(niche_analyzer, mock_agent_team):
     assert "test niche" in result["summary"]
 
 
-def test_analyze_niche_no_agent_team():
+    def test_analyze_niche_no_agent_team():
     """Test analyze_niche method with no agent team."""
     # Create a NicheAnalyzer with no agent team
     analyzer = NicheAnalyzer()
@@ -116,7 +114,7 @@ def test_analyze_niche_no_agent_team():
     # The actual behavior of analyze_niche with no agent team is tested in other tests
 
 
-def test_analyze_niche_no_researcher(mock_agent_team):
+    def test_analyze_niche_no_researcher(mock_agent_team):
     """Test analyze_niche method with no researcher agent."""
     # Set up the mock team to return None for the researcher
     mock_agent_team.get_agent.return_value = None
@@ -133,7 +131,7 @@ def test_analyze_niche_no_researcher(mock_agent_team):
     # The actual behavior of analyze_niche with no researcher is tested in other tests
 
 
-def test_identify_niches(niche_analyzer, mock_agent_team):
+    def test_identify_niches(niche_analyzer, mock_agent_team):
     """Test identify_niches method."""
     # Identify niches
     result = niche_analyzer.identify_niches(["segment1", "segment2"])
@@ -151,7 +149,7 @@ def test_identify_niches(niche_analyzer, mock_agent_team):
     assert result[1]["name"] == "Niche 2"
 
 
-def test_identify_niches_no_agent_team():
+    def test_identify_niches_no_agent_team():
     """Test identify_niches method with no agent team."""
     # Create a NicheAnalyzer with no agent team
     analyzer = NicheAnalyzer()
@@ -163,7 +161,7 @@ def test_identify_niches_no_agent_team():
     # The actual behavior of identify_niches with no agent team is tested in other tests
 
 
-def test_identify_niches_no_researcher(mock_agent_team):
+    def test_identify_niches_no_researcher(mock_agent_team):
     """Test identify_niches method with no researcher agent."""
     # Set up the mock team to return None for the researcher
     mock_agent_team.get_agent.return_value = None
@@ -180,7 +178,7 @@ def test_identify_niches_no_researcher(mock_agent_team):
     # The actual behavior of identify_niches with no researcher is tested in other tests
 
 
-def test_analyze_competition(niche_analyzer):
+    def test_analyze_competition(niche_analyzer):
     """Test analyze_competition method."""
     # Analyze competition
     result = niche_analyzer.analyze_competition("test niche")
@@ -200,7 +198,7 @@ def test_analyze_competition(niche_analyzer):
     assert "test niche" in result["summary"]
 
 
-def test_get_niche_opportunities(niche_analyzer):
+    def test_get_niche_opportunities(niche_analyzer):
     """Test get_niche_opportunities method."""
     # Get niche opportunities
     result = niche_analyzer.get_niche_opportunities("test niche")
@@ -211,10 +209,10 @@ def test_get_niche_opportunities(niche_analyzer):
 
     # Check that each opportunity has the expected keys
     for opportunity in result:
-        assert "name" in opportunity
-        assert "description" in opportunity
-        assert "score" in opportunity
-        assert "difficulty" in opportunity
+    assert "name" in opportunity
+    assert "description" in opportunity
+    assert "score" in opportunity
+    assert "difficulty" in opportunity
 
     # Check that the values are as expected
     assert "test niche" in result[0]["name"]

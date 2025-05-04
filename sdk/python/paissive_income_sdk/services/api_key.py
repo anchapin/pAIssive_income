@@ -18,87 +18,87 @@ class APIKeyService:
     """
 
     def create_api_key(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a new API key.
+    """
+    Create a new API key.
 
-        Args:
-            data: API key creation data
-                - name: Name of the API key
-                - description: Description of the API key
-                - expires_at: Optional expiration date (ISO format)
-                - scopes: Optional list of permission scopes
+    Args:
+    data: API key creation data
+    - name: Name of the API key
+    - description: Description of the API key
+    - expires_at: Optional expiration date (ISO format)
+    - scopes: Optional list of permission scopes
 
-        Returns:
-            Created API key data (including the actual key, which is only returned once)
-        """
-                return self._post("api-keys", data)
+    Returns:
+    Created API key data (including the actual key, which is only returned once)
+    """
+    return self._post("api-keys", data)
 
     def get_api_keys(self) -> Dict[str, Any]:
-        """
-        Get all API keys for the current user.
+    """
+    Get all API keys for the current user.
 
-        Returns:
-            List of API keys
-        """
-                return self._get("api-keys")
+    Returns:
+    List of API keys
+    """
+    return self._get("api-keys")
 
     def get_api_key(self, api_key_id: str) -> Dict[str, Any]:
-        """
-        Get details for a specific API key.
+    """
+    Get details for a specific API key.
 
-        Args:
-            api_key_id: API key ID
+    Args:
+    api_key_id: API key ID
 
-        Returns:
-            API key details (excluding the actual key)
-        """
-                return self._get(f"api-keys/{api_key_id}")
+    Returns:
+    API key details (excluding the actual key)
+    """
+    return self._get(f"api-keys/{api_key_id}")
 
     def update_api_key(self, api_key_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Update an API key.
+    """
+    Update an API key.
 
-        Args:
-            api_key_id: API key ID
-            data: Updated API key data
-                - name: Name of the API key
-                - description: Description of the API key
-                - scopes: List of permission scopes
+    Args:
+    api_key_id: API key ID
+    data: Updated API key data
+    - name: Name of the API key
+    - description: Description of the API key
+    - scopes: List of permission scopes
 
-        Returns:
-            Updated API key details
-        """
-                return self._put(f"api-keys/{api_key_id}", data)
+    Returns:
+    Updated API key details
+    """
+    return self._put(f"api-keys/{api_key_id}", data)
 
     def delete_api_key(self, api_key_id: str) -> Dict[str, Any]:
-        """
-        Delete an API key.
+    """
+    Delete an API key.
 
-        Args:
-            api_key_id: API key ID
+    Args:
+    api_key_id: API key ID
 
-        Returns:
-            Result of the deletion
-        """
-                return self._delete(f"api-keys/{api_key_id}")
+    Returns:
+    Result of the deletion
+    """
+    return self._delete(f"api-keys/{api_key_id}")
 
     def revoke_api_key(self, api_key_id: str) -> Dict[str, Any]:
-        """
-        Revoke an API key.
+    """
+    Revoke an API key.
 
-        Args:
-            api_key_id: API key ID
+    Args:
+    api_key_id: API key ID
 
-        Returns:
-            Result of the revocation
-        """
-                return self._post(f"api-keys/{api_key_id}/revoke", {})
+    Returns:
+    Result of the revocation
+    """
+    return self._post(f"api-keys/{api_key_id}/revoke", {})
 
     def get_api_key_scopes(self) -> Dict[str, Any]:
-        """
-        Get all available API key scopes.
+    """
+    Get all available API key scopes.
 
-        Returns:
-            List of available scopes
-        """
-                return self._get("api-keys/scopes")
+    Returns:
+    List of available scopes
+    """
+    return self._get("api-keys/scopes")

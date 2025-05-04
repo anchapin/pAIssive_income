@@ -11,8 +11,6 @@ from typing import Any, Dict, Optional
 from ..server import ServerConfig, ServerProtocol
 
 
-
-
 @dataclass
 class RESTConfig(ServerConfig):
     """
@@ -52,49 +50,49 @@ class RESTConfig(ServerConfig):
     metrics_path: str = "/metrics"
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the configuration to a dictionary.
+    """
+    Convert the configuration to a dictionary.
 
-        Returns:
-            Dictionary representation of the configuration
-        """
-        base_dict = super().to_dict()
+    Returns:
+    Dictionary representation of the configuration
+    """
+    base_dict = super().to_dict()
 
-        rest_dict = {
-            "docs_url": self.docs_url,
-            "openapi_url": self.openapi_url,
-            "redoc_url": self.redoc_url,
-            "enable_cors": self.enable_cors,
-            "enable_gzip": self.enable_gzip,
-            "enable_https": self.enable_https,
-            "ssl_keyfile": self.ssl_keyfile,
-            "ssl_certfile": self.ssl_certfile,
-            "enable_text_generation": self.enable_text_generation,
-            "enable_text_classification": self.enable_text_classification,
-            "enable_embedding": self.enable_embedding,
-            "enable_image": self.enable_image,
-            "enable_audio": self.enable_audio,
-            "enable_health_check": self.enable_health_check,
-            "health_check_path": self.health_check_path,
-            "enable_metrics": self.enable_metrics,
-            "metrics_path": self.metrics_path,
-        }
+    rest_dict = {
+    "docs_url": self.docs_url,
+    "openapi_url": self.openapi_url,
+    "redoc_url": self.redoc_url,
+    "enable_cors": self.enable_cors,
+    "enable_gzip": self.enable_gzip,
+    "enable_https": self.enable_https,
+    "ssl_keyfile": self.ssl_keyfile,
+    "ssl_certfile": self.ssl_certfile,
+    "enable_text_generation": self.enable_text_generation,
+    "enable_text_classification": self.enable_text_classification,
+    "enable_embedding": self.enable_embedding,
+    "enable_image": self.enable_image,
+    "enable_audio": self.enable_audio,
+    "enable_health_check": self.enable_health_check,
+    "health_check_path": self.health_check_path,
+    "enable_metrics": self.enable_metrics,
+    "metrics_path": self.metrics_path,
+    }
 
-                return {**base_dict, **rest_dict}
+    return {**base_dict, **rest_dict}
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "RESTConfig":
-        """
-        Create a configuration from a dictionary.
+    """
+    Create a configuration from a dictionary.
 
-        Args:
-            config_dict: Dictionary with configuration parameters
+    Args:
+    config_dict: Dictionary with configuration parameters
 
-        Returns:
-            REST server configuration
-        """
-        # Set protocol to REST
-        config_dict["protocol"] = ServerProtocol.REST.value
+    Returns:
+    REST server configuration
+    """
+    # Set protocol to REST
+    config_dict["protocol"] = ServerProtocol.REST.value
 
-        # Create configuration using parent method
-                return super().from_dict(config_dict)
+    # Create configuration using parent method
+    return super().from_dict(config_dict)

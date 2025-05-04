@@ -16,42 +16,42 @@ class Verbosity:
     debug = 3
 
 
-def given(*args, **kwargs):
+    def given(*args, **kwargs):
     def decorator(func):
-                return func
+    return func
 
-            return decorator
+    return decorator
 
 
-class strategies:
+    class strategies:
     pass
 
 
-def assume(condition):
+    def assume(condition):
     pass
 
 
-class settings:
+    class settings:
     default = None
     _current_profile = "default"
 
     def __init__(self, **kwargs):
-        pass
+    pass
 
     def __call__(self, func):
-                return func
+    return func
 
     @classmethod
     def show_changed(cls):
-                return ""
+    return ""
 
 
-# Initialize default settings
-settings.default = settings()
+    # Initialize default settings
+    settings.default = settings()
 
 
-def example(*args, **kwargs):
+    def example(*args, **kwargs):
     def decorator(func):
-                return func
+    return func
 
-            return decorator
+    return decorator

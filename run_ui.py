@@ -4,7 +4,6 @@ Run the pAIssive Income Framework UI.
 This script is the main entry point for running the web interface.
 """
 
-
 import logging
 import os
 import sys
@@ -12,11 +11,9 @@ import sys
 from ui.app import app
 from ui.socketio_app import socketio
 
-
-
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -28,5 +25,5 @@ if __name__ == "__main__":
     logger.info("Starting pAIssive Income UI")
     logger.info(f"Current working directory: {os.getcwd()}")
 
-# Run the application with SocketIO
+    # Run the application with SocketIO
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

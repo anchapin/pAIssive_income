@@ -16,7 +16,7 @@ class SubscriptionStatus:
     pass  # Added missing block
     """Subscription status enum."""
 
-ACTIVE = "active"
+    ACTIVE = "active"
     INACTIVE = "inactive"
     CANCELED = "canceled"
     EXPIRED = "expired"
@@ -24,319 +24,316 @@ ACTIVE = "active"
     TRIAL = "trial"
 
 
-class TransactionStatus(Enum):
-    """Transaction status enum."""
+    class TransactionStatus(Enum):
 
-PENDING = "pending"
+    PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
     REFUNDED = "refunded"
     CANCELED = "canceled"
 
 
-class TransactionType(Enum):
-    """Transaction type enum."""
+    class TransactionType(Enum):
 
-PAYMENT = "payment"
+    PAYMENT = "payment"
     REFUND = "refund"
     CREDIT = "credit"
     DEBIT = "debit"
 
 
-class ISubscriptionModel(ABC):
-    """Interface for subscription model."""
+    class ISubscriptionModel(ABC):
 
-@abstractmethod
+    @abstractmethod
     def create_subscription_tiers(
-        self, solution: Dict[str, Any]
+    self, solution: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """
-        Create subscription tiers for a solution.
+    """
+    Create subscription tiers for a solution.
 
-Args:
-            solution: Solution dictionary
+    Args:
+    solution: Solution dictionary
 
-Returns:
-            List of subscription tier dictionaries
-        """
-        pass
+    Returns:
+    List of subscription tier dictionaries
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_pricing(
-        self, solution: Dict[str, Any], tiers: List[Dict[str, Any]]
+    self, solution: Dict[str, Any], tiers: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """
-        Calculate pricing for subscription tiers.
+    """
+    Calculate pricing for subscription tiers.
 
-Args:
-            solution: Solution dictionary
-            tiers: List of subscription tier dictionaries
+    Args:
+    solution: Solution dictionary
+    tiers: List of subscription tier dictionaries
 
-Returns:
-            Pricing dictionary
-        """
-        pass
+    Returns:
+    Pricing dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def project_revenue(
-        self, solution: Dict[str, Any], tiers: List[Dict[str, Any]], users: int
+    self, solution: Dict[str, Any], tiers: List[Dict[str, Any]], users: int
     ) -> Dict[str, Any]:
-        """
-        Project revenue for a solution.
+    """
+    Project revenue for a solution.
 
-Args:
-            solution: Solution dictionary
-            tiers: List of subscription tier dictionaries
-            users: Number of users
+    Args:
+    solution: Solution dictionary
+    tiers: List of subscription tier dictionaries
+    users: Number of users
 
-Returns:
-            Revenue projection dictionary
-        """
-        pass
+    Returns:
+    Revenue projection dictionary
+    """
+    pass
 
 
-class IPricingCalculator(ABC):
+    class IPricingCalculator(ABC):
     """Interface for pricing calculator."""
 
-@abstractmethod
+    @abstractmethod
     def calculate_price(self, costs: Dict[str, float], margin: float) -> float:
-        """
-        Calculate price based on costs and margin.
+    """
+    Calculate price based on costs and margin.
 
-Args:
-            costs: Dictionary of costs
-            margin: Profit margin
+    Args:
+    costs: Dictionary of costs
+    margin: Profit margin
 
-Returns:
-            Calculated price
-        """
-        pass
+    Returns:
+    Calculated price
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_tier_prices(
-        self, base_price: float, tiers: List[Dict[str, Any]]
+    self, base_price: float, tiers: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """
-        Calculate prices for subscription tiers.
+    """
+    Calculate prices for subscription tiers.
 
-Args:
-            base_price: Base price
-            tiers: List of subscription tier dictionaries
+    Args:
+    base_price: Base price
+    tiers: List of subscription tier dictionaries
 
-Returns:
-            List of subscription tier dictionaries with prices
-        """
-        pass
+    Returns:
+    List of subscription tier dictionaries with prices
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_discount(self, price: float, discount_percentage: float) -> float:
-        """
-        Calculate discounted price.
+    """
+    Calculate discounted price.
 
-Args:
-            price: Original price
-            discount_percentage: Discount percentage
+    Args:
+    price: Original price
+    discount_percentage: Discount percentage
 
-Returns:
-            Discounted price
-        """
-        pass
+    Returns:
+    Discounted price
+    """
+    pass
 
 
-class IRevenueProjector(ABC):
+    class IRevenueProjector(ABC):
     """Interface for revenue projector."""
 
-@abstractmethod
+    @abstractmethod
     def project_monthly_revenue(
-        self, tiers: List[Dict[str, Any]], user_distribution: Dict[str, int]
+    self, tiers: List[Dict[str, Any]], user_distribution: Dict[str, int]
     ) -> Dict[str, Any]:
-        """
-        Project monthly revenue.
+    """
+    Project monthly revenue.
 
-Args:
-            tiers: List of subscription tier dictionaries
-            user_distribution: Dictionary of user counts by tier
+    Args:
+    tiers: List of subscription tier dictionaries
+    user_distribution: Dictionary of user counts by tier
 
-Returns:
-            Monthly revenue projection dictionary
-        """
-        pass
+    Returns:
+    Monthly revenue projection dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def project_annual_revenue(
-        self,
-        tiers: List[Dict[str, Any]],
-        user_distribution: Dict[str, int],
-        growth_rate: float,
+    self,
+    tiers: List[Dict[str, Any]],
+    user_distribution: Dict[str, int],
+    growth_rate: float,
     ) -> Dict[str, Any]:
-        """
-        Project annual revenue.
+    """
+    Project annual revenue.
 
-Args:
-            tiers: List of subscription tier dictionaries
-            user_distribution: Dictionary of user counts by tier
-            growth_rate: Monthly growth rate
+    Args:
+    tiers: List of subscription tier dictionaries
+    user_distribution: Dictionary of user counts by tier
+    growth_rate: Monthly growth rate
 
-Returns:
-            Annual revenue projection dictionary
-        """
-        pass
+    Returns:
+    Annual revenue projection dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_lifetime_value(self, arpu: float, churn_rate: float) -> float:
-        """
-        Calculate customer lifetime value.
+    """
+    Calculate customer lifetime value.
 
-Args:
-            arpu: Average revenue per user
-            churn_rate: Monthly churn rate
+    Args:
+    arpu: Average revenue per user
+    churn_rate: Monthly churn rate
 
-Returns:
-            Customer lifetime value
-        """
-        pass
+    Returns:
+    Customer lifetime value
+    """
+    pass
 
 
-class ISubscriptionManager(ABC):
+    class ISubscriptionManager(ABC):
     """Interface for subscription manager."""
 
-@abstractmethod
+    @abstractmethod
     def create_subscription(
-        self, user_id: str, tier_id: str, payment_method_id: str
+    self, user_id: str, tier_id: str, payment_method_id: str
     ) -> Dict[str, Any]:
-        """
-        Create a subscription.
+    """
+    Create a subscription.
 
-Args:
-            user_id: User ID
-            tier_id: Subscription tier ID
-            payment_method_id: Payment method ID
+    Args:
+    user_id: User ID
+    tier_id: Subscription tier ID
+    payment_method_id: Payment method ID
 
-Returns:
-            Subscription dictionary
-        """
-        pass
+    Returns:
+    Subscription dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def update_subscription(
-        self, subscription_id: str, updates: Dict[str, Any]
+    self, subscription_id: str, updates: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """
-        Update a subscription.
+    """
+    Update a subscription.
 
-Args:
-            subscription_id: Subscription ID
-            updates: Dictionary of updates
+    Args:
+    subscription_id: Subscription ID
+    updates: Dictionary of updates
 
-Returns:
-            Updated subscription dictionary
-        """
-        pass
+    Returns:
+    Updated subscription dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def cancel_subscription(
-        self, subscription_id: str, reason: Optional[str] = None
+    self, subscription_id: str, reason: Optional[str] = None
     ) -> Dict[str, Any]:
-        """
-        Cancel a subscription.
+    """
+    Cancel a subscription.
 
-Args:
-            subscription_id: Subscription ID
-            reason: Optional cancellation reason
+    Args:
+    subscription_id: Subscription ID
+    reason: Optional cancellation reason
 
-Returns:
-            Canceled subscription dictionary
-        """
-        pass
+    Returns:
+    Canceled subscription dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def get_subscription(self, subscription_id: str) -> Dict[str, Any]:
-        """
-        Get a subscription.
+    """
+    Get a subscription.
 
-Args:
-            subscription_id: Subscription ID
+    Args:
+    subscription_id: Subscription ID
 
-Returns:
-            Subscription dictionary
-        """
-        pass
+    Returns:
+    Subscription dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def get_user_subscriptions(self, user_id: str) -> List[Dict[str, Any]]:
-        """
-        Get subscriptions for a user.
+    """
+    Get subscriptions for a user.
 
-Args:
-            user_id: User ID
+    Args:
+    user_id: User ID
 
-Returns:
-            List of subscription dictionaries
-        """
-        pass
+    Returns:
+    List of subscription dictionaries
+    """
+    pass
 
 
-class IMonetizationCalculator(ABC):
+    class IMonetizationCalculator(ABC):
     """Interface for monetization calculator."""
 
-@abstractmethod
+    @abstractmethod
     def calculate_subscription_revenue(
-        self, tiers: List[Dict[str, Any]], user_counts: Dict[str, int]
+    self, tiers: List[Dict[str, Any]], user_counts: Dict[str, int]
     ) -> Dict[str, Any]:
-        """
-        Calculate subscription revenue.
+    """
+    Calculate subscription revenue.
 
-Args:
-            tiers: List of subscription tier dictionaries
-            user_counts: Dictionary of user counts by tier
+    Args:
+    tiers: List of subscription tier dictionaries
+    user_counts: Dictionary of user counts by tier
 
-Returns:
-            Revenue dictionary
-        """
-        pass
+    Returns:
+    Revenue dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_costs(self, solution: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Calculate costs for a solution.
+    """
+    Calculate costs for a solution.
 
-Args:
-            solution: Solution dictionary
+    Args:
+    solution: Solution dictionary
 
-Returns:
-            Costs dictionary
-        """
-        pass
+    Returns:
+    Costs dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def calculate_profit(
-        self, revenue: Dict[str, Any], costs: Dict[str, Any]
+    self, revenue: Dict[str, Any], costs: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """
-        Calculate profit.
+    """
+    Calculate profit.
 
-Args:
-            revenue: Revenue dictionary
-            costs: Costs dictionary
+    Args:
+    revenue: Revenue dictionary
+    costs: Costs dictionary
 
-Returns:
-            Profit dictionary
-        """
-        pass
+    Returns:
+    Profit dictionary
+    """
+    pass
 
-@abstractmethod
+    @abstractmethod
     def project_growth(
-        self, initial_users: int, growth_rate: float, months: int
+    self, initial_users: int, growth_rate: float, months: int
     ) -> Dict[str, Any]:
-        """
-        Project user growth.
+    """
+    Project user growth.
 
-Args:
-            initial_users: Initial number of users
-            growth_rate: Monthly growth rate
-            months: Number of months to project
+    Args:
+    initial_users: Initial number of users
+    growth_rate: Monthly growth rate
+    months: Number of months to project
 
-Returns:
-            Growth projection dictionary
-        """
-        pass
+    Returns:
+    Growth projection dictionary
+    """
+    pass

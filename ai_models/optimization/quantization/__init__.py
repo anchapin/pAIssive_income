@@ -12,15 +12,15 @@ from .bitsandbytes_quantizer import BitsAndBytesQuantizer
 from .gptq_quantizer import GPTQQuantizer
 from .utils import analyze_quantization, quantize_model
 
-__all__ 
+__all__
 
 = [
-    "Quantizer",
-    "QuantizationConfig",
-    "QuantizationMethod",
-    "BitsAndBytesQuantizer",
-    "AWQQuantizer",
-    "GPTQQuantizer",
-    "quantize_model",
-    "analyze_quantization",
+"Quantizer",
+"QuantizationConfig",
+"QuantizationMethod",
+"BitsAndBytesQuantizer",
+"AWQQuantizer",
+"GPTQQuantizer",
+"quantize_model",
+"analyze_quantization",
 ]

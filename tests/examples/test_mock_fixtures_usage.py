@@ -8,10 +8,10 @@ the mock fixtures for external APIs in test scenarios.
 
 import json
 import os
-    import requests
-    from huggingface_hub import hf_hub_download, list_models
 
-    
+import requests
+from huggingface_hub import hf_hub_download, list_models
+
 
 # Test using mock_http fixture
 def test_openai_api_interaction(mock_http_with_common_responses):
@@ -23,33 +23,33 @@ def test_openai_api_interaction(mock_http_with_common_responses):
 
     # Make a request to the OpenAI API
     response = http.post(
-        "https://api.openai.com/v1/chat/completions",
-        json={
-            "model": "gpt-3.5-turbo",
-            "messages": [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Hello!"},
-            ],
-        },
+    "https://api.openai.com/v1/chat/completions",
+    json={
+    "model": "gpt-3.5-turbo",
+    "messages": [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "Hello!"},
+    ],
+    },
     )
 
     # Verify the response
     assert response.status_code == 200
     data = response.json()
     assert (
-        data["choices"][0]["message"]["content"]
-        == "This is a mock response from the AI."
+    data["choices"][0]["message"]["content"]
+    == "This is a mock response from the AI."
     )
 
     # We can also add new mock responses on the fly
     http.add_response(
-        "https://api.openai.com/v1/models",
-        {
-            "data": [
-                {"id": "gpt-4", "owned_by": "openai"},
-                {"id": "gpt-3.5-turbo", "owned_by": "openai"},
-            ]
-        },
+    "https://api.openai.com/v1/models",
+    {
+    "data": [
+    {"id": "gpt-4", "owned_by": "openai"},
+    {"id": "gpt-3.5-turbo", "owned_by": "openai"},
+    ]
+    },
     )
 
     # And then use them
@@ -63,8 +63,8 @@ def test_openai_api_interaction(mock_http_with_common_responses):
     assert http.request_history[1]["method"] == "GET"
 
 
-# Test using patch_requests fixture
-def test_with_patched_requests(patch_requests):
+    # Test using patch_requests fixture
+    def test_with_patched_requests(patch_requests):
     """
     Test using the patch_requests fixture to mock the requests library.
     """
@@ -74,7 +74,7 @@ def test_with_patched_requests(patch_requests):
 
     # Set up a mock response
     patch_requests.add_response(
-        "https://api.example.com/data", {"key": "value", "items": [1, 2, 3]}
+    "https://api.example.com/data", {"key": "value", "items": [1, 2, 3]}
     )
 
     # Use the requests library as usual
@@ -87,8 +87,8 @@ def test_with_patched_requests(patch_requests):
     assert data["items"] == [1, 2, 3]
 
 
-# Test using mock_hf_hub fixture
-def test_huggingface_hub_interaction(mock_hf_hub_with_models):
+    # Test using mock_hf_hub fixture
+    def test_huggingface_hub_interaction(mock_hf_hub_with_models):
     """
     Test interacting with the Hugging Face Hub using the mock fixture.
     """
@@ -108,7 +108,7 @@ def test_huggingface_hub_interaction(mock_hf_hub_with_models):
 
     # Check the file contents
     with open(file_path, "r") as f:
-        config = json.loads(f.read())
+    config = json.loads(f.read())
 
     assert config["model_type"] == "gpt2"
     assert config["vocab_size"] == 50257
@@ -117,7 +117,7 @@ def test_huggingface_hub_interaction(mock_hf_hub_with_models):
     hf_hub.add_repo({"id": "my-custom-model", "tags": ["text-generation"]})
 
     hf_hub.add_file(
-        repo_id="my-custom-model", file_path="model.bin", content=b"CUSTOM_MODEL_DATA"
+    repo_id="my-custom-model", file_path="model.bin", content=b"CUSTOM_MODEL_DATA"
     )
 
     # Download the new model
@@ -128,27 +128,27 @@ def test_huggingface_hub_interaction(mock_hf_hub_with_models):
 
     # Check the file contents
     with open(file_path, "rb") as f:
-        model_data = f.read()
+    model_data = f.read()
 
     assert model_data == b"CUSTOM_MODEL_DATA"
 
 
-# Test using patch_huggingface_hub fixture
-def test_with_patched_huggingface_hub(patch_huggingface_hub):
+    # Test using patch_huggingface_hub fixture
+    def test_with_patched_huggingface_hub(patch_huggingface_hub):
     """
     Test using the patch_huggingface_hub fixture to mock the huggingface_hub library.
     """
     # The patch_huggingface_hub fixture replaces the actual huggingface_hub library
     # with our mock, which allows us to import and use huggingface_hub as normal
-# Add a model to the mock hub
+    # Add a model to the mock hub
     patch_huggingface_hub.add_repo(
-        {"id": "bert-base-uncased", "pipeline_tag": "fill-mask"}
+    {"id": "bert-base-uncased", "pipeline_tag": "fill-mask"}
     )
 
     patch_huggingface_hub.add_file(
-        repo_id="bert-base-uncased",
-        file_path="config.json",
-        content=json.dumps({"model_type": "bert"}),
+    repo_id="bert-base-uncased",
+    file_path="config.json",
+    content=json.dumps({"model_type": "bert"}),
     )
 
     # List models
@@ -164,13 +164,13 @@ def test_with_patched_huggingface_hub(patch_huggingface_hub):
 
     # Check the file contents
     with open(file_path, "r") as f:
-        config = json.loads(f.read())
+    config = json.loads(f.read())
 
     assert config["model_type"] == "bert"
 
 
-# Test using the comprehensive AI model testing setup
-def test_ai_model_complete_scenario(mock_ai_model_testing_setup):
+    # Test using the comprehensive AI model testing setup
+    def test_ai_model_complete_scenario(mock_ai_model_testing_setup):
     """
     Test a complete AI model scenario using the mock_ai_model_testing_setup fixture.
 
@@ -186,16 +186,16 @@ def test_ai_model_complete_scenario(mock_ai_model_testing_setup):
 
     # Use the HTTP mock
     response = http.post(
-        "https://api.openai.com/v1/chat/completions",
-        json={
-            "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": "Hello!"}],
-        },
+    "https://api.openai.com/v1/chat/completions",
+    json={
+    "model": "gpt-3.5-turbo",
+    "messages": [{"role": "user", "content": "Hello!"}],
+    },
     )
 
     assert response.status_code == 200
     assert (
-        "This is a mock response" in response.json()["choices"][0]["message"]["content"]
+    "This is a mock response" in response.json()["choices"][0]["message"]["content"]
     )
 
     # Use the Hugging Face Hub mock
@@ -212,15 +212,15 @@ def test_ai_model_complete_scenario(mock_ai_model_testing_setup):
     # Use the temporary directory for file operations
     test_file_path = os.path.join(temp_dir, "test.txt")
     with open(test_file_path, "w") as f:
-        f.write("Test data")
+    f.write("Test data")
 
     assert os.path.exists(test_file_path)
 
 
-# Additional examples for monetization, marketing, and niche analysis testing
+    # Additional examples for monetization, marketing, and niche analysis testing
 
 
-def test_monetization_scenario(mock_monetization_testing_setup):
+    def test_monetization_scenario(mock_monetization_testing_setup):
     """
     Test a monetization scenario using the mock_monetization_testing_setup fixture.
     """
@@ -230,8 +230,8 @@ def test_monetization_scenario(mock_monetization_testing_setup):
 
     # Test creating a new customer
     response = http.post(
-        "https://api.stripe.com/v1/customers",
-        json={"email": "new@example.com", "name": "New Customer"},
+    "https://api.stripe.com/v1/customers",
+    json={"email": "new@example.com", "name": "New Customer"},
     )
 
     assert response.status_code == 200
@@ -241,7 +241,7 @@ def test_monetization_scenario(mock_monetization_testing_setup):
     assert subscription_data["subscription"]["status"] == "active"
 
 
-def test_marketing_scenario(mock_marketing_testing_setup):
+    def test_marketing_scenario(mock_marketing_testing_setup):
     """
     Test a marketing scenario using the mock_marketing_testing_setup fixture.
     """
@@ -251,13 +251,13 @@ def test_marketing_scenario(mock_marketing_testing_setup):
 
     # Test sending an email
     response = http.post(
-        "https://api.sendgrid.com/v3/mail/send",
-        json={
-            "personalizations": [{"to": [{"email": "recipient@example.com"}]}],
-            "from": {"email": "sender@example.com"},
-            "subject": "Test Email",
-            "content": [{"type": "text/plain", "value": "Hello!"}],
-        },
+    "https://api.sendgrid.com/v3/mail/send",
+    json={
+    "personalizations": [{"to": [{"email": "recipient@example.com"}]}],
+    "from": {"email": "sender@example.com"},
+    "subject": "Test Email",
+    "content": [{"type": "text/plain", "value": "Hello!"}],
+    },
     )
 
     assert response.status_code == 202
@@ -267,7 +267,7 @@ def test_marketing_scenario(mock_marketing_testing_setup):
     assert len(campaign_data["channels"]) == 2
 
 
-def test_niche_analysis_scenario(mock_niche_analysis_testing_setup):
+    def test_niche_analysis_scenario(mock_niche_analysis_testing_setup):
     """
     Test a niche analysis scenario using the mock_niche_analysis_testing_setup fixture.
     """

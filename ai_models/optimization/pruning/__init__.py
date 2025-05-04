@@ -11,14 +11,14 @@ from .magnitude_pruner import MagnitudePruner
 from .structured_pruner import StructuredPruner
 from .utils import analyze_pruning, prune_model
 
-__all__ 
+__all__
 
 = [
-    "Pruner",
-    "PruningConfig",
-    "PruningMethod",
-    "MagnitudePruner",
-    "StructuredPruner",
-    "prune_model",
-    "analyze_pruning",
+"Pruner",
+"PruningConfig",
+"PruningMethod",
+"MagnitudePruner",
+"StructuredPruner",
+"prune_model",
+"analyze_pruning",
 ]

@@ -26,8 +26,8 @@ class PruningMethod:
     LOTTERY_TICKET = "lottery_ticket"
 
 
-@dataclass
-class PruningConfig:
+    @dataclass
+    class PruningConfig:
     """
     Configuration for model pruning.
     """
@@ -58,120 +58,120 @@ class PruningConfig:
     additional_params: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the configuration to a dictionary.
+    """
+    Convert the configuration to a dictionary.
 
-        Returns:
-            Dictionary representation of the configuration
-        """
-                return {
-            "method": self.method.value,
-            "sparsity": self.sparsity,
-            "structured_block_size": self.structured_block_size,
-            "structured_n_m_ratio": self.structured_n_m_ratio,
-            "excluded_layers": self.excluded_layers,
-            "included_layers": self.included_layers,
-            "gradual_pruning": self.gradual_pruning,
-            "pruning_steps": self.pruning_steps,
-            "initial_sparsity": self.initial_sparsity,
-            "final_sparsity": self.final_sparsity,
-            "calibration_dataset": self.calibration_dataset,
-            "calibration_num_samples": self.calibration_num_samples,
-            "calibration_seqlen": self.calibration_seqlen,
-            **self.additional_params,
-        }
+    Returns:
+    Dictionary representation of the configuration
+    """
+    return {
+    "method": self.method.value,
+    "sparsity": self.sparsity,
+    "structured_block_size": self.structured_block_size,
+    "structured_n_m_ratio": self.structured_n_m_ratio,
+    "excluded_layers": self.excluded_layers,
+    "included_layers": self.included_layers,
+    "gradual_pruning": self.gradual_pruning,
+    "pruning_steps": self.pruning_steps,
+    "initial_sparsity": self.initial_sparsity,
+    "final_sparsity": self.final_sparsity,
+    "calibration_dataset": self.calibration_dataset,
+    "calibration_num_samples": self.calibration_num_samples,
+    "calibration_seqlen": self.calibration_seqlen,
+    **self.additional_params,
+    }
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "PruningConfig":
-        """
-        Create a configuration from a dictionary.
+    """
+    Create a configuration from a dictionary.
 
-        Args:
-            config_dict: Dictionary with configuration parameters
+    Args:
+    config_dict: Dictionary with configuration parameters
 
-        Returns:
-            Pruning configuration
-        """
-        # Extract method
-        method_str = config_dict.pop("method", "none")
-        try:
-            method = PruningMethod(method_str)
-        except ValueError:
-            method = PruningMethod.NONE
+    Returns:
+    Pruning configuration
+    """
+    # Extract method
+    method_str = config_dict.pop("method", "none")
+    try:
+    method = PruningMethod(method_str)
+except ValueError:
+    method = PruningMethod.NONE
 
-        # Extract additional parameters
-        additional_params = {}
-        for key, value in list(config_dict.items()):
-            if key not in cls.__annotations__:
-                additional_params[key] = config_dict.pop(key)
+    # Extract additional parameters
+    additional_params = {}
+    for key, value in list(config_dict.items()):
+    if key not in cls.__annotations__:
+    additional_params[key] = config_dict.pop(key)
 
-        # Create configuration
-        config = cls(method=method, **config_dict)
+    # Create configuration
+    config = cls(method=method, **config_dict)
 
-        config.additional_params = additional_params
-                return config
+    config.additional_params = additional_params
+    return config
 
 
-class Pruner(abc.ABC):
+    class Pruner(abc.ABC):
     """
     Base class for model pruners.
     """
 
     def __init__(self, config: PruningConfig):
-        """
-        Initialize the pruner.
+    """
+    Initialize the pruner.
 
-        Args:
-            config: Pruning configuration
-        """
-        self.config = config
+    Args:
+    config: Pruning configuration
+    """
+    self.config = config
 
     @abc.abstractmethod
     def prune(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
+    self, model_path: str, output_path: Optional[str] = None, **kwargs
     ) -> str:
-        """
-        Prune a model.
+    """
+    Prune a model.
 
-        Args:
-            model_path: Path to the model
-            output_path: Path to save the pruned model (None for in-place)
-            **kwargs: Additional parameters for pruning
+    Args:
+    model_path: Path to the model
+    output_path: Path to save the pruned model (None for in-place)
+    **kwargs: Additional parameters for pruning
 
-        Returns:
-            Path to the pruned model
-        """
-        pass
+    Returns:
+    Path to the pruned model
+    """
+    pass
 
     @abc.abstractmethod
     def supports_model_type(self, model_type: str) -> bool:
-        """
-        Check if the pruner supports a model type.
+    """
+    Check if the pruner supports a model type.
 
-        Args:
-            model_type: Type of the model
+    Args:
+    model_type: Type of the model
 
-        Returns:
-            True if the model type is supported, False otherwise
-        """
-        pass
+    Returns:
+    True if the model type is supported, False otherwise
+    """
+    pass
 
     @abc.abstractmethod
     def get_supported_methods(self) -> List[PruningMethod]:
-        """
-        Get the pruning methods supported by the pruner.
+    """
+    Get the pruning methods supported by the pruner.
 
-        Returns:
-            List of supported pruning methods
-        """
-        pass
+    Returns:
+    List of supported pruning methods
+    """
+    pass
 
     @abc.abstractmethod
     def get_pruning_info(self) -> Dict[str, Any]:
-        """
-        Get information about the pruning.
+    """
+    Get information about the pruning.
 
-        Returns:
-            Dictionary with pruning information
-        """
-        pass
+    Returns:
+    Dictionary with pruning information
+    """
+    pass

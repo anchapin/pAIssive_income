@@ -5,32 +5,28 @@ This module provides exceptions for the event bus.
 """
 
 
-
 class EventBusError(Exception):
     """Base exception for event bus errors."""
 
     pass
 
 
-class EventPublishError(EventBusError):
-    """Exception raised when an event cannot be published."""
+    class EventPublishError(EventBusError):
 
     pass
 
 
-class EventSubscribeError(EventBusError):
-    """Exception raised when a subscription cannot be created."""
+    class EventSubscribeError(EventBusError):
 
     pass
 
 
-class EventHandlingError(EventBusError):
-    """Exception raised when an event cannot be handled."""
+    class EventHandlingError(EventBusError):
 
     pass
 
 
-class EventValidationError(EventBusError):
+    class EventValidationError(EventBusError):
     """Exception raised when an event fails validation."""
 
     pass

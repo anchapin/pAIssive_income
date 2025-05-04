@@ -11,8 +11,6 @@ from agent_team import AgentTeam
 from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 
 
-
-
 @pytest.fixture
 def mock_model_manager():
     """Create a mock ModelManager."""
@@ -20,22 +18,22 @@ def mock_model_manager():
 
     # Mock get_model_info method
     manager.get_model_info.return_value = {
-        "id": "model1",
-        "name": "Test Model",
-        "description": "A test model",
-        "type": "huggingface",
-        "path": "/path/to/model",
-        "capabilities": ["text-generation"],
+    "id": "model1",
+    "name": "Test Model",
+    "description": "A test model",
+    "type": "huggingface",
+    "path": "/path/to/model",
+    "capabilities": ["text-generation"],
     }
 
     # Mock load_model method
     manager.load_model.return_value = MagicMock(name="Test Model")
 
-            return manager
+    return manager
 
 
-@patch("agent_team.team_config.ResearchAgent")
-def test_agent_model_integration(mock_researcher_class, mock_model_manager):
+    @patch("agent_team.team_config.ResearchAgent")
+    def test_agent_model_integration(mock_researcher_class, mock_model_manager):
     """Test integration between AgentModelProvider and AgentTeam."""
     # Mock the ResearchAgent
     mock_researcher = MagicMock()
@@ -66,23 +64,22 @@ def test_agent_model_integration(mock_researcher_class, mock_model_manager):
     mock_researcher.analyze_market_segments.assert_called_once_with(["e-commerce"])
 
 
-def test_model_loading_integration(mock_model_manager):
-    """Test integration between ModelManager and AgentModelProvider."""
+    def test_model_loading_integration(mock_model_manager):
 
     # Create a mock ModelInfo object
     class MockModelInfo:
-        def __init__(self, id, name, type, capabilities):
-            self.id = id
-            self.name = name
-            self.type = type
-            self.capabilities = capabilities
+    def __init__(self, id, name, type, capabilities):
+    self.id = id
+    self.name = name
+    self.type = type
+    self.capabilities = capabilities
 
     # Mock the get_model_info method
     model_info = MockModelInfo(
-        id="model1",
-        name="Test Model",
-        type="huggingface",
-        capabilities=["text-generation"],
+    id="model1",
+    name="Test Model",
+    type="huggingface",
+    capabilities=["text-generation"],
     )
     mock_model_manager.get_model_info.return_value = model_info
 
@@ -110,32 +107,32 @@ def test_model_loading_integration(mock_model_manager):
     assert model == mock_model
 
 
-@pytest.fixture
-def mock_all_agents():
+    @pytest.fixture
+    def mock_all_agents():
     """Create mock agents for all agent types."""
     mock_agents = {}
 
     agent_types = ["researcher", "developer", "monetization", "marketing"]
 
     for agent_type in agent_types:
-        mock_agent = MagicMock(name=f"{agent_type.capitalize()}Agent")
-        mock_agents[agent_type] = mock_agent
+    mock_agent = MagicMock(name=f"{agent_type.capitalize()}Agent")
+    mock_agents[agent_type] = mock_agent
 
-            return mock_agents
+    return mock_agents
 
 
-@patch("agent_team.team_config.ResearchAgent")
-@patch("agent_team.team_config.DeveloperAgent")
-@patch("agent_team.team_config.MonetizationAgent")
-@patch("agent_team.team_config.MarketingAgent")
-def test_multiple_agents_model_integration(
+    @patch("agent_team.team_config.ResearchAgent")
+    @patch("agent_team.team_config.DeveloperAgent")
+    @patch("agent_team.team_config.MonetizationAgent")
+    @patch("agent_team.team_config.MarketingAgent")
+    def test_multiple_agents_model_integration(
     mock_marketing_class,
     mock_monetization_class,
     mock_developer_class,
     mock_researcher_class,
     mock_all_agents,
     mock_model_manager,
-):
+    ):
     """Test integration between multiple agent types and their respective models."""
     # Set up the mock agents
     mock_researcher_class.return_value = mock_all_agents["researcher"]
@@ -145,33 +142,33 @@ def test_multiple_agents_model_integration(
 
     # Mock additional models in model manager
     models = {
-        "research_model": {
-            "id": "research_model",
-            "name": "Research Model",
-            "capabilities": ["text-generation", "summarization"],
-        },
-        "dev_model": {
-            "id": "dev_model",
-            "name": "Developer Model",
-            "capabilities": ["code-generation", "code-explanation"],
-        },
-        "monetization_model": {
-            "id": "monetization_model",
-            "name": "Monetization Model",
-            "capabilities": ["financial-analysis", "pricing-optimization"],
-        },
-        "marketing_model": {
-            "id": "marketing_model",
-            "name": "Marketing Model",
-            "capabilities": ["content-generation", "audience-analysis"],
-        },
+    "research_model": {
+    "id": "research_model",
+    "name": "Research Model",
+    "capabilities": ["text-generation", "summarization"],
+    },
+    "dev_model": {
+    "id": "dev_model",
+    "name": "Developer Model",
+    "capabilities": ["code-generation", "code-explanation"],
+    },
+    "monetization_model": {
+    "id": "monetization_model",
+    "name": "Monetization Model",
+    "capabilities": ["financial-analysis", "pricing-optimization"],
+    },
+    "marketing_model": {
+    "id": "marketing_model",
+    "name": "Marketing Model",
+    "capabilities": ["content-generation", "audience-analysis"],
+    },
     }
 
     mock_model_manager.get_model_info.side_effect = lambda model_id: models.get(
-        model_id, None
+    model_id, None
     )
     mock_model_manager.load_model.side_effect = lambda model_id: MagicMock(
-        name=models.get(model_id, {}).get("name", "Unknown Model")
+    name=models.get(model_id, {}).get("name", "Unknown Model")
     )
 
     # Create a model provider
@@ -184,7 +181,7 @@ def test_multiple_agents_model_integration(
     provider.assign_model_to_agent("researcher", "research_model", "text-generation")
     provider.assign_model_to_agent("developer", "dev_model", "code-generation")
     provider.assign_model_to_agent(
-        "monetization", "monetization_model", "financial-analysis"
+    "monetization", "monetization_model", "financial-analysis"
     )
     provider.assign_model_to_agent("marketing", "marketing_model", "content-generation")
 
@@ -192,7 +189,7 @@ def test_multiple_agents_model_integration(
     research_model = provider.get_model_for_agent("researcher", "text-generation")
     dev_model = provider.get_model_for_agent("developer", "code-generation")
     monetization_model = provider.get_model_for_agent(
-        "monetization", "financial-analysis"
+    "monetization", "financial-analysis"
     )
     marketing_model = provider.get_model_for_agent("marketing", "content-generation")
 
@@ -210,12 +207,12 @@ def test_multiple_agents_model_integration(
 
     # Mock the return value of run_niche_analysis to include required fields
     mock_niche = {
-        "id": "niche-123",
-        "name": "E-commerce Solutions",
-        "market_segment": "e-commerce",
-        "opportunity_score": 0.85,
-        "description": "Online shopping solutions for small businesses",
-        "keywords": ["e-commerce", "online shopping", "small business"],
+    "id": "niche-123",
+    "name": "E-commerce Solutions",
+    "market_segment": "e-commerce",
+    "opportunity_score": 0.85,
+    "description": "Online shopping solutions for small businesses",
+    "keywords": ["e-commerce", "online shopping", "small business"],
     }
     mock_all_agents["researcher"].analyze_market_segments.return_value = [mock_niche]
 
@@ -232,7 +229,7 @@ def test_multiple_agents_model_integration(
     mock_all_agents["marketing"].create_plan.assert_called_once()
 
 
-def test_model_fallback_integration(mock_model_manager):
+    def test_model_fallback_integration(mock_model_manager):
     """Test integration with model fallbacks."""
     # Setup primary and fallback models
     MagicMock(name="Primary Model")
@@ -240,39 +237,39 @@ def test_model_fallback_integration(mock_model_manager):
 
     # Create a mock ModelInfo object for the fallback model
     class MockModelInfo:
-        def __init__(self, id, name, type, capabilities):
-            self.id = id
-            self.name = name
-            self.type = type
-            self.capabilities = capabilities
+    def __init__(self, id, name, type, capabilities):
+    self.id = id
+    self.name = name
+    self.type = type
+    self.capabilities = capabilities
 
     # Mock the get_model_info method for both primary and fallback models
     fallback_model_info = MockModelInfo(
-        id="fallback_model",
-        name="Fallback Model",
-        type="huggingface",
-        capabilities=["text-generation"],
+    id="fallback_model",
+    name="Fallback Model",
+    type="huggingface",
+    capabilities=["text-generation"],
     )
 
     primary_model_info = MockModelInfo(
-        id="primary_model",
-        name="Primary Model",
-        type="huggingface",
-        capabilities=["text-generation"],
+    id="primary_model",
+    name="Primary Model",
+    type="huggingface",
+    capabilities=["text-generation"],
     )
 
     # Configure the mocks
     def get_model_info_side_effect(model_id):
-        if model_id == "fallback_model":
-                    return fallback_model_info
-        elif model_id == "primary_model":
-                    return primary_model_info
-                return None
+    if model_id == "fallback_model":
+    return fallback_model_info
+    elif model_id == "primary_model":
+    return primary_model_info
+    return None
 
     mock_model_manager.get_model_info.side_effect = get_model_info_side_effect
     mock_model_manager.get_all_models.return_value = [
-        primary_model_info,
-        fallback_model_info,
+    primary_model_info,
+    fallback_model_info,
     ]
 
     # Configure get_models_by_type to return our fallback model
@@ -280,33 +277,33 @@ def test_model_fallback_integration(mock_model_manager):
 
     # Set up load_model to fail for primary but succeed for fallback
     def load_model_side_effect(model_id):
-        if model_id == "primary_model":
-            raise Exception("Model loading failed")
-        elif model_id == "fallback_model":
-                    return fallback_model
-        raise Exception(f"Unknown model: {model_id}")
+    if model_id == "primary_model":
+    raise Exception("Model loading failed")
+    elif model_id == "fallback_model":
+    return fallback_model
+    raise Exception(f"Unknown model: {model_id}")
 
     mock_model_manager.load_model.side_effect = load_model_side_effect
 
     # Create a model provider with fallback configured
     provider = AgentModelProvider(mock_model_manager)
     provider.configure_fallback(
-        fallback_enabled=True, fallback_config={"default_model_id": "fallback_model"}
+    fallback_enabled=True, fallback_config={"default_model_id": "fallback_model"}
     )
 
     # Attempt to get the model, which should trigger the fallback
     model = provider.get_model_with_fallback(
-        "researcher", "primary_model", "text-generation"
+    "researcher", "primary_model", "text-generation"
     )
 
     # Verify we got the fallback model
     assert model == fallback_model
 
 
-@patch("ai_models.performance_monitor.PerformanceMonitor")
-def test_model_performance_tracking_integration(
+    @patch("ai_models.performance_monitor.PerformanceMonitor")
+    def test_model_performance_tracking_integration(
     mock_performance_monitor_class, mock_model_manager
-):
+    ):
     """Test integration with performance tracking."""
     # Create a mock performance monitor
     mock_performance_monitor = MagicMock(spec=PerformanceMonitor)
@@ -342,10 +339,10 @@ def test_model_performance_tracking_integration(
     assert result == "Generated text"
 
 
-@patch("agent_team.team_config.ResearchAgent")
-def test_agent_model_error_handling_integration(
+    @patch("agent_team.team_config.ResearchAgent")
+    def test_agent_model_error_handling_integration(
     mock_researcher_class, mock_model_manager
-):
+    ):
     """Test integration with model error handling in agents."""
     # Mock the ResearchAgent
     mock_researcher = MagicMock()
@@ -354,18 +351,18 @@ def test_agent_model_error_handling_integration(
     # Create a mock ModelInfo object for get_model_info to return
     # We'll create a simple mock class that mimics ModelInfo
     class MockModelInfo:
-        def __init__(self, id, name, type, capabilities):
-            self.id = id
-            self.name = name
-            self.type = type
-            self.capabilities = capabilities
+    def __init__(self, id, name, type, capabilities):
+    self.id = id
+    self.name = name
+    self.type = type
+    self.capabilities = capabilities
 
     # Mock model info
     model_info = MockModelInfo(
-        id="model1",
-        name="Test Model",
-        type="huggingface",
-        capabilities=["text-generation"],
+    id="model1",
+    name="Test Model",
+    type="huggingface",
+    capabilities=["text-generation"],
     )
     mock_model_manager.get_model_info.return_value = model_info
 
@@ -383,30 +380,29 @@ def test_agent_model_error_handling_integration(
 
     # Check that an exception is raised when trying to get the model
     with pytest.raises(Exception) as excinfo:
-        provider.get_model_for_agent("researcher", "text-generation")
+    provider.get_model_for_agent("researcher", "text-generation")
 
     # Check that the exception message is correct
     assert "Model loading failed" in str(excinfo.value)
 
 
-def test_agent_model_capabilities_integration(mock_model_manager):
-    """Test integration with model capabilities checking."""
+    def test_agent_model_capabilities_integration(mock_model_manager):
 
     # Create a mock ModelInfo object with capabilities
     # We'll create a simple mock class that mimics ModelInfo
     class MockModelInfo:
-        def __init__(self, id, name, type, capabilities):
-            self.id = id
-            self.name = name
-            self.type = type
-            self.capabilities = capabilities
+    def __init__(self, id, name, type, capabilities):
+    self.id = id
+    self.name = name
+    self.type = type
+    self.capabilities = capabilities
 
     # Mock model info with capabilities
     model_info = MockModelInfo(
-        id="model1",
-        name="Test Model",
-        type="huggingface",
-        capabilities=["text-generation", "summarization"],
+    id="model1",
+    name="Test Model",
+    type="huggingface",
+    capabilities=["text-generation", "summarization"],
     )
 
     # Configure the mock to return our model info

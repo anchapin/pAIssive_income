@@ -1,11 +1,7 @@
-
 import logging
 import os
-from ui import app  
 
-import logging
-import os
-from ui import app  
+from ui import app
 
 # noqa: E402, F811
 # noqa: E402, F811
@@ -15,12 +11,12 @@ Main application file for the pAIssive Income UI.
 
 This file is the entry point for running the web interface.
 """
-  # noqa: E402, F811
-  # noqa: E402, F811
+# noqa: E402, F811
+# noqa: E402, F811
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -34,5 +30,5 @@ if __name__ == "__main__":
     logger.info(f"Template folder: {app.template_folder}")
     logger.info(f"Static folder: {app.static_folder}")
 
-# Run the application
+    # Run the application
     app.run(debug=True, host="0.0.0.0", port=5000)

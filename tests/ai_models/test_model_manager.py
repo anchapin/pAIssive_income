@@ -14,8 +14,6 @@ import pytest
 from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 
-
-
 @pytest.fixture
 def temp_model_dir():
     """Create a temporary directory for models."""
@@ -24,16 +22,16 @@ def temp_model_dir():
     shutil.rmtree(temp_dir)
 
 
-@pytest.fixture
-def temp_cache_dir():
+    @pytest.fixture
+    def temp_cache_dir():
     """Create a temporary directory for cache."""
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     shutil.rmtree(temp_dir)
 
 
-@pytest.fixture
-def mock_config():
+    @pytest.fixture
+    def mock_config():
     """Create a mock ModelConfig."""
     config = MagicMock(spec=IModelConfig)
     config.models_dir = tempfile.mkdtemp()
@@ -45,27 +43,27 @@ def mock_config():
     config.model_sources = ["local", "huggingface"]
     config.default_text_model = "gpt2"
     config.default_embedding_model = "all-MiniLM-L6-v2"
-            return config
+    return config
 
 
-@pytest.fixture
-def mock_performance_monitor():
+    @pytest.fixture
+    def mock_performance_monitor():
     """Create a mock PerformanceMonitor."""
-            return MagicMock()
+    return MagicMock()
 
 
-@pytest.fixture
-def model_manager(mock_config, mock_performance_monitor):
+    @pytest.fixture
+    def model_manager(mock_config, mock_performance_monitor):
     """Create a mock ModelManager instance for testing."""
     manager = MagicMock(spec=IModelManager)
     manager.config = mock_config
     manager.performance_monitor = mock_performance_monitor
     manager.models = {}
     manager.loaded_models = {}
-            return manager
+    return manager
 
 
-def test_model_manager_init(model_manager, mock_config, mock_performance_monitor):
+    def test_model_manager_init(model_manager, mock_config, mock_performance_monitor):
     """Test ModelManager initialization."""
     # Check that the manager has the expected attributes
     assert model_manager.config == mock_config
@@ -74,40 +72,40 @@ def test_model_manager_init(model_manager, mock_config, mock_performance_monitor
     assert isinstance(model_manager.loaded_models, dict)
 
 
-def test_model_manager_init_default_config():
+    def test_model_manager_init_default_config():
     """Test ModelManager initialization with default config."""
     # Skip this test since we can't instantiate the abstract ModelManager class directly
     # In a real implementation, we would test a concrete implementation of ModelManager
     pytest.skip("Cannot instantiate abstract ModelManager class directly")
 
 
-def test_model_manager_init_model_registry(model_manager, mock_config):
+    def test_model_manager_init_model_registry(model_manager, mock_config):
     """Test model registry initialization."""
     # Create a mock registry file
     registry_path = os.path.join(mock_config.models_dir, "model_registry.json")
     registry_data = {
-        "model1": {
-            "id": "model1",
-            "name": "Model 1",
-            "description": "A test model",
-            "type": "huggingface",
-            "path": "/path/to/model1",
-            "capabilities": ["text-generation"],
-        },
-        "model2": {
-            "id": "model2",
-            "name": "Model 2",
-            "description": "Another test model",
-            "type": "embedding",
-            "path": "/path/to/model2",
-            "capabilities": ["embedding"],
-        },
+    "model1": {
+    "id": "model1",
+    "name": "Model 1",
+    "description": "A test model",
+    "type": "huggingface",
+    "path": "/path/to/model1",
+    "capabilities": ["text-generation"],
+    },
+    "model2": {
+    "id": "model2",
+    "name": "Model 2",
+    "description": "Another test model",
+    "type": "embedding",
+    "path": "/path/to/model2",
+    "capabilities": ["embedding"],
+    },
     }
 
     # Create the registry file
     os.makedirs(os.path.dirname(registry_path), exist_ok=True)
     with open(registry_path, "w") as f:
-        json.dump(registry_data, f)
+    json.dump(registry_data, f)
 
     # Mock the _init_model_registry method
     init_registry_mock = MagicMock()
@@ -120,35 +118,35 @@ def test_model_manager_init_model_registry(model_manager, mock_config):
     init_registry_mock.assert_called_once()
 
 
-def test_model_manager_save_model_registry(model_manager, mock_config):
+    def test_model_manager_save_model_registry(model_manager, mock_config):
     """Test model registry saving."""
     # Create model info objects
     model1 = MagicMock()
     model1.id = "model1"
     model1.name = "Model 1"
     model1.to_dict = MagicMock(
-        return_value={
-            "id": "model1",
-            "name": "Model 1",
-            "description": "A test model",
-            "type": "huggingface",
-            "path": "/path/to/model1",
-            "capabilities": ["text-generation"],
-        }
+    return_value={
+    "id": "model1",
+    "name": "Model 1",
+    "description": "A test model",
+    "type": "huggingface",
+    "path": "/path/to/model1",
+    "capabilities": ["text-generation"],
+    }
     )
 
     model2 = MagicMock()
     model2.id = "model2"
     model2.name = "Model 2"
     model2.to_dict = MagicMock(
-        return_value={
-            "id": "model2",
-            "name": "Model 2",
-            "description": "Another test model",
-            "type": "embedding",
-            "path": "/path/to/model2",
-            "capabilities": ["embedding"],
-        }
+    return_value={
+    "id": "model2",
+    "name": "Model 2",
+    "description": "Another test model",
+    "type": "embedding",
+    "path": "/path/to/model2",
+    "capabilities": ["embedding"],
+    }
     )
 
     # Add models to the manager
@@ -165,7 +163,7 @@ def test_model_manager_save_model_registry(model_manager, mock_config):
     save_registry_mock.assert_called_once()
 
 
-def test_model_manager_discover_local_models(model_manager, mock_config):
+    def test_model_manager_discover_local_models(model_manager, mock_config):
     """Test local model discovery."""
     # Mock the discover_local_models method
     discover_local_mock = MagicMock()
@@ -195,7 +193,7 @@ def test_model_manager_discover_local_models(model_manager, mock_config):
     assert discovered_models[1] == model2
 
 
-def test_model_manager_discover_huggingface_models(model_manager, mock_config):
+    def test_model_manager_discover_huggingface_models(model_manager, mock_config):
     """Test Hugging Face model discovery."""
     # Mock the discover_huggingface_models method
     discover_hf_mock = MagicMock()
@@ -227,7 +225,7 @@ def test_model_manager_discover_huggingface_models(model_manager, mock_config):
     assert discovered_models[1] == model2
 
 
-def test_model_manager_discover_models(model_manager):
+    def test_model_manager_discover_models(model_manager):
     """Test model discovery."""
     # Mock the discover_models method
     discover_models_mock = MagicMock()
@@ -257,7 +255,7 @@ def test_model_manager_discover_models(model_manager):
     assert discovered_models[1] == model2
 
 
-def test_model_manager_get_model_info(model_manager):
+    def test_model_manager_get_model_info(model_manager):
     """Test get_model_info method."""
     # Mock the get_model_info method
     get_model_info_mock = MagicMock()
@@ -285,10 +283,10 @@ def test_model_manager_get_model_info(model_manager):
 
     # Try to get info for a non-existent model
     with pytest.raises(Exception):
-        model_manager.get_model_info("non-existent-model")
+    model_manager.get_model_info("non-existent-model")
 
 
-def test_model_manager_get_models_by_type(model_manager):
+    def test_model_manager_get_models_by_type(model_manager):
     """Test get_models_by_type method."""
     # Mock the get_models_by_type method
     get_models_by_type_mock = MagicMock()
@@ -320,7 +318,7 @@ def test_model_manager_get_models_by_type(model_manager):
     assert huggingface_models[1] == model2
 
 
-def test_model_manager_get_all_models(model_manager):
+    def test_model_manager_get_all_models(model_manager):
     """Test get_all_models method."""
     # Mock the get_all_models method
     get_all_models_mock = MagicMock()
@@ -350,7 +348,7 @@ def test_model_manager_get_all_models(model_manager):
     assert all_models[1] == model2
 
 
-def test_model_manager_register_model(model_manager):
+    def test_model_manager_register_model(model_manager):
     """Test register_model method."""
     # Mock the register_model method
     register_model_mock = MagicMock()
@@ -368,7 +366,7 @@ def test_model_manager_register_model(model_manager):
     register_model_mock.assert_called_once_with(model)
 
 
-def test_model_manager_load_huggingface_model(model_manager):
+    def test_model_manager_load_huggingface_model(model_manager):
     """Test Hugging Face model loading."""
     # Mock the _load_huggingface_model method
     load_hf_mock = MagicMock()
@@ -399,7 +397,7 @@ def test_model_manager_load_huggingface_model(model_manager):
     assert result == loaded_model
 
 
-def test_model_manager_load_model(model_manager):
+    def test_model_manager_load_model(model_manager):
     """Test model loading."""
     # Mock the load_model method
     load_model_mock = MagicMock()
@@ -421,7 +419,7 @@ def test_model_manager_load_model(model_manager):
     assert loaded_model == mock_model
 
 
-def test_model_manager_unload_model(model_manager):
+    def test_model_manager_unload_model(model_manager):
     """Test model unloading."""
     # Mock the unload_model method
     unload_model_mock = MagicMock()
@@ -438,10 +436,10 @@ def test_model_manager_unload_model(model_manager):
 
     # Try to unload a non-existent model
     with pytest.raises(Exception):
-        model_manager.unload_model("non-existent-model")
+    model_manager.unload_model("non-existent-model")
 
 
-def test_model_manager_is_model_loaded(model_manager):
+    def test_model_manager_is_model_loaded(model_manager):
     """Test model loaded check."""
     # Mock the is_model_loaded method
     is_model_loaded_mock = MagicMock()
@@ -463,7 +461,7 @@ def test_model_manager_is_model_loaded(model_manager):
     assert result2 is False
 
 
-def test_model_manager_get_loaded_models(model_manager):
+    def test_model_manager_get_loaded_models(model_manager):
     """Test getting loaded models."""
     # Mock the get_loaded_models method
     get_loaded_models_mock = MagicMock()
@@ -491,7 +489,7 @@ def test_model_manager_get_loaded_models(model_manager):
     assert result["model2"] == mock_model2
 
 
-def test_model_manager_update_model_info(model_manager):
+    def test_model_manager_update_model_info(model_manager):
     """Test updating model info."""
     # Mock the update_model_info method
     update_model_info_mock = MagicMock()
@@ -499,9 +497,9 @@ def test_model_manager_update_model_info(model_manager):
 
     # Create updated info
     updated_info = {
-        "name": "Updated Model 1",
-        "description": "An updated test model",
-        "capabilities": ["text-generation", "embedding"],
+    "name": "Updated Model 1",
+    "description": "An updated test model",
+    "capabilities": ["text-generation", "embedding"],
     }
 
     # Call the method
@@ -515,10 +513,10 @@ def test_model_manager_update_model_info(model_manager):
 
     # Try to update a non-existent model
     with pytest.raises(Exception):
-        model_manager.update_model_info("non-existent-model", {"name": "New Name"})
+    model_manager.update_model_info("non-existent-model", {"name": "New Name"})
 
 
-def test_model_manager_delete_model(model_manager):
+    def test_model_manager_delete_model(model_manager):
     """Test deleting a model."""
     # Mock the delete_model method
     delete_model_mock = MagicMock()
@@ -535,4 +533,4 @@ def test_model_manager_delete_model(model_manager):
 
     # Try to delete a non-existent model
     with pytest.raises(Exception):
-        model_manager.delete_model("non-existent-model")
+    model_manager.delete_model("non-existent-model")

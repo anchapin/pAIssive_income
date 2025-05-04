@@ -20,21 +20,21 @@ class UserRegisterRequest
     last_name: str = Field(..., description="Last name")
 
 
-class UserLoginRequest(BaseModel):
+    class UserLoginRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for user login."""
     username: str = Field(..., description="Username")
     password: str = Field(..., description="Password")
 
 
-class UserLoginResponse(BaseModel):
+    class UserLoginResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for user login."""
     access_token: str = Field(..., description="Access token")
     token_type: str = Field(..., description="Token type")
 
 
-class UserResponse(BaseModel):
+    class UserResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for user data."""
     id: str = Field(..., description="User ID")
@@ -44,11 +44,11 @@ class UserResponse(BaseModel):
     last_name: str = Field(..., description="Last name")
     created_at: str = Field(..., description="Timestamp when user was created")
     updated_at: Optional[str] = Field(
-        None, description="Timestamp when user was last updated"
+    None, description="Timestamp when user was last updated"
     )
 
 
-class UserProfileUpdateRequest(BaseModel):
+    class UserProfileUpdateRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for updating user profile."""
     email: EmailStr = Field(..., description="Email address")
@@ -56,14 +56,14 @@ class UserProfileUpdateRequest(BaseModel):
     last_name: str = Field(..., description="Last name")
 
 
-class PasswordChangeRequest(BaseModel):
+    class PasswordChangeRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for changing password."""
     current_password: str = Field(..., description="Current password")
     new_password: str = Field(..., description="New password")
 
 
-class Project(BaseModel):
+    class Project(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Model for a user project."""
     id: str = Field(..., description="Project ID")
@@ -71,11 +71,11 @@ class Project(BaseModel):
     description: Optional[str] = Field(None, description="Project description")
     created_at: str = Field(..., description="Timestamp when project was created")
     updated_at: Optional[str] = Field(
-        None, description="Timestamp when project was last updated"
+    None, description="Timestamp when project was last updated"
     )
 
 
-class Team(BaseModel):
+    class Team(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Model for a user team."""
     id: str = Field(..., description="Team ID")
@@ -83,11 +83,11 @@ class Team(BaseModel):
     description: Optional[str] = Field(None, description="Team description")
     created_at: str = Field(..., description="Timestamp when team was created")
     updated_at: Optional[str] = Field(
-        None, description="Timestamp when team was last updated"
+    None, description="Timestamp when team was last updated"
     )
 
 
-class Activity(BaseModel):
+    class Activity(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Model for a user activity."""
     id: str = Field(..., description="Activity ID")
@@ -95,35 +95,35 @@ class Activity(BaseModel):
     description: str = Field(..., description="Activity description")
     timestamp: str = Field(..., description="Timestamp when activity occurred")
     metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional activity metadata"
+    default_factory=dict, description="Additional activity metadata"
     )
 
 
-class UserSettings(BaseModel):
+    class UserSettings(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Model for user settings."""
     theme: str = Field("light", description="UI theme preference")
     notifications_enabled: bool = Field(
-        True, description="Whether notifications are enabled"
+    True, description="Whether notifications are enabled"
     )
     email_notifications: bool = Field(
-        True, description="Whether email notifications are enabled"
+    True, description="Whether email notifications are enabled"
     )
 
 
-class UserSettingsResponse(BaseModel):
+    class UserSettingsResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for user settings."""
     settings: UserSettings = Field(..., description="User settings")
 
 
-class UserSettingsUpdateRequest(BaseModel):
+    class UserSettingsUpdateRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for updating user settings."""
     settings: UserSettings = Field(..., description="New user settings")
 
 
-class PaginatedList(BaseModel):
+    class PaginatedList(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Base model for paginated lists."""
     total: int = Field(..., description="Total number of items")
@@ -132,19 +132,16 @@ class PaginatedList(BaseModel):
     pages: int = Field(..., description="Total number of pages")
 
 
-class PaginatedProjectList(PaginatedList):
-    """Response model for paginated project list."""
+    class PaginatedProjectList(PaginatedList):
 
     items: List[Project] = Field(..., description="List of projects")
 
 
-class PaginatedTeamList(PaginatedList):
-    """Response model for paginated team list."""
+    class PaginatedTeamList(PaginatedList):
 
     items: List[Team] = Field(..., description="List of teams")
 
 
-class PaginatedActivityList(PaginatedList:
-    """Response model for paginated activity list."""
+    class PaginatedActivityList(PaginatedList:
 
     items: List[Activity] = Field(..., description="List of activities"

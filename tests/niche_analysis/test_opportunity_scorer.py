@@ -2,7 +2,6 @@
 Tests for the OpportunityScorer class.
 """
 
-
 from niche_analysis.opportunity_scorer import OpportunityScorer
 
 
@@ -25,25 +24,25 @@ def test_opportunity_scorer_init():
     assert sum(scorer.weights.values()) == 1.0  # Weights should sum to 1
 
 
-def test_score_opportunity():
+    def test_score_opportunity():
     """Test score_opportunity method."""
     scorer = OpportunityScorer()
 
     # Create test data
     market_data = {
-        "market_size": "large",
-        "growth_rate": "high",
-        "competition": "low",
+    "market_size": "large",
+    "growth_rate": "high",
+    "competition": "low",
     }
 
     problems = [
-        {
-            "id": "problem1",
-            "name": "Problem 1",
-            "description": "A test problem",
-            "consequences": ["consequence 1", "consequence 2"],
-            "severity": "high",
-        }
+    {
+    "id": "problem1",
+    "name": "Problem 1",
+    "description": "A test problem",
+    "consequences": ["consequence 1", "consequence 2"],
+    "severity": "high",
+    }
     ]
 
     # Score the opportunity
@@ -72,7 +71,7 @@ def test_score_opportunity():
     assert all(isinstance(r, str) for r in result["recommendations"])
 
 
-def test_score_market_size():
+    def test_score_market_size():
     """Test _score_market_size method."""
     scorer = OpportunityScorer()
 
@@ -82,7 +81,7 @@ def test_score_market_size():
     assert scorer._score_market_size("unknown") == 0.5  # Default for unknown
 
 
-def test_score_growth_rate():
+    def test_score_growth_rate():
     """Test _score_growth_rate method."""
     scorer = OpportunityScorer()
 
@@ -92,7 +91,7 @@ def test_score_growth_rate():
     assert scorer._score_growth_rate("unknown") == 0.5  # Default for unknown
 
 
-def test_score_competition():
+    def test_score_competition():
     """Test _score_competition method."""
     scorer = OpportunityScorer()
 
@@ -102,144 +101,144 @@ def test_score_competition():
     assert scorer._score_competition("unknown") == 0.5  # Default for unknown
 
 
-def test_score_problem_severity():
+    def test_score_problem_severity():
     """Test _score_problem_severity method."""
     scorer = OpportunityScorer()
 
     # Create test problems with different severities
     high_severity_problems = [
-        {"severity": "high"},
-        {"severity": "high"},
+    {"severity": "high"},
+    {"severity": "high"},
     ]
 
     medium_severity_problems = [
-        {"severity": "medium"},
-        {"severity": "medium"},
+    {"severity": "medium"},
+    {"severity": "medium"},
     ]
 
     low_severity_problems = [
-        {"severity": "low"},
-        {"severity": "low"},
+    {"severity": "low"},
+    {"severity": "low"},
     ]
 
     mixed_severity_problems = [
-        {"severity": "high"},
-        {"severity": "medium"},
-        {"severity": "low"},
+    {"severity": "high"},
+    {"severity": "medium"},
+    {"severity": "low"},
     ]
 
     # Test different problem severities
     assert scorer._score_problem_severity(
-        high_severity_problems
+    high_severity_problems
     ) > scorer._score_problem_severity(medium_severity_problems)
     assert scorer._score_problem_severity(
-        medium_severity_problems
+    medium_severity_problems
     ) > scorer._score_problem_severity(low_severity_problems)
 
     # Test mixed severity
     mixed_score = scorer._score_problem_severity(mixed_severity_problems)
     assert (
-        scorer._score_problem_severity(low_severity_problems)
-        < mixed_score
-        < scorer._score_problem_severity(high_severity_problems)
+    scorer._score_problem_severity(low_severity_problems)
+    < mixed_score
+    < scorer._score_problem_severity(high_severity_problems)
     )
 
     # Test empty problems list
     assert scorer._score_problem_severity([]) == 0.0
 
 
-def test_score_solution_feasibility():
+    def test_score_solution_feasibility():
     """Test _score_solution_feasibility method."""
     scorer = OpportunityScorer()
 
     # Test different niches
     assert 0 <= scorer._score_solution_feasibility("inventory management", []) <= 1
     assert (
-        0
-        <= scorer._score_solution_feasibility("product description generation", [])
-        <= 1
+    0
+    <= scorer._score_solution_feasibility("product description generation", [])
+    <= 1
     )
     assert 0 <= scorer._score_solution_feasibility("unknown niche", []) <= 1
 
 
-def test_score_monetization_potential():
+    def test_score_monetization_potential():
     """Test _score_monetization_potential method."""
     scorer = OpportunityScorer()
 
     # Create test data
     market_data = {
-        "market_size": "large",
-        "growth_rate": "high",
+    "market_size": "large",
+    "growth_rate": "high",
     }
 
     problems = [
-        {"severity": "high"},
+    {"severity": "high"},
     ]
 
     # Test different niches
     assert (
-        0
-        <= scorer._score_monetization_potential(
-            "inventory management", market_data, problems
-        )
-        <= 1
+    0
+    <= scorer._score_monetization_potential(
+    "inventory management", market_data, problems
+    )
+    <= 1
     )
     assert (
-        0
-        <= scorer._score_monetization_potential(
-            "product description generation", market_data, problems
-        )
-        <= 1
+    0
+    <= scorer._score_monetization_potential(
+    "product description generation", market_data, problems
+    )
+    <= 1
     )
     assert (
-        0
-        <= scorer._score_monetization_potential("unknown niche", market_data, problems)
-        <= 1
+    0
+    <= scorer._score_monetization_potential("unknown niche", market_data, problems)
+    <= 1
     )
 
 
-def test_compare_opportunities():
+    def test_compare_opportunities():
     """Test compare_opportunities method."""
     scorer = OpportunityScorer()
 
     # Create test opportunities
     opportunities = [
-        {
-            "id": "opportunity1",
-            "name": "Opportunity 1",
-            "description": "A test opportunity",
-            "opportunity_score": 0.8,
-            "market_data": {
-                "market_size": "large",
-                "growth_rate": "high",
-                "competition": "low",
-            },
-            "problems": [{"severity": "high"}],
-        },
-        {
-            "id": "opportunity2",
-            "name": "Opportunity 2",
-            "description": "Another test opportunity",
-            "opportunity_score": 0.6,
-            "market_data": {
-                "market_size": "medium",
-                "growth_rate": "medium",
-                "competition": "medium",
-            },
-            "problems": [{"severity": "medium"}],
-        },
-        {
-            "id": "opportunity3",
-            "name": "Opportunity 3",
-            "description": "Yet another test opportunity",
-            "opportunity_score": 0.4,
-            "market_data": {
-                "market_size": "small",
-                "growth_rate": "low",
-                "competition": "high",
-            },
-            "problems": [{"severity": "low"}],
-        },
+    {
+    "id": "opportunity1",
+    "name": "Opportunity 1",
+    "description": "A test opportunity",
+    "opportunity_score": 0.8,
+    "market_data": {
+    "market_size": "large",
+    "growth_rate": "high",
+    "competition": "low",
+    },
+    "problems": [{"severity": "high"}],
+    },
+    {
+    "id": "opportunity2",
+    "name": "Opportunity 2",
+    "description": "Another test opportunity",
+    "opportunity_score": 0.6,
+    "market_data": {
+    "market_size": "medium",
+    "growth_rate": "medium",
+    "competition": "medium",
+    },
+    "problems": [{"severity": "medium"}],
+    },
+    {
+    "id": "opportunity3",
+    "name": "Opportunity 3",
+    "description": "Yet another test opportunity",
+    "opportunity_score": 0.4,
+    "market_data": {
+    "market_size": "small",
+    "growth_rate": "low",
+    "competition": "high",
+    },
+    "problems": [{"severity": "low"}],
+    },
     ]
 
     # Compare the opportunities

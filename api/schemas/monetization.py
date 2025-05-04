@@ -5,8 +5,6 @@ This module provides Pydantic models for Monetization API request and response v
 """
 
 import time
-
-
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -25,8 +23,7 @@ class SubscriptionType
     HYBRID = "hybrid"
 
 
-class BillingPeriod(str, Enum):
-    """Billing period enumeration."""
+    class BillingPeriod(str, Enum):
 
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
@@ -34,9 +31,8 @@ class BillingPeriod(str, Enum):
     LIFETIME = "lifetime"
 
 
-class FeatureResponse(BaseModel):
+    class FeatureResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Feature response model."""
 
     id: str = Field(..., description="Feature ID")
     name: str = Field(..., description="Feature name")
@@ -45,9 +41,8 @@ class FeatureResponse(BaseModel):
     is_premium: bool = Field(..., description="Whether the feature is premium")
 
 
-class PricingTierResponse(BaseModel):
+    class PricingTierResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Pricing tier response model."""
 
     id: str = Field(..., description="Tier ID")
     name: str = Field(..., description="Tier name")
@@ -55,7 +50,7 @@ class PricingTierResponse(BaseModel):
     price_monthly: float = Field(..., description="Monthly price")
     price_annual: Optional[float] = Field(None, description="Annual price")
     features: List[FeatureResponse] = Field(
-        ..., description="Features included in the tier"
+    ..., description="Features included in the tier"
     )
     is_popular: bool = Field(False, description="Whether this is the popular tier")
     is_free: bool = Field(False, description="Whether this is a free tier")
@@ -64,7 +59,7 @@ class PricingTierResponse(BaseModel):
     api_limit: Optional[int] = Field(None, description="API call limit")
 
 
-class SubscriptionModelRequest(BaseModel):
+    class SubscriptionModelRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Subscription model request model."""
 
@@ -76,9 +71,8 @@ class SubscriptionModelRequest(BaseModel):
     tiers: List[Dict[str, Any]] = Field(..., description="Pricing tiers")
 
 
-class SubscriptionModelResponse(BaseModel):
+    class SubscriptionModelResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Subscription model response model."""
 
     id: str = Field(..., description="Model ID")
     name: str = Field(..., description="Model name")
@@ -91,23 +85,21 @@ class SubscriptionModelResponse(BaseModel):
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
 
-class RevenueProjectionRequest(BaseModel):
+    class RevenueProjectionRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Revenue projection request model."""
 
     subscription_model_id: str = Field(..., description="Subscription model ID")
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     conversion_rate: float = Field(
-        ..., description="Conversion rate from free to paid (0-1)"
+    ..., description="Conversion rate from free to paid (0-1)"
     )
     time_period: int = Field(..., description="Projection time period in months")
 
 
-class RevenueProjectionResponse(BaseModel):
+    class RevenueProjectionResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Revenue projection response model."""
 
     id: str = Field(..., description="Projection ID")
     subscription_model_id: str = Field(..., description="Subscription model ID")
@@ -115,11 +107,11 @@ class RevenueProjectionResponse(BaseModel):
     growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     conversion_rate: float = Field(
-        ..., description="Conversion rate from free to paid (0-1)"
+    ..., description="Conversion rate from free to paid (0-1)"
     )
     time_period: int = Field(..., description="Projection time period in months")
     monthly_projections: List[Dict[str, Any]] = Field(
-        ..., description="Monthly revenue projections"
+    ..., description="Monthly revenue projections"
     )
     total_revenue: float = Field(..., description="Total projected revenue")
     total_users: int = Field(..., description="Total projected users"

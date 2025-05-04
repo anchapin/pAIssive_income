@@ -15,15 +15,15 @@ from .tiktok_adapter import TikTokAdapter
 from .twitter_adapter import TwitterAdapter
 from .youtube_adapter import YouTubeAdapter
 
-__all__ 
+__all__
 
 = [
-    "BaseSocialMediaAdapter",
-    "TwitterAdapter",
-    "FacebookAdapter",
-    "InstagramAdapter",
-    "LinkedInAdapter",
-    "YouTubeAdapter",
-    "PinterestAdapter",
-    "TikTokAdapter",
+"BaseSocialMediaAdapter",
+"TwitterAdapter",
+"FacebookAdapter",
+"InstagramAdapter",
+"LinkedInAdapter",
+"YouTubeAdapter",
+"PinterestAdapter",
+"TikTokAdapter",
 ]

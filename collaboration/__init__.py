@@ -15,31 +15,31 @@ from .sharing import ProjectSharing, SharingPermission
 from .version_control import VersionControl, VersionInfo
 from .workspace import TeamWorkspace, WorkspaceManager
 
-__all__ 
+__all__
 
 = [
-    # Workspace management
-    "TeamWorkspace",
-    "WorkspaceManager",
-    # Project sharing
-    "ProjectSharing",
-    "SharingPermission",
-    # Access control
-    "RoleManager",
-    "Role",
-    "Permission",
-    # Version control
-    "VersionControl",
-    "VersionInfo",
-    # Activity tracking
-    "ActivityTracker",
-    "ActivityLog",
-    "NotificationManager",
-    # Comments and feedback
-    "CommentSystem",
-    "Comment",
-    "Reaction",
-    # External integrations
-    "CollaborationIntegration",
-    "IntegrationType",
+# Workspace management
+"TeamWorkspace",
+"WorkspaceManager",
+# Project sharing
+"ProjectSharing",
+"SharingPermission",
+# Access control
+"RoleManager",
+"Role",
+"Permission",
+# Version control
+"VersionControl",
+"VersionInfo",
+# Activity tracking
+"ActivityTracker",
+"ActivityLog",
+"NotificationManager",
+# Comments and feedback
+"CommentSystem",
+"Comment",
+"Reaction",
+# External integrations
+"CollaborationIntegration",
+"IntegrationType",
 ]

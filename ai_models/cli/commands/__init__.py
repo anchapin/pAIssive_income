@@ -15,17 +15,17 @@ from .serve import ServeGRPCCommand, ServeRESTCommand
 from .validate import ValidateCommand
 from .version import VersionCommand
 
-__all__ 
+__all__
 
 = [
-    "DownloadCommand",
-    "ListCommand",
-    "InfoCommand",
-    "ServeRESTCommand",
-    "ServeGRPCCommand",
-    "OptimizeCommand",
-    "BenchmarkCommand",
-    "DeployCommand",
-    "ValidateCommand",
-    "VersionCommand",
+"DownloadCommand",
+"ListCommand",
+"InfoCommand",
+"ServeRESTCommand",
+"ServeGRPCCommand",
+"OptimizeCommand",
+"BenchmarkCommand",
+"DeployCommand",
+"ValidateCommand",
+"VersionCommand",
 ]

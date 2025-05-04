@@ -1,17 +1,17 @@
 from api.schemas.webhook import WebhookEventType, WebhookRequest
 
-data 
+data
 
 = {
-    "url": "https://example.com/webhook",
-    "events": [WebhookEventType.USER_CREATED],
-    "headers": {
-        "Authorization": "Bearer token",
-        "X-Custom-Header": "custom-value",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-    },
-    "is_active": True,
+"url": "https://example.com/webhook",
+"events": [WebhookEventType.USER_CREATED],
+"headers": {
+"Authorization": "Bearer token",
+"X-Custom-Header": "custom-value",
+"Content-Type": "application/json",
+"Accept": "application/json",
+},
+"is_active": True,
 }
 
 try:

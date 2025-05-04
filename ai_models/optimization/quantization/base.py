@@ -31,8 +31,8 @@ class QuantizationMethod:
     GGUF = "ggu"
 
 
-@dataclass
-class QuantizationConfig:
+    @dataclass
+    class QuantizationConfig:
     """
     Configuration for model quantization.
     """
@@ -70,125 +70,125 @@ class QuantizationConfig:
     additional_params: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the configuration to a dictionary.
+    """
+    Convert the configuration to a dictionary.
 
-        Returns:
-            Dictionary representation of the configuration
-        """
-                return {
-            "method": self.method.value,
-            "bits": self.bits,
-            "compute_dtype": self.compute_dtype,
-            "use_double_quant": self.use_double_quant,
-            "bnb_4bit_quant_type": self.bnb_4bit_quant_type,
-            "bnb_4bit_use_double_quant": self.bnb_4bit_use_double_quant,
-            "bnb_4bit_compute_dtype": self.bnb_4bit_compute_dtype,
-            "awq_zero_point": self.awq_zero_point,
-            "awq_group_size": self.awq_group_size,
-            "awq_export_to_onnx": self.awq_export_to_onnx,
-            "gptq_bits": self.gptq_bits,
-            "gptq_group_size": self.gptq_group_size,
-            "gptq_act_order": self.gptq_act_order,
-            "ggml_model_type": self.ggml_model_type,
-            "ggml_ftype": self.ggml_ftype,
-            "calibration_dataset": self.calibration_dataset,
-            "calibration_num_samples": self.calibration_num_samples,
-            "calibration_seqlen": self.calibration_seqlen,
-            **self.additional_params,
-        }
+    Returns:
+    Dictionary representation of the configuration
+    """
+    return {
+    "method": self.method.value,
+    "bits": self.bits,
+    "compute_dtype": self.compute_dtype,
+    "use_double_quant": self.use_double_quant,
+    "bnb_4bit_quant_type": self.bnb_4bit_quant_type,
+    "bnb_4bit_use_double_quant": self.bnb_4bit_use_double_quant,
+    "bnb_4bit_compute_dtype": self.bnb_4bit_compute_dtype,
+    "awq_zero_point": self.awq_zero_point,
+    "awq_group_size": self.awq_group_size,
+    "awq_export_to_onnx": self.awq_export_to_onnx,
+    "gptq_bits": self.gptq_bits,
+    "gptq_group_size": self.gptq_group_size,
+    "gptq_act_order": self.gptq_act_order,
+    "ggml_model_type": self.ggml_model_type,
+    "ggml_ftype": self.ggml_ftype,
+    "calibration_dataset": self.calibration_dataset,
+    "calibration_num_samples": self.calibration_num_samples,
+    "calibration_seqlen": self.calibration_seqlen,
+    **self.additional_params,
+    }
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "QuantizationConfig":
-        """
-        Create a configuration from a dictionary.
+    """
+    Create a configuration from a dictionary.
 
-        Args:
-            config_dict: Dictionary with configuration parameters
+    Args:
+    config_dict: Dictionary with configuration parameters
 
-        Returns:
-            Quantization configuration
-        """
-        # Extract method
-        method_str = config_dict.pop("method", "none")
-        try:
-            method = QuantizationMethod(method_str)
-        except ValueError:
-            method = QuantizationMethod.NONE
+    Returns:
+    Quantization configuration
+    """
+    # Extract method
+    method_str = config_dict.pop("method", "none")
+    try:
+    method = QuantizationMethod(method_str)
+except ValueError:
+    method = QuantizationMethod.NONE
 
-        # Extract additional parameters
-        additional_params = {}
-        for key, value in list(config_dict.items()):
-            if key not in cls.__annotations__:
-                additional_params[key] = config_dict.pop(key)
+    # Extract additional parameters
+    additional_params = {}
+    for key, value in list(config_dict.items()):
+    if key not in cls.__annotations__:
+    additional_params[key] = config_dict.pop(key)
 
-        # Create configuration
-        config = cls(method=method, **config_dict)
+    # Create configuration
+    config = cls(method=method, **config_dict)
 
-        config.additional_params = additional_params
-                return config
+    config.additional_params = additional_params
+    return config
 
 
-class Quantizer(abc.ABC):
+    class Quantizer(abc.ABC):
     """
     Base class for model quantizers.
     """
 
     def __init__(self, config: QuantizationConfig):
-        """
-        Initialize the quantizer.
+    """
+    Initialize the quantizer.
 
-        Args:
-            config: Quantization configuration
-        """
-        self.config = config
+    Args:
+    config: Quantization configuration
+    """
+    self.config = config
 
     @abc.abstractmethod
     def quantize(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
+    self, model_path: str, output_path: Optional[str] = None, **kwargs
     ) -> str:
-        """
-        Quantize a model.
+    """
+    Quantize a model.
 
-        Args:
-            model_path: Path to the model
-            output_path: Path to save the quantized model (None for in-place)
-            **kwargs: Additional parameters for quantization
+    Args:
+    model_path: Path to the model
+    output_path: Path to save the quantized model (None for in-place)
+    **kwargs: Additional parameters for quantization
 
-        Returns:
-            Path to the quantized model
-        """
-        pass
+    Returns:
+    Path to the quantized model
+    """
+    pass
 
     @abc.abstractmethod
     def supports_model_type(self, model_type: str) -> bool:
-        """
-        Check if the quantizer supports a model type.
+    """
+    Check if the quantizer supports a model type.
 
-        Args:
-            model_type: Type of the model
+    Args:
+    model_type: Type of the model
 
-        Returns:
-            True if the model type is supported, False otherwise
-        """
-        pass
+    Returns:
+    True if the model type is supported, False otherwise
+    """
+    pass
 
     @abc.abstractmethod
     def get_supported_methods(self) -> List[QuantizationMethod]:
-        """
-        Get the quantization methods supported by the quantizer.
+    """
+    Get the quantization methods supported by the quantizer.
 
-        Returns:
-            List of supported quantization methods
-        """
-        pass
+    Returns:
+    List of supported quantization methods
+    """
+    pass
 
     @abc.abstractmethod
     def get_quantization_info(self) -> Dict[str, Any]:
-        """
-        Get information about the quantization.
+    """
+    Get information about the quantization.
 
-        Returns:
-            Dictionary with quantization information
-        """
-        pass
+    Returns:
+    Dictionary with quantization information
+    """
+    pass

@@ -3,18 +3,16 @@ Tests for the PerformanceMonitor class.
 """
 
 
+import time
 from unittest.mock import MagicMock
 
 import pytest
 
-from ai_models.performance_monitor import 
-    import time
-
 (
-    InferenceMetrics,
-    InferenceTracker,
-    ModelPerformanceReport,
-    PerformanceMonitor,
+InferenceMetrics,
+InferenceTracker,
+ModelPerformanceReport,
+PerformanceMonitor,
 )
 
 
@@ -24,18 +22,18 @@ def mock_model():
     model = MagicMock()
     model.name = "Test Model"
     model.id = "test-model"
-            return model
+    return model
 
 
-def test_inference_metrics_init():
+    def test_inference_metrics_init():
     """Test InferenceMetrics initialization."""
     metrics = InferenceMetrics(
-        model_id="test-model",
-        latency_ms=100,
-        tokens_per_second=10,
-        memory_usage_mb=1000,
-        input_tokens=10,
-        output_tokens=20,
+    model_id="test-model",
+    latency_ms=100,
+    tokens_per_second=10,
+    memory_usage_mb=1000,
+    input_tokens=10,
+    output_tokens=20,
     )
 
     # Check that the metrics have the expected attributes
@@ -48,15 +46,15 @@ def test_inference_metrics_init():
     assert isinstance(metrics.timestamp, str)
 
 
-def test_inference_metrics_to_dict():
+    def test_inference_metrics_to_dict():
     """Test to_dict method of InferenceMetrics."""
     metrics = InferenceMetrics(
-        model_id="test-model",
-        latency_ms=100,
-        tokens_per_second=10,
-        memory_usage_mb=1000,
-        input_tokens=10,
-        output_tokens=20,
+    model_id="test-model",
+    latency_ms=100,
+    tokens_per_second=10,
+    memory_usage_mb=1000,
+    input_tokens=10,
+    output_tokens=20,
     )
 
     # Convert to dictionary
@@ -80,7 +78,7 @@ def test_inference_metrics_to_dict():
     assert metrics_dict["output_tokens"] == 20
 
 
-def test_inference_tracker_init():
+    def test_inference_tracker_init():
     """Test InferenceTracker initialization."""
     monitor = PerformanceMonitor()
     tracker = InferenceTracker(monitor=monitor, model_id="test-model")
@@ -96,7 +94,7 @@ def test_inference_tracker_init():
     assert hasattr(tracker, "memory_usage_end")
 
 
-def test_inference_tracker_start_stop(mock_model):
+    def test_inference_tracker_start_stop(mock_model):
     """Test start and stop methods of InferenceTracker."""
     monitor = PerformanceMonitor()
     tracker = InferenceTracker(monitor=monitor, model_id=mock_model.id)
@@ -126,7 +124,7 @@ def test_inference_tracker_start_stop(mock_model):
     assert metrics.output_tokens > 0
 
 
-def test_performance_monitor_init():
+    def test_performance_monitor_init():
     """Test PerformanceMonitor initialization."""
     monitor = PerformanceMonitor()
 
@@ -137,13 +135,13 @@ def test_performance_monitor_init():
     assert isinstance(monitor.report_cache, dict)
 
 
-def test_performance_monitor_track_inference(mock_model):
+    def test_performance_monitor_track_inference(mock_model):
     """Test track_inference method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
 
     # Track inference
     metrics = monitor.track_inference(
-        model=mock_model, input_text="Hello, world!", output_text="Hello, AI!"
+    model=mock_model, input_text="Hello, world!", output_text="Hello, AI!"
     )
 
     # Check that metrics were returned
@@ -159,27 +157,27 @@ def test_performance_monitor_track_inference(mock_model):
     assert monitor.metrics_history[mock_model.id][0] == metrics
 
 
-def test_performance_monitor_get_model_metrics(mock_model):
+    def test_performance_monitor_get_model_metrics(mock_model):
     """Test get_model_metrics method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
 
     # Add some metrics to history
     metrics1 = InferenceMetrics(
-        model_id=mock_model.id,
-        latency_ms=100,
-        tokens_per_second=10,
-        memory_usage_mb=1000,
-        input_tokens=10,
-        output_tokens=20,
+    model_id=mock_model.id,
+    latency_ms=100,
+    tokens_per_second=10,
+    memory_usage_mb=1000,
+    input_tokens=10,
+    output_tokens=20,
     )
 
     metrics2 = InferenceMetrics(
-        model_id=mock_model.id,
-        latency_ms=200,
-        tokens_per_second=20,
-        memory_usage_mb=1100,
-        input_tokens=15,
-        output_tokens=25,
+    model_id=mock_model.id,
+    latency_ms=200,
+    tokens_per_second=20,
+    memory_usage_mb=1100,
+    input_tokens=15,
+    output_tokens=25,
     )
 
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
@@ -194,27 +192,27 @@ def test_performance_monitor_get_model_metrics(mock_model):
     assert model_metrics[1] == metrics2
 
 
-def test_performance_monitor_generate_report(mock_model):
+    def test_performance_monitor_generate_report(mock_model):
     """Test generate_report method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
 
     # Add some metrics to history
     metrics1 = InferenceMetrics(
-        model_id=mock_model.id,
-        latency_ms=100,
-        tokens_per_second=10,
-        memory_usage_mb=1000,
-        input_tokens=10,
-        output_tokens=20,
+    model_id=mock_model.id,
+    latency_ms=100,
+    tokens_per_second=10,
+    memory_usage_mb=1000,
+    input_tokens=10,
+    output_tokens=20,
     )
 
     metrics2 = InferenceMetrics(
-        model_id=mock_model.id,
-        latency_ms=200,
-        tokens_per_second=20,
-        memory_usage_mb=1100,
-        input_tokens=15,
-        output_tokens=25,
+    model_id=mock_model.id,
+    latency_ms=200,
+    tokens_per_second=20,
+    memory_usage_mb=1100,
+    input_tokens=15,
+    output_tokens=25,
     )
 
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
@@ -233,16 +231,16 @@ def test_performance_monitor_generate_report(mock_model):
     assert report.total_output_tokens == 45  # 20 + 25
 
 
-def test_model_performance_report_init():
+    def test_model_performance_report_init():
     """Test ModelPerformanceReport initialization."""
     report = ModelPerformanceReport(
-        model_id="test-model",
-        num_inferences=10,
-        avg_latency_ms=150,
-        avg_tokens_per_second=15,
-        avg_memory_usage_mb=1050,
-        total_input_tokens=100,
-        total_output_tokens=200,
+    model_id="test-model",
+    num_inferences=10,
+    avg_latency_ms=150,
+    avg_tokens_per_second=15,
+    avg_memory_usage_mb=1050,
+    total_input_tokens=100,
+    total_output_tokens=200,
     )
 
     # Check that the report has the expected attributes
@@ -256,16 +254,16 @@ def test_model_performance_report_init():
     assert isinstance(report.timestamp, str)
 
 
-def test_model_performance_report_to_dict():
+    def test_model_performance_report_to_dict():
     """Test to_dict method of ModelPerformanceReport."""
     report = ModelPerformanceReport(
-        model_id="test-model",
-        num_inferences=10,
-        avg_latency_ms=150,
-        avg_tokens_per_second=15,
-        avg_memory_usage_mb=1050,
-        total_input_tokens=100,
-        total_output_tokens=200,
+    model_id="test-model",
+    num_inferences=10,
+    avg_latency_ms=150,
+    avg_tokens_per_second=15,
+    avg_memory_usage_mb=1050,
+    total_input_tokens=100,
+    total_output_tokens=200,
     )
 
     # Convert to dictionary

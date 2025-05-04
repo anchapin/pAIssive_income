@@ -12,13 +12,13 @@ from .perplexity_metric import PerplexityMetric
 from .rouge_metric import RougeMetric
 from .throughput_metric import ThroughputMetric
 
-__all__ 
+__all__
 
 = [
-    "LatencyMetric",
-    "ThroughputMetric",
-    "MemoryMetric",
-    "AccuracyMetric",
-    "PerplexityMetric",
-    "RougeMetric",
+"LatencyMetric",
+"ThroughputMetric",
+"MemoryMetric",
+"AccuracyMetric",
+"PerplexityMetric",
+"RougeMetric",
 ]

@@ -11,11 +11,11 @@ from .onnx_model import ONNXModel
 from .quantized_model import QuantizedModel
 from .vision_model import VisionModel
 
-__all__ 
+__all__
 
 = [
-    "ONNXModel",
-    "QuantizedModel",
-    "VisionModel",
-    "AudioModel",
+"ONNXModel",
+"QuantizedModel",
+"VisionModel",
+"AudioModel",
 ]

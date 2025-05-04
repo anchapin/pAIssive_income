@@ -23,7 +23,7 @@ class MarketingStrategyRequest
     kpis: List[str] = Field(..., description="List of KPIs to track")
 
 
-class MarketingStrategyResponse(BaseModel):
+    class MarketingStrategyResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing strategy."""
     id: str = Field(..., description="Strategy ID")
@@ -36,7 +36,7 @@ class MarketingStrategyResponse(BaseModel):
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
 
-class ContentGenerationRequest(BaseModel):
+    class ContentGenerationRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for content generation."""
     content_type: str = Field(..., description="Type of content to generate")
@@ -46,14 +46,14 @@ class ContentGenerationRequest(BaseModel):
     length: str = Field(..., description="Content length")
 
 
-class ContentGenerationResponse(BaseModel):
+    class ContentGenerationResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for content generation task."""
     task_id: str = Field(..., description="Task ID")
     status_url: str = Field(..., description="URL to check task status")
 
 
-class PersonaResponse(BaseModel):
+    class PersonaResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for a user persona."""
     id: str = Field(..., description="Persona ID")
@@ -62,7 +62,7 @@ class PersonaResponse(BaseModel):
     demographics: Dict[str, Any] = Field(..., description="Demographic information")
 
 
-class ChannelResponse(BaseModel):
+    class ChannelResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing channel."""
     id: str = Field(..., description="Channel ID")
@@ -71,14 +71,14 @@ class ChannelResponse(BaseModel):
     content_types: List[str] = Field(..., description="Supported content types")
 
 
-class CampaignGoals(BaseModel):
+    class CampaignGoals(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Model for campaign goals."""
     metrics: List[str] = Field(..., description="Metrics to track")
     targets: Dict[str, Any] = Field(..., description="Target values for metrics")
 
 
-class MarketingCampaignRequest(BaseModel):
+    class MarketingCampaignRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Request model for creating a marketing campaign."""
     name: str = Field(..., description="Campaign name")
@@ -92,7 +92,7 @@ class MarketingCampaignRequest(BaseModel):
     goals: CampaignGoals = Field(..., description="Campaign goals")
 
 
-class MarketingCampaignResponse(BaseModel):
+    class MarketingCampaignResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing campaign."""
     id: str = Field(..., description="Campaign ID")
@@ -103,7 +103,7 @@ class MarketingCampaignResponse(BaseModel):
     budget: Optional[float] = Field(None, description="Campaign budget")
     channels: Optional[List[str]] = Field(None, description="Marketing channels")
     target_audience: Optional[Dict[str, Any]] = Field(
-        None, description="Target audience details"
+    None, description="Target audience details"
     )
     goals: Optional[CampaignGoals] = Field(None, description="Campaign goals")
     metrics: Optional[Dict[str, Any]] = Field(None, description="Campaign metrics")

@@ -2,7 +2,6 @@
 Tests for the FreemiumModel class.
 """
 
-
 import os
 
 from monetization.subscription_models import FreemiumModel
@@ -13,7 +12,7 @@ def test_freemium_model_init():
     pass  # Added missing block
     """Test FreemiumModel initialization."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Check that the model has the expected attributes
@@ -36,14 +35,14 @@ def test_freemium_model_init():
     assert "usage" in free_tier["limits"]
 
 
-def test_freemium_model_custom_free_tier():
+    def test_freemium_model_custom_free_tier():
     """Test FreemiumModel with custom free tier settings."""
     model = FreemiumModel(
-        name="Test Freemium Model",
-        description="A test freemium model",
-        free_tier_name="Basic",
-        free_tier_description="Basic tier with limited features",
-        free_tier_limits={"api_calls": 50, "exports": 3},
+    name="Test Freemium Model",
+    description="A test freemium model",
+    free_tier_name="Basic",
+    free_tier_description="Basic tier with limited features",
+    free_tier_limits={"api_calls": 50, "exports": 3},
     )
 
     # Check that the free tier has the custom attributes
@@ -54,21 +53,21 @@ def test_freemium_model_custom_free_tier():
     assert free_tier["limits"]["exports"] == 3
 
 
-def test_add_paid_tier():
+    def test_add_paid_tier():
     """Test adding a paid tier to a FreemiumModel."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Add a paid tier
     tier = model.add_tier(
-        name="Pro",
-        description="Pro tier with more features",
-        price_monthly=9.99,
-        price_yearly=99.99,
-        features=["feature1", "feature2"],
-        limits={"api_calls": 500, "exports": 50},
-        target_users="Professional users",
+    name="Pro",
+    description="Pro tier with more features",
+    price_monthly=9.99,
+    price_yearly=99.99,
+    features=["feature1", "feature2"],
+    limits={"api_calls": 500, "exports": 50},
+    target_users="Professional users",
     )
 
     # Check that the tier was added
@@ -86,10 +85,10 @@ def test_add_paid_tier():
     assert tier == model.tiers[1]
 
 
-def test_get_free_tier():
+    def test_get_free_tier():
     """Test get_free_tier method."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Get the free tier
@@ -101,10 +100,10 @@ def test_get_free_tier():
     assert free_tier["price_monthly"] == 0.0
 
 
-def test_update_free_tier_limits():
+    def test_update_free_tier_limits():
     """Test updating the free tier limits."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Get the free tier ID
@@ -118,15 +117,15 @@ def test_update_free_tier_limits():
     assert model.tiers[0]["limits"]["exports"] == 20
 
 
-def test_to_dict():
+    def test_to_dict():
     """Test to_dict method for FreemiumModel."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Add a feature
     model.add_feature(
-        name="Test Feature", description="A test feature", feature_type="functional"
+    name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a paid tier
@@ -155,15 +154,15 @@ def test_to_dict():
     assert model_dict["features"][0]["name"] == "Test Feature"
 
 
-def test_save_load_file(temp_dir):
+    def test_save_load_file(temp_dir):
     """Test save_to_file and load_from_file methods for FreemiumModel."""
     model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
+    name="Test Freemium Model", description="A test freemium model"
     )
 
     # Add a feature
     model.add_feature(
-        name="Test Feature", description="A test feature", feature_type="functional"
+    name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a paid tier

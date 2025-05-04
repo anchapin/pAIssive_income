@@ -18,77 +18,77 @@ async def test_webhook_service():
     # Create a webhook service
     service = WebhookService()
 
-# Start the service
+    # Start the service
     await service.start()
 
-try:
-        # Register a webhook
-        webhook_data = {
-            "url": "https://example.com/webhook",
-            "events": [
-                WebhookEventType.USER_CREATED,
-                WebhookEventType.PAYMENT_RECEIVED,
-            ],
-            "description": "Test webhook",
-            "headers": {"Authorization": "Bearer test-token"},
-            "is_active": True,
-        }
+    try:
+    # Register a webhook
+    webhook_data = {
+    "url": "https://example.com/webhook",
+    "events": [
+    WebhookEventType.USER_CREATED,
+    WebhookEventType.PAYMENT_RECEIVED,
+    ],
+    "description": "Test webhook",
+    "headers": {"Authorization": "Bearer test-token"},
+    "is_active": True,
+    }
 
-webhook = await service.register_webhook(webhook_data)  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
-        print(f"Registered webhook: {webhook['id']}")
+    webhook = await service.register_webhook(webhook_data)  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
+    print(f"Registered webhook: {webhook['id']}")
 
-# List webhooks
-        webhooks = await service.list_webhooks()
-        print(f"Found {len(webhooks)} webhooks")
+    # List webhooks
+    webhooks = await service.list_webhooks()
+    print(f"Found {len(webhooks)} webhooks")
 
-# Get webhook
-        retrieved_webhook = await service.get_webhook(webhook["id"])
-        print(f"Retrieved webhook: {retrieved_webhook['id']}")
+    # Get webhook
+    retrieved_webhook = await service.get_webhook(webhook["id"])
+    print(f"Retrieved webhook: {retrieved_webhook['id']}")
 
-# Update webhook
-        updated_data = {"description": "Updated test webhook", "is_active": False}
+    # Update webhook
+    updated_data = {"description": "Updated test webhook", "is_active": False}
 
-updated_webhook = await service.update_webhook(webhook["id"], updated_data)
-        print(
-            f"Updated webhook: {updated_webhook['description']}, active: {updated_webhook['is_active']}"
-        )
+    updated_webhook = await service.update_webhook(webhook["id"], updated_data)
+    print(
+    f"Updated webhook: {updated_webhook['description']}, active: {updated_webhook['is_active']}"
+    )
 
-# Reactivate webhook for delivery test
-        await service.update_webhook(webhook["id"], {"is_active": True})
+    # Reactivate webhook for delivery test
+    await service.update_webhook(webhook["id"], {"is_active": True})
 
-# Try to deliver an event
-        try:
-            event_data = {
-                "user_id": "user-123",
-                "username": "testuser",
-                "email": "test@example.com",
-                "created_at": datetime.now(timezone.utc).isoformat(),
-            }
+    # Try to deliver an event
+    try:
+    event_data = {
+    "user_id": "user-123",
+    "username": "testuser",
+    "email": "test@example.com",
+    "created_at": datetime.now(timezone.utc).isoformat(),
+    }
 
-delivery = await service.deliver_event(
-                webhook_id=webhook["id"],
-                event_type=WebhookEventType.USER_CREATED,
-                event_data=event_data,
-            )
+    delivery = await service.deliver_event(
+    webhook_id=webhook["id"],
+    event_type=WebhookEventType.USER_CREATED,
+    event_data=event_data,
+    )
 
-print(f"Delivery status: {delivery['status']}")
-            print(f"Delivery attempts: {len(delivery['attempts'])}")
+    print(f"Delivery status: {delivery['status']}")
+    print(f"Delivery attempts: {len(delivery['attempts'])}")
 
-# Get deliveries
-            deliveries = await service.get_deliveries(webhook["id"])
-            print(f"Found {len(deliveries)} deliveries")
+    # Get deliveries
+    deliveries = await service.get_deliveries(webhook["id"])
+    print(f"Found {len(deliveries)} deliveries")
 
 except Exception as e:
-            print(f"Error delivering event: {str(e)}")
+    print(f"Error delivering event: {str(e)}")
 
-# Delete webhook
-        deleted = await service.delete_webhook(webhook["id"])
-        print(f"Webhook deleted: {deleted}")
+    # Delete webhook
+    deleted = await service.delete_webhook(webhook["id"])
+    print(f"Webhook deleted: {deleted}")
 
 finally:
-        # Stop the service
-        await service.stop()
+    # Stop the service
+    await service.stop()
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     asyncio.run(test_webhook_service())

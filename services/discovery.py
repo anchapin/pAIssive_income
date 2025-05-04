@@ -4,10 +4,10 @@ Provides a minimal ServiceDiscoveryClient.
 """
 
 
-
 class ServiceDiscoveryClient:
     def __init__(self):
-        pass
+    pass
 
-def discover(self):
-                    return {"discovered": True}
+
+    def discover(self):
+    return {"discovered": True}

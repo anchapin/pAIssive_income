@@ -10,8 +10,8 @@ from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-T 
-                import re
+T
+import re
 
 = TypeVar("T")
 
@@ -23,8 +23,7 @@ class SortDirection(str, Enum):
     DESC = "desc"
 
 
-class FilterOperator(str, Enum):
-    """Filter operator for query parameters."""
+    class FilterOperator(str, Enum):
 
     EQ = "eq"  # Equal
     NE = "ne"  # Not equal
@@ -40,7 +39,7 @@ class FilterOperator(str, Enum):
     REGEX = "regex"  # Matches regex pattern
 
 
-class FilterParam(BaseModel):
+    class FilterParam(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Filter parameter for query parameters."""
     field: str = Field(..., description="Field to filter by")
@@ -50,7 +49,7 @@ class FilterParam(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class QueryParams(BaseModel):
+    class QueryParams(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Query parameters for API endpoints."""
     page: int = Field(1, ge=1, description="Page number")
@@ -59,14 +58,13 @@ class QueryParams(BaseModel):
     sort_dir: SortDirection = Field(SortDirection.ASC, description="Sort direction")
     filters: Dict[str, Any] = Field(default_factory=dict, description="Filters")
     filter_operators: Dict[str, FilterOperator] = Field(
-        default_factory=dict, description="Filter operators"
+    default_factory=dict, description="Filter operators"
     )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
-    """Paginated response for API endpoints."""
+    class PaginatedResponse(BaseModel, Generic[T]):
 
     items: List[T] = Field(..., description="List of items")
     total: int = Field(..., description="Total number of items")
@@ -77,181 +75,181 @@ class PaginatedResponse(BaseModel, Generic[T]):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-def apply_pagination(items: List[Any], params: QueryParams) -> Dict[str, Any]:
+    def apply_pagination(items: List[Any], params: QueryParams) -> Dict[str, Any]:
     """
     Apply pagination to a list of items.
 
     Args:
-        items: List of items to paginate
-        params: Query parameters
+    items: List of items to paginate
+    params: Query parameters
 
     Returns:
-        Paginated response
+    Paginated response
     """
     total = len(items)
     start = (params.page - 1) * params.page_size
     end = start + params.page_size
     pages = (total + params.page_size - 1) // params.page_size
 
-            return {
-        "items": items[start:end],
-        "total": total,
-        "page": params.page,
-        "page_size": params.page_size,
-        "pages": pages,
+    return {
+    "items": items[start:end],
+    "total": total,
+    "page": params.page,
+    "page_size": params.page_size,
+    "pages": pages,
     }
 
 
-def apply_filtering(
+    def apply_filtering(
     items: List[T],
     query_params: QueryParams,
     field_getter: Callable[[T, str], Any] = None,
-) -> List[T]:
+    ) -> List[T]:
     """
     Apply filtering to a list of items.
 
     Args:
-        items: List of items to filter
-        query_params: Query parameters
-        field_getter: Function to get field value from item (defaults to getattr or dict access)
+    items: List of items to filter
+    query_params: Query parameters
+    field_getter: Function to get field value from item (defaults to getattr or dict access)
 
     Returns:
-        Filtered list of items
+    Filtered list of items
     """
     if not query_params.filters:
-                return items
+    return items
 
     # Default field getter function
     if field_getter is None:
 
-        def field_getter(item, field):
-            if hasattr(item, field):
-                        return getattr(item, field)
-            elif isinstance(item, dict):
-                        return item.get(field)
-                    return None
+    def field_getter(item, field):
+    if hasattr(item, field):
+    return getattr(item, field)
+    elif isinstance(item, dict):
+    return item.get(field)
+    return None
 
     filtered_items = []
 
     for item in items:
-        include = True
+    include = True
 
-        for field, value in query_params.filters.items():
-            operator = query_params.filter_operators.get(field, FilterOperator.EQ)
-            field_value = field_getter(item, field)
+    for field, value in query_params.filters.items():
+    operator = query_params.filter_operators.get(field, FilterOperator.EQ)
+    field_value = field_getter(item, field)
 
-            # Apply filter based on operator
-            if operator == FilterOperator.EQ:
-                if field_value != value:
-                    include = False
-                    break
-            elif operator == FilterOperator.NE:
-                if field_value == value:
-                    include = False
-                    break
-            elif operator == FilterOperator.GT:
-                if not (field_value is not None and field_value > value):
-                    include = False
-                    break
-            elif operator == FilterOperator.GE:
-                if not (field_value is not None and field_value >= value):
-                    include = False
-                    break
-            elif operator == FilterOperator.LT:
-                if not (field_value is not None and field_value < value):
-                    include = False
-                    break
-            elif operator == FilterOperator.LE:
-                if not (field_value is not None and field_value <= value):
-                    include = False
-                    break
-            elif operator == FilterOperator.CONTAINS:
-                if not (
-                    isinstance(field_value, str)
-                    and isinstance(value, str)
-                    and value in field_value
-                ):
-                    include = False
-                    break
-            elif operator == FilterOperator.STARTS_WITH:
-                if not (
-                    isinstance(field_value, str)
-                    and isinstance(value, str)
-                    and field_value.startswith(value)
-                ):
-                    include = False
-                    break
-            elif operator == FilterOperator.ENDS_WITH:
-                if not (
-                    isinstance(field_value, str)
-                    and isinstance(value, str)
-                    and field_value.endswith(value)
-                ):
-                    include = False
-                    break
-            elif operator == FilterOperator.IN:
-                if not (isinstance(value, list) and field_value in value):
-                    include = False
-                    break
-            elif operator == FilterOperator.NOT_IN:
-                if not (isinstance(value, list) and field_value not in value):
-                    include = False
-                    break
-            elif operator == FilterOperator.REGEX:
-
-
-                if not (
-                    isinstance(field_value, str)
-                    and isinstance(value, str)
-                    and bool(re.search(value, field_value))
-                ):
-                    include = False
-                    break
-
-        if include:
-            filtered_items.append(item)
-
-            return filtered_items
+    # Apply filter based on operator
+    if operator == FilterOperator.EQ:
+    if field_value != value:
+    include = False
+    break
+    elif operator == FilterOperator.NE:
+    if field_value == value:
+    include = False
+    break
+    elif operator == FilterOperator.GT:
+    if not (field_value is not None and field_value > value):
+    include = False
+    break
+    elif operator == FilterOperator.GE:
+    if not (field_value is not None and field_value >= value):
+    include = False
+    break
+    elif operator == FilterOperator.LT:
+    if not (field_value is not None and field_value < value):
+    include = False
+    break
+    elif operator == FilterOperator.LE:
+    if not (field_value is not None and field_value <= value):
+    include = False
+    break
+    elif operator == FilterOperator.CONTAINS:
+    if not (
+    isinstance(field_value, str)
+    and isinstance(value, str)
+    and value in field_value
+    ):
+    include = False
+    break
+    elif operator == FilterOperator.STARTS_WITH:
+    if not (
+    isinstance(field_value, str)
+    and isinstance(value, str)
+    and field_value.startswith(value)
+    ):
+    include = False
+    break
+    elif operator == FilterOperator.ENDS_WITH:
+    if not (
+    isinstance(field_value, str)
+    and isinstance(value, str)
+    and field_value.endswith(value)
+    ):
+    include = False
+    break
+    elif operator == FilterOperator.IN:
+    if not (isinstance(value, list) and field_value in value):
+    include = False
+    break
+    elif operator == FilterOperator.NOT_IN:
+    if not (isinstance(value, list) and field_value not in value):
+    include = False
+    break
+    elif operator == FilterOperator.REGEX:
 
 
-def apply_sorting(
+    if not (
+    isinstance(field_value, str)
+    and isinstance(value, str)
+    and bool(re.search(value, field_value))
+    ):
+    include = False
+    break
+
+    if include:
+    filtered_items.append(item)
+
+    return filtered_items
+
+
+    def apply_sorting(
     items: List[T],
     query_params: QueryParams,
     field_getter: Callable[[T, str], Any] = None,
-) -> List[T]:
+    ) -> List[T]:
     """
     Apply sorting to a list of items.
 
     Args:
-        items: List of items to sort
-        query_params: Query parameters
-        field_getter: Function to get field value from item (defaults to getattr or dict access)
+    items: List of items to sort
+    query_params: Query parameters
+    field_getter: Function to get field value from item (defaults to getattr or dict access)
 
     Returns:
-        Sorted list of items
+    Sorted list of items
     """
     if not query_params.sort_by:
-                return items
+    return items
 
     # Default field getter function
     if field_getter is None:
 
-        def field_getter(item, field):
-            if hasattr(item, field):
-                        return getattr(item, field)
-            elif isinstance(item, dict):
-                        return item.get(field)
-                    return None
+    def field_getter(item, field):
+    if hasattr(item, field):
+    return getattr(item, field)
+    elif isinstance(item, dict):
+    return item.get(field)
+    return None
 
     # Create key function for sorting that handles None values
     def sort_key(item):
-        value = field_getter(item, query_params.sort_by)
-        if value is None:
-            # Sort None values last in ascending order, first in descending
-                    return (
-                (1, None) if query_params.sort_dir == SortDirection.ASC else (0, None)
-            )
-                return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value
+    value = field_getter(item, query_params.sort_by)
+    if value is None:
+    # Sort None values last in ascending order, first in descending
+    return (
+    (1, None) if query_params.sort_dir == SortDirection.ASC else (0, None)
+    )
+    return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value
 
     # Sort items
-            return sorted(items, key=sort_key
+    return sorted(items, key=sort_key

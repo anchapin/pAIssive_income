@@ -14,11 +14,9 @@ from typing import Any, Dict, Optional
 import jwt
 from pydantic import BaseModel, ConfigDict, Field
 
-
-
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -35,9 +33,8 @@ class ServiceTokenError(Exception):
     pass
 
 
-class ServiceTokenPayload(BaseModel):
+    class ServiceTokenPayload(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Payload for service-to-service JWT tokens."""
 
     # Service that issued the token
     iss: str = Field(..., description="Issuer (service name)")
@@ -56,11 +53,11 @@ class ServiceTokenPayload(BaseModel):
 
     # Service-specific claims
     claims: Dict[str, Any] = Field(
-        default_factory=dict, description="Service-specific claims"
+    default_factory=dict, description="Service-specific claims"
     )
 
 
-def get_service_secret_key() -> str:
+    def get_service_secret_key() -> str:
     """
     Get the secret key for JWT token signing/validation.
 
@@ -68,139 +65,139 @@ def get_service_secret_key() -> str:
     If not set, a default development key is used (not secure for production).
 
     Returns:
-        str: The secret key
+    str: The secret key
     """
     secret_key = os.environ.get("SERVICE_AUTH_SECRET")
 
     if not secret_key:
-        # Use a default key for development (not secure for production)
-        default_key = "pAIssive_income_dev_key_not_secure_for_production"
-        logger.warning(
-            "SERVICE_AUTH_SECRET environment variable not set. "
-            "Using default development key. This is not secure for production."
-        )
-                return default_key
+    # Use a default key for development (not secure for production)
+    default_key = "pAIssive_income_dev_key_not_secure_for_production"
+    logger.warning(
+    "SERVICE_AUTH_SECRET environment variable not set. "
+    "Using default development key. This is not secure for production."
+    )
+    return default_key
 
-            return secret_key
+    return secret_key
 
 
-def create_service_token(
+    def create_service_token(
     issuer: str,
     audience: str,
     token_id: Optional[str] = None,
     expiration: Optional[int] = None,
     claims: Optional[Dict[str, Any]] = None,
-) -> str:
+    ) -> str:
     """
     Create a JWT token for service-to-service authentication.
 
     Args:
-        issuer: Name of the service issuing the token
-        audience: Name of the service the token is intended for
-        token_id: Unique token ID (defaults to current timestamp)
-        expiration: Token expiration time in seconds (defaults to 15 minutes)
-        claims: Additional service-specific claims
+    issuer: Name of the service issuing the token
+    audience: Name of the service the token is intended for
+    token_id: Unique token ID (defaults to current timestamp)
+    expiration: Token expiration time in seconds (defaults to 15 minutes)
+    claims: Additional service-specific claims
 
     Returns:
-        str: The JWT token
+    str: The JWT token
 
     Raises:
-        ServiceTokenError: If token creation fails
+    ServiceTokenError: If token creation fails
     """
     try:
-        # Get current time
-        current_time = int(time.time())
+    # Get current time
+    current_time = int(time.time())
 
-        # Set default token ID if not provided
-        if token_id is None:
-            token_id = f"{issuer}-{current_time}-{os.urandom(4).hex()}"
+    # Set default token ID if not provided
+    if token_id is None:
+    token_id = f"{issuer}-{current_time}-{os.urandom(4).hex()}"
 
-        # Set default expiration if not provided
-        if expiration is None:
-            expiration = current_time + DEFAULT_TOKEN_EXPIRATION
-        else:
-            expiration = current_time + expiration
+    # Set default expiration if not provided
+    if expiration is None:
+    expiration = current_time + DEFAULT_TOKEN_EXPIRATION
+    else:
+    expiration = current_time + expiration
 
-        # Create token payload
-        payload = ServiceTokenPayload(
-            iss=issuer,
-            aud=audience,
-            jti=token_id,
-            exp=expiration,
-            iat=current_time,
-            claims=claims or {},
-        )
+    # Create token payload
+    payload = ServiceTokenPayload(
+    iss=issuer,
+    aud=audience,
+    jti=token_id,
+    exp=expiration,
+    iat=current_time,
+    claims=claims or {},
+    )
 
-        # Convert payload to dict
-        payload_dict = payload.dict()
+    # Convert payload to dict
+    payload_dict = payload.dict()
 
-        # Get secret key
-        secret_key = get_service_secret_key()
+    # Get secret key
+    secret_key = get_service_secret_key()
 
-        # Create JWT token
-        token = jwt.encode(
-            payload=payload_dict, key=secret_key, algorithm=JWT_ALGORITHM
-        )
+    # Create JWT token
+    token = jwt.encode(
+    payload=payload_dict, key=secret_key, algorithm=JWT_ALGORITHM
+    )
 
-                return token
+    return token
 
-    except Exception as e:
-        logger.error(f"Error creating service token: {str(e)}")
-        raise ServiceTokenError(f"Failed to create service token: {str(e)}")
+except Exception as e:
+    logger.error(f"Error creating service token: {str(e)}")
+    raise ServiceTokenError(f"Failed to create service token: {str(e)}")
 
 
-def validate_service_token(
+    def validate_service_token(
     token: str, audience: str, verify_expiration: bool = True
-) -> ServiceTokenPayload:
+    ) -> ServiceTokenPayload:
     """
     Validate a JWT token for service-to-service authentication.
 
     Args:
-        token: The JWT token to validate
-        audience: Expected audience (service name)
-        verify_expiration: Whether to verify token expiration
+    token: The JWT token to validate
+    audience: Expected audience (service name)
+    verify_expiration: Whether to verify token expiration
 
     Returns:
-        ServiceTokenPayload: The validated token payload
+    ServiceTokenPayload: The validated token payload
 
     Raises:
-        ServiceTokenError: If token validation fails
+    ServiceTokenError: If token validation fails
     """
     try:
-        # Get secret key
-        secret_key = get_service_secret_key()
+    # Get secret key
+    secret_key = get_service_secret_key()
 
-        # Decode and validate the token
-        payload = jwt.decode(
-            jwt=token,
-            key=secret_key,
-            algorithms=[JWT_ALGORITHM],
-            options={
-                "verify_signature": True,
-                "verify_exp": verify_expiration,
-                "verify_aud": True,
-                "require": ["exp", "iat", "iss", "aud", "jti"],
-            },
-            audience=audience,
-        )
+    # Decode and validate the token
+    payload = jwt.decode(
+    jwt=token,
+    key=secret_key,
+    algorithms=[JWT_ALGORITHM],
+    options={
+    "verify_signature": True,
+    "verify_exp": verify_expiration,
+    "verify_aud": True,
+    "require": ["exp", "iat", "iss", "aud", "jti"],
+    },
+    audience=audience,
+    )
 
-        # Create and return the payload model
-                return ServiceTokenPayload(**payload)
+    # Create and return the payload model
+    return ServiceTokenPayload(**payload)
 
-    except jwt.ExpiredSignatureError:
-        logger.warning("Service token has expired")
-        raise ServiceTokenError("Service token has expired")
+except jwt.ExpiredSignatureError:
+    logger.warning("Service token has expired")
+    raise ServiceTokenError("Service token has expired")
 
-    except jwt.InvalidAudienceError:
-        logger.warning(f"Service token has invalid audience (expected: {audience})")
-        raise ServiceTokenError(
-            f"Service token has invalid audience (expected: {audience})"
-        )
+except jwt.InvalidAudienceError:
+    logger.warning(f"Service token has invalid audience (expected: {audience})")
+    raise ServiceTokenError(
+    f"Service token has invalid audience (expected: {audience})"
+    )
 
-    except jwt.PyJWTError as e:
-        logger.warning(f"Invalid service token: {str(e)}")
-        raise ServiceTokenError(f"Invalid service token: {str(e)}")
+except jwt.PyJWTError as e:
+    logger.warning(f"Invalid service token: {str(e)}")
+    raise ServiceTokenError(f"Invalid service token: {str(e)}")
 
-    except Exception as e:
-        logger.error(f"Error validating service token: {str(e)}")
-        raise ServiceTokenError(f"Failed to validate service token: {str(e)}"
+except Exception as e:
+    logger.error(f"Error validating service token: {str(e)}")
+    raise ServiceTokenError(f"Failed to validate service token: {str(e)}"

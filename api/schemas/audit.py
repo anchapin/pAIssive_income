@@ -3,8 +3,6 @@ Audit schemas for the API server.
 """
 
 import time
-
-
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -49,8 +47,7 @@ class AuditEventType
     PERMISSION_DENIED = "permission.denied"
 
 
-class AuditResourceType(str, Enum):
-    """Types of resources in audit events."""
+    class AuditResourceType(str, Enum):
 
     WEBHOOK = "webhook"
     WEBHOOK_DELIVERY = "webhook_delivery"
@@ -59,8 +56,7 @@ class AuditResourceType(str, Enum):
     SYSTEM = "system"
 
 
-class AuditAction(str, Enum):
-    """Types of actions in audit events."""
+    class AuditAction(str, Enum):
 
     CREATE = "create"
     READ = "read"
@@ -76,8 +72,7 @@ class AuditAction(str, Enum):
     REVOKE = "revoke"
 
 
-class AuditStatus(str, Enum):
-    """Status of audit events."""
+    class AuditStatus(str, Enum):
 
     SUCCESS = "success"
     FAILURE = "failure"
@@ -85,7 +80,7 @@ class AuditStatus(str, Enum):
     INFO = "info"
 
 
-class AuditActorType(str, Enum):
+    class AuditActorType(str, Enum):
     """Types of actors in audit events."""
 
     USER = "user"
@@ -94,7 +89,7 @@ class AuditActorType(str, Enum):
     SERVICE = "service"
 
 
-class AuditEventBase(BaseModel):
+    class AuditEventBase(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Base schema for audit events."""
     event_type: AuditEventType = Field(..., description="Type of event")
@@ -105,31 +100,28 @@ class AuditEventBase(BaseModel):
     actor_type: AuditActorType = Field(AuditActorType.USER, description="Type of actor")
     status: AuditStatus = Field(AuditStatus.SUCCESS, description="Status of the event")
     details: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional details"
+    default_factory=dict, description="Additional details"
     )
     ip_address: Optional[str] = Field(None, description="IP address of the actor")
     user_agent: Optional[str] = Field(None, description="User agent of the actor")
 
 
-class AuditEventCreate(AuditEventBase):
-    """Schema for creating an audit event."""
+    class AuditEventCreate(AuditEventBase):
 
     pass
 
 
-class AuditEventResponse(AuditEventBase):
-    """Schema for audit event response."""
+    class AuditEventResponse(AuditEventBase):
 
     id: str = Field(..., description="Event ID")
     timestamp: datetime = Field(..., description="When the event occurred")
 
     class Config:
-        """Pydantic configuration."""
 
-        orm_mode = True
+    orm_mode = True
 
 
-class AuditEventList(BaseModel):
+    class AuditEventList(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Schema for listing audit events."""
     items: List[AuditEventResponse] = Field(..., description="List of audit events")
@@ -139,14 +131,14 @@ class AuditEventList(BaseModel):
     pages: int = Field(..., description="Total number of pages")
 
 
-class AuditEventFilter(BaseModel):
+    class AuditEventFilter(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Schema for filtering audit events."""
     event_type: Optional[AuditEventType] = Field(
-        None, description="Filter by event type"
+    None, description="Filter by event type"
     )
     resource_type: Optional[AuditResourceType] = Field(
-        None, description="Filter by resource type"
+    None, description="Filter by resource type"
     )
     resource_id: Optional[str] = Field(None, description="Filter by resource ID")
     action: Optional[AuditAction] = Field(None, description="Filter by action")

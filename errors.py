@@ -5,15 +5,12 @@ This module provides custom exception classes and error handling utilities
 for consistent error management across the project.
 """
 
-from monetization.errors import MonetizationError
-
-
 import json
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type, Union
 
-
+from monetization.errors import MonetizationError
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -23,593 +20,586 @@ class BaseError(Exception):
     """Base exception class for all custom exceptions in the project."""
 
     def __init__(
-        self,
-        message: str,
-        code: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
-        http_status: int = 500,
-        original_exception: Optional[Exception] = None,
+    self,
+    message: str,
+    code: Optional[str] = None,
+    details: Optional[Dict[str, Any]] = None,
+    http_status: int = 500,
+    original_exception: Optional[Exception] = None,
     ):
-        """
-        Initialize the base error.
+    """
+    Initialize the base error.
 
-        Args:
-            message: Human-readable error message
-            code: Error code for programmatic handling
-            details: Additional error details
-            http_status: HTTP status code for API responses
-            original_exception: Original exception if this is a wrapper
-        """
-        self.message = message
-        # Use provided code if available, otherwise use class name
-        self.code = code or self.__class__.__name__
-        self.details = details or {}
-        self.http_status = http_status
-        self.original_exception = original_exception
-        self.timestamp = datetime.now().isoformat()
+    Args:
+    message: Human-readable error message
+    code: Error code for programmatic handling
+    details: Additional error details
+    http_status: HTTP status code for API responses
+    original_exception: Original exception if this is a wrapper
+    """
+    self.message = message
+    # Use provided code if available, otherwise use class name
+    self.code = code or self.__class__.__name__
+    self.details = details or {}
+    self.http_status = http_status
+    self.original_exception = original_exception
+    self.timestamp = datetime.now().isoformat()
 
-        # Add traceback information if available
-        if original_exception:
-            self.details["original_error"] = str(original_exception)
-            self.details["original_error_type"] = original_exception.__class__.__name__
+    # Add traceback information if available
+    if original_exception:
+    self.details["original_error"] = str(original_exception)
+    self.details["original_error_type"] = original_exception.__class__.__name__
 
-        super().__init__(self.message)
+    super().__init__(self.message)
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the error to a dictionary.
+    """
+    Convert the error to a dictionary.
 
-        Returns:
-            Dictionary representation of the error
-        """
-        return {
-            "error": {
-                "code": self.code,
-                "message": self.message,
-                "details": self.details,
-                "timestamp": self.timestamp,
-            }
-        }
+    Returns:
+    Dictionary representation of the error
+    """
+    return {
+    "error": {
+    "code": self.code,
+    "message": self.message,
+    "details": self.details,
+    "timestamp": self.timestamp,
+    }
+    }
 
     def to_json(self) -> str:
-        """
-        Convert the error to a JSON string.
+    """
+    Convert the error to a JSON string.
 
-        Returns:
-            JSON string representation of the error
-        """
-        return json.dumps(self.to_dict(), indent=2)
+    Returns:
+    JSON string representation of the error
+    """
+    return json.dumps(self.to_dict(), indent=2)
 
     def log(self, level: int = logging.ERROR) -> None:
-        """
-        Log the error.
+    """
+    Log the error.
 
-        Args:
-            level: Logging level
-        """
-        logger.log(
-            level, f"{self.code}: {self.message}", exc_info=self.original_exception
-        )
-
-
-# Configuration Errors
+    Args:
+    level: Logging level
+    """
+    logger.log(
+    level, f"{self.code}: {self.message}", exc_info=self.original_exception
+    )
 
 
-class ConfigurationError(BaseError):
+    # Configuration Errors
+
+
+    class ConfigurationError(BaseError):
     """Error raised when there's an issue with configuration."""
 
     def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
-        """
-        Initialize the configuration error.
+    """
+    Initialize the configuration error.
 
-        Args:
-            message: Human-readable error message
-            config_key: The configuration key that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if config_key:
-            details["config_key"] = config_key
+    Args:
+    message: Human-readable error message
+    config_key: The configuration key that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if config_key:
+    details["config_key"] = config_key
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "configuration_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "configuration_error"
 
-        super().__init__(message=message, details=details, http_status=500, **kwargs)
+    super().__init__(message=message, details=details, http_status=500, **kwargs)
 
 
-class ValidationError(BaseError):
+    class ValidationError(BaseError):
     """Error raised when validation fails."""
 
     def __init__(
-        self,
-        message: str,
-        field: Optional[str] = None,
-        validation_errors: Optional[List[Dict[str, Any]]] = None,
-        **kwargs,
+    self,
+    message: str,
+    field: Optional[str] = None,
+    validation_errors: Optional[List[Dict[str, Any]]] = None,
+    **kwargs,
     ):
-        """
-        Initialize the validation error.
+    """
+    Initialize the validation error.
 
-        Args:
-            message: Human-readable error message
-            field: The field that failed validation
-            validation_errors: List of validation errors
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if field:
-            details["field"] = field
-        if validation_errors:
-            details["validation_errors"] = validation_errors
+    Args:
+    message: Human-readable error message
+    field: The field that failed validation
+    validation_errors: List of validation errors
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if field:
+    details["field"] = field
+    if validation_errors:
+    details["validation_errors"] = validation_errors
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "validation_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "validation_error"
 
-        super().__init__(message=message, details=details, http_status=400, **kwargs)
-
-
-# AI Model Errors
+    super().__init__(message=message, details=details, http_status=400, **kwargs)
 
 
-class ModelError(BaseError):
+    # AI Model Errors
+
+
+    class ModelError(BaseError):
     """Base class for all model-related errors."""
 
     def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
-        """
-        Initialize the model error.
+    """
+    Initialize the model error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if model_id:
-            details["model_id"] = model_id
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if model_id:
+    details["model_id"] = model_id
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "model_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_error"
 
-        super().__init__(message=message, details=details, http_status=500, **kwargs)
+    super().__init__(message=message, details=details, http_status=500, **kwargs)
 
 
-class ModelNotFoundError(ModelError):
+    class ModelNotFoundError(ModelError):
     """Error raised when a model is not found."""
 
     def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
-        """
-        Initialize the model not found error.
+    """
+    Initialize the model not found error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that was not found
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "model_not_found"
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that was not found
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_not_found"
 
-        super().__init__(message=message, model_id=model_id, http_status=404, **kwargs)
+    super().__init__(message=message, model_id=model_id, http_status=404, **kwargs)
 
 
-class ModelLoadError(ModelError):
+    class ModelLoadError(ModelError):
     """Error raised when a model fails to load."""
 
     def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
-        """
-        Initialize the model load error.
+    """
+    Initialize the model load error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that failed to load
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "model_load_error"
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that failed to load
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_load_error"
 
-        super().__init__(message=message, model_id=model_id, **kwargs)
+    super().__init__(message=message, model_id=model_id, **kwargs)
 
 
-class ModelInferenceError(ModelError):
+    class ModelInferenceError(ModelError):
     """Error raised when model inference fails."""
 
     def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
-        """
-        Initialize the model inference error.
+    """
+    Initialize the model inference error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that failed during inference
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "model_inference_error"
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that failed during inference
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_inference_error"
 
-        super().__init__(message=message, model_id=model_id, **kwargs)
+    super().__init__(message=message, model_id=model_id, **kwargs)
 
 
-class ModelAPIError(ModelError):
+    class ModelAPIError(ModelError):
     """Error raised when there's an issue with the model API."""
 
     def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        endpoint: Optional[str] = None,
-        **kwargs
+    self,
+    message: str,
+    model_id: Optional[str] = None,
+    endpoint: Optional[str] = None,
+    **kwargs,
     ):
-        """
-        Initialize the model API error.
+    """
+    Initialize the model API error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that had an API issue
-            endpoint: API endpoint that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if endpoint:
-            details["endpoint"] = endpoint
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that had an API issue
+    endpoint: API endpoint that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if endpoint:
+    details["endpoint"] = endpoint
 
-        # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_api_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_api_error"
 
-        super().__init__(
-            message=message,
-            model_id=model_id,
-            details=details,
-            **kwargs
-        )
+    super().__init__(message=message, model_id=model_id, details=details, **kwargs)
 
 
-class ModelDownloadError(ModelError):
+    class ModelDownloadError(ModelError):
     """Error raised when model download fails."""
 
     def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        source: Optional[str] = None,
-        **kwargs,
+    self,
+    message: str,
+    model_id: Optional[str] = None,
+    source: Optional[str] = None,
+    **kwargs,
     ):
-        """
-        Initialize the model download error.
+    """
+    Initialize the model download error.
 
-        Args:
-            message: Human-readable error message
-            model_id: ID of the model that failed to download
-            source: Source of the model download
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if source:
-            details["source"] = source
+    Args:
+    message: Human-readable error message
+    model_id: ID of the model that failed to download
+    source: Source of the model download
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if source:
+    details["source"] = source
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "model_download_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "model_download_error"
 
-        super().__init__(message=message, model_id=model_id, details=details, **kwargs)
-
-
-# Monetization Errors
+    super().__init__(message=message, model_id=model_id, details=details, **kwargs)
 
 
-class MonetizationError(BaseError):
+    # Monetization Errors
+
+
+    class MonetizationError(BaseError):
     """Base class for all monetization-related errors."""
 
     def __init__(self, message: str, **kwargs):
-        """
-        Initialize the monetization error.
+    """
+    Initialize the monetization error.
 
-        Args:
-            message: Human-readable error message
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "monetization_error"
+    Args:
+    message: Human-readable error message
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "monetization_error"
 
-        super().__init__(message=message, http_status=500, **kwargs)
+    super().__init__(message=message, http_status=500, **kwargs)
 
 
-class SubscriptionError(MonetizationError):
+    class SubscriptionError(MonetizationError):
     """Error raised when there's an issue with subscriptions."""
 
     def __init__(
-        self,
-        message: str,
-        subscription_id: Optional[str] = None,
-        user_id: Optional[str] = None,
-        **kwargs,
+    self,
+    message: str,
+    subscription_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+    **kwargs,
     ):
-        """
-        Initialize the subscription error.
+    """
+    Initialize the subscription error.
 
-        Args:
-            message: Human-readable error message
-            subscription_id: ID of the subscription
-            user_id: ID of the user
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if subscription_id:
-            details["subscription_id"] = subscription_id
-        if user_id:
-            details["user_id"] = user_id
+    Args:
+    message: Human-readable error message
+    subscription_id: ID of the subscription
+    user_id: ID of the user
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if subscription_id:
+    details["subscription_id"] = subscription_id
+    if user_id:
+    details["user_id"] = user_id
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "subscription_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "subscription_error"
 
-        super().__init__(message=message, details=details, **kwargs)
+    super().__init__(message=message, details=details, **kwargs)
 
 
-class PaymentError(MonetizationError):
+    class PaymentError(MonetizationError):
     """Error raised when there's an issue with payments."""
 
     def __init__(
-        self,
-        message: str,
-        transaction_id: Optional[str] = None,
-        payment_method: Optional[str] = None,
-        **kwargs,
+    self,
+    message: str,
+    transaction_id: Optional[str] = None,
+    payment_method: Optional[str] = None,
+    **kwargs,
     ):
-        """
-        Initialize the payment error.
+    """
+    Initialize the payment error.
 
-        Args:
-            message: Human-readable error message
-            transaction_id: ID of the transaction
-            payment_method: Payment method used
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if transaction_id:
-            details["transaction_id"] = transaction_id
-        if payment_method:
-            details["payment_method"] = payment_method
+    Args:
+    message: Human-readable error message
+    transaction_id: ID of the transaction
+    payment_method: Payment method used
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if transaction_id:
+    details["transaction_id"] = transaction_id
+    if payment_method:
+    details["payment_method"] = payment_method
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "payment_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "payment_error"
 
-        super().__init__(message=message, details=details, **kwargs)
-
-
-# Niche Analysis Errors
+    super().__init__(message=message, details=details, **kwargs)
 
 
-class NicheAnalysisError(BaseError):
+    # Niche Analysis Errors
+
+
+    class NicheAnalysisError(BaseError):
     """Base class for all niche analysis-related errors."""
 
     def __init__(self, message: str, **kwargs):
-        """
-        Initialize the niche analysis error.
+    """
+    Initialize the niche analysis error.
 
-        Args:
-            message: Human-readable error message
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "niche_analysis_error"
+    Args:
+    message: Human-readable error message
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "niche_analysis_error"
 
-        super().__init__(message=message, http_status=500, **kwargs)
+    super().__init__(message=message, http_status=500, **kwargs)
 
 
-class MarketAnalysisError(NicheAnalysisError):
+    class MarketAnalysisError(NicheAnalysisError):
     """Error raised when market analysis fails."""
 
     def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
-        """
-        Initialize the market analysis error.
+    """
+    Initialize the market analysis error.
 
-        Args:
-            message: Human-readable error message
-            segment: Market segment that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if segment:
-            details["segment"] = segment
+    Args:
+    message: Human-readable error message
+    segment: Market segment that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if segment:
+    details["segment"] = segment
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "market_analysis_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "market_analysis_error"
 
-        super().__init__(message=message, details=details, **kwargs)
+    super().__init__(message=message, details=details, **kwargs)
 
 
-class OpportunityScoringError(NicheAnalysisError):
+    class OpportunityScoringError(NicheAnalysisError):
     """Error raised when opportunity scoring fails."""
 
     def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
-        """
-        Initialize the opportunity scoring error.
+    """
+    Initialize the opportunity scoring error.
 
-        Args:
-            message: Human-readable error message
-            niche: Niche that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if niche:
-            details["niche"] = niche
+    Args:
+    message: Human-readable error message
+    niche: Niche that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if niche:
+    details["niche"] = niche
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "opportunity_scoring_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "opportunity_scoring_error"
 
-        super().__init__(message=message, details=details, **kwargs)
-
-
-# Agent Team Errors
+    super().__init__(message=message, details=details, **kwargs)
 
 
-class AgentTeamError(BaseError):
+    # Agent Team Errors
+
+
+    class AgentTeamError(BaseError):
     """Base class for all agent team-related errors."""
 
     def __init__(self, message: str, **kwargs):
-        """
-        Initialize the agent team error.
+    """
+    Initialize the agent team error.
 
-        Args:
-            message: Human-readable error message
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "agent_team_error"
+    Args:
+    message: Human-readable error message
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "agent_team_error"
 
-        super().__init__(message=message, http_status=500, **kwargs)
+    super().__init__(message=message, http_status=500, **kwargs)
 
 
-class AgentError(AgentTeamError):
+    class AgentError(AgentTeamError):
     """Error raised when an agent operation fails."""
 
     def __init__(self, message: str, agent_name: Optional[str] = None, **kwargs):
-        """
-        Initialize the agent error.
+    """
+    Initialize the agent error.
 
-        Args:
-            message: Human-readable error message
-            agent_name: Name of the agent that caused the error
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if agent_name:
-            details["agent_name"] = agent_name
+    Args:
+    message: Human-readable error message
+    agent_name: Name of the agent that caused the error
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if agent_name:
+    details["agent_name"] = agent_name
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "agent_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "agent_error"
 
-        super().__init__(message=message, details=details, **kwargs)
-
-
-# Marketing Errors
+    super().__init__(message=message, details=details, **kwargs)
 
 
-class MarketingError(BaseError):
+    # Marketing Errors
+
+
+    class MarketingError(BaseError):
     """Base class for all marketing-related errors."""
 
     def __init__(self, message: str, **kwargs):
-        """
-        Initialize the marketing error.
+    """
+    Initialize the marketing error.
 
-        Args:
-            message: Human-readable error message
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "marketing_error"
+    Args:
+    message: Human-readable error message
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "marketing_error"
 
-        super().__init__(message=message, http_status=500, **kwargs)
-
-
+    super().__init__(message=message, http_status=500, **kwargs)
 
 
-# UI Errors
+    # UI Errors
 
 
-class UIError(BaseError):
+    class UIError(BaseError):
     """Base class for all UI-related errors."""
 
     def __init__(self, message: str, **kwargs):
-        """
-        Initialize the UI error.
+    """
+    Initialize the UI error.
 
-        Args:
-            message: Human-readable error message
-            **kwargs: Additional arguments to pass to the base class
-        """
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "ui_error"
+    Args:
+    message: Human-readable error message
+    **kwargs: Additional arguments to pass to the base class
+    """
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "ui_error"
 
-        super().__init__(message=message, http_status=500, **kwargs)
+    super().__init__(message=message, http_status=500, **kwargs)
 
 
-class APIError(UIError):
+    class APIError(UIError):
     """Error raised when an API operation fails."""
 
     def __init__(
-        self,
-        message: str,
-        endpoint: Optional[str] = None,
-        method: Optional[str] = None,
-        **kwargs,
+    self,
+    message: str,
+    endpoint: Optional[str] = None,
+    method: Optional[str] = None,
+    **kwargs,
     ):
-        """
-        Initialize the API error.
+    """
+    Initialize the API error.
 
-        Args:
-            message: Human-readable error message
-            endpoint: API endpoint that caused the error
-            method: HTTP method used
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if endpoint:
-            details["endpoint"] = endpoint
-        if method:
-            details["method"] = method
+    Args:
+    message: Human-readable error message
+    endpoint: API endpoint that caused the error
+    method: HTTP method used
+    **kwargs: Additional arguments to pass to the base class
+    """
+    details = kwargs.pop("details", {})
+    if endpoint:
+    details["endpoint"] = endpoint
+    if method:
+    details["method"] = method
 
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "api_error"
+    # Only set code if it's not already provided in kwargs
+    if "code" not in kwargs:
+    kwargs["code"] = "api_error"
 
-        super().__init__(message=message, details=details, **kwargs)
-
-
-# Error handling utilities
+    super().__init__(message=message, details=details, **kwargs)
 
 
-def handle_exception(
+    # Error handling utilities
+
+
+    def handle_exception(
     exception: Exception,
     log_level: int = logging.ERROR,
     reraise: bool = True,
     error_class: Type[BaseError] = BaseError,
     message: Optional[str] = None,
     **kwargs,
-) -> BaseError:
+    ) -> BaseError:
     """
     Handle an exception by converting it to a custom error and logging it.
 
     Args:
-        exception: The exception to handle
-        log_level: Logging level
-        reraise: Whether to reraise the exception
-        error_class: Custom error class to use
-        message: Optional custom error message (overrides the exception message)
-        **kwargs: Additional arguments to pass to the error class constructor
+    exception: The exception to handle
+    log_level: Logging level
+    reraise: Whether to reraise the exception
+    error_class: Custom error class to use
+    message: Optional custom error message (overrides the exception message)
+    **kwargs: Additional arguments to pass to the error class constructor
 
     Returns:
-        Custom error instance
+    Custom error instance
 
     Raises:
-        The custom error if reraise is True
+    The custom error if reraise is True
     """
     # If it's already a BaseError, just log it and reraise if needed
     if isinstance(exception, BaseError):
-        exception.log(log_level)
-        if reraise:
-            raise exception
-        return exception
+    exception.log(log_level)
+    if reraise:
+    raise exception
+    return exception
 
     # Create a custom error from the exception
     error = error_class(
-        message=message if message is not None else str(exception),
-        original_exception=exception,
-        **kwargs,
+    message=message if message is not None else str(exception),
+    original_exception=exception,
+    **kwargs,
     )
 
     # Log the error
@@ -617,27 +607,27 @@ def handle_exception(
 
     # Reraise if needed
     if reraise:
-        raise error
+    raise error
 
     return error
 
 
-def error_to_response(error: Union[BaseError, Exception]) -> Dict[str, Any]:
+    def error_to_response(error: Union[BaseError, Exception]) -> Dict[str, Any]:
     """
     Convert an error to an API response.
 
     Args:
-        error: The error to convert
+    error: The error to convert
 
     Returns:
-        API response dictionary
+    API response dictionary
     """
     if isinstance(error, BaseError):
-        return error.to_dict()
+    return error.to_dict()
 
     # Convert standard exception to BaseError
     base_error = BaseError(
-        message=str(error), code=error.__class__.__name__, original_exception=error
+    message=str(error), code=error.__class__.__name__, original_exception=error
     )
 
     return base_error.to_dict()

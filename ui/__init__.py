@@ -1,18 +1,12 @@
 
 import logging
-from .app_factory import create_app  
-from .celery_app import create_celery_app  
-from .socketio_app import init_socketio, socketio  
-from . import routes  
 
-import logging
-from .app_factory import create_app  
-from .celery_app import create_celery_app  
-from .socketio_app import init_socketio, socketio  
-from . import routes  
-    from service_initialization import initialize_services
+from service_initialization import initialize_services
 
-from .app_factory import init_app
+from . import routes
+from .app_factory import create_app, init_app
+from .celery_app import create_celery_app
+from .socketio_app import init_socketio, socketio
 
 init_app
 
@@ -28,11 +22,11 @@ This module provides a web interface for interacting with the pAIssive Income fr
 allowing users to analyze niches, develop solutions, create monetization strategies,
 and plan marketing campaigns.
 """
-  # noqa: E402
+# noqa: E402
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -58,9 +52,9 @@ init_socketio(app)
 # Initialize the application with services
 def init_app_with_services():
     """Initialize the application with services."""
-(app, initialize_services)
+    (app, initialize_services)
     logger.info("pAIssive Income UI initialized with services")
 
 
-# This function can be called after all modules are imported to initialize services
-# It's not called automatically to avoid circular imports
+    # This function can be called after all modules are imported to initialize services
+    # It's not called automatically to avoid circular imports

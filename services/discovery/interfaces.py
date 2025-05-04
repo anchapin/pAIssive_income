@@ -4,8 +4,6 @@ Service Discovery Interfaces
 This module defines the core interfaces for the service discovery system.
 """
 
-
-import enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -23,8 +21,8 @@ class ServiceStatus:
     STOPPED = "stopped"
 
 
-@dataclass
-class ServiceInstance:
+    @dataclass
+    class ServiceInstance:
     """
     Data class representing a service instance in the registry.
     """
@@ -37,7 +35,7 @@ class ServiceInstance:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-class ServiceRegistry(ABC):
+    class ServiceRegistry(ABC):
     """
     Interface for service registry implementations.
 
@@ -47,95 +45,95 @@ class ServiceRegistry(ABC):
 
     @abstractmethod
     def register(self, service: ServiceInstance) -> bool:
-        """
-        Register a service instance.
+    """
+    Register a service instance.
 
-        Args:
-            service: The service instance to register
+    Args:
+    service: The service instance to register
 
-        Returns:
-            True if registration was successful, False otherwise
-        """
-        pass
+    Returns:
+    True if registration was successful, False otherwise
+    """
+    pass
 
     @abstractmethod
     def deregister(self, instance_id: str) -> bool:
-        """
-        Deregister a service instance.
+    """
+    Deregister a service instance.
 
-        Args:
-            instance_id: The instance ID to deregister
+    Args:
+    instance_id: The instance ID to deregister
 
-        Returns:
-            True if deregistration was successful, False otherwise
-        """
-        pass
+    Returns:
+    True if deregistration was successful, False otherwise
+    """
+    pass
 
     @abstractmethod
     def renew(self, instance_id: str) -> bool:
-        """
-        Renew the registration of a service instance.
+    """
+    Renew the registration of a service instance.
 
-        Args:
-            instance_id: The instance ID to renew
+    Args:
+    instance_id: The instance ID to renew
 
-        Returns:
-            True if renewal was successful, False otherwise
-        """
-        pass
+    Returns:
+    True if renewal was successful, False otherwise
+    """
+    pass
 
     @abstractmethod
     def get_instance(self, instance_id: str) -> Optional[ServiceInstance]:
-        """
-        Get a specific service instance by ID.
+    """
+    Get a specific service instance by ID.
 
-        Args:
-            instance_id: The instance ID to retrieve
+    Args:
+    instance_id: The instance ID to retrieve
 
-        Returns:
-            The service instance, or None if not found
-        """
-        pass
+    Returns:
+    The service instance, or None if not found
+    """
+    pass
 
     @abstractmethod
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
-        """
-        Get all instances of a specific service.
+    """
+    Get all instances of a specific service.
 
-        Args:
-            service_id: The service ID to look up
+    Args:
+    service_id: The service ID to look up
 
-        Returns:
-            List of service instances for the specified service
-        """
-        pass
+    Returns:
+    List of service instances for the specified service
+    """
+    pass
 
     @abstractmethod
     def get_all_instances(self) -> Dict[str, List[ServiceInstance]]:
-        """
-        Get all registered service instances, grouped by service ID.
+    """
+    Get all registered service instances, grouped by service ID.
 
-        Returns:
-            Dictionary mapping service IDs to lists of service instances
-        """
-        pass
+    Returns:
+    Dictionary mapping service IDs to lists of service instances
+    """
+    pass
 
     @abstractmethod
     def update_status(self, instance_id: str, status: ServiceStatus) -> bool:
-        """
-        Update the status of a service instance.
+    """
+    Update the status of a service instance.
 
-        Args:
-            instance_id: The instance ID to update
-            status: The new status
+    Args:
+    instance_id: The instance ID to update
+    status: The new status
 
-        Returns:
-            True if the update was successful, False otherwise
-        """
-        pass
+    Returns:
+    True if the update was successful, False otherwise
+    """
+    pass
 
 
-class LoadBalancingStrategy(ABC):
+    class LoadBalancingStrategy(ABC):
     """
     Interface for load balancing strategies.
 
@@ -145,21 +143,21 @@ class LoadBalancingStrategy(ABC):
 
     @abstractmethod
     def select_instance(
-        self, instances: List[ServiceInstance]
+    self, instances: List[ServiceInstance]
     ) -> Optional[ServiceInstance]:
-        """
-        Select an instance from the list of available instances.
+    """
+    Select an instance from the list of available instances.
 
-        Args:
-            instances: List of available service instances
+    Args:
+    instances: List of available service instances
 
-        Returns:
-            The selected instance, or None if no instances are available
-        """
-        pass
+    Returns:
+    The selected instance, or None if no instances are available
+    """
+    pass
 
 
-class ServiceDiscovery(ABC):
+    class ServiceDiscovery(ABC):
     """
     Interface for service discovery.
 
@@ -169,23 +167,23 @@ class ServiceDiscovery(ABC):
 
     @abstractmethod
     def get_service(self, service_id: str) -> Optional[ServiceInstance]:
-        """
-        Get an instance of a service based on the configured load balancing strategy.
+    """
+    Get an instance of a service based on the configured load balancing strategy.
 
-        Args:
-            service_id: The service ID to look up
+    Args:
+    service_id: The service ID to look up
 
-        Returns:
-            A service instance, or None if no instances are available
-        """
-        pass
+    Returns:
+    A service instance, or None if no instances are available
+    """
+    pass
 
     @abstractmethod
     def get_all_services(self) -> List[str]:
-        """
-        Get a list of all known service IDs.
+    """
+    Get a list of all known service IDs.
 
-        Returns:
-            List of service IDs
-        """
-        pass
+    Returns:
+    List of service IDs
+    """
+    pass

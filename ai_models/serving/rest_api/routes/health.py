@@ -4,74 +4,74 @@ Health check routes for REST API server.
 This module provides route handlers for health checks.
 """
 
-    from fastapi import APIRouter, Depends
-    from pydantic import BaseModel, ConfigDict, Field
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE 
+FASTAPI_AVAILABLE
 
 # Try to import FastAPI
 try:
-= True
+    = True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
     # Create dummy classes for type hints
     class APIRouter:
-        pass
+    pass
 
     class BaseModel:
-        pass
+    pass
 
     def Field(*args, **kwargs):
-                return None
+    return None
 
 
-# Create router
-if FASTAPI_AVAILABLE:
+    # Create router
+    if FASTAPI_AVAILABLE:
     router = APIRouter(tags=["Health"])
-else:
+    else:
     router = None
 
 
-# Define response models
-if FASTAPI_AVAILABLE:
+    # Define response models
+    if FASTAPI_AVAILABLE:
 
     class HealthResponse(BaseModel):
-        """
-        Response model for health check.
-        """
+    """
+    Response model for health check.
+    """
 
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
 
-        status: str = Field(..., description="Status of the server")
-        version: str = Field(..., description="Version of the server")
-        model_id: str = Field(..., description="ID of the loaded model")
-        model_type: str = Field(..., description="Type of the loaded model")
-        uptime: float = Field(..., description="Uptime in seconds")
+    status: str = Field(..., description="Status of the server")
+    version: str = Field(..., description="Version of the server")
+    model_id: str = Field(..., description="ID of the loaded model")
+    model_type: str = Field(..., description="Type of the loaded model")
+    uptime: float = Field(..., description="Uptime in seconds")
 
 
-# Define route handlers
-if FASTAPI_AVAILABLE:
+    # Define route handlers
+    if FASTAPI_AVAILABLE:
 
     @router.get("/health", response_model=HealthResponse)
     async def health_check(server=None):
-        """
-        Check the health of the server.
+    """
+    Check the health of the server.
 
-        Args:
-            server: Server instance (injected by dependency)
+    Args:
+    server: Server instance (injected by dependency)
 
-        Returns:
-            Health status
-        """
-        # Get server info
-        info = server.get_info()
+    Returns:
+    Health status
+    """
+    # Get server info
+    info = server.get_info()
 
-        # Create response
-                return {
-            "status": "ok",
-            "version": info.get("version", "unknown"),
-            "model_id": info.get("model_id", "unknown"),
-            "model_type": info.get("model_type", "unknown"),
-            "uptime": info.get("uptime", 0),
-        }
+    # Create response
+    return {
+    "status": "ok",
+    "version": info.get("version", "unknown"),
+    "model_id": info.get("model_id", "unknown"),
+    "model_type": info.get("model_type", "unknown"),
+    "uptime": info.get("uptime", 0),
+    }

@@ -4,49 +4,46 @@ Tests for the StrategyGenerator class in the Marketing module.
 
 import time
 
-
 import pytest
 
 from marketing.concrete_strategy_generator import DefaultStrategyGenerator
-
-
 
 
 @pytest.fixture
 def strategy_generator():
     """Create a DefaultStrategyGenerator instance for testing."""
     generator = DefaultStrategyGenerator(
-        business_type="saas",
-        goals=["brand_awareness", "lead_generation"],
-        target_audience={
-            "demographics": {
-                "age_range": "25-45",
-                "gender": "all",
-                "location": "global",
-                "income_level": "middle to high",
-                "education": "college degree or higher",
-                "occupation": "professionals, business owners",
-            },
-            "interests": [
-                "productivity",
-                "technology",
-                "business growth",
-                "automation",
-            ],
-            "pain_points": ["time management", "manual processes", "data organization"],
-            "goals": ["improve efficiency", "reduce costs", "grow business"],
-        },
-        budget={"amount": 5000, "period": "monthly", "currency": "USD"},
-        timeframe={"duration": 6, "unit": "months"},
-        business_size="medium",
+    business_type="saas",
+    goals=["brand_awareness", "lead_generation"],
+    target_audience={
+    "demographics": {
+    "age_range": "25-45",
+    "gender": "all",
+    "location": "global",
+    "income_level": "middle to high",
+    "education": "college degree or higher",
+    "occupation": "professionals, business owners",
+    },
+    "interests": [
+    "productivity",
+    "technology",
+    "business growth",
+    "automation",
+    ],
+    "pain_points": ["time management", "manual processes", "data organization"],
+    "goals": ["improve efficiency", "reduce costs", "grow business"],
+    },
+    budget={"amount": 5000, "period": "monthly", "currency": "USD"},
+    timeframe={"duration": 6, "unit": "months"},
+    business_size="medium",
     )
-            return generator
+    return generator
 
 
-def test_strategy_generator_init():
+    def test_strategy_generator_init():
     """Test DefaultStrategyGenerator initialization."""
     generator = DefaultStrategyGenerator(
-        business_type="saas", goals=["brand_awareness", "lead_generation"]
+    business_type="saas", goals=["brand_awareness", "lead_generation"]
     )
 
     # Check that the generator has the expected attributes
@@ -61,7 +58,7 @@ def test_strategy_generator_init():
     assert hasattr(generator, "channel_type")
 
 
-def test_validate_business_type(strategy_generator):
+    def test_validate_business_type(strategy_generator):
     """Test validate_business_type method."""
     # Valid business type
     is_valid, errors = strategy_generator.validate_business_type()
@@ -81,7 +78,7 @@ def test_validate_business_type(strategy_generator):
     assert len(errors) > 0
 
 
-def test_validate_goals(strategy_generator):
+    def test_validate_goals(strategy_generator):
     """Test validate_goals method."""
     # Valid goals
     is_valid, errors = strategy_generator.validate_goals()
@@ -101,7 +98,7 @@ def test_validate_goals(strategy_generator):
     assert len(errors) > 0
 
 
-def test_analyze_channels(strategy_generator):
+    def test_analyze_channels(strategy_generator):
     """Test analyze_channels method."""
     # Analyze channels
     channel_analysis = strategy_generator.analyze_channels()
@@ -128,35 +125,35 @@ def test_analyze_channels(strategy_generator):
     # Check that effectiveness scores are present for all channels
     effectiveness_scores = channel_effectiveness["effectiveness_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in effectiveness_scores
+    assert channel in effectiveness_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = effectiveness_scores[channel]
-        assert "channel" in channel_score
-        assert "description" in channel_score
-        assert "base_score" in channel_score
-        assert "business_alignment" in channel_score
-        assert "goal_alignment" in channel_score
-        assert "difficulty_adjustment" in channel_score
-        assert "time_adjustment" in channel_score
-        assert "metrics_effectiveness" in channel_score
-        assert "overall_score" in channel_score
-        assert "effectiveness_level" in channel_score
-        assert "best_for" in channel_score
-        assert "formats" in channel_score
-        assert "metrics" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = effectiveness_scores[channel]
+    assert "channel" in channel_score
+    assert "description" in channel_score
+    assert "base_score" in channel_score
+    assert "business_alignment" in channel_score
+    assert "goal_alignment" in channel_score
+    assert "difficulty_adjustment" in channel_score
+    assert "time_adjustment" in channel_score
+    assert "metrics_effectiveness" in channel_score
+    assert "overall_score" in channel_score
+    assert "effectiveness_level" in channel_score
+    assert "best_for" in channel_score
+    assert "formats" in channel_score
+    assert "metrics" in channel_score
 
-        # Check that scores are within expected ranges
-        assert 0 <= channel_score["base_score"] <= 1
-        assert 0 <= channel_score["business_alignment"] <= 1
-        assert 0 <= channel_score["goal_alignment"] <= 1
-        assert 0 <= channel_score["difficulty_adjustment"] <= 1
-        assert 0 <= channel_score["time_adjustment"] <= 1
-        assert 0 <= channel_score["overall_score"] <= 1
-        assert channel_score["effectiveness_level"] in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_score["base_score"] <= 1
+    assert 0 <= channel_score["business_alignment"] <= 1
+    assert 0 <= channel_score["goal_alignment"] <= 1
+    assert 0 <= channel_score["difficulty_adjustment"] <= 1
+    assert 0 <= channel_score["time_adjustment"] <= 1
+    assert 0 <= channel_score["overall_score"] <= 1
+    assert channel_score["effectiveness_level"] in ["low", "medium", "high"]
 
 
-def test_analyze_channel_effectiveness(strategy_generator):
+    def test_analyze_channel_effectiveness(strategy_generator):
     """Test _analyze_channel_effectiveness method."""
     # Analyze channel effectiveness
     channel_effectiveness = strategy_generator._analyze_channel_effectiveness()
@@ -171,29 +168,29 @@ def test_analyze_channel_effectiveness(strategy_generator):
     # Check that effectiveness scores are present for all channels
     effectiveness_scores = channel_effectiveness["effectiveness_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in effectiveness_scores
+    assert channel in effectiveness_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = effectiveness_scores[channel]
-        assert "channel" in channel_score
-        assert "description" in channel_score
-        assert "base_score" in channel_score
-        assert "business_alignment" in channel_score
-        assert "goal_alignment" in channel_score
-        assert "difficulty_adjustment" in channel_score
-        assert "time_adjustment" in channel_score
-        assert "metrics_effectiveness" in channel_score
-        assert "overall_score" in channel_score
-        assert "effectiveness_level" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = effectiveness_scores[channel]
+    assert "channel" in channel_score
+    assert "description" in channel_score
+    assert "base_score" in channel_score
+    assert "business_alignment" in channel_score
+    assert "goal_alignment" in channel_score
+    assert "difficulty_adjustment" in channel_score
+    assert "time_adjustment" in channel_score
+    assert "metrics_effectiveness" in channel_score
+    assert "overall_score" in channel_score
+    assert "effectiveness_level" in channel_score
 
-        # Check that scores are within expected ranges
-        assert 0 <= channel_score["base_score"] <= 1
-        assert 0 <= channel_score["business_alignment"] <= 1
-        assert 0 <= channel_score["goal_alignment"] <= 1
-        assert 0 <= channel_score["difficulty_adjustment"] <= 1
-        assert 0 <= channel_score["time_adjustment"] <= 1
-        assert 0 <= channel_score["overall_score"] <= 1
-        assert channel_score["effectiveness_level"] in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_score["base_score"] <= 1
+    assert 0 <= channel_score["business_alignment"] <= 1
+    assert 0 <= channel_score["goal_alignment"] <= 1
+    assert 0 <= channel_score["difficulty_adjustment"] <= 1
+    assert 0 <= channel_score["time_adjustment"] <= 1
+    assert 0 <= channel_score["overall_score"] <= 1
+    assert channel_score["effectiveness_level"] in ["low", "medium", "high"]
 
     # Check that sorted channels is a list of dictionaries
     sorted_channels = channel_effectiveness["sorted_channels"]
@@ -217,12 +214,12 @@ def test_analyze_channel_effectiveness(strategy_generator):
     assert all(isinstance(channel, str) for channel in moderately_effective)
 
 
-def test_analyze_channel_metrics_effectiveness(strategy_generator):
+    def test_analyze_channel_metrics_effectiveness(strategy_generator):
     """Test _analyze_channel_metrics_effectiveness method."""
     # Test for a specific channel
     channel = "content_marketing"
     metrics_effectiveness = strategy_generator._analyze_channel_metrics_effectiveness(
-        channel
+    channel
     )
 
     # Check that the result has the expected keys
@@ -256,102 +253,102 @@ def test_analyze_channel_metrics_effectiveness(strategy_generator):
     assert all(isinstance(metric, str) for metric in weak_metrics)
 
 
-def test_calculate_channel_base_score(strategy_generator):
+    def test_calculate_channel_base_score(strategy_generator):
     """Test _calculate_channel_base_score method."""
     # Test for all channels
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        base_score = strategy_generator._calculate_channel_base_score(channel)
+    base_score = strategy_generator._calculate_channel_base_score(channel)
 
-        # Check that the result is a float between 0 and 1
-        assert isinstance(base_score, float)
-        assert 0 <= base_score <= 1
+    # Check that the result is a float between 0 and 1
+    assert isinstance(base_score, float)
+    assert 0 <= base_score <= 1
 
 
-def test_calculate_channel_business_alignment(strategy_generator):
+    def test_calculate_channel_business_alignment(strategy_generator):
     """Test _calculate_channel_business_alignment method."""
     # Test for all channels
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        business_alignment = strategy_generator._calculate_channel_business_alignment(
-            channel
-        )
+    business_alignment = strategy_generator._calculate_channel_business_alignment(
+    channel
+    )
 
-        # Check that the result is a float between 0 and 1
-        assert isinstance(business_alignment, float)
-        assert 0 <= business_alignment <= 1
+    # Check that the result is a float between 0 and 1
+    assert isinstance(business_alignment, float)
+    assert 0 <= business_alignment <= 1
 
     # Test with a channel that is in the typical channels for the business type
     business_type_data = strategy_generator.BUSINESS_TYPES["saas"]
     typical_channel = business_type_data["typical_channels"][0]
     business_alignment = strategy_generator._calculate_channel_business_alignment(
-        typical_channel
+    typical_channel
     )
 
     # Check that the alignment is 1.0 for a typical channel
     assert business_alignment == 1.0
 
 
-def test_calculate_channel_goal_alignment_score(strategy_generator):
+    def test_calculate_channel_goal_alignment_score(strategy_generator):
     """Test _calculate_channel_goal_alignment_score method."""
     # Test for all channels
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        goal_alignment = strategy_generator._calculate_channel_goal_alignment_score(
-            channel
-        )
+    goal_alignment = strategy_generator._calculate_channel_goal_alignment_score(
+    channel
+    )
 
-        # Check that the result is a float between 0 and 1
-        assert isinstance(goal_alignment, float)
-        assert 0 <= goal_alignment <= 1
+    # Check that the result is a float between 0 and 1
+    assert isinstance(goal_alignment, float)
+    assert 0 <= goal_alignment <= 1
 
     # Test with a channel that is best for one of the goals
     goal = strategy_generator.goals[0]
     goal_data = strategy_generator.MARKETING_GOALS[goal]
     best_channel = goal_data["recommended_channels"][0]
     goal_alignment = strategy_generator._calculate_channel_goal_alignment_score(
-        best_channel
+    best_channel
     )
 
     # Check that the alignment is high for a channel that is best for the goal
     assert goal_alignment >= 0.5
 
 
-def test_calculate_difficulty_adjustment(strategy_generator):
+    def test_calculate_difficulty_adjustment(strategy_generator):
     """Test _calculate_difficulty_adjustment method."""
     # Test for different difficulty levels
     assert strategy_generator._calculate_difficulty_adjustment("low") == 1.0
     assert strategy_generator._calculate_difficulty_adjustment("medium") == 0.8
     assert strategy_generator._calculate_difficulty_adjustment("high") == 0.6
     assert (
-        strategy_generator._calculate_difficulty_adjustment("unknown") == 0.8
+    strategy_generator._calculate_difficulty_adjustment("unknown") == 0.8
     )  # Default to medium
 
 
-def test_calculate_time_adjustment(strategy_generator):
+    def test_calculate_time_adjustment(strategy_generator):
     """Test _calculate_time_adjustment method."""
     # Test for different time investment levels
     assert strategy_generator._calculate_time_adjustment("low") == 1.0
     assert strategy_generator._calculate_time_adjustment("medium") == 0.8
     assert strategy_generator._calculate_time_adjustment("high") == 0.6
     assert (
-        strategy_generator._calculate_time_adjustment("unknown") == 0.8
+    strategy_generator._calculate_time_adjustment("unknown") == 0.8
     )  # Default to medium
 
 
-def test_adjust_metrics_for_business_type(strategy_generator):
+    def test_adjust_metrics_for_business_type(strategy_generator):
     """Test _adjust_metrics_for_business_type method."""
     # Create test metrics
     metrics = {
-        "awareness": 0.7,
-        "engagement": 0.6,
-        "conversion": 0.5,
-        "retention": 0.4,
-        "reach": 0.8,
-        "cost_efficiency": 0.6,
+    "awareness": 0.7,
+    "engagement": 0.6,
+    "conversion": 0.5,
+    "retention": 0.4,
+    "reach": 0.8,
+    "cost_efficiency": 0.6,
     }
 
     # Test for a specific channel and business type
     channel = "content_marketing"
     adjusted_metrics = strategy_generator._adjust_metrics_for_business_type(
-        metrics, channel
+    metrics, channel
     )
 
     # Check that the result is a dictionary with the same keys
@@ -360,23 +357,23 @@ def test_adjust_metrics_for_business_type(strategy_generator):
 
     # Check that the values are adjusted but still between 0 and 1
     for metric, value in adjusted_metrics.items():
-        assert 0 <= value <= 1
+    assert 0 <= value <= 1
 
     # For SaaS businesses, content marketing should have higher conversion and retention
     assert adjusted_metrics["conversion"] > metrics["conversion"]
     assert adjusted_metrics["retention"] > metrics["retention"]
 
 
-def test_adjust_metrics_for_goals(strategy_generator):
+    def test_adjust_metrics_for_goals(strategy_generator):
     """Test _adjust_metrics_for_goals method."""
     # Create test metrics
     metrics = {
-        "awareness": 0.7,
-        "engagement": 0.6,
-        "conversion": 0.5,
-        "retention": 0.4,
-        "reach": 0.8,
-        "cost_efficiency": 0.6,
+    "awareness": 0.7,
+    "engagement": 0.6,
+    "conversion": 0.5,
+    "retention": 0.4,
+    "reach": 0.8,
+    "cost_efficiency": 0.6,
     }
 
     # Test for a specific channel
@@ -389,7 +386,7 @@ def test_adjust_metrics_for_goals(strategy_generator):
 
     # Check that the values are adjusted but still between 0 and 1
     for metric, value in adjusted_metrics.items():
-        assert 0 <= value <= 1
+    assert 0 <= value <= 1
 
     # For brand awareness goal, awareness and reach should be higher
     assert adjusted_metrics["awareness"] > metrics["awareness"]
@@ -399,7 +396,7 @@ def test_adjust_metrics_for_goals(strategy_generator):
     assert adjusted_metrics["conversion"] > metrics["conversion"]
 
 
-def test_analyze_channel_audience_fit(strategy_generator):
+    def test_analyze_channel_audience_fit(strategy_generator):
     """Test _analyze_channel_audience_fit method."""
     # Analyze channel audience fit
     audience_fit = strategy_generator._analyze_channel_audience_fit()
@@ -414,26 +411,26 @@ def test_analyze_channel_audience_fit(strategy_generator):
     # Check that audience fit scores are present for all channels
     audience_fit_scores = audience_fit["audience_fit_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in audience_fit_scores
+    assert channel in audience_fit_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = audience_fit_scores[channel]
-        assert "channel" in channel_score
-        assert "demographic_fit" in channel_score
-        assert "interest_fit" in channel_score
-        assert "behavior_fit" in channel_score
-        assert "overall_fit" in channel_score
-        assert "fit_level" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = audience_fit_scores[channel]
+    assert "channel" in channel_score
+    assert "demographic_fit" in channel_score
+    assert "interest_fit" in channel_score
+    assert "behavior_fit" in channel_score
+    assert "overall_fit" in channel_score
+    assert "fit_level" in channel_score
 
-        # Check that scores are within expected ranges
-        assert 0 <= channel_score["demographic_fit"] <= 1
-        assert 0 <= channel_score["interest_fit"] <= 1
-        assert 0 <= channel_score["behavior_fit"] <= 1
-        assert 0 <= channel_score["overall_fit"] <= 1
-        assert channel_score["fit_level"] in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_score["demographic_fit"] <= 1
+    assert 0 <= channel_score["interest_fit"] <= 1
+    assert 0 <= channel_score["behavior_fit"] <= 1
+    assert 0 <= channel_score["overall_fit"] <= 1
+    assert channel_score["fit_level"] in ["low", "medium", "high"]
 
 
-def test_analyze_channel_goal_alignment(strategy_generator):
+    def test_analyze_channel_goal_alignment(strategy_generator):
     """Test _analyze_channel_goal_alignment method."""
     # Analyze channel goal alignment
     goal_alignment = strategy_generator._analyze_channel_goal_alignment()
@@ -446,55 +443,55 @@ def test_analyze_channel_goal_alignment(strategy_generator):
     # Check that goal alignment scores are present for all goals
     goal_alignment_scores = goal_alignment["goal_alignment_scores"]
     for goal in strategy_generator.goals:
-        assert goal in goal_alignment_scores
+    assert goal in goal_alignment_scores
 
-        # Check that each goal has channel scores
-        goal_score = goal_alignment_scores[goal]
-        assert "channel_scores" in goal_score
-        assert "top_channels" in goal_score
+    # Check that each goal has channel scores
+    goal_score = goal_alignment_scores[goal]
+    assert "channel_scores" in goal_score
+    assert "top_channels" in goal_score
 
-        # Check that channel scores are present for all channels
-        channel_scores = goal_score["channel_scores"]
-        for channel in strategy_generator.MARKETING_CHANNELS.keys():
-            assert channel in channel_scores
+    # Check that channel scores are present for all channels
+    channel_scores = goal_score["channel_scores"]
+    for channel in strategy_generator.MARKETING_CHANNELS.keys():
+    assert channel in channel_scores
 
-            # Check that each channel score has the expected keys
-            channel_score = channel_scores[channel]
-            assert "channel" in channel_score
-            assert "alignment_score" in channel_score
-            assert "alignment_level" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = channel_scores[channel]
+    assert "channel" in channel_score
+    assert "alignment_score" in channel_score
+    assert "alignment_level" in channel_score
 
-            # Check that scores are within expected ranges
-            assert 0 <= channel_score["alignment_score"] <= 1
-            assert channel_score["alignment_level"] in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_score["alignment_score"] <= 1
+    assert channel_score["alignment_level"] in ["low", "medium", "high"]
 
     # Check that overall alignment has scores for all channels
     overall_alignment = goal_alignment["overall_alignment"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in overall_alignment
+    assert channel in overall_alignment
 
-        # Check that each channel has the expected keys
-        channel_alignment = overall_alignment[channel]
-        assert "channel" in channel_alignment
-        assert "avg_alignment" in channel_alignment
-        # The key might be "goal_scores" instead of "alignment_by_goal"
-        assert (
-            "goal_scores" in channel_alignment
-            or "alignment_by_goal" in channel_alignment
-        )
-        assert (
-            "alignment_level" in channel_alignment
-            or "overall_level" in channel_alignment
-        )
+    # Check that each channel has the expected keys
+    channel_alignment = overall_alignment[channel]
+    assert "channel" in channel_alignment
+    assert "avg_alignment" in channel_alignment
+    # The key might be "goal_scores" instead of "alignment_by_goal"
+    assert (
+    "goal_scores" in channel_alignment
+    or "alignment_by_goal" in channel_alignment
+    )
+    assert (
+    "alignment_level" in channel_alignment
+    or "overall_level" in channel_alignment
+    )
 
-        # Check that scores are within expected ranges
-        assert 0 <= channel_alignment["avg_alignment"] <= 1
-        assert channel_alignment.get(
-            "alignment_level", channel_alignment.get("overall_level")
-        ) in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_alignment["avg_alignment"] <= 1
+    assert channel_alignment.get(
+    "alignment_level", channel_alignment.get("overall_level")
+    ) in ["low", "medium", "high"]
 
 
-def test_analyze_channel_budget_fit(strategy_generator):
+    def test_analyze_channel_budget_fit(strategy_generator):
     """Test _analyze_channel_budget_fit method."""
     # Analyze channel budget fit
     budget_fit = strategy_generator._analyze_channel_budget_fit()
@@ -508,31 +505,31 @@ def test_analyze_channel_budget_fit(strategy_generator):
     # These keys might not be present if there are no channels in these categories
     # So we'll check for them only if they exist in the result
     if "moderate_channels" in budget_fit:
-        assert isinstance(budget_fit["moderate_channels"], list)
+    assert isinstance(budget_fit["moderate_channels"], list)
     if "expensive_channels" in budget_fit:
-        assert isinstance(budget_fit["expensive_channels"], list)
+    assert isinstance(budget_fit["expensive_channels"], list)
 
     # Check that budget fit scores are present for all channels
     budget_fit_scores = budget_fit["budget_fit_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in budget_fit_scores
+    assert channel in budget_fit_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = budget_fit_scores[channel]
-        assert "channel" in channel_score
-        assert "estimated_cost" in channel_score
-        assert "budget_percentage" in channel_score
-        assert "budget_fit" in channel_score
-        assert "affordability" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = budget_fit_scores[channel]
+    assert "channel" in channel_score
+    assert "estimated_cost" in channel_score
+    assert "budget_percentage" in channel_score
+    assert "budget_fit" in channel_score
+    assert "affordability" in channel_score
 
-        # Check that scores are within expected ranges
-        assert channel_score["estimated_cost"] >= 0
-        assert 0 <= channel_score["budget_percentage"] <= 1
-        assert 0 <= channel_score["budget_fit"] <= 1
-        assert channel_score["affordability"] in ["affordable", "moderate", "expensive"]
+    # Check that scores are within expected ranges
+    assert channel_score["estimated_cost"] >= 0
+    assert 0 <= channel_score["budget_percentage"] <= 1
+    assert 0 <= channel_score["budget_fit"] <= 1
+    assert channel_score["affordability"] in ["affordable", "moderate", "expensive"]
 
 
-def test_analyze_channel_roi(strategy_generator):
+    def test_analyze_channel_roi(strategy_generator):
     """Test _analyze_channel_roi method."""
     # Analyze channel ROI
     roi_analysis = strategy_generator._analyze_channel_roi()
@@ -546,31 +543,31 @@ def test_analyze_channel_roi(strategy_generator):
     # This key might not be present if there are no channels with medium ROI
     # So we'll check for it only if it exists in the result
     if "medium_roi_channels" in roi_analysis:
-        assert isinstance(roi_analysis["medium_roi_channels"], list)
+    assert isinstance(roi_analysis["medium_roi_channels"], list)
 
     # Check that ROI scores are present for all channels
     roi_scores = roi_analysis["roi_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in roi_scores
+    assert channel in roi_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = roi_scores[channel]
-        assert "channel" in channel_score
-        assert "estimated_cost" in channel_score
-        assert "potential_revenue" in channel_score
-        assert "roi" in channel_score
-        assert "roi_score" in channel_score
-        assert "roi_level" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = roi_scores[channel]
+    assert "channel" in channel_score
+    assert "estimated_cost" in channel_score
+    assert "potential_revenue" in channel_score
+    assert "roi" in channel_score
+    assert "roi_score" in channel_score
+    assert "roi_level" in channel_score
 
-        # Check that scores are within expected ranges
-        assert channel_score["estimated_cost"] >= 0
-        assert channel_score["potential_revenue"] >= 0
-        assert channel_score["roi"] >= 0
-        assert 0 <= channel_score["roi_score"] <= 1
-        assert channel_score["roi_level"] in ["low", "medium", "high"]
+    # Check that scores are within expected ranges
+    assert channel_score["estimated_cost"] >= 0
+    assert channel_score["potential_revenue"] >= 0
+    assert channel_score["roi"] >= 0
+    assert 0 <= channel_score["roi_score"] <= 1
+    assert channel_score["roi_level"] in ["low", "medium", "high"]
 
 
-def test_prioritize_channels(strategy_generator):
+    def test_prioritize_channels(strategy_generator):
     """Test _prioritize_channels method."""
     # Get analysis results
     channel_effectiveness = strategy_generator._analyze_channel_effectiveness()
@@ -581,7 +578,7 @@ def test_prioritize_channels(strategy_generator):
 
     # Prioritize channels
     prioritized_channels = strategy_generator._prioritize_channels(
-        channel_effectiveness, audience_fit, goal_alignment, budget_fit, roi_analysis
+    channel_effectiveness, audience_fit, goal_alignment, budget_fit, roi_analysis
     )
 
     # Check that the result is a dictionary with the expected keys
@@ -594,27 +591,27 @@ def test_prioritize_channels(strategy_generator):
     # Check that priority scores are present for all channels
     priority_scores = prioritized_channels["priority_scores"]
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        assert channel in priority_scores
+    assert channel in priority_scores
 
-        # Check that each channel score has the expected keys
-        channel_score = priority_scores[channel]
-        assert "channel" in channel_score
-        assert "overall_score" in channel_score
-        assert "effectiveness_score" in channel_score
-        assert "audience_fit_score" in channel_score
-        assert "goal_alignment_score" in channel_score
-        assert "budget_fit_score" in channel_score
-        assert "roi_score" in channel_score
-        assert "priority_level" in channel_score
+    # Check that each channel score has the expected keys
+    channel_score = priority_scores[channel]
+    assert "channel" in channel_score
+    assert "overall_score" in channel_score
+    assert "effectiveness_score" in channel_score
+    assert "audience_fit_score" in channel_score
+    assert "goal_alignment_score" in channel_score
+    assert "budget_fit_score" in channel_score
+    assert "roi_score" in channel_score
+    assert "priority_level" in channel_score
 
-        # Check that scores are within expected ranges
-        assert 0 <= channel_score["overall_score"] <= 1
-        assert 0 <= channel_score["effectiveness_score"] <= 1
-        assert 0 <= channel_score["audience_fit_score"] <= 1
-        assert 0 <= channel_score["goal_alignment_score"] <= 1
-        assert 0 <= channel_score["budget_fit_score"] <= 1
-        assert 0 <= channel_score["roi_score"] <= 1
-        assert channel_score["priority_level"] in ["high", "medium", "low"]
+    # Check that scores are within expected ranges
+    assert 0 <= channel_score["overall_score"] <= 1
+    assert 0 <= channel_score["effectiveness_score"] <= 1
+    assert 0 <= channel_score["audience_fit_score"] <= 1
+    assert 0 <= channel_score["goal_alignment_score"] <= 1
+    assert 0 <= channel_score["budget_fit_score"] <= 1
+    assert 0 <= channel_score["roi_score"] <= 1
+    assert channel_score["priority_level"] in ["high", "medium", "low"]
 
     # Check that high priority channels is a list of strings
     high_priority_channels = prioritized_channels["high_priority_channels"]
@@ -627,7 +624,7 @@ def test_prioritize_channels(strategy_generator):
     assert all(isinstance(channel, str) for channel in medium_priority_channels)
 
 
-def test_generate_channel_recommendations(strategy_generator):
+    def test_generate_channel_recommendations(strategy_generator):
     """Test _generate_channel_recommendations method."""
     # Let's directly test the method with a simpler approach
     # Create a simple test for the method that doesn't rely on mocking
@@ -638,40 +635,40 @@ def test_generate_channel_recommendations(strategy_generator):
 
     # Create a simplified prioritized channels dictionary with just one channel
     prioritized_channels = {
-        "high_priority_channels": [top_channels[0]],
-        "medium_priority_channels": top_channels[1:3] if len(top_channels) > 2 else [],
-        "prioritization_method": "roi",
-        "priority_scores": {},
+    "high_priority_channels": [top_channels[0]],
+    "medium_priority_channels": top_channels[1:3] if len(top_channels) > 2 else [],
+    "prioritization_method": "roi",
+    "priority_scores": {},
     }
 
     # Add a score for the high priority channel
     prioritized_channels["priority_scores"][top_channels[0]] = {
-        "channel": top_channels[0],
-        "overall_score": 0.9,
-        "effectiveness_score": 0.8,
-        "audience_fit_score": 0.7,
-        "goal_alignment_score": 0.9,
-        "budget_fit_score": 0.8,
-        "roi_score": 0.9,
-        "priority_level": "high",
+    "channel": top_channels[0],
+    "overall_score": 0.9,
+    "effectiveness_score": 0.8,
+    "audience_fit_score": 0.7,
+    "goal_alignment_score": 0.9,
+    "budget_fit_score": 0.8,
+    "roi_score": 0.9,
+    "priority_level": "high",
     }
 
     try:
-        # Generate channel recommendations
-        channel_recommendations = strategy_generator._generate_channel_recommendations(
-            prioritized_channels
-        )
+    # Generate channel recommendations
+    channel_recommendations = strategy_generator._generate_channel_recommendations(
+    prioritized_channels
+    )
 
-        # Check that the result is a dictionary
-        assert isinstance(channel_recommendations, dict)
+    # Check that the result is a dictionary
+    assert isinstance(channel_recommendations, dict)
 
-        # If we got here without an error, the test passes
-        assert True
-    except Exception as e:
-        # If there's an error related to business_size, we'll consider the test passed
-        # since we've already fixed that issue in the StrategyGenerator class
-        if "business_size" in str(e):
-            assert True
-        else:
-            # If it's another error, fail the test
-            assert False, f"Unexpected error: {str(e)}"
+    # If we got here without an error, the test passes
+    assert True
+except Exception as e:
+    # If there's an error related to business_size, we'll consider the test passed
+    # since we've already fixed that issue in the StrategyGenerator class
+    if "business_size" in str(e):
+    assert True
+    else:
+    # If it's another error, fail the test
+    assert False, f"Unexpected error: {str(e)}"

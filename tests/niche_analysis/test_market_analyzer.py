@@ -2,7 +2,6 @@
 Tests for the MarketAnalyzer class.
 """
 
-
 from datetime import datetime
 
 import pytest
@@ -19,11 +18,11 @@ def test_market_analyzer_init():
     # Check that the analyzer has the expected attributes
     assert analyzer.name == "Market Analyzer"
     assert (
-        analyzer.description == "Analyzes market segments to identify potential niches"
+    analyzer.description == "Analyzes market segments to identify potential niches"
     )
 
 
-def test_analyze_market():
+    def test_analyze_market():
     """Test analyze_market method."""
     analyzer = MarketAnalyzer()
 
@@ -47,7 +46,7 @@ def test_analyze_market():
     assert "e-commerce" in result["description"].lower()
 
 
-def test_analyze_market_unknown_segment():
+    def test_analyze_market_unknown_segment():
     """Test analyze_market method with an unknown segment."""
     analyzer = MarketAnalyzer()
 
@@ -73,7 +72,7 @@ def test_analyze_market_unknown_segment():
     assert result["growth_rate"] == "unknown"
 
 
-def test_analyze_competition():
+    def test_analyze_competition():
     """Test analyze_competition method."""
     analyzer = MarketAnalyzer()
 
@@ -103,7 +102,7 @@ def test_analyze_competition():
     assert "pricing" in result["top_competitors"][0]
 
 
-def test_analyze_competition_timestamp():
+    def test_analyze_competition_timestamp():
     """Test that analyze_competition includes a timestamp."""
     analyzer = MarketAnalyzer()
 
@@ -116,12 +115,12 @@ def test_analyze_competition_timestamp():
 
     # Try to parse the timestamp as a datetime to verify it's a valid ISO format
     try:
-        datetime.fromisoformat(result["timestamp"])
-    except ValueError:
-        pytest.fail(f"Timestamp '{result['timestamp']}' is not a valid ISO format")
+    datetime.fromisoformat(result["timestamp"])
+except ValueError:
+    pytest.fail(f"Timestamp '{result['timestamp']}' is not a valid ISO format")
 
 
-def test_analyze_target_users():
+    def test_analyze_target_users():
     """Test analyze_target_users method."""
     analyzer = MarketAnalyzer()
 

@@ -24,66 +24,66 @@ class AgentProfile(IAgentProfile):
     """
 
     def __init__(
-        self,
-        name: str,
-        description: Optional[str] = None,
-        capabilities: Optional[List[str]] = None,
-        parameters: Optional[Dict[str, Any]] = None,
+    self,
+    name: str,
+    description: Optional[str] = None,
+    capabilities: Optional[List[str]] = None,
+    parameters: Optional[Dict[str, Any]] = None,
     ):
-        """
-        Initialize the agent profile.
+    """
+    Initialize the agent profile.
 
-        Args:
-            name: Name of the agent profile
-            description: Optional description of the agent profile
-            capabilities: Optional list of capabilities
-            parameters: Optional dictionary of parameters
-        """
-        self._name = name
-        self._description = description or f"Agent profile for {name}"
-        self._capabilities = capabilities or []
-        self._parameters = parameters or {}
+    Args:
+    name: Name of the agent profile
+    description: Optional description of the agent profile
+    capabilities: Optional list of capabilities
+    parameters: Optional dictionary of parameters
+    """
+    self._name = name
+    self._description = description or f"Agent profile for {name}"
+    self._capabilities = capabilities or []
+    self._parameters = parameters or {}
 
-        logger.debug(f"Created agent profile: {name}")
+    logger.debug(f"Created agent profile: {name}")
 
     @property
     def name(self) -> str:
-        """Get the profile name."""
-        return self._name
+    """Get the profile name."""
+    return self._name
 
     @property
     def description(self) -> str:
-        """Get the profile description."""
-        return self._description
+    """Get the profile description."""
+    return self._description
 
     @property
     def capabilities(self) -> List[str]:
-        """Get the profile capabilities."""
-        return self._capabilities.copy()
+    """Get the profile capabilities."""
+    return self._capabilities.copy()
 
     @property
     def parameters(self) -> Dict[str, Any]:
-        """Get the profile parameters."""
-        return self._parameters.copy()
+    """Get the profile parameters."""
+    return self._parameters.copy()
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the profile to a dictionary.
+    """
+    Convert the profile to a dictionary.
 
-        Returns:
-            Dictionary representation of the profile
-        """
-        return {
-            "name": self.name,
-            "description": self.description,
-            "capabilities": self.capabilities,
-            "parameters": self.parameters,
-        }
+    Returns:
+    Dictionary representation of the profile
+    """
+    return {
+    "name": self.name,
+    "description": self.description,
+    "capabilities": self.capabilities,
+    "parameters": self.parameters,
+    }
 
     def __str__(self) -> str:
-        """Get a string representation of the profile."""
-        return f"{self.name}: {self.description}"
+    """Get a string representation of the profile."""
+    return f"{self.name}: {self.description}"
 
     def __repr__(self) -> str:
-        """Get a string representation of the profile for debugging."""
-        return f"AgentProfile(name='{self.name}', capabilities={self.capabilities})"
+    """Get a string representation of the profile for debugging."""
+    return f"AgentProfile(name='{self.name}', capabilities={self.capabilities})"

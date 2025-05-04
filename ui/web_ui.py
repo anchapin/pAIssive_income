@@ -3,10 +3,10 @@ Stub for ui.web_ui module.
 """
 
 
-
 class WebUI:
     def __init__(self):
-        pass
+    pass
 
-def start(self):
-                    return {"status": "running"}
+
+    def start(self):
+    return {"status": "running"}

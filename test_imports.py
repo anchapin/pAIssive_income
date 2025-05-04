@@ -4,8 +4,6 @@ Test script to verify that imports work correctly.
 
 from ai_models.model_manager import ModelManager
 
-
-
 # Import AI models to verify imports work
 # Import API schemas to verify imports work
 

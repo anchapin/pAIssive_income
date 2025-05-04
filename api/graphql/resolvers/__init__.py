@@ -13,21 +13,21 @@ from .monetization import MonetizationMutation, MonetizationQuery
 from .niche_analysis import NicheAnalysisMutation, NicheAnalysisQuery
 from .user import UserMutation, UserQuery
 
-__all__ 
+__all__
 
 = [
-    "Query",
-    "Mutation",
-    "NicheAnalysisQuery",
-    "NicheAnalysisMutation",
-    "MonetizationQuery",
-    "MonetizationMutation",
-    "MarketingQuery",
-    "MarketingMutation",
-    "AIModelsQuery",
-    "AIModelsMutation",
-    "AgentTeamQuery",
-    "AgentTeamMutation",
-    "UserQuery",
-    "UserMutation",
+"Query",
+"Mutation",
+"NicheAnalysisQuery",
+"NicheAnalysisMutation",
+"MonetizationQuery",
+"MonetizationMutation",
+"MarketingQuery",
+"MarketingMutation",
+"AIModelsQuery",
+"AIModelsMutation",
+"AgentTeamQuery",
+"AgentTeamMutation",
+"UserQuery",
+"UserMutation",
 ]

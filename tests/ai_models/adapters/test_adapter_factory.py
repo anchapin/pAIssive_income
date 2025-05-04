@@ -2,34 +2,32 @@
 Tests for the AdapterFactory class.
 """
 
-
 import pytest
 
-from ai_models.adapters import AdapterFactory, BaseModelAdapter
+from ai_models.adapters import (AdapterFactory, BaseModelAdapter,
+adapter_factory, get_adapter_factory)
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
-
-from ai_models.adapters import adapter_factory, get_adapter_factory
 
 class MockAdapter(BaseModelAdapter):
     """Mock adapter for testing."""
 
     def __init__(self, **kwargs):
-        super().__init__(name="Mock", description="Mock adapter for testing")
-        self.kwargs = kwargs
+    super().__init__(name="Mock", description="Mock adapter for testing")
+    self.kwargs = kwargs
 
     def connect(self, **kwargs):
-                return True
+    return True
 
     def disconnect(self):
-                return True
+    return True
 
     def get_models(self):
-                return []
+    return []
 
 
-def test_adapter_factory_register():
+    def test_adapter_factory_register():
     """Test registering an adapter with the factory."""
     factory = AdapterFactory()
     factory.register_adapter("mock", MockAdapter)
@@ -37,7 +35,7 @@ def test_adapter_factory_register():
     assert "mock" in factory.get_available_adapters()
 
 
-def test_adapter_factory_create():
+    def test_adapter_factory_create():
     """Test creating an adapter from the factory."""
     factory = AdapterFactory()
     factory.register_adapter("mock", MockAdapter)
@@ -51,15 +49,15 @@ def test_adapter_factory_create():
     assert adapter.kwargs["param2"] == "value2"
 
 
-def test_adapter_factory_create_unknown():
+    def test_adapter_factory_create_unknown():
     """Test creating an unknown adapter type."""
     factory = AdapterFactory()
 
     with pytest.raises(ModelError):
-        factory.create_adapter("unknown")
+    factory.create_adapter("unknown")
 
 
-def test_adapter_factory_get_available_adapters():
+    def test_adapter_factory_get_available_adapters():
     """Test getting available adapter types."""
     factory = AdapterFactory()
     factory.register_adapter("mock1", MockAdapter)
@@ -72,9 +70,9 @@ def test_adapter_factory_get_available_adapters():
     assert len(adapters) == 2
 
 
-def test_global_adapter_factory():
+    def test_global_adapter_factory():
     """Test the global adapter factory."""
-# Get the global factory
+    # Get the global factory
     factory = get_adapter_factory()
 
     # Verify it's the same instance

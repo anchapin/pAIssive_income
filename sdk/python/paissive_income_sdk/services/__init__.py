@@ -15,16 +15,16 @@ from .monetization import MonetizationService
 from .niche_analysis import NicheAnalysisService
 from .user import UserService
 
-__all__ 
+__all__
 
 = [
-    "BaseService",
-    "NicheAnalysisService",
-    "MonetizationService",
-    "MarketingService",
-    "AIModelsService",
-    "AgentTeamService",
-    "UserService",
-    "DashboardService",
-    "APIKeyService",
+"BaseService",
+"NicheAnalysisService",
+"MonetizationService",
+"MarketingService",
+"AIModelsService",
+"AgentTeamService",
+"UserService",
+"DashboardService",
+"APIKeyService",
 ]

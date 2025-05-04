@@ -22,38 +22,30 @@ Usage examples:
 
     # Get performance metrics
     report = db_with_monitoring.get_performance_report()
-"""
+    """
 
     from common_utils.db.factory import DatabaseFactory
     from common_utils.db.monitoring import MonitoringDatabaseProxy
 
-    
-from common_utils.db.factory import DatabaseFactory
+    from common_utils.db.factory import DatabaseFactory
+    from common_utils.db.interfaces import (DatabaseInterface, Repository,
+    UnitOfWork)
+    from common_utils.db.migration import Migration, MigrationManager
+    from common_utils.db.monitoring import DatabaseMetrics, MonitoringDatabaseProxy
+    from common_utils.db.nosql_adapter import MongoDBAdapter, MongoDBUnitOfWork
+    from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork
 
+    __all__
 
-from common_utils.db.interfaces import DatabaseInterface, Repository, UnitOfWork
+    """
+    Database abstraction layer for pAIssive income.
 
+    This package provides a flexible database abstraction layer with support for
+    different database types (SQL and NoSQL), migration tools, and performance monitoring.
 
-from common_utils.db.migration import Migration, MigrationManager
-
-
-from common_utils.db.monitoring import DatabaseMetrics, MonitoringDatabaseProxy
-from common_utils.db.nosql_adapter import MongoDBAdapter, MongoDBUnitOfWork
-
-
-from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork
-
-__all__ 
-
-"""
-Database abstraction layer for pAIssive income.
-
-This package provides a flexible database abstraction layer with support for
-different database types (SQL and NoSQL), migration tools, and performance monitoring.
-
-Usage examples:
+    Usage examples:
     # Create a SQLite database
-# Create a SQLite database with monitoring
+    # Create a SQLite database with monitoring
     db_config = {'db_path': 'app_data.db'}
     db = DatabaseFactory.create_database('sqlite', db_config)
     db_with_monitoring = MonitoringDatabaseProxy(db)
@@ -66,14 +58,14 @@ Usage examples:
 
     # Get performance metrics
     report = db_with_monitoring.get_performance_report()
-"""
+    """
 
-# Factory for creating database instances
-# Core interfaces
-# Migration tools
-# Performance monitoring
-# Database implementations
-= [
+    # Factory for creating database instances
+    # Core interfaces
+    # Migration tools
+    # Performance monitoring
+    # Database implementations
+    = [
     # Interfaces
     "DatabaseInterface",
     "Repository",
@@ -91,4 +83,4 @@ Usage examples:
     # Monitoring
     "DatabaseMetrics",
     "MonitoringDatabaseProxy",
-]
+    ]

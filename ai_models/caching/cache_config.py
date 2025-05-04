@@ -9,8 +9,6 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
-
-
 @dataclass
 class CacheConfig:
     """
@@ -30,61 +28,61 @@ class CacheConfig:
     # Cache filters
     model_filters: List[str] = field(default_factory=list)  # List of model IDs to cache
     operation_filters: List[str] = field(
-        default_factory=list
+    default_factory=list
     )  # List of operations to cache
 
     def should_cache(self, model_id: str, operation: str) -> bool:
-        """
-        Check if a model and operation should be cached.
+    """
+    Check if a model and operation should be cached.
 
-        Args:
-            model_id: ID of the model
-            operation: Operation type
+    Args:
+    model_id: ID of the model
+    operation: Operation type
 
-        Returns:
-            True if the model and operation should be cached, False otherwise
-        """
-        if not self.enabled:
-                    return False
+    Returns:
+    True if the model and operation should be cached, False otherwise
+    """
+    if not self.enabled:
+    return False
 
-        # Check model filters
-        if self.model_filters and model_id not in self.model_filters:
-                    return False
+    # Check model filters
+    if self.model_filters and model_id not in self.model_filters:
+    return False
 
-        # Check operation filters
-        if self.operation_filters and operation not in self.operation_filters:
-                    return False
+    # Check operation filters
+    if self.operation_filters and operation not in self.operation_filters:
+    return False
 
-                return True
+    return True
 
     def get_backend_config(self, backend: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Get configuration for a specific backend.
+    """
+    Get configuration for a specific backend.
 
-        Args:
-            backend: Backend name (None for the configured backend)
+    Args:
+    backend: Backend name (None for the configured backend)
 
-        Returns:
-            Backend configuration
-        """
-        backend_name = backend or self.backend
+    Returns:
+    Backend configuration
+    """
+    backend_name = backend or self.backend
 
-        # Common configuration
-        config = {
-            "max_size": self.max_size,
-            "eviction_policy": self.eviction_policy,
-            "serialization": self.serialization,
-        }
+    # Common configuration
+    config = {
+    "max_size": self.max_size,
+    "eviction_policy": self.eviction_policy,
+    "serialization": self.serialization,
+    }
 
-        # Add backend-specific configuration
-        if backend_name in self.backend_config:
-            config.update(self.backend_config[backend_name])
+    # Add backend-specific configuration
+    if backend_name in self.backend_config:
+    config.update(self.backend_config[backend_name])
 
-                return config
+    return config
 
 
-@dataclass
-class MemoryCacheConfig:
+    @dataclass
+    class MemoryCacheConfig:
     """
     Configuration for the memory cache backend.
     """
@@ -93,8 +91,8 @@ class MemoryCacheConfig:
     eviction_policy: str = "lru"
 
 
-@dataclass
-class DiskCacheConfig:
+    @dataclass
+    class DiskCacheConfig:
     """
     Configuration for the disk cache backend.
     """
@@ -105,8 +103,8 @@ class DiskCacheConfig:
     serialization: str = "json"
 
 
-@dataclass
-class SQLiteCacheConfig:
+    @dataclass
+    class SQLiteCacheConfig:
     """
     Configuration for the SQLite cache backend.
     """
@@ -115,8 +113,8 @@ class SQLiteCacheConfig:
     serialization: str = "json"
 
 
-@dataclass
-class RedisCacheConfig:
+    @dataclass
+    class RedisCacheConfig:
     """
     Configuration for the Redis cache backend.
     """

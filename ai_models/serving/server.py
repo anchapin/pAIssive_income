@@ -11,11 +11,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-
-
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -31,8 +29,8 @@ class ServerProtocol(enum.Enum):
     CUSTOM = "custom"
 
 
-@dataclass
-class ServerConfig:
+    @dataclass
+    class ServerConfig:
     """
     Configuration for model servers.
     """
@@ -70,137 +68,137 @@ class ServerConfig:
     additional_params: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the configuration to a dictionary.
+    """
+    Convert the configuration to a dictionary.
 
-        Returns:
-            Dictionary representation of the configuration
-        """
-                return {
-            "protocol": self.protocol.value,
-            "host": self.host,
-            "port": self.port,
-            "model_path": self.model_path,
-            "model_type": self.model_type,
-            "model_id": self.model_id,
-            "workers": self.workers,
-            "timeout": self.timeout,
-            "max_batch_size": self.max_batch_size,
-            "max_request_size": self.max_request_size,
-            "enable_auth": self.enable_auth,
-            "api_keys": self.api_keys,
-            "cors_origins": self.cors_origins,
-            "enable_rate_limit": self.enable_rate_limit,
-            "rate_limit": self.rate_limit,
-            "log_level": self.log_level,
-            "log_file": self.log_file,
-            **self.additional_params,
-        }
+    Returns:
+    Dictionary representation of the configuration
+    """
+    return {
+    "protocol": self.protocol.value,
+    "host": self.host,
+    "port": self.port,
+    "model_path": self.model_path,
+    "model_type": self.model_type,
+    "model_id": self.model_id,
+    "workers": self.workers,
+    "timeout": self.timeout,
+    "max_batch_size": self.max_batch_size,
+    "max_request_size": self.max_request_size,
+    "enable_auth": self.enable_auth,
+    "api_keys": self.api_keys,
+    "cors_origins": self.cors_origins,
+    "enable_rate_limit": self.enable_rate_limit,
+    "rate_limit": self.rate_limit,
+    "log_level": self.log_level,
+    "log_file": self.log_file,
+    **self.additional_params,
+    }
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "ServerConfig":
-        """
-        Create a configuration from a dictionary.
+    """
+    Create a configuration from a dictionary.
 
-        Args:
-            config_dict: Dictionary with configuration parameters
+    Args:
+    config_dict: Dictionary with configuration parameters
 
-        Returns:
-            Server configuration
-        """
-        # Extract protocol
-        protocol_str = config_dict.pop("protocol", "rest")
-        try:
-            protocol = ServerProtocol(protocol_str)
-        except ValueError:
-            protocol = ServerProtocol.REST
+    Returns:
+    Server configuration
+    """
+    # Extract protocol
+    protocol_str = config_dict.pop("protocol", "rest")
+    try:
+    protocol = ServerProtocol(protocol_str)
+except ValueError:
+    protocol = ServerProtocol.REST
 
-        # Extract additional parameters
-        additional_params = {}
-        for key, value in list(config_dict.items()):
-            if key not in cls.__annotations__:
-                additional_params[key] = config_dict.pop(key)
+    # Extract additional parameters
+    additional_params = {}
+    for key, value in list(config_dict.items()):
+    if key not in cls.__annotations__:
+    additional_params[key] = config_dict.pop(key)
 
-        # Create configuration
-        config = cls(protocol=protocol, **config_dict)
+    # Create configuration
+    config = cls(protocol=protocol, **config_dict)
 
-        config.additional_params = additional_params
-                return config
+    config.additional_params = additional_params
+    return config
 
 
-class ModelServer(abc.ABC):
+    class ModelServer(abc.ABC):
     """
     Base class for model servers.
     """
 
     def __init__(self, config: ServerConfig):
-        """
-        Initialize the model server.
+    """
+    Initialize the model server.
 
-        Args:
-            config: Server configuration
-        """
-        self.config = config
-        self.model = None
-        self.tokenizer = None
+    Args:
+    config: Server configuration
+    """
+    self.config = config
+    self.model = None
+    self.tokenizer = None
 
-        # Set up logging
-        self._setup_logging()
+    # Set up logging
+    self._setup_logging()
 
     def _setup_logging(self) -> None:
-        """
-        Set up logging for the server.
-        """
-        log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
-        logger.setLevel(log_level)
+    """
+    Set up logging for the server.
+    """
+    log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
+    logger.setLevel(log_level)
 
-        # Add file handler if log file is specified
-        if self.config.log_file:
-            file_handler = logging.FileHandler(self.config.log_file)
-            file_handler.setLevel(log_level)
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
+    # Add file handler if log file is specified
+    if self.config.log_file:
+    file_handler = logging.FileHandler(self.config.log_file)
+    file_handler.setLevel(log_level)
+    formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
     @abc.abstractmethod
     def load_model(self) -> None:
-        """
-        Load the model for serving.
-        """
-        pass
+    """
+    Load the model for serving.
+    """
+    pass
 
     @abc.abstractmethod
     def start(self) -> None:
-        """
-        Start the server.
-        """
-        pass
+    """
+    Start the server.
+    """
+    pass
 
     @abc.abstractmethod
     def stop(self) -> None:
-        """
-        Stop the server.
-        """
-        pass
+    """
+    Stop the server.
+    """
+    pass
 
     @abc.abstractmethod
     def is_running(self) -> bool:
-        """
-        Check if the server is running.
+    """
+    Check if the server is running.
 
-        Returns:
-            True if the server is running, False otherwise
-        """
-        pass
+    Returns:
+    True if the server is running, False otherwise
+    """
+    pass
 
     @abc.abstractmethod
     def get_info(self) -> Dict[str, Any]:
-        """
-        Get information about the server.
+    """
+    Get information about the server.
 
-        Returns:
-            Dictionary with server information
-        """
-        pass
+    Returns:
+    Dictionary with server information
+    """
+    pass

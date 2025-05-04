@@ -1,28 +1,26 @@
-import time
-
-
 import logging
+import time
 from datetime import datetime
 from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
+from fastapi.responses import JSONResponse, StreamingResponse
+
 from api.analytics import analytics_service
-from ..schemas.analytics import 
+
 from ..schemas.common import SuccessResponse
 
-
-    from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
-    from fastapi.responses import JSONResponse, StreamingResponse
-
-    FASTAPI_AVAILABLE 
+FASTAPI_AVAILABLE
 
 (
-    AlertThresholdRequest,
-    AlertThresholdResponse,
-    AnalyticsSummaryResponse,
-    ApiKeyStatsResponse,
-    EndpointStatsResponse,
-    RealTimeMetricsResponse,
-    RequestStatsResponse,
-    UserStatsResponse,
+AlertThresholdRequest,
+AlertThresholdResponse,
+AnalyticsSummaryResponse,
+ApiKeyStatsResponse,
+EndpointStatsResponse,
+RealTimeMetricsResponse,
+RequestStatsResponse,
+UserStatsResponse,
 )
 """
 API routes for analytics.
@@ -36,49 +34,49 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-= True
+    = True
 except ImportError:
     logger.warning("FastAPI is required for analytics routes")
     FASTAPI_AVAILABLE = False
 
-# Create router
-if FASTAPI_AVAILABLE:
+    # Create router
+    if FASTAPI_AVAILABLE:
     router = APIRouter()
-else:
+    else:
     router = None
 
 
-@router.get(
+    @router.get(
     "/summary",
     response_model=AnalyticsSummaryResponse,
     summary="Get API usage summary",
     description="Get a summary of API usage statistics",
-)
-async def get_summary(days: int = Query(30, description="Number of days to include")):
+    )
+    async def get_summary(days: int = Query(30, description="Number of days to include")):
     """
     Get a summary of API usage statistics.
 
     Args:
-        days: Number of days to include
+    days: Number of days to include
 
     Returns:
-        API usage summary
+    API usage summary
     """
     try:
-        summary = analytics_service.get_usage_summary(days)
-                return summary
-    except Exception as e:
-        logger.error(f"Error getting usage summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    summary = analytics_service.get_usage_summary(days)
+    return summary
+except Exception as e:
+    logger.error(f"Error getting usage summary: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/requests",
     response_model=List[RequestStatsResponse],
     summary="Get API request statistics",
     description="Get detailed statistics for API requests",
-)
-async def get_requests(
+    )
+    async def get_requests(
     endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
     version: Optional[str] = Query(None, description="Filter by API version"),
     user_id: Optional[str] = Query(None, description="Filter by user ID"),
@@ -87,284 +85,284 @@ async def get_requests(
     days: int = Query(7, description="Number of days to include"),
     limit: int = Query(100, description="Maximum number of records to return"),
     offset: int = Query(0, description="Number of records to skip"),
-):
+    ):
     """
     Get detailed statistics for API requests.
 
     Args:
-        endpoint: Filter by endpoint
-        version: Filter by API version
-        user_id: Filter by user ID
-        api_key_id: Filter by API key ID
-        status_code: Filter by status code
-        days: Number of days to include
-        limit: Maximum number of records to return
-        offset: Number of records to skip
+    endpoint: Filter by endpoint
+    version: Filter by API version
+    user_id: Filter by user ID
+    api_key_id: Filter by API key ID
+    status_code: Filter by status code
+    days: Number of days to include
+    limit: Maximum number of records to return
+    offset: Number of records to skip
 
     Returns:
-        List of request statistics
+    List of request statistics
     """
     try:
-        requests = analytics_service.get_requests(
-            endpoint=endpoint,
-            version=version,
-            user_id=user_id,
-            api_key_id=api_key_id,
-            status_code=status_code,
-            days=days,
-            limit=limit,
-            offset=offset,
-        )
-                return requests
-    except Exception as e:
-        logger.error(f"Error getting request statistics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    requests = analytics_service.get_requests(
+    endpoint=endpoint,
+    version=version,
+    user_id=user_id,
+    api_key_id=api_key_id,
+    status_code=status_code,
+    days=days,
+    limit=limit,
+    offset=offset,
+    )
+    return requests
+except Exception as e:
+    logger.error(f"Error getting request statistics: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/endpoints",
     response_model=List[EndpointStatsResponse],
     summary="Get endpoint statistics",
     description="Get statistics for each API endpoint",
-)
-async def get_endpoint_stats(
+    )
+    async def get_endpoint_stats(
     days: int = Query(30, description="Number of days to include")
-):
+    ):
     """
     Get statistics for each API endpoint.
 
     Args:
-        days: Number of days to include
+    days: Number of days to include
 
     Returns:
-        List of endpoint statistics
+    List of endpoint statistics
     """
     try:
-        stats = analytics_service.get_endpoint_stats(days)
-                return stats
-    except Exception as e:
-        logger.error(f"Error getting endpoint statistics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    stats = analytics_service.get_endpoint_stats(days)
+    return stats
+except Exception as e:
+    logger.error(f"Error getting endpoint statistics: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/users",
     response_model=List[UserStatsResponse],
     summary="Get user statistics",
     description="Get statistics for API usage by users",
-)
-async def get_user_stats(
+    )
+    async def get_user_stats(
     days: int = Query(30, description="Number of days to include"),
     user_id: Optional[str] = Query(None, description="Filter by user ID"),
-):
+    ):
     """
     Get statistics for API usage by users.
 
     Args:
-        days: Number of days to include
-        user_id: Filter by user ID
+    days: Number of days to include
+    user_id: Filter by user ID
 
     Returns:
-        List of user statistics
+    List of user statistics
     """
     try:
-        stats = analytics_service.get_user_metrics(days=days, user_id=user_id)
-                return stats
-    except Exception as e:
-        logger.error(f"Error getting user statistics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    stats = analytics_service.get_user_metrics(days=days, user_id=user_id)
+    return stats
+except Exception as e:
+    logger.error(f"Error getting user statistics: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/api-keys",
     response_model=List[ApiKeyStatsResponse],
     summary="Get API key statistics",
     description="Get statistics for API usage by API keys",
-)
-async def get_api_key_stats(
+    )
+    async def get_api_key_stats(
     days: int = Query(30, description="Number of days to include"),
     api_key_id: Optional[str] = Query(None, description="Filter by API key ID"),
-):
+    ):
     """
     Get statistics for API usage by API keys.
 
     Args:
-        days: Number of days to include
-        api_key_id: Filter by API key ID
+    days: Number of days to include
+    api_key_id: Filter by API key ID
 
     Returns:
-        List of API key statistics
+    List of API key statistics
     """
     try:
-        stats = analytics_service.get_api_key_metrics(days=days, api_key_id=api_key_id)
-                return stats
-    except Exception as e:
-        logger.error(f"Error getting API key statistics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    stats = analytics_service.get_api_key_metrics(days=days, api_key_id=api_key_id)
+    return stats
+except Exception as e:
+    logger.error(f"Error getting API key statistics: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/export/requests",
     summary="Export API requests to CSV",
     description="Export detailed API request data to CSV format",
-)
-async def export_requests_csv(
+    )
+    async def export_requests_csv(
     endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
     version: Optional[str] = Query(None, description="Filter by API version"),
     user_id: Optional[str] = Query(None, description="Filter by user ID"),
     api_key_id: Optional[str] = Query(None, description="Filter by API key ID"),
     days: int = Query(30, description="Number of days to include"),
-):
+    ):
     """
     Export detailed API request data to CSV format.
 
     Args:
-        endpoint: Filter by endpoint
-        version: Filter by API version
-        user_id: Filter by user ID
-        api_key_id: Filter by API key ID
-        days: Number of days to include
+    endpoint: Filter by endpoint
+    version: Filter by API version
+    user_id: Filter by user ID
+    api_key_id: Filter by API key ID
+    days: Number of days to include
 
     Returns:
-        CSV file
+    CSV file
     """
     try:
-        csv_data = analytics_service.export_requests_csv(
-            days=days,
-            endpoint=endpoint,
-            version=version,
-            user_id=user_id,
-            api_key_id=api_key_id,
-        )
+    csv_data = analytics_service.export_requests_csv(
+    days=days,
+    endpoint=endpoint,
+    version=version,
+    user_id=user_id,
+    api_key_id=api_key_id,
+    )
 
-        # Generate filename
-        date_str = datetime.now().strftime("%Y%m%d")
-        filename = f"api_requests_{date_str}.csv"
+    # Generate filename
+    date_str = datetime.now().strftime("%Y%m%d")
+    filename = f"api_requests_{date_str}.csv"
 
-        # Return CSV file
-                return StreamingResponse(
-            iter([csv_data]),
-            media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
-        )
-    except Exception as e:
-        logger.error(f"Error exporting requests to CSV: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Return CSV file
+    return StreamingResponse(
+    iter([csv_data]),
+    media_type="text/csv",
+    headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+except Exception as e:
+    logger.error(f"Error exporting requests to CSV: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/export/metrics",
     summary="Export daily metrics to CSV",
     description="Export daily aggregated metrics to CSV format",
-)
-async def export_metrics_csv(
+    )
+    async def export_metrics_csv(
     days: int = Query(30, description="Number of days to include")
-):
+    ):
     """
     Export daily aggregated metrics to CSV format.
 
     Args:
-        days: Number of days to include
+    days: Number of days to include
 
     Returns:
-        CSV file
+    CSV file
     """
     try:
-        csv_data = analytics_service.export_metrics_csv(days=days)
+    csv_data = analytics_service.export_metrics_csv(days=days)
 
-        # Generate filename
-        date_str = datetime.now().strftime("%Y%m%d")
-        filename = f"api_metrics_{date_str}.csv"
+    # Generate filename
+    date_str = datetime.now().strftime("%Y%m%d")
+    filename = f"api_metrics_{date_str}.csv"
 
-        # Return CSV file
-                return StreamingResponse(
-            iter([csv_data]),
-            media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
-        )
-    except Exception as e:
-        logger.error(f"Error exporting metrics to CSV: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Return CSV file
+    return StreamingResponse(
+    iter([csv_data]),
+    media_type="text/csv",
+    headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+except Exception as e:
+    logger.error(f"Error exporting metrics to CSV: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(
+    @router.get(
     "/real-time",
     response_model=RealTimeMetricsResponse,
     summary="Get real-time API metrics",
     description="Get real-time metrics for API usage in the last few minutes",
-)
-async def get_real_time_metrics(
+    )
+    async def get_real_time_metrics(
     minutes: int = Query(5, description="Number of minutes to include")
-):
+    ):
     """
     Get real-time metrics for API usage in the last few minutes.
 
     Args:
-        minutes: Number of minutes to include
+    minutes: Number of minutes to include
 
     Returns:
-        Real-time metrics
+    Real-time metrics
     """
     try:
-        metrics = analytics_service.get_real_time_metrics(minutes)
-        # Add timestamp to metrics
-        metrics["timestamp"] = datetime.now().isoformat()
-                return metrics
-    except Exception as e:
-        logger.error(f"Error getting real-time metrics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    metrics = analytics_service.get_real_time_metrics(minutes)
+    # Add timestamp to metrics
+    metrics["timestamp"] = datetime.now().isoformat()
+    return metrics
+except Exception as e:
+    logger.error(f"Error getting real-time metrics: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post(
+    @router.post(
     "/alerts/thresholds",
     response_model=AlertThresholdResponse,
     summary="Set alert threshold",
     description="Set a threshold for a specific metric that will trigger alerts when exceeded",
-)
-async def set_alert_threshold(threshold: AlertThresholdRequest):
+    )
+    async def set_alert_threshold(threshold: AlertThresholdRequest):
     """
     Set a threshold for a specific metric that will trigger alerts when exceeded.
 
     Args:
-        threshold: Alert threshold request
+    threshold: Alert threshold request
 
     Returns:
-        Alert threshold response
+    Alert threshold response
     """
     try:
-        analytics_service.set_alert_threshold(threshold.metric, threshold.threshold)
-                return {
-            "metric": threshold.metric,
-            "threshold": threshold.threshold,
-            "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
-        }
-    except Exception as e:
-        logger.error(f"Error setting alert threshold: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    analytics_service.set_alert_threshold(threshold.metric, threshold.threshold)
+    return {
+    "metric": threshold.metric,
+    "threshold": threshold.threshold,
+    "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
+    }
+except Exception as e:
+    logger.error(f"Error setting alert threshold: {e}")
+    raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post(
+    @router.post(
     "/cleanup",
     response_model=SuccessResponse,
     summary="Clean up old analytics data",
     description="Remove analytics data older than the specified number of days",
-)
-async def cleanup_data(days: int = Query(365, description="Number of days to keep")):
+    )
+    async def cleanup_data(days: int = Query(365, description="Number of days to keep")):
     """
     Remove analytics data older than the specified number of days.
 
     Args:
-        days: Number of days to keep
+    days: Number of days to keep
 
     Returns:
-        Success response
+    Success response
     """
     try:
-        count = analytics_service.cleanup_old_data(days)
-                return {
-            "success": True,
-            "message": f"Removed {count} records older than {days} days",
-        }
-    except Exception as e:
-        logger.error(f"Error cleaning up analytics data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    count = analytics_service.cleanup_old_data(days)
+    return {
+    "success": True,
+    "message": f"Removed {count} records older than {days} days",
+    }
+except Exception as e:
+    logger.error(f"Error cleaning up analytics data: {e}")
+    raise HTTPException(status_code=500, detail=str(e))

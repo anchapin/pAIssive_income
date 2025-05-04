@@ -8,45 +8,43 @@ opportunity discovery, analysis, and comparison of niche markets.
 
 import argparse
 import logging
+import uuid
 from typing import Any, Dict, List
 
+import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
 from agent_team import AgentTeam
 from niche_analysis.niche_analyzer import NicheAnalyzer
-from services.service_discovery.registration import 
-    import uuid
-    import uuid
-    import uvicorn
 
 (
-    get_default_tags,
-    get_service_metadata,
-    register_service,
+get_default_tags,
+get_service_metadata,
+register_service,
 )
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="Niche Analysis Service",
-    description="Service for analyzing potential business niches and scoring opportunities",
-    version="1.0.0",
+title="Niche Analysis Service",
+description="Service for analyzing potential business niches and scoring opportunities",
+version="1.0.0",
 )
 
 # Add CORS middleware
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+CORSMiddleware,
+allow_origins=["*"],  # In production, replace with specific origins
+allow_credentials=True,
+allow_methods=["*"],
+allow_headers=["*"],
 )
 
 # Global variables
@@ -60,156 +58,151 @@ class NicheRequest(BaseModel):
     """Request model for niche analysis."""
 
     market_segments: List[str] = Field(
-        ..., description="List of market segments to analyze"
+    ..., description="List of market segments to analyze"
     )
     force_refresh: bool = Field(False, description="Force refresh of cached data")
 
 
-class NicheResponse(BaseModel):
+    class NicheResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Response model for niche analysis."""
 
     niches: List[Dict[str, Any]] = Field(..., description="List of analyzed niches")
     request_id: str = Field(..., description="Unique ID for this request")
 
 
-class OpportunityRequest(BaseModel):
+    class OpportunityRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Request model for opportunity analysis."""
 
     niche_name: str = Field(..., description="Name of the niche to analyze")
     force_refresh: bool = Field(False, description="Force refresh of cached data")
 
 
-class OpportunityResponse(BaseModel):
+    class OpportunityResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
-    """Response model for opportunity analysis."""
 
     opportunities: List[Dict[str, Any]] = Field(
-        ..., description="List of opportunities"
+    ..., description="List of opportunities"
     )
     niche_name: str = Field(..., description="Name of the analyzed niche")
     request_id: str = Field(..., description="Unique ID for this request")
 
 
-# Routes
-@app.get("/")
-async def root():
+    # Routes
+    @app.get("/")
+    async def root():
     """Root endpoint for Niche Analysis Service."""
-            return {"message": "pAIssive Income Niche Analysis Service", "status": "running"}
+    return {"message": "pAIssive Income Niche Analysis Service", "status": "running"}
 
 
-@app.get("/api/status")
-async def api_status():
+    @app.get("/api/status")
+    async def api_status():
     """API status endpoint."""
-            return {"status": "ok", "version": "1.0.0", "service": "niche-analysis-service"}
+    return {"status": "ok", "version": "1.0.0", "service": "niche-analysis-service"}
 
 
-@app.post("/api/niches/analyze", response_model=NicheResponse)
-async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTasks):
-    """Analyze potential niches based on market segments."""
+    @app.post("/api/niches/analyze", response_model=NicheResponse)
+    async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTasks):
 
 
     if not niche_analyzer:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Niche analyzer not available",
-        )
+    raise HTTPException(
+    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+    detail="Niche analyzer not available",
+    )
 
     try:
-        # Generate a unique request ID
-        request_id = str(uuid.uuid4())
+    # Generate a unique request ID
+    request_id = str(uuid.uuid4())
 
-        # Analyze niches
-        niches = niche_analyzer.identify_niches(
-            request.market_segments, force_refresh=request.force_refresh
-        )
+    # Analyze niches
+    niches = niche_analyzer.identify_niches(
+    request.market_segments, force_refresh=request.force_refresh
+    )
 
-                return {"niches": niches, "request_id": request_id}
-    except Exception as e:
-        logger.error(f"Error analyzing niches: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze niches: {str(e)}",
-        )
+    return {"niches": niches, "request_id": request_id}
+except Exception as e:
+    logger.error(f"Error analyzing niches: {str(e)}")
+    raise HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail=f"Failed to analyze niches: {str(e)}",
+    )
 
 
-@app.post("/api/niches/opportunities", response_model=OpportunityResponse)
-async def analyze_opportunities(
+    @app.post("/api/niches/opportunities", response_model=OpportunityResponse)
+    async def analyze_opportunities(
     request: OpportunityRequest, background_tasks: BackgroundTasks
-):
-    """Analyze opportunities for a specific niche."""
+    ):
 
 
     if not niche_analyzer:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Niche analyzer not available",
-        )
+    raise HTTPException(
+    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+    detail="Niche analyzer not available",
+    )
 
     try:
-        # Generate a unique request ID
-        request_id = str(uuid.uuid4())
+    # Generate a unique request ID
+    request_id = str(uuid.uuid4())
 
-        # Analyze opportunities
-        opportunities = niche_analyzer.get_niche_opportunities(
-            request.niche_name, force_refresh=request.force_refresh
-        )
+    # Analyze opportunities
+    opportunities = niche_analyzer.get_niche_opportunities(
+    request.niche_name, force_refresh=request.force_refresh
+    )
 
-                return {
-            "opportunities": opportunities,
-            "niche_name": request.niche_name,
-            "request_id": request_id,
-        }
-    except Exception as e:
-        logger.error(f"Error analyzing opportunities: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze opportunities: {str(e)}",
-        )
+    return {
+    "opportunities": opportunities,
+    "niche_name": request.niche_name,
+    "request_id": request_id,
+    }
+except Exception as e:
+    logger.error(f"Error analyzing opportunities: {str(e)}")
+    raise HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail=f"Failed to analyze opportunities: {str(e)}",
+    )
 
 
-@app.get("/health")
-async def health_check():
+    @app.get("/health")
+    async def health_check():
     """Health check endpoint."""
-            return {"status": "healthy"}
+    return {"status": "healthy"}
 
 
-def check_service_health() -> bool:
+    def check_service_health() -> bool:
     """
     Check if the service is healthy.
 
     Returns:
-        bool: True if the service is healthy, False otherwise
+    bool: True if the service is healthy, False otherwise
     """
     # Add any specific health checks here
-            return niche_analyzer is not None
+    return niche_analyzer is not None
 
 
-def initialize_niche_analyzer():
+    def initialize_niche_analyzer():
     """Initialize the niche analyzer."""
     global niche_analyzer
 
     try:
-        # Create a simple agent team for the niche analyzer
-        agent_team = AgentTeam("NicheAnalysisTeam")
+    # Create a simple agent team for the niche analyzer
+    agent_team = AgentTeam("NicheAnalysisTeam")
 
-        # Create the niche analyzer
-        niche_analyzer = NicheAnalyzer(agent_team=agent_team)
+    # Create the niche analyzer
+    niche_analyzer = NicheAnalyzer(agent_team=agent_team)
 
-        logger.info("Initialized niche analyzer")
-                return True
-    except Exception as e:
-        logger.error(f"Failed to initialize niche analyzer: {str(e)}")
-                return False
+    logger.info("Initialized niche analyzer")
+    return True
+except Exception as e:
+    logger.error(f"Failed to initialize niche analyzer: {str(e)}")
+    return False
 
 
-def register_with_service_registry(port: int):
+    def register_with_service_registry(port: int):
     """
     Register this service with the service registry.
 
     Args:
-        port: Port this service is running on
+    port: Port this service is running on
     """
     global service_registration
 
@@ -221,41 +214,41 @@ def register_with_service_registry(port: int):
 
     # Register service
     service_registration = register_service(
-        app=app,
-        service_name="niche-analysis-service",
-        port=port,
-        version="1.0.0",
-        health_check_path="/health",
-        check_functions=[check_service_health],
-        tags=tags,
-        metadata=metadata,
+    app=app,
+    service_name="niche-analysis-service",
+    port=port,
+    version="1.0.0",
+    health_check_path="/health",
+    check_functions=[check_service_health],
+    tags=tags,
+    metadata=metadata,
     )
 
     if service_registration:
-        logger.info(
-            "Successfully registered Niche Analysis Service with service registry"
-        )
+    logger.info(
+    "Successfully registered Niche Analysis Service with service registry"
+    )
     else:
-        logger.warning(
-            "Failed to register with service registry, continuing without service discovery"
-        )
+    logger.warning(
+    "Failed to register with service registry, continuing without service discovery"
+    )
 
 
-def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
+    def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
     """
     Start the Niche Analysis Service.
 
     Args:
-        host: Host to bind to
-        port: Port to listen on
+    host: Host to bind to
+    port: Port to listen on
     """
 
 
     # Initialize the niche analyzer
     if not initialize_niche_analyzer():
-        logger.error(
-            "Failed to initialize niche analyzer, service may not function correctly"
-        )
+    logger.error(
+    "Failed to initialize niche analyzer, service may not function correctly"
+    )
 
     # Register with service registry
     register_with_service_registry(port)
@@ -264,7 +257,7 @@ def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
     uvicorn.run(app, host=host, port=port)
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Niche Analysis Service")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")

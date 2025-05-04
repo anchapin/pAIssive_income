@@ -11,10 +11,10 @@ from .monetization import MonetizationAgent
 from .researcher import ResearchAgent
 
 __all__ = [
-    "AgentProfile",
-    "ResearchAgent",
-    "DeveloperAgent",
-    "MonetizationAgent",
-    "MarketingAgent",
-    "FeedbackAgent",
+"AgentProfile",
+"ResearchAgent",
+"DeveloperAgent",
+"MonetizationAgent",
+"MarketingAgent",
+"FeedbackAgent",
 ]

@@ -13,15 +13,15 @@ from .rate_limit import RateLimitMiddleware
 from .setup import setup_middleware
 from .version import VersionMiddleware
 
-__all__ 
+__all__
 
 = [
-    "AuthMiddleware",
-    "RateLimitMiddleware",
-    "CORSMiddleware",
-    "VersionMiddleware",
-    "AnalyticsMiddleware",
-    "QueryParamsMiddleware",
-    "setup_query_params_middleware",
-    "setup_middleware",
+"AuthMiddleware",
+"RateLimitMiddleware",
+"CORSMiddleware",
+"VersionMiddleware",
+"AnalyticsMiddleware",
+"QueryParamsMiddleware",
+"setup_query_params_middleware",
+"setup_middleware",
 ]

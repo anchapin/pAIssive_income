@@ -9,11 +9,9 @@ more flexible and efficient data querying.
 from typing import Any, Dict, List, Optional
 
 from .context import get_context
-
-
 from .schema_builder import build_schema, create_graphql_router
 
-__all__ 
+__all__
 
 # Import schema builder and router creation
 = ["build_schema", "create_graphql_router", "get_context"]

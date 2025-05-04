@@ -4,21 +4,18 @@ Tests for the DiskCache backend.
 
 
 import os
+import random
 import shutil
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
 from ai_models.caching.cache_backends.disk_cache import DiskCache
 
-
-
-    import random
-    from concurrent.futures import ThreadPoolExecutor
-
-    def cache_operation
-    import threading
+def cache_operation
+import threading
 
 @pytest.fixture
 def temp_cache_dir():
@@ -28,18 +25,18 @@ def temp_cache_dir():
     shutil.rmtree(temp_dir)
 
 
-@pytest.fixture
-def disk_cache(temp_cache_dir):
+    @pytest.fixture
+    def disk_cache(temp_cache_dir):
     """Create a DiskCache instance for testing."""
     cache = DiskCache(
-        cache_dir=temp_cache_dir,
-        max_size=3,  # Small size to test eviction
-        eviction_policy="lru",
+    cache_dir=temp_cache_dir,
+    max_size=3,  # Small size to test eviction
+    eviction_policy="lru",
     )
-            return cache
+    return cache
 
 
-def test_cache_hit_miss(disk_cache):
+    def test_cache_hit_miss(disk_cache):
     """Test cache hit and miss scenarios."""
     # Test cache miss
     key = "test_key"
@@ -58,7 +55,7 @@ def test_cache_hit_miss(disk_cache):
     assert disk_cache.get_stats()["hits"] == 1
 
 
-def test_cache_invalidation(disk_cache):
+    def test_cache_invalidation(disk_cache):
     """Test cache invalidation with TTL."""
     key = "test_key"
     value = {"data": "test_value"}
@@ -77,18 +74,18 @@ def test_cache_invalidation(disk_cache):
     assert not disk_cache.exists(key)
 
 
-def test_size_limit_and_eviction(disk_cache):
+    def test_size_limit_and_eviction(disk_cache):
     """Test cache size limits and eviction policies."""
     # Add items up to max size
     for i in range(3):
-        key = f"key{i}"
-        value = {"data": f"value{i}"}
-        disk_cache.set(key, value)
+    key = f"key{i}"
+    value = {"data": f"value{i}"}
+    disk_cache.set(key, value)
 
     # Verify all items exist
     assert disk_cache.get_size() == 3
     for i in range(3):
-        assert disk_cache.exists(f"key{i}")
+    assert disk_cache.exists(f"key{i}")
 
     # Access key1 to make it most recently used
     disk_cache.get("key1")
@@ -109,11 +106,11 @@ def test_size_limit_and_eviction(disk_cache):
     assert disk_cache.get_stats()["evictions"] == 1
 
 
-def test_clear_cache(disk_cache):
+    def test_clear_cache(disk_cache):
     """Test clearing the cache."""
     # Add some items
     for i in range(3):
-        disk_cache.set(f"key{i}", {"data": f"value{i}"})
+    disk_cache.set(f"key{i}", {"data": f"value{i}"})
 
     # Verify items exist
     assert disk_cache.get_size() == 3
@@ -126,27 +123,27 @@ def test_clear_cache(disk_cache):
     assert disk_cache.get_stats()["clears"] == 1
 
 
-def test_serialization_formats(temp_cache_dir):
+    def test_serialization_formats(temp_cache_dir):
     """Test different serialization formats."""
     # Test JSON serialization
     json_cache = DiskCache(
-        cache_dir=os.path.join(temp_cache_dir, "json"), serialization="json"
+    cache_dir=os.path.join(temp_cache_dir, "json"), serialization="json"
     )
 
     # Test pickle serialization
     pickle_cache = DiskCache(
-        cache_dir=os.path.join(temp_cache_dir, "pickle"), serialization="pickle"
+    cache_dir=os.path.join(temp_cache_dir, "pickle"), serialization="pickle"
     )
 
     value = {"data": "test_value", "number": 42}
 
     # Test with both serialization formats
     for cache in [json_cache, pickle_cache]:
-        cache.set("test_key", value)
-        assert cache.get("test_key") == value
+    cache.set("test_key", value)
+    assert cache.get("test_key") == value
 
 
-def test_metadata_persistence(disk_cache):
+    def test_metadata_persistence(disk_cache):
     """Test that metadata (access counts, times) persists."""
     key = "test_key"
     value = {"data": "test_value"}
@@ -154,7 +151,7 @@ def test_metadata_persistence(disk_cache):
     # Set value and access it multiple times
     disk_cache.set(key, value)
     for _ in range(3):
-        disk_cache.get(key)
+    disk_cache.get(key)
 
     # Create new cache instance with same directory
     new_cache = DiskCache(cache_dir=disk_cache.cache_dir)
@@ -166,72 +163,71 @@ def test_metadata_persistence(disk_cache):
     assert metadata["access_count"] == 3
 
 
-def test_eviction_policies(temp_cache_dir):
+    def test_eviction_policies(temp_cache_dir):
     """Test different eviction policies."""
     test_cases = [
-        ("lru", lambda cache: cache.get("key1")),  # Make key1 most recently used
-        (
-            "lfu",
-            lambda cache: [cache.get("key1") for _ in range(3)],
-        ),  # Make key1 most frequently used
-        ("fifo", lambda cache: None),  # First in first out, no access needed
+    ("lru", lambda cache: cache.get("key1")),  # Make key1 most recently used
+    (
+    "lfu",
+    lambda cache: [cache.get("key1") for _ in range(3)],
+    ),  # Make key1 most frequently used
+    ("fifo", lambda cache: None),  # First in first out, no access needed
     ]
 
     for policy, access_pattern in test_cases:
-        # Create cache with specific eviction policy
-        cache = DiskCache(
-            cache_dir=os.path.join(temp_cache_dir, policy),
-            max_size=3,
-            eviction_policy=policy,
-        )
+    # Create cache with specific eviction policy
+    cache = DiskCache(
+    cache_dir=os.path.join(temp_cache_dir, policy),
+    max_size=3,
+    eviction_policy=policy,
+    )
 
-        # Add items
-        for i in range(3):
-            cache.set(f"key{i}", {"data": f"value{i}"})
+    # Add items
+    for i in range(3):
+    cache.set(f"key{i}", {"data": f"value{i}"})
 
-        # Apply access pattern
-        access_pattern(cache)
+    # Apply access pattern
+    access_pattern(cache)
 
-        # Add new item to trigger eviction
-        cache.set("new_key", {"data": "new_value"})
+    # Add new item to trigger eviction
+    cache.set("new_key", {"data": "new_value"})
 
-        if policy == "lru":
-            # Least recently used (key0) should be evicted
-            assert not cache.exists("key0")
-            assert cache.exists("key1")  # Most recently used
-        elif policy == "lfu":
-            # Least frequently used (key2) should be evicted
-            assert not cache.exists("key2")
-            assert cache.exists("key1")  # Most frequently used
-        elif policy == "fifo":
-            # First item (key0) should be evicted
-            assert not cache.exists("key0")
-            assert cache.exists("key1")
+    if policy == "lru":
+    # Least recently used (key0) should be evicted
+    assert not cache.exists("key0")
+    assert cache.exists("key1")  # Most recently used
+    elif policy == "lfu":
+    # Least frequently used (key2) should be evicted
+    assert not cache.exists("key2")
+    assert cache.exists("key1")  # Most frequently used
+    elif policy == "fifo":
+    # First item (key0) should be evicted
+    assert not cache.exists("key0")
+    assert cache.exists("key1")
 
 
-def test_concurrent_access(disk_cache):
-    """Test thread safety of cache operations."""
+    def test_concurrent_access(disk_cache):
 
-(i: int):
-        # Randomly choose between get and set operations
-        if random.random() < 0.5:
-            disk_cache.set(f"key{i}", {"data": f"value{i}"})
-        else:
-            disk_cache.get(f"key{i}")
+    (i: int):
+    # Randomly choose between get and set operations
+    if random.random() < 0.5:
+    disk_cache.set(f"key{i}", {"data": f"value{i}"})
+    else:
+    disk_cache.get(f"key{i}")
 
     # Run multiple cache operations concurrently
     with ThreadPoolExecutor(max_workers=4) as executor:
-        list(executor.map(cache_operation, range(10)))
+    list(executor.map(cache_operation, range(10)))
 
     # Verify cache is in a consistent state
     assert disk_cache.get_size() <= disk_cache.max_size
 
     # Verify metadata files exist for all cache entries
     for key in disk_cache.get_keys():
-        assert os.path.exists(disk_cache._get_metadata_path(key))
+    assert os.path.exists(disk_cache._get_metadata_path(key))
 
 
-def test_error_handling(disk_cache):
+    def test_error_handling(disk_cache):
     """Test error handling scenarios."""
     # Test with invalid serialization format
     cache = DiskCache(cache_dir=disk_cache.cache_dir, serialization="invalid")
@@ -253,13 +249,13 @@ def test_error_handling(disk_cache):
 
     # Corrupt the file
     with open(file_path, "w") as f:
-        f.write("invalid json")
+    f.write("invalid json")
 
     # Should handle gracefully
     assert disk_cache.get(key) is None
 
 
-def test_get_ttl(disk_cache):
+    def test_get_ttl(disk_cache):
     """Test TTL retrieval."""
     key = "test_key"
     value = {"data": "test"}
