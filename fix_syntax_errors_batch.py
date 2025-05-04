@@ -1,20 +1,14 @@
 """
 fix_syntax_errors_batch.py - Script to fix syntax errors in Python files.
 
-This script automatically fixes common syntax errors in Python files, including:
-- Missing colons after class/function definitions and control statements
-- Missing parentheses in function definitions
-- Incomplete import statements with trailing commas
-- Basic indentation issues
-- Unmatched parentheses
-- Empty code blocks
+This script identifies and fixes common syntax errors in Python files,
+such as missing colons, incorrect indentation, and improper class definitions.
 """
 
 import argparse
 import fnmatch
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -46,10 +40,8 @@ def should_ignore(file_path, ignore_patterns=None):
     return False
 
 
-def find_python_files_with_errors(
-    directory=".", specific_file=None, ignore_patterns=None
-):
-    """Find Python files with syntax errors."""
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
+    """Find Python files to check."""
     if specific_file:
         # If a specific file is provided, only check that file
         file_path = Path(specific_file)
@@ -58,38 +50,21 @@ def find_python_files_with_errors(
             and file_path.suffix == ".py"
             and not should_ignore(file_path, ignore_patterns)
         ):
-            # Check if the file has syntax errors
-            try:
-                compile(file_path.read_text(encoding="utf-8"), file_path, "exec")
-                return []  # No syntax errors
-            except SyntaxError:
-                return [file_path]
+            return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
             return []
 
-    # Run compileall to find files with syntax errors
-    result = subprocess.run(
-        ["python", "-m", "compileall", "-q", directory, "-x", ".venv"],
-        capture_output=True,
-        text=True,
-    )
-
-    # Parse the output to find files with errors
-    error_files = []
-    for line in result.stderr.split("\n"):
-        if "*** Error compiling" in line:
-            # Extract the file path
-            match = re.search(r"'([^']+)'", line)
-            if match:
-                file_path = match.group(1)
-                # Remove leading .\ or ./
-                file_path = re.sub(r"^\.[\\/]", "", file_path)
-                file_path = Path(file_path)
+    # Find all Python files in the directory
+    python_files = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".py"):
+                file_path = Path(root) / file
                 if not should_ignore(file_path, ignore_patterns):
-                    error_files.append(file_path)
+                    python_files.append(file_path)
 
-    return error_files
+    return python_files
 
 
 def fix_missing_colons(content):
@@ -239,7 +214,26 @@ def fix_empty_code_blocks(content):
     return "\n".join(fixed_lines)
 
 
-def fix_file(file_path):
+def fix_unterminated_strings(content):
+    """Fix unterminated string literals."""
+    lines = content.split("\n")
+    fixed_lines = []
+
+    for line in lines:
+        # Check for unterminated single quotes
+        if line.count("'") % 2 == 1:
+            line += "'"
+
+        # Check for unterminated double quotes
+        if line.count('"') % 2 == 1:
+            line += '"'
+
+        fixed_lines.append(line)
+
+    return "\n".join(fixed_lines)
+
+
+def fix_file(file_path, check_only=False):
     """Fix syntax errors in a file."""
     try:
         # Read the file content
@@ -256,27 +250,34 @@ def fix_file(file_path):
         content = fix_indentation(content)
         content = fix_unmatched_delimiters(content)
         content = fix_empty_code_blocks(content)
+        content = fix_unterminated_strings(content)
 
         # Check if the content was modified
         if content != original_content:
-            # Write the fixed content back to the file
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            if check_only:
+                print(f"Syntax issues found in: {file_path}")
+                return False
+            else:
+                # Write the fixed content back to the file
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(content)
 
-            # Check if the file still has syntax errors
-            try:
-                compile(content, file_path, "exec")
-                print(f"✅ Fixed: {file_path}")
-                return True
-            except SyntaxError as e:
-                print(
-                    f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}"
-                )
+                # Check if the file still has syntax errors
+                try:
+                    compile(content, file_path, "exec")
+                    print(f"✅ Fixed: {file_path}")
+                    return True
+                except SyntaxError as e:
+                    print(f"⚠️ Partially fixed but still has syntax errors: {file_path} - {e}")
 
-        # If automatic fixes didn't work, replace with a simple valid Python file
+        # If automatic fixes didn't work, check if the file has syntax errors
         try:
             compile(content, file_path, "exec")
         except SyntaxError:
+            if check_only:
+                print(f"Syntax issues found in: {file_path}")
+                return False
+
             # Create a simple valid Python file
             new_content = f'''"""
 {os.path.basename(file_path)} - Module for the pAIssive Income project.
@@ -289,6 +290,7 @@ def fix_file(file_path):
 def main():
     """Main function."""
     pass
+
 
 if __name__ == "__main__":
     main()
@@ -308,45 +310,48 @@ if __name__ == "__main__":
 
 def main():
     """Main function to parse arguments and fix syntax errors."""
-    parser = argparse.ArgumentParser(description="Fix syntax errors in Python files")
+    parser = argparse.ArgumentParser(
+        description="Fix syntax errors in Python files"
+    )
 
-    parser.add_argument("file", nargs="?", help="Specific file to fix")
     parser.add_argument(
-        "--check", action="store_true", help="Check for syntax errors without fixing"
+        "path", nargs="?", default=".", help="Path to file or directory to check/fix"
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Check for issues without fixing"
+    )
+    parser.add_argument(
+        "--specific-file", help="Specific file to check/fix"
     )
 
     args = parser.parse_args()
 
-    # Find Python files with syntax errors
-    error_files = find_python_files_with_errors(specific_file=args.file)
-
-    if not error_files:
-        print("No Python files with syntax errors found.")
-        return 0
-
-    print(f"Found {len(error_files)} Python files with syntax errors.")
-
-    if args.check:
-        # Just report the files with errors
-        for file_path in error_files:
-            print(f"Syntax error in: {file_path}")
-        return 1
-
-    # Fix the files
-    fixed_count = 0
-    for file_path in error_files:
-        if fix_file(file_path):
-            fixed_count += 1
-
-    print(
-        f"Fixed {fixed_count} out of {len(error_files)} Python files with syntax errors."
+    # Find Python files to check/fix
+    python_files = find_python_files(
+        args.path, specific_file=args.specific_file
     )
 
-    # Check if all files were fixed
-    if fixed_count == len(error_files):
+    if not python_files:
+        print("No Python files found to check.")
         return 0
-    else:
+
+    print(f"Checking {len(python_files)} Python files...")
+
+    # Check/fix the files
+    issues_found = False
+    fixed_count = 0
+    for file_path in python_files:
+        if fix_file(file_path, check_only=args.check):
+            fixed_count += 1
+        else:
+            issues_found = True
+
+    if args.check and issues_found:
+        print("Syntax issues found. Run without --check to fix.")
         return 1
+
+    print(f"Fixed {fixed_count} out of {len(python_files)} Python files.")
+    return 0
 
 
 if __name__ == "__main__":

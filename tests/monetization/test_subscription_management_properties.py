@@ -6,7 +6,6 @@ test_subscription_management_properties.py - Module for the pAIssive Income proj
 # The original content had syntax errors that could not be automatically fixed
 # Please review and update this file as needed
 
-
 def main():
     """Main function."""
     pass
