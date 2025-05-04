@@ -17,7 +17,6 @@ from .base_service import BaseService
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
 class AgentTeamService(BaseService, IAgentTeamService):
     """Service for interacting with the Agent Team module."""
 

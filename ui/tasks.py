@@ -28,7 +28,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 # Task state definition
 TASK_STATES = {
     "PENDING": "Task is waiting to be executed",
@@ -40,7 +39,6 @@ TASK_STATES = {
     "REVOKED": "Task was revoked",
 }
 
-
 # Services
 def get_services():
     """Get services with dependency injection."""
@@ -51,7 +49,6 @@ def get_services():
         "monetization_service": get_service(IMonetizationService),
         "marketing_service": get_service(IMarketingService),
     }
-
 
 def update_task_progress(
     task_id: str,
@@ -84,7 +81,6 @@ def update_task_progress(
         current_task.update_state(state=state, meta=meta)
         return meta
     return None
-
 
 @celery_app.task(bind=True, name="paissive_income.analyze_niches")
 def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
@@ -150,7 +146,6 @@ def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
         raise
 
-
 @celery_app.task(bind=True, name="paissive_income.create_solution")
 def create_solution(self, niche_id: str) -> Dict[str, Any]:
     """
@@ -215,7 +210,6 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
         raise
 
-
 @celery_app.task(bind=True, name="paissive_income.create_monetization_strategy")
 def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
     """
@@ -279,7 +273,6 @@ def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
         logger.error(traceback.format_exc())
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
         raise
-
 
 @celery_app.task(bind=True, name="paissive_income.create_marketing_campaign")
 def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:

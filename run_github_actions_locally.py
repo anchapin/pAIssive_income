@@ -9,7 +9,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 def list_workflows():
     """List all available workflows in the .github/workflows directory."""
     workflows_dir = Path(".github/workflows")
@@ -19,7 +18,6 @@ def list_workflows():
 
     workflows = [f for f in workflows_dir.glob("*.yml")]
     return workflows
-
 
 def run_workflow(
     workflow_file,
@@ -92,7 +90,6 @@ def run_workflow(
     except subprocess.CalledProcessError as e:
         print(f"\n❌ Workflow {workflow_file} failed with exit code {e.returncode}")
         return False
-
 
 def main():
     """Main function to parse args and run the script."""
@@ -173,7 +170,6 @@ def main():
             "Please specify a workflow file with --workflow or list available workflows with --list"
         )
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

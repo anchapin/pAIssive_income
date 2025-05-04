@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
 
-
 def validate_form_data(schema_cls: Type[T]) -> T:
     """Validate form data against a Pydantic schema.
 
@@ -48,7 +47,6 @@ def validate_form_data(schema_cls: Type[T]) -> T:
 
     except PydanticValidationError as e:
         _handle_validation_error(e)
-
 
 def validate_json_data(schema_cls: Type[T]) -> T:
     """Validate JSON data against a Pydantic schema.
@@ -80,7 +78,6 @@ def validate_json_data(schema_cls: Type[T]) -> T:
     except PydanticValidationError as e:
         _handle_validation_error(e)
 
-
 def validate_query_params(schema_cls: Type[T]) -> T:
     """Validate query parameters against a Pydantic schema.
 
@@ -103,7 +100,6 @@ def validate_query_params(schema_cls: Type[T]) -> T:
 
     except PydanticValidationError as e:
         _handle_validation_error(e)
-
 
 def sanitize_input(input_value: str) -> str:
     """Sanitize a string input to prevent XSS attacks.
@@ -136,7 +132,6 @@ def sanitize_input(input_value: str) -> str:
 
     return sanitized
 
-
 def _handle_validation_error(pydantic_error: PydanticValidationError) -> None:
     """Handle Pydantic validation errors and convert them to our custom ValidationError.
 
@@ -159,4 +154,3 @@ def _handle_validation_error(pydantic_error: PydanticValidationError) -> None:
     raise ValidationError(
         message="Input validation failed", validation_errors=validation_errors
     )
-

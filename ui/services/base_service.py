@@ -21,7 +21,6 @@ from ..utils import (
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
 class BaseService(IBaseService):
     """Base class for services that interact with the pAIssive Income framework."""
 
