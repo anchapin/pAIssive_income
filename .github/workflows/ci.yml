@@ -155,11 +155,11 @@ jobs:
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           echo "Type checking specific file: ${{ github.event.inputs.specific_file }}"
-          mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive
+          mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
           pyright "${{ github.event.inputs.specific_file }}"
         else
           echo "Type checking all files"
-          mypy . --ignore-missing-imports --install-types --non-interactive
+          mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
           pyright .
         fi
 
