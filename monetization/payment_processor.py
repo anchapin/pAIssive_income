@@ -5,12 +5,10 @@ This module provides an abstract base class for payment processors and
 common utility methods for payment processing.
 """
 
-import json
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
-
+from typing import Any, Dict, List, Optional
 
 def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str, 
     Any]] = None):
@@ -27,7 +25,6 @@ def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str,
     from tests.mocks.mock_payment_apis import create_payment_gateway
 
     return create_payment_gateway(gateway_type, config)
-
 
 class PaymentProcessor(ABC):
     """

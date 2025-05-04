@@ -4,21 +4,17 @@ Analyzes market segments to identify potential niches.
 """
 
 import asyncio
-import hashlib
-import json
 import logging
 import uuid
 from datetime import datetime
-from functools import partial
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 # Import async utilities
 from ai_models.async_utils import run_in_thread
 
 # Import the centralized caching service
-from common_utils.caching import cached, default_cache
+from common_utils.caching import default_cache
 
-from .errors import (
     CompetitionAnalysisError,
     MarketSegmentError,
     TargetUserAnalysisError,
@@ -26,7 +22,6 @@ from .errors import (
     ValidationError,
     handle_exception,
 )
-from .schemas import (
     BuyingBehaviorSchema,
     CompetitionAnalysisSchema,
     CompetitorSchema,
@@ -42,7 +37,6 @@ from .schemas import (
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class MarketAnalyzer:
     """
@@ -111,7 +105,6 @@ class MarketAnalyzer:
                     "id": str(uuid.uuid4()),
                     "name": "E - Commerce",
                     "description": "Market segment for e - commerce businesses selling goods and services online",
-                        
                     "market_size": "large",
                     "growth_rate": "high",
                     "competition": "high",
@@ -158,7 +151,6 @@ class MarketAnalyzer:
                     "id": str(uuid.uuid4()),
                     "name": "Freelancing",
                     "description": "Independent professionals offering services to clients",
-                        
                     "market_size": "large",
                     "growth_rate": "high",
                     "competition": "medium",
@@ -342,7 +334,6 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "E - Commerce",
                         "description": "Market segment for e - commerce businesses selling goods and services online",
-                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "high",
@@ -365,7 +356,6 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "Content Creation",
                         "description": "Creation of digital content for various platforms",
-                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "medium",
@@ -390,7 +380,6 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "Freelancing",
                         "description": "Independent professionals offering services to clients",
-                            
                         "market_size": "large",
                         "growth_rate": "high",
                         "competition": "medium",
@@ -415,7 +404,6 @@ class MarketAnalyzer:
                         "id": str(uuid.uuid4()),
                         "name": "Education",
                         "description": "Teaching and learning processes and institutions",
-                            
                         "market_size": "large",
                         "growth_rate": "medium",
                         "competition": "medium",
@@ -753,7 +741,6 @@ class MarketAnalyzer:
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
                     "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
-                        
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -763,7 +750,6 @@ class MarketAnalyzer:
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
                     "timeframe": "1 year" if i == 0 else "2 - 3 years" if i == 1 else "5+ years",
-                        
                 }
                 for i in range(3)  # Top 3 predictions
             ],
@@ -828,7 +814,6 @@ class MarketAnalyzer:
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
                     "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
-                        
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -838,7 +823,6 @@ class MarketAnalyzer:
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
                     "timeframe": "1 year" if i == 0 else "2 - 3 years" if i == 1 else "5+ years",
-                        
                 }
                 for i in range(3)  # Top 3 predictions
             ],

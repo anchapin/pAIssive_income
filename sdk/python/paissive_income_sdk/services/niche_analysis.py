@@ -4,10 +4,9 @@ Niche Analysis service for the pAIssive Income API.
 This module provides a service for interacting with the niche analysis endpoints.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .base import BaseService
-
 
 class NicheAnalysisService(BaseService):
     """

@@ -8,9 +8,8 @@ import json
 import logging
 import time
 import uuid
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
 
 import msgpack
 from pydantic import BaseModel, Field, validator
@@ -20,7 +19,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class MessageType(str, Enum):
     """Types of messages that can be sent through the message queue."""
@@ -40,7 +38,6 @@ class MessageType(str, Enum):
     # Error messages (notifications of errors)
     ERROR = "error"
 
-
 class MessagePriority(int, Enum):
     """Priority levels for messages."""
 
@@ -52,7 +49,6 @@ class MessagePriority(int, Enum):
 
     # Low priority (background tasks)
     LOW = 2
-
 
 class MessageStatus(str, Enum):
     """Status of a message."""
@@ -71,7 +67,6 @@ class MessageStatus(str, Enum):
 
     # Message processing has failed
     FAILED = "failed"
-
 
 class Message(BaseModel):
     """
@@ -199,10 +194,8 @@ class Message(BaseModel):
         """
         return cls(**msgpack.unpackb(data, raw=False))
 
-
 # Generic type for message payload
 T = TypeVar("T", bound=BaseModel)
-
 
 class MessageSchema(Generic[T]):
     """

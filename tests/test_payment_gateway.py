@@ -3,12 +3,9 @@ Tests for payment gateway integration.
 """
 
 import unittest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from datetime import datetime
 
-from interfaces.monetization_interfaces import TransactionStatus, TransactionType
 from monetization.mock_payment_processor import MockPaymentProcessor
-
 
 class TestPaymentGateway(unittest.TestCase):
     """Test cases for payment gateway integration."""
@@ -212,7 +209,6 @@ class TestPaymentGateway(unittest.TestCase):
                 self.processor.delete_customer(self.customer_id)
             except:
                 pass
-
 
 if __name__ == "__main__":
     unittest.main()

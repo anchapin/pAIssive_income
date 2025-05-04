@@ -32,7 +32,7 @@ try:
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     logger.warning(
-        "Transformers not available. Text processing for quantized models will be limited."
+"Transformers not available. Text processing for quantized models will be limited."
     )
     TRANSFORMERS_AVAILABLE = False
 
@@ -142,7 +142,7 @@ class QuantizedModel:
         """
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Transformers not available. Please install it with: pip install transformers"
+"Transformers not available. Please install it with: pip install transformers"
             )
 
         if not TORCH_AVAILABLE:
@@ -159,7 +159,7 @@ class QuantizedModel:
             if self.quantization == "4bit" or self.quantization == "4 - bit":
                 if not BITSANDBYTES_AVAILABLE:
                     raise ImportError(
-                        "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
+"BitsAndBytes not available. Please install it with: pip install bitsandbytes"
                     )
 
                 # 4 - bit quantization
@@ -173,7 +173,7 @@ class QuantizedModel:
             elif self.quantization == "8bit" or self.quantization == "8 - bit":
                 if not BITSANDBYTES_AVAILABLE:
                     raise ImportError(
-                        "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
+"BitsAndBytes not available. Please install it with: pip install bitsandbytes"
                     )
 
                 # 8 - bit quantization

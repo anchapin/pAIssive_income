@@ -8,7 +8,6 @@ import argparse
 import logging
 import os
 import sys
-from typing import Any, Dict, Optional
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,7 +22,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 def parse_args() -> argparse.Namespace:
     """
@@ -171,7 +169,6 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
 def create_config(args: argparse.Namespace) -> APIConfig:
     """
     Create API configuration from command - line arguments.
@@ -260,7 +257,6 @@ def create_config(args: argparse.Namespace) -> APIConfig:
 
     return config
 
-
 def main() -> None:
     """
     Main entry point for the API server.
@@ -292,7 +288,6 @@ def main() -> None:
         logger.error(f"Error running server: {str(e)}")
         server.stop()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

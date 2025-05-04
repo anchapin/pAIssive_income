@@ -87,7 +87,8 @@ def main():
             delay = random.uniform(0.3, 0.7)
 
             print(
-                f"  Generating {tokens} tokens with {delay:.2f}s delay to first token...")
+                f"  Generating {tokens} tokens with {delay:.2f}s delay to first" \
+                 + "token...")
             simulate_inference(tracker, tokens=tokens, delay=delay)
 
     # Generate a performance report

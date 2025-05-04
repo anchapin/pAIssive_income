@@ -1,6 +1,6 @@
 """Tests for mock model provider implementations."""
 
-from typing import Any, Dict, Generator
+from typing import Generator
 
 import pytest
 
@@ -13,7 +13,6 @@ from .mock_model_providers import (
     MockONNXProvider,
     MockOpenAIProvider,
 )
-
 
 def test_base_mock_provider():
     """Test base mock provider functionality."""
@@ -29,7 +28,6 @@ def test_base_mock_provider():
 
     # Test error simulation
     assert provider._should_simulate_error() is True
-
 
 def test_openai_provider():
     """Test OpenAI mock provider."""
@@ -60,7 +58,6 @@ def test_openai_provider():
     assert len(response["data"]) == 1
     assert "embedding" in response["data"][0]
 
-
 def test_huggingface_provider():
     """Test HuggingFace mock provider."""
     provider = MockHuggingFaceProvider()
@@ -75,7 +72,6 @@ def test_huggingface_provider():
     embeddings = provider.get_embeddings("Test text")
     assert isinstance(embeddings, list)
     assert all(isinstance(x, float) for x in embeddings)
-
 
 def test_ollama_provider():
     """Test Ollama mock provider."""
@@ -92,7 +88,6 @@ def test_ollama_provider():
     assert "role" in response["message"]
     assert "content" in response["message"]
 
-
 def test_lm_studio_provider():
     """Test LM Studio mock provider."""
     provider = MockLMStudioProvider()
@@ -106,7 +101,6 @@ def test_lm_studio_provider():
     response = provider.completion("Test prompt")
     assert "choices" in response
     assert "text" in response["choices"][0]
-
 
 def test_local_model_provider():
     """Test local model provider."""
@@ -125,7 +119,6 @@ def test_local_model_provider():
     assert all("tokens" in r for r in responses)
     assert all("time_ms" in r for r in responses)
 
-
 def test_onnx_provider():
     """Test ONNX model provider."""
     provider = MockONNXProvider()
@@ -140,7 +133,6 @@ def test_onnx_provider():
     response = provider.optimize_model()
     assert "status" in response
     assert response["status"] == "success"
-
 
 def test_error_simulation():
     """Test error simulation across providers."""

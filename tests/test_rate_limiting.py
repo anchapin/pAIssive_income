@@ -4,8 +4,6 @@ Tests for API rate limiting functionality.
 
 import time
 import unittest
-from datetime import datetime
-from typing import Any, Dict, Tuple
 
 from api.config import APIConfig, RateLimitScope, RateLimitStrategy
 from api.rate_limit import (
@@ -15,7 +13,6 @@ from api.rate_limit import (
     SlidingWindowRateLimiter,
     TokenBucketRateLimiter,
 )
-
 
 class TestRateLimiting(unittest.TestCase):
     """Test cases for API rate limiting."""
@@ -181,7 +178,6 @@ class TestRateLimiting(unittest.TestCase):
             str(limit_info["remaining"]))
         self.assertEqual(headers["X - RateLimit - Reset"], 
             str(int(limit_info["reset"])))
-
 
 if __name__ == "__main__":
     unittest.main()

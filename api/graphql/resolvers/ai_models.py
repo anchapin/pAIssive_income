@@ -5,7 +5,7 @@ This module provides resolvers for AI models queries and mutations.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -23,7 +23,6 @@ except ImportError:
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.ai_models import (
         InferenceInput,
         InferenceRequestType,
         InferenceResponseType,
@@ -80,9 +79,7 @@ if STRAWBERRY_AVAILABLE:
                         provider=model.provider,
                         capabilities=model.capabilities,
                         created_at=model.created_at.isoformat() if model.created_at else None,
-                            
                         updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                            
                     )
                     for model in models
                 ]
@@ -122,9 +119,7 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error getting model: {str(e)}")
@@ -161,7 +156,6 @@ if STRAWBERRY_AVAILABLE:
                         description=version.description,
                         changes=version.changes,
                         created_at=version.created_at.isoformat() if version.created_at else None,
-                            
                     )
                     for version in versions
                 ]
@@ -249,9 +243,7 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating model: {str(e)}")
@@ -299,9 +291,7 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error updating model: {str(e)}")
@@ -371,7 +361,6 @@ if STRAWBERRY_AVAILABLE:
                     latency=response.latency,
                     token_usage=response.token_usage,
                     created_at=response.created_at.isoformat() if response.created_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error running inference: {str(e)}")

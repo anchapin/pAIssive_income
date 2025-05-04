@@ -3,14 +3,12 @@ Tests for the NicheAnalyzer class.
 """
 
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from interfaces.agent_interfaces import IAgentTeam
-from interfaces.niche_interfaces import INicheAnalyzer
 from niche_analysis.niche_analyzer import NicheAnalyzer
-
 
 @pytest.fixture
 def mock_agent_team():
@@ -54,12 +52,10 @@ def mock_agent_team():
 
     return mock_team
 
-
 @pytest.fixture
 def niche_analyzer(mock_agent_team):
     """Create a NicheAnalyzer instance for testing."""
     return NicheAnalyzer(agent_team=mock_agent_team)
-
 
 def test_niche_analyzer_init():
     """Test NicheAnalyzer initialization."""
@@ -71,7 +67,6 @@ def test_niche_analyzer_init():
     mock_team = MagicMock(spec=IAgentTeam)
     analyzer = NicheAnalyzer(agent_team=mock_team)
     assert analyzer.agent_team == mock_team
-
 
 def test_analyze_niche(niche_analyzer, mock_agent_team):
     """Test analyze_niche method."""
@@ -101,7 +96,6 @@ def test_analyze_niche(niche_analyzer, mock_agent_team):
     assert "opportunities" in result
     assert "test niche" in result["summary"]
 
-
 def test_analyze_niche_no_agent_team():
     """Test analyze_niche method with no agent team."""
     # Create a NicheAnalyzer with no agent team
@@ -112,7 +106,6 @@ def test_analyze_niche_no_agent_team():
 
     # This test passes if the analyzer has no agent team
     # The actual behavior of analyze_niche with no agent team is tested in other tests
-
 
 def test_analyze_niche_no_researcher(mock_agent_team):
     """Test analyze_niche method with no researcher agent."""
@@ -129,7 +122,6 @@ def test_analyze_niche_no_researcher(mock_agent_team):
 
     # This test passes if the analyzer has an agent team but no researcher
     # The actual behavior of analyze_niche with no researcher is tested in other tests
-
 
 def test_identify_niches(niche_analyzer, mock_agent_team):
     """Test identify_niches method."""
@@ -148,7 +140,6 @@ def test_identify_niches(niche_analyzer, mock_agent_team):
     assert result[0]["name"] == "Niche 1"
     assert result[1]["name"] == "Niche 2"
 
-
 def test_identify_niches_no_agent_team():
     """Test identify_niches method with no agent team."""
     # Create a NicheAnalyzer with no agent team
@@ -159,7 +150,6 @@ def test_identify_niches_no_agent_team():
 
     # This test passes if the analyzer has no agent team
     # The actual behavior of identify_niches with no agent team is tested in other tests
-
 
 def test_identify_niches_no_researcher(mock_agent_team):
     """Test identify_niches method with no researcher agent."""
@@ -176,7 +166,6 @@ def test_identify_niches_no_researcher(mock_agent_team):
 
     # This test passes if the analyzer has an agent team but no researcher
     # The actual behavior of identify_niches with no researcher is tested in other tests
-
 
 def test_analyze_competition(niche_analyzer):
     """Test analyze_competition method."""
@@ -196,7 +185,6 @@ def test_analyze_competition(niche_analyzer):
     assert isinstance(result["market_leaders"], list)
     assert isinstance(result["market_gaps"], list)
     assert "test niche" in result["summary"]
-
 
 def test_get_niche_opportunities(niche_analyzer):
     """Test get_niche_opportunities method."""

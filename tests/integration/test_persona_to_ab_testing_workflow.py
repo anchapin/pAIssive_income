@@ -5,11 +5,8 @@ This module tests the complete workflow from user persona creation through conte
 strategy development to A / B testing of content.
 """
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
-from marketing import (
     ABTesting,
     ChannelStrategy,
     ConcreteContentGenerator,
@@ -21,48 +18,40 @@ from marketing import (
 )
 from niche_analysis import MarketAnalyzer
 
-
 @pytest.fixture
 def persona_creator():
     """Create a persona creator instance for testing."""
     return PersonaCreator()
-
 
 @pytest.fixture
 def content_generator():
     """Create a content generator instance for testing."""
     return ConcreteContentGenerator()
 
-
 @pytest.fixture
 def style_adjuster():
     """Create a style adjuster instance for testing."""
     return StyleAdjuster()
-
 
 @pytest.fixture
 def tone_analyzer():
     """Create a tone analyzer instance for testing."""
     return ToneAnalyzer()
 
-
 @pytest.fixture
 def ab_testing():
     """Create an A / B testing instance for testing."""
     return ABTesting()
-
 
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
     return MarketAnalyzer()
 
-
 @pytest.fixture
 def channel_strategy():
     """Create a channel strategy instance for testing."""
     return ChannelStrategy()
-
 
 def test_persona_to_content_to_ab_testing_workflow(
     persona_creator, content_generator, style_adjuster, tone_analyzer, ab_testing, 
@@ -204,7 +193,6 @@ def test_persona_to_content_to_ab_testing_workflow(
         for var in persona_variations:
             variant = {
                 "name": f"{var['variation_type'].capitalize()} - {var['variation_value']}",
-                    
                 "is_control": False,
                 "content": var["content"],
             }
@@ -308,7 +296,6 @@ def test_persona_to_content_to_ab_testing_workflow(
         assert "winner" in result
         assert "confidence_level" in result
         assert result["confidence_level"] > 0
-
 
 def test_persona_to_multichannel_content_strategy(
     persona_creator, content_generator, channel_strategy, market_analyzer

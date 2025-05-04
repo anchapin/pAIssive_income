@@ -11,8 +11,7 @@ import logging
 import os
 import uuid
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 # Local imports
 from interfaces.marketing_interfaces import ISocialMediaIntegration
@@ -27,7 +26,6 @@ from marketing.errors import (
     PostNotFoundError,
     SchedulingError,
 )
-from marketing.schemas import (
     AudienceInsightSchema,
     ContentVisibility,
     PostScheduleType,
@@ -95,7 +93,6 @@ SUPPORTED_PLATFORMS = {
         "adapter_module": "marketing.social_media_adapters.tiktok_adapter",
     },
 }
-
 
 class SocialMediaIntegration(ISocialMediaIntegration):
     """
@@ -451,7 +448,6 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             "content": content,
             "schedule_time": schedule_time.isoformat() if schedule_time else None,
             "schedule_type": PostScheduleType.SCHEDULED if schedule_time else PostScheduleType.NOW,
-                
             "visibility": visibility,
             "targeting": targeting,
             "status": "scheduled" if schedule_time else "pending",

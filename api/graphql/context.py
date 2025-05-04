@@ -6,7 +6,7 @@ services, repositories, and other dependencies needed by resolvers.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import Request
 
@@ -15,7 +15,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 async def get_context(request: Request) -> Dict[str, Any]:
     """

@@ -5,9 +5,6 @@ This module contains tests for workflows that span multiple API endpoints,
 such as niche analysis to solution development.
 """
 
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from tests.api.utils.test_client import APITestClient
@@ -18,14 +15,12 @@ from tests.api.utils.test_data import (
     generate_solution_data,
 )
 
-
 @pytest.fixture
 def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
-
 
 class TestCrossAPIWorkflows:
     """Test cross - API workflows."""
@@ -217,7 +212,6 @@ class TestCrossAPIWorkflows:
         # Validate response
         export_result = self.validate_success_response(response, 200)
         self.validate_field_exists(export_result, "download_url")
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_cross_api_workflows.py"])

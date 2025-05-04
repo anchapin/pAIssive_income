@@ -39,7 +39,8 @@ try:
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     logger.warning(
-        "Transformers not available. Some quantization utilities will have limited functionality."
+"Transformers not available. Some quantization utilities will have limited" \
++ "functionality."
     )
     TRANSFORMERS_AVAILABLE = False
 

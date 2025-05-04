@@ -119,7 +119,8 @@ def run_demo():
 
     print(f"Updated payment method: {updated_pm}")
     print(
-        f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
+        f"New expiration:" \
+         + "{updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
     print(f"Metadata: {updated_pm.metadata}")
 
     print_separator()
@@ -135,7 +136,8 @@ def run_demo():
             for pm in pms:
                 if pm.payment_type == PaymentMethod.TYPE_CARD:
                     print(
-                        f"- {pm} (expires {pm.details['exp_month']}/{pm.details['exp_year']})")
+                        f"- {pm} (expires" \
+                         + "{pm.details['exp_month']}/{pm.details['exp_year']})")
     else:
         print("No payment methods expiring in the next 5 years.")
 

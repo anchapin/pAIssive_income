@@ -4,10 +4,9 @@ Marketing service for the pAIssive Income API.
 This module provides a service for interacting with the marketing endpoints.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base import BaseService
-
 
 class MarketingService(BaseService):
     """

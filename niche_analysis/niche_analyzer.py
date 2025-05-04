@@ -145,7 +145,8 @@ class NicheAnalyzer(INicheAnalyzer):
             cached_result = default_cache.get(cache_key, namespace="niche_scores")
             if cached_result is not None:
                 logger.info(
-                    f"Using cached niche identification for segments: {segments_str[:50]}..."
+                    f"Using cached niche identification for segments:" \
+                     + "{segments_str[:50]}..."
                 )
                 return cached_result
 
@@ -274,7 +275,8 @@ class NicheAnalyzer(INicheAnalyzer):
             List of niche dictionaries
         """
         logger.info(
-            f"Identifying niches asynchronously in {len(market_segments)} market segments")
+            f"Identifying niches asynchronously in {len(market_segments)} market" \
+             + "segments")
 
         # Generate a cache key based on the market segments
         segments_str = ",".join(sorted(market_segments))
@@ -289,7 +291,8 @@ class NicheAnalyzer(INicheAnalyzer):
             )
             if cached_result is not None:
                 logger.info(
-                    f"Using cached niche identification for segments: {segments_str[:50]}..."
+                    f"Using cached niche identification for segments:" \
+                     + "{segments_str[:50]}..."
                 )
                 return cached_result
 

@@ -11,14 +11,11 @@ import threading
 import time
 import unittest
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Set
-from unittest.mock import MagicMock, patch
-
-import jwt
+from typing import Any, Dict, Set
+from unittest.mock import MagicMock
 
 from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
-
 
 class TestAuthorizationEdgeCases(unittest.TestCase):
     """Test cases for authorization edge cases."""
@@ -344,8 +341,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
                 for permission in deep_permissions[test_role]:
                     self.assertTrue(
                         self.permission_service.has_permission(user_data, permission),
-                        f"User with role '{role}' should have permission '{permission}' from role '{test_role}'",
-                            
+                        f"User with role '{role}' should have permission" \
+                         + "'{permission}' from role '{test_role}'",
                     )
 
             # User should not have permissions from roles above them
@@ -354,8 +351,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
                 for permission in deep_permissions[test_role]:
                     self.assertFalse(
                         self.permission_service.has_permission(user_data, permission),
-                        f"User with role '{role}' should not have permission '{permission}' from role '{test_role}'",
-                            
+                        f"User with role '{role}' should not have permission" \
+                         + "'{permission}' from role '{test_role}'",
                     )
 
     def test_temporary_permission_elevation_basic(self):
@@ -514,7 +511,6 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         self.assertTrue(
             self.permission_service.has_permission(elevated_data, "temporary_admin")
         )  # elevated
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -73,7 +73,8 @@ async def example_batch_text_generation():
     ]
 
     print(
-        f"Processing {len(prompts)} prompts in parallel using model ID: {text_model_id}")
+        f"Processing {len(prompts)} prompts in parallel using model ID:" \
+         + "{text_model_id}")
 
     # Generate text for all prompts in parallel
     start_time = time.time()
@@ -145,7 +146,8 @@ async def example_batch_embeddings():
     ]
 
     print(
-        f"Generating embeddings for {len(texts)} texts using model ID: {embedding_model_id}")
+        f"Generating embeddings for {len(texts)} texts using model ID:" \
+         + "{embedding_model_id}")
 
     try:
         # Generate embeddings for all texts in parallel

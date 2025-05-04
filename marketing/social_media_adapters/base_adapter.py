@@ -7,11 +7,10 @@ This module provides a base class for adapters that connect to various social me
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class BaseSocialMediaAdapter(ABC):
     """

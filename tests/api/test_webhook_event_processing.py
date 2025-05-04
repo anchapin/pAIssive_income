@@ -12,16 +12,14 @@ This module tests the event processing capabilities of the webhook system:
 
 import asyncio
 import json
-import time
 import uuid
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
-
 
 class TestEventFiltering:
     """Tests for event filtering by subscription type."""
@@ -39,8 +37,10 @@ class TestEventFiltering:
             # Webhook 1: USER events only
             webhook1_data = {
                 "url": "https://example.com / webhook1",
-                "events": [WebhookEventType.USER_CREATED, WebhookEventType.USER_UPDATED],
-                    
+                "events":[
+    WebhookEventType.USER_CREATED,
+    WebhookEventType.USER_UPDATED
+]],
                 "description": "User events webhook",
                 "is_active": True,
             }
@@ -141,23 +141,36 @@ class TestEventFiltering:
 
                 # Webhook 1 should receive only USER events
                 assert WebhookEventType.USER_CREATED in received_events[webhook1["id"]]
-                assert WebhookEventType.PAYMENT_RECEIVED not in received_events[webhook1["id"]]
-                assert WebhookEventType.SUBSCRIPTION_CREATED not in received_events[webhook1["id"]]
+                assert WebhookEventType.PAYMENT_RECEIVED not in received_events[
+    webhook1["id"]
+]]
+                assert WebhookEventType.SUBSCRIPTION_CREATED not in received_events[
+    webhook1["id"]
+]]
 
                 # Webhook 2 should receive only PAYMENT events
-                assert WebhookEventType.USER_CREATED not in received_events[webhook2["id"]]
-                assert WebhookEventType.PAYMENT_RECEIVED in received_events[webhook2["id"]]
-                assert WebhookEventType.SUBSCRIPTION_CREATED not in received_events[webhook2["id"]]
+                assert WebhookEventType.USER_CREATED not in received_events[
+    webhook2["id"]
+]]
+                assert WebhookEventType.PAYMENT_RECEIVED in received_events[
+    webhook2["id"]
+]]
+                assert WebhookEventType.SUBSCRIPTION_CREATED not in received_events[
+    webhook2["id"]
+]]
 
                 # Webhook 3 should receive all events
                 assert WebhookEventType.USER_CREATED in received_events[webhook3["id"]]
-                assert WebhookEventType.PAYMENT_RECEIVED in received_events[webhook3["id"]]
-                assert WebhookEventType.SUBSCRIPTION_CREATED in received_events[webhook3["id"]]
+                assert WebhookEventType.PAYMENT_RECEIVED in received_events[
+    webhook3["id"]
+]]
+                assert WebhookEventType.SUBSCRIPTION_CREATED in received_events[
+    webhook3["id"]
+]]
 
         finally:
             # Stop the service
             await service.stop()
-
 
 class TestPayloadValidation:
     """Tests for event payload validation."""
@@ -217,7 +230,6 @@ class TestPayloadValidation:
         finally:
             # Stop the service
             await service.stop()
-
 
 class TestEventCorrelation:
     """Tests for event correlation across multiple webhooks."""
@@ -318,7 +330,6 @@ class TestEventCorrelation:
         finally:
             # Stop the service
             await service.stop()
-
 
 class TestEventBatching:
     """Tests for event batching and debouncing."""
@@ -446,7 +457,6 @@ class TestEventBatching:
             # Stop the service
             await service.stop()
 
-
 class TestEventTransformation:
     """Tests for event transformation middleware."""
 
@@ -518,7 +528,6 @@ class TestEventTransformation:
         finally:
             # Stop the service
             await service.stop()
-
 
 class TestCustomHeaders:
     """Tests for custom header propagation."""

@@ -11,14 +11,13 @@ import os
 import shutil
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from .access_control import Permission, Role, RoleManager
-from .errors import PermissionError, WorkspaceError
+from .errors import WorkspaceError
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class TeamWorkspace:
     """
@@ -231,7 +230,8 @@ class TeamWorkspace:
         self._save_workspace_data()
 
         logger.info(
-            f"Updated role for user {user_id} to {new_role} in workspace {self.workspace_id}"
+            f"Updated role for user {user_id} to {new_role} in workspace" \
+             + "{self.workspace_id}"
         )
         return self.members[user_id]
 
@@ -288,7 +288,8 @@ class TeamWorkspace:
         os.makedirs(project_dir, exist_ok=True)
 
         logger.info(
-            f"Added project {project_name} ({project_id}) to workspace {self.workspace_id}")
+            f"Added project {project_name} ({project_id}) to workspace" \
+             + "{self.workspace_id}")
         return project_info
 
     def remove_project(self, project_id: str, removed_by: Optional[str] = None) -> bool:
@@ -438,7 +439,6 @@ class TeamWorkspace:
         workspace.settings = data["settings"]
 
         return workspace
-
 
 class WorkspaceManager:
     """

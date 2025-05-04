@@ -6,11 +6,10 @@ These schemas ensure that data received through web forms and API endpoints
 is properly validated before being processed.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 class NicheAnalysisRequest(BaseModel):
     """Schema for niche analysis request validation."""
@@ -23,7 +22,6 @@ class NicheAnalysisRequest(BaseModel):
 
     model_config = \
         ConfigDict(extra="forbid")  # Forbid extra fields to prevent unexpected input
-
 
 class DeveloperSolutionRequest(BaseModel):
     """Schema for solution development request validation."""
@@ -42,7 +40,6 @@ class DeveloperSolutionRequest(BaseModel):
         if not v:
             raise ValueError("Niche ID cannot be empty")
         return v
-
 
 class MonetizationStrategyRequest(BaseModel):
     """Schema for monetization strategy request validation."""
@@ -63,7 +60,6 @@ class MonetizationStrategyRequest(BaseModel):
             raise ValueError("Solution ID cannot be empty")
         return v
 
-
 class MarketingCampaignRequest(BaseModel):
     """Schema for marketing campaign request validation."""
 
@@ -83,14 +79,12 @@ class MarketingCampaignRequest(BaseModel):
             raise ValueError("Solution ID cannot be empty")
         return v
 
-
 class TaskRequest(BaseModel):
     """Schema for task - related requests."""
 
     task_id: UUID = Field(..., description="ID of the task to operate on")
 
     model_config = ConfigDict(extra="forbid")
-
 
 class ApiQueryParams(BaseModel):
     """Schema for common API query parameters."""

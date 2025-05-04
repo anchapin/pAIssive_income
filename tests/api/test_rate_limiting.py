@@ -6,18 +6,15 @@ import time
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
 
 from api.config import APIConfig, RateLimitStrategy
 from api.middleware.rate_limit import RateLimitMiddleware
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_validators import (
     validate_error_response,
     validate_field_exists,
     validate_field_type,
     validate_success_response,
 )
-
 
 class TestRateLimiting:
     """Test cases for API rate limiting."""
@@ -329,7 +326,6 @@ class TestRateLimiting:
         # Since our test endpoint doesn't implement sliding window reset,
         # we'll just verify that the response is rate limited as expected
         assert response.status_code == 429
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_rate_limiting.py"])

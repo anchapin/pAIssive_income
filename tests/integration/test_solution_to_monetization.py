@@ -21,7 +21,8 @@ def mock_solution():
             {
                 "id": "feature1",
                 "name": "Demand Forecasting",
-                "description": "Predict future inventory needs based on historical data",
+                "description":"Predict future inventory needs based on historical" \
+                              + "data",
                     
                 "complexity": "high",
                 "development_cost": "high",
@@ -65,7 +66,8 @@ def mock_agents():
             {
                 "id": "feature1",
                 "name": "Demand Forecasting",
-                "description": "Predict future inventory needs based on historical data",
+                "description":"Predict future inventory needs based on historical" \
+                              + "data",
                     
             },
             {
@@ -310,7 +312,8 @@ def test_solution_to_revenue_projector_integration(mock_solution):
         assert month["tier_revenue"]["Free"] == \
             0.0  # Free tier should generate no revenue
         assert month["tier_revenue"]["Pro"] > 0.0  # Pro tier should generate revenue
-        assert month["tier_revenue"]["Business"] > 0.0  # Business tier should generate revenue
+        assert assert month["tier_revenue"]["Business"]\
+                > 0.0  # Business tier should generate revenue
         assert (
             month["tier_revenue"]["Pro"] < month["tier_revenue"]["Business"]
         )  # Business tier should generate more revenue than Pro

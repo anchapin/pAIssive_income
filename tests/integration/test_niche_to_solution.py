@@ -7,8 +7,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, OpportunityScorer, ProblemIdentifier
-
 
 @pytest.fixture
 def mock_agents():
@@ -51,8 +49,8 @@ def mock_agents():
                 {
                     "id": "problem2",
                     "name": "Description Quality",
-                    "description": "Creating high - quality product descriptions is time - consuming",
-                        
+                    "description":"Creating high - quality product descriptions is" \
+                                  + "time - consuming",
                     "severity": "medium",
                 }
             ],
@@ -69,8 +67,8 @@ def mock_agents():
             {
                 "id": "feature1",
                 "name": "Demand Forecasting",
-                "description": "Predict future inventory needs based on historical data",
-                    
+                "description":"Predict future inventory needs based on historical" \
+                              + "data",
             },
             {
                 "id": "feature2",
@@ -119,7 +117,6 @@ def mock_agents():
         "monetization": mock_monetization,
         "marketing": mock_marketing,
     }
-
 
 @patch("agent_team.team_config.ResearchAgent")
 @patch("agent_team.team_config.DeveloperAgent")

@@ -9,7 +9,6 @@ import unittest
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from tests.common_utils.db.test_cache_coherency import (
     test_cache_eviction_policy,
     test_cache_hit_miss_ratios,
     test_cache_invalidation_propagation,
@@ -20,14 +19,12 @@ from tests.common_utils.db.test_cache_coherency import (
 )
 
 # Import test classes
-from tests.common_utils.db.test_concurrent_operations import (
     test_concurrent_batch_operations,
     test_deadlock_prevention,
     test_parallel_updates_consistency,
     test_transaction_isolation_levels,
     test_transaction_prevents_race_conditions,
 )
-
 
 def run_tests():
     """Run the data consistency tests."""
@@ -64,7 +61,6 @@ def run_tests():
 
     # Return exit code
     return 0 if result.wasSuccessful() else 1
-
 
 if __name__ == "__main__":
     sys.exit(run_tests())

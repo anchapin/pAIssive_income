@@ -2,7 +2,6 @@
 Tests for Celery integration with Flask and Socket.IO.
 """
 
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -18,7 +17,6 @@ from ui.celery_app import (
     task_success_handler,
 )
 
-
 @pytest.fixture
 def mock_app():
     """Create a mock Flask app with Celery configuration."""
@@ -29,12 +27,10 @@ def mock_app():
     )
     return app
 
-
 @pytest.fixture
 def mock_celery(mock_app):
     """Create a mock Celery instance."""
     return create_celery_app(mock_app)
-
 
 @pytest.fixture
 def mock_task():
@@ -43,12 +39,10 @@ def mock_task():
     task.request.id = "test_task_id"
     return task
 
-
 @pytest.fixture
 def mock_headers():
     """Create mock task headers."""
     return {"id": "test_task_id"}
-
 
 class TestCeleryIntegration:
     """Test Celery integration with Flask and Socket.IO."""

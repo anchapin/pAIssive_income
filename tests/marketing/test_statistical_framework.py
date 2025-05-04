@@ -2,11 +2,8 @@
 Tests for the statistical analysis framework used in marketing.
 """
 
-from unittest.mock import MagicMock, patch
-
 import numpy as np
 import pytest
-from scipy import stats
 
 from marketing.errors import InsufficientDataError, InvalidTestConfigurationError
 from marketing.statistical_framework import (
@@ -16,7 +13,6 @@ from marketing.statistical_framework import (
     SequentialAnalyzer,
     StatisticalTestRunner,
 )
-
 
 class TestStatisticalFramework:
     """Test cases for statistical analysis framework."""
@@ -226,7 +222,6 @@ class TestStatisticalFramework:
         )
         assert test_type in ["chi_square", 
             "z_test"]  # Should select chi - square or z - test
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_statistical_framework.py"])

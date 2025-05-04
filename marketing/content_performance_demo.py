@@ -5,15 +5,12 @@ This script demonstrates how to track and analyze the performance of marketing c
 across different channels using the ContentPerformanceAnalyzer.
 """
 
-import json
-import os
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from marketing.content_performance import ContentPerformanceAnalyzer
-
 
 def create_demo_storage():
     """Create a directory for demo storage if it doesn't exist."""
@@ -21,7 +18,6 @@ def create_demo_storage():
     if not storage_dir.exists():
         storage_dir.mkdir()
     return storage_dir
-
 
 def create_demo_content():
     """Create sample content for demonstration."""
@@ -86,7 +82,6 @@ def create_demo_content():
         "email_newsletter": email_newsletter,
         "video": video,
     }
-
 
 def generate_demo_engagements(content: Dict[str, Any]):
     """Generate sample engagement data for the demo content."""
@@ -279,7 +274,6 @@ def generate_demo_engagements(content: Dict[str, Any]):
     print("Generated engagement data for all content items")
     return analyzer.engagements
 
-
 def demo_content_analysis():
     """Demonstrate content performance analysis."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
@@ -293,9 +287,11 @@ def demo_content_analysis():
         f"Overall Performance Score: {blog_analysis['overall_performance_score']:.2f}")
     print(f"Rating: {blog_analysis['performance_rating']}")
     print(
-        f"Engagement Rate: {blog_analysis['engagement_metrics']['engagement_rate']:.2f}%")
+        f"Engagement Rate:" \
+         + "{blog_analysis['engagement_metrics']['engagement_rate']:.2f}%")
     print(
-        f"Conversion Rate: {blog_analysis['engagement_metrics']['conversion_rate']:.2f}%")
+        f"Conversion Rate:" \
+         + "{blog_analysis['engagement_metrics']['conversion_rate']:.2f}%")
 
     print("\nEngagement Metrics:")
     for metric, value in blog_analysis["metrics"].items():
@@ -309,7 +305,6 @@ def demo_content_analysis():
     print("\nInsights:")
     for insight in blog_analysis["insights"]:
         print(f"  [{insight['type']}] {insight['message']}")
-
 
 def demo_content_comparison():
     """Demonstrate content comparison."""
@@ -337,9 +332,9 @@ def demo_content_comparison():
             best_id = metric_data["highest_value"]["content_id"]
             best_title = comparison["content_info"][best_id]["title"]
             print(
-                f"  Best performing: {best_title} with {metric_data['highest_value']['value']} views"
+                f"  Best performing: {best_title} with" \
+                 + "{metric_data['highest_value']['value']} views"
             )
-
 
 def demo_identify_top_content():
     """Demonstrate identifying top - performing content."""
@@ -360,7 +355,6 @@ def demo_identify_top_content():
         )
         print()
 
-
 def demo_content_reports():
     """Demonstrate generating content reports."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
@@ -373,7 +367,8 @@ def demo_content_reports():
     print(f"Title: {social_report['title']}")
     print(f"Generated: {social_report['generated_at']}")
     print(
-        f"Time Period: {social_report['time_period']['start']} to {social_report['time_period']['end']}"
+        f"Time Period: {social_report['time_period']['start']} to" \
+         + "{social_report['time_period']['end']}"
     )
 
     summary = social_report["performance_summary"]
@@ -385,7 +380,8 @@ def demo_content_reports():
     print("\nTop Metrics:")
     for metric in summary["top_metrics"]:
         print(
-            f"  {metric['name']}: {metric['value']} ({metric['performance']:.2f}% of benchmark)")
+            f"  {metric['name']}: {metric['value']} ({metric['performance']:.2f}% of" \
+             + "benchmark)")
 
     print("\nInsights:")
     for insight in summary["insights"]:
@@ -407,7 +403,6 @@ def demo_content_reports():
     print("\nChannel Recommendations:")
     for rec in video_report["channel_recommendations"]:
         print(f"  [{rec['type']}] {rec['message']}")
-
 
 if __name__ == "__main__":
     print("=== Content Performance Analytics Demo ===")

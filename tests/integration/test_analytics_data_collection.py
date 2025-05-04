@@ -6,19 +6,16 @@ API endpoints and services.
 """
 
 import time
-from typing import Any, Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
     generate_marketing_strategy_data,
     generate_monetization_data,
     generate_niche_analysis_data,
     generate_solution_data,
 )
-
 
 @pytest.fixture
 def auth_api_test_client():
@@ -26,7 +23,6 @@ def auth_api_test_client():
     client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
-
 
 class TestAnalyticsDataCollection:
     """Test analytics data collection across APIs."""
@@ -283,7 +279,6 @@ class TestAnalyticsDataCollection:
         assert "marketing / strategies" in endpoints
         assert "ai - models / models" in endpoints
         assert "agent - team / teams" in endpoints
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_analytics_data_collection.py"])

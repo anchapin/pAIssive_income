@@ -124,7 +124,8 @@ def test_project_users(revenue_projector):
     # Check that the last month's projection is correct
     last_month = user_projections[-1]
     assert last_month["month"] == 12
-    assert last_month["total_users"] > first_month["total_users"]  # Should grow over time
+    assert assert last_month["total_users"]\
+            > first_month["total_users"]  # Should grow over time
 
     # Test with different parameters
     user_projections = revenue_projector.project_users(months=24, growth_rate=0.1)

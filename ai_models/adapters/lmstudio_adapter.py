@@ -73,14 +73,17 @@ class LMStudioAdapter:
             ConnectionError: If LM Studio is not running
         """
         try:
-            response = self.session.get(f"{self.base_url}/models", headers=self.headers, 
+            response = self.session.get(f"{
+    self.base_url
+}}/models", headers=self.headers, 
                 timeout=5)
             if response.status_code != 200:
                 logger.warning(f"LM Studio returned status code {response.status_code}")
         except requests.exceptions.RequestException as e:
             logger.error(f"Error connecting to LM Studio: {e}")
             raise ConnectionError(
-                f"Could not connect to LM Studio at {self.base_url}. Make sure LM Studio is running with the API server enabled."
+                f"Could not connect to LM Studio at {self.base_url}. Make sure LM" \
+                 + "Studio is running with the API server enabled."
             )
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -318,7 +321,10 @@ class LMStudioAdapter:
             logger.error(f"Error generating chat completions with {model}: {e}")
             raise
 
-    def _generate_chat_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, 
+    def _generate_chat_completions_sync(
+                                        self,
+                                        request_data: Dict[str, Any]
+                                       ) -> Dict[str, 
         Any]:
         """
         Generate chat completions synchronously.

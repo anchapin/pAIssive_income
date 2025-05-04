@@ -8,11 +8,11 @@ including HTTP status codes, error response formatting, and exception mapping.
 import logging
 import traceback
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI, Request, Response, status
+    from fastapi import Request
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
     from pydantic import ValidationError as PydanticValidationError
@@ -28,13 +28,11 @@ except ImportError:
     class PydanticValidationError(Exception):
         pass
 
-
 # Import base error classes
 from errors import BaseError, ValidationError
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 # HTTP Status Codes
 class HTTPStatus:
@@ -73,7 +71,6 @@ class HTTPStatus:
     BAD_GATEWAY = 502
     SERVICE_UNAVAILABLE = 503
     GATEWAY_TIMEOUT = 504
-
 
 # Error response format
 class ErrorDetail:
@@ -119,7 +116,6 @@ class ErrorDetail:
             result["params"] = self.params
 
         return result
-
 
 class ErrorResponse:
     """Standard error response format."""
@@ -174,7 +170,6 @@ class ErrorResponse:
 
         return result
 
-
 # Exception to HTTP status code mapping
 EXCEPTION_STATUS_CODE_MAP = {
     # Standard exceptions
@@ -193,7 +188,6 @@ EXCEPTION_STATUS_CODE_MAP = {
     RequestValidationError: HTTPStatus.BAD_REQUEST,
     PydanticValidationError: HTTPStatus.BAD_REQUEST,
 }
-
 
 def get_status_code_for_exception(exception: Exception) -> int:
     """
@@ -216,7 +210,6 @@ def get_status_code_for_exception(exception: Exception) -> int:
 
     # Default to internal server error
     return HTTPStatus.INTERNAL_SERVER_ERROR
-
 
 def create_error_response(
     exception: Exception, request: Optional[Any] = None, include_traceback: bool = False
@@ -266,7 +259,6 @@ def create_error_response(
         )
 
     return response
-
 
 # FastAPI exception handlers
 if FASTAPI_AVAILABLE:
@@ -372,7 +364,6 @@ if FASTAPI_AVAILABLE:
             BaseError: handle_base_error,
             Exception: handle_generic_exception,
         }
-
 
 def setup_error_handlers(app: Any) -> None:
     """

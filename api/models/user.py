@@ -5,9 +5,8 @@ This module provides the User model for user management.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from uuid import uuid4
-
 
 class User:
     """User model."""
@@ -87,11 +86,17 @@ class User:
         """
         # Convert ISO format strings to datetime objects
         created_at = \
-            datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
+            datetime.fromisoformat(data[
+    "created_at"
+]]) if data.get("created_at") else None
         updated_at = \
-            datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None
+            datetime.fromisoformat(data[
+    "updated_at"
+]]) if data.get("updated_at") else None
         last_login = \
-            datetime.fromisoformat(data["last_login"]) if data.get("last_login") else None
+            datetime.fromisoformat(data[
+    "last_login"
+]]) if data.get("last_login") else None
 
         return cls(
             id=data.get("id"),

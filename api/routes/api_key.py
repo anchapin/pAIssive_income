@@ -5,7 +5,7 @@ This module provides route handlers for API key management.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
 
@@ -27,7 +27,6 @@ router = APIRouter(prefix=" / api - keys", tags=["API Keys"])
 
 # Create API key service
 api_key_service = APIKeyService()
-
 
 @router.post(" / ", response_model=APIKeyCreatedResponse, 
     status_code=status.HTTP_201_CREATED)
@@ -57,7 +56,6 @@ async def create_api_key(
         logger.error(f"Error creating API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(" / ", response_model=APIKeyList)
 async def list_api_keys(
     current_user: Dict[str, Any] = Depends(get_current_user),
@@ -73,7 +71,6 @@ async def list_api_keys(
     except Exception as e:
         logger.error(f"Error listing API keys: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/{api_key_id}", response_model=APIKeyResponse)
 async def get_api_key(
@@ -106,7 +103,6 @@ async def get_api_key(
     except Exception as e:
         logger.error(f"Error getting API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.put("/{api_key_id}", response_model=APIKeyResponse)
 async def update_api_key(
@@ -148,7 +144,6 @@ async def update_api_key(
         logger.error(f"Error updating API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.delete("/{api_key_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_api_key(
     api_key_id: str = Path(...), current_user: Dict[str, 
@@ -176,7 +171,6 @@ async def delete_api_key(
     except Exception as e:
         logger.error(f"Error deleting API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/{api_key_id}/revoke", response_model=APIKeyResponse)
 async def revoke_api_key(
@@ -216,7 +210,6 @@ async def revoke_api_key(
     except Exception as e:
         logger.error(f"Error revoking API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/{api_key_id}/regenerate", response_model=APIKeyCreatedResponse)
 async def regenerate_api_key(

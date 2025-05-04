@@ -5,8 +5,7 @@ This module provides services for API key management.
 """
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from ..models.api_key import APIKey
 from ..repositories.api_key_repository import APIKeyRepository
@@ -14,7 +13,6 @@ from ..schemas.api_key import APIKeyCreate, APIKeyUpdate
 
 # Configure logger
 logger = logging.getLogger(__name__)
-
 
 class APIKeyService:
     """

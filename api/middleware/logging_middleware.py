@@ -7,7 +7,7 @@ This module provides middleware for request logging and performance monitoring.
 import logging
 import time
 import uuid
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Optional
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -17,7 +17,6 @@ from ..services.logging_service import LoggingService
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware for request logging."""
@@ -118,7 +117,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
             # Re - raise exception
             raise
-
 
 class SecurityLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware for security event logging."""

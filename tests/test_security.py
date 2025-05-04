@@ -3,8 +3,6 @@ Tests for security features.
 """
 
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import jwt
@@ -12,7 +10,6 @@ import jwt
 from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
 from api.services.api_key_service import APIKeyService
-
 
 class TestSecurity(unittest.TestCase):
     """Test cases for security features."""
@@ -179,7 +176,6 @@ class TestSecurity(unittest.TestCase):
 
         with self.assertRaises(jwt.InvalidAlgorithmError):
             auth_middleware.create_token({"user_id": "123"})
-
 
 if __name__ == "__main__":
     unittest.main()

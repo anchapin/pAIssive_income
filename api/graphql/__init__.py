@@ -5,8 +5,6 @@ This module provides a GraphQL API alongside the REST API to allow for
 more flexible and efficient data querying.
 """
 
-from typing import Any, Dict, List, Optional
-
 from .context import get_context
 
 # Import schema builder and router creation

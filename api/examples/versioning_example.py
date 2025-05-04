@@ -16,14 +16,13 @@ from api.config import APIConfig, APIVersion
 
 # Import API server
 from api.server import APIServer
-from api.version_manager import ChangeType, VersionManager
+from api.version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 def configure_version_manager(version_manager: VersionManager) -> None:
     """
@@ -80,7 +79,6 @@ def configure_version_manager(version_manager: VersionManager) -> None:
         from_version=APIVersion.V1,
     )
 
-
 def create_server() -> APIServer:
     """
     Create an API server with versioning configuration.
@@ -115,7 +113,6 @@ def create_server() -> APIServer:
 
     return server
 
-
 def main() -> None:
     """
     Main entry point for the example.
@@ -141,7 +138,6 @@ def main() -> None:
         logger.error(f"Error running server: {str(e)}")
         server.stop()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

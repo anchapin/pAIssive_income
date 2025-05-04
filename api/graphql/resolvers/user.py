@@ -5,7 +5,7 @@ This module provides resolvers for user queries and mutations.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -23,7 +23,6 @@ except ImportError:
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.user import (
         CollaborationInput,
         CollaborationType,
         NotificationType,
@@ -97,9 +96,7 @@ if STRAWBERRY_AVAILABLE:
                         full_name=user.full_name,
                         role=UserRoleEnum(user.role),
                         created_at=user.created_at.isoformat() if user.created_at else None,
-                            
                         updated_at=user.updated_at.isoformat() if user.updated_at else None,
-                            
                     )
                     for user in users
                 ]
@@ -183,9 +180,7 @@ if STRAWBERRY_AVAILABLE:
                         description=project.description,
                         is_public=project.is_public,
                         created_at=project.created_at.isoformat() if project.created_at else None,
-                            
                         updated_at=project.updated_at.isoformat() if project.updated_at else None,
-                            
                     )
                     for project in projects
                 ]
@@ -352,9 +347,7 @@ if STRAWBERRY_AVAILABLE:
                     description=project.description,
                     is_public=project.is_public,
                     created_at=project.created_at.isoformat() if project.created_at else None,
-                        
                     updated_at=project.updated_at.isoformat() if project.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating project: {str(e)}")

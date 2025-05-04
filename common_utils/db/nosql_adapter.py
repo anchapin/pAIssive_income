@@ -10,10 +10,7 @@ from typing import Any, Dict, List, Optional
 
 # Use conditional import to avoid forcing pymongo as a dependency
 try:
-    import pymongo
     from pymongo import MongoClient
-    from pymongo.collection import Collection
-    from pymongo.database import Database
     from pymongo.errors import PyMongoError
 
     MONGODB_AVAILABLE = True
@@ -23,7 +20,6 @@ except ImportError:
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 
 logger = logging.getLogger(__name__)
-
 
 class MongoDBAdapter(DatabaseInterface):
     """Implementation of DatabaseInterface for MongoDB."""
@@ -41,7 +37,7 @@ class MongoDBAdapter(DatabaseInterface):
         """
         if not MONGODB_AVAILABLE:
             raise ImportError(
-                "pymongo is not installed. Please install it using 'pip install pymongo'"
+"pymongo is not installed. Please install it using 'pip install pymongo'"
             )
 
         self.connection_string = connection_string
@@ -313,7 +309,6 @@ class MongoDBAdapter(DatabaseInterface):
         except PyMongoError as e:
             logger.error(f"Error deleting documents from MongoDB: {e}")
             raise
-
 
 class MongoDBUnitOfWork(UnitOfWork):
     """MongoDB implementation of the Unit of Work pattern."""

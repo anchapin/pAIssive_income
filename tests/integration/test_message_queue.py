@@ -2,14 +2,13 @@
 Integration tests for message queue functionality.
 """
 
-import json
 import time
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 
-from services.errors import MessageConsumeError, MessagePublishError, QueueConfigError
+from services.errors import MessagePublishError, QueueConfigError
 from services.messaging import (
     DeadLetterQueue,
     MessageConsumer,
@@ -17,7 +16,6 @@ from services.messaging import (
     MessageQueueClient,
     QueueConfig,
 )
-
 
 class TestMessageQueue:
     """Integration tests for message queue functionality."""
@@ -270,7 +268,6 @@ class TestMessageQueue:
             queue_name="persistent_test", routing_key="persistent.test", timeout=1000
         )
         assert consumed["message"] == message
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_message_queue.py"])

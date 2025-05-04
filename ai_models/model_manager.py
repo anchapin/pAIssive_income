@@ -6,10 +6,7 @@ import os
 import re
 import stat
 import threading
-import time
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 
 from errors import ModelError, ModelLoadError, SecurityError
 from interfaces.model_interfaces import IModelConfig, IModelManager
@@ -20,7 +17,6 @@ from .adapters import (
     LMStudioAdapter,
 )
 from .model_base_types import ModelInfo
-from .model_config import ModelConfig
 from .model_downloader import ModelDownloader
 
 # Set up logging with secure defaults
@@ -37,7 +33,6 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
-
 
 class ModelManager(IModelManager):
     """Manages AI model loading, caching, and inference with security features."""
@@ -124,13 +119,15 @@ class ModelManager(IModelManager):
                         st = os.stat(model_path)
                         if st.st_mode & 0o777 != 0o750:
                             logger.warning(
-                                f"Insecure permissions on model directory: {model_path}")
+                                f"Insecure permissions on model directory:" \
+                                 + "{model_path}")
                             continue
 
                         # Verify read access
                         if not os.access(model_path, os.R_OK):
                             logger.warning(
-                                f"Insufficient permissions to read model directory: {model_path}"
+                                f"Insufficient permissions to read model directory:" \
+                                 + "{model_path}"
                             )
                             continue
 

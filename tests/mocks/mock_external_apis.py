@@ -5,15 +5,13 @@ This module provides mock implementations of various external APIs
 that can be used for consistent testing without external dependencies.
 """
 
-import json
 import logging
 import random
 import uuid
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
-
 
 class MockExternalAPIBase:
     """Base class for mock external APIs."""
@@ -59,7 +57,6 @@ class MockExternalAPIBase:
     def clear_call_history(self):
         """Clear the call history."""
         self.call_history = []
-
 
 class MockHuggingFaceAPI(MockExternalAPIBase):
     """Mock implementation of the Hugging Face API."""
@@ -182,7 +179,6 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
         # Simulate successful download
         return True
 
-
 class MockPaymentAPI:
     """Mock implementation of payment processing API."""
 
@@ -215,7 +211,12 @@ class MockPaymentAPI:
         self._customers[customer_id] = customer
         return customer
 
-    def create_subscription(self, customer_id: str, plan_id: str, **kwargs) -> Dict[str, 
+    def create_subscription(
+                            self,
+                            customer_id: str,
+                            plan_id: str,
+                            **kwargs
+                           ) -> Dict[str, 
         Any]:
         """
         Create a mock subscription.
@@ -283,7 +284,6 @@ class MockPaymentAPI:
     def get_payment(self, payment_id: str) -> Optional[Dict[str, Any]]:
         """Get payment by ID."""
         return self._payments.get(payment_id)
-
 
 class MockEmailAPI:
     """Mock implementation of email service API."""
@@ -379,7 +379,6 @@ class MockEmailAPI:
     def get_sent_emails(self) -> List[Dict[str, Any]]:
         """Get all sent emails."""
         return self._sent_emails
-
 
 class MockStorageAPI:
     """Mock implementation of cloud storage API."""
@@ -477,7 +476,6 @@ class MockStorageAPI:
             for file_id, data in self._files.items()
         ]
 
-
 # Helper function to create a mock API instance
 def create_mock_api(api_type: str, config: Optional[Dict[str, Any]] = None):
     """
@@ -502,7 +500,6 @@ def create_mock_api(api_type: str, config: Optional[Dict[str, Any]] = None):
         raise ValueError(f"Unknown API type: {api_type}")
 
     return api_class(config)
-
 
 def create_mock_api(api_type: str, config: dict = None) -> Any:
     """

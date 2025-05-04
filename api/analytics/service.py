@@ -6,23 +6,19 @@ This module provides a service for collecting, analyzing, and reporting on API u
 
 import csv
 import io
-import json
 import logging
-import os
 import statistics
 import threading
-import time
 import uuid
 from collections import deque
-from datetime import date, datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List
 
 from .database import AnalyticsDatabase
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class AnalyticsService:
     """
@@ -655,8 +651,8 @@ class AnalyticsService:
             if now > self._alert_cooldowns["error_rate"]:
                 self._trigger_alert(
                     "High API Error Rate",
-                    f"Error rate of {metrics['error_rate']:.2%} exceeds threshold of {self._alert_thresholds['error_rate']:.2%}",
-                        
+                    f"Error rate of {metrics['error_rate']:.2%} exceeds threshold of" \
+                     + "{self._alert_thresholds['error_rate']:.2%}",
                     {
                         "metric": "error_rate",
                         "value": metrics["error_rate"],
@@ -674,8 +670,9 @@ class AnalyticsService:
             if now > self._alert_cooldowns["response_time"]:
                 self._trigger_alert(
                     "High API Response Time",
-                    f"Average response time of {metrics['avg_response_time']:.2f}ms exceeds threshold of {self._alert_thresholds['response_time']}ms",
-                        
+                    f"Average response time of {metrics['avg_response_time']:.2f}ms" \
+                     + "exceeds threshold of" \
+                     + "{self._alert_thresholds['response_time']}ms",
                     {
                         "metric": "response_time",
                         "value": metrics["avg_response_time"],
@@ -692,8 +689,10 @@ class AnalyticsService:
             if now > self._alert_cooldowns["requests_per_minute"]:
                 self._trigger_alert(
                     "High API Request Volume",
-                    f"Request rate of {metrics['requests_per_minute']:.2f} requests / minute exceeds threshold of {self._alert_thresholds['requests_per_minute']} requests / minute",
-                        
+                    f"Request rate of {metrics['requests_per_minute']:.2f} requests /" \
+                     + "minute exceeds threshold of" \
+                     + "{self._alert_thresholds['requests_per_minute']} requests /" \
+                     + "minute",
                     {
                         "metric": "requests_per_minute",
                         "value": metrics["requests_per_minute"],
@@ -716,8 +715,9 @@ class AnalyticsService:
                     now > self._alert_cooldowns[alert_key]:
                     self._trigger_alert(
                         f"High Error Rate for Endpoint {endpoint}",
-                        f"Error rate of {data['error_rate']:.2%} for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['error_rate'] * 2:.2%}",
-                            
+                        f"Error rate of {data['error_rate']:.2%} for endpoint" \
+                         + "{endpoint} exceeds threshold of" \
+                         + "{self._alert_thresholds['error_rate'] * 2:.2%}",
                         {
                             "metric": "error_rate",
                             "endpoint": endpoint,
@@ -741,8 +741,9 @@ class AnalyticsService:
                     now > self._alert_cooldowns[alert_key]:
                     self._trigger_alert(
                         f"High Response Time for Endpoint {endpoint}",
-                        f"Average response time of {data['avg_response_time']:.2f}ms for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['response_time'] * 1.5}ms",
-                            
+                        f"Average response time of {data['avg_response_time']:.2f}ms" \
+                         + "for endpoint {endpoint} exceeds threshold of" \
+                         + "{self._alert_thresholds['response_time'] * 1.5}ms",
                         {
                             "metric": "response_time",
                             "endpoint": endpoint,
@@ -790,7 +791,6 @@ class AnalyticsService:
             self._monitoring_thread.join(timeout=5)
 
         self.db.close()
-
 
 # Create a global instance of the analytics service
 analytics_service = AnalyticsService.get_instance()

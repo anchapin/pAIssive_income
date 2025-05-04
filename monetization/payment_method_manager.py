@@ -459,7 +459,8 @@ if __name__ == "__main__":
 
     print(f"\nUpdated payment method: {updated_pm}")
     print(
-        f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
+        f"New expiration:" \
+         + "{updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
     print(f"Metadata: {updated_pm.metadata}")
 
     # Check for expiring payment methods

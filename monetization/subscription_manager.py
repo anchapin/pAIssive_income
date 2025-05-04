@@ -5,16 +5,14 @@ This module provides classes for managing the subscription lifecycle,
 including creation, renewal, cancellation, and upgrades / downgrades.
 """
 
-import copy
 import json
 import os
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .subscription import FeatureWrapper, SubscriptionPlan, TierWrapper
 from .user_subscription import Subscription, SubscriptionStatus
-
 
 class SubscriptionManager:
     """
@@ -571,8 +569,8 @@ class SubscriptionManager:
             {
                 "status": subscription.status,
                 "timestamp": datetime.now().isoformat(),
-                "reason": f"Subscription tier changed from {old_tier['name']} to {new_tier['name']}",
-                    
+                "reason": f"Subscription tier changed from {old_tier['name']} to" \
+                           + "{new_tier['name']}",
             }
         )
 
@@ -678,8 +676,8 @@ class SubscriptionManager:
             {
                 "status": subscription.status,
                 "timestamp": datetime.now().isoformat(),
-                "reason": f"Billing cycle changed from {old_billing_cycle} to {new_billing_cycle}",
-                    
+                "reason": f"Billing cycle changed from {old_billing_cycle} to" \
+                           + "{new_billing_cycle}",
             }
         )
 
@@ -1354,7 +1352,6 @@ class SubscriptionManager:
 
         return filtered_events
 
-
 # Example usage
 if __name__ == "__main__":
     from .subscription import SubscriptionPlan
@@ -1423,7 +1420,8 @@ if __name__ == "__main__":
     print(f"Subscription upgraded: {upgraded_subscription}")
     print(f"New tier: {upgraded_subscription.get_tier()['name']}")
     print(
-        f"New price: ${upgraded_subscription.price:.2f}/{upgraded_subscription.billing_cycle}")
+        f"New price:" \
+         + "${upgraded_subscription.price:.2f}/{upgraded_subscription.billing_cycle}")
 
     # Change billing cycle
     annual_subscription = manager.change_billing_cycle(
@@ -1432,7 +1430,8 @@ if __name__ == "__main__":
 
     print(f"Billing cycle changed: {annual_subscription}")
     print(
-        f"New price: ${annual_subscription.price:.2f}/{annual_subscription.billing_cycle}")
+        f"New price:" \
+         + "${annual_subscription.price:.2f}/{annual_subscription.billing_cycle}")
 
     # Cancel subscription
     canceled_subscription = manager.cancel_subscription(
@@ -1442,9 +1441,11 @@ if __name__ == "__main__":
 
     print(f"Subscription canceled: {canceled_subscription}")
     print(
-        f"Cancel at period end: {canceled_subscription.get_metadata('cancel_at_period_end')}")
+        f"Cancel at period end:" \
+         + "{canceled_subscription.get_metadata('cancel_at_period_end')}")
     print(
-        f"Cancellation reason: {canceled_subscription.get_metadata('cancellation_reason')}")
+        f"Cancellation reason:" \
+         + "{canceled_subscription.get_metadata('cancellation_reason')}")
 
     # Reactivate subscription
     reactivated_subscription = \

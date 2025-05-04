@@ -75,7 +75,8 @@ def plot_benchmark_results(
 
     # Add title
     plt.suptitle(
-        f"{result.benchmark_type.value.capitalize()} Benchmark: {os.path.basename(result.model_path)}",
+        f"{result.benchmark_type.value.capitalize()} Benchmark:" \
+         + "{os.path.basename(result.model_path)}",
             
         fontsize=16,
     )

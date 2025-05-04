@@ -8,13 +8,11 @@ slow query detection, and performance reporting.
 import os
 import sqlite3
 import tempfile
-import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from common_utils.db.monitoring import DatabaseMetrics, MonitoringDatabaseProxy
-
 
 @pytest.fixture
 def mock_db():
@@ -28,18 +26,15 @@ def mock_db():
     db.delete.return_value = 1
     return db
 
-
 @pytest.fixture
 def db_metrics():
     """Create a database metrics instance."""
     return DatabaseMetrics()
 
-
 @pytest.fixture
 def monitoring_db(mock_db):
     """Create a monitoring database proxy."""
     return MonitoringDatabaseProxy(mock_db)
-
 
 def test_database_metrics_init(db_metrics):
     """Test DatabaseMetrics initialization."""
@@ -47,7 +42,6 @@ def test_database_metrics_init(db_metrics):
     assert db_metrics.total_query_time == 0.0
     assert db_metrics.queries == []
     assert db_metrics.slow_threshold == 0.5
-
 
 def test_database_metrics_record_query(db_metrics):
     """Test recording a query in DatabaseMetrics."""
@@ -67,7 +61,6 @@ def test_database_metrics_record_query(db_metrics):
     assert "timestamp" in query_record
     assert not query_record["is_slow"]
 
-
 def test_database_metrics_record_slow_query(db_metrics):
     """Test recording a slow query in DatabaseMetrics."""
     # Set a lower slow threshold for testing
@@ -86,7 +79,6 @@ def test_database_metrics_record_slow_query(db_metrics):
 
     query_record = db_metrics.queries[0]
     assert query_record["is_slow"]
-
 
 def test_database_metrics_reset(db_metrics):
     """Test resetting DatabaseMetrics."""
@@ -114,7 +106,6 @@ def test_database_metrics_reset(db_metrics):
     assert db_metrics.query_count == 0
     assert db_metrics.total_query_time == 0.0
     assert db_metrics.queries == []
-
 
 def test_database_metrics_get_slow_queries(db_metrics):
     """Test getting slow queries from DatabaseMetrics."""
@@ -149,7 +140,6 @@ def test_database_metrics_get_slow_queries(db_metrics):
     assert slow_queries[0]["query"] == "SELECT * FROM users WHERE id = ?"
     assert slow_queries[1]["query"] == "INSERT INTO users (name) VALUES (?)"
 
-
 def test_database_metrics_get_summary(db_metrics):
     """Test getting a summary from DatabaseMetrics."""
     # Record some queries
@@ -179,7 +169,6 @@ def test_database_metrics_get_summary(db_metrics):
     assert summary["operation_counts"]["select"] == 2
     assert summary["operation_counts"]["insert"] == 1
 
-
 def test_monitoring_database_proxy_execute(monitoring_db, mock_db):
     """Test execute method of MonitoringDatabaseProxy."""
     # Execute a query
@@ -194,7 +183,6 @@ def test_monitoring_database_proxy_execute(monitoring_db, mock_db):
     assert len(metrics.queries) == 1
     assert metrics.queries[0]["query"] == "SELECT * FROM users"
     assert metrics.queries[0]["operation"] == "execute"
-
 
 def test_monitoring_database_proxy_fetch_one(monitoring_db, mock_db):
     """Test fetch_one method of MonitoringDatabaseProxy."""
@@ -215,7 +203,6 @@ def test_monitoring_database_proxy_fetch_one(monitoring_db, mock_db):
     assert metrics.queries[0]["query"] == "SELECT * FROM users WHERE id = ?"
     assert metrics.queries[0]["operation"] == "fetch_one"
 
-
 def test_monitoring_database_proxy_fetch_all(monitoring_db, mock_db):
     """Test fetch_all method of MonitoringDatabaseProxy."""
     # Fetch all records
@@ -234,7 +221,6 @@ def test_monitoring_database_proxy_fetch_all(monitoring_db, mock_db):
     assert metrics.queries[0]["query"] == "SELECT * FROM users"
     assert metrics.queries[0]["operation"] == "fetch_all"
 
-
 def test_monitoring_database_proxy_insert(monitoring_db, mock_db):
     """Test insert method of MonitoringDatabaseProxy."""
     # Insert a record
@@ -251,7 +237,6 @@ def test_monitoring_database_proxy_insert(monitoring_db, mock_db):
     assert metrics.query_count == 1
     assert len(metrics.queries) == 1
     assert metrics.queries[0]["operation"] == "insert"
-
 
 def test_monitoring_database_proxy_update(monitoring_db, mock_db):
     """Test update method of MonitoringDatabaseProxy."""
@@ -271,7 +256,6 @@ def test_monitoring_database_proxy_update(monitoring_db, mock_db):
     assert len(metrics.queries) == 1
     assert metrics.queries[0]["operation"] == "update"
 
-
 def test_monitoring_database_proxy_delete(monitoring_db, mock_db):
     """Test delete method of MonitoringDatabaseProxy."""
     # Delete a record
@@ -288,7 +272,6 @@ def test_monitoring_database_proxy_delete(monitoring_db, mock_db):
     assert metrics.query_count == 1
     assert len(metrics.queries) == 1
     assert metrics.queries[0]["operation"] == "delete"
-
 
 def test_monitoring_database_proxy_get_performance_report(monitoring_db):
     """Test get_performance_report method of MonitoringDatabaseProxy."""
@@ -317,7 +300,6 @@ def test_monitoring_database_proxy_get_performance_report(monitoring_db):
     assert report["recent_queries"][1]["query"] == "SELECT * FROM users WHERE id = ?"
     assert report["recent_queries"][2]["operation"] == "insert"
 
-
 def test_monitoring_database_proxy_reset_metrics(monitoring_db):
     """Test reset_metrics method of MonitoringDatabaseProxy."""
     # Execute some queries
@@ -337,7 +319,6 @@ def test_monitoring_database_proxy_reset_metrics(monitoring_db):
     assert metrics.total_query_time == 0.0
     assert metrics.queries == []
 
-
 @pytest.fixture
 def temp_db_path():
     """Create a temporary database file for testing."""
@@ -349,7 +330,6 @@ def temp_db_path():
     # Clean up
     if os.path.exists(db_path):
         os.unlink(db_path)
-
 
 def test_real_sqlite_database(temp_db_path):
     """Test monitoring with a real SQLite database."""
@@ -438,7 +418,6 @@ def test_real_sqlite_database(temp_db_path):
 
     # Close the connection
     conn.close()
-
 
 if __name__ == "__main__":
     pytest.main([" - xvs", __file__])

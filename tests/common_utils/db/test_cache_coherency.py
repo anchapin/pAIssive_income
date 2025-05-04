@@ -7,12 +7,9 @@ cache invalidation timing, update propagation, and hit / miss ratios.
 
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List
 
 import pytest
 
-from ai_models.caching import (
     CacheConfig,
     CacheKey,
     CacheManager,
@@ -21,7 +18,6 @@ from ai_models.caching import (
     SQLiteCache,
 )
 
-
 @pytest.fixture
 def memory_cache_config():
     """Fixture for memory cache configuration."""
@@ -29,7 +25,6 @@ def memory_cache_config():
         enabled=True, backend="memory", ttl=60, max_size=100, 
             eviction_policy="lru"  # 60 seconds
     )
-
 
 @pytest.fixture
 def disk_cache_config(tmp_path):
@@ -44,7 +39,6 @@ def disk_cache_config(tmp_path):
         backend_config={"disk": {"cache_dir": str(cache_dir), "serialization": "json"}},
     )
 
-
 @pytest.fixture
 def sqlite_cache_config(tmp_path):
     """Fixture for SQLite cache configuration."""
@@ -56,7 +50,6 @@ def sqlite_cache_config(tmp_path):
         max_size=1000,  # 1000 items
         backend_config={"sqlite": {"db_path": str(db_path), "serialization": "json"}},
     )
-
 
 def test_cache_invalidation_timing(memory_cache_config):
     """
@@ -110,7 +103,6 @@ def test_cache_invalidation_timing(memory_cache_config):
     # Verify it's no longer in the cache
     result = cache.get(model_id, operation, input_text)
     assert result is None
-
 
 def test_cache_update_propagation(memory_cache_config):
     """
@@ -178,7 +170,6 @@ def test_cache_update_propagation(memory_cache_config):
     assert "version" in result
     assert "thread" in result
 
-
 def test_cache_hit_miss_ratios(memory_cache_config):
     """
     Test cache hit / miss ratios.
@@ -229,7 +220,6 @@ def test_cache_hit_miss_ratios(memory_cache_config):
     assert stats["hits"] == 15
     assert stats["misses"] == 15
     assert stats["hit_ratio"] == 15 / 30  # 50%
-
 
 def test_concurrent_cache_access(memory_cache_config):
     """
@@ -312,7 +302,6 @@ def test_concurrent_cache_access(memory_cache_config):
     # Verify cache size is within limits
     assert cache.get_size() <= memory_cache_config.max_size
 
-
 def test_cache_invalidation_propagation(memory_cache_config):
     """
     Test cache invalidation propagation.
@@ -380,7 +369,6 @@ def test_cache_invalidation_propagation(memory_cache_config):
         result = cache.get("model - 2", operation, f"input-{i}")
         assert result is not None
 
-
 def test_cache_persistence(disk_cache_config):
     """
     Test cache persistence.
@@ -425,7 +413,6 @@ def test_cache_persistence(disk_cache_config):
     # Verify modification is persisted and visible in third instance
     result = cache3.get(model_id, operation, "input - 5")
     assert result["text"] == "modified - response"
-
 
 def test_cache_eviction_policy(memory_cache_config):
     """
@@ -477,7 +464,6 @@ def test_cache_eviction_policy(memory_cache_config):
     for i in range(2, 5):
         result = cache.get(model_id, operation, f"input-{i}")
         assert result is not None
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_cache_coherency.py"])

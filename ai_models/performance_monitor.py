@@ -16,11 +16,9 @@ import threading
 import time
 import traceback
 import uuid
-import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +28,6 @@ logger = logging.getLogger(__name__)
 DB_SCHEMA_VERSION = "1.0"
 DEFAULT_DB_PATH = os.path.expanduser("~/.paissive_income / performance_metrics.db")
 DEFAULT_METRICS_RETENTION_DAYS = 180  # Keep metrics for 6 months by default
-
 
 @dataclass
 class InferenceMetrics:
@@ -108,7 +105,6 @@ class InferenceMetrics:
         if self.latency_ms == 0.0 and self.time_to_first_token > 0:
             self.latency_ms = self.time_to_first_token * 1000
 
-
 @dataclass
 class ModelPerformanceReport:
     """
@@ -181,7 +177,6 @@ class ModelPerformanceReport:
         result.pop("raw_metrics", None)
         return result
 
-
 @dataclass
 class ModelComparisonReport:
     """
@@ -245,7 +240,6 @@ class ModelComparisonReport:
                     self.comparison_metrics[model_key][f"{metric}_percent_diff"] = \
                         percent_diff
 
-
 class AlertConfig:
     """
     Configuration for performance metric alerts.
@@ -278,7 +272,6 @@ class AlertConfig:
             "cooldown_minutes": self.cooldown_minutes,
             "notification_channels": self.notification_channels,
             "last_triggered": self.last_triggered.isoformat() if self.last_triggered else None,
-                
         }
 
     @classmethod
@@ -321,7 +314,6 @@ class AlertConfig:
     def trigger(self) -> None:
         """Mark this alert as triggered."""
         self.last_triggered = datetime.now()
-
 
 class InferenceTracker:
     """
@@ -471,7 +463,6 @@ class InferenceTracker:
             return 0
         # Simple estimate: ~4 characters per token for English text
         return max(1, len(text) // 4)
-
 
 class MetricsDatabase:
     """
@@ -744,7 +735,6 @@ class MetricsDatabase:
                 alert_config.cooldown_minutes,
                 notification_channels,
                 alert_config.last_triggered.isoformat() if alert_config.last_triggered else None,
-                    
             ),
         )
 
@@ -906,7 +896,6 @@ class MetricsDatabase:
         if hasattr(self, "conn"):
             self.conn.close()
 
-
 class PerformanceMonitor:
     def __init__(self, config=None, db_path: str = None):
         """
@@ -1031,7 +1020,8 @@ class PerformanceMonitor:
                 alert_msg = (
                     f"Alert triggered for {metrics.model_id}: "
                     f"{alert_config.metric_name} = {metric_value} "
-                    f"{'>' if alert_config.is_upper_bound else '<'} {alert_config.threshold_value}"
+                    f"{'>' if alert_config.is_upper_bound else '<'}" \
+                     + "{alert_config.threshold_value}"
                 )
 
                 # Save to history
@@ -1450,7 +1440,9 @@ class PerformanceMonitor:
                     # Convert timestamps to numbers for correlation
                     x = np.array(
                         [(t - \
-                            df["timestamp"].min()).total_seconds() for t in df["timestamp"]]
+                            df[
+    "timestamp"].min()).total_seconds()fortindf["timestamp"]
+]]
                     )
                     y = df[metric_name].values
 

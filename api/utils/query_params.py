@@ -7,9 +7,8 @@ including pagination, filtering, and sorting.
 
 import logging
 import re
-from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -17,13 +16,11 @@ logger = logging.getLogger(__name__)
 # Type variable for generic typing
 T = TypeVar("T")
 
-
 class SortDirection(str, Enum):
     """Sort direction enum."""
 
     ASC = "asc"
     DESC = "desc"
-
 
 class FilterOperator(str, Enum):
     """Filter operator enum."""
@@ -42,7 +39,6 @@ class FilterOperator(str, Enum):
     HAS = "has"  # Array contains element
     HAS_ALL = "hasall"  # Array contains all elements
     HAS_ANY = "hasany"  # Array contains any elements
-
 
 class QueryParams:
     """
@@ -183,7 +179,6 @@ class QueryParams:
             max_page_size=max_page_size,
         )
 
-
 def apply_pagination(items: List[T], query_params: QueryParams) -> Tuple[List[T], int]:
     """
     Apply pagination to a list of items.
@@ -200,7 +195,6 @@ def apply_pagination(items: List[T], query_params: QueryParams) -> Tuple[List[T]
     end_idx = start_idx + query_params.page_size
 
     return items[start_idx:end_idx], total
-
 
 def apply_filtering(
     items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], 
@@ -340,7 +334,6 @@ def apply_filtering(
             filtered_items.append(item)
 
     return filtered_items
-
 
 def apply_sorting(
     items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], 

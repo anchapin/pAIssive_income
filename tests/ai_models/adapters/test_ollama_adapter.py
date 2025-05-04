@@ -109,5 +109,7 @@ def test_ollama_adapter_get_models(mock_session):
         assert models[1]["name"] == "mistral"
         assert models[1]["type"] == "llm"
         assert models[1]["adapter"] == "ollama"
-        mock_session_instance.get.assert_called_with("http://localhost:11434 / api / tags", 
+                mock_session_instance\
+            .get\
+            .assert_called_with("http://localhost:11434 / api / tags",
             timeout=60)

@@ -8,8 +8,7 @@ for secure service - to - service communication in the microservices architectur
 import logging
 import os
 import time
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import jwt
 from pydantic import BaseModel, Field
@@ -26,12 +25,10 @@ DEFAULT_TOKEN_EXPIRATION = 15 * 60  # seconds
 # JWT algorithm
 JWT_ALGORITHM = "HS256"
 
-
 class ServiceTokenError(Exception):
     """Exception raised for errors in the service token authentication."""
 
     pass
-
 
 class ServiceTokenPayload(BaseModel):
     """Payload for service - to - service JWT tokens."""
@@ -55,7 +52,6 @@ class ServiceTokenPayload(BaseModel):
     claims: Dict[str, Any] = Field(default_factory=dict, 
         description="Service - specific claims")
 
-
 def get_service_secret_key() -> str:
     """
     Get the secret key for JWT token signing / validation.
@@ -78,7 +74,6 @@ def get_service_secret_key() -> str:
         return default_key
 
     return secret_key
-
 
 def create_service_token(
     issuer: str,
@@ -142,7 +137,6 @@ def create_service_token(
     except Exception as e:
         logger.error(f"Error creating service token: {str(e)}")
         raise ServiceTokenError(f"Failed to create service token: {str(e)}")
-
 
 def validate_service_token(
     token: str, audience: str, verify_expiration: bool = True

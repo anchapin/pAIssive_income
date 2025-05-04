@@ -286,7 +286,11 @@ class BatchProcessor(Generic[T, R]):
         self.timeout = timeout
         self.batch_results = []
 
-    def process(self, items: List[T], batch_size: Optional[int] = None) -> BatchResult[T, 
+    def process(
+                self,
+                items: List[T],
+                batch_size: Optional[int] = None
+               ) -> BatchResult[T, 
         R]:
         """
         Process items in batches and return the aggregated result.

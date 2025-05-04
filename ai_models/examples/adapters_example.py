@@ -59,7 +59,8 @@ def test_ollama_adapter(base_url: str, model_name: str, prompt: str) -> None:
 
         if not model_available:
             print(
-                f"\nModel {model_name} not found. Please pull it with: ollama pull {model_name}")
+                f"\nModel {model_name} not found. Please pull it with: ollama pull" \
+                 + "{model_name}")
             return
 
         # Get model info

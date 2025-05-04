@@ -7,11 +7,9 @@ This module provides Pydantic models for Niche Analysis API request and \
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from .bulk_operations import (
     BulkCreateRequest,
     BulkCreateResponse,
     BulkDeleteRequest,
@@ -21,7 +19,6 @@ from .bulk_operations import (
     BulkUpdateRequest,
     BulkUpdateResponse,
 )
-
 
 class ProblemResponse(BaseModel):
     """Problem response model."""
@@ -33,7 +30,6 @@ class ProblemResponse(BaseModel):
     frequency: float = Field(..., description="Problem frequency (0 - 1)")
     impact: float = Field(..., description="Problem impact (0 - 1)")
     score: float = Field(..., description="Problem score (0 - 1)")
-
 
 class MarketSegmentResponse(BaseModel):
     """Market segment response model."""
@@ -48,7 +44,6 @@ class MarketSegmentResponse(BaseModel):
     target_audience: Dict[str, Any] = Field(..., 
         description="Target audience information")
 
-
 class OpportunityResponse(BaseModel):
     """Opportunity response model."""
 
@@ -61,7 +56,6 @@ class OpportunityResponse(BaseModel):
     difficulty: str = Field(..., description="Implementation difficulty")
     potential_revenue: str = Field(..., description="Potential revenue")
     time_to_market: str = Field(..., description="Estimated time to market")
-
 
 class NicheResponse(BaseModel):
     """Niche response model."""
@@ -76,7 +70,6 @@ class NicheResponse(BaseModel):
         description="Opportunities in the niche")
     created_at: datetime = Field(..., description="Creation timestamp")
 
-
 class NicheAnalysisRequest(BaseModel):
     """Niche analysis request model."""
 
@@ -85,7 +78,6 @@ class NicheAnalysisRequest(BaseModel):
     max_results: Optional[int] = Field(None, 
         description="Maximum number of results to return")
 
-
 class NicheAnalysisResponse(BaseModel):
     """Niche analysis response model."""
 
@@ -93,7 +85,6 @@ class NicheAnalysisResponse(BaseModel):
     segments: List[str] = Field(..., description="Analyzed market segments")
     niches: List[NicheResponse] = Field(..., description="Analyzed niches")
     created_at: datetime = Field(..., description="Creation timestamp")
-
 
 # Bulk operation schemas for niches
 class NicheCreateRequest(BaseModel):
@@ -109,18 +100,15 @@ class NicheCreateRequest(BaseModel):
         default_factory=list, description="Opportunities in the niche"
     )
 
-
 class BulkNicheCreateRequest(BulkCreateRequest[NicheCreateRequest]):
     """Request model for bulk niche creation."""
 
     pass
 
-
 class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
     """Response model for bulk niche creation."""
 
     pass
-
 
 class NicheUpdateRequest(BaseModel):
     """Request model for updating a niche."""
@@ -135,24 +123,20 @@ class NicheUpdateRequest(BaseModel):
         None, description="Opportunities in the niche"
     )
 
-
 class BulkNicheUpdateRequest(BulkUpdateRequest[NicheUpdateRequest]):
     """Request model for bulk niche updates."""
 
     pass
-
 
 class BulkNicheUpdateResponse(BulkUpdateResponse[NicheResponse]):
     """Response model for bulk niche updates."""
 
     pass
 
-
 class BulkNicheDeleteRequest(BulkDeleteRequest):
     """Request model for bulk niche deletion."""
 
     pass
-
 
 class BulkNicheDeleteResponse(BulkDeleteResponse):
     """Response model for bulk niche deletion."""

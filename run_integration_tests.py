@@ -6,12 +6,10 @@ import asyncio
 import json
 import sys
 import unittest
-import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
-from api.services.webhook_security import (
     WebhookIPAllowlist,
     WebhookRateLimiter,
     WebhookSignatureVerifier,
@@ -43,7 +41,6 @@ TEST_EVENT = {
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
-
 
 class TestWebhookSecurityIntegration(unittest.TestCase):
     """Integration tests for webhook security features."""
@@ -146,7 +143,6 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
                 self.assertEqual(delivery["attempts"][0]["status"], 
                     WebhookDeliveryStatus.SUCCESS)
 
-
 class TestWebhookRateLimitIntegration(unittest.TestCase):
     """Integration tests for webhook rate limiting."""
 
@@ -198,7 +194,6 @@ class TestWebhookRateLimitIntegration(unittest.TestCase):
         """Run the async test."""
         asyncio.run(self._test_webhook_service_with_rate_limiting())
 
-
 def run_tests():
     """Run the integration tests."""
     print("Running webhook integration tests...")
@@ -223,7 +218,6 @@ def run_tests():
 
     # Return exit code
     return 0 if result.wasSuccessful() else 1
-
 
 if __name__ == "__main__":
     sys.exit(run_tests())

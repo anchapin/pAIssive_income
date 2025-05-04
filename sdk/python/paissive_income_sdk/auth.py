@@ -4,8 +4,7 @@ Authentication classes for the pAIssive Income SDK.
 This module provides authentication classes for the pAIssive Income API.
 """
 
-from typing import Any, Dict, Optional
-
+from typing import Dict
 
 class Auth:
     """
@@ -20,7 +19,6 @@ class Auth:
             Authentication headers
         """
         return {}
-
 
 class APIKeyAuth(Auth):
     """
@@ -45,7 +43,6 @@ class APIKeyAuth(Auth):
         """
         return {"X - API - Key": self.api_key}
 
-
 class JWTAuth(Auth):
     """
     JWT authentication.
@@ -68,7 +65,6 @@ class JWTAuth(Auth):
             Authentication headers
         """
         return {"Authorization": f"Bearer {self.token}"}
-
 
 class NoAuth(Auth):
     """

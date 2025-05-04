@@ -4,11 +4,9 @@ API schemas for analytics.
 This module provides Pydantic models for API analytics.
 """
 
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
-
 
 class RequestStatsResponse(BaseModel):
     """Pydantic model for API request statistics."""
@@ -32,7 +30,6 @@ class RequestStatsResponse(BaseModel):
     error_message: Optional[str] = Field(None, description="Error message")
     metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
-
 class DailyMetricsResponse(BaseModel):
     """Pydantic model for daily aggregated metrics."""
 
@@ -54,7 +51,6 @@ class DailyMetricsResponse(BaseModel):
     unique_users: int = Field(..., description="Number of unique users")
     unique_api_keys: int = Field(..., description="Number of unique API keys")
 
-
 class EndpointStatsResponse(BaseModel):
     """Pydantic model for endpoint statistics."""
 
@@ -74,7 +70,6 @@ class EndpointStatsResponse(BaseModel):
     total_unique_api_keys: int = Field(..., 
         description="Total number of unique API keys")
 
-
 class UserStatsResponse(BaseModel):
     """Pydantic model for user statistics."""
 
@@ -86,7 +81,6 @@ class UserStatsResponse(BaseModel):
         description="Total response time in seconds")
     endpoints_used: List[str] = Field(..., description="List of endpoints used")
 
-
 class ApiKeyStatsResponse(BaseModel):
     """Pydantic model for API key statistics."""
 
@@ -97,7 +91,6 @@ class ApiKeyStatsResponse(BaseModel):
     total_response_time: float = Field(..., 
         description="Total response time in seconds")
     endpoints_used: List[str] = Field(..., description="List of endpoints used")
-
 
 class AnalyticsSummaryResponse(BaseModel):
     """Pydantic model for API usage summary."""
@@ -113,7 +106,6 @@ class AnalyticsSummaryResponse(BaseModel):
         ..., description="Top endpoints by request count"
     )
 
-
 class EndpointRealTimeMetrics(BaseModel):
     """Schema for real - time metrics for a specific endpoint."""
 
@@ -123,7 +115,6 @@ class EndpointRealTimeMetrics(BaseModel):
     avg_response_time: float = Field(..., 
         description="Average response time in milliseconds")
     requests_per_minute: float = Field(..., description="Requests per minute")
-
 
 class RealTimeMetricsResponse(BaseModel):
     """Schema for real - time API metrics."""
@@ -141,7 +132,6 @@ class RealTimeMetricsResponse(BaseModel):
         description="Metrics by endpoint")
     timestamp: str = Field(..., description="Timestamp of the metrics")
 
-
 class AlertResponse(BaseModel):
     """Schema for API alert."""
 
@@ -150,7 +140,6 @@ class AlertResponse(BaseModel):
     timestamp: str = Field(..., description="Alert timestamp")
     data: Dict[str, Any] = Field(..., description="Alert data")
 
-
 class AlertThresholdRequest(BaseModel):
     """Schema for setting alert thresholds."""
 
@@ -158,7 +147,6 @@ class AlertThresholdRequest(BaseModel):
         ..., description="Metric name (error_rate, response_time, requests_per_minute)"
     )
     threshold: float = Field(..., description="Threshold value")
-
 
 class AlertThresholdResponse(BaseModel):
     """Schema for alert threshold response."""

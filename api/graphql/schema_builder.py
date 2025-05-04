@@ -6,7 +6,6 @@ all the type definitions and resolvers from different modules.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -42,7 +41,6 @@ if STRAWBERRY_AVAILABLE:
         UserMutation,
         UserQuery,
     )
-
 
 def build_schema():
     """
@@ -93,7 +91,6 @@ def build_schema():
     )
 
     return schema
-
 
 def create_graphql_router(path: str = " / graphql", graphiql: bool = True):
     """

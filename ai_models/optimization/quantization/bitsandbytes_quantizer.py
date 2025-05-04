@@ -41,7 +41,7 @@ try:
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     logger.warning(
-        "Transformers not available. BitsAndBytes quantizer will have limited functionality."
+"Transformers not available. BitsAndBytes quantizer will have limited functionality."
     )
     TRANSFORMERS_AVAILABLE = False
 
@@ -66,12 +66,12 @@ class BitsAndBytesQuantizer(Quantizer):
 
         if not BNB_AVAILABLE:
             raise ImportError(
-                "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
+"BitsAndBytes not available. Please install it with: pip install bitsandbytes"
             )
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Transformers not available. Please install it with: pip install transformers"
+"Transformers not available. Please install it with: pip install transformers"
             )
 
         # Validate configuration

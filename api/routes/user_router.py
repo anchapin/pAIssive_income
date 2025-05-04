@@ -7,9 +7,8 @@ This module provides route handlers for user operations.
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from ..middleware.auth import verify_token
@@ -38,7 +37,6 @@ router = APIRouter()
 # OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user / login")
 
-
 @router.post(
     " / register",
     response_model=UserResponse,
@@ -66,7 +64,6 @@ async def register_user(data: UserRegisterRequest = Body(...)):
         logger.error(f"Error registering user: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post(
     " / login",
     response_model=UserLoginResponse,
@@ -87,7 +84,6 @@ async def login_user(data: UserLoginRequest = Body(...)):
     except Exception as e:
         logger.error(f"Error logging in user: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / profile",
@@ -112,7 +108,6 @@ async def get_user_profile(token: str = Depends(verify_token)):
     except Exception as e:
         logger.error(f"Error getting user profile: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.put(
     " / profile",
@@ -139,7 +134,6 @@ async def update_user_profile(data: UserProfileUpdateRequest,
         logger.error(f"Error updating user profile: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post(
     " / change - password",
     response_model=SuccessResponse,
@@ -156,7 +150,6 @@ async def change_password(data: PasswordChangeRequest,
     except Exception as e:
         logger.error(f"Error changing password: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / projects",
@@ -179,7 +172,6 @@ async def get_user_projects(
         logger.error(f"Error getting user projects: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / teams",
     response_model=PaginatedTeamList,
@@ -200,7 +192,6 @@ async def get_user_teams(
     except Exception as e:
         logger.error(f"Error getting user teams: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / activity",
@@ -223,7 +214,6 @@ async def get_user_activity(
         logger.error(f"Error getting user activity: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / settings",
     response_model=UserSettingsResponse,
@@ -245,7 +235,6 @@ async def get_user_settings(token: str = Depends(verify_token)):
     except Exception as e:
         logger.error(f"Error getting user settings: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.put(
     " / settings",

@@ -5,13 +5,10 @@ This module provides a Consul client implementation of the ServiceRegistry inter
 allowing microservices to register with Consul and discover other services.
 """
 
-import json
 import logging
-import uuid
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import consul
-import requests
 
 from services.service_discovery.service_registry import (
     ServiceDeregistrationError,
@@ -24,7 +21,6 @@ from services.service_discovery.service_registry import (
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class ConsulServiceRegistry(ServiceRegistry):
     """Consul implementation of the ServiceRegistry interface."""
@@ -99,8 +95,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             if service_instance.health_check_url:
                 http_protocol = "https" if service_instance.is_secure else "http"
                 service_def["Check"] = {
-                    "HTTP": f"{http_protocol}://{service_instance.host}:{service_instance.port}{service_instance.health_check_url}",
-                        
+                    "HTTP": f"{http_protocol}://{service_instance.host}:{service_inst" \
+                             + "ance.port}{service_instance.health_check_url}",
                     "Interval": "10s",
                     "Timeout": "5s",
                     "DeregisterCriticalServiceAfter": "30s",
@@ -111,7 +107,8 @@ class ConsulServiceRegistry(ServiceRegistry):
 
             if result:
                 logger.info(
-                    f"Service {service_instance.service_name} registered successfully with ID {service_instance.service_id}"
+                    f"Service {service_instance.service_name} registered successfully" \
+                     + "with ID {service_instance.service_id}"
                 )
                 return True
             else:
@@ -164,7 +161,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             # This would be used for TTL checks, which we're not using in this implementation
             # But we keep the method for compatibility with the interface
             logger.debug(
-                f"TTL renewal not necessary for service {service_id} as we use HTTP checks"
+                f"TTL renewal not necessary for service {service_id} as we use HTTP" \
+                 + "checks"
             )
             return True
         except Exception as e:

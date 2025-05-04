@@ -5,10 +5,9 @@ This module provides utilities for services to communicate with each other
 using service - to - service authentication.
 """
 
-import json
 import logging
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 import httpx
 
@@ -19,7 +18,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class ServiceClient:
     """

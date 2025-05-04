@@ -5,7 +5,7 @@ This module provides middleware for API authentication and authorization.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Optional
+from typing import Callable, List, Optional
 
 from fastapi import Depends, HTTPException, Request, Response, Security, status
 from fastapi.responses import JSONResponse
@@ -25,7 +25,6 @@ API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 # API key service
 api_key_service = APIKeyService()
-
 
 class AuthMiddleware(BaseHTTPMiddleware):
     """Middleware for API authentication."""
@@ -116,7 +115,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Continue processing
         return await call_next(request)
 
-
 async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
     """
     Get and validate the API key from the request header.
@@ -160,7 +158,6 @@ async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
 
     return api_key_obj
 
-
 async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
     """
     Get the current user from the API key.
@@ -193,7 +190,6 @@ async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
             detail="User not found")
 
     return user
-
 
 def require_scopes(required_scopes: List[str]):
     """

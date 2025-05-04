@@ -4,9 +4,7 @@ Agent Team Service for the pAIssive Income UI.
 This service provides methods for interacting with the Agent Team module.
 """
 
-import json
 import logging
-import os
 import uuid
 from typing import Any, Dict, List, Optional
 
@@ -17,7 +15,6 @@ from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class AgentTeamService(BaseService, IAgentTeamService):
     """
@@ -41,7 +38,6 @@ class AgentTeamService(BaseService, IAgentTeamService):
         else:
             # Try to import the AgentTeam class
             try:
-                from agent_team import AgentTeam
 
                 self.agent_team_available = True
             except ImportError:

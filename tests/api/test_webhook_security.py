@@ -7,18 +7,13 @@ This module tests the security enhancements for the webhook system:
 3. Rate limiting
 """
 
-import json
 import time
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 from api.services.webhook_security import (
     WebhookIPAllowlist,
     WebhookRateLimiter,
     WebhookSignatureVerifier,
 )
-
 
 class TestWebhookIPAllowlist:
     """Tests for the WebhookIPAllowlist class."""
@@ -122,7 +117,6 @@ class TestWebhookIPAllowlist:
         # Check invalid IP
         assert allowlist.is_allowed("not - an - ip") is False
 
-
 class TestWebhookSignatureVerifier:
     """Tests for the WebhookSignatureVerifier class."""
 
@@ -223,7 +217,6 @@ class TestWebhookSignatureVerifier:
                 headers_invalid)
             is False
         )
-
 
 class TestWebhookRateLimiter:
     """Tests for the WebhookRateLimiter class."""

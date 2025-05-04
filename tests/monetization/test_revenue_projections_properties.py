@@ -5,8 +5,6 @@ These tests verify that the RevenueProjector produces sensible
 projections across a wide range of input parameters.
 """
 
-import pytest
-
 from hypothesis import assume, given
 from hypothesis import strategies as st
 from monetization.revenue_projector import RevenueProjector
@@ -24,7 +22,6 @@ growth_rates = st.floats(min_value=-0.1, max_value=0.5)
 acquisition_costs = st.floats(min_value=1.0, max_value=1000.0)
 average_revenues = st.floats(min_value=1.0, max_value=200.0)
 gross_margins = st.floats(min_value=0.1, max_value=0.9)
-
 
 # Strategy for generating tier distributions
 @st.composite
@@ -58,7 +55,6 @@ def tier_distributions(draw):
 
     # Create and return the distribution dictionary
     return {tier: percentage for tier, percentage in zip(tiers, percentages)}
-
 
 @given(
     name=names,
@@ -138,7 +134,6 @@ def test_revenue_projections_properties(
     assert all(curr >= prev for prev, curr in zip(cumulative_revenues, 
         cumulative_revenues[1:]))
 
-
 @given(
     name=names,
     description=descriptions,
@@ -202,7 +197,6 @@ def test_user_projections_properties(
         if initial_users > 0:
             assert total_users[-1] < total_users[0]
 
-
 @given(
     name=names,
     description=descriptions,
@@ -247,7 +241,6 @@ def test_invariant_properties(
     assert parsed_json["name"] == name
     assert parsed_json["description"] == description
 
-
 @given(average_revenue=average_revenues, churn_rate=churn_rates)
 def test_lifetime_value_calculation_properties(average_revenue, churn_rate):
     """Test properties of lifetime value calculations."""
@@ -270,13 +263,15 @@ def test_lifetime_value_calculation_properties(average_revenue, churn_rate):
     # Property 3: One - year value should be at most 12 * average_revenue
     assert ltv["one_year_value"] <= 12 * average_revenue
 
-    # Property 4: One - year value should be equal to average_revenue * min(12, average_lifetime_months)
+    # Property 4: One - year value should be equal to average_revenue * min(
+    12,
+    average_lifetime_months
+))
     expected_one_year = average_revenue * min(12, ltv["average_lifetime_months"])
     assert abs(ltv["one_year_value"] - expected_one_year) < 0.001
 
     # Property 5: Five - year value should be at most 60 * average_revenue
     assert ltv["five_year_value"] <= 60 * average_revenue
-
 
 @given(
     acquisition_cost=acquisition_costs, average_revenue=average_revenues, 
@@ -322,7 +317,6 @@ def test_payback_period_calculation_properties(acquisition_cost, average_revenue
         gross_margin=gross_margin,
     )
     assert payback_higher_cost["payback_period_months"] > payback["payback_period_months"]
-
 
 @given(
     name=names,
@@ -429,7 +423,6 @@ def test_revenue_projection_calculation_properties(
 
         # We don't assert here in case we didn't find a valid comparison point
 
-
 @given(
     initial_users=initial_users,
     user_acquisition_rate=user_acquisition_rates,
@@ -478,7 +471,10 @@ def test_revenue_projection_monthly_to_annual_conversion(
     for yearly_revenue in annual_revenues:
         assert yearly_revenue >= 0
 
-    # Property 2: In a growing business (positive growth, low churn), annual revenue should generally increase year over year
+    # Property 2: In a growing business(
+    positive growth,
+    low churn
+)), annual revenue should generally increase year over year
     # But only if we have a significant number of initial users and user acquisition
     # Note: We need to make this test more robust as there are legitimate cases where revenue might decrease
     # even with positive growth, especially in early years with high churn and low initial users
@@ -521,7 +517,6 @@ def test_revenue_projection_monthly_to_annual_conversion(
                 # But allow for more variance when churn is present
                 revenue_growth_min = 0.2  # Lower minimum growth requirement
                 assert annual_revenues[1] >= annual_revenues[0] * revenue_growth_min
-
 
 @given(
     churn_rates=st.lists(churn_rates, min_size=2, max_size=5),

@@ -2,16 +2,11 @@
 Fixtures for UI integration tests.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from agent_team import AgentTeam
-from ai_models import ModelManager
 from dependency_container import get_container
-from interfaces.ui_interfaces import IAgentTeamService
-from monetization import SubscriptionManager
-
 
 @pytest.fixture
 def mock_agent_team():
@@ -38,8 +33,8 @@ def mock_agent_team():
     team.develop_solution.return_value = {
         "id": "solution1",
         "name": "AI Inventory Optimizer",
-        "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
-            
+        "description":"An AI tool that helps e - commerce businesses optimize" \
+                      + "inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -69,7 +64,6 @@ def mock_agent_team():
 
     return team
 
-
 @pytest.fixture
 def mock_model_manager():
     """Create a mock model manager."""
@@ -82,7 +76,6 @@ def mock_model_manager():
     ]
 
     return manager
-
 
 @pytest.fixture
 def mock_subscription_manager():
@@ -104,7 +97,6 @@ def mock_subscription_manager():
 
     return manager
 
-
 @pytest.fixture
 def mock_agent_team_service():
     """Create a mock agent team service."""
@@ -124,7 +116,6 @@ def mock_agent_team_service():
     ]
 
     return service
-
 
 @pytest.fixture
 def register_mock_services(

@@ -143,14 +143,18 @@ class OpportunityScorer:
             "problem_severity": FactorScoreSchema(
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
-                weighted_score=problem_severity_score * self.weights["problem_severity"],
+                weighted_score=problem_severity_score * self.weights[
+    "problem_severity"
+]],
                     
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
-                weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
+                weighted_score=solution_feasibility_score * self.weights[
+    "solution_feasibility"
+]],
                     
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
@@ -299,14 +303,18 @@ class OpportunityScorer:
             "problem_severity": FactorScoreSchema(
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
-                weighted_score=problem_severity_score * self.weights["problem_severity"],
+                weighted_score=problem_severity_score * self.weights[
+    "problem_severity"
+]],
                     
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
-                weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
+                weighted_score=solution_feasibility_score * self.weights[
+    "solution_feasibility"
+]],
                     
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
@@ -1014,7 +1022,8 @@ class OpportunityScorer:
             Analysis text for the problem severity factor
         """
         if score >= 0.8:
-            return "High severity problems indicating significant pain points for users."
+            return"High severity problems indicating significant pain points for" \
+                  + "users."
         elif score >= 0.5:
             return "Moderate severity problems with notable impact on users."
         else:
@@ -1031,11 +1040,13 @@ class OpportunityScorer:
             Analysis text for the solution feasibility factor
         """
         if score >= 0.8:
-            return "Highly feasible solution that can be readily implemented with AI technology."
+            return"Highly feasible solution that can be readily implemented with AI" \
+                  + "technology."
         elif score >= 0.5:
             return "Moderately feasible solution with some implementation challenges."
         else:
-            return "Challenging solution with significant technical barriers to implementation."
+            return"Challenging solution with significant technical barriers to" \
+                  + "implementation."
 
     def _analyze_monetization_potential(self, score: float) -> str:
         """
@@ -1248,7 +1259,8 @@ class OpportunityScorer:
             "growth_rate": "Growth rate of the market",
             "competition": "Level of competition in the market",
             "problem_severity": "Severity of the problems being solved",
-            "solution_feasibility": "Feasibility of implementing AI - powered solutions",
+            "solution_feasibility":"Feasibility of implementing AI - powered" \
+                                   + "solutions",
                 
             "monetization_potential": "Potential for profitable monetization",
         }
@@ -1273,12 +1285,14 @@ class OpportunityScorer:
         # General recommendations based on distribution
         if analysis.score_distribution.excellent > 0:
             recommendations.append(
-                f"Focus on the {analysis.score_distribution.excellent} excellent opportunities as high priority"
+                f"Focus on the {analysis.score_distribution.excellent} excellent" \
+                 + "opportunities as high priority"
             )
 
         if analysis.score_distribution.very_good > 0:
             recommendations.append(
-                f"Consider the {analysis.score_distribution.very_good} very good opportunities as medium priority"
+                f"Consider the {analysis.score_distribution.very_good} very good" \
+                 + "opportunities as medium priority"
             )
 
         # Add recommendations for top opportunities
@@ -1308,7 +1322,9 @@ class OpportunityScorer:
         if analysis.score_distribution.limited > 0:
             recommendations.append(
                 f"Deprioritize or \
-                    eliminate the {analysis.score_distribution.limited} limited opportunities"
+                    eliminate the{
+    analysis.score_distribution.limited
+}} limited opportunities"
             )
 
         return recommendations

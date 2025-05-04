@@ -15,7 +15,6 @@ import time
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ai_models.optimization import AWQQuantizer  # Quantization; Pruning
 from ai_models.optimization import (
     analyze_pruning,
     analyze_quantization,
@@ -45,7 +44,6 @@ try:
 except ImportError:
     logger.warning("Transformers not available. Some examples will not work.")
     TRANSFORMERS_AVAILABLE = False
-
 
 def test_quantization(
     model_path: str, output_dir: str, method: str = "bitsandbytes - 4bit", bits: int = 4
@@ -106,7 +104,8 @@ def test_quantization(
         print(
             f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
         print(
-            f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
+            f"Speed improvement:" \
+             + "{analysis['comparison']['speed_improvement_percent']:.2f}%")
         print(f"Output similarity: {analysis['comparison']['output_similarity']:.4f}")
 
         # Print sample outputs
@@ -124,7 +123,6 @@ def test_quantization(
 
     except Exception as e:
         print(f"Error during quantization: {e}")
-
 
 def test_pruning(
     model_path: str, output_dir: str, method: str = "magnitude", sparsity: float = 0.5
@@ -187,9 +185,11 @@ def test_pruning(
         print(
             f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
         print(
-            f"Sparsity increase: {analysis['comparison']['sparsity_increase_percent']:.2f}%")
+            f"Sparsity increase:" \
+             + "{analysis['comparison']['sparsity_increase_percent']:.2f}%")
         print(
-            f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
+            f"Speed improvement:" \
+             + "{analysis['comparison']['speed_improvement_percent']:.2f}%")
         print(f"Output similarity: {analysis['comparison']['output_similarity']:.4f}")
 
         # Print sample outputs
@@ -207,7 +207,6 @@ def test_pruning(
 
     except Exception as e:
         print(f"Error during pruning: {e}")
-
 
 def main():
     """
@@ -269,7 +268,6 @@ def main():
             method=args.prune_method,
             sparsity=args.prune_sparsity,
         )
-
 
 if __name__ == "__main__":
     main()

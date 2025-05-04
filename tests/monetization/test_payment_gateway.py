@@ -5,14 +5,12 @@ This module contains tests for payment gateway integration, including
 payment processing, subscription lifecycle, and refund handling.
 """
 
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
-from monetization.payment_gateway import (
     PaymentError,
     PaymentGateway,
     PaymentMethod,
@@ -22,7 +20,6 @@ from monetization.payment_gateway import (
     SubscriptionManager,
     SubscriptionStatus,
 )
-
 
 class TestPaymentGateway:
     """Tests for payment gateway integration."""
@@ -102,7 +99,6 @@ class TestPaymentGateway:
                 "currency": "USD",
                 "interval": "month",
                 "features": ["feature1", "feature2", "feature3", "feature4", "feature5"],
-                    
             },
         }
 
@@ -233,7 +229,6 @@ class TestPaymentGateway:
                 "status": SubscriptionStatus.ACTIVE,
                 "current_period_start": datetime.utcnow().isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
-                    
                 "payment_method_id": payment_method["id"],
                 "created_at": datetime.utcnow().isoformat(),
             }
@@ -269,7 +264,6 @@ class TestPaymentGateway:
                 "status": SubscriptionStatus.ACTIVE,
                 "current_period_start": datetime.utcnow().isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
-                    
                 "payment_method_id": payment_method["id"],
                 "updated_at": datetime.utcnow().isoformat(),
             }
@@ -524,7 +518,6 @@ class TestPaymentGateway:
                     assert payment_result["error_code"] == scenario["error_code"]
                     assert payment_result["status"] == PaymentStatus.FAILED
                     assert mock_process.call_count == 1
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_payment_gateway.py"])

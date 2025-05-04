@@ -74,7 +74,7 @@ class ONNXModel:
         """
         if not ONNX_AVAILABLE:
             raise ImportError(
-                "ONNX Runtime not available. Please install it with: pip install onnxruntime"
+"ONNX Runtime not available. Please install it with: pip install onnxruntime"
             )
 
         self.model_path = model_path
@@ -223,7 +223,7 @@ class ONNXModel:
                         tokenizer_path = "t5 - small"
                     else:
                         logger.warning(
-                            "Could not determine tokenizer. Please specify tokenizer_path."
+"Could not determine tokenizer. Please specify tokenizer_path."
                         )
                         return
 
@@ -607,7 +607,7 @@ if __name__ == "__main__":
     # Check if ONNX Runtime is available
     if not ONNX_AVAILABLE:
         print(
-            "ONNX Runtime not available. Please install it with: pip install onnxruntime")
+"ONNX Runtime not available. Please install it with: pip install onnxruntime")
         exit(1)
 
     # Example model path (replace with an actual ONNX model path)

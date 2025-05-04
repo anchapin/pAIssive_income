@@ -6,12 +6,11 @@ This module provides a concrete implementation of DatabaseInterface for SQLite d
 
 import logging
 import sqlite3
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 
 logger = logging.getLogger(__name__)
-
 
 class SQLiteAdapter(DatabaseInterface):
     """Implementation of DatabaseInterface for SQLite."""
@@ -215,7 +214,6 @@ class SQLiteAdapter(DatabaseInterface):
         except sqlite3.Error as e:
             logger.error(f"Error deleting data: {e}")
             raise
-
 
 class SQLiteUnitOfWork(UnitOfWork):
     """SQLite implementation of the Unit of Work pattern."""

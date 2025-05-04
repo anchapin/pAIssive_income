@@ -2,18 +2,12 @@
 Tests for the content templates components in the Marketing module.
 """
 
-from datetime import datetime
-from unittest.mock import MagicMock, patch
-
-import pytest
-
 from marketing.content_templates import (
     BlogPostTemplate,
     ContentTemplate,
     EmailNewsletterTemplate,
     SocialMediaTemplate,
 )
-
 
 def test_content_template_init():
     """Test ContentTemplate initialization."""
@@ -28,7 +22,6 @@ def test_content_template_init():
     assert hasattr(template, "updated_at")
     assert hasattr(template, "sections")
     assert isinstance(template.sections, list)
-
 
 def test_content_template_add_section():
     """Test add_section method of ContentTemplate."""
@@ -55,7 +48,6 @@ def test_content_template_add_section():
     assert section["content_type"] == "text"
     assert section["placeholder"] == "Write an engaging introduction here..."
     assert section["required"] is True
-
 
 def test_content_template_generate_content():
     """Test generate_content method of ContentTemplate."""
@@ -126,7 +118,6 @@ def test_content_template_generate_content():
         assert isinstance(section["content"], str)
         assert len(section["content"]) > 0
 
-
 def test_blog_post_template_init():
     """Test BlogPostTemplate initialization."""
     template = BlogPostTemplate(
@@ -149,7 +140,6 @@ def test_blog_post_template_init():
     assert "Main Content" in section_names
     assert "Conclusion" in section_names
     assert "Call to Action" in section_names
-
 
 def test_blog_post_template_generate_blog_post():
     """Test generate_blog_post method of BlogPostTemplate."""
@@ -201,7 +191,6 @@ def test_blog_post_template_generate_blog_post():
         assert isinstance(section["content"], str)
         assert len(section["content"]) > 0
 
-
 def test_social_media_template_init():
     """Test SocialMediaTemplate initialization."""
     template = SocialMediaTemplate(
@@ -224,7 +213,6 @@ def test_social_media_template_init():
     section_names = [section["name"] for section in template.sections]
     assert "Caption" in section_names
     assert "Hashtags" in section_names
-
 
 def test_social_media_template_generate_post():
     """Test generate_post method of SocialMediaTemplate."""
@@ -278,7 +266,6 @@ def test_social_media_template_generate_post():
         assert isinstance(section["content"], str)
         assert len(section["content"]) > 0
 
-
 def test_email_newsletter_template_init():
     """Test EmailNewsletterTemplate initialization."""
     template = EmailNewsletterTemplate(
@@ -303,7 +290,6 @@ def test_email_newsletter_template_init():
     assert "Main Content" in section_names
     assert "Call to Action" in section_names
     assert "Footer" in section_names
-
 
 def test_email_newsletter_template_generate_newsletter():
     """Test generate_newsletter method of EmailNewsletterTemplate."""

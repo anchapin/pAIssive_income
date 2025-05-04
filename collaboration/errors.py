@@ -7,11 +7,10 @@ for the collaboration module.
 
 import logging
 import traceback
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class CollaborationError(Exception):
     """Base exception class for all collaboration module errors."""
@@ -28,54 +27,45 @@ class CollaborationError(Exception):
         self.message = message
         self.original_exception = original_exception
 
-
 class WorkspaceError(CollaborationError):
     """Exception raised for errors related to workspace operations."""
 
     pass
-
 
 class PermissionError(CollaborationError):
     """Exception raised for errors related to permissions and access control."""
 
     pass
 
-
 class SharingError(CollaborationError):
     """Exception raised for errors related to project sharing."""
 
     pass
-
 
 class VersionControlError(CollaborationError):
     """Exception raised for errors related to version control."""
 
     pass
 
-
 class CommentError(CollaborationError):
     """Exception raised for errors related to comments and reactions."""
 
     pass
-
 
 class IntegrationError(CollaborationError):
     """Exception raised for errors related to external integrations."""
 
     pass
 
-
 class ActivityError(CollaborationError):
     """Exception raised for errors related to activity tracking."""
 
     pass
 
-
 class NotificationError(CollaborationError):
     """Exception raised for errors related to notifications."""
 
     pass
-
 
 def handle_exception(func: Callable) -> Callable:
     """
@@ -111,7 +101,9 @@ def handle_exception(func: Callable) -> Callable:
             elif "shar" in func.__name__.lower():
                 raise SharingError(f"Sharing operation failed: {str(e)}", e)
             elif "version" in func.__name__.lower():
-                raise VersionControlError(f"Version control operation failed: {str(e)}", 
+                raise VersionControlError(f"Version control operation failed:{
+    str(e)
+}}", 
                     e)
             elif "comment" in func.__name__.lower() or \
                 "reaction" in func.__name__.lower():
@@ -126,7 +118,6 @@ def handle_exception(func: Callable) -> Callable:
                 raise CollaborationError(f"Operation failed: {str(e)}", e)
 
     return wrapper
-
 
 def format_error(error: Exception) -> Dict[str, Any]:
     """

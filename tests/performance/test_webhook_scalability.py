@@ -6,15 +6,12 @@ This module tests how the webhook system scales with increasing load and resourc
 
 import asyncio
 import json
-import multiprocessing
 import os
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
 from unittest.mock import MagicMock, patch
 
-import httpx
 import psutil
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
@@ -25,7 +22,6 @@ SCALING_FACTORS = [1, 2, 4, 8, 16]  # Scaling factors to test
 BASE_WEBHOOK_COUNT = 10  # Base number of webhooks
 BASE_EVENT_COUNT = 100  # Base number of events
 BASE_CONCURRENCY = 5  # Base concurrency level
-
 
 class ScalabilityTest:
     """Test the scalability of the webhook system."""
@@ -110,7 +106,8 @@ class ScalabilityTest:
         try:
             # Set up the environment
             print(
-                f"Setting up test environment (scaling factor: {self.scaling_factor})...")
+                f"Setting up test environment (scaling factor:" \
+                 + "{self.scaling_factor})...")
             await self.setup()
 
             # Create a mock response
@@ -223,7 +220,6 @@ class ScalabilityTest:
             # Clean up
             await self.teardown()
 
-
 async def run_scalability_tests():
     """Run scalability tests with different scaling factors."""
     results = []
@@ -299,11 +295,9 @@ async def run_scalability_tests():
                     f"{actual_throughput:16.2f} | {efficiency * 100:8.2f}%"
                 )
 
-
 async def main():
     """Run the scalability tests."""
     await run_scalability_tests()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

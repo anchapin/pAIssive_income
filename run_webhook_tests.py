@@ -2,13 +2,11 @@
 Script to run the webhook tests individually.
 """
 
-import sys
 import unittest
 from datetime import datetime, timezone
 from unittest import mock
 
 import httpx
-import pytest
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
@@ -36,7 +34,6 @@ TEST_EVENT = {
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
-
 
 class WebhookDeliveryTest(unittest.TestCase):
     """Test webhook delivery functionality."""
@@ -137,7 +134,6 @@ class WebhookDeliveryTest(unittest.TestCase):
                 self.assertIsNone(delivery["attempts"][0]["response_code"])
                 self.assertIn("Connection refused", 
                     delivery["attempts"][0]["error_message"])
-
 
 if __name__ == "__main__":
     # Run the tests

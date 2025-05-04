@@ -343,7 +343,7 @@ class GRPCServer(ModelServer):
             from .proto import model_pb2, model_pb2_grpc
         except ImportError:
             logger.warning(
-                "Proto modules not found. Make sure to generate them from .proto files.")
+"Proto modules not found. Make sure to generate them from .proto files.")
             return
 
         # Create servicer

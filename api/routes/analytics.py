@@ -4,10 +4,9 @@ API routes for analytics.
 This module provides API routes for accessing analytics data.
 """
 
-import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +26,6 @@ except ImportError:
 from api.analytics import analytics_service
 
 # Import schemas
-from ..schemas.analytics import (
     AlertResponse,
     AlertThresholdRequest,
     AlertThresholdResponse,
@@ -45,7 +43,6 @@ if FASTAPI_AVAILABLE:
     router = APIRouter()
 else:
     router = None
-
 
 @router.get(
     " / summary",
@@ -69,7 +66,6 @@ async def get_summary(days: int = Query(30, description="Number of days to inclu
     except Exception as e:
         logger.error(f"Error getting usage summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / requests",
@@ -119,7 +115,6 @@ async def get_requests(
         logger.error(f"Error getting request statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / endpoints",
     response_model=List[EndpointStatsResponse],
@@ -143,7 +138,6 @@ async def get_endpoint_stats(days: int = Query(30,
     except Exception as e:
         logger.error(f"Error getting endpoint statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / users",
@@ -172,7 +166,6 @@ async def get_user_stats(
         logger.error(f"Error getting user statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / api - keys",
     response_model=List[ApiKeyStatsResponse],
@@ -199,7 +192,6 @@ async def get_api_key_stats(
     except Exception as e:
         logger.error(f"Error getting API key statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     " / export / requests",
@@ -246,7 +238,6 @@ async def export_requests_csv(
         logger.error(f"Error exporting requests to CSV: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / export / metrics",
     summary="Export daily metrics to CSV",
@@ -280,7 +271,6 @@ async def export_metrics_csv(days: int = Query(30,
         logger.error(f"Error exporting metrics to CSV: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / real - time",
     response_model=RealTimeMetricsResponse,
@@ -308,13 +298,11 @@ async def get_real_time_metrics(
         logger.error(f"Error getting real - time metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post(
     " / alerts / thresholds",
     response_model=AlertThresholdResponse,
     summary="Set alert threshold",
     description="Set a threshold for a specific metric that will trigger alerts when exceeded",
-        
 )
 async def set_alert_threshold(threshold: AlertThresholdRequest):
     """
@@ -332,12 +320,10 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
             "metric": threshold.metric,
             "threshold": threshold.threshold,
             "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
-                
         }
     except Exception as e:
         logger.error(f"Error setting alert threshold: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post(
     " / cleanup",

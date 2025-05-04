@@ -2,16 +2,13 @@
 Tests for agent collaboration, learning, and specialization features.
 """
 
-import json
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from agent_team import AgentTeam
 from agent_team.agent_profiles import DeveloperAgent, MarketingAgent, ResearchAgent
 from interfaces.agent_interfaces import IAgentTeam
-
 
 @pytest.fixture
 def mock_team():
@@ -40,7 +37,6 @@ def mock_team():
         "feedback_data": [],
     }
     return mock_team
-
 
 def test_agent_information_sharing(mock_team):
     """Test information sharing between agents."""
@@ -80,7 +76,6 @@ def test_agent_information_sharing(mock_team):
     # Verify information sharing
     assert solution is not None
     researcher.analyze_user_problems.assert_called_once_with(niche)
-
 
 def test_agent_conflict_resolution(mock_team):
     """Test conflict resolution between agent recommendations."""
@@ -149,7 +144,6 @@ def test_agent_conflict_resolution(mock_team):
     developer.assess_feature_complexity.assert_called_once()
     marketing.assess_market_needs.assert_called_once()
 
-
 def test_agent_collaborative_decision_making(mock_team):
     """Test collaborative decision - making between agents."""
     # Set up test scenario with multiple agents
@@ -185,7 +179,6 @@ def test_agent_collaborative_decision_making(mock_team):
     researcher.assess_market_potential.assert_called_once_with(niche)
     developer.assess_technical_feasibility.assert_called_once_with(niche)
     marketing.assess_market_readiness.assert_called_once_with(niche)
-
 
 def test_agent_learning_from_feedback(mock_team):
     """Test agent improvement from feedback."""
@@ -231,7 +224,6 @@ def test_agent_learning_from_feedback(mock_team):
     assert len(learning_result["learned_patterns"]) > 0
     developer.learn_from_feedback.assert_called_once_with(feedback_items)
 
-
 def test_agent_knowledge_retention(mock_team):
     """Test knowledge retention between sessions."""
     # Create test knowledge data
@@ -257,7 +249,6 @@ def test_agent_knowledge_retention(mock_team):
     developer.store_knowledge.assert_called_once_with(knowledge_data)
     developer.retrieve_knowledge.assert_called_once()
 
-
 def test_agent_domain_specialization(mock_team):
     """Test domain - specific knowledge application."""
     # Create test domain data
@@ -282,7 +273,6 @@ def test_agent_domain_specialization(mock_team):
     assert "best_practices" in applied_knowledge
     assert "specific_requirements" in applied_knowledge
     developer.apply_domain_knowledge.assert_called_once_with(domain)
-
 
 def test_agent_cross_domain_problem_solving(mock_team):
     """Test cross - domain problem - solving capabilities."""

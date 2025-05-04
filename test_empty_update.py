@@ -1,6 +1,5 @@
-import pytest
 
-from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
+from api.schemas.webhook import WebhookUpdate
 
 data = {}  # Empty update payload
 

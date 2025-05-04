@@ -57,7 +57,8 @@ class PaymentProcessorFactory:
             self.register_processor(processor_type, processor_class)
         except (ImportError, AttributeError) as e:
             raise ValueError(
-                f"Failed to load payment processor class {class_name} from module {module_name}: {e}"
+                f"Failed to load payment processor class {class_name} from module" \
+                 + "{module_name}: {e}"
             )
 
     def create_processor(

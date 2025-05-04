@@ -5,16 +5,13 @@ This module provides Pydantic models for bulk operation API request and \
     response validation.
 """
 
-from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
-from uuid import UUID
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
 # Define generic type variable for bulk operations
 T = TypeVar("T")
 R = TypeVar("R")
-
 
 class BulkOperationStats(BaseModel):
     """Statistics for a bulk operation."""
@@ -26,7 +23,6 @@ class BulkOperationStats(BaseModel):
     processing_time_ms: float = Field(..., 
         description="Processing time in milliseconds")
 
-
 class BulkOperationError(BaseModel):
     """Error information for a failed item in a bulk operation."""
 
@@ -36,7 +32,6 @@ class BulkOperationError(BaseModel):
     error_message: str = Field(..., description="Error message")
     item_id: Optional[str] = Field(None, description="ID of the item if available")
 
-
 class BulkResponse(BaseModel, Generic[R]):
     """Generic response model for bulk operations."""
 
@@ -44,7 +39,6 @@ class BulkResponse(BaseModel, Generic[R]):
     errors: List[BulkOperationError] = Field(..., description="List of errors")
     stats: BulkOperationStats = Field(..., description="Operation statistics")
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
-
 
 class BulkCreateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk create operations."""
@@ -54,7 +48,6 @@ class BulkCreateRequest(BaseModel, Generic[T]):
         None, description="Optional parameters for the operation"
     )
 
-
 class BulkCreateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk create operations."""
 
@@ -62,7 +55,6 @@ class BulkCreateResponse(BaseModel, Generic[R]):
     errors: List[BulkOperationError] = Field(..., description="List of errors")
     stats: BulkOperationStats = Field(..., description="Operation statistics")
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
-
 
 class BulkUpdateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk update operations."""
@@ -73,7 +65,6 @@ class BulkUpdateRequest(BaseModel, Generic[T]):
         None, description="Optional parameters for the operation"
     )
 
-
 class BulkUpdateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk update operations."""
 
@@ -82,7 +73,6 @@ class BulkUpdateResponse(BaseModel, Generic[R]):
     stats: BulkOperationStats = Field(..., description="Operation statistics")
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
-
 class BulkDeleteRequest(BaseModel):
     """Request model for bulk delete operations."""
 
@@ -90,7 +80,6 @@ class BulkDeleteRequest(BaseModel):
     options: Optional[Dict[str, Any]] = Field(
         None, description="Optional parameters for the operation"
     )
-
 
 class BulkDeleteResponse(BaseModel):
     """Response model for bulk delete operations."""

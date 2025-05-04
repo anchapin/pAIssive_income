@@ -92,7 +92,8 @@ class MonetizationAgent:
                 "price_monthly": base_price * 2,
                 "price_yearly": int(base_price * 2 * 10),  # 2 months free for yearly
                 "features": pro_features,
-                "description": f"Advanced features for professional {niche['name']} users",
+                "description": f"Advanced features for professional {niche['name']}" \
+                                + "users",
                     
                 "target_users": "Professional users and medium - sized businesses",
             },
@@ -115,7 +116,8 @@ class MonetizationAgent:
                 {
                     "id": str(uuid.uuid4()),
                     "name": "Custom Integration Services",
-                    "description": f"Custom integration with existing {niche['name']} tools",
+                    "description": f"Custom integration with existing {niche['name']}" \
+                                    + "tools",
                         
                     "pricing_model": "one - time fee",
                     "price_range": "$500 - $2,000",

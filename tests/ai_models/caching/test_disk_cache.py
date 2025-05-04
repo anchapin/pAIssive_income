@@ -2,17 +2,14 @@
 Tests for the DiskCache backend.
 """
 
-import json
 import os
 import shutil
 import tempfile
 import time
-from typing import Any, Dict
 
 import pytest
 
 from ai_models.caching.cache_backends.disk_cache import DiskCache
-
 
 @pytest.fixture
 def temp_cache_dir():
@@ -20,7 +17,6 @@ def temp_cache_dir():
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     shutil.rmtree(temp_dir)
-
 
 @pytest.fixture
 def disk_cache(temp_cache_dir):
@@ -30,7 +26,6 @@ def disk_cache(temp_cache_dir):
             eviction_policy="lru"  # Small size to test eviction
     )
     return cache
-
 
 def test_cache_hit_miss(disk_cache):
     """Test cache hit and miss scenarios."""
@@ -50,7 +45,6 @@ def test_cache_hit_miss(disk_cache):
     # Verify hit was recorded
     assert disk_cache.get_stats()["hits"] == 1
 
-
 def test_cache_invalidation(disk_cache):
     """Test cache invalidation with TTL."""
     key = "test_key"
@@ -68,7 +62,6 @@ def test_cache_invalidation(disk_cache):
     # Verify value is invalidated
     assert disk_cache.get(key) is None
     assert not disk_cache.exists(key)
-
 
 def test_size_limit_and_eviction(disk_cache):
     """Test cache size limits and eviction policies."""
@@ -101,7 +94,6 @@ def test_size_limit_and_eviction(disk_cache):
     # Verify eviction was recorded
     assert disk_cache.get_stats()["evictions"] == 1
 
-
 def test_clear_cache(disk_cache):
     """Test clearing the cache."""
     # Add some items
@@ -117,7 +109,6 @@ def test_clear_cache(disk_cache):
     # Verify cache is empty
     assert disk_cache.get_size() == 0
     assert disk_cache.get_stats()["clears"] == 1
-
 
 def test_serialization_formats(temp_cache_dir):
     """Test different serialization formats."""
@@ -137,7 +128,6 @@ def test_serialization_formats(temp_cache_dir):
         cache.set("test_key", value)
         assert cache.get("test_key") == value
 
-
 def test_metadata_persistence(disk_cache):
     """Test that metadata (access counts, times) persists."""
     key = "test_key"
@@ -156,7 +146,6 @@ def test_metadata_persistence(disk_cache):
 
     # Verify access count was persisted
     assert metadata["access_count"] == 3
-
 
 def test_eviction_policies(temp_cache_dir):
     """Test different eviction policies."""
@@ -199,7 +188,6 @@ def test_eviction_policies(temp_cache_dir):
             assert not cache.exists("key0")
             assert cache.exists("key1")
 
-
 def test_concurrent_access(disk_cache):
     """Test thread safety of cache operations."""
     import random
@@ -222,7 +210,6 @@ def test_concurrent_access(disk_cache):
     # Verify metadata files exist for all cache entries
     for key in disk_cache.get_keys():
         assert os.path.exists(disk_cache._get_metadata_path(key))
-
 
 def test_error_handling(disk_cache):
     """Test error handling scenarios."""
@@ -250,7 +237,6 @@ def test_error_handling(disk_cache):
 
     # Should handle gracefully
     assert disk_cache.get(key) is None
-
 
 def test_get_ttl(disk_cache):
     """Test TTL retrieval."""

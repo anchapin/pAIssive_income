@@ -4,7 +4,6 @@ Tests for the A / B testing module.
 
 from datetime import datetime
 
-import numpy as np
 import pytest
 
 from marketing.ab_testing import (
@@ -15,7 +14,6 @@ from marketing.ab_testing import (
     TestAlreadyEndedError,
 )
 from marketing.errors import InvalidTestConfigurationError, TestNotFoundError
-
 
 class TestABTest:
     """Tests for the ABTest class."""
@@ -372,7 +370,6 @@ class TestABTest:
 
         # It should automatically select variant as the winner
         assert result["winning_variant_id"] == "variant"
-
 
 class TestABTesting:
     """Tests for the ABTesting class."""

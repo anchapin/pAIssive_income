@@ -6,10 +6,7 @@ import json
 from datetime import datetime
 from unittest.mock import patch
 
-import pytest
-
 from ai_models.model_base_types import ModelInfo
-
 
 def test_model_info_init():
     """Test ModelInfo initialization."""
@@ -33,7 +30,6 @@ def test_model_info_init():
     assert isinstance(model_info.performance, dict)
     assert isinstance(model_info.created_at, str)
     assert isinstance(model_info.updated_at, str)
-
 
 def test_model_info_with_metadata():
     """Test ModelInfo initialization with metadata."""
@@ -61,7 +57,6 @@ def test_model_info_with_metadata():
     assert model_info.metadata["quantization"] is None
     assert model_info.metadata["license"] == "MIT"
 
-
 def test_model_info_with_performance():
     """Test ModelInfo initialization with performance metrics."""
     performance = {
@@ -85,7 +80,6 @@ def test_model_info_with_performance():
     assert model_info.performance["latency_ms"] == 100
     assert model_info.performance["throughput"] == 10
     assert model_info.performance["memory_usage_mb"] == 1000
-
 
 def test_model_info_to_dict():
     """Test to_dict method."""
@@ -121,7 +115,6 @@ def test_model_info_to_dict():
     assert model_dict["path"] == " / path / to / model"
     assert model_dict["capabilities"] == ["text - generation"]
 
-
 def test_model_info_to_json():
     """Test to_json method."""
     model_info = ModelInfo(
@@ -142,7 +135,6 @@ def test_model_info_to_json():
     assert "name" in model_dict
     assert model_dict["id"] == "test - model"
     assert model_dict["name"] == "Test Model"
-
 
 def test_model_info_from_dict():
     """Test from_dict method."""
@@ -181,7 +173,6 @@ def test_model_info_from_dict():
     assert model_info.performance["throughput"] == 10
     assert model_info.created_at == "2023 - 01 - 01T12:00:00"
     assert model_info.updated_at == "2023 - 01 - 01T12:00:00"
-
 
 def test_model_info_update_performance():
     """Test update_performance method."""
@@ -226,7 +217,6 @@ def test_model_info_update_performance():
     assert model_info.performance["memory_usage_mb"] == 1000
     assert model_info.performance["accuracy"] == 0.95
 
-
 @patch("ai_models.model_base_types.datetime")
 def test_model_info_update_timestamp(mock_datetime):
     """Test that update_performance updates the timestamp."""
@@ -251,7 +241,6 @@ def test_model_info_update_timestamp(mock_datetime):
 
     # Check that updated_at was updated to the mocked datetime
     assert model_info.updated_at == mock_now.isoformat()
-
 
 def test_model_info_has_capability():
     """Test has_capability method."""

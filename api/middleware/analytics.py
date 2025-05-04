@@ -6,7 +6,7 @@ This middleware collects analytics data for API requests.
 
 import logging
 import time
-from typing import Any, Callable, Dict, Optional
+from typing import Callable
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 # Try to import FastAPI
 try:
     from fastapi import Request, Response
-    from starlette.middleware.base import BaseHTTPMiddleware
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -24,7 +23,6 @@ except ImportError:
 
 # Import analytics service
 from api.analytics import analytics_service
-
 
 class AnalyticsMiddleware:
     """

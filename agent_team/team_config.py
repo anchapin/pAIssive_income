@@ -61,7 +61,9 @@ class TeamConfig:
 
 
 class AgentTeam(IAgentTeam):
-    """Manages a team of AI agents working on niche analysis and solution development."""
+"""
+Manages a team of AI agents working on niche analysis and solution development.
+"""
 
     def __init__(self, model_manager: IModelManager, 
         team_config: Optional[TeamConfig] = None):

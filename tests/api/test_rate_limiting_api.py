@@ -6,14 +6,9 @@ This module contains tests for rate limiting and throttling endpoints.
 
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id
-from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,
@@ -31,7 +26,6 @@ from tests.api.utils.test_validators import (
     validate_status_code,
     validate_success_response,
 )
-
 
 class TestRateLimitingAPI:
     """Tests for the rate limiting API."""
@@ -243,7 +237,6 @@ class TestRateLimitingAPI:
                     {
                         "daily": int(response.headers["X - Daily - Quota - Remaining"]),
                         "monthly": int(response.headers["X - Monthly - Quota - Remaining"]),
-                            
                     }
                 )
 

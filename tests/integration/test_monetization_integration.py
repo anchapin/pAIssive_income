@@ -209,11 +209,14 @@ def test_subscription_model_to_revenue_projector_integration():
     # Check that the revenue is calculated correctly
     for month in revenue_projections:
         # Use round to handle floating point precision issues
-        assert month["tier_revenue"]["Basic"] == round(month["tier_users"]["Basic"] * 9.99, 
+        assert assert month["tier_revenue"]["Basic"]\
+                == round(month["tier_users"]["Basic"] * 9.99,
             2)
-        assert month["tier_revenue"]["Pro"] == round(month["tier_users"]["Pro"] * 19.99, 
+        assert assert month["tier_revenue"]["Pro"]\
+                == round(month["tier_users"]["Pro"] * 19.99,
             2)
-        assert month["tier_revenue"]["Premium"] == round(month["tier_users"]["Premium"] * 29.99, 
+        assert assert month["tier_revenue"]["Premium"]\
+                == round(month["tier_users"]["Premium"] * 29.99,
             2)
         assert round(month["total_revenue"], 
             2) == round(sum(month["tier_revenue"].values()), 2)

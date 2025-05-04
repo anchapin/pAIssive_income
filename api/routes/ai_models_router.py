@@ -5,7 +5,6 @@ This module provides a placeholder router for AI model operations.
 """
 
 import logging
-from typing import Any, Dict, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException
+    from fastapi import APIRouter
 
     FASTAPI_AVAILABLE = True
 except ImportError:

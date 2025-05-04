@@ -2,7 +2,6 @@
 Integration tests for webhook delivery functionality.
 """
 
-import asyncio
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
@@ -39,7 +38,6 @@ TEST_EVENT = {
     },
 }
 
-
 @pytest.fixture
 def app():
     """Create a FastAPI test application."""
@@ -47,12 +45,10 @@ def app():
     app.include_router(webhook_router, prefix=" / webhooks")
     return app
 
-
 @pytest.fixture
 def client(app):
     """Create a test client."""
     return TestClient(app)
-
 
 @pytest.fixture
 def mock_webhook_service():
@@ -94,7 +90,6 @@ def mock_webhook_service():
 
         yield mock_service
 
-
 @pytest.mark.asyncio
 async def test_webhook_delivery_success(mock_webhook_service):
     """Test successful webhook delivery."""
@@ -123,7 +118,6 @@ async def test_webhook_delivery_success(mock_webhook_service):
             assert len(delivery["attempts"]) == 1
             assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.SUCCESS
             assert delivery["attempts"][0]["response_code"] == 200
-
 
 @pytest.mark.asyncio
 async def test_webhook_delivery_failure(mock_webhook_service):
@@ -161,7 +155,6 @@ async def test_webhook_delivery_failure(mock_webhook_service):
             assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.FAILED
             assert delivery["attempts"][0]["response_code"] == 500
             assert "Internal Server Error" in delivery["attempts"][0]["error_message"]
-
 
 @pytest.mark.asyncio
 async def test_webhook_delivery_retry(mock_webhook_service):
@@ -210,7 +203,6 @@ async def test_webhook_delivery_retry(mock_webhook_service):
             assert delivery["attempts"][0]["response_code"] == 503
             assert delivery["attempts"][1]["status"] == WebhookDeliveryStatus.SUCCESS
             assert delivery["attempts"][1]["response_code"] == 200
-
 
 @pytest.mark.asyncio
 async def test_webhook_delivery_max_retries_exceeded(mock_webhook_service):

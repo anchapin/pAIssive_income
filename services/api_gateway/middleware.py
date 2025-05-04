@@ -7,9 +7,9 @@ including authentication, rate limiting, and other cross - cutting concerns.
 
 import logging
 import time
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional
 
-from fastapi import HTTPException, Request, Response, status
+from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -20,7 +20,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class ServiceAuthMiddleware(BaseHTTPMiddleware):
     """
@@ -100,7 +99,6 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                 content={"detail": "Internal server error during authentication"},
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """

@@ -3,15 +3,12 @@ Configuration for the API server.
 """
 
 import enum
-import os
-from typing import Any, Dict, List, Optional
-
+from typing import List, Optional
 
 class APIVersion(enum.Enum):
     """API version enum."""
 
     V1 = "1"
-
 
 class APIConfig:
     """Configuration for the API server."""
@@ -89,7 +86,6 @@ class APIConfig:
         ]
         self.webhook_rate_limit = webhook_rate_limit
         self.webhook_rate_limit_window = webhook_rate_limit_window
-
 
 # Default configuration
 default_config = APIConfig()

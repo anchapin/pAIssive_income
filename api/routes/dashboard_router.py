@@ -6,7 +6,7 @@ This module provides API endpoints for dashboard operations.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 # Set up logging
 logging.basicConfig(
@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-    from fastapi.responses import JSONResponse, StreamingResponse
+    from fastapi import APIRouter, HTTPException, Query, status
+    from fastapi.responses import JSONResponse
     from pydantic import BaseModel, Field
 
     FASTAPI_AVAILABLE = True
@@ -85,7 +85,6 @@ if FASTAPI_AVAILABLE:
         average_latency: float = Field(..., description="Average latency")
         error_rate: float = Field(..., description="Error rate")
 
-
 # Define route handlers
 if FASTAPI_AVAILABLE:
 
@@ -100,7 +99,13 @@ if FASTAPI_AVAILABLE:
         return {
             "message": "Dashboard API is available",
             "status": "active",
-            "endpoints": [" / overview", " / revenue", " / subscribers", " / marketing", 
+            "endpoints":[
+    " / overview",
+    " / revenue",
+    " / subscribers",
+    " / marketing",
+    
+] 
                 " / model - usage"],
         }
 
@@ -332,8 +337,12 @@ if FASTAPI_AVAILABLE:
             # Generate channel performance data
             channel_performance = [
                 {"channel": "Email", "conversions": 15, "cost": 100.0, "roi": 3.5},
-                {"channel": "Social Media", "conversions": 8, "cost": 300.0, "roi": 1.8},
-                    
+{
+    "channel":"Social Media",
+    "conversions":8,
+    "cost":300.0,
+    "roi":1.8
+}},
                 {"channel": "Content Marketing", "conversions": 12, "cost": 200.0, 
                     "roi": 2.2},
                 {"channel": "SEO", "conversions": 5, "cost": 150.0, "roi": 1.5},
@@ -433,8 +442,8 @@ if FASTAPI_AVAILABLE:
             # For now, return a 501 Not Implemented status
             return JSONResponse(
                 status_code=status.HTTP_501_NOT_IMPLEMENTED,
-                content={"message": f"Export to {format} format is not implemented yet"},
-                    
+                content={"message": f"Export to {format} format is not implemented" \
+                                     + "yet"},
             )
         except Exception as e:
             logger.error(f"Error exporting dashboard data: {str(e)}")

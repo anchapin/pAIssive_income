@@ -6,7 +6,6 @@ used by the project, including dependency injection setup.
 """
 
 import logging
-import os
 from typing import Any, Dict, Optional
 
 from agent_team import AgentProfile, AgentTeam, ResearchAgent
@@ -26,7 +25,6 @@ from ui.service_registry import register_ui_services
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyContainer:
     """
@@ -64,7 +62,6 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
     logger.info("All services initialized and registered")
     return container
 
-
 def _register_configuration(
     container: DependencyContainer, config: Optional[Dict[str, Any]] = None
 ) -> None:
@@ -84,7 +81,6 @@ def _register_configuration(
     container.register(IModelConfig, lambda: model_config, singleton=True)
     logger.info("Registered model configuration")
 
-
 def _register_ai_models(container: DependencyContainer) -> None:
     """
     Register AI model services in the dependency container.
@@ -103,7 +99,6 @@ def _register_ai_models(container: DependencyContainer) -> None:
     container.register_instance("adapter_factory", adapter_factory)
 
     logger.info("Registered AI model services")
-
 
 def _register_agent_team(container: DependencyContainer) -> None:
     """
@@ -135,7 +130,6 @@ def _register_agent_team(container: DependencyContainer) -> None:
 
     logger.info("Registered agent team services")
 
-
 def _register_niche_analysis(container: DependencyContainer) -> None:
     """
     Register niche analysis services in the dependency container.
@@ -152,7 +146,6 @@ def _register_niche_analysis(container: DependencyContainer) -> None:
 
     logger.info("Registered niche analysis services")
 
-
 def _register_monetization(container: DependencyContainer) -> None:
     """
     Register monetization services in the dependency container.
@@ -165,7 +158,6 @@ def _register_monetization(container: DependencyContainer) -> None:
         singleton=True)
 
     logger.info("Registered monetization services")
-
 
 def _register_marketing(container: DependencyContainer) -> None:
     """

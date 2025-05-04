@@ -204,5 +204,5 @@ def test_str_representation():
     assert (
         str(identifier)
         == \
-            "Problem Identifier: Identifies user problems and pain points in specific niches"
+"Problem Identifier: Identifies user problems and pain points in specific niches"
     )

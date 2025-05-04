@@ -7,13 +7,10 @@ including settings for model paths, cache, and performance options.
 
 import json
 import os
-import sys
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from interfaces.model_interfaces import IModelConfig
-
 
 @dataclass
 class ModelConfig(IModelConfig):
@@ -181,7 +178,6 @@ class ModelConfig(IModelConfig):
 
             # Validate using Pydantic if available
             try:
-                from pydantic import ValidationError
 
                 # Use the Pydantic schema to validate the config
                 validated_config = ModelConfigSchema.model_validate(config_dict)
@@ -268,7 +264,6 @@ class ModelConfig(IModelConfig):
             print(f"Warning: Failed to save default config: {e}")
 
         return config
-
 
 # Optional Pydantic schema for validation
 try:

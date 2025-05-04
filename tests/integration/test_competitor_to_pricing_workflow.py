@@ -5,11 +5,8 @@ This module tests the complete workflow from competitor analysis through pricing
 development to revenue projection.
 """
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
-from monetization import (
     FreemiumModel,
     MonetizationCalculator,
     PricingCalculator,
@@ -18,12 +15,10 @@ from monetization import (
 )
 from niche_analysis import MarketAnalyzer
 
-
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
     return MarketAnalyzer()
-
 
 @pytest.fixture
 def subscription_model():
@@ -32,13 +27,11 @@ def subscription_model():
         name="Test Subscription Model", description="A test subscription model"
     )
 
-
 @pytest.fixture
 def freemium_model():
     """Create a freemium model instance for testing."""
     return FreemiumModel(name="Test Freemium Model", 
         description="A test freemium model")
-
 
 @pytest.fixture
 def pricing_calculator():
@@ -50,7 +43,6 @@ def pricing_calculator():
         profit_margin=0.3,
         competitor_prices={"basic": 9.99, "pro": 19.99, "premium": 29.99},
     )
-
 
 @pytest.fixture
 def revenue_projector():
@@ -64,7 +56,6 @@ def revenue_projector():
         churn_rate=0.05,
         tier_distribution={"basic": 0.6, "pro": 0.3, "premium": 0.1},
     )
-
 
 def test_competitor_to_pricing_workflow(
     market_analyzer, subscription_model, pricing_calculator, revenue_projector
@@ -190,7 +181,6 @@ def test_competitor_to_pricing_workflow(
     assert (
         revenue_projection["revenue"][-1] > revenue_projection["revenue"][0]
     )  # Revenue should increase over time
-
 
 def test_competitor_to_pricing_workflow_with_freemium(
     market_analyzer, freemium_model, pricing_calculator, revenue_projector

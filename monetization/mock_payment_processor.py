@@ -726,7 +726,8 @@ class MockPaymentProcessor(PaymentProcessor):
         payment_method = self.payment_methods[payment_method_id]
         if payment_method["customer_id"] != customer_id:
             raise ValueError(
-                f"Payment method {payment_method_id} does not belong to customer {customer_id}"
+                f"Payment method {payment_method_id} does not belong to customer" \
+                 + "{customer_id}"
             )
 
         # Generate subscription ID
@@ -821,7 +822,8 @@ class MockPaymentProcessor(PaymentProcessor):
             payment_method = self.payment_methods[payment_method_id]
             if payment_method["customer_id"] != subscription["customer_id"]:
                 raise ValueError(
-                    f"Payment method {payment_method_id} does not belong to customer {subscription['customer_id']}"
+                    f"Payment method {payment_method_id} does not belong to customer" \
+                     + "{subscription['customer_id']}"
                 )
 
             subscription["payment_method_id"] = payment_method_id

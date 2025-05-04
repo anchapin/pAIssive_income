@@ -5,8 +5,7 @@ This module provides middleware for handling API versioning.
 """
 
 import logging
-from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 from ..config import APIConfig, APIVersion
 from ..version_manager import VersionManager
@@ -19,13 +18,12 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI, Request, Response
+    from fastapi import Request, Response
 
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for version middleware")
     FASTAPI_AVAILABLE = False
-
 
 class VersionMiddleware:
     """
@@ -77,7 +75,6 @@ class VersionMiddleware:
 
                 if sunset_dates:
                     response.headers[self.config.sunset_header_name] = min(sunset_dates)
-
 
 def setup_version_middleware(app: Any, config: APIConfig, 
     version_manager: VersionManager) -> None:

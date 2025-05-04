@@ -2,8 +2,6 @@
 Tests for target user analysis functionality.
 """
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from niche_analysis.errors import InsufficientDataError, InvalidUserDataError
@@ -12,7 +10,6 @@ from niche_analysis.target_user_analysis import (
     UserSegmentationAnalyzer,
     WillingnessToPay,
 )
-
 
 class TestTargetUserAnalysis:
     """Test cases for target user analysis."""
@@ -256,7 +253,6 @@ class TestTargetUserAnalysis:
         assert isinstance(patterns["unique_needs"], dict)
         assert isinstance(patterns["segment_overlaps"], float)
         assert 0 <= patterns["segment_overlaps"] <= 1
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_target_user_analysis.py"])

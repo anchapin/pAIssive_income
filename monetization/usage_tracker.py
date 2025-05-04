@@ -1696,5 +1696,7 @@ if __name__ == "__main__":
 
     for quota_status in status["quotas"]:
         print(
-            f"- {quota_status['metric']}: {quota_status['used_quantity']}/{quota_status['allocated_quantity']} ({quota_status['usage_percentage']:.2f}%)"
+            f"- {quota_status['metric']}:" \
+             + "{quota_status['used_quantity']}/{quota_status['allocated_quantity']}" \
+             + "({quota_status['usage_percentage']:.2f}%)"
         )

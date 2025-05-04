@@ -11,9 +11,7 @@ import pytest
 from agent_team.agent_team import AgentTeam
 from ai_models.model_manager import ModelManager
 from monetization.subscription_manager import SubscriptionManager
-from niche_analysis.market_analyzer import MarketAnalyzer
 from ui.web_ui import WebUI
-
 
 @pytest.fixture
 def mock_agent_team():
@@ -65,7 +63,6 @@ def mock_agent_team():
 
     return mock_team
 
-
 @pytest.fixture
 def mock_model_manager():
     """Create a mock model manager."""
@@ -78,7 +75,6 @@ def mock_model_manager():
     ]
 
     return mock_manager
-
 
 @pytest.fixture
 def mock_subscription_manager():
@@ -93,7 +89,6 @@ def mock_subscription_manager():
 
     return mock_manager
 
-
 @pytest.fixture
 def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
     """Create a Web UI instance with mock dependencies."""
@@ -106,7 +101,6 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
     ui.current_monetization = None
     ui.current_marketing_plan = None
     return ui
-
 
 class TestWebUIIntegration:
     """Test Web UI integration with backend services."""
@@ -303,7 +297,6 @@ class TestWebUIIntegration:
         ui_arg, data_arg = mock_handle_niche_selected.call_args[0]
         assert ui_arg == web_ui
         assert data_arg == event_data
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_web_ui_integration.py"])

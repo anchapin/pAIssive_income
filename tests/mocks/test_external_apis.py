@@ -1,8 +1,5 @@
 """Tests for mock external API implementations."""
 
-from datetime import datetime
-from typing import Any, Dict
-
 import pytest
 
 from .mock_external_apis import (
@@ -12,7 +9,6 @@ from .mock_external_apis import (
     MockStorageAPI,
     create_mock_api,
 )
-
 
 def test_huggingface_api():
     """Test HuggingFace API mock implementation."""
@@ -39,7 +35,6 @@ def test_huggingface_api():
     # Test invalid model
     with pytest.raises(ValueError):
         api.download_model("nonexistent - model", " / tmp / models")
-
 
 def test_payment_api():
     """Test payment API mock implementation."""
@@ -68,7 +63,6 @@ def test_payment_api():
     assert api.get_customer(customer["id"]) == customer
     assert api.get_subscription(subscription["id"]) == subscription
     assert api.get_payment(payment["id"]) == payment
-
 
 def test_email_api():
     """Test email API mock implementation."""
@@ -104,7 +98,6 @@ def test_email_api():
     assert len(sent_emails) == 4  # 1 single + 1 template + 3 batch
     assert all("sent_at" in email for email in sent_emails)
 
-
 def test_storage_api():
     """Test storage API mock implementation."""
     api = MockStorageAPI()
@@ -137,7 +130,6 @@ def test_storage_api():
         api.download_file("nonexistent")
     with pytest.raises(ValueError):
         api.delete_file("nonexistent")
-
 
 def test_create_mock_api():
     """Test mock API factory function."""

@@ -3,12 +3,10 @@ Tests for the MarketAnalyzer class.
 """
 
 from datetime import datetime
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from niche_analysis.market_analyzer import MarketAnalyzer
-
 
 def test_market_analyzer_init():
     """Test MarketAnalyzer initialization."""
@@ -18,7 +16,6 @@ def test_market_analyzer_init():
     assert analyzer.name == "Market Analyzer"
     assert analyzer.description == \
         "Analyzes market segments to identify potential niches"
-
 
 def test_analyze_market():
     """Test analyze_market method."""
@@ -42,7 +39,6 @@ def test_analyze_market():
     # Check that the values are as expected
     assert result["name"] == "E - Commerce"
     assert "e - commerce" in result["description"].lower()
-
 
 def test_analyze_market_unknown_segment():
     """Test analyze_market method with an unknown segment."""
@@ -68,7 +64,6 @@ def test_analyze_market_unknown_segment():
     assert "unknown_segment" in result["description"].lower()
     assert result["market_size"] == "unknown"
     assert result["growth_rate"] == "unknown"
-
 
 def test_analyze_competition():
     """Test analyze_competition method."""
@@ -99,7 +94,6 @@ def test_analyze_competition():
     assert "weaknesses" in result["top_competitors"][0]
     assert "pricing" in result["top_competitors"][0]
 
-
 def test_analyze_competition_timestamp():
     """Test that analyze_competition includes a timestamp."""
     analyzer = MarketAnalyzer()
@@ -116,7 +110,6 @@ def test_analyze_competition_timestamp():
         datetime.fromisoformat(result["timestamp"])
     except ValueError:
         pytest.fail(f"Timestamp '{result['timestamp']}' is not a valid ISO format")
-
 
 def test_analyze_target_users():
     """Test analyze_target_users method."""

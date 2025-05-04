@@ -8,7 +8,7 @@ and send webhook notifications.
 import asyncio
 import logging
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Union
 
 from ..config import WebhookEventType
 from .webhook_service import WebhookService
@@ -18,7 +18,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class EventEmitter:
     """
@@ -316,7 +315,10 @@ class EventEmitter:
         )
 
     async def emit_model_inference_completed(
-        self, model_id: str, inference_id: str, results: Dict[str, Any], stats: Dict[str, 
+        self, model_id: str, inference_id: str, results: Dict[
+    str,
+    Any
+]], stats: Dict[str, 
             Any]
     ) -> int:
         """

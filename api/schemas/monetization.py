@@ -8,10 +8,8 @@ This module provides Pydantic models for Monetization API request and \
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from uuid import UUID
 
 from pydantic import BaseModel, Field
-
 
 class SubscriptionType(str, Enum):
     """Subscription type enumeration."""
@@ -21,7 +19,6 @@ class SubscriptionType(str, Enum):
     USAGE_BASED = "usage_based"
     HYBRID = "hybrid"
 
-
 class BillingPeriod(str, Enum):
     """Billing period enumeration."""
 
@@ -29,7 +26,6 @@ class BillingPeriod(str, Enum):
     QUARTERLY = "quarterly"
     ANNUAL = "annual"
     LIFETIME = "lifetime"
-
 
 class FeatureResponse(BaseModel):
     """Feature response model."""
@@ -39,7 +35,6 @@ class FeatureResponse(BaseModel):
     description: str = Field(..., description="Feature description")
     category: Optional[str] = Field(None, description="Feature category")
     is_premium: bool = Field(..., description="Whether the feature is premium")
-
 
 class PricingTierResponse(BaseModel):
     """Pricing tier response model."""
@@ -57,7 +52,6 @@ class PricingTierResponse(BaseModel):
     storage_limit: Optional[int] = Field(None, description="Storage limit in GB")
     api_limit: Optional[int] = Field(None, description="API call limit")
 
-
 class SubscriptionModelRequest(BaseModel):
     """Subscription model request model."""
 
@@ -67,7 +61,6 @@ class SubscriptionModelRequest(BaseModel):
     model_type: SubscriptionType = Field(..., description="Subscription model type")
     features: List[Dict[str, Any]] = Field(..., description="Features to include")
     tiers: List[Dict[str, Any]] = Field(..., description="Pricing tiers")
-
 
 class SubscriptionModelResponse(BaseModel):
     """Subscription model response model."""
@@ -82,7 +75,6 @@ class SubscriptionModelResponse(BaseModel):
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
-
 class RevenueProjectionRequest(BaseModel):
     """Revenue projection request model."""
 
@@ -93,7 +85,6 @@ class RevenueProjectionRequest(BaseModel):
     conversion_rate: float = Field(..., 
         description="Conversion rate from free to paid (0 - 1)")
     time_period: int = Field(..., description="Projection time period in months")
-
 
 class RevenueProjectionResponse(BaseModel):
     """Revenue projection response model."""

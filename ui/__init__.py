@@ -25,13 +25,11 @@ from .celery_app import create_celery_app
 celery = create_celery_app(app)
 
 # Initialize SocketIO
-from .socketio_app import init_socketio, socketio
+from .socketio_app import init_socketio
 
 init_socketio(app)
 
 # Import routes after app is created to avoid circular imports
-from . import routes
-
 
 # Initialize the application with services
 def init_app_with_services():
@@ -42,7 +40,6 @@ def init_app_with_services():
 
     init_app(app, initialize_services)
     logger.info("pAIssive Income UI initialized with services")
-
 
 # This function can be called after all modules are imported to initialize services
 # It's not called automatically to avoid circular imports

@@ -28,7 +28,8 @@ class CacheKey:
         Returns:
             String representation of the cache key
         """
-        return f"{self.model_id}:{self.operation}:{self.input_hash}:{self.parameters_hash}"
+        return f"{self.model_id}:{self.operation}:{self.input_hash}:{self.parameters_" \
+                + "hash}"
 
 
 def generate_cache_key(

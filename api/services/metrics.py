@@ -1,6 +1,6 @@
 """Metrics collection for webhook service."""
 
-from prometheus_client import Counter, Gauge, Histogram, Summary
+from prometheus_client import Counter, Gauge, Histogram
 
 # Delivery metrics
 WEBHOOK_DELIVERIES_TOTAL = Counter(
@@ -60,7 +60,6 @@ WEBHOOK_RATE_LIMIT_REMAINING = Gauge(
         ["webhook_id"]
 )
 
-
 def track_webhook_delivery(webhook_id: str, event_type: str, duration: float, 
     status: str):
     """Track a webhook delivery attempt."""
@@ -71,33 +70,27 @@ def track_webhook_delivery(webhook_id: str, event_type: str, duration: float,
     WEBHOOK_DELIVERY_DURATION.labels(webhook_id=webhook_id, 
         event_type=event_type).observe(duration)
 
-
 def track_webhook_error(webhook_id: str, event_type: str, error_type: str):
     """Track a webhook error."""
     WEBHOOK_ERRORS_TOTAL.labels(
         webhook_id=webhook_id, event_type=event_type, error_type=error_type
     ).inc()
 
-
 def track_webhook_retry(webhook_id: str, event_type: str):
     """Track a webhook retry attempt."""
     WEBHOOK_RETRY_COUNT.labels(webhook_id=webhook_id, event_type=event_type).inc()
-
 
 def update_webhook_health(webhook_id: str, url: str, is_healthy: bool):
     """Update webhook endpoint health status."""
     WEBHOOK_HEALTH.labels(webhook_id=webhook_id, url=url).set(1 if is_healthy else 0)
 
-
 def update_queue_size(size: int, priority: str = "normal"):
     """Update the current webhook queue size."""
     WEBHOOK_QUEUE_SIZE.labels(priority=priority).set(size)
 
-
 def track_queue_latency(latency: float, priority: str = "normal"):
     """Track how long a webhook spent in the queue."""
     WEBHOOK_QUEUE_LATENCY.labels(priority=priority).observe(latency)
-
 
 def update_rate_limit(webhook_id: str, remaining: int):
     """Update remaining rate limit for a webhook."""

@@ -12,11 +12,10 @@ import os
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class ReactionType(Enum):
     """Types of reactions that can be added to comments."""
@@ -30,7 +29,6 @@ class ReactionType(Enum):
     EYES = "eyes"
     THUMBS_UP = "thumbs_up"
     THUMBS_DOWN = "thumbs_down"
-
 
 class Comment:
     """
@@ -207,7 +205,6 @@ class Comment:
         comment.edited = data.get("edited", False)
 
         return comment
-
 
 class CommentSystem:
     """
@@ -592,7 +589,8 @@ class CommentSystem:
         self._save_comment_data()
 
         logger.info(
-            f"Added {reaction_type.value} reaction to comment {comment_id} by user {user_id}"
+            f"Added {reaction_type.value} reaction to comment {comment_id} by user" \
+             + "{user_id}"
         )
         return reaction
 

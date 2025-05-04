@@ -2,7 +2,6 @@
 Tests for Socket.IO integration in the pAIssive Income UI.
 """
 
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -11,7 +10,6 @@ from flask_socketio import SocketIO
 from flask import Flask
 from ui.socketio_app import SocketIONamespace, init_socketio
 
-
 @pytest.fixture
 def mock_app():
     """Create a mock Flask app."""
@@ -19,18 +17,15 @@ def mock_app():
     app.config["SECRET_KEY"] = "test_key"
     return app
 
-
 @pytest.fixture
 def mock_socketio(mock_app):
     """Create a mock Socket.IO instance."""
     return init_socketio(mock_app)
 
-
 @pytest.fixture
 def mock_client(mock_app, mock_socketio):
     """Create a mock Socket.IO test client."""
     return mock_socketio.test_client(mock_app)
-
 
 class TestSocketIOIntegration:
     """Test Socket.IO integration."""

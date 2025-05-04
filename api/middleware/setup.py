@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.middleware.gzip import GZipMiddleware
 
@@ -26,7 +25,6 @@ try:
 except ImportError:
     logger.warning("FastAPI is required for middleware setup")
     FASTAPI_AVAILABLE = False
-
 
 def setup_middleware(app: Any, config: APIConfig, 
     version_manager: VersionManager = None) -> None:

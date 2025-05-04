@@ -6,10 +6,9 @@ This module provides an in - memory implementation of the ServiceRegistry interf
 
 import time
 import uuid
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
-
 
 class InMemoryServiceRegistry(ServiceRegistry):
     """

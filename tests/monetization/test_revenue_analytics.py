@@ -5,16 +5,12 @@ This module contains tests for revenue analytics, including MRR / ARR calculatio
 customer lifetime value predictions, and churn analysis.
 """
 
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import numpy as np
-import pandas as pd
 import pytest
 
-from monetization.revenue_analytics import (
     ChurnAnalyzer,
     CustomerLifetimeValue,
     EventType,
@@ -23,7 +19,6 @@ from monetization.revenue_analytics import (
     RevenueProjector,
     SubscriptionEvent,
 )
-
 
 class TestRevenueAnalytics:
     """Tests for revenue analytics functionality."""
@@ -54,7 +49,6 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=100)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
-                    
                 "canceled_at": None,
             },
             {
@@ -66,7 +60,6 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=90)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=20)).isoformat(),
-                    
                 "canceled_at": None,
             },
             {
@@ -78,7 +71,6 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=80)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=10)).isoformat(),
-                    
                 "canceled_at": None,
             },
             # Canceled subscriptions
@@ -91,7 +83,6 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=70)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=40)).isoformat(),
-                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=45)).isoformat(),
             },
             {
@@ -103,7 +94,6 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=60)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=30)).isoformat(),
-                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=35)).isoformat(),
             },
             # Upgraded subscriptions
@@ -116,7 +106,6 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=50)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=20)).isoformat(),
-                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=25)).isoformat(),
             },
             {
@@ -128,7 +117,6 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=25)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=5)).isoformat(),
-                    
                 "canceled_at": None,
             },
         ]
@@ -504,7 +492,6 @@ class TestRevenueAnalytics:
                         # Check last month
                         total_last_month = sum(plan_projection[11].values())
                         assert abs(total_last_month - projection[11]) < Decimal("0.01")
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_revenue_analytics.py"])

@@ -4,10 +4,9 @@ AI Models service for the pAIssive Income API.
 This module provides a service for interacting with the AI model endpoints.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base import BaseService
-
 
 class AIModelsService(BaseService):
     """

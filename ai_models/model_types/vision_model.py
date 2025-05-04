@@ -152,7 +152,7 @@ class VisionModel:
         """
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Transformers not available. Please install it with: pip install transformers"
+"Transformers not available. Please install it with: pip install transformers"
             )
 
         if not TORCH_AVAILABLE:
@@ -207,7 +207,7 @@ class VisionModel:
         """
         if not ONNX_AVAILABLE:
             raise ImportError(
-                "ONNX Runtime not available. Please install it with: pip install onnxruntime"
+"ONNX Runtime not available. Please install it with: pip install onnxruntime"
             )
 
         logger.info(f"Loading ONNX vision model: {self.model_path}")
@@ -282,7 +282,7 @@ class VisionModel:
                     self.model.load_state_dict(self.model)
                 else:
                     logger.warning(
-                        "Model is a state dict but model_type not specified. Using as is."
+"Model is a state dict but model_type not specified. Using as is."
                     )
 
             # Move model to device

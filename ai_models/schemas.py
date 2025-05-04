@@ -6,10 +6,9 @@ This module provides Pydantic models for data validation in the AI models module
 
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 class ModelConfigSchema(BaseModel):
     """
@@ -44,8 +43,8 @@ class ModelConfigSchema(BaseModel):
     )
     max_threads: Optional[int] = Field(
         default=None,
-        description="Maximum number of threads to use (None means use all available threads)",
-            
+        description="Maximum number of threads to use (None means use all available" \
+                    + "threads)",
     )
     auto_discover: bool = Field(
         default=True, description="Whether to automatically discover models"
@@ -89,10 +88,10 @@ class ModelConfigSchema(BaseModel):
         invalid_sources = set(v) - valid_sources
         if invalid_sources:
             raise ValueError(
-                f"Invalid model sources: {invalid_sources}. Must be one of {valid_sources}"
+                f"Invalid model sources: {invalid_sources}. Must be one of" \
+                 + "{valid_sources}"
             )
         return v
-
 
 class ModelInfoSchema(BaseModel):
     """
@@ -144,7 +143,6 @@ class ModelInfoSchema(BaseModel):
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
     )
 
-
 class ModelParametersSchema(BaseModel):
     """
     Pydantic model for AI model parameters.
@@ -177,7 +175,6 @@ class ModelParametersSchema(BaseModel):
         str_max_length=100,  # Security: limit stop sequence lengths
     )
 
-
 class TextGenerationRequestSchema(BaseModel):
     """
     Pydantic model for text generation request.
@@ -200,7 +197,6 @@ class TextGenerationRequestSchema(BaseModel):
 
     model_config = ConfigDict(validate_assignment=True, extra="ignore", 
         str_strip_whitespace=True)
-
 
 class TextGenerationResponseSchema(BaseModel):
     """
@@ -230,7 +226,6 @@ class TextGenerationResponseSchema(BaseModel):
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
     )
 
-
 class EmbeddingRequestSchema(BaseModel):
     """
     Pydantic model for text embedding request.
@@ -249,7 +244,6 @@ class EmbeddingRequestSchema(BaseModel):
     model_config = ConfigDict(validate_assignment=True, extra="ignore", 
         str_strip_whitespace=True)
 
-
 class EmbeddingResponseSchema(BaseModel):
     """
     Pydantic model for text embedding response.
@@ -263,7 +257,9 @@ class EmbeddingResponseSchema(BaseModel):
     )
     dimensions: int = Field(..., description="Dimensions of the embeddings", gt=0)
     texts: List[str] = Field(..., description="Input texts")
-    embedding_time: float = Field(..., description="Time taken for embedding in seconds", 
+    embedding_time:
+        float =
+        Field(..., description="Time taken for embedding in seconds",
         ge=0)
     created_at: datetime = Field(default_factory=datetime.now, 
         description="Creation timestamp")
@@ -274,7 +270,6 @@ class EmbeddingResponseSchema(BaseModel):
         str_strip_whitespace=True,
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
     )
-
 
 class BenchmarkConfigSchema(BaseModel):
     """
@@ -315,7 +310,6 @@ class BenchmarkConfigSchema(BaseModel):
 
     model_config = ConfigDict(validate_assignment=True, extra="ignore", 
         str_strip_whitespace=True)
-
 
 class BenchmarkResultSchema(BaseModel):
     """

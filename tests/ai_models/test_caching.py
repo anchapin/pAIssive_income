@@ -2,11 +2,9 @@
 
 import sqlite3
 import time
-from typing import Any, Dict, Optional
 
 import pytest
 
-from ai_models.caching import (
     CacheConfig,
     CacheKey,
     CacheManager,
@@ -22,7 +20,6 @@ TEST_INPUT = "Hello, world!"
 TEST_PARAMS = {"temperature": 0.7, "max_tokens": 100}
 TEST_RESPONSE = {"text": "Hello back!", "tokens": 2, "finish_reason": "length"}
 
-
 @pytest.fixture
 def memory_cache_config():
     """Fixture for memory cache configuration."""
@@ -33,7 +30,6 @@ def memory_cache_config():
         max_size=3,  # Small size to test eviction
         eviction_policy="lru",
     )
-
 
 @pytest.fixture
 def disk_cache_config(tmp_path):
@@ -47,7 +43,6 @@ def disk_cache_config(tmp_path):
             "serialization": "json"}},
     )
 
-
 @pytest.fixture
 def sqlite_cache_config(tmp_path):
     """Fixture for SQLite cache configuration."""
@@ -58,7 +53,6 @@ def sqlite_cache_config(tmp_path):
         backend_config={"sqlite": {"db_path": str(tmp_path / "cache.db"), 
             "serialization": "json"}},
     )
-
 
 def test_cache_hit_miss(memory_cache_config):
     """Test cache hit and miss scenarios."""
@@ -79,7 +73,6 @@ def test_cache_hit_miss(memory_cache_config):
     assert stats["hits"] == 1
     assert stats["misses"] == 1
 
-
 def test_cache_ttl(memory_cache_config):
     """Test cache TTL (time to live) expiration."""
     # Set a very short TTL for testing
@@ -99,7 +92,6 @@ def test_cache_ttl(memory_cache_config):
     # Verify it's gone
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result is None
-
 
 def test_cache_size_and_eviction(memory_cache_config):
     """Test cache size limits and eviction policies."""
@@ -144,7 +136,6 @@ def test_cache_size_and_eviction(memory_cache_config):
         input_keys[2]) is not None  # "Input 2"
     assert cache.get(TEST_MODEL_ID, TEST_OPERATION, new_input) is not None  # "Input 3"
 
-
 def test_cache_invalidation(memory_cache_config):
     """Test cache invalidation methods."""
     cache = CacheManager(memory_cache_config)
@@ -164,7 +155,6 @@ def test_cache_invalidation(memory_cache_config):
     cache.clear_namespace(TEST_MODEL_ID)
     assert cache.get_size() == 0
 
-
 def test_cache_persistence(disk_cache_config):
     """Test cache persistence with disk backend."""
     cache = CacheManager(disk_cache_config)
@@ -178,7 +168,6 @@ def test_cache_persistence(disk_cache_config):
     # Verify item is still there
     result = new_cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result == TEST_RESPONSE
-
 
 def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
     """Test SQLite - specific cache features."""
@@ -208,7 +197,6 @@ def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result == TEST_RESPONSE
 
-
 def test_cache_statistics(memory_cache_config):
     """Test cache statistics tracking."""
     cache = CacheManager(memory_cache_config)
@@ -233,7 +221,6 @@ def test_cache_statistics(memory_cache_config):
     cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT)
     stats = cache.get_stats()
     assert stats["hits"] == 1
-
 
 def test_cache_enabled_flag(memory_cache_config):
     """Test cache enabled / disabled functionality."""

@@ -2,12 +2,9 @@
 Tests for market trend analysis functionality.
 """
 
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
-
 import pytest
 
-from niche_analysis.errors import InsufficientDataError, InvalidTimeRangeError
+from niche_analysis.errors import InsufficientDataError
 from niche_analysis.market_analyzer import MarketAnalyzer
 from niche_analysis.market_trends import (
     HistoricalTrendAnalyzer,
@@ -16,12 +13,10 @@ from niche_analysis.market_trends import (
     TrendSeverityClassifier,
 )
 
-
 @pytest.fixture
 def market_analyzer():
     """Create a MarketAnalyzer instance for testing."""
     return MarketAnalyzer()
-
 
 class TestMarketTrendAnalysis:
     """Test cases for market trend analysis."""
@@ -316,7 +311,6 @@ class TestMarketTrendAnalysis:
 
         # Verify timestamp is updated in fresh result
         assert fresh_result != first_result
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_market_trends.py"])

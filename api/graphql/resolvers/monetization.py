@@ -5,7 +5,7 @@ This module provides resolvers for monetization queries and mutations.
 """
 
 import logging
-from typing import Any, Dict, Float, List, Optional, Union
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -23,7 +23,6 @@ except ImportError:
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.monetization import (
         BillingPeriodEnum,
         FeatureInput,
         FeatureType,
@@ -72,9 +71,7 @@ if STRAWBERRY_AVAILABLE:
                         description=model.description,
                         subscription_type=SubscriptionTypeEnum(model.subscription_type),
                         created_at=model.created_at.isoformat() if model.created_at else None,
-                            
                         updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                            
                     )
                     for model in models
                 ]
@@ -113,9 +110,7 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error getting subscription model: {str(e)}")
@@ -207,9 +202,7 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating subscription model: {str(e)}")
@@ -254,9 +247,7 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error updating subscription model: {str(e)}")
@@ -328,9 +319,7 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
-                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error adding pricing tier: {str(e)}")

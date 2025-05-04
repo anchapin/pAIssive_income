@@ -1,8 +1,6 @@
-import pytest
 from pydantic import ValidationError
 
-from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
-
+from api.schemas.webhook import WebhookRequest, WebhookUpdate
 
 # Test empty events list in WebhookRequest
 def test_webhook_request_empty_events():
@@ -15,7 +13,6 @@ def test_webhook_request_empty_events():
         print("Test passed - empty events list rejected as expected")
         print(f"Error: {str(e)}")
 
-
 # Test empty events list in WebhookUpdate
 def test_webhook_update_empty_events():
     data = {"events": []}
@@ -26,7 +23,6 @@ def test_webhook_update_empty_events():
     except ValidationError as e:
         print("Test passed - empty events list rejected as expected")
         print(f"Error: {str(e)}")
-
 
 # Test null events list in WebhookUpdate (should be allowed)
 def test_webhook_update_null_events():
@@ -39,7 +35,6 @@ def test_webhook_update_null_events():
     except ValidationError as e:
         print("Test failed - null events list should be accepted")
         print(f"Error: {str(e)}")
-
 
 # Run the tests
 if __name__ == "__main__":

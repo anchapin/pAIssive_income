@@ -5,16 +5,14 @@ These tests verify that the system can gracefully handle model failures
 and properly implement fallback strategies.
 """
 
-import time
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.fallbacks import FallbackEvent, FallbackManager, FallbackStrategy
+from ai_models.fallbacks import FallbackStrategy
 from ai_models.model_base_types import ModelInfo
 from ai_models.model_manager import ModelManager
 from errors import ModelAPIError, ModelError, ModelLoadError
-
 
 class TestModelFallback(unittest.TestCase):
     """Test suite for model fallback mechanisms."""
@@ -224,7 +222,6 @@ class TestModelFallback(unittest.TestCase):
 
         # But the system should still function
         self.assertEqual(response, "Fallback model response")
-
 
 if __name__ == "__main__":
     unittest.main()

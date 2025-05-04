@@ -5,7 +5,7 @@ This module provides GraphQL types and resolvers for the monetization module.
 """
 
 import logging
-from typing import Any, Dict, Float, List, Optional
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(

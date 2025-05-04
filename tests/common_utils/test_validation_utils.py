@@ -6,7 +6,6 @@ import json
 import os
 import tempfile
 import unittest
-from pathlib import Path
 
 from pydantic import BaseModel, Field
 
@@ -30,7 +29,6 @@ from common_utils.validation_utils import (
     validate_and_sanitize_input,
     validate_config_file,
 )
-
 
 class TestValidationUtils(unittest.TestCase):
     """Test case for validation utilities."""
@@ -351,7 +349,6 @@ class TestValidationUtils(unittest.TestCase):
         finally:
             # Clean up
             os.unlink(temp_file_path)
-
 
 if __name__ == "__main__":
     unittest.main()

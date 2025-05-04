@@ -302,7 +302,8 @@ def test_marketing_agent_create_plan(mock_team):
             "target_audience": [
                 {
                     "name": "Small Business Owners",
-                    "description": "Owners of small businesses looking to improve efficiency",
+                    "description":"Owners of small businesses looking to improve" \
+                                  + "efficiency",
                         
                     "demographics": {
                         "age_range": "30 - 50",

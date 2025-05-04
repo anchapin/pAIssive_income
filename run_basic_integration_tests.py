@@ -9,8 +9,7 @@ import json
 import sys
 import time
 import unittest
-from typing import Any, Dict, List, Optional, Set
-
+from typing import Dict, List, Optional, Set
 
 class WebhookSignatureVerifier:
     """Webhook signature verification."""
@@ -49,7 +48,6 @@ class WebhookSignatureVerifier:
 
         return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
 
-
 class WebhookIPAllowlist:
     """IP allowlisting for webhook endpoints."""
 
@@ -80,7 +78,6 @@ class WebhookIPAllowlist:
             return True
 
         return False
-
 
 class WebhookRateLimiter:
     """Rate limiting for webhook deliveries."""
@@ -149,7 +146,6 @@ class WebhookRateLimiter:
 
         # Calculate reset time
         return oldest_request + self.window_seconds
-
 
 class TestWebhookSecurityIntegration(unittest.TestCase):
     """Integration tests for webhook security features."""
@@ -323,7 +319,6 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
 
         self.assertTrue(can_proceed)
 
-
 def run_tests():
     """Run the integration tests."""
     print("Running basic webhook integration tests...")
@@ -348,7 +343,6 @@ def run_tests():
 
     # Return exit code
     return 0 if result.wasSuccessful() else 1
-
 
 if __name__ == "__main__":
     sys.exit(run_tests())

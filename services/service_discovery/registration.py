@@ -14,13 +14,11 @@ import sys
 from typing import Any, Callable, Dict, List, Optional
 
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
-from services.service_discovery.helpers import (
     register_health_check_endpoint,
     setup_service_discovery,
 )
 
 logger = logging.getLogger(__name__)
-
 
 class ServiceRegistration:
     """
@@ -148,7 +146,6 @@ class ServiceRegistration:
 
         logger.info(f"Set up health check endpoint at {self.health_check_url}")
 
-
 def register_service(
     app,
     service_name: str,
@@ -205,7 +202,6 @@ def register_service(
 
     return registration
 
-
 def get_service_metadata() -> Dict[str, Any]:
     """
     Get metadata about this service for registration.
@@ -224,7 +220,6 @@ def get_service_metadata() -> Dict[str, Any]:
         "platform": sys.platform,
         "python_version": sys.version.split()[0],
     }
-
 
 def get_default_tags() -> List[str]:
     """

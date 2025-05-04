@@ -342,7 +342,8 @@ Resources:
       ModelName: !Ref 'ModelName'
       ExecutionRoleArn: !GetAtt 'ModelRole.Arn'
       PrimaryContainer:
-        Image: !Sub '${{AWS::AccountId}}.dkr.ecr.${{AWS::Region}}.amazonaws.com/${{ModelName}}:latest'
+        Image: !Sub'${{AWS::AccountId}}.dkr.ecr.${{AWS::Region}}.amazonaws.com/${{Mod' \
+                   + 'elName}}:latest'
         Environment:
           MODEL_PATH: !Ref 'ModelPath'
           MODEL_TYPE: !Ref 'ModelType'
@@ -620,7 +621,8 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     """
     # Create ARM template content
     content = f"""{{
-  "$schema": "https://schema.management.azure.com / schemas / 2019 - 04 - 01 / deploymentTemplate.json#",
+  "$schema":"https://schema.management.azure.com / schemas / 2019 - 04 - 01 /" \
+            + "deploymentTemplate.json#",
       
   "contentVersion": "1.0.0.0",
   "parameters": {{

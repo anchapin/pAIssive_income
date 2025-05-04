@@ -4,10 +4,9 @@ Monetization service for the pAIssive Income API.
 This module provides a service for interacting with the monetization endpoints.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base import BaseService
-
 
 class MonetizationService(BaseService):
     """
@@ -60,7 +59,11 @@ class MonetizationService(BaseService):
         """
         return self._get(f"monetization / subscription - models/{model_id}")
 
-    def update_subscription_model(self, model_id: str, data: Dict[str, Any]) -> Dict[str, 
+    def update_subscription_model(
+                                  self,
+                                  model_id: str,
+                                  data: Dict[str, Any]
+                                 ) -> Dict[str, 
         Any]:
         """
         Update a subscription model.

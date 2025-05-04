@@ -5,7 +5,7 @@ This module provides resolvers for niche analysis queries and mutations.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -23,7 +23,6 @@ except ImportError:
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.niche_analysis import (
         MarketSegmentInput,
         MarketSegmentType,
         NicheAnalysisInput,
@@ -71,9 +70,7 @@ if STRAWBERRY_AVAILABLE:
                         growth_rate=niche.growth_rate,
                         competition_level=niche.competition_level,
                         created_at=niche.created_at.isoformat() if niche.created_at else None,
-                            
                         updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
-                            
                     )
                     for niche in niches
                 ]
@@ -113,9 +110,7 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
-                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error getting niche: {str(e)}")
@@ -165,9 +160,7 @@ if STRAWBERRY_AVAILABLE:
                         feasibility=opp.feasibility,
                         profitability=opp.profitability,
                         created_at=opp.created_at.isoformat() if opp.created_at else None,
-                            
                         updated_at=opp.updated_at.isoformat() if opp.updated_at else None,
-                            
                     )
                     for opp in opportunities
                 ]
@@ -217,9 +210,7 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
-                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating niche analysis: {str(e)}")
@@ -267,9 +258,7 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
-                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error updating niche: {str(e)}")

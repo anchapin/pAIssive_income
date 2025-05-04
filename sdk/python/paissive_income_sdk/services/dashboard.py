@@ -4,10 +4,9 @@ Dashboard service for the pAIssive Income API.
 This module provides a service for interacting with the dashboard endpoints.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from .base import BaseService
-
 
 class DashboardService(BaseService):
     """
@@ -39,7 +38,10 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / revenue", params=params)
 
-    def get_subscriber_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+    def get_subscriber_stats(
+                             self,
+                             params: Optional[Dict[str, Any]] = None
+                            ) -> Dict[str, 
         Any]:
         """
         Get subscriber statistics.
@@ -71,7 +73,10 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / traffic", params=params)
 
-    def get_conversion_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+    def get_conversion_stats(
+                             self,
+                             params: Optional[Dict[str, Any]] = None
+                            ) -> Dict[str, 
         Any]:
         """
         Get conversion statistics.

@@ -7,10 +7,9 @@ fallback configurations with security features.
 
 import re
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 class FallbackStrategyEnum(str, Enum):
     """Enumeration of fallback strategy types for Pydantic models."""
@@ -24,7 +23,6 @@ class FallbackStrategyEnum(str, Enum):
     SIZE_TIER = "size_tier"  # Try models of different size tiers
     CAPABILITY_BASED = "capability"  # Try models with required capabilities
 
-
 class FallbackPreferences(BaseModel):
     """Model for fallback preferences configuration."""
 
@@ -36,8 +34,8 @@ class FallbackPreferences(BaseModel):
             "marketing": ["huggingface", "general - purpose"],
             "default": ["huggingface", "general - purpose"],
         },
-        description="Mapping of agent types to their preferred model types for fallbacks",
-            
+        description="Mapping of agent types to their preferred model types for" \
+                    + "fallbacks",
     )
 
     model_config = ConfigDict(
@@ -76,7 +74,6 @@ class FallbackPreferences(BaseModel):
         return self.preferred_model_types.get(
             agent_type, self.preferred_model_types.get("default", [])
         )
-
 
 class FallbackConfig(BaseModel):
     """Configuration model for fallback behavior with security features."""
@@ -170,7 +167,6 @@ class FallbackConfig(BaseModel):
             raise ValueError("Must specify at least one valid model type")
         return validated
 
-
 class FallbackEventSchema(BaseModel):
     """Schema for a model fallback event with security validations."""
 
@@ -235,7 +231,6 @@ class FallbackEventSchema(BaseModel):
             # Convert values to strings and limit length
             sanitized[key] = str(value)[:500]
         return sanitized
-
 
 class FallbackMetrics(BaseModel):
     """Schema for fallback metrics with validation."""

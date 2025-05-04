@@ -6,13 +6,12 @@ This module provides route handlers for log operations.
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ..middleware.auth import get_current_user, require_scopes
 from ..models.user import User
-from ..schemas.common import ErrorResponse
 from ..services.logging_service import LoggingService
 
 # Configure logging
@@ -24,7 +23,6 @@ logging_service = LoggingService()
 
 # Create router
 router = APIRouter()
-
 
 @router.get(
     " / api",
@@ -76,7 +74,6 @@ async def get_api_logs(
     )
 
     return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
-
 
 @router.get(
     " / security",
@@ -141,7 +138,6 @@ async def get_security_logs(
     )
 
     return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
-
 
 @router.get(
     " / webhook",

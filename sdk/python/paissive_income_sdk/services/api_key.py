@@ -4,10 +4,9 @@ API Key service for the pAIssive Income API.
 This module provides a service for managing API keys.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base import BaseService
-
 
 class APIKeyService(BaseService):
     """

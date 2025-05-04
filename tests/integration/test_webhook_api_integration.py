@@ -9,7 +9,6 @@ import hashlib
 import hmac
 import json
 import time
-from typing import Any, Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -21,14 +20,12 @@ from tests.api.utils.test_data import (
     generate_webhook_data,
 )
 
-
 @pytest.fixture
 def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000 / api")
     client.authenticate("test_user", "test_password")
     return client
-
 
 @pytest.fixture
 def mock_webhook_server():
@@ -45,7 +42,6 @@ def mock_webhook_server():
 
     server.receive_event = receive_event
     return server
-
 
 class TestWebhookAPIIntegration:
     """Test webhook integration with API events."""
@@ -286,7 +282,6 @@ class TestWebhookAPIIntegration:
             second_call = mock_send_event.call_args_list[1]
             assert second_call[0][0] == "solution.created"
             assert second_call[0][2] == "https://example.com / webhook2"
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_webhook_api_integration.py"])

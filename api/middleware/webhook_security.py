@@ -8,7 +8,7 @@ This module provides FastAPI middleware for webhook security:
 
 import logging
 import time
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Optional
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
@@ -20,7 +20,6 @@ from ..services.webhook_security import WebhookIPAllowlist, WebhookRateLimiter
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
     """Middleware for IP allowlisting."""
@@ -94,7 +93,6 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
 
         # Continue processing
         return await call_next(request)
-
 
 class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
     """Middleware for rate limiting webhook requests."""

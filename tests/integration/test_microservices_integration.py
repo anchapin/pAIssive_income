@@ -6,26 +6,19 @@ components including service discovery, message queue, API gateway, and
 circuit breaker.
 """
 
-import json
-import threading
-import time
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-import requests
 
 # Import in - memory implementations for testing
 from services.discovery.memory_registry import InMemoryServiceRegistry
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
-from services.service_discovery.load_balancer import (
     LoadBalancer,
     RandomStrategy,
     RoundRobinStrategy,
     WeightedRandomStrategy,
 )
 from services.service_discovery.service_registry import ServiceInstance
-
 
 class TestMicroservicesIntegration:
     """Integration tests for microservices architecture components."""
@@ -290,7 +283,6 @@ class TestMicroservicesIntegration:
         # Verify distribution favors higher versions
         assert selected_versions["2.0.0"] > selected_versions["1.1.0"]
         assert selected_versions["1.1.0"] > selected_versions["1.0.0"]
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_microservices_integration.py"])

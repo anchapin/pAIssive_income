@@ -237,7 +237,8 @@ def run_demo():
     print(f"\nAt - Risk Subscriptions: {len(at_risk)}")
     for i, subscription in enumerate(at_risk[:3]):
         print(
-            f"- User {subscription['user_id']}: {subscription['churn_probability']:.2f}% probability of churning"
+            f"- User {subscription['user_id']}:" \
+             + "{subscription['churn_probability']:.2f}% probability of churning"
         )
 
     print_separator()
@@ -277,7 +278,8 @@ def run_demo():
 
     if breakeven:
         print(
-            f"\nBreakeven Point: Month {breakeven['period']} with ${breakeven['revenue']:.2f} revenue"
+            f"\nBreakeven Point: Month {breakeven['period']} with" \
+             + "${breakeven['revenue']:.2f} revenue"
         )
     else:
         print("\nNo breakeven point found within 24 months")

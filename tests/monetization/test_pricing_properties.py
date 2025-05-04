@@ -8,13 +8,11 @@ functions in the monetization module,
 
 import pytest
 
-from hypothesis import assume, example, given, settings
+from hypothesis import assume, example, given
 from hypothesis import strategies as st
 from hypothesis.strategies import composite
 from monetization.calculator import MonetizationCalculator
-from monetization.errors import MonetizationError
 from monetization.pricing_calculator import PricingCalculator
-
 
 @composite
 def subscription_tiers_strategy(draw):
@@ -57,7 +55,6 @@ def subscription_tiers_strategy(draw):
 
     return tiers
 
-
 @composite
 def user_counts_strategy(draw, tiers):
     """Strategy for generating user counts that match the provided tiers."""
@@ -70,7 +67,6 @@ def user_counts_strategy(draw, tiers):
         user_counts[tier_id] = count
 
     return user_counts
-
 
 @composite
 def solution_cost_strategy(draw):
@@ -94,7 +90,6 @@ def solution_cost_strategy(draw):
         "marketing_cost": round(marketing_cost, 2),
         "support_cost": round(support_cost, 2),
     }
-
 
 @composite
 def pricing_calculator_params_strategy(draw):
@@ -138,7 +133,6 @@ def pricing_calculator_params_strategy(draw):
         "competitor_prices": competitor_prices,
     }
 
-
 @composite
 def optimal_price_params_strategy(draw):
     """Strategy for generating optimal price calculation parameters."""
@@ -164,7 +158,6 @@ def optimal_price_params_strategy(draw):
         "competitor_price": round(competitor_price, 2),
         "price_sensitivity": round(price_sensitivity, 2),
     }
-
 
 class TestMonetizationCalculatorProperties:
     """Property - based tests for the MonetizationCalculator class."""
@@ -307,7 +300,6 @@ class TestMonetizationCalculatorProperties:
                         < max_deviation
                     )
 
-
 class TestPricingCalculatorProperties:
     """Property - based tests for the PricingCalculator class."""
 
@@ -414,8 +406,12 @@ class TestPricingCalculatorProperties:
     @given(
         params=pricing_calculator_params_strategy(),
         price_params=optimal_price_params_strategy(),
-        strategy=st.sampled_from(["value - based", "competitor - based", "cost - plus"]),
-            
+        strategy=st.sampled_from(
+    ["value -
+    based","competitor -
+    based","cost -
+    plus"]
+)),
     )
     def test_pricing_strategy_influence(self, params, price_params, strategy):
         """Test that pricing strategy influences the final price."""

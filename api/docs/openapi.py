@@ -5,7 +5,7 @@ This module provides functions for customizing the OpenAPI documentation.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict
 
 # Set up logging
 logging.basicConfig(
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI
     from fastapi.openapi.utils import get_openapi as fastapi_get_openapi
 
     FASTAPI_AVAILABLE = True
@@ -23,8 +22,12 @@ except ImportError:
     logger.warning("FastAPI is required for OpenAPI documentation")
     FASTAPI_AVAILABLE = False
 
-
-def get_openapi_schema(app: Any, title: str, version: str, description: str) -> Dict[str, 
+def get_openapi_schema(
+                       app: Any,
+                       title: str,
+                       version: str,
+                       description: str
+                      ) -> Dict[str, 
     Any]:
     """
     Get the OpenAPI schema for the API server.
@@ -160,7 +163,6 @@ def get_openapi_schema(app: Any, title: str, version: str, description: str) -> 
     }
 
     return openapi_schema
-
 
 def setup_openapi(app: Any, title: str, version: str, description: str) -> None:
     """

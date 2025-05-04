@@ -223,7 +223,7 @@ class ResearchAgent(IResearchAgent):
                 ),
                 self._create_niche(
                     "Client Communication Assistant",
-                    "Freelancers need to maintain professional communication with clients",
+"Freelancers need to maintain professional communication with clients",
                         
                     ["response time", "professionalism", "clarity"],
                     0.75,
@@ -380,7 +380,8 @@ class ResearchAgent(IResearchAgent):
         return {
             "id": str(uuid.uuid4()),
             "name": problem_name,
-            "description": f"Users in the {niche_name} niche struggle with {problem_name}",
+            "description": f"Users in the {niche_name} niche struggle with" \
+                            + "{problem_name}",
                 
             "priority": round(
                 0.5 + 0.5 * hash(problem_name) % 100 / 100, 2

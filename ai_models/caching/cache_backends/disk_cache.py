@@ -583,7 +583,7 @@ class DiskCache(CacheBackend):
                 import logging
 
                 logging.exception(
-                    "Error during cache eviction. Falling back to deleting the first key."
+"Error during cache eviction. Falling back to deleting the first key."
                 )
                 if keys:
                     # If there's any error, just delete the first key

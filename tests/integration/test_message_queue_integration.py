@@ -5,12 +5,9 @@ This module contains integration tests for the message queue service
 and its integration with other microservices.
 """
 
-import asyncio
-import json
 import threading
 import time
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from datetime import datetime
 
 import pytest
 
@@ -21,7 +18,6 @@ from services.messaging import (
     MessageQueueClient,
     QueueConfig,
 )
-
 
 class TestMessageQueueIntegration:
     """Integration tests for message queue integration with other services."""
@@ -212,8 +208,10 @@ class TestMessageQueueIntegration:
                             "timestamp": datetime.utcnow().isoformat(),
                         },
                         headers={
-                            "workflow_id": headers.get("workflow_id", "test - workflow"),
-                                
+                            "workflow_id": headers.get(
+                                                       "workflow_id",
+                                                       "test - workflow"
+                                                      ),
                             "step": next_step_index,
                         },
                     )
@@ -227,7 +225,9 @@ class TestMessageQueueIntegration:
             service = step["service"]
             next_step = i + 1
             consumers[service].register_handler(
-                routing_key=f"{service}.events", handler=create_workflow_handler(service, 
+                routing_key=f"{
+    service
+}}.events", handler=create_workflow_handler(service, 
                     next_step)
             )
 
@@ -380,7 +380,6 @@ class TestMessageQueueIntegration:
         # All consumer should receive all events
         for topic in test_topics:
             assert len(topic_handlers[topic]) >= 1
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_message_queue_integration.py"])

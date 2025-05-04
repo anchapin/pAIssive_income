@@ -2,7 +2,6 @@
 Tests for webhook service error handling scenarios.
 """
 
-import asyncio
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
@@ -36,7 +35,6 @@ TEST_EVENT = {
     },
 }
 
-
 @pytest.mark.asyncio
 async def test_webhook_connection_error():
     """Test handling of connection errors during webhook delivery."""
@@ -63,7 +61,6 @@ async def test_webhook_connection_error():
             assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.FAILED
             assert delivery["attempts"][0]["response_code"] is None
             assert "Connection refused" in delivery["attempts"][0]["error_message"]
-
 
 @pytest.mark.asyncio
 async def test_webhook_timeout_error():
@@ -93,7 +90,6 @@ async def test_webhook_timeout_error():
             assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.FAILED
             assert delivery["attempts"][0]["response_code"] is None
             assert "Request timed out" in delivery["attempts"][0]["error_message"]
-
 
 @pytest.mark.asyncio
 async def test_webhook_invalid_response():
@@ -128,7 +124,6 @@ async def test_webhook_invalid_response():
             assert delivery["attempts"][0]["response_code"] == 200
             assert delivery["attempts"][0]["response_body"] == "Not a valid JSON"
 
-
 @pytest.mark.asyncio
 async def test_webhook_not_found():
     """Test handling of non - existent webhook."""
@@ -147,7 +142,6 @@ async def test_webhook_not_found():
 
         # Assertions
         assert "Webhook not found" in str(excinfo.value)
-
 
 @pytest.mark.asyncio
 async def test_webhook_inactive():
@@ -171,7 +165,6 @@ async def test_webhook_inactive():
 
         # Assertions
         assert "Webhook is inactive" in str(excinfo.value)
-
 
 @pytest.mark.asyncio
 async def test_webhook_event_not_subscribed():

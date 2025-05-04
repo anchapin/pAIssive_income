@@ -8,8 +8,7 @@ import random
 import string
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
-
+from typing import Any, Dict
 
 def generate_id() -> str:
     """
@@ -19,7 +18,6 @@ def generate_id() -> str:
         Random ID
     """
     return str(uuid.uuid4())
-
 
 def generate_string(length: int = 10) -> str:
     """
@@ -33,7 +31,6 @@ def generate_string(length: int = 10) -> str:
     """
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
-
 def generate_email() -> str:
     """
     Generate a random email address.
@@ -42,7 +39,6 @@ def generate_email() -> str:
         Random email address
     """
     return f"{generate_string(8)}@example.com"
-
 
 def generate_date(days_ago: int = 0) -> str:
     """
@@ -55,7 +51,6 @@ def generate_date(days_ago: int = 0) -> str:
         Date string in ISO format
     """
     return (datetime.now() - timedelta(days=days_ago)).isoformat()
-
 
 def generate_niche_analysis_data() -> Dict[str, Any]:
     """
@@ -70,7 +65,6 @@ def generate_niche_analysis_data() -> Dict[str, Any]:
         "problem_statement": "Small businesses struggle with inventory management",
         "opportunity_score_threshold": 0.7,
     }
-
 
 def generate_niche_data() -> Dict[str, Any]:
     """
@@ -90,7 +84,6 @@ def generate_niche_data() -> Dict[str, Any]:
         "created_at": generate_date(10),
         "updated_at": generate_date(),
     }
-
 
 def generate_monetization_data() -> Dict[str, Any]:
     """
@@ -127,7 +120,6 @@ def generate_monetization_data() -> Dict[str, Any]:
         ],
     }
 
-
 def generate_revenue_projection_data() -> Dict[str, Any]:
     """
     Generate test data for revenue projection.
@@ -142,7 +134,6 @@ def generate_revenue_projection_data() -> Dict[str, Any]:
         "churn_rate": random.uniform(0.01, 0.1),
         "time_period_months": random.randint(12, 60),
     }
-
 
 def generate_marketing_strategy_data() -> Dict[str, Any]:
     """
@@ -195,7 +186,6 @@ def generate_marketing_strategy_data() -> Dict[str, Any]:
         ],
     }
 
-
 def generate_ai_model_data() -> Dict[str, Any]:
     """
     Generate test data for AI model.
@@ -232,7 +222,6 @@ def generate_ai_model_data() -> Dict[str, Any]:
             "top_p": random.uniform(0.1, 1.0),
         },
     }
-
 
 def generate_agent_team_data() -> Dict[str, Any]:
     """
@@ -273,7 +262,6 @@ def generate_agent_team_data() -> Dict[str, Any]:
         },
     }
 
-
 def generate_user_data() -> Dict[str, Any]:
     """
     Generate test data for user.
@@ -288,7 +276,6 @@ def generate_user_data() -> Dict[str, Any]:
         "first_name": generate_string(6),
         "last_name": generate_string(8),
     }
-
 
 def generate_api_key_data() -> Dict[str, Any]:
     """
@@ -306,7 +293,6 @@ def generate_api_key_data() -> Dict[str, Any]:
         ],
         "expires_at": generate_date(-random.randint(30, 365)),
     }
-
 
 def generate_webhook_data() -> Dict[str, Any]:
     """
@@ -329,7 +315,6 @@ def generate_webhook_data() -> Dict[str, Any]:
         "secret": generate_string(16),
     }
 
-
 def generate_solution_data() -> Dict[str, Any]:
     """Generate test data for a solution."""
     return {
@@ -344,7 +329,6 @@ def generate_solution_data() -> Dict[str, Any]:
             "deployment": "cloud",
         },
     }
-
 
 def generate_template_data() -> Dict[str, Any]:
     """Generate test data for a template."""

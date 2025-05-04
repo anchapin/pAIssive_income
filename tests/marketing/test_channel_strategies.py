@@ -317,7 +317,11 @@ def test_cross_channel_campaign_coordination():
     campaign = strategy.create_integrated_campaign(
         name="Product Launch Campaign",
         channels=["social_media", "email", "content", "paid_ads"],
-        timeline={"pre_launch": "2 weeks", "launch": "1 week", "post_launch": "4 weeks"},
+        timeline={
+    "pre_launch":"2 weeks",
+    "launch":"1 week",
+    "post_launch":"4 weeks"
+}},
             
         budget=20000,
         main_goal="product_launch",

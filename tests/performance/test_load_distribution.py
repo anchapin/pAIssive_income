@@ -8,14 +8,11 @@ load balancing optimization.
 
 import asyncio
 import json
-import os
 import random
 import time
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-
-import pytest
+from typing import Any, Dict, Optional
 
 from services.discovery.load_balancing import (
     LeastConnectionsLoadBalancer,
@@ -25,7 +22,6 @@ from services.discovery.load_balancing import (
 
 # Import necessary services and utilities
 from services.discovery.service_registry import ServiceRegistry
-
 
 # Mock classes for testing
 class MockRegionalEndpoint:
@@ -99,7 +95,6 @@ class MockRegionalEndpoint:
             ),
             "is_available": self.is_available,
         }
-
 
 class GeoDistributedLoadTester:
     """Test harness for geographically distributed load testing."""
@@ -273,7 +268,6 @@ class GeoDistributedLoadTester:
         # Mark the region as available again
         endpoint.is_available = True
 
-
 async def test_geographically_distributed_load():
     """Test system behavior under geographically distributed load."""
     # Create the load tester
@@ -311,7 +305,6 @@ async def test_geographically_distributed_load():
     # Print results
     print(json.dumps(results, indent=2))
 
-
 async def test_regional_failover():
     """Test regional failover scenarios."""
     # Create the load tester
@@ -345,7 +338,6 @@ async def test_regional_failover():
 
     # Print results
     print(json.dumps(results, indent=2))
-
 
 async def test_load_balancing_optimization():
     """Test load balancing optimization."""
@@ -429,7 +421,6 @@ async def test_load_balancing_optimization():
     print(f"Weighted distribution: {region_counts}")
     print(f"Least connections selected: {instance['region']}")
 
-
 async def main():
     """Run all tests."""
     print("\n=== Testing Geographically Distributed Load ===")
@@ -440,7 +431,6 @@ async def main():
 
     print("\n=== Testing Load Balancing Optimization ===")
     await test_load_balancing_optimization()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

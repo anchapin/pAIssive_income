@@ -8,11 +8,10 @@ import asyncio
 import random
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
-
 
 class RateLimitConfig(BaseModel):
     """Rate limit configuration."""
@@ -20,13 +19,11 @@ class RateLimitConfig(BaseModel):
     tier: str
     limits: Dict[str, int]
 
-
 class ThrottleConfig(BaseModel):
     """Throttling configuration."""
 
     max_concurrent_requests: int
     timeout_seconds: int
-
 
 class QuotaConfig(BaseModel):
     """Quota configuration."""
@@ -36,7 +33,6 @@ class QuotaConfig(BaseModel):
     monthly_limit: int
     overage_allowed: bool
     overage_rate: float
-
 
 def create_rate_limiting_router() -> APIRouter:
     """

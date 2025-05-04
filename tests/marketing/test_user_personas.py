@@ -148,7 +148,8 @@ def test_analyze_pain_point():
     pain_point = {
         "id": "pp1",
         "name": "Limited time for marketing",
-        "description": "Small business owners have limited time for marketing activities",
+        "description":"Small business owners have limited time for marketing" \
+                      + "activities",
             
         "severity": "high",
         "impact": "Reduced visibility and sales",

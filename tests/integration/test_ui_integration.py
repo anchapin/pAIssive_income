@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Import test fixtures
-from tests.integration.ui_test_fixtures import (
     mock_agent_team,
     mock_agent_team_service,
     mock_model_manager,
@@ -19,7 +18,6 @@ from ui.cli_ui import CommandLineInterface
 # Import UI modules
 from ui.web_ui import WebUI
 
-
 @pytest.fixture
 def initialize_ui_services(register_mock_services):
     """Initialize UI services for testing."""
@@ -28,7 +26,6 @@ def initialize_ui_services(register_mock_services):
 
     init_services()
     return True
-
 
 @pytest.fixture
 def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, 
@@ -41,7 +38,6 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager,
     )
     return ui
 
-
 @pytest.fixture
 def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, 
     initialize_ui_services):
@@ -52,7 +48,6 @@ def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager,
         subscription_manager=mock_subscription_manager,
     )
     return ui
-
 
 def test_web_ui_niche_analysis_integration(web_ui, mock_agent_team):
     """Test the WebUI integration with agent team for niche analysis."""
@@ -71,7 +66,6 @@ def test_web_ui_niche_analysis_integration(web_ui, mock_agent_team):
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_niches")
     assert web_ui.current_niches == niches
-
 
 def test_web_ui_solution_development_integration(web_ui, mock_agent_team):
     """Test the WebUI integration with agent team for solution development."""
@@ -98,7 +92,6 @@ def test_web_ui_solution_development_integration(web_ui, mock_agent_team):
     assert hasattr(web_ui, "current_solution")
     assert web_ui.current_solution == solution
 
-
 def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
     """Test the WebUI integration with agent team for monetization strategy creation."""
     # Set up a selected solution
@@ -106,7 +99,6 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
         "id": "solution1",
         "name": "AI Inventory Optimizer",
         "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
-            
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -129,7 +121,6 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
     assert hasattr(web_ui, "current_monetization")
     assert web_ui.current_monetization == monetization
 
-
 def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
     """Test the WebUI integration with agent team for marketing plan creation."""
     # Set up selected niche, solution, and monetization
@@ -143,7 +134,6 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
         "id": "solution1",
         "name": "AI Inventory Optimizer",
         "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
-            
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -181,7 +171,6 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
     assert hasattr(web_ui, "current_marketing_plan")
     assert web_ui.current_marketing_plan == marketing_plan
 
-
 def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
     """Test the CommandLineInterface integration with the full workflow."""
     # Simulate a complete workflow through the CLI
@@ -209,7 +198,6 @@ def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
     assert hasattr(cli_ui, "current_solution")
     assert hasattr(cli_ui, "current_monetization")
     assert hasattr(cli_ui, "current_marketing_plan")
-
 
 @patch("ui.web_ui.WebUI.render_template")
 def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team):
@@ -247,7 +235,6 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
     assert kwargs["niches"] == web_ui.current_niches
     assert kwargs["solution"] == web_ui.current_solution
 
-
 @patch("ui.web_ui.WebUI.handle_ajax_request")
 def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
     """Test the WebUI AJAX request handling integration."""
@@ -276,7 +263,6 @@ def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
     assert "market_segments" in args[1]
     assert args[1]["market_segments"] == ["e - commerce"]
 
-
 def test_web_ui_model_manager_integration(web_ui, mock_model_manager):
     """Test the WebUI integration with model manager."""
     # Simulate a request to list available models
@@ -289,7 +275,6 @@ def test_web_ui_model_manager_integration(web_ui, mock_model_manager):
     assert len(models) == 2
     assert models[0]["name"] == "GPT - 4"
     assert models[1]["name"] == "DALL - E 3"
-
 
 def test_web_ui_subscription_manager_integration(web_ui, mock_subscription_manager):
     """Test the WebUI integration with subscription manager."""
@@ -305,7 +290,6 @@ def test_web_ui_subscription_manager_integration(web_ui, mock_subscription_manag
     assert subscriptions[0]["user_id"] == "user1"
     assert subscriptions[0]["plan_name"] == "Pro Plan"
     assert subscriptions[0]["status"] == "active"
-
 
 @patch("ui.event_handlers.handle_niche_selected")
 def test_web_ui_event_handling_integration(mock_handle_niche_selected, web_ui):
@@ -330,7 +314,6 @@ def test_web_ui_event_handling_integration(mock_handle_niche_selected, web_ui):
     ui_arg, data_arg = mock_handle_niche_selected.call_args[0]
     assert ui_arg == web_ui
     assert data_arg == event_data
-
 
 def test_cli_ui_input_parsing_integration(cli_ui):
     """Test the CommandLineInterface integration with input parsing."""
@@ -370,7 +353,6 @@ def test_cli_ui_input_parsing_integration(cli_ui):
         actual_command, actual_args = actual_calls[i][0]
         assert actual_command == expected_command
         assert actual_args == expected_args
-
 
 def test_persistence_integration(web_ui):
     """Test the UI integration with data persistence."""

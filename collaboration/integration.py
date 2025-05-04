@@ -11,7 +11,7 @@ import os
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -35,7 +35,6 @@ class IntegrationType(Enum):
     ONEDRIVE = "onedrive"
     DROPBOX = "dropbox"
     CUSTOM = "custom"
-
 
 class CollaborationIntegration:
     """
@@ -142,14 +141,17 @@ class CollaborationIntegration:
         self._save_integration_data()
 
         logger.info(
-            f"Added {integration_type.value} integration '{name}' to workspace {workspace_id}")
+            f"Added {integration_type.value} integration '{name}' to workspace" \
+             + "{workspace_id}")
         return integration
 
     def update_integration(self,
                           integration_id: str,
                           updated_by: str,
                           name: Optional[str] = None,
-                          config: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, 
+                          config: Optional[
+    Dict[str,Any]
+]] = None) -> Optional[Dict[str, 
                               Any]]:
         """
         Update an integration.

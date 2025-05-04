@@ -85,7 +85,7 @@ class OllamaAdapter(BaseModelAdapter):
         except requests.exceptions.RequestException as e:
             logger.error(f"Error connecting to Ollama: {e}")
             raise ConnectionError(
-                "Could not connect to Ollama at {self.base_url}. Make sure Ollama is running."
+"Could not connect to Ollama at {self.base_url}. Make sure Ollama is running."
             )
 
     def connect(self, **kwargs) -> bool:
@@ -286,7 +286,10 @@ class OllamaAdapter(BaseModelAdapter):
         data = response.json()
         return data.get("response", "")
 
-    def _generate_text_stream(self, request_data: Dict[str, Any]) -> Generator[str, None, 
+    def _generate_text_stream(
+                              self,
+                              request_data: Dict[str, Any]
+                             ) -> Generator[str, None, 
         None]:
         """
         Generate text as a stream.

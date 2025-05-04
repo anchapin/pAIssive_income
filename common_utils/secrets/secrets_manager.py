@@ -94,7 +94,8 @@ def _get_encryption_key() -> Fernet:
     master_password = os.environ.get(f"{DEFAULT_ENV_PREFIX}MASTER_PASSWORD")
     if not master_password:
         raise ValueError(
-            f"Master password not set. Please set {DEFAULT_ENV_PREFIX}MASTER_PASSWORD environment variable."
+            f"Master password not set. Please set {DEFAULT_ENV_PREFIX}MASTER_PASSWORD" \
+             + "environment variable."
         )
 
     salt = _generate_or_get_salt()

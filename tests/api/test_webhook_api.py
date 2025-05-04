@@ -4,14 +4,8 @@ Tests for the webhook API.
 This module contains tests for the webhook API endpoints.
 """
 
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_webhook_data
-from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,
@@ -29,7 +23,6 @@ from tests.api.utils.test_validators import (
     validate_status_code,
     validate_success_response,
 )
-
 
 class TestWebhookAPI:
     """Tests for the webhook API."""

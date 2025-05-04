@@ -12,14 +12,12 @@ import os
 import subprocess
 import sys
 import time
-from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 def check_consul_installation() -> bool:
     """
@@ -36,7 +34,6 @@ def check_consul_installation() -> bool:
         return result.returncode == 0
     except FileNotFoundError:
         return False
-
 
 def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subprocess.Popen:
     """
@@ -101,7 +98,6 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
 
     return process
 
-
 def start_service(service_name: str, script_path: str, port: int) -> subprocess.Popen:
     """
     Start a microservice.
@@ -136,7 +132,6 @@ def start_service(service_name: str, script_path: str, port: int) -> subprocess.
 
     return process
 
-
 def main():
     """Main function to start all services."""
     parser = argparse.ArgumentParser(description="Start pAIssive income microservices")
@@ -166,7 +161,7 @@ def main():
         # Check if Consul is installed
         if not check_consul_installation():
             logger.error(
-                "Consul is not installed. Please install Consul before running this script."
+"Consul is not installed. Please install Consul before running this script."
             )
             logger.error(
                 "See https://developer.hashicorp.com / \
@@ -230,7 +225,8 @@ def main():
             for name, process in list(processes.items()):
                 if process.poll() is not None:
                     logger.error(
-                        f"{name} terminated unexpectedly with return code {process.returncode}"
+                        f"{name} terminated unexpectedly with return code" \
+                         + "{process.returncode}"
                     )
 
                     # Get the error output
@@ -263,7 +259,6 @@ def main():
         logger.info("All services stopped.")
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

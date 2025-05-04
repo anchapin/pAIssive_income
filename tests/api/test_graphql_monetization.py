@@ -4,21 +4,14 @@ Tests for the Monetization GraphQL API.
 This module contains tests for Monetization GraphQL queries and mutations.
 """
 
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_monetization_strategy_data
-from tests.api.utils.test_validators import (
     validate_field_equals,
     validate_field_exists,
     validate_field_not_empty,
     validate_field_type,
     validate_json_response,
 )
-
 
 class TestMonetizationGraphQLAPI:
     """Tests for the Monetization GraphQL API."""

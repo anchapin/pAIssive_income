@@ -4,21 +4,14 @@ Tests for the UI / Frontend GraphQL API.
 This module contains tests for UI / Frontend GraphQL queries and mutations.
 """
 
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_ui_component_data
-from tests.api.utils.test_validators import (
     validate_field_equals,
     validate_field_exists,
     validate_field_not_empty,
     validate_field_type,
     validate_json_response,
 )
-
 
 class TestUIGraphQLAPI:
     """Tests for the UI / Frontend GraphQL API."""

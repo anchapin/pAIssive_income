@@ -8,7 +8,7 @@ import logging
 import time
 import uuid
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, Field, validator
 
@@ -17,7 +17,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class EventType(str, Enum):
     """Types of events that can be published through the event bus."""
@@ -36,7 +35,6 @@ class EventType(str, Enum):
 
     # Notification events (alerts and notifications)
     NOTIFICATION = "notification"
-
 
 class EventMetadata(BaseModel):
     """Metadata for events."""
@@ -67,7 +65,6 @@ class EventMetadata(BaseModel):
 
     # Additional metadata
     additional: Dict[str, Any] = Field(default_factory=dict)
-
 
 class Event(BaseModel):
     """
@@ -141,10 +138,8 @@ class Event(BaseModel):
         """
         return self.dict()
 
-
 # Type variable for event data
 T = TypeVar("T", bound=BaseModel)
-
 
 class EventSchema(Generic[T]):
     """
@@ -220,7 +215,6 @@ class EventSchema(Generic[T]):
             T: Parsed data
         """
         return self.data_model(**event.data)
-
 
 # Type for event handlers
 EventHandler = Callable[[Event], None]

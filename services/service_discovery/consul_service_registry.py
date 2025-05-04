@@ -5,9 +5,8 @@ This module provides a Consul implementation of the ServiceRegistry interface
 for service discovery in the pAIssive income microservices architecture.
 """
 
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 
 import consul
 
@@ -21,7 +20,6 @@ from services.service_discovery.service_registry import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 class ConsulServiceRegistry(ServiceRegistry):
     """Consul - based implementation of the service registry."""
@@ -45,8 +43,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             if service_instance.health_check_url:
                 protocol = "https" if service_instance.is_secure else "http"
                 check = {
-                    "http": f"{protocol}://{service_instance.host}:{service_instance.port}{service_instance.health_check_url}",
-                        
+                    "http": f"{protocol}://{service_instance.host}:{service_instance." \
+                             + "port}{service_instance.health_check_url}",
                     "interval": "10s",
                     "timeout": "5s",
                 }
@@ -63,7 +61,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             )
 
             logger.info(
-                f"Registered service {service_instance.service_name} with ID {service_instance.service_id}"
+                f"Registered service {service_instance.service_name} with ID" \
+                 + "{service_instance.service_id}"
             )
             return result
 

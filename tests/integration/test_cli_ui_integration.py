@@ -11,9 +11,7 @@ import pytest
 from agent_team.agent_team import AgentTeam
 from ai_models.model_manager import ModelManager
 from monetization.subscription_manager import SubscriptionManager
-from niche_analysis.market_analyzer import MarketAnalyzer
 from ui.cli_ui import CommandLineInterface
-
 
 @pytest.fixture
 def mock_agent_team():
@@ -65,7 +63,6 @@ def mock_agent_team():
 
     return mock_team
 
-
 @pytest.fixture
 def mock_model_manager():
     """Create a mock model manager."""
@@ -78,7 +75,6 @@ def mock_model_manager():
     ]
 
     return mock_manager
-
 
 @pytest.fixture
 def mock_subscription_manager():
@@ -93,7 +89,6 @@ def mock_subscription_manager():
 
     return mock_manager
 
-
 @pytest.fixture
 def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
     """Create a CLI UI instance with mock dependencies."""
@@ -102,7 +97,6 @@ def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
         model_manager=mock_model_manager,
         subscription_manager=mock_subscription_manager,
     )
-
 
 class TestCLIUIIntegration:
     """Test CLI UI integration with backend services."""
@@ -228,7 +222,6 @@ class TestCLIUIIntegration:
             return_value="Plan exported") as mock_export:
             cli_ui.handle_command("export plan")
             mock_export.assert_called_once()
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_cli_ui_integration.py"])

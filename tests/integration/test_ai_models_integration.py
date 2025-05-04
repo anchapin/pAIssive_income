@@ -2,13 +2,12 @@
 Integration tests for the AI Models module.
 """
 
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from agent_team import AgentTeam
-from ai_models import AgentModelProvider, ModelConfig, ModelManager, PerformanceMonitor
-
+from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 
 @pytest.fixture
 def mock_model_manager():
@@ -29,7 +28,6 @@ def mock_model_manager():
     manager.load_model.return_value = MagicMock(name="Test Model")
 
     return manager
-
 
 @patch("agent_team.team_config.ResearchAgent")
 def test_agent_model_integration(mock_researcher_class, mock_model_manager):
@@ -61,7 +59,6 @@ def test_agent_model_integration(mock_researcher_class, mock_model_manager):
 
     # Check that the researcher's analyze_market_segments method was called
     mock_researcher.analyze_market_segments.assert_called_once_with(["e - commerce"])
-
 
 def test_model_loading_integration(mock_model_manager):
     """Test integration between ModelManager and AgentModelProvider."""
@@ -104,7 +101,6 @@ def test_model_loading_integration(mock_model_manager):
     # Check that the correct model was returned
     assert model == mock_model
 
-
 @pytest.fixture
 def mock_all_agents():
     """Create mock agents for all agent types."""
@@ -117,7 +113,6 @@ def mock_all_agents():
         mock_agents[agent_type] = mock_agent
 
     return mock_agents
-
 
 @patch("agent_team.team_config.ResearchAgent")
 @patch("agent_team.team_config.DeveloperAgent")
@@ -224,7 +219,6 @@ def test_multiple_agents_model_integration(
     mock_all_agents["monetization"].create_strategy.assert_called_once()
     mock_all_agents["marketing"].create_plan.assert_called_once()
 
-
 def test_model_fallback_integration(mock_model_manager):
     """Test integration with model fallbacks."""
     # Setup primary and fallback models
@@ -292,7 +286,6 @@ def test_model_fallback_integration(mock_model_manager):
     # Verify we got the fallback model
     assert model == fallback_model
 
-
 @patch("ai_models.performance_monitor.PerformanceMonitor")
 def test_model_performance_tracking_integration(mock_performance_monitor_class, 
     mock_model_manager):
@@ -329,7 +322,6 @@ def test_model_performance_tracking_integration(mock_performance_monitor_class,
     # we'll just check that the model's generate method was called correctly
     # and that the result is as expected
     assert result == "Generated text"
-
 
 @patch("agent_team.team_config.ResearchAgent")
 def test_agent_model_error_handling_integration(mock_researcher_class, 
@@ -373,7 +365,6 @@ def test_agent_model_error_handling_integration(mock_researcher_class,
 
     # Check that the exception message is correct
     assert "Model loading failed" in str(excinfo.value)
-
 
 def test_agent_model_capabilities_integration(mock_model_manager):
     """Test integration with model capabilities checking."""

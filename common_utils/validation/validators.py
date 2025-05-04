@@ -234,7 +234,8 @@ def validate_date(
     if max_date is not None and date_obj > max_date:
         return (
             False,
-            f"Date must be on or before {max_date.strftime(format_str or ' % Y-%m-%d')}",
+            f"Date must be on or before {max_date.strftime(format_str or ' %" \
+             + "Y-%m-%d')}",
                 
         )
 

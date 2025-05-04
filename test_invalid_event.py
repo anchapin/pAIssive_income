@@ -1,6 +1,5 @@
-import pytest
 
-from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
+from api.schemas.webhook import WebhookRequest
 
 data = {"url": "https://example.com / webhook", "events": ["invalid.event"], 
     "is_active": True}

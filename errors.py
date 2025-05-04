@@ -7,14 +7,11 @@ for consistent error management across the project.
 
 import json
 import logging
-import sys
-import traceback
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type, Union
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class BaseError(Exception):
     """Base exception class for all custom exceptions in the project."""
@@ -87,9 +84,7 @@ class BaseError(Exception):
         logger.log(level, f"{self.code}: {self.message}", 
             exc_info=self.original_exception)
 
-
 # Configuration Errors
-
 
 class ConfigurationError(BaseError):
     """Error raised when there's an issue with configuration."""
@@ -112,7 +107,6 @@ class ConfigurationError(BaseError):
             kwargs["code"] = "configuration_error"
 
         super().__init__(message=message, details=details, http_status=500, **kwargs)
-
 
 class ValidationError(BaseError):
     """Error raised when validation fails."""
@@ -145,9 +139,7 @@ class ValidationError(BaseError):
 
         super().__init__(message=message, details=details, http_status=400, **kwargs)
 
-
 # AI Model Errors
-
 
 class ModelError(BaseError):
     """Base class for all model - related errors."""
@@ -171,7 +163,6 @@ class ModelError(BaseError):
 
         super().__init__(message=message, details=details, http_status=500, **kwargs)
 
-
 class ModelNotFoundError(ModelError):
     """Error raised when a model is not found."""
 
@@ -189,7 +180,6 @@ class ModelNotFoundError(ModelError):
             kwargs["code"] = "model_not_found"
 
         super().__init__(message=message, model_id=model_id, http_status=404, **kwargs)
-
 
 class ModelLoadError(ModelError):
     """Error raised when a model fails to load."""
@@ -209,7 +199,6 @@ class ModelLoadError(ModelError):
 
         super().__init__(message=message, model_id=model_id, **kwargs)
 
-
 class ModelInferenceError(ModelError):
     """Error raised when model inference fails."""
 
@@ -227,7 +216,6 @@ class ModelInferenceError(ModelError):
             kwargs["code"] = "model_inference_error"
 
         super().__init__(message=message, model_id=model_id, **kwargs)
-
 
 class ModelAPIError(ModelError):
     """Error raised when there's an issue with the model API."""
@@ -255,7 +243,6 @@ class ModelAPIError(ModelError):
 
         super().__init__(message=message, model_id=model_id, details=details, **kwargs)
 
-
 class ModelDownloadError(ModelError):
     """Error raised when model download fails."""
 
@@ -282,9 +269,7 @@ class ModelDownloadError(ModelError):
 
         super().__init__(message=message, model_id=model_id, details=details, **kwargs)
 
-
 # Monetization Errors
-
 
 class MonetizationError(BaseError):
     """Base class for all monetization - related errors."""
@@ -302,7 +287,6 @@ class MonetizationError(BaseError):
             kwargs["code"] = "monetization_error"
 
         super().__init__(message=message, http_status=500, **kwargs)
-
 
 class SubscriptionError(MonetizationError):
     """Error raised when there's an issue with subscriptions."""
@@ -335,7 +319,6 @@ class SubscriptionError(MonetizationError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 class PaymentError(MonetizationError):
     """Error raised when there's an issue with payments."""
 
@@ -367,9 +350,7 @@ class PaymentError(MonetizationError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 # Niche Analysis Errors
-
 
 class NicheAnalysisError(BaseError):
     """Base class for all niche analysis - related errors."""
@@ -387,7 +368,6 @@ class NicheAnalysisError(BaseError):
             kwargs["code"] = "niche_analysis_error"
 
         super().__init__(message=message, http_status=500, **kwargs)
-
 
 class MarketAnalysisError(NicheAnalysisError):
     """Error raised when market analysis fails."""
@@ -411,7 +391,6 @@ class MarketAnalysisError(NicheAnalysisError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 class OpportunityScoringError(NicheAnalysisError):
     """Error raised when opportunity scoring fails."""
 
@@ -434,9 +413,7 @@ class OpportunityScoringError(NicheAnalysisError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 # Security Errors
-
 
 class SecurityError(BaseError):
     """Error raised when a security issue is detected."""
@@ -460,9 +437,7 @@ class SecurityError(BaseError):
 
         super().__init__(message=message, details=details, http_status=403, **kwargs)
 
-
 # Agent Team Errors
-
 
 class AgentTeamError(BaseError):
     """Base class for all agent team - related errors."""
@@ -480,7 +455,6 @@ class AgentTeamError(BaseError):
             kwargs["code"] = "agent_team_error"
 
         super().__init__(message=message, http_status=500, **kwargs)
-
 
 class AgentError(AgentTeamError):
     """Error raised when an agent operation fails."""
@@ -504,9 +478,7 @@ class AgentError(AgentTeamError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 # Marketing Errors
-
 
 class MarketingError(BaseError):
     """Base class for all marketing - related errors."""
@@ -524,7 +496,6 @@ class MarketingError(BaseError):
             kwargs["code"] = "marketing_error"
 
         super().__init__(message=message, http_status=500, **kwargs)
-
 
 class StrategyGenerationError(MarketingError):
     """Error raised when strategy generation fails."""
@@ -548,9 +519,7 @@ class StrategyGenerationError(MarketingError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 # UI Errors
-
 
 class UIError(BaseError):
     """Base class for all UI - related errors."""
@@ -568,7 +537,6 @@ class UIError(BaseError):
             kwargs["code"] = "ui_error"
 
         super().__init__(message=message, http_status=500, **kwargs)
-
 
 class APIError(UIError):
     """Error raised when an API operation fails."""
@@ -598,9 +566,7 @@ class APIError(UIError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 # Error handling utilities
-
 
 def handle_exception(
     exception: Exception,
@@ -649,7 +615,6 @@ def handle_exception(
         raise error
 
     return error
-
 
 def error_to_response(error: Union[BaseError, Exception]) -> Dict[str, Any]:
     """

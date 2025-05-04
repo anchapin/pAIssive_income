@@ -5,14 +5,12 @@ This module contains tests for the metered billing system, including
 usage tracking, billing calculation, and billing thresholds.
 """
 
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from monetization.metered_billing import (
     BillingCalculator,
     BillingConfig,
     BillingPeriod,
@@ -21,7 +19,6 @@ from monetization.metered_billing import (
     UsageMetric,
     UsageTracker,
 )
-
 
 class TestMeteredBilling:
     """Tests for metered billing functionality."""
@@ -395,7 +392,6 @@ class TestMeteredBilling:
         # Record usage
         usage_data = [
             {"metric": "api_calls", "quantity": 1000, "timestamp": datetime(2023, 7, 5)},
-                
             {"metric": "api_calls", "quantity": 2000, "timestamp": datetime(2023, 7, 
                 15)},
             {"metric": "api_calls", "quantity": 3000, "timestamp": datetime(2023, 7, 
@@ -464,7 +460,6 @@ class TestMeteredBilling:
         assert invoice["total_amount"] == bill["total_amount"]
         assert "line_items" in invoice
         assert "usage_summary" in invoice
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_metered_billing.py"])

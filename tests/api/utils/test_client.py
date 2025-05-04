@@ -4,12 +4,10 @@ Test client utilities for API tests.
 This module provides utilities for making requests to the API in tests.
 """
 
-import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pytest
 from fastapi.testclient import TestClient
-
 
 class APITestClient:
     """
@@ -198,7 +196,6 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.delete(url, json={"ids": ids}, headers=request_headers)
 
-
 @pytest.fixture
 def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, 
     str]) -> APITestClient:
@@ -213,7 +210,6 @@ def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str,
         Unauthenticated API test client
     """
     return APITestClient(api_client, api_unauth_headers)
-
 
 @pytest.fixture
 def auth_api_test_client(api_client: TestClient, api_auth_headers: Dict[str, 

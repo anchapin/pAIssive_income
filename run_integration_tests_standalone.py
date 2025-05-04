@@ -13,9 +13,8 @@ import unittest
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set
 from unittest.mock import MagicMock, patch
-
 
 # Define enums and constants
 class WebhookEventType(str, Enum):
@@ -39,7 +38,6 @@ class WebhookEventType(str, Enum):
     SUBSCRIPTION_CREATED = "subscription.created"
     PAYMENT_RECEIVED = "payment.received"
 
-
 class WebhookDeliveryStatus(str, Enum):
     """Status of a webhook delivery attempt."""
 
@@ -48,7 +46,6 @@ class WebhookDeliveryStatus(str, Enum):
     FAILED = "failed"
     RETRYING = "retrying"
     MAX_RETRIES_EXCEEDED = "max_retries_exceeded"
-
 
 # Recreate the security classes
 class WebhookIPAllowlist:
@@ -96,7 +93,6 @@ class WebhookIPAllowlist:
 
         return False
 
-
 class WebhookSignatureVerifier:
     """Webhook signature verification."""
 
@@ -133,7 +129,6 @@ class WebhookSignatureVerifier:
             return False
 
         return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
-
 
 class WebhookRateLimiter:
     """Rate limiting for webhook deliveries."""
@@ -202,7 +197,6 @@ class WebhookRateLimiter:
 
         # Calculate reset time
         return oldest_request + self.window_seconds
-
 
 # Recreate the webhook service
 class WebhookService:
@@ -338,7 +332,6 @@ class WebhookService:
 
         return delivery
 
-
 # Test data
 TEST_WEBHOOK_ID = "test - webhook - 123"
 TEST_WEBHOOK = {
@@ -362,7 +355,6 @@ TEST_EVENT = {
         "created_at": datetime.now(timezone.utc).isoformat(),
     },
 }
-
 
 class TestWebhookSecurityIntegration(unittest.TestCase):
     """Integration tests for webhook security features."""
@@ -410,7 +402,9 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
         headers = {"Content - Type": "application / json", 
             "X - Webhook - Signature": signature}
         self.assertTrue(
-            WebhookSignatureVerifier.verify_request_signature(webhook["secret"], payload, 
+            WebhookSignatureVerifier.verify_request_signature(webhook[
+    "secret"
+]], payload, 
                 headers)
         )
 
@@ -465,7 +459,6 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
                 self.assertEqual(delivery["attempts"][0]["status"], 
                     WebhookDeliveryStatus.SUCCESS)
 
-
 class TestWebhookRateLimitIntegration(unittest.TestCase):
     """Integration tests for webhook rate limiting."""
 
@@ -517,7 +510,6 @@ class TestWebhookRateLimitIntegration(unittest.TestCase):
         """Run the async test."""
         asyncio.run(self._test_webhook_service_with_rate_limiting())
 
-
 class TestIPAllowlistIntegration(unittest.TestCase):
     """Integration tests for IP allowlisting."""
 
@@ -540,7 +532,6 @@ class TestIPAllowlistIntegration(unittest.TestCase):
         self.assertTrue(ip_allowlist.remove_ip("192.168.1.1"))
         self.assertFalse(ip_allowlist.is_allowed("192.168.1.1"))
         self.assertTrue(ip_allowlist.is_allowed("10.0.0.1"))
-
 
 def run_tests():
     """Run the integration tests."""
@@ -567,7 +558,6 @@ def run_tests():
 
     # Return exit code
     return 0 if result.wasSuccessful() else 1
-
 
 if __name__ == "__main__":
     sys.exit(run_tests())

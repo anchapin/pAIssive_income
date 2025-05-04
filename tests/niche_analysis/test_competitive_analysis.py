@@ -2,8 +2,6 @@
 Tests for competitive analysis functionality.
 """
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from niche_analysis.competitive_analysis import (
@@ -11,8 +9,7 @@ from niche_analysis.competitive_analysis import (
     MarketPositionMapper,
     StrengthWeaknessAnalyzer,
 )
-from niche_analysis.errors import InsufficientDataError, InvalidCompetitorDataError
-
+from niche_analysis.errors import InvalidCompetitorDataError
 
 class TestCompetitiveAnalysis:
     """Test cases for competitive analysis."""
@@ -234,7 +231,6 @@ class TestCompetitiveAnalysis:
             self.competitor_analyzer.track_competitor_changes(
                 [{"date": "invalid_date"}]  # Invalid date format
             )
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_competitive_analysis.py"])

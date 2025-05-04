@@ -9,27 +9,23 @@ rollback scenarios.
 import random
 import threading
 import time
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agent_team import AgentTeam
 from marketing import ABTesting
 from monetization import PricingCalculator, SubscriptionModel
 from niche_analysis import MarketAnalyzer
-
 
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
     return MarketAnalyzer()
 
-
 @pytest.fixture
 def ab_testing():
     """Create an A / B testing instance for testing."""
     return ABTesting()
-
 
 @pytest.fixture
 def subscription_model():
@@ -37,7 +33,6 @@ def subscription_model():
     return SubscriptionModel(
         name="Test Subscription Model", description="A test subscription model"
     )
-
 
 @pytest.fixture
 def pricing_calculator():
@@ -50,7 +45,6 @@ def pricing_calculator():
         competitor_prices={"basic": 9.99, "pro": 19.99, "premium": 29.99},
     )
 
-
 @pytest.fixture
 def mock_agent_team():
     """Create a mock agent team for testing."""
@@ -58,7 +52,6 @@ def mock_agent_team():
         team = MagicMock()
         mock.return_value = team
         yield team
-
 
 def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, 
     mock_agent_team):
@@ -131,7 +124,6 @@ def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing,
     # Verify that the data is consistent
     assert result["selected_niche"] in result["market_analysis"]["potential_niches"]
     assert result["market_analysis"]["name"] == "E - Commerce"
-
 
 def test_data_consistency_after_interruption(subscription_model, pricing_calculator):
     """
@@ -222,7 +214,6 @@ def test_data_consistency_after_interruption(subscription_model, pricing_calcula
         assert subscription_model.tiers[0]["price_monthly"] == 9.99
         assert subscription_model.tiers[1]["price_monthly"] == 19.99
         assert isinstance(error, InterruptedError)
-
 
 def test_transaction_rollback_scenarios(ab_testing):
     """
@@ -317,7 +308,6 @@ def test_transaction_rollback_scenarios(ab_testing):
     analysis = ab_testing.analyze_test(test_id)
     assert "variants" in analysis
     assert len(analysis["variants"]) == 2
-
 
 def test_workflow_with_compensating_actions(mock_agent_team):
     """

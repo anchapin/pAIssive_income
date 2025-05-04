@@ -5,13 +5,10 @@ This module provides classes for implementing usage - based pricing models,
 where customers are charged based on their actual usage of a service.
 """
 
-import copy
-import math
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-from .billing_calculator import (
     BillingCalculator,
     PricingModel,
     PricingPackage,
@@ -20,7 +17,6 @@ from .billing_calculator import (
 )
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
-
 
 class UsageBasedPricing:
     """
@@ -240,7 +236,6 @@ class UsageBasedPricing:
         model.updated_at = data.get("updated_at", model.updated_at)
 
         return model
-
 
 # Example usage
 if __name__ == "__main__":

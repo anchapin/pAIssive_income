@@ -5,16 +5,13 @@ This module provides mock implementations of various AI model providers
 that can be used for consistent testing without external dependencies.
 """
 
-import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
-from unittest.mock import MagicMock
+from typing import Any, Dict, Generator, List, Optional, Union
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
 
 class MockBaseModelProvider:
     """Base class for mock model providers."""
@@ -68,8 +65,8 @@ class MockBaseModelProvider:
             "error_messages",
             {
                 "rate_limit": "Rate limit exceeded. Please try again later.",
-                "invalid_model": "The model does not exist or you don't have access to it.",
-                    
+                "invalid_model":"The model does not exist or you don't have access to" \
+                                + "it.",
                 "invalid_request": "The request is not valid for this model.",
                 "context_length": "The context length exceeds the model's limit.",
             },
@@ -95,7 +92,6 @@ class MockBaseModelProvider:
     def clear_call_history(self):
         """Clear the call history."""
         self.call_history = []
-
 
 class MockOpenAIProvider(MockBaseModelProvider):
     """Mock implementation of OpenAI API."""
@@ -150,8 +146,8 @@ class MockOpenAIProvider(MockBaseModelProvider):
         self.config["custom_responses"] = self.config.get(
             "custom_responses",
             {
-                "analyze market trends": "Market analysis shows positive growth trends.",
-                    
+                "analyze market trends":"Market analysis shows positive growth" \
+                                        + "trends.",
                 "market trends": "Market analysis shows positive growth trends.",
             },
         )
@@ -283,8 +279,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                             {
                                 "text": word + " ",
                                 "index": 0,
-                                "finish_reason": "stop" if i == len(words) - 1 else None,
-                                    
+                                "finish_reason":
+                                    "stop" if i =
+                                    = len(words) - 1 else None,
                             }
                         ],
                     }
@@ -351,8 +348,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                             {
                                 "index": 0,
                                 "delta": {"content": word + " "},
-                                "finish_reason": "stop" if i == len(words) - 1 else None,
-                                    
+                                "finish_reason":
+                                    "stop" if i =
+                                    = len(words) - 1 else None,
                             }
                         ],
                     }
@@ -425,7 +423,6 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 )
 
         return response
-
 
 class MockOllamaProvider(MockBaseModelProvider):
     """Mock implementation of Ollama API."""
@@ -608,7 +605,6 @@ class MockOllamaProvider(MockBaseModelProvider):
 
         return response
 
-
 class MockLMStudioProvider(MockBaseModelProvider):
     """Mock implementation of LM Studio API."""
 
@@ -721,8 +717,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
                             {
                                 "text": word + " ",
                                 "index": 0,
-                                "finish_reason": "stop" if i == len(words) - 1 else None,
-                                    
+                                "finish_reason":
+                                    "stop" if i =
+                                    = len(words) - 1 else None,
                             }
                         ],
                     }
@@ -785,8 +782,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
                             {
                                 "index": 0,
                                 "delta": {"content": word + " "},
-                                "finish_reason": "stop" if i == len(words) - 1 else None,
-                                    
+                                "finish_reason":
+                                    "stop" if i =
+                                    = len(words) - 1 else None,
                             }
                         ],
                     }
@@ -794,7 +792,6 @@ class MockLMStudioProvider(MockBaseModelProvider):
             return generate_stream()
 
         return response
-
 
 class MockHuggingFaceProvider(MockBaseModelProvider):
     """Mock implementation of Hugging Face API."""
@@ -892,7 +889,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         return None
 
     def text_generation(
-        self, model_id: str, text: str, max_length: int = 100, temperature: float = 0.7, 
+        self, model_id: str, text: str, max_length: int = 100, temperature: float = 0.7,
             **kwargs
     ) -> Dict[str, Any]:
         """Generate text with a text generation model."""
@@ -1028,7 +1025,12 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         return response
 
-    def token_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, 
+    def token_classification(
+                             self,
+                             model_id: str,
+                             text: str,
+                             **kwargs
+                            ) -> List[Dict[str, 
         Any]]:
         """Classify tokens with a token classification model."""
         self.record_call("token_classification", model_id=model_id, text=text, **kwargs)
@@ -1073,7 +1075,6 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             offset = \
                 np.random.RandomState(hash(text) % 2** 32).rand(*base_embedding.shape) * 0.1
             return base_embedding + offset
-
 
 class MockLocalModelProvider(MockBaseModelProvider):
     """Mock implementation of local model inference (like llama.cpp)."""
@@ -1271,7 +1272,6 @@ class MockLocalModelProvider(MockBaseModelProvider):
 
         return response
 
-
 class MockONNXProvider(MockBaseModelProvider):
     """Mock implementation of ONNX model inference."""
 
@@ -1338,7 +1338,12 @@ class MockONNXProvider(MockBaseModelProvider):
 
         return None
 
-    def run_inference(self, model_id: str, inputs: Dict[str, Any], **kwargs) -> Dict[str, 
+    def run_inference(
+                      self,
+                      model_id: str,
+                      inputs: Dict[str, Any],
+                      **kwargs
+                     ) -> Dict[str, 
         Any]:
         """Run inference with an ONNX model."""
         self.record_call("run_inference", model_id=model_id, inputs=inputs, **kwargs)
@@ -1361,7 +1366,6 @@ class MockONNXProvider(MockBaseModelProvider):
             return self.mock_responses["text_generation"].copy()
         else:
             raise ValueError(f"Unsupported capability for model {model_id}")
-
 
 # Helper function to create the appropriate mock provider
 def create_mock_provider(provider_type: str, config: Optional[Dict[str, 

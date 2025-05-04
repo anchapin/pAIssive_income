@@ -53,7 +53,8 @@ def main():
 
         # Example: Post a tweet
         tweet_content = {
-            "text": "This is a test tweet from the pAIssive Income social media integration module!"
+            "text":"This is a test tweet from the pAIssive Income social media" \
+                   + "integration module!"
         }
 
         tweet_result = social_media.post_content(
@@ -96,7 +97,8 @@ def main():
 
         # Example: Post to Facebook
         facebook_content = {
-            "message": "This is a test post from the pAIssive Income social media integration module!",
+            "message":"This is a test post from the pAIssive Income social media" \
+                      + "integration module!",
                 
             "link": "https://github.com / anchapin / pAIssive_income",
         }
@@ -112,7 +114,8 @@ def main():
         tomorrow = datetime.now() + timedelta(days=1)
 
         scheduled_content = {
-            "message": "This is a scheduled post from the pAIssive Income social media integration module!",
+            "message":"This is a scheduled post from the pAIssive Income social media" \
+                      + "integration module!",
                 
             "link": "https://github.com / anchapin / pAIssive_income",
         }
@@ -146,7 +149,8 @@ def main():
 
         # Example: Post an image to Instagram
         instagram_content = {
-            "caption": "This is a test post from the pAIssive Income social media integration module! #AITools #PassiveIncome",
+            "caption":"This is a test post from the pAIssive Income social media" \
+                      + "integration module! #AITools #PassiveIncome",
                 
             "image": {"url": "https://example.com / image.jpg"},  
                 # Replace with a real image URL
@@ -202,7 +206,8 @@ def main():
 
         # Example: Post text to LinkedIn
         linkedin_text_content = {
-            "text": "This is a test post from the pAIssive Income social media integration module! #AITools #PassiveIncome"
+            "text":"This is a test post from the pAIssive Income social media" \
+                   + "integration module! #AITools #PassiveIncome"
         }
 
         linkedin_text_result = social_media.post_content(
@@ -217,7 +222,8 @@ def main():
             "article": {
                 "title": "Generate Passive Income with AI Tools",
                 "url": "https://github.com / anchapin / pAIssive_income",
-                "description": "A comprehensive framework for creating passive income streams using AI tools.",
+                "description":"A comprehensive framework for creating passive income" \
+                              + "streams using AI tools.",
                     
             },
         }
@@ -232,7 +238,8 @@ def main():
         tomorrow = datetime.now() + timedelta(days=1)
 
         linkedin_scheduled_content = {
-            "text": "This is a scheduled post from the pAIssive Income social media integration module! #AITools #PassiveIncome"
+            "text":"This is a scheduled post from the pAIssive Income social media" \
+                   + "integration module! #AITools #PassiveIncome"
         }
 
         linkedin_scheduled_result = social_media.schedule_post(
@@ -277,7 +284,8 @@ def main():
         # Example: Upload a video to YouTube
         youtube_content = {
             "title": "Test Video from pAIssive Income",
-            "description": "This is a test video uploaded from the pAIssive Income social media integration module!",
+            "description":"This is a test video uploaded from the pAIssive Income" \
+                          + "social media integration module!",
                 
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
@@ -300,7 +308,8 @@ def main():
 
         youtube_scheduled_content = {
             "title": "Scheduled Test Video from pAIssive Income",
-            "description": "This is a scheduled test video from the pAIssive Income social media integration module!",
+            "description":"This is a scheduled test video from the pAIssive Income" \
+                          + "social media integration module!",
                 
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
@@ -360,7 +369,9 @@ def main():
         pinterest_content = {
             "pin": {
                 "title": "Test Pin from pAIssive Income",
-                "description": "This is a test pin created from the pAIssive Income social media integration module! #AITools #PassiveIncome",
+                "description":"This is a test pin created from the pAIssive Income" \
+                              + "social media integration module! #AITools" \
+                              + "#PassiveIncome",
                     
                 "board_name": "AI Tools",  # Will create the board if it doesn't exist
                 "media": {
@@ -472,12 +483,14 @@ def main():
             campaign_name = "Example Campaign"
             content_items = [
                 {
-                    "text": "Check out our new project on GitHub! #AITools #PassiveIncome",
+                    "text":"Check out our new project on GitHub! #AITools" \
+                           + "#PassiveIncome",
                         
                     "link": "https://github.com / anchapin / pAIssive_income",
                 },
                 {
-                    "text": "Learn how to generate passive income with AI tools! #AITools #PassiveIncome",
+                    "text":"Learn how to generate passive income with AI tools!" \
+                           + "#AITools #PassiveIncome",
                         
                     "link": "https://github.com / anchapin / pAIssive_income",
                 },
@@ -504,7 +517,8 @@ def main():
 
             logger.info(f"Created campaign: {campaign['id']}")
             logger.info(
-                f"Campaign schedule: {campaign['start_date']} to {campaign['end_date']}")
+                f"Campaign schedule: {campaign['start_date']} to" \
+                 + "{campaign['end_date']}")
             logger.info(f"Scheduled posts: {json.dumps(campaign['scheduled_posts'], 
                 indent=2)}")
 

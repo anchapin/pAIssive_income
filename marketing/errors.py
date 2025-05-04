@@ -8,7 +8,7 @@ specific to the Marketing module.
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -46,7 +46,6 @@ __all__ = [
     "NotSupportedError",
 ]
 
-
 class InvalidTestConfigurationError(MarketingError):
     """Error raised when there's an invalid test configuration."""
 
@@ -68,7 +67,6 @@ class InvalidTestConfigurationError(MarketingError):
                 **kwargs
         )
 
-
 class TestNotFoundError(MarketingError):
     """Error raised when a test is not found."""
 
@@ -87,7 +85,6 @@ class TestNotFoundError(MarketingError):
 
         super().__init__(message=message, code="test_not_found_error", details=details, 
             **kwargs)
-
 
 class ContentGenerationError(MarketingError):
     """Error raised when there's an issue with content generation."""
@@ -109,7 +106,6 @@ class ContentGenerationError(MarketingError):
             message=message, code="content_generation_error", details=details, **kwargs
         )
 
-
 class StrategyGenerationError(MarketingError):
     """Error raised when there's an issue with marketing strategy generation."""
 
@@ -130,7 +126,6 @@ class StrategyGenerationError(MarketingError):
             message=message, code="strategy_generation_error", details=details, **kwargs
         )
 
-
 class ChannelStrategyError(MarketingError):
     """Error raised when there's an issue with a marketing channel strategy."""
 
@@ -149,7 +144,6 @@ class ChannelStrategyError(MarketingError):
 
         super().__init__(message=message, code="channel_strategy_error", details=details, 
             **kwargs)
-
 
 class ContentTemplateError(MarketingError):
     """Error raised when there's an issue with a content template."""
@@ -173,7 +167,6 @@ class ContentTemplateError(MarketingError):
 
         super().__init__(message=message, details=details, **kwargs)
 
-
 class ContentOptimizationError(MarketingError):
     """Error raised when there's an issue with content optimization."""
 
@@ -195,7 +188,6 @@ class ContentOptimizationError(MarketingError):
                 **kwargs
         )
 
-
 class UserPersonaError(MarketingError):
     """Error raised when there's an issue with user persona creation or analysis."""
 
@@ -214,7 +206,6 @@ class UserPersonaError(MarketingError):
 
         super().__init__(message=message, code="user_persona_error", details=details, 
             **kwargs)
-
 
 class MarketingCampaignError(MarketingError):
     """Error raised when there's an issue with a marketing campaign."""
@@ -236,7 +227,6 @@ class MarketingCampaignError(MarketingError):
             message=message, code="marketing_campaign_error", details=details, **kwargs
         )
 
-
 class InvalidParameterError(MarketingError):
     """Error raised when a parameter is invalid."""
 
@@ -255,7 +245,6 @@ class InvalidParameterError(MarketingError):
 
         super().__init__(message=message, code="invalid_parameter_error", 
             details=details, **kwargs)
-
 
 class ContentNotFoundError(MarketingError):
     """Error raised when specific content is not found."""
@@ -285,7 +274,6 @@ class ContentNotFoundError(MarketingError):
         super().__init__(message=message, code="content_not_found_error", 
             details=details, **kwargs)
 
-
 class StorageError(MarketingError):
     """Error raised when there is an issue with data storage or retrieval."""
 
@@ -314,7 +302,6 @@ class StorageError(MarketingError):
         super().__init__(message=message, code="storage_error", details=details, 
             **kwargs)
 
-
 class InsufficientDataError(MarketingError):
     """Error raised when there is insufficient data for analysis."""
 
@@ -342,7 +329,6 @@ class InsufficientDataError(MarketingError):
 
         super().__init__(message=message, code="insufficient_data_error", 
             details=details, **kwargs)
-
 
 class ContentValidationError(MarketingError):
     """Error raised when content validation fails."""
@@ -373,7 +359,6 @@ class ContentValidationError(MarketingError):
             message=message, code="content_validation_error", details=details, **kwargs
         )
 
-
 class PlatformNotFoundError(MarketingError):
     """Error raised when a social media platform connection is not found."""
 
@@ -396,9 +381,10 @@ class PlatformNotFoundError(MarketingError):
             message=message, code="platform_not_found_error", details=details, **kwargs
         )
 
-
 class AuthenticationError(MarketingError):
-    """Error raised when there's an authentication issue with a third - party service."""
+"""
+Error raised when there's an authentication issue with a third - party service.
+"""
 
     def __init__(self, message: str, service_name: Optional[str] = None, **kwargs):
         """
@@ -415,7 +401,6 @@ class AuthenticationError(MarketingError):
 
         super().__init__(message=message, code="authentication_error", details=details, 
             **kwargs)
-
 
 class PostNotFoundError(MarketingError):
     """Error raised when a social media post is not found."""
@@ -441,7 +426,6 @@ class PostNotFoundError(MarketingError):
 
         super().__init__(message=message, code="post_not_found_error", details=details, 
             **kwargs)
-
 
 class PostingError(MarketingError):
     """Error raised when there's an error posting content to a platform."""
@@ -475,7 +459,6 @@ class PostingError(MarketingError):
         super().__init__(message=message, code="posting_error", details=details, 
             **kwargs)
 
-
 class DeletionError(MarketingError):
     """Error raised when content or entity deletion fails."""
 
@@ -507,7 +490,6 @@ class DeletionError(MarketingError):
 
         super().__init__(message=message, code="deletion_error", details=details, 
             **kwargs)
-
 
 class SchedulingError(MarketingError):
     """Error raised when there's an issue with scheduling content."""
@@ -541,7 +523,6 @@ class SchedulingError(MarketingError):
         super().__init__(message=message, code="scheduling_error", details=details, 
             **kwargs)
 
-
 class NotSupportedError(MarketingError):
     """Error raised when a feature or operation is not supported."""
 
@@ -566,7 +547,6 @@ class NotSupportedError(MarketingError):
 
         super().__init__(message=message, code="not_supported_error", details=details, 
             **kwargs)
-
 
 class PlatformNotSupportedError(Exception):
     """Exception raised when a feature is not supported by a platform."""

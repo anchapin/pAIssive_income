@@ -272,7 +272,11 @@ def demo_test_recommendation():
             "High cart abandonment",
             "Difficulty standing out from competitors",
         ],
-        goals=["Increase revenue", "Improve customer loyalty", "Reduce marketing costs"],
+        goals=[
+    "Increase revenue",
+    "Improve customer loyalty",
+    "Reduce marketing costs"
+]],
             
     )
 

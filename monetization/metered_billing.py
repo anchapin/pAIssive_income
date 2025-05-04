@@ -6,13 +6,9 @@ where customers are charged based on their actual measured usage of a service
 over a specific time period.
 """
 
-import copy
-import math
-import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-from .billing_calculator import (
     BillingCalculator,
     PricingModel,
     PricingPackage,
@@ -24,7 +20,6 @@ from .usage_based_pricing import UsageBasedPricing
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageLimit, UsageMetric, UsageRecord
 
-
 class MeteringInterval:
     """Enumeration of metering intervals."""
 
@@ -33,7 +28,6 @@ class MeteringInterval:
     WEEKLY = "weekly"
     MONTHLY = "monthly"
     CUSTOM = "custom"
-
 
 class MeteredBillingPricing(UsageBasedPricing):
     """
@@ -395,7 +389,6 @@ class MeteredBillingPricing(UsageBasedPricing):
                 result["invoice"] = invoice_result
 
         return result
-
 
 # Example usage
 if __name__ == "__main__":

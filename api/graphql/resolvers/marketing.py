@@ -5,7 +5,7 @@ This module provides resolvers for marketing queries and mutations.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -23,7 +23,6 @@ except ImportError:
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.marketing import (
         CampaignInput,
         CampaignType,
         ChannelAnalysisType,
@@ -71,9 +70,7 @@ if STRAWBERRY_AVAILABLE:
                         channels=strategy.channels,
                         goals=strategy.goals,
                         created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                            
                         updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None,
-                            
                     )
                     for strategy in strategies
                 ]
@@ -114,9 +111,7 @@ if STRAWBERRY_AVAILABLE:
                     channels=strategy.channels,
                     goals=strategy.goals,
                     created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                        
                     updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error getting marketing strategy: {str(e)}")
@@ -158,16 +153,13 @@ if STRAWBERRY_AVAILABLE:
                     ContentTemplateType(
                         id=str(template.id),
                         strategy_id=str(template.strategy_id) if template.strategy_id else None,
-                            
                         name=template.name,
                         description=template.description,
                         content_type=template.content_type,
                         template=template.template,
                         variables=template.variables,
                         created_at=template.created_at.isoformat() if template.created_at else None,
-                            
                         updated_at=template.updated_at.isoformat() if template.updated_at else None,
-                            
                     )
                     for template in templates
                 ]
@@ -255,9 +247,7 @@ if STRAWBERRY_AVAILABLE:
                     channels=strategy.channels,
                     goals=strategy.goals,
                     created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                        
                     updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating marketing strategy: {str(e)}")
@@ -306,9 +296,7 @@ if STRAWBERRY_AVAILABLE:
                     channels=strategy.channels,
                     goals=strategy.goals,
                     created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                        
                     updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error updating marketing strategy: {str(e)}")
@@ -374,16 +362,13 @@ if STRAWBERRY_AVAILABLE:
                 return ContentTemplateType(
                     id=str(template.id),
                     strategy_id=str(template.strategy_id) if template.strategy_id else None,
-                        
                     name=template.name,
                     description=template.description,
                     content_type=template.content_type,
                     template=template.template,
                     variables=template.variables,
                     created_at=template.created_at.isoformat() if template.created_at else None,
-                        
                     updated_at=template.updated_at.isoformat() if template.updated_at else None,
-                        
                 )
             except Exception as e:
                 logger.error(f"Error creating content template: {str(e)}")

@@ -6,13 +6,9 @@ usage - based pricing strategies, such as pay - as - you - go, tiered usage,
 and consumption - based pricing.
 """
 
-import copy
-import math
-import uuid
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from .billing_calculator import (
     BillingCalculator,
     PricingModel,
     PricingPackage,
@@ -22,7 +18,6 @@ from .billing_calculator import (
 from .usage_based_pricing import UsageBasedPricing
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
-
 
 class PayAsYouGoPricing(UsageBasedPricing):
     """
@@ -80,7 +75,6 @@ class PayAsYouGoPricing(UsageBasedPricing):
             category=category,
             resource_type=resource_type,
         )
-
 
 class TieredUsagePricing(UsageBasedPricing):
     """
@@ -143,7 +137,6 @@ class TieredUsagePricing(UsageBasedPricing):
             category=category,
             resource_type=resource_type,
         )
-
 
 class ConsumptionBasedPricing(UsageBasedPricing):
     """
@@ -236,7 +229,6 @@ class ConsumptionBasedPricing(UsageBasedPricing):
             category=UsageCategory.NETWORK,
             resource_type=resource_type,
         )
-
 
 class HybridUsagePricing(UsageBasedPricing):
     """
@@ -332,7 +324,6 @@ class HybridUsagePricing(UsageBasedPricing):
             cost["total"] += self.base_fee
 
         return cost
-
 
 # Example usage
 if __name__ == "__main__":

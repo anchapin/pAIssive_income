@@ -185,7 +185,8 @@ class StrategyGenerator(IMarketingStrategy):
         channels.append(
             MarketingChannelSchema(
                 name="Content Marketing",
-                description="Creating and sharing valuable content to attract customers",
+                description="Creating and sharing valuable content to attract" \
+                            + "customers",
                     
                 platforms=["Blog", "Video", "Infographics", "Podcasts"],
                 relevance_score=0.75,
@@ -216,7 +217,8 @@ class StrategyGenerator(IMarketingStrategy):
             channels.append(
                 MarketingChannelSchema(
                     name="Shopping Ads",
-                    description="Product - specific advertisements on shopping platforms",
+                    description="Product - specific advertisements on shopping" \
+                                + "platforms",
                         
                     platforms=["Google Shopping", "Facebook Shopping"],
                     relevance_score=0.80,
@@ -269,7 +271,8 @@ class StrategyGenerator(IMarketingStrategy):
                         MarketingTacticSchema(
                             channel_name=channel.name,
                             name="SEO - Optimized Blog Content",
-                            description="Creating blog content targeting specific keywords",
+                            description="Creating blog content targeting specific" \
+                                        + "keywords",
                                 
                             expected_impact=0.65,
                             timeframe="Medium to long term",
@@ -279,7 +282,8 @@ class StrategyGenerator(IMarketingStrategy):
                         MarketingTacticSchema(
                             channel_name=channel.name,
                             name="Video Content Production",
-                            description="Creating engaging video content for products / services",
+                            description="Creating engaging video content for products" \
+                                        + "/ services",
                                 
                             expected_impact=0.75,
                             timeframe="Medium term",
@@ -297,7 +301,8 @@ class StrategyGenerator(IMarketingStrategy):
                     MarketingTacticSchema(
                         channel_name=channel.name,
                         name="Email Newsletter Campaign",
-                        description="Regular newsletters with valuable content and offers",
+                        description="Regular newsletters with valuable content and" \
+                                    + "offers",
                             
                         expected_impact=0.6,
                         timeframe="Short to medium term",
@@ -474,7 +479,11 @@ class StrategyGenerator(IMarketingStrategy):
 
         return metrics
 
-    def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, 
+    def evaluate_strategy(
+                          self,
+                          strategy_id: str,
+                          metrics: Dict[str, float]
+                         ) -> Dict[str, 
         Any]:
         """
         Evaluate the effectiveness of a marketing strategy using multi - \
@@ -705,7 +714,9 @@ class StrategyGenerator(IMarketingStrategy):
                         0)
                     new_allocations[channel] = current_allocation * adjustment_factor
                 else:
-                    new_allocations[channel] = revised_strategy.allocated_budget.get(channel, 
+                    new_allocations[
+    channel
+]] = revised_strategy.allocated_budget.get(channel, 
                         0)
 
             # Normalize allocations to match total budget
@@ -756,7 +767,10 @@ class StrategyGenerator(IMarketingStrategy):
                         if key in strategy_dict["target_audience"]["demographics"]:
                             value = \
                                 strategy_dict["target_audience"]["demographics"][key]
-                            if hasattr(value, "__iter__") and not isinstance(value, (str, 
+                            if hasattr(
+                                       value,
+                                       "__iter__"
+                                      ) and not isinstance(value, (str, 
                                 dict)):
                                 strategy_dict["target_audience"]["demographics"][key] = list(value)
 
@@ -784,7 +798,8 @@ class StrategyGenerator(IMarketingStrategy):
                 md += f"- **Age Range:** {demo.age_range[0]}-{demo.age_range[1]}\n"
                 md += f"- **Gender:** {demo.gender}\n"
                 md += f"- **Location:** {demo.location}\n"
-                md += f"- **Income Range:** ${demo.income_range[0]}-${demo.income_range[1]}\n"
+                md += f"- **Income Range:**" \
+                       + "${demo.income_range[0]}-${demo.income_range[1]}\n"
                 md += "\n"
 
             if strategy.target_audience.interests:

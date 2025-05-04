@@ -705,7 +705,8 @@ class EmbeddingModel(BaseLocalAIModel):
 
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             raise ImportError(
-                "Sentence Transformers not available. Please install it with: pip install sentence - transformers"
+"Sentence Transformers not available. Please install it with: pip install sentence -" \
++ "transformers"
             )
 
         self.device = device

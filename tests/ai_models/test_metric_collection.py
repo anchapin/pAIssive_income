@@ -9,18 +9,15 @@ import os
 import random
 import sqlite3
 import tempfile
-import time
 from datetime import datetime, timedelta
 
 import pytest
 
 from ai_models.metrics.api import MetricsAPI
-from ai_models.metrics.enhanced_metrics import (
     EnhancedInferenceMetrics,
     EnhancedPerformanceMonitor,
     TokenUsageMetrics,
 )
-
 
 @pytest.fixture
 def temp_db_path():
@@ -34,13 +31,11 @@ def temp_db_path():
     if os.path.exists(db_path):
         os.unlink(db_path)
 
-
 @pytest.fixture
 def metrics_api(temp_db_path):
     """Create a metrics API instance with a temporary database."""
     api = MetricsAPI(db_path=temp_db_path)
     return api
-
 
 def test_metric_accuracy(metrics_api):
     """Test that metrics are recorded accurately."""
@@ -76,7 +71,6 @@ def test_metric_accuracy(metrics_api):
     assert abs(retrieved_metrics["time_to_first_token"] - 50.5) < 0.001
     assert abs(retrieved_metrics["prompt_cost"] - 0.0002) < 0.0001
     assert abs(retrieved_metrics["completion_cost"] - 0.0003) < 0.0001
-
 
 def test_metric_aggregation_at_scale(metrics_api, temp_db_path):
     """Test that metrics can be aggregated correctly at scale."""
@@ -126,7 +120,6 @@ def test_metric_aggregation_at_scale(metrics_api, temp_db_path):
         total_latency = sum(m["latency_ms"] for m in model_metrics)
         avg_latency = total_latency / len(model_metrics)
         assert abs(report.avg_latency_ms - avg_latency) < 0.01
-
 
 def test_custom_metric_definition(metrics_api):
     """Test that custom metrics can be defined and tracked."""
@@ -273,7 +266,6 @@ def test_custom_metric_definition(metrics_api):
     # Clean up
     conn.close()
 
-
 def test_metric_collection_over_time(metrics_api):
     """Test that metrics can be collected and analyzed over time."""
     model_id = "time - series - model"
@@ -345,7 +337,6 @@ def test_metric_collection_over_time(metrics_api):
         else:
             # Weekdays have a mix of peak and off - peak hours
             assert 100.0 <= report["avg_latency"] <= 150.0
-
 
 def test_custom_metric_validation(metrics_api):
     """Test validation and configuration of custom metrics."""
@@ -441,7 +432,6 @@ def test_custom_metric_validation(metrics_api):
     assert "custom_metric2" in config
     assert config["custom_metric2"]["type"] == "integer"
     assert config["custom_metric2"]["range"] == [0, 1000]
-
 
 if __name__ == "__main__":
     pytest.main([" - xvs", __file__])

@@ -2,7 +2,6 @@
 Tests for mock implementations used in testing.
 """
 
-import json
 from unittest.mock import patch
 
 import pytest
@@ -20,7 +19,6 @@ from .mock_model_providers import (
     MockONNXProvider,
     MockOpenAIProvider,
 )
-
 
 class TestModelProviderMocks:
     """Test mock model provider implementations."""
@@ -135,7 +133,6 @@ class TestModelProviderMocks:
         assert "status" in optimization
         assert optimization["status"] == "success"
 
-
 class TestExternalAPIMocks:
     """Test external API mock implementations."""
 
@@ -228,7 +225,6 @@ class TestExternalAPIMocks:
         assert all(isinstance(f, dict) for f in files)
         assert all("id" in f for f in files)
 
-
 @pytest.fixture
 def mock_model_responses():
     """Create mock model responses for testing."""
@@ -242,7 +238,6 @@ def mock_model_responses():
         "completion": {"choices": [{"text": "This is a mock completion response."}]},
         "embedding": {"data": [{"embedding": [0.1] * 1536}]},
     }
-
 
 class TestMockResponses:
     """Test mock response handling."""

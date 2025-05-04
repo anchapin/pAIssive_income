@@ -2,14 +2,9 @@
 Tests for the StrategyGenerator class in the Marketing module.
 """
 
-import datetime
-import uuid
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from marketing.concrete_strategy_generator import DefaultStrategyGenerator
-
 
 @pytest.fixture
 def strategy_generator():
@@ -26,8 +21,12 @@ def strategy_generator():
                 "education": "college degree or higher",
                 "occupation": "professionals, business owners",
             },
-            "interests": ["productivity", "technology", "business growth", "automation"],
-                
+            "interests":[
+    "productivity",
+    "technology",
+    "business growth",
+    "automation"
+]],
             "pain_points": ["time management", "manual processes", "data organization"],
             "goals": ["improve efficiency", "reduce costs", "grow business"],
         },
@@ -36,7 +35,6 @@ def strategy_generator():
         business_size="medium",
     )
     return generator
-
 
 def test_strategy_generator_init():
     """Test DefaultStrategyGenerator initialization."""
@@ -54,7 +52,6 @@ def test_strategy_generator_init():
     assert hasattr(generator, "name")
     assert hasattr(generator, "description")
     assert hasattr(generator, "channel_type")
-
 
 def test_validate_business_type(strategy_generator):
     """Test validate_business_type method."""
@@ -75,7 +72,6 @@ def test_validate_business_type(strategy_generator):
     assert not is_valid
     assert len(errors) > 0
 
-
 def test_validate_goals(strategy_generator):
     """Test validate_goals method."""
     # Valid goals
@@ -94,7 +90,6 @@ def test_validate_goals(strategy_generator):
     is_valid, errors = strategy_generator.validate_goals()
     assert not is_valid
     assert len(errors) > 0
-
 
 def test_analyze_channels(strategy_generator):
     """Test analyze_channels method."""
@@ -149,7 +144,6 @@ def test_analyze_channels(strategy_generator):
         assert 0 <= channel_score["time_adjustment"] <= 1
         assert 0 <= channel_score["overall_score"] <= 1
         assert channel_score["effectiveness_level"] in ["low", "medium", "high"]
-
 
 def test_analyze_channel_effectiveness(strategy_generator):
     """Test _analyze_channel_effectiveness method."""
@@ -211,7 +205,6 @@ def test_analyze_channel_effectiveness(strategy_generator):
     assert isinstance(moderately_effective, list)
     assert all(isinstance(channel, str) for channel in moderately_effective)
 
-
 def test_analyze_channel_metrics_effectiveness(strategy_generator):
     """Test _analyze_channel_metrics_effectiveness method."""
     # Test for a specific channel
@@ -249,7 +242,6 @@ def test_analyze_channel_metrics_effectiveness(strategy_generator):
     assert isinstance(weak_metrics, list)
     assert all(isinstance(metric, str) for metric in weak_metrics)
 
-
 def test_calculate_channel_base_score(strategy_generator):
     """Test _calculate_channel_base_score method."""
     # Test for all channels
@@ -259,7 +251,6 @@ def test_calculate_channel_base_score(strategy_generator):
         # Check that the result is a float between 0 and 1
         assert isinstance(base_score, float)
         assert 0 <= base_score <= 1
-
 
 def test_calculate_channel_business_alignment(strategy_generator):
     """Test _calculate_channel_business_alignment method."""
@@ -280,7 +271,6 @@ def test_calculate_channel_business_alignment(strategy_generator):
 
     # Check that the alignment is 1.0 for a typical channel
     assert business_alignment == 1.0
-
 
 def test_calculate_channel_goal_alignment_score(strategy_generator):
     """Test _calculate_channel_goal_alignment_score method."""
@@ -303,7 +293,6 @@ def test_calculate_channel_goal_alignment_score(strategy_generator):
     # Check that the alignment is high for a channel that is best for the goal
     assert goal_alignment >= 0.5
 
-
 def test_calculate_difficulty_adjustment(strategy_generator):
     """Test _calculate_difficulty_adjustment method."""
     # Test for different difficulty levels
@@ -314,7 +303,6 @@ def test_calculate_difficulty_adjustment(strategy_generator):
         strategy_generator._calculate_difficulty_adjustment("unknown") == 0.8
     )  # Default to medium
 
-
 def test_calculate_time_adjustment(strategy_generator):
     """Test _calculate_time_adjustment method."""
     # Test for different time investment levels
@@ -323,7 +311,6 @@ def test_calculate_time_adjustment(strategy_generator):
     assert strategy_generator._calculate_time_adjustment("high") == 0.6
     assert strategy_generator._calculate_time_adjustment("unknown") == \
         0.8  # Default to medium
-
 
 def test_adjust_metrics_for_business_type(strategy_generator):
     """Test _adjust_metrics_for_business_type method."""
@@ -353,7 +340,6 @@ def test_adjust_metrics_for_business_type(strategy_generator):
     # For SaaS businesses, content marketing should have higher conversion and retention
     assert adjusted_metrics["conversion"] > metrics["conversion"]
     assert adjusted_metrics["retention"] > metrics["retention"]
-
 
 def test_adjust_metrics_for_goals(strategy_generator):
     """Test _adjust_metrics_for_goals method."""
@@ -385,7 +371,6 @@ def test_adjust_metrics_for_goals(strategy_generator):
 
     # For lead generation goal, conversion should be higher
     assert adjusted_metrics["conversion"] > metrics["conversion"]
-
 
 def test_analyze_channel_audience_fit(strategy_generator):
     """Test _analyze_channel_audience_fit method."""
@@ -419,7 +404,6 @@ def test_analyze_channel_audience_fit(strategy_generator):
         assert 0 <= channel_score["behavior_fit"] <= 1
         assert 0 <= channel_score["overall_fit"] <= 1
         assert channel_score["fit_level"] in ["low", "medium", "high"]
-
 
 def test_analyze_channel_goal_alignment(strategy_generator):
     """Test _analyze_channel_goal_alignment method."""
@@ -480,7 +464,6 @@ def test_analyze_channel_goal_alignment(strategy_generator):
             "high",
         ]
 
-
 def test_analyze_channel_budget_fit(strategy_generator):
     """Test _analyze_channel_budget_fit method."""
     # Analyze channel budget fit
@@ -518,7 +501,6 @@ def test_analyze_channel_budget_fit(strategy_generator):
         assert 0 <= channel_score["budget_fit"] <= 1
         assert channel_score["affordability"] in ["affordable", "moderate", "expensive"]
 
-
 def test_analyze_channel_roi(strategy_generator):
     """Test _analyze_channel_roi method."""
     # Analyze channel ROI
@@ -555,7 +537,6 @@ def test_analyze_channel_roi(strategy_generator):
         assert channel_score["roi"] >= 0
         assert 0 <= channel_score["roi_score"] <= 1
         assert channel_score["roi_level"] in ["low", "medium", "high"]
-
 
 def test_prioritize_channels(strategy_generator):
     """Test _prioritize_channels method."""
@@ -612,7 +593,6 @@ def test_prioritize_channels(strategy_generator):
     medium_priority_channels = prioritized_channels["medium_priority_channels"]
     assert isinstance(medium_priority_channels, list)
     assert all(isinstance(channel, str) for channel in medium_priority_channels)
-
 
 def test_generate_channel_recommendations(strategy_generator):
     """Test _generate_channel_recommendations method."""

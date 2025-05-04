@@ -5,9 +5,7 @@ This module tests the Prometheus metrics collection, accuracy, and alert
 functionality in the API services.
 """
 
-import json
 import re
-import time
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -25,7 +23,6 @@ from api.services.metrics import (
     update_rate_limit,
 )
 
-
 @pytest.fixture
 def reset_metrics():
     """Reset all metrics before each test."""
@@ -36,7 +33,6 @@ def reset_metrics():
     WEBHOOK_QUEUE_LATENCY._metrics.clear()
     WEBHOOK_HEALTH._metrics.clear()
     WEBHOOK_RATE_LIMIT_REMAINING._metrics.clear()
-
 
 def test_webhook_delivery_metrics(reset_metrics):
     """Test that webhook delivery metrics are recorded accurately."""
@@ -110,7 +106,6 @@ def test_webhook_delivery_metrics(reset_metrics):
         == 1
     )
 
-
 def test_queue_metrics(reset_metrics):
     """Test that queue metrics are recorded accurately."""
     # Track queue size
@@ -142,7 +137,6 @@ def test_queue_metrics(reset_metrics):
     assert WEBHOOK_QUEUE_LATENCY.labels(priority="low")._sum.get() == 10.0
     assert WEBHOOK_QUEUE_LATENCY.labels(priority="low")._count.get() == 1
 
-
 def test_rate_limit_metrics(reset_metrics):
     """Test that rate limit metrics are recorded accurately."""
     # Update rate limit
@@ -159,7 +153,6 @@ def test_rate_limit_metrics(reset_metrics):
     update_rate_limit(webhook_id="test - webhook - 1", remaining=90)
     assert WEBHOOK_RATE_LIMIT_REMAINING.labels(webhook_id="test - \
         webhook - 1")._value.get() == 90
-
 
 @patch("prometheus_client.generate_latest")
 def test_prometheus_format(mock_generate_latest, reset_metrics):
@@ -271,7 +264,6 @@ webhook_queue_size{priority="low"} 5.0
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="\+Inf"\} 2\.0', 
         metrics_text)
 
-
 @patch("api.services.metrics.WEBHOOK_HEALTH")
 def test_health_metrics(mock_webhook_health, reset_metrics):
     """Test that health metrics are recorded accurately."""
@@ -300,7 +292,6 @@ def test_health_metrics(mock_webhook_health, reset_metrics):
     # Check that the set method was called with the correct values
     mock_labels.set.assert_any_call(1.0)
     mock_labels.set.assert_any_call(0.0)
-
 
 def test_metric_aggregation():
     """Test that metrics can be aggregated correctly."""
@@ -371,7 +362,6 @@ def test_metric_aggregation():
     # Check specific buckets
     assert buckets[0.5] == 7  # 5 success (0.1 - 0.5) + 2 failed (0.2, 0.4)
     assert buckets[1.0] == 15  # All 15 events
-
 
 if __name__ == "__main__":
     pytest.main([" - xvs", __file__])

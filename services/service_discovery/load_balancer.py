@@ -7,11 +7,9 @@ requests across multiple instances of a service.
 
 import abc
 import random
-import time
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar
 
 T = TypeVar("T")
-
 
 class LoadBalancerStrategy(Generic[T], abc.ABC):
     """Base interface for load balancing strategies."""
@@ -29,7 +27,6 @@ class LoadBalancerStrategy(Generic[T], abc.ABC):
         """
         pass
 
-
 class RoundRobinStrategy(LoadBalancerStrategy[T]):
     """Round - robin load balancing strategy."""
 
@@ -44,7 +41,6 @@ class RoundRobinStrategy(LoadBalancerStrategy[T]):
         self.counter = (self.counter + 1) % len(instances)
         return instances[self.counter]
 
-
 class RandomStrategy(LoadBalancerStrategy[T]):
     """Random selection load balancing strategy."""
 
@@ -54,7 +50,6 @@ class RandomStrategy(LoadBalancerStrategy[T]):
             return None
 
         return random.choice(instances)
-
 
 class WeightedRandomStrategy(LoadBalancerStrategy[T]):
     """Weighted random selection load balancing strategy."""
@@ -79,7 +74,6 @@ class WeightedRandomStrategy(LoadBalancerStrategy[T]):
         # Select an instance based on weights
         return random.choices(instances, weights=weights, k=1)[0]
 
-
 class LeastConnectionsStrategy(LoadBalancerStrategy[T]):
     """Least connections load balancing strategy."""
 
@@ -99,7 +93,6 @@ class LeastConnectionsStrategy(LoadBalancerStrategy[T]):
             return None
 
         return min(instances, key=self.get_connections)
-
 
 class LoadBalancer(Generic[T]):
     """Load balancer for selecting service instances."""

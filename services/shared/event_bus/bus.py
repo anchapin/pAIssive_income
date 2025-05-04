@@ -4,12 +4,9 @@ Event bus implementation for pAIssive income microservices.
 This module provides an event bus implementation for event - driven architecture.
 """
 
-import asyncio
 import logging
-import os
 import re
-import threading
-from typing import Any, Callable, Dict, List, Optional, Pattern, Set, Tuple, Union
+from typing import Dict, Optional, Union
 
 from services.shared.message_queue import (
     AsyncMessageQueueClient,
@@ -20,15 +17,14 @@ from services.shared.message_queue import (
     MessageType,
 )
 
-from .event import AsyncEventHandler, Event, EventHandler, EventType
-from .exceptions import EventHandlingError, EventPublishError, EventSubscribeError
+from .event import AsyncEventHandler, Event, EventHandler
+from .exceptions import EventPublishError, EventSubscribeError
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class EventSubscription:
     """
@@ -72,7 +68,6 @@ class EventSubscription:
             bool: True if the subscription matches, False otherwise
         """
         return bool(self.pattern.match(event_name))
-
 
 class EventPublisher:
     """
@@ -137,7 +132,6 @@ class EventPublisher:
             logger.error(f"Error publishing event {event.name}: {str(e)}")
             raise EventPublishError(f"Error publishing event: {str(e)}")
 
-
 class EventSubscriber:
     """
     Subscriber for the event bus.
@@ -197,7 +191,8 @@ class EventSubscriber:
             self.subscriptions[subscription.subscription_id] = subscription
 
             logger.info(
-                f"Created subscription {subscription.subscription_id} for pattern {event_pattern}"
+                f"Created subscription {subscription.subscription_id} for pattern" \
+                 + "{event_pattern}"
             )
 
             return subscription
@@ -269,7 +264,8 @@ class EventSubscriber:
                             subscription.handler(event)
                         except Exception as e:
                             logger.error(
-                                f"Error handling event {event.name} in subscription {subscription.subscription_id}: {str(e)}"
+                                f"Error handling event {event.name} in subscription" \
+                                 + "{subscription.subscription_id}: {str(e)}"
                             )
 
                 except Exception as e:
@@ -300,7 +296,6 @@ class EventSubscriber:
                 logger.info("Stopped consuming events")
             except Exception as e:
                 logger.warning(f"Error stopping event consumption: {str(e)}")
-
 
 class EventBus:
     """
@@ -426,7 +421,6 @@ class EventBus:
     def stop(self):
         """Stop consuming events."""
         self.subscriber.stop()
-
 
 class AsyncEventBus:
     """
@@ -590,7 +584,8 @@ class AsyncEventBus:
             self.subscriptions[subscription.subscription_id] = subscription
 
             logger.info(
-                f"Created subscription {subscription.subscription_id} for pattern {event_pattern}"
+                f"Created subscription {subscription.subscription_id} for pattern" \
+                 + "{event_pattern}"
             )
 
             return subscription
@@ -665,7 +660,8 @@ class AsyncEventBus:
                                 subscription.handler(event)
                         except Exception as e:
                             logger.error(
-                                f"Error handling event {event.name} in subscription {subscription.subscription_id}: {str(e)}"
+                                f"Error handling event {event.name} in subscription" \
+                                 + "{subscription.subscription_id}: {str(e)}"
                             )
 
                 except Exception as e:

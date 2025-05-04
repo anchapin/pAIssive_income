@@ -4,14 +4,8 @@ Tests for the GraphQL API.
 This module contains tests for GraphQL queries, mutations, and subscriptions.
 """
 
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id
-from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,
@@ -29,7 +23,6 @@ from tests.api.utils.test_validators import (
     validate_status_code,
     validate_success_response,
 )
-
 
 class TestGraphQLAPI:
     """Tests for the GraphQL API."""

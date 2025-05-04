@@ -85,7 +85,7 @@ def run_demo():
 
     # Add notes to the receipt
     receipt.set_notes(
-        "Thank you for your business! Your subscription will automatically renew next year."
+"Thank you for your business! Your subscription will automatically renew next year."
     )
 
     # Add an additional fee

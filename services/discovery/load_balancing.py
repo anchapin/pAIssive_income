@@ -5,11 +5,9 @@ This module provides various load balancing strategies for service discovery.
 """
 
 import random
-import time
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from .interfaces import LoadBalancingStrategy, ServiceInstance, ServiceStatus
-
 
 class RandomLoadBalancer(LoadBalancingStrategy):
     """
@@ -47,7 +45,6 @@ class RandomLoadBalancer(LoadBalancingStrategy):
             return None
 
         return random.choice(healthy_instances)
-
 
 class RoundRobinLoadBalancer(LoadBalancingStrategy):
     """
@@ -105,7 +102,6 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
         self._last_index[service_id] = next_index
 
         return healthy_instances[next_index]
-
 
 class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
     """
@@ -177,7 +173,6 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
         """
         if instance_id in self._connections and self._connections[instance_id] > 0:
             self._connections[instance_id] -= 1
-
 
 class WeightedLoadBalancer(LoadBalancingStrategy):
     """

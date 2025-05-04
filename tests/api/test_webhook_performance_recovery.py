@@ -12,17 +12,13 @@ This module tests the recovery mechanisms of the webhook system:
 """
 
 import asyncio
-import json
 import time
-import uuid
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
-
 
 class TestDeliveryRecovery:
     """Tests for delivery recovery after system overload."""
@@ -130,7 +126,6 @@ class TestDeliveryRecovery:
             # Stop the service
             await service.stop()
 
-
 class TestBackpressureHandling:
     """Tests for backpressure handling mechanisms."""
 
@@ -192,13 +187,14 @@ class TestBackpressureHandling:
             # Stop the service
             await service.stop()
 
-
 class TestQueuePrioritization:
     """Tests for webhook queue prioritization."""
 
     @pytest.mark.asyncio
     async def test_queue_prioritization(self):
-        """Test that high - priority events are processed before low - priority events."""
+"""
+Test that high - priority events are processed before low - priority events.
+"""
         # Create a webhook service
         service = WebhookService()
         await service.start()
@@ -276,7 +272,6 @@ class TestQueuePrioritization:
             # Stop the service
             await service.stop()
 
-
 class TestExponentialBackoff:
     """Tests for exponential backoff retry logic."""
 
@@ -351,7 +346,6 @@ class TestExponentialBackoff:
             # Stop the service
             await service.stop()
 
-
 class TestDeliveryTimeout:
     """Tests for delivery timeout handling."""
 
@@ -403,7 +397,6 @@ class TestDeliveryTimeout:
         finally:
             # Stop the service
             await service.stop()
-
 
 class TestQueuePersistence:
     """Tests for queue persistence across service restarts."""
@@ -484,7 +477,6 @@ class TestQueuePersistence:
 
             if os.path.exists("test_queue.json"):
                 os.remove("test_queue.json")
-
 
 class TestDeadLetterQueue:
     """Tests for dead letter queue processing."""

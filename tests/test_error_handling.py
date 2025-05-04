@@ -2,10 +2,7 @@
 Tests for error handling functionality.
 """
 
-import json
 import unittest
-from datetime import datetime
-from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
 
 from api.errors import (
@@ -25,7 +22,6 @@ from errors import (
     UIError,
     ValidationError,
 )
-
 
 class TestErrorHandling(unittest.TestCase):
     """Test cases for error handling."""
@@ -188,7 +184,6 @@ class TestErrorHandling(unittest.TestCase):
         self.assertEqual(response_dict["error"]["code"], "test_error")
         self.assertEqual(response_dict["error"]["path"], " / test / path")
         self.assertTrue(len(response_dict["error"]["details"]) > 0)
-
 
 if __name__ == "__main__":
     unittest.main()

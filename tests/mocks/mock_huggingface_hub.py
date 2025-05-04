@@ -11,8 +11,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-
+from typing import Any, Dict, List, Optional, Union
 
 @dataclass
 class MockRepoInfo:
@@ -50,7 +49,6 @@ class MockRepoInfo:
             import hashlib
 
             self.sha = hashlib.sha256(self.id.encode()).hexdigest()
-
 
 class MockHuggingFaceHub:
     """Mock implementation of Hugging Face Hub API."""
@@ -442,7 +440,6 @@ class MockHuggingFaceHub:
 
         return fnmatch.fnmatch(path, pattern)
 
-
 class HfHubHTTPError(Exception):
     """Mock HTTP error from Hugging Face Hub."""
 
@@ -451,7 +448,6 @@ class HfHubHTTPError(Exception):
         self.message = message
         self.response = response or MockResponse()
         super().__init__(message)
-
 
 class MockResponse:
     """Mock HTTP response for Hugging Face Hub errors."""
@@ -465,10 +461,8 @@ class MockResponse:
         """Return the JSON content of the response."""
         return self._json
 
-
 # Create a mock Hugging Face Hub
 mock_huggingface_hub = MockHuggingFaceHub()
-
 
 # Example usage
 if __name__ == "__main__":

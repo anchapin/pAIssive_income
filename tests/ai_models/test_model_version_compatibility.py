@@ -5,7 +5,6 @@ These tests verify that the system can handle different model versions
 and properly manage version compatibility.
 """
 
-import json
 import os
 import tempfile
 import unittest
@@ -18,7 +17,6 @@ from ai_models.model_versioning import (
     ModelVersionRegistry,
     VersionedModelManager,
 )
-
 
 class TestModelVersionCompatibility(unittest.TestCase):
     """Test suite for model version compatibility."""
@@ -266,7 +264,6 @@ class TestModelVersionCompatibility(unittest.TestCase):
         self.assertIn("text - generation", model_v2_0.features)
         self.assertIn("summarization", model_v2_0.features)
         self.assertIn("translation", model_v2_0.features)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -10,7 +10,7 @@ import os
 import sqlite3
 import threading
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 DB_SCHEMA_VERSION = "1.0"
 DEFAULT_DB_PATH = os.path.expanduser("~/.paissive_income / api_analytics.db")
 DEFAULT_ANALYTICS_RETENTION_DAYS = 365  # Keep analytics for 1 year by default
-
 
 class AnalyticsDatabase:
     """
@@ -97,7 +96,7 @@ class AnalyticsDatabase:
             cursor.execute(
                 "CREATE INDEX idx_api_requests_version ON api_requests(version)")
             cursor.execute(
-                "CREATE INDEX idx_api_requests_status_code ON api_requests(status_code)")
+"CREATE INDEX idx_api_requests_status_code ON api_requests(status_code)")
             cursor.execute(
                 "CREATE INDEX idx_api_requests_user_id ON api_requests(user_id)")
             cursor.execute(
@@ -264,7 +263,6 @@ class AnalyticsDatabase:
                      OFFSET (SELECT COUNT(*) FROM api_requests r3
                              WHERE r3.endpoint = r1.endpoint AND r3.version = r1.version
                              AND r3.timestamp BETWEEN ? AND ?) * 95 / 100) as p95_response_time,
-                                 
                     SUM(request_size) as total_request_size,
                     SUM(response_size) as total_response_size,
                     COUNT(DISTINCT user_id) as unique_users,

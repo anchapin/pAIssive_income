@@ -9,10 +9,9 @@ import ipaddress
 import sys
 import time
 import unittest
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Set
 
 # Recreate the security classes here to avoid import issues
-
 
 class WebhookIPAllowlist:
     """IP allowlisting for webhook endpoints."""
@@ -140,7 +139,6 @@ class WebhookIPAllowlist:
             # Invalid IP address
             return False
 
-
 class WebhookSignatureVerifier:
     """Webhook signature verification."""
 
@@ -207,7 +205,6 @@ class WebhookSignatureVerifier:
             return False
 
         return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
-
 
 class WebhookRateLimiter:
     """Rate limiting for webhook deliveries."""
@@ -312,9 +309,7 @@ class WebhookRateLimiter:
         # Calculate reset time
         return oldest_request + self.window_seconds
 
-
 # Test classes
-
 
 class TestWebhookIPAllowlist(unittest.TestCase):
     """Tests for the WebhookIPAllowlist class."""
@@ -421,7 +416,6 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         # Check invalid IP
         self.assertFalse(allowlist.is_allowed("not - an - ip"))
 
-
 class TestWebhookSignatureVerifier(unittest.TestCase):
     """Tests for the WebhookSignatureVerifier class."""
 
@@ -517,7 +511,6 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
                 headers_invalid)
         )
 
-
 class TestWebhookRateLimiter(unittest.TestCase):
     """Tests for the WebhookRateLimiter class."""
 
@@ -598,7 +591,6 @@ class TestWebhookRateLimiter(unittest.TestCase):
             reset_time - current_time, 1.0, delta=0.1
         )  # Within 0.1 seconds of expected
 
-
 def run_tests():
     """Run the security tests."""
     print("Running webhook security tests...")
@@ -624,7 +616,6 @@ def run_tests():
 
     # Return exit code
     return 0 if result.wasSuccessful() else 1
-
 
 if __name__ == "__main__":
     sys.exit(run_tests())

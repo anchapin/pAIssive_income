@@ -8,13 +8,11 @@ query timing, connection pooling statistics, and slow query detection.
 import logging
 import threading
 import time
-from functools import wraps
 from typing import Any, Callable, Dict, List, Optional
 
 from common_utils.db.interfaces import DatabaseInterface
 
 logger = logging.getLogger(__name__)
-
 
 class DatabaseMetrics:
     """Collect and store metrics about database operations."""
@@ -104,7 +102,6 @@ class DatabaseMetrics:
             self.query_count = 0
             self.total_query_time = 0.0
             self.queries = []
-
 
 class MonitoringDatabaseProxy(DatabaseInterface):
     """Proxy that adds monitoring to any DatabaseInterface implementation."""

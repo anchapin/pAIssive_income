@@ -11,11 +11,10 @@ import os
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class ActivityType(Enum):
     """Types of activities that can be tracked."""
@@ -55,7 +54,6 @@ class ActivityType(Enum):
     # User activities
     USER_LOGGED_IN = "user_logged_in"
     USER_LOGGED_OUT = "user_logged_out"
-
 
 class ActivityLog:
     """
@@ -158,7 +156,6 @@ class ActivityLog:
         activity.metadata = data.get("metadata", {})
 
         return activity
-
 
 class ActivityTracker:
     """
@@ -480,7 +477,6 @@ class ActivityTracker:
                     break
 
         return activities
-
 
 class NotificationManager:
     """

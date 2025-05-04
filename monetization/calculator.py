@@ -401,7 +401,8 @@ class MonetizationCalculator(IMonetizationCalculator):
             MonetizationError: If an error occurs during the projection calculation
         """
         logger.info(
-            f"Projecting growth for {months} months with {growth_rate:.2f}% monthly growth rate"
+            f"Projecting growth for {months} months with {growth_rate:.2f}% monthly" \
+             + "growth rate"
         )
 
         try:

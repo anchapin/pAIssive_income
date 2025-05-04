@@ -161,7 +161,8 @@ class DeveloperService(BaseService, IDeveloperService):
                 {
                     "id": str(uuid.uuid4()),
                     "name": f"Feature {i + 1}: {problem['name']} Solver",
-                    "description": f"Solves {problem['name']} by using AI to analyze and process data",
+                    "description": f"Solves {problem['name']} by using AI to analyze" \
+                                    + "and process data",
                         
                     "priority": "high" if problem["severity"] == "high" else "medium",
                     "status": "planned",
@@ -193,7 +194,8 @@ class DeveloperService(BaseService, IDeveloperService):
         return {
             "id": str(uuid.uuid4()),
             "name": f"{niche['name']} AI Assistant",
-            "description": f"An AI - powered tool that helps with {niche['name'].lower()} tasks",
+            "description": f"An AI - powered tool that helps with" \
+                            + "{niche['name'].lower()} tasks",
                 
             "niche_id": niche["id"],
             "features": features,

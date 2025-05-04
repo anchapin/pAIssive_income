@@ -8,10 +8,9 @@ import os
 import sys
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath(".."))
-
 
 # Define constants to avoid importing from the actual modules
 class UsageMetric:
@@ -20,16 +19,13 @@ class UsageMetric:
     API_CALL = "api_call"
     TOKEN = "token"
 
-
 class UsageCategory:
     """Enumeration of usage categories."""
 
     INFERENCE = "inference"
 
-
 # Import only the module we're testing
 from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
-
 
 class TestMeteredBilling(unittest.TestCase):
     """Test cases for the metered billing module."""
@@ -325,7 +321,6 @@ class TestMeteredBilling(unittest.TestCase):
         # Verify prorated billing
         self.assertEqual(result["current_cost"], 
             0.615)  # Should be half of the normal 1.23 rate
-
 
 if __name__ == "__main__":
     unittest.main()

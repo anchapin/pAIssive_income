@@ -3,7 +3,6 @@ Integration tests for circuit breaker functionality.
 """
 
 import time
-from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,7 +15,6 @@ from services.resilience import (
     FailureDetector,
     FallbackHandler,
 )
-
 
 class TestCircuitBreaker:
     """Integration tests for circuit breaker functionality."""
@@ -254,7 +252,6 @@ class TestCircuitBreaker:
                 threshold=1)
             is True
         )  # At threshold
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_circuit_breaker.py"])

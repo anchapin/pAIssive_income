@@ -5,11 +5,6 @@ This module provides examples of using the mock fixtures for testing
 different components of the pAIssive_income project.
 """
 
-from unittest.mock import patch
-
-import pytest
-
-
 def test_openai_provider(mock_openai_provider):
     """Test the mock OpenAI provider."""
     # Call the create_completion method
@@ -30,7 +25,6 @@ def test_openai_provider(mock_openai_provider):
     assert len(call_history) == 1
     assert call_history[0]["args"]["model"] == "gpt - 3.5 - turbo"
     assert call_history[0]["args"]["prompt"] == "Generate a summary of the project"
-
 
 def test_model_provider_with_custom_responses(mock_openai_provider):
     """Test the mock model provider with custom responses."""
@@ -58,7 +52,6 @@ def test_model_provider_with_custom_responses(mock_openai_provider):
 
     # Check that the correct custom response was used
     assert "Market analysis shows positive trends." in response["choices"][0]["text"]
-
 
 def test_payment_processing_api(mock_payment_api):
     """Test the mock payment processing API."""
@@ -88,7 +81,6 @@ def test_payment_processing_api(mock_payment_api):
     assert len(call_history) == 2
     assert call_history[0]["method"] == "create_customer"
     assert call_history[1]["method"] == "create_subscription"
-
 
 def test_huggingface_api(mock_huggingface_api):
     """Test the mock Hugging Face API."""
@@ -121,7 +113,6 @@ def test_huggingface_api(mock_huggingface_api):
     call_history = mock_huggingface_api.get_call_history()
     assert len(call_history) >= 3
 
-
 def test_with_patched_model_providers(patch_model_providers, monkeypatch):
     """Test using the patched model providers."""
     from unittest.mock import MagicMock
@@ -134,8 +125,8 @@ def test_with_patched_model_providers(patch_model_providers, monkeypatch):
     # Mock the API key and disable API status check
     monkeypatch.setenv("OPENAI_API_KEY", "sk - mock - key")
     monkeypatch.setattr(
-        "ai_models.adapters.openai_compatible_adapter.OpenAICompatibleAdapter._check_api_status",
-            
+"ai_models.adapters.openai_compatible_adapter.OpenAICompatibleAdapter._check_api_stat" \
++ "us",
         lambda self: None,
     )
 
@@ -184,8 +175,8 @@ def test_with_patched_model_providers(patch_model_providers, monkeypatch):
     # Check that the response has the expected structure
     assert "choices" in response
     assert len(response["choices"]) > 0
-    assert "This is a mock response from the OpenAI model." in response["choices"][0]["text"]
-
+    assert assert "This\
+            is a mock response from the OpenAI model." in response["choices"][0]["text"]
 
 def test_with_patched_external_apis(patch_external_apis):
     """Test using the patched external APIs."""
@@ -212,7 +203,6 @@ def test_with_patched_external_apis(patch_external_apis):
     assert len(call_history) == 1
     assert call_history[0]["args"]["to_email"] == "user @ example.com"
     assert call_history[0]["args"]["subject"] == "Test Email"
-
 
 def test_using_common_fixtures(
     mock_subscription_data, mock_niche_analysis_data, mock_model_inference_result

@@ -231,7 +231,8 @@ class CommandLineInterface:
                 return "No solution available. Run 'develop solution' first."
 
             if not self.current_monetization:
-                return "No monetization strategy available. Run 'create monetization' first."
+                return"No monetization strategy available. Run 'create monetization'" \
+                      + "first."
 
             # Use the agent team to create a marketing plan
             self.current_marketing_plan = self.agent_team.create_marketing_plan(
@@ -273,7 +274,8 @@ class CommandLineInterface:
             return "No solution available. Run 'develop solution' first."
 
         if not self.current_monetization:
-            return "No monetization strategy available. Run 'create monetization' first."
+            return"No monetization strategy available. Run 'create monetization'" \
+                  + "first."
 
         if not self.current_marketing_plan:
             return "No marketing plan available. Run 'create marketing' first."

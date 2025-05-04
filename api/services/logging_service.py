@@ -9,16 +9,14 @@ import json
 import logging
 import os
 import sys
-import time
 import traceback
 from datetime import datetime, timezone
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from typing import Any, Dict, List, Optional, Union
+from logging.handlers import RotatingFileHandler
+from typing import Any, Dict, List, Optional
 
 # Configure default logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class SecurityLogFilter(logging.Filter):
     """Filter for security - related log events."""
@@ -54,7 +52,6 @@ class SecurityLogFilter(logging.Filter):
             return True
 
         return False
-
 
 class JsonFormatter(logging.Formatter):
     """JSON formatter for structured logging."""
@@ -132,7 +129,6 @@ class JsonFormatter(logging.Formatter):
                 log_data[key] = value
 
         return json.dumps(log_data)
-
 
 class LoggingService:
     """Service for enhanced logging capabilities."""
@@ -381,7 +377,8 @@ class LoggingService:
 
         # Create message
         message = \
-            f"Webhook delivery {'succeeded' if success else 'failed'}: {delivery_id} to {url}"
+            f"Webhook delivery {'succeeded' if success else 'failed'}: {delivery_id}" \
+             + "to {url}"
 
         # Create extra fields
         extra = {

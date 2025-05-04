@@ -7,7 +7,6 @@ This module provides services for webhook management and delivery.
 import asyncio
 import json
 import logging
-import os
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -15,7 +14,6 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 
 from .audit_service import AuditEvent, AuditService
-from .metrics import (
     track_queue_latency,
     track_webhook_delivery,
     track_webhook_error,
@@ -29,7 +27,6 @@ from .webhook_security import WebhookSignatureVerifier
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class WebhookService:
     """

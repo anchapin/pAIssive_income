@@ -4,20 +4,15 @@ Integration tests for the API.
 This module contains integration tests that span multiple API endpoints.
 """
 
-from typing import Any, Dict, List
-
 import pytest
-from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
     generate_agent_team_data,
     generate_id,
     generate_marketing_strategy_data,
     generate_monetization_data,
     generate_niche_analysis_data,
 )
-from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,
@@ -35,7 +30,6 @@ from tests.api.utils.test_validators import (
     validate_status_code,
     validate_success_response,
 )
-
 
 class TestAPIIntegration:
     """Integration tests for the API."""

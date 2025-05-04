@@ -8,10 +8,9 @@ suitable for development, testing, and small - scale deployments.
 import threading
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
-
 
 class InMemoryServiceRegistry(ServiceRegistry):
     """

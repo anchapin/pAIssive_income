@@ -6,7 +6,6 @@ module - specific types will extend.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -46,7 +45,6 @@ if STRAWBERRY_AVAILABLE:
             Returns:
                 Basic health information about the API
             """
-            import time
             from datetime import datetime
 
             # Get API server from context if available

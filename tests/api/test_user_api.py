@@ -4,14 +4,8 @@ Tests for the user API.
 This module contains tests for the user API endpoints.
 """
 
-from typing import Any, Dict, List
-
-import pytest
-from fastapi.testclient import TestClient
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_user_data
-from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,
@@ -29,7 +23,6 @@ from tests.api.utils.test_validators import (
     validate_status_code,
     validate_success_response,
 )
-
 
 class TestUserAPI:
     """Tests for the user API."""

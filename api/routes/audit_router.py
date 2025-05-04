@@ -11,9 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from ..middleware.auth import get_api_key, get_current_user, require_scopes
-from ..models.api_key import APIKey
 from ..models.user import User
-from ..schemas.audit import (
     AuditAction,
     AuditActorType,
     AuditEventList,
@@ -33,7 +31,6 @@ audit_service = AuditService()
 
 # Create router
 router = APIRouter()
-
 
 @router.get(
     " / ",
@@ -107,7 +104,6 @@ async def list_audit_events(
         "page_size": page_size,
         "pages": total_pages,
     }
-
 
 @router.get(
     "/{event_id}",

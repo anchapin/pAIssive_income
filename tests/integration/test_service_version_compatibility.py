@@ -5,23 +5,18 @@ This module contains tests for version compatibility between services in the
 microservices architecture.
 """
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
-from services.discovery import (
     InMemoryServiceRegistry,
     ServiceDiscoveryClient,
     ServiceInstance,
     ServiceRegistry,
 )
-from services.versioning import (
     SemanticVersion,
     VersionCompatibilityChecker,
     VersionManager,
     VersionMismatchError,
 )
-
 
 @pytest.fixture
 def in_memory_registry():
@@ -121,7 +116,6 @@ def in_memory_registry():
 
     return registry
 
-
 @pytest.fixture
 def discovery_client(in_memory_registry):
     """Create a service discovery client."""
@@ -129,18 +123,15 @@ def discovery_client(in_memory_registry):
     client.registry = in_memory_registry
     return client
 
-
 @pytest.fixture
 def version_manager(discovery_client):
     """Create a version manager."""
     return VersionManager(discovery_client=discovery_client)
 
-
 @pytest.fixture
 def compatibility_checker(version_manager):
     """Create a version compatibility checker."""
     return VersionCompatibilityChecker(version_manager=version_manager)
-
 
 class TestServiceVersionCompatibility:
     """Test service version compatibility."""
@@ -268,7 +259,6 @@ class TestServiceVersionCompatibility:
         assert len(upgrade_path) == 2
         assert upgrade_path[0] == "1.0.0"
         assert upgrade_path[1] == "1.5.0"
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_service_version_compatibility.py"])

@@ -131,7 +131,8 @@ class MarketingAgent:
             {
                 "id": str(uuid.uuid4()),
                 "name": "Social Media Marketing",
-                "description": f"Engage with {niche['name']} communities on social media",
+                "description": f"Engage with {niche['name']} communities on social" \
+                                + "media",
                     
                 "platforms": ["twitter", "linkedin", "reddit"],
                 "content_types": ["tips", "product updates", "user success stories"],
@@ -143,7 +144,8 @@ class MarketingAgent:
             {
                 "id": str(uuid.uuid4()),
                 "name": "Email Marketing",
-                "description": f"Build and nurture an email list of {niche['name']} professionals",
+                "description": f"Build and nurture an email list of {niche['name']}" \
+                                + "professionals",
                     
                 "platforms": ["mailchimp", "convertkit"],
                 "content_types": ["newsletters", "product updates", "special offers"],
@@ -155,7 +157,8 @@ class MarketingAgent:
             {
                 "id": str(uuid.uuid4()),
                 "name": "Paid Advertising",
-                "description": f"Run targeted ads to reach {niche['name']} professionals",
+                "description": f"Run targeted ads to reach {niche['name']}" \
+                                + "professionals",
                     
                 "platforms": ["google ads", "facebook ads", "linkedin ads"],
                 "content_types": ["product demos", "free trial offers", "testimonials"],
@@ -203,7 +206,8 @@ class MarketingAgent:
             {
                 "id": str(uuid.uuid4()),
                 "name": "Yearly Subscription Promotion",
-                "description": f"Promote yearly subscription discount for {solution['name']}",
+                "description": f"Promote yearly subscription discount for" \
+                                + "{solution['name']}",
                     
                 "channels": [marketing_channels[0]["id"], marketing_channels[2]["id"]],
                 "budget": "$1,000 - $2,000",
@@ -221,7 +225,8 @@ class MarketingAgent:
             "blog_posts": [
                 f"Top 10 Challenges in {niche['name']} and How to Solve Them",
                 f"How {solution['name']} Can Save You X Hours per Week",
-                f"Case Study: How Company X Improved Their {niche['name']} Process with {solution['name']}",
+                f"Case Study: How Company X Improved Their {niche['name']} Process" \
+                 + "with {solution['name']}",
                     
                 f"The Future of {niche['name']}: Trends and Predictions",
                 f"{niche['name']} Best Practices for 2023",
@@ -230,7 +235,8 @@ class MarketingAgent:
                 f"{solution['name']} Demo: Solving {niche['problem_areas'][0]}",
                 f"How to Get Started with {solution['name']} in 10 Minutes",
                 f"Customer Testimonial: {solution['name']} in Action",
-                f"Comparing {solution['name']} to Traditional {niche['name']} Solutions",
+                f"Comparing {solution['name']} to Traditional {niche['name']}" \
+                 + "Solutions",
                     
             ],
             "social_media": [
@@ -251,7 +257,8 @@ class MarketingAgent:
         # Generate growth strategy based on the monetization
         growth_strategy = {
             "user_acquisition": {
-                "target": f"{monetization['revenue_projections']['year_1']['users']} users in year 1",
+                "target": f"{monetization['revenue_projections']['year_1']['users']}" \
+                           + "users in year 1",
                     
                 "channels": [channel["name"] for channel in marketing_channels],
                 "cost_per_acquisition": "$20 - $50",
@@ -293,7 +300,8 @@ class MarketingAgent:
             "branding": {
                 "name": solution["name"],
                 "tagline": f"AI - powered {niche['name']} solution",
-                "value_proposition": f"Save time and improve quality in your {niche['name']} process",
+                "value_proposition": f"Save time and improve quality in your" \
+                                      + "{niche['name']} process",
                     
                 "brand_voice": "professional, helpful, innovative",
                 "visual_identity": {
@@ -365,7 +373,8 @@ class MarketingAgent:
                 problem_area = niche["problem_areas"][i % len(niche["problem_areas"])]
                 title = f"How to Solve {problem_area} in {niche['name']}"
                 description = \
-                    f"A detailed guide on solving {problem_area} using {solution['name']}"
+                    f"A detailed guide on solving {problem_area} using" \
+                     + "{solution['name']}"
             elif content_type == "video":
                 feature = solution["features"][i % len(solution["features"])]["name"]
                 title = f"{solution['name']} Demo: {feature}"
@@ -382,9 +391,11 @@ class MarketingAgent:
                     f"An email introducing the {feature} feature to subscribers"
             elif content_type == "webinar":
                 title = \
-                    f"Mastering {niche['name']}: Advanced Techniques with {solution['name']}"
+                    f"Mastering {niche['name']}: Advanced Techniques with" \
+                     + "{solution['name']}"
                 description = (
-                    f"A webinar on advanced techniques for {niche['name']} using {solution['name']}"
+                    f"A webinar on advanced techniques for {niche['name']} using" \
+                     + "{solution['name']}"
                 )
 
             content_ideas.append(

@@ -10,16 +10,12 @@ This module implements the advanced authentication tests recommended in the secu
 import threading
 import time
 import unittest
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, patch
-
-import jwt
+from datetime import datetime
+from typing import Any, Dict
+from unittest.mock import MagicMock
 
 from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
-from api.services.api_key_service import APIKeyService
-
 
 class TestAdvancedAuthentication(unittest.TestCase):
     """Test cases for advanced authentication scenarios."""
@@ -399,7 +395,6 @@ class TestAdvancedAuthentication(unittest.TestCase):
         # Verify only current session remains
         self.assertEqual(len(self.active_sessions[user_id]), 1)
         self.assertIn("session2", self.active_sessions[user_id])
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,8 +3,6 @@ Minimal stub for the hypothesis package.
 """
 
 from enum import Enum
-from functools import wraps
-
 
 class Verbosity(Enum):
     quiet = 0
@@ -12,21 +10,17 @@ class Verbosity(Enum):
     verbose = 2
     debug = 3
 
-
 def given(*args, **kwargs):
     def decorator(func):
         return func
 
     return decorator
 
-
 class strategies:
     pass
 
-
 def assume(condition):
     pass
-
 
 class settings:
     default = None
@@ -42,10 +36,8 @@ class settings:
     def show_changed(cls):
         return ""
 
-
 # Initialize default settings
 settings.default = settings()
-
 
 def example(*args, **kwargs):
     def decorator(func):

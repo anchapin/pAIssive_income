@@ -5,16 +5,12 @@ This module contains integration tests for containerized microservices,
 including container orchestration, service scaling, and health checks.
 """
 
-import json
-import os
 import subprocess
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-
 
 class TestContainerization:
     """Integration tests for containerization of microservices."""
@@ -396,7 +392,6 @@ class TestContainerization:
             assert response.status_code == 200
             health_data = response.json()
             assert health_data["status"] == "healthy"
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_containerization.py"])

@@ -9,9 +9,8 @@ import logging
 import time
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from services.shared.message_queue import (
     AsyncMessageQueueClient,
     Message,
     MessagePriority,
@@ -25,7 +24,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 # Example 1: Niche Analysis Service - Synchronous
 def niche_analysis_service_example():
@@ -120,7 +118,6 @@ def niche_analysis_service_example():
         # Close the client
         client.close()
 
-
 # Example 2: AI Models Service - Asynchronous
 async def ai_models_service_example():
     """Example of using the message queue in the AI Models Service."""
@@ -214,7 +211,6 @@ async def ai_models_service_example():
             logger.info("Shutting down AI Models Service...")
             await client.stop_consuming(consumer_tag)
 
-
 # Example 3: API Gateway - Request - Response Pattern
 async def api_gateway_example():
     """Example of using the message queue in the API Gateway."""
@@ -258,7 +254,6 @@ async def api_gateway_example():
             logger.info(f"Response payload: {response.payload}")
         else:
             logger.warning("No response received within timeout")
-
 
 # Example 4: Event - Driven Communication
 def event_driven_example():
@@ -344,7 +339,6 @@ def event_driven_example():
         # Close the clients
         publisher.close()
         subscriber.close()
-
 
 # Run the examples
 if __name__ == "__main__":

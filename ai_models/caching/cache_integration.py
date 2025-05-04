@@ -73,7 +73,8 @@ def cache_model_result(
             # Extract model_id from args
             if model_id_arg not in all_args:
                 logger.warning(
-                    f"Cannot cache result: '{model_id_arg}' not found in function arguments"
+                    f"Cannot cache result: '{model_id_arg}' not found in function" \
+                     + "arguments"
                 )
                 return f(*args, **kwargs)
 

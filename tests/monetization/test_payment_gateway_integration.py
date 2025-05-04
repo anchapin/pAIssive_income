@@ -2,7 +2,6 @@
 Tests for payment gateway integration.
 
 This module tests the payment gateway integration functionality in the monetization module,
-    
 including payment processing, subscription lifecycle, refund handling, 
     and error scenarios.
 """
@@ -11,15 +10,10 @@ import os
 import shutil
 import tempfile
 import unittest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
 
 from monetization.mock_payment_processor import MockPaymentProcessor
-from monetization.payment_processor import PaymentProcessor
-from monetization.payment_processor_factory import PaymentProcessorFactory
-from monetization.transaction import Transaction, TransactionStatus, TransactionType
+from monetization.transaction import TransactionStatus
 from monetization.transaction_manager import TransactionManager
-
 
 class TestPaymentGatewayIntegration(unittest.TestCase):
     """Test cases for payment gateway integration."""
@@ -342,7 +336,6 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
         successful_transaction = \
             retry_transaction_manager.get_transaction(retry_transaction.id)
         self.assertEqual(successful_transaction.status, TransactionStatus.COMPLETED)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,13 +5,12 @@ This module provides the main cache manager for the model cache system.
 """
 
 import logging
-import os
 import re
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Union
 
 from .cache_backends import CacheBackend, DiskCache, MemoryCache, SQLiteCache
 from .cache_config import CacheConfig
-from .cache_key import CacheKey, generate_cache_key, parse_cache_key
+from .cache_key import generate_cache_key
 
 # Try to import Redis cache if available
 try:
@@ -26,7 +25,6 @@ logging.basicConfig(
     level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
 
 class CacheManager:
     """
@@ -330,7 +328,8 @@ class CacheManager:
 
             else:
                 logger.warning(
-                    f"Unknown cache backend: {backend_name}. Falling back to memory cache."
+                    f"Unknown cache backend: {backend_name}. Falling back to memory" \
+                     + "cache."
                 )
                 return MemoryCache(**self.config.get_backend_config("memory"))
         except Exception as e:

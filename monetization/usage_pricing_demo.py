@@ -7,10 +7,7 @@ to implement different pricing strategies.
 
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 
-from .billing_calculator import BillingCalculator
-from .usage_based_pricing import UsageBasedPricing
 from .usage_pricing_strategies import (
     ConsumptionBasedPricing,
     HybridUsagePricing,
@@ -18,20 +15,17 @@ from .usage_pricing_strategies import (
     TieredUsagePricing,
 )
 from .usage_tracker import UsageTracker
-from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
-
+from .usage_tracking import UsageCategory, UsageMetric
 
 def print_separator():
     """Print a separator line."""
     print("\n" + " - " * 80 + "\n")
-
 
 def print_section(title):
     """Print a section title."""
     print_separator()
     print(f"## {title}")
     print_separator()
-
 
 def simulate_usage(tracker, customer_id, days=30):
     """
@@ -106,7 +100,6 @@ def simulate_usage(tracker, customer_id, days=30):
             category=UsageCategory.NETWORK,
             resource_type="outbound",
         )
-
 
 def main():
     """Run the usage - based pricing demo."""
@@ -260,7 +253,6 @@ def main():
     print(f"Tiered Usage cost: ${tiered_cost['total']:.2f}")
     print(f"Consumption - Based cost: ${consumption_cost['total']:.2f}")
     print(f"Hybrid Usage cost: ${hybrid_cost['total']:.2f}")
-
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ This module contains tests for UI event handling and state management across
 different UI components.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -14,18 +14,15 @@ from ui.event_handlers import EventHandler
 from ui.state_management import StateManager, StateTransition, UIState
 from ui.web_ui import WebUI
 
-
 @pytest.fixture
 def state_manager():
     """Create a state manager instance."""
     return StateManager()
 
-
 @pytest.fixture
 def event_handler():
     """Create an event handler instance."""
     return EventHandler()
-
 
 @pytest.fixture
 def web_ui_with_state(state_manager):
@@ -34,14 +31,12 @@ def web_ui_with_state(state_manager):
     ui.state_manager = state_manager
     return ui
 
-
 @pytest.fixture
 def cli_ui_with_state(state_manager):
     """Create a CLI UI instance with state management."""
     ui = CommandLineInterface()
     ui.state_manager = state_manager
     return ui
-
 
 class TestUIStateManagement:
     """Test UI event handling and state management."""
@@ -249,7 +244,6 @@ class TestUIStateManagement:
         # Check state in web UI
         assert web_ui.state_manager.current_state == UIState.SOLUTION_DEVELOPMENT
         assert web_ui.state_manager.state_data == {"niche_id": "niche1"}
-
 
 if __name__ == "__main__":
     pytest.main([" - v", "test_ui_state_management.py"])

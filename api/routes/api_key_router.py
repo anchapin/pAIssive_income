@@ -5,7 +5,6 @@ This module provides route handlers for API key operations.
 """
 
 import logging
-from typing import List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
@@ -19,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter()
-
 
 @router.post(
     " / ",
@@ -47,7 +45,6 @@ async def create_api_key(data: APIKeyCreate = Body(...),
         logger.error(f"Error creating API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get(
     " / ",
     response_model=APIKeyList,
@@ -68,7 +65,6 @@ async def list_api_keys(
     except Exception as e:
         logger.error(f"Error listing API keys: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.put(
     "/{api_key_id}",
@@ -96,7 +92,6 @@ async def update_api_key(
     except Exception as e:
         logger.error(f"Error updating API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.delete(
     "/{api_key_id}",
