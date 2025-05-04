@@ -6,10 +6,8 @@ including running specific test files, test directories, or test methods.
 """
 
 import argparse
-import os
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_tests(
@@ -56,7 +54,9 @@ def run_tests(
 
 def main():
     """Main function to parse arguments and run tests."""
-    parser = argparse.ArgumentParser(description="Run tests for the pAIssive Income project")
+    parser = argparse.ArgumentParser(
+        description="Run tests for the pAIssive Income project"
+    )
 
     parser.add_argument(
         "test_path", nargs="?", default=None, help="Path to test file or directory"
@@ -74,7 +74,9 @@ def main():
         help="Exit on first failure, verbose output, show locals",
     )
     parser.add_argument(
-        "-k", "--specific-test", help="Only run tests matching the given substring expression"
+        "-k",
+        "--specific-test",
+        help="Only run tests matching the given substring expression",
     )
 
     args = parser.parse_args()
