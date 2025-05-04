@@ -42,6 +42,8 @@ jobs:
 
     - name: Install dependencies
       run: |
+        # Clean up any existing .egg-info directories to prevent conflicts
+        find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         python -m pip install --upgrade pip
         python -m pip install flake8 black isort mypy ruff pyright
         python -m pip install -r requirements-dev.txt
@@ -204,6 +206,8 @@ jobs:
 
     - name: Install dependencies
       run: |
+        # Clean up any existing .egg-info directories to prevent conflicts
+        find . -type d -name "*.egg-info" -exec rm -rf {} +
         python -m pip install --upgrade pip
         python -m pip install pytest pytest-cov pytest-xdist
         python -m pip install -r requirements.txt
