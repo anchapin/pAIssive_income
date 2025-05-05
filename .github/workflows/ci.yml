@@ -64,46 +64,38 @@ jobs:
     - name: Check for syntax errors
       run: |
         # Define patterns to ignore
-        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|build|dist"
-        export IGNORE_PATTERNS
-
-        # Function to check if a file matches any ignore pattern
-        should_ignore() {
-          local file="$1"
-          if [ -n "$IGNORE_PATTERNS" ]; then
-            echo "$file" | grep -qE "$IGNORE_PATTERNS" && return 0
-          fi
-          return 1
-        }
+        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
 
         # Check if a specific file was specified
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           echo "Checking syntax for specific file: ${{ github.event.inputs.specific_file }}"
           python fix_test_collection_warnings.py --check "${{ github.event.inputs.specific_file }}"
         else
-          # Run syntax error checks on all Python files
+          # Find Python files excluding ignored patterns directly
           echo "Checking for syntax errors in Python files..."
-          PYTHON_FILES=$(find . -name "*.py" -type f)
-          FILTERED_FILES=""
-          while IFS= read -r file; do
-            if ! should_ignore "$file"; then
-              FILTERED_FILES="$FILTERED_FILES$file"$'\n'
-            fi
-          done <<< "$PYTHON_FILES"
+          PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
 
-          if [ -n "$FILTERED_FILES" ]; then
+          if [ -n "$PYTHON_FILES" ]; then
             echo "Checking Python files one by one..."
-            echo "$FILTERED_FILES" | while read -r file; do
+            echo "$PYTHON_FILES" | while read -r file; do
               if [ -n "$file" ]; then
                 echo "Checking $file"
-                python fix_test_collection_warnings.py --check "$file" || exit 1
+                # Use Python's built-in compile to check syntax first
+                python -m py_compile "$file" || {
+                  echo "Syntax error detected in $file with py_compile"
+                  exit 1
+                }
+                # Then use the custom script for more detailed checks
+                python fix_test_collection_warnings.py --check "$file" || {
+                  echo "Issues found in $file with fix_test_collection_warnings.py"
+                  exit 1
+                }
               fi
             done
           else
-            echo "No Python files to check after applying ignore patterns."
+            echo "No Python files to check after filtering."
           fi
         fi
-      # No need to set env here as IGNORE_PATTERNS is already defined in the script
 
     - name: Lint with Ruff
       run: |
@@ -210,20 +202,20 @@ jobs:
         find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         find . -type d -name "*.dist-info" -exec rm -rf {} + || true
         find . -name "*.egg" -exec rm -f {} + || true
-        
+
         # Clear pip cache if needed
         pip cache purge || true
-        
+
         python -m pip install --upgrade pip
         python -m pip install pytest pytest-cov pytest-xdist
-        
+
         # Install build dependencies first
         python -m pip install build setuptools wheel
-        
-        # Install requirements separately 
+
+        # Install requirements separately
         python -m pip install -r requirements.txt
         python -m pip install -r requirements-dev.txt
-        
+
         # Install in development mode with verbose output to debug any issues
         python -m pip install -e . -v
 
