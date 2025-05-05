@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
-    """Check if a file should be ignored based on patterns.""":
+    """Check if a file should be ignored based on patterns."""
     if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
@@ -46,11 +46,11 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     if specific_file:
         # If a specific file is provided, only format that file
         file_path = Path(specific_file)
-        if (:
+        if (
             file_path.exists()
             and file_path.suffix == ".py"
             and not should_ignore(file_path, ignore_patterns)
-        )
+        ):
             return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
@@ -82,7 +82,7 @@ def format_files(files, check_only=False):
         cmd.append("--check")
 
     # Add files to the command
-    cmd.extend([str(f) for f in files]):
+    cmd.extend([str(f) for f in files])
 
     # Run the command
     print(f"Running command: {' '.join(cmd)}")

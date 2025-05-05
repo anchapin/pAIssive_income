@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Script to recreate the virtual environment with proper dependencies.:
+Script to recreate the virtual environment with proper dependencies.
 This script will:
 1. Remove the current virtual environment
 2. Create a new one
@@ -29,7 +29,7 @@ def run_command(command, description=None, check=True):
         print(result.stderr, file=sys.stderr)
 
     if check and result.returncode != 0:
-        print(f"Command failed with exit code {result.returncode}"):
+        print(f"Command failed with exit code {result.returncode}")
         sys.exit(result.returncode)
 
     return result.returncode == 0
@@ -160,7 +160,7 @@ def main():
 
     print("\n✅ Virtual environment successfully recreated!")
 
-    # Print instructions for activating the virtual environment:
+    # Print instructions for activating the virtual environment
     print("\nTo activate the virtual environment:")
     if platform.system() == "Windows":
         print(f"    {venv_path}\\Scripts\\activate")

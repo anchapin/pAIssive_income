@@ -2,7 +2,7 @@
 run_github_actions_locally.py - Script to run GitHub Actions workflows locally using Act.
 
 This script provides a convenient way to run GitHub Actions workflows locally
-for testing purposes before pushing changes to the repository.:
+for testing purposes before pushing changes to the repository.
 """
 
 import argparse
@@ -19,7 +19,7 @@ def list_workflows():
         print("No workflows directory found at .github/workflows")
         return []
 
-    workflows = [f.name for f in workflows_dir.glob("*.yml")]:
+    workflows = [f.name for f in workflows_dir.glob("*.yml")]
     return workflows
 
 
@@ -33,8 +33,8 @@ def run_workflow(
     test_only=False,
 ):
     """Run a GitHub Actions workflow locally using Act."""
-    # Check if Act is installed:
-    act_path = "./bin/act" if os.path.exists("./bin/act") else "act":
+    # Check if Act is installed
+    act_path = "./bin/act" if os.path.exists("./bin/act") else "act"
 
     try:
         # Build the command
