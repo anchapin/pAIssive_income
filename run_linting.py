@@ -10,7 +10,10 @@ def main():
         description="Script for the pAIssive Income project"
     )
 
-    parser.parse_args()  # Parse args but ignore since not used yet
+    # Use parse_known_args() to handle unexpected arguments gracefully
+    args, unknown = parser.parse_known_args()
+    if unknown:
+        print(f"Ignoring unrecognized arguments: {unknown}")
 
     # TODO: Implement the functionality
 
