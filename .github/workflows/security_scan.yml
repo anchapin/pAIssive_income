@@ -54,8 +54,8 @@ jobs:
       run: |
         pip-audit --verbose
 
-        - name: Run Bandit
-        run: bandit -r . -f json -o bandit-results.json
+    - name: Run Bandit
+      run: bandit -r . -f json -o bandit-results.json
 
     - name: Check Bandit Results
       run: |
