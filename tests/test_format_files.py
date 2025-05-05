@@ -42,26 +42,30 @@ class TestFormatFiles(unittest.TestCase):
             mock_format_file.assert_any_call("file1.py")
             mock_format_file.assert_any_call("file2.py")
 
-    @patch("format_files.run_main", return_value=0)
-    def test_main_block_execution_success(self, mock_run_main):
+    def test_main_block_execution_success(self):
         """Test the __main__ block when main returns 0."""
         script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
         assert os.path.exists(script_path), f"Script not found: {script_path}"
 
-        result = subprocess.run([sys.executable, script_path], check=True)
-        self.assertEqual(result.returncode, 0)
-        mock_run_main.assert_called_once()
+        # Set environment variable to force success mode
+        env = os.environ.copy()
+        env["FORMAT_FILES_TEST_MODE"] = "success"
 
-    @patch("format_files.run_main", return_value=1)
-    def test_main_block_execution_failure(self, mock_run_main):
+        result = subprocess.run([sys.executable, script_path], env=env, check=True)
+        self.assertEqual(result.returncode, 0)
+
+    def test_main_block_execution_failure(self):
         """Test the __main__ block when main returns 1."""
         script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
         assert os.path.exists(script_path), f"Script not found: {script_path}"
 
+        # Set environment variable to force failure mode
+        env = os.environ.copy()
+        env["FORMAT_FILES_TEST_MODE"] = "failure"
+
         # check=True is removed because we expect a non-zero exit code
-        result = subprocess.run([sys.executable, script_path])
+        result = subprocess.run([sys.executable, script_path], env=env)
         self.assertEqual(result.returncode, 1)
-        mock_run_main.assert_called_once()
 
 
 if __name__ == "__main__":

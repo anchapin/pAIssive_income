@@ -66,6 +66,4 @@ def main():
 
 if __name__ == "__main__":
     # Call main() directly to execute the script
-    print("Checking for test collection warnings...")
-    test_files = find_test_files()
     main()
