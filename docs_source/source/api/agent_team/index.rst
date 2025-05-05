@@ -5,7 +5,7 @@ Agent Team
 
 The Agent Team module manages specialized AI agents that work together to solve complex tasks.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    agent_profiles
@@ -15,7 +15,7 @@ The Agent Team module manages specialized AI agents that work together to solve 
 Module Overview
 --------------
 
-.. automodule:: agent_team
+.. automodule: agent_team
    :members:
    :undoc-members:
    :show-inheritance:
@@ -26,7 +26,7 @@ Submodules
 Agent Profiles
 ~~~~~~~~~~~~~
 
-.. automodule:: agent_team.agent_profiles
+.. automodule: agent_team.agent_profiles
    :members:
    :undoc-members:
    :show-inheritance:
@@ -34,7 +34,7 @@ Agent Profiles
 Team Configuration
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: agent_team.team_config
+.. automodule: agent_team.team_config
    :members:
    :undoc-members:
    :show-inheritance:
@@ -42,7 +42,7 @@ Team Configuration
 Schemas
 ~~~~~~~
 
-.. automodule:: agent_team.schemas
+.. automodule: agent_team.schemas
    :members:
    :undoc-members:
    :show-inheritance:

@@ -210,10 +210,10 @@ require 'base64'
 
 def verify_webhook_signature(payload, signature, secret)
   expected_signature = Base64.strict_encode64(
-    OpenSSL::HMAC.digest('SHA256', secret, payload)
+    OpenSSL:HMAC.digest('SHA256', secret, payload)
   )
   
-  ActiveSupport::SecurityUtils.secure_compare(
+  ActiveSupport:SecurityUtils.secure_compare(
     expected_signature,
     signature
   )

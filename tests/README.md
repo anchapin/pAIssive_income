@@ -173,7 +173,7 @@ python -m pytest tests/api/test_webhook_service.py
 python -m pytest -m webhook
 
 # Run specific test function
-python -m pytest tests/api/test_webhook_service.py::TestWebhookService::test_register_webhook
+python -m pytest tests/api/test_webhook_service.py:TestWebhookService:test_register_webhook
 ```
 
 ### Async Test Support

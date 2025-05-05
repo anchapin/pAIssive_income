@@ -5,7 +5,7 @@ API Reference
 
 This section provides detailed API documentation for all modules in the pAIssive_income project.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
    
    ai_models/index

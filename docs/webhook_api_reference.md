@@ -447,7 +447,7 @@ If you need higher limits, please contact our support team.
   "allowed_ips": [
     "203.0.113.1",
     "203.0.113.0/24",
-    "2001:db8::/32"
+    "2001:db8:/32"
   ],
   "enabled": true
 }
@@ -460,7 +460,7 @@ If you need higher limits, please contact our support team.
   "allowed_ips": [
     "203.0.113.1",
     "203.0.113.0/24",
-    "2001:db8::/32"
+    "2001:db8:/32"
   ],
   "enabled": true,
   "updated_at": "2025-04-30T22:15:00Z"

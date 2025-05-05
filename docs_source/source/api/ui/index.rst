@@ -5,7 +5,7 @@ User Interface
 
 The UI module provides user interface components for interacting with the pAIssive_income system.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    components
@@ -17,7 +17,7 @@ The UI module provides user interface components for interacting with the pAIssi
 Module Overview
 --------------
 
-.. automodule:: ui
+.. automodule: ui
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ Submodules
 Components
 ~~~~~~~~~
 
-.. automodule:: ui.components
+.. automodule: ui.components
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ Components
 Pages
 ~~~~~
 
-.. automodule:: ui.pages
+.. automodule: ui.pages
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ Pages
 State Management
 ~~~~~~~~~~~~~~
 
-.. automodule:: ui.state_management
+.. automodule: ui.state_management
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ State Management
 API Client
 ~~~~~~~~~
 
-.. automodule:: ui.api_client
+.. automodule: ui.api_client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ API Client
 Themes
 ~~~~~
 
-.. automodule:: ui.themes
+.. automodule: ui.themes
    :members:
    :undoc-members:
    :show-inheritance:

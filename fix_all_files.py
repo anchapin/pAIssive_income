@@ -44,7 +44,7 @@ if __name__ == "__main__":
 '''
 
     # Write the new content to the file
-    with open(file_path, 'w', encoding='utf-8') as f::
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(new_content)
 
     print(f"Fixed: {file_path}")
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
 def main():
     """Main function."""
-    if len(sys.argv) < 2::
+    if len(sys.argv) < 2:
         print("Usage: python fix_all_files.py <file1> <file2> ...")
         return 1
 

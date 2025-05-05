@@ -10,7 +10,7 @@ Installation
 
 You can install pAIssive_income using pip:
 
-.. code-block:: bash
+.. code-block: bash
 
    pip install -e .
 
@@ -28,7 +28,7 @@ Before using pAIssive_income, you need to configure it for your environment:
 1. Create a `config.yaml` file in your project directory or specify a custom path with `--config`.
 2. Set up your API keys for various services (OpenAI, Hugging Face, etc.).
 
-.. code-block:: yaml
+.. code-block: yaml
 
    # Example config.yaml
    api_keys:
@@ -43,7 +43,7 @@ Basic Usage
 
 Here's a simple example of using pAIssive_income to analyze a niche:
 
-.. code-block:: python
+.. code-block: python
 
    from pAIssive_income import niche_analysis
    

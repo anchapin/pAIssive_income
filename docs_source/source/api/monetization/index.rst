@@ -5,7 +5,7 @@ Monetization
 
 The Monetization module provides tools and strategies for monetizing AI solutions.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    billing_calculator
@@ -16,7 +16,7 @@ The Monetization module provides tools and strategies for monetizing AI solution
 Module Overview
 --------------
 
-.. automodule:: monetization
+.. automodule: monetization
    :members:
    :undoc-members:
    :show-inheritance:
@@ -27,7 +27,7 @@ Submodules
 Billing Calculator
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: monetization.billing_calculator
+.. automodule: monetization.billing_calculator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -35,7 +35,7 @@ Billing Calculator
 Payment Method Manager
 ~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: monetization.payment_method_manager
+.. automodule: monetization.payment_method_manager
    :members:
    :undoc-members:
    :show-inheritance:
@@ -43,7 +43,7 @@ Payment Method Manager
 Invoice Manager
 ~~~~~~~~~~~~~
 
-.. automodule:: monetization.invoice_manager
+.. automodule: monetization.invoice_manager
    :members:
    :undoc-members:
    :show-inheritance:
@@ -51,7 +51,7 @@ Invoice Manager
 Calculator
 ~~~~~~~~~
 
-.. automodule:: monetization.calculator
+.. automodule: monetization.calculator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -59,7 +59,7 @@ Calculator
 Invoice Delivery
 ~~~~~~~~~~~~~~
 
-.. automodule:: monetization.invoice_delivery
+.. automodule: monetization.invoice_delivery
    :members:
    :undoc-members:
    :show-inheritance:
@@ -67,7 +67,7 @@ Invoice Delivery
 Schemas
 ~~~~~~~
 
-.. automodule:: monetization.schemas
+.. automodule: monetization.schemas
    :members:
    :undoc-members:
    :show-inheritance:

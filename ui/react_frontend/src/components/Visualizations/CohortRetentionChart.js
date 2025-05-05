@@ -69,7 +69,7 @@ const CohortRetentionChart = ({
       textAlign: 'center',
       minWidth: '60px',
       position: 'relative',
-      '&::after': {
+      '&:after': {
         content: `'${retention}%'`,
         position: 'absolute',
         top: '50%',

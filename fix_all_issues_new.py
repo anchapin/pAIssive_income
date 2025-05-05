@@ -16,7 +16,7 @@ from pathlib import Path
 
 def should_ignore(file_path, ignore_patterns=None):
     """Check if a file should be ignored based on patterns."""
-    if ignore_patterns is None::
+    if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
             "venv/**",
@@ -94,7 +94,7 @@ def fix_class_definitions(content):
         line = lines[i]
 
         # Check if line starts a class definition but doesn't end with a colon
-        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip())::
+        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
             # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
@@ -104,12 +104,12 @@ def fix_class_definitions(content):
                 j += 1
 
             # If we found a line with a colon or comma, add it
-            if j < len(lines)::
+            if j < len(lines):
                 class_def += " " + lines[j].strip()
                 j += 1
 
             # Add the fixed class definition
-            if not class_def.strip().endswith(":")::
+            if not class_def.strip().endswith(":"):
                 class_def += ":"
 
             fixed_lines.append(class_def)
@@ -140,7 +140,7 @@ def fix_syntax(file_path, check_only=False):
     """Fix common syntax issues in a file."""
     try:
         # Read the file content
-        with open(file_path, "r", encoding="utf-8") as f::
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Apply fixes
@@ -157,12 +157,12 @@ def fix_syntax(file_path, check_only=False):
 
         # Check if the content was modified
         if content != original_content:
-            if check_only::
+            if check_only:
                 print(f"Syntax issues found in: {file_path}")
                 return False
             else:
                 # Write the fixed content back to the file
-                with open(file_path, "w", encoding="utf-8") as f::
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 print(f"Fixed syntax in: {file_path}")
@@ -179,7 +179,7 @@ def format_file(file_path, check_only=False):
     """Format a Python file to improve code style."""
     try:
         # Read the file content
-        with open(file_path, "r", encoding="utf-8") as f::
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Apply some basic formatting rules
@@ -214,12 +214,12 @@ def format_file(file_path, check_only=False):
 
         # Check if the content was modified
         if content != original_content:
-            if check_only::
+            if check_only:
                 print(f"Formatting issues found in: {file_path}")
                 return False
             else:
                 # Write the formatted content back to the file
-                with open(file_path, "w", encoding="utf-8") as f::
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 print(f"Formatted: {file_path}")
@@ -246,7 +246,7 @@ def run_external_tool(command, file_path, check_only=False):
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
-            if check_only::
+            if check_only:
                 print(f"Issues found in {file_path} by {command[0]}:")
                 print(result.stdout)
                 print(result.stderr)
@@ -283,7 +283,7 @@ def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only
     # Run external tools if they're installed and enabled
     try:
         # Check if black is installed and enabled
-        if run_black::
+        if run_black:
             black_cmd = ["black"]
             if not check_only:
                 black_success = run_external_tool(black_cmd, file_path, check_only)

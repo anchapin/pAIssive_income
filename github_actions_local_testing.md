@@ -51,15 +51,15 @@ python run_github_actions_locally.py --workflow .github/workflows/local-test.yml
 
 The following tests are failing:
 
-1. `tests/ai_models/fallbacks/test_fallback_strategy.py::TestFallbackManager::test_cascading_fallback_chain`
+1. `tests/ai_models/fallbacks/test_fallback_strategy.py:TestFallbackManager:test_cascading_fallback_chain`
    - **Error**: `AssertionError: 'model_type' not found in ['default', 'similar_model']`
    - **Fix**: The fallback strategy cascade is not working as expected. The `MODEL_TYPE` strategy is not being tried after `SIMILAR_MODEL`.
 
-2. `tests/ai_models/fallbacks/test_fallback_strategy.py::TestFallbackManager::test_size_tier_strategy`
+2. `tests/ai_models/fallbacks/test_fallback_strategy.py:TestFallbackManager:test_size_tier_strategy`
    - **Error**: `AssertionError: <FallbackStrategy.SIMILAR_MODEL: 'similar_model'> != <FallbackStrategy.SIZE_TIER: 'size_tier'>`
    - **Fix**: The `SIZE_TIER` strategy is failing with an error: `'<' not supported between instances of 'NoneType' and 'int'`, causing it to fall back to `SIMILAR_MODEL`.
 
-3. `tests/ai_models/test_caching.py::test_cache_size_and_eviction`
+3. `tests/ai_models/test_caching.py:test_cache_size_and_eviction`
    - **Error**: `AssertionError` - The LRU eviction policy is not working as expected.
    - **Fix**: The cache implementation needs to be fixed to properly evict the least recently used items.
 

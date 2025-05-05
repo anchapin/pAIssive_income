@@ -10,7 +10,7 @@ Niche Analysis Workflow
 
 This example demonstrates how to use the Niche Analysis module to identify promising niches:
 
-.. code-block:: python
+.. code-block: python
 
     from pAIssive_income.niche_analysis import OpportunityAnalyzer, MarketResearch
     
@@ -57,7 +57,7 @@ Solution Development Workflow
 
 This example shows how to generate solution ideas for a specific niche:
 
-.. code-block:: python
+.. code-block: python
 
     from pAIssive_income.niche_analysis import ProblemIdentifier, SolutionGenerator
     
@@ -95,7 +95,7 @@ Monetization Strategy Workflow
 
 This example demonstrates how to develop monetization strategies:
 
-.. code-block:: python
+.. code-block: python
 
     from pAIssive_income.monetization import BillingCalculator, Calculator
     from decimal import Decimal
@@ -154,7 +154,7 @@ Marketing Campaign Workflow
 
 This example shows how to create marketing strategies and content:
 
-.. code-block:: python
+.. code-block: python
 
     from pAIssive_income.marketing import StrategyGenerator, ContentGenerator, UserPersonas
     
@@ -215,7 +215,7 @@ End-to-End Example
 
 This example demonstrates an end-to-end workflow from niche analysis to marketing:
 
-.. code-block:: python
+.. code-block: python
 
     from pAIssive_income import niche_analysis, ai_models, monetization, marketing
     

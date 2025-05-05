@@ -39,7 +39,7 @@ pytest tests/api/test_niche_analysis_api.py
 To run a specific test:
 
 ```bash
-pytest tests/api/test_niche_analysis_api.py::TestNicheAnalysisAPI::test_analyze_niche
+pytest tests/api/test_niche_analysis_api.py:TestNicheAnalysisAPI:test_analyze_niche
 ```
 
 ## Test Categories

@@ -13,7 +13,7 @@ from pathlib import Path
 
 def should_ignore(file_path, ignore_patterns=None):
     """Check if a file should be ignored based on patterns."""
-    if ignore_patterns is None::
+    if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
             "venv/**",
@@ -102,7 +102,7 @@ def fix_class_definitions(content):
         line = lines[i]
 
         # Check if line starts a class definition but doesn't end with a colon
-        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip())::
+        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
             # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
@@ -112,12 +112,12 @@ def fix_class_definitions(content):
                 j += 1
 
             # If we found a line with a colon or comma, add it
-            if j < len(lines)::
+            if j < len(lines):
                 class_def += " " + lines[j].strip()
                 j += 1
 
             # Add the fixed class definition
-            if not class_def.strip().endswith(":")::
+            if not class_def.strip().endswith(":"):
                 class_def += ":"
 
             fixed_lines.append(class_def)
@@ -188,12 +188,12 @@ def fix_file(file_path, check_only=False):
 
         # Check if the content was modified
         if content != original_content:
-            if check_only::
+            if check_only:
                 print(f"Syntax issues found in: {file_path}")
                 return False
             else:
                 # Write the fixed content back to the file
-                with open(file_path, "w", encoding="utf-8") as f::
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 print(f"Fixed: {file_path}")

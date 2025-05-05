@@ -5,7 +5,7 @@ Interfaces
 
 The Interfaces module defines abstract interfaces used for dependency injection across the pAIssive_income project.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    agent_interfaces
@@ -18,7 +18,7 @@ The Interfaces module defines abstract interfaces used for dependency injection 
 Module Overview
 --------------
 
-.. automodule:: interfaces
+.. automodule: interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Submodules
 Agent Interfaces
 ~~~~~~~~~~~~~~
 
-.. automodule:: interfaces.agent_interfaces
+.. automodule: interfaces.agent_interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -37,7 +37,7 @@ Agent Interfaces
 Model Interfaces
 ~~~~~~~~~~~~~~
 
-.. automodule:: interfaces.model_interfaces
+.. automodule: interfaces.model_interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,7 +45,7 @@ Model Interfaces
 Monetization Interfaces
 ~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: interfaces.monetization_interfaces
+.. automodule: interfaces.monetization_interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,7 +53,7 @@ Monetization Interfaces
 Niche Interfaces
 ~~~~~~~~~~~~~~
 
-.. automodule:: interfaces.niche_interfaces
+.. automodule: interfaces.niche_interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -61,7 +61,7 @@ Niche Interfaces
 Marketing Interfaces
 ~~~~~~~~~~~~~~~~~
 
-.. automodule:: interfaces.marketing_interfaces
+.. automodule: interfaces.marketing_interfaces
    :members:
    :undoc-members:
    :show-inheritance:
@@ -69,7 +69,7 @@ Marketing Interfaces
 UI Interfaces
 ~~~~~~~~~~~
 
-.. automodule:: interfaces.ui_interfaces
+.. automodule: interfaces.ui_interfaces
    :members:
    :undoc-members:
    :show-inheritance:

@@ -13,7 +13,7 @@ System Architecture
 
 pAIssive_income is organized into several core modules that work together:
 
-.. image:: _static/architecture_diagram.png
+.. image: _static/architecture_diagram.png
    :alt: pAIssive_income Architecture Diagram
    :align: center
 

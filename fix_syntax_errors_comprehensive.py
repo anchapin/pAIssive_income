@@ -47,11 +47,11 @@ def fix_parentheses_in_conditionals(content):
             j = i + 1
 
             # Find the closing parenthesis
-            while j < len(lines) and not re.search(r'\)\s*:', lines[j])::
+            while j < len(lines) and not re.search(r'\)\s*:', lines[j]):
                 condition_lines.append(lines[j])
                 j += 1
 
-            if j < len(lines)::
+            if j < len(lines):
                 condition_lines.append(lines[j])
 
                 # Join the condition lines and fix the format
@@ -74,7 +74,7 @@ def fix_file(file_path):
 
     try:
         # Read the file content
-        with open(file_path, 'r', encoding='utf-8') as f::
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         # Apply fixes

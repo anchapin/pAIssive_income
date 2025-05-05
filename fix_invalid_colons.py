@@ -36,8 +36,8 @@ def fix_colons_in_comments(content):
     content = re.sub(r"('''[^']*?'''):(\s+)", r'\1\2', content, flags=re.DOTALL)
 
     # Fix double colons at the end of lines (more aggressive pattern)
-    content = re.sub(r'::(\s*$)', r':\1', content, flags=re.MULTILINE)
-    content = re.sub(r'::(\s*\n)', r':\1', content, flags=re.MULTILINE)
+    content = re.sub(r':(\s*$)', r':\1', content, flags=re.MULTILINE)
+    content = re.sub(r':(\s*\n)', r':\1', content, flags=re.MULTILINE)
 
     return content
 

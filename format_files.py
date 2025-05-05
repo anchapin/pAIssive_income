@@ -16,7 +16,7 @@ def format_file(file_path):
 
     try:
         # Check if file exists
-        if not os.path.exists(file_path)::
+        if not os.path.exists(file_path):
             print(f"Warning: File not found: {file_path}")
             return False
 

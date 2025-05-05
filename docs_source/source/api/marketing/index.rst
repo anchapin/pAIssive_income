@@ -5,7 +5,7 @@ Marketing
 
 The Marketing module provides tools for creating and optimizing marketing strategies and content.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    strategy_generator
@@ -21,7 +21,7 @@ The Marketing module provides tools for creating and optimizing marketing strate
 Module Overview
 --------------
 
-.. automodule:: marketing
+.. automodule: marketing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -32,7 +32,7 @@ Submodules
 Strategy Generator
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: marketing.strategy_generator
+.. automodule: marketing.strategy_generator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -40,7 +40,7 @@ Strategy Generator
 Content Generators
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: marketing.content_generators
+.. automodule: marketing.content_generators
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,7 +48,7 @@ Content Generators
 Content Templates
 ~~~~~~~~~~~~~~~
 
-.. automodule:: marketing.content_templates
+.. automodule: marketing.content_templates
    :members:
    :undoc-members:
    :show-inheritance:
@@ -56,7 +56,7 @@ Content Templates
 Content Optimization
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: marketing.content_optimization
+.. automodule: marketing.content_optimization
    :members:
    :undoc-members:
    :show-inheritance:
@@ -64,7 +64,7 @@ Content Optimization
 Channel Strategies
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: marketing.channel_strategies
+.. automodule: marketing.channel_strategies
    :members:
    :undoc-members:
    :show-inheritance:
@@ -72,7 +72,7 @@ Channel Strategies
 User Personas
 ~~~~~~~~~~~
 
-.. automodule:: marketing.user_personas
+.. automodule: marketing.user_personas
    :members:
    :undoc-members:
    :show-inheritance:
@@ -80,7 +80,7 @@ User Personas
 Tone Analyzer
 ~~~~~~~~~~~
 
-.. automodule:: marketing.tone_analyzer
+.. automodule: marketing.tone_analyzer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -88,7 +88,7 @@ Tone Analyzer
 Style Adjuster
 ~~~~~~~~~~~~
 
-.. automodule:: marketing.style_adjuster
+.. automodule: marketing.style_adjuster
    :members:
    :undoc-members:
    :show-inheritance:
@@ -96,7 +96,7 @@ Style Adjuster
 Schemas
 ~~~~~~
 
-.. automodule:: marketing.schemas
+.. automodule: marketing.schemas
    :members:
    :undoc-members:
    :show-inheritance:

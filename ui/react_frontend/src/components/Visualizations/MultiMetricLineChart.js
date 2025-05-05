@@ -641,7 +641,7 @@ const MultiMetricLineChart = ({
                     '& .MuiChip-label': {
                       paddingLeft: '5px'
                     },
-                    '&::before': {
+                    '&:before': {
                       content: '""',
                       display: 'block',
                       width: '10px',

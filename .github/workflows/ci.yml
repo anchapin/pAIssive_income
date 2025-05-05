@@ -88,7 +88,7 @@ jobs:
                 # Then use the comprehensive script for more detailed checks
                 python fix_all_issues_final.py --check "$file" || {
                   echo "Issues found in $file with fix_all_issues_final.py"
-                  echo "::warning::Issues found in $file, but continuing with other checks"
+                  echo ":warning:Issues found in $file, but continuing with other checks"
                   # Don't exit here to allow other checks to run
                 }
               fi
@@ -134,7 +134,7 @@ jobs:
         else
           echo "Checking formatting for all files with Black"
           black --check --diff . || {
-            echo "::warning::Formatting issues found with Black, please run black locally"
+            echo ":warning:Formatting issues found with Black, please run black locally"
           }
 
         fi
