@@ -67,7 +67,7 @@ def fix_missing_colons(content):
     content = re.sub(r"(def\s+\w+\([^)]*\))(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after control statements
-    for keyword in [:
+    for keyword in [
         "if",
         "else",
         "elif",
@@ -77,7 +77,7 @@ def fix_missing_colons(content):
         "except",
         "finally",
         "with",
-    ]
+    ]:
         pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
         content = re.sub(pattern, r"\1:\2", content)
 
