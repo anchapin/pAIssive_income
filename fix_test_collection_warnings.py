@@ -19,7 +19,7 @@ def fix_file(file_path):
         # Apply fixes
         original_content = content
 
-        # Fix missing colons after class definitions:
+        # Fix missing colons after class definitions
         content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
         # Fix missing colons after function definitions
