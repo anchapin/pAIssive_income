@@ -40,7 +40,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install safety bandit pip-audit
+        python -m pip install safety bandit pip-audit sarif-tools
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
@@ -91,6 +91,13 @@ jobs:
           echo "Trivy SARIF results not found!"
           exit 1
         fi
+
+    - name: Debug File Creation
+      run: |
+        ls -al
+        cat bandit-results.json || echo "No Bandit results found"
+        cat trivy-results.sarif || echo "No Trivy results found"
+
     - name: Upload SARIF
       uses: github/codeql-action/upload-sarif@v3
       with:
