@@ -43,7 +43,7 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     if specific_file:
         # If a specific file is provided, only check that file
         file_path = Path(specific_file)
-        if (:
+        if (
             file_path.exists()
             and file_path.suffix == ".py"
             and not should_ignore(file_path, ignore_patterns)
@@ -74,7 +74,7 @@ def fix_missing_colons(content):
     content = re.sub(r"(def\s+\w+\([^)]*\))(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after control statements
-    for keyword in [:
+    for keyword in [
         "if",
         "else",
         "elif",
@@ -84,7 +84,7 @@ def fix_missing_colons(content):
         "except",
         "finally",
         "with",
-    ]
+    ]:
         pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
         content = re.sub(pattern, r"\1:\2", content)
 
