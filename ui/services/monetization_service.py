@@ -9,9 +9,6 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from agent_team.agent_profiles.monetization import MonetizationAgent
-from interfaces.ui_interfaces import IMonetizationService
-
 from .base_service import BaseService
 from .developer_service import DeveloperService
 
@@ -21,7 +18,7 @@ from agent_team import AgentTeam
 logger = logging.getLogger(__name__)
 
 
-class MonetizationService(BaseService, IMonetizationService):
+class MonetizationService(BaseService):
     """
     Service for interacting with the Monetization Agent module.
     """
