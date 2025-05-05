@@ -185,15 +185,16 @@ jobs:
         # Clear pip cache if needed
         pip cache purge || true
 
-        python -m pip install --upgrade pip
-        python -m pip install pytest pytest-cov pytest-xdist
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
 
-        # Install build dependencies first
-        python -m pip install build setuptools wheel
-
-        # Install requirements separately
-        python -m pip install -r requirements.txt
-        python -m pip install -r requirements-dev.txt
+        # Install requirements separately (dev first to ensure correct versions)
+        if [ -f requirements-dev.txt ]; then
+          python -m pip install -r requirements-dev.txt
+        fi
+        if [ -f requirements.txt ]; then
+          python -m pip install -r requirements.txt
+        fi
 
         # Install in development mode with verbose output to debug any issues
         python -m pip install -e . -v
@@ -227,10 +228,12 @@ jobs:
           echo "Running all tests"
           pytest tests \
             -n auto \
+            -v \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
+            --cov-fail-under=10 \
             --junitxml=junit/test-results.xml
         fi
 
