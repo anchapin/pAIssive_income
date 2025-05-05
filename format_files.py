@@ -89,6 +89,13 @@ def main():
     return 0 if success else 1
 
 
-if __name__ == "__main__":
+# This function wraps the main() call and sys.exit() to make it testable
+def run_main():
+    """Run the main function and exit with its return code."""
     result = main()
-    sys.exit(result)
+    return result
+
+
+if __name__ == "__main__":
+    exit_code = run_main()
+    sys.exit(exit_code)

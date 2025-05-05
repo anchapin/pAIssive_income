@@ -42,18 +42,18 @@ class TestFormatFiles(unittest.TestCase):
             mock_format_file.assert_any_call("file1.py")
             mock_format_file.assert_any_call("file2.py")
 
-    @patch("format_files.main", return_value=0)
-    def test_main_block_execution_success(self, mock_main):
+    @patch("format_files.run_main", return_value=0)
+    def test_main_block_execution_success(self, mock_run_main):
         """Test the __main__ block when main returns 0."""
         script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
         assert os.path.exists(script_path), f"Script not found: {script_path}"
 
         result = subprocess.run([sys.executable, script_path], check=True)
         self.assertEqual(result.returncode, 0)
-        mock_main.assert_called_once()
+        mock_run_main.assert_called_once()
 
-    @patch("format_files.main", return_value=1)
-    def test_main_block_execution_failure(self, mock_main):
+    @patch("format_files.run_main", return_value=1)
+    def test_main_block_execution_failure(self, mock_run_main):
         """Test the __main__ block when main returns 1."""
         script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
         assert os.path.exists(script_path), f"Script not found: {script_path}"
@@ -61,7 +61,7 @@ class TestFormatFiles(unittest.TestCase):
         # check=True is removed because we expect a non-zero exit code
         result = subprocess.run([sys.executable, script_path])
         self.assertEqual(result.returncode, 1)
-        mock_main.assert_called_once()
+        mock_run_main.assert_called_once()
 
 
 if __name__ == "__main__":
