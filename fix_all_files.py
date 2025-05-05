@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Script to fix all files with syntax errors.:
+Script to fix all files with syntax errors.
 
-This script creates new versions of files with proper syntax.:
+This script creates new versions of files with proper syntax.
 """
 
 import os
@@ -16,7 +16,7 @@ def fix_file(file_path):
     # Create a simple valid Python file
     basename = os.path.basename(file_path)
     new_content = f'''"""
-{basename} - Script for the pAIssive Income project.:
+{basename} - Script for the pAIssive Income project.
 """
 
 import argparse
