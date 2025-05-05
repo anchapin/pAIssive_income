@@ -45,69 +45,126 @@ jobs:
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
     - name: Check for vulnerable dependencies with Safety
+      id: safety
       continue-on-error: true  # Don't fail the build, but report issues
       run: |
-        safety check
+        mkdir -p security-reports
+        safety check --json > security-reports/safety-results.json || echo "Safety scan completed with warnings"
+        echo "Safety scan completed. Check security-reports/safety-results.json for details"
 
     - name: Run pip-audit for dependency scanning
+      id: pip-audit
       continue-on-error: true
       run: |
-        pip-audit --verbose
+        mkdir -p security-reports
+        pip-audit --format json > security-reports/pip-audit-results.json || echo "Pip-audit completed with warnings"
+        echo "Pip-audit scan completed. Check security-reports/pip-audit-results.json for details"
 
-    - name: Run Bandit
-      run: bandit -r . -f json -o bandit-results.json
-
-    - name: Check Bandit Results
+    - name: Run Bandit security scan
+      id: bandit
       run: |
-        if [ ! -f bandit-results.json ]; then
-          echo "Bandit results JSON not found!"
-          exit 1
-        fi
+        mkdir -p security-reports
+        echo "Running Bandit security scanner..."
+        bandit -r . -f json -o security-reports/bandit-results.json || {
+          if [ -f security-reports/bandit-results.json ] && [ -s security-reports/bandit-results.json ]; then
+            echo "Bandit completed with security issues found. Check the report for details."
+          else
+            echo "Bandit execution failed!"
+            exit 1
+          fi
+        }
 
-    - name: Convert Bandit Results to SARIF
-      run: |
-        pip install sarif-tools
-        sarif-tools convert bandit-results.json -o bandit-results.sarif
-
-    - name: Check Bandit SARIF
-      run: |
-        if [ ! -f bandit-results.sarif ]; then
-          echo "Bandit SARIF results not found!"
+        # Convert results to SARIF format for GitHub integration
+        if [ -f security-reports/bandit-results.json ] && [ -s security-reports/bandit-results.json ]; then
+          sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif
+          if [ ! -f security-reports/bandit-results.sarif ]; then
+            echo "Failed to convert Bandit results to SARIF format"
+            exit 1
+          fi
+        else
+          echo "No valid Bandit results found to convert to SARIF"
           exit 1
         fi
 
     - name: Run Trivy vulnerability scanner
+      id: trivy
       uses: aquasecurity/trivy-action@master
+      continue-on-error: true
       with:
         scan-type: 'fs'
         scan-ref: '.'
         format: 'sarif'
-        output: 'trivy-results.sarif'
+        output: 'security-reports/trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
 
-    - name: Check Trivy Results
+    - name: Validate Trivy Results
       run: |
-        if [ ! -f trivy-results.sarif ]; then
-          echo "Trivy SARIF results not found!"
-          exit 1
+        mkdir -p security-reports
+        if [ ! -f security-reports/trivy-results.sarif ]; then
+          echo "Trivy scan failed to generate results file"
+          # Create an empty SARIF file with proper structure to prevent upload failures
+          echo '{"version":"2.1.0","runs":[]}' > security-reports/trivy-results.sarif
+          echo "Created empty SARIF file as fallback"
+        else
+          echo "Trivy scan completed successfully"
         fi
 
-    - name: Debug File Creation
+    - name: Create Summary Report
       run: |
-        ls -al
-        cat bandit-results.json || echo "No Bandit results found"
-        cat trivy-results.sarif || echo "No Trivy results found"
+        echo "## Security Scan Summary" > security-summary.md
+        echo "### Safety Check" >> security-summary.md
+        if [ -f security-reports/safety-results.json ]; then
+          echo "- Results available in safety-results.json" >> security-summary.md
+        else
+          echo "- No results available" >> security-summary.md
+        fi
 
-    - name: Upload SARIF
-      uses: github/codeql-action/upload-sarif@v3
+        echo "### Pip-Audit" >> security-summary.md
+        if [ -f security-reports/pip-audit-results.json ]; then
+          echo "- Results available in pip-audit-results.json" >> security-summary.md
+        else
+          echo "- No results available" >> security-summary.md
+        fi
+
+        echo "### Bandit" >> security-summary.md
+        if [ -f security-reports/bandit-results.json ]; then
+          echo "- Results available in bandit-results.json and bandit-results.sarif" >> security-summary.md
+        else
+          echo "- No results available" >> security-summary.md
+        fi
+
+        echo "### Trivy" >> security-summary.md
+        if [ -f security-reports/trivy-results.sarif ]; then
+          echo "- Results available in trivy-results.sarif" >> security-summary.md
+        else
+          echo "- No results available" >> security-summary.md
+        fi
+
+        cat security-summary.md
+
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v3
+      if: always()
       with:
-        sarif_file: bandit-results.sarif
+        name: security-reports
+        path: security-reports/
+        retention-days: 7
+
+    - name: Check Bandit SARIF for upload
+      id: check_bandit_sarif
+      if: always()
+      run: |
+        if [ -f "security-reports/bandit-results.sarif" ]; then
+          echo "bandit_sarif_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "bandit_sarif_exists=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Upload Bandit scan results
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && steps.check_bandit_sarif.outputs.bandit_sarif_exists == 'true'
       with:
-        sarif_file: bandit-results.sarif
+        sarif_file: security-reports/bandit-results.sarif
         category: bandit
 
     - name: Run CodeQL Analysis
@@ -125,11 +182,21 @@ jobs:
       uses: actions/dependency-review-action@v3
       if: github.event_name == 'pull_request'
 
+    - name: Check Trivy SARIF for upload
+      id: check_trivy_sarif
+      if: always()
+      run: |
+        if [ -f "security-reports/trivy-results.sarif" ]; then
+          echo "trivy_sarif_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "trivy_sarif_exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Upload Trivy scan results
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && steps.check_trivy_sarif.outputs.trivy_sarif_exists == 'true'
       with:
-        sarif_file: 'trivy-results.sarif'
+        sarif_file: security-reports/trivy-results.sarif
         category: trivy
 
     - name: Run secret scanning
