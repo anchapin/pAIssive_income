@@ -252,7 +252,7 @@ def run_external_tool(command, file_path, check_only=False):
                 print(result.stderr)
                 return False
             else:
-                print(f"Fixed {file_path} with {command[0]}"):
+                print(f"Fixed {file_path} with {command[0]}")
                 return True
 
         return True
