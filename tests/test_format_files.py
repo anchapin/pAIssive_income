@@ -1,5 +1,6 @@
 """Test class contains unit tests for format_files.py."""
 
+import os
 import subprocess
 import sys
 import unittest
@@ -44,15 +45,21 @@ class TestFormatFiles(unittest.TestCase):
     @patch("format_files.main", return_value=0)
     def test_main_block_execution_success(self, mock_main):
         """Test the __main__ block when main returns 0."""
-        result = subprocess.run([sys.executable, "format_files.py"], check=True)
+        script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
+        assert os.path.exists(script_path), f"Script not found: {script_path}"
+
+        result = subprocess.run([sys.executable, script_path], check=True)
         self.assertEqual(result.returncode, 0)
         mock_main.assert_called_once()
 
     @patch("format_files.main", return_value=1)
     def test_main_block_execution_failure(self, mock_main):
         """Test the __main__ block when main returns 1."""
+        script_path = os.path.join(os.path.dirname(__file__), "../format_files.py")
+        assert os.path.exists(script_path), f"Script not found: {script_path}"
+
         # check=True is removed because we expect a non-zero exit code
-        result = subprocess.run([sys.executable, "format_files.py"])
+        result = subprocess.run([sys.executable, script_path])
         self.assertEqual(result.returncode, 1)
         mock_main.assert_called_once()
 

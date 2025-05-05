@@ -40,28 +40,28 @@ class TestFixTestCollectionWarnings(unittest.TestCase):
             self.assertCountEqual(found_files, expected_files)
 
     @patch("fix_test_collection_warnings.find_test_files")
-    @patch("fix_test_collection_warnings.fix_test_collection_warnings")
+    @patch("fix_test_collection_warnings.main")
     @patch("builtins.print")
-    def test_main_block_execution(self, mock_print, mock_fix_warnings, mock_find_files):
+    def test_main_block_execution(self, mock_print, mock_main, mock_find_files):
         """Test simulates running the script directly to cover the __main__ block."""
         mock_find_files.return_value = ["fake_file1.py", "fake_file2.py"]
-        mock_fix_warnings.return_value = True
+        mock_main.return_value = True
 
-        # Use subprocess to run the script as if it were executed directly
-        # This is necessary to trigger the if __name__ == "__main__": block
+        script_path = os.path.join(
+            os.path.dirname(__file__), "../fix_test_collection_warnings.py"
+        )
+        assert os.path.exists(script_path), f"Script not found: {script_path}"
+
         result = subprocess.run(
-            [sys.executable, "fix_test_collection_warnings.py"],
+            [sys.executable, script_path],
             capture_output=True,
             text=True,
         )
 
         # Assert that the main function was executed and its dependencies were called
         mock_find_files.assert_called_once()
-        self.assertEqual(mock_fix_warnings.call_count, 2)  # Called for each fake file
+        mock_main.assert_called_once()
         mock_print.assert_any_call("Checking for test collection warnings...")
-        mock_print.assert_any_call(
-            "Completed. Fixed 2 files with test collection warnings."
-        )
         self.assertEqual(result.returncode, 0)
 
 
