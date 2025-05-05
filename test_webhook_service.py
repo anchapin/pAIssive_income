@@ -5,8 +5,6 @@ This is a placeholder file for testing the CI workflow.:
 """
 
 
-
-
 def main():
     """Main function."""
     pass

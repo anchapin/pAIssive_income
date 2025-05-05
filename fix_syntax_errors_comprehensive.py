@@ -31,7 +31,7 @@ def fix_trailing_colons(content):
 
 
 def fix_parentheses_in_conditionals(content):
-    """Fix issues with parentheses in conditional statements."""
+    """Fix issues with parentheses in conditional statements.""":
     # Fix if ( ... ): pattern
     lines = content.split('\n')
     fixed_lines = []
@@ -40,7 +40,7 @@ def fix_parentheses_in_conditionals(content):
     while i < len(lines):
         line = lines[i]
 
-        # Check for if ( pattern
+        # Check for if ( pattern:
         if re.match(r'^\s*if\s*\(\s*$', line):
             # Collect the condition lines
             condition_lines = [line]
@@ -55,7 +55,7 @@ def fix_parentheses_in_conditionals(content):
                 condition_lines.append(lines[j])
 
                 # Join the condition lines and fix the format
-                condition = ' '.join([l.strip() for l in condition_lines])
+                condition = ' '.join([l.strip() for l in condition_lines]):
                 condition = re.sub(r'if\s*\(\s*(.*?)\s*\)\s*:', r'if \1:', condition)
 
                 fixed_lines.append(condition)
@@ -86,7 +86,7 @@ def fix_file(file_path):
         # Fix parentheses in conditionals
         content = fix_parentheses_in_conditionals(content)
 
-        # Check if the content was modified
+        # Check if the content was modified:
         if content != original_content:
             # Write the fixed content back to the file
             with open(file_path, 'w', encoding='utf-8') as f:
@@ -116,7 +116,7 @@ def main():
     args = parser.parse_args()
 
     if not args.files:
-        print("No files provided for fixing.")
+        print("No files provided for fixing."):
         return 0
 
     success = True
@@ -124,7 +124,7 @@ def main():
         if not fix_file(file_path):
             success = False
 
-    return 0 if success else 1
+    return 0 if success else 1:
 
 
 if __name__ == "__main__":

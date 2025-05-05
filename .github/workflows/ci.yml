@@ -61,18 +61,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-lint-
 
-    - name: Check for syntax errors
+    - name: Check for syntax errors and formatting issues
       run: |
         # Define patterns to ignore
         IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
 
         # Check if a specific file was specified
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking syntax for specific file: ${{ github.event.inputs.specific_file }}"
-          python fix_test_collection_warnings.py --check "${{ github.event.inputs.specific_file }}"
+          echo "Checking syntax and formatting for specific file: ${{ github.event.inputs.specific_file }}"
+          python fix_all_issues_final.py --check "${{ github.event.inputs.specific_file }}"
         else
           # Find Python files excluding ignored patterns directly
-          echo "Checking for syntax errors in Python files..."
+          echo "Checking for syntax errors and formatting issues in Python files..."
           PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
 
           if [ -n "$PYTHON_FILES" ]; then
@@ -85,13 +85,12 @@ jobs:
                   echo "Syntax error detected in $file with py_compile"
                   exit 1
                 }
-                # Then use the custom script for more detailed checks
-                python fix_test_collection_warnings.py --check "$file" || {
-                  echo "Issues found in $file with fix_test_collection_warnings.py"
-                  echo "::warning::Syntax errors found in $file, but continuing with other checks"
+                # Then use the comprehensive script for more detailed checks
+                python fix_all_issues_final.py --check "$file" || {
+                  echo "Issues found in $file with fix_all_issues_final.py"
+                  echo "::warning::Issues found in $file, but continuing with other checks"
                   # Don't exit here to allow other checks to run
                 }
-
               fi
             done
           else
@@ -143,7 +142,7 @@ jobs:
     - name: Fix formatting issues (if any)
       if: always()
       run: |
-        echo "Attempting to fix formatting issues..."
+        echo "Attempting to fix formatting and syntax issues..."
         # Define patterns to ignore (reusing from earlier step)
         IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
 
@@ -151,18 +150,18 @@ jobs:
         PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS" || true)
 
         if [ -n "$PYTHON_FILES" ]; then
-          echo "Formatting Python files..."
-          # Process files in smaller batches to avoid command line length limits
+          echo "Fixing Python files..."
+          # Process files one by one
           echo "$PYTHON_FILES" | while read -r file; do
             if [ -f "$file" ]; then
               echo "Processing $file"
-              python format_files.py "$file" || echo "Warning: Error formatting $file"
+              python fix_all_issues_final.py "$file" || echo "Warning: Error fixing $file"
             else
               echo "Skipping non-existent file: $file"
             fi
           done
         else
-          echo "No Python files found to format."
+          echo "No Python files found to fix."
         fi
 
     - name: Sort imports with isort

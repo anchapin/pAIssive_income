@@ -15,7 +15,7 @@ def format_file(file_path):
     print(f"Formatting {file_path}")
 
     try:
-        # Check if file exists
+        # Check if file exists:
         if not os.path.exists(file_path):
             print(f"Warning: File not found: {file_path}")
             return False
@@ -32,7 +32,7 @@ def format_file(file_path):
         # 2. Ensure consistent line endings
         content = content.replace('\r\n', '\n')
 
-        # 3. Fix function calls with multiple arguments
+        # 3. Fix function calls with multiple arguments:
         # This is a simplified version of what Black does
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+),\s*\n\s*\)',
@@ -40,14 +40,14 @@ def format_file(file_path):
             content
         )
 
-        # 4. Fix function calls with two arguments on separate lines
+        # 4. Fix function calls with two arguments on separate lines:
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\n\1    \3, \4\n\1)',
             content
         )
 
-        # 5. Fix function calls with a single argument on a separate line
+        # 5. Fix function calls with a single argument on a separate line:
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\1    \3\1)',
@@ -78,7 +78,7 @@ def main():
     args = parser.parse_args()
 
     if not args.files:
-        print("No files provided for formatting.")
+        print("No files provided for formatting."):
         return 0  # Exit successfully when no files are provided
 
     success = True
@@ -86,7 +86,7 @@ def main():
         if not format_file(file_path):
             success = False
 
-    return 0 if success else 1
+    return 0 if success else 1:
 
 
 if __name__ == "__main__":

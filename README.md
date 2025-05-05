@@ -102,14 +102,36 @@ The framework has identified several promising niches for AI-powered tools:
    scripts\lint_check.bat --ruff --isort
    ```
 
-5. Fix formatting issues automatically:
+5. Fix syntax, formatting, and linting issues automatically:
 
    ```bash
-   # Format all Python files
-   python format_files.py $(find . -name "*.py" -type f)
+   # Fix all issues in all Python files
+   python fix_all_issues_final.py
 
-   # Format specific files
-   python format_files.py path/to/file1.py path/to/file2.py
+   # Fix issues in specific files
+   python fix_all_issues_final.py path/to/file1.py path/to/file2.py
+
+   # Check for issues without fixing them
+   python fix_all_issues_final.py --check
+
+   # Fix only syntax errors
+   python fix_all_issues_final.py --syntax-only
+
+   # Fix only formatting issues
+   python fix_all_issues_final.py --format-only
+
+   # Skip specific tools
+   python fix_all_issues_final.py --no-black --no-isort --no-ruff
+   ```
+
+   Or use the provided batch file:
+
+   ```bash
+   # On Windows
+   fix_all_issues.bat
+
+   # Fix specific files
+   fix_all_issues.bat path/to/file.py
    ```
 
 6. Run the CI workflow locally to check for issues before pushing:
@@ -268,16 +290,27 @@ You can view the documentation by opening `docs_source/build/html/index.html` in
 
 If you encounter issues with the CI workflow, try the following steps:
 
-1. **Syntax Errors**: Run the syntax check script locally to identify and fix issues:
+1. **Syntax and Formatting Issues**: Use the comprehensive fix script to identify and fix issues:
 
    ```bash
-   python fix_test_collection_warnings.py --check path/to/file.py
+   # Check for issues without fixing
+   python fix_all_issues_final.py --check path/to/file.py
+
+   # Fix all issues
+   python fix_all_issues_final.py path/to/file.py
+
+   # Or use the batch file
+   fix_all_issues.bat path/to/file.py
    ```
 
-2. **Formatting Issues**: Use the formatting script to automatically fix formatting issues:
+2. **Run GitHub Actions Workflow Locally**: Use the dedicated workflow to fix issues:
 
    ```bash
-   python format_files.py path/to/file.py
+   # Install act (GitHub Actions local runner)
+   # See: https://github.com/nektos/act
+
+   # Run the fix-all-issues workflow
+   act -j fix-issues -W .github/workflows/fix-all-issues.yml
    ```
 
 3. **Linting Issues**: Run the linting checks locally to identify and fix issues:
