@@ -12,9 +12,10 @@ def main():
         description="Script for the pAIssive Income project"
     )
 
-    args = parser.parse_args()
+    # Parse arguments but ignore since functionality is not implemented yet
+    parser.parse_args()
 
-    # TODO: Implement the functionality
+    # TODO: Implement the functionality using parsed arguments
 
     return 0
 

@@ -11,7 +11,6 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
