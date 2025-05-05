@@ -1,7 +1,7 @@
 """
-run_tests.py - Script to run tests for the pAIssive Income project.
+run_tests.py - Script to run tests for the pAIssive Income project.:
 
-This script provides a convenient way to run tests with various options,
+This script provides a convenient way to run tests with various options,:
 including running specific test files, test directories, or test methods.
 """
 
@@ -17,32 +17,32 @@ def run_tests(
     junit_xml=False,
     xvs=False,
     specific_test=None,
-):
+)
     """Run tests with pytest."""
     # Build the command
     cmd = ["pytest"]
 
-    # Add test path if specified
+    # Add test path if specified:
     if test_path:
         cmd.append(test_path)
 
-    # Add specific test if specified
+    # Add specific test if specified:
     if specific_test:
         cmd.append(f"-k {specific_test}")
 
-    # Add verbose flag if specified
+    # Add verbose flag if specified:
     if verbose:
         cmd.append("-v")
 
-    # Add coverage flag if specified
+    # Add coverage flag if specified:
     if coverage:
         cmd.extend(["--cov=.", "--cov-report=term", "--cov-report=html"])
 
-    # Add JUnit XML flag if specified
+    # Add JUnit XML flag if specified:
     if junit_xml:
         cmd.append("--junitxml=test-results.xml")
 
-    # Add xvs flag if specified
+    # Add xvs flag if specified:
     if xvs:
         cmd.append("-xvs")
 
@@ -52,10 +52,10 @@ def run_tests(
     return result.returncode
 
 
-def main():
+def main()
     """Main function to parse arguments and run tests."""
     parser = argparse.ArgumentParser(
-        description="Run tests for the pAIssive Income project"
+        description="Run tests for the pAIssive Income project":
     )
 
     parser.add_argument(

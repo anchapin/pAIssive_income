@@ -61,16 +61,20 @@ def main():
         description="Format Python files according to Black's style."
     )
     parser.add_argument(
-        "files", nargs="+", help="Files to format"
+        "files", nargs="*", help="Files to format"
     )
-    
+
     args = parser.parse_args()
-    
+
+    if not args.files:
+        print("No files provided for formatting.")
+        return 0  # Exit successfully when no files are provided
+
     success = True
     for file_path in args.files:
         if not format_file(file_path):
             success = False
-    
+
     return 0 if success else 1
 
 

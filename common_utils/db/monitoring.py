@@ -1,5 +1,5 @@
 """
-monitoring.py - Module for the pAIssive Income project.
+monitoring.py - Module for the pAIssive Income project.:
 """
 
 # This file was automatically fixed by the syntax error correction script
@@ -7,7 +7,7 @@ monitoring.py - Module for the pAIssive Income project.
 # Please review and update this file as needed
 
 
-def main():
+def main()
     """Main function."""
     pass
 

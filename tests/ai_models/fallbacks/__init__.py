@@ -1,3 +1,3 @@
 """
-Module - Module for the pAIssive Income project.
+Module - Module for the pAIssive Income project.:
 """

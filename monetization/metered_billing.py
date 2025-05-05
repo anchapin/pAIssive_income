@@ -1,5 +1,5 @@
 """
-metered_billing.py - Module for the pAIssive Income project.
+metered_billing.py - Module for the pAIssive Income project.:
 """
 
 # This file was automatically fixed by the syntax error correction script
@@ -7,7 +7,7 @@ metered_billing.py - Module for the pAIssive Income project.
 # Please review and update this file as needed
 
 
-def main():
+def main()
     """Main function."""
     pass
 

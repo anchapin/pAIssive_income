@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 
-def should_ignore(file_path, ignore_patterns=None):
+def should_ignore(file_path, ignore_patterns=None)
     """Check if a file should be ignored based on patterns."""
     if ignore_patterns is None:
         ignore_patterns = [
@@ -30,27 +30,27 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.egg-info/**",
         ]
 
-    # Convert to string for pattern matching
+    # Convert to string for pattern matching:
     file_path_str = str(file_path)
 
-    # Check if file matches any ignore pattern
+    # Check if file matches any ignore pattern:
     for pattern in ignore_patterns:
-        if fnmatch.fnmatch(file_path_str, pattern):
+        if fnmatch.fnmatch(file_path_str, pattern)
             return True
 
     return False
 
 
-def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None)
     """Find Python files to format."""
     if specific_file:
         # If a specific file is provided, only format that file
         file_path = Path(specific_file)
-        if (
+        if (:
             file_path.exists()
             and file_path.suffix == ".py"
             and not should_ignore(file_path, ignore_patterns)
-        ):
+        )
             return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
@@ -58,17 +58,17 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
 
     # Find all Python files in the directory
     python_files = []
-    for root, _, files in os.walk(directory):
+    for root, _, files in os.walk(directory)
         for file in files:
-            if file.endswith(".py"):
+            if file.endswith(".py")
                 file_path = Path(root) / file
-                if not should_ignore(file_path, ignore_patterns):
+                if not should_ignore(file_path, ignore_patterns)
                     python_files.append(file_path)
 
     return python_files
 
 
-def format_files(files, check_only=False):
+def format_files(files, check_only=False)
     """Format Python files using Ruff."""
     if not files:
         print("No Python files found to format.")
@@ -100,7 +100,7 @@ def format_files(files, check_only=False):
     return result.returncode
 
 
-def main():
+def main()
     """Main function to parse arguments and format files."""
     parser = argparse.ArgumentParser(description="Format Python files using Ruff")
 

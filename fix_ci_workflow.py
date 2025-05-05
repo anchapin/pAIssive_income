@@ -9,7 +9,7 @@ import re
 import sys
 
 
-def fix_workflow_file(file_path):
+def fix_workflow_file(file_path)
     """Fix the CI workflow file to make it more robust."""
     print(f"Fixing CI workflow file: {file_path}")
     
@@ -19,10 +19,10 @@ def fix_workflow_file(file_path):
     
     # Make the workflow more robust
     
-    # 1. Update the check for syntax errors step to continue on error
+    # 1. Update the check for syntax errors step to continue on error:
     content = re.sub(
         r'(- name: Check for syntax errors\n\s+run: \|.*?)(\n\s+fi\n)',
-        r'\1\n        echo "::warning::Syntax errors found, but continuing with other checks"\n\2',
+        r'\1\n        echo "::warning::Syntax errors found, but continuing with other checks"\n\2',:
         content,
         flags=re.DOTALL
     )
@@ -30,7 +30,7 @@ def fix_workflow_file(file_path):
     # 2. Update the Black formatting check to continue on error
     content = re.sub(
         r'(- name: Check formatting with Black\n\s+run: \|.*?)(\n\s+fi\n)',
-        r'\1\n        echo "::warning::Formatting issues found with Black, please run black locally"\n\2',
+        r'\1\n        echo "::warning::Formatting issues found with Black, please run black locally"\n\2',:
         content,
         flags=re.DOTALL
     )
@@ -51,7 +51,7 @@ def fix_workflow_file(file_path):
     return True
 
 
-def main():
+def main()
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Fix the CI workflow to make it more robust."
@@ -63,11 +63,11 @@ def main():
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.workflow_file):
+    if not os.path.exists(args.workflow_file)
         print(f"Workflow file not found: {args.workflow_file}")
         return 1
     
-    if not fix_workflow_file(args.workflow_file):
+    if not fix_workflow_file(args.workflow_file)
         return 1
     
     return 0

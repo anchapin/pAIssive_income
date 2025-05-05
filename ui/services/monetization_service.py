@@ -1,7 +1,7 @@
 """
-Monetization Service for the pAIssive Income UI.
+Monetization Service for the pAIssive Income UI.:
 
-This service provides methods for interacting with the Monetization Agent module.
+This service provides methods for interacting with the Monetization Agent module.:
 """
 
 import logging
@@ -17,12 +17,12 @@ from .developer_service import DeveloperService
 logger = logging.getLogger(__name__)
 
 
-class MonetizationService(BaseService):
+class MonetizationService(BaseService)
     """
-    Service for interacting with the Monetization Agent module.
+    Service for interacting with the Monetization Agent module.:
     """
 
-    def __init__(self):
+    def __init__(self)
         """Initialize the Monetization service."""
         super().__init__()
         self.strategies_file = "monetization_strategies.json"
@@ -37,7 +37,7 @@ class MonetizationService(BaseService):
 
     def create_strategy(self, solution_id: str) -> Dict[str, Any]:
         """
-        Create a monetization strategy for a solution.
+        Create a monetization strategy for a solution.:
 
         Args:
             solution_id: ID of the solution
@@ -55,7 +55,7 @@ class MonetizationService(BaseService):
 
         if self.monetization_agent_available:
             try:
-                # Create a new agent team for this strategy
+                # Create a new agent team for this strategy:
                 team = AgentTeam(f"{solution['name']} Monetization")
 
                 # Create the monetization strategy
@@ -101,7 +101,7 @@ class MonetizationService(BaseService):
             strategy_id: ID of the strategy
 
         Returns:
-            Monetization strategy data, or None if not found
+            Monetization strategy data, or None if not found:
         """
         strategies = self.get_strategies()
         for strategy in strategies:
@@ -121,8 +121,8 @@ class MonetizationService(BaseService):
         """
         strategies = self.get_strategies()
 
-        # Check if the strategy already exists
-        for i, existing_strategy in enumerate(strategies):
+        # Check if the strategy already exists:
+        for i, existing_strategy in enumerate(strategies)
             if existing_strategy["id"] == strategy["id"]:
                 # Update existing strategy
                 strategy["updated_at"] = datetime.now().isoformat()
@@ -141,7 +141,7 @@ class MonetizationService(BaseService):
 
     def _create_mock_strategy(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Create a mock monetization strategy for testing.
+        Create a mock monetization strategy for testing.:
 
         Args:
             solution: Solution data
@@ -229,7 +229,7 @@ class MonetizationService(BaseService):
         return {
             "id": str(uuid.uuid4()),
             "name": f"{solution['name']} Monetization Strategy",
-            "description": f"Subscription-based monetization strategy for {solution['name']}",
+            "description": f"Subscription-based monetization strategy for {solution['name']}",:
             "solution_id": solution["id"],
             "model_type": "freemium",
             "subscription_tiers": tiers,
@@ -246,9 +246,9 @@ class MonetizationService(BaseService):
             },
             "recommendations": [
                 "Focus on converting free users to paid tiers",
-                "Offer annual billing with discount",
+                "Offer annual billing with discount",:
                 "Consider adding a lifetime access tier",
-                "Implement referral program for user acquisition",
+                "Implement referral program for user acquisition",:
             ],
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),

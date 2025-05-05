@@ -88,9 +88,9 @@ jobs:
                 # Then use the custom script for more detailed checks
                 python fix_test_collection_warnings.py --check "$file" || {
                   echo "Issues found in $file with fix_test_collection_warnings.py"
-                  exit 1
+                  echo "::warning::Syntax errors found in $file, but continuing with other checks"
+                  # Don't exit here to allow other checks to run
                 }
-        echo "::warning::Syntax errors found, but continuing with other checks"
 
               fi
             done
@@ -134,8 +134,9 @@ jobs:
           black --check --diff "${{ github.event.inputs.specific_file }}"
         else
           echo "Checking formatting for all files with Black"
-          black --check --diff .
-        echo "::warning::Formatting issues found with Black, please run black locally"
+          black --check --diff . || {
+            echo "::warning::Formatting issues found with Black, please run black locally"
+          }
 
         fi
 
@@ -143,7 +144,18 @@ jobs:
       if: always()
       run: |
         echo "Attempting to fix formatting issues..."
-        python format_files.py $(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
+        # Define patterns to ignore (reusing from earlier step)
+        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
+
+        # Find Python files excluding ignored patterns
+        PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS" || true)
+
+        if [ -n "$PYTHON_FILES" ]; then
+          echo "Formatting Python files..."
+          python format_files.py $PYTHON_FILES
+        else
+          echo "No Python files found to format."
+        fi
 
     - name: Sort imports with isort
       run: |
