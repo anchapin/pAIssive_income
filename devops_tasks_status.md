@@ -4,6 +4,15 @@
 
 We've been working on fixing GitHub Actions workflow failures in the `devops_tasks` branch. We've made significant progress, with most workflows now passing. Here's the current status:
 
+### Recent Updates (May 4, 2025)
+
+1. Fixed CI job failures related to multiple `.egg-info` directories:
+   - Enhanced cleanup process in the CI workflow configuration
+   - Added more aggressive cleanup of package metadata directories (`.egg-info`, `.dist-info`, `.egg`)
+   - Added pip cache purging to ensure a clean installation environment
+   - Improved dependency installation order by installing build dependencies first
+   - Added verbose output to package installation for better error diagnostics
+
 ### Fixed Issues
 
 1. Fixed syntax errors in the `fix_test_collection_warnings.py` script:
