@@ -1,6 +1,4 @@
-"""
-cli_ui.py - Module for the pAIssive Income project.:
-"""
+"""cli_ui.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script
 # The original content had syntax errors that could not be automatically fixed
@@ -8,7 +6,7 @@ cli_ui.py - Module for the pAIssive Income project.:
 
 
 def main():
-    """Main function."""
+    """Initialize the module."""
     pass
 
 

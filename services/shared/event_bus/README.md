@@ -134,30 +134,30 @@ async def main():
             # Process the event...
             await asyncio.sleep(1)  # Simulate async processing
             print(f"Finished processing user: {user_data.username}")
-        
+
         await event_bus.subscribe(
             event_pattern="user.registered",
             handler=handle_user_registered
         )
-        
+
         # Start the event bus
         await event_bus.start()
-        
+
         # Create and publish an event
         user_data = UserRegistered(
             user_id="123",
             username="john_doe",
             email="john.doe@example.com"
         )
-        
+
         event = user_registered_schema.create_event(
             source="my-service",
             data=user_data,
             event_type=EventType.DOMAIN
         )
-        
+
         await event_bus.publish(event)
-        
+
         # Wait for events to be processed
         await asyncio.sleep(2)
 

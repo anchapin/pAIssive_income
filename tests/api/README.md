@@ -80,13 +80,13 @@ def test_new_endpoint(self, api_test_client: APITestClient):
     """Test a new endpoint."""
     # Generate test data
     data = {"key": "value"}
-    
+
     # Make request
     response = api_test_client.post("module/endpoint", data)
-    
+
     # Validate response
     result = validate_success_response(response, 201)  # Created
-    
+
     # Validate fields
     validate_field_exists(result, "id")
     validate_field_type(result, "id", str)

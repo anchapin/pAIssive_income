@@ -14,11 +14,11 @@ import {
 
 /**
  * RevenueAreaChart - Component for visualizing revenue projections over time
- * 
+ *
  * This component displays an area chart visualization of revenue projections
  * based on the RevenueProjector's project_revenue method. It can show monthly and
  * cumulative revenue over time, with options to toggle each data series.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of revenue projection data objects by month
  * @param {string} props.title - Chart title
@@ -26,16 +26,16 @@ import {
  * @param {Array} props.milestones - Optional milestones to display as reference lines
  * @returns {React.Component} An area chart component for revenue visualization
  */
-const RevenueAreaChart = ({ 
-  data, 
-  title = "Revenue Projections", 
+const RevenueAreaChart = ({
+  data,
+  title = "Revenue Projections",
   height = 400,
-  milestones = [] 
+  milestones = []
 }) => {
   // State for tracking which data to show
   const [showMonthly, setShowMonthly] = useState(true);
   const [showCumulative, setShowCumulative] = useState(true);
-  
+
   // If no data, return a message
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No revenue projection data available for visualization</div>;
@@ -60,27 +60,27 @@ const RevenueAreaChart = ({
 
   // Format the chart data
   const chartData = formatData(data);
-  
+
   // Custom tooltip formatter
   const customTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip" style={{ 
-          backgroundColor: 'white', 
-          padding: '10px', 
-          border: '1px solid #cccccc' 
+        <div className="custom-tooltip" style={{
+          backgroundColor: 'white',
+          padding: '10px',
+          border: '1px solid #cccccc'
         }}>
           <p className="label" style={{ fontWeight: 'bold' }}>{label}</p>
           {payload.map((entry, index) => {
             // Check if this is a monetary value
             const isMonetary = entry.name.toLowerCase().includes('revenue');
-            const value = isMonetary 
+            const value = isMonetary
               ? `$${entry.value.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
                 })}`
               : entry.value.toLocaleString();
-              
+
             return (
               <p key={index} style={{ color: entry.color }}>
                 {`${entry.name}: ${value}`}
@@ -92,36 +92,36 @@ const RevenueAreaChart = ({
     }
     return null;
   };
-  
+
   // Toggle functions for each data series
   const toggleMonthly = () => setShowMonthly(!showMonthly);
   const toggleCumulative = () => setShowCumulative(!showCumulative);
-  
+
   return (
     <div className="chart-container">
       <h3>{title}</h3>
-      
+
       <div style={{ marginBottom: '10px' }}>
         <label style={{ marginRight: '15px' }}>
-          <input 
-            type="checkbox" 
-            checked={showMonthly} 
+          <input
+            type="checkbox"
+            checked={showMonthly}
             onChange={toggleMonthly}
             style={{ marginRight: '5px' }}
           />
           Monthly Revenue
         </label>
         <label>
-          <input 
-            type="checkbox" 
-            checked={showCumulative} 
+          <input
+            type="checkbox"
+            checked={showCumulative}
             onChange={toggleCumulative}
             style={{ marginRight: '5px' }}
           />
           Cumulative Revenue
         </label>
       </div>
-      
+
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart
           data={chartData}
@@ -129,45 +129,45 @@ const RevenueAreaChart = ({
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="monthLabel" />
-          <YAxis 
+          <YAxis
             tickFormatter={(value) => `$${value}`}
           />
           <Tooltip content={customTooltip} />
           <Legend />
-          
+
           {showMonthly && (
-            <Area 
-              type="monotone" 
-              dataKey="total_revenue" 
+            <Area
+              type="monotone"
+              dataKey="total_revenue"
               name="Monthly Revenue"
-              stroke="#8884d8" 
-              fill="#8884d8" 
+              stroke="#8884d8"
+              fill="#8884d8"
               fillOpacity={0.3}
               activeDot={{ r: 8 }}
             />
           )}
-          
+
           {showCumulative && (
-            <Area 
-              type="monotone" 
-              dataKey="cumulative_revenue" 
+            <Area
+              type="monotone"
+              dataKey="cumulative_revenue"
               name="Cumulative Revenue"
-              stroke="#82ca9d" 
-              fill="#82ca9d" 
+              stroke="#82ca9d"
+              fill="#82ca9d"
               fillOpacity={0.3}
             />
           )}
-          
+
           {/* Add milestone reference lines if provided */}
           {milestones.map((milestone, index) => (
-            <ReferenceLine 
+            <ReferenceLine
               key={index}
-              x={`Month ${milestone.month}`} 
-              stroke="red" 
-              label={milestone.label} 
+              x={`Month ${milestone.month}`}
+              stroke="red"
+              label={milestone.label}
             />
           ))}
-          
+
           <Brush dataKey="monthLabel" height={30} stroke="#8884d8" />
         </AreaChart>
       </ResponsiveContainer>

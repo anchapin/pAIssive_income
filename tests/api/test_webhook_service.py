@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""
-Test webhook service functionality.
-This is a placeholder file for testing the CI workflow.:
-"""
 
+"""Test webhook service functionality.
 
+This is a placeholder file for testing the CI workflow.
+"""
 
 
 def main():
-    """Main function."""
+    """Initialize the module."""
     pass
 
 

@@ -7,7 +7,7 @@ This section provides detailed API documentation for all modules in the pAIssive
 
 .. toctree:
    :maxdepth: 2
-   
+
    ai_models/index
    agent_team/index
    monetization/index

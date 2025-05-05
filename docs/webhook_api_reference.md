@@ -375,7 +375,7 @@ def verify_webhook_signature(payload, signature, secret):
             hashlib.sha256
         ).digest()
     ).decode()
-    
+
     return hmac.compare_digest(expected_signature, signature)
 
 # In your webhook handler:
@@ -394,7 +394,7 @@ function verifyWebhookSignature(payload, signature, secret) {
     .createHmac('sha256', secret)
     .update(payload)
     .digest('base64');
-  
+
   return crypto.timingSafeEqual(
     Buffer.from(expectedSignature),
     Buffer.from(signature)

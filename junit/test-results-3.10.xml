@@ -535,8 +535,8 @@ keywargs = {'mock_model_manager': &lt;MagicMock spec='ModelManager' id='14011999
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -553,15 +553,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -578,8 +578,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -596,15 +596,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -621,8 +621,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -639,15 +639,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -679,8 +679,8 @@ keywargs = {'mock_openai_provider': &lt;tests.mocks.mock_model_providers.MockOpe
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -697,15 +697,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -723,8 +723,8 @@ keywargs = {'mock_model_manager': &lt;MagicMock spec='ModelManager' id='14012001
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -741,15 +741,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -766,8 +766,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -784,15 +784,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -809,8 +809,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -827,15 +827,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -853,8 +853,8 @@ keywargs = {'mock_stripe_gateway': &lt;tests.mocks.mock_payment_apis.MockStripeG
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -879,15 +879,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -904,8 +904,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -922,15 +922,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -947,8 +947,8 @@ ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase
                                     args,
                                     keywargs) as (newargs, newkeywargs):
 
-/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1376:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/contextlib.py:135: in __enter__
     return next(self.gen)
 /opt/hostedtoolcache/Python/3.10.17/x64/lib/python3.10/unittest/mock.py:1358: in decoration_helper
@@ -965,15 +965,15 @@ ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging
@@ -989,21 +989,21 @@ monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa1d43e15d0&gt;
         """Test using the patched model providers."""
 &gt;       from ai_models.adapters.openai_compatible_adapter import OpenAICompatibleAdapter
 
-tests/test_mock_examples.py:123: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_mock_examples.py:123:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ai_models/__init__.py:31: in &lt;module&gt;
     from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
 ai_models/adapters/__init__.py:9: in &lt;module&gt;
     from .ollama_adapter import OllamaAdapter
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
     """
     Ollama adapter for the AI Models module.
-    
+
     This module provides an adapter for connecting to Ollama,
     a local API server for running large language models.
     """
-    
+
     import os
     import json
     import logging

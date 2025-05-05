@@ -655,20 +655,20 @@ phases:
       - echo Installing dependencies...
       - pip install -r requirements.txt
       - pip install -r requirements-dev.txt
-  
+
   pre_build:
     commands:
       - echo Running tests...
       - pytest
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-  
+
   build:
     commands:
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
-  
+
   post_build:
     commands:
       - echo Pushing the Docker image...

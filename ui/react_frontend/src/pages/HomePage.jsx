@@ -45,7 +45,7 @@ const HomePage = () => {
             </Button>
           </Item>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <Item elevation={3}>
             <div>
@@ -61,7 +61,7 @@ const HomePage = () => {
             </Button>
           </Item>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <Item elevation={3}>
             <div>
@@ -77,7 +77,7 @@ const HomePage = () => {
             </Button>
           </Item>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Item elevation={3}>
             <div>
@@ -93,7 +93,7 @@ const HomePage = () => {
             </Button>
           </Item>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Item elevation={3}>
             <div>

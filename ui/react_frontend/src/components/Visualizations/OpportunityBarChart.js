@@ -13,10 +13,10 @@ import {
 
 /**
  * OpportunityBarChart - Component for comparing opportunity scores using a bar chart
- * 
+ *
  * This component displays a bar chart visualization for comparing opportunity scores
  * across different niches. It can display either overall scores or specific factor scores.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of opportunity data objects
  * @param {string} props.dataKey - The data key to use for the comparison (default: "overall_score")
@@ -24,17 +24,17 @@ import {
  * @param {number} props.height - Chart height in pixels (default: 400)
  * @returns {React.Component} A bar chart component for opportunity comparison
  */
-const OpportunityBarChart = ({ 
-  data, 
-  dataKey = "overall_score", 
-  title = "Opportunity Score Comparison", 
-  height = 400 
+const OpportunityBarChart = ({
+  data,
+  dataKey = "overall_score",
+  title = "Opportunity Score Comparison",
+  height = 400
 }) => {
   // If no data, return null
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available for visualization</div>;
   }
-  
+
   // Format the data for the bar chart
   const formatData = (opportunities) => {
     return opportunities.map(opp => ({
@@ -44,7 +44,7 @@ const OpportunityBarChart = ({
       color: getScoreColor(opp[dataKey] || 0)
     }));
   };
-  
+
   // Get a color based on the score value (green for high, yellow for medium, red for low)
   const getScoreColor = (score) => {
     if (score >= 0.8) return '#4CAF50'; // Green
@@ -53,24 +53,24 @@ const OpportunityBarChart = ({
     if (score >= 0.2) return '#FF9800'; // Orange
     return '#F44336'; // Red
   };
-  
+
   // Format the chart data
   const chartData = formatData(data);
-  
+
   // Sort the data by score (descending)
   chartData.sort((a, b) => b.value - a.value);
-  
+
   // Format the tooltip value
   const formatTooltip = (value) => {
     return [value.toFixed(2), dataKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())];
   };
-  
+
   // Get a label for the Y-axis based on the dataKey
   const getAxisLabel = () => {
     const label = dataKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     return label;
   };
-  
+
   return (
     <div className="chart-container">
       <h3>{title}</h3>

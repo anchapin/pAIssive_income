@@ -11,9 +11,9 @@ import {
   ResponsiveContainer,
   Brush
 } from 'recharts';
-import { 
-  FormGroup, 
-  FormControlLabel, 
+import {
+  FormGroup,
+  FormControlLabel,
   Checkbox,
   Box,
   Grid
@@ -21,10 +21,10 @@ import {
 
 /**
  * UserActivityChart - Component for visualizing user engagement metrics over time
- * 
+ *
  * This component displays a chart visualization of various user engagement metrics
  * over time, such as active users, session counts, feature usage, etc.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of time-series data objects with engagement metrics
  * @param {string} props.title - Chart title
@@ -66,10 +66,10 @@ const UserActivityChart = ({
   const customTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip" style={{ 
-          backgroundColor: 'white', 
-          padding: '10px', 
-          border: '1px solid #cccccc' 
+        <div className="custom-tooltip" style={{
+          backgroundColor: 'white',
+          padding: '10px',
+          border: '1px solid #cccccc'
         }}>
           <p className="label" style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{label}</p>
           {payload
@@ -77,7 +77,7 @@ const UserActivityChart = ({
             .map((entry, index) => {
               const metric = metrics.find(m => m.key === entry.dataKey);
               return (
-                <p key={index} style={{ 
+                <p key={index} style={{
                   color: entry.stroke || entry.fill,
                   margin: '4px 0'
                 }}>
@@ -94,7 +94,7 @@ const UserActivityChart = ({
   return (
     <div className="chart-container">
       <h3>{title}</h3>
-      
+
       <Box mb={2}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -116,7 +116,7 @@ const UserActivityChart = ({
           </Grid>
         </Grid>
       </Box>
-      
+
       <ResponsiveContainer width="100%" height={height}>
         <ComposedChart
           data={data}
@@ -124,28 +124,28 @@ const UserActivityChart = ({
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          
+
           {/* Primary Y-axis for user counts */}
-          <YAxis 
+          <YAxis
             yAxisId="left"
             orientation="left"
             label={{ value: 'User Count', angle: -90, position: 'insideLeft' }}
           />
-          
+
           {/* Secondary Y-axis for other metrics */}
-          <YAxis 
+          <YAxis
             yAxisId="right"
             orientation="right"
             label={{ value: 'Session Metrics', angle: -90, position: 'insideRight' }}
           />
-          
+
           <Tooltip content={customTooltip} />
           <Legend />
-          
+
           {/* Render each metric with its appropriate type */}
           {metrics.map((metric) => {
             if (!visibleMetrics[metric.key]) return null;
-            
+
             if (metric.type === 'line') {
               return (
                 <Line
@@ -172,11 +172,11 @@ const UserActivityChart = ({
               );
             }
           })}
-          
+
           <Brush dataKey="date" height={30} stroke="#8884d8" />
         </ComposedChart>
       </ResponsiveContainer>
-      
+
       <Box mt={2} sx={{ fontSize: '14px', color: 'text.secondary' }}>
         <p><strong>DAU</strong>: Daily Active Users - Users who used the application on the given day</p>
         <p><strong>WAU</strong>: Weekly Active Users - Unique users who used the application in the past 7 days</p>

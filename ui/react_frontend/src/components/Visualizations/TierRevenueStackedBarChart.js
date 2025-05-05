@@ -45,17 +45,17 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 /**
  * TierRevenueStackedBarChart - Component for visualizing revenue breakdown by subscription tiers
- * 
+ *
  * This component displays a stacked bar chart visualization of revenue breakdown
  * by different subscription tiers over time, based on the RevenueProjector's project_revenue method.
- * 
+ *
  * Enhanced with interactive features like:
  * - Data filtering options
  * - Chart appearance controls
  * - Data export functionality
  * - Custom reference lines
  * - Comparison view options
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of revenue projection data objects by month
  * @param {string} props.title - Chart title
@@ -63,9 +63,9 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
  * @param {boolean} props.showQuarterly - Whether to show quarterly aggregates instead of monthly data
  * @returns {React.Component} An enhanced interactive stacked bar chart component for tier revenue visualization
  */
-const TierRevenueStackedBarChart = ({ 
-  data, 
-  title = "Revenue by Subscription Tier", 
+const TierRevenueStackedBarChart = ({
+  data,
+  title = "Revenue by Subscription Tier",
   height = 400,
   showQuarterly = false
 }) => {
@@ -79,7 +79,7 @@ const TierRevenueStackedBarChart = ({
     barRadius: 0,
     stacked: true
   });
-  
+
   // Reference lines state
   const [referenceLines, setReferenceLines] = useState([]);
   const [showReferenceLineDialog, setShowReferenceLineDialog] = useState(false);
@@ -89,27 +89,27 @@ const TierRevenueStackedBarChart = ({
     value: 5000,
     color: "#f44336"
   });
-  
+
   // Settings dialog state
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  
+
   // Menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  
+
   // Chart ref for exporting/saving
   const chartRef = useRef(null);
-  
+
   // Brush state
   const [brushIndices, setBrushIndices] = useState({
     startIndex: 0,
     endIndex: data?.length - 1 || 0
   });
-  
+
   // View comparison state
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonTarget, setComparisonTarget] = useState('cumulative');
-  
+
   // If no data, return a message
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No tier revenue data available for visualization</div>;
@@ -118,7 +118,7 @@ const TierRevenueStackedBarChart = ({
   // Get all unique tier names from the data
   const getAllTierNames = (projections) => {
     const tierNames = new Set();
-    
+
     projections.forEach(month => {
       if (month.tier_revenue) {
         Object.keys(month.tier_revenue).forEach(tier => {
@@ -126,12 +126,12 @@ const TierRevenueStackedBarChart = ({
         });
       }
     });
-    
+
     return Array.from(tierNames);
   };
-  
+
   const tierNames = getAllTierNames(data);
-  
+
   // Initialize visible tiers if needed
   if (Object.keys(visibleTiers).length === 0 && tierNames.length > 0) {
     const initialVisibleTiers = {};
@@ -140,7 +140,7 @@ const TierRevenueStackedBarChart = ({
     });
     setVisibleTiers(initialVisibleTiers);
   }
-  
+
   // Define colors for each tier
   const tierColors = {
     'Basic': '#8884d8',
@@ -155,7 +155,7 @@ const TierRevenueStackedBarChart = ({
     'Tier 4': '#ff8042',
     'Tier 5': '#a4de6c',
   };
-  
+
   // Format the data for the chart (adding a proper month/quarter label)
   const formatMonthlyData = (projections) => {
     return projections.map((month, index) => {
@@ -166,30 +166,30 @@ const TierRevenueStackedBarChart = ({
         cumulativeRevenue: month.cumulative_revenue || 0,
         index
       };
-      
+
       // Add each tier's revenue to the formatted month
       tierNames.forEach(tier => {
-        const tierRevenue = month.tier_revenue && month.tier_revenue[tier] 
-          ? month.tier_revenue[tier] 
+        const tierRevenue = month.tier_revenue && month.tier_revenue[tier]
+          ? month.tier_revenue[tier]
           : 0;
-          
+
         formattedMonth[tier] = tierRevenue;
         formattedMonth.totalRevenue += tierRevenue;
       });
-      
+
       return formattedMonth;
     });
   };
-  
+
   // Format the data as quarterly aggregates
   const formatQuarterlyData = (projections) => {
     const quarterlyData = [];
-    
+
     // Group monthly data into quarters
     for (let quarter = 1; quarter <= Math.ceil(projections.length / 3); quarter++) {
       const startMonth = (quarter - 1) * 3 + 1;
       const endMonth = Math.min(quarter * 3, projections.length);
-      
+
       const quarterData = {
         quarter: quarter,
         quarterLabel: `Q${quarter}`,
@@ -197,12 +197,12 @@ const TierRevenueStackedBarChart = ({
         cumulativeRevenue: 0,
         index: quarter - 1
       };
-      
+
       // Initialize tier revenues for this quarter
       tierNames.forEach(tier => {
         quarterData[tier] = 0;
       });
-      
+
       // Sum up the monthly revenues for this quarter
       for (let month = startMonth; month <= endMonth; month++) {
         const monthData = projections.find(m => m.month === month);
@@ -212,30 +212,30 @@ const TierRevenueStackedBarChart = ({
             quarterData[tier] += tierRevenue;
             quarterData.totalRevenue += tierRevenue;
           });
-          
+
           // Use the last month in the quarter for the cumulative revenue
           if (month === endMonth && monthData.cumulative_revenue) {
             quarterData.cumulativeRevenue = monthData.cumulative_revenue;
           }
         }
       }
-      
+
       quarterlyData.push(quarterData);
     }
-    
+
     return quarterlyData;
   };
 
   // Format the chart data based on the selected view
-  const chartData = isQuarterly 
+  const chartData = isQuarterly
     ? formatQuarterlyData(data)
     : formatMonthlyData(data);
-  
+
   const visibleData = chartData.slice(
     brushIndices.startIndex,
     brushIndices.endIndex + 1
   );
-  
+
   // Custom tooltip formatter
   const customTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -246,9 +246,9 @@ const TierRevenueStackedBarChart = ({
         if (!visibleTiers[entry.dataKey] && tierNames.includes(entry.dataKey)) return false;
         return true;
       });
-      
+
       if (filteredPayload.length === 0) return null;
-      
+
       // Calculate the total visible revenue
       const visibleTotal = filteredPayload.reduce((sum, entry) => {
         if (tierNames.includes(entry.dataKey)) {
@@ -256,23 +256,23 @@ const TierRevenueStackedBarChart = ({
         }
         return sum;
       }, 0);
-      
+
       return (
-        <div className="custom-tooltip" style={{ 
-          backgroundColor: 'white', 
-          padding: '10px', 
+        <div className="custom-tooltip" style={{
+          backgroundColor: 'white',
+          padding: '10px',
           border: '1px solid #cccccc',
           boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
           borderRadius: '4px',
           maxWidth: '300px'
         }}>
-          <p className="label" style={{ 
-            fontWeight: 'bold', 
-            margin: '0 0 8px', 
-            borderBottom: '1px solid #eee', 
-            paddingBottom: '5px' 
+          <p className="label" style={{
+            fontWeight: 'bold',
+            margin: '0 0 8px',
+            borderBottom: '1px solid #eee',
+            paddingBottom: '5px'
           }}>{label}</p>
-          
+
           {/* Tier revenue data */}
           <div style={{ marginBottom: '8px' }}>
             {filteredPayload.map((entry, index) => {
@@ -280,34 +280,34 @@ const TierRevenueStackedBarChart = ({
               if (entry.dataKey === 'cumulativeRevenue' || entry.dataKey === 'totalRevenue') {
                 return null;
               }
-              
-              const percentage = visibleTotal > 0 
-                ? ((entry.value / visibleTotal) * 100).toFixed(1) 
+
+              const percentage = visibleTotal > 0
+                ? ((entry.value / visibleTotal) * 100).toFixed(1)
                 : 0;
-              
+
               return (
-                <div key={index} style={{ 
+                <div key={index} style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   marginBottom: '4px'
                 }}>
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     alignItems: 'center',
                     width: '60%'
                   }}>
-                    <span style={{ 
-                      display: 'inline-block', 
-                      width: '10px', 
-                      height: '10px', 
+                    <span style={{
+                      display: 'inline-block',
+                      width: '10px',
+                      height: '10px',
                       backgroundColor: entry.color,
                       marginRight: '5px'
                     }}></span>
                     <span style={{ color: '#333' }}>{entry.name}:</span>
                   </div>
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
                     width: '40%'
@@ -318,8 +318,8 @@ const TierRevenueStackedBarChart = ({
                         maximumFractionDigits: 0
                       })}
                     </span>
-                    <span style={{ 
-                      fontSize: '0.8em', 
+                    <span style={{
+                      fontSize: '0.8em',
                       color: '#666',
                       width: '40px',
                       textAlign: 'right'
@@ -331,10 +331,10 @@ const TierRevenueStackedBarChart = ({
               );
             })}
           </div>
-          
+
           {/* Visible total */}
-          <div style={{ 
-            borderTop: '1px solid #eee', 
+          <div style={{
+            borderTop: '1px solid #eee',
             paddingTop: '5px',
             display: 'flex',
             justifyContent: 'space-between',
@@ -348,21 +348,21 @@ const TierRevenueStackedBarChart = ({
               })}
             </span>
           </div>
-          
+
           {/* Comparison data if enabled */}
           {showComparison && (
             <div style={{ marginTop: '10px', borderTop: '1px dashed #ccc', paddingTop: '5px' }}>
               <p style={{ margin: '0 0 5px', fontWeight: 'bold', fontSize: '0.9em' }}>
                 Comparison Data:
               </p>
-              
+
               {filteredPayload.map((entry, index) => {
                 if (entry.dataKey !== 'cumulativeRevenue' && entry.dataKey !== 'totalRevenue') {
                   return null;
                 }
-                
+
                 return (
-                  <div key={`comp-${index}`} style={{ 
+                  <div key={`comp-${index}`} style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     color: entry.color
@@ -384,17 +384,17 @@ const TierRevenueStackedBarChart = ({
     }
     return null;
   };
-  
+
   // Toggle functions
   const toggleView = () => setIsQuarterly(!isQuarterly);
-  
+
   const toggleTier = (tier) => {
     setVisibleTiers(prev => ({
       ...prev,
       [tier]: !prev[tier]
     }));
   };
-  
+
   const toggleAllTiers = (value) => {
     const newVisibleTiers = {};
     tierNames.forEach(tier => {
@@ -402,7 +402,7 @@ const TierRevenueStackedBarChart = ({
     });
     setVisibleTiers(newVisibleTiers);
   };
-  
+
   // Settings functions
   const updateChartSetting = (setting, value) => {
     setChartSettings(prev => ({
@@ -410,7 +410,7 @@ const TierRevenueStackedBarChart = ({
       [setting]: value
     }));
   };
-  
+
   // Menu functions
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -419,7 +419,7 @@ const TierRevenueStackedBarChart = ({
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  
+
   // Reference line functions
   const handleAddReferenceLine = () => {
     setShowReferenceLineDialog(true);
@@ -445,54 +445,54 @@ const TierRevenueStackedBarChart = ({
   const handleRemoveReferenceLine = (index) => {
     setReferenceLines(referenceLines.filter((_, i) => i !== index));
   };
-  
+
   // Export chart data functions
   const exportData = (format) => {
     handleMenuClose();
-    
+
     if (format === 'csv') {
       // Create CSV content
       let csvContent = "data:text/csv;charset=utf-8,";
-      
+
       // Add headers
       const headers = [isQuarterly ? "Quarter" : "Month", "Total Revenue"];
-      
+
       // Add tier names as headers
       tierNames.forEach(tier => {
         headers.push(tier);
       });
-      
+
       csvContent += headers.join(",") + "\n";
-      
+
       // Add data rows
       chartData.forEach(item => {
         const row = [
           isQuarterly ? item.quarterLabel : item.monthLabel,
           item.totalRevenue.toFixed(2)
         ];
-        
+
         // Add each tier's revenue
         tierNames.forEach(tier => {
           row.push(item[tier].toFixed(2));
         });
-        
+
         csvContent += row.join(",") + "\n";
       });
-      
+
       // Create download link
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
-      
+
       // Trigger download and cleanup
       link.click();
       document.body.removeChild(link);
     } else if (format === 'json') {
       // Create JSON content
       const jsonContent = JSON.stringify(chartData, null, 2);
-      
+
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -500,14 +500,14 @@ const TierRevenueStackedBarChart = ({
       link.setAttribute("href", url);
       link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
-      
+
       // Trigger download and cleanup
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
   };
-  
+
   return (
     <div className="chart-container" ref={chartRef}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -515,7 +515,7 @@ const TierRevenueStackedBarChart = ({
         <Box>
           <ButtonGroup variant="outlined" size="small" sx={{ mr: 1 }}>
             <MuiTooltip title="Toggle Data Comparison">
-              <Button 
+              <Button
                 onClick={() => setShowComparison(!showComparison)}
                 color={showComparison ? "primary" : "inherit"}
                 variant={showComparison ? "contained" : "outlined"}
@@ -524,9 +524,9 @@ const TierRevenueStackedBarChart = ({
                 Compare
               </Button>
             </MuiTooltip>
-            
+
             <MuiTooltip title="Chart Settings">
-              <Button 
+              <Button
                 onClick={() => setShowSettingsDialog(true)}
                 startIcon={<SettingsIcon />}
               >
@@ -534,13 +534,13 @@ const TierRevenueStackedBarChart = ({
               </Button>
             </MuiTooltip>
           </ButtonGroup>
-          
+
           <MuiTooltip title="More Options">
             <IconButton onClick={handleMenuClick}>
               <MoreVertIcon />
             </IconButton>
           </MuiTooltip>
-          
+
           <Menu
             anchorEl={anchorEl}
             open={open}
@@ -562,22 +562,22 @@ const TierRevenueStackedBarChart = ({
           </Menu>
         </Box>
       </Box>
-      
+
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} md={6}>
           <Box sx={{ mb: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant="subtitle2">Subscription Tiers</Typography>
               <Box>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => toggleAllTiers(true)}
                   sx={{ minWidth: 'auto', mr: 1 }}
                 >
                   All
                 </Button>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => toggleAllTiers(false)}
                   sx={{ minWidth: 'auto' }}
                 >
@@ -585,16 +585,16 @@ const TierRevenueStackedBarChart = ({
                 </Button>
               </Box>
             </Box>
-            
+
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {tierNames.map(tier => (
-                <Chip 
+                <Chip
                   key={tier}
                   label={tier}
                   color={visibleTiers[tier] ? "primary" : "default"}
                   variant={visibleTiers[tier] ? "filled" : "outlined"}
                   onClick={() => toggleTier(tier)}
-                  sx={{ 
+                  sx={{
                     opacity: visibleTiers[tier] ? 1 : 0.6,
                     '& .MuiChip-label': {
                       paddingLeft: '5px'
@@ -614,7 +614,7 @@ const TierRevenueStackedBarChart = ({
             </Box>
           </Box>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <FormControlLabel
@@ -627,7 +627,7 @@ const TierRevenueStackedBarChart = ({
               }
               label="Quarterly View"
             />
-            
+
             {showComparison && (
               <FormControl size="small" variant="outlined" sx={{ minWidth: 180 }}>
                 <InputLabel id="comparison-target-label">Compare With</InputLabel>
@@ -646,7 +646,7 @@ const TierRevenueStackedBarChart = ({
           </Box>
         </Grid>
       </Grid>
-      
+
       {/* Reference lines display */}
       {referenceLines.length > 0 && (
         <Box sx={{ mb: 2 }}>
@@ -658,7 +658,7 @@ const TierRevenueStackedBarChart = ({
                 label={`${line.label} (${line.value.toLocaleString()} at ${line.position})`}
                 onDelete={() => handleRemoveReferenceLine(index)}
                 size="small"
-                sx={{ 
+                sx={{
                   backgroundColor: line.color + '20', // Add transparency
                   borderLeft: `3px solid ${line.color}`
                 }}
@@ -667,7 +667,7 @@ const TierRevenueStackedBarChart = ({
           </Box>
         </Box>
       )}
-      
+
       <ResponsiveContainer width="100%" height={height}>
         <BarChart
           data={visibleData}
@@ -675,20 +675,20 @@ const TierRevenueStackedBarChart = ({
         >
           {chartSettings.showGridLines && <CartesianGrid strokeDasharray="3 3" />}
           <XAxis dataKey={isQuarterly ? "quarterLabel" : "monthLabel"} />
-          <YAxis 
+          <YAxis
             tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
             domain={['auto', 'auto']}
           />
           <Tooltip content={customTooltip} />
           {chartSettings.showLegend && <Legend />}
-          
+
           {/* Create a bar for each visible tier */}
           {tierNames.map((tier) => (
             visibleTiers[tier] && (
-              <Bar 
+              <Bar
                 key={tier}
-                dataKey={tier} 
-                name={tier} 
+                dataKey={tier}
+                name={tier}
                 stackId={chartSettings.stacked ? "a" : null}
                 fill={tierColors[tier] || `#${Math.floor(Math.random()*16777215).toString(16)}`}
                 fillOpacity={chartSettings.barOpacity}
@@ -696,7 +696,7 @@ const TierRevenueStackedBarChart = ({
               />
             )
           ))}
-          
+
           {/* Comparison line if enabled */}
           {showComparison && comparisonTarget === 'cumulative' && (
             <Bar
@@ -709,7 +709,7 @@ const TierRevenueStackedBarChart = ({
               isAnimationActive={false}
             />
           )}
-          
+
           {showComparison && comparisonTarget === 'total' && (
             <Line
               type="monotone"
@@ -722,7 +722,7 @@ const TierRevenueStackedBarChart = ({
               isAnimationActive={false}
             />
           )}
-          
+
           {/* Reference lines */}
           {referenceLines.map((line, index) => (
             <ReferenceLine
@@ -738,10 +738,10 @@ const TierRevenueStackedBarChart = ({
               }}
             />
           ))}
-          
-          <Brush 
-            dataKey={isQuarterly ? "quarterLabel" : "monthLabel"} 
-            height={30} 
+
+          <Brush
+            dataKey={isQuarterly ? "quarterLabel" : "monthLabel"}
+            height={30}
             stroke="#8884d8"
             onChange={({ startIndex, endIndex }) => {
               if (startIndex !== undefined && endIndex !== undefined) {
@@ -754,14 +754,14 @@ const TierRevenueStackedBarChart = ({
           />
         </BarChart>
       </ResponsiveContainer>
-      
+
       {/* Help text */}
       <Box sx={{ mt: 1, fontSize: '0.8rem', color: 'text.secondary' }}>
         <Typography variant="caption">
           Tip: Use the brush below the chart to focus on specific time periods. Click on tier names in the legend to toggle visibility.
         </Typography>
       </Box>
-      
+
       {/* Reference Line Dialog */}
       <Dialog open={showReferenceLineDialog} onClose={() => setShowReferenceLineDialog(false)}>
         <DialogTitle>Add Reference Line</DialogTitle>
@@ -779,7 +779,7 @@ const TierRevenueStackedBarChart = ({
                 step: 100
               }}
             />
-            
+
             <TextField
               label="Label"
               value={newReferenceLine.label}
@@ -787,7 +787,7 @@ const TierRevenueStackedBarChart = ({
               fullWidth
               margin="normal"
             />
-            
+
             <TextField
               label="Position"
               value={newReferenceLine.position}
@@ -796,7 +796,7 @@ const TierRevenueStackedBarChart = ({
               fullWidth
               margin="normal"
             />
-            
+
             <TextField
               label="Color"
               type="color"
@@ -820,7 +820,7 @@ const TierRevenueStackedBarChart = ({
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Chart Settings Dialog */}
       <Dialog open={showSettingsDialog} onClose={() => setShowSettingsDialog(false)}>
         <DialogTitle>Chart Settings</DialogTitle>
@@ -836,7 +836,7 @@ const TierRevenueStackedBarChart = ({
                 }
                 label="Show Grid Lines"
               />
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -846,7 +846,7 @@ const TierRevenueStackedBarChart = ({
                 }
                 label="Show Legend"
               />
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -857,7 +857,7 @@ const TierRevenueStackedBarChart = ({
                 label="Stacked Bars"
               />
             </FormGroup>
-            
+
             <Typography id="bar-opacity-slider" gutterBottom>
               Bar Opacity: {chartSettings.barOpacity}
             </Typography>
@@ -870,7 +870,7 @@ const TierRevenueStackedBarChart = ({
               min={0.1}
               max={1}
             />
-            
+
             <Typography id="bar-radius-slider" gutterBottom>
               Bar Corner Radius: {chartSettings.barRadius}
             </Typography>

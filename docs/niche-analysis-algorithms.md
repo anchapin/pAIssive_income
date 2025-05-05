@@ -295,7 +295,7 @@ This integration enables data-driven decision making about which niches and prob
 Future versions of these algorithms will incorporate:
 
 1. **Machine Learning Integration**: Replace static knowledge bases with dynamic ML models
-2. **Real-time Data**: Incorporate real-time market data from public APIs 
+2. **Real-time Data**: Incorporate real-time market data from public APIs
 3. **User Feedback Loop**: Incorporate user feedback to refine analyses
 4. **Advanced NLP**: Use advanced NLP to extract insights from unstructured data
 5. **Competitor Tracking**: Add real-time competitor monitoring capabilities

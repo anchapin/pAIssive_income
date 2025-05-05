@@ -1,6 +1,6 @@
 /**
  * Client for the pAIssive Income API.
- * 
+ *
  * This module provides a client for making requests to the pAIssive Income API.
  */
 
@@ -12,7 +12,7 @@ const { NoAuth } = require('./auth');
 class Client {
   /**
    * Initialize the client.
-   * 
+   *
    * @param {Object} options - Client options
    * @param {string} options.baseUrl - Base URL for the API
    * @param {Object} options.auth - Authentication method
@@ -24,7 +24,7 @@ class Client {
     this.auth = options.auth || new NoAuth();
     this.version = options.version || 'v1';
     this.timeout = options.timeout || 60000;
-    
+
     // Initialize services
     const NicheAnalysisService = require('./services/niche-analysis');
     const MonetizationService = require('./services/monetization');
@@ -34,7 +34,7 @@ class Client {
     const UserService = require('./services/user');
     const DashboardService = require('./services/dashboard');
     const APIKeyService = require('./services/api-key');
-    
+
     this.nicheAnalysis = new NicheAnalysisService(this);
     this.monetization = new MonetizationService(this);
     this.marketing = new MarketingService(this);
@@ -44,10 +44,10 @@ class Client {
     this.dashboard = new DashboardService(this);
     this.apiKeys = new APIKeyService(this);
   }
-  
+
   /**
    * Make a request to the API.
-   * 
+   *
    * @param {string} method - HTTP method to use
    * @param {string} endpoint - API endpoint
    * @param {Object} options - Request options
@@ -60,14 +60,14 @@ class Client {
    */
   async request(method, endpoint, options = {}) {
     const url = new URL(`${this.baseUrl}/${this.version}/${endpoint.replace(/^\//, '')}`);
-    
+
     // Add query parameters
     if (options.params) {
       Object.entries(options.params).forEach(([key, value]) => {
         url.searchParams.append(key, value);
       });
     }
-    
+
     // Prepare headers
     const headers = {
       'Content-Type': 'application/json',
@@ -75,23 +75,23 @@ class Client {
       ...this.auth.getHeaders(),
       ...(options.headers || {})
     };
-    
+
     // Prepare request options
     const requestOptions = {
       method,
       headers,
       body: options.data ? JSON.stringify(options.data) : undefined,
     };
-    
+
     // Add timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
     requestOptions.signal = controller.signal;
-    
+
     try {
       // Make request
       const response = await fetch(url.toString(), requestOptions);
-      
+
       // Check for errors
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
@@ -103,7 +103,7 @@ class Client {
           throw new Error(errorText || `Request failed with status ${response.status}`);
         }
       }
-      
+
       // Parse response
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -120,10 +120,10 @@ class Client {
       clearTimeout(timeoutId);
     }
   }
-  
+
   /**
    * Make a GET request.
-   * 
+   *
    * @param {string} endpoint - API endpoint
    * @param {Object} params - Query parameters
    * @returns {Promise<Object>} Response data
@@ -131,10 +131,10 @@ class Client {
   async get(endpoint, params) {
     return this.request('GET', endpoint, { params });
   }
-  
+
   /**
    * Make a POST request.
-   * 
+   *
    * @param {string} endpoint - API endpoint
    * @param {Object} data - Request body
    * @returns {Promise<Object>} Response data
@@ -142,10 +142,10 @@ class Client {
   async post(endpoint, data) {
     return this.request('POST', endpoint, { data });
   }
-  
+
   /**
    * Make a PUT request.
-   * 
+   *
    * @param {string} endpoint - API endpoint
    * @param {Object} data - Request body
    * @returns {Promise<Object>} Response data
@@ -153,10 +153,10 @@ class Client {
   async put(endpoint, data) {
     return this.request('PUT', endpoint, { data });
   }
-  
+
   /**
    * Make a DELETE request.
-   * 
+   *
    * @param {string} endpoint - API endpoint
    * @returns {Promise<Object>} Response data
    */

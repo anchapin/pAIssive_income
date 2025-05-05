@@ -78,7 +78,7 @@ async def registered_webhook(running_webhook_service) -> Dict[str, Any]:
         "headers": {"Authorization": "Bearer test-token"},
         "is_active": True,
     }
-    
+
     webhook = await running_webhook_service.register_webhook(webhook_data)
     return webhook
 ```
@@ -212,14 +212,14 @@ Organize tests in classes for related functionality. Use descriptive test functi
 ```python
 class TestWebhookService:
     """Test suite for the WebhookService class."""
-    
+
     @pytest.mark.asyncio
     @pytest.mark.unit
     @pytest.mark.webhook
     async def test_register_webhook(self, webhook_service, mock_audit_service):
         """Test registering a webhook."""
         # Test implementation
-        
+
     @pytest.mark.asyncio
     @pytest.mark.unit
     @pytest.mark.webhook

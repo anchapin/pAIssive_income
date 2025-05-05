@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Grid, 
-  Paper, 
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
   Chip,
   TextField,
   FormControl,
@@ -25,10 +25,10 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 // Import our new visualization components
-import { 
-  OpportunityRadarChart, 
-  OpportunityBarChart, 
-  ScoreDistributionPieChart 
+import {
+  OpportunityRadarChart,
+  OpportunityBarChart,
+  ScoreDistributionPieChart
 } from '../components/Visualizations';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -91,7 +91,7 @@ const NicheAnalysisPage = () => {
   ];
 
   // Filter segments based on search term
-  const filteredSegments = marketSegments.filter(segment => 
+  const filteredSegments = marketSegments.filter(segment =>
     segment.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -120,17 +120,17 @@ const NicheAnalysisPage = () => {
   // Handle analysis submission
   const handleAnalyze = () => {
     setIsAnalyzing(true);
-    
+
     // Simulate API call delay
     setTimeout(() => {
       // Mock analysis results (in a real app, this would come from backend)
       const mockResults = {
         niches: [
-          { 
-            id: 1, 
-            name: 'AI-powered content optimization', 
+          {
+            id: 1,
+            name: 'AI-powered content optimization',
             segment: 'Content Creation',
-            opportunityScore: 0.87, 
+            opportunityScore: 0.87,
             competitionLevel: 'Medium',
             demandLevel: 'High',
             profitPotential: 0.85,
@@ -149,11 +149,11 @@ const NicheAnalysisPage = () => {
               monetization_potential: 0.88
             }
           },
-          { 
-            id: 2, 
-            name: 'Local AI code assistant', 
+          {
+            id: 2,
+            name: 'Local AI code assistant',
             segment: 'Software Development',
-            opportunityScore: 0.92, 
+            opportunityScore: 0.92,
             competitionLevel: 'Low',
             demandLevel: 'Very High',
             profitPotential: 0.90,
@@ -172,11 +172,11 @@ const NicheAnalysisPage = () => {
               monetization_potential: 0.92
             }
           },
-          { 
-            id: 3, 
-            name: 'AI-powered financial analysis', 
+          {
+            id: 3,
+            name: 'AI-powered financial analysis',
             segment: 'Finance',
-            opportunityScore: 0.75, 
+            opportunityScore: 0.75,
             competitionLevel: 'High',
             demandLevel: 'High',
             profitPotential: 0.82,
@@ -205,7 +205,7 @@ const NicheAnalysisPage = () => {
           limited: 0
         }
       };
-      
+
       setAnalysisResults(mockResults);
       setIsAnalyzing(false);
     }, 2000);
@@ -228,7 +228,7 @@ const NicheAnalysisPage = () => {
       <Typography variant="subtitle1" paragraph>
         Identify profitable niches with high demand and low competition using our AI-powered market analysis tools.
       </Typography>
-      
+
       <Grid container spacing={3}>
         {/* Market segment selection section */}
         <Grid item xs={12} md={6}>
@@ -236,7 +236,7 @@ const NicheAnalysisPage = () => {
             <Typography variant="h6" gutterBottom>
               Select Market Segments
             </Typography>
-            
+
             <Box mb={2}>
               <TextField
                 fullWidth
@@ -246,7 +246,7 @@ const NicheAnalysisPage = () => {
                 onChange={handleSearchChange}
               />
             </Box>
-            
+
             <Box mb={3} sx={{ maxHeight: '300px', overflowY: 'auto' }}>
               <List dense component="div" role="list">
                 {filteredSegments.map((segment) => (
@@ -262,11 +262,11 @@ const NicheAnalysisPage = () => {
                 ))}
               </List>
             </Box>
-            
+
             <Typography variant="subtitle2" gutterBottom>
               Selected Segments:
             </Typography>
-            
+
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {selectedSegments.map((segment) => (
                 <Chip
@@ -277,7 +277,7 @@ const NicheAnalysisPage = () => {
                 />
               ))}
             </Box>
-            
+
             <Box mt={3} textAlign="center">
               <Button
                 variant="contained"
@@ -291,14 +291,14 @@ const NicheAnalysisPage = () => {
             </Box>
           </Item>
         </Grid>
-        
+
         {/* Analysis results section */}
         <Grid item xs={12} md={6}>
           <Item>
             <Typography variant="h6" gutterBottom>
               Analysis Results
             </Typography>
-            
+
             {isAnalyzing ? (
               <Box sx={{ width: '100%' }}>
                 <Typography variant="body2" align="center" gutterBottom>
@@ -311,7 +311,7 @@ const NicheAnalysisPage = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   Found {analysisResults.niches.length} promising niches
                 </Typography>
-                
+
                 {analysisResults.niches.map((niche) => (
                   <Card key={niche.id} sx={{ mb: 2 }}>
                     <CardHeader
@@ -324,12 +324,12 @@ const NicheAnalysisPage = () => {
                         <Typography component="div" variant="subtitle1">
                           Opportunity Score:
                         </Typography>
-                        <Chip 
+                        <Chip
                           label={niche.opportunityScore.toFixed(2)}
                           color={niche.opportunityScore > 0.8 ? 'success' : niche.opportunityScore > 0.7 ? 'primary' : 'warning'}
                         />
                       </Box>
-                      
+
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography component="div" variant="body2">
                           Competition: {niche.competitionLevel}
@@ -338,7 +338,7 @@ const NicheAnalysisPage = () => {
                           Demand: {niche.demandLevel}
                         </Typography>
                       </Box>
-                      
+
                       <Typography variant="subtitle2" sx={{ mt: 1 }}>
                         Key Problems:
                       </Typography>
@@ -370,7 +370,7 @@ const NicheAnalysisPage = () => {
               <Typography variant="h6" gutterBottom>
                 Market Analysis Visualizations
               </Typography>
-              
+
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="market analysis visualizations">
                   <Tab label="Factor Analysis" {...a11yProps(0)} />
@@ -378,29 +378,29 @@ const NicheAnalysisPage = () => {
                   <Tab label="Score Distribution" {...a11yProps(2)} />
                 </Tabs>
               </Box>
-              
+
               <TabPanel value={tabValue} index={0}>
-                <OpportunityRadarChart 
-                  data={getSelectedNicheData()} 
-                  title="Opportunity Factor Analysis" 
-                  height={400} 
+                <OpportunityRadarChart
+                  data={getSelectedNicheData()}
+                  title="Opportunity Factor Analysis"
+                  height={400}
                 />
               </TabPanel>
-              
+
               <TabPanel value={tabValue} index={1}>
-                <OpportunityBarChart 
-                  data={analysisResults.niches} 
+                <OpportunityBarChart
+                  data={analysisResults.niches}
                   dataKey="opportunityScore"
-                  title="Opportunity Score Comparison" 
-                  height={400} 
+                  title="Opportunity Score Comparison"
+                  height={400}
                 />
               </TabPanel>
-              
+
               <TabPanel value={tabValue} index={2}>
-                <ScoreDistributionPieChart 
-                  data={analysisResults.scoreDistribution} 
+                <ScoreDistributionPieChart
+                  data={analysisResults.scoreDistribution}
                   title="Opportunity Score Distribution"
-                  height={400} 
+                  height={400}
                 />
               </TabPanel>
             </Item>

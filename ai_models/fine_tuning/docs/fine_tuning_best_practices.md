@@ -213,10 +213,10 @@ config = FineTuningConfig(
     model_path="your/base/model",
     output_dir="fine_tuned_model",
     method=FineTuningMethod.LORA,
-    
+
     # Dataset parameters
     dataset_path="your/dataset/path",
-    
+
     # Training parameters
     num_train_epochs=3,
     per_device_train_batch_size=4,
@@ -224,13 +224,13 @@ config = FineTuningConfig(
     learning_rate=2e-5,
     weight_decay=0.01,
     warmup_steps=100,
-    
+
     # LoRA parameters
     lora_r=8,
     lora_alpha=16,
     lora_dropout=0.05,
     lora_target_modules=["q_proj", "v_proj"],
-    
+
     # Early stopping
     early_stopping_patience=3
 )

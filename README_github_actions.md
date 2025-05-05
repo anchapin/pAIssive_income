@@ -115,7 +115,7 @@ python run_linting.py --files "api/*.py" "tests/*.py"
    ```bash
    sudo chmod -R 777 ~/.cache/act
    ```
-   
+
    Or clear the Act cache:
    ```bash
    rm -rf ~/.cache/act

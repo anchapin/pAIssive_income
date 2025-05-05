@@ -17,13 +17,13 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-      
+
       - name: Cache Python packages
         uses: actions/cache@v4
         with:
@@ -33,23 +33,23 @@ jobs:
           key: ${{ runner.os }}-pip-deploy-${{ hashFiles('**/requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-deploy-
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           # Install core dependencies
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-dev.txt
-          
+
           # Install service dependencies
           for req in $(find . -name "requirements.txt" ! -path "./requirements.txt"); do
             echo "Installing dependencies from $req"
             python -m pip install -r $req
           done
-          
+
       - name: Create junit directory
         run: mkdir -p junit
-      
+
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}

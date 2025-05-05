@@ -14,7 +14,7 @@ import { Typography, Box } from '@mui/material';
 
 /**
  * API Usage Line Chart component for visualizing API request metrics over time.
- * 
+ *
  * @param {Object} props Component props
  * @param {Array} props.data Array of data points with date and metrics
  * @param {string} props.dataKey The key in the data object to plot

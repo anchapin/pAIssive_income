@@ -279,9 +279,9 @@ For quantitative factors like problem severity, solution feasibility, and moneti
    PS = (∑ᵢ sᵢ) / n, where n is the number of problems.
 
 2. **Solution Feasibility Score**: Starts with a base score of 0.7, which is adjusted based on niche characteristics:
-   
+
    SF = min(max(0.7 + text_content_bonus + data_bonus, 0), 1)
-   
+
    Where:
    - text_content_bonus = 0.2 if the niche contains keywords related to text/content (e.g., "writing", "content")
    - data_bonus = 0.1 if the niche contains keywords related to data processing (e.g., "analytics", "reporting")
@@ -289,7 +289,7 @@ For quantitative factors like problem severity, solution feasibility, and moneti
 3. **Monetization Potential Score**: Starts with a base score of 0.5, adjusted by multiple factors:
 
    MP = min(max(0.5 + market_bonus + growth_bonus + severity_bonus + business_bonus, 0), 1)
-   
+
    Where:
    - market_bonus = 0.2 for large markets, 0.1 for medium markets, -0.1 for small markets
    - growth_bonus = 0.2 for high growth, 0.1 for medium growth, -0.1 for low growth
@@ -388,21 +388,21 @@ opportunities = []
 for segment in market_segments:
     # Analyze the segment
     segment_analysis = market_analyzer.analyze_segment(segment)
-    
+
     # Get potential niches
     potential_niches = segment_analysis.get("potential_niches", [])
-    
+
     # Analyze each potential niche
     for niche in potential_niches:
         # Analyze market data for the niche
         market_data = market_analyzer.analyze_competition(niche)
-        
+
         # Identify problems in the niche
         problems = problem_identifier.identify_problems(niche)
-        
+
         # Score the opportunity
         opportunity = opportunity_scorer.score_opportunity(niche, market_data, problems)
-        
+
         # Add to opportunities list
         opportunities.append(opportunity)
 

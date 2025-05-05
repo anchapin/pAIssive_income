@@ -44,10 +44,10 @@ app = template.create_app()
 def generate():
     # Get input from request
     input_text = request.form.get('input_text')
-    
+
     # Generate content using AI
     # ...
-    
+
     # Return the generated content
     return jsonify({'generated_content': generated_content})
 

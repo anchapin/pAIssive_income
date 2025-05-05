@@ -45,7 +45,7 @@ jobs:
         # Clean up any existing .egg-info directories to prevent conflicts
         find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort mypy ruff pyright
+        python -m pip install ruff mypy pyright
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -110,68 +110,18 @@ jobs:
           ruff format --check .
         fi
 
-    - name: Lint with flake8
-      run: |
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Linting specific file with flake8: ${{ github.event.inputs.specific_file }}"
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 "${{ github.event.inputs.specific_file }}" --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings
-          flake8 "${{ github.event.inputs.specific_file }}" --count --exit-zero --max-complexity=10 --max-line-length=88 --extend-ignore=E203 --statistics
-        else
-          echo "Linting all files with flake8"
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --extend-ignore=E203 --statistics
-        fi
-
-    - name: Check formatting with Black
-      run: |
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking formatting for specific file with Black: ${{ github.event.inputs.specific_file }}"
-          black --check --diff "${{ github.event.inputs.specific_file }}"
-        else
-          echo "Checking formatting for all files with Black"
-          black --check --diff . || {
-            echo ":warning:Formatting issues found with Black, please run black locally"
-          }
-
-        fi
-
     - name: Fix formatting issues (if any)
       if: always()
       run: |
         echo "Attempting to fix formatting and syntax issues..."
-        # Define patterns to ignore (reusing from earlier step)
-        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
-
-        # Find Python files excluding ignored patterns
-        PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS" || true)
-
-        if [ -n "$PYTHON_FILES" ]; then
-          echo "Fixing Python files..."
-          # Process files one by one
-          echo "$PYTHON_FILES" | while read -r file; do
-            if [ -f "$file" ]; then
-              echo "Processing $file"
-              python fix_all_issues_final.py "$file" || echo "Warning: Error fixing $file"
-            else
-              echo "Skipping non-existent file: $file"
-            fi
-          done
-        else
-          echo "No Python files found to fix."
-        fi
-
-    - name: Sort imports with isort
-      run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking imports for specific file with isort: ${{ github.event.inputs.specific_file }}"
-          isort --check-only --diff --profile black "${{ github.event.inputs.specific_file }}"
+          echo "Fixing specific file with Ruff: ${{ github.event.inputs.specific_file }}"
+          ruff check --fix "${{ github.event.inputs.specific_file }}"
+          ruff format "${{ github.event.inputs.specific_file }}"
         else
-          echo "Checking imports for all files with isort"
-          isort --check-only --diff --profile black .
+          echo "Fixing all files with Ruff"
+          ruff check --fix .
+          ruff format .
         fi
 
     - name: Type check with mypy and pyright

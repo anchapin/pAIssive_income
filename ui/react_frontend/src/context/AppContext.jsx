@@ -38,61 +38,61 @@ function appReducer(state, action) {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
-      
+
     case ActionTypes.SET_ERROR:
       return { ...state, error: action.payload, isLoading: false };
-      
+
     case ActionTypes.CLEAR_ERROR:
       return { ...state, error: null };
-      
+
     case ActionTypes.SET_USER:
-      return { 
-        ...state, 
-        user: action.payload, 
+      return {
+        ...state,
+        user: action.payload,
         isAuthenticated: !!action.payload,
-        isLoading: false 
+        isLoading: false
       };
-      
+
     case ActionTypes.LOGOUT:
-      return { 
-        ...state, 
-        user: null, 
+      return {
+        ...state,
+        user: null,
         isAuthenticated: false,
-        isLoading: false 
+        isLoading: false
       };
-      
+
     case ActionTypes.ADD_NOTIFICATION:
-      return { 
-        ...state, 
-        notifications: [...state.notifications, action.payload] 
+      return {
+        ...state,
+        notifications: [...state.notifications, action.payload]
       };
-      
+
     case ActionTypes.REMOVE_NOTIFICATION:
-      return { 
-        ...state, 
+      return {
+        ...state,
         notifications: state.notifications.filter(
           notification => notification.id !== action.payload
-        ) 
+        )
       };
-      
+
     case ActionTypes.SET_PROJECTS_DATA:
       return { ...state, projectsData: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_NICHE_RESULTS:
       return { ...state, nicheAnalysisResults: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_SOLUTIONS:
       return { ...state, solutions: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_MONETIZATION_STRATEGIES:
       return { ...state, monetizationStrategies: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_MARKETING_CAMPAIGNS:
       return { ...state, marketingCampaigns: action.payload, isLoading: false };
-      
+
     case ActionTypes.TOGGLE_DARK_MODE:
       return { ...state, darkMode: !state.darkMode };
-      
+
     default:
       return state;
   }
@@ -104,26 +104,26 @@ const AppContext = createContext();
 // Provider component
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  
+
   // Add notification with auto-removal after timeout
   const addNotification = (notification) => {
     const id = Date.now();
     const notificationWithId = { ...notification, id };
-    
-    dispatch({ 
-      type: ActionTypes.ADD_NOTIFICATION, 
-      payload: notificationWithId 
+
+    dispatch({
+      type: ActionTypes.ADD_NOTIFICATION,
+      payload: notificationWithId
     });
-    
+
     // Auto-remove notification after specified time or default of 5 seconds
     setTimeout(() => {
-      dispatch({ 
-        type: ActionTypes.REMOVE_NOTIFICATION, 
-        payload: id 
+      dispatch({
+        type: ActionTypes.REMOVE_NOTIFICATION,
+        payload: id
       });
     }, notification.timeout || 5000);
   };
-  
+
   // Helper function to fetch user profile
   const fetchUserProfile = async () => {
     try {
@@ -135,7 +135,7 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: ActionTypes.SET_USER, payload: null });
     }
   };
-  
+
   // Helper function to fetch dashboard data
   const fetchDashboardData = async () => {
     try {
@@ -144,47 +144,47 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: ActionTypes.SET_PROJECTS_DATA, payload: projectsData });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      dispatch({ 
-        type: ActionTypes.SET_ERROR, 
-        payload: 'Failed to load dashboard data. Please try again.' 
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Failed to load dashboard data. Please try again.'
       });
     }
   };
-  
+
   // Helper function to handle login
   const login = async (credentials) => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       const userData = await apiClient.user.login(credentials);
       dispatch({ type: ActionTypes.SET_USER, payload: userData });
-      addNotification({ 
-        type: 'success', 
-        message: 'Login successful!' 
+      addNotification({
+        type: 'success',
+        message: 'Login successful!'
       });
       return userData;
     } catch (error) {
       console.error('Login error:', error);
-      dispatch({ 
-        type: ActionTypes.SET_ERROR, 
-        payload: 'Login failed. Please check your credentials and try again.' 
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Login failed. Please check your credentials and try again.'
       });
-      addNotification({ 
-        type: 'error', 
-        message: 'Login failed. Please check your credentials.' 
+      addNotification({
+        type: 'error',
+        message: 'Login failed. Please check your credentials.'
       });
       throw error;
     }
   };
-  
+
   // Helper function to handle logout
   const logout = async () => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       await apiClient.user.logout();
       dispatch({ type: ActionTypes.LOGOUT });
-      addNotification({ 
-        type: 'info', 
-        message: 'You have been logged out.' 
+      addNotification({
+        type: 'info',
+        message: 'You have been logged out.'
       });
     } catch (error) {
       console.error('Logout error:', error);
@@ -192,37 +192,37 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: ActionTypes.LOGOUT });
     }
   };
-  
+
   // Helper function to handle register
   const register = async (userData) => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       const newUser = await apiClient.user.register(userData);
       dispatch({ type: ActionTypes.SET_USER, payload: newUser });
-      addNotification({ 
-        type: 'success', 
-        message: 'Registration successful!' 
+      addNotification({
+        type: 'success',
+        message: 'Registration successful!'
       });
       return newUser;
     } catch (error) {
       console.error('Registration error:', error);
-      dispatch({ 
-        type: ActionTypes.SET_ERROR, 
-        payload: 'Registration failed. Please try again.' 
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Registration failed. Please try again.'
       });
-      addNotification({ 
-        type: 'error', 
-        message: 'Registration failed. Please check your information.' 
+      addNotification({
+        type: 'error',
+        message: 'Registration failed. Please check your information.'
       });
       throw error;
     }
   };
-  
+
   // Check if user is already authenticated on app load
   useEffect(() => {
     fetchUserProfile();
   }, []);
-  
+
   // Value object with state and actions to provide
   const value = {
     ...state,
@@ -234,7 +234,7 @@ export const AppProvider = ({ children }) => {
     fetchUserProfile,
     fetchDashboardData
   };
-  
+
   return (
     <AppContext.Provider value={value}>
       {children}

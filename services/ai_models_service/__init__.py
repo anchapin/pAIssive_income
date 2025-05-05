@@ -1,3 +1,1 @@
-"""
-AI Models service package.
-"""
+"""AI Models service package."""

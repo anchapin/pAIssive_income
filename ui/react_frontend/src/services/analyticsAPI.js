@@ -10,7 +10,7 @@ const analyticsAPI = {
    * @returns {Promise<Object>} - Summary data
    */
   getSummary: (days = 30) => fetchAPI(`/api/v1/analytics/summary?days=${days}`),
-  
+
   /**
    * Get detailed request statistics
    * @param {Object} params - Query parameters
@@ -27,24 +27,24 @@ const analyticsAPI = {
    */
   getRequests: (params = {}) => {
     const queryParams = new URLSearchParams();
-    
+
     // Add parameters to query string
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         queryParams.append(key, value);
       }
     });
-    
+
     return fetchAPI(`/api/v1/analytics/requests?${queryParams.toString()}`);
   },
-  
+
   /**
    * Get endpoint statistics
    * @param {number} days - Number of days to include
    * @returns {Promise<Array>} - Endpoint statistics
    */
   getEndpointStats: (days = 30) => fetchAPI(`/api/v1/analytics/endpoints?days=${days}`),
-  
+
   /**
    * Get user statistics
    * @param {number} days - Number of days to include
@@ -52,12 +52,12 @@ const analyticsAPI = {
    * @returns {Promise<Array>} - User statistics
    */
   getUserStats: (days = 30, user_id = null) => {
-    const url = user_id 
+    const url = user_id
       ? `/api/v1/analytics/users?days=${days}&user_id=${user_id}`
       : `/api/v1/analytics/users?days=${days}`;
     return fetchAPI(url);
   },
-  
+
   /**
    * Get API key statistics
    * @param {number} days - Number of days to include
@@ -65,12 +65,12 @@ const analyticsAPI = {
    * @returns {Promise<Array>} - API key statistics
    */
   getApiKeyStats: (days = 30, api_key_id = null) => {
-    const url = api_key_id 
+    const url = api_key_id
       ? `/api/v1/analytics/api-keys?days=${days}&api_key_id=${api_key_id}`
       : `/api/v1/analytics/api-keys?days=${days}`;
     return fetchAPI(url);
   },
-  
+
   /**
    * Export API requests to CSV
    * @param {Object} params - Query parameters
@@ -78,14 +78,14 @@ const analyticsAPI = {
    */
   exportRequestsCSV: (params = {}) => {
     const queryParams = new URLSearchParams();
-    
+
     // Add parameters to query string
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         queryParams.append(key, value);
       }
     });
-    
+
     return fetchAPI(`/api/v1/analytics/export/requests?${queryParams.toString()}`, {
       responseType: 'blob'
     });

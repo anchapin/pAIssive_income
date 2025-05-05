@@ -45,10 +45,10 @@ To check your code:
 
    # Run linting checks
    flake8 .
-   
+
    # Run type checking
    mypy .
-   
+
    # Run tests
    pytest
 

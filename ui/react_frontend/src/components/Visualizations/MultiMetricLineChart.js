@@ -50,10 +50,10 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 /**
  * MultiMetricLineChart - Flexible component for visualizing multiple metrics over time
- * 
+ *
  * This component displays a line chart visualization of multiple metrics over time,
  * with rich interactive features for data exploration and analysis.
- * 
+ *
  * Features:
  * - Support for multiple data series
  * - Interactive zooming and panning
@@ -63,25 +63,25 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
  * - Data point annotations
  * - Moving averages and trend lines
  * - Comparison between data series
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of data objects with time points and metrics
  * @param {Array} props.metrics - Array of metric definitions {key, name, color, type} to display
  * @param {string} props.xAxisKey - The key for x-axis values in the data objects
  * @param {string} props.xAxisLabel - Label for the x-axis (default: "Time")
- * @param {string} props.yAxisLabel - Label for the y-axis (default: "Value") 
+ * @param {string} props.yAxisLabel - Label for the y-axis (default: "Value")
  * @param {string} props.title - Chart title
  * @param {number} props.height - Chart height in pixels (default: 400)
  * @param {Object} props.formatter - Optional formatter functions for tooltip and axis values
  * @returns {React.Component} An enhanced interactive line chart component
  */
-const MultiMetricLineChart = ({ 
+const MultiMetricLineChart = ({
   data = [],
   metrics = [],
   xAxisKey = "time",
   xAxisLabel = "Time",
   yAxisLabel = "Value",
-  title = "Metrics Over Time", 
+  title = "Metrics Over Time",
   height = 400,
   formatter = {
     yAxis: (value) => value,
@@ -96,7 +96,7 @@ const MultiMetricLineChart = ({
     });
     return initialState;
   });
-  
+
   // State for chart display settings
   const [chartSettings, setChartSettings] = useState({
     showGridLines: true,
@@ -109,7 +109,7 @@ const MultiMetricLineChart = ({
     yAxisMax: 'auto',
     connectNulls: true
   });
-  
+
   // State for zoom functionality
   const [zoomState, setZoomState] = useState({
     leftIndex: 0,
@@ -118,7 +118,7 @@ const MultiMetricLineChart = ({
     startIndex: null,
     endIndex: null,
   });
-  
+
   // State for reference elements
   const [referenceLines, setReferenceLines] = useState([]);
   const [referenceAreas, setReferenceAreas] = useState([]);
@@ -137,24 +137,24 @@ const MultiMetricLineChart = ({
     color: "#2196f3",
     orientation: "horizontal" // horizontal or vertical
   });
-  
+
   // State for data analysis
   const [showMovingAverage, setShowMovingAverage] = useState(false);
   const [movingAveragePeriod, setMovingAveragePeriod] = useState(3);
   const [showYearOverYear, setShowYearOverYear] = useState(false);
-  
+
   // Menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  
+
   // Chart ref for exporting/saving
   const chartRef = useRef(null);
-  
+
   // If no data, return a message
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available for visualization</div>;
   }
-  
+
   if (!Array.isArray(metrics) || metrics.length === 0) {
     return <div>No metrics defined for visualization</div>;
   }
@@ -169,23 +169,23 @@ const MultiMetricLineChart = ({
 
   // Format the chart data
   const chartData = formatData(data);
-  
+
   // Get the data visible in the current zoom window
   const visibleData = chartData.slice(zoomState.leftIndex, zoomState.rightIndex + 1);
-  
+
   // Calculate moving averages for each visible metric
   const calculateMovingAverages = () => {
     if (!showMovingAverage) return {};
-    
+
     const movingAverages = {};
     const period = Math.min(movingAveragePeriod, visibleData.length);
-    
+
     metrics.forEach(metric => {
       if (!visibleMetrics[metric.key]) return;
-      
+
       movingAverages[`${metric.key}_ma`] = visibleData.map((point, index) => {
         if (index < period - 1) return null;
-        
+
         let sum = 0;
         for (let i = 0; i < period; i++) {
           sum += visibleData[index - i][metric.key] || 0;
@@ -193,23 +193,23 @@ const MultiMetricLineChart = ({
         return sum / period;
       });
     });
-    
+
     return movingAverages;
   };
-  
+
   const movingAverages = calculateMovingAverages();
-  
+
   // Custom tooltip formatter
   const customTooltip = ({ active, payload, label }) => {
     if (!active || !payload || payload.length === 0) return null;
-    
+
     // Group metrics and moving averages
     const metricValues = {};
     const movingAverageValues = {};
-    
+
     payload.forEach(entry => {
       const metricKey = entry.dataKey;
-      
+
       // Check if this is a moving average series
       if (metricKey.endsWith('_ma')) {
         const originalMetricKey = metricKey.replace('_ma', '');
@@ -221,7 +221,7 @@ const MultiMetricLineChart = ({
             color: entry.stroke
           };
         }
-      } 
+      }
       // Regular metric
       else {
         const metric = metrics.find(m => m.key === metricKey);
@@ -234,32 +234,32 @@ const MultiMetricLineChart = ({
         }
       }
     });
-    
+
     // Get the raw data point for additional info
     const dataPoint = payload[0].payload;
 
     return (
-      <div className="custom-tooltip" style={{ 
-        backgroundColor: 'white', 
-        padding: '10px', 
+      <div className="custom-tooltip" style={{
+        backgroundColor: 'white',
+        padding: '10px',
         border: '1px solid #cccccc',
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
         borderRadius: '4px',
         maxWidth: '280px'
       }}>
-        <p className="label" style={{ 
-          fontWeight: 'bold', 
-          marginTop: 0, 
-          borderBottom: '1px solid #eee', 
-          paddingBottom: '5px' 
+        <p className="label" style={{
+          fontWeight: 'bold',
+          marginTop: 0,
+          borderBottom: '1px solid #eee',
+          paddingBottom: '5px'
         }}>
           {label || dataPoint[xAxisKey]}
         </p>
-        
+
         <div style={{ margin: '8px 0' }}>
           {/* Display regular metric values */}
           {Object.values(metricValues).map((metric, index) => (
-            <p key={`metric-${index}`} style={{ 
+            <p key={`metric-${index}`} style={{
               color: metric.color,
               margin: '3px 0',
               display: 'flex',
@@ -273,14 +273,14 @@ const MultiMetricLineChart = ({
             </p>
           ))}
         </div>
-        
+
         {/* Display moving averages if enabled */}
         {showMovingAverage && Object.values(movingAverageValues).length > 0 && (
           <>
             <Divider sx={{ my: 1 }} />
             <div style={{ margin: '8px 0' }}>
               {Object.values(movingAverageValues).map((metric, index) => (
-                <p key={`ma-${index}`} style={{ 
+                <p key={`ma-${index}`} style={{
                   color: metric.color,
                   margin: '3px 0',
                   display: 'flex',
@@ -297,12 +297,12 @@ const MultiMetricLineChart = ({
             </div>
           </>
         )}
-        
+
         {/* Display additional data point fields if present */}
-        {Object.keys(dataPoint).some(key => 
-          key !== xAxisKey && 
-          key !== 'index' && 
-          !metrics.some(m => m.key === key) && 
+        {Object.keys(dataPoint).some(key =>
+          key !== xAxisKey &&
+          key !== 'index' &&
+          !metrics.some(m => m.key === key) &&
           typeof dataPoint[key] !== 'object'
         ) && (
           <>
@@ -325,7 +325,7 @@ const MultiMetricLineChart = ({
       </div>
     );
   };
-  
+
   // Toggle functions for metrics visibility
   const toggleMetric = (metricKey) => {
     setVisibleMetrics(prev => ({
@@ -333,7 +333,7 @@ const MultiMetricLineChart = ({
       [metricKey]: !prev[metricKey]
     }));
   };
-  
+
   const toggleAllMetrics = (value) => {
     const newVisibleMetrics = {};
     metrics.forEach(metric => {
@@ -341,7 +341,7 @@ const MultiMetricLineChart = ({
     });
     setVisibleMetrics(newVisibleMetrics);
   };
-  
+
   // Update chart settings
   const updateChartSetting = (setting, value) => {
     setChartSettings(prev => ({
@@ -349,7 +349,7 @@ const MultiMetricLineChart = ({
       [setting]: value
     }));
   };
-  
+
   // Zoom functions
   const handleZoomStart = (e) => {
     if (!e) return;
@@ -378,7 +378,7 @@ const MultiMetricLineChart = ({
     if (zoomState.isZooming && zoomState.startIndex !== null && zoomState.endIndex !== null) {
       const leftIndex = Math.min(zoomState.startIndex, zoomState.endIndex);
       const rightIndex = Math.max(zoomState.startIndex, zoomState.endIndex);
-      
+
       // Only update if the zoom area is at least 2 data points
       if (rightIndex - leftIndex > 1) {
         setZoomState({
@@ -429,7 +429,7 @@ const MultiMetricLineChart = ({
   const handleReferenceLineChange = (field, value) => {
     setNewReferenceLine({ ...newReferenceLine, [field]: value });
   };
-  
+
   const handleReferenceAreaChange = (field, value) => {
     setNewReferenceArea({ ...newReferenceArea, [field]: value });
   };
@@ -459,16 +459,16 @@ const MultiMetricLineChart = ({
   const handleRemoveReferenceLine = (index) => {
     setReferenceLines(referenceLines.filter((_, i) => i !== index));
   };
-  
+
   const handleRemoveReferenceArea = (index) => {
     setReferenceAreas(referenceAreas.filter((_, i) => i !== index));
   };
-  
+
   // Toggle moving average display
   const handleToggleMovingAverage = () => {
     setShowMovingAverage(!showMovingAverage);
   };
-  
+
   // Toggle year-over-year comparison
   const handleToggleYearOverYear = () => {
     setShowYearOverYear(!showYearOverYear);
@@ -477,19 +477,19 @@ const MultiMetricLineChart = ({
   // Export chart data functions
   const exportData = (format) => {
     handleMenuClose();
-    
+
     if (format === 'csv') {
       // Create CSV content
       let csvContent = "data:text/csv;charset=utf-8,";
-      
+
       // Add headers
       const headers = [xAxisKey];
       metrics.forEach(metric => {
         headers.push(metric.key);
       });
-      
+
       csvContent += headers.join(",") + "\n";
-      
+
       // Add data rows
       chartData.forEach(item => {
         const row = [item[xAxisKey]];
@@ -498,21 +498,21 @@ const MultiMetricLineChart = ({
         });
         csvContent += row.join(",") + "\n";
       });
-      
+
       // Create download link
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.csv`);
       document.body.appendChild(link);
-      
+
       // Trigger download and cleanup
       link.click();
       document.body.removeChild(link);
     } else if (format === 'json') {
       // Create JSON content
       const jsonContent = JSON.stringify(chartData, null, 2);
-      
+
       // Create download link
       const blob = new Blob([jsonContent], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -520,14 +520,14 @@ const MultiMetricLineChart = ({
       link.setAttribute("href", url);
       link.setAttribute("download", `${title.replace(/\s+/g, '_')}_data.json`);
       document.body.appendChild(link);
-      
+
       // Trigger download and cleanup
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
   };
-  
+
   return (
     <div className="chart-container" ref={chartRef}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -535,7 +535,7 @@ const MultiMetricLineChart = ({
         <Box>
           <ButtonGroup variant="outlined" size="small" sx={{ mr: 1 }}>
             <MuiTooltip title="Zoom Out (Reset View)">
-              <Button 
+              <Button
                 onClick={handleZoomOut}
                 disabled={zoomState.leftIndex === 0 && zoomState.rightIndex === data.length - 1}
                 startIcon={<ZoomOutIcon />}
@@ -543,9 +543,9 @@ const MultiMetricLineChart = ({
                 Reset Zoom
               </Button>
             </MuiTooltip>
-            
+
             <MuiTooltip title="Chart Settings">
-              <Button 
+              <Button
                 onClick={() => setShowSettingsDialog(true)}
                 startIcon={<SettingsIcon />}
               >
@@ -553,13 +553,13 @@ const MultiMetricLineChart = ({
               </Button>
             </MuiTooltip>
           </ButtonGroup>
-          
+
           <MuiTooltip title="More Options">
             <IconButton onClick={handleMenuClick}>
               <MoreVertIcon />
             </IconButton>
           </MuiTooltip>
-          
+
           <Menu
             anchorEl={anchorEl}
             open={open}
@@ -583,19 +583,19 @@ const MultiMetricLineChart = ({
               Add Reference Area
             </MenuItem>
             <Divider />
-            <MenuItem 
+            <MenuItem
               onClick={handleToggleMovingAverage}
-              sx={{ 
-                backgroundColor: showMovingAverage ? 'rgba(0,0,0,0.04)' : 'transparent' 
+              sx={{
+                backgroundColor: showMovingAverage ? 'rgba(0,0,0,0.04)' : 'transparent'
               }}
             >
               <ShowChartIcon fontSize="small" sx={{ mr: 1 }} />
               {showMovingAverage ? 'Hide' : 'Show'} Moving Average
             </MenuItem>
-            <MenuItem 
+            <MenuItem
               onClick={handleToggleYearOverYear}
-              sx={{ 
-                backgroundColor: showYearOverYear ? 'rgba(0,0,0,0.04)' : 'transparent' 
+              sx={{
+                backgroundColor: showYearOverYear ? 'rgba(0,0,0,0.04)' : 'transparent'
               }}
             >
               <CompareArrowsIcon fontSize="small" sx={{ mr: 1 }} />
@@ -604,22 +604,22 @@ const MultiMetricLineChart = ({
           </Menu>
         </Box>
       </Box>
-      
+
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} md={6}>
           <Box sx={{ mb: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant="subtitle2">Metrics</Typography>
               <Box>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => toggleAllMetrics(true)}
                   sx={{ minWidth: 'auto', mr: 1 }}
                 >
                   All
                 </Button>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => toggleAllMetrics(false)}
                   sx={{ minWidth: 'auto' }}
                 >
@@ -627,16 +627,16 @@ const MultiMetricLineChart = ({
                 </Button>
               </Box>
             </Box>
-            
+
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {metrics.map(metric => (
-                <Chip 
+                <Chip
                   key={metric.key}
                   label={metric.name}
                   color={visibleMetrics[metric.key] ? "primary" : "default"}
                   variant={visibleMetrics[metric.key] ? "filled" : "outlined"}
                   onClick={() => toggleMetric(metric.key)}
-                  sx={{ 
+                  sx={{
                     opacity: visibleMetrics[metric.key] ? 1 : 0.6,
                     '& .MuiChip-label': {
                       paddingLeft: '5px'
@@ -656,7 +656,7 @@ const MultiMetricLineChart = ({
             </Box>
           </Box>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           {showMovingAverage && (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -677,7 +677,7 @@ const MultiMetricLineChart = ({
           )}
         </Grid>
       </Grid>
-      
+
       {/* Reference elements display */}
       {(referenceLines.length > 0 || referenceAreas.length > 0) && (
         <Box sx={{ mb: 2 }}>
@@ -689,20 +689,20 @@ const MultiMetricLineChart = ({
                 label={`${line.label} (${line.value})`}
                 onDelete={() => handleRemoveReferenceLine(index)}
                 size="small"
-                sx={{ 
+                sx={{
                   backgroundColor: line.color + '20', // Add transparency
                   borderLeft: `3px solid ${line.color}`
                 }}
               />
             ))}
-            
+
             {referenceAreas.map((area, index) => (
               <Chip
                 key={`area-${index}`}
                 label={`${area.label} (${area.start} - ${area.end})`}
                 onDelete={() => handleRemoveReferenceArea(index)}
                 size="small"
-                sx={{ 
+                sx={{
                   backgroundColor: area.color + '20', // Add transparency
                   borderLeft: `3px solid ${area.color}`
                 }}
@@ -711,7 +711,7 @@ const MultiMetricLineChart = ({
           </Box>
         </Box>
       )}
-      
+
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={visibleData}
@@ -721,36 +721,36 @@ const MultiMetricLineChart = ({
           onMouseUp={handleZoomEnd}
         >
           {chartSettings.showGridLines && <CartesianGrid strokeDasharray="3 3" />}
-          
-          <XAxis 
+
+          <XAxis
             dataKey={xAxisKey}
-            label={{ 
-              value: xAxisLabel, 
-              position: 'insideBottomRight', 
-              offset: -10 
+            label={{
+              value: xAxisLabel,
+              position: 'insideBottomRight',
+              offset: -10
             }}
           />
-          
-          <YAxis 
+
+          <YAxis
             domain={[
               chartSettings.yAxisMin === 'auto' ? 'auto' : Number(chartSettings.yAxisMin),
               chartSettings.yAxisMax === 'auto' ? 'auto' : Number(chartSettings.yAxisMax)
             ]}
             tickFormatter={formatter.yAxis || (value => value)}
-            label={{ 
-              value: yAxisLabel, 
+            label={{
+              value: yAxisLabel,
               angle: -90,
               position: 'insideLeft'
             }}
           />
-          
+
           <Tooltip content={customTooltip} />
           {chartSettings.showLegend && <Legend />}
-          
+
           {/* Map each metric to a Line component */}
           {metrics.map((metric) => (
             visibleMetrics[metric.key] && (
-              <Line 
+              <Line
                 key={metric.key}
                 type={chartSettings.curveType || 'linear'}
                 dataKey={metric.key}
@@ -765,7 +765,7 @@ const MultiMetricLineChart = ({
               />
             )
           ))}
-          
+
           {/* Moving averages */}
           {showMovingAverage && metrics.map((metric) => (
             visibleMetrics[metric.key] && (
@@ -773,7 +773,7 @@ const MultiMetricLineChart = ({
                 key={`${metric.key}_ma`}
                 type="monotone"
                 dataKey={(entry) => {
-                  const index = chartData.findIndex(d => 
+                  const index = chartData.findIndex(d =>
                     d[xAxisKey] === entry[xAxisKey]);
                   return movingAverages[`${metric.key}_ma`]?.[index];
                 }}
@@ -787,7 +787,7 @@ const MultiMetricLineChart = ({
               />
             )
           ))}
-          
+
           {/* Horizontal reference lines */}
           {referenceLines
             .filter(line => line.orientation === 'horizontal')
@@ -797,15 +797,15 @@ const MultiMetricLineChart = ({
                 y={line.value}
                 stroke={line.color}
                 strokeDasharray="3 3"
-                label={{ 
-                  value: line.label, 
+                label={{
+                  value: line.label,
                   position: 'right',
                   fill: line.color
                 }}
               />
             ))
           }
-          
+
           {/* Vertical reference lines */}
           {referenceLines
             .filter(line => line.orientation === 'vertical')
@@ -815,15 +815,15 @@ const MultiMetricLineChart = ({
                 x={line.value}
                 stroke={line.color}
                 strokeDasharray="3 3"
-                label={{ 
-                  value: line.label, 
+                label={{
+                  value: line.label,
                   position: 'top',
                   fill: line.color
                 }}
               />
             ))
           }
-          
+
           {/* Horizontal reference areas */}
           {referenceAreas
             .filter(area => area.orientation === 'horizontal')
@@ -834,14 +834,14 @@ const MultiMetricLineChart = ({
                 y2={area.end}
                 fill={area.color}
                 fillOpacity={0.2}
-                label={{ 
-                  value: area.label, 
+                label={{
+                  value: area.label,
                   position: 'insideRight'
                 }}
               />
             ))
           }
-          
+
           {/* Vertical reference areas */}
           {referenceAreas
             .filter(area => area.orientation === 'vertical')
@@ -852,14 +852,14 @@ const MultiMetricLineChart = ({
                 x2={area.end}
                 fill={area.color}
                 fillOpacity={0.2}
-                label={{ 
-                  value: area.label, 
+                label={{
+                  value: area.label,
                   position: 'insideTop'
                 }}
               />
             ))
           }
-          
+
           {/* Display zoom area while selecting */}
           {zoomState.isZooming && zoomState.startIndex !== null && zoomState.endIndex !== null && (
             <ReferenceArea
@@ -870,10 +870,10 @@ const MultiMetricLineChart = ({
               fillOpacity={0.3}
             />
           )}
-          
-          <Brush 
-            dataKey={xAxisKey} 
-            height={30} 
+
+          <Brush
+            dataKey={xAxisKey}
+            height={30}
             stroke="#8884d8"
             onChange={({ startIndex, endIndex }) => {
               if (startIndex !== undefined && endIndex !== undefined) {
@@ -890,14 +890,14 @@ const MultiMetricLineChart = ({
           />
         </LineChart>
       </ResponsiveContainer>
-      
+
       {/* Help text */}
       <Box sx={{ mt: 1, fontSize: '0.8rem', color: 'text.secondary' }}>
         <Typography variant="caption">
           Tip: Click and drag directly on the chart to zoom into a specific area. Use the brush below the chart to adjust the visible range.
         </Typography>
       </Box>
-      
+
       {/* Reference Element Dialog */}
       <Dialog open={showReferenceDialog} onClose={() => setShowReferenceDialog(false)}>
         <DialogTitle>
@@ -915,7 +915,7 @@ const MultiMetricLineChart = ({
                   fullWidth
                   margin="normal"
                 />
-                
+
                 <TextField
                   label="Label"
                   value={newReferenceLine.label}
@@ -923,7 +923,7 @@ const MultiMetricLineChart = ({
                   fullWidth
                   margin="normal"
                 />
-                
+
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="orientation-label">Orientation</InputLabel>
                   <Select
@@ -936,7 +936,7 @@ const MultiMetricLineChart = ({
                     <MenuItem value="vertical">Vertical</MenuItem>
                   </Select>
                 </FormControl>
-                
+
                 <TextField
                   label="Color"
                   type="color"
@@ -958,7 +958,7 @@ const MultiMetricLineChart = ({
                     fullWidth
                     margin="normal"
                   />
-                  
+
                   <TextField
                     label="End Value"
                     type="number"
@@ -968,7 +968,7 @@ const MultiMetricLineChart = ({
                     margin="normal"
                   />
                 </Box>
-                
+
                 <TextField
                   label="Label"
                   value={newReferenceArea.label}
@@ -976,7 +976,7 @@ const MultiMetricLineChart = ({
                   fullWidth
                   margin="normal"
                 />
-                
+
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="area-orientation-label">Orientation</InputLabel>
                   <Select
@@ -989,7 +989,7 @@ const MultiMetricLineChart = ({
                     <MenuItem value="vertical">Vertical</MenuItem>
                   </Select>
                 </FormControl>
-                
+
                 <TextField
                   label="Color"
                   type="color"
@@ -1010,7 +1010,7 @@ const MultiMetricLineChart = ({
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Settings Dialog */}
       <Dialog open={showSettingsDialog} onClose={() => setShowSettingsDialog(false)}>
         <DialogTitle>Chart Settings</DialogTitle>
@@ -1026,7 +1026,7 @@ const MultiMetricLineChart = ({
                 }
                 label="Show Grid Lines"
               />
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -1036,7 +1036,7 @@ const MultiMetricLineChart = ({
                 }
                 label="Show Legend"
               />
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -1047,7 +1047,7 @@ const MultiMetricLineChart = ({
                 label="Connect Null Values"
               />
             </FormGroup>
-            
+
             <FormControl fullWidth margin="normal">
               <InputLabel id="curve-type-label">Line Curve Type</InputLabel>
               <Select
@@ -1062,7 +1062,7 @@ const MultiMetricLineChart = ({
                 <MenuItem value="step">Step</MenuItem>
               </Select>
             </FormControl>
-            
+
             <Typography id="dot-size-slider" gutterBottom>
               Dot Size: {chartSettings.dotSize}
             </Typography>
@@ -1075,7 +1075,7 @@ const MultiMetricLineChart = ({
               min={0}
               max={10}
             />
-            
+
             <Typography id="line-thickness-slider" gutterBottom>
               Line Thickness: {chartSettings.lineThickness}
             </Typography>
@@ -1088,13 +1088,13 @@ const MultiMetricLineChart = ({
               min={1}
               max={5}
             />
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Typography variant="subtitle2" gutterBottom>
               Y-Axis Range
             </Typography>
-            
+
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 label="Min Value"
@@ -1103,7 +1103,7 @@ const MultiMetricLineChart = ({
                 helperText="Enter a number or 'auto'"
                 fullWidth
               />
-              
+
               <TextField
                 label="Max Value"
                 value={chartSettings.yAxisMax}

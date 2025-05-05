@@ -1,0 +1,29 @@
+# Line length configuration
+line-length = 88
+
+# Enable auto-fixes
+fix = true
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and more
+select = ["E", "F", "W", "I", "N", "D", "UP", "B"]
+ignore = [
+    "D203",  # Ignore 'incorrect-blank-line-before-class' in favor of D211
+    "D213",  # Ignore 'multi-line-summary-second-line' in favor of D212
+]
+
+# Enable isort rules
+extend-select = ["I"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"comprehensive_fix_linting.py" = ["E501"]
+
+[lint.extend-per-file-ignores]
+"*/__init__.py" = ["E402"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false

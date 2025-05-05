@@ -34,7 +34,7 @@ Before using pAIssive_income, you need to configure it for your environment:
    api_keys:
      openai: "your-openai-api-key"
      huggingface: "your-huggingface-api-key"
-   
+
    models:
      default: "gpt-3.5-turbo"
 
@@ -46,16 +46,16 @@ Here's a simple example of using pAIssive_income to analyze a niche:
 .. code-block: python
 
    from pAIssive_income import niche_analysis
-   
+
    # Initialize the niche analyzer
    analyzer = niche_analysis.OpportunityAnalyzer()
-   
+
    # Analyze a potential niche
    results = analyzer.analyze_niche("AI productivity tools for freelancers")
-   
+
    # Print the opportunity score
    print(f"Opportunity score: {results.opportunity_score}")
-   
+
    # Generate solution ideas
    solutions = niche_analysis.solution_generator.generate_solutions(results)
    for solution in solutions:

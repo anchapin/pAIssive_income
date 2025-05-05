@@ -14,7 +14,7 @@ import { Typography, Box } from '@mui/material';
 
 /**
  * API Endpoint Bar Chart component for visualizing metrics by endpoint.
- * 
+ *
  * @param {Object} props Component props
  * @param {Array} props.data Array of data points with endpoint and metrics
  * @param {string} props.dataKey The key in the data object to plot
@@ -65,11 +65,11 @@ const ApiEndpointBarChart = ({
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" />
-          <YAxis 
-            type="category" 
-            dataKey="endpoint" 
+          <YAxis
+            type="category"
+            dataKey="endpoint"
             width={80}
-            label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }} 
+            label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }}
           />
           <Tooltip formatter={tooltipFormatter} />
           <Legend />

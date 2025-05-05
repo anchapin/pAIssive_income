@@ -51,7 +51,7 @@ The UI Service follows a modern frontend architecture with the following key com
 2. **Feature Modules**
    - Opportunity analysis module
    - AI models interaction module
-   - Marketing strategy module 
+   - Marketing strategy module
    - Monetization module
    - Agent team management module
    - User settings module

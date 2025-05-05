@@ -142,7 +142,7 @@ class FineTuningWorkflow:
         if self.config.data_collection_config is None:
             logger.warning("No data collection configuration provided, skipping step")
             return
-        
+
         try:
             logger.info("Collecting data")
 
@@ -179,7 +179,7 @@ class FineTuningWorkflow:
         if self.config.fine_tuning_config is None:
             logger.warning("No fine-tuning configuration provided, skipping step")
             return
-        
+
         try:
             logger.info("Fine-tuning model")
 
@@ -221,7 +221,7 @@ class FineTuningWorkflow:
         if self.config.evaluation_config is None:
             logger.warning("No evaluation configuration provided, skipping step")
             return
-        
+
         if (
             self.model_path is None
             and "fine_tuning" in self.results
@@ -232,7 +232,7 @@ class FineTuningWorkflow:
         if self.model_path is None:
             logger.warning("No model path available for evaluation, skipping step")
             return
-        
+
         try:
             logger.info(f"Evaluating model: {self.model_path}")
 
@@ -277,7 +277,7 @@ class FineTuningWorkflow:
         if not self.config.comparison_models:
             logger.warning("No comparison models provided, skipping step")
             return
-        
+
         if (
             self.model_path is None
             and "fine_tuning" in self.results
@@ -288,7 +288,7 @@ class FineTuningWorkflow:
         if self.model_path is None:
             logger.warning("No model path available for comparison, skipping step")
             return
-        
+
         try:
             logger.info("Comparing models")
 
@@ -309,7 +309,7 @@ class FineTuningWorkflow:
             if dataset_path is None:
                 logger.warning("No dataset available for comparison, skipping step")
                 return
-            
+
             # Create output directory for comparison results
             comparison_dir = os.path.join(self.config.output_dir, "comparison")
             os.makedirs(comparison_dir, exist_ok=True)

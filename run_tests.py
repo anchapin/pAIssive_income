@@ -1,13 +1,11 @@
-"""
-run_tests.py - Script for the pAIssive Income project.:
-"""
+"""run_tests.py - Script for the pAIssive Income project."""
 
 import argparse
 import sys
 
 
 def main():
-    """Main function."""
+    """Initialize the module."""
     parser = argparse.ArgumentParser(
         description="Script for the pAIssive Income project"
     )

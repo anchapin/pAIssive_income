@@ -50,52 +50,52 @@ const DeveloperPage = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [solution, setSolution] = useState(null);
   const [open, setOpen] = useState(false);
-  
+
   // Mock niches data (would come from API)
   const niches = [
-    { 
-      id: 1, 
-      name: 'AI-powered content optimization', 
+    {
+      id: 1,
+      name: 'AI-powered content optimization',
       segment: 'Content Creation',
       opportunityScore: 0.87
     },
-    { 
-      id: 2, 
-      name: 'Local AI code assistant', 
+    {
+      id: 2,
+      name: 'Local AI code assistant',
       segment: 'Software Development',
       opportunityScore: 0.92
     },
-    { 
-      id: 3, 
-      name: 'AI-powered financial analysis', 
+    {
+      id: 3,
+      name: 'AI-powered financial analysis',
       segment: 'Finance',
       opportunityScore: 0.75
     },
   ];
-  
+
   // Mock templates data (would come from API)
   const templates = [
-    { 
-      id: 1, 
-      name: 'Web Application', 
+    {
+      id: 1,
+      name: 'Web Application',
       description: 'A web-based tool with responsive design',
       technologies: ['React', 'Node.js', 'MongoDB']
     },
-    { 
-      id: 2, 
-      name: 'Desktop Application', 
+    {
+      id: 2,
+      name: 'Desktop Application',
       description: 'A native desktop application with local AI integration',
       technologies: ['Electron', 'Python', 'PyTorch']
     },
-    { 
-      id: 3, 
-      name: 'Mobile Application', 
+    {
+      id: 3,
+      name: 'Mobile Application',
       description: 'A cross-platform mobile app',
       technologies: ['React Native', 'Node.js', 'SQLite']
     },
-    { 
-      id: 4, 
-      name: 'CLI Tool', 
+    {
+      id: 4,
+      name: 'CLI Tool',
       description: 'A command-line interface tool',
       technologies: ['Python', 'Click', 'SQLite']
     },
@@ -121,12 +121,12 @@ const DeveloperPage = () => {
 
   const handleGenerateSolution = () => {
     setIsGenerating(true);
-    
+
     // Simulate API call delay
     setTimeout(() => {
       const selectedNicheObj = niches.find(niche => niche.id === selectedNiche);
       const selectedTemplateObj = templates.find(template => template.id === selectedTemplate);
-      
+
       // Mock solution generation (in a real app, this would come from backend)
       const mockSolution = {
         id: Math.floor(Math.random() * 1000),
@@ -165,7 +165,7 @@ const DeveloperPage = () => {
           'Test and refine'
         ]
       };
-      
+
       setSolution(mockSolution);
       setIsGenerating(false);
       setOpen(true);
@@ -210,7 +210,7 @@ const DeveloperPage = () => {
                 <FormHelperText>Choose a niche from your analysis results</FormHelperText>
               </FormControl>
             </Grid>
-            
+
             {selectedNiche && (
               <Grid item xs={12}>
                 <Box mt={2}>
@@ -229,7 +229,7 @@ const DeveloperPage = () => {
                         <Typography variant="body2">
                           Opportunity Score:
                         </Typography>
-                        <Chip 
+                        <Chip
                           size="small"
                           label={niches.find(niche => niche.id === selectedNiche)?.opportunityScore.toFixed(2)}
                           color="primary"
@@ -251,18 +251,18 @@ const DeveloperPage = () => {
                 Choose a template for your solution:
               </Typography>
             </Grid>
-            
+
             {templates.map((template) => (
               <Grid item xs={12} sm={6} key={template.id}>
-                <Card 
+                <Card
                   variant="outlined"
-                  sx={{ 
+                  sx={{
                     cursor: 'pointer',
                     border: selectedTemplate === template.id ? '2px solid #4e73df' : '1px solid rgba(0, 0, 0, 0.12)'
                   }}
                   onClick={() => handleTemplateSelect(template.id)}
                 >
-                  <CardHeader 
+                  <CardHeader
                     title={template.name}
                     sx={{ backgroundColor: selectedTemplate === template.id ? 'rgba(78, 115, 223, 0.1)' : '#f8f9fc' }}
                   />
@@ -328,7 +328,7 @@ const DeveloperPage = () => {
       <Typography variant="subtitle1" paragraph>
         Design and develop AI-powered solutions for specific niches with our developer tools and templates.
       </Typography>
-      
+
       <Item sx={{ mb: 4 }}>
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label) => (
@@ -338,7 +338,7 @@ const DeveloperPage = () => {
           ))}
         </Stepper>
       </Item>
-      
+
       <Item>
         <Box p={2}>
           {getStepContent(activeStep)}
@@ -351,13 +351,13 @@ const DeveloperPage = () => {
           >
             Back
           </Button>
-          
+
           <Button
             variant="contained"
             color="primary"
             onClick={handleNext}
             disabled={
-              (activeStep === 0 && !selectedNiche) || 
+              (activeStep === 0 && !selectedNiche) ||
               (activeStep === 1 && !selectedTemplate) ||
               activeStep === steps.length - 1 ||
               isGenerating
@@ -367,7 +367,7 @@ const DeveloperPage = () => {
           </Button>
         </Box>
       </Item>
-      
+
       {/* Solution details dialog */}
       <Dialog
         open={open}
@@ -384,7 +384,7 @@ const DeveloperPage = () => {
             <Typography paragraph>
               {solution?.description}
             </Typography>
-            
+
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
@@ -398,7 +398,7 @@ const DeveloperPage = () => {
                   ))}
                 </List>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom>
                   Architecture
@@ -406,14 +406,14 @@ const DeveloperPage = () => {
                 <List dense>
                   {solution?.architecture && Object.entries(solution.architecture).map(([key, value]) => (
                     <ListItem key={key} disablePadding>
-                      <ListItemText 
-                        primary={`${key.charAt(0).toUpperCase() + key.slice(1)}: ${Array.isArray(value) ? value.join(', ') : value}`} 
+                      <ListItemText
+                        primary={`${key.charAt(0).toUpperCase() + key.slice(1)}: ${Array.isArray(value) ? value.join(', ') : value}`}
                       />
                     </ListItem>
                   ))}
                 </List>
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   Deployment Options
@@ -424,7 +424,7 @@ const DeveloperPage = () => {
                   ))}
                 </Box>
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   Next Steps
@@ -442,9 +442,9 @@ const DeveloperPage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={handleReset}
             startIcon={<CodeIcon />}
           >
