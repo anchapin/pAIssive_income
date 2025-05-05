@@ -4,7 +4,7 @@ import subprocess
 import sys
 import unittest
 
-import common_utils.__init__
+import common_utils
 
 
 class TestCommonUtilsInit(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestCommonUtilsInit(unittest.TestCase):
         and increases code coverage for common_utils/__init__.py
         """
         try:
-            common_utils.__init__.main()
+            common_utils.main()
             self.assertTrue(True)  # Assert True if main runs without exception
         except Exception as e:
             self.fail(f"main() raised an exception: {e}")
