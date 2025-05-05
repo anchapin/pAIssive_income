@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 
-def find_python_files(directory=".", ignore_patterns=None)
+def find_python_files(directory=".", ignore_patterns=None):
     """Find Python files to format or lint."""
     if ignore_patterns is None:
         ignore_patterns = [
@@ -31,26 +31,26 @@ def find_python_files(directory=".", ignore_patterns=None)
 
     # Find all Python files in the directory
     python_files = []
-    for root, _, files in os.walk(directory)
+    for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith(".py")
+            if file.endswith(".py"):
                 file_path = Path(root) / file
                 file_path_str = str(file_path)
 
                 # Check if file should be ignored:
                 ignore_file = False
                 for pattern in ignore_patterns:
-                    if pattern.endswith("/**")
+                    if pattern.endswith("/**"):
                         # Directory pattern
                         dir_pattern = pattern[:-3]
-                        if file_path_str.startswith(dir_pattern)
+                        if file_path_str.startswith(dir_pattern):
                             ignore_file = True
                             break
                     elif "*" in pattern:
                         # Wildcard pattern
                         import fnmatch
 
-                        if fnmatch.fnmatch(file_path_str, pattern)
+                        if fnmatch.fnmatch(file_path_str, pattern):
                             ignore_file = True
                             break
 
@@ -60,7 +60,7 @@ def find_python_files(directory=".", ignore_patterns=None)
     return python_files
 
 
-def format_code(check_only=True)
+def format_code(check_only=True):
     """Format Python files using Ruff."""
     python_files = find_python_files()
 
@@ -81,7 +81,7 @@ def format_code(check_only=True)
     result = subprocess.run(cmd)
 
     if result.returncode != 0 and check_only:
-        print("Formatting issues found. Run with --format to fix.")
+        print("Formatting issues found. Run with --format to fix."):
     elif result.returncode == 0 and check_only:
         print("All files are properly formatted.")
     elif result.returncode == 0:
@@ -92,7 +92,7 @@ def format_code(check_only=True)
     return result.returncode
 
 
-def lint_code()
+def lint_code():
     """Lint Python files using Ruff."""
     # Build the command
     cmd = ["ruff", "check", "."]
@@ -116,8 +116,8 @@ def run_tests(
     junit_xml=False,
     xvs=False,
     specific_test=None,
-)
-    """Run tests with pytest."""
+):
+    """Run tests with pytest.""":
     # Build the command
     cmd = ["pytest"]
 
@@ -151,7 +151,7 @@ def run_tests(
     return result.returncode
 
 
-def main()
+def main():
     """Main function to parse arguments and run tests."""
     parser = argparse.ArgumentParser(
         description="Run tests for the pAIssive Income project":

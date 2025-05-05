@@ -7,7 +7,7 @@ test_authorization_edge_cases.py - Module for the pAIssive Income project.:
 # Please review and update this file as needed
 
 
-def main()
+def main():
     """Main function."""
     pass
 

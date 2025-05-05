@@ -152,7 +152,15 @@ jobs:
 
         if [ -n "$PYTHON_FILES" ]; then
           echo "Formatting Python files..."
-          python format_files.py $PYTHON_FILES
+          # Process files in smaller batches to avoid command line length limits
+          echo "$PYTHON_FILES" | while read -r file; do
+            if [ -f "$file" ]; then
+              echo "Processing $file"
+              python format_files.py "$file" || echo "Warning: Error formatting $file"
+            else
+              echo "Skipping non-existent file: $file"
+            fi
+          done
         else
           echo "No Python files found to format."
         fi

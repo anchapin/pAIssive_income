@@ -17,8 +17,8 @@ def run_tests(
     junit_xml=False,
     xvs=False,
     specific_test=None,
-)
-    """Run tests with pytest."""
+):
+    """Run tests with pytest.""":
     # Build the command
     cmd = ["pytest"]
 
@@ -52,7 +52,7 @@ def run_tests(
     return result.returncode
 
 
-def main()
+def main():
     """Main function to parse arguments and run tests."""
     parser = argparse.ArgumentParser(
         description="Run tests for the pAIssive Income project":

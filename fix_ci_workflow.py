@@ -9,7 +9,7 @@ import re
 import sys
 
 
-def fix_workflow_file(file_path)
+def fix_workflow_file(file_path):
     """Fix the CI workflow file to make it more robust."""
     print(f"Fixing CI workflow file: {file_path}")
     
@@ -51,7 +51,7 @@ def fix_workflow_file(file_path)
     return True
 
 
-def main()
+def main():
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Fix the CI workflow to make it more robust."
@@ -63,11 +63,11 @@ def main()
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.workflow_file)
+    if not os.path.exists(args.workflow_file):
         print(f"Workflow file not found: {args.workflow_file}")
         return 1
     
-    if not fix_workflow_file(args.workflow_file)
+    if not fix_workflow_file(args.workflow_file):
         return 1
     
     return 0

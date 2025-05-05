@@ -7,7 +7,7 @@ test_subscription_management_properties.py - Module for the pAIssive Income proj
 # Please review and update this file as needed
 
 
-def main()
+def main():
     """Main function."""
     pass
 

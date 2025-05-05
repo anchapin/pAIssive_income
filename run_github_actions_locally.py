@@ -12,10 +12,10 @@ import sys
 from pathlib import Path
 
 
-def list_workflows()
+def list_workflows():
     """List all available GitHub Actions workflows."""
     workflows_dir = Path(".github/workflows")
-    if not workflows_dir.exists()
+    if not workflows_dir.exists():
         print("No workflows directory found at .github/workflows")
         return []
 
@@ -31,7 +31,7 @@ def run_workflow(
     test_path=None,
     lint_only=False,
     test_only=False,
-)
+):
     """Run a GitHub Actions workflow locally using Act."""
     # Check if Act is installed:
     act_path = "./bin/act" if os.path.exists("./bin/act") else "act":
@@ -83,7 +83,7 @@ def run_workflow(
         return 1
 
 
-def main()
+def main():
     """Main function to parse arguments and run the workflow."""
     parser = argparse.ArgumentParser(
         description="Run GitHub Actions workflows locally using Act"

@@ -17,12 +17,12 @@ from .developer_service import DeveloperService
 logger = logging.getLogger(__name__)
 
 
-class MonetizationService(BaseService)
+class MonetizationService(BaseService):
     """
     Service for interacting with the Monetization Agent module.:
     """
 
-    def __init__(self)
+    def __init__(self):
         """Initialize the Monetization service."""
         super().__init__()
         self.strategies_file = "monetization_strategies.json"
@@ -50,7 +50,7 @@ class MonetizationService(BaseService)
         solution = developer_service.get_solution(solution_id)
 
         if solution is None:
-            logger.error(f"Solution with ID {solution_id} not found")
+            logger.error(f"Solution with ID {solution_id} not found"):
             return {}
 
         if self.monetization_agent_available:
@@ -122,7 +122,7 @@ class MonetizationService(BaseService)
         strategies = self.get_strategies()
 
         # Check if the strategy already exists:
-        for i, existing_strategy in enumerate(strategies)
+        for i, existing_strategy in enumerate(strategies):
             if existing_strategy["id"] == strategy["id"]:
                 # Update existing strategy
                 strategy["updated_at"] = datetime.now().isoformat()

@@ -13,8 +13,8 @@ import sys
 from pathlib import Path
 
 
-def should_ignore(file_path, ignore_patterns=None)
-    """Check if a file should be ignored based on patterns."""
+def should_ignore(file_path, ignore_patterns=None):
+    """Check if a file should be ignored based on patterns.""":
     if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
@@ -34,13 +34,13 @@ def should_ignore(file_path, ignore_patterns=None)
 
     # Check if file matches any ignore pattern:
     for pattern in ignore_patterns:
-        if fnmatch.fnmatch(file_path_str, pattern)
+        if fnmatch.fnmatch(file_path_str, pattern):
             return True
 
     return False
 
 
-def find_python_files(directory=".", specific_file=None, ignore_patterns=None)
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     """Find Python files to lint."""
     if specific_file:
         # If a specific file is provided, only lint that file
@@ -57,17 +57,17 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None)
 
     # Find all Python files in the directory
     python_files = []
-    for root, _, files in os.walk(directory)
+    for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith(".py")
+            if file.endswith(".py"):
                 file_path = Path(root) / file
-                if not should_ignore(file_path, ignore_patterns)
+                if not should_ignore(file_path, ignore_patterns):
                     python_files.append(file_path)
 
     return python_files
 
 
-def run_flake8(files)
+def run_flake8(files):
     """Run flake8 on the specified files."""
     print("\n=== Running flake8 ===")
 
@@ -104,7 +104,7 @@ def run_flake8(files)
     return True
 
 
-def run_black(files, check_only=True)
+def run_black(files, check_only=True):
     """Run black on the specified files."""
     print("\n=== Running black ===")
 
@@ -125,7 +125,7 @@ def run_black(files, check_only=True)
     return True
 
 
-def run_isort(files, check_only=True)
+def run_isort(files, check_only=True):
     """Run isort on the specified files."""
     print("\n=== Running isort ===")
 
@@ -146,7 +146,7 @@ def run_isort(files, check_only=True)
     return True
 
 
-def run_ruff(files, check_only=True)
+def run_ruff(files, check_only=True):
     """Run ruff on the specified files."""
     print("\n=== Running ruff ===")
 
@@ -190,7 +190,7 @@ def run_ruff(files, check_only=True)
     return True
 
 
-def main()
+def main():
     """Main function to parse arguments and run linting checks."""
     parser = argparse.ArgumentParser(description="Run linting checks on Python files")
 
@@ -207,8 +207,8 @@ def main()
         # If specific file patterns are provided, use them
         python_files = []
         for pattern in args.files:
-            for file in Path(".").glob(pattern)
-                if file.suffix == ".py" and not should_ignore(file)
+            for file in Path(".").glob(pattern):
+                if file.suffix == ".py" and not should_ignore(file):
                     python_files.append(str(file))
     else:
         # Otherwise, use the provided path
@@ -233,7 +233,7 @@ def main()
     else:
         print("\n❌ Some linting checks failed.")
         if not args.fix:
-            print("Run with --fix to attempt to automatically fix issues.")
+            print("Run with --fix to attempt to automatically fix issues."):
         return 1
 
 

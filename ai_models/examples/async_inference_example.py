@@ -7,7 +7,7 @@ async_inference_example.py - Module for the pAIssive Income project.:
 # Please review and update this file as needed
 
 
-def main()
+def main():
     """Main function."""
     pass
 

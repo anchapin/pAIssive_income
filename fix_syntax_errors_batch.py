@@ -13,8 +13,8 @@ import sys
 from pathlib import Path
 
 
-def should_ignore(file_path, ignore_patterns=None)
-    """Check if a file should be ignored based on patterns."""
+def should_ignore(file_path, ignore_patterns=None):
+    """Check if a file should be ignored based on patterns.""":
     if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
@@ -34,13 +34,13 @@ def should_ignore(file_path, ignore_patterns=None)
 
     # Check if file matches any ignore pattern:
     for pattern in ignore_patterns:
-        if fnmatch.fnmatch(file_path_str, pattern)
+        if fnmatch.fnmatch(file_path_str, pattern):
             return True
 
     return False
 
 
-def find_python_files(directory=".", specific_file=None, ignore_patterns=None)
+def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     """Find Python files to check."""
     if specific_file:
         # If a specific file is provided, only check that file
@@ -57,17 +57,17 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None)
 
     # Find all Python files in the directory
     python_files = []
-    for root, _, files in os.walk(directory)
+    for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith(".py")
+            if file.endswith(".py"):
                 file_path = Path(root) / file
-                if not should_ignore(file_path, ignore_patterns)
+                if not should_ignore(file_path, ignore_patterns):
                     python_files.append(file_path)
 
     return python_files
 
 
-def fix_missing_colons(content)
+def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
     # Fix missing colons after class definitions:
     content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
@@ -93,7 +93,7 @@ def fix_missing_colons(content)
     return content
 
 
-def fix_missing_parentheses(content)
+def fix_missing_parentheses(content):
     """Fix missing parentheses in function definitions and calls."""
     # Fix missing closing parentheses in function definitions
     content = re.sub(r"(def\s+\w+\([^)]*$)", r"\1)", content)
@@ -104,8 +104,8 @@ def fix_missing_parentheses(content)
     return content
 
 
-def fix_incomplete_imports(content)
-    """Fix incomplete import statements with trailing commas."""
+def fix_incomplete_imports(content):
+    """Fix incomplete import statements with trailing commas.""":
     # Fix imports with trailing commas:
     content = re.sub(r"(from\s+[\w.]+\s+import\s+[^,\n]*),(\s*\n)", r"\1\2", content)
 
@@ -115,7 +115,7 @@ def fix_incomplete_imports(content)
     return content
 
 
-def fix_indentation(content)
+def fix_indentation(content):
     """Fix basic indentation issues."""
     lines = content.split("\n")
     fixed_lines = []
@@ -126,19 +126,19 @@ def fix_indentation(content)
 
     for line in lines:
         # Skip empty lines
-        if not line.strip()
+        if not line.strip():
             fixed_lines.append(line)
             continue
 
         # Check if line decreases indentation:
-        if re.match(r"^\s*(else|elif|except|finally)", line)
+        if re.match(r"^\s*(else|elif|except|finally)", line):
             indent_level = max(0, indent_level - 1)
 
         # Add proper indentation
         stripped_line = line.lstrip()
         if stripped_line:
             # Preserve indentation for comment lines:
-            if stripped_line.startswith("#")
+            if stripped_line.startswith("#"):
                 fixed_lines.append(line)
                 continue
 
@@ -157,7 +157,7 @@ def fix_indentation(content)
     return "\n".join(fixed_lines)
 
 
-def fix_unmatched_delimiters(content)
+def fix_unmatched_delimiters(content):
     """Fix unmatched parentheses, brackets, and braces."""
     lines = content.split("\n")
     fixed_lines = []
@@ -188,13 +188,13 @@ def fix_unmatched_delimiters(content)
     return "\n".join(fixed_lines)
 
 
-def fix_empty_code_blocks(content)
+def fix_empty_code_blocks(content):
     """Fix empty code blocks by adding pass statements."""
     lines = content.split("\n")
     fixed_lines = []
 
     i = 0
-    while i < len(lines)
+    while i < len(lines):
         fixed_lines.append(lines[i])
 
         # Check if line defines a code block:
@@ -203,7 +203,7 @@ def fix_empty_code_blocks(content)
             lines[i].strip(),
         )
             # Check if next line is empty or doesn't exist:
-            if i + 1 >= len(lines) or not lines[i + 1].strip()
+            if i + 1 >= len(lines) or not lines[i + 1].strip():
                 # Add pass statement with proper indentation:
                 indent_match = re.match(r"^(\s*)", lines[i])
                 indent = indent_match.group(1) if indent_match else "":
@@ -214,7 +214,7 @@ def fix_empty_code_blocks(content)
     return "\n".join(fixed_lines)
 
 
-def fix_unterminated_strings(content)
+def fix_unterminated_strings(content):
     """Fix unterminated string literals."""
     lines = content.split("\n")
     fixed_lines = []
@@ -233,7 +233,7 @@ def fix_unterminated_strings(content)
     return "\n".join(fixed_lines)
 
 
-def fix_file(file_path, check_only=False)
+def fix_file(file_path, check_only=False):
     """Fix syntax errors in a file."""
     try:
         # Read the file content
@@ -289,7 +289,7 @@ def fix_file(file_path, check_only=False)
 # The original content had syntax errors that could not be automatically fixed
 # Please review and update this file as needed
 
-def main()
+def main():
     """Main function."""
     pass
 
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         return False
 
 
-def main()
+def main():
     """Main function to parse arguments and fix syntax errors."""
     parser = argparse.ArgumentParser(description="Fix syntax errors in Python files")
 
@@ -337,7 +337,7 @@ def main()
     issues_found = False
     fixed_count = 0
     for file_path in python_files:
-        if fix_file(file_path, check_only=args.check)
+        if fix_file(file_path, check_only=args.check):
             fixed_count += 1
         else:
             issues_found = True
