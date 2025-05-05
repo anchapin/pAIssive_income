@@ -2,7 +2,7 @@
 """
 Comprehensive script to fix syntax errors, formatting issues, and linting problems.
 This script combines functionality from multiple existing scripts to provide a one-stop
-solution for fixing common code quality issues.:
+solution for fixing common code quality issues.
 """
 
 import argparse
@@ -30,10 +30,10 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.egg-info/**",
         ]
 
-    # Convert to string for pattern matching:
+    # Convert to string for pattern matching
     file_path_str = str(file_path)
 
-    # Check if file matches any ignore pattern:
+    # Check if file matches any ignore pattern
     for pattern in ignore_patterns:
         if fnmatch.fnmatch(file_path_str, pattern):
             return True
@@ -60,14 +60,14 @@ def find_python_files(path):
 
 def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
-    # Fix missing colons after class definitions:
+    # Fix missing colons after class definitions
     content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after function definitions
     content = re.sub(r"(def\s+\w+\([^)]*\))(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after control statements
-    for keyword in [:
+    for keyword in [
         "if",
         "else",
         "elif",
@@ -93,9 +93,9 @@ def fix_class_definitions(content):
     while i < len(lines):
         line = lines[i]
 
-        # Check if line starts a class definition but doesn't end with a colon:
+        # Check if line starts a class definition but doesn't end with a colon
         if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
-            # Collect lines until we find a line with a colon or closing parenthesis:
+            # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
 
@@ -103,12 +103,12 @@ def fix_class_definitions(content):
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # If we found a line with a colon or comma, add it:
+            # If we found a line with a colon or comma, add it
             if j < len(lines):
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # Add the fixed class definition:
+            # Add the fixed class definition
             if not class_def.strip().endswith(":"):
                 class_def += ":"
 
@@ -122,15 +122,15 @@ def fix_class_definitions(content):
 
 
 def fix_test_class_init(content):
-    """Fix test classes with __init__ methods.""":
-    # Find test classes with __init__ methods:
+    """Fix test classes with __init__ methods."""
+    # Find test classes with __init__ methods
     pattern = r"(class\s+Test\w+\([^)]*\):\s*\n(?:\s+[^\n]*\n)*?\s+def\s+__init__\s*\([^)]*\):\s*\n)"
 
-    # Replace __init__ with setup_method:
+    # Replace __init__ with setup_method
     content = re.sub(
         pattern,
         lambda m: m.group(0).replace("__init__", "setup_method"),
-        content
+        content,
     )
 
     return content
@@ -149,13 +149,13 @@ def fix_syntax(file_path, check_only=False):
         # Fix missing colons
         content = fix_missing_colons(content)
 
-        # Fix class definitions:
+        # Fix class definitions
         content = fix_class_definitions(content)
 
-        # Fix test classes with __init__ methods:
+        # Fix test classes with __init__ methods
         content = fix_test_class_init(content)
 
-        # Check if the content was modified:
+        # Check if the content was modified
         if content != original_content:
             if check_only:
                 print(f"Syntax issues found in: {file_path}")
@@ -186,33 +186,33 @@ def format_file(file_path, check_only=False):
         original_content = content
 
         # 1. Fix trailing whitespace
-        content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
+        content = re.sub(r"[ \t]+$", "", content, flags=re.MULTILINE)
 
         # 2. Ensure consistent line endings
-        content = content.replace('\r\n', '\n')
+        content = content.replace("\r\n", "\n")
 
-        # 3. Fix function calls with multiple arguments:
+        # 3. Fix function calls with multiple arguments
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+),\s*\n\s*\)',
             r'\1\2(\n\1    \3, \4\n\1)',
-            content
+            content,
         )
 
-        # 4. Fix function calls with two arguments on separate lines:
+        # 4. Fix function calls with two arguments on separate lines
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\n\1    \3, \4\n\1)',
-            content
+            content,
         )
 
-        # 5. Fix function calls with a single argument on a separate line:
+        # 5. Fix function calls with a single argument on a separate line
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\1    \3\1)',
-            content
+            content,
         )
 
-        # Check if the content was modified:
+        # Check if the content was modified
         if content != original_content:
             if check_only:
                 print(f"Formatting issues found in: {file_path}")
@@ -323,7 +323,7 @@ def main():
         "path", nargs="?", default=".", help="Path to file or directory to check/fix"
     )
     parser.add_argument(
-        "--check", action="store_true", help="Check for issues without fixing":
+        "--check", action="store_true", help="Check for issues without fixing"
     )
     parser.add_argument(
         "--syntax-only", action="store_true", help="Fix only syntax errors"
@@ -355,14 +355,14 @@ def main():
     # Check/fix the files
     issues_found = False
     for file_path in python_files:
-        if not fix_file(:
+        if not fix_file(
             file_path,
             check_only=args.check,
             fix_syntax_only=args.syntax_only,
             fix_format_only=args.format_only,
             run_black=not args.no_black,
             run_isort=not args.no_isort,
-            run_ruff=not args.no_ruff
+            run_ruff=not args.no_ruff,
         ):
             issues_found = True
 
