@@ -90,6 +90,8 @@ jobs:
                   echo "Issues found in $file with fix_test_collection_warnings.py"
                   exit 1
                 }
+        echo "::warning::Syntax errors found, but continuing with other checks"
+
               fi
             done
           else
@@ -133,7 +135,15 @@ jobs:
         else
           echo "Checking formatting for all files with Black"
           black --check --diff .
+        echo "::warning::Formatting issues found with Black, please run black locally"
+
         fi
+
+    - name: Fix formatting issues (if any)
+      if: always()
+      run: |
+        echo "Attempting to fix formatting issues..."
+        python format_files.py $(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
 
     - name: Sort imports with isort
       run: |

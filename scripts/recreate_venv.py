@@ -120,11 +120,21 @@ def install_dependencies(venv_path):
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Recreate the virtual environment.")
-    parser.add_argument("--venv-path", default=".venv", help="Path to the virtual environment")
-    parser.add_argument("--skip-remove", action="store_true", help="Skip removing the existing virtual environment")
-    parser.add_argument("--skip-create", action="store_true", help="Skip creating a new virtual environment")
-    parser.add_argument("--skip-install", action="store_true", help="Skip installing dependencies")
+    parser = argparse.ArgumentParser(
+        description="Recreate the virtual environment."
+    )
+    parser.add_argument(
+        "--venv-path", default=".venv", help="Path to the virtual environment"
+    )
+    parser.add_argument(
+        "--skip-remove", action="store_true", help="Skip removing the existing virtual environment"
+    )
+    parser.add_argument(
+        "--skip-create", action="store_true", help="Skip creating a new virtual environment"
+    )
+    parser.add_argument(
+        "--skip-install", action="store_true", help="Skip installing dependencies"
+    )
 
     args = parser.parse_args()
 

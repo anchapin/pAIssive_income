@@ -102,6 +102,32 @@ The framework has identified several promising niches for AI-powered tools:
    scripts\lint_check.bat --ruff --isort
    ```
 
+5. Fix formatting issues automatically:
+
+   ```bash
+   # Format all Python files
+   python format_files.py $(find . -name "*.py" -type f)
+
+   # Format specific files
+   python format_files.py path/to/file1.py path/to/file2.py
+   ```
+
+6. Run the CI workflow locally to check for issues before pushing:
+
+   ```bash
+   # Install act (GitHub Actions local runner)
+   # See: https://github.com/nektos/act
+
+   # Run the full CI workflow
+   act
+
+   # Run only the linting job
+   act -j lint
+
+   # Run only the test job
+   act -j test
+   ```
+
 ### Command Line Interface
 
 1. Run the niche analysis tools to identify promising market opportunities:
@@ -235,6 +261,43 @@ The project includes comprehensive API documentation that can be built from sour
 4. The generated documentation will be available in `docs_source/build/html/`
 
 You can view the documentation by opening `docs_source/build/html/index.html` in your web browser.
+
+## Troubleshooting
+
+### CI Workflow Issues
+
+If you encounter issues with the CI workflow, try the following steps:
+
+1. **Syntax Errors**: Run the syntax check script locally to identify and fix issues:
+
+   ```bash
+   python fix_test_collection_warnings.py --check path/to/file.py
+   ```
+
+2. **Formatting Issues**: Use the formatting script to automatically fix formatting issues:
+
+   ```bash
+   python format_files.py path/to/file.py
+   ```
+
+3. **Linting Issues**: Run the linting checks locally to identify and fix issues:
+
+   ```bash
+   scripts\lint_check.bat --file path/to/file.py
+   ```
+
+4. **Virtual Environment Issues**: If you encounter issues with the virtual environment, recreate it:
+
+   ```bash
+   scripts\recreate_venv.bat
+   ```
+
+5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
+
+   ```bash
+   pre-commit uninstall
+   pre-commit install
+   ```
 
 ## License
 

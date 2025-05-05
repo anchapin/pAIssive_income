@@ -45,13 +45,11 @@ def check_with_ruff(file_path=None):
         target = "."
 
     success = run_command(
-        f"ruff check {target}",
-        "Checking code with Ruff"
+        f"ruff check {target}", "Checking code with Ruff"
     )
 
     format_success = run_command(
-        f"ruff format --check {target}",
-        "Checking formatting with Ruff"
+        f"ruff format --check {target}", "Checking formatting with Ruff"
     )
 
     return success and format_success
@@ -87,8 +85,7 @@ def check_with_black(file_path=None):
         target = "."
 
     return run_command(
-        f"black --check --diff {target}",
-        "Checking formatting with Black"
+        f"black --check --diff {target}", "Checking formatting with Black"
     )
 
 
@@ -100,8 +97,7 @@ def check_with_isort(file_path=None):
         target = "."
 
     return run_command(
-        f"isort --check-only --diff --profile black {target}",
-        "Checking import order with isort"
+        f"isort --check-only --diff --profile black {target}", "Checking import order with isort"
     )
 
 
@@ -126,8 +122,7 @@ def check_with_pyright(file_path=None):
         target = "."
 
     return run_command(
-        f"pyright {target}",
-        "Checking types with pyright"
+        f"pyright {target}", "Checking types with pyright"
     )
 
 
@@ -139,8 +134,7 @@ def check_unused_imports(file_path=None):
         target = "."
 
     return run_command(
-        f"ruff check {target} --select F401",
-        "Checking for unused imports"
+        f"ruff check {target} --select F401", "Checking for unused imports"
     )
 
 

@@ -52,7 +52,7 @@ repos:
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive"]
         exclude: "^tests/"  # Exclude tests directory
 
-  # Custom hook to run our syntax error detection script
+  # Custom hooks to run our scripts
   - repo: local
     hooks:
       - id: check-syntax-errors
@@ -61,3 +61,10 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      - id: format-files
+        name: Format Python files
+        entry: python format_files.py
+        language: system
+        types: [python]
+        pass_filenames: true
