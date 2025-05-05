@@ -54,14 +54,43 @@ jobs:
       run: |
         pip-audit --verbose
 
-    - name: Run Bandit
-      run: bandit -r . -f json -o bandit-results.json
+        - name: Run Bandit
+        run: bandit -r . -f json -o bandit-results.json
+
+    - name: Check Bandit Results
+      run: |
+        if [ ! -f bandit-results.json ]; then
+          echo "Bandit results JSON not found!"
+          exit 1
+        fi
 
     - name: Convert Bandit Results to SARIF
       run: |
         pip install sarif-tools
         sarif-tools convert bandit-results.json -o bandit-results.sarif
 
+    - name: Check Bandit SARIF
+      run: |
+        if [ ! -f bandit-results.sarif ]; then
+          echo "Bandit SARIF results not found!"
+          exit 1
+        fi
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Check Trivy Results
+      run: |
+        if [ ! -f trivy-results.sarif ]; then
+          echo "Trivy SARIF results not found!"
+          exit 1
+        fi
     - name: Upload SARIF
       uses: github/codeql-action/upload-sarif@v3
       with:
@@ -88,15 +117,6 @@ jobs:
     - name: Run Dependency Review
       uses: actions/dependency-review-action@v3
       if: github.event_name == 'pull_request'
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-        severity: 'CRITICAL,HIGH'
 
     - name: Upload Trivy scan results
       uses: github/codeql-action/upload-sarif@v3
