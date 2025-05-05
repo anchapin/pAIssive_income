@@ -54,9 +54,18 @@ jobs:
       run: |
         pip-audit --verbose
 
-    - name: Run SAST with Bandit
+    - name: Run Bandit
+      run: bandit -r . -f json -o bandit-results.json
+
+    - name: Convert Bandit Results to SARIF
       run: |
-        bandit -r . -ll -ii -x ./tests,./venv,./.env,./.venv -f sarif -o bandit-results.sarif
+        pip install sarif-tools
+        sarif-tools convert bandit-results.json -o bandit-results.sarif
+
+    - name: Upload SARIF
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: bandit-results.sarif
 
     - name: Upload Bandit scan results
       uses: github/codeql-action/upload-sarif@v3

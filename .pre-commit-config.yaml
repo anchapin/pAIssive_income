@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [types-requests, types-PyYAML]
-        args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--exclude=ai_models/cli/commands/__init__.py"]
+        args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
 
   # Custom hooks to run our scripts
