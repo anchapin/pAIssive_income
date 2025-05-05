@@ -1,9 +1,9 @@
 """
-run_tests.py - Script to run tests for the pAIssive Income project.:
+run_tests.py - Script to run tests for the pAIssive Income project.
 
-This script provides a convenient way to run tests with various options,:
+This script provides a convenient way to run tests with various options,
 including running specific test files, test directories, or test methods.
-It also includes options for formatting code and checking for linting issues.:
+It also includes options for formatting code and checking for linting issues.
 """
 
 import argparse
@@ -37,7 +37,7 @@ def find_python_files(directory=".", ignore_patterns=None):
                 file_path = Path(root) / file
                 file_path_str = str(file_path)
 
-                # Check if file should be ignored:
+                # Check if file should be ignored
                 ignore_file = False
                 for pattern in ignore_patterns:
                     if pattern.endswith("/**"):
@@ -81,7 +81,7 @@ def format_code(check_only=True):
     result = subprocess.run(cmd)
 
     if result.returncode != 0 and check_only:
-        print("Formatting issues found. Run with --format to fix."):
+        print("Formatting issues found. Run with --format to fix.")
     elif result.returncode == 0 and check_only:
         print("All files are properly formatted.")
     elif result.returncode == 0:
@@ -117,31 +117,31 @@ def run_tests(
     xvs=False,
     specific_test=None,
 ):
-    """Run tests with pytest.""":
+    """Run tests with pytest."""
     # Build the command
     cmd = ["pytest"]
 
-    # Add test path if specified:
+    # Add test path if specified
     if test_path:
         cmd.append(test_path)
 
-    # Add specific test if specified:
+    # Add specific test if specified
     if specific_test:
         cmd.append(f"-k {specific_test}")
 
-    # Add verbose flag if specified:
+    # Add verbose flag if specified
     if verbose:
         cmd.append("-v")
 
-    # Add coverage flag if specified:
+    # Add coverage flag if specified
     if coverage:
         cmd.extend(["--cov=.", "--cov-report=term", "--cov-report=html"])
 
-    # Add JUnit XML flag if specified:
+    # Add JUnit XML flag if specified
     if junit_xml:
         cmd.append("--junitxml=test-results.xml")
 
-    # Add xvs flag if specified:
+    # Add xvs flag if specified
     if xvs:
         cmd.append("-xvs")
 
@@ -154,7 +154,7 @@ def run_tests(
 def main():
     """Main function to parse arguments and run tests."""
     parser = argparse.ArgumentParser(
-        description="Run tests for the pAIssive Income project":
+        description="Run tests for the pAIssive Income project"
     )
 
     parser.add_argument(

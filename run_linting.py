@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
-    """Check if a file should be ignored based on patterns.""":
+    """Check if a file should be ignored based on patterns."""
     if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
@@ -29,10 +29,10 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.egg-info/**",
         ]
 
-    # Convert to string for pattern matching:
+    # Convert to string for pattern matching
     file_path_str = str(file_path)
 
-    # Check if file matches any ignore pattern:
+    # Check if file matches any ignore pattern
     for pattern in ignore_patterns:
         if fnmatch.fnmatch(file_path_str, pattern):
             return True
@@ -45,11 +45,11 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
     if specific_file:
         # If a specific file is provided, only lint that file
         file_path = Path(specific_file)
-        if (:
+        if (
             file_path.exists()
             and file_path.suffix == ".py"
             and not should_ignore(file_path, ignore_patterns)
-        )
+        ):
             return [file_path]
         else:
             print(f"File not found or not a Python file: {specific_file}")
@@ -71,7 +71,7 @@ def run_flake8(files):
     """Run flake8 on the specified files."""
     print("\n=== Running flake8 ===")
 
-    # First run with strict settings to catch syntax errors:
+    # First run with strict settings to catch syntax errors
     strict_result = subprocess.run(
         ["flake8", "--select=E9,F63,F7,F82", "--show-source"] + files,
         capture_output=True,
@@ -84,7 +84,7 @@ def run_flake8(files):
         print(strict_result.stderr)
         return False
 
-    # Then run with more relaxed settings for style issues:
+    # Then run with more relaxed settings for style issues
     style_result = subprocess.run(
         [
             "flake8",
@@ -150,7 +150,7 @@ def run_ruff(files, check_only=True):
     """Run ruff on the specified files."""
     print("\n=== Running ruff ===")
 
-    # Check for linting issues:
+    # Check for linting issues
     check_cmd = ["ruff", "check"] + files
     check_result = subprocess.run(check_cmd, capture_output=True, text=True)
 
@@ -212,7 +212,7 @@ def main():
                     python_files.append(str(file))
     else:
         # Otherwise, use the provided path
-        python_files = [str(f) for f in find_python_files(args.path)]:
+        python_files = [str(f) for f in find_python_files(args.path)]
 
     if not python_files:
         print("No Python files found to lint.")
@@ -233,7 +233,7 @@ def main():
     else:
         print("\n❌ Some linting checks failed.")
         if not args.fix:
-            print("Run with --fix to attempt to automatically fix issues."):
+            print("Run with --fix to attempt to automatically fix issues.")
         return 1
 
 
