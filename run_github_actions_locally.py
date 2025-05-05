@@ -11,7 +11,10 @@ def main():
     )
 
     # Parse arguments but ignore since functionality is not implemented yet
-    parser.parse_args()
+    # Use parse_known_args() to handle unexpected arguments gracefully
+    args, unknown = parser.parse_known_args()
+    if unknown:
+        print(f"Ignoring unrecognized arguments: {unknown}")
 
     # TODO: Implement the functionality using parsed arguments
 
