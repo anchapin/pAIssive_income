@@ -107,6 +107,11 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Test improvements: More comprehensive tests should be added to ensure functionality
    - Security improvements: Security scans may identify issues that need to be addressed
 
+2. Fixed issue with `format_files.py` script:
+   - Updated the script to properly accept file paths as arguments
+   - The script now correctly processes files passed to it from the CI workflow
+   - Improved formatting capabilities to handle common code style issues
+
 ### Workflows Status
 
 - **CI - Lint and Test**: We've made progress on fixing linting issues. The workflow is now passing for most files, but there are still some unused imports in a few files that need to be addressed.
@@ -198,5 +203,6 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixed all remaining syntax errors in the codebase
    - Implemented linting checks with multiple tools
    - Verified that tests can be collected and run successfully
+   - Fixed issue with `format_files.py` script to properly handle file paths as arguments
 
 These changes have successfully fixed all syntax errors in the codebase and implemented tools for linting and testing. The next steps are to create a pull request to merge the changes into the main branch and implement the remaining future improvements.
