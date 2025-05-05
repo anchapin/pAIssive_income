@@ -65,4 +65,17 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Direct call to find_test_files to ensure it's called in the __main__ block
+    test_files = find_test_files()
+    if not test_files:
+        print("No test files found.")
+    else:
+        fixed_count = 0
+        for file_path in test_files:
+            try:
+                if fix_test_collection_warnings(file_path):
+                    fixed_count += 1
+                    print(f"Fixed: {file_path}")
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+        print(f"Completed. Fixed {fixed_count} files with test collection warnings.")
