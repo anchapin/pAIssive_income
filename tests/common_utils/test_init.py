@@ -1,23 +1,23 @@
-"""Test class contains unit tests for dependency_container.py."""
+"""Test common utils."""
 
 import subprocess
 import sys
 import unittest
 
-import dependency_container
+import common_utils.__init__
 
 
-class TestDependencyContainer(unittest.TestCase):
-    """Test dependency container."""
+class TestCommonUtilsInit(unittest.TestCase):
+    """Test common utils init."""
 
     def test_main_function(self):
         """Test main function.
 
         Test simply calls the main function to ensure it runs without error
-        and increases code coverage for dependency_container.py
+        and increases code coverage for common_utils/__init__.py
         """
         try:
-            dependency_container.main()
+            common_utils.__init__.main()
             self.assertTrue(True)  # Assert True if main runs without exception
         except Exception as e:
             self.fail(f"main() raised an exception: {e}")
@@ -25,10 +25,12 @@ class TestDependencyContainer(unittest.TestCase):
     def test_main_block_execution(self):
         """Test main block execution.
 
-        Test simulates running dependency_container.py directly to cover the
-        if __name__ == "__main__": block.
+        Test simulates running common_utils/__init__.py directly to cover the
+        # if __name__ == "__main__": block.
         """
-        result = subprocess.run([sys.executable, "dependency_container.py"], check=True)
+        result = subprocess.run(
+            [sys.executable, "common_utils/__init__.py"], check=True
+        )
         self.assertEqual(result.returncode, 0)
 
 

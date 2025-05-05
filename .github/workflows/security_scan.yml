@@ -52,11 +52,11 @@ jobs:
     - name: Run pip-audit for dependency scanning
       continue-on-error: true
       run: |
-        pip-audit
+        pip-audit --verbose
 
     - name: Run SAST with Bandit
       run: |
-        bandit -r . -ll -ii -x ./tests,./venv,./.env,./.venv -f json -o bandit-results.json
+        bandit -r . -ll -ii -x ./tests,./venv,./.env,./.venv -f sarif -o bandit-results.sarif
 
     - name: Upload Bandit scan results
       uses: github/codeql-action/upload-sarif@v3
