@@ -60,23 +60,47 @@ The framework has identified several promising niches for AI-powered tools:
 2. Create a virtual environment and install dependencies:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   # Using the provided script (recommended)
+   # On Windows
+   scripts\recreate_venv.bat
+
+   # On Unix/Linux
+   ./scripts/recreate_venv.sh
+
+   # Or manually
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    pip install -r requirements.txt
    pip install -r requirements-dev.txt
+   pip install -e .
    ```
 
 3. Set up pre-commit hooks to ensure code quality:
 
    ```bash
-   # On Windows
-   setup_pre_commit.bat
-
-   # On Unix/Linux
-   python setup_pre_commit.py
+   # This is automatically done by the recreate_venv script
+   # But you can also do it manually:
+   pip install pre-commit
+   pre-commit install
    ```
 
    For more information about pre-commit hooks, see [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md).
+
+4. Run linting checks before pushing changes:
+
+   ```bash
+   # On Windows
+   scripts\lint_check.bat
+
+   # On Unix/Linux
+   ./scripts/lint_check.sh
+
+   # Check a specific file
+   scripts\lint_check.bat --file path/to/file.py
+
+   # Run specific checks
+   scripts\lint_check.bat --ruff --isort
+   ```
 
 ### Command Line Interface
 

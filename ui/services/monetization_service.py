@@ -9,10 +9,9 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from agent_team import AgentTeam
 from .base_service import BaseService
 from .developer_service import DeveloperService
-
-from agent_team import AgentTeam
 
 # Set up logging
 logger = logging.getLogger(__name__)
