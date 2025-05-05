@@ -263,7 +263,8 @@ def run_external_tool(command, file_path, check_only=False):
 
 
 def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only=False,
-             run_black=True, run_isort=True, run_ruff=True)
+             run_black=True, run_isort=True,
+             run_ruff=True):
     """Fix all issues in a file."""
     success = True
 
@@ -355,7 +356,7 @@ def main():
     # Check/fix the files
     issues_found = False
     for file_path in python_files:
-        if not fix_file(:
+        if not fix_file(
             file_path,
             check_only=args.check,
             fix_syntax_only=args.syntax_only,
@@ -363,7 +364,7 @@ def main():
             run_black=not args.no_black,
             run_isort=not args.no_isort,
             run_ruff=not args.no_ruff,
-        )
+        ):
             issues_found = True
 
     if args.check and issues_found:
