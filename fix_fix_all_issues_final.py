@@ -34,7 +34,7 @@ def fix_file(file_path):
                 else:
                     fixed_lines.append(line)
             # Remove trailing colon if it's not part of a valid construct
-            elif line.rstrip().endswith(':') and not line.rstrip().endswith('::') and not ': ' in line:
+            elif line.rstrip().endswith(':') and not line.rstrip().endswith('::') and ': ' not in line:
                 fixed_lines.append(line.rstrip()[:-1])
             else:
                 fixed_lines.append(line)

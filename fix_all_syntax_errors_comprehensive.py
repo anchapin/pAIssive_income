@@ -82,7 +82,7 @@ def fix_parentheses_in_conditionals(content):
                 condition_lines.append(lines[j])
 
                 # Join the condition lines and fix the format
-                condition = ' '.join([l.strip() for l in condition_lines])
+                condition = ' '.join([line.strip() for line in condition_lines])
                 condition = re.sub(r'if\s*\(\s*(.*?)\s*\)\s*:', r'if \1:', condition)
 
                 fixed_lines.append(condition)

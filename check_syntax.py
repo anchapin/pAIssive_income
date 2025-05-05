@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import py_compile
-import glob
 import os
 import sys
 
