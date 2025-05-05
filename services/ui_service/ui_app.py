@@ -5,9 +5,14 @@
 # Please review and update this file as needed
 
 
-def main():
+def main(debug=False, verbose=False):
     """Initialize the module."""
-    pass
+    if debug:
+        print("Debug mode enabled")
+    if verbose:
+        print("Verbose mode enabled")
+    # Rest of the function logic
+    return True
 
 
 if __name__ == "__main__":
