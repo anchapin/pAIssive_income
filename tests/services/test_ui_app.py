@@ -33,6 +33,22 @@ class TestUIApp(unittest.TestCase):
         self.assertTrue(success)
         self.assertTrue(result)
 
+    def test_main_function_with_empty_arguments(self):
+        """Test that the main function works with empty arguments."""
+        result = main()
+        self.assertTrue(result)
 
-if __name__ == "__main__":
-    unittest.main()
+    @patch("builtins.print")
+    def test_main_function_prints_correctly(self, mock_print):
+        """Test that the main function prints the expected message."""
+        main()
+        mock_print.assert_called_once_with("UI Application initialized")
+
+    def test_main_function_return_type(self):
+        """Test that the main function returns a boolean value."""
+        result = main()
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    if __name__ == "__main__":
+        unittest.main()
