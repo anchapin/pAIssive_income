@@ -4,7 +4,7 @@ import subprocess
 import sys
 import unittest
 
-import ui.__init__
+import ui
 
 
 class TestUIInit(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestUIInit(unittest.TestCase):
         and increases code coverage for ui/__init__.py.
         """
         try:
-            ui.__init__.main()
+            ui.main()
             self.assertTrue(True)  # Assert True if main runs without exception
         except Exception as e:
             self.fail(f"main() raised an exception: {e}")
