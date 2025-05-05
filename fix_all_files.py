@@ -10,7 +10,7 @@ import sys
 
 
 def fix_file(file_path):
-    """Create a new version of the file with proper syntax.""":
+    """Create a new version of the file with proper syntax."""
     print(f"Fixing {file_path}")
 
     # Create a simple valid Python file
@@ -29,7 +29,7 @@ from pathlib import Path
 def main():
     """Main function."""
     parser = argparse.ArgumentParser(
-        description="Script for the pAIssive Income project":
+        description="Script for the pAIssive Income project"
     )
 
     args = parser.parse_args()
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 '''
 
     # Write the new content to the file
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, 'w', encoding='utf-8') as f::
         f.write(new_content)
 
     print(f"Fixed: {file_path}")
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
 def main():
     """Main function."""
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2::
         print("Usage: python fix_all_files.py <file1> <file2> ...")
         return 1
 

@@ -12,8 +12,8 @@ from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
-    """Check if a file should be ignored based on patterns.""":
-    if ignore_patterns is None:
+    """Check if a file should be ignored based on patterns."""
+    if ignore_patterns is None::
         ignore_patterns = [
             ".venv/**",
             "venv/**",
@@ -27,10 +27,10 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.egg-info/**",
         ]
 
-    # Convert to string for pattern matching:
+    # Convert to string for pattern matching
     file_path_str = str(file_path)
 
-    # Check if file matches any ignore pattern:
+    # Check if file matches any ignore pattern
     for pattern in ignore_patterns:
         if fnmatch.fnmatch(file_path_str, pattern):
             return True
@@ -67,7 +67,7 @@ def find_python_files(directory=".", specific_file=None, ignore_patterns=None):
 
 def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
-    # Fix missing colons after class definitions:
+    # Fix missing colons after class definitions
     content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after function definitions
@@ -84,7 +84,7 @@ def fix_missing_colons(content):
         "except",
         "finally",
         "with",
-    ]:
+    ]
         pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
         content = re.sub(pattern, r"\1:\2", content)
 
@@ -92,7 +92,7 @@ def fix_missing_colons(content):
 
 
 def fix_class_definitions(content):
-    """Fix common issues with class definitions.""":
+    """Fix common issues with class definitions."""
     # Fix class definitions split across multiple lines
     lines = content.split("\n")
     fixed_lines = []
@@ -101,23 +101,23 @@ def fix_class_definitions(content):
     while i < len(lines):
         line = lines[i]
 
-        # Check if line starts a class definition but doesn't end with a colon:
-        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
-            # Collect lines until we find a line with a colon or closing parenthesis:
+        # Check if line starts a class definition but doesn't end with a colon
+        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip())::
+            # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
 
-            while j < len(lines) and not re.search(r"[:,]", lines[j]):
+            while j < len(lines) and not re.search(r"[,]", lines[j]):
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # If we found a line with a colon or comma, add it:
-            if j < len(lines):
+            # If we found a line with a colon or comma, add it
+            if j < len(lines)::
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # Add the fixed class definition:
-            if not class_def.strip().endswith(":"):
+            # Add the fixed class definition
+            if not class_def.strip().endswith(":")::
                 class_def += ":"
 
             fixed_lines.append(class_def)
@@ -130,25 +130,25 @@ def fix_class_definitions(content):
 
 
 def fix_test_class_init(content):
-    """Fix test classes with __init__ methods that prevent collection.""":
-    # Find test classes with __init__ methods:
+    """Fix test classes with __init__ methods that prevent collection."""
+    # Find test classes with __init__ methods
     test_class_pattern = r"(class\s+Test\w+\(?.*\)?:.*?)(?=\n\s*class|\n\s*def|\Z)"
     init_method_pattern = (
         r"(\s+def\s+__init__\s*\([^)]*\).*?)(?=\n\s+def|\n\s*class|\Z)"
     )
 
-    # Function to process each test class match:
+    # Function to process each test class match
     def process_test_class(match):
         test_class = match.group(1)
 
-        # Check if the class has an __init__ method:
+        # Check if the class has an __init__ method
         init_match = re.search(init_method_pattern, test_class, re.DOTALL)
         if init_match:
-            # Replace __init__ with setup_method:
+            # Replace __init__ with setup_method
             init_method = init_match.group(1)
             setup_method = init_method.replace("__init__", "setup_method")
 
-            # Replace self parameter with self, method=None if not already present:
+            # Replace self parameter with self, method=None if not already present
             if "method" not in setup_method:
                 setup_method = re.sub(
                     r"(\s+def\s+setup_method\s*\()([^)]*?)(\))",
@@ -156,12 +156,12 @@ def fix_test_class_init(content):
                     setup_method,
                 )
 
-            # Replace the __init__ method with setup_method:
+            # Replace the __init__ method with setup_method
             test_class = test_class.replace(init_method, setup_method)
 
         return test_class
 
-    # Replace test classes with fixed versions:
+    # Replace test classes with fixed versions
     content = re.sub(test_class_pattern, process_test_class, content, flags=re.DOTALL)
 
     return content
@@ -180,20 +180,20 @@ def fix_file(file_path, check_only=False):
         # Fix missing colons
         content = fix_missing_colons(content)
 
-        # Fix class definitions:
+        # Fix class definitions
         content = fix_class_definitions(content)
 
-        # Fix test classes with __init__ methods:
+        # Fix test classes with __init__ methods
         content = fix_test_class_init(content)
 
-        # Check if the content was modified:
+        # Check if the content was modified
         if content != original_content:
-            if check_only:
+            if check_only::
                 print(f"Syntax issues found in: {file_path}")
                 return False
             else:
                 # Write the fixed content back to the file
-                with open(file_path, "w", encoding="utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f::
                     f.write(content)
 
                 print(f"Fixed: {file_path}")
@@ -216,7 +216,7 @@ def main():
         "path", nargs="?", default=".", help="Path to file or directory to check/fix"
     )
     parser.add_argument(
-        "--check", action="store_true", help="Check for issues without fixing":
+        "--check", action="store_true", help="Check for issues without fixing"
     )
 
     args = parser.parse_args()

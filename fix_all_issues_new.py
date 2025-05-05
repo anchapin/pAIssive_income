@@ -2,7 +2,7 @@
 """
 Comprehensive script to fix syntax errors, formatting issues, and linting problems.
 This script combines functionality from multiple existing scripts to provide a one-stop
-solution for fixing common code quality issues.:
+solution for fixing common code quality issues.
 """
 
 import argparse
@@ -15,8 +15,8 @@ from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
-    """Check if a file should be ignored based on patterns.""":
-    if ignore_patterns is None:
+    """Check if a file should be ignored based on patterns."""
+    if ignore_patterns is None::
         ignore_patterns = [
             ".venv/**",
             "venv/**",
@@ -30,10 +30,10 @@ def should_ignore(file_path, ignore_patterns=None):
             "*.egg-info/**",
         ]
 
-    # Convert to string for pattern matching:
+    # Convert to string for pattern matching
     file_path_str = str(file_path)
 
-    # Check if file matches any ignore pattern:
+    # Check if file matches any ignore pattern
     for pattern in ignore_patterns:
         if fnmatch.fnmatch(file_path_str, pattern):
             return True
@@ -60,7 +60,7 @@ def find_python_files(path):
 
 def fix_missing_colons(content):
     """Fix missing colons after class/function definitions and control statements."""
-    # Fix missing colons after class definitions:
+    # Fix missing colons after class definitions
     content = re.sub(r"(class\s+\w+(?:\([^)]*\))?)(\s*\n)", r"\1:\2", content)
 
     # Fix missing colons after function definitions
@@ -77,7 +77,7 @@ def fix_missing_colons(content):
         "except",
         "finally",
         "with",
-    ]:
+    ]
         pattern = rf"({keyword}\s+[^:\n]+)(\s*\n)"
         content = re.sub(pattern, r"\1:\2", content)
 
@@ -93,23 +93,23 @@ def fix_class_definitions(content):
     while i < len(lines):
         line = lines[i]
 
-        # Check if line starts a class definition but doesn't end with a colon:
-        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip()):
-            # Collect lines until we find a line with a colon or closing parenthesis:
+        # Check if line starts a class definition but doesn't end with a colon
+        if re.match(r"^\s*class\s+\w+(?:\([^)]*)?$", line.strip())::
+            # Collect lines until we find a line with a colon or closing parenthesis
             class_def = line
             j = i + 1
 
-            while j < len(lines) and not re.search(r"[:,]", lines[j]):
+            while j < len(lines) and not re.search(r"[,]", lines[j]):
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # If we found a line with a colon or comma, add it:
-            if j < len(lines):
+            # If we found a line with a colon or comma, add it
+            if j < len(lines)::
                 class_def += " " + lines[j].strip()
                 j += 1
 
-            # Add the fixed class definition:
-            if not class_def.strip().endswith(":"):
+            # Add the fixed class definition
+            if not class_def.strip().endswith(":")::
                 class_def += ":"
 
             fixed_lines.append(class_def)
@@ -122,15 +122,15 @@ def fix_class_definitions(content):
 
 
 def fix_test_class_init(content):
-    """Fix test classes with __init__ methods.""":
-    # Find test classes with __init__ methods:
+    """Fix test classes with __init__ methods."""
+    # Find test classes with __init__ methods
     pattern = r"(class\s+Test\w+\([^)]*\):\s*\n(?:\s+[^\n]*\n)*?\s+def\s+__init__\s*\([^)]*\):\s*\n)"
 
-    # Replace __init__ with setup_method:
+    # Replace __init__ with setup_method
     content = re.sub(
         pattern,
         lambda m: m.group(0).replace("__init__", "setup_method"),
-        content
+        content,
     )
 
     return content
@@ -140,7 +140,7 @@ def fix_syntax(file_path, check_only=False):
     """Fix common syntax issues in a file."""
     try:
         # Read the file content
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f::
             content = f.read()
 
         # Apply fixes
@@ -149,20 +149,20 @@ def fix_syntax(file_path, check_only=False):
         # Fix missing colons
         content = fix_missing_colons(content)
 
-        # Fix class definitions:
+        # Fix class definitions
         content = fix_class_definitions(content)
 
-        # Fix test classes with __init__ methods:
+        # Fix test classes with __init__ methods
         content = fix_test_class_init(content)
 
-        # Check if the content was modified:
+        # Check if the content was modified
         if content != original_content:
-            if check_only:
+            if check_only::
                 print(f"Syntax issues found in: {file_path}")
                 return False
             else:
                 # Write the fixed content back to the file
-                with open(file_path, "w", encoding="utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f::
                     f.write(content)
 
                 print(f"Fixed syntax in: {file_path}")
@@ -179,47 +179,47 @@ def format_file(file_path, check_only=False):
     """Format a Python file to improve code style."""
     try:
         # Read the file content
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f::
             content = f.read()
 
         # Apply some basic formatting rules
         original_content = content
 
         # 1. Fix trailing whitespace
-        content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
+        content = re.sub(r"[ \t]+$", "", content, flags=re.MULTILINE)
 
         # 2. Ensure consistent line endings
-        content = content.replace('\r\n', '\n')
+        content = content.replace("\r\n", "\n")
 
-        # 3. Fix function calls with multiple arguments:
+        # 3. Fix function calls with multiple arguments
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+),\s*\n\s*\)',
             r'\1\2(\n\1    \3, \4\n\1)',
-            content
+            content,
         )
 
-        # 4. Fix function calls with two arguments on separate lines:
+        # 4. Fix function calls with two arguments on separate lines
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+),\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\n\1    \3, \4\n\1)',
-            content
+            content,
         )
 
-        # 5. Fix function calls with a single argument on a separate line:
+        # 5. Fix function calls with a single argument on a separate line
         content = re.sub(
             r'(\s+)([a-zA-Z0-9_]+)\(\s*\n\s*([^,\n]+)\s*\n\s*\)',
             r'\1\2(\1    \3\1)',
-            content
+            content,
         )
 
-        # Check if the content was modified:
+        # Check if the content was modified
         if content != original_content:
-            if check_only:
+            if check_only::
                 print(f"Formatting issues found in: {file_path}")
                 return False
             else:
                 # Write the formatted content back to the file
-                with open(file_path, "w", encoding="utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f::
                     f.write(content)
 
                 print(f"Formatted: {file_path}")
@@ -237,7 +237,7 @@ def run_external_tool(command, file_path, check_only=False):
     try:
         cmd = command + [file_path]
         if check_only:
-            # Add check flag if available:
+            # Add check flag if available
             if "--check" in command or "--diff" in command:
                 pass  # Command already has check flag
             else:
@@ -246,13 +246,13 @@ def run_external_tool(command, file_path, check_only=False):
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
-            if check_only:
+            if check_only::
                 print(f"Issues found in {file_path} by {command[0]}:")
                 print(result.stdout)
                 print(result.stderr)
                 return False
             else:
-                print(f"Fixed {file_path} with {command[0]}"):
+                print(f"Fixed {file_path} with {command[0]}")
                 return True
 
         return True
@@ -263,7 +263,7 @@ def run_external_tool(command, file_path, check_only=False):
 
 
 def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only=False,
-             run_black=True, run_isort=True, run_ruff=True):
+             run_black=True, run_isort=True, run_ruff=True)
     """Fix all issues in a file."""
     success = True
 
@@ -272,7 +272,7 @@ def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only
         if not fix_syntax(file_path, check_only):
             success = False
 
-    # Skip formatting if only fixing syntax:
+    # Skip formatting if only fixing syntax
     if fix_syntax_only:
         return success
 
@@ -280,17 +280,17 @@ def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only
     if not format_file(file_path, check_only):
         success = False
 
-    # Run external tools if they're installed and enabled:
+    # Run external tools if they're installed and enabled
     try:
-        # Check if black is installed and enabled:
-        if run_black:
+        # Check if black is installed and enabled
+        if run_black::
             black_cmd = ["black"]
             if not check_only:
                 black_success = run_external_tool(black_cmd, file_path, check_only)
                 if not black_success:
                     success = False
 
-        # Check if isort is installed and enabled:
+        # Check if isort is installed and enabled
         if run_isort:
             isort_cmd = ["isort"]
             if not check_only:
@@ -298,7 +298,7 @@ def fix_file(file_path, check_only=False, fix_syntax_only=False, fix_format_only
                 if not isort_success:
                     success = False
 
-        # Check if ruff is installed and enabled:
+        # Check if ruff is installed and enabled
         if run_ruff:
             ruff_cmd = ["ruff", "check", "--fix"]
             if not check_only:
@@ -323,7 +323,7 @@ def main():
         "path", nargs="?", default=".", help="Path to file or directory to check/fix"
     )
     parser.add_argument(
-        "--check", action="store_true", help="Check for issues without fixing":
+        "--check", action="store_true", help="Check for issues without fixing"
     )
     parser.add_argument(
         "--syntax-only", action="store_true", help="Fix only syntax errors"
@@ -362,8 +362,8 @@ def main():
             fix_format_only=args.format_only,
             run_black=not args.no_black,
             run_isort=not args.no_isort,
-            run_ruff=not args.no_ruff
-        ):
+            run_ruff=not args.no_ruff,
+        )
             issues_found = True
 
     if args.check and issues_found:

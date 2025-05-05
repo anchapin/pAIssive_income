@@ -9,7 +9,7 @@ import sys
 def main():
     """Main function."""
     parser = argparse.ArgumentParser(
-        description="Script for the pAIssive Income project":
+        description="Script for the pAIssive Income project"
     )
 
     args = parser.parse_args()
