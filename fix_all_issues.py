@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 def should_ignore(file_path, ignore_patterns=None):
-    """Check if a file should be ignored based on patterns.""":
+    """Check if a file should be ignored based on patterns."""
     if ignore_patterns is None:
         ignore_patterns = [
             ".venv/**",
