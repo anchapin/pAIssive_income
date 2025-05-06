@@ -1,6 +1,8 @@
-name: CI - Lint and Test
+name: CI/CD Pipeline
 
 on:
+  push:
+    branches: [ main, dev ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -24,6 +26,11 @@ on:
         required: false
         default: 'tests/'
         type: string
+      skip_docker:
+        description: 'Skip Docker build'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   lint:
@@ -114,8 +121,15 @@ jobs:
       run: |
         # Run the syntax check script
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking syntax for specific file: ${{ github.event.inputs.specific_file }}"
-          ./syntax_check.sh "${{ github.event.inputs.specific_file }}"
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Checking syntax for specific file: $FILE_PATH"
+            ./syntax_check.sh "$FILE_PATH"
+          else
+            echo "Invalid file path provided. Checking all files instead."
+            ./syntax_check.sh
+          fi
         else
           echo "Checking syntax for all Python files..."
           ./syntax_check.sh
@@ -124,9 +138,17 @@ jobs:
     - name: Lint with Ruff
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Linting specific file with Ruff: ${{ github.event.inputs.specific_file }}"
-          ruff check "${{ github.event.inputs.specific_file }}"
-          ruff format --check "${{ github.event.inputs.specific_file }}"
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Linting specific file with Ruff: $FILE_PATH"
+            ruff check "$FILE_PATH"
+            ruff format --check "$FILE_PATH"
+          else
+            echo "Invalid file path provided. Linting all files instead."
+            ruff check .
+            ruff format --check .
+          fi
         else
           echo "Linting all files with Ruff"
           ruff check .
@@ -138,9 +160,17 @@ jobs:
       run: |
         echo "Attempting to fix formatting and syntax issues..."
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Fixing specific file with Ruff: ${{ github.event.inputs.specific_file }}"
-          ruff check --fix "${{ github.event.inputs.specific_file }}"
-          ruff format "${{ github.event.inputs.specific_file }}"
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Fixing specific file with Ruff: $FILE_PATH"
+            ruff check --fix "$FILE_PATH"
+            ruff format "$FILE_PATH"
+          else
+            echo "Invalid file path provided. Fixing all files instead."
+            ruff check --fix .
+            ruff format .
+          fi
         else
           echo "Fixing all files with Ruff"
           ruff check --fix .
@@ -150,9 +180,17 @@ jobs:
     - name: Type check with mypy and pyright
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Type checking specific file: ${{ github.event.inputs.specific_file }}"
-          mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
-          pyright "${{ github.event.inputs.specific_file }}"
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Type checking specific file: $FILE_PATH"
+            mypy "$FILE_PATH" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+            pyright "$FILE_PATH"
+          else
+            echo "Invalid file path provided. Type checking all files instead."
+            mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+            pyright .
+          fi
         else
           echo "Type checking all files"
           mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
@@ -162,8 +200,15 @@ jobs:
     - name: Check for unused imports
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking unused imports in specific file: ${{ github.event.inputs.specific_file }}"
-          ruff check "${{ github.event.inputs.specific_file }}" --select F401
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Checking unused imports in specific file: $FILE_PATH"
+            ruff check "$FILE_PATH" --select F401
+          else
+            echo "Invalid file path provided. Checking all files instead."
+            ruff check . --select F401
+          fi
         else
           echo "Checking unused imports in all files"
           ruff check . --select F401
@@ -230,23 +275,53 @@ jobs:
         PYTHONPATH: ${{ github.workspace }}
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
-          pytest "${{ github.event.inputs.specific_file }}" \
-            -v \
-            --import-mode=importlib \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --junitxml=junit/test-results.xml
+          # Validate file path to prevent command injection
+          FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Testing specific file: $FILE_PATH"
+            pytest "$FILE_PATH" \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --junitxml=junit/test-results.xml
+          else
+            echo "Invalid file path provided. Running all tests instead."
+            pytest tests \
+              -n auto \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --cov-fail-under=5 \
+              --junitxml=junit/test-results.xml
+          fi
         elif [ -n "${{ github.event.inputs.test_path }}" ]; then
-          echo "Testing path: ${{ github.event.inputs.test_path }}"
-          pytest "${{ github.event.inputs.test_path }}" \
-            -n auto \
-            --import-mode=importlib \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --junitxml=junit/test-results.xml
+          # Validate test path to prevent command injection
+          TEST_PATH=$(echo "${{ github.event.inputs.test_path }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
+          if [[ "$TEST_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            echo "Testing path: $TEST_PATH"
+            pytest "$TEST_PATH" \
+              -n auto \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --junitxml=junit/test-results.xml
+          else
+            echo "Invalid test path provided. Running all tests instead."
+            pytest tests \
+              -n auto \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --cov-fail-under=5 \
+              --junitxml=junit/test-results.xml
+          fi
         else
           echo "Running all tests"
           pytest tests \
@@ -272,3 +347,41 @@ jobs:
       with:
         name: coverage-report
         path: coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) || (github.event_name == 'workflow_dispatch' && !inputs.skip_docker)
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: paissiveincome/app:test
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+    # Temp fix for https://github.com/docker/build-push-action/issues/252
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
