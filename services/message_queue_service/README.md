@@ -81,20 +81,20 @@ async def main():
             subject="my-event",
             payload={"key": "value"}
         )
-        
+
         # Publish a message
         await client.publish(message, routing_key="my-event")
-        
+
         # Consume messages
         async def handle_message(message):
             print(f"Received message: {message.id}")
             print(f"Payload: {message.payload}")
-        
+
         await client.consume(
             queue_name="my-service-queue",
             handler=handle_message
         )
-        
+
         # Wait for messages
         await asyncio.sleep(60)
 

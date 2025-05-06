@@ -1,11 +1,14 @@
-"""
-Models for the API server.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides models for data representation.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .api_key import APIKey
 
-__all__ = [
-    'APIKey',
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

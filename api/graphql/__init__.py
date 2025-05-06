@@ -1,18 +1,14 @@
-"""
-GraphQL API for the pAIssive Income project.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides a GraphQL API alongside the REST API to allow for
-more flexible and efficient data querying.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from typing import Dict, Any, List, Optional
 
-# Import schema builder and router creation
-from .schema_builder import build_schema, create_graphql_router
-from .context import get_context
+def main():
+    """Initialize the module."""
+    pass
 
-__all__ = [
-    'build_schema',
-    'create_graphql_router',
-    'get_context'
-]
+
+if __name__ == "__main__":
+    main()

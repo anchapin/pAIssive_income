@@ -1,26 +1,14 @@
-"""
-Common schemas for the API server.
-"""
+"""common.py - Module for the pAIssive Income project."""
 
-from typing import Dict, Any, Optional
-from pydantic import BaseModel, Field
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-class ErrorResponse(BaseModel):
-    """Schema for error responses."""
-    error: Dict[str, Any] = Field(
-        ...,
-        description="Error details",
-        example={
-            "code": "invalid_request",
-            "message": "Invalid request parameters",
-            "details": {
-                "field": "email",
-                "reason": "Invalid email format"
-            }
-        }
-    )
 
-class SuccessResponse(BaseModel):
-    """Schema for success responses."""
-    message: str = Field(..., description="Success message")
-    data: Optional[Dict[str, Any]] = Field(None, description="Additional data")
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

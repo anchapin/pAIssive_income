@@ -1,6 +1,6 @@
 /**
  * pAIssive Income SDK for JavaScript
- * 
+ *
  * This package provides a JavaScript client for the pAIssive Income API.
  */
 

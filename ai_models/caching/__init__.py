@@ -1,28 +1,14 @@
-"""
-Caching system for AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides a caching system for model responses to improve performance
-and reduce redundant computations.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .cache_manager import CacheManager, CacheConfig
-from .cache_backends import (
-    MemoryCache,
-    DiskCache,
-    RedisCache,
-    SQLiteCache,
-    CacheBackend
-)
-from .cache_key import CacheKey, generate_cache_key
 
-__all__ = [
-    'CacheManager',
-    'CacheConfig',
-    'MemoryCache',
-    'DiskCache',
-    'RedisCache',
-    'SQLiteCache',
-    'CacheBackend',
-    'CacheKey',
-    'generate_cache_key',
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

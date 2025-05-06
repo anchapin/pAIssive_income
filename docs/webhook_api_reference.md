@@ -375,7 +375,7 @@ def verify_webhook_signature(payload, signature, secret):
             hashlib.sha256
         ).digest()
     ).decode()
-    
+
     return hmac.compare_digest(expected_signature, signature)
 
 # In your webhook handler:
@@ -394,7 +394,7 @@ function verifyWebhookSignature(payload, signature, secret) {
     .createHmac('sha256', secret)
     .update(payload)
     .digest('base64');
-  
+
   return crypto.timingSafeEqual(
     Buffer.from(expectedSignature),
     Buffer.from(signature)
@@ -447,7 +447,7 @@ If you need higher limits, please contact our support team.
   "allowed_ips": [
     "203.0.113.1",
     "203.0.113.0/24",
-    "2001:db8::/32"
+    "2001:db8:/32"
   ],
   "enabled": true
 }
@@ -460,7 +460,7 @@ If you need higher limits, please contact our support team.
   "allowed_ips": [
     "203.0.113.1",
     "203.0.113.0/24",
-    "2001:db8::/32"
+    "2001:db8:/32"
   ],
   "enabled": true,
   "updated_at": "2025-04-30T22:15:00Z"

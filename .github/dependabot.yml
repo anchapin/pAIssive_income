@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/" # Looks for package.json in the root directory
+    schedule:
+      interval: "weekly"
+
+  # Enable version updates for pip
+  - package-ecosystem: "pip"
+    directory: "/" # Looks for requirements.txt or pyproject.toml in the root directory
+    schedule:
+      interval: "weekly"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/" # Looks for Dockerfile in the root directory
+    schedule:
+      interval: "weekly"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/" # Looks for workflow files in .github/workflows
+    schedule:
+      interval: "weekly"

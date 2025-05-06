@@ -163,7 +163,7 @@
     },
     {
       "title": "Queue Latency",
-      "type": "timeseries", 
+      "type": "timeseries",
       "gridPos": {
         "h": 8,
         "w": 12,

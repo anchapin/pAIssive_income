@@ -36,7 +36,7 @@ const AboutPage = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         About pAIssive Income Framework
       </Typography>
-      
+
       <Grid container spacing={4}>
         <Grid item xs={12} md={8}>
           <Item>
@@ -44,23 +44,23 @@ const AboutPage = () => {
               Overview
             </Typography>
             <Typography paragraph>
-              The pAIssive Income Framework is a comprehensive system for developing and monetizing niche AI tools to generate passive income. 
-              It provides a structured approach to identifying profitable niches, developing targeted solutions, creating effective monetization 
+              The pAIssive Income Framework is a comprehensive system for developing and monetizing niche AI tools to generate passive income.
+              It provides a structured approach to identifying profitable niches, developing targeted solutions, creating effective monetization
               strategies, and marketing your products.
             </Typography>
             <Typography paragraph>
-              Built with a focus on local AI models, the framework enables developers to create tools that address specific problems in various 
+              Built with a focus on local AI models, the framework enables developers to create tools that address specific problems in various
               market segments while ensuring user privacy and reducing operational costs.
             </Typography>
-            
+
             <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
               Framework Components
             </Typography>
-            
+
             <Grid container spacing={3} mb={4}>
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="Niche Analysis"
                     avatar={<SearchIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -83,10 +83,10 @@ const AboutPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="AI Models"
                     avatar={<TerminalIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -109,10 +109,10 @@ const AboutPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="Solution Development"
                     avatar={<CodeIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -135,10 +135,10 @@ const AboutPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="Monetization"
                     avatar={<MonetizationOnIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -161,10 +161,10 @@ const AboutPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="Marketing"
                     avatar={<CampaignIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -187,10 +187,10 @@ const AboutPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardHeader 
+                  <CardHeader
                     title="Agent Team"
                     avatar={<PeopleIcon color="primary" />}
                     sx={{ backgroundColor: '#f8f9fc' }}
@@ -220,14 +220,14 @@ const AboutPage = () => {
                 </Card>
               </Grid>
             </Grid>
-            
+
             <Typography variant="h5" gutterBottom>
               Workflow
             </Typography>
             <Typography paragraph>
               The typical workflow with the pAIssive Income Framework follows these steps:
             </Typography>
-            
+
             <Box sx={{ pl: 2 }}>
               <ol>
                 <li>
@@ -264,7 +264,7 @@ const AboutPage = () => {
             </Box>
           </Item>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <Item>
             <Typography variant="h6" gutterBottom>
@@ -275,8 +275,8 @@ const AboutPage = () => {
                 <ListItemIcon>
                   <WebIcon />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Documentation" 
+                <ListItemText
+                  primary="Documentation"
                   secondary="Comprehensive guides and API reference"
                 />
               </ListItem>
@@ -284,15 +284,15 @@ const AboutPage = () => {
                 <ListItemIcon>
                   <CodeIcon />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="GitHub Repository" 
+                <ListItemText
+                  primary="GitHub Repository"
                   secondary="Source code and examples"
                 />
               </ListItem>
             </List>
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Typography variant="h6" gutterBottom>
               Version Information
             </Typography>
@@ -307,9 +307,9 @@ const AboutPage = () => {
                 <ListItemText primary="License" secondary="MIT" />
               </ListItem>
             </List>
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Typography variant="h6" gutterBottom>
               Requirements
             </Typography>

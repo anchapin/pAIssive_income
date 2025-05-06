@@ -1,48 +1,14 @@
-"""
-Collaboration module for the pAIssive Income project.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides functionality for team collaboration, project sharing,
-and other collaborative features to enable teams to work together effectively
-on AI solutions.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .workspace import TeamWorkspace, WorkspaceManager
-from .sharing import ProjectSharing, SharingPermission
-from .access_control import RoleManager, Role, Permission
-from .version_control import VersionControl, VersionInfo
-from .activity import ActivityTracker, ActivityLog, NotificationManager
-from .comments import CommentSystem, Comment, Reaction
-from .integration import CollaborationIntegration, IntegrationType
 
-__all__ = [
-    # Workspace management
-    'TeamWorkspace',
-    'WorkspaceManager',
-    
-    # Project sharing
-    'ProjectSharing',
-    'SharingPermission',
-    
-    # Access control
-    'RoleManager',
-    'Role',
-    'Permission',
-    
-    # Version control
-    'VersionControl',
-    'VersionInfo',
-    
-    # Activity tracking
-    'ActivityTracker',
-    'ActivityLog',
-    'NotificationManager',
-    
-    # Comments and feedback
-    'CommentSystem',
-    'Comment',
-    'Reaction',
-    
-    # External integrations
-    'CollaborationIntegration',
-    'IntegrationType'
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

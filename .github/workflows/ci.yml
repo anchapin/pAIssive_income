@@ -1,0 +1,251 @@
+name: CI - Lint and Test
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      lint_only:
+        description: 'Run only linting checks'
+        required: false
+        default: false
+        type: boolean
+      test_only:
+        description: 'Run only tests'
+        required: false
+        default: false
+        type: boolean
+      specific_file:
+        description: 'Specific file to lint or test'
+        required: false
+        type: string
+      test_path:
+        description: 'Path to test directory or file'
+        required: false
+        default: 'tests/'
+        type: string
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ !github.event.inputs.test_only }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        # Clean up any existing .egg-info directories to prevent conflicts
+        find . -type d -name "*.egg-info" -exec rm -rf {} + || true
+        python -m pip install --upgrade pip
+        python -m pip install ruff mypy pyright
+        python -m pip install -r requirements-dev.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          .mypy_cache
+          .ruff_cache
+          .pytest_cache
+        key: ${{ runner.os }}-pip-lint-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-lint-
+
+    - name: Check for syntax errors and formatting issues
+      run: |
+        # Define patterns to ignore
+        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
+
+        # Check if a specific file was specified
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Checking syntax and formatting for specific file: ${{ github.event.inputs.specific_file }}"
+          python fix_all_issues_final.py --check "${{ github.event.inputs.specific_file }}"
+        else
+          # Find Python files excluding ignored patterns directly
+          echo "Checking for syntax errors and formatting issues in Python files..."
+          PYTHON_FILES=$(find . -name "*.py" -type f -print0 | grep -zvE "$IGNORE_PATTERNS")
+
+          if [ -n "$PYTHON_FILES" ]; then
+            echo "Checking Python files one by one..."
+            echo -n "$PYTHON_FILES" | while IFS= read -r -d '' file; do
+              if [ -n "$file" ]; then
+                echo "Checking $file"
+                # Use Python's built-in compile to check syntax first
+                python -m py_compile "$file" || {
+                  echo "Syntax error detected in $file with py_compile"
+                  exit 1
+                }
+                # Then use the comprehensive script for more detailed checks
+                python fix_all_issues_final.py --check "$file" || {
+                  echo "Issues found in $file with fix_all_issues_final.py"
+                  echo ":warning:Issues found in $file, but continuing with other checks"
+                  # Don't exit here to allow other checks to run
+                }
+              fi
+            done
+          else
+            echo "No Python files to check after filtering."
+          fi
+        fi
+
+    - name: Lint with Ruff
+      run: |
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Linting specific file with Ruff: ${{ github.event.inputs.specific_file }}"
+          ruff check "${{ github.event.inputs.specific_file }}"
+          ruff format --check "${{ github.event.inputs.specific_file }}"
+        else
+          echo "Linting all files with Ruff"
+          ruff check .
+          ruff format --check .
+        fi
+
+    - name: Fix formatting issues (if any)
+      if: always()
+      run: |
+        echo "Attempting to fix formatting and syntax issues..."
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Fixing specific file with Ruff: ${{ github.event.inputs.specific_file }}"
+          ruff check --fix "${{ github.event.inputs.specific_file }}"
+          ruff format "${{ github.event.inputs.specific_file }}"
+        else
+          echo "Fixing all files with Ruff"
+          ruff check --fix .
+          ruff format .
+        fi
+
+    - name: Type check with mypy and pyright
+      run: |
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Type checking specific file: ${{ github.event.inputs.specific_file }}"
+          mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+          pyright "${{ github.event.inputs.specific_file }}"
+        else
+          echo "Type checking all files"
+          mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+          pyright .
+        fi
+
+    - name: Check for unused imports
+      run: |
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Checking unused imports in specific file: ${{ github.event.inputs.specific_file }}"
+          ruff check "${{ github.event.inputs.specific_file }}" --select F401
+        else
+          echo "Checking unused imports in all files"
+          ruff check . --select F401
+        fi
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ !github.event.inputs.lint_only }}
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12']  # Focusing on Python 3.12 first
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          .pytest_cache
+        key: ${{ runner.os }}-pip-test-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-test-
+
+    - name: Install dependencies
+      run: |
+        # More aggressive cleanup of egg-info directories
+        find . -type d -name "*.egg-info" -exec rm -rf {} + || true
+        find . -type d -name "*.dist-info" -exec rm -rf {} + || true
+        find . -name "*.egg" -exec rm -f {} + || true
+
+        # Clear pip cache if needed
+        pip cache purge || true
+
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
+
+        # Install requirements separately (dev first to ensure correct versions)
+        if [ -f requirements-dev.txt ]; then
+          python -m pip install -r requirements-dev.txt
+        fi
+        if [ -f requirements.txt ]; then
+          python -m pip install -r requirements.txt
+        fi
+
+        # Install in development mode with verbose output to debug any issues
+        python -m pip install -e . -v
+
+    - name: Create junit directory
+      run: mkdir -p junit
+
+    - name: Run tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
+          pytest "${{ github.event.inputs.specific_file }}" \
+            -v \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=junit/test-results.xml
+        elif [ -n "${{ github.event.inputs.test_path }}" ]; then
+          echo "Testing path: ${{ github.event.inputs.test_path }}"
+          pytest "${{ github.event.inputs.test_path }}" \
+            -n auto \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=junit/test-results.xml
+        else
+          echo "Running all tests"
+          pytest tests \
+            -n auto \
+            -v \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=5 \
+            --junitxml=junit/test-results.xml
+        fi
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: junit/test-results.xml
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.xml

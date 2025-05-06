@@ -1,0 +1,18 @@
+[LAST_ACTION_STATE]
+last_action: "System Initialized"
+current_phase: "Set-up/Maintenance"
+next_action: "Identify Code Root and Documentation Directories"
+next_phase: "Set-up/Maintenance"
+
+[CODE_ROOT_DIRECTORIES]
+- src
+- tests
+- utils
+
+[DOC_DIRECTORIES]
+- docs
+- documentation
+
+[LEARNING_JOURNAL]
+- Regularly updating {memory_dir} and any instruction files help me to remember what I have done and what still needs to be done so I don't lose track.
+-

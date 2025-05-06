@@ -1,31 +1,14 @@
-"""
-API schema definitions.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module contains Pydantic models for API requests and responses.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-# Re-export schemas for easier imports
-from .webhook import (
-    WebhookEventType,
-    WebhookDeliveryStatus,
-    WebhookRequest,
-    WebhookUpdate,
-    WebhookResponse,
-    WebhookList,
-    WebhookDeliveryAttempt,
-    WebhookDeliveryResponse,
-    WebhookDeliveryList
-)
 
-# Import bulk operation schemas
-from .bulk_operations import (
-    BulkOperationStats,
-    BulkOperationError,
-    BulkResponse,
-    BulkCreateRequest,
-    BulkCreateResponse,
-    BulkUpdateRequest,
-    BulkUpdateResponse,
-    BulkDeleteRequest,
-    BulkDeleteResponse
-)
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

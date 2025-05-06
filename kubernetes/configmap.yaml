@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paissive-income-config
+data:
+  app_version: "1.0.0"
+  flask_env: "production"
+  log_level: "INFO"
+  enable_caching: "true"
+  max_workers: "4"
+  max_queue_size: "100"
+  api_rate_limit: "100"

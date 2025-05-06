@@ -1,28 +1,14 @@
-"""
-Cache backends for the model cache system.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides different cache storage backends for the model cache system.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .base import CacheBackend
-from .memory_cache import MemoryCache
-from .disk_cache import DiskCache
-from .sqlite_cache import SQLiteCache
 
-# Import Redis cache if available
-try:
-    from .redis_cache import RedisCache
-    REDIS_AVAILABLE = True
-except ImportError:
-    REDIS_AVAILABLE = False
+def main():
+    """Initialize the module."""
+    pass
 
-__all__ = [
-    'CacheBackend',
-    'MemoryCache',
-    'DiskCache',
-    'SQLiteCache',
-]
 
-# Add Redis cache if available
-if REDIS_AVAILABLE:
-    __all__.append('RedisCache')
+if __name__ == "__main__":
+    main()

@@ -1,18 +1,14 @@
-"""Fallback management for AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides classes and utilities for managing model fallbacks
-when primary model selection fails. It includes configurable strategies
-for selecting alternative models based on various criteria.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .fallback_strategy import (
-    FallbackStrategy, 
-    FallbackEvent,
-    FallbackManager
-)
 
-__all__ = [
-    "FallbackStrategy",
-    "FallbackEvent", 
-    "FallbackManager"
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

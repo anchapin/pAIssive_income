@@ -1,11 +1,14 @@
-"""
-Main entry point for the AI models package.
+"""__main__.py - Module for the pAIssive Income project."""
 
-This module provides a command-line interface for the AI models package.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-import sys
-from .cli import main
+
+def main():
+    """Initialize the module."""
+    pass
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

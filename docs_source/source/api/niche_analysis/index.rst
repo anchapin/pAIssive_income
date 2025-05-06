@@ -5,7 +5,7 @@ Niche Analysis
 
 The Niche Analysis module provides tools for identifying and analyzing potential AI solution niches.
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
 
    opportunity_analyzer
@@ -17,7 +17,7 @@ The Niche Analysis module provides tools for identifying and analyzing potential
 Module Overview
 --------------
 
-.. automodule:: niche_analysis
+.. automodule: niche_analysis
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ Submodules
 Opportunity Analyzer
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: niche_analysis.opportunity_analyzer
+.. automodule: niche_analysis.opportunity_analyzer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ Opportunity Analyzer
 Market Research
 ~~~~~~~~~~~~~
 
-.. automodule:: niche_analysis.market_research
+.. automodule: niche_analysis.market_research
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ Market Research
 Problem Identifier
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: niche_analysis.problem_identifier
+.. automodule: niche_analysis.problem_identifier
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ Problem Identifier
 Solution Generator
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: niche_analysis.solution_generator
+.. automodule: niche_analysis.solution_generator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ Solution Generator
 Schemas
 ~~~~~~~
 
-.. automodule:: niche_analysis.schemas
+.. automodule: niche_analysis.schemas
    :members:
    :undoc-members:
    :show-inheritance:

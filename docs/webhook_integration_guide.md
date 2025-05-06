@@ -144,7 +144,7 @@ def verify_webhook_signature(payload, signature, secret):
             hashlib.sha256
         ).digest()
     ).decode()
-    
+
     return hmac.compare_digest(expected_signature, signature)
 
 # In your webhook handler:
@@ -163,7 +163,7 @@ function verifyWebhookSignature(payload, signature, secret) {
     .createHmac('sha256', secret)
     .update(payload)
     .digest('base64');
-  
+
   return crypto.timingSafeEqual(
     Buffer.from(expectedSignature),
     Buffer.from(signature)
@@ -189,7 +189,7 @@ function verifyWebhookSignature($payload, $signature, $secret) {
     $expectedSignature = base64_encode(
         hash_hmac('sha256', $payload, $secret, true)
     );
-    
+
     return hash_equals($expectedSignature, $signature);
 }
 
@@ -210,10 +210,10 @@ require 'base64'
 
 def verify_webhook_signature(payload, signature, secret)
   expected_signature = Base64.strict_encode64(
-    OpenSSL::HMAC.digest('SHA256', secret, payload)
+    OpenSSL:HMAC.digest('SHA256', secret, payload)
   )
-  
-  ActiveSupport::SecurityUtils.secure_compare(
+
+  ActiveSupport:SecurityUtils.secure_compare(
     expected_signature,
     signature
   )
@@ -241,7 +241,7 @@ func verifyWebhookSignature(payload []byte, signature, secret string) bool {
     mac := hmac.New(sha256.New, []byte(secret))
     mac.Write(payload)
     expectedSignature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
-    
+
     return subtle.ConstantTimeCompare(
         []byte(expectedSignature),
         []byte(signature),
@@ -255,7 +255,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Error reading body", http.StatusBadRequest)
         return
     }
-    
+
     signature := r.Header.Get("X-Webhook-Signature")
     if !verifyWebhookSignature(payload, signature, "your_webhook_secret") {
         http.Error(w, "Invalid signature", http.StatusUnauthorized)
@@ -285,12 +285,12 @@ public class WebhookVerifier {
                 "HmacSHA256"
             );
             sha256Hmac.init(secretKey);
-            
+
             String expectedSignature = Base64.getEncoder()
                 .encodeToString(sha256Hmac.doFinal(
                     payload.getBytes("UTF-8")
                 ));
-            
+
             return MessageDigest.isEqual(
                 expectedSignature.getBytes(),
                 signature.getBytes()
@@ -338,7 +338,7 @@ public class WebhookVerifier
             var expectedSignature = Convert.ToBase64String(
                 hmac.ComputeHash(Encoding.UTF8.GetBytes(payload))
             );
-            
+
             return CryptographicOperations.FixedTimeEquals(
                 Convert.FromBase64String(expectedSignature),
                 Convert.FromBase64String(signature)

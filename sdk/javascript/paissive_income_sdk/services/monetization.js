@@ -1,6 +1,6 @@
 /**
  * Monetization service for the pAIssive Income API.
- * 
+ *
  * This module provides a service for interacting with the monetization endpoints.
  */
 
@@ -13,16 +13,16 @@ const BaseService = require('./base');
 class MonetizationService extends BaseService {
   /**
    * Get all solutions available for monetization.
-   * 
+   *
    * @returns {Promise<Object>} List of solutions
    */
   async getSolutions() {
     return this._get('monetization/solutions');
   }
-  
+
   /**
    * Create a subscription model.
-   * 
+   *
    * @param {Object} data - Subscription model data
    * @param {string} data.name - Name of the subscription model
    * @param {string} data.description - Description of the subscription model
@@ -33,29 +33,29 @@ class MonetizationService extends BaseService {
   async createSubscriptionModel(data) {
     return this._post('monetization/subscription-models', data);
   }
-  
+
   /**
    * Get all subscription models.
-   * 
+   *
    * @returns {Promise<Object>} List of subscription models
    */
   async getSubscriptionModels() {
     return this._get('monetization/subscription-models');
   }
-  
+
   /**
    * Get a specific subscription model.
-   * 
+   *
    * @param {string} modelId - Subscription model ID
    * @returns {Promise<Object>} Subscription model details
    */
   async getSubscriptionModel(modelId) {
     return this._get(`monetization/subscription-models/${modelId}`);
   }
-  
+
   /**
    * Update a subscription model.
-   * 
+   *
    * @param {string} modelId - Subscription model ID
    * @param {Object} data - Updated subscription model data
    * @returns {Promise<Object>} Updated subscription model
@@ -63,20 +63,20 @@ class MonetizationService extends BaseService {
   async updateSubscriptionModel(modelId, data) {
     return this._put(`monetization/subscription-models/${modelId}`, data);
   }
-  
+
   /**
    * Delete a subscription model.
-   * 
+   *
    * @param {string} modelId - Subscription model ID
    * @returns {Promise<Object>} Result of the deletion
    */
   async deleteSubscriptionModel(modelId) {
     return this._delete(`monetization/subscription-models/${modelId}`);
   }
-  
+
   /**
    * Create a revenue projection.
-   * 
+   *
    * @param {Object} data - Revenue projection data
    * @param {string} data.solution_id - Solution ID
    * @param {string} data.subscription_model_id - Subscription model ID
@@ -88,19 +88,19 @@ class MonetizationService extends BaseService {
   async createRevenueProjection(data) {
     return this._post('monetization/revenue-projections', data);
   }
-  
+
   /**
    * Get all revenue projections.
-   * 
+   *
    * @returns {Promise<Object>} List of revenue projections
    */
   async getRevenueProjections() {
     return this._get('monetization/revenue-projections');
   }
-  
+
   /**
    * Get a specific revenue projection.
-   * 
+   *
    * @param {string} projectionId - Revenue projection ID
    * @returns {Promise<Object>} Revenue projection details
    */

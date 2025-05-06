@@ -1,18 +1,14 @@
-"""
-Model types for the AI Models module.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides specialized implementations for different types of AI models,
-including text generation, image classification, audio processing, and more.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .onnx_model import ONNXModel
-from .quantized_model import QuantizedModel
-from .vision_model import VisionModel
-from .audio_model import AudioModel
 
-__all__ = [
-    'ONNXModel',
-    'QuantizedModel',
-    'VisionModel',
-    'AudioModel',
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

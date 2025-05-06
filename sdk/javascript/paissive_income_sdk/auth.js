@@ -1,6 +1,6 @@
 /**
  * Authentication classes for the pAIssive Income SDK.
- * 
+ *
  * This module provides authentication classes for the pAIssive Income API.
  */
 
@@ -10,7 +10,7 @@
 class Auth {
   /**
    * Get authentication headers.
-   * 
+   *
    * @returns {Object} Authentication headers
    */
   getHeaders() {
@@ -25,7 +25,7 @@ class Auth {
 class APIKeyAuth extends Auth {
   /**
    * Initialize API key authentication.
-   * 
+   *
    * @param {string} apiKey - API key
    */
   constructor(apiKey) {
@@ -35,7 +35,7 @@ class APIKeyAuth extends Auth {
 
   /**
    * Get authentication headers.
-   * 
+   *
    * @returns {Object} Authentication headers
    */
   getHeaders() {
@@ -50,7 +50,7 @@ class APIKeyAuth extends Auth {
 class JWTAuth extends Auth {
   /**
    * Initialize JWT authentication.
-   * 
+   *
    * @param {string} token - JWT token
    */
   constructor(token) {
@@ -60,7 +60,7 @@ class JWTAuth extends Auth {
 
   /**
    * Get authentication headers.
-   * 
+   *
    * @returns {Object} Authentication headers
    */
   getHeaders() {
@@ -75,7 +75,7 @@ class JWTAuth extends Auth {
 class NoAuth extends Auth {
   /**
    * Get authentication headers.
-   * 
+   *
    * @returns {Object} Empty headers
    */
   getHeaders() {

@@ -1,0 +1,5 @@
+-P ubuntu-latest=node:16-buster
+-P ubuntu-22.04=node:16-buster
+--env-file=.env
+--bind
+--container-architecture linux/amd64

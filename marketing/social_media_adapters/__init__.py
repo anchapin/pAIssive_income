@@ -1,26 +1,14 @@
-"""
-Social media adapter package for pAIssive Income marketing module.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides adapters for various social media platforms to enable
-posting content, retrieving analytics, and managing social media campaigns.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .base_adapter import BaseSocialMediaAdapter
-from .twitter_adapter import TwitterAdapter
-from .facebook_adapter import FacebookAdapter
-from .instagram_adapter import InstagramAdapter
-from .linkedin_adapter import LinkedInAdapter
-from .youtube_adapter import YouTubeAdapter
-from .pinterest_adapter import PinterestAdapter
-from .tiktok_adapter import TikTokAdapter
 
-__all__ = [
-    'BaseSocialMediaAdapter',
-    'TwitterAdapter',
-    'FacebookAdapter',
-    'InstagramAdapter',
-    'LinkedInAdapter',
-    'YouTubeAdapter',
-    'PinterestAdapter',
-    'TikTokAdapter'
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

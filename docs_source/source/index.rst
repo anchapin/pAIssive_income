@@ -3,7 +3,7 @@
 Welcome to pAIssive_income's Documentation!
 =========================================
 
-.. image:: _static/logo.png
+.. image: _static/logo.png
    :alt: pAIssive_income logo
    :align: center
 
@@ -21,15 +21,15 @@ Features
 Get Started
 ----------
 
-.. code-block:: bash
+.. code-block: bash
 
    pip install -e .
    python -m pAIssive_income
 
-.. toctree::
+.. toctree:
    :maxdepth: 2
    :caption: Contents:
-   
+
    overview
    getting_started
    examples
@@ -43,4 +43,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -50,7 +50,7 @@ The Database Service acts as a centralized data access layer for all microservic
 ## Technology Stack
 
 - **Framework**: FastAPI
-- **Database Adapters**: 
+- **Database Adapters**:
   - MongoDB for document storage
   - PostgreSQL for relational data
   - Redis for caching

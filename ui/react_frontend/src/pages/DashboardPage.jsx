@@ -16,7 +16,7 @@ const DashboardPage = () => {
     { id: 2, name: 'Local Code Helper', status: 'In Development', revenue: 0, subscribers: 0, progress: 65 },
     { id: 3, name: 'Data Analysis Tool', status: 'In Research', revenue: 0, subscribers: 0, progress: 25 },
   ];
-  
+
   const totalRevenue = projectsData.reduce((sum, project) => sum + project.revenue, 0);
   const totalSubscribers = projectsData.reduce((sum, project) => sum + project.subscribers, 0);
 
@@ -25,7 +25,7 @@ const DashboardPage = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Dashboard
       </Typography>
-      
+
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} md={4}>
           <Card>
@@ -40,7 +40,7 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <Card>
             <CardHeader title="Subscribers" sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }} />
@@ -54,7 +54,7 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <Card>
             <CardHeader title="Projects" sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }} />
@@ -69,11 +69,11 @@ const DashboardPage = () => {
           </Card>
         </Grid>
       </Grid>
-      
+
       <Typography variant="h5" gutterBottom>
         Projects
       </Typography>
-      
+
       <Grid container spacing={3}>
         {projectsData.map((project) => (
           <Grid item xs={12} key={project.id}>
@@ -86,7 +86,7 @@ const DashboardPage = () => {
                   Status: <span style={{ fontWeight: 'bold' }}>{project.status}</span>
                 </Typography>
               </Box>
-              
+
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography variant="body2">
                   Monthly Revenue: ${project.revenue}
@@ -95,25 +95,25 @@ const DashboardPage = () => {
                   Subscribers: {project.subscribers}
                 </Typography>
               </Box>
-              
+
               <Box>
                 <Typography variant="body2" mb={1}>
                   Progress:
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={project.progress} 
-                  sx={{ 
-                    height: 10, 
+                <LinearProgress
+                  variant="determinate"
+                  value={project.progress}
+                  sx={{
+                    height: 10,
                     borderRadius: 5,
                     backgroundColor: '#e3e6f0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: 
+                      backgroundColor:
                         project.progress === 100 ? '#1cc88a' :
-                        project.progress > 50 ? '#4e73df' : 
+                        project.progress > 50 ? '#4e73df' :
                         '#f6c23e'
                     }
-                  }} 
+                  }}
                 />
               </Box>
             </Item>

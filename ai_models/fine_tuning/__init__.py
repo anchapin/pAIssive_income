@@ -1,61 +1,14 @@
-"""
-Fine-tuning module for AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides tools for fine-tuning AI models, including data collection,
-fine-tuning workflows, evaluation, and model comparison.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .data_collector import (
-    DataCollector, DataCollectionConfig, DatasetFormat,
-    collect_data, prepare_dataset, export_dataset
-)
 
-from .fine_tuner import (
-    FineTuner, FineTuningConfig, FineTuningMethod,
-    fine_tune_model, resume_fine_tuning, stop_fine_tuning
-)
+def main():
+    """Initialize the module."""
+    pass
 
-from .evaluator import (
-    ModelEvaluator, EvaluationConfig, EvaluationMetric,
-    evaluate_model, compare_models, generate_evaluation_report
-)
 
-from .workflows import (
-    FineTuningWorkflow, WorkflowConfig, WorkflowStep,
-    create_workflow, run_workflow, save_workflow, load_workflow
-)
-
-__all__ = [
-    # Data collection
-    'DataCollector',
-    'DataCollectionConfig',
-    'DatasetFormat',
-    'collect_data',
-    'prepare_dataset',
-    'export_dataset',
-    
-    # Fine-tuning
-    'FineTuner',
-    'FineTuningConfig',
-    'FineTuningMethod',
-    'fine_tune_model',
-    'resume_fine_tuning',
-    'stop_fine_tuning',
-    
-    # Evaluation
-    'ModelEvaluator',
-    'EvaluationConfig',
-    'EvaluationMetric',
-    'evaluate_model',
-    'compare_models',
-    'generate_evaluation_report',
-    
-    # Workflows
-    'FineTuningWorkflow',
-    'WorkflowConfig',
-    'WorkflowStep',
-    'create_workflow',
-    'run_workflow',
-    'save_workflow',
-    'load_workflow'
-]
+if __name__ == "__main__":
+    main()

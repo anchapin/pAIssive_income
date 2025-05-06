@@ -1,23 +1,23 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Typography, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
   Box
 } from '@mui/material';
 
 /**
  * CohortRetentionChart - Component for visualizing user retention over time by cohort
- * 
+ *
  * This component displays a cohort analysis visualization showing how user retention
  * rates change over time for different user cohorts (e.g., users who joined in a specific month).
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of cohort retention data objects
  * @param {string} props.title - Chart title
@@ -61,7 +61,7 @@ const CohortRetentionChart = ({
   const RetentionCell = styled(TableCell)(({ theme, retention }) => {
     const backgroundColor = getBackgroundColor(retention);
     const textColor = getTextColor(backgroundColor);
-    
+
     return {
       backgroundColor: backgroundColor,
       color: textColor,
@@ -69,7 +69,7 @@ const CohortRetentionChart = ({
       textAlign: 'center',
       minWidth: '60px',
       position: 'relative',
-      '&::after': {
+      '&:after': {
         content: `'${retention}%'`,
         position: 'absolute',
         top: '50%',
@@ -85,14 +85,14 @@ const CohortRetentionChart = ({
       <Typography variant="h6" gutterBottom>
         {title}
       </Typography>
-      
+
       <Box mb={2}>
         <Typography variant="body2" color="textSecondary">
           This chart shows the percentage of users from each cohort who remain active in subsequent time periods.
           The darker/more vibrant the color, the higher the retention rate.
         </Typography>
       </Box>
-      
+
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
@@ -114,8 +114,8 @@ const CohortRetentionChart = ({
                 </TableCell>
                 <TableCell>{row.size.toLocaleString()}</TableCell>
                 {row.retention.map((value, colIndex) => (
-                  <RetentionCell 
-                    key={colIndex} 
+                  <RetentionCell
+                    key={colIndex}
                     retention={value}
                   >
                     &nbsp;
@@ -126,11 +126,11 @@ const CohortRetentionChart = ({
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       <Box mt={2} display="flex" alignItems="center" flexWrap="wrap" gap={1}>
         <Typography variant="body2">Legend:</Typography>
         {[100, 80, 60, 40, 20, 10, 0].map((value, index) => (
-          <Box 
+          <Box
             key={index}
             sx={{
               width: '20px',
@@ -144,9 +144,9 @@ const CohortRetentionChart = ({
               justifyContent: 'center',
             }}
           >
-            <Typography 
-              variant="caption" 
-              sx={{ 
+            <Typography
+              variant="caption"
+              sx={{
                 color: getTextColor(getBackgroundColor(value)),
                 fontSize: '8px',
                 fontWeight: 'bold'

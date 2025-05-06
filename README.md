@@ -1,6 +1,6 @@
 # pAIssive Income
 
-A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI.
+A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
 
 ## Overview
 
@@ -47,6 +47,108 @@ The framework has identified several promising niches for AI-powered tools:
 5. **Inventory Management for Small E-commerce**: AI tools to help small e-commerce businesses manage inventory efficiently.
 
 ## Getting Started
+
+### Development Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/anchapin/pAIssive_income.git
+   cd pAIssive_income
+   ```
+
+2. Create a virtual environment and install dependencies:
+
+   ```bash
+   # Using the provided script (recommended)
+   # On Windows
+   scripts\recreate_venv.bat
+
+   # On Unix/Linux
+   ./scripts/recreate_venv.sh
+
+   # Or manually
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   pip install -e .
+   ```
+
+3. Set up pre-commit hooks to ensure code quality:
+
+   ```bash
+   # This is automatically done by the recreate_venv script
+   # But you can also do it manually:
+   pip install pre-commit
+   pre-commit install
+   ```
+
+   For more information about pre-commit hooks, see [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md).
+
+4. Run linting checks before pushing changes:
+
+   ```bash
+   # On Windows
+   scripts\lint_check.bat
+
+   # On Unix/Linux
+   ./scripts/lint_check.sh
+
+   # Check a specific file
+   scripts\lint_check.bat --file path/to/file.py
+
+   # Run specific checks
+   scripts\lint_check.bat --ruff --isort
+   ```
+
+5. Fix syntax, formatting, and linting issues automatically:
+
+   ```bash
+   # Fix all issues in all Python files
+   python fix_all_issues_final.py
+
+   # Fix issues in specific files
+   python fix_all_issues_final.py path/to/file1.py path/to/file2.py
+
+   # Check for issues without fixing them
+   python fix_all_issues_final.py --check
+
+   # Fix only syntax errors
+   python fix_all_issues_final.py --syntax-only
+
+   # Fix only formatting issues
+   python fix_all_issues_final.py --format-only
+
+   # Skip specific tools
+   python fix_all_issues_final.py --no-black --no-isort --no-ruff
+   ```
+
+   Or use the provided batch file:
+
+   ```bash
+   # On Windows
+   fix_all_issues.bat
+
+   # Fix specific files
+   fix_all_issues.bat path/to/file.py
+   ```
+
+6. Run the CI workflow locally to check for issues before pushing:
+
+   ```bash
+   # Install act (GitHub Actions local runner)
+   # See: https://github.com/nektos/act
+
+   # Run the full CI workflow
+   act
+
+   # Run only the linting job
+   act -j lint
+
+   # Run only the test job
+   act -j test
+   ```
 
 ### Command Line Interface
 
@@ -150,6 +252,67 @@ Running the main script generates a complete project plan including:
 - Node.js 14.0+ (for modern UI)
 - Dependencies listed in each module's README
 
+## Code Style and Formatting
+
+The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
+
+### Common Formatting Issues to Watch For
+
+- Trailing whitespace at the end of lines
+- Missing newline at end of files
+- Inconsistent indentation (use 4 spaces, not tabs)
+- Type annotation issues caught by MyPy
+- Ruff linting violations (see .ruff.toml for rules)
+
+### Using Pre-commit Hooks
+
+The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+To run all pre-commit hooks manually on all files:
+```bash
+pre-commit run --all-files
+```
+
+To run specific hooks:
+```bash
+pre-commit run trailing-whitespace --all-files
+pre-commit run ruff --all-files
+```
+
+### Local Linting Commands
+
+Use these commands to check and fix linting issues:
+
+1. Check for issues without fixing:
+```bash
+scripts\lint_check.bat  # Windows
+./scripts/lint_check.sh  # Unix/Linux
+```
+
+2. Fix issues automatically:
+```bash
+python fix_all_issues_final.py
+```
+
+3. Run specific checks:
+```bash
+scripts\lint_check.bat --ruff  # Run only Ruff
+scripts\lint_check.bat --mypy  # Run only MyPy
+```
+
+### Code Formatter Configuration
+
+- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **MyPy**: Type checking configuration is in `mypy.ini`
+- **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
+
+All configuration files are version controlled to ensure consistent formatting across the project.
+
 ## Documentation
 
 The project includes comprehensive API documentation that can be built from source:
@@ -171,9 +334,9 @@ The project includes comprehensive API documentation that can be built from sour
    ```bash
    make html
    ```
-   
+
    On Windows, use:
-   
+
    ```bash
    make.bat html
    ```
@@ -181,6 +344,54 @@ The project includes comprehensive API documentation that can be built from sour
 4. The generated documentation will be available in `docs_source/build/html/`
 
 You can view the documentation by opening `docs_source/build/html/index.html` in your web browser.
+
+## Troubleshooting
+
+### CI Workflow Issues
+
+If you encounter issues with the CI workflow, try the following steps:
+
+1. **Syntax and Formatting Issues**: Use the comprehensive fix script to identify and fix issues:
+
+   ```bash
+   # Check for issues without fixing
+   python fix_all_issues_final.py --check path/to/file.py
+
+   # Fix all issues
+   python fix_all_issues_final.py path/to/file.py
+
+   # Or use the batch file
+   fix_all_issues.bat path/to/file.py
+   ```
+
+2. **Run GitHub Actions Workflow Locally**: Use the dedicated workflow to fix issues:
+
+   ```bash
+   # Install act (GitHub Actions local runner)
+   # See: https://github.com/nektos/act
+
+   # Run the fix-all-issues workflow
+   act -j fix-issues -W .github/workflows/fix-all-issues.yml
+   ```
+
+3. **Linting Issues**: Run the linting checks locally to identify and fix issues:
+
+   ```bash
+   scripts\lint_check.bat --file path/to/file.py
+   ```
+
+4. **Virtual Environment Issues**: If you encounter issues with the virtual environment, recreate it:
+
+   ```bash
+   scripts\recreate_venv.bat
+   ```
+
+5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
+
+   ```bash
+   pre-commit uninstall
+   pre-commit install
+   ```
 
 ## License
 

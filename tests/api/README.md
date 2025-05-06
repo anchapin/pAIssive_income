@@ -39,7 +39,7 @@ pytest tests/api/test_niche_analysis_api.py
 To run a specific test:
 
 ```bash
-pytest tests/api/test_niche_analysis_api.py::TestNicheAnalysisAPI::test_analyze_niche
+pytest tests/api/test_niche_analysis_api.py:TestNicheAnalysisAPI:test_analyze_niche
 ```
 
 ## Test Categories
@@ -80,13 +80,13 @@ def test_new_endpoint(self, api_test_client: APITestClient):
     """Test a new endpoint."""
     # Generate test data
     data = {"key": "value"}
-    
+
     # Make request
     response = api_test_client.post("module/endpoint", data)
-    
+
     # Validate response
     result = validate_success_response(response, 201)  # Created
-    
+
     # Validate fields
     validate_field_exists(result, "id")
     validate_field_type(result, "id", str)

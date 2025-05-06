@@ -14,8 +14,8 @@ import json
 from interfaces.marketing_interfaces import IMarketingStrategy
 from interfaces.agent_interfaces import IAgentTeam
 from marketing.schemas import (
-    DemographicsSchema, 
-    TargetAudienceSchema, 
+    DemographicsSchema,
+    TargetAudienceSchema,
     BudgetSchema,
     MarketingChannelSchema,
     MarketingTacticSchema,
@@ -79,25 +79,25 @@ class StrategyGenerator(IMarketingStrategy):
             raise ValueError("Target audience is required")
         if not self.budget:
             raise ValueError("Budget is required")
-        
+
         # Generate a strategy ID
         strategy_id = str(uuid.uuid4())
-        
+
         # Generate a strategy name
         strategy_name = f"{self.business_type} Marketing Strategy - {datetime.now().strftime('%Y-%m-%d')}"
-        
+
         # Determine appropriate channels based on business type and target audience
         channels = self._select_channels()
-        
+
         # Determine appropriate tactics for each channel
         tactics = self._select_tactics(channels)
-        
+
         # Allocate budget across channels
         allocated_budget = self._allocate_budget(channels)
-        
+
         # Define metrics to track
         metrics = self._define_metrics()
-        
+
         # Create the strategy
         strategy = MarketingStrategySchema(
             id=strategy_id,
@@ -113,22 +113,22 @@ class StrategyGenerator(IMarketingStrategy):
             metrics=metrics,
             created_at=datetime.now().isoformat()
         )
-        
+
         # Add to strategies
         self.strategies.append(strategy)
-        
+
         return strategy
 
     def _select_channels(self) -> List[MarketingChannelSchema]:
         """
         Select appropriate marketing channels based on business profile.
-        
+
         Returns:
             List of marketing channel schemas
         """
         # Placeholder implementation - in a real system, this would use more sophisticated logic
         channels = []
-        
+
         # Social media is almost always relevant
         channels.append(
             MarketingChannelSchema(
@@ -138,7 +138,7 @@ class StrategyGenerator(IMarketingStrategy):
                 relevance_score=0.85
             )
         )
-        
+
         # Content marketing is valuable for most businesses
         channels.append(
             MarketingChannelSchema(
@@ -148,7 +148,7 @@ class StrategyGenerator(IMarketingStrategy):
                 relevance_score=0.75
             )
         )
-        
+
         # Email marketing is effective for most businesses
         channels.append(
             MarketingChannelSchema(
@@ -158,7 +158,7 @@ class StrategyGenerator(IMarketingStrategy):
                 relevance_score=0.70
             )
         )
-        
+
         # Add industry-specific channels
         if self.business_type == "SaaS":
             channels.append(
@@ -178,21 +178,21 @@ class StrategyGenerator(IMarketingStrategy):
                     relevance_score=0.80
                 )
             )
-        
+
         return channels
 
     def _select_tactics(self, channels: List[MarketingChannelSchema]) -> List[MarketingTacticSchema]:
         """
         Select appropriate tactics for each channel.
-        
+
         Args:
             channels: List of selected marketing channels
-            
+
         Returns:
             List of marketing tactics
         """
         tactics = []
-        
+
         for channel in channels:
             if channel.name == "Social Media":
                 tactics.extend([
@@ -248,35 +248,35 @@ class StrategyGenerator(IMarketingStrategy):
                         estimated_cost=300
                     )
                 )
-        
+
         return tactics
 
     def _allocate_budget(self, channels: List[MarketingChannelSchema]) -> Dict[str, float]:
         """
         Allocate budget across marketing channels.
-        
+
         Args:
             channels: List of selected marketing channels
-            
+
         Returns:
             Dictionary mapping channel names to budget allocations
         """
         # Simple allocation based on relevance score
         total_relevance = sum(channel.relevance_score for channel in channels)
         total_budget = self.budget.total_amount
-        
+
         allocated_budget = {}
-        
+
         for channel in channels:
             allocation = (channel.relevance_score / total_relevance) * total_budget
             allocated_budget[channel.name] = allocation
-        
+
         return allocated_budget
 
     def _define_metrics(self) -> List[MarketingMetricSchema]:
         """
         Define metrics to track for the strategy.
-        
+
         Returns:
             List of marketing metrics
         """
@@ -304,7 +304,7 @@ class StrategyGenerator(IMarketingStrategy):
                 unit="USD"
             )
         ]
-        
+
         # Add goal-specific metrics
         if "Increase brand awareness" in self.goals:
             metrics.append(
@@ -316,7 +316,7 @@ class StrategyGenerator(IMarketingStrategy):
                     unit="users/month"
                 )
             )
-        
+
         if "Generate leads" in self.goals:
             metrics.append(
                 MarketingMetricSchema(
@@ -327,7 +327,7 @@ class StrategyGenerator(IMarketingStrategy):
                     unit="leads/month"
                 )
             )
-        
+
         if "Increase sales" in self.goals:
             metrics.append(
                 MarketingMetricSchema(
@@ -338,63 +338,63 @@ class StrategyGenerator(IMarketingStrategy):
                     unit="USD/month"
                 )
             )
-        
+
         return metrics
 
     def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, Any]:
         """
         Evaluate the effectiveness of a strategy based on provided metrics.
-        
+
         Args:
             strategy_id: ID of the strategy to evaluate
             metrics: Dictionary mapping metric names to current values
-            
+
         Returns:
             Dictionary with evaluation results
         """
         # Find the strategy
         strategy = next((s for s in self.strategies if s.id == strategy_id), None)
-        
+
         if not strategy:
             raise ValueError(f"Strategy with ID {strategy_id} not found")
-        
+
         # Calculate overall effectiveness
         effectiveness = 0.0
         total_metrics = 0
-        
+
         for metric in strategy.metrics:
             if metric.name in metrics:
                 current_value = metrics[metric.name]
                 target_value = metric.target_value
-                
+
                 # Update the current value
                 metric.current_value = current_value
-                
+
                 # Calculate achievement percentage
                 if target_value != 0:
                     achievement = min(current_value / target_value, 2.0)
                     effectiveness += achievement
                     total_metrics += 1
-        
+
         if total_metrics > 0:
             overall_effectiveness = effectiveness / total_metrics
         else:
             overall_effectiveness = 0.0
-        
+
         # Generate recommendations
         recommendations = []
-        
+
         if overall_effectiveness < 0.5:
             recommendations.append("Review and adjust the overall strategy")
-        
+
         for metric in strategy.metrics:
             if metric.name in metrics:
                 current_value = metrics[metric.name]
                 target_value = metric.target_value
-                
+
                 if current_value < target_value * 0.7:
                     recommendations.append(f"Focus more resources on improving {metric.name}")
-        
+
         # Return evaluation results
         return {
             "strategy_id": strategy_id,
@@ -407,26 +407,26 @@ class StrategyGenerator(IMarketingStrategy):
     def revise_strategy(self, strategy_id: str, evaluation_results: Dict[str, Any]) -> MarketingStrategySchema:
         """
         Revise a strategy based on evaluation results.
-        
+
         Args:
             strategy_id: ID of the strategy to revise
             evaluation_results: Results from evaluate_strategy
-            
+
         Returns:
             Revised marketing strategy
         """
         # Find the strategy
         strategy = next((s for s in self.strategies if s.id == strategy_id), None)
-        
+
         if not strategy:
             raise ValueError(f"Strategy with ID {strategy_id} not found")
-        
+
         # Remove the old strategy from the list
         self.strategies = [s for s in self.strategies if s.id != strategy_id]
-        
+
         # Create a new strategy ID
         new_strategy_id = str(uuid.uuid4())
-        
+
         # Create a revised version of the strategy
         revised_strategy = MarketingStrategySchema(
             id=new_strategy_id,
@@ -443,78 +443,78 @@ class StrategyGenerator(IMarketingStrategy):
             created_at=datetime.now().isoformat(),
             previous_version_id=strategy_id
         )
-        
+
         # Adjust based on evaluation results
         overall_effectiveness = evaluation_results.get("overall_effectiveness", 0.0)
-        
+
         if overall_effectiveness < 0.5:
             # Significant revisions needed
             # Reprioritize channels based on metrics
             metrics_by_channel = {}
-            
+
             for tactic in revised_strategy.tactics:
                 channel = tactic.channel_name
                 related_metrics = [m for m in revised_strategy.metrics if m.name.lower() in tactic.description.lower()]
-                
+
                 if channel not in metrics_by_channel:
                     metrics_by_channel[channel] = []
-                
+
                 metrics_by_channel[channel].extend(related_metrics)
-            
+
             # Reallocate budget based on channel performance
             new_allocations = {}
             total_budget = sum(revised_strategy.allocated_budget.values())
-            
+
             for channel, metrics in metrics_by_channel.items():
                 if metrics:
                     avg_effectiveness = sum(min(m.current_value / m.target_value, 1.0) for m in metrics) / len(metrics)
-                    
+
                     # Inverse of effectiveness - lower performing channels get more budget
                     adjustment_factor = 1.5 - avg_effectiveness
-                    
+
                     # Min adjustment is 0.5, max is 1.5
                     adjustment_factor = max(0.5, min(1.5, adjustment_factor))
-                    
+
                     current_allocation = revised_strategy.allocated_budget.get(channel, 0)
                     new_allocations[channel] = current_allocation * adjustment_factor
                 else:
                     new_allocations[channel] = revised_strategy.allocated_budget.get(channel, 0)
-            
+
             # Normalize allocations to match total budget
             allocation_sum = sum(new_allocations.values())
-            
+
             if allocation_sum > 0:
                 for channel in new_allocations:
                     new_allocations[channel] = (new_allocations[channel] / allocation_sum) * total_budget
-            
+
             revised_strategy.allocated_budget = new_allocations
-        
+
         # Add the revised strategy to the list
         self.strategies.append(revised_strategy)
-        
+
         return revised_strategy
 
     def export_strategy(self, strategy_id: str, format: str = "json") -> str:
         """
         Export a strategy in the specified format.
-        
+
         Args:
             strategy_id: ID of the strategy to export
             format: Format to export in (json, markdown, etc.)
-            
+
         Returns:
             String representation of the strategy in the specified format
         """
         # Find the strategy
         strategy = next((s for s in self.strategies if s.id == strategy_id), None)
-        
+
         if not strategy:
             raise ValueError(f"Strategy with ID {strategy_id} not found")
-        
+
         if format == "json":
             # Convert to dictionary
             strategy_dict = strategy.model_dump()
-            
+
             # Remove any non-serializable fields
             if "target_audience" in strategy_dict and isinstance(strategy_dict["target_audience"], dict):
                 if "demographics" in strategy_dict["target_audience"] and isinstance(strategy_dict["target_audience"]["demographics"], dict):
@@ -523,7 +523,7 @@ class StrategyGenerator(IMarketingStrategy):
                             value = strategy_dict["target_audience"]["demographics"][key]
                             if hasattr(value, "__iter__") and not isinstance(value, (str, dict)):
                                 strategy_dict["target_audience"]["demographics"][key] = list(value)
-            
+
             # Return JSON string
             return json.dumps(strategy_dict, indent=2)
         elif format == "markdown":
@@ -531,16 +531,16 @@ class StrategyGenerator(IMarketingStrategy):
             md = f"# {strategy.name}\n\n"
             md += f"**ID:** {strategy.id}\n"
             md += f"**Created:** {strategy.created_at}\n\n"
-            
+
             md += "## Business Profile\n\n"
             md += f"- **Type:** {strategy.business_type}\n"
             md += f"- **Size:** {strategy.business_size}\n\n"
-            
+
             md += "## Goals\n\n"
             for goal in strategy.goals:
                 md += f"- {goal}\n"
             md += "\n"
-            
+
             md += "## Target Audience\n\n"
             if strategy.target_audience.demographics:
                 md += "### Demographics\n\n"
@@ -550,23 +550,23 @@ class StrategyGenerator(IMarketingStrategy):
                 md += f"- **Location:** {demo.location}\n"
                 md += f"- **Income Range:** ${demo.income_range[0]}-${demo.income_range[1]}\n"
                 md += "\n"
-            
+
             if strategy.target_audience.interests:
                 md += "### Interests\n\n"
                 for interest in strategy.target_audience.interests:
                     md += f"- {interest}\n"
                 md += "\n"
-            
+
             if strategy.target_audience.behaviors:
                 md += "### Behaviors\n\n"
                 for behavior in strategy.target_audience.behaviors:
                     md += f"- {behavior}\n"
                 md += "\n"
-            
+
             md += "## Budget\n\n"
             md += f"- **Total:** ${strategy.budget.total_amount}\n"
             md += f"- **Timeframe:** {strategy.budget.timeframe}\n\n"
-            
+
             md += "## Marketing Channels\n\n"
             for channel in strategy.channels:
                 md += f"### {channel.name} ({channel.relevance_score * 100:.0f}% Relevance)\n\n"
@@ -576,7 +576,7 @@ class StrategyGenerator(IMarketingStrategy):
                     md += f"- {platform}\n"
                 md += "\n"
                 md += f"**Budget Allocation:** ${strategy.allocated_budget.get(channel.name, 0):.2f}\n\n"
-            
+
             md += "## Tactics\n\n"
             for tactic in strategy.tactics:
                 md += f"### {tactic.name}\n\n"
@@ -589,38 +589,37 @@ class StrategyGenerator(IMarketingStrategy):
                 for resource in tactic.resources_required:
                     md += f"- {resource}\n"
                 md += "\n"
-            
+
             md += "## Metrics\n\n"
             for metric in strategy.metrics:
                 md += f"### {metric.name}\n\n"
                 md += f"{metric.description}\n\n"
                 md += f"- **Current:** {metric.current_value} {metric.unit}\n"
                 md += f"- **Target:** {metric.target_value} {metric.unit}\n\n"
-            
+
             return md
         else:
             raise ValueError(f"Unsupported export format: {format}")
-            
+
     def import_strategy(self, strategy_data: Dict[str, Any]) -> MarketingStrategySchema:
         """
         Import a strategy from a dictionary.
-        
+
         Args:
             strategy_data: Strategy data dictionary
-            
+
         Returns:
             Imported marketing strategy
         """
         # Create a new strategy from the imported data
         strategy = MarketingStrategySchema(**strategy_data)
-        
+
         # Add to strategies list
         self.strategies.append(strategy)
-        
+
         # Update other attributes if present in imported data
         self.business_type = strategy_data.get("business_type", self.business_type)
         self.business_size = strategy_data.get("business_size", self.business_size)
         self.goals = strategy_data.get("goals", self.goals)
-        
-        return strategy
 
+        return strategy

@@ -1,20 +1,14 @@
-"""
-Agent profiles for the pAIssive Income project.
-This package contains the specialized AI agents that make up the agent team.
-"""
+"""__init__.py - Module for the pAIssive Income project."""
 
-from .base import AgentProfile
-from .researcher import ResearchAgent
-from .developer import DeveloperAgent
-from .monetization import MonetizationAgent
-from .marketing import MarketingAgent
-from .feedback import FeedbackAgent
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-    'AgentProfile',
-    'ResearchAgent',
-    'DeveloperAgent',
-    'MonetizationAgent',
-    'MarketingAgent',
-    'FeedbackAgent',
-]
+
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

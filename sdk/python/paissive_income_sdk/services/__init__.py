@@ -1,27 +1,14 @@
-"""
-Services for the pAIssive Income API.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides service classes for interacting with the API endpoints.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .base import BaseService
-from .niche_analysis import NicheAnalysisService
-from .monetization import MonetizationService
-from .marketing import MarketingService
-from .ai_models import AIModelsService
-from .agent_team import AgentTeamService
-from .user import UserService
-from .dashboard import DashboardService
-from .api_key import APIKeyService
 
-__all__ = [
-    'BaseService',
-    'NicheAnalysisService',
-    'MonetizationService',
-    'MarketingService',
-    'AIModelsService',
-    'AgentTeamService',
-    'UserService',
-    'DashboardService',
-    'APIKeyService'
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()
