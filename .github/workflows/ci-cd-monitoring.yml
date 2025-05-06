@@ -18,7 +18,16 @@ jobs:
           echo "workflow_name=${{ github.event.workflow_run.name }}" >> $GITHUB_OUTPUT
           echo "workflow_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
           echo "repo_name=${{ github.repository }}" >> $GITHUB_OUTPUT
-          echo "branch_name=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+
+          # Validate branch name to prevent expression injection
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          # Only allow alphanumeric characters, dashes, underscores, and slashes in branch names
+          if [[ "$BRANCH" =~ ^[a-zA-Z0-9_\-\/]+$ ]]; then
+            echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
+          else
+            echo "branch_name=invalid-branch-name" >> $GITHUB_OUTPUT
+            echo "WARNING: Invalid branch name detected. Using placeholder instead."
+          fi
 
       - name: Send Slack notification on failure
         if: steps.check_status.outputs.workflow_status != 'success'
@@ -116,13 +125,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pandas matplotlib
 
+      - name: Validate branch name
+        id: validate_branch
+        run: |
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          # Only allow alphanumeric characters, dashes, underscores, and slashes in branch names
+          if [[ "$BRANCH" =~ ^[a-zA-Z0-9_\-\/]+$ ]]; then
+            echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          else
+            echo "branch=invalid-branch-name" >> $GITHUB_OUTPUT
+            echo "WARNING: Invalid branch name detected. Using placeholder instead."
+          fi
+
+          # Calculate duration in seconds
+          CREATED_AT="${{ github.event.workflow_run.created_at }}"
+          UPDATED_AT="${{ github.event.workflow_run.updated_at }}"
+          DURATION=$(( $(date -d "$UPDATED_AT" +%s) - $(date -d "$CREATED_AT" +%s) ))
+          echo "duration=$DURATION" >> $GITHUB_OUTPUT
+
       - name: Collect workflow metrics
         run: |
           python .github/scripts/collect_workflow_metrics.py \
             --workflow "${{ github.event.workflow_run.name }}" \
             --status "${{ github.event.workflow_run.conclusion }}" \
-            --duration "${{ github.event.workflow_run.updated_at - github.event.workflow_run.created_at }}" \
-            --branch "${{ github.event.workflow_run.head_branch }}" \
+            --duration "${{ steps.validate_branch.outputs.duration }}" \
+            --branch "${{ steps.validate_branch.outputs.branch }}" \
             --commit "${{ github.event.workflow_run.head_sha }}" \
             --output "workflow_metrics.json"
 
