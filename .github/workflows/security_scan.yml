@@ -55,7 +55,7 @@ jobs:
         pip install sarif-tools
     - name: Add sarif-tools to PATH
       run: |
-        export PATH="$PATH:$HOME/.local/bin"  # Assuming pip installed to $HOME/.local/bin
+        export PATH="$PATH:/home/runner/.local/lib/python3.12/site-packages/sarif_tools"
         sarif --version  # Test command
     - name: Use sarif-tools
       run: sarif --version  # Example command to verify installation
