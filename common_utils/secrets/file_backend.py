@@ -50,7 +50,8 @@ class FileBackend:
             except Exception as e:
                 logger.warning(f"Could not set permissions on secrets directory: {e}")
 
-        logger.info(f"File backend initialized with directory: {self.secrets_dir}")
+        # Don't log the actual directory path as it might contain sensitive information
+        logger.info("File backend initialized successfully")
 
     def get_secret(self, key: str) -> Optional[str]:
         """Get a secret from the file backend.

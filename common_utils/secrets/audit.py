@@ -327,8 +327,13 @@ def generate_report(
 
     if output_file:
         try:
+            # Ensure we're not writing sensitive data to the file
+            from common_utils.logging.secure_logging import mask_sensitive_data
+
+            masked_output = mask_sensitive_data(output)
+
             with open(output_file, "w", encoding="utf-8") as f:
-                f.write(output)
+                f.write(masked_output)
             logger.info("Report saved", extra={"file": output_file})
         except Exception as e:
             logger.error(f"Error saving report: {e}")
@@ -336,7 +341,9 @@ def generate_report(
         # Use a secure print function that doesn't expose sensitive data
         from common_utils.logging.secure_logging import mask_sensitive_data
 
-        print(mask_sensitive_data(output))
+        # Ensure output is properly masked before printing
+        masked_output = mask_sensitive_data(output)
+        print(masked_output)
 
 
 class SecretsAuditor:
