@@ -50,6 +50,16 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+    - name: Install sarif-tools
+      run: |
+        pip install sarif-tools
+    - name: Add sarif-tools to PATH
+      run: |
+        export PATH="$PATH:$HOME/.local/bin"  # Assuming pip installed to $HOME/.local/bin
+        sarif --version  # Test command
+    - name: Use sarif-tools
+      run: sarif --version  # Example command to verify installation
+
     - name: Verify sarif-tools installation
       run: |
         echo "Installing and verifying sarif-tools..."
