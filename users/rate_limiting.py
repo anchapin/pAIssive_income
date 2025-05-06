@@ -225,7 +225,6 @@ def cleanup_rate_limiting_data() -> Tuple[int, int]:
             removed_blocks += 1
 
     logger.info(
-        f"Cleaned up rate limiting data: {removed_attempts} attempts, 
-            {removed_blocks} blocks"
+        f"Cleaned up rate limiting data: {removed_attempts} attempts, {removed_blocks} blocks"
     )
     return removed_attempts, removed_blocks
