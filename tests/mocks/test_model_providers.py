@@ -5,7 +5,7 @@ from typing import Generator
 import pytest
 
 from .mock_model_providers import (
-    BaseMockProvider,
+    MockBaseModelProvider,
     MockHuggingFaceProvider,
     MockLMStudioProvider,
     MockLocalModelProvider,
