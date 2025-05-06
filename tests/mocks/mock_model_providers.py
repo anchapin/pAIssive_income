@@ -280,8 +280,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                                 "text": word + " ",
                                 "index": 0,
                                 "finish_reason":
-                                    "stop" if i =
-                                    = len(words) - 1 else None,
+                                    "stop" if i == len(words) - 1 else None
                             }
                         ],
                     }
@@ -349,8 +348,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                                 "index": 0,
                                 "delta": {"content": word + " "},
                                 "finish_reason":
-                                    "stop" if i =
-                                    = len(words) - 1 else None,
+                                    "stop" if i == len(words) - 1 else None,
                             }
                         ],
                     }
@@ -718,8 +716,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                                 "text": word + " ",
                                 "index": 0,
                                 "finish_reason":
-                                    "stop" if i =
-                                    = len(words) - 1 else None,
+                                    "stop" if i == len(words) - 1 else None,
                             }
                         ],
                     }
@@ -783,8 +780,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                                 "index": 0,
                                 "delta": {"content": word + " "},
                                 "finish_reason":
-                                    "stop" if i =
-                                    = len(words) - 1 else None,
+                                    "stop" if i == len(words) - 1 else None,
                             }
                         ],
                     }
