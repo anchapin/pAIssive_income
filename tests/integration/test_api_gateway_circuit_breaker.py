@@ -1,4 +1,3 @@
-import pytest
 """test_api_gateway_circuit_breaker.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script

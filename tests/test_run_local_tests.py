@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for the run_local_tests module."""
 
 import subprocess

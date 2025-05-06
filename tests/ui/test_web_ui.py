@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for the web ui.__init__ module."""
 
 import subprocess

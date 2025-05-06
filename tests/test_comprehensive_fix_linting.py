@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for comprehensive_fix_linting.py."""
 
 import subprocess

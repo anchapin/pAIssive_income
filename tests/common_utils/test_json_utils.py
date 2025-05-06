@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for common_utils.json_utils module."""
 
 import subprocess

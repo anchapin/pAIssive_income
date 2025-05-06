@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for dependency_container.py."""
 
 import subprocess

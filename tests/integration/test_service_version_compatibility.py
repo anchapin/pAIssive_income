@@ -1,4 +1,3 @@
-import pytest
 """test_service_version_compatibility.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script

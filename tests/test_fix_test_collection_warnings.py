@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for fix_test_collection_warnings.py."""
 
 import os

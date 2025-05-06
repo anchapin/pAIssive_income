@@ -1,4 +1,3 @@
-import pytest
 """test_query_params.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script

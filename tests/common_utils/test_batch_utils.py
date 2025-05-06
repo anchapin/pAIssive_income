@@ -1,4 +1,3 @@
-import pytest
 """Test class contains unit tests for the batch_utils module."""
 
 import subprocess

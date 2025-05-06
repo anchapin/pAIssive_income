@@ -40,24 +40,39 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install safety bandit pip-audit sarif-tools
+        python -m pip install safety bandit pip-audit
+        python -m pip install --upgrade --user sarif-tools
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
     - name: Verify sarif-tools installation
       run: |
         echo "Verifying sarif-tools installation..."
-        # Try different ways to check if sarif-tools is installed correctly
-        sarif-tools --version || sarif-tools --help || python -m sarif_tools --help || pip list | grep sarif
+        # Ensure sarif-tools installation
+        pip install --upgrade --user sarif-tools
 
-        # If sarif-tools is not found, reinstall it
-        if ! command -v sarif-tools &> /dev/null && ! python -m sarif_tools --help &> /dev/null; then
-          echo "sarif-tools not found. Reinstalling..."
-          pip install --user sarif-tools
-          export PATH="$HOME/.local/bin:$PATH"
-          echo "Checking reinstalled sarif-tools..."
-          sarif-tools --help || python -m sarif_tools --help || echo "Warning: sarif-tools may not be correctly installed."
+        # Add ~/.local/bin to PATH if it's not already included
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "PATH=$PATH" >> $GITHUB_ENV
+
+        # Validate installation of sarif-tools
+        if ! command -v sarif-tools &> /dev/null && ! python -m sarif_tools --version &> /dev/null; then
+          echo "Error: sarif-tools installation failed."
+          echo "Trying alternative installation methods..."
+          pip install --force-reinstall --user sarif-tools
+          echo "Alternative installation completed. Checking installation again..."
+          if ! command -v sarif-tools &> /dev/null && ! python -m sarif_tools --version &> /dev/null; then
+            echo "Warning: sarif-tools may not be correctly installed."
+          else
+            echo "sarif-tools is now installed and accessible."
+          fi
+        else
+          echo "sarif-tools is installed and accessible."
         fi
+
+        # Output installation location for debugging
+        pip show sarif-tools
+        ls -la ~/.local/bin/ || echo "~/.local/bin/ not accessible"
 
     - name: Check for vulnerable dependencies with Safety
       id: safety
@@ -89,28 +104,24 @@ jobs:
           fi
         }
 
-        # Convert results to SARIF format for GitHub integration
+        # Ensure sarif-tools is accessible
+        export PATH="$HOME/.local/bin:$PATH"
+
+        # Convert results to SARIF format
         if [ -f security-reports/bandit-results.json ] && [ -s security-reports/bandit-results.json ]; then
-          # Try multiple methods to run sarif-tools with improved fallback logic
+          echo "Converting Bandit results to SARIF format..."
+
+          # Try multiple methods to run sarif-tools
           sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
           python -m sarif_tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
+          ~/.local/bin/sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
           {
-            echo "Failed to run sarif-tools. Reinstalling sarif-tools..."
-            pip install --user sarif-tools
-            export PATH="$HOME/.local/bin:$PATH"
-
-            # Try to use the newly installed sarif-tools
-            sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
-            ~/.local/bin/sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
-            python -m sarif_tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif || \
-            {
-              echo "All attempts to convert Bandit results to SARIF failed."
-              echo "Creating empty SARIF file as fallback to prevent workflow failure"
-              echo '{"version":"2.1.0","runs":[]}' > security-reports/bandit-results.sarif
-            }
+            echo "All attempts to convert Bandit results to SARIF failed."
+            echo "Creating empty SARIF file as fallback to prevent workflow failure."
+            echo '{"version":"2.1.0","runs":[]}' > security-reports/bandit-results.sarif
           }
         else
-          echo "No valid Bandit results found to convert to SARIF"
+          echo "No valid Bandit results found to convert to SARIF."
           exit 1
         fi
 
