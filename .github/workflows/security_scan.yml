@@ -41,40 +41,33 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install safety bandit pip-audit
-        # Install sarif-tools globally to ensure proper accessibility
-        pip install --upgrade sarif-tools
+        # Install sarif-tools with user flag to ensure proper accessibility
+        pip install --upgrade --user sarif-tools
 
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
     - name: Verify sarif-tools installation
       run: |
-        echo "Verifying sarif-tools installation..."
+        echo "Installing and verifying sarif-tools..."
 
-        # Add both local and global Python bin directories to PATH
+        # Ensure installation of sarif-tools with multiple methods
+        python -m pip install --force-reinstall --user sarif-tools
+
+        # Add local bin directory to PATH
         export PATH="$HOME/.local/bin:$PATH"
         echo "PATH=$PATH" >> $GITHUB_ENV
 
-        # Install sarif-tools with multiple approaches to ensure availability
-        pip install --force-reinstall sarif-tools
-
-        # Check if sarif-tools is accessible and working
+        # Validate sarif-tools installation
         if command -v sarif-tools &> /dev/null; then
-          echo "✅ sarif-tools command is accessible in PATH"
-          sarif-tools --version || echo "Warning: sarif-tools command found but version check failed"
+          echo "✅ sarif-tools is accessible via command line"
+          sarif-tools --version || echo "Warning: sarif-tools installed but version check failed"
         elif python -m sarif_tools --version &> /dev/null; then
-          echo "✅ sarif-tools accessible via python -m sarif_tools"
+          echo "✅ sarif-tools is accessible via Python module"
         else
-          echo "⚠️ Attempting alternative installation..."
+          echo "⚠️ sarif-tools installation may have issues - will use fallbacks if needed"
+          # Try another installation method
           pip install --user sarif-tools
-          export PATH="$HOME/.local/bin:$PATH"
-          echo "PATH=$PATH" >> $GITHUB_ENV
-
-          if command -v sarif-tools &> /dev/null || python -m sarif_tools --version &> /dev/null; then
-            echo "✅ sarif-tools now accessible after alternative installation"
-          else
-            echo "⚠️ sarif-tools installation issues detected - continuing with fallbacks in place"
-          fi
         fi
 
         # Debug installation location
