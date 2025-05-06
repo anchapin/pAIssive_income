@@ -5,7 +5,7 @@ import { useAppContext } from '../../context/AppContext';
 /**
  * AuthGuard component for conditionally rendering content based on authentication
  * and permission requirements.
- * 
+ *
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Content to render if conditions are met
  * @param {boolean} props.requireAuth - Whether authentication is required
@@ -13,9 +13,9 @@ import { useAppContext } from '../../context/AppContext';
  * @param {React.ReactNode} props.fallback - Content to render if conditions are not met
  * @returns {React.ReactNode} - Either children or fallback based on conditions
  */
-const AuthGuard = ({ 
-  children, 
-  requireAuth = true, 
+const AuthGuard = ({
+  children,
+  requireAuth = true,
   requiredPermission = null,
   fallback = null
 }) => {
@@ -23,10 +23,10 @@ const AuthGuard = ({
 
   // Check if the user meets the authentication requirement
   const isAuthSatisfied = requireAuth ? isAuthenticated : true;
-  
+
   // Check if the user meets the permission requirement (if any)
   let isPermissionSatisfied = true;
-  
+
   if (requiredPermission) {
     if (Array.isArray(requiredPermission)) {
       // If array provided, check if user has ANY of the permissions
@@ -41,7 +41,7 @@ const AuthGuard = ({
   if (isAuthSatisfied && isPermissionSatisfied) {
     return <>{children}</>;
   }
-  
+
   // Otherwise render fallback or null
   return fallback ? <>{fallback}</> : null;
 };

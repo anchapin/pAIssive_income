@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Grid, 
-  TextField, 
-  Button, 
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  TextField,
+  Button,
   Divider,
   Card,
   CardContent,
@@ -64,17 +64,17 @@ const ProfilePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     try {
       // In a real app, this would call an API to update the user profile
       // await apiClient.user.updateProfile(formData);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Refresh user data
       await fetchUserProfile();
-      
+
       addNotification({
         type: 'success',
         message: 'Profile updated successfully!'
@@ -102,33 +102,33 @@ const ProfilePage = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Your Profile
       </Typography>
-      
+
       <Grid container spacing={4}>
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Avatar
-                sx={{ 
-                  width: 120, 
-                  height: 120, 
-                  margin: '0 auto 16px', 
-                  bgcolor: 'primary.main' 
+                sx={{
+                  width: 120,
+                  height: 120,
+                  margin: '0 auto 16px',
+                  bgcolor: 'primary.main'
                 }}
               >
                 <PersonIcon sx={{ fontSize: 64 }} />
               </Avatar>
-              
+
               <Typography variant="h6" gutterBottom>
                 {user.name || user.username}
               </Typography>
-              
+
               <Typography color="text.secondary" paragraph>
                 Member since: {new Date().toLocaleDateString()}
               </Typography>
-              
+
               <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1 }}>
                 {user.roles?.map(role => (
-                  <Chip 
+                  <Chip
                     key={role}
                     label={role.charAt(0).toUpperCase() + role.slice(1)}
                     color={role === 'admin' ? 'error' : role === 'creator' ? 'primary' : 'default'}
@@ -139,15 +139,15 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={8}>
           <Item>
             <Typography variant="h6" gutterBottom>
               Edit Profile Information
             </Typography>
-            
+
             <Divider sx={{ mb: 3 }} />
-            
+
             <Box component="form" onSubmit={handleSubmit} noValidate>
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
@@ -159,7 +159,7 @@ const ProfilePage = () => {
                     onChange={handleChange}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
@@ -170,7 +170,7 @@ const ProfilePage = () => {
                     disabled // Username typically shouldn't be changed
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
@@ -181,7 +181,7 @@ const ProfilePage = () => {
                     onChange={handleChange}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
@@ -194,7 +194,7 @@ const ProfilePage = () => {
                     placeholder="Tell us a bit about yourself"
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Button
                     type="submit"

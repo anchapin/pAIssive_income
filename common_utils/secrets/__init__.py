@@ -1,9 +1,7 @@
-"""
-Secrets Management Module
+"""__init__ - Module for common_utils/secrets.__init__."""
 
-This module provides utilities for securely managing secrets throughout the application.
-"""
+# Standard library imports
 
-from .secrets_manager import delete_secret, get_secret, list_secret_names, set_secret
+# Third-party imports
 
-__all__ = ["get_secret", "set_secret", "list_secret_names", "delete_secret"]
+# Local imports

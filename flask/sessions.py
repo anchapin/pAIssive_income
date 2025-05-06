@@ -1,7 +1,7 @@
-"""
-Minimal stub for flask.sessions.
-"""
+"""sessions.py - Module for .flask."""
 
-class SessionMixin:
-    """Minimal stub for SessionMixin."""
-    pass
+# Standard library imports
+
+# Third-party imports
+
+# Local imports

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  TextField, 
-  Button, 
-  Box, 
-  Typography, 
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
   Paper,
   InputAdornment,
   IconButton,
@@ -25,22 +25,22 @@ const RegisterForm = ({ onSuccess }) => {
   const [serverError, setServerError] = useState('');
 
   // Initialize form validation with registration schema
-  const { 
-    values, 
-    errors, 
-    touched, 
-    handleChange, 
-    handleBlur, 
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
     handleSubmit,
     isValid
   } = useFormValidation(
-    { 
-      username: '', 
-      email: '', 
-      password: '', 
+    {
+      username: '',
+      email: '',
+      password: '',
       confirmPassword: '',
       name: ''
-    }, 
+    },
     validationSchemas.register
   );
 
@@ -48,7 +48,7 @@ const RegisterForm = ({ onSuccess }) => {
   const submitRegistration = async (formData) => {
     setServerError('');
     setIsSubmitting(true);
-    
+
     try {
       // Call register function from context
       await register({
@@ -57,7 +57,7 @@ const RegisterForm = ({ onSuccess }) => {
         password: formData.password,
         name: formData.name
       });
-      
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
@@ -87,13 +87,13 @@ const RegisterForm = ({ onSuccess }) => {
       <Typography variant="h5" component="h1" gutterBottom align="center">
         Create Account
       </Typography>
-      
+
       {serverError && (
         <Typography color="error" variant="body2" sx={{ mb: 2 }} align="center">
           {serverError}
         </Typography>
       )}
-      
+
       <Box component="form" onSubmit={handleSubmit(submitRegistration)} noValidate>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -113,7 +113,7 @@ const RegisterForm = ({ onSuccess }) => {
               disabled={isSubmitting}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <TextField
               required
@@ -130,7 +130,7 @@ const RegisterForm = ({ onSuccess }) => {
               disabled={isSubmitting}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <TextField
               required
@@ -147,7 +147,7 @@ const RegisterForm = ({ onSuccess }) => {
               disabled={isSubmitting}
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6}>
             <TextField
               required
@@ -178,7 +178,7 @@ const RegisterForm = ({ onSuccess }) => {
               }}
             />
           </Grid>
-          
+
           <Grid item xs={12} sm={6}>
             <TextField
               required
@@ -210,7 +210,7 @@ const RegisterForm = ({ onSuccess }) => {
             />
           </Grid>
         </Grid>
-        
+
         <Button
           type="submit"
           fullWidth

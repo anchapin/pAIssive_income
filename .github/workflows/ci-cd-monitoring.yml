@@ -88,12 +88,12 @@ jobs:
           subject: "⚠️ CI/CD Workflow Failed: ${{ steps.check_status.outputs.workflow_name }}"
           body: |
             CI/CD Workflow has failed!
-            
+
             Workflow: ${{ steps.check_status.outputs.workflow_name }}
             Status: ${{ steps.check_status.outputs.workflow_status }}
             Repository: ${{ steps.check_status.outputs.repo_name }}
             Branch: ${{ steps.check_status.outputs.branch_name }}
-            
+
             View the workflow run: ${{ steps.check_status.outputs.workflow_url }}
           to: ${{ secrets.NOTIFICATION_EMAIL }}
           from: CI/CD Monitoring <${{ secrets.MAIL_USERNAME }}>

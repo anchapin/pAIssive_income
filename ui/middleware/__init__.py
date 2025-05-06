@@ -1,9 +1,7 @@
-"""
-Middleware for the Flask application.
+"""__init__ - Module for ui/middleware.__init__."""
 
-This module provides middleware for the Flask application.
-"""
+# Standard library imports
 
-from .logging_middleware import init_app as init_logging_middleware
+# Third-party imports
 
-__all__ = ["init_logging_middleware"]
+# Local imports

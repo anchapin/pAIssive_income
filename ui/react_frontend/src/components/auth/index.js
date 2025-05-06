@@ -1,6 +1,6 @@
 /**
  * Authentication components index
- * 
+ *
  * This file exports all authentication-related components and utilities
  * to make importing them elsewhere in the application easier.
  */

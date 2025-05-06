@@ -1,14 +1,7 @@
-"""test_mocks_usage.py - Module for the pAIssive Income project."""
+"""test_mocks_usage - Module for tests/examples.test_mocks_usage."""
 
-# This file was automatically fixed by the syntax error correction script
-# The original content had syntax errors that could not be automatically fixed
-# Please review and update this file as needed
+# Standard library imports
 
+# Third-party imports
 
-def main():
-    """Initialize the module."""
-    pass
-
-
-if __name__ == "__main__":
-    main()
+# Local imports

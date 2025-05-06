@@ -9,16 +9,16 @@ import { RegisterForm } from '../components/auth';
  */
 const RegisterPage = () => {
   const navigate = useNavigate();
-  
+
   // Handle successful registration
   const handleRegisterSuccess = () => {
     // Navigate to the dashboard after successful registration
     navigate('/dashboard', { replace: true });
   };
-  
+
   return (
-    <Box sx={{ 
-      display: 'flex', 
+    <Box sx={{
+      display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
@@ -28,13 +28,13 @@ const RegisterPage = () => {
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Create Your Account
         </Typography>
-        
+
         <Typography variant="body2" color="text.secondary" paragraph align="center">
           Join pAIssive Income and start creating AI-powered passive income streams
         </Typography>
-        
+
         <RegisterForm onSuccess={handleRegisterSuccess} />
-        
+
         <Box mt={3} textAlign="center">
           <Typography variant="body2">
             Already have an account?{' '}

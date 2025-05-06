@@ -91,7 +91,7 @@ To use HashiCorp Vault as a backend:
    ```python
    from common_utils.secrets import get_secret
    from common_utils.secrets.secrets_manager import SecretsBackend
-   
+
    # Get a secret from Vault
    api_key = get_secret("API_KEY", backend=SecretsBackend.VAULT)
    ```

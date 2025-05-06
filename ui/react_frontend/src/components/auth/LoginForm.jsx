@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  TextField, 
-  Button, 
-  Box, 
-  Typography, 
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
   Paper,
   FormHelperText,
   InputAdornment,
@@ -24,16 +24,16 @@ const LoginForm = ({ onSuccess }) => {
   const [serverError, setServerError] = useState('');
 
   // Initialize form validation with login schema
-  const { 
-    values, 
-    errors, 
-    touched, 
-    handleChange, 
-    handleBlur, 
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
     handleSubmit,
     isValid
   } = useFormValidation(
-    { username: '', password: '' }, 
+    { username: '', password: '' },
     validationSchemas.login
   );
 
@@ -41,14 +41,14 @@ const LoginForm = ({ onSuccess }) => {
   const submitLogin = async (formData) => {
     setServerError('');
     setIsSubmitting(true);
-    
+
     try {
       // Call login function from context
       await login({
         username: formData.username,
         password: formData.password
       });
-      
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
@@ -73,13 +73,13 @@ const LoginForm = ({ onSuccess }) => {
       <Typography variant="h5" component="h1" gutterBottom align="center">
         Log In
       </Typography>
-      
+
       {serverError && (
         <Typography color="error" variant="body2" sx={{ mb: 2 }} align="center">
           {serverError}
         </Typography>
       )}
-      
+
       <Box component="form" onSubmit={handleSubmit(submitLogin)} noValidate>
         <TextField
           margin="normal"
@@ -97,7 +97,7 @@ const LoginForm = ({ onSuccess }) => {
           helperText={touched.username && errors.username}
           disabled={isSubmitting}
         />
-        
+
         <TextField
           margin="normal"
           required
@@ -127,7 +127,7 @@ const LoginForm = ({ onSuccess }) => {
             )
           }}
         />
-        
+
         <Button
           type="submit"
           fullWidth
@@ -138,7 +138,7 @@ const LoginForm = ({ onSuccess }) => {
         >
           {isSubmitting ? <CircularProgress size={24} /> : "Log In"}
         </Button>
-        
+
         <FormHelperText>
           Demo credentials: username "demo" / password "password"
         </FormHelperText>
