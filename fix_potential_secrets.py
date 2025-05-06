@@ -213,6 +213,28 @@ def scan_directory(directory: str) -> Dict[str, List[Tuple[str, int, str, str]]]
     return results
 
 
+def safe_log_sensitive_info(
+    pattern_name: str, line_num: int, secret_length: int
+) -> str:
+    """Safely log information about sensitive data without exposing the actual content."""
+    return f"  Line {line_num}: {pattern_name} - [REDACTED - {secret_length} chars]"
+
+
+def safe_log_file_path(file_path: str) -> str:
+    """Safely log file path without exposing potentially sensitive path information."""
+    # Check if the file path contains any sensitive keywords
+    sensitive_keywords = ["secret", "password", "token", "key", "credential", "auth"]
+    path_parts = Path(file_path).parts
+
+    for part in path_parts:
+        for keyword in sensitive_keywords:
+            if keyword.lower() in part.lower():
+                # Redact the sensitive part of the path
+                return file_path.replace(part, "[REDACTED]")
+
+    return file_path
+
+
 def is_text_file(file_path: str) -> bool:
     """Check if a file is a text file based on extension."""
     text_extensions = {
@@ -256,31 +278,27 @@ def main():
         print("No potential secrets found.")
         return 0
 
-    print(f"Found potential secrets in {len(results)} files:")
+    print(f"Security scan identified sensitive information in {len(results)} files:")
     total_secrets = 0
     fixed_files = 0
 
     for file_path, secrets in results.items():
         total_secrets += len(secrets)
-        print(f"\n{file_path}:")
+        safe_path = safe_log_file_path(file_path)
+        print(f"\n{safe_path}:")
         for pattern_name, line_num, _, secret in secrets:
-            # Mask the secret in the output
-            masked_secret = (
-                secret[:3] + "*" * (len(secret) - 6) + secret[-3:]
-                if len(secret) > 6
-                else "***"
-            )
-            print(f"  Line {line_num}: {pattern_name} - {masked_secret}")
+            # Use safe logging function to avoid exposing sensitive data
+            log_message = safe_log_sensitive_info(pattern_name, line_num, len(secret))
+            print(log_message)
 
         # Fix secrets in the file
         if fix_secrets_in_file(file_path, secrets):
             fixed_files += 1
-            print(f"  ✅ Fixed secrets in {file_path}")
+            safe_path = safe_log_file_path(file_path)
+            print(f"  ✅ Applied security fixes to {safe_path}")
 
-    print(
-        f"\nSummary: Found {total_secrets} potential secrets in {len(results)} files."
-    )
-    print(f"Fixed secrets in {fixed_files} files.")
+    print(f"\nSummary: Identified sensitive information in {len(results)} files.")
+    print(f"Applied security fixes to {fixed_files} files.")
 
     return 0 if fixed_files == len(results) else 1
 
