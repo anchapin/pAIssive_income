@@ -23,7 +23,7 @@ USER_DB: Dict[str, User] = {
     "user1": User(
         id="user1",
         username="demo",
-        email="demo @ example.com",
+        email="demo@example.com",
         name="Demo User",
         password_hash=hash_password("password"),  # In real app, would be pre - hashed
         roles=["user"],
@@ -33,7 +33,7 @@ USER_DB: Dict[str, User] = {
     "user2": User(
         id="user2",
         username="creator",
-        email="creator @ example.com",
+        email="creator@example.com",
         name="Creator User",
         password_hash=hash_password("creator123"),  # In real app, would be pre - hashed
         roles=["creator"],
