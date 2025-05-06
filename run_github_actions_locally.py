@@ -149,10 +149,11 @@ def run_security_scan(output_dir=None):
     print("Running safety check...")
     try:
         safety_output = os.path.join(output_dir, "safety-results.json")
-        subprocess.run(
-            ["safety", "check", "--json"], stdout=open(safety_output, "w"), check=True
-        )
-        print(f"Safety check completed. Results saved to {safety_output}")
+        with open(safety_output, "w") as safety_file:
+            subprocess.run(
+                ["safety", "check", "--json"], stdout=safety_file, check=True
+            )
+            print(f"Safety check completed. Results saved to {safety_output}")
     except subprocess.CalledProcessError:
         print("Safety check completed with warnings.")
     except FileNotFoundError:
@@ -164,11 +165,12 @@ def run_security_scan(output_dir=None):
     print("Running pip-audit...")
     try:
         pip_audit_output = os.path.join(output_dir, "pip-audit-results.json")
-        subprocess.run(
-            ["pip-audit", "--format", "json"],
-            stdout=open(pip_audit_output, "w"),
-            check=True,
-        )
+        with open(pip_audit_output, "w") as pip_audit_file:
+            subprocess.run(
+                ["pip-audit", "--format", "json"],
+                stdout=pip_audit_file,
+                check=True,
+            )
         print(f"pip-audit completed. Results saved to {pip_audit_output}")
     except subprocess.CalledProcessError:
         print("pip-audit completed with warnings.")

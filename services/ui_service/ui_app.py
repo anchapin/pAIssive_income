@@ -16,11 +16,11 @@ def main(debug=False, verbose=False):
     """Initialize the module."""
     if "--help" in sys.argv:
         print("Usage: python app.py [options]")
-        return
+        return True
 
     if "--version" in sys.argv:
         print("Application Version: 1.0.0")
-        return
+        return True
 
     try:
         if debug:

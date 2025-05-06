@@ -252,6 +252,67 @@ Running the main script generates a complete project plan including:
 - Node.js 14.0+ (for modern UI)
 - Dependencies listed in each module's README
 
+## Code Style and Formatting
+
+The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
+
+### Common Formatting Issues to Watch For
+
+- Trailing whitespace at the end of lines
+- Missing newline at end of files
+- Inconsistent indentation (use 4 spaces, not tabs)
+- Type annotation issues caught by MyPy
+- Ruff linting violations (see .ruff.toml for rules)
+
+### Using Pre-commit Hooks
+
+The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+To run all pre-commit hooks manually on all files:
+```bash
+pre-commit run --all-files
+```
+
+To run specific hooks:
+```bash
+pre-commit run trailing-whitespace --all-files
+pre-commit run ruff --all-files
+```
+
+### Local Linting Commands
+
+Use these commands to check and fix linting issues:
+
+1. Check for issues without fixing:
+```bash
+scripts\lint_check.bat  # Windows
+./scripts/lint_check.sh  # Unix/Linux
+```
+
+2. Fix issues automatically:
+```bash
+python fix_all_issues_final.py
+```
+
+3. Run specific checks:
+```bash
+scripts\lint_check.bat --ruff  # Run only Ruff
+scripts\lint_check.bat --mypy  # Run only MyPy
+```
+
+### Code Formatter Configuration
+
+- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **MyPy**: Type checking configuration is in `mypy.ini`
+- **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
+
+All configuration files are version controlled to ensure consistent formatting across the project.
+
 ## Documentation
 
 The project includes comprehensive API documentation that can be built from source:

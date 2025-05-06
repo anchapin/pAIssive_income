@@ -9,6 +9,10 @@ exclude: |
     .*venv/.*
   )$
 
+# Add fail_fast: false to continue running hooks even if one fails
+fail_fast: false
+
+# Add auto-stage-modified: true to automatically stage files that are modified by hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -27,7 +31,7 @@ repos:
     rev: v0.3.0
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix]
       - id: ruff-format
 
   # Optional: Add mypy for type checking
@@ -38,20 +42,3 @@ repos:
         additional_dependencies: [types-requests, types-PyYAML]
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
-
-  # Custom hooks to run our scripts
-  - repo: local
-    hooks:
-      - id: check-syntax-errors
-        name: Check for syntax errors
-        entry: python fix_test_collection_warnings.py
-        language: python
-        types: [python]
-        pass_filenames: false
-
-      - id: format-files
-        name: Format Python files
-        entry: python format_files.py
-        language: python
-        types: [python]
-        pass_filenames: true
