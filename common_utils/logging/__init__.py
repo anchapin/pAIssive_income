@@ -6,6 +6,7 @@ is not logged in clear text.
 
 # Standard library imports
 import logging
+from typing import cast
 
 # Third-party imports
 # Local imports
@@ -37,13 +38,14 @@ def get_logger(name: str) -> logging.Logger:
 
     Returns:
     -------
-        logging.Logger: The secure logger
+        logging.Logger: The secure logger or a standard logger as fallback
 
     """
     try:
         # Return a SecureLogger that masks sensitive information
         logger = get_secure_logger(name)
-        return logger  # type: ignore
+        # Cast to logging.Logger to satisfy type checking
+        return cast(logging.Logger, logger)
     except Exception as e:
         # Fall back to standard logger if secure logger is not available
         logging.getLogger("logging_setup").warning(

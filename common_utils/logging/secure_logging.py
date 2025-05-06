@@ -189,6 +189,42 @@ class SecureLogger:
         """
         self.logger = logging.getLogger(logger_name)
 
+    def set_level(self, level):
+        """Set the logging level of this logger."""
+        self.logger.setLevel(level)
+        self.level = self.logger.level
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    setLevel = set_level  # noqa: N815
+
+    def is_enabled_for(self, level):
+        """Check if this logger is enabled for the specified level."""
+        return self.logger.isEnabledFor(level)
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    isEnabledFor = is_enabled_for  # noqa: N815
+
+    def get_effective_level(self):
+        """Get the effective level for this logger."""
+        return self.logger.getEffectiveLevel()
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    getEffectiveLevel = get_effective_level  # noqa: N815
+
+    def get_child(self, suffix):
+        """Get a logger which is a descendant to this logger."""
+        child_logger = self.logger.getChild(suffix)
+        secure_child = SecureLogger(child_logger.name)
+        secure_child.logger = child_logger
+        return secure_child
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    getChild = get_child  # noqa: N815
+
     def debug(self, msg: str, *args, **kwargs):
         """Log a debug message with sensitive information masked."""
         self.logger.debug(mask_sensitive_data(msg), *args, **kwargs)
@@ -201,6 +237,9 @@ class SecureLogger:
         """Log a warning message with sensitive information masked."""
         self.logger.warning(mask_sensitive_data(msg), *args, **kwargs)
 
+    # Alias for warning
+    warn = warning
+
     def error(self, msg: str, *args, **kwargs):
         """Log an error message with sensitive information masked."""
         self.logger.error(mask_sensitive_data(msg), *args, **kwargs)
@@ -209,9 +248,84 @@ class SecureLogger:
         """Log a critical message with sensitive information masked."""
         self.logger.critical(mask_sensitive_data(msg), *args, **kwargs)
 
+    # Alias for critical
+    fatal = critical
+
     def exception(self, msg: str, *args, **kwargs):
         """Log an exception message with sensitive information masked."""
         self.logger.exception(mask_sensitive_data(msg), *args, **kwargs)
+
+    def log(self, level, msg, *args, **kwargs):
+        """Log with specified level."""
+        self.logger.log(level, mask_sensitive_data(msg), *args, **kwargs)
+
+    def add_handler(self, hdlr):
+        """Add the specified handler to this logger."""
+        self.logger.addHandler(hdlr)
+        self.handlers = self.logger.handlers
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    addHandler = add_handler  # noqa: N815
+
+    def remove_handler(self, hdlr):
+        """Remove the specified handler from this logger."""
+        self.logger.removeHandler(hdlr)
+        self.handlers = self.logger.handlers
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    removeHandler = remove_handler  # noqa: N815
+
+    def has_handlers(self):
+        """Check if this logger has any handlers configured."""
+        return self.logger.hasHandlers()
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    hasHandlers = has_handlers  # noqa: N815
+
+    def call_handlers(self, record):
+        """Pass a record to all relevant handlers."""
+        self.logger.callHandlers(record)
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    callHandlers = call_handlers  # noqa: N815
+
+    def handle(self, record):
+        """Call the handlers for the specified record."""
+        return self.logger.handle(record)
+
+    def make_record(
+        self,
+        name,
+        level,
+        fn,
+        lno,
+        msg,
+        args,
+        exc_info,
+        func=None,
+        extra=None,
+        sinfo=None,
+    ):
+        """Make a LogRecord."""
+        return self.logger.makeRecord(
+            name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
+        )
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    makeRecord = make_record  # noqa: N815
+
+    def find_caller(self, stack_info=False, stacklevel=1):
+        """Find the caller's source file and line number."""
+        return self.logger.findCaller(stack_info, stacklevel)
+
+    # Alias for compatibility with standard logging
+    # noqa: N815 - This needs to match the standard logging method name
+    findCaller = find_caller  # noqa: N815
 
 
 def get_secure_logger(name: str) -> SecureLogger:

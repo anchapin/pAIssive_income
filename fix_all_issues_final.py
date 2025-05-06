@@ -79,30 +79,68 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
 
     """
     if specific_files:
-        return [f for f in specific_files if f.endswith(".py") and os.path.isfile(f)]
+        # Normalize paths for cross-platform compatibility
+        normalized_files = []
+        for f in specific_files:
+            if f.endswith(".py") and os.path.isfile(f):
+                normalized_files.append(os.path.normpath(f))
+        return normalized_files
 
-    python_files = []
-    ignore_dirs = {".git", ".venv", "venv", "__pycache__", "build", "dist"}
-    ignore_patterns = [
-        os.path.normpath("./.git"),
-        os.path.normpath("./.venv"),
-        os.path.normpath("./venv"),
-        os.path.normpath("./__pycache__"),
-    ]
+    python_files: List[str] = []
+    # Directories to ignore
+    ignore_dirs = {
+        ".git",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "build",
+        "dist",
+        "node_modules",
+    }
+
+    # Create normalized patterns for both forward and backslash paths
+    ignore_patterns = []
+    for pattern in [
+        ".git",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "build",
+        "dist",
+        "node_modules",
+    ]:
+        # Add patterns with both forward and backslashes for cross-platform compatibility
+        ignore_patterns.append(os.path.normpath(f"./{pattern}"))
+        ignore_patterns.append(os.path.normpath(f".\\{pattern}"))
+
+    print(f"Ignore patterns: {ignore_patterns}")
+    print(f"Platform: {sys.platform}")
 
     for root, dirs, files in os.walk("."):
         # Skip ignored directories
         norm_root = os.path.normpath(root)
+
+        # Debug output for the first few directories
+        if len(python_files) < 5:
+            print(f"Checking directory: {norm_root}")
+
+        # Check if this directory should be ignored
         if any(norm_root.startswith(pattern) for pattern in ignore_patterns):
+            if len(python_files) < 5:
+                print(f"  Skipping ignored directory: {norm_root}")
             continue
 
+        # Filter out ignored directories
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
         for file in files:
             if file.endswith(".py"):
-                file_path = os.path.join(root, file)
+                file_path = os.path.normpath(os.path.join(root, file))
                 python_files.append(file_path)
+                if len(python_files) <= 5:
+                    print(f"  Found Python file: {file_path}")
 
+    print(f"Total Python files found: {len(python_files)}")
     return python_files
 
 
@@ -125,29 +163,62 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
             try:
                 # Use shell=True on Windows to find commands in PATH
                 shell = sys.platform == "win32"
-                subprocess.run(
-                    [command[0], "--version"],
+
+                # For Windows, use where command to check if tool exists
+                if shell:
+                    check_cmd = ["where", command[0]]
+                else:
+                    check_cmd = ["which", command[0]]
+
+                result = subprocess.run(
+                    check_cmd,
                     capture_output=True,
-                    check=True,
+                    text=True,
                     shell=shell,
                 )
-            except (subprocess.SubprocessError, FileNotFoundError):
-                print(f"Warning: Command '{command[0]}' not found. Skipping.")
+
+                if result.returncode != 0:
+                    print(f"Warning: Command '{command[0]}' not found. Skipping.")
+                    return 0, "", f"Command '{command[0]}' not found. Skipped."
+
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                print(f"Warning: Command '{command[0]}' check failed: {e}. Skipping.")
                 return 0, "", f"Command '{command[0]}' not found. Skipped."
 
         # Use shell=True on Windows to find commands in PATH
         shell = sys.platform == "win32"
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            shell=shell,
-        )
-        stdout, stderr = process.communicate()
-        return process.returncode, stdout, stderr
+
+        # Print command for debugging
+        cmd_str = " ".join(command)
+        print(f"Running command: {cmd_str}")
+
+        try:
+            # Try using subprocess.run first (more reliable)
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                shell=shell,
+                check=False,  # Don't raise exception on non-zero exit
+            )
+            return result.returncode, result.stdout, result.stderr
+        except Exception as run_error:
+            print(f"subprocess.run failed: {run_error}, falling back to Popen")
+            # Fall back to Popen if run fails
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                shell=shell,
+            )
+            stdout, stderr = process.communicate()
+            return process.returncode, stdout, stderr
     except Exception as e:
         print(f"Error running command {' '.join(command)}: {e}")
+        import traceback
+
+        traceback.print_exc()
         return 1, "", str(e)
 
 
@@ -411,9 +482,14 @@ def main() -> int:
     """Run the main program to fix code quality issues."""
     try:
         print(f"Running fix_all_issues_final.py on platform: {sys.platform}")
+        print(f"Python version: {sys.version}")
+        print(f"Current working directory: {os.getcwd()}")
+
         args = parse_arguments()
+        print(f"Arguments: {args}")
 
         # Find Python files to process
+        print("Finding Python files to process...")
         python_files = find_python_files(args.files)
 
         if not python_files:
@@ -421,6 +497,11 @@ def main() -> int:
             return 0
 
         print(f"Processing {len(python_files)} Python files...")
+
+        # If specific files were provided, show them
+        if args.files:
+            print(f"Specific files requested: {args.files}")
+            print(f"Actual files found: {python_files}")
 
         # Check if required tools are installed
         tools_to_check = []
@@ -431,34 +512,65 @@ def main() -> int:
         if not args.syntax_only and not args.no_ruff:
             tools_to_check.append("ruff")
 
+        print(f"Checking for required tools: {tools_to_check}")
+        missing_tools = []
+
         for tool in tools_to_check:
             try:
                 shell = sys.platform == "win32"
-                subprocess.run(
-                    [tool, "--version"],
+                # For Windows, use where command to check if tool exists
+                if shell:
+                    check_cmd = ["where", tool]
+                else:
+                    check_cmd = ["which", tool]
+
+                result = subprocess.run(
+                    check_cmd,
                     capture_output=True,
-                    check=True,
+                    text=True,
                     shell=shell,
                 )
-                print(f"✓ {tool} is installed")
-            except (subprocess.SubprocessError, FileNotFoundError):
-                print(f"✗ {tool} is not installed or not found in PATH")
+
+                if result.returncode == 0:
+                    print(f"✓ {tool} is installed at: {result.stdout.strip()}")
+                else:
+                    print(f"✗ {tool} is not found in PATH")
+                    missing_tools.append(tool)
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                print(f"✗ {tool} check failed: {e}")
+                missing_tools.append(tool)
+
+        if missing_tools and not args.syntax_only:
+            print(f"Warning: The following tools are missing: {missing_tools}")
+            print("Continuing with available tools only...")
 
         # Process each file
         success_count = 0
         failed_files = []
+        syntax_error_files = []
+        format_error_files = []
+        tool_error_files = []
 
-        for file_path in python_files:
+        for i, file_path in enumerate(python_files):
+            print(f"\nProcessing file {i+1}/{len(python_files)}: {file_path}")
             try:
                 if fix_file(file_path, args):
                     success_count += 1
+                    print(f"✓ Successfully processed {file_path}")
                 else:
                     failed_files.append(file_path)
+                    print(f"✗ Failed to process {file_path}")
             except Exception as e:
                 print(f"Error processing {file_path}: {e}")
+                import traceback
+
+                traceback.print_exc()
                 failed_files.append(file_path)
 
         # Print summary
+        print("\n" + "=" * 50)
+        print("SUMMARY")
+        print("=" * 50)
         print(
             f"Successfully processed {success_count} out of {len(python_files)} files."
         )
@@ -467,6 +579,41 @@ def main() -> int:
             print("\nFailed files:")
             for file_path in failed_files:
                 print(f"  - {file_path}")
+
+            # Try to categorize failures
+            for file_path in failed_files:
+                try:
+                    with open(file_path, encoding="utf-8") as f:
+                        content = f.read()
+                    try:
+                        compile(content, file_path, "exec")
+                    except SyntaxError:
+                        syntax_error_files.append(file_path)
+                        continue
+
+                    # If we get here, it's not a syntax error
+                    if args.syntax_only:
+                        format_error_files.append(file_path)
+                    else:
+                        tool_error_files.append(file_path)
+                except Exception:
+                    # If we can't even read the file, count it as a syntax error
+                    syntax_error_files.append(file_path)
+
+            if syntax_error_files:
+                print("\nFiles with syntax errors:")
+                for file_path in syntax_error_files:
+                    print(f"  - {file_path}")
+
+            if format_error_files:
+                print("\nFiles with formatting errors:")
+                for file_path in format_error_files:
+                    print(f"  - {file_path}")
+
+            if tool_error_files:
+                print("\nFiles with tool errors:")
+                for file_path in tool_error_files:
+                    print(f"  - {file_path}")
 
         return 0 if success_count == len(python_files) else 1
     except Exception as e:
