@@ -1,5 +1,4 @@
-"""
-Rate limiting functionality for the pAIssive_income project.
+"""Rate limiting functionality for the pAIssive_income project.
 
 This module provides functions for rate limiting authentication attempts
 and other security - sensitive operations.
@@ -9,43 +8,58 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from flask import g, jsonify, request
+# Import flask modules conditionally to handle missing modules in testing
+try:
+    from flask import g, jsonify, request
+except ImportError:
+    # Create stub classes for testing
+    class FlaskStub:
+        pass
+
+    g = FlaskStub()
+    jsonify = lambda x: x  # noqa
+    request = FlaskStub()
 
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# In - memory storage for rate limiting
+# In-memory storage for rate limiting
 # In a production environment, this would be stored in a distributed cache like Redis
-LOGIN_ATTEMPTS = defaultdict(list)  # username / ip -> list of timestamps
-BLOCKED_IPS = {}  # ip -> unblock_time
+LOGIN_ATTEMPTS: Dict[str, List[datetime]] = defaultdict(
+    list
+)  # username/ip -> list of timestamps
+BLOCKED_IPS: Dict[str, datetime] = {}  # ip -> unblock_time
 
 
 def get_client_ip() -> str:
-    """
-    Get the client IP address from the request.
+    """Get the client IP address from the request.
 
-    Returns:
+    Returns
+    -------
         Client IP address
+
     """
-    # Check for X - Forwarded - For header (for clients behind proxies)
-    if request.headers.get("X - Forwarded - For"):
-        ip = request.headers.get("X - Forwarded - For").split(",")[0].strip()
+    # Check for X-Forwarded-For header (for clients behind proxies)
+    if request.headers.get("X-Forwarded-For"):
+        ip = request.headers.get("X-Forwarded-For").split(",")[0].strip()
     else:
         ip = request.remote_addr or "unknown"
     return ip
 
 
 def is_ip_blocked(ip: str) -> bool:
-    """
-    Check if an IP address is currently blocked.
+    """Check if an IP address is currently blocked.
 
     Args:
+    ----
         ip: IP address to check
 
     Returns:
+    -------
         True if IP is blocked, False otherwise
+
     """
     # Check if IP is in blocked list
     if ip in BLOCKED_IPS:
@@ -63,12 +77,13 @@ def is_ip_blocked(ip: str) -> bool:
 
 
 def block_ip(ip: str, duration_minutes: int = 15) -> None:
-    """
-    Block an IP address for a specified duration.
+    """Block an IP address for a specified duration.
 
     Args:
+    ----
         ip: IP address to block
         duration_minutes: Duration to block the IP in minutes
+
     """
     unblock_time = datetime.utcnow() + timedelta(minutes=duration_minutes)
     BLOCKED_IPS[ip] = unblock_time
@@ -76,22 +91,26 @@ def block_ip(ip: str, duration_minutes: int = 15) -> None:
 
 
 def record_login_attempt(identifier: str, success: bool) -> Tuple[bool, Optional[int]]:
-    """
-    Record a login attempt and check if rate limit is exceeded.
+    """Record a login attempt and check if rate limit is exceeded.
 
     Args:
+    ----
         identifier: Username or IP address
         success: Whether the login attempt was successful
 
     Returns:
+    -------
         Tuple of (is_rate_limited, remaining_attempts)
+
     """
     now = datetime.utcnow()
     window_start = now - timedelta(minutes=15)
 
     # Remove attempts older than the window
     LOGIN_ATTEMPTS[identifier] = [
-        timestamp for timestamp in LOGIN_ATTEMPTS[identifier] if timestamp > window_start
+        timestamp
+        for timestamp in LOGIN_ATTEMPTS[identifier]
+        if timestamp > window_start
     ]
 
     # Add current attempt
@@ -118,14 +137,16 @@ def record_login_attempt(identifier: str, success: bool) -> Tuple[bool, Optional
 
 
 def rate_limit_login(f):
-    """
-    Decorator to apply rate limiting to login routes.
+    """Apply rate limiting to login routes.
 
     Args:
+    ----
         f: Flask route function to wrap
 
     Returns:
+    -------
         Wrapped function that enforces rate limiting
+
     """
 
     @wraps(f)
@@ -141,7 +162,6 @@ def rate_limit_login(f):
                     {
                         "error": "Too Many Requests",
                         "message": "Too many failed login attempts. Please try again later.",
-                            
                     }
                 ),
                 429,
@@ -157,8 +177,9 @@ def rate_limit_login(f):
         ip_identifier = f"ip:{ip}"
 
         # Check rate limits
-        username_limited, username_remaining = record_login_attempt(username_identifier, 
-            False)
+        username_limited, username_remaining = record_login_attempt(
+            username_identifier, False
+        )
         ip_limited, ip_remaining = record_login_attempt(ip_identifier, False)
 
         if username_limited or ip_limited:
@@ -171,7 +192,6 @@ def rate_limit_login(f):
                     {
                         "error": "Too Many Requests",
                         "message": "Too many failed login attempts. Please try again later.",
-                            
                     }
                 ),
                 429,
@@ -190,11 +210,12 @@ def rate_limit_login(f):
 
 
 def cleanup_rate_limiting_data() -> Tuple[int, int]:
-    """
-    Clean up expired rate limiting data.
+    """Clean up expired rate limiting data.
 
-    Returns:
+    Returns
+    -------
         Tuple of (removed_attempts, removed_blocks)
+
     """
     now = datetime.utcnow()
     window_start = now - timedelta(minutes=15)
@@ -205,7 +226,9 @@ def cleanup_rate_limiting_data() -> Tuple[int, int]:
         # Remove attempts older than the window
         original_count = len(LOGIN_ATTEMPTS[identifier])
         LOGIN_ATTEMPTS[identifier] = [
-            timestamp for timestamp in LOGIN_ATTEMPTS[identifier] if timestamp > window_start
+            timestamp
+            for timestamp in LOGIN_ATTEMPTS[identifier]
+            if timestamp > window_start
         ]
 
         # If no attempts remain, remove the identifier
