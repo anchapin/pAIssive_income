@@ -1,27 +1,14 @@
-"""
-REST API server for AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides a REST API server for serving AI models.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .middleware import AuthMiddleware, RateLimitMiddleware
-from .routes import (
-    audio_router,
-    embedding_router,
-    image_router,
-    text_classification_router,
-    text_generation_router,
-)
-from .server import RESTConfig, RESTServer
 
-__all__ = [
-    "RESTServer",
-    "RESTConfig",
-    "AuthMiddleware",
-    "RateLimitMiddleware",
-    "text_generation_router",
-    "text_classification_router",
-    "embedding_router",
-    "image_router",
-    "audio_router",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

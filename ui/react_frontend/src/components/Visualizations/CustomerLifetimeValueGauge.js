@@ -9,10 +9,10 @@ import {
 
 /**
  * CustomerLifetimeValueGauge - Component for visualizing customer lifetime value metrics
- * 
+ *
  * This component displays gauge visualizations for customer lifetime value (LTV)
  * and related metrics based on the RevenueProjector's calculate_lifetime_value method.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.data - LTV data object with values for different time periods
  * @param {string} props.title - Chart title
@@ -41,7 +41,7 @@ const CustomerLifetimeValueGauge = ({
   const createGaugeData = (currentValue, maxValue) => {
     // If current value exceeds max value, adjust max value
     const adjustedMaxValue = currentValue > maxValue ? currentValue * 1.2 : maxValue;
-    
+
     return [
       { name: "Value", value: currentValue, color: "#0088FE" },
       { name: "Remaining", value: adjustedMaxValue - currentValue, color: "#EEEEEE" }
@@ -119,7 +119,7 @@ const CustomerLifetimeValueGauge = ({
   return (
     <div className="chart-container">
       <h3>{title}</h3>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
           <div style={{ width: '30%', height: gaugeSize, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -148,9 +148,9 @@ const CustomerLifetimeValueGauge = ({
             </div>
           </div>
         </div>
-        
+
         <CustomLegend />
-        
+
         <div style={{ marginTop: '20px', width: '100%', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '4px' }}>
           <h4 style={{ margin: '0 0 10px 0' }}>Additional Metrics</h4>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>

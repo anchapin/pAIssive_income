@@ -82,7 +82,7 @@ from agent_team import Agent
 class MyCustomAgent(Agent):
     def __init__(self, name, config=None):
         super().__init__(name, config)
-        
+
     def process(self, input_data):
         # Process the input data
         # ...

@@ -11,7 +11,7 @@ The Niche Analysis Service is responsible for analyzing potential business niche
 - Provide market trend analysis
 - Track and store opportunity data
 - Generate reports on market conditions
-- Compare multiple opportunities 
+- Compare multiple opportunities
 - Evaluate monetization potential
 
 ## API Design
@@ -60,7 +60,7 @@ The Niche Analysis Service is responsible for analyzing potential business niche
 ```
 {
   "id": "string",
-  "name": "string", 
+  "name": "string",
   "description": "string",
   "category": "string",
   "keywords": ["string"],

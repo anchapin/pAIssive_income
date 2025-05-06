@@ -115,7 +115,7 @@ async function createSubscriptionModel() {
         }
       ]
     });
-    
+
     console.log(subscriptionModel);
   } catch (error) {
     console.error('Error:', error.message);
@@ -137,7 +137,7 @@ async function runInference() {
         temperature: 0.7
       }
     });
-    
+
     console.log(result);
   } catch (error) {
     console.error('Error:', error.message);
@@ -157,21 +157,21 @@ async function registerAndLogin() {
       email: "john.doe@example.com",
       password: "secure_password123"
     });
-    
+
     // Login
     const loginResult = await client.user.login({
       email: "john.doe@example.com",
       password: "secure_password123"
     });
-    
+
     // Get JWT token from login result
     const token = loginResult.token;
-    
+
     // Create a new client with the JWT token
     const authenticatedClient = new Client({
       auth: new auth.JWTAuth(token)
     });
-    
+
     // Get user profile
     const profile = await authenticatedClient.user.getProfile();
     console.log(profile);

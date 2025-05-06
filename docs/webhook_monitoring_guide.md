@@ -47,7 +47,7 @@ def webhook_health():
     # Perform any necessary health checks
     database_healthy = check_database_connection()
     cache_healthy = check_cache_connection()
-    
+
     if database_healthy and cache_healthy:
         return jsonify({"status": "healthy"}), 200
     else:
@@ -69,16 +69,16 @@ Webhook events may be delivered more than once, especially if retries occur. Imp
 ```python
 def process_webhook(event_data):
     event_id = event_data["id"]
-    
+
     # Check if we've already processed this event
     if redis_client.exists(f"processed_event:{event_id}"):
         logger.info(f"Event {event_id} already processed, skipping")
         return
-    
+
     # Process the event
     try:
         process_event_based_on_type(event_data)
-        
+
         # Mark the event as processed (with a TTL of 24 hours)
         redis_client.setex(f"processed_event:{event_id}", 86400, "1")
     except Exception as e:
@@ -101,10 +101,10 @@ def handle_webhook(request):
     except Exception as e:
         # Log the error
         logger.error(f"Error processing webhook: {str(e)}")
-        
+
         # Add to dead letter queue for later inspection
         add_to_dead_letter_queue(request.json, str(e))
-        
+
         # Still return 200 to acknowledge receipt
         return "Accepted but processing failed", 200
 ```
@@ -126,7 +126,7 @@ def process_with_retry(event_data, max_retries=3):
                 logger.error(f"Max retries exceeded for event {event_data['id']}")
                 add_to_dead_letter_queue(event_data, str(e))
                 return False
-            
+
             # Exponential backoff
             sleep_time = 2 ** retries
             logger.info(f"Retrying in {sleep_time} seconds...")
@@ -171,7 +171,7 @@ groups:
     annotations:
       summary: "High webhook failure rate"
       description: "Webhook failure rate is {{ $value | humanizePercentage }} over the last 5 minutes"
-  
+
   - alert: WebhookEndpointDown
     expr: up{job="webhook-endpoint"} == 0
     for: 2m
@@ -225,15 +225,15 @@ def webhook_receiver():
     # Verify signature
     if not verify_signature(request):
         return "Invalid signature", 401
-    
+
     # Log the incoming webhook
     event_data = request.json
     event_id = event_data["id"]
     event_type = event_data["type"]
-    
+
     # Store the event in the database
     store_event(event_data)
-    
+
     # Asynchronously distribute to internal services
     if event_type == "payment.received":
         enqueue_task("process_payment", event_data)
@@ -242,7 +242,7 @@ def webhook_receiver():
     elif event_type == "subscription.created":
         enqueue_task("provision_subscription", event_data)
         enqueue_task("update_billing", event_data)
-    
+
     return "OK", 200
 ```
 
@@ -273,20 +273,20 @@ Create a performance dashboard that visualizes these metrics over time:
 def process_webhook(event_data):
     event_id = event_data["id"]
     event_type = event_data["type"]
-    
+
     # Record processing time
     with PROCESSING_TIME.labels(event_type=event_type).time():
         # Process the event
         result = process_event_based_on_type(event_data)
-    
+
     # Increment counter for processed events
     EVENTS_PROCESSED.labels(event_type=event_type, status="success").inc()
-    
+
     # Record end-to-end latency
     event_time = datetime.fromisoformat(event_data["created_at"].replace("Z", "+00:00"))
     latency_seconds = (datetime.now(timezone.utc) - event_time).total_seconds()
     END_TO_END_LATENCY.labels(event_type=event_type).observe(latency_seconds)
-    
+
     return result
 
 # Define metrics
@@ -320,11 +320,11 @@ def webhook_receiver():
     # Verify signature
     if not verify_signature(request):
         return jsonify({"error": "Invalid signature"}), 401
-    
+
     # Queue the event for processing
     event_data = request.json
     process_webhook.delay(event_data)
-    
+
     # Return immediately
     return jsonify({"status": "accepted"}), 202
 
@@ -332,7 +332,7 @@ def webhook_receiver():
 def process_webhook(event_data):
     # Process the webhook event
     event_type = event_data["type"]
-    
+
     if event_type == "payment.received":
         process_payment(event_data)
     elif event_type == "subscription.created":
@@ -393,10 +393,10 @@ Use these tools to debug webhook issues:
 def webhook_handler():
     request_id = request.headers.get('X-Request-ID')
     logger.info(f"Received webhook with request ID: {request_id}")
-    
+
     # Process webhook
     # ...
-    
+
     # Include request ID in your logs for tracing
     logger.info(f"Completed processing webhook {request_id}")
     return "OK", 200

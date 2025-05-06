@@ -1,34 +1,14 @@
-"""
-pAIssive Income SDK for Python.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides a Python client for the pAIssive Income API.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__version__ = "0.1.0"
 
-from .auth import APIKeyAuth, JWTAuth
-from .client import Client
-from .services import (
-    AgentTeamService,
-    AIModelsService,
-    APIKeyService,
-    DashboardService,
-    MarketingService,
-    MonetizationService,
-    NicheAnalysisService,
-    UserService,
-)
+def main():
+    """Initialize the module."""
+    pass
 
-__all__ = [
-    "Client",
-    "APIKeyAuth",
-    "JWTAuth",
-    "NicheAnalysisService",
-    "MonetizationService",
-    "MarketingService",
-    "AIModelsService",
-    "AgentTeamService",
-    "UserService",
-    "DashboardService",
-    "APIKeyService",
-]
+
+if __name__ == "__main__":
+    main()

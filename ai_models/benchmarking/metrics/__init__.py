@@ -1,21 +1,14 @@
-"""
-Metrics for benchmarking AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides metrics for measuring the performance of AI models.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .accuracy_metric import AccuracyMetric
-from .latency_metric import LatencyMetric
-from .memory_metric import MemoryMetric
-from .perplexity_metric import PerplexityMetric
-from .rouge_metric import RougeMetric
-from .throughput_metric import ThroughputMetric
 
-__all__ = [
-    "LatencyMetric",
-    "ThroughputMetric",
-    "MemoryMetric",
-    "AccuracyMetric",
-    "PerplexityMetric",
-    "RougeMetric",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

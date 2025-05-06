@@ -11,7 +11,7 @@ import { Typography, Box } from '@mui/material';
 
 /**
  * API Status Pie Chart component for visualizing API status code distribution.
- * 
+ *
  * @param {Object} props Component props
  * @param {Array} props.data Array of data points with name and value
  * @param {Array} props.colors Array of colors for pie slices

@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import apiClient, { getStoredUser, isTokenValid } from '../services/apiClient';
+import apiClient from '../services/apiClient';
 
-// Initial state with authentication data from localStorage
+// Initial state
 const initialState = {
-  user: getStoredUser(),
-  isAuthenticated: isTokenValid(),
+  user: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
   notifications: [],
@@ -13,7 +13,7 @@ const initialState = {
   solutions: null,
   monetizationStrategies: null,
   marketingCampaigns: null,
-  darkMode: localStorage.getItem('darkMode') === 'true' || false
+  darkMode: false
 };
 
 // Action types
@@ -38,63 +38,61 @@ function appReducer(state, action) {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
-      
+
     case ActionTypes.SET_ERROR:
       return { ...state, error: action.payload, isLoading: false };
-      
+
     case ActionTypes.CLEAR_ERROR:
       return { ...state, error: null };
-      
+
     case ActionTypes.SET_USER:
-      return { 
-        ...state, 
-        user: action.payload, 
+      return {
+        ...state,
+        user: action.payload,
         isAuthenticated: !!action.payload,
-        isLoading: false 
+        isLoading: false
       };
-      
+
     case ActionTypes.LOGOUT:
-      return { 
-        ...state, 
-        user: null, 
+      return {
+        ...state,
+        user: null,
         isAuthenticated: false,
-        isLoading: false 
+        isLoading: false
       };
-      
+
     case ActionTypes.ADD_NOTIFICATION:
-      return { 
-        ...state, 
-        notifications: [...state.notifications, action.payload] 
+      return {
+        ...state,
+        notifications: [...state.notifications, action.payload]
       };
-      
+
     case ActionTypes.REMOVE_NOTIFICATION:
-      return { 
-        ...state, 
+      return {
+        ...state,
         notifications: state.notifications.filter(
           notification => notification.id !== action.payload
-        ) 
+        )
       };
-      
+
     case ActionTypes.SET_PROJECTS_DATA:
       return { ...state, projectsData: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_NICHE_RESULTS:
       return { ...state, nicheAnalysisResults: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_SOLUTIONS:
       return { ...state, solutions: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_MONETIZATION_STRATEGIES:
       return { ...state, monetizationStrategies: action.payload, isLoading: false };
-      
+
     case ActionTypes.SET_MARKETING_CAMPAIGNS:
       return { ...state, marketingCampaigns: action.payload, isLoading: false };
-      
+
     case ActionTypes.TOGGLE_DARK_MODE:
-      // Persist dark mode to localStorage
-      localStorage.setItem('darkMode', !state.darkMode);
       return { ...state, darkMode: !state.darkMode };
-      
+
     default:
       return state;
   }
@@ -106,90 +104,87 @@ const AppContext = createContext();
 // Provider component
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  
+
   // Add notification with auto-removal after timeout
   const addNotification = (notification) => {
     const id = Date.now();
     const notificationWithId = { ...notification, id };
-    
-    dispatch({ 
-      type: ActionTypes.ADD_NOTIFICATION, 
-      payload: notificationWithId 
+
+    dispatch({
+      type: ActionTypes.ADD_NOTIFICATION,
+      payload: notificationWithId
     });
-    
+
     // Auto-remove notification after specified time or default of 5 seconds
     setTimeout(() => {
-      dispatch({ 
-        type: ActionTypes.REMOVE_NOTIFICATION, 
-        payload: id 
+      dispatch({
+        type: ActionTypes.REMOVE_NOTIFICATION,
+        payload: id
       });
     }, notification.timeout || 5000);
   };
-  
+
   // Helper function to fetch user profile
   const fetchUserProfile = async () => {
-    // Only try to fetch profile if we think we're authenticated
-    if (!isTokenValid()) {
-      dispatch({ type: ActionTypes.SET_USER, payload: null });
-      return;
-    }
-    
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       const userData = await apiClient.user.getCurrentUser();
       dispatch({ type: ActionTypes.SET_USER, payload: userData });
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      // If we get an auth error, we're not authenticated
       dispatch({ type: ActionTypes.SET_USER, payload: null });
-      
-      if (error.isAuthError) {
-        // Don't show notification for initial auth check
-        return;
-      }
-      
-      addNotification({
-        type: 'error',
-        message: 'Failed to load profile. Please log in again.'
+    }
+  };
+
+  // Helper function to fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      dispatch({ type: ActionTypes.SET_LOADING, payload: true });
+      const projectsData = await apiClient.dashboard.getProjectsOverview();
+      dispatch({ type: ActionTypes.SET_PROJECTS_DATA, payload: projectsData });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Failed to load dashboard data. Please try again.'
       });
     }
   };
-  
+
   // Helper function to handle login
   const login = async (credentials) => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
-      const authData = await apiClient.user.login(credentials);
-      // Set just the user data in state, not the whole auth object
-      dispatch({ type: ActionTypes.SET_USER, payload: authData.user });
-      addNotification({ 
-        type: 'success', 
-        message: 'Login successful!' 
+      const userData = await apiClient.user.login(credentials);
+      dispatch({ type: ActionTypes.SET_USER, payload: userData });
+      addNotification({
+        type: 'success',
+        message: 'Login successful!'
       });
-      return authData.user;
+      return userData;
     } catch (error) {
       console.error('Login error:', error);
-      dispatch({ 
-        type: ActionTypes.SET_ERROR, 
-        payload: 'Login failed. Please check your credentials and try again.' 
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Login failed. Please check your credentials and try again.'
       });
-      addNotification({ 
-        type: 'error', 
-        message: 'Login failed. Please check your credentials.' 
+      addNotification({
+        type: 'error',
+        message: 'Login failed. Please check your credentials.'
       });
       throw error;
     }
   };
-  
+
   // Helper function to handle logout
   const logout = async () => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       await apiClient.user.logout();
       dispatch({ type: ActionTypes.LOGOUT });
-      addNotification({ 
-        type: 'info', 
-        message: 'You have been logged out.' 
+      addNotification({
+        type: 'info',
+        message: 'You have been logged out.'
       });
     } catch (error) {
       console.error('Logout error:', error);
@@ -197,54 +192,37 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: ActionTypes.LOGOUT });
     }
   };
-  
+
   // Helper function to handle register
   const register = async (userData) => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
-      const authData = await apiClient.user.register(userData);
-      // Set just the user data in state, not the whole auth object
-      dispatch({ type: ActionTypes.SET_USER, payload: authData.user });
-      addNotification({ 
-        type: 'success', 
-        message: 'Registration successful!' 
+      const newUser = await apiClient.user.register(userData);
+      dispatch({ type: ActionTypes.SET_USER, payload: newUser });
+      addNotification({
+        type: 'success',
+        message: 'Registration successful!'
       });
-      return authData.user;
+      return newUser;
     } catch (error) {
       console.error('Registration error:', error);
-      dispatch({ 
-        type: ActionTypes.SET_ERROR, 
-        payload: 'Registration failed. Please try again.' 
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: 'Registration failed. Please try again.'
       });
-      addNotification({ 
-        type: 'error', 
-        message: 'Registration failed. Please check your information.' 
+      addNotification({
+        type: 'error',
+        message: 'Registration failed. Please check your information.'
       });
       throw error;
     }
   };
-  
-  // Check for auth token expiration periodically
+
+  // Check if user is already authenticated on app load
   useEffect(() => {
-    // On component mount, check if user is authenticated
     fetchUserProfile();
-    
-    // Set up interval to check token validity
-    const authCheckInterval = setInterval(() => {
-      if (state.isAuthenticated && !isTokenValid()) {
-        // Token has expired, log out the user
-        dispatch({ type: ActionTypes.LOGOUT });
-        addNotification({
-          type: 'warning',
-          message: 'Your session has expired. Please log in again.'
-        });
-      }
-    }, 60000); // Check every minute
-    
-    // Clear interval on unmount
-    return () => clearInterval(authCheckInterval);
-  }, [state.isAuthenticated]);
-  
+  }, []);
+
   // Value object with state and actions to provide
   const value = {
     ...state,
@@ -254,43 +232,9 @@ export const AppProvider = ({ children }) => {
     logout,
     register,
     fetchUserProfile,
-    fetchDashboardData,
-    hasPermission: (permission) => {
-      // Check if user has the specified permission
-      // For now, this is a simple role check based on what we know about the roles
-      if (!state.user || !state.user.roles) return false;
-      
-      // Admin has all permissions
-      if (state.user.roles.includes('admin')) return true;
-      
-      // For other roles, we'll need a more sophisticated check
-      // This is a placeholder for the real permission logic
-      const creatorPermissions = [
-        'niche:view', 'niche:create', 'niche:edit',
-        'solution:view', 'solution:create', 'solution:edit',
-        'monetization:view', 'monetization:create', 'monetization:edit',
-        'marketing:view', 'marketing:create', 'marketing:edit'
-      ];
-      
-      const basicUserPermissions = [
-        'niche:view', 'niche:create',
-        'solution:view',
-        'monetization:view',
-        'marketing:view'
-      ];
-      
-      if (state.user.roles.includes('creator') && creatorPermissions.includes(permission)) {
-        return true;
-      }
-      
-      if (state.user.roles.includes('user') && basicUserPermissions.includes(permission)) {
-        return true;
-      }
-      
-      return false;
-    }
+    fetchDashboardData
   };
-  
+
   return (
     <AppContext.Provider value={value}>
       {children}

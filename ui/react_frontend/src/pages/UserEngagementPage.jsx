@@ -60,7 +60,7 @@ const UserEngagementPage = () => {
   const [dateRange, setDateRange] = useState('last30days');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [userSegment, setUserSegment] = useState('all');
-  
+
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -70,15 +70,15 @@ const UserEngagementPage = () => {
   const handleDateRangeChange = (event) => {
     setDateRange(event.target.value);
   };
-  
+
   const handlePlatformFilterChange = (event) => {
     setPlatformFilter(event.target.value);
   };
-  
+
   const handleUserSegmentChange = (event) => {
     setUserSegment(event.target.value);
   };
-  
+
   const handleRefreshData = () => {
     // In a real app, this would fetch new data based on the filters
     console.log('Refreshing data with filters:', { dateRange, platformFilter, userSegment });
@@ -93,7 +93,7 @@ const UserEngagementPage = () => {
     { name: 'Product Usage', value: 1500 },
     { name: 'Paid Conversion', value: 300 }
   ];
-  
+
   // Mock data for Cohort Retention
   const mockRetentionData = [
     {
@@ -145,13 +145,13 @@ const UserEngagementPage = () => {
       retention: [100]
     }
   ];
-  
+
   const cohortLabels = [
-    'Jan 2025', 'Feb 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 
+    'Jan 2025', 'Feb 2025', 'Mar 2025', 'Apr 2025', 'May 2025',
     'Jun 2025', 'Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025',
     'Nov 2025', 'Dec 2025'
   ];
-  
+
   // Mock data for User Activity Chart
   const mockActivityData = Array.from({ length: 90 }, (_, i) => {
     const date = new Date();
@@ -160,25 +160,25 @@ const UserEngagementPage = () => {
       month: 'short',
       day: 'numeric'
     });
-    
+
     // Create some patterns in the data
     const dayOfWeek = date.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    
+
     // Base values
     let dau = 200 + i * 5 + (isWeekend ? -100 : 0);
     let wau = 800 + i * 12;
     let mau = 3000 + i * 25;
-    
+
     // Add some randomness
     dau += Math.floor(Math.random() * 50);
     wau += Math.floor(Math.random() * 100);
     mau += Math.floor(Math.random() * 200);
-    
+
     // Session metrics
     const avg_session_time = 10 + Math.random() * 5;
     const avg_actions_per_session = 8 + Math.random() * 3;
-    
+
     return {
       date: dateString,
       dau,
@@ -188,7 +188,7 @@ const UserEngagementPage = () => {
       avg_actions_per_session,
     };
   });
-  
+
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>
@@ -197,7 +197,7 @@ const UserEngagementPage = () => {
       <Typography variant="subtitle1" paragraph>
         Monitor and analyze user engagement metrics to improve user retention and product experience.
       </Typography>
-      
+
       {/* Filters */}
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12}>
@@ -220,7 +220,7 @@ const UserEngagementPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              
+
               <Grid item xs={12} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Platform</InputLabel>
@@ -236,7 +236,7 @@ const UserEngagementPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              
+
               <Grid item xs={12} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>User Segment</InputLabel>
@@ -253,7 +253,7 @@ const UserEngagementPage = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              
+
               <Grid item xs={12} md={3}>
                 <Button
                   variant="contained"
@@ -269,7 +269,7 @@ const UserEngagementPage = () => {
           </Item>
         </Grid>
       </Grid>
-      
+
       {/* Key Metrics */}
       <Grid container spacing={2} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
@@ -287,7 +287,7 @@ const UserEngagementPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -303,7 +303,7 @@ const UserEngagementPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -319,7 +319,7 @@ const UserEngagementPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -336,7 +336,7 @@ const UserEngagementPage = () => {
           </Card>
         </Grid>
       </Grid>
-      
+
       {/* Main content with tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="engagement visualizations">
@@ -345,29 +345,29 @@ const UserEngagementPage = () => {
           <Tab label="Cohort Retention" />
         </Tabs>
       </Box>
-      
+
       <TabPanel value={tabValue} index={0}>
-        <UserActivityChart 
-          data={mockActivityData} 
-          title="User Activity Over Time" 
-          height={500} 
+        <UserActivityChart
+          data={mockActivityData}
+          title="User Activity Over Time"
+          height={500}
         />
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={1}>
-        <ConversionFunnelChart 
-          data={mockFunnelData} 
-          title="User Conversion Funnel" 
-          height={500} 
+        <ConversionFunnelChart
+          data={mockFunnelData}
+          title="User Conversion Funnel"
+          height={500}
         />
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={2}>
-        <CohortRetentionChart 
+        <CohortRetentionChart
           data={mockRetentionData}
           cohortLabels={cohortLabels}
-          title="Monthly Cohort Retention Analysis" 
-          periodLabel="Month" 
+          title="Monthly Cohort Retention Analysis"
+          periodLabel="Month"
         />
       </TabPanel>
     </Box>

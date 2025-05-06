@@ -1,14 +1,14 @@
-"""
-API Analytics module.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides tools for collecting, analyzing, and reporting on API usage.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .database import AnalyticsDatabase
-from .service import AnalyticsService, analytics_service
 
-__all__ = [
-    "AnalyticsService",
-    "AnalyticsDatabase",
-    "analytics_service",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

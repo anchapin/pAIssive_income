@@ -231,26 +231,26 @@ from ai_models.fine_tuning import EvaluationConfig, ModelEvaluator, EvaluationMe
 def custom_evaluation(model, tokenizer, dataset, device):
     # Implement custom evaluation logic
     results = {}
-    
+
     # Example: Calculate average response length
     total_length = 0
-    
+
     for i in range(min(10, len(dataset))):
         input_text = dataset[i]["input"]
         inputs = tokenizer(input_text, return_tensors="pt").to(device)
-        
+
         with torch.no_grad():
             outputs = model.generate(
                 inputs["input_ids"],
                 max_length=100,
                 num_return_sequences=1
             )
-        
+
         output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
         total_length += len(output_text)
-    
+
     results["avg_response_length"] = total_length / min(10, len(dataset))
-    
+
     return results
 
 # Create configuration

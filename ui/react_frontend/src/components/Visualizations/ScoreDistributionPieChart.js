@@ -10,21 +10,21 @@ import {
 
 /**
  * ScoreDistributionPieChart - Component for visualizing the distribution of opportunity scores
- * 
+ *
  * This component displays a pie chart visualization showing the distribution of
  * opportunity scores across different categories (excellent, very good, good, fair, limited).
  * It's especially useful for visualizing the output of the OpportunityScorer's score_distribution.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.data - Score distribution data object with count properties
  * @param {string} props.title - Chart title
  * @param {number} props.height - Chart height in pixels (default: 400)
  * @returns {React.Component} A pie chart component for score distribution visualization
  */
-const ScoreDistributionPieChart = ({ 
-  data, 
-  title = "Opportunity Score Distribution", 
-  height = 400 
+const ScoreDistributionPieChart = ({
+  data,
+  title = "Opportunity Score Distribution",
+  height = 400
 }) => {
   // If no data, return a message
   if (!data) {
@@ -44,20 +44,20 @@ const ScoreDistributionPieChart = ({
 
   // Format the chart data
   const chartData = formatData(data);
-  
+
   // If no data after filtering, return a message
   if (chartData.length === 0) {
     return <div>No score distribution data available</div>;
   }
-  
+
   // Custom tooltip formatter
   const customTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip" style={{ 
-          backgroundColor: 'white', 
-          padding: '10px', 
-          border: '1px solid #cccccc' 
+        <div className="custom-tooltip" style={{
+          backgroundColor: 'white',
+          padding: '10px',
+          border: '1px solid #cccccc'
         }}>
           <p className="label">{`${payload[0].name}: ${payload[0].value}`}</p>
           <p className="intro">{`${(payload[0].value / getTotalCount(data) * 100).toFixed(1)}% of opportunities`}</p>
@@ -66,7 +66,7 @@ const ScoreDistributionPieChart = ({
     }
     return null;
   };
-  
+
   // Get the total count of opportunities
   const getTotalCount = (distribution) => {
     return (

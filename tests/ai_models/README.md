@@ -60,7 +60,7 @@ python -m pytest tests/ai_models/test_model_version_compatibility.py
 To run specific test cases:
 
 ```bash
-python -m pytest tests/ai_models/test_model_fallback.py::TestModelFallback::test_graceful_degradation_with_api_failure
+python -m pytest tests/ai_models/test_model_fallback.py:TestModelFallback:test_graceful_degradation_with_api_failure
 ```
 
 ## Test Dependencies

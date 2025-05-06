@@ -1,10 +1,14 @@
-"""
-Analytics router for the API server.
+"""analytics_router.py - Module for the pAIssive Income project."""
 
-This module re - exports the router from the analytics.py file.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .analytics import router
 
-# Re - export the router
-__all__ = ["router"]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

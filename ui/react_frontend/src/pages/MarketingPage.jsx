@@ -110,7 +110,7 @@ const MarketingPage = () => {
 
   const handleGenerate = () => {
     setIsGenerating(true);
-    
+
     // Simulate API call delay
     setTimeout(() => {
       // Mock generated marketing content (in a real app, this would come from backend)
@@ -206,7 +206,7 @@ The [Product Name] Team`
           }
         }
       };
-      
+
       setGeneratedContent(mockContent);
       setIsGenerating(false);
     }, 2500);
@@ -225,7 +225,7 @@ The [Product Name] Team`
       <Typography variant="subtitle1" paragraph>
         Develop targeted marketing campaigns to reach ideal customers and grow your subscriber base.
       </Typography>
-      
+
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="marketing tabs">
           <Tab label="Campaign Setup" />
@@ -233,7 +233,7 @@ The [Product Name] Team`
           <Tab label="Channel Strategy" />
         </Tabs>
       </Box>
-      
+
       <TabPanel value={tabValue} index={0}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
@@ -241,7 +241,7 @@ The [Product Name] Team`
               <Typography variant="h6" gutterBottom>
                 Campaign Configuration
               </Typography>
-              
+
               <Box mb={3}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="solution-select-label">Solution</InputLabel>
@@ -261,7 +261,7 @@ The [Product Name] Team`
                   <FormHelperText>Select the solution to market</FormHelperText>
                 </FormControl>
               </Box>
-              
+
               <Box mb={3}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="audience-select-label">Target Audience</InputLabel>
@@ -275,10 +275,10 @@ The [Product Name] Team`
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                          <Chip 
-                            key={value} 
-                            label={audiencePersonas.find(persona => persona.id === value)?.name} 
-                            size="small" 
+                          <Chip
+                            key={value}
+                            label={audiencePersonas.find(persona => persona.id === value)?.name}
+                            size="small"
                           />
                         ))}
                       </Box>
@@ -293,7 +293,7 @@ The [Product Name] Team`
                   <FormHelperText>Select target audience personas</FormHelperText>
                 </FormControl>
               </Box>
-              
+
               <Box mb={3}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="channel-select-label">Marketing Channels</InputLabel>
@@ -307,10 +307,10 @@ The [Product Name] Team`
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {selected.map((value) => (
-                          <Chip 
-                            key={value} 
-                            label={marketingChannels.find(channel => channel.id === value)?.name} 
-                            size="small" 
+                          <Chip
+                            key={value}
+                            label={marketingChannels.find(channel => channel.id === value)?.name}
+                            size="small"
                           />
                         ))}
                       </Box>
@@ -325,7 +325,7 @@ The [Product Name] Team`
                   <FormHelperText>Select marketing channels</FormHelperText>
                 </FormControl>
               </Box>
-              
+
               <Box textAlign="center" mt={4}>
                 <Button
                   variant="contained"
@@ -337,7 +337,7 @@ The [Product Name] Team`
                   {isGenerating ? 'Generating...' : 'Generate Marketing Campaign'}
                 </Button>
               </Box>
-              
+
               {isGenerating && (
                 <Box sx={{ width: '100%', mt: 3 }}>
                   <LinearProgress />
@@ -348,13 +348,13 @@ The [Product Name] Team`
               )}
             </Item>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Item>
               <Typography variant="h6" gutterBottom>
                 Selected Audience Personas
               </Typography>
-              
+
               {targetAudience.length > 0 ? (
                 <Box>
                   {targetAudience.map(audienceId => {
@@ -383,13 +383,13 @@ The [Product Name] Team`
                   </Typography>
                 </Box>
               )}
-              
+
               <Divider sx={{ my: 3 }} />
-              
+
               <Typography variant="h6" gutterBottom>
                 Selected Marketing Channels
               </Typography>
-              
+
               {selectedChannel.length > 0 ? (
                 <Box>
                   {selectedChannel.map(channelId => {
@@ -422,7 +422,7 @@ The [Product Name] Team`
           </Grid>
         </Grid>
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={1}>
         {generatedContent ? (
           <Grid container spacing={3}>
@@ -434,7 +434,7 @@ The [Product Name] Team`
                 <Typography paragraph>
                   {generatedContent.strategy.summary}
                 </Typography>
-                
+
                 <Typography variant="subtitle1" gutterBottom>
                   Key Strategy Points:
                 </Typography>
@@ -447,18 +447,18 @@ The [Product Name] Team`
                 </List>
               </Item>
             </Grid>
-            
+
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Social Media Content
               </Typography>
-              
+
               {generatedContent.content.socialMedia.map((platform, idx) => (
                 <Item key={idx} sx={{ mb: 3 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     {platform.platform} Posts
                   </Typography>
-                  
+
                   {platform.posts.map((post, postIdx) => (
                     <Card key={postIdx} variant="outlined" sx={{ mb: 2 }}>
                       <CardContent>
@@ -480,18 +480,18 @@ The [Product Name] Team`
                 </Item>
               ))}
             </Grid>
-            
+
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Email Marketing Templates
               </Typography>
-              
+
               {generatedContent.content.emailMarketing.map((email, idx) => (
                 <Item key={idx} sx={{ mb: 3 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     {email.type}
                   </Typography>
-                  
+
                   <Card variant="outlined">
                     <CardContent>
                       <Typography variant="subtitle2" gutterBottom>
@@ -527,18 +527,18 @@ The [Product Name] Team`
                 </Item>
               ))}
             </Grid>
-            
+
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 Blog Post Ideas
               </Typography>
-              
+
               {generatedContent.content.blogPosts.map((post, idx) => (
                 <Item key={idx} sx={{ mb: 3 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     {post.title}
                   </Typography>
-                  
+
                   <Card variant="outlined">
                     <CardContent>
                       <Typography variant="subtitle2" gutterBottom>
@@ -574,7 +574,7 @@ The [Product Name] Team`
           </Box>
         )}
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={2}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -582,11 +582,11 @@ The [Product Name] Team`
               <Typography variant="h6" gutterBottom>
                 Channel Strategy
               </Typography>
-              
+
               <Typography variant="body2" paragraph>
                 This section will provide detailed strategies for each selected marketing channel, including posting schedules, budget allocation, and performance metrics.
               </Typography>
-              
+
               <Box sx={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography color="text.secondary">
                   Channel strategies will appear here after generating a marketing campaign.

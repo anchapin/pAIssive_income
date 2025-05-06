@@ -1,29 +1,14 @@
-"""
-Shared message queue utilities for pAIssive income microservices.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides utilities for asynchronous communication between
-microservices using a message queue (RabbitMQ).
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .client import AsyncMessageHandler, AsyncMessageQueueClient, MessageHandler, 
-    MessageQueueClient
-from .exceptions import ConnectionError, ConsumeError, MessageQueueError, PublishError, 
-    SchemaError
-from .message import Message, MessagePriority, MessageSchema, MessageStatus, MessageType
 
-__all__ = [
-    "MessageQueueClient",
-    "AsyncMessageQueueClient",
-    "MessageHandler",
-    "AsyncMessageHandler",
-    "Message",
-    "MessageSchema",
-    "MessagePriority",
-    "MessageStatus",
-    "MessageType",
-    "MessageQueueError",
-    "ConnectionError",
-    "PublishError",
-    "ConsumeError",
-    "SchemaError",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

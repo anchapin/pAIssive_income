@@ -10,21 +10,21 @@ Setting Up Development Environment
 
 1. Clone the repository:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       git clone https://github.com/username/pAIssive_income.git
       cd pAIssive_income
 
 2. Create a virtual environment:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       python -m venv venv
       source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 3. Install development dependencies:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       pip install -e ".[dev]"
 
@@ -41,14 +41,14 @@ We follow these coding standards:
 
 To check your code:
 
-.. code-block:: bash
+.. code-block: bash
 
    # Run linting checks
    flake8 .
-   
+
    # Run type checking
    mypy .
-   
+
    # Run tests
    pytest
 
@@ -57,19 +57,19 @@ Pull Request Process
 
 1. Create a feature branch:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       git checkout -b feature/your-feature-name
 
 2. Make your changes and commit with descriptive messages:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       git commit -m "Add feature X"
 
 3. Push your branch:
 
-   .. code-block:: bash
+   .. code-block: bash
 
       git push origin feature/your-feature-name
 
@@ -91,7 +91,7 @@ When writing documentation:
 
 To build documentation locally:
 
-.. code-block:: bash
+.. code-block: bash
 
    cd docs_source
    make html

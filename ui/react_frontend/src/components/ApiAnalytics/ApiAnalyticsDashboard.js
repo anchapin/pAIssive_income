@@ -41,7 +41,7 @@ const ApiAnalyticsDashboard = () => {
     const fetchAnalyticsData = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         // Fetch summary data
         const summaryResponse = await fetch(`/api/v1/analytics/summary?days=${timeRange}`);
@@ -50,7 +50,7 @@ const ApiAnalyticsDashboard = () => {
         }
         const summaryData = await summaryResponse.json();
         setSummaryData(summaryData);
-        
+
         // Fetch daily requests data
         const requestsResponse = await fetch(`/api/v1/analytics/requests?days=${timeRange}&aggregate=daily`);
         if (!requestsResponse.ok) {
@@ -58,7 +58,7 @@ const ApiAnalyticsDashboard = () => {
         }
         const requestsData = await requestsResponse.json();
         setRequestsData(requestsData.items);
-        
+
         // Fetch endpoint stats
         const endpointResponse = await fetch(`/api/v1/analytics/endpoints?days=${timeRange}`);
         if (!endpointResponse.ok) {
@@ -66,25 +66,25 @@ const ApiAnalyticsDashboard = () => {
         }
         const endpointData = await endpointResponse.json();
         setEndpointStats(endpointData);
-        
+
         // Process status code data
         const statusCodes = {};
         requestsData.items?.forEach(item => {
           const statusCode = item.status_code;
           const statusGroup = Math.floor(statusCode / 100) * 100;
           const statusName = getStatusCodeName(statusGroup);
-          
+
           if (!statusCodes[statusName]) {
             statusCodes[statusName] = 0;
           }
           statusCodes[statusName]++;
         });
-        
+
         const statusCodeData = Object.entries(statusCodes).map(([name, value]) => ({
           name,
           value
         }));
-        
+
         setStatusCodeData(statusCodeData);
       } catch (err) {
         console.error('Error fetching analytics data:', err);
@@ -93,10 +93,10 @@ const ApiAnalyticsDashboard = () => {
         setLoading(false);
       }
     };
-    
+
     fetchAnalyticsData();
   }, [timeRange]);
-  
+
   // Helper function to get status code name
   const getStatusCodeName = (statusGroup) => {
     switch (statusGroup) {
@@ -112,12 +112,12 @@ const ApiAnalyticsDashboard = () => {
         return `Status ${statusGroup}`;
     }
   };
-  
+
   // Handle time range change
   const handleTimeRangeChange = (event) => {
     setTimeRange(event.target.value);
   };
-  
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -125,7 +125,7 @@ const ApiAnalyticsDashboard = () => {
       </Box>
     );
   }
-  
+
   if (error) {
     return (
       <Box sx={{ m: 2 }}>
@@ -142,7 +142,7 @@ const ApiAnalyticsDashboard = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           API Analytics Dashboard
         </Typography>
-        
+
         {/* Time range selector */}
         <Box sx={{ mb: 3 }}>
           <FormControl sx={{ minWidth: 200 }}>
@@ -162,7 +162,7 @@ const ApiAnalyticsDashboard = () => {
             </Select>
           </FormControl>
         </Box>
-        
+
         {/* Summary cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
@@ -177,7 +177,7 @@ const ApiAnalyticsDashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
@@ -190,7 +190,7 @@ const ApiAnalyticsDashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
@@ -203,7 +203,7 @@ const ApiAnalyticsDashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
@@ -217,7 +217,7 @@ const ApiAnalyticsDashboard = () => {
             </Card>
           </Grid>
         </Grid>
-        
+
         {/* Charts */}
         <Grid container spacing={3}>
           {/* API Requests Over Time */}
@@ -234,7 +234,7 @@ const ApiAnalyticsDashboard = () => {
               />
             </Paper>
           </Grid>
-          
+
           {/* Response Time Over Time */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
@@ -250,7 +250,7 @@ const ApiAnalyticsDashboard = () => {
               />
             </Paper>
           </Grid>
-          
+
           {/* Error Rate Over Time */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
@@ -271,7 +271,7 @@ const ApiAnalyticsDashboard = () => {
               />
             </Paper>
           </Grid>
-          
+
           {/* Top Endpoints by Usage */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
@@ -286,7 +286,7 @@ const ApiAnalyticsDashboard = () => {
               />
             </Paper>
           </Grid>
-          
+
           {/* Status Code Distribution */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
@@ -297,7 +297,7 @@ const ApiAnalyticsDashboard = () => {
               />
             </Paper>
           </Grid>
-          
+
           {/* Slowest Endpoints */}
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>

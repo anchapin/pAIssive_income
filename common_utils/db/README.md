@@ -71,15 +71,15 @@ from common_utils.db.migration import Migration
 
 class Migration001(Migration):
     """Migration 001: add_users_table"""
-    
+
     @property
     def version(self) -> str:
         return "001"
-    
+
     @property
     def description(self) -> str:
         return "add_users_table"
-    
+
     def up(self, db):
         """Apply the migration."""
         # For SQL databases
@@ -96,7 +96,7 @@ class Migration001(Migration):
         elif hasattr(db, 'db'):
             db.db.create_collection('users')
             db.db.users.create_index('email', unique=True)
-    
+
     def down(self, db):
         """Revert the migration."""
         # For SQL databases

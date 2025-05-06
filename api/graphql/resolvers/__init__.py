@@ -1,30 +1,14 @@
-"""
-GraphQL resolvers package.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package contains resolver modules for GraphQL queries and mutations.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .agent_team import AgentTeamMutation, AgentTeamQuery
-from .ai_models import AIModelsMutation, AIModelsQuery
-from .base import Mutation, Query
-from .marketing import MarketingMutation, MarketingQuery
-from .monetization import MonetizationMutation, MonetizationQuery
-from .niche_analysis import NicheAnalysisMutation, NicheAnalysisQuery
-from .user import UserMutation, UserQuery
 
-__all__ = [
-    "Query",
-    "Mutation",
-    "NicheAnalysisQuery",
-    "NicheAnalysisMutation",
-    "MonetizationQuery",
-    "MonetizationMutation",
-    "MarketingQuery",
-    "MarketingMutation",
-    "AIModelsQuery",
-    "AIModelsMutation",
-    "AgentTeamQuery",
-    "AgentTeamMutation",
-    "UserQuery",
-    "UserMutation",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

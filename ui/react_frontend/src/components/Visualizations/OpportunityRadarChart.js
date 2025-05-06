@@ -1,22 +1,22 @@
 import React from 'react';
-import { 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  PolarRadiusAxis, 
-  Radar, 
-  Tooltip, 
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Tooltip,
   Legend,
   ResponsiveContainer
 } from 'recharts';
 
 /**
  * OpportunityRadarChart - Component for visualizing opportunity scores using a radar chart
- * 
+ *
  * This component displays a radar chart visualization of opportunity scores based on
  * the six factors assessed by the OpportunityScorer (market size, growth rate, competition,
  * problem severity, solution feasibility, and monetization potential).
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.data - Array of opportunity data objects
  * @param {string} props.title - Chart title
@@ -27,7 +27,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
   // Format the data for the radar chart if it's a single opportunity
   const formatSingleOpportunity = (opportunity) => {
     if (!opportunity || !opportunity.factors) return [];
-    
+
     // Extract factor scores from the opportunity data
     return [
       {
@@ -66,7 +66,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
   // Format the data for multiple opportunities
   const formatMultipleOpportunities = (opportunities) => {
     if (!Array.isArray(opportunities) || opportunities.length === 0) return [];
-    
+
     // Create a dataset with all opportunities for comparison
     return opportunities.map(opp => ({
       name: opp.niche,
@@ -81,10 +81,10 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
 
   // Determine if we're dealing with a single opportunity or multiple for comparison
   const isSingleOpportunity = !Array.isArray(data) || data.length === 1;
-  const chartData = isSingleOpportunity 
+  const chartData = isSingleOpportunity
     ? formatSingleOpportunity(Array.isArray(data) ? data[0] : data)
     : formatMultipleOpportunities(data);
-  
+
   // Generate random colors for multiple opportunities
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
@@ -94,7 +94,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
     }
     return color;
   };
-  
+
   // Define colors for up to 10 opportunities
   const colors = [
     '#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe',

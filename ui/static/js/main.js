@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarCollapse.addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
             const content = document.getElementById('content');
-            
+
             sidebar.classList.toggle('active');
             content.classList.toggle('active');
         });
     }
-    
+
     // Auto-close alerts
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert.style.display = 'none';
             }, 300);
         }, 5000);
-        
+
         const closeBtn = alert.querySelector('.close');
         if (closeBtn) {
             closeBtn.addEventListener('click', function() {
@@ -36,19 +36,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-    
+
     // Initialize popovers
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popoverTriggerList.map(function(popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
     });
-    
+
     // Form validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(function(form) {
@@ -57,11 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 event.preventDefault();
                 event.stopPropagation();
             }
-            
+
             form.classList.add('was-validated');
         }, false);
     });
-    
+
     // Opportunity score color coding
     const opportunityScores = document.querySelectorAll('.opportunity-score .score');
     opportunityScores.forEach(function(score) {
@@ -76,13 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
             score.style.color = '#dc3545'; // Danger/red
         }
     });
-    
+
     // Initialize any charts
     initializeCharts();
-    
+
     // Initialize any data tables
     initializeDataTables();
-    
+
     console.log('pAIssive Income Framework UI initialized');
 });
 
@@ -95,7 +95,7 @@ function initializeCharts() {
         console.warn('Chart.js not available. Charts will not be rendered.');
         return;
     }
-    
+
     // Example: Niche Opportunity Chart
     const nicheOpportunityChart = document.getElementById('nicheOpportunityChart');
     if (nicheOpportunityChart) {
@@ -133,7 +133,7 @@ function initializeCharts() {
             }
         });
     }
-    
+
     // Example: Revenue Projection Chart
     const revenueProjectionChart = document.getElementById('revenueProjectionChart');
     if (revenueProjectionChart) {
@@ -186,7 +186,7 @@ function initializeDataTables() {
         console.warn('DataTables not available. Tables will not be enhanced.');
         return;
     }
-    
+
     // Initialize any tables with the 'datatable' class
     $('.datatable').DataTable({
         responsive: true,

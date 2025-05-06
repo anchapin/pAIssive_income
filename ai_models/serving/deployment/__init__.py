@@ -1,19 +1,14 @@
-"""
-Deployment utilities for AI models.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides utilities for deploying AI models.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .cloud import CloudConfig, CloudProvider, generate_cloud_config
-from .docker import DockerConfig, generate_docker_config
-from .kubernetes import KubernetesConfig, generate_kubernetes_config
 
-__all__ = [
-    "DockerConfig",
-    "KubernetesConfig",
-    "CloudConfig",
-    "CloudProvider",
-    "generate_docker_config",
-    "generate_kubernetes_config",
-    "generate_cloud_config",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

@@ -166,23 +166,23 @@ const MonetizationPage = () => {
     const monthlyAcquisition = 50; // New users per month
     const monthlyConversion = 0.1; // 10% of free users convert to paid each month
     const monthlyChurn = 0.05; // 5% churn rate
-    
+
     for (let month = 1; month <= projectionMonths; month++) {
       // Add new users
       const newUsers = monthlyAcquisition * Math.pow(1 + growthRate / 100, month - 1);
-      
+
       // Calculate conversions
       const conversions = Math.floor(freeUsers * monthlyConversion);
-      
+
       // Calculate churn
       const paidChurn = Math.floor(paidUsers * monthlyChurn);
       const freeChurn = Math.floor(freeUsers * monthlyChurn);
-      
+
       // Update totals
       paidUsers = paidUsers + conversions - paidChurn;
       freeUsers = freeUsers + newUsers - conversions - freeChurn;
       totalUsers = freeUsers + paidUsers;
-      
+
       projections.push({
         month,
         total_users: Math.floor(totalUsers),
@@ -192,26 +192,26 @@ const MonetizationPage = () => {
         churned_users: Math.floor(paidChurn + freeChurn)
       });
     }
-    
+
     return projections;
   };
-  
+
   const generateMockRevenueProjections = (userProjections) => {
     return userProjections.map(month => {
       // Distribute paid users across tiers
       const basicUsers = Math.floor(month.paid_users * 0.6);
       const proUsers = Math.floor(month.paid_users * 0.3);
       const enterpriseUsers = month.paid_users - basicUsers - proUsers;
-      
+
       // Calculate monthly revenue by tier
       const basicRevenue = basicUsers * basePrice;
       const proRevenue = proUsers * (basePrice * 2.5);
       const enterpriseRevenue = enterpriseUsers * (basePrice * 5);
-      
+
       const totalRevenue = basicRevenue + proRevenue + enterpriseRevenue;
-      const previousCumulative = month.month > 1 ? 
+      const previousCumulative = month.month > 1 ?
         mockRevenueProjections[month.month - 2].cumulative_revenue : 0;
-      
+
       return {
         ...month,
         tier_users: {
@@ -229,13 +229,13 @@ const MonetizationPage = () => {
       };
     });
   };
-  
+
   // Generate mock user projections
   const mockUserProjections = generateMockUserProjections();
-  
+
   // Generate mock revenue projections based on user projections
   const mockRevenueProjections = generateMockRevenueProjections(mockUserProjections);
-  
+
   // Generate mock lifetime value data
   const mockLifetimeValueData = {
     average_revenue_per_user: (basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1),
@@ -246,21 +246,21 @@ const MonetizationPage = () => {
     five_year_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * 60,
     lifetime_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * (1 / 0.05)
   };
-  
+
   // Calculate simplified projections for the table view
   const tableProjections = [50, 120, 250, 450, 800, 1200].map(userCount => {
     const paidUsers = Math.floor(userCount * 0.05);
     const basicUsers = Math.floor(paidUsers * 0.6);
     const proUsers = Math.floor(paidUsers * 0.35);
     const enterpriseUsers = Math.floor(paidUsers * 0.05);
-    
-    const monthlyRevenue = (basicUsers * basePrice) + 
-                        (proUsers * basePrice * 2.5) + 
+
+    const monthlyRevenue = (basicUsers * basePrice) +
+                        (proUsers * basePrice * 2.5) +
                         (enterpriseUsers * basePrice * 5);
-                        
+
     const annualRevenue = monthlyRevenue * 12;
     const lifetimeValue = monthlyRevenue * 20; // 20 months average lifetime
-    
+
     return {
       userCount,
       paidUsers,
@@ -278,7 +278,7 @@ const MonetizationPage = () => {
       <Typography variant="subtitle1" paragraph>
         Create effective monetization strategies with subscription models and pricing optimization.
       </Typography>
-      
+
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="monetization tabs">
           <Tab label="Subscription Model" />
@@ -286,7 +286,7 @@ const MonetizationPage = () => {
           <Tab label="Revenue Projections" />
         </Tabs>
       </Box>
-      
+
       <TabPanel value={tabValue} index={0}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
@@ -294,7 +294,7 @@ const MonetizationPage = () => {
               <Typography variant="h6" gutterBottom>
                 Subscription Model Configuration
               </Typography>
-              
+
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <TextField
@@ -309,7 +309,7 @@ const MonetizationPage = () => {
                     margin="normal"
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Typography id="tier-count-slider" gutterBottom>
                     Number of Tiers: {tierCount}
@@ -325,7 +325,7 @@ const MonetizationPage = () => {
                     max={5}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Stack direction="row" spacing={2}>
                     <FormControlLabel
@@ -337,7 +337,7 @@ const MonetizationPage = () => {
                       }
                       label="Include Free Trial Tier"
                     />
-                    
+
                     <FormControlLabel
                       control={
                         <Switch
@@ -349,7 +349,7 @@ const MonetizationPage = () => {
                     />
                   </Stack>
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Typography gutterBottom>
                     Billing Cycle Options
@@ -375,7 +375,7 @@ const MonetizationPage = () => {
                     />
                   </Stack>
                 </Grid>
-                
+
                 {(subscriptionModel === 'annual' || subscriptionModel === 'both') && (
                   <Grid item xs={12}>
                     <Typography id="annual-discount-slider" gutterBottom>
@@ -393,7 +393,7 @@ const MonetizationPage = () => {
                     />
                   </Grid>
                 )}
-                
+
                 <Grid item xs={12}>
                   <Box textAlign="center" mt={2}>
                     <Button
@@ -409,16 +409,16 @@ const MonetizationPage = () => {
               </Grid>
             </Item>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Typography variant="h6" gutterBottom>
               Subscription Tiers Preview
             </Typography>
-            
+
             <Grid container spacing={2}>
               {visibleTiers.map((tier, index) => (
                 <Grid item xs={12} sm={6} key={index}>
-                  <Card 
+                  <Card
                     variant={tier.highlighted ? 'elevation' : 'outlined'}
                     elevation={tier.highlighted ? 3 : 1}
                     sx={{
@@ -447,13 +447,13 @@ const MonetizationPage = () => {
                         RECOMMENDED
                       </Box>
                     )}
-                    
+
                     <CardHeader
                       title={tier.name}
                       titleTypographyProps={{ align: 'center' }}
                       sx={{ backgroundColor: tier.highlighted ? 'primary.light' : '#f8f9fc' }}
                     />
-                    
+
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Box
                         sx={{
@@ -470,9 +470,9 @@ const MonetizationPage = () => {
                           {tier.billingCycle === 'monthly' ? '/mo' : tier.billingCycle === 'annual' ? '/yr' : ''}
                         </Typography>
                       </Box>
-                      
+
                       <Divider sx={{ mb: 2 }} />
-                      
+
                       <List dense>
                         {tier.features.map((feature, featureIndex) => (
                           <ListItem key={featureIndex} disablePadding>
@@ -488,7 +488,7 @@ const MonetizationPage = () => {
           </Grid>
         </Grid>
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={1}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -496,11 +496,11 @@ const MonetizationPage = () => {
               <Typography variant="h6" gutterBottom>
                 Pricing Strategy Analysis
               </Typography>
-              
+
               <Typography variant="body2" paragraph>
                 This section will provide insights on optimal pricing strategies based on market research, competitor analysis, and customer willingness to pay.
               </Typography>
-              
+
               <Box sx={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography color="text.secondary">
                   Pricing analysis charts will appear here after generating a subscription model.
@@ -510,7 +510,7 @@ const MonetizationPage = () => {
           </Grid>
         </Grid>
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={2}>
         <Grid container spacing={3}>
           {/* Revenue projection configuration */}
@@ -538,7 +538,7 @@ const MonetizationPage = () => {
                     max={60}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} md={4}>
                   <Typography id="growth-rate-slider" gutterBottom>
                     Monthly Growth Rate: {growthRate}%
@@ -559,7 +559,7 @@ const MonetizationPage = () => {
                     max={20}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} md={4}>
                   <Button
                     variant="contained"
@@ -574,13 +574,13 @@ const MonetizationPage = () => {
               </Grid>
             </Item>
           </Grid>
-          
+
           {/* Visualization selectors */}
           <Grid item xs={12}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-              <Tabs 
-                value={projectionViewIndex} 
-                onChange={handleProjectionViewChange} 
+              <Tabs
+                value={projectionViewIndex}
+                onChange={handleProjectionViewChange}
                 aria-label="revenue projection visualizations"
                 variant="scrollable"
                 scrollButtons="auto"
@@ -593,21 +593,21 @@ const MonetizationPage = () => {
               </Tabs>
             </Box>
           </Grid>
-          
+
           {/* Visualizations */}
           <Grid item xs={12}>
             <Item sx={{ display: projectionViewIndex === 0 ? 'block' : 'none' }}>
-              <UserGrowthLineChart 
-                data={mockUserProjections} 
-                title="User Growth Over Time" 
+              <UserGrowthLineChart
+                data={mockUserProjections}
+                title="User Growth Over Time"
                 height={500}
               />
             </Item>
-            
+
             <Item sx={{ display: projectionViewIndex === 1 ? 'block' : 'none' }}>
-              <RevenueAreaChart 
-                data={mockRevenueProjections} 
-                title="Revenue Growth Over Time" 
+              <RevenueAreaChart
+                data={mockRevenueProjections}
+                title="Revenue Growth Over Time"
                 height={500}
                 milestones={[
                   { month: 6, label: "6 Months" },
@@ -616,28 +616,28 @@ const MonetizationPage = () => {
                 ]}
               />
             </Item>
-            
+
             <Item sx={{ display: projectionViewIndex === 2 ? 'block' : 'none' }}>
-              <TierRevenueStackedBarChart 
-                data={mockRevenueProjections} 
-                title="Revenue by Subscription Tier" 
+              <TierRevenueStackedBarChart
+                data={mockRevenueProjections}
+                title="Revenue by Subscription Tier"
                 height={500}
               />
             </Item>
-            
+
             <Item sx={{ display: projectionViewIndex === 3 ? 'block' : 'none' }}>
-              <CustomerLifetimeValueGauge 
-                data={mockLifetimeValueData} 
-                title="Customer Lifetime Value Analysis" 
+              <CustomerLifetimeValueGauge
+                data={mockLifetimeValueData}
+                title="Customer Lifetime Value Analysis"
                 height={500}
               />
             </Item>
-            
+
             <Item sx={{ display: projectionViewIndex === 4 ? 'block' : 'none' }}>
               <Typography variant="h6" gutterBottom>
                 Revenue Projections - Tabular Data
               </Typography>
-              
+
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -662,16 +662,16 @@ const MonetizationPage = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              
+
               <Box mt={3} textAlign="center">
                 <Typography variant="subtitle2" color="text.secondary">
-                  Note: These projections are based on an estimated 5% conversion rate 
+                  Note: These projections are based on an estimated 5% conversion rate
                   and 20-month average retention.
                 </Typography>
               </Box>
             </Item>
           </Grid>
-          
+
           {/* Summary metrics */}
           <Grid item xs={12}>
             <Grid container spacing={2}>
@@ -687,7 +687,7 @@ const MonetizationPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} sm={6} md={3}>
                 <Card>
                   <CardContent>
@@ -703,7 +703,7 @@ const MonetizationPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} sm={6} md={3}>
                 <Card>
                   <CardContent>
@@ -719,7 +719,7 @@ const MonetizationPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} sm={6} md={3}>
                 <Card>
                   <CardContent>

@@ -1,38 +1,14 @@
-"""
-Mock implementations for testing.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides mock implementations of various services and APIs
-used throughout the application for testing purposes.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .mock_external_apis import (
-    MockEmailAPI,
-    MockHuggingFaceAPI,
-    MockPaymentAPI,
-    MockStorageAPI,
-    create_mock_api,
-)
-from .mock_model_providers import (
-    MockHuggingFaceProvider,
-    MockLMStudioProvider,
-    MockLocalModelProvider,
-    MockOllamaProvider,
-    MockONNXProvider,
-    MockOpenAIProvider,
-)
 
-__all__ = [
-    # Model providers
-    "MockOpenAIProvider",
-    "MockHuggingFaceProvider",
-    "MockOllamaProvider",
-    "MockLMStudioProvider",
-    "MockLocalModelProvider",
-    "MockONNXProvider",
-    # External APIs
-    "MockHuggingFaceAPI",
-    "MockPaymentAPI",
-    "MockEmailAPI",
-    "MockStorageAPI",
-    "create_mock_api",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

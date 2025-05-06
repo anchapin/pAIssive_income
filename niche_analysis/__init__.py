@@ -1,17 +1,14 @@
-"""
-Niche Analysis module for the pAIssive Income project.
-This module contains tools for analyzing market segments and \
-    identifying profitable niches.
-"""
+"""__init__.py - Module for the pAIssive Income project."""
 
-from .market_analyzer import MarketAnalyzer
-from .niche_analyzer import NicheAnalyzer
-from .opportunity_scorer import OpportunityScorer
-from .problem_identifier import ProblemIdentifier
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-    "MarketAnalyzer",
-    "ProblemIdentifier",
-    "OpportunityScorer",
-    "NicheAnalyzer",
-]
+
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

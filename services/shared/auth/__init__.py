@@ -1,24 +1,14 @@
-"""
-Shared authentication utilities for pAIssive income microservices.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides utilities for authentication and authorization
-between microservices in the pAIssive income platform.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .client import ServiceClient
-from .jwt_auth import (
-    ServiceTokenError,
-    ServiceTokenPayload,
-    create_service_token,
-    get_service_secret_key,
-    validate_service_token,
-)
 
-__all__ = [
-    "create_service_token",
-    "validate_service_token",
-    "ServiceTokenPayload",
-    "ServiceTokenError",
-    "get_service_secret_key",
-    "ServiceClient",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

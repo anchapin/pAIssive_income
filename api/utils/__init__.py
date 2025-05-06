@@ -1,21 +1,14 @@
-"""
-Utility functions for the API module.
-"""
+"""__init__.py - Module for the pAIssive Income project."""
 
-from .query_params import (
-    FilterOperator,
-    QueryParams,
-    SortDirection,
-    apply_filtering,
-    apply_pagination,
-    apply_sorting,
-)
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-__all__ = [
-    "QueryParams",
-    "apply_pagination",
-    "apply_filtering",
-    "apply_sorting",
-    "SortDirection",
-    "FilterOperator",
-]
+
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

@@ -1,37 +1,14 @@
-"""
-Shared event bus utilities for pAIssive income microservices.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides utilities for event - driven architecture in the
-pAIssive income microservices platform.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .bus import AsyncEventBus, EventBus, EventPublisher, EventSubscriber, 
-    EventSubscription
-from .event import AsyncEventHandler, Event, EventHandler, EventMetadata, EventSchema, 
-    EventType
-from .exceptions import (
-    EventBusError,
-    EventHandlingError,
-    EventPublishError,
-    EventSubscribeError,
-    EventValidationError,
-)
 
-__all__ = [
-    "Event",
-    "EventSchema",
-    "EventType",
-    "EventMetadata",
-    "EventHandler",
-    "AsyncEventHandler",
-    "EventBus",
-    "AsyncEventBus",
-    "EventSubscription",
-    "EventPublisher",
-    "EventSubscriber",
-    "EventBusError",
-    "EventPublishError",
-    "EventSubscribeError",
-    "EventHandlingError",
-    "EventValidationError",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

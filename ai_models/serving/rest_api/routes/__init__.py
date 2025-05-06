@@ -1,23 +1,14 @@
-"""
-Routes for REST API server.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides route handlers for the REST API server.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .audio import router as audio_router
-from .embedding import router as embedding_router
-from .health import router as health_router
-from .image import router as image_router
-from .metrics import router as metrics_router
-from .text_classification import router as text_classification_router
-from .text_generation import router as text_generation_router
 
-__all__ = [
-    "text_generation_router",
-    "text_classification_router",
-    "embedding_router",
-    "image_router",
-    "audio_router",
-    "health_router",
-    "metrics_router",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

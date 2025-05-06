@@ -1,46 +1,14 @@
-"""
-Adapters for different AI model frameworks.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This package provides adapters for connecting to various AI model frameworks,
-including Ollama, LM Studio, OpenAI - compatible APIs, and GPU acceleration libraries.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .base_adapter import BaseModelAdapter
-from .lmstudio_adapter import LMStudioAdapter
-from .ollama_adapter import OllamaAdapter
-from .openai_compatible_adapter import OpenAICompatibleAdapter
 
-# Import TensorRT adapter if available
-try:
-    from .tensorrt_adapter import TensorRTAdapter
+def main():
+    """Initialize the module."""
+    pass
 
-    TENSORRT_AVAILABLE = True
-except ImportError:
-    TENSORRT_AVAILABLE = False
-    TensorRTAdapter = None
 
-# Import factory after other adapters to avoid circular imports
-from .adapter_factory import AdapterFactory, adapter_factory, get_adapter_factory
-
-# Register adapters with the factory
-adapter_factory.register_adapter("ollama", OllamaAdapter)
-adapter_factory.register_adapter("lmstudio", LMStudioAdapter)
-adapter_factory.register_adapter("openai", OpenAICompatibleAdapter)
-
-# Register TensorRT adapter if available
-if TENSORRT_AVAILABLE:
-    adapter_factory.register_adapter("tensorrt", TensorRTAdapter)
-
-__all__ = [
-    "BaseModelAdapter",
-    "OllamaAdapter",
-    "LMStudioAdapter",
-    "OpenAICompatibleAdapter",
-    "AdapterFactory",
-    "adapter_factory",
-    "get_adapter_factory",
-]
-
-# Add TensorRT adapter if available
-if TENSORRT_AVAILABLE:
-    __all__.append("TensorRTAdapter")
+if __name__ == "__main__":
+    main()

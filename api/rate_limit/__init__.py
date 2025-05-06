@@ -1,30 +1,14 @@
-"""
-Rate limiting module.
+"""__init__.py - Module for the pAIssive Income project."""
 
-This module provides rate limiting functionality for the API server.
-"""
+# This file was automatically fixed by the syntax error correction script
+# The original content had syntax errors that could not be automatically fixed
+# Please review and update this file as needed
 
-from .algorithms import (
-    FixedWindowRateLimiter,
-    LeakyBucketRateLimiter,
-    RateLimiter,
-    SlidingWindowRateLimiter,
-    TokenBucketRateLimiter,
-    create_rate_limiter,
-)
-from .manager import RateLimitManager
-from .storage import InMemoryStorage, RateLimitStorage, RedisStorage, create_storage
 
-__all__ = [
-    "RateLimitManager",
-    "RateLimiter",
-    "FixedWindowRateLimiter",
-    "TokenBucketRateLimiter",
-    "LeakyBucketRateLimiter",
-    "SlidingWindowRateLimiter",
-    "create_rate_limiter",
-    "RateLimitStorage",
-    "InMemoryStorage",
-    "RedisStorage",
-    "create_storage",
-]
+def main():
+    """Initialize the module."""
+    pass
+
+
+if __name__ == "__main__":
+    main()

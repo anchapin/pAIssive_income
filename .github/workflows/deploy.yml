@@ -1,64 +1,63 @@
-name: Deploy
+name: Deploy Application
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, master, develop ]
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  Build_and_Push:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: paissiveincome/app:latest,paissiveincome/app:${{ github.sha }}
-          cache-from: type=registry,ref=paissiveincome/app:latest
-          cache-to: type=inline
+      - uses: actions/checkout@v4
 
-  Deploy_to_Dev:
-    needs: Build_and_Push
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - name: Deploy to Development Environment
-        uses: appleboy/ssh-action@master
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          host: ${{ secrets.DEV_HOST }}
-          username: ${{ secrets.DEV_USER }}
-          key: ${{ secrets.DEV_SSH_KEY }}
-          script: |
-            docker pull paissiveincome/app:latest
-            docker-compose -f ~/paissive-income/docker-compose.yml down
-            docker-compose -f ~/paissive-income/docker-compose.yml up -d
+          python-version: '3.12'
+          cache: pip
 
-  Deploy_to_Prod:
-    needs: Build_and_Push
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Deploy to Production Environment
-        uses: appleboy/ssh-action@master
+      - name: Cache Python packages
+        uses: actions/cache@v4
         with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            docker pull paissiveincome/app:latest
-            docker-compose -f ~/paissive-income/docker-compose.yml down
-            docker-compose -f ~/paissive-income/docker-compose.yml up -d
+          path: |
+            ~/.cache/pip
+            .pytest_cache
+          key: ${{ runner.os }}-pip-deploy-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-deploy-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install core dependencies
+          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
+
+          # Install service dependencies
+          for req in $(find . -name "requirements.txt" ! -path "./requirements.txt"); do
+            echo "Installing dependencies from $req"
+            python -m pip install -r $req
+          done
+
+      - name: Create junit directory
+        run: mkdir -p junit
+
+      - name: Run tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest tests \
+            -n auto \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=junit/test-results.xml

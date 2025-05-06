@@ -12,7 +12,7 @@ The algorithm consists of several key components:
 
 1. **Ranking mechanism**
 2. **Statistical analysis**
-3. **Score distribution analysis**  
+3. **Score distribution analysis**
 4. **Top recommendation identification**
 5. **Comparative recommendation generation**
 
@@ -26,7 +26,7 @@ Output: Opportunity comparison results
 2. Assign ranks to each opportunity based on position
 3. Calculate statistical metrics:
    a. Highest score
-   b. Lowest score  
+   b. Lowest score
    c. Average score
 4. Analyze score distribution:
    a. Count opportunities by category (excellent, very good, good, fair, limited)
@@ -45,8 +45,8 @@ The algorithm first sorts all opportunities by their overall score in descending
 ```python
 # Sort opportunities by overall score in descending order
 sorted_opportunities = sorted(
-    opportunities, 
-    key=lambda x: x.get("overall_score", 0.0), 
+    opportunities,
+    key=lambda x: x.get("overall_score", 0.0),
     reverse=True
 )
 
@@ -88,7 +88,7 @@ def _calculate_score_distribution(self, opportunities):
     good = 0
     fair = 0
     limited = 0
-    
+
     for opp in opportunities:
         score = opp.get("overall_score", 0.0)
         if score >= 0.8:
@@ -101,7 +101,7 @@ def _calculate_score_distribution(self, opportunities):
             fair += 1
         else:
             limited += 1
-            
+
     return ScoreDistributionSchema(
         excellent=excellent,
         very_good=very_good,
@@ -144,32 +144,32 @@ def _generate_comparison_recommendations(self, opportunities, analysis):
     Generate recommendations based on comparison of opportunities.
     """
     recommendations = []
-    
+
     # General recommendations based on distribution
     if analysis.score_distribution.excellent > 0:
         recommendations.append(f"Focus on the {analysis.score_distribution.excellent} excellent opportunities as high priority")
-        
+
     if analysis.score_distribution.very_good > 0:
         recommendations.append(f"Consider the {analysis.score_distribution.very_good} very good opportunities as medium priority")
-        
+
     # Add recommendations for top opportunities
     if opportunities:
         top_opp = opportunities[0]
         recommendations.append(f"Prioritize {top_opp.get('niche', 'the top niche')} as the primary opportunity")
-        
+
         # If there's a second best, mention it as well
         if len(opportunities) > 1:
             second_opp = opportunities[1]
             recommendations.append(f"Keep {second_opp.get('niche', 'the second niche')} as a backup opportunity")
-            
+
     # Add portfolio recommendation if there are multiple good opportunities
     if analysis.score_distribution.excellent + analysis.score_distribution.very_good > 1:
         recommendations.append("Consider a portfolio approach with multiple opportunities in parallel")
-        
+
     # Add recommendation for low-scoring opportunities
     if analysis.score_distribution.limited > 0:
         recommendations.append(f"Deprioritize or eliminate the {analysis.score_distribution.limited} limited opportunities")
-        
+
     return recommendations
 ```
 
