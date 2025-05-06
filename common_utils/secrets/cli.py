@@ -128,7 +128,11 @@ def handle_get(args: argparse.Namespace) -> None:
     if value is None:
         print(f"Secret {args.key} not found")
         sys.exit(1)
-    print(value)
+    # Use secure printing to avoid exposing sensitive data
+    from common_utils.logging.secure_logging import mask_sensitive_data
+
+    masked_value = mask_sensitive_data(value)
+    print(masked_value)
 
 
 def handle_set(args: argparse.Namespace) -> None:
@@ -178,8 +182,10 @@ def handle_list(args: argparse.Namespace) -> None:
         print("No secrets found")
         return
 
+    # Only print the keys, not the values
     print(f"Found {len(secrets)} secrets:")
     for key in sorted(secrets.keys()):
+        # Don't print the actual secret values
         print(f"  {key}")
 
 

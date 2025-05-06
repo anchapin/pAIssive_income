@@ -288,7 +288,9 @@ def main():
         print(f"\n{safe_path}:")
         for pattern_name, line_num, _, secret in secrets:
             # Use safe logging function to avoid exposing sensitive data
-            log_message = safe_log_sensitive_info(pattern_name, line_num, len(secret))
+            # Don't pass the actual secret, just its length
+            secret_length = len(secret) if secret else 0
+            log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
             print(log_message)
 
         # Fix secrets in the file

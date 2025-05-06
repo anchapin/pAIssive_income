@@ -280,7 +280,10 @@ def generate_report(
         return
 
     total_secrets = sum(len(secrets) for secrets in results.values())
-    logger.info(f"Found {total_secrets} potential secrets in {len(results)} files")
+    logger.info(
+        "Found potential secrets in files",
+        extra={"count": total_secrets, "file_count": len(results)},
+    )
 
     if json_format:
         # Convert to a format suitable for JSON
@@ -326,11 +329,14 @@ def generate_report(
         try:
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(output)
-            logger.info(f"Report saved to {output_file}")
+            logger.info("Report saved", extra={"file": output_file})
         except Exception as e:
             logger.error(f"Error saving report: {e}")
     else:
-        print(output)
+        # Use a secure print function that doesn't expose sensitive data
+        from common_utils.logging.secure_logging import mask_sensitive_data
+
+        print(mask_sensitive_data(output))
 
 
 class SecretsAuditor:
