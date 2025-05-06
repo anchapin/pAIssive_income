@@ -85,8 +85,21 @@ jobs:
             -exec python -m py_compile {} \; || echo "Some files still have syntax errors"
         fi
 
+        # Verify the script exists
+        if [ ! -f "fix_all_issues_final.py" ]; then
+          echo "Error: fix_all_issues_final.py not found!"
+          exit 1
+        fi
+
+        # Check Python version
+        python --version
+
+        # Verify tools are installed
+        echo "Checking installed tools..."
+        python -m pip list | grep -E 'black|isort|ruff|flake8'
+
         # Build command with appropriate flags
-        CMD="python fix_all_issues_final.py"
+        CMD="python fix_all_issues_final.py --verbose"
 
         if [ "${{ github.event.inputs.syntax_only }}" == "true" ]; then
           CMD="$CMD --syntax-only"
@@ -108,12 +121,18 @@ jobs:
           CMD="$CMD --no-ruff"
         fi
 
+        # Run the command with specific file or all files
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           # Validate file path to prevent command injection
           FILE_PATH=$(echo "${{ github.event.inputs.specific_file }}" | tr -d '\n' | sed 's/[^a-zA-Z0-9_\.\/-]//g')
           if [[ "$FILE_PATH" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
             echo "Fixing specific file: $FILE_PATH"
-            $CMD "$FILE_PATH"
+            if [ -f "$FILE_PATH" ]; then
+              $CMD "$FILE_PATH"
+            else
+              echo "Error: File $FILE_PATH not found!"
+              exit 1
+            fi
           else
             echo "Invalid file path provided. Fixing all files instead."
             $CMD
@@ -121,6 +140,12 @@ jobs:
         else
           echo "Fixing all Python files..."
           $CMD
+        fi
+
+        # Check exit code
+        if [ $? -ne 0 ]; then
+          echo "Error: fix_all_issues_final.py failed!"
+          exit 1
         fi
 
     - name: Run pre-commit check again

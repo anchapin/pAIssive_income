@@ -82,14 +82,25 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
 
     python_files = []
     ignore_dirs = {".git", ".venv", "venv", "__pycache__", "build", "dist"}
+    ignore_patterns = [
+        os.path.normpath("./.git"),
+        os.path.normpath("./.venv"),
+        os.path.normpath("./venv"),
+        os.path.normpath("./__pycache__"),
+    ]
 
     for root, dirs, files in os.walk("."):
         # Skip ignored directories
+        norm_root = os.path.normpath(root)
+        if any(norm_root.startswith(pattern) for pattern in ignore_patterns):
+            continue
+
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
         for file in files:
             if file.endswith(".py"):
-                python_files.append(os.path.join(root, file))
+                file_path = os.path.join(root, file)
+                python_files.append(file_path)
 
     return python_files
 
@@ -108,15 +119,34 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
 
     """
     try:
+        # Check if the command exists before running it
+        if command and command[0] in ["black", "isort", "ruff"]:
+            try:
+                # Use shell=True on Windows to find commands in PATH
+                shell = sys.platform == "win32"
+                subprocess.run(
+                    [command[0], "--version"],
+                    capture_output=True,
+                    check=True,
+                    shell=shell,
+                )
+            except (subprocess.SubprocessError, FileNotFoundError):
+                print(f"Warning: Command '{command[0]}' not found. Skipping.")
+                return 0, "", f"Command '{command[0]}' not found. Skipped."
+
+        # Use shell=True on Windows to find commands in PATH
+        shell = sys.platform == "win32"
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            shell=shell,
         )
         stdout, stderr = process.communicate()
         return process.returncode, stdout, stderr
     except Exception as e:
+        print(f"Error running command {' '.join(command)}: {e}")
         return 1, "", str(e)
 
 
@@ -378,27 +408,72 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
 
 def main() -> int:
     """Run the main program to fix code quality issues."""
-    args = parse_arguments()
+    try:
+        print(f"Running fix_all_issues_final.py on platform: {sys.platform}")
+        args = parse_arguments()
 
-    # Find Python files to process
-    python_files = find_python_files(args.files)
+        # Find Python files to process
+        python_files = find_python_files(args.files)
 
-    if not python_files:
-        print("No Python files found to process.")
-        return 0
+        if not python_files:
+            print("No Python files found to process.")
+            return 0
 
-    print(f"Processing {len(python_files)} Python files...")
+        print(f"Processing {len(python_files)} Python files...")
 
-    # Process each file
-    success_count = 0
-    for file_path in python_files:
-        if fix_file(file_path, args):
-            success_count += 1
+        # Check if required tools are installed
+        tools_to_check = []
+        if not args.syntax_only and not args.no_black:
+            tools_to_check.append("black")
+        if not args.syntax_only and not args.no_isort:
+            tools_to_check.append("isort")
+        if not args.syntax_only and not args.no_ruff:
+            tools_to_check.append("ruff")
 
-    # Print summary
-    print(f"Successfully processed {success_count} out of {len(python_files)} files.")
+        for tool in tools_to_check:
+            try:
+                shell = sys.platform == "win32"
+                subprocess.run(
+                    [tool, "--version"],
+                    capture_output=True,
+                    check=True,
+                    shell=shell,
+                )
+                print(f"✓ {tool} is installed")
+            except (subprocess.SubprocessError, FileNotFoundError):
+                print(f"✗ {tool} is not installed or not found in PATH")
 
-    return 0 if success_count == len(python_files) else 1
+        # Process each file
+        success_count = 0
+        failed_files = []
+
+        for file_path in python_files:
+            try:
+                if fix_file(file_path, args):
+                    success_count += 1
+                else:
+                    failed_files.append(file_path)
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+                failed_files.append(file_path)
+
+        # Print summary
+        print(
+            f"Successfully processed {success_count} out of {len(python_files)} files."
+        )
+
+        if failed_files:
+            print("\nFailed files:")
+            for file_path in failed_files:
+                print(f"  - {file_path}")
+
+        return 0 if success_count == len(python_files) else 1
+    except Exception as e:
+        print(f"Error in main function: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
