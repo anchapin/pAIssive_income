@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for common_utils.date_utils module."""
 
 import subprocess

@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for run_github_actions_locally.py."""
 
 import subprocess

@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for the debug_filtering module."""
 
 import subprocess

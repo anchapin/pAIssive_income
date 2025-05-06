@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for the comprehensive_fix_syntax module."""
 
 import subprocess

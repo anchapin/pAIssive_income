@@ -1,3 +1,4 @@
+import pytest
 """test_niche_to_ab_testing_workflow.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script

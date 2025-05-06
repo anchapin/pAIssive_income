@@ -1,3 +1,4 @@
+import pytest
 """test_subscription_management_properties.py.
 
 Module for the pAIssive Income project.

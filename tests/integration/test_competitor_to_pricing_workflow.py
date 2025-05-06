@@ -1,3 +1,4 @@
+import pytest
 """test_competitor_to_pricing_workflow.py - Module for the pAIssive Income project."""
 
 # This file was automatically fixed by the syntax error correction script

@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for the ui.__init__ module."""
 
 import subprocess

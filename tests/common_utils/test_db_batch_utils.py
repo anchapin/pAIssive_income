@@ -1,3 +1,4 @@
+import pytest
 """Class contains unit tests for the db_batch_utils module."""
 
 import subprocess

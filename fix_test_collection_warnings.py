@@ -10,7 +10,12 @@ import re
 def find_test_files(root_dir="."):
     """Find all Python test files in the project."""
     test_files = []
-    for root, _, files in os.walk(root_dir):
+    excluded_dirs = [".venv", "venv", ".git"]  # Directories to exclude
+
+    for root, dirs, files in os.walk(root_dir):
+        # Skip excluded directories
+        dirs[:] = [d for d in dirs if d not in excluded_dirs]
+
         for file in files:
             if file.startswith("test_") and file.endswith(".py"):
                 test_files.append(os.path.join(root, file))
@@ -27,12 +32,12 @@ def fix_test_collection_warnings(file_path):
         content = "import pytest\n" + content
 
     # Fix 2: Ensure test classes start with 'Test'
-    class_pattern = re.compile(r"class\s+(?!Test)([A-Z][a-zA-Z0-9_]*)\s*\(.*\):")
+    class_pattern = re.compile(r"class\s+(?!Test)([A-Z][a-zA-Z0-9_]*)\s*\((.*)\):")
     content = class_pattern.sub(r"class Test\1(\2):", content)
 
     # Fix 3: Ensure test functions start with 'test_'
     func_pattern = re.compile(
-        r'def\s+(?!test_|_)([a-z][a-zA-Z0-9_]*)\s*\(.*\):\s*(?:"""|\'\'\').*(?:"""|\'\'\')?\s*assert'
+        r'def\s+(?!test_|_)([a-z][a-zA-Z0-9_]*)\s*\(([^)]*)\):\s*(?:"""|\'\'\').*(?:"""|\'\'\')?\s*assert'
     )
     content = func_pattern.sub(r"def test_\1(\2):", content)
 

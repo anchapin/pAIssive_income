@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for format_code.py."""
 
 import subprocess

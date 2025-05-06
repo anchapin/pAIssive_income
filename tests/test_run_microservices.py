@@ -1,3 +1,4 @@
+import pytest
 """Test class contains unit tests for run_microservices.py."""
 
 import subprocess

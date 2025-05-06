@@ -12,6 +12,11 @@ This guide explains how to run GitHub Actions workflows locally using Act to ver
 
 2. Make sure Docker is installed and running (required by Act).
 
+3. Install Python dependencies:
+   ```bash
+   pip install pytest pytest-cov pytest-xdist mypy pyright ruff bandit safety pip-audit sarif-tools
+   ```
+
 ## Running GitHub Actions Locally
 
 ### Using the Helper Script
@@ -132,3 +137,111 @@ If you encounter issues that you can't resolve, please:
 1. Check the Act documentation: https://github.com/nektos/act
 2. Open an issue in the repository with details about the problem
 3. Include the output of the failing command and any error messages
+
+# Running GitHub Actions Locally
+
+This document explains how to use the `run_github_actions_locally.py` script to run GitHub Actions workflows locally for the pAIssive Income project.
+
+## Prerequisites
+
+Before running the script, make sure you have the following dependencies installed:
+
+```bash
+pip install pytest pytest-cov pytest-xdist mypy pyright ruff bandit safety pip-audit sarif-tools
+```
+
+## Usage
+
+### Windows
+
+You can use the provided batch file:
+
+```
+run_github_actions.bat <command> [options]
+```
+
+### All Platforms
+
+Alternatively, you can run the Python script directly:
+
+```
+python run_github_actions_locally.py <command> [options]
+```
+
+## Available Commands
+
+### Security Scan
+
+Run security scans similar to the GitHub Actions workflow:
+
+```
+run_github_actions.bat security [--output-dir OUTPUT_DIR]
+```
+
+This will:
+1. Install and verify sarif-tools
+2. Run Bandit security scanner
+3. Convert Bandit results to SARIF format
+4. Run safety check
+5. Run pip-audit
+
+Results will be stored in the specified output directory (default: `./security-reports`).
+
+### Linting
+
+Run linting checks:
+
+```
+run_github_actions.bat lint [--file FILE_PATH]
+```
+
+This will run:
+- ruff check
+- ruff format
+- mypy
+- pyright
+
+You can specify a particular file to lint with the `--file` option.
+
+### Tests
+
+Run tests:
+
+```
+run_github_actions.bat test [--path TEST_PATH]
+```
+
+This will run pytest with the same configurations as the GitHub Actions workflow.
+You can specify a particular test path with the `--path` option.
+
+## Troubleshooting sarif-tools Issues
+
+If you encounter issues with sarif-tools:
+
+1. The script will attempt to reinstall sarif-tools using `pip install --user sarif-tools --force-reinstall`
+2. It will try multiple methods to run sarif-tools:
+   - Direct command: `sarif-tools`
+   - Python module: `python -m sarif_tools`
+   - Full path: `~/.local/bin/sarif-tools`
+3. As a last resort, it will create an empty SARIF file to prevent workflow failure
+
+For persistent issues, you can manually install sarif-tools:
+
+```
+pip install --user sarif-tools
+```
+
+And verify it's in your PATH:
+
+```
+echo %PATH%  # On Windows
+echo $PATH   # On Linux/macOS
+```
+
+## Example Workflow
+
+To run a complete workflow that mimics the GitHub Actions CI:
+
+1. Run linting: `run_github_actions.bat lint`
+2. Run tests: `run_github_actions.bat test`
+3. Run security scan: `run_github_actions.bat security`

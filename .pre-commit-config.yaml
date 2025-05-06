@@ -1,3 +1,14 @@
+# Define default exclude patterns for all hooks
+# Using both absolute path pattern and directory name pattern to ensure .venv is fully excluded
+exclude: |
+  (?x)^(
+    \.venv/|
+    venv/|
+    \.git/|
+    .*\.venv/.*|
+    .*venv/.*
+  )$
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

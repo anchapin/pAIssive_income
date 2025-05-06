@@ -1,3 +1,4 @@
+import pytest
 """Test common utils."""
 
 import subprocess

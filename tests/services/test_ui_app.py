@@ -1,3 +1,4 @@
+import pytest
 """Tests for the UI application module."""
 
 import time
