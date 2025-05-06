@@ -70,7 +70,8 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
 
     Args:
     ----
-        specific_files: List of specific files to process. If None, all Python files will be found.
+        specific_files: List of specific files to process. If None,
+        all Python files will be found.
 
     Returns:
     -------

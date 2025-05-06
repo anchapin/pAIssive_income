@@ -57,7 +57,8 @@ class SecretsManager:
 
         """
         backend = backend or self.default_backend
-        logger.debug(f"Getting secret {key} from {backend.value} backend")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug(f"Getting secret from {backend.value} backend")
 
         if backend == SecretsBackend.ENV:
             return os.environ.get(key)
@@ -71,7 +72,7 @@ class SecretsManager:
             logger.warning("Vault backend not yet implemented")
             return None
         else:
-            logger.error(f"Unknown backend: {backend}")
+            logger.error("Unknown backend specified")
             return None
 
     def set_secret(
@@ -91,7 +92,8 @@ class SecretsManager:
 
         """
         backend = backend or self.default_backend
-        logger.debug(f"Setting secret {key} in {backend.value} backend")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug(f"Setting secret in {backend.value} backend")
 
         if backend == SecretsBackend.ENV:
             os.environ[key] = value
@@ -106,7 +108,7 @@ class SecretsManager:
             logger.warning("Vault backend not yet implemented")
             return False
         else:
-            logger.error(f"Unknown backend: {backend}")
+            logger.error("Unknown backend specified")
             return False
 
     def delete_secret(self, key: str, backend: Optional[SecretsBackend] = None) -> bool:
@@ -123,7 +125,8 @@ class SecretsManager:
 
         """
         backend = backend or self.default_backend
-        logger.debug(f"Deleting secret {key} from {backend.value} backend")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug(f"Deleting secret from {backend.value} backend")
 
         if backend == SecretsBackend.ENV:
             if key in os.environ:
@@ -140,7 +143,7 @@ class SecretsManager:
             logger.warning("Vault backend not yet implemented")
             return False
         else:
-            logger.error(f"Unknown backend: {backend}")
+            logger.error("Unknown backend specified")
             return False
 
     def list_secrets(self, backend: Optional[SecretsBackend] = None) -> Dict[str, Any]:
@@ -159,8 +162,24 @@ class SecretsManager:
         logger.debug(f"Listing secrets from {backend.value} backend")
 
         if backend == SecretsBackend.ENV:
-            # Return a copy of the environment variables
-            return dict(os.environ)
+            # Return a copy of the environment variables with sensitive values masked
+            from common_utils.logging.secure_logging import (
+                SENSITIVE_FIELDS,
+            )
+
+            # Create a copy of environment variables
+            env_vars = dict(os.environ)
+
+            # Mask sensitive values
+            for key in env_vars.keys():
+                # Check if the key contains any sensitive terms
+                for sensitive_field in SENSITIVE_FIELDS:
+                    if sensitive_field.lower() in key.lower():
+                        # Mask the value
+                        env_vars[key] = "********"
+                        break
+
+            return env_vars
         elif backend == SecretsBackend.FILE:
             logger.warning("File backend not yet implemented")
             return {}
@@ -171,7 +190,7 @@ class SecretsManager:
             logger.warning("Vault backend not yet implemented")
             return {}
         else:
-            logger.error(f"Unknown backend: {backend}")
+            logger.error("Unknown backend specified")
             return {}
 
 
@@ -198,7 +217,7 @@ def get_secret(
         try:
             backend = SecretsBackend(backend)
         except ValueError:
-            logger.error(f"Invalid backend: {backend}")
+            logger.error("Invalid backend specified")
             return None
 
     return _secrets_manager.get_secret(key, backend)
@@ -224,7 +243,7 @@ def set_secret(
         try:
             backend = SecretsBackend(backend)
         except ValueError:
-            logger.error(f"Invalid backend: {backend}")
+            logger.error("Invalid backend specified")
             return False
 
     return _secrets_manager.set_secret(key, value, backend)
@@ -249,7 +268,7 @@ def delete_secret(
         try:
             backend = SecretsBackend(backend)
         except ValueError:
-            logger.error(f"Invalid backend: {backend}")
+            logger.error("Invalid backend specified")
             return False
 
     return _secrets_manager.delete_secret(key, backend)
@@ -273,7 +292,7 @@ def list_secrets(
         try:
             backend = SecretsBackend(backend)
         except ValueError:
-            logger.error(f"Invalid backend: {backend}")
+            logger.error("Invalid backend specified")
             return {}
 
     return _secrets_manager.list_secrets(backend)

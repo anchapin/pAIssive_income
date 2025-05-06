@@ -216,7 +216,7 @@ def scan_directory(directory: str) -> Dict[str, List[Tuple[str, int, str, str]]]
 def safe_log_sensitive_info(
     pattern_name: str, line_num: int, secret_length: int
 ) -> str:
-    """Safely log information about sensitive data without exposing the actual content."""
+    """Log sensitive data info without exposing content."""
     return f"  Line {line_num}: {pattern_name} - [REDACTED - {secret_length} chars]"
 
 

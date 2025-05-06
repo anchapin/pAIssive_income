@@ -28,8 +28,8 @@ __all__ = [
 def get_logger(name: str) -> logging.Logger:
     """Get a logger with the given name.
 
-    This is a convenience function that returns a secure logger if available,
-    otherwise falls back to a standard logger.
+    This is a convenience function that returns a secure logger by default,
+    which automatically masks sensitive information.
 
     Args:
     ----
@@ -37,12 +37,16 @@ def get_logger(name: str) -> logging.Logger:
 
     Returns:
     -------
-        logging.Logger: The logger
+        logging.Logger: The secure logger
 
     """
     try:
-        # Cast the SecureLogger to Logger for type compatibility
-        return logging.getLogger(name)
-    except Exception:
+        # Return a SecureLogger that masks sensitive information
+        logger = get_secure_logger(name)
+        return logger  # type: ignore
+    except Exception as e:
         # Fall back to standard logger if secure logger is not available
+        logging.getLogger("logging_setup").warning(
+            f"Failed to create secure logger, falling back to standard logger: {str(e)}"
+        )
         return logging.getLogger(name)

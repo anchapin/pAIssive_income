@@ -276,6 +276,14 @@ pre-commit install
 To run all pre-commit hooks manually on all files:
 
 ```bash
+# Using the provided scripts (recommended)
+# On Windows
+run_pre_commit.bat
+
+# On Unix/Linux
+./run_pre_commit.sh
+
+# Or manually
 pre-commit run --all-files
 ```
 
@@ -394,6 +402,14 @@ If you encounter issues with the CI workflow, try the following steps:
 5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
 
    ```bash
+   # Using the provided script (recommended)
+   # On Windows
+   setup_pre_commit.bat
+
+   # On Unix/Linux
+   ./setup_pre_commit.sh
+
+   # Or manually
    pre-commit uninstall
    pre-commit install
    ```

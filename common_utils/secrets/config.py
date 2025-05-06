@@ -90,7 +90,8 @@ class SecretConfig:
         env_key = key.replace(".", "_").upper()
         env_value = os.environ.get(env_key)
         if env_value is not None:
-            logger.debug(f"Got configuration value for {key} from environment")
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Got configuration value from environment")
             return env_value
 
         # Then try to get from the configuration file
@@ -98,17 +99,20 @@ class SecretConfig:
         value = self.config
         for part in parts:
             if not isinstance(value, dict) or part not in value:
-                logger.debug(f"Configuration key {key} not found, using default")
+                # Don't log the actual key name as it might reveal sensitive information
+                logger.debug("Configuration key not found, using default")
                 return default
             value = value[part]
 
         # If it's a secret reference, get the actual secret
         if use_secret and isinstance(value, str) and value.startswith("secret:"):
             secret_key = value[7:]  # Remove "secret:" prefix
-            logger.debug(f"Getting secret for {key}")
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Getting secret from configuration")
             return get_secret(secret_key, self.secrets_backend)
 
-        logger.debug(f"Got configuration value for {key} from config file")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Got configuration value from config file")
         return value
 
     def set(self, key: str, value: Any, use_secret: bool = False) -> None:
@@ -123,7 +127,8 @@ class SecretConfig:
         """
         if use_secret:
             # Store the value as a secret and save a reference
-            logger.debug(f"Setting secret for {key}")
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Setting secret in configuration")
             set_secret(key, str(value), self.secrets_backend)
             value = f"secret:{key}"
 
@@ -138,7 +143,8 @@ class SecretConfig:
 
         # Save the configuration
         self._save_config()
-        logger.debug(f"Set configuration value for {key}")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Set configuration value")
 
     def delete(self, key: str, use_secret: bool = False) -> bool:
         """Delete a configuration value.
@@ -158,19 +164,22 @@ class SecretConfig:
         config = self.config
         for part in parts[:-1]:
             if part not in config or not isinstance(config[part], dict):
-                logger.debug(f"Configuration key {key} not found")
+                # Don't log the actual key name as it might reveal sensitive information
+                logger.debug("Configuration key not found")
                 return False
             config = config[part]
 
         if parts[-1] not in config:
-            logger.debug(f"Configuration key {key} not found")
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Configuration key not found")
             return False
 
         # If it's a secret reference, delete the actual secret
         value = config[parts[-1]]
         if use_secret and isinstance(value, str) and value.startswith("secret:"):
             secret_key = value[7:]  # Remove "secret:" prefix
-            logger.debug(f"Deleting secret for {key}")
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Deleting secret from configuration")
             from .secrets_manager import delete_secret
 
             delete_secret(secret_key, self.secrets_backend)
@@ -178,5 +187,6 @@ class SecretConfig:
         # Delete from the configuration
         del config[parts[-1]]
         self._save_config()
-        logger.debug(f"Deleted configuration value for {key}")
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Deleted configuration value")
         return True
