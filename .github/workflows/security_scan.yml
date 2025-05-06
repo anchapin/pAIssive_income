@@ -42,7 +42,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install safety bandit pip-audit
         # Install sarif-tools with user flag to ensure proper accessibility
-        pip install --upgrade --user sarif-tools
+        python -m pip install --upgrade --user sarif-tools
+        # Add local bin directory to PATH
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "PATH=$PATH" >> $GITHUB_ENV
 
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
@@ -54,9 +57,33 @@ jobs:
         # Ensure installation of sarif-tools with multiple methods
         python -m pip install --force-reinstall --user sarif-tools
 
+        # Try installing with pip directly as well
+        pip install --force-reinstall --user sarif-tools
+
         # Add local bin directory to PATH
         export PATH="$HOME/.local/bin:$PATH"
         echo "PATH=$PATH" >> $GITHUB_ENV
+
+        # Debug Python environment
+        echo "Python version:"
+        python --version
+        echo "Python executable location:"
+        which python
+        echo "Python path:"
+        python -c "import sys; print(sys.path)"
+
+        # Debug pip installation
+        echo "Pip version:"
+        pip --version
+        echo "Pip executable location:"
+        which pip
+
+        # Debug sarif-tools installation
+        echo "sarif-tools package info:"
+        pip show sarif-tools || echo "sarif-tools package info not available"
+
+        # Check for sarif-tools module
+        python -c "import importlib.util; print('sarif_tools module exists:', importlib.util.find_spec('sarif_tools') is not None)" || echo "Failed to check for sarif_tools module"
 
         # Validate sarif-tools installation
         if command -v sarif-tools &> /dev/null; then
@@ -66,14 +93,23 @@ jobs:
           echo "✅ sarif-tools is accessible via Python module"
         else
           echo "⚠️ sarif-tools installation may have issues - will use fallbacks if needed"
-          # Try another installation method
+          # Try another installation method with explicit entry point installation
           pip install --user sarif-tools
+
+          # Try to find and make the entry point executable
+          if [ -f ~/.local/bin/sarif-tools ]; then
+            chmod +x ~/.local/bin/sarif-tools
+            echo "Made sarif-tools executable"
+          fi
         fi
 
         # Debug installation location
-        pip show sarif-tools
         echo "Local bin directory contents:"
         ls -la ~/.local/bin/ || echo "~/.local/bin/ not accessible"
+
+        # Check if sarif-tools is in PATH
+        echo "Checking PATH for sarif-tools:"
+        which sarif-tools || echo "sarif-tools not found in PATH"
 
     - name: Check for vulnerable dependencies with Safety
       id: safety
@@ -139,6 +175,7 @@ jobs:
 
             echo "Attempting with explicit path..."
             if [ -f ~/.local/bin/sarif-tools ]; then
+              chmod +x ~/.local/bin/sarif-tools
               ~/.local/bin/sarif-tools convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif 2>/tmp/err3 && {
                 echo "✅ Conversion successful using explicit path"
                 CONVERSION_SUCCEEDED=true
@@ -152,7 +189,123 @@ jobs:
           }
         }
 
-        # Create valid SARIF file as fallback if all conversion methods failed
+        # Python fallback if all sarif-tools methods fail
+        if [ ! -f security-reports/bandit-results.sarif ] || [ ! -s security-reports/bandit-results.sarif ]; then
+          echo "Attempting Python-based conversion fallback..."
+          cat > /tmp/convert_bandit.py << 'EOF'
+          import json
+          import os
+          import sys
+
+          def convert_bandit_to_sarif():
+              try:
+                  # Check if input file exists
+                  if not os.path.exists('security-reports/bandit-results.json'):
+                      print("Input file does not exist")
+                      return False
+
+                  # Read bandit results
+                  with open('security-reports/bandit-results.json', 'r') as f:
+                      try:
+                          bandit_data = json.load(f)
+                      except json.JSONDecodeError:
+                          print("Invalid JSON in bandit results")
+                          return False
+
+                  # Create SARIF structure
+                  sarif = {
+                      "version": "2.1.0",
+                      "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+                      "runs": [
+                          {
+                              "tool": {
+                                  "driver": {
+                                      "name": "Bandit",
+                                      "informationUri": "https://bandit.readthedocs.io/",
+                                      "rules": []
+                                  }
+                              },
+                              "results": []
+                          }
+                      ]
+                  }
+
+                  # Convert results if they exist
+                  if "results" in bandit_data and isinstance(bandit_data["results"], list):
+                      rule_indices = {}
+
+                      for result in bandit_data["results"]:
+                          test_id = result.get("test_id", "unknown")
+                          test_name = result.get("test_name", "unknown")
+
+                          # Add rule if not already added
+                          if test_id not in rule_indices:
+                              rule = {
+                                  "id": test_id,
+                                  "name": test_name,
+                                  "shortDescription": {
+                                      "text": test_name
+                                  },
+                                  "helpUri": f"https://bandit.readthedocs.io/en/latest/plugins/{test_id}.html"
+                              }
+                              sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+                              rule_indices[test_id] = len(sarif["runs"][0]["tool"]["driver"]["rules"]) - 1
+
+                          # Add result
+                          sarif_result = {
+                              "ruleId": test_id,
+                              "ruleIndex": rule_indices[test_id],
+                              "level": "warning",
+                              "message": {
+                                  "text": result.get("issue_text", "")
+                              },
+                              "locations": [
+                                  {
+                                      "physicalLocation": {
+                                          "artifactLocation": {
+                                              "uri": result.get("filename", "")
+                                          },
+                                          "region": {
+                                              "startLine": result.get("line_number", 1)
+                                          }
+                                      }
+                                  }
+                              ]
+                          }
+
+                          # Set severity level
+                          severity = result.get("issue_severity", "").lower()
+                          if severity == "high":
+                              sarif_result["level"] = "error"
+                          elif severity == "medium":
+                              sarif_result["level"] = "warning"
+                          elif severity == "low":
+                              sarif_result["level"] = "note"
+
+                          sarif["runs"][0]["results"].append(sarif_result)
+
+                  # Write SARIF file
+                  with open('security-reports/bandit-results.sarif', 'w') as f:
+                      json.dump(sarif, f, indent=2)
+
+                  return True
+              except Exception as e:
+                  print(f"Error converting Bandit results to SARIF: {str(e)}")
+                  return False
+
+          if __name__ == "__main__":
+              success = convert_bandit_to_sarif()
+              sys.exit(0 if success else 1)
+          EOF
+          python /tmp/convert_bandit.py && {
+            echo "✅ Conversion successful using Python fallback script"
+            CONVERSION_SUCCEEDED=true
+          } || {
+            echo "❌ Python fallback conversion failed"
+          }
+        fi
+
+        # Create valid SARIF file as final fallback if all conversion methods failed
         if [ ! -f security-reports/bandit-results.sarif ] || [ ! -s security-reports/bandit-results.sarif ]; then
           echo "Creating valid SARIF fallback file..."
           cat > security-reports/bandit-results.sarif << 'EOF'
@@ -188,6 +341,11 @@ jobs:
           echo "❌ SARIF file not created"
           exit 1
         fi
+
+        # Output file info for debugging
+        echo "SARIF file size: $(wc -c < security-reports/bandit-results.sarif) bytes"
+        echo "SARIF file first 100 characters:"
+        head -c 100 security-reports/bandit-results.sarif
 
     - name: Run Trivy vulnerability scanner
       id: trivy
