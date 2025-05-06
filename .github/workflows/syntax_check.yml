@@ -1,0 +1,85 @@
+name: Syntax Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      specific_file:
+        description: 'Specific file to check'
+        required: false
+        type: string
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Copy syntax check script
+      run: |
+        # Create a simple syntax check script
+        echo '#!/bin/bash' > syntax_check.sh
+        echo '# Simple script to check Python syntax' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '# Check a specific file' >> syntax_check.sh
+        echo 'check_file() {' >> syntax_check.sh
+        echo '  python -m py_compile "$1" 2>/dev/null' >> syntax_check.sh
+        echo '  if [ $? -ne 0 ]; then' >> syntax_check.sh
+        echo '    echo "Syntax error in $1"' >> syntax_check.sh
+        echo '    return 1' >> syntax_check.sh
+        echo '  fi' >> syntax_check.sh
+        echo '  return 0' >> syntax_check.sh
+        echo '}' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '# Find all Python files excluding common directories to ignore' >> syntax_check.sh
+        echo 'find_python_files() {' >> syntax_check.sh
+        echo '  find . -name "*.py" -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/.venv/*" -not -path "*/build/*" -not -path "*/dist/*" -not -path "*/__pycache__/*"' >> syntax_check.sh
+        echo '}' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '# Main function' >> syntax_check.sh
+        echo 'main() {' >> syntax_check.sh
+        echo '  if [ $# -gt 0 ]; then' >> syntax_check.sh
+        echo '    # Check specific files provided as arguments' >> syntax_check.sh
+        echo '    for file in "$@"; do' >> syntax_check.sh
+        echo '      check_file "$file" || exit 1' >> syntax_check.sh
+        echo '    done' >> syntax_check.sh
+        echo '  else' >> syntax_check.sh
+        echo '    # Find and check all Python files' >> syntax_check.sh
+        echo '    files=$(find_python_files)' >> syntax_check.sh
+        echo '    if [ -z "$files" ]; then' >> syntax_check.sh
+        echo '      echo "No Python files found"' >> syntax_check.sh
+        echo '      exit 0' >> syntax_check.sh
+        echo '    fi' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '    for file in $files; do' >> syntax_check.sh
+        echo '      check_file "$file" || exit 1' >> syntax_check.sh
+        echo '    done' >> syntax_check.sh
+        echo '  fi' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '  echo "All Python files passed syntax check"' >> syntax_check.sh
+        echo '  exit 0' >> syntax_check.sh
+        echo '}' >> syntax_check.sh
+        echo '' >> syntax_check.sh
+        echo '# Run the main function with all arguments' >> syntax_check.sh
+        echo 'main "$@"' >> syntax_check.sh
+        chmod +x syntax_check.sh
+
+    - name: Check for syntax errors
+      run: |
+        # Run the syntax check script
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          echo "Checking syntax for specific file: ${{ github.event.inputs.specific_file }}"
+          ./syntax_check.sh "${{ github.event.inputs.specific_file }}"
+        else
+          echo "Checking syntax for all Python files..."
+          ./syntax_check.sh
+        fi
