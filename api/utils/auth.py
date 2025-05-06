@@ -93,7 +93,7 @@ async def get_current_user(
     # Return the user data without password
     user_data = user.copy()
     user_data.pop("password_hash", None)
-    return Dict[str, Any](user_data)
+    return dict(user_data)
 
 
 # Create a module-level singleton for current_user dependency
@@ -174,4 +174,4 @@ async def verify_api_key(
             detail="Expired API key",
         )
 
-    return Dict[str, Any](api_key_data)
+    return dict(api_key_data)
