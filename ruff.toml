@@ -4,6 +4,23 @@ line-length = 88
 # Enable auto-fixes
 fix = true
 
+# Exclude non-Python files
+exclude = [
+    ".git",
+    ".github/workflows/*.yml",
+    "*.md",
+    "Dockerfile",
+    ".dockerignore",
+    "docker-compose.yml",
+    "*.json",
+    "*.yaml",
+    "*.yml",
+    "*.toml",
+    "*.ini",
+    "*.cfg",
+    "*.txt",
+]
+
 [lint]
 # Enable pycodestyle (`E`), Pyflakes (`F`), and more
 select = ["E", "F", "W", "I", "N", "D", "UP", "B"]
