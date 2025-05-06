@@ -41,52 +41,41 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install safety bandit pip-audit
-        # Install sarif-tools with user flag to ensure proper accessibility
+
+        # Install sarif-tools with multiple methods to ensure it's available
+        echo "Installing sarif-tools..."
         python -m pip install --upgrade --user sarif-tools
+        python -m pip install --upgrade sarif-tools
+
         # Add local bin directory to PATH
         export PATH="$HOME/.local/bin:$PATH"
+        export PATH="$PATH:/home/runner/.local/lib/python3.12/site-packages/sarif_tools"
         echo "PATH=$PATH" >> $GITHUB_ENV
+
+        # Verify sarif-tools installation
+        echo "Verifying sarif-tools installation..."
+        sarif-tools --version || python -m sarif_tools --version || echo "Will try alternative methods later"
 
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-    - name: Install sarif-tools
-      run: |
-        pip install sarif-tools
-    - name: Add sarif-tools to PATH
-      run: |
-        export PATH="$PATH:/home/runner/.local/lib/python3.12/site-packages/sarif_tools"
-        sarif --version  # Test command
-    - name: Use sarif-tools
-      run: sarif --version  # Example command to verify installation
 
     - name: Verify sarif-tools installation
       run: |
-        echo "Installing and verifying sarif-tools..."
+        echo "Verifying sarif-tools installation..."
 
         # Ensure installation of sarif-tools with multiple methods
         python -m pip install --force-reinstall --user sarif-tools
-
-        # Try installing with pip directly as well
         pip install --force-reinstall --user sarif-tools
 
         # Add local bin directory to PATH
         export PATH="$HOME/.local/bin:$PATH"
+        export PATH="$PATH:/home/runner/.local/lib/python3.12/site-packages/sarif_tools"
         echo "PATH=$PATH" >> $GITHUB_ENV
 
         # Debug Python environment
-        echo "Python version:"
-        python --version
-        echo "Python executable location:"
-        which python
-        echo "Python path:"
-        python -c "import sys; print(sys.path)"
-
-        # Debug pip installation
-        echo "Pip version:"
-        pip --version
-        echo "Pip executable location:"
-        which pip
+        echo "Python version: $(python --version)"
+        echo "Python executable location: $(which python)"
 
         # Debug sarif-tools installation
         echo "sarif-tools package info:"
@@ -95,31 +84,26 @@ jobs:
         # Check for sarif-tools module
         python -c "import importlib.util; print('sarif_tools module exists:', importlib.util.find_spec('sarif_tools') is not None)" || echo "Failed to check for sarif_tools module"
 
-        # Validate sarif-tools installation
-        if command -v sarif-tools &> /dev/null; then
-          echo "✅ sarif-tools is accessible via command line"
-          sarif-tools --version || echo "Warning: sarif-tools installed but version check failed"
-        elif python -m sarif_tools --version &> /dev/null; then
-          echo "✅ sarif-tools is accessible via Python module"
-        else
-          echo "⚠️ sarif-tools installation may have issues - will use fallbacks if needed"
-          # Try another installation method with explicit entry point installation
-          pip install --user sarif-tools
+        # Try all possible command formats
+        echo "Trying sarif-tools command:"
+        sarif-tools --version || echo "sarif-tools command not available"
 
-          # Try to find and make the entry point executable
-          if [ -f ~/.local/bin/sarif-tools ]; then
-            chmod +x ~/.local/bin/sarif-tools
-            echo "Made sarif-tools executable"
-          fi
-        fi
+        echo "Trying python -m sarif_tools command:"
+        python -m sarif_tools --version || echo "python -m sarif_tools command not available"
 
-        # Debug installation location
+        echo "Trying sarif command:"
+        sarif --version || echo "sarif command not available"
+
+        # Check executable locations
+        echo "Checking for sarif-tools executable:"
+        which sarif-tools || echo "sarif-tools not found in PATH"
+
+        echo "Checking for sarif executable:"
+        which sarif || echo "sarif not found in PATH"
+
+        # List bin directory contents
         echo "Local bin directory contents:"
         ls -la ~/.local/bin/ || echo "~/.local/bin/ not accessible"
-
-        # Check if sarif-tools is in PATH
-        echo "Checking PATH for sarif-tools:"
-        which sarif-tools || echo "sarif-tools not found in PATH"
 
     - name: Check for vulnerable dependencies with Safety
       id: safety
@@ -155,8 +139,10 @@ jobs:
     - name: Convert Bandit Results to SARIF
       id: convert_bandit
       run: |
-        # Ensure PATH includes local bin directory
+        # Ensure PATH includes all possible locations
         export PATH="$HOME/.local/bin:$PATH"
+        export PATH="$PATH:/home/runner/.local/lib/python3.12/site-packages/sarif_tools"
+        echo "PATH=$PATH" >> $GITHUB_ENV
 
         echo "Converting Bandit results to SARIF format..."
 
@@ -165,6 +151,13 @@ jobs:
           echo "Bandit results file missing or empty. Creating minimal valid JSON..."
           echo "{\"results\": []}" > security-reports/bandit-results.json
         fi
+
+        # Display the command formats we'll try
+        echo "Will attempt conversion with the following commands:"
+        echo "1. sarif-tools convert"
+        echo "2. python -m sarif_tools convert"
+        echo "3. sarif convert"
+        echo "4. Python fallback script"
 
         # Try multiple conversion methods with detailed error handling
         echo "Attempting sarif-tools direct command..."
@@ -195,6 +188,16 @@ jobs:
               }
             else
               echo "❌ sarif-tools not found at ~/.local/bin/sarif-tools"
+
+              # Try with sarif command as a fallback
+              echo "Attempting with sarif command as fallback..."
+              sarif convert security-reports/bandit-results.json -o security-reports/bandit-results.sarif 2>/tmp/err4 && {
+                echo "✅ Conversion successful using sarif command"
+                CONVERSION_SUCCEEDED=true
+              } || {
+                echo "❌ Fourth conversion method failed. Error:"
+                cat /tmp/err4
+              }
             fi
           }
         }
