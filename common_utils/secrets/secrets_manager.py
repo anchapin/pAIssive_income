@@ -15,6 +15,9 @@ from common_utils.logging import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
+# Import backends lazily to avoid circular imports
+# These will be imported when needed
+
 
 class SecretsBackend(enum.Enum):
     """Enum for supported secrets backends."""
@@ -63,14 +66,32 @@ class SecretsManager:
         if backend == SecretsBackend.ENV:
             return os.environ.get(key)
         elif backend == SecretsBackend.FILE:
-            logger.warning("File backend not yet implemented")
-            return None
+            try:
+                from .file_backend import FileBackend
+
+                file_backend = FileBackend()
+                return file_backend.get_secret(key)
+            except NotImplementedError:
+                logger.warning("File backend not yet fully implemented")
+                return None
         elif backend == SecretsBackend.MEMORY:
-            logger.warning("Memory backend not yet implemented")
-            return None
+            try:
+                from .memory_backend import MemoryBackend
+
+                memory_backend = MemoryBackend()
+                return memory_backend.get_secret(key)
+            except NotImplementedError:
+                logger.warning("Memory backend not yet fully implemented")
+                return None
         elif backend == SecretsBackend.VAULT:
-            logger.warning("Vault backend not yet implemented")
-            return None
+            try:
+                from .vault_backend import VaultBackend
+
+                vault_backend = VaultBackend()
+                return vault_backend.get_secret(key)
+            except NotImplementedError:
+                logger.warning("Vault backend not yet fully implemented")
+                return None
         else:
             logger.error("Unknown backend specified")
             return None
@@ -99,14 +120,32 @@ class SecretsManager:
             os.environ[key] = value
             return True
         elif backend == SecretsBackend.FILE:
-            logger.warning("File backend not yet implemented")
-            return False
+            try:
+                from .file_backend import FileBackend
+
+                file_backend = FileBackend()
+                return file_backend.set_secret(key, value)
+            except NotImplementedError:
+                logger.warning("File backend not yet fully implemented")
+                return False
         elif backend == SecretsBackend.MEMORY:
-            logger.warning("Memory backend not yet implemented")
-            return False
+            try:
+                from .memory_backend import MemoryBackend
+
+                memory_backend = MemoryBackend()
+                return memory_backend.set_secret(key, value)
+            except NotImplementedError:
+                logger.warning("Memory backend not yet fully implemented")
+                return False
         elif backend == SecretsBackend.VAULT:
-            logger.warning("Vault backend not yet implemented")
-            return False
+            try:
+                from .vault_backend import VaultBackend
+
+                vault_backend = VaultBackend()
+                return vault_backend.set_secret(key, value)
+            except NotImplementedError:
+                logger.warning("Vault backend not yet fully implemented")
+                return False
         else:
             logger.error("Unknown backend specified")
             return False
@@ -134,14 +173,32 @@ class SecretsManager:
                 return True
             return False
         elif backend == SecretsBackend.FILE:
-            logger.warning("File backend not yet implemented")
-            return False
+            try:
+                from .file_backend import FileBackend
+
+                file_backend = FileBackend()
+                return file_backend.delete_secret(key)
+            except NotImplementedError:
+                logger.warning("File backend not yet fully implemented")
+                return False
         elif backend == SecretsBackend.MEMORY:
-            logger.warning("Memory backend not yet implemented")
-            return False
+            try:
+                from .memory_backend import MemoryBackend
+
+                memory_backend = MemoryBackend()
+                return memory_backend.delete_secret(key)
+            except NotImplementedError:
+                logger.warning("Memory backend not yet fully implemented")
+                return False
         elif backend == SecretsBackend.VAULT:
-            logger.warning("Vault backend not yet implemented")
-            return False
+            try:
+                from .vault_backend import VaultBackend
+
+                vault_backend = VaultBackend()
+                return vault_backend.delete_secret(key)
+            except NotImplementedError:
+                logger.warning("Vault backend not yet fully implemented")
+                return False
         else:
             logger.error("Unknown backend specified")
             return False
@@ -181,14 +238,32 @@ class SecretsManager:
 
             return env_vars
         elif backend == SecretsBackend.FILE:
-            logger.warning("File backend not yet implemented")
-            return {}
+            try:
+                from .file_backend import FileBackend
+
+                file_backend = FileBackend()
+                return file_backend.list_secrets()
+            except NotImplementedError:
+                logger.warning("File backend not yet fully implemented")
+                return {}
         elif backend == SecretsBackend.MEMORY:
-            logger.warning("Memory backend not yet implemented")
-            return {}
+            try:
+                from .memory_backend import MemoryBackend
+
+                memory_backend = MemoryBackend()
+                return memory_backend.list_secrets()
+            except NotImplementedError:
+                logger.warning("Memory backend not yet fully implemented")
+                return {}
         elif backend == SecretsBackend.VAULT:
-            logger.warning("Vault backend not yet implemented")
-            return {}
+            try:
+                from .vault_backend import VaultBackend
+
+                vault_backend = VaultBackend()
+                return vault_backend.list_secrets()
+            except NotImplementedError:
+                logger.warning("Vault backend not yet fully implemented")
+                return {}
         else:
             logger.error("Unknown backend specified")
             return {}
