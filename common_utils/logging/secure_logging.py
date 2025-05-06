@@ -172,7 +172,8 @@ def _mask_pattern(
         masked_value: str = _mask_string(sensitive_value, mask_char, visible_chars)
         return full_match.replace(sensitive_value, masked_value)
 
-    return pattern.sub(_replacer, text)
+    result = pattern.sub(_replacer, text)
+    return str(result)
 
 
 class SecureLogger:
