@@ -274,11 +274,13 @@ pre-commit install
 ```
 
 To run all pre-commit hooks manually on all files:
+
 ```bash
 pre-commit run --all-files
 ```
 
 To run specific hooks:
+
 ```bash
 pre-commit run trailing-whitespace --all-files
 pre-commit run ruff --all-files
@@ -289,17 +291,20 @@ pre-commit run ruff --all-files
 Use these commands to check and fix linting issues:
 
 1. Check for issues without fixing:
+
 ```bash
 scripts\lint_check.bat  # Windows
 ./scripts/lint_check.sh  # Unix/Linux
 ```
 
-2. Fix issues automatically:
+1. Fix issues automatically:
+
 ```bash
 python fix_all_issues_final.py
 ```
 
-3. Run specific checks:
+1. Run specific checks:
+
 ```bash
 scripts\lint_check.bat --ruff  # Run only Ruff
 scripts\lint_check.bat --mypy  # Run only MyPy
