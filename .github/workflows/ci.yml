@@ -29,7 +29,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ github.event.inputs.test_only != 'true' }}
+    if: ${{ !github.event.inputs.test_only }}
 
     steps:
     - uses: actions/checkout@v4
@@ -73,11 +73,11 @@ jobs:
         else
           # Find Python files excluding ignored patterns directly
           echo "Checking for syntax errors and formatting issues in Python files..."
-          PYTHON_FILES=$(find . -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
+          PYTHON_FILES=$(find . -name "*.py" -type f -print0 | grep -zvE "$IGNORE_PATTERNS")
 
           if [ -n "$PYTHON_FILES" ]; then
             echo "Checking Python files one by one..."
-            echo "$PYTHON_FILES" | while read -r file; do
+            echo -n "$PYTHON_FILES" | while IFS= read -r -d '' file; do
               if [ -n "$file" ]; then
                 echo "Checking $file"
                 # Use Python's built-in compile to check syntax first
@@ -149,7 +149,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ github.event.inputs.lint_only != 'true' }}
+    if: ${{ !github.event.inputs.lint_only }}
     needs: lint
     strategy:
       fail-fast: false
