@@ -26,8 +26,9 @@ on:
         type: string
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     timeout-minutes: 10
     if: ${{ !github.event.inputs.test_only }}
 
