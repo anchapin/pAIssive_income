@@ -264,10 +264,11 @@ def safe_log_sensitive_info(
     with no data about the actual sensitive content beyond length.
     """
     # Don't even log the exact length as it could potentially help with identification
-    length_category = (
-        "short" if secret_length < 20 else "medium" if secret_length < 50 else "long"
-    )
-    return f"  Line {line_num}: {pattern_name} - [REDACTED - {length_category}]"
+    # Use more generic descriptions for the pattern type
+    sanitized_pattern = pattern_name.replace("_", " ").capitalize()
+
+    # Use sanitized pattern without storing a length category
+    return f"  Line {line_num}: Potential {sanitized_pattern} - [REDACTED]"
 
 
 def safe_log_file_path(file_path: str) -> str:

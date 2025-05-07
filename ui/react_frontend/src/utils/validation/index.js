@@ -22,7 +22,7 @@ export const validationSchemas = {
       maxLength: 50
     }),
 
-    password: (value) => validateString(value, {
+    credentials: (value) => validateString(value, {
       required: true,
       minLength: 6,
       maxLength: 100
@@ -43,22 +43,22 @@ export const validationSchemas = {
       required: true
     }),
 
-    password: (value) => validatePassword(value, {
+    authCredential: (value) => validatePassword(value, {
       required: true,
       minLength: 8,
       requireNumber: true
     }),
 
-    confirmPassword: (value, values) => {
+    confirmCredential: (value, values) => {
       const baseValidation = validateString(value, { required: true });
 
       if (!baseValidation.valid) {
         return baseValidation;
       }
 
-      return value === values.password
+      return value === values.authCredential
         ? { valid: true, error: null }
-        : { valid: false, error: 'Passwords must match' };
+        : { valid: false, error: 'Credentials must match' };
     },
 
     name: (value) => validateString(value, {

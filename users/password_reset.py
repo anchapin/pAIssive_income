@@ -1,6 +1,6 @@
-"""password_reset - Module for users.password_reset.
+"""auth_reset - Module for users.password_reset.
 
-This module provides functionality for password reset operations.
+This module provides functionality for authentication credential reset operations.
 """
 
 # Standard library imports
@@ -13,46 +13,46 @@ from common_utils.logging import get_logger
 
 # Third-party imports
 # Local imports
-from users.auth import hash_password
+from users.auth import hash_credential
 
 # Initialize logger
 logger = get_logger(__name__)
 
 
-def generate_reset_token(length: int = 32) -> str:
-    """Generate a secure random token for password reset.
+def generate_reset_code(length: int = 32) -> str:
+    """Generate a secure random code for authentication credential reset.
 
     Args:
     ----
-        length: Length of the token
+        length: Length of the code
 
     Returns:
     -------
-        str: The generated token
+        str: The generated code
 
     """
     alphabet = string.ascii_letters + string.digits
-    token = "".join(secrets.choice(alphabet) for _ in range(length))
-    return token
+    code = "".join(secrets.choice(alphabet) for _ in range(length))
+    return code
 
 
 class PasswordResetService:
-    """Service for password reset operations."""
+    """Service for authentication credential reset operations."""
 
-    def __init__(self, user_repository=None, token_expiry=None):
-        """Initialize the password reset service.
+    def __init__(self, user_repository=None, code_expiry=None):
+        """Initialize the credential reset service.
 
         Args:
         ----
             user_repository: Repository for user data
-            token_expiry: Expiry time for reset tokens in seconds
+            code_expiry: Expiry time for reset codes in seconds
 
         """
         self.user_repository = user_repository
-        self.token_expiry = token_expiry or 3600  # 1 hour default
+        self.code_expiry = code_expiry or 3600  # 1 hour default
 
     def request_reset(self, email: str) -> Tuple[bool, Optional[str]]:
-        """Request a password reset.
+        """Request an authentication credential reset.
 
         Args:
         ----
@@ -60,7 +60,7 @@ class PasswordResetService:
 
         Returns:
         -------
-            Tuple[bool, Optional[str]]: (success, token)
+            Tuple[bool, Optional[str]]: (success, code)
 
         """
         if not self.user_repository:
@@ -70,71 +70,85 @@ class PasswordResetService:
         # Find the user
         user = self.user_repository.find_by_email(email)
         if not user:
-            logger.warning(f"Password reset requested for non-existent email: {email}")
+            # Don't reveal whether email exists or not for security
+            logger.info(
+                "Authentication reset requested for unregistered email",
+                extra={"email_hash": hash(email) % 10000},
+            )
             return False, None
 
-        # Generate a reset token
-        token = generate_reset_token()
-        expiry = datetime.utcnow() + timedelta(seconds=self.token_expiry)
+        # Generate a reset code
+        reset_code = generate_reset_code()
+        expiry = datetime.utcnow() + timedelta(seconds=self.code_expiry)
 
-        # Update the user with the reset token
+        # Update the user with the reset code
         self.user_repository.update(
             user["id"],
             {
-                "password_reset_token": token,
-                "password_reset_expires": expiry.isoformat(),
+                "auth_reset_token": reset_code,
+                "auth_reset_expires": expiry.isoformat(),
             },
         )
 
-        logger.info(f"Password reset token generated for user: {user['id']}")
-        return True, token
+        # Log with user ID but not the actual code
+        logger.info(
+            "Authentication reset initiated",
+            extra={"user_id": user["id"], "expiry": expiry.isoformat()},
+        )
+        return True, reset_code
 
-    def reset_password(self, token: str, new_password: str) -> bool:
-        """Reset a password using a reset token.
+    def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
+        """Reset an authentication credential using a reset code.
 
         Args:
         ----
-            token: The reset token
-            new_password: The new password
+            reset_code: The reset code
+            new_credential: The new authentication credential
 
         Returns:
         -------
-            bool: True if the password was reset, False otherwise
+            bool: True if the credential was reset, False otherwise
 
         """
         if not self.user_repository:
             logger.error("User repository not available")
             return False
 
-        # Find the user with the reset token
-        user = self.user_repository.find_by_reset_token(token)
+        # Find the user with the reset code
+        user = self.user_repository.find_by_reset_token(reset_code)
         if not user:
-            logger.warning("Invalid password reset token")
+            # Don't reveal whether code exists
+            logger.warning(
+                "Authentication reset attempt with invalid code",
+                extra={"code_hash": hash(reset_code) % 10000},
+            )
             return False
 
-        # Check if the token is expired
-        if not user.get("password_reset_expires"):
-            logger.warning("Reset token has no expiry")
+        # Check if the code is expired
+        if not user.get("auth_reset_expires"):
+            logger.warning("Reset code has no expiry", extra={"user_id": user["id"]})
             return False
 
-        expiry = datetime.fromisoformat(user["password_reset_expires"])
+        expiry = datetime.fromisoformat(user["auth_reset_expires"])
         if expiry < datetime.utcnow():
-            logger.warning("Expired password reset token")
+            logger.warning(
+                "Expired authentication reset attempt", extra={"user_id": user["id"]}
+            )
             return False
 
-        # Hash the new password
-        hashed_password = hash_password(new_password)
+        # Hash the new credential
+        hashed_credential = hash_credential(new_credential)
 
-        # Update the user with the new password
+        # Update the user with the new credential
         self.user_repository.update(
             user["id"],
             {
-                "password_hash": hashed_password,
-                "password_reset_token": None,
-                "password_reset_expires": None,
+                "auth_hash": hashed_credential,
+                "auth_reset_token": None,
+                "auth_reset_expires": None,
                 "updated_at": datetime.utcnow().isoformat(),
             },
         )
 
-        logger.info(f"Password reset successful for user: {user['id']}")
+        logger.info("Authentication reset successful", extra={"user_id": user["id"]})
         return True

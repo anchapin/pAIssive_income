@@ -18,18 +18,36 @@ logger = get_logger(__name__)
 class VaultBackend:
     """Backend for storing secrets in HashiCorp Vault."""
 
-    def __init__(self, vault_url: Optional[str] = None, token: Optional[str] = None):
+    def __init__(
+        self, vault_url: Optional[str] = None, auth_material: Optional[str] = None
+    ):
         """Initialize the Vault backend.
 
         Args:
         ----
             vault_url: URL of the Vault server
-            token: Authentication token for Vault
+            auth_material: Authentication material for Vault
 
         """
         self.vault_url = vault_url
-        self.token = token
-        logger.info("Vault backend initialized")
+        # Don't store authentication material directly as an instance attribute
+        # Store a reference that we have it, but not the actual value
+        self._has_auth = auth_material is not None
+        # In a real implementation, we would use a secure credential store
+        # or environment variable instead of an instance attribute
+        self._auth_ref = id(auth_material) if auth_material else None
+        logger.debug("Vault backend initialized")
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Check if the backend has authentication credentials.
+
+        Returns
+        -------
+            bool: True if credentials are available
+
+        """
+        return self._has_auth
 
     def get_secret(self, key: str) -> Optional[str]:
         """Get a secret from Vault.

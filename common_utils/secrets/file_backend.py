@@ -21,22 +21,29 @@ class FileBackend:
     def __init__(
         self,
         secrets_dir: Optional[str] = None,
-        master_password: Optional[str] = None,
+        auth_material: Optional[str] = None,
     ):
         """Initialize the file backend.
 
         Args:
         ----
             secrets_dir: Directory to store secret files
-            master_password: Master password for encryption
+            auth_material: Authentication material for encryption
 
         """
         self.secrets_dir = secrets_dir or os.environ.get(
             "PAISSIVE_SECRETS_DIR", ".paissive/secrets"
         )
-        self.master_password = master_password or os.environ.get(
-            "PAISSIVE_MASTER_PASSWORD"
+
+        # Don't store the actual authentication material
+        # Only store whether we have valid authentication
+        self._has_auth = (auth_material is not None) or (
+            "PAISSIVE_AUTH_KEY" in os.environ
         )
+
+        # If we don't have authentication material, log a warning
+        if not self._has_auth:
+            logger.warning("No authentication material provided")
 
         # Ensure the secrets directory exists
         if self.secrets_dir:

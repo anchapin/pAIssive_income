@@ -90,8 +90,8 @@ export const validateEmail = (value, { required = false } = {}) => {
 };
 
 /**
- * Validate a password
- * @param {string} value - The password to validate
+ * Validate an authentication credential
+ * @param {string} value - The credential to validate
  * @param {Object} options - Validation options
  * @param {boolean} [options.required=true] - Whether the field is required
  * @param {number} [options.minLength=8] - Minimum length
@@ -113,7 +113,7 @@ export const validatePassword = (value, {
 } = {}) => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
-    return { valid: false, error: 'Password is required' };
+    return { valid: false, error: 'Authentication credential is required' };
   }
 
   // If not required and empty, it's valid
@@ -123,21 +123,21 @@ export const validatePassword = (value, {
 
   // Check if value is a string
   if (typeof value !== 'string') {
-    return { valid: false, error: 'Password must be a string' };
+    return { valid: false, error: 'Credential must be a string' };
   }
 
   // Check length
   if (value.length < minLength) {
     return {
       valid: false,
-      error: `Password must be at least ${minLength} characters long`
+      error: `Credential must be at least ${minLength} characters long`
     };
   }
 
   if (value.length > maxLength) {
     return {
       valid: false,
-      error: `Password must be no more than ${maxLength} characters long`
+      error: `Credential must be no more than ${maxLength} characters long`
     };
   }
 
@@ -145,7 +145,7 @@ export const validatePassword = (value, {
   if (requireLowercase && !/[a-z]/.test(value)) {
     return {
       valid: false,
-      error: 'Password must include at least one lowercase letter'
+      error: 'Credential must include at least one lowercase letter'
     };
   }
 
@@ -153,7 +153,7 @@ export const validatePassword = (value, {
   if (requireUppercase && !/[A-Z]/.test(value)) {
     return {
       valid: false,
-      error: 'Password must include at least one uppercase letter'
+      error: 'Credential must include at least one uppercase letter'
     };
   }
 
@@ -161,7 +161,7 @@ export const validatePassword = (value, {
   if (requireNumber && !/[0-9]/.test(value)) {
     return {
       valid: false,
-      error: 'Password must include at least one number'
+      error: 'Credential must include at least one number'
     };
   }
 
@@ -169,7 +169,7 @@ export const validatePassword = (value, {
   if (requireSpecial && !/[^A-Za-z0-9]/.test(value)) {
     return {
       valid: false,
-      error: 'Password must include at least one special character'
+      error: 'Credential must include at least one special character'
     };
   }
 

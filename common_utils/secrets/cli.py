@@ -107,7 +107,17 @@ def _check_rate_limit(operation: str) -> None:
 
 
 def _validate_secret_value(value: str) -> bool:
-    """Validate a secret value."""
+    """Validate a secret value.
+
+    Args:
+    ----
+        value: The secret value to validate
+
+    Returns:
+    -------
+        bool: Whether the value passes validation
+
+    """
     if not value or len(value) < 8:
         return False
     has_upper = any(c.isupper() for c in value)

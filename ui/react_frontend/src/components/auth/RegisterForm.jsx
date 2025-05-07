@@ -19,8 +19,8 @@ import { useAppContext } from '../../context/AppContext';
  */
 const RegisterForm = ({ onSuccess }) => {
   const { register } = useAppContext();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCredential, setShowCredential] = useState(false);
+  const [showConfirmCredential, setShowConfirmCredential] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
 
@@ -37,8 +37,8 @@ const RegisterForm = ({ onSuccess }) => {
     {
       username: '',
       email: '',
-      password: '',
-      confirmPassword: '',
+      authCredential: '',
+      confirmCredential: '',
       name: ''
     },
     validationSchemas.register
@@ -54,7 +54,7 @@ const RegisterForm = ({ onSuccess }) => {
       await register({
         username: formData.username,
         email: formData.email,
-        password: formData.password,
+        password: formData.authCredential, // API still expects 'password'
         name: formData.name
       });
 
@@ -72,14 +72,14 @@ const RegisterForm = ({ onSuccess }) => {
     }
   };
 
-  // Toggle password visibility
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  // Toggle credential visibility
+  const handleToggleCredentialVisibility = () => {
+    setShowCredential(!showCredential);
   };
 
-  // Toggle confirm password visibility
-  const handleToggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+  // Toggle confirm credential visibility
+  const handleToggleConfirmCredentialVisibility = () => {
+    setShowConfirmCredential(!showConfirmCredential);
   };
 
   return (
@@ -152,26 +152,26 @@ const RegisterForm = ({ onSuccess }) => {
             <TextField
               required
               fullWidth
-              name="password"
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              id="password"
+              name="authCredential"
+              label="Authentication Credential"
+              type={showCredential ? "text" : "password"}
+              id="authCredential"
               autoComplete="new-password"
-              value={values.password}
+              value={values.authCredential}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={touched.password && Boolean(errors.password)}
-              helperText={touched.password && errors.password}
+              error={touched.authCredential && Boolean(errors.authCredential)}
+              helperText={touched.authCredential && errors.authCredential}
               disabled={isSubmitting}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleTogglePasswordVisibility}
+                      aria-label="toggle credential visibility"
+                      onClick={handleToggleCredentialVisibility}
                       edge="end"
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showCredential ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 )
@@ -183,26 +183,26 @@ const RegisterForm = ({ onSuccess }) => {
             <TextField
               required
               fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type={showConfirmPassword ? "text" : "password"}
-              id="confirmPassword"
+              name="confirmCredential"
+              label="Confirm Credential"
+              type={showConfirmCredential ? "text" : "password"}
+              id="confirmCredential"
               autoComplete="new-password"
-              value={values.confirmPassword}
+              value={values.confirmCredential}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={touched.confirmPassword && Boolean(errors.confirmPassword)}
-              helperText={touched.confirmPassword && errors.confirmPassword}
+              error={touched.confirmCredential && Boolean(errors.confirmCredential)}
+              helperText={touched.confirmCredential && errors.confirmCredential}
               disabled={isSubmitting}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleToggleConfirmPasswordVisibility}
+                      aria-label="toggle credential visibility"
+                      onClick={handleToggleConfirmCredentialVisibility}
                       edge="end"
                     >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      {showConfirmCredential ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 )

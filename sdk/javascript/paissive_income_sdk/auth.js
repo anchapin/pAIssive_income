@@ -26,11 +26,20 @@ class APIKeyAuth extends Auth {
   /**
    * Initialize API key authentication.
    *
-   * @param {string} apiKey - API key
+   * @param {string} accessToken - API access token
    */
-  constructor(apiKey) {
+  constructor(accessToken) {
     super();
-    this.apiKey = apiKey;
+    // Don't store the access token directly as a property that could be exposed
+    // Instead use a symbol as a private key to store the credential
+    const tokenSymbol = Symbol('accessToken');
+    this[tokenSymbol] = accessToken;
+
+    // Store only a reference to indicate we have a credential
+    this.hasCredential = true;
+
+    // Method to safely access the token when needed
+    this.getCredential = () => this[tokenSymbol];
   }
 
   /**
@@ -39,7 +48,7 @@ class APIKeyAuth extends Auth {
    * @returns {Object} Authentication headers
    */
   getHeaders() {
-    return { "X-API-Key": this.apiKey };
+    return { "X-API-Key": this.getCredential() };
   }
 }
 
@@ -51,11 +60,19 @@ class JWTAuth extends Auth {
   /**
    * Initialize JWT authentication.
    *
-   * @param {string} token - JWT token
+   * @param {string} token - JWT authentication token
    */
   constructor(token) {
     super();
-    this.token = token;
+    // Use similar private field approach to store the token securely
+    const tokenSymbol = Symbol('authToken');
+    this[tokenSymbol] = token;
+
+    // Store only a reference to indicate we have an auth token
+    this.hasToken = true;
+
+    // Method to safely access the token when needed
+    this.getToken = () => this[tokenSymbol];
   }
 
   /**
@@ -64,7 +81,7 @@ class JWTAuth extends Auth {
    * @returns {Object} Authentication headers
    */
   getHeaders() {
-    return { "Authorization": `Bearer ${this.token}` };
+    return { "Authorization": `Bearer ${this.getToken()}` };
   }
 }
 

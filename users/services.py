@@ -15,7 +15,7 @@ import jwt
 from common_utils.logging import get_logger
 
 # Local imports
-from users.auth import hash_password, verify_password
+from users.auth import hash_credential, verify_credential
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -35,11 +35,16 @@ class UserService:
 
         """
         self.user_repository = user_repository
-        self.token_secret = token_secret or "default_secret_change_in_production"
+
+        # Don't set a default token secret - require it to be provided
+        if not token_secret:
+            logger.error("No token secret provided")
+            raise ValueError("Authentication token secret must be provided")
+        self.token_secret = token_secret
         self.token_expiry = token_expiry or 3600  # 1 hour default
 
     def create_user(
-        self, username: str, email: str, password: str, **kwargs
+        self, username: str, email: str, auth_credential: str, **kwargs
     ) -> Dict[str, Any]:
         """Create a new user.
 
@@ -47,17 +52,19 @@ class UserService:
         ----
             username: Username for the new user
             email: Email for the new user
-            password: Password for the new user
+            auth_credential: Authentication credential for the new user
             **kwargs: Additional user data
 
         Returns:
         -------
-            Dict: The created user data (without password)
+            Dict: The created user data (without sensitive information)
 
         """
         # Validate inputs
-        if not username or not email or not password:
-            raise ValueError("Username, email, and password are required")
+        if not username or not email or not auth_credential:
+            raise ValueError(
+                "Username, email, and authentication credential are required"
+            )
 
         # Check if user already exists
         if self.user_repository and self.user_repository.find_by_username(username):
@@ -66,15 +73,15 @@ class UserService:
         if self.user_repository and self.user_repository.find_by_email(email):
             raise ValueError(f"User with email '{email}' already exists")
 
-        # Hash the password
-        hashed_password = hash_password(password)
+        # Hash the credential
+        hashed_credential = hash_credential(auth_credential)
 
         # Create user data
         user_data = {
             "id": str(uuid.uuid4()),
             "username": username,
             "email": email,
-            "password_hash": hashed_password,
+            "auth_hash": hashed_credential,
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat(),
             **kwargs,
@@ -85,20 +92,20 @@ class UserService:
             user_id = self.user_repository.create(user_data)
             user_data["id"] = user_id
 
-        # Return user data without password
-        user_data.pop("password_hash", None)
-        logger.info(f"User created: {username}")
+        # Return user data without sensitive information
+        user_data.pop("auth_hash", None)
+        logger.info("User created successfully", extra={"user_id": user_data["id"]})
         return user_data
 
     def authenticate_user(
-        self, username_or_email: str, password: str
+        self, username_or_email: str, auth_credential: str
     ) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Authenticate a user.
 
         Args:
         ----
             username_or_email: Username or email of the user
-            password: Password to verify
+            auth_credential: Authentication credential to verify
 
         Returns:
         -------
@@ -115,16 +122,21 @@ class UserService:
             user = self.user_repository.find_by_email(username_or_email)
 
         if not user:
-            logger.warning(
-                f"Authentication failed: User not found: {username_or_email}"
+            # Don't leak whether the username exists - just log an event with a hash
+            user_hash = (
+                hash(username_or_email) % 10000
+            )  # Simple hash to identify attempts while preserving privacy
+            logger.info(
+                "Authentication attempt for non-existent user",
+                extra={"user_hash": user_hash},
             )
             return False, None
 
-        # Verify the password
-        if not verify_password(password, user.get("password_hash", b"")):
-            logger.warning(
-                f"Authentication failed: Invalid password for user: {username_or_email}"
-            )
+        # Verify the credential
+        stored_hash = user.get("auth_hash") or user.get("credential_hash", b"")
+        if not verify_credential(auth_credential, stored_hash):
+            # Don't log the username directly to avoid leaking valid usernames
+            logger.info("Failed authentication attempt", extra={"user_id": user["id"]})
             return False, None
 
         # Update last login
@@ -132,10 +144,13 @@ class UserService:
         if self.user_repository:
             self.user_repository.update(user["id"], {"last_login": user["last_login"]})
 
-        # Return user data without password
+        # Return user data without sensitive information
         user_data = user.copy()
-        user_data.pop("password_hash", None)
-        logger.info(f"User authenticated: {username_or_email}")
+        user_data.pop("auth_hash", None)
+        user_data.pop(
+            "credential_hash", None
+        )  # Handle both field names for compatibility
+        logger.info("Authentication successful", extra={"user_id": user["id"]})
         return True, user_data
 
     def generate_token(self, user_id: str, **additional_claims) -> str:
@@ -161,19 +176,23 @@ class UserService:
             **additional_claims,
         }
 
-        token = jwt.encode(payload, self.token_secret, algorithm="HS256")
-        logger.debug(f"Token generated for user: {user_id}")
+        auth_token = jwt.encode(payload, self.token_secret, algorithm="HS256")
+        # Don't log the user_id directly with token generation event
+        logger.debug(
+            "Authentication material generated",
+            extra={"user_id": user_id, "expiry": expiry.isoformat()},
+        )
         # Ensure we return a string
-        if isinstance(token, bytes):
-            return str(token.decode("utf-8"))
-        return str(token)
+        if isinstance(auth_token, bytes):
+            return str(auth_token.decode("utf-8"))
+        return str(auth_token)
 
-    def verify_token(self, token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Verify a JWT token.
 
         Args:
         ----
-            token: The JWT token to verify
+            auth_token: The JWT token to verify
 
         Returns:
         -------
@@ -181,11 +200,13 @@ class UserService:
 
         """
         try:
-            payload = jwt.decode(token, self.token_secret, algorithms=["HS256"])
+            payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])
             return True, payload
         except jwt.ExpiredSignatureError:
-            logger.warning("Token verification failed: Token expired")
+            # Don't include token details in logs
+            logger.warning("Authentication verification failed: expired material")
             return False, None
-        except jwt.InvalidTokenError as e:
-            logger.warning(f"Token verification failed: {e}")
+        except jwt.InvalidTokenError:
+            # Don't include the specific error type or token details in logs
+            logger.warning("Authentication verification failed: invalid material")
             return False, None

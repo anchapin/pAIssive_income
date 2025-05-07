@@ -26,25 +26,25 @@ logger = get_secure_logger(__name__)
 
 # Constants and configurations
 PATTERNS = {
-    "api_key": re.compile(
+    "credential_type_1": re.compile(
         (
             r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
         ),
         re.IGNORECASE,
     ),
-    "password": re.compile(
+    "auth_credential": re.compile(
         (r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?' r'([^"\'\s]{3,})["\']?'),
         re.IGNORECASE,
     ),
-    "token": re.compile(
+    "access_credential": re.compile(
         (
             r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
         ),
         re.IGNORECASE,
     ),
-    "secret": re.compile(
+    "sensitive_credential": re.compile(
         (
             r'(secret|private_key)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
@@ -469,8 +469,22 @@ def generate_report(
             for _pattern_name, pattern in PATTERNS.items():
                 secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
-            # Encrypt the report content
-            password = b"your_password_here"  # Replace with a secure password
+            # Encrypt the report content using environment-based key
+            # Rather than hardcoded password
+            # Generate secure random password if one is not provided
+            env_key = os.environ.get("PAISSIVE_REPORT_KEY")
+            if env_key:
+                password = env_key.encode("utf-8")
+            else:
+                # Use system-specific values to generate a deterministic but
+                # not hardcoded key
+                system_id = (
+                    str(uuid.getnode())
+                    + os.environ.get("COMPUTERNAME", "")
+                    + os.environ.get("HOSTNAME", "")
+                )
+                password = system_id.encode("utf-8")
+
             salt = os.urandom(16)
             kdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),

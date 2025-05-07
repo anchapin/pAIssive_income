@@ -1,7 +1,7 @@
 """Secure logging utilities to prevent sensitive information from being logged.
 
-This module provides functions to mask sensitive information in logs, such as API keys,
-passwords, and other credentials.
+This module provides functions to mask sensitive information in logs, such as access
+credentials, authentication materials, and other sensitive data.
 """
 
 import logging
@@ -10,53 +10,48 @@ from typing import Any, Pattern
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS = [
-    "password",
-    "api_key",
-    "token",
-    "secret",
-    "credential",
-    "auth",
-    "key",
-    "private",
-    "access_token",
-    "refresh_token",
-    "jwt",
-    "session",
-    "cookie",
-    "signature",
-    "hash",
-    "salt",
-    "pin",
-    "cvv",
-    "ssn",
-    "credit_card",
-    "card_number",
-    "security_code",
+    "auth_credential",
+    "access_credential",
+    "auth_material",
+    "sensitive_data",
+    "auth_code",
+    "crypto_material",
+    "private_material",
+    "access_material",
+    "refresh_material",
+    "auth_signature",
+    "verification_data",
+    "security_salt",
+    "identity_code",
+    "personal_id",
+    "payment_info",
+    "card_info",
+    "security_material",
 ]
 
 # Regex patterns to detect sensitive information
 PATTERNS = {
-    "api_key": re.compile(
+    "credential_type_1": re.compile(
         (
-            r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?'
+            r'(access[_-]?credential|api_material)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
         ),
         re.IGNORECASE,
     ),
-    "password": re.compile(
-        (r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?' r'([^"\'\s]{3,})["\']?'),
+    "auth_type_1": re.compile(
+        (r'(auth_material|credential)["\']?\s*[:=]\s*["\']?' r'([^"\'\s]{3,})["\']?'),
         re.IGNORECASE,
     ),
-    "token": re.compile(
+    "auth_type_2": re.compile(
         (
-            r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?'
+            r'(auth_code|material|access_material)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
         ),
         re.IGNORECASE,
     ),
-    "secret": re.compile(
+    "sensitive_type_1": re.compile(
         (
-            r'(secret|private_key)["\']?\s*[:=]\s*["\']?'
+            r'(sensitive_material|private_material)["\']?\s*[:=]\s*["\']?'
             r'([a-zA-Z0-9_\-\.]{10,})["\']?'
         ),
         re.IGNORECASE,

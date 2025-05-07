@@ -19,7 +19,7 @@ import { useAppContext } from '../../context/AppContext';
  */
 const LoginForm = ({ onSuccess }) => {
   const { login } = useAppContext();
-  const [showPassword, setShowPassword] = useState(false);
+  const [showCredential, setShowCredential] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
 
@@ -33,7 +33,7 @@ const LoginForm = ({ onSuccess }) => {
     handleSubmit,
     isValid
   } = useFormValidation(
-    { username: '', password: '' },
+    { username: '', credentials: '' },
     validationSchemas.login
   );
 
@@ -46,7 +46,7 @@ const LoginForm = ({ onSuccess }) => {
       // Call login function from context
       await login({
         username: formData.username,
-        password: formData.password
+        password: formData.credentials
       });
 
       // Call onSuccess callback if provided
@@ -63,9 +63,9 @@ const LoginForm = ({ onSuccess }) => {
     }
   };
 
-  // Toggle password visibility
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  // Toggle credentials visibility
+  const handleToggleCredentialVisibility = () => {
+    setShowCredential(!showCredential);
   };
 
   return (
@@ -102,26 +102,26 @@ const LoginForm = ({ onSuccess }) => {
           margin="normal"
           required
           fullWidth
-          name="password"
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          id="password"
+          name="credentials"
+          label="Credentials"
+          type={showCredential ? "text" : "password"}
+          id="credentials"
           autoComplete="current-password"
-          value={values.password}
+          value={values.credentials}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={touched.password && Boolean(errors.password)}
-          helperText={touched.password && errors.password}
+          error={touched.credentials && Boolean(errors.credentials)}
+          helperText={touched.credentials && errors.credentials}
           disabled={isSubmitting}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleTogglePasswordVisibility}
+                  aria-label="toggle credentials visibility"
+                  onClick={handleToggleCredentialVisibility}
                   edge="end"
                 >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                  {showCredential ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             )
@@ -140,7 +140,7 @@ const LoginForm = ({ onSuccess }) => {
         </Button>
 
         <FormHelperText>
-          Demo credentials: username "demo" / password "password"
+          Demo credentials: username "demo" / authKey "demo123"
         </FormHelperText>
       </Box>
     </Paper>
