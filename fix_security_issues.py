@@ -33,14 +33,14 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory_for_secrets(
         directory: str,
-    ) -> Dict[str, List[Tuple[str, int, str, str]]]:
+    ) -> Dict[str, List[Tuple[str, int, str, int]]]:
         """Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan
 
         Returns:
-            Dict[str, List[Tuple[str, int, str, str]]]: Empty result dictionary
+            Dict[str, List[Tuple[str, int, str, int]]]: Empty result dictionary
 
         """
         print("scan_directory_for_secrets is not available. Using subprocess fallback.")
@@ -384,6 +384,10 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
 
     """
     try:
+        # Create an additional secure log file for sensitive data
+        secure_output_file = output_file + ".secure"
+
+        # Write the main report with sanitized information
         with open(output_file, "w") as f:
             f.write("Security Scan Report\n")
             f.write("===================\n\n")
@@ -403,9 +407,14 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
             # Write sanitized file information without revealing patterns or line
             # content
             for file_path, secrets in results.items():
-                sanitized_path = sanitize_path(file_path)
-                f.write(f"File: {sanitized_path}\n")
-                f.write("-" * (len(sanitized_path) + 6) + "\n")
+                # Use a hash of the path instead of the actual path
+                import hashlib
+
+                path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
+                # Write only the hash reference to the main report
+                f.write(f"File ID: {path_hash}\n")
+                f.write("-" * 15 + "\n")
+
                 if isinstance(secrets, list):
                     # Group issues by type to avoid revealing specific lines
                     issue_types: Dict[str, int] = {}
@@ -427,7 +436,59 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
                         f.write(f"  {count} instance(s) of: {issue_type}\n")
                 f.write("\n")
 
+            f.write("\nNote: Full file paths are stored in a separate secure file.\n")
+
+        # Write the mapping of hashes to actual paths in the secure file
+        try:
+            import base64
+            import os
+
+            from cryptography.fernet import Fernet
+            from cryptography.hazmat.primitives import hashes
+            from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+            # Generate a key from the machine-specific information for encryption
+            # This makes the secure file only readable on this machine
+            salt = (
+                os.environ.get("COMPUTERNAME", "default").encode()[:16].ljust(16, b"\0")
+            )
+            password = os.environ.get("USERNAME", "default").encode()
+
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                iterations=100000,
+            )
+            key = base64.urlsafe_b64encode(kdf.derive(password))
+            cipher_suite = Fernet(key)
+
+            # Create a dictionary mapping hash IDs to actual file paths
+            path_mapping = {}
+            for file_path in results.keys():
+                path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
+                path_mapping[path_hash] = file_path
+
+            # Encrypt the mapping and write to the secure file
+            encrypted_data = cipher_suite.encrypt(json.dumps(path_mapping).encode())
+            with open(secure_output_file, "wb") as f:
+                f.write(encrypted_data)
+
+            # Set secure permissions on the secure mapping file
+            set_secure_file_permissions(secure_output_file)
+
+        except ImportError:
+            print(
+                "Warning: cryptography library not available. "
+                "Secure file mappings disabled."
+            )
+            # If encryption fails, don't create the secure file -
+            # don't fall back to clear text
+            pass
+
         print(f"Text report saved to {output_file}")
+        if os.path.exists(secure_output_file):
+            print(f"Secure file path mappings saved to {secure_output_file}")
     except Exception as e:
         print(f"Error writing text report: {type(e).__name__}")
         return 1

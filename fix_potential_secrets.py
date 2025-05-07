@@ -121,10 +121,10 @@ def is_example_code(content: str, line: str) -> bool:
     return False
 
 
-def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, str]]:
+def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, int]]:
     """Find potential secrets in a file.
 
-    Returns a list of tuples: (pattern_name, line_number, line_content, secret_value)
+    Returns a list of tuples: (pattern_name, line_number, line_content, secret_length)
     """
     if should_exclude(file_path):
         return []
@@ -152,7 +152,9 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, str]]:
                         if is_example_code(content, line):
                             continue
 
-                        results.append((pattern_name, i + 1, line, secret_value))
+                        # Store length instead of the actual secret value
+                        secret_length = len(secret_value) if secret_value else 0
+                        results.append((pattern_name, i + 1, line, secret_length))
 
         return results
     except Exception as e:
@@ -161,7 +163,7 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, str]]:
 
 
 def fix_secrets_in_file(
-    file_path: str, secrets: list[tuple[str, int, str, str]]
+    file_path: str, secrets: list[tuple[str, int, str, int]]
 ) -> bool:
     """Fix secrets in a file by replacing them with safe values."""
     if not secrets:
@@ -175,21 +177,41 @@ def fix_secrets_in_file(
             return False
 
         with open(normalized_path, encoding="utf-8", errors="ignore") as f:
-            lines = f.readlines()
+            content = f.read()
+            lines = content.splitlines()
 
+        # Re-scan the file to get the actual secret values for replacement
+        # This is done separately from the logging code path
+        actual_secrets = []
+        for i, line in enumerate(lines):
+            for pattern_name, pattern in PATTERNS.items():
+                matches = pattern.findall(line)
+                if matches:
+                    for match in matches:
+                        # Handle different match formats
+                        if isinstance(match, tuple):
+                            secret_value = match[1]
+                        else:
+                            secret_value = match
+
+                        if is_example_code(content, line):
+                            continue
+
+                        actual_secrets.append((pattern_name, i, secret_value))
+
+        # Apply replacements
         modified = False
-        for pattern_name, line_num, _, secret_value in secrets:
-            line_index = line_num - 1
+        for pattern_name, line_index, secret_value in actual_secrets:
             if line_index < len(lines):
                 replacement = SAFE_REPLACEMENTS.get(pattern_name, "your-secret-value")
-                # Don't log the actual secret value being replaced
+                # Replace the actual secret value
                 lines[line_index] = lines[line_index].replace(secret_value, replacement)
                 modified = True
 
         if modified:
             # SECURITY FIX: Write to a verified file path with proper permissions
             with open(normalized_path, "w", encoding="utf-8") as f:
-                f.writelines(lines)
+                f.writelines(line + "\n" for line in lines)
 
             # Set restrictive permissions on Unix systems
             if os.name != "nt":
@@ -210,7 +232,7 @@ def fix_secrets_in_file(
         return False
 
 
-def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str, str]]]:
+def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str, int]]]:
     """Scan a directory recursively for potential secrets."""
     results = {}
 
@@ -308,10 +330,7 @@ def main():
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
         for secret_info in secrets:
-            pattern_name, line_num = secret_info[0], secret_info[1]
-            # Calculate length separately to avoid handling the actual secret value
-            # in the logging code path
-            secret_length = len(secret_info[3]) if secret_info[3] else 0
+            pattern_name, line_num, _, secret_length = secret_info
             # Use safe logging function with only metadata
             log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
             print(log_message)
