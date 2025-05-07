@@ -1,4 +1,4 @@
-name: Deploy Application
+name: Post-Merge Tests (and Deploy Placeholder)
 
 on:
   push:
@@ -12,6 +12,7 @@ permissions:
   packages: write
 
 jobs:
+  # TODO: Replace this duplicated test logic by calling a reusable test workflow (see .github/workflows/ci.yml).
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -61,3 +62,11 @@ jobs:
             --cov-report=xml \
             --cov-report=term-missing \
             --junitxml=junit/test-results.xml
+
+  # Example placeholder for a future deployment job:
+  # deploy:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to production
+  #       run: echo "Add your deployment steps here (e.g., Docker build/push, cloud deploy, etc.)"
