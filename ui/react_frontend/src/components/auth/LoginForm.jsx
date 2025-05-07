@@ -140,6 +140,11 @@ const LoginForm = ({ onSuccess }) => {
         </Button>
 
         <FormHelperText>
+          {/* 
+            Demo credentials: username "demo" / authKey "demo123"
+            NOTE: These are non-functional, non-sensitive demo values for UI demonstration only.
+            No real credentials are exposed or used here.
+          */}
           Demo credentials: username "demo" / authKey "demo123"
         </FormHelperText>
       </Box>
