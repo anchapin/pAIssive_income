@@ -1,91 +1,11 @@
-# Frequently Asked Questions (FAQ)
+# Frequently Asked Questions
 
-This document provides answers to frequently asked questions about the pAIssive Income Framework.
+...
 
-## General Questions
+---
 
-### What is the pAIssive Income Framework?
-
-The pAIssive Income Framework is a comprehensive system for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI. It provides a structured approach to creating specialized AI-powered software tools that solve specific problems for targeted user groups.
-
-### What can I do with the pAIssive Income Framework?
-
-With the pAIssive Income Framework, you can:
-- Identify profitable niches for AI-powered tools
-- Develop AI-powered solutions for specific niches
-- Create monetization strategies with subscription models
-- Develop marketing campaigns for your AI tools
-- Deploy and manage your AI tools
-- Collect and analyze user feedback to improve your tools
-
-### Is the pAIssive Income Framework free to use?
-
-Yes, the pAIssive Income Framework is open source and free to use under the MIT License. You can use it for personal or commercial projects without any restrictions.
-
-### What are the system requirements for the pAIssive Income Framework?
-
-The pAIssive Income Framework requires:
-- Python 3.8 or higher
-- pip (Python package manager)
-- Sufficient RAM for running local AI models (at least 8GB, 16GB or more recommended)
-- GPU (optional but recommended for better performance)
-
-## Technical Questions
-
-### How do I install the pAIssive Income Framework?
-
-You can install the pAIssive Income Framework by cloning the repository and installing the dependencies:
-
-```bash
-git clone https://github.com/anchapin/pAIssive_income.git
-cd pAIssive_income
-pip install -r requirements.txt
-```
-
-For more detailed installation instructions, see the [Getting Started](getting-started.md) guide.
-
-### How do I run the web interface?
-
-You can run the web interface with the following command:
-
-```bash
-python run_ui.py
-```
-
-This will start a web server at http://localhost:5000 where you can access the UI.
-
-### Can I use my own AI models with the framework?
-
-Yes, you can use your own AI models with the framework. The AI Models module provides a unified interface for working with different types of models and adapters. You can register your own models with the Model Manager:
-
-```python
-from ai_models import ModelManager, ModelInfo
-
-manager = ModelManager()
-model_info = ModelInfo(
-    id="my-model",
-    name="My Model",
-    description="My custom AI model",
-    model_type="text",
-    path="/path/to/my/model"
-)
-manager.register_model(model_info)
-```
-
-### How do I create a custom agent?
-
-You can create a custom agent by extending the base Agent class:
-
-```python
-from agent_team import Agent
-
-class MyCustomAgent(Agent):
-    def __init__(self, name, config=None):
-        super().__init__(name, config)
-
-    def process(self, input_data):
-        # Process the input data
-        # ...
+**Help us improve this FAQ!**  
+If you have suggestions or corrections, please open an issue with the "documentation" label or see [documentation-guide.md](documentation-guide.md).
         return result
 ```
 

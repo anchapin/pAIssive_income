@@ -15,10 +15,12 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
 9. [UI](ui.md)
 10. [Tool Templates](tool-templates.md)
 11. [API Reference](api-reference.md)
-12. [Troubleshooting](troubleshooting.md)
-13. [FAQ](faq.md)
-14. [Glossary](glossary.md)
-15. [Contributing](contributing.md)
+12. [DevOps & CI/CD Workflow](devops-workflow.md)
+13. [Troubleshooting](troubleshooting.md)
+14. [FAQ](faq.md)
+15. [Glossary](glossary.md)
+16. [Contributing](contributing.md)
+17. [Documentation Guide](documentation-guide.md)
 
 ## About the Framework
 
@@ -29,3 +31,8 @@ This framework provides a structured approach to creating specialized AI-powered
 ## License
 
 [MIT License](../LICENSE)
+
+---
+
+**Feedback:**  
+If you spot an error or want to suggest an improvement to this documentation, please open a GitHub issue or see the [documentation guide](documentation-guide.md) for more on update and feedback processes.
