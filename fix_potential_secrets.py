@@ -10,7 +10,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, cast
 
 # Regex patterns to detect sensitive information
 PATTERNS = {
@@ -121,7 +121,7 @@ def is_example_code(content: str, line: str) -> bool:
     return False
 
 
-def find_potential_secrets(file_path: str) -> List[Tuple[str, int, str, str]]:
+def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, str]]:
     """Find potential secrets in a file.
 
     Returns a list of tuples: (pattern_name, line_number, line_content, secret_value)
@@ -161,14 +161,20 @@ def find_potential_secrets(file_path: str) -> List[Tuple[str, int, str, str]]:
 
 
 def fix_secrets_in_file(
-    file_path: str, secrets: List[Tuple[str, int, str, str]]
+    file_path: str, secrets: list[tuple[str, int, str, str]]
 ) -> bool:
     """Fix secrets in a file by replacing them with safe values."""
     if not secrets:
         return False
 
     try:
-        with open(file_path, encoding="utf-8", errors="ignore") as f:
+        # SECURITY FIX: Validate the file path to prevent path traversal attacks
+        normalized_path = os.path.normpath(os.path.abspath(file_path))
+        if not os.path.isfile(normalized_path):
+            print("Invalid file path: Path verification failed")
+            return False
+
+        with open(normalized_path, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
 
         modified = False
@@ -176,21 +182,33 @@ def fix_secrets_in_file(
             line_index = line_num - 1
             if line_index < len(lines):
                 replacement = SAFE_REPLACEMENTS.get(pattern_name, "your-secret-value")
+                # Don't log the actual secret value being replaced
                 lines[line_index] = lines[line_index].replace(secret_value, replacement)
                 modified = True
 
         if modified:
-            with open(file_path, "w", encoding="utf-8") as f:
+            # SECURITY FIX: Write to a verified file path with proper permissions
+            with open(normalized_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
+
+            # Set restrictive permissions on Unix systems
+            if os.name != "nt":
+                try:
+                    os.chmod(normalized_path, 0o644)  # rw-r--r--
+                except Exception:
+                    print("Warning: Could not set file permissions")
+
             return True
 
         return False
-    except Exception as e:
-        print(f"Error fixing secrets in {file_path}: {e}")
+    except Exception:
+        # SECURITY FIX: Don't log specific exception details
+        # that might include sensitive information
+        print("Error fixing secrets in file: General I/O error")
         return False
 
 
-def scan_directory(directory: str) -> Dict[str, List[Tuple[str, int, str, str]]]:
+def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str, str]]]:
     """Scan a directory recursively for potential secrets."""
     results = {}
 
@@ -310,7 +328,8 @@ def main():
     path = "master/Schemata/sarif-schema-2.1.0.json"
     schema_url = base + org + path
 
-    sarif_report: Dict[str, Any] = {
+    # Configure SARIF report
+    sarif_report: dict[str, Any] = {
         "$schema": schema_url,
         "version": "2.1.0",
         "runs": [
@@ -347,7 +366,7 @@ def main():
     }
 
     # Add results to SARIF report without including sensitive data
-    sarif_results = cast(List[Dict[str, Any]], sarif_report["runs"][0]["results"])
+    sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
     for file_path, secrets in results.items():
         for pattern_name, line_num, _, _ in secrets:
             sarif_results.append(

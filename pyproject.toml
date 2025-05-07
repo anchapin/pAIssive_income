@@ -50,13 +50,21 @@ ml = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/pAIssive_income"
-"Bug Tracker" = "https://github.com/yourusername/pAIssive_income/issues"
+homepage = "https://github.com/yourusername/pAIssive_income"
+bug_tracker = "https://github.com/yourusername/pAIssive_income/issues"
 
 [tool.setuptools]
 packages = ["services"]
+package-dir = {"" = "."}
+package-data = {"services" = ["**/*.json"]}
 
-[tool.pytest]
+# Explicitly disable auto-discovery to prevent multiple .egg-info directories
+[tool.setuptools.find-packages]
+where = [""]
+include = ["services*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"

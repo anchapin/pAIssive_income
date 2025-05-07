@@ -402,7 +402,9 @@ def generate_report(
     if json_format:
         json_results = {}
         for file_path, secrets in results.items():
-            json_results[file_path] = [
+            # Mask the file path to prevent leaking sensitive paths
+            masked_file_path = mask_sensitive_data(file_path)
+            json_results[masked_file_path] = [
                 {
                     "type": pattern_name,
                     "line_number": line_number,
@@ -414,8 +416,10 @@ def generate_report(
                 for pattern_name, line_number, line, _ in secrets
             ]
 
-        # Apply double masking for extra security
-        output = mask_sensitive_data(json.dumps(json_results, indent=2))
+        # Create a pre-masked JSON string - never store unmasked data
+        masked_json = json.dumps(json_results, indent=2)
+        # Apply additional masking for extra security
+        output = mask_sensitive_data(masked_json)
     else:
         lines = [
             "Secrets Audit Report",
@@ -426,8 +430,10 @@ def generate_report(
         ]
 
         for file_path, secrets in results.items():
-            lines.append(f"File: {file_path}")
-            lines.append("-" * (len(file_path) + 6))
+            # Mask the file path in the report
+            masked_file_path = mask_sensitive_data(file_path)
+            lines.append(f"File: {masked_file_path}")
+            lines.append("-" * (len(masked_file_path) + 6))
             for pattern_name, line_number, line, _ in secrets:
                 lines.append(f"  Line {line_number}: {pattern_name}")
                 # Apply masking to the line content
@@ -441,11 +447,24 @@ def generate_report(
 
     if output_file:
         try:
-            # Apply double-masking for extra security (output is already masked once)
-            double_masked = mask_sensitive_data(output)
+            # Apply additional security measures for the file content
+            secure_output = mask_sensitive_data(output)
 
+            # Create the output directory if it doesn't exist
+            output_dir = os.path.dirname(output_file)
+            if output_dir and not os.path.exists(output_dir):
+                os.makedirs(output_dir, mode=0o700)  # Secure permissions
+
+            # Write the file with restrictive permissions
             with open(output_file, "w", encoding="utf-8") as f:
-                f.write(double_masked)
+                f.write(secure_output)
+
+            # Set secure permissions on the output file
+            try:
+                os.chmod(output_file, 0o600)  # Read/write for owner only
+            except Exception:
+                pass  # Skip if chmod is not supported on the platform
+
             logger.info(
                 "Report saved",
                 extra={"file": os.path.basename(output_file)},
@@ -453,9 +472,10 @@ def generate_report(
         except Exception as e:
             # Mask any potential sensitive data in error message
             masked_error = mask_sensitive_data(str(e))
-            logger.error(f"Error saving report: {masked_error}")
+            logger.error("Error saving report", extra={"error": masked_error})
     else:
-        logger.info("Audit report generated")
+        # Don't log the full report, just the summary
+        logger.info("Audit report generated", extra={"total_secrets": total_secrets})
         summary = (
             f"Audit report generated: Found {total_secrets} potential secrets "
             f"in {len(results)} files"
