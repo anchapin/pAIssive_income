@@ -1,5 +1,7 @@
 """service_initialization.py - Service initialization utilities for the pAIssive Income project."""
 
+import logging
+
 class Service:
     """A simple mock service class."""
     def __init__(self, name):
@@ -8,7 +10,7 @@ class Service:
 
     def initialize(self):
         self.initialized = True
-        print(f"Service '{self.name}' initialized.")
+        logging.info(f"Service '{self.name}' initialized.")
 
 
 def initialize_services(service_names):
@@ -21,6 +23,7 @@ def initialize_services(service_names):
 
 def main():
     """Demo service initialization."""
+    logging.basicConfig(level=logging.INFO)
     service_names = ["auth", "database", "api"]
     initialize_services(service_names)
 
