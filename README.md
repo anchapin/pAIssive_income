@@ -70,7 +70,7 @@ For quick reference, the following topics are included in the full guide:
 ### Feedback & Documentation Contributions
 
 To suggest improvements or report issues in the documentation, please:
-- Open an issue with the label `documentation`
+- [Open an issue](https://github.com/anchapin/pAIssive_income/issues) with the label `documentation`
 - Or email the maintainer: a.n.chapin@gmail.com
 
 For documentation contribution standards and process, see [docs/documentation-guide.md](docs/documentation-guide.md).
