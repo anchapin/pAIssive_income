@@ -19,9 +19,7 @@ def main():
 
     # Run pytest with any unknown arguments passed through
     try:
-        result = subprocess.run(
-            ["pytest"] + unknown, check=False
-        )
+        result = subprocess.run(["pytest"] + unknown, check=False)
         return result.returncode
     except FileNotFoundError:
         print("pytest is not installed or not found in PATH.")
