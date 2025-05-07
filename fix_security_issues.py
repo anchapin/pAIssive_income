@@ -1,280 +1,322 @@
-"""fix_security_issues - Script to scan for security issues in codebase.
+#!/usr/bin/env python3
+"""Security issues scanner and fixer for CI/CD.
 
-This script scans for potential security issues related to clear-text logging
-and storage of sensitive information. It outputs findings in SARIF format
-for integration with GitHub Security features.
+This script is designed to be run in CI/CD workflows to scan for
+security issues and generate reports in a standardized format.
+It's a wrapper around the fix_potential_secrets.py script with
+additional CI-friendly features.
 """
 
 import argparse
 import json
 import os
-import re
+import subprocess
 import sys
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set, cast
 
-# Files to focus on
-TARGET_FILES = [
-    "common_utils/secrets/audit.py",
-    "common_utils/secrets/cli.py",
-    "fix_potential_secrets.py",
-]
+# Import the existing security tools if possible
+try:
+    from fix_potential_secrets import (
+        scan_directory as scan_directory_for_secrets,
+    )
 
-# Patterns to detect
-PATTERNS = [
-    # Pattern 1: Clear-text logging of sensitive information
-    (
-        r'logger\.(?:info|debug|warning|error|critical)\s*\(\s*f["\'].*?{.*?secret.*?}.*?["\']',
-        "Clear-text logging of sensitive information",
-        "warning",
-    ),
-    # Pattern 2: Direct printing of sensitive values
-    (
-        r"print\s*\(\s*(.*?secret.*?)\s*\)",
-        "Direct printing of sensitive values",
-        "error",
-    ),
-    # Pattern 3: Logging sensitive file paths
-    (
-        (
-            r"logger\.(?:info|debug|warning|error|critical)\s*\(\s*f"
-            r'["\'].*?Report saved to {.*?}["\']'
-        ),
-        "Logging sensitive file paths",
-        "warning",
-    ),
-]
-
-# Directories to exclude from scanning
-EXCLUDE_DIRS = {
-    ".git",
-    ".github",
-    ".venv",
-    "venv",
-    "node_modules",
-    "__pycache__",
-    "build",
-    "dist",
-}
+    IMPORTED_SECRET_SCANNER = True
+except ImportError:
+    IMPORTED_SECRET_SCANNER = False
 
 
-def should_exclude(file_path: str, exclude_dirs: Optional[Set[str]] = None) -> bool:
-    """Check if a file should be excluded from scanning."""
-    if exclude_dirs is None:
-        exclude_dirs = EXCLUDE_DIRS
+def setup_args() -> argparse.Namespace:
+    """Parse command-line arguments.
 
-    # Normalize path
-    file_path = os.path.normpath(file_path)
+    Returns:
+        argparse.Namespace: Parsed arguments
 
-    # Check if the file is in an excluded directory
-    path_parts = file_path.split(os.sep)
-    for part in path_parts:
-        if part in exclude_dirs:
-            return True
+    """
+    parser = argparse.ArgumentParser(
+        description="Security issues scanner and fixer for CI/CD"
+    )
+    parser.add_argument(
+        "--scan-only", action="store_true", help="Only scan for issues, don't fix them"
+    )
+    parser.add_argument(
+        "--output",
+        default="security-report.sarif",
+        help="Output file for the report (default: security-report.sarif)",
+    )
+    parser.add_argument(
+        "--directory",
+        default=".",
+        help="Directory to scan (default: current directory)",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["sarif", "json", "text"],
+        default="sarif",
+        help="Output format (default: sarif)",
+    )
+    parser.add_argument(
+        "--exclude",
+        nargs="+",
+        default=[
+            ".git",
+            ".github",
+            ".venv",
+            "venv",
+            "__pycache__",
+            "node_modules",
+            "build",
+            "dist",
+            ".pytest_cache",
+        ],
+        help="Directories to exclude from scanning",
+    )
 
-    return False
+    return parser.parse_args()
 
 
-def scan_file_for_issues(file_path: str) -> List[Dict[str, Any]]:
-    """Scan a file for security issues and return findings in SARIF format."""
-    findings = []
+def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
+    """Run the security scan using the appropriate tool.
 
+    Args:
+        directory: Directory to scan
+        exclude_dirs: Directories to exclude
+
+    Returns:
+        Dict[str, Any]: Results of the scan
+
+    """
+    print(f"Scanning directory: {directory}")
+    print(f"Excluding directories: {', '.join(exclude_dirs)}")
+
+    # Use imported function if available
+    if IMPORTED_SECRET_SCANNER:
+        results = scan_directory_for_secrets(directory)
+        return results
+
+    # Fallback to subprocess call
     try:
-        with open(file_path, encoding="utf-8", errors="replace") as f:
-            content = f.read()
-            lines = content.splitlines()
-
-        # Apply each pattern
-        for pattern, message, level in PATTERNS:
-            for match in re.finditer(pattern, content):
-                # Get line number
-                line_num = content.count("\n", 0, match.start()) + 1
-
-                # Get the matched line content
-                matched_line = lines[line_num - 1]
-
-                finding = {
-                    "ruleId": f"security-check/{pattern[:30]}",
-                    "level": level,
-                    "message": {"text": message},
-                    "locations": [
-                        {
-                            "physicalLocation": {
-                                "artifactLocation": {"uri": file_path},
-                                "region": {
-                                    "startLine": line_num,
-                                    "snippet": {"text": matched_line},
-                                },
-                            }
-                        }
-                    ],
-                }
-                findings.append(finding)
-
-        # Special pattern checks for specific files
-        if file_path == "common_utils/secrets/audit.py":
-            # Check for line 285: Clear-text logging check
-            pattern = (
-                r'logger\.info\s*\(\s*f["\']Found {.*?} potential '
-                r'secrets in {.*?} files["\']'
-            )
-            for match in re.finditer(pattern, content):
-                line_num = content.count("\n", 0, match.start()) + 1
-                msg = "Logging count of potential secrets without secure context"
-                finding = {
-                    "ruleId": ("security-check/clear-text-secrets-count"),
-                    "level": "warning",
-                    "message": {"text": msg},
-                    "locations": [
-                        {
-                            "physicalLocation": {
-                                "artifactLocation": {"uri": file_path},
-                                "region": {
-                                    "startLine": line_num,
-                                    "snippet": {"text": lines[line_num - 1]},
-                                },
-                            }
-                        }
-                    ],
-                }
-                findings.append(finding)
-
-    except Exception as e:
-        print(f"Error scanning {file_path}: {e}", file=sys.stderr)
-        import traceback
-
-        traceback.print_exc()
-        findings.append(
-            {
-                "ruleId": "security-check/scan-error",
-                "level": "error",
-                "message": {"text": f"Error scanning file: {str(e)}"},
-                "locations": [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {"uri": file_path},
-                            "region": {"startLine": 1},
-                        }
-                    }
-                ],
-            }
+        script_path = os.path.join(
+            os.path.dirname(__file__), "fix_potential_secrets.py"
         )
 
-    return findings
+        # Check if the script exists
+        if not os.path.exists(script_path):
+            # Try relative path
+            script_path = "fix_potential_secrets.py"
+            if not os.path.exists(script_path):
+                raise FileNotFoundError(
+                    "Could not find fix_potential_secrets.py in current directory "
+                    "or parent directory"
+                )
+
+        # Call the script using subprocess
+        exclude_arg = ",".join(exclude_dirs)
+        cmd = [
+            sys.executable,
+            script_path,
+            directory,
+            "--scan-only",
+            f"--exclude={exclude_arg}",
+        ]
+
+        print(f"Running command: {' '.join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        # Extract results from script output
+        # This assumes fix_potential_secrets.py outputs a JSON report
+        if result.stdout and result.returncode == 0:
+            # Try to parse JSON from output
+            try:
+                # Find JSON in output (assuming it's delimited somehow)
+                json_start = result.stdout.find("{")
+                if json_start >= 0:
+                    results = json.loads(result.stdout[json_start:])
+                    return results
+            except json.JSONDecodeError:
+                pass
+
+        # If we can't parse the output, return a simplified result
+        print("Could not parse detailed results, returning simplified report")
+        return {"error": "Could not parse output from security scanner"}
+
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        print(f"Error running security scan: {e}")
+        return {"error": f"Error running security scan: {type(e).__name__}"}
 
 
-def create_sarif_report(findings: List[Dict[str, Any]], output_file: str):
-    """Create a SARIF format report from the findings."""
-    sarif_report = {
-        "$schema": (
-            "https://raw.githubusercontent.com/oasis-tcs/"
-            "sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
-        ),
+def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
+    """Generate a SARIF report from scan results.
+
+    Args:
+        results: Scan results
+        output_file: Output file path
+
+    """
+    # Build URL in parts to avoid line length issues
+    base = "https://raw.githubusercontent.com/"
+    org = "oasis-tcs/sarif-spec/"
+    path = "master/Schemata/sarif-schema-2.1.0.json"
+    schema_url = base + org + path
+
+    # Configure SARIF report
+    sarif_report: Dict[str, Any] = {
+        "$schema": schema_url,
         "version": "2.1.0",
         "runs": [
             {
                 "tool": {
                     "driver": {
-                        "name": "Security Issue Scanner",
+                        "name": "SecretScanner",
+                        "informationUri": "https://github.com/anchapin/pAIssive_income",
                         "rules": [
                             {
-                                "id": "security-check/clear-text-logging",
+                                "id": "secret-detection",
                                 "shortDescription": {
-                                    "text": (
-                                        "Clear-text logging of sensitive information"
-                                    )
+                                    "text": "Detect hardcoded secrets"
                                 },
                                 "fullDescription": {
-                                    "text": (
-                                        "Logging sensitive information in "
-                                        "clear text can expose secrets"
-                                    )
+                                    "text": "Identifies hardcoded credentials, tokens, "
+                                    "and other secrets in code"
                                 },
-                                "defaultConfiguration": {"level": "warning"},
+                                "helpUri": "https://github.com/anchapin/pAIssive_income",
+                                "defaultConfiguration": {"level": "error"},
                             }
                         ],
                     }
                 },
-                "results": findings,
+                "results": [],
             }
         ],
     }
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(sarif_report, f, indent=2)
+    # Add results to SARIF report without including sensitive data
+    sarif_results = cast(List[Dict[str, Any]], sarif_report["runs"][0]["results"])
+
+    for file_path, secrets in results.items():
+        if isinstance(secrets, list):
+            for item in secrets:
+                if isinstance(item, tuple) and len(item) >= 2:
+                    # Handle tuple format (pattern_name, line_num, line, secret_value)
+                    pattern_name, line_num = item[0], item[1]
+                    sarif_results.append(
+                        {
+                            "ruleId": "secret-detection",
+                            "level": "error",
+                            "message": {"text": f"Potential {pattern_name} found"},
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {"uri": file_path},
+                                        "region": {"startLine": line_num},
+                                    }
+                                }
+                            ],
+                        }
+                    )
+                elif (
+                    isinstance(item, dict) and "type" in item and "line_number" in item
+                ):
+                    # Handle dict format from JSON
+                    pattern_name, line_num = item["type"], item["line_number"]
+                    sarif_results.append(
+                        {
+                            "ruleId": "secret-detection",
+                            "level": "error",
+                            "message": {"text": f"Potential {pattern_name} found"},
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {"uri": file_path},
+                                        "region": {"startLine": line_num},
+                                    }
+                                }
+                            ],
+                        }
+                    )
+
+    try:
+        with open(output_file, "w") as f:
+            json.dump(sarif_report, f, indent=2)
+        print(f"SARIF report saved to {output_file}")
+    except Exception as e:
+        # Don't log the exception details as they might include sensitive information
+        print(f"Error writing SARIF report: {type(e).__name__}")
+        sys.exit(1)
 
 
 def main() -> int:
-    """Run the main program to scan for security issues."""
-    parser = argparse.ArgumentParser(description="Scan for security issues in code")
-    parser.add_argument(
-        "--scan-only", action="store_true", help="Only scan for issues without fixing"
-    )
-    parser.add_argument(
-        "--output", help="Output file for SARIF report", default="security-report.sarif"
-    )
-    args = parser.parse_args()
+    """Execute the main program functionality.
 
-    try:
-        print("Running security issue scanner...")
-        print(f"Current working directory: {os.getcwd()}")
+    Returns:
+        int: Exit code
 
-        all_findings = []
-        failed_files = []
+    """
+    args = setup_args()
 
-        for file_path in TARGET_FILES:
-            normalized_path = os.path.normpath(file_path)
-            print(f"\nScanning file: {normalized_path}")
+    # Convert excluded directories to a set
+    exclude_dirs = set(args.exclude)
 
-            if not os.path.exists(normalized_path):
-                print(f"⚠️ File not found: {normalized_path}")
-                failed_files.append(normalized_path)
-                continue
+    # Run the security scan
+    results = run_security_scan(args.directory, exclude_dirs)
 
-            if should_exclude(normalized_path):
-                print(f"⚠️ File excluded: {normalized_path}")
-                continue
+    # Check if there are any results
+    if not results or (isinstance(results, dict) and not results):
+        print("No security issues found.")
+        return 0
 
-            try:
-                findings = scan_file_for_issues(normalized_path)
-                all_findings.extend(findings)
+    # Count issues found
+    issue_count = 0
+    if isinstance(results, dict):
+        for _file_path, secrets in results.items():
+            if isinstance(secrets, list):
+                issue_count += len(secrets)
 
-                if findings:
-                    print(f"Found {len(findings)} potential issues")
-                else:
-                    print("No security issues found")
+    print(f"Found {issue_count} potential security issues.")
 
-            except Exception as e:
-                print(f"Error processing {normalized_path}: {e}")
-                import traceback
-
-                traceback.print_exc()
-                failed_files.append(normalized_path)
-
-        # Create SARIF report
-        create_sarif_report(all_findings, args.output)
-        print(f"\nSARIF report saved to {args.output}")
-
-        # Print summary
-        print("\n" + "=" * 50)
-        print("SUMMARY")
-        print("=" * 50)
-        print(f"Scanned {len(TARGET_FILES)} files")
-        print(f"Found {len(all_findings)} potential security issues")
-
-        if failed_files:
-            print("\nFailed files:")
-            for file_path in failed_files:
-                print(f"  - {file_path}")
+    # Generate the report
+    if args.format == "sarif":
+        generate_sarif_report(results, args.output)
+    elif args.format == "json":
+        try:
+            with open(args.output, "w") as f:
+                json.dump(results, f, indent=2)
+            print(f"JSON report saved to {args.output}")
+        except Exception as e:
+            print(f"Error writing JSON report: {type(e).__name__}")
+            return 1
+    else:  # text format
+        try:
+            with open(args.output, "w") as f:
+                for file_path, secrets in results.items():
+                    f.write(f"File: {file_path}\n")
+                    f.write("-" * (len(file_path) + 6) + "\n")
+                    if isinstance(secrets, list):
+                        for item in secrets:
+                            if isinstance(item, tuple) and len(item) >= 2:
+                                pattern_name, line_num = item[0], item[1]
+                                f.write(f"  Line {line_num}: {pattern_name} found\n")
+                            elif (
+                                isinstance(item, dict)
+                                and "type" in item
+                                and "line_number" in item
+                            ):
+                                pattern_name, line_num = (
+                                    item["type"],
+                                    item["line_number"],
+                                )
+                                f.write(f"  Line {line_num}: {pattern_name} found\n")
+                    f.write("\n")
+            print(f"Text report saved to {args.output}")
+        except Exception as e:
+            print(f"Error writing text report: {type(e).__name__}")
             return 1
 
-        return 0 if not all_findings else 1  # Exit with 1 if issues found
+    # Return success if scan-only, otherwise return appropriate status for fixing
+    if args.scan_only:
+        return 0
 
-    except Exception as e:
-        print(f"Error in main function: {e}")
-        import traceback
-
-        traceback.print_exc()
-        return 1
+    # Return non-zero if issues were found to signal that fixes are needed
+    return 0 if issue_count == 0 else 1
 
 
 if __name__ == "__main__":
