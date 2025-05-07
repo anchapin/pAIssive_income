@@ -10,6 +10,7 @@ additional CI-friendly features.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from typing import Any, Dict, List, Set, cast
@@ -22,7 +23,23 @@ try:
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
+    print(
+        "Warning: Could not import fix_potential_secrets module. "
+        "Will use subprocess fallback."
+    )
     IMPORTED_SECRET_SCANNER = False
+
+# Check if other critical dependencies are available
+try:
+    import json
+    import subprocess
+except ImportError as e:
+    print(f"Error: Critical dependency missing: {str(e)}")
+    print(
+        "Please ensure all dependencies are installed by running: "
+        "pip install -r requirements.txt"
+    )
+    sys.exit(1)
 
 
 def setup_args() -> argparse.Namespace:
@@ -74,6 +91,91 @@ def setup_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def sanitize_path(file_path: str) -> str:
+    """Sanitize file path for display in reports.
+
+    Args:
+        file_path: Original file path
+
+    Returns:
+        str: Sanitized file path
+
+    """
+    # Replace backslashes with slashes for consistency
+    file_path = file_path.replace("\\", "/")
+
+    # Obfuscate sensitive information
+    # Replace home directory with ~
+    home_dir = os.path.expanduser("~")
+    if file_path.startswith(home_dir):
+        file_path = re.sub(
+            rf"^{re.escape(home_dir)}", "~", file_path, flags=re.IGNORECASE
+        )
+
+    # Replace absolute paths with relative paths when possible
+    try:
+        current_dir = os.path.abspath(os.curdir)
+        if file_path.startswith(current_dir):
+            file_path = os.path.relpath(file_path, current_dir)
+            file_path = file_path.replace("\\", "/")  # Normalize path separators again
+    except Exception:
+        # Fall back to simple path if relative path calculation fails
+        pass
+
+    # Ensure no usernames or sensitive directory names are included
+    file_path = re.sub(r"(/|\\)Users(/|\\)[^/\\]+", r"\1Users\2<username>", file_path)
+
+    return file_path
+
+
+def set_secure_file_permissions(file_path: str) -> None:
+    """Set secure file permissions on the specified file.
+
+    Args:
+        file_path: Path to the file to secure
+
+    """
+    if os.name != "nt":  # Unix-like systems
+        try:
+            # Use 0o600 (owner read/write only) for sensitive files
+            os.chmod(file_path, 0o600)  # rw-------
+        except Exception:
+            print(f"Warning: Could not set secure permissions on {file_path}")
+
+
+def sanitize_finding_message(pattern_name: str) -> str:
+    """Sanitize the finding message to avoid revealing sensitive pattern details.
+
+    Args:
+        pattern_name: The name of the detected pattern
+
+    Returns:
+        str: A sanitized message about the finding
+
+    """
+    # Map potentially revealing pattern names to generic descriptions
+    generic_descriptions = {
+        "api_key": "API credential",
+        "password": "authentication credential",
+        "secret": "sensitive credential",
+        "token": "authentication token",
+        "private_key": "cryptographic material",
+        "ssh_key": "cryptographic material",
+        "access_key": "access credential",
+    }
+
+    # Convert pattern_name to lowercase for matching
+    pattern_name_lower = pattern_name.lower()
+
+    # Use generic description if available, otherwise use "sensitive data"
+    for sensitive_term, generic_term in generic_descriptions.items():
+        if sensitive_term in pattern_name_lower:
+            return f"Potential {generic_term} found"
+
+    # Default to generic message if no specific match
+    return "Sensitive data found"
+
+
 def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
     """Run the security scan using the appropriate tool.
 
@@ -89,9 +191,11 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
     print(f"Excluding directories: {', '.join(exclude_dirs)}")
 
     # Use imported function if available
-    if IMPORTED_SECRET_SCANNER:
+    if IMPORTED_SECRET_SCANNER and "scan_directory_for_secrets" in globals():
         results = scan_directory_for_secrets(directory)
         return results
+    else:
+        print("Secret scanner is not available. Falling back to subprocess execution.")
 
     # Fallback to subprocess call
     try:
@@ -132,8 +236,11 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
                 if json_start >= 0:
                     results = json.loads(result.stdout[json_start:])
                     return results
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as json_error:
+                print(
+                    f"Warning: Could not parse JSON output from security scan: "
+                    f"{json_error}"
+                )
 
         # If we can't parse the output, return a simplified result
         print("Could not parse detailed results, returning simplified report")
@@ -206,7 +313,9 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
                             "locations": [
                                 {
                                     "physicalLocation": {
-                                        "artifactLocation": {"uri": file_path},
+                                        "artifactLocation": {
+                                            "uri": sanitize_path(file_path)
+                                        },
                                         "region": {"startLine": line_num},
                                     }
                                 }
@@ -226,7 +335,9 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
                             "locations": [
                                 {
                                     "physicalLocation": {
-                                        "artifactLocation": {"uri": file_path},
+                                        "artifactLocation": {
+                                            "uri": sanitize_path(file_path)
+                                        },
                                         "region": {"startLine": line_num},
                                     }
                                 }
@@ -278,8 +389,13 @@ def main() -> int:
         generate_sarif_report(results, args.output)
     elif args.format == "json":
         try:
+            # Sanitize file paths in the JSON output
+            sanitized_results = {}
+            for file_path, secrets in results.items():
+                sanitized_results[sanitize_path(file_path)] = secrets
+
             with open(args.output, "w") as f:
-                json.dump(results, f, indent=2)
+                json.dump(sanitized_results, f, indent=2)
             print(f"JSON report saved to {args.output}")
         except Exception as e:
             print(f"Error writing JSON report: {type(e).__name__}")
@@ -288,13 +404,15 @@ def main() -> int:
         try:
             with open(args.output, "w") as f:
                 for file_path, secrets in results.items():
-                    f.write(f"File: {file_path}\n")
-                    f.write("-" * (len(file_path) + 6) + "\n")
+                    sanitized_path = sanitize_path(file_path)
+                    f.write(f"File: {sanitized_path}\n")
+                    f.write("-" * (len(sanitized_path) + 6) + "\n")
                     if isinstance(secrets, list):
                         for item in secrets:
                             if isinstance(item, tuple) and len(item) >= 2:
                                 pattern_name, line_num = item[0], item[1]
-                                f.write(f"  Line {line_num}: {pattern_name} found\n")
+                                safe_message = sanitize_finding_message(pattern_name)
+                                f.write(f"  Line {line_num}: {safe_message}\n")
                             elif (
                                 isinstance(item, dict)
                                 and "type" in item
@@ -304,12 +422,16 @@ def main() -> int:
                                     item["type"],
                                     item["line_number"],
                                 )
-                                f.write(f"  Line {line_num}: {pattern_name} found\n")
+                                safe_message = sanitize_finding_message(pattern_name)
+                                f.write(f"  Line {line_num}: {safe_message}\n")
                     f.write("\n")
             print(f"Text report saved to {args.output}")
         except Exception as e:
             print(f"Error writing text report: {type(e).__name__}")
             return 1
+
+    # Set secure permissions on the output file
+    set_secure_file_permissions(args.output)
 
     # Return success if scan-only, otherwise return appropriate status for fixing
     if args.scan_only:

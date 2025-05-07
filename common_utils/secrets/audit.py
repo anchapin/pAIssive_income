@@ -435,20 +435,33 @@ def generate_report(
             lines.append(f"File: {masked_file_path}")
             lines.append("-" * (len(masked_file_path) + 6))
             for pattern_name, line_number, line, _ in secrets:
+                # Immediately mask the line to avoid storing sensitive data
+                # in clear text
+                masked_line = mask_sensitive_data(line)
+                # Apply second-level masking for critical parts
+                masked_line = mask_sensitive_data(masked_line, visible_chars=2)
                 lines.append(f"  Line {line_number}: {pattern_name}")
                 # Apply masking to the line content
-                masked_line = mask_sensitive_data(line.strip())
-                lines.append(f"    {masked_line}")
+                lines.append(f"    {masked_line.strip()}")
                 lines.append("")
             lines.append("")
 
-        # Apply masking to the full output
+        # Apply multi-level masking to the full output
+        # First-level masking
         output = mask_sensitive_data("\n".join(lines))
+        # Second-level masking with reduced visibility
+        output = mask_sensitive_data(output, visible_chars=2)
 
     if output_file:
         try:
             # Apply additional security measures for the file content
-            secure_output = mask_sensitive_data(output)
+            # Triple-level masking to ensure no sensitive data is stored in clear text
+            secure_output = mask_sensitive_data(output, visible_chars=1)
+            secure_output = mask_sensitive_data(secure_output, visible_chars=0)
+
+            # Final verification - replace any suspicious patterns with fixed strings
+            for _pattern_name, pattern in PATTERNS.items():
+                secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
             # Create the output directory if it doesn't exist
             output_dir = os.path.dirname(output_file)
@@ -462,8 +475,12 @@ def generate_report(
             # Set secure permissions on the output file
             try:
                 os.chmod(output_file, 0o600)  # Read/write for owner only
-            except Exception:
-                pass  # Skip if chmod is not supported on the platform
+            except Exception as e:
+                logger.warning(
+                    "Failed to set secure permissions on output file",
+                    extra={"file": os.path.basename(output_file), "error": str(e)},
+                )
+                # Continue execution even if chmod fails
 
             logger.info(
                 "Report saved",

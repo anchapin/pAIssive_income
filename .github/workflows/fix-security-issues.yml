@@ -40,6 +40,19 @@ jobs:
           python -m pip install -r requirements.txt
         fi
 
+        # Ensure the fix_potential_secrets module is properly installed
+        # This will prevent the 'scan_directory_for_secrets' unbound variable issue
+        if [ -f "fix_potential_secrets.py" ]; then
+          echo "Installing fix_potential_secrets dependencies..."
+          # If fix_potential_secrets has its own requirements file, install that too
+          if [ -f "security_requirements.txt" ]; then
+            python -m pip install -r security_requirements.txt
+          fi
+          # Make sure the directory is in the Python path
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          echo "PYTHONPATH set to: $PYTHONPATH"
+        fi
+
     - name: Scan for security issues
       id: security-scan
       run: |

@@ -259,12 +259,49 @@ def handle_get(args: argparse.Namespace) -> None:
         logger.info("Secret retrieved successfully", extra={"key": masked_key})
         print(f"Secret {masked_key} retrieved successfully")
 
-        # If user explicitly needs to see the value, only show a heavily masked version
-        if os.environ.get("SHOW_MASKED_SECRETS") == "true":
-            # Apply double masking for extra security
-            mask1 = mask_sensitive_data(value)
-            mask2 = mask_sensitive_data(mask1)
-            print(f"Value: {mask2}")
+        # SECURITY ENHANCEMENT: Replace double masking with secure clipboard copy option
+        if os.environ.get("SECRETS_CLI_MODE") == "interactive":
+            print("For security reasons, secrets are not displayed in the terminal.")
+            print("Available options:")
+            print(
+                "  1. Copy to clipboard (temporary, will be cleared after 30 seconds)"
+            )
+            print("  2. Cancel")
+            try:
+                choice = input("Enter your choice (1-2): ")
+                if choice == "1":
+                    try:
+                        # Import here to avoid dependency for non-interactive use
+                        from threading import Timer
+
+                        import pyperclip
+
+                        # Copy to clipboard
+                        pyperclip.copy(value)
+                        print("Secret copied to clipboard for 30 seconds.")
+
+                        # Set up timer to clear clipboard
+                        def clear_clipboard():
+                            pyperclip.copy("")
+                            print("Clipboard cleared for security.")
+
+                        Timer(30.0, clear_clipboard).start()
+                    except ImportError:
+                        print(
+                            "pyperclip package not installed. "
+                            "Install with: pip install pyperclip"
+                        )
+                else:
+                    print("Operation cancelled.")
+            except KeyboardInterrupt:
+                print("\nOperation cancelled.")
+                # Clear any partial data that might have been copied
+                try:
+                    import pyperclip
+
+                    pyperclip.copy("")
+                except ImportError:
+                    pass
 
     except Exception as e:
         if isinstance(e, PermissionError):

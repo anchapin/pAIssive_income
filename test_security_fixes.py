@@ -110,6 +110,32 @@ class TestSecurityFixes(unittest.TestCase):
                             "Secret hash should be longer than 10 characters",
                         )
 
+    @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
+    @patch("fix_security_issues.globals")
+    @patch("subprocess.run")
+    def test_run_security_scan_with_missing_imports(
+        self, mock_subprocess_run, mock_globals, _
+    ):
+        """Test that run_security_scan handles missing imports gracefully."""
+        # Configure mock to simulate 'scan_directory_for_secrets' not in globals
+        mock_globals.return_value = {}
+
+        # Configure subprocess mock
+        mock_subprocess_run.return_value.stdout = (
+            '{"test_file.py": [{"type": "api_key", "line_number": 10}]}'
+        )
+        mock_subprocess_run.return_value.returncode = 0
+
+        # Import the function we want to test
+        from fix_security_issues import run_security_scan
+
+        # Run the function with missing imports
+        result = run_security_scan("./test_directory", set([".git", "venv"]))
+
+        # Verify we got a result despite the import failing
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+
 
 if __name__ == "__main__":
     unittest.main()

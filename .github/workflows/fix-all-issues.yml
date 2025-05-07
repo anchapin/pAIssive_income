@@ -54,6 +54,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Fetch all history to ensure we have proper git history
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -67,6 +69,13 @@ jobs:
         python -m pip install flake8 black isort ruff pre-commit
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: List directory contents
+      run: |
+        echo "Current directory: $(pwd)"
+        ls -la
+        echo "Python files available:"
+        find . -name "*.py" -type f | grep -v "__pycache__" | head -n 10
 
     - name: Run pre-commit check
       id: pre-commit
@@ -87,7 +96,9 @@ jobs:
 
         # Verify the script exists
         if [ ! -f "fix_all_issues_final.py" ]; then
-          echo "Error: fix_all_issues_final.py not found!"
+          echo "Error: fix_all_issues_final.py not found in current directory!"
+          echo "Showing directory content:"
+          ls -la
           exit 1
         fi
 
@@ -160,12 +171,34 @@ jobs:
       run: |
         git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
-    - name: Commit changes
+    - name: Setup Git for Commit
       if: steps.git-check.outputs.changes == 'true' || (steps.pre-commit.outcome == 'failure' && steps.pre-commit-again.outcome == 'success')
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
+
+    - name: Create branch if needed
+      if: steps.git-check.outputs.changes == 'true' || (steps.pre-commit.outcome == 'failure' && steps.pre-commit-again.outcome == 'success')
+      run: |
+        # Get current branch or create a new one if in detached HEAD
+        CURRENT_BRANCH=$(git branch --show-current)
+        if [ -z "$CURRENT_BRANCH" ]; then
+          # We're in detached HEAD state, create a new branch
+          BRANCH_NAME="fix-issues-${{ github.run_id }}"
+          echo "Creating new branch: $BRANCH_NAME"
+          git checkout -b $BRANCH_NAME
+        else
+          echo "Already on branch: $CURRENT_BRANCH"
+        fi
+
+    - name: Commit and push changes
+      if: steps.git-check.outputs.changes == 'true' || (steps.pre-commit.outcome == 'failure' && steps.pre-commit-again.outcome == 'success')
+      run: |
+        # Add changes
         git add .
+
+        # Get current branch
+        CURRENT_BRANCH=$(git branch --show-current)
 
         # Determine commit message based on what was fixed
         if [ "${{ steps.pre-commit.outcome }}" == "failure" ] && [ "${{ steps.pre-commit-again.outcome }}" == "success" ]; then
@@ -178,5 +211,9 @@ jobs:
           COMMIT_MSG="Auto-fix syntax and formatting issues"
         fi
 
+        # Commit changes
         git commit -m "$COMMIT_MSG" || echo "No changes to commit"
-        git push
+
+        # Push changes to the current branch
+        echo "Pushing changes to branch: $CURRENT_BRANCH"
+        git push origin $CURRENT_BRANCH

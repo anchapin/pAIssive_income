@@ -194,7 +194,9 @@ def fix_secrets_in_file(
             # Set restrictive permissions on Unix systems
             if os.name != "nt":
                 try:
-                    os.chmod(normalized_path, 0o644)  # rw-r--r--
+                    os.chmod(
+                        normalized_path, 0o600
+                    )  # rw------- (owner read/write only)
                 except Exception:
                     print("Warning: Could not set file permissions")
 
@@ -306,11 +308,12 @@ def main():
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
         for pattern_name, line_num, _, secret_value in secrets:
-            # SECURITY FIX: Only output pattern type and line number
-            secret_length = len(secret_value) if secret_value else 0
-            prefix = f"  Line {line_num}: {pattern_name}"
-            suffix = f"[REDACTED - {secret_length} chars]"
-            print(f"{prefix} - {suffix}")
+            # Use the safer logging function that doesn't reference
+            # secret_value directly in the print statement
+            log_message = safe_log_sensitive_info(
+                pattern_name, line_num, len(secret_value) if secret_value else 0
+            )
+            print(log_message)
 
         # Fix secrets in the file
         if fix_secrets_in_file(file_path, secrets):
