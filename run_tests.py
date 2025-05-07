@@ -3,7 +3,8 @@
 Supports running test phases (fast/unit, integration, slow, all) using pytest markers.
 
 Examples:
-    python run_tests.py           # Run fast tests (default: unit/smoke, excludes slow/integration/dependency)
+    python run_tests.py
+        # Run fast tests (default: unit/smoke, excludes slow/integration/dependency)
     python run_tests.py --phase all
     python run_tests.py --phase integration
     python run_tests.py --phase slow
@@ -33,6 +34,7 @@ PHASE_MARKERS = {
 
 
 def main():
+    """Parse arguments and run the appropriate pytest command with markers."""
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
     )
@@ -43,16 +45,20 @@ def main():
         help=(
             "Test phase to run. "
             "Default: fast (unit/smoke, excludes slow/integration/dependency). "
-            "Other options: all, unit, integration, slow, security, model, performance, api, webhook, smoke, custom"
+            "Other options: all, unit, integration, slow, security, model, "
+            "performance, api, webhook, smoke, custom"
         ),
     )
     parser.add_argument(
-        "-m", "--marker", default=None,
-        help="Custom pytest marker expression (used only with --phase custom)."
+        "-m",
+        "--marker",
+        default=None,
+        help="Custom pytest marker expression (used only with --phase custom).",
     )
     parser.add_argument(
-        "extra_pytest_args", nargs=argparse.REMAINDER,
-        help="Extra arguments to pass to pytest (e.g., -k, --maxfail, etc.)"
+        "extra_pytest_args",
+        nargs=argparse.REMAINDER,
+        help="Extra arguments to pass to pytest (e.g., -k, --maxfail, etc.)",
     )
 
     args = parser.parse_args()
@@ -60,7 +66,9 @@ def main():
 
     if phase == "custom":
         if not args.marker:
-            print("Error: --phase custom requires a marker expression with --marker/-m.")
+            print(
+                "ERROR: --phase custom requires a marker expression with --marker/-m."
+            )
             return 2
         marker_expr = args.marker
     else:
