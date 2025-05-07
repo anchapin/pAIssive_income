@@ -1,4 +1,4 @@
-name: Fix Security Issues
+name: Security Issues Scan
 
 on:
   workflow_dispatch:
@@ -8,8 +8,14 @@ on:
       - 'common_utils/secrets/**.py'
       - 'fix_potential_secrets.py'
 
+# Permissions set to read-only
+permissions:
+  contents: read
+  pull-requests: write  # Needed to comment on PRs
+  security-events: write  # Needed to upload security results
+
 jobs:
-  fix-security-issues:
+  security-scan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -34,21 +40,50 @@ jobs:
           python -m pip install -r requirements.txt
         fi
 
-    - name: Fix security issues
+    - name: Scan for security issues
+      id: security-scan
       run: |
-        echo "Running security issue fixer..."
-        python fix_security_issues.py
+        echo "Running security scanner..."
+        if [ -f "fix_security_issues.py" ]; then
+          python fix_security_issues.py --scan-only --output security-report.sarif
+          echo "scan_completed=true" >> $GITHUB_OUTPUT
+        else
+          echo "Error: fix_security_issues.py not found!"
+          ls -la
+          exit 1
+        fi
 
-    - name: Check for changes
-      id: git-check
-      run: |
-        git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+    - name: Upload security results
+      uses: github/codeql-action/upload-sarif@v3
+      if: steps.security-scan.outputs.scan_completed == 'true'
+      with:
+        sarif_file: security-report.sarif
+        category: custom-security-scan
 
-    - name: Commit changes
-      if: steps.git-check.outputs.changes == 'true'
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add .
-        git commit -m "Auto-fix security issues"
-        git push
+    - name: Post findings to PR
+      if: github.event_name == 'pull_request' && steps.security-scan.outputs.scan_completed == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('security-report.sarif', 'utf8'));
+
+          let comment = '## Security Scan Results\n\n';
+          if (report.runs[0].results.length === 0) {
+            comment += '✅ No security issues found\n';
+          } else {
+            comment += '⚠️ Security issues found:\n\n';
+            for (const result of report.runs[0].results) {
+              const location = result.locations[0].physicalLocation;
+              comment += `- ${result.level.toUpperCase()}: ${result.message.text}\n`;
+              comment += `  - File: ${location.artifactLocation.uri}:${location.region.startLine}\n\n`;
+            }
+            comment += '\nPlease review and address these security concerns.';
+          }
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          })

@@ -189,36 +189,85 @@ def find_potential_secrets(
         List[Tuple[str, int, str, str]]:
         List of (pattern_name, line_number, line, secret_value)
 
+    Raises:
+    ------
+        FileNotFoundError: If the file does not exist
+        PermissionError: If there are insufficient permissions to read the file
+        UnicodeError: If the file cannot be decoded as UTF-8
+
     """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    if not os.access(file_path, os.R_OK):
+        raise PermissionError(f"Insufficient permissions to read file: {file_path}")
+
+    results = []
+
     try:
-        with open(file_path, encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="strict") as f:
             content = f.read()
             lines = content.splitlines()
+    except UnicodeError as e:
+        logger.error("UTF-8 decoding error", extra={"file": file_path, "error": str(e)})
+        # Try again with a more lenient encoding
+        try:
+            with open(file_path, encoding="utf-8", errors="replace") as f:
+                content = f.read()
+                lines = content.splitlines()
+                logger.warning(
+                    "File processed with replacement characters",
+                    extra={"file": file_path},
+                )
+        except Exception as e:
+            logger.error(
+                "Failed to read file even with error replacement",
+                extra={"file": file_path, "error": str(e)},
+            )
+            raise
 
-        results = []
-        for i, line in enumerate(lines):
-            for pattern_name, pattern in PATTERNS.items():
+    for i, line in enumerate(lines):
+        # Skip if this is clearly an example line
+        if is_example_code(content, line):
+            continue
+
+        for pattern_name, pattern in PATTERNS.items():
+            try:
                 matches = pattern.findall(line)
-                if matches:
-                    for match in matches:
-                        # Handle different match formats
+            except (re.error, Exception) as e:
+                logger.error(
+                    "Regex pattern error",
+                    extra={
+                        "file": file_path,
+                        "line": i + 1,
+                        "pattern": pattern_name,
+                        "error": str(e),
+                    },
+                )
+                continue
+
+            if matches:
+                for match in matches:
+                    # Handle different match formats
+                    try:
                         if isinstance(match, tuple):
-                            # For patterns that capture the key name and value
                             secret_value = match[1]
                         else:
-                            # For patterns that only capture the value
                             secret_value = match
 
-                        # Skip if this is clearly an example
-                        if is_example_code(content, line):
-                            continue
-
                         results.append((pattern_name, i + 1, line, secret_value))
+                    except (IndexError, AttributeError) as e:
+                        logger.error(
+                            "Match processing error",
+                            extra={
+                                "file": file_path,
+                                "line": i + 1,
+                                "pattern": pattern_name,
+                                "error": str(e),
+                            },
+                        )
 
-        return results
-    except Exception as e:
-        logger.error(f"Error processing {file_path}: {e}")
-        return []
+    return results
 
 
 def scan_directory(
@@ -235,28 +284,90 @@ def scan_directory(
     -------
         Dict[str, List[Tuple[str, int, str, str]]]: Dictionary of file paths to secrets
 
+    Raises:
+    ------
+        FileNotFoundError: If the directory does not exist
+        PermissionError: If there are insufficient permissions to read the directory
+
     """
-    if exclude_dirs is None:
-        exclude_dirs = DEFAULT_EXCLUDE_DIRS
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"Directory not found: {directory}")
 
-    results = {}
+    if not os.access(directory, os.R_OK | os.X_OK):
+        msg = f"Insufficient permissions to read directory: {directory}"
+        raise PermissionError(msg)
 
-    for root, dirs, files in os.walk(directory):
-        # Skip excluded directories
-        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+    exclude_dirs = exclude_dirs or DEFAULT_EXCLUDE_DIRS
+    results: Dict[str, List[Tuple[str, int, str, str]]] = {}
+    scanned_files = 0
+    error_files = []
 
-        for file in files:
-            file_path = os.path.join(root, file)
-            if should_exclude(file_path, exclude_dirs):
-                continue
+    try:
+        for root, dirs, files in os.walk(directory):
+            # Skip excluded directories using list comprehension for atomic operation
+            dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
-            # Only scan text files
-            if not is_text_file(file_path):
-                continue
+            for file in files:
+                file_path = os.path.join(root, file)
 
-            secrets = find_potential_secrets(file_path)
-            if secrets:
-                results[file_path] = secrets
+                try:
+                    # Skip excluded files and non-text files
+                    if should_exclude(file_path, exclude_dirs) or not is_text_file(
+                        file_path
+                    ):
+                        continue
+
+                    secrets = find_potential_secrets(file_path)
+                    if secrets:
+                        results[file_path] = secrets
+
+                    scanned_files += 1
+                    if scanned_files % 100 == 0:
+                        logger.info(
+                            "Scan progress",
+                            extra={
+                                "files_scanned": scanned_files,
+                                "files_with_secrets": len(results),
+                            },
+                        )
+
+                except (PermissionError, FileNotFoundError) as e:
+                    error_files.append((file_path, str(e)))
+                    logger.warning(
+                        "File access error",
+                        extra={"file": file_path, "error": str(e)},
+                    )
+                except Exception as e:
+                    error_files.append((file_path, str(e)))
+                    logger.error(
+                        "Unexpected error processing file",
+                        extra={"file": file_path, "error": str(e)},
+                    )
+
+        if error_files:
+            logger.warning(
+                "Scan completed with errors",
+                extra={
+                    "total_files": scanned_files,
+                    "error_files": len(error_files),
+                    "files_with_secrets": len(results),
+                },
+            )
+        else:
+            logger.info(
+                "Scan completed successfully",
+                extra={
+                    "total_files": scanned_files,
+                    "files_with_secrets": len(results),
+                },
+            )
+
+    except (PermissionError, OSError) as e:
+        logger.error(
+            "Directory traversal error",
+            extra={"directory": directory, "error": str(e)},
+        )
+        raise
 
     return results
 
@@ -280,6 +391,7 @@ def generate_report(
         return
 
     total_secrets = sum(len(secrets) for secrets in results.values())
+    # Log without including any sensitive data
     logger.info(
         "Found potential secrets in files",
         extra={"count": total_secrets, "file_count": len(results)},
@@ -332,18 +444,24 @@ def generate_report(
 
             masked_output = mask_sensitive_data(output)
 
+            # Ensure we're not writing any sensitive data to the file
+            # Apply additional masking to be extra safe
+            double_masked_output = mask_sensitive_data(masked_output)
+
             with open(output_file, "w", encoding="utf-8") as f:
-                f.write(masked_output)
-            logger.info("Report saved", extra={"file": output_file})
+                f.write(double_masked_output)
+            logger.info("Report saved", extra={"file": os.path.basename(output_file)})
         except Exception as e:
             logger.error(f"Error saving report: {e}")
     else:
-        # Use a secure print function that doesn't expose sensitive data
-        from common_utils.logging.secure_logging import mask_sensitive_data
-
-        # Ensure output is properly masked before printing
-        masked_output = mask_sensitive_data(output)
-        print(masked_output)
+        # Use a secure logger instead of print to ensure proper handling
+        logger.info("Audit report generated")
+        # Print only a summary, not the full report with potential secrets
+        summary = (
+            f"Audit report generated: Found {total_secrets} potential "
+            f"secrets in {len(results)} files"
+        )
+        print(summary)
 
 
 class SecretsAuditor:

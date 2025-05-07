@@ -13,6 +13,12 @@ import subprocess
 import sys
 from typing import List, Optional, Tuple
 
+# Local imports
+from common_utils.logging import get_logger
+
+# Initialize logger
+logger = get_logger(__name__)
+
 # Constants
 DEFAULT_LINE_LENGTH = 88
 
@@ -77,17 +83,14 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
     -------
         List of Python file paths.
 
-    """
-    if specific_files:
-        # Normalize paths for cross-platform compatibility
-        normalized_files = []
-        for f in specific_files:
-            if f.endswith(".py") and os.path.isfile(f):
-                normalized_files.append(os.path.normpath(f))
-        return normalized_files
+    Raises:
+    ------
+        ValueError: If specific_files contains non-Python files
+        FileNotFoundError: If a specific file doesn't exist
+        PermissionError: If access to a file or directory is denied
 
-    python_files: List[str] = []
-    # Directories to ignore
+    """
+    # Normalize ignore patterns once for better performance
     ignore_dirs = {
         ".git",
         ".venv",
@@ -97,50 +100,78 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
         "dist",
         "node_modules",
     }
+    ignore_files = {"fix_all_issues_final.py"}  # Avoid self-modification
 
-    # Create normalized patterns for both forward and backslash paths
-    ignore_patterns = []
-    for pattern in [
-        ".git",
-        ".venv",
-        "venv",
-        "__pycache__",
-        "build",
-        "dist",
-        "node_modules",
-    ]:
-        # Add patterns with both forward and backslashes for cross-platform compatibility
-        ignore_patterns.append(os.path.normpath(f"./{pattern}"))
-        ignore_patterns.append(os.path.normpath(f".\\{pattern}"))
+    if specific_files:
+        normalized_files = []
+        for file_path in specific_files:
+            if not file_path.endswith(".py"):
+                raise ValueError(f"Not a Python file: {file_path}")
 
-    print(f"Ignore patterns: {ignore_patterns}")
-    print(f"Platform: {sys.platform}")
+            norm_path = os.path.normpath(file_path)
+            if not os.path.isfile(norm_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+
+            if not os.access(norm_path, os.R_OK):
+                raise PermissionError(f"Permission denied: {file_path}")
+
+            normalized_files.append(norm_path)
+        return normalized_files
+
+    python_files: List[str] = []
+    processed_dirs = 0
+    error_files: List[Tuple[str, str]] = []
 
     for root, dirs, files in os.walk("."):
-        # Skip ignored directories
-        norm_root = os.path.normpath(root)
+        try:
+            # Skip ignored directories
+            norm_root = os.path.normpath(root)
 
-        # Debug output for the first few directories
-        if len(python_files) < 5:
-            print(f"Checking directory: {norm_root}")
+            # Only process directories we have access to
+            if not os.access(norm_root, os.R_OK | os.X_OK):
+                logger.warning(f"Permission denied for directory: {norm_root}")
+                continue
 
-        # Check if this directory should be ignored
-        if any(norm_root.startswith(pattern) for pattern in ignore_patterns):
-            if len(python_files) < 5:
-                print(f"  Skipping ignored directory: {norm_root}")
-            continue
+            # Filter ignored directories in-place
+            dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
-        # Filter out ignored directories
-        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+            for file in files:
+                if file.endswith(".py") and file not in ignore_files:
+                    try:
+                        file_path = os.path.normpath(os.path.join(root, file))
 
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.normpath(os.path.join(root, file))
-                python_files.append(file_path)
-                if len(python_files) <= 5:
-                    print(f"  Found Python file: {file_path}")
+                        # Verify file access
+                        if not os.access(file_path, os.R_OK):
+                            error_files.append((file_path, "Permission denied"))
+                            continue
 
-    print(f"Total Python files found: {len(python_files)}")
+                        python_files.append(file_path)
+
+                        if len(python_files) <= 5:
+                            logger.debug(f"Found Python file: {file_path}")
+
+                    except OSError as e:
+                        error_files.append((file, str(e)))
+
+            processed_dirs += 1
+            if processed_dirs % 10 == 0:
+                logger.debug(
+                    f"Directory scan progress - Processed: {processed_dirs}, "
+                    f"Files found: {len(python_files)}"
+                )
+
+        except OSError as e:
+            logger.error(f"Error accessing directory {root}: {e}")
+
+    if error_files:
+        logger.warning(
+            f"Found {len(error_files)} files with access issues. "
+            "See debug log for details."
+        )
+        for file_path, error in error_files:
+            logger.debug(f"File access error - {file_path}: {error}")
+
+    logger.info(f"Total Python files found: {len(python_files)}")
     return python_files
 
 
@@ -178,19 +209,19 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
                 )
 
                 if result.returncode != 0:
-                    print(f"Warning: Command '{command[0]}' not found. Skipping.")
+                    logger.warning(f"Command not found: {command[0]}")
                     return 0, "", f"Command '{command[0]}' not found. Skipped."
 
             except (subprocess.SubprocessError, FileNotFoundError) as e:
-                print(f"Warning: Command '{command[0]}' check failed: {e}. Skipping.")
+                logger.warning(f"Command check failed: {command[0]} - {e}")
                 return 0, "", f"Command '{command[0]}' not found. Skipped."
 
         # Use shell=True on Windows to find commands in PATH
         shell = sys.platform == "win32"
 
-        # Print command for debugging
+        # Log command for debugging
         cmd_str = " ".join(command)
-        print(f"Running command: {cmd_str}")
+        logger.debug(f"Running command: {cmd_str}")
 
         try:
             # Try using subprocess.run first (more reliable)
@@ -203,7 +234,7 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
             )
             return result.returncode, result.stdout, result.stderr
         except Exception as run_error:
-            print(f"subprocess.run failed: {run_error}, falling back to Popen")
+            logger.error(f"subprocess.run failed: {run_error}, falling back to Popen")
             # Fall back to Popen if run fails
             process = subprocess.Popen(
                 command,
@@ -215,10 +246,13 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
             stdout, stderr = process.communicate()
             return process.returncode, stdout, stderr
     except Exception as e:
-        print(f"Error running command {' '.join(command)}: {e}")
+        logger.error(
+            "Error running command",
+            extra={"command": " ".join(command), "error": str(e)},
+        )
         import traceback
 
-        traceback.print_exc()
+        logger.debug(traceback.format_exc())
         return 1, "", str(e)
 
 
@@ -268,7 +302,10 @@ def fix_line_length_issues(
 
         return True  # No changes needed
     except Exception as e:
-        print(f"Error fixing line length issues in {file_path}: {e}")
+        logger.error(
+            "Error fixing line length issues",
+            extra={"file": file_path, "error": str(e)},
+        )
         return False
 
 
@@ -334,7 +371,10 @@ def fix_syntax_errors(file_path: str) -> bool:
         except SyntaxError:
             return False
     except Exception as e:
-        print(f"Error fixing syntax errors in {file_path}: {e}")
+        logger.error(
+            "Error fixing syntax errors",
+            extra={"file": file_path, "error": str(e)},
+        )
         return False
 
 
@@ -428,25 +468,23 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
         True if successful, False otherwise.
 
     """
-    if args.verbose:
-        print(f"Processing {file_path}...")
-
+    logger.info(f"Processing file: {file_path}")
     success = True
 
     # Fix syntax errors
     if not args.format_only:
         if args.verbose:
-            print(f"  Fixing syntax errors in {file_path}...")
+            logger.debug(f"Fixing syntax errors in {file_path}")
         if not fix_syntax_errors(file_path):
-            print(f"Failed to fix syntax errors in {file_path}")
+            logger.error(f"Failed to fix syntax errors in {file_path}")
             success = False
 
     # Fix line length issues
     if not args.syntax_only:
         if args.verbose:
-            print(f"  Fixing line length issues in {file_path}...")
+            logger.debug(f"Fixing line length issues in {file_path}")
         if not fix_line_length_issues(file_path):
-            print(f"Failed to fix line length issues in {file_path}")
+            logger.error(f"Failed to fix line length issues in {file_path}")
             success = False
 
     # Run external tools
@@ -454,25 +492,25 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
         # Run Black
         if not args.no_black:
             if args.verbose:
-                print(f"  Running Black on {file_path}...")
+                logger.debug(f"Running Black on {file_path}")
             if not run_black(file_path, args.check):
-                print(f"Black failed on {file_path}")
+                logger.error(f"Black failed on {file_path}")
                 success = False
 
         # Run isort
         if not args.no_isort:
             if args.verbose:
-                print(f"  Running isort on {file_path}...")
+                logger.debug(f"Running isort on {file_path}")
             if not run_isort(file_path, args.check):
-                print(f"isort failed on {file_path}")
+                logger.error(f"isort failed on {file_path}")
                 success = False
 
         # Run Ruff
         if not args.no_ruff:
             if args.verbose:
-                print(f"  Running Ruff on {file_path}...")
+                logger.debug(f"Running Ruff on {file_path}")
             if not run_ruff(file_path, args.check):
-                print(f"Ruff failed on {file_path}")
+                logger.error(f"Ruff failed on {file_path}")
                 success = False
 
     return success
@@ -481,27 +519,28 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
 def main() -> int:
     """Run the main program to fix code quality issues."""
     try:
-        print(f"Running fix_all_issues_final.py on platform: {sys.platform}")
-        print(f"Python version: {sys.version}")
-        print(f"Current working directory: {os.getcwd()}")
+        logger.info("Running fix_all_issues_final.py")
+        logger.debug(f"Platform: {sys.platform}")
+        logger.debug(f"Python version: {sys.version}")
+        logger.debug(f"Current working directory: {os.getcwd()}")
 
         args = parse_arguments()
-        print(f"Arguments: {args}")
+        logger.debug(f"Arguments: {args}")
 
         # Find Python files to process
-        print("Finding Python files to process...")
+        logger.info("Finding Python files to process...")
         python_files = find_python_files(args.files)
 
         if not python_files:
-            print("No Python files found to process.")
+            logger.info("No Python files found to process.")
             return 0
 
-        print(f"Processing {len(python_files)} Python files...")
+        logger.info(f"Processing {len(python_files)} Python files...")
 
         # If specific files were provided, show them
         if args.files:
-            print(f"Specific files requested: {args.files}")
-            print(f"Actual files found: {python_files}")
+            logger.debug("Specific files requested:", extra={"files": args.files})
+            logger.debug("Actual files found:", extra={"files": python_files})
 
         # Check if required tools are installed
         tools_to_check = []
@@ -512,7 +551,7 @@ def main() -> int:
         if not args.syntax_only and not args.no_ruff:
             tools_to_check.append("ruff")
 
-        print(f"Checking for required tools: {tools_to_check}")
+        logger.info(f"Checking for required tools: {tools_to_check}")
         missing_tools = []
 
         for tool in tools_to_check:
@@ -532,17 +571,20 @@ def main() -> int:
                 )
 
                 if result.returncode == 0:
-                    print(f"✓ {tool} is installed at: {result.stdout.strip()}")
+                    logger.info(f"Tool {tool} found: {result.stdout.strip()}")
                 else:
-                    print(f"✗ {tool} is not found in PATH")
+                    logger.warning(f"Tool {tool} not found in PATH")
                     missing_tools.append(tool)
             except (subprocess.SubprocessError, FileNotFoundError) as e:
-                print(f"✗ {tool} check failed: {e}")
+                logger.error(f"Tool check failed: {tool} - {e}")
                 missing_tools.append(tool)
 
         if missing_tools and not args.syntax_only:
-            print(f"Warning: The following tools are missing: {missing_tools}")
-            print("Continuing with available tools only...")
+            logger.warning(
+                "Missing required tools",
+                extra={"tools": missing_tools},
+            )
+            logger.info("Continuing with available tools only...")
 
         # Process each file
         success_count = 0
@@ -552,34 +594,41 @@ def main() -> int:
         tool_error_files = []
 
         for i, file_path in enumerate(python_files):
-            print(f"\nProcessing file {i + 1}/{len(python_files)}: {file_path}")
+            logger.info(
+                f"Processing file {i + 1} of {len(python_files)}",
+                extra={"file": file_path, "progress": f"{i + 1}/{len(python_files)}"},
+            )
             try:
                 if fix_file(file_path, args):
                     success_count += 1
-                    print(f"✓ Successfully processed {file_path}")
+                    logger.info(f"Successfully processed: {file_path}")
                 else:
                     failed_files.append(file_path)
-                    print(f"✗ Failed to process {file_path}")
+                    logger.error(f"Failed to process: {file_path}")
             except Exception as e:
-                print(f"Error processing {file_path}: {e}")
+                logger.error(
+                    "Error processing file",
+                    extra={"file": file_path, "error": str(e)},
+                )
                 import traceback
 
-                traceback.print_exc()
+                logger.debug(traceback.format_exc())
                 failed_files.append(file_path)
 
-        # Print summary
-        print("\n" + "=" * 50)
-        print("SUMMARY")
-        print("=" * 50)
-        print(
-            f"Successfully processed {success_count} out of {len(python_files)} files."
+        # Log summary
+        logger.info("=" * 50)
+        logger.info("SUMMARY")
+        logger.info("=" * 50)
+        logger.info(
+            "Processing complete",
+            extra={
+                "success_count": success_count,
+                "total_files": len(python_files),
+                "failed_files": len(failed_files),
+            },
         )
 
         if failed_files:
-            print("\nFailed files:")
-            for file_path in failed_files:
-                print(f"  - {file_path}")
-
             # Try to categorize failures
             for file_path in failed_files:
                 try:
@@ -601,23 +650,26 @@ def main() -> int:
                     syntax_error_files.append(file_path)
 
             if syntax_error_files:
-                print("\nFiles with syntax errors:")
-                for file_path in syntax_error_files:
-                    print(f"  - {file_path}")
+                logger.error(
+                    "Files with syntax errors",
+                    extra={"files": syntax_error_files},
+                )
 
             if format_error_files:
-                print("\nFiles with formatting errors:")
-                for file_path in format_error_files:
-                    print(f"  - {file_path}")
+                logger.error(
+                    "Files with formatting errors",
+                    extra={"files": format_error_files},
+                )
 
             if tool_error_files:
-                print("\nFiles with tool errors:")
-                for file_path in tool_error_files:
-                    print(f"  - {file_path}")
+                logger.error(
+                    "Files with tool errors",
+                    extra={"files": tool_error_files},
+                )
 
         return 0 if success_count == len(python_files) else 1
     except Exception as e:
-        print(f"Error in main function: {e}")
+        logger.error("Error in main function", extra={"error": str(e)})
         import traceback
 
         traceback.print_exc()

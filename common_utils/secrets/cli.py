@@ -182,14 +182,11 @@ def handle_list(args: argparse.Namespace) -> None:
         print("No secrets found")
         return
 
-    # Only print the keys, not the values
+    # Only print the count, not the actual keys or values
     print(f"Found {len(secrets)} secrets:")
-    for key in sorted(secrets.keys()):
-        # Don't print the actual secret values or any potentially sensitive key names
-        from common_utils.logging.secure_logging import mask_sensitive_data
-
-        masked_key = mask_sensitive_data(key)
-        print(f"  {masked_key}")
+    for idx in range(len(secrets)):
+        # Print only a generic identifier
+        print(f"  Secret #{idx+1}")
 
 
 def handle_audit(args: argparse.Namespace) -> None:

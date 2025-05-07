@@ -194,24 +194,21 @@ class SecureLogger:
         self.logger.setLevel(level)
         self.level = self.logger.level
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     setLevel = set_level  # noqa: N815
 
     def is_enabled_for(self, level):
         """Check if this logger is enabled for the specified level."""
         return self.logger.isEnabledFor(level)
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     isEnabledFor = is_enabled_for  # noqa: N815
 
     def get_effective_level(self):
         """Get the effective level for this logger."""
         return self.logger.getEffectiveLevel()
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     getEffectiveLevel = get_effective_level  # noqa: N815
 
     def get_child(self, suffix):
@@ -221,8 +218,7 @@ class SecureLogger:
         secure_child.logger = child_logger
         return secure_child
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     getChild = get_child  # noqa: N815
 
     def debug(self, msg: str, *args, **kwargs):
@@ -264,8 +260,7 @@ class SecureLogger:
         self.logger.addHandler(hdlr)
         self.handlers = self.logger.handlers
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     addHandler = add_handler  # noqa: N815
 
     def remove_handler(self, hdlr):
@@ -273,24 +268,21 @@ class SecureLogger:
         self.logger.removeHandler(hdlr)
         self.handlers = self.logger.handlers
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     removeHandler = remove_handler  # noqa: N815
 
     def has_handlers(self):
         """Check if this logger has any handlers configured."""
         return self.logger.hasHandlers()
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     hasHandlers = has_handlers  # noqa: N815
 
     def call_handlers(self, record):
         """Pass a record to all relevant handlers."""
         self.logger.callHandlers(record)
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     callHandlers = call_handlers  # noqa: N815
 
     def handle(self, record):
@@ -315,16 +307,14 @@ class SecureLogger:
             name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
         )
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     makeRecord = make_record  # noqa: N815
 
     def find_caller(self, stack_info=False, stacklevel=1):
         """Find the caller's source file and line number."""
         return self.logger.findCaller(stack_info, stacklevel)
 
-    # Alias for compatibility with standard logging
-    # noqa: N815 - This needs to match the standard logging method name
+    # Standard logging compatibility aliases
     findCaller = find_caller  # noqa: N815
 
 
