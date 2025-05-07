@@ -33,14 +33,14 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory_for_secrets(
         directory: str,
-    ) -> Dict[str, List[Tuple[str, int, str, int]]]:
+    ) -> Dict[str, List[Tuple[str, int, int]]]:
         """Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan
 
         Returns:
-            Dict[str, List[Tuple[str, int, str, int]]]: Empty result dictionary
+            Dict[str, List[Tuple[str, int, int]]]: Empty result dictionary
 
         """
         print("scan_directory_for_secrets is not available. Using subprocess fallback.")

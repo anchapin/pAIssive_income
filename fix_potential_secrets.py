@@ -258,8 +258,16 @@ def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:
 def safe_log_sensitive_info(
     pattern_name: str, line_num: int, secret_length: int
 ) -> str:
-    """Log sensitive data info without exposing content."""
-    return f"  Line {line_num}: {pattern_name} - [REDACTED - {secret_length} chars]"
+    """Log sensitive data info without exposing content.
+
+    Only reports the type of sensitive data and general location,
+    with no data about the actual sensitive content beyond length.
+    """
+    # Don't even log the exact length as it could potentially help with identification
+    length_category = (
+        "short" if secret_length < 20 else "medium" if secret_length < 50 else "long"
+    )
+    return f"  Line {line_num}: {pattern_name} - [REDACTED - {length_category}]"
 
 
 def safe_log_file_path(file_path: str) -> str:
@@ -390,20 +398,27 @@ def main():
     # Add results to SARIF report without including sensitive data
     sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
     for file_path, secrets in results.items():
+        # Use a safe file path in the report
+        safe_file_path = safe_log_file_path(file_path)
         for pattern_name, line_num, _secret_length in secrets:
+            # Create a generic message that doesn't include length or other metadata
             sarif_results.append(
                 {
                     "ruleId": "secret-detection",
                     "level": "error",
-                    "message": {"text": f"Potential {pattern_name} found"},
+                    "message": {"text": "Potential sensitive data detected"},
                     "locations": [
                         {
                             "physicalLocation": {
-                                "artifactLocation": {"uri": file_path},
+                                "artifactLocation": {"uri": safe_file_path},
                                 "region": {"startLine": line_num},
                             }
                         }
                     ],
+                    "properties": {
+                        "securitySeverity": "high",
+                        "type": pattern_name,
+                    },
                 }
             )
 
