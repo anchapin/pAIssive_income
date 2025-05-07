@@ -215,7 +215,7 @@ jobs:
             --junitxml=junit/test-results.xml
         else
           echo "Running fast tests (default phase)"
-          python run_tests.py --phase fast -- -n auto -v \
+          pytest -n auto -v \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
