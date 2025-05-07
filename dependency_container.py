@@ -8,7 +8,9 @@ class DependencyContainer:
         self._services = {}
 
     def register(self, name, service):
-        """Register a service with a given name."""
+        """Register a service with a given name. Raises ValueError if already registered."""
+        if name in self._services:
+            raise ValueError(f"Service with name '{name}' is already registered.")
         self._services[name] = service
 
     def get(self, name):
