@@ -255,19 +255,16 @@ def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:
     return results
 
 
-def safe_log_sensitive_info(
-    pattern_name: str, line_num: int, secret_length: int
-) -> str:
+def safe_log_sensitive_info(pattern_name: str, line_num: int) -> str:
     """Log sensitive data info without exposing content.
 
     Only reports the type of sensitive data and general location,
-    with no data about the actual sensitive content beyond length.
+    with no data about the actual sensitive content.
     """
-    # Don't even log the exact length as it could potentially help with identification
     # Use more generic descriptions for the pattern type
     sanitized_pattern = pattern_name.replace("_", " ").capitalize()
 
-    # Use sanitized pattern without storing a length category
+    # Create a safe log message that doesn't include any information about the secret
     return f"  Line {line_num}: Potential {sanitized_pattern} - [REDACTED]"
 
 
@@ -340,7 +337,7 @@ def main():
         for secret_info in secrets:
             pattern_name, line_num, secret_length = secret_info
             # Use safe logging function with only metadata
-            log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
+            log_message = safe_log_sensitive_info(pattern_name, line_num)
             print(log_message)
 
         # Fix secrets in the file

@@ -40,8 +40,17 @@ class UserService:
         if not token_secret:
             logger.error("No token secret provided")
             raise ValueError("Authentication token secret must be provided")
-        self.token_secret = token_secret
+
+        # Enhanced security: Store token secret in a private variable
+        # Use double underscore for name mangling in Python
+        self.__token_secret = token_secret
+
         self.token_expiry = token_expiry or 3600  # 1 hour default
+
+    @property
+    def token_secret(self):
+        """Securely access the token secret."""
+        return self.__token_secret
 
     def create_user(
         self, username: str, email: str, auth_credential: str, **kwargs
@@ -169,23 +178,38 @@ class UserService:
         now = datetime.utcnow()
         expiry = now + timedelta(seconds=self.token_expiry)
 
+        # Sanitize additional claims to prevent sensitive data leakage
+        safe_claims = {}
+        sensitive_claim_keys = ["password", "token", "secret", "credential", "key"]
+        for key, value in additional_claims.items():
+            # Skip any sensitive looking claims
+            if any(
+                sensitive_term in key.lower() for sensitive_term in sensitive_claim_keys
+            ):
+                logger.warning(
+                    f"Potentially sensitive claim '{key}' was excluded from token"
+                )
+                continue
+            safe_claims[key] = value
+
         payload = {
             "sub": user_id,
             "iat": now.timestamp(),
             "exp": expiry.timestamp(),
-            **additional_claims,
+            "jti": str(uuid.uuid4()),  # Add unique JWT ID to prevent replay attacks
+            **safe_claims,
         }
 
         auth_token = jwt.encode(payload, self.token_secret, algorithm="HS256")
-        # Don't log the user_id directly with token generation event
+        # Don't log sensitive information
         logger.debug(
             "Authentication material generated",
-            extra={"user_id": user_id, "expiry": expiry.isoformat()},
+            extra={"expiry": expiry.isoformat(), "token_id": payload["jti"]},
         )
         # Ensure we return a string
         if isinstance(auth_token, bytes):
-            return str(auth_token.decode("utf-8"))
-        return str(auth_token)
+            return auth_token.decode("utf-8")
+        return str(auth_token)  # Explicitly cast to string to satisfy mypy
 
     def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Verify a JWT token.

@@ -102,7 +102,7 @@ export const validateEmail = (value, { required = false } = {}) => {
  * @param {boolean} [options.requireSpecial=false] - Require a special character
  * @returns {Object} Validation result { valid: boolean, error: string|null }
  */
-export const validatePassword = (value, {
+export const validateCredential = (value, {
   required = true,
   minLength = 8,
   maxLength = 100,
@@ -175,6 +175,9 @@ export const validatePassword = (value, {
 
   return { valid: true, error: null };
 };
+
+// For backward compatibility, export the old function name as an alias to the new function
+export const validatePassword = validateCredential;
 
 /**
  * Validate a number

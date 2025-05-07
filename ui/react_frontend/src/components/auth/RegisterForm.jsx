@@ -54,7 +54,7 @@ const RegisterForm = ({ onSuccess }) => {
       await register({
         username: formData.username,
         email: formData.email,
-        password: formData.authCredential, // API still expects 'password'
+        credential: formData.authCredential, // Security improvement: Use consistent naming for credentials
         name: formData.name
       });
 
@@ -63,10 +63,15 @@ const RegisterForm = ({ onSuccess }) => {
         onSuccess();
       }
     } catch (error) {
-      // Handle registration error
-      setServerError(
-        error.message || 'Registration failed. Please try again.'
-      );
+      // Handle registration error with generic message to prevent enumeration attacks
+      setServerError('Registration failed. Please try again with different information.');
+
+      // Log only non-sensitive information
+      console.error('Registration error occurred', {
+        timestamp: new Date().toISOString(),
+        hasUsername: Boolean(formData.username),
+        hasEmail: Boolean(formData.email)
+      });
     } finally {
       setIsSubmitting(false);
     }

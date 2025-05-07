@@ -73,14 +73,22 @@ def _check_auth() -> bool:
                 return False
 
         with open(ADMIN_TOKEN_FILE) as f:
-            stored_token = f.read().strip()
+            stored_token_hash = f.read().strip()
+
+        # Get token from environment variable, not from command line or config file
         token = os.environ.get("SECRETS_ADMIN_TOKEN")
         if not token:
+            # Don't provide specific info on why auth failed
+            logger.warning("Authentication failed: missing token")
             return False
-        return compare_digest(hashlib.sha256(token.encode()).hexdigest(), stored_token)
+
+        # Use constant-time comparison to prevent timing attacks
+        # Hash the provided token before comparison
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        return compare_digest(token_hash, stored_token_hash)
     except Exception:
         # Don't log specific error details which might leak sensitive info
-        logger.error("Auth check failed")
+        logger.error("Authentication check failed")
         return False
 
 

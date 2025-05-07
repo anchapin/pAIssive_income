@@ -30,16 +30,18 @@ class APIKeyAuth extends Auth {
    */
   constructor(accessToken) {
     super();
-    // Don't store the access token directly as a property that could be exposed
-    // Instead use a symbol as a private key to store the credential
-    const tokenSymbol = Symbol('accessToken');
-    this[tokenSymbol] = accessToken;
+
+    // Use a WeakMap for credential storage instead of Symbol property for enhanced security
+    if (!APIKeyAuth._credentialStore) {
+      APIKeyAuth._credentialStore = new WeakMap();
+    }
+
+    // Store credential in WeakMap with this instance as key
+    // This prevents the token from being exposed in object serialization, console.log, or debuggers
+    APIKeyAuth._credentialStore.set(this, accessToken);
 
     // Store only a reference to indicate we have a credential
     this.hasCredential = true;
-
-    // Method to safely access the token when needed
-    this.getCredential = () => this[tokenSymbol];
   }
 
   /**
@@ -48,7 +50,22 @@ class APIKeyAuth extends Auth {
    * @returns {Object} Authentication headers
    */
   getHeaders() {
-    return { "X-API-Key": this.getCredential() };
+    const credential = APIKeyAuth._credentialStore ? APIKeyAuth._credentialStore.get(this) : null;
+    if (!credential) {
+      console.warn('API credential not available');
+      return {};
+    }
+    return { "X-API-Key": credential };
+  }
+
+  /**
+   * Clear the credential from memory when not needed
+   */
+  clearCredential() {
+    if (APIKeyAuth._credentialStore) {
+      APIKeyAuth._credentialStore.delete(this);
+    }
+    this.hasCredential = false;
   }
 }
 
@@ -64,15 +81,16 @@ class JWTAuth extends Auth {
    */
   constructor(token) {
     super();
-    // Use similar private field approach to store the token securely
-    const tokenSymbol = Symbol('authToken');
-    this[tokenSymbol] = token;
+    // Use WeakMap for better security - tokens won't be exposed in debuggers or console.log
+    if (!JWTAuth._tokenStore) {
+      JWTAuth._tokenStore = new WeakMap();
+    }
+
+    // Store token in WeakMap with this instance as key
+    JWTAuth._tokenStore.set(this, token);
 
     // Store only a reference to indicate we have an auth token
     this.hasToken = true;
-
-    // Method to safely access the token when needed
-    this.getToken = () => this[tokenSymbol];
   }
 
   /**
@@ -81,7 +99,22 @@ class JWTAuth extends Auth {
    * @returns {Object} Authentication headers
    */
   getHeaders() {
-    return { "Authorization": `Bearer ${this.getToken()}` };
+    const token = JWTAuth._tokenStore ? JWTAuth._tokenStore.get(this) : null;
+    if (!token) {
+      console.warn('Authentication token not available');
+      return {};
+    }
+    return { "Authorization": `Bearer ${token}` };
+  }
+
+  /**
+   * Clear the token from memory when not needed
+   */
+  clearToken() {
+    if (JWTAuth._tokenStore) {
+      JWTAuth._tokenStore.delete(this);
+    }
+    this.hasToken = false;
   }
 }
 

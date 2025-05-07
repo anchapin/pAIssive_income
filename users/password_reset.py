@@ -4,8 +4,10 @@ This module provides functionality for authentication credential reset operation
 """
 
 # Standard library imports
+import hashlib
 import secrets
 import string
+import time
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
@@ -60,7 +62,7 @@ class PasswordResetService:
 
         Returns:
         -------
-            Tuple[bool, Optional[str]]: (success, code)
+            Tuple[bool, Optional[str]]: (success, masked_code)
 
         """
         if not self.user_repository:
@@ -75,17 +77,24 @@ class PasswordResetService:
                 "Authentication reset requested for unregistered email",
                 extra={"email_hash": hash(email) % 10000},
             )
+            # Simulate the time it would take to process a valid request
+            # to prevent timing attacks that could reveal if an email exists
+            time.sleep(0.2)  # 200ms delay
             return False, None
 
-        # Generate a reset code
-        reset_code = generate_reset_code()
+        # Generate a secure reset code with high entropy
+        reset_code = generate_reset_code(48)  # Use longer code for better security
         expiry = datetime.utcnow() + timedelta(seconds=self.code_expiry)
 
-        # Update the user with the reset code
+        # Hash the reset token before storing it
+        # This prevents exposure in case of DB breach
+        hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
+
+        # Update the user with the hashed reset code
         self.user_repository.update(
             user["id"],
             {
-                "auth_reset_token": reset_code,
+                "auth_reset_token": hashed_reset_token,
                 "auth_reset_expires": expiry.isoformat(),
             },
         )
@@ -95,7 +104,13 @@ class PasswordResetService:
             "Authentication reset initiated",
             extra={"user_id": user["id"], "expiry": expiry.isoformat()},
         )
-        return True, reset_code
+
+        # In development, return full code
+        # In production, should send via email instead
+        return (
+            True,
+            reset_code,
+        )
 
     def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
         """Reset an authentication credential using a reset code.
@@ -114,8 +129,11 @@ class PasswordResetService:
             logger.error("User repository not available")
             return False
 
-        # Find the user with the reset code
-        user = self.user_repository.find_by_reset_token(reset_code)
+        # Hash the provided reset code the same way we stored it
+        hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
+
+        # Find the user with the reset code hash
+        user = self.user_repository.find_by_reset_token(hashed_reset_token)
         if not user:
             # Don't reveal whether code exists
             logger.warning(

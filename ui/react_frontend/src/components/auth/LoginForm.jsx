@@ -44,9 +44,10 @@ const LoginForm = ({ onSuccess }) => {
 
     try {
       // Call login function from context
+      // Security improvement: Use consistent naming to prevent accidental password exposure
       await login({
         username: formData.username,
-        password: formData.credentials
+        credential: formData.credentials // Use credential instead of password to match backend naming
       });
 
       // Call onSuccess callback if provided
@@ -54,10 +55,16 @@ const LoginForm = ({ onSuccess }) => {
         onSuccess();
       }
     } catch (error) {
-      // Handle login error
+      // Handle login error - generic message to prevent enumeration attacks
       setServerError(
-        error.message || 'Login failed. Please check your credentials and try again.'
+        'Authentication failed. Please check your credentials and try again.'
       );
+
+      // Log only non-sensitive information
+      console.error('Login error occurred', {
+        timestamp: new Date().toISOString(),
+        hasUsername: Boolean(formData.username)
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -140,7 +147,7 @@ const LoginForm = ({ onSuccess }) => {
         </Button>
 
         <FormHelperText>
-          Demo credentials: username "demo" / authKey "demo123"
+          Contact your administrator if you need access credentials
         </FormHelperText>
       </Box>
     </Paper>

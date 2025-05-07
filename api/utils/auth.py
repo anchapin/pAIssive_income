@@ -90,9 +90,11 @@ async def get_current_user(
         logger.warning(f"User not found: {user_id}")
         raise credentials_exception
 
-    # Return the user data without password
+    # Return the user data without sensitive authentication information
     user_data = user.copy()
-    user_data.pop("password_hash", None)
+    user_data.pop("auth_hash", None)
+    user_data.pop("password_hash", None)  # For backward compatibility
+    user_data.pop("credential_hash", None)  # Handle all possible names
     return dict(user_data)
 
 

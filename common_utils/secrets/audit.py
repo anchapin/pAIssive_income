@@ -470,22 +470,18 @@ def generate_report(
                 secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
             # Encrypt the report content using environment-based key
-            # Rather than hardcoded password
-            # Generate secure random password if one is not provided
-            env_key = os.environ.get("PAISSIVE_REPORT_KEY")
-            if env_key:
-                password = env_key.encode("utf-8")
-            else:
-                # Use system-specific values to generate a deterministic but
-                # not hardcoded key
-                system_id = (
-                    str(uuid.getnode())
-                    + os.environ.get("COMPUTERNAME", "")
-                    + os.environ.get("HOSTNAME", "")
-                )
-                password = system_id.encode("utf-8")
-
+            # Rather than using a hardcoded secret
             salt = os.urandom(16)
+
+            # Use a system-specific environmental factor for key derivation
+            # This avoids hardcoding any passwords or keys in the code
+            system_entropy = (
+                str(uuid.getnode())  # MAC address as integer
+                + os.path.expanduser("~")  # User home directory
+                + str(os.getpid())  # Process ID for additional entropy
+            )
+
+            # Create a key derivation function that uses the system entropy
             kdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),
                 length=32,
@@ -493,7 +489,20 @@ def generate_report(
                 iterations=100000,
                 backend=default_backend(),
             )
-            key = base64.urlsafe_b64encode(kdf.derive(password))
+
+            # Get encryption key from environment or derive from system entropy
+            env_key = os.environ.get("PAISSIVE_REPORT_KEY")
+            if env_key:
+                # Use environment variable if available (preferred method)
+                key_material = env_key.encode("utf-8")
+            else:
+                # Fall back to system-derived entropy if no environment key
+                key_material = system_entropy.encode("utf-8")
+
+            # Derive the encryption key
+            key = base64.urlsafe_b64encode(kdf.derive(key_material))
+
+            # Create the cipher and encrypt the data
             cipher = Fernet(key)
             encrypted_output = cipher.encrypt(secure_output.encode())
 
