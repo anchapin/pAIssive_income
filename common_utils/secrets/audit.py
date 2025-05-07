@@ -406,13 +406,16 @@ def generate_report(
                 {
                     "type": pattern_name,
                     "line_number": line_number,
-                    "line": line,
-                    "value": "[REDACTED]",
+                    "line": mask_sensitive_data(
+                        line
+                    ),  # Mask the entire line, not just the value
+                    "value": "[REDACTED]",  # Never expose the actual secret value
                 }
                 for pattern_name, line_number, line, _ in secrets
             ]
 
-        output = json.dumps(json_results, indent=2)
+        # Apply double masking for extra security
+        output = mask_sensitive_data(json.dumps(json_results, indent=2))
     else:
         lines = [
             "Secrets Audit Report",
@@ -427,18 +430,19 @@ def generate_report(
             lines.append("-" * (len(file_path) + 6))
             for pattern_name, line_number, line, _ in secrets:
                 lines.append(f"  Line {line_number}: {pattern_name}")
-                lines.append(f"    {line.strip()}")
+                # Apply masking to the line content
+                masked_line = mask_sensitive_data(line.strip())
+                lines.append(f"    {masked_line}")
                 lines.append("")
             lines.append("")
 
-        output = "\n".join(lines)
+        # Apply masking to the full output
+        output = mask_sensitive_data("\n".join(lines))
 
     if output_file:
         try:
-            # Apply masking to protect sensitive data
-            masked = mask_sensitive_data(output)
-            # Double-mask for extra security
-            double_masked = mask_sensitive_data(masked)
+            # Apply double-masking for extra security (output is already masked once)
+            double_masked = mask_sensitive_data(output)
 
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(double_masked)
@@ -447,7 +451,9 @@ def generate_report(
                 extra={"file": os.path.basename(output_file)},
             )
         except Exception as e:
-            logger.error(f"Error saving report: {e}")
+            # Mask any potential sensitive data in error message
+            masked_error = mask_sensitive_data(str(e))
+            logger.error(f"Error saving report: {masked_error}")
     else:
         logger.info("Audit report generated")
         summary = (

@@ -226,19 +226,28 @@ def handle_get(args: argparse.Namespace) -> None:
             print(f"Secret {args.key} not found")
             sys.exit(1)
 
-        # Mask the secret value for display
-        masked_value = mask_sensitive_data(value)
-        print(f"Secret {args.key}: {masked_value}")
-        logger.info("Secret retrieved", extra={"key": args.key})
+        # SECURITY FIX: Only provide visual confirmation that the secret exists,
+        # don't show even a masked version of the value unless explicitly requested
+        logger.info("Secret retrieved successfully", extra={"key": args.key})
+        print(f"Secret {args.key} retrieved successfully")
+
+        # If user explicitly needs to see the value, only show a heavily masked version
+        if os.environ.get("SHOW_MASKED_SECRETS") == "true":
+            masked_value = mask_sensitive_data(value)
+            # Apply double masking for critical values
+            masked_value = mask_sensitive_data(masked_value)
+            print(f"Value: {masked_value}")
 
     except Exception as e:
         if isinstance(e, PermissionError):
             raise
         failed_attempts["get"] = failed_attempts.get("get", 0) + 1
+        # Don't log the actual error as it might contain sensitive data
         logger.error(
-            "Error retrieving secret", extra={"error": str(e), "key": args.key}
+            "Error retrieving secret",
+            extra={"key": args.key, "error_type": type(e).__name__},
         )
-        print(f"Error retrieving secret: {str(e)}")
+        print("Error retrieving secret: Access error")
         sys.exit(1)
 
 

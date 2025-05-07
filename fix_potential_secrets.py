@@ -5,11 +5,12 @@ This script identifies and replaces hardcoded example
 API keys, tokens, and other sensitive information.
 """
 
+import json
 import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, cast
 
 # Regex patterns to detect sensitive information
 PATTERNS = {
@@ -286,11 +287,12 @@ def main():
         total_secrets += len(secrets)
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
-        for pattern_name, line_num, _, _ in secrets:
-            # Use safe logging function to avoid exposing sensitive data
-            # Create a safe log message that doesn't include any part of the secret
-            log_message = f"  Line {line_num}: {pattern_name} - [REDACTED]"
-            print(log_message)
+        for pattern_name, line_num, _, secret_value in secrets:
+            # SECURITY FIX: Only output pattern type and line number
+            secret_length = len(secret_value) if secret_value else 0
+            prefix = f"  Line {line_num}: {pattern_name}"
+            suffix = f"[REDACTED - {secret_length} chars]"
+            print(f"{prefix} - {suffix}")
 
         # Fix secrets in the file
         if fix_secrets_in_file(file_path, secrets):
@@ -300,6 +302,76 @@ def main():
 
     print(f"\nSummary: Identified sensitive information in {len(results)} files.")
     print(f"Applied security fixes to {fixed_files} files.")
+
+    # Generate a SARIF report for CI integration
+    # Build URL in parts to avoid line length issues
+    base = "https://raw.githubusercontent.com/"
+    org = "oasis-tcs/sarif-spec/"
+    path = "master/Schemata/sarif-schema-2.1.0.json"
+    schema_url = base + org + path
+
+    sarif_report: Dict[str, Any] = {
+        "$schema": schema_url,
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "SecretScanner",
+                        "informationUri": (
+                            "https://github.com/anchapin/pAIssive_income"
+                        ),
+                        "rules": [
+                            {
+                                "id": "secret-detection",
+                                "shortDescription": {
+                                    "text": "Detect hardcoded secrets"
+                                },
+                                "fullDescription": {
+                                    "text": (
+                                        "Identifies hardcoded credentials, "
+                                        "tokens, and other secrets in code"
+                                    )
+                                },
+                                "helpUri": (
+                                    "https://github.com/anchapin/pAIssive_income"
+                                ),
+                                "defaultConfiguration": {"level": "error"},
+                            }
+                        ],
+                    }
+                },
+                "results": [],
+            }
+        ],
+    }
+
+    # Add results to SARIF report without including sensitive data
+    sarif_results = cast(List[Dict[str, Any]], sarif_report["runs"][0]["results"])
+    for file_path, secrets in results.items():
+        for pattern_name, line_num, _, _ in secrets:
+            sarif_results.append(
+                {
+                    "ruleId": "secret-detection",
+                    "level": "error",
+                    "message": {"text": f"Potential {pattern_name} found"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": file_path},
+                                "region": {"startLine": line_num},
+                            }
+                        }
+                    ],
+                }
+            )
+
+    try:
+        with open("security-report.sarif", "w") as f:
+            json.dump(sarif_report, f, indent=2)
+    except Exception:
+        # Don't log the exception details as they might include sensitive information
+        print("Error writing SARIF report: [Error details redacted]")
 
     return 0 if fixed_files == len(results) else 1
 
