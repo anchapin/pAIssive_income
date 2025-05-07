@@ -334,12 +334,18 @@ def main():
         total_secrets += len(secrets)
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
+
+        # Group by pattern type to avoid revealing line-specific information
+        pattern_counts: dict[str, int] = {}
         for secret_info in secrets:
-            # Only unpack what we need, omitting secret_length completely
-            pattern_name, line_num, _ = secret_info
-            # Use safe logging function with only metadata
-            log_message = safe_log_sensitive_info(pattern_name, line_num)
-            print(log_message)
+            pattern_name, _, _ = secret_info
+            pattern_counts[pattern_name] = pattern_counts.get(pattern_name, 0) + 1
+
+        # Log only the count of each type of sensitive data found
+        for pattern_name, count in pattern_counts.items():
+            sanitized_pattern = pattern_name.replace("_", " ").capitalize()
+            message = f"  Found {count} potential {sanitized_pattern}"
+            print(f"{message} instance(s) - [REDACTED]")
 
         # Fix secrets in the file
         if fix_secrets_in_file(file_path, secrets):
