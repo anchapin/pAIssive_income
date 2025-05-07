@@ -307,11 +307,13 @@ def main():
         total_secrets += len(secrets)
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
-        for pattern_name, line_num, _, secret_value in secrets:
-            # Don't pass the secret_value at all, only pass metadata
-            log_message = safe_log_sensitive_info(
-                pattern_name, line_num, len(secret_value) if secret_value else 0
-            )
+        for secret_info in secrets:
+            pattern_name, line_num = secret_info[0], secret_info[1]
+            # Calculate length separately to avoid handling the actual secret value
+            # in the logging code path
+            secret_length = len(secret_info[3]) if secret_info[3] else 0
+            # Use safe logging function with only metadata
+            log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
             print(log_message)
 
         # Fix secrets in the file

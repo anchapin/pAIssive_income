@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import time  # Moved time import to the top level
 from typing import Any, Dict, List, Set, Tuple, cast
 
 # Import the existing security tools if possible
@@ -371,6 +372,69 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
         sys.exit(1)
 
 
+def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
+    """Generate a text report from scan results.
+
+    Args:
+        results: Scan results
+        output_file: Output file path
+
+    Returns:
+        int: Exit code, 0 for success, 1 for error
+
+    """
+    try:
+        with open(output_file, "w") as f:
+            f.write("Security Scan Report\n")
+            f.write("===================\n\n")
+            f.write(f"Scan Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+
+            # Write summary information only, not raw findings
+            total_files = len(results)
+            total_issues = sum(
+                len(secrets) if isinstance(secrets, list) else 0
+                for secrets in results.values()
+            )
+            f.write(
+                f"Summary: Found {total_issues} potential security issues "
+                f"across {total_files} files.\n\n"
+            )
+
+            # Write sanitized file information without revealing patterns or line
+            # content
+            for file_path, secrets in results.items():
+                sanitized_path = sanitize_path(file_path)
+                f.write(f"File: {sanitized_path}\n")
+                f.write("-" * (len(sanitized_path) + 6) + "\n")
+                if isinstance(secrets, list):
+                    # Group issues by type to avoid revealing specific lines
+                    issue_types: Dict[str, int] = {}
+                    for item in secrets:
+                        if isinstance(item, tuple) and len(item) >= 2:
+                            pattern_type = item[0]
+                            # Use sanitize_finding_message to get a generic description
+                            safe_message = sanitize_finding_message(pattern_type)
+                            issue_types.setdefault(safe_message, 0)
+                            issue_types[safe_message] += 1
+                        elif isinstance(item, dict) and "type" in item:
+                            pattern_type = item["type"]
+                            safe_message = sanitize_finding_message(pattern_type)
+                            issue_types.setdefault(safe_message, 0)
+                            issue_types[safe_message] += 1
+
+                    # Report counts by generic issue type instead of specific lines
+                    for issue_type, count in issue_types.items():
+                        f.write(f"  {count} instance(s) of: {issue_type}\n")
+                f.write("\n")
+
+        print(f"Text report saved to {output_file}")
+    except Exception as e:
+        print(f"Error writing text report: {type(e).__name__}")
+        return 1
+
+    return 0
+
+
 def main() -> int:
     """Execute the main program functionality.
 
@@ -447,37 +511,9 @@ def main() -> int:
             print(f"Error writing JSON report: {type(e).__name__}")
             return 1
     else:  # text format
-        try:
-            with open(args.output, "w") as f:
-                for file_path, secrets in results.items():
-                    sanitized_path = sanitize_path(file_path)
-                    f.write(f"File: {sanitized_path}\n")
-                    f.write("-" * (len(sanitized_path) + 6) + "\n")
-                    if isinstance(secrets, list):
-                        for item in secrets:
-                            if isinstance(item, tuple) and len(item) >= 2:
-                                # Extract line number and get a generic security message
-                                # without referencing the actual pattern name directly
-                                line_num = item[1]
-                                # Use sanitize_finding_message to generate a generic
-                                # message
-                                safe_message = sanitize_finding_message(item[0])
-                                f.write(f"  Line {line_num}: {safe_message}\n")
-                            elif (
-                                isinstance(item, dict)
-                                and "type" in item
-                                and "line_number" in item
-                            ):
-                                # Extract line number and get a generic security message
-                                line_num = item["line_number"]
-                                # Generate a generic message without pattern name
-                                safe_message = sanitize_finding_message(item["type"])
-                                f.write(f"  Line {line_num}: {safe_message}\n")
-                    f.write("\n")
-            print(f"Text report saved to {args.output}")
-        except Exception as e:
-            print(f"Error writing text report: {type(e).__name__}")
-            return 1
+        result = generate_text_report(results, args.output)
+        if result != 0:
+            return result
 
     # Set secure permissions on the output file
     set_secure_file_permissions(args.output)
