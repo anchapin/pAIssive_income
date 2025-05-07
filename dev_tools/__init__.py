@@ -1,1 +1,1 @@
-# Dev tools package marker
+"""Dev tools package marker."""
