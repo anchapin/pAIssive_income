@@ -15,9 +15,17 @@ def main():
     if unknown:
         print(f"Ignoring unrecognized arguments: {unknown}")
 
-    # TODO: Implement the functionality
+    import subprocess
 
-    return 0
+    # Run pytest with any unknown arguments passed through
+    try:
+        result = subprocess.run(
+            ["pytest"] + unknown, check=False
+        )
+        return result.returncode
+    except FileNotFoundError:
+        print("pytest is not installed or not found in PATH.")
+        return 1
 
 
 if __name__ == "__main__":

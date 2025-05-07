@@ -67,44 +67,9 @@ pip install git+https://github.com/anchapin/pAIssive_income.git
 ...
 
 ```python
-from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer
+from ai_models import ModelConfig
 
-# Create the agent team
-team = AgentTeam("Niche AI Tools")
-
-# Define market segments to analyze
-market_segments = [
-    "e-commerce",
-    "content creation",
-    "freelancing",
-    "education",
-    "real estate",
-]
-
-# Run niche analysis
-niches = team.run_niche_analysis(market_segments)
-
-# Print identified niches
-for i, niche in enumerate(niches):
-    print(f"{i+1}. {niche['name']} (Score: {niche['opportunity_score']:.2f})")
-
-# Select a niche
-selected_niche = niches[0]
-
-# Develop a solution
-solution = team.develop_solution(selected_niche["id"])
-
-# Create a monetization strategy
-monetization_strategy = team.create_monetization_strategy(solution["id"])
-
-# Create a marketing campaign
-marketing_campaign = team.create_marketing_campaign(solution["id"], monetization_strategy["id"])
-
-# Print the results
-print(f"Solution: {solution['name']}")
-print(f"Monetization Strategy: {monetization_strategy['name']}")
-print(f"Marketing Campaign: {marketing_campaign['name']}")
+## Environment Setup (Recommended)
 ```
 
 ## Running the UI
