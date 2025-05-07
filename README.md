@@ -2,6 +2,47 @@
 
 A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
 
+---
+
+## TL;DR Quickstart
+
+1. **Clone the repo and enter it:**
+   ```bash
+   git clone https://github.com/anchapin/pAIssive_income.git
+   cd pAIssive_income
+   ```
+2. **Set up Python environment and install dependencies:**  
+   (Requires Python 3.8+)
+   ```bash
+   # On Windows
+   scripts\recreate_venv.bat
+
+   # On Unix/Linux
+   ./scripts/recreate_venv.sh
+   ```
+   Or manually:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   pip install -e .
+   ```
+3. **Set up pre-commit hooks for code quality:**
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+4. **Start the modern web UI (requires Node.js 14+ and npm):**
+   ```bash
+   python ui/run_ui.py
+   ```
+   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
+5. **Run all tests (unit, integration, frontend):**
+   See the "Running Tests" section below.
+
+---
+
 ## Overview
 
 This project provides a structured approach to creating specialized AI-powered software tools that solve specific problems for targeted user groups. By focusing on niche markets with specific needs, these tools can provide high value to users while generating recurring subscription revenue.
@@ -50,24 +91,23 @@ The framework has identified several promising niches for AI-powered tools:
 
 ### Development Setup
 
-1. Clone the repository:
-
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/anchapin/pAIssive_income.git
    cd pAIssive_income
    ```
 
-2. Create a virtual environment and install dependencies:
-
+2. **Create a virtual environment and install dependencies:**
    ```bash
-   # Using the provided script (recommended)
+   # Using provided scripts (from repo root)
    # On Windows
    scripts\recreate_venv.bat
 
    # On Unix/Linux
    ./scripts/recreate_venv.sh
-
-   # Or manually
+   ```
+   **Or manually:**
+   ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    pip install -r requirements.txt
@@ -75,21 +115,17 @@ The framework has identified several promising niches for AI-powered tools:
    pip install -e .
    ```
 
-3. Set up pre-commit hooks to ensure code quality:
-
+3. **Set up pre-commit hooks to ensure code quality:**
+   (Installed by the `recreate_venv` script; manual install below)
    ```bash
-   # This is automatically done by the recreate_venv script
-   # But you can also do it manually:
    pip install pre-commit
    pre-commit install
    ```
+   See [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md) for more info.
 
-   For more information about pre-commit hooks, see [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md).
-
-4. Run linting checks before pushing changes:
-
+4. **Run linting checks before pushing changes:**
    ```bash
-   # On Windows
+   # On Windows (from repo root)
    scripts\lint_check.bat
 
    # On Unix/Linux
@@ -102,8 +138,7 @@ The framework has identified several promising niches for AI-powered tools:
    scripts\lint_check.bat --ruff --isort
    ```
 
-5. Fix syntax, formatting, and linting issues automatically:
-
+5. **Fix syntax, formatting, and linting issues automatically:**
    ```bash
    # Fix all issues in all Python files
    python fix_all_issues_final.py
@@ -111,7 +146,7 @@ The framework has identified several promising niches for AI-powered tools:
    # Fix issues in specific files
    python fix_all_issues_final.py path/to/file1.py path/to/file2.py
 
-   # Check for issues without fixing them
+   # Check for issues without fixing
    python fix_all_issues_final.py --check
 
    # Fix only syntax errors
@@ -123,19 +158,16 @@ The framework has identified several promising niches for AI-powered tools:
    # Skip specific tools
    python fix_all_issues_final.py --no-black --no-isort --no-ruff
    ```
-
-   Or use the provided batch file:
-
+   Or use the batch file:
    ```bash
-   # On Windows
-   fix_all_issues.bat
+   # On Windows (from repo root)
+   scripts\fix_all_issues.bat
 
    # Fix specific files
-   fix_all_issues.bat path/to/file.py
+   scripts\fix_all_issues.bat path/to/file.py
    ```
 
-6. Run the CI workflow locally to check for issues before pushing:
-
+6. **Run the CI workflow locally to check for issues before pushing:**
    ```bash
    # Install act (GitHub Actions local runner)
    # See: https://github.com/nektos/act
@@ -154,9 +186,10 @@ The framework has identified several promising niches for AI-powered tools:
 
 1. Run the niche analysis tools to identify promising market opportunities:
 
-   ```python
+   ```bash
    python main.py
    ```
+   By default, output such as `project_plan.json` will be written to the repository root.
 
 2. Review the generated project plan:
 
@@ -182,9 +215,13 @@ The framework has identified several promising niches for AI-powered tools:
 
 The framework now includes a modern React-based user interface with a Flask API backend.
 
-1. Start both the React development server and Flask API server with a single command:
+> **Requirements:**  
+> - Node.js 14+ and npm must be installed and on your PATH.  
+>   Check with: `node -v` and `npm -v`
 
-   ```python
+1. Start both the React development server and Flask API server with a single command (from repo root):
+
+   ```bash
    python ui/run_ui.py
    ```
 
@@ -194,12 +231,14 @@ The framework now includes a modern React-based user interface with a Flask API 
    - Start the React development server on port 3000
    - Open your web browser automatically
 
-2. If the browser doesn't open automatically, navigate to `http://localhost:3000`
+2. If the browser doesn't open automatically, navigate to [http://localhost:3000](http://localhost:3000)
 
-3. For development purposes, you can also run the components separately:
+3. To stop both servers, press `Ctrl+C` in the terminal where you started the app.
+
+4. For development purposes, you can also run the components separately:
 
    ```bash
-   # Start just the Flask API server
+   # Start just the Flask API server (from repo root)
    python ui/api_server.py
 
    # Start just the React development server (from the react_frontend directory)
@@ -212,13 +251,13 @@ The framework now includes a modern React-based user interface with a Flask API 
 
 The original web interface is still available:
 
-1. Start the legacy web interface:
+1. Start the legacy web interface (from repo root):
 
-   ```python
+   ```bash
    python run_ui.py --legacy
    ```
 
-2. Open your browser and navigate to `http://localhost:5000`
+2. Open your browser and navigate to [http://localhost:5000](http://localhost:5000)
 
 3. Use the web interface to:
    - Analyze niches
@@ -236,6 +275,47 @@ The original web interface is still available:
 
 4. Gather feedback and iterate on your product using the Feedback Agent.
 
+---
+
+## Running Tests
+
+The project includes Python and JavaScript/TypeScript tests.
+
+### Python Unit/Integration Tests
+
+From the repo root, after environment setup:
+```bash
+pytest
+# or
+python -m pytest
+```
+
+### Frontend End-to-End (E2E) Tests
+
+> **Requires:** Node.js 14+, npm, and the UI dev server running at `http://localhost:3000`
+
+1. Install Playwright and its browsers (first time only):
+   ```bash
+   cd ui/react_frontend
+   npm install
+   npx playwright install
+   ```
+
+2. Run all E2E tests:
+   ```bash
+   npx playwright test
+   ```
+
+3. See `ui/react_frontend/tests/e2e/` for sample E2E tests.  
+   To run a specific test:
+   ```bash
+   npx playwright test tests/e2e/niche_analysis.spec.ts
+   ```
+
+Test output and screenshots will appear in the Playwright reports directory.
+
+---
+
 ## Example Output
 
 Running the main script generates a complete project plan including:
@@ -249,7 +329,8 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
-- Node.js 14.0+ (for modern UI)
+- Node.js 14.0+ (for modern UI and frontend tests)
+- npm (comes with Node.js)
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
@@ -312,6 +393,14 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 
 All configuration files are version controlled to ensure consistent formatting across the project.
+
+## Configuration & Environment
+
+- Most features work out-of-the-box.
+- No secrets or special environment variables are required for basic functionality.
+- For advanced features, see the relevant module's README.
+
+---
 
 ## Claude Agentic Coding Best Practices
 
