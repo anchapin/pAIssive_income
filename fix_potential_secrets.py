@@ -121,10 +121,10 @@ def is_example_code(content: str, line: str) -> bool:
     return False
 
 
-def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, int]]:
+def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
     """Find potential secrets in a file.
 
-    Returns a list of tuples: (pattern_name, line_number, line_content, secret_length)
+    Returns a list of tuples: (pattern_name, line_number, secret_length)
     """
     if should_exclude(file_path):
         return []
@@ -154,7 +154,8 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, int]]:
 
                         # Store length instead of the actual secret value
                         secret_length = len(secret_value) if secret_value else 0
-                        results.append((pattern_name, i + 1, line, secret_length))
+                        # Don't include the actual line content in the results
+                        results.append((pattern_name, i + 1, secret_length))
 
         return results
     except Exception as e:
@@ -162,9 +163,7 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, str, int]]:
         return []
 
 
-def fix_secrets_in_file(
-    file_path: str, secrets: list[tuple[str, int, str, int]]
-) -> bool:
+def fix_secrets_in_file(file_path: str, secrets: list[tuple[str, int, int]]) -> bool:
     """Fix secrets in a file by replacing them with safe values."""
     if not secrets:
         return False
@@ -232,7 +231,7 @@ def fix_secrets_in_file(
         return False
 
 
-def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str, int]]]:
+def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:
     """Scan a directory recursively for potential secrets."""
     results = {}
 
@@ -330,7 +329,7 @@ def main():
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
         for secret_info in secrets:
-            pattern_name, line_num, _, secret_length = secret_info
+            pattern_name, line_num, secret_length = secret_info
             # Use safe logging function with only metadata
             log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
             print(log_message)
@@ -391,7 +390,7 @@ def main():
     # Add results to SARIF report without including sensitive data
     sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
     for file_path, secrets in results.items():
-        for pattern_name, line_num, _, _ in secrets:
+        for pattern_name, line_num, _secret_length in secrets:
             sarif_results.append(
                 {
                     "ruleId": "secret-detection",
