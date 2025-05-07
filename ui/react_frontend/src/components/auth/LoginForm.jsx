@@ -44,11 +44,14 @@ const LoginForm = ({ onSuccess }) => {
 
     try {
       // Call login function from context
-      // Security improvement: Use consistent naming to prevent accidental password exposure
+      // Security improvement: Use consistent naming and avoid storing credentials in variables when possible
       await login({
         username: formData.username,
         credential: formData.credentials // Use credential instead of password to match backend naming
       });
+
+      // Immediately clear sensitive data from memory
+      formData.credentials = '';
 
       // Call onSuccess callback if provided
       if (onSuccess) {

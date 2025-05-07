@@ -335,7 +335,8 @@ def main():
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
         for secret_info in secrets:
-            pattern_name, line_num, secret_length = secret_info
+            # Only unpack what we need, omitting secret_length completely
+            pattern_name, line_num, _ = secret_info
             # Use safe logging function with only metadata
             log_message = safe_log_sensitive_info(pattern_name, line_num)
             print(log_message)

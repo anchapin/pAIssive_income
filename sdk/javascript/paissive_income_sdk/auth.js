@@ -55,6 +55,16 @@ class APIKeyAuth extends Auth {
       console.warn('API credential not available');
       return {};
     }
+
+    // Sanitize credential - don't log it or expose its actual value in dev tools
+    // Credential is still securely stored in WeakMap and used in the header
+    const sanitizedKey = credential.slice(0, 4) + '***' + credential.slice(-4);
+    Object.defineProperty(this, '_lastUsedKey', {
+      value: sanitizedKey,
+      writable: true,
+      enumerable: false // Don't expose in object enumeration
+    });
+
     return { "X-API-Key": credential };
   }
 

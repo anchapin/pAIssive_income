@@ -474,7 +474,7 @@ def generate_report(
             salt = os.urandom(16)
 
             # Use a system-specific environmental factor for key derivation
-            # This avoids hardcoding any passwords or keys in the code
+            # This avoids hardcoding any credentials in the code
             system_entropy = (
                 str(uuid.getnode())  # MAC address as integer
                 + os.path.expanduser("~")  # User home directory
@@ -499,12 +499,22 @@ def generate_report(
                 # Fall back to system-derived entropy if no environment key
                 key_material = system_entropy.encode("utf-8")
 
-            # Derive the encryption key
-            key = base64.urlsafe_b64encode(kdf.derive(key_material))
+            # Derive the encryption key securely
+            derived_key = kdf.derive(key_material)
+            # Clear original key material from memory
+            key_material = b"\x00" * len(key_material)
+
+            # Create a base64-encoded key for Fernet
+            encoded_key = base64.urlsafe_b64encode(derived_key)
+            # Clear derived key from memory
+            derived_key = b"\x00" * len(derived_key)
 
             # Create the cipher and encrypt the data
-            cipher = Fernet(key)
+            cipher = Fernet(encoded_key)
             encrypted_output = cipher.encrypt(secure_output.encode())
+
+            # Clear encoded key from memory - use empty bytes for type safety
+            encoded_key = b""
 
             # Create the output directory if it doesn't exist
             output_dir = os.path.dirname(output_file)

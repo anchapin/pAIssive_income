@@ -45,6 +45,9 @@ class UserService:
         # Use double underscore for name mangling in Python
         self.__token_secret = token_secret
 
+        # Don't log the secret or any part of it
+        logger.debug("Token secret configured successfully")
+
         self.token_expiry = token_expiry or 3600  # 1 hour default
 
     @property
@@ -180,7 +183,14 @@ class UserService:
 
         # Sanitize additional claims to prevent sensitive data leakage
         safe_claims = {}
-        sensitive_claim_keys = ["password", "token", "secret", "credential", "key"]
+        sensitive_claim_keys = [
+            "password",
+            "token",
+            "secret",
+            "credential",
+            "key",
+            "auth",
+        ]
         for key, value in additional_claims.items():
             # Skip any sensitive looking claims
             if any(
@@ -190,7 +200,12 @@ class UserService:
                     f"Potentially sensitive claim '{key}' was excluded from token"
                 )
                 continue
-            safe_claims[key] = value
+            # Avoid adding large values to token payload
+            if isinstance(value, str) and len(value) > 1000:
+                logger.warning(f"Oversized claim '{key}' was truncated in token")
+                safe_claims[key] = value[:100] + "..."
+            else:
+                safe_claims[key] = value
 
         payload = {
             "sub": user_id,
@@ -200,11 +215,16 @@ class UserService:
             **safe_claims,
         }
 
-        auth_token = jwt.encode(payload, self.token_secret, algorithm="HS256")
+        auth_token = jwt.encode(payload, self.__token_secret, algorithm="HS256")
         # Don't log sensitive information
         logger.debug(
-            "Authentication material generated",
-            extra={"expiry": expiry.isoformat(), "token_id": payload["jti"]},
+            "Authentication token generated",
+            extra={
+                "user_id": user_id,
+                "expiry": expiry.isoformat(),
+                "token_id": payload["jti"],
+                "token_type": "JWT",
+            },
         )
         # Ensure we return a string
         if isinstance(auth_token, bytes):

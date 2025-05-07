@@ -130,14 +130,14 @@ export const validateCredential = (value, {
   if (value.length < minLength) {
     return {
       valid: false,
-      error: `Credential must be at least ${minLength} characters long`
+      error: `Must be at least ${minLength} characters long`
     };
   }
 
   if (value.length > maxLength) {
     return {
       valid: false,
-      error: `Credential must be no more than ${maxLength} characters long`
+      error: `Must be no more than ${maxLength} characters long`
     };
   }
 
@@ -145,7 +145,7 @@ export const validateCredential = (value, {
   if (requireLowercase && !/[a-z]/.test(value)) {
     return {
       valid: false,
-      error: 'Credential must include at least one lowercase letter'
+      error: 'Must include at least one lowercase letter'
     };
   }
 
@@ -153,7 +153,7 @@ export const validateCredential = (value, {
   if (requireUppercase && !/[A-Z]/.test(value)) {
     return {
       valid: false,
-      error: 'Credential must include at least one uppercase letter'
+      error: 'Must include at least one uppercase letter'
     };
   }
 
@@ -161,7 +161,7 @@ export const validateCredential = (value, {
   if (requireNumber && !/[0-9]/.test(value)) {
     return {
       valid: false,
-      error: 'Credential must include at least one number'
+      error: 'Must include at least one number'
     };
   }
 
@@ -169,7 +169,7 @@ export const validateCredential = (value, {
   if (requireSpecial && !/[^A-Za-z0-9]/.test(value)) {
     return {
       valid: false,
-      error: 'Credential must include at least one special character'
+      error: 'Must include at least one special character'
     };
   }
 

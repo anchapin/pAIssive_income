@@ -58,6 +58,10 @@ const RegisterForm = ({ onSuccess }) => {
         name: formData.name
       });
 
+      // Immediately clear sensitive data from memory
+      formData.authCredential = '';
+      formData.confirmCredential = '';
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();

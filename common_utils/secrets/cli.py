@@ -126,13 +126,40 @@ def _validate_secret_value(value: str) -> bool:
         bool: Whether the value passes validation
 
     """
-    if not value or len(value) < 8:
+    # Check for minimum criteria
+    if not value:
         return False
+
+    # Check minimum length - higher entropy requirements
+    if len(value) < 12:
+        return False
+
+    # Check complexity requirements
     has_upper = any(c.isupper() for c in value)
     has_lower = any(c.islower() for c in value)
     has_digit = any(c.isdigit() for c in value)
     has_special = any(not c.isalnum() for c in value)
-    return has_upper and has_lower and has_digit and has_special
+
+    # Calculate entropy score (simple implementation)
+    char_set_size = 0
+    if has_upper:
+        char_set_size += 26
+    if has_lower:
+        char_set_size += 26
+    if has_digit:
+        char_set_size += 10
+    if has_special:
+        char_set_size += 32  # Approximation for special characters
+
+    # Avoid logging any details about validation to prevent leaking information
+    return (
+        has_upper
+        and has_lower
+        and has_digit
+        and has_special
+        and char_set_size > 30
+        and len(value) >= 12
+    )
 
 
 def parse_args() -> argparse.Namespace:

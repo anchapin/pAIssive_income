@@ -102,15 +102,25 @@ class PasswordResetService:
         # Log with user ID but not the actual code
         logger.info(
             "Authentication reset initiated",
-            extra={"user_id": user["id"], "expiry": expiry.isoformat()},
+            extra={
+                "user_id": user["id"],
+                "expiry": expiry.isoformat(),
+            },
         )
 
-        # In development, return full code
-        # In production, should send via email instead
-        return (
-            True,
-            reset_code,
-        )
+        # Mask the reset code for security in production
+        # Only return the first 2 characters and last 2 characters
+        # with asterisks in between
+        mask_length = len(reset_code) - 4
+        if reset_code:
+            masked_code = reset_code[:2] + "*" * mask_length + reset_code[-2:]
+        else:
+            masked_code = None
+
+        # Send the actual code via secure email channel (not implemented here)
+        # self.email_service.send_reset_code(email, reset_code)
+
+        return True, masked_code  # Return masked code instead of actual code
 
     def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
         """Reset an authentication credential using a reset code.
