@@ -502,19 +502,16 @@ def generate_report(
             # Derive the encryption key securely
             derived_key = kdf.derive(key_material)
             # Clear original key material from memory
-            key_material = b"\x00" * len(key_material)
+            del key_material
 
             # Create a base64-encoded key for Fernet
             encoded_key = base64.urlsafe_b64encode(derived_key)
             # Clear derived key from memory
-            derived_key = b"\x00" * len(derived_key)
+            del derived_key
 
             # Create the cipher and encrypt the data
             cipher = Fernet(encoded_key)
             encrypted_output = cipher.encrypt(secure_output.encode())
-
-            # Clear encoded key from memory - use empty bytes for type safety
-            encoded_key = b""
 
             # Create the output directory if it doesn't exist
             output_dir = os.path.dirname(output_file)

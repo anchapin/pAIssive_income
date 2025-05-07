@@ -8,12 +8,14 @@ additional CI-friendly features.
 """
 
 import argparse
+import hashlib  # Added for path hashing functionality
 import json
 import os
 import re
 import subprocess
 import sys
 import time  # Moved time import to the top level
+import uuid  # Added for secure report generation
 from typing import Any, Dict, List, Set, Tuple, cast
 
 # Import the existing security tools if possible
@@ -415,8 +417,6 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
             # content
             for file_path, secrets in results.items():
                 # Use a hash of the path instead of the actual path
-                import hashlib
-
                 path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
                 # Write only the hash reference to the main report
                 f.write(f"File ID: {path_hash}\n")
@@ -448,8 +448,6 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
         # Write the mapping of hashes to actual paths in the secure file
         try:
             import base64
-            import os
-            import uuid
 
             from cryptography.fernet import Fernet
             from cryptography.hazmat.primitives import hashes
