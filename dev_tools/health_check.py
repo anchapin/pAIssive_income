@@ -18,10 +18,11 @@ Requires tools: flake8, ruff, mypy, bandit, pip-audit, black,
 sphinx-build (optional).
 """
 
+import os
+import shutil
 import subprocess
 import sys
-import shutil
-import os
+
 
 def run(cmd, desc):
     """Run a shell command and print result.
@@ -38,6 +39,7 @@ def run(cmd, desc):
     else:
         print(f"\033[92mPASSED: {desc}\033[0m")
 
+
 def check_gitignore(path):
     """Skip files/directories in .gitignore (for future extension).
 
@@ -49,6 +51,7 @@ def check_gitignore(path):
     """
     return True  # Placeholder for future logic
 
+
 def lint():
     """Run linting and formatting checks (ruff, flake8, black)."""
     if shutil.which("ruff"):
@@ -58,12 +61,14 @@ def lint():
     if shutil.which("black"):
         run("black --check .", "Black formatting check")
 
+
 def type_check():
     """Run mypy static type checks."""
     if shutil.which("mypy"):
         run("mypy .", "Mypy static type checking")
     else:
         print("mypy not found, skipping type checks.")
+
 
 def security():
     """Run bandit security scan."""
@@ -72,6 +77,7 @@ def security():
     else:
         print("bandit not found, skipping security checks.")
 
+
 def deps():
     """Run pip-audit for dependency security."""
     if shutil.which("pip-audit"):
@@ -79,16 +85,22 @@ def deps():
     else:
         print("pip-audit not found, skipping dependency audit.")
 
+
 def docs():
     """Build Sphinx documentation, if present."""
     if os.path.isdir("docs_source") and shutil.which("sphinx-build"):
-        run("sphinx-build docs_source docs/_build", "Sphinx documentation build")
+        run(
+            "sphinx-build docs_source docs/_build",
+            "Sphinx documentation build",
+        )
     else:
         print("Sphinx not configured or not found, skipping docs build.")
+
 
 def usage():
     """Print usage instructions."""
     print(__doc__)
+
 
 def main():
     """Entry point for orchestrated health checks."""
@@ -112,6 +124,7 @@ def main():
             docs()
         if "--help" in args or "-h" in args:
             usage()
+
 
 if __name__ == "__main__":
     main()
