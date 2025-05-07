@@ -286,11 +286,10 @@ def main():
         total_secrets += len(secrets)
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
-        for pattern_name, line_num, _, secret in secrets:
+        for pattern_name, line_num, _, _ in secrets:
             # Use safe logging function to avoid exposing sensitive data
-            # Don't pass the actual secret, just its length
-            secret_length = len(secret) if secret else 0
-            log_message = safe_log_sensitive_info(pattern_name, line_num, secret_length)
+            # Create a safe log message that doesn't include any part of the secret
+            log_message = f"  Line {line_num}: {pattern_name} - [REDACTED]"
             print(log_message)
 
         # Fix secrets in the file
