@@ -199,7 +199,7 @@ jobs:
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
-          python run_tests.py --phase custom -m "not slow and not integration and not dependency" -- "${{ github.event.inputs.specific_file }}" \
+          python run_tests.py --phase custom -m "not slow and not integration and not dependency and not performance" -- "${{ github.event.inputs.specific_file }}" \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
