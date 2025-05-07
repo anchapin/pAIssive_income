@@ -7,36 +7,46 @@ This module provides utilities for auditing code for hardcoded secrets.
 import json
 import os
 import re
+import uuid
+from datetime import datetime
 from typing import Dict, List, Optional, Set, Tuple
 
 # Third-party imports
 # Local imports
-from common_utils.logging import get_logger
+from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
-# Initialize logger
-logger = get_logger(__name__)
+# Initialize secure logger
+logger = get_secure_logger(__name__)
 
-# Patterns to detect potential secrets
+# Constants and configurations
 PATTERNS = {
     "api_key": re.compile(
-        r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
     "password": re.compile(
-        r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?',
+        (r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?' r'([^"\'\s]{3,})["\']?'),
         re.IGNORECASE,
     ),
     "token": re.compile(
-        r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
     "secret": re.compile(
-        r'(secret|private_key)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(secret|private_key)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
 }
 
-# Directories to exclude from scanning
 DEFAULT_EXCLUDE_DIRS = {
     ".git",
     ".github",
@@ -51,7 +61,6 @@ DEFAULT_EXCLUDE_DIRS = {
     ".ruff_cache",
 }
 
-# File extensions to scan
 TEXT_FILE_EXTENSIONS = {
     ".py",
     ".js",
@@ -89,16 +98,13 @@ def is_text_file(file_path: str) -> bool:
         bool: True if the file is a text file, False otherwise
 
     """
-    # Check file extension
     _, ext = os.path.splitext(file_path.lower())
     if ext in TEXT_FILE_EXTENSIONS:
         return True
 
-    # Try to read the file as text
     try:
         with open(file_path, encoding="utf-8", errors="ignore") as f:
             sample = f.read(1024)
-            # Check for null bytes, which indicate a binary file
             if "\0" in sample:
                 return False
             return True
@@ -119,7 +125,6 @@ def is_example_code(content: str, line: str) -> bool:
         bool: True if the line is part of example code, False otherwise
 
     """
-    # Check for common example indicators
     example_indicators = [
         "example",
         "sample",
@@ -137,10 +142,7 @@ def is_example_code(content: str, line: str) -> bool:
         if indicator in line_lower:
             return True
 
-    # Check if the line is in a docstring or comment block
     if '"""' in content or "'''" in content:
-        # Simple heuristic: if the line has a lot of indentation,
-        # it's probably in a docstring
         if line.startswith("    "):
             return True
 
@@ -163,11 +165,9 @@ def should_exclude(file_path: str, exclude_dirs: Optional[Set[str]] = None) -> b
     if exclude_dirs is None:
         exclude_dirs = DEFAULT_EXCLUDE_DIRS
 
-    # Normalize path
     file_path = os.path.normpath(file_path)
-
-    # Check if the file is in an excluded directory
     path_parts = file_path.split(os.sep)
+
     for part in path_parts:
         if part in exclude_dirs:
             return True
@@ -186,14 +186,13 @@ def find_potential_secrets(
 
     Returns:
     -------
-        List[Tuple[str, int, str, str]]:
-        List of (pattern_name, line_number, line, secret_value)
+        List[Tuple[str, int, str, str]]: List of pattern name, line number, line, value
 
     Raises:
     ------
-        FileNotFoundError: If the file does not exist
-        PermissionError: If there are insufficient permissions to read the file
-        UnicodeError: If the file cannot be decoded as UTF-8
+        FileNotFoundError: If file not found
+        PermissionError: If insufficient permissions
+        UnicodeError: If file cannot be decoded
 
     """
     if not os.path.exists(file_path):
@@ -203,31 +202,21 @@ def find_potential_secrets(
         raise PermissionError(f"Insufficient permissions to read file: {file_path}")
 
     results = []
-
     try:
         with open(file_path, encoding="utf-8", errors="strict") as f:
             content = f.read()
             lines = content.splitlines()
     except UnicodeError as e:
         logger.error("UTF-8 decoding error", extra={"file": file_path, "error": str(e)})
-        # Try again with a more lenient encoding
-        try:
-            with open(file_path, encoding="utf-8", errors="replace") as f:
-                content = f.read()
-                lines = content.splitlines()
-                logger.warning(
-                    "File processed with replacement characters",
-                    extra={"file": file_path},
-                )
-        except Exception as e:
-            logger.error(
-                "Failed to read file even with error replacement",
-                extra={"file": file_path, "error": str(e)},
+        with open(file_path, encoding="utf-8", errors="replace") as f:
+            content = f.read()
+            lines = content.splitlines()
+            logger.warning(
+                "File processed with replacement characters",
+                extra={"file": file_path},
             )
-            raise
 
     for i, line in enumerate(lines):
-        # Skip if this is clearly an example line
         if is_example_code(content, line):
             continue
 
@@ -241,20 +230,18 @@ def find_potential_secrets(
                         "file": file_path,
                         "line": i + 1,
                         "pattern": pattern_name,
-                        "error": str(e),
+                        "error": type(e).__name__,
                     },
                 )
                 continue
 
             if matches:
                 for match in matches:
-                    # Handle different match formats
                     try:
                         if isinstance(match, tuple):
                             secret_value = match[1]
                         else:
                             secret_value = match
-
                         results.append((pattern_name, i + 1, line, secret_value))
                     except (IndexError, AttributeError) as e:
                         logger.error(
@@ -282,12 +269,12 @@ def scan_directory(
 
     Returns:
     -------
-        Dict[str, List[Tuple[str, int, str, str]]]: Dictionary of file paths to secrets
+        Dict[str, List[Tuple[str, int, str, str]]]: File paths to secrets mapping
 
     Raises:
     ------
-        FileNotFoundError: If the directory does not exist
-        PermissionError: If there are insufficient permissions to read the directory
+        FileNotFoundError: If directory not found
+        PermissionError: If insufficient permissions
 
     """
     if not os.path.exists(directory):
@@ -304,14 +291,12 @@ def scan_directory(
 
     try:
         for root, dirs, files in os.walk(directory):
-            # Skip excluded directories using list comprehension for atomic operation
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
             for file in files:
                 file_path = os.path.join(root, file)
 
                 try:
-                    # Skip excluded files and non-text files
                     if should_exclude(file_path, exclude_dirs) or not is_text_file(
                         file_path
                     ):
@@ -332,16 +317,34 @@ def scan_directory(
                         )
 
                 except (PermissionError, FileNotFoundError) as e:
-                    error_files.append((file_path, str(e)))
+                    error_files.append(
+                        {
+                            "file": file_path,
+                            "timestamp": datetime.now().isoformat(),
+                            "error_type": type(e).__name__,
+                            "error_id": str(uuid.uuid4()),
+                        }
+                    )
                     logger.warning(
                         "File access error",
                         extra={"file": file_path, "error": str(e)},
                     )
                 except Exception as e:
-                    error_files.append((file_path, str(e)))
+                    error_files.append(
+                        {
+                            "file": file_path,
+                            "timestamp": datetime.now().isoformat(),
+                            "error_type": type(e).__name__,
+                            "error_id": str(uuid.uuid4()),
+                        }
+                    )
                     logger.error(
                         "Unexpected error processing file",
-                        extra={"file": file_path, "error": str(e)},
+                        extra={
+                            "file": file_path,
+                            "error_type": type(e).__name__,
+                            "error_id": str(uuid.uuid4()),
+                        },
                     )
 
         if error_files:
@@ -391,14 +394,12 @@ def generate_report(
         return
 
     total_secrets = sum(len(secrets) for secrets in results.values())
-    # Log without including any sensitive data
     logger.info(
         "Found potential secrets in files",
         extra={"count": total_secrets, "file_count": len(results)},
     )
 
     if json_format:
-        # Convert to a format suitable for JSON
         json_results = {}
         for file_path, secrets in results.items():
             json_results[file_path] = [
@@ -406,8 +407,6 @@ def generate_report(
                     "type": pattern_name,
                     "line_number": line_number,
                     "line": line,
-                    # Intentionally not including the actual secret value to
-                    # avoid exposing sensitive information
                     "value": "[REDACTED]",
                 }
                 for pattern_name, line_number, line, _ in secrets
@@ -415,7 +414,6 @@ def generate_report(
 
         output = json.dumps(json_results, indent=2)
     else:
-        # Generate a text report
         lines = [
             "Secrets Audit Report",
             "===================",
@@ -427,8 +425,6 @@ def generate_report(
         for file_path, secrets in results.items():
             lines.append(f"File: {file_path}")
             lines.append("-" * (len(file_path) + 6))
-            # Intentionally not using secret_value to
-            # avoid exposing sensitive information in reports
             for pattern_name, line_number, line, _ in secrets:
                 lines.append(f"  Line {line_number}: {pattern_name}")
                 lines.append(f"    {line.strip()}")
@@ -439,27 +435,24 @@ def generate_report(
 
     if output_file:
         try:
-            # Ensure we're not writing sensitive data to the file
-            from common_utils.logging.secure_logging import mask_sensitive_data
-
-            masked_output = mask_sensitive_data(output)
-
-            # Ensure we're not writing any sensitive data to the file
-            # Apply additional masking to be extra safe
-            double_masked_output = mask_sensitive_data(masked_output)
+            # Apply masking to protect sensitive data
+            masked = mask_sensitive_data(output)
+            # Double-mask for extra security
+            double_masked = mask_sensitive_data(masked)
 
             with open(output_file, "w", encoding="utf-8") as f:
-                f.write(double_masked_output)
-            logger.info("Report saved", extra={"file": os.path.basename(output_file)})
+                f.write(double_masked)
+            logger.info(
+                "Report saved",
+                extra={"file": os.path.basename(output_file)},
+            )
         except Exception as e:
             logger.error(f"Error saving report: {e}")
     else:
-        # Use a secure logger instead of print to ensure proper handling
         logger.info("Audit report generated")
-        # Print only a summary, not the full report with potential secrets
         summary = (
-            f"Audit report generated: Found {total_secrets} potential "
-            f"secrets in {len(results)} files"
+            f"Audit report generated: Found {total_secrets} potential secrets "
+            f"in {len(results)} files"
         )
         print(summary)
 

@@ -104,7 +104,11 @@ class TestSecurityFixes(unittest.TestCase):
                     self.assertNotIn("jwt_token", msg)
                     # Check that we're using the hash format
                     if msg.startswith("  Secret #"):
-                        self.assertTrue(len(msg) > 10)
+                        self.assertGreater(
+                            len(msg),
+                            10,
+                            "Secret hash should be longer than 10 characters",
+                        )
 
 
 if __name__ == "__main__":

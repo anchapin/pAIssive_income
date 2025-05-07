@@ -119,9 +119,9 @@ def scan_file_for_issues(file_path: str) -> List[Dict[str, Any]]:
             )
             for match in re.finditer(pattern, content):
                 line_num = content.count("\n", 0, match.start()) + 1
-                msg = "Logging count of potential secrets " "without secure context"
+                msg = "Logging count of potential secrets without secure context"
                 finding = {
-                    "ruleId": ("security-check/" "clear-text-secrets-count"),
+                    "ruleId": ("security-check/clear-text-secrets-count"),
                     "level": "warning",
                     "message": {"text": msg},
                     "locations": [
@@ -180,7 +180,7 @@ def create_sarif_report(findings: List[Dict[str, Any]], output_file: str):
                                 "id": "security-check/clear-text-logging",
                                 "shortDescription": {
                                     "text": (
-                                        "Clear-text logging of " "sensitive information"
+                                        "Clear-text logging of sensitive information"
                                     )
                                 },
                                 "fullDescription": {

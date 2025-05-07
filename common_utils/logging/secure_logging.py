@@ -37,19 +37,28 @@ SENSITIVE_FIELDS = [
 # Regex patterns to detect sensitive information
 PATTERNS = {
     "api_key": re.compile(
-        r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(api[_-]?key|apikey)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
     "password": re.compile(
-        r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?',
+        (r'(password|passwd|pwd)["\']?\s*[:=]\s*["\']?' r'([^"\'\s]{3,})["\']?'),
         re.IGNORECASE,
     ),
     "token": re.compile(
-        r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(token|access_token|refresh_token|jwt)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
     "secret": re.compile(
-        r'(secret|private_key)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_\-\.]{10,})["\']?',
+        (
+            r'(secret|private_key)["\']?\s*[:=]\s*["\']?'
+            r'([a-zA-Z0-9_\-\.]{10,})["\']?'
+        ),
         re.IGNORECASE,
     ),
 }
@@ -58,15 +67,18 @@ PATTERNS = {
 def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4) -> Any:
     """Mask sensitive data in logs to prevent logging of sensitive information.
 
+    Applies masking to sensitive information while preserving some visibility
+    for debugging purposes.
+
     Args:
     ----
-        data: The data to mask. Can be a string, dict, list, or other types.
-        mask_char: The character to use for masking. Default is "*".
-        visible_chars: Number of characters to show at start and end. Default is 4.
+        data: The data to mask. Can be a string, dict, list, or other types
+        mask_char: The character to use for masking. Default is "*"
+        visible_chars: Number of characters to show at start and end. Default is 4
 
     Returns:
     -------
-        The masked data with sensitive information hidden.
+        The masked data with sensitive information hidden
 
     """
     if data is None:
@@ -96,6 +108,8 @@ def _mask_if_sensitive(
     key: str, value: Any, mask_char: str = "*", visible_chars: int = 4
 ) -> Any:
     """Check if a key is sensitive and mask its value if needed.
+
+    Examines the key for sensitive terms and applies masking if necessary.
 
     Args:
     ----
