@@ -16,9 +16,25 @@ def main():
     if unknown:
         print(f"Ignoring unrecognized arguments: {unknown}")
 
-    # TODO: Implement the functionality using parsed arguments
+    # Format code using black and (optionally) ruff format
+    import subprocess
 
-    return 0
+    success = True
+    formatters = [
+        (["black", "."], "black"),
+        (["ruff", "format", "."], "ruff format"),
+    ]
+
+    for fmt_cmd, fmt_name in formatters:
+        try:
+            completed = subprocess.run(fmt_cmd + unknown, check=False)
+            if completed.returncode != 0:
+                print(f"{fmt_name} failed to format some files.")
+                success = False
+        except FileNotFoundError:
+            print(f"{fmt_name} is not installed or not found in PATH. Skipping.")
+
+    return 0 if success else 1
 
 
 if __name__ == "__main__":

@@ -6,16 +6,9 @@ import sys
 
 def main():
     """Initialize the module."""
-    parser = argparse.ArgumentParser(
-        description="Script for the pAIssive Income project"
-    )
-
-    parser.parse_args()  # Parse args but ignore since not used yet
-
-    # TODO: Implement the functionality
-
-    return 0
+    print("Monetization service is currently a placeholder.")
+    # Potential future: implement monetization logic here.
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
