@@ -552,7 +552,7 @@ def main() -> int:
         tool_error_files = []
 
         for i, file_path in enumerate(python_files):
-            print(f"\nProcessing file {i+1}/{len(python_files)}: {file_path}")
+            print(f"\nProcessing file {i + 1}/{len(python_files)}: {file_path}")
             try:
                 if fix_file(file_path, args):
                     success_count += 1

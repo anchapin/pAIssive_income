@@ -156,7 +156,7 @@ def show_error_context(
 
         for i in range(start_line, end_line):
             line_marker = ">" if i == line_number - 1 else " "
-            print(f"{line_marker} {i+1:4d}: {lines[i].rstrip()}")
+            print(f"{line_marker} {i + 1:4d}: {lines[i].rstrip()}")
 
         print("-" * 60)
     except Exception as e:

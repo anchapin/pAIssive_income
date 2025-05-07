@@ -247,7 +247,7 @@ def main() -> int:
         failed_files = []
 
         for i, file_path in enumerate(python_files):
-            print(f"\nProcessing file {i+1}/{len(python_files)}: {file_path}")
+            print(f"\nProcessing file {i + 1}/{len(python_files)}: {file_path}")
             try:
                 # For now, just fix syntax errors
                 if fix_syntax_errors(file_path):
