@@ -110,22 +110,22 @@ jobs:
           ruff format --check .
         fi
 
+    # Remove auto-fixing in CI; only check and fail on error.
     - name: Fix formatting issues (if any)
       if: always()
       run: |
-        echo "Attempting to fix formatting and syntax issues..."
+        echo "Checking that all files are formatted correctly (no auto-fix in CI)..."
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Fixing specific file with Ruff: ${{ github.event.inputs.specific_file }}"
-          ruff check --fix "${{ github.event.inputs.specific_file }}"
-          ruff format "${{ github.event.inputs.specific_file }}"
+          ruff check "${{ github.event.inputs.specific_file }}"
+          ruff format --check "${{ github.event.inputs.specific_file }}"
         else
-          echo "Fixing all files with Ruff"
-          ruff check --fix .
-          ruff format .
+          ruff check .
+          ruff format --check .
         fi
 
     - name: Type check with mypy and pyright
       run: |
+        set -e
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           echo "Type checking specific file: ${{ github.event.inputs.specific_file }}"
           mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
@@ -138,11 +138,10 @@ jobs:
 
     - name: Check for unused imports
       run: |
+        set -e
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking unused imports in specific file: ${{ github.event.inputs.specific_file }}"
           ruff check "${{ github.event.inputs.specific_file }}" --select F401
         else
-          echo "Checking unused imports in all files"
           ruff check . --select F401
         fi
 
@@ -177,39 +176,30 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # More aggressive cleanup of egg-info directories
         find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         find . -type d -name "*.dist-info" -exec rm -rf {} + || true
         find . -name "*.egg" -exec rm -f {} + || true
-
-        # Clear pip cache if needed
         pip cache purge || true
-
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
-
-        # Install requirements separately (dev first to ensure correct versions)
         if [ -f requirements-dev.txt ]; then
           python -m pip install -r requirements-dev.txt
         fi
         if [ -f requirements.txt ]; then
           python -m pip install -r requirements.txt
         fi
-
-        # Install in development mode with verbose output to debug any issues
         python -m pip install -e . -v
 
     - name: Create junit directory
       run: mkdir -p junit
 
-    - name: Run tests
+    - name: Run tests (phased runner)
       env:
         PYTHONPATH: ${{ github.workspace }}
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
-          pytest "${{ github.event.inputs.specific_file }}" \
-            -v \
+          python run_tests.py --phase custom -m "not slow and not integration and not dependency" -- "${{ github.event.inputs.specific_file }}" \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
@@ -217,18 +207,15 @@ jobs:
             --junitxml=junit/test-results.xml
         elif [ -n "${{ github.event.inputs.test_path }}" ]; then
           echo "Testing path: ${{ github.event.inputs.test_path }}"
-          pytest "${{ github.event.inputs.test_path }}" \
-            -n auto \
+          python run_tests.py --phase fast -- "${{ github.event.inputs.test_path }}" \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
             --junitxml=junit/test-results.xml
         else
-          echo "Running all tests"
-          pytest tests \
-            -n auto \
-            -v \
+          echo "Running fast tests (default phase)"
+          python run_tests.py --phase fast -- -n auto -v \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
