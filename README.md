@@ -313,6 +313,23 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 All configuration files are version controlled to ensure consistent formatting across the project.
 
+## Claude Agentic Coding Best Practices
+
+This project follows [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) for safe, reliable, and auditable automation. All contributors are expected to review and adhere to these standards.
+
+Key principles include:
+- Explicit state and input/output handling
+- Modular, testable decomposition
+- Strong input validation
+- Deterministic, auditable steps
+- Idempotency and recovery
+- Human oversight and review
+- Comprehensive documentation
+- Unit/integration testing (including edge/failure modes)
+- Security and permissions best practices
+
+See [claude_coding_best_practices.md](claude_coding_best_practices.md) for the full checklist and details. Please review this document before submitting changes or pull requests.
+
 ## Documentation
 
 The project includes comprehensive API documentation that can be built from source:
