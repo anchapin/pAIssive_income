@@ -308,8 +308,7 @@ def main():
         safe_path = safe_log_file_path(file_path)
         print(f"\n{safe_path}:")
         for pattern_name, line_num, _, secret_value in secrets:
-            # Use the safer logging function that doesn't reference
-            # secret_value directly in the print statement
+            # Don't pass the secret_value at all, only pass metadata
             log_message = safe_log_sensitive_info(
                 pattern_name, line_num, len(secret_value) if secret_value else 0
             )

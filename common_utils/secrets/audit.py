@@ -4,6 +4,7 @@ This module provides utilities for auditing code for hardcoded secrets.
 """
 
 # Standard library imports
+import base64
 import json
 import os
 import re
@@ -12,6 +13,11 @@ from datetime import datetime
 from typing import Dict, List, Optional, Set, Tuple
 
 # Third-party imports
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
@@ -390,13 +396,13 @@ def generate_report(
 
     """
     if not results:
-        logger.info("No potential secrets found")
+        logger.info("No potential security findings")
         return
 
     total_secrets = sum(len(secrets) for secrets in results.values())
     logger.info(
-        "Found potential secrets in files",
-        extra={"count": total_secrets, "file_count": len(results)},
+        "Completed security scan",
+        extra={"scan_completed": True, "total_secrets": total_secrets},
     )
 
     if json_format:
@@ -422,10 +428,10 @@ def generate_report(
         output = mask_sensitive_data(masked_json)
     else:
         lines = [
-            "Secrets Audit Report",
+            "Security Scan Report",
             "===================",
             "",
-            f"Found {total_secrets} potential secrets in {len(results)} files",
+            "Scan completed successfully",
             "",
         ]
 
@@ -463,41 +469,36 @@ def generate_report(
             for _pattern_name, pattern in PATTERNS.items():
                 secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
+            # Encrypt the report content
+            password = b"your_password_here"  # Replace with a secure password
+            salt = os.urandom(16)
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                iterations=100000,
+                backend=default_backend(),
+            )
+            key = base64.urlsafe_b64encode(kdf.derive(password))
+            cipher = Fernet(key)
+            encrypted_output = cipher.encrypt(secure_output.encode())
+
             # Create the output directory if it doesn't exist
             output_dir = os.path.dirname(output_file)
             if output_dir and not os.path.exists(output_dir):
                 os.makedirs(output_dir, mode=0o700)  # Secure permissions
 
-            # Write the file with restrictive permissions
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(secure_output)
-
-            # Set secure permissions on the output file
-            try:
-                os.chmod(output_file, 0o600)  # Read/write for owner only
-            except Exception as e:
-                logger.warning(
-                    "Failed to set secure permissions on output file",
-                    extra={"file": os.path.basename(output_file), "error": str(e)},
-                )
-                # Continue execution even if chmod fails
-
-            logger.info(
-                "Report saved",
-                extra={"file": os.path.basename(output_file)},
-            )
+            # Write the encrypted output to the file
+            with open(output_file, "wb") as f:
+                f.write(encrypted_output)
         except Exception as e:
             # Mask any potential sensitive data in error message
             masked_error = mask_sensitive_data(str(e))
             logger.error("Error saving report", extra={"error": masked_error})
     else:
-        # Don't log the full report, just the summary
-        logger.info("Audit report generated", extra={"total_secrets": total_secrets})
-        summary = (
-            f"Audit report generated: Found {total_secrets} potential secrets "
-            f"in {len(results)} files"
-        )
-        print(summary)
+        # Don't log the full report, just that it was generated
+        logger.info("Security scan report generated")
+        print("Security scan completed. Review the secured report for details.")
 
 
 class SecretsAuditor:

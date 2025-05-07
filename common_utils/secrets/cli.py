@@ -301,7 +301,11 @@ def handle_get(args: argparse.Namespace) -> None:
 
                     pyperclip.copy("")
                 except ImportError:
-                    pass
+                    # If pyperclip isn't installed, we can't clear the clipboard but
+                    # that's acceptable since it wasn't used to begin with
+                    logger.debug(
+                        "pyperclip not installed, couldn't clear clipboard on interrupt"
+                    )
 
     except Exception as e:
         if isinstance(e, PermissionError):
