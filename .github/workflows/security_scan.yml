@@ -713,7 +713,7 @@ jobs:
         category: "/language:python"
 
     - name: Run Dependency Review
-      uses: actions/dependency-review-action@v3
+      uses: actions/dependency-review-action@v4
       if: github.event_name == 'pull_request'
 
     - name: Check Trivy SARIF for upload
