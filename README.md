@@ -48,193 +48,60 @@ The framework has identified several promising niches for AI-powered tools:
 
 ## Getting Started
 
-### Development Setup
+**For full setup, onboarding, and usage instructions, see [docs/getting-started.md](docs/getting-started.md).**
 
-1. Clone the repository:
+This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
-   ```bash
-   git clone https://github.com/anchapin/pAIssive_income.git
-   cd pAIssive_income
-   ```
+If you are new to this project, start here:
+- [Getting Started Guide](docs/getting-started.md)
 
-2. Create a virtual environment and install dependencies:
+For quick reference, the following topics are included in the full guide:
+- Development environment setup (Python, Node, etc.)
+- Installing dependencies
+- Running and developing with the framework
+- Using the CLI and web UI
+- Pre-commit hooks and code quality
+- Linting, syntax fixes, and CI workflows
 
-   ```bash
-   # Using the provided script (recommended)
-   # On Windows
-   scripts\recreate_venv.bat
+**Note:** This README is intentionally concise. See the documentation for complete and up-to-date instructions.
 
-   # On Unix/Linux
-   ./scripts/recreate_venv.sh
+---
 
-   # Or manually
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-   pip install -e .
-   ```
+### Feedback & Documentation Contributions
 
-3. Set up pre-commit hooks to ensure code quality:
+To suggest improvements or report issues in the documentation, please:
+- [Open an issue](https://github.com/anchapin/pAIssive_income/issues) with the label `documentation`
+- Or email the maintainer: a.n.chapin@gmail.com
 
-   ```bash
-   # This is automatically done by the recreate_venv script
-   # But you can also do it manually:
-   pip install pre-commit
-   pre-commit install
-   ```
+For documentation contribution standards and process, see [docs/documentation-guide.md](docs/documentation-guide.md).
 
-   For more information about pre-commit hooks, see [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md).
+See [Getting Started Guide](docs/getting-started.md) for full setup and onboarding instructions.
 
-4. Run linting checks before pushing changes:
+## Documentation Structure
 
-   ```bash
-   # On Windows
-   scripts\lint_check.bat
+- **Quickstart & Setup:** [docs/getting-started.md](docs/getting-started.md)
+- **Framework Overview & Architecture:** [docs/overview.md](docs/overview.md), [docs/architecture/](docs/architecture/)
+- **Project Structure:** [docs/project-structure.md](docs/project-structure.md)
+- **Agent Team Details:** [docs/agent-team.md](docs/agent-team.md)
+- **Niche Analysis:** [docs/niche-analysis.md](docs/niche-analysis.md)
+- **AI Models:** [docs/ai-models.md](docs/ai-models.md)
+- **Monetization:** [docs/monetization.md](docs/monetization.md)
+- **Marketing:** [docs/marketing.md](docs/marketing.md)
+- **UI/Web Interface:** [docs/ui.md](docs/ui.md)
+- **Tool Templates:** [docs/tool-templates.md](docs/tool-templates.md)
+- **API Reference:** [docs/api-reference.md](docs/api-reference.md)
+- **DevOps & CI/CD:** [docs/devops-workflow.md](docs/devops-workflow.md)
+- **Troubleshooting & FAQ:** [docs/troubleshooting.md](docs/troubleshooting.md), [docs/faq.md](docs/faq.md)
+- **Contributing:** [docs/contributing.md](docs/contributing.md)
+- **Documentation Guide:** [docs/documentation-guide.md](docs/documentation-guide.md)
 
-   # On Unix/Linux
-   ./scripts/lint_check.sh
+## Feedback and Documentation Updates
 
-   # Check a specific file
-   scripts\lint_check.bat --file path/to/file.py
+We welcome feedback and suggestions for improving documentation!
+- **For general suggestions or corrections:** Open a GitHub issue with the "documentation" label.
+- **For urgent changes or errors:** Contact the project maintainer via [email](mailto:a.n.chapin@gmail.com).
 
-   # Run specific checks
-   scripts\lint_check.bat --ruff --isort
-   ```
-
-5. Fix syntax, formatting, and linting issues automatically:
-
-   ```bash
-   # Fix all issues in all Python files
-   python fix_all_issues_final.py
-
-   # Fix issues in specific files
-   python fix_all_issues_final.py path/to/file1.py path/to/file2.py
-
-   # Check for issues without fixing them
-   python fix_all_issues_final.py --check
-
-   # Fix only syntax errors
-   python fix_all_issues_final.py --syntax-only
-
-   # Fix only formatting issues
-   python fix_all_issues_final.py --format-only
-
-   # Skip specific tools
-   python fix_all_issues_final.py --no-black --no-isort --no-ruff
-   ```
-
-   Or use the provided batch file:
-
-   ```bash
-   # On Windows
-   fix_all_issues.bat
-
-   # Fix specific files
-   fix_all_issues.bat path/to/file.py
-   ```
-
-6. Run the CI workflow locally to check for issues before pushing:
-
-   ```bash
-   # Install act (GitHub Actions local runner)
-   # See: https://github.com/nektos/act
-
-   # Run the full CI workflow
-   act
-
-   # Run only the linting job
-   act -j lint
-
-   # Run only the test job
-   act -j test
-   ```
-
-### Command Line Interface
-
-1. Run the niche analysis tools to identify promising market opportunities:
-
-   ```python
-   python main.py
-   ```
-
-2. Review the generated project plan:
-
-   ```bash
-   cat project_plan.json
-   ```
-
-3. Use the agent team to develop a comprehensive strategy for your chosen niche:
-
-   ```python
-   from agent_team import AgentTeam
-
-   team = AgentTeam("Your Project Name")
-   niches = team.run_niche_analysis(["your", "target", "segments"])
-   solution = team.develop_solution(niches[0]["id"])
-   monetization = team.create_monetization_strategy()
-   marketing = team.create_marketing_plan()
-   ```
-
-### Web Interface
-
-#### Modern React UI (Recommended)
-
-The framework now includes a modern React-based user interface with a Flask API backend.
-
-1. Start both the React development server and Flask API server with a single command:
-
-   ```python
-   python ui/run_ui.py
-   ```
-
-   This script will:
-   - Start the Flask API server on port 5000
-   - Install React dependencies if needed
-   - Start the React development server on port 3000
-   - Open your web browser automatically
-
-2. If the browser doesn't open automatically, navigate to `http://localhost:3000`
-
-3. For development purposes, you can also run the components separately:
-
-   ```bash
-   # Start just the Flask API server
-   python ui/api_server.py
-
-   # Start just the React development server (from the react_frontend directory)
-   cd ui/react_frontend
-   npm install  # Only needed the first time
-   npm start
-   ```
-
-#### Legacy Web Interface
-
-The original web interface is still available:
-
-1. Start the legacy web interface:
-
-   ```python
-   python run_ui.py --legacy
-   ```
-
-2. Open your browser and navigate to `http://localhost:5000`
-
-3. Use the web interface to:
-   - Analyze niches
-   - Develop solutions
-   - Create monetization strategies
-   - Plan marketing campaigns
-
-### Next Steps
-
-1. Implement the AI tool using the provided templates in the `tool_templates` directory.
-
-2. Deploy your monetization strategy based on the subscription models in the `monetization` directory.
-
-3. Execute the marketing plan using strategies from the `marketing` directory.
-
-4. Gather feedback and iterate on your product using the Feedback Agent.
+For more on documentation standards and structure, see [docs/documentation-guide.md](docs/documentation-guide.md).
 
 ## Example Output
 

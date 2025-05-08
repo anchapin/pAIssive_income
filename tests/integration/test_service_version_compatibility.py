@@ -1,4 +1,7 @@
-"""test_service_version_compatibility - Module for tests/integration.test_service_version_compatibility."""
+"""test_service_version_compatibility - Module for tests/integration.
+
+Tests for service version compatibility functionality.
+"""
 
 # Standard library imports
 

@@ -108,8 +108,12 @@ We use Markdown for documentation. Please follow these guidelines when writing d
 
 - Use clear, concise language.
 - Include examples where appropriate.
-- Follow the existing documentation structure.
+- Follow the existing documentation structure (see [documentation-guide.md](documentation-guide.md)).
 - Use proper Markdown formatting.
+
+## Feedback and Documentation Updates
+
+If you have suggestions for improving documentation, please open an issue with the "documentation" label or contact the maintainer (see [documentation-guide.md](documentation-guide.md) for details).
 
 ## Code Style
 

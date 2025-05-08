@@ -8,9 +8,8 @@ import unittest
 from io import StringIO
 from unittest import mock
 
-# Import the module to be tested
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from verify_sarif_tools import (
+from verify_sarif_tools import (  # noqa: E402
     check_sarif_tools_installed,
     create_test_sarif_file,
     install_sarif_tools,
@@ -422,7 +421,8 @@ class TestVerifySarifTools(unittest.TestCase):
         self.assertGreaterEqual(
             call_count,
             2,
-            f"create_test_sarif_file should be called at least 2 times, but was called {call_count} times",
+            f"create_test_sarif_file should be called at least 2 times, "
+            f"but was called {call_count} times",
         )
 
         # Check two specific calls were made
@@ -468,7 +468,8 @@ class TestVerifySarifTools(unittest.TestCase):
         self.assertGreaterEqual(
             call_count,
             2,
-            f"create_test_sarif_file should be called at least 2 times, but was called {call_count} times",
+            f"create_test_sarif_file should be called at least 2 times, "
+            f"but was called {call_count} times",
         )
 
         # Check two specific calls were made

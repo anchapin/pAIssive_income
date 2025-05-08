@@ -1,4 +1,7 @@
-"""bitsandbytes_quantizer - Module for ai_models/optimization/quantization.bitsandbytes_quantizer."""
+"""bitsandbytes_quantizer - Module for ai_models/optimization/quantization.
+
+Provides quantization functionality using the bitsandbytes library.
+"""
 
 # Standard library imports
 
