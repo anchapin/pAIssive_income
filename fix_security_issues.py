@@ -20,9 +20,7 @@ from typing import Any, Dict, List, Set, Tuple, cast
 
 # Import the existing security tools if possible
 try:
-    from fix_potential_secrets import (
-        scan_directory as scan_directory_for_secrets,
-    )
+    from fix_potential_secrets import scan_directory as scan_directory_for_secrets
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
