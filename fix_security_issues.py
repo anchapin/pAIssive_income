@@ -52,7 +52,8 @@ except ImportError:
 # Check if other critical dependencies are available
 try:
     # json is already imported at the module level
-    import subprocess
+    # subprocess is already imported at the module level
+    pass
 except ImportError as e:
     # Store the error message to be displayed in main() instead of at module level
     IMPORT_ERROR = str(e)
