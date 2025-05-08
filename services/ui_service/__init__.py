@@ -1,5 +1,7 @@
-"""UI Service module for the pAIssive Income project."""
+"""__init__ - Module for services/ui_service.__init__."""
 
-from .ui_app import main
+# Standard library imports
 
-__all__ = ["main"]
+# Third-party imports
+
+# Local imports
