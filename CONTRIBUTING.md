@@ -2,6 +2,11 @@
 
 Thank you for considering a contribution to this project!
 
+> **Note:**  
+> Only files tracked by git (that are **not** in `.gitignore`) will be processed by automated tests, linters, formatters, and CI scripts.  
+> If you want your changes to be tested or linted, make sure your files are **added to git** and not excluded by `.gitignore`.  
+> Ignored or untracked files will be skipped by all automated tooling.
+
 We follow [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) to ensure safe, reliable, and auditable automation. **All contributors must review and follow these guidelines before submitting pull requests.**
 
 ## Checklist for Contributors
