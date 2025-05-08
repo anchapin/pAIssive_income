@@ -1,78 +1,94 @@
-# GitHub Actions Artifact Upload Fix Documentation
+# GitHub Actions Artifact Upload Issue Resolution
 
-## Issue Analysis
+## Issue Description
 
-### Root Cause
-The GitHub Actions workflow was failing due to a "missing download info" error in the `actions/upload-artifact@v3` step. This typically occurs when:
-1. The artifact path doesn't exist
-2. The path specified doesn't contain any files
-3. The workflow attempts to upload artifacts before they're generated
-
-### Implemented Solution
-The fix implemented two key changes in the `.github/workflows/frontend-e2e.yml` file:
-
-1. Added a debug step to verify artifact existence:
-```yaml
-- name: Debug artifact path
-  run: ls -la playwright-report/
+The GitHub Actions workflow was encountering an error during the artifact upload process:
+```
+Missing download info for actions/upload-artifact@v3
 ```
 
-2. Enhanced the upload-artifact configuration:
+This error typically occurs when:
+- The artifact upload action is unable to locate or access the specified directory
+- There are version compatibility issues with the actions/upload-artifact action
+- The target directory for artifacts doesn't exist when the upload is attempted
+
+## Solution Steps
+
+### 1. Version Update
+Updated the actions/upload-artifact version from v3 to v3.1.1 to resolve potential version-specific issues.
+
+### 2. Directory Verification
+Added explicit directory creation step before the artifact upload to ensure the target directory exists:
+
 ```yaml
+- name: Create playwright-report directory
+  if: always()
+  run: mkdir -p playwright-report
+
 - name: Upload Playwright report
   if: always()
-  uses: actions/upload-artifact@v3
+  uses: actions/upload-artifact@v3.1.1
   with:
     name: playwright-report
     path: playwright-report/
-    if-no-files-found: warn
     retention-days: 30
 ```
 
-### Why This Solution Works
-1. The debug step provides visibility into the artifact directory contents, making it easier to diagnose issues
-2. The `if: always()` condition ensures artifacts are uploaded even if tests fail
-3. `if-no-files-found: warn` prevents the workflow from failing when no artifacts exist
-4. Setting `retention-days: 30` ensures artifacts don't consume storage indefinitely
+## Recommended Implementation
 
-## Best Practices for GitHub Actions Artifact Handling
+Complete workflow snippet with all fixes applied:
 
-### 1. Path Specification
-- Use explicit, relative paths
-- Verify paths exist before upload attempts
-- Use debug steps to validate artifact contents when troubleshooting
+```yaml
+name: Frontend E2E Tests
 
-### 2. Error Handling
-- Implement `if: always()` for critical artifact uploads
-- Use `if-no-files-found` parameter appropriately:
-  - `warn` for optional artifacts
-  - `error` for required artifacts
-  - `ignore` for truly optional artifacts
+on:
+  push:
+    paths:
+      - 'ui/react_frontend/**'
+  pull_request:
+    paths:
+      - 'ui/react_frontend/**'
 
-### 3. Performance & Storage
-- Set appropriate retention periods
-- Upload only necessary files
-- Consider using path patterns to exclude unnecessary files
-- Use compression when appropriate for large artifacts
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
 
-### 4. Workflow Design
-- Generate artifacts in a predictable location
-- Clean up artifacts from previous runs when appropriate
-- Use meaningful artifact names that include relevant metadata
+    steps:
+      - uses: actions/checkout@v3
 
-### 5. Security Considerations
-- Don't include sensitive information in artifacts
-- Set appropriate retention periods for sensitive data
-- Use artifact encryption for sensitive data when necessary
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-## Monitoring and Maintenance
-- Regularly review artifact storage usage
-- Monitor workflow logs for artifact-related warnings
-- Periodically review retention policies
-- Update action versions to get latest features and security fixes
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./ui/react_frontend
 
-## Additional Recommendations
-1. Consider implementing artifact size monitoring
-2. Add artifact cleanup jobs for long-running branches
-3. Document artifact retention policies
-4. Implement automated tests to verify artifact creation
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        working-directory: ./ui/react_frontend
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: ./ui/react_frontend
+
+      - name: Create playwright-report directory
+        if: always()
+        run: mkdir -p playwright-report
+        working-directory: ./ui/react_frontend
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: playwright-report
+          path: ui/react_frontend/playwright-report/
+          retention-days: 30
+```
+
+Key implementation points:
+1. Always create the report directory before upload attempt
+2. Use latest patch version (v3.1.1) of upload-artifact action
+3. Ensure proper path mapping between working directory and artifact upload path
+4. Include directory creation and upload steps in `if: always()` block to capture reports even on test failure

@@ -32,6 +32,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -172,9 +175,21 @@ jobs:
           ruff check . --fix
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+
+          # Ensure we are on a branch
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            echo "Checking out branch: ${GITHUB_HEAD_REF}"
+            git checkout "${GITHUB_HEAD_REF}"
+          else
+            echo "Defaulting to branch: main"
+            git checkout -b main || git checkout main
+          fi
+
           git add .
           git commit -m "Fix linting issues using Ruff" || echo "No changes to commit"
-          git push
+
+          # Push changes to the remote branch
+          git push origin HEAD:${GITHUB_HEAD_REF:-main}
 
       - name: Run Ruff (Check Only)
         run: |
