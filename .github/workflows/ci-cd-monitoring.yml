@@ -24,7 +24,7 @@ jobs:
 
           # Safely extract and validate branch name to prevent expression injection
           # Store raw branch name in a variable from environment variable and remove any special characters
-          RAW_BRANCH=$(echo "$HEAD_BRANCH" | tr -d '\n' | tr -cd 'a-zA-Z0-9_\-\/')
+          RAW_BRANCH=$(echo "$HEAD_BRANCH" | tr -d '\n' | tr -cd 'a-zA-Z0-9_\-\/.')
 
           # Additional safety check - if empty after sanitization, use default
           if [ -z "$RAW_BRANCH" ]; then
@@ -144,8 +144,9 @@ jobs:
           CREATED_AT_TIME: ${{ github.event.workflow_run.created_at }}
           UPDATED_AT_TIME: ${{ github.event.workflow_run.updated_at }}
         run: |
-          # Safely extract and validate branch name - strictly sanitize by removing all characters except allowed ones
-          RAW_BRANCH=$(echo "$HEAD_BRANCH" | tr -d '\n' | tr -cd 'a-zA-Z0-9_\-\/')
+          # Safely extract and validate branch name to prevent expression injection
+          # Store raw branch name in a variable from environment variable and remove any special characters
+          RAW_BRANCH=$(echo "$HEAD_BRANCH" | tr -d '\n' | tr -cd 'a-zA-Z0-9_\-\/.')
 
           # Additional safety check - if empty after sanitization, use default
           if [ -z "$RAW_BRANCH" ]; then

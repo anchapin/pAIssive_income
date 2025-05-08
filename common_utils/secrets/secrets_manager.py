@@ -250,7 +250,7 @@ class SecretsManager:
             ]
 
             # Process each environment variable
-            for key, value in os.environ.items():
+            for key, _ in os.environ.items():
                 # Skip environment variables that are clearly not secrets
                 if key.startswith(
                     ("PATH", "PYTHON", "SYSTEM", "OS_", "COMPUTERNAME", "USERNAME")
@@ -264,19 +264,29 @@ class SecretsManager:
 
                 # For sensitive keys, mask both key and value appropriately
                 if is_sensitive:
-                    # For highly sensitive keys, mask even the key name
+                    # For highly sensitive keys, use consistent masking
+                    # that doesn't reveal any part of the key
                     if any(
                         high_risk in key.lower()
-                        for high_risk in ["password", "secret", "token", "key"]
+                        for high_risk in [
+                            "password",
+                            "secret",
+                            "token",
+                            "key",
+                            "credential",
+                        ]
                     ):
-                        masked_key = f"***{key[-4:] if len(key) > 4 else '****'}"
+                        # Don't include any part of the original key
+                        # in the masked version
+                        masked_key = f"***SENSITIVE_KEY_{hash(key) % 10000:04d}***"
                         safe_env_vars[masked_key] = "********"
                     else:
                         # For moderate risk, keep key but mask value
                         safe_env_vars[key] = "********"
                 else:
                     # For regular environment variables, just indicate presence
-                    safe_env_vars[key] = f"<{len(value)} chars>"
+                    # without revealing length
+                    safe_env_vars[key] = "<VALUE_PRESENT>"
 
             # Apply final sanitization to catch any missed sensitive data
             masked_result = mask_sensitive_data(safe_env_vars)
