@@ -17,8 +17,26 @@ Before submitting your PR, please ensure:
 - [ ] Security, permissions, and side effects are explicitly handled.
 - [ ] New behaviors are covered by unit/integration tests.
 - [ ] This file/module/class is documented per the best practices guidelines.
+- [ ] The code has been formatted and linted using **Black** and **Ruff** (see below).
 
 See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
+
+---
+
+## Code Formatting and Linting
+
+Before submitting code, ensure it meets style requirements:
+
+- **Black** and **Ruff** are enforced via pre-commit hooks and CI.
+- Run `pre-commit run --all-files` before pushing to format and lint all code.
+- Manual commands (run from project root):
+
+  ```bash
+  black .
+  ruff check --fix .
+  ```
+
+- See `.pre-commit-config.yaml` for more.
 
 ## Pull Requests
 

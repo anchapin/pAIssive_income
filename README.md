@@ -187,11 +187,30 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 ### Code Formatter Configuration
 
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
-- **MyPy**: Type checking configuration is in `mypy.ini`
-- **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
+- **Ruff**: Used for advanced linting and also for code formatting. Configuration is in `.ruff.toml`.
+- **Black**: Used for code formatting, enforced via pre-commit. Configuration is in `pyproject.toml`.
+- **MyPy**: Type checking configuration is in `mypy.ini`.
+- **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`.
 
 All configuration files are version controlled to ensure consistent formatting across the project.
+
+### Formatting and Linting Standards
+
+- **Run `pre-commit` before every commit** to automatically format code using both Black and Ruff, and check for linting/style issues.
+- **Manually run formatting** on all code with:
+
+  ```bash
+  black .
+  ruff check --fix .
+  ```
+
+  Or use the pre-commit/all-files command:
+
+  ```bash
+  pre-commit run --all-files
+  ```
+
+- **CI/CD**: Code must pass both Black and Ruff checks before merging. See `.pre-commit-config.yaml` and CI workflow.
 
 ## Claude Agentic Coding Best Practices
 
