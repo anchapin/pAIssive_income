@@ -1,6 +1,8 @@
-name: CI - Lint and Test
+name: CI/CD Pipeline
 
 on:
+  push:
+    branches: [ main, dev ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -24,6 +26,11 @@ on:
         required: false
         default: 'tests/'
         type: string
+      skip_docker:
+        description: 'Skip Docker build'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   lint:
@@ -61,51 +68,142 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-lint-
 
-    - name: Check for syntax errors and formatting issues
+    - name: Create syntax check script
       run: |
-        # Define patterns to ignore
-        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|venv|build|dist|\.egg-info|\.mypy_cache|\.ruff_cache"
+        echo "Creating syntax check script..."
+        echo '#!/bin/bash
+        # Simple script to check Python syntax
 
-        # Check if a specific file was specified
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking syntax and formatting for specific file: ${{ github.event.inputs.specific_file }}"
-          python fix_all_issues_final.py --check "${{ github.event.inputs.specific_file }}"
-        else
-          # Find Python files excluding ignored patterns directly
-          echo "Checking for syntax errors and formatting issues in Python files..."
-          PYTHON_FILES=$(find . -name "*.py" -type f -print0 | grep -zvE "$IGNORE_PATTERNS")
+        # Check a specific file
+        check_file() {
+          python -m py_compile "$1" 2>/dev/null
+          if [ $? -ne 0 ]; then
+            echo "Syntax error in $1"
+            return 1
+          fi
+          return 0
+        }
 
-          if [ -n "$PYTHON_FILES" ]; then
-            echo "Checking Python files one by one..."
-            echo -n "$PYTHON_FILES" | while IFS= read -r -d '' file; do
-              if [ -n "$file" ]; then
-                echo "Checking $file"
-                # Use Python's built-in compile to check syntax first
-                python -m py_compile "$file" || {
-                  echo "Syntax error detected in $file with py_compile"
-                  exit 1
-                }
-                # Then use the comprehensive script for more detailed checks
-                python fix_all_issues_final.py --check "$file" || {
-                  echo "Issues found in $file with fix_all_issues_final.py"
-                  echo ":warning:Issues found in $file, but continuing with other checks"
-                  # Don't exit here to allow other checks to run
-                }
-              fi
+        # Find all Python files excluding common directories to ignore
+        find_python_files() {
+          find . -name "*.py" -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/.venv/*" -not -path "*/build/*" -not -path "*/dist/*" -not -path "*/__pycache__/*"
+        }
+
+        # Main function
+        main() {
+          if [ $# -gt 0 ]; then
+            # Check specific files provided as arguments
+            for file in "$@"; do
+              check_file "$file" || exit 1
             done
           else
-            echo "No Python files to check after filtering."
+            # Find and check all Python files
+            files=$(find_python_files)
+            if [ -z "$files" ]; then
+              echo "No Python files found"
+              exit 0
+            fi
+
+            for file in $files; do
+              check_file "$file" || exit 1
+            done
           fi
+
+          echo "All Python files passed syntax check"
+          exit 0
+        }
+
+        # Run the main function with all arguments
+        main "$@"' > syntax_check.sh
+                chmod +x syntax_check.sh
+
+    - name: Create file path validation script
+      run: |
+        echo "Creating file path validation script..."
+        echo '#!/bin/bash
+        # Script to validate file paths to prevent command injection
+        # Usage: validate_file_path.sh <file_path> [<default_path>]
+        # Returns the validated path or the default path if validation fails
+
+        # Function to validate a file path
+        validate_file_path() {
+          local file_path="$1"
+          local default_path="${2:-}"
+
+          # Remove newlines and other control characters
+          local clean_path=$(echo "$file_path" | tr -d '"'"'\n'"'"' | sed '"'"'s/[^a-zA-Z0-9_\.\/-]//g'"'"')
+
+          # Validate path - only allow alphanumeric characters, underscores, dots, dashes, and slashes
+          if [[ "$clean_path" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+            # Path is valid, check if it exists (if not empty)
+            if [ -n "$clean_path" ] && [ ! -e "$clean_path" ]; then
+              echo "Warning: Path '"'"'$clean_path'"'"' does not exist." >&2
+              # Still return the path if it'"'"'s syntactically valid
+              echo "$clean_path"
+            else
+              # Path exists or is empty, return it
+              echo "$clean_path"
+            fi
+          else
+            # Invalid path, use default
+            echo "Warning: Invalid path provided. Using default path instead." >&2
+            echo "$default_path"
+          fi
+        }
+
+        # Main script execution
+        if [ $# -lt 1 ]; then
+          echo "Usage: $0 <file_path> [<default_path>]" >&2
+          exit 1
+        fi
+
+        validate_file_path "$1" "${2:-}"' > validate_file_path.sh
+        chmod +x validate_file_path.sh
+
+    - name: Check for syntax errors
+      run: |
+        # Run the syntax check script
+        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            # Check if the file is a Python file before syntax checking
+            if [[ "$FILE_PATH" == *.py ]]; then
+              echo "Checking syntax for specific Python file: $FILE_PATH"
+              ./syntax_check.sh "$FILE_PATH"
+            else
+              echo "Skipping syntax check for non-Python file: $FILE_PATH"
+            fi
+          else
+            echo "Invalid file path provided. Checking all Python files instead."
+            ./syntax_check.sh
+          fi
+        else
+          echo "Checking syntax for all Python files..."
+          ./syntax_check.sh
         fi
 
     - name: Lint with Ruff
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Linting specific file with Ruff: ${{ github.event.inputs.specific_file }}"
-          ruff check "${{ github.event.inputs.specific_file }}"
-          ruff format --check "${{ github.event.inputs.specific_file }}"
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            # Check if the file is a Python file before linting
+            if [[ "$FILE_PATH" == *.py ]]; then
+              echo "Linting specific Python file with Ruff: $FILE_PATH"
+              ruff check "$FILE_PATH"
+              ruff format --check "$FILE_PATH"
+            else
+              echo "Skipping Ruff linting for non-Python file: $FILE_PATH"
+            fi
+          else
+            echo "Invalid file path provided. Linting all Python files instead."
+            ruff check .
+            ruff format --check .
+          fi
         else
-          echo "Linting all files with Ruff"
+          echo "Linting all Python files with Ruff"
           ruff check .
           ruff format --check .
         fi
@@ -115,11 +213,24 @@ jobs:
       run: |
         echo "Attempting to fix formatting and syntax issues..."
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Fixing specific file with Ruff: ${{ github.event.inputs.specific_file }}"
-          ruff check --fix "${{ github.event.inputs.specific_file }}"
-          ruff format "${{ github.event.inputs.specific_file }}"
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            # Check if the file is a Python file before fixing
+            if [[ "$FILE_PATH" == *.py ]]; then
+              echo "Fixing specific Python file with Ruff: $FILE_PATH"
+              ruff check --fix "$FILE_PATH"
+              ruff format "$FILE_PATH"
+            else
+              echo "Skipping Ruff formatting for non-Python file: $FILE_PATH"
+            fi
+          else
+            echo "Invalid file path provided. Fixing all Python files instead."
+            ruff check --fix .
+            ruff format .
+          fi
         else
-          echo "Fixing all files with Ruff"
+          echo "Fixing all Python files with Ruff"
           ruff check --fix .
           ruff format .
         fi
@@ -127,11 +238,24 @@ jobs:
     - name: Type check with mypy and pyright
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Type checking specific file: ${{ github.event.inputs.specific_file }}"
-          mypy "${{ github.event.inputs.specific_file }}" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
-          pyright "${{ github.event.inputs.specific_file }}"
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            # Check if the file is a Python file before type checking
+            if [[ "$FILE_PATH" == *.py ]]; then
+              echo "Type checking specific Python file: $FILE_PATH"
+              mypy "$FILE_PATH" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+              pyright "$FILE_PATH"
+            else
+              echo "Skipping type checking for non-Python file: $FILE_PATH"
+            fi
+          else
+            echo "Invalid file path provided. Type checking all Python files instead."
+            mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+            pyright .
+          fi
         else
-          echo "Type checking all files"
+          echo "Type checking all Python files"
           mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
           pyright .
         fi
@@ -139,10 +263,22 @@ jobs:
     - name: Check for unused imports
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Checking unused imports in specific file: ${{ github.event.inputs.specific_file }}"
-          ruff check "${{ github.event.inputs.specific_file }}" --select F401
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            # Check if the file is a Python file before checking imports
+            if [[ "$FILE_PATH" == *.py ]]; then
+              echo "Checking unused imports in specific Python file: $FILE_PATH"
+              ruff check "$FILE_PATH" --select F401
+            else
+              echo "Skipping unused imports check for non-Python file: $FILE_PATH"
+            fi
+          else
+            echo "Invalid file path provided. Checking all Python files instead."
+            ruff check . --select F401
+          fi
         else
-          echo "Checking unused imports in all files"
+          echo "Checking unused imports in all Python files"
           ruff check . --select F401
         fi
 
@@ -175,16 +311,24 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-test-
 
-    - name: Install dependencies
+    - name: Cleanup conflicting files
       run: |
         # More aggressive cleanup of egg-info directories
         find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         find . -type d -name "*.dist-info" -exec rm -rf {} + || true
         find . -name "*.egg" -exec rm -f {} + || true
 
-        # Clear pip cache if needed
+        # Clear pip cache to avoid potential conflicts
         pip cache purge || true
 
+    - name: Verify directories before installation
+      run: |
+        echo "Verifying directories:"
+        find . -type d -name "*.egg-info"
+        find . -type d -name "*.dist-info"
+
+    - name: Install dependencies
+      run: |
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
 
@@ -207,23 +351,53 @@ jobs:
         PYTHONPATH: ${{ github.workspace }}
       run: |
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
-          pytest "${{ github.event.inputs.specific_file }}" \
-            -v \
-            --import-mode=importlib \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --junitxml=junit/test-results.xml
+          # Validate file path using the validation script
+          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+          if [ -n "$FILE_PATH" ]; then
+            echo "Testing specific file: $FILE_PATH"
+            pytest "$FILE_PATH" \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --junitxml=junit/test-results.xml
+          else
+            echo "Invalid file path provided. Running all tests instead."
+            pytest tests \
+              -n auto \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --cov-fail-under=5 \
+              --junitxml=junit/test-results.xml
+          fi
         elif [ -n "${{ github.event.inputs.test_path }}" ]; then
-          echo "Testing path: ${{ github.event.inputs.test_path }}"
-          pytest "${{ github.event.inputs.test_path }}" \
-            -n auto \
-            --import-mode=importlib \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --junitxml=junit/test-results.xml
+          # Validate test path using the validation script
+          TEST_PATH=$(./validate_file_path.sh "${{ github.event.inputs.test_path }}" "tests/")
+          if [ -n "$TEST_PATH" ]; then
+            echo "Testing path: $TEST_PATH"
+            pytest "$TEST_PATH" \
+              -n auto \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --junitxml=junit/test-results.xml
+          else
+            echo "Invalid test path provided. Running all tests instead."
+            pytest tests \
+              -n auto \
+              -v \
+              --import-mode=importlib \
+              --cov=. \
+              --cov-report=xml \
+              --cov-report=term-missing \
+              --cov-fail-under=5 \
+              --junitxml=junit/test-results.xml
+          fi
         else
           echo "Running all tests"
           pytest tests \
@@ -249,3 +423,44 @@ jobs:
       with:
         name: coverage-report
         path: coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    # Build Docker image if:
+    # 1. This is a push to main or dev branch, OR
+    # 2. This is a manual workflow run and skip_docker is not set to true
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) || (github.event_name == 'workflow_dispatch' && !inputs.skip_docker)
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: paissiveincome/app:test
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+    # Temp fix for https://github.com/docker/build-push-action/issues/252
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
