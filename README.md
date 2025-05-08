@@ -50,3 +50,41 @@
 - For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
 - Review and merge Dependabot PRs and address security alerts promptly.
 
+## Dependency Upgrade & Removal Workflow
+
+### Python
+
+**To upgrade or remove a dependency:**
+
+1. Edit `requirements.txt` and/or `requirements-dev.txt` to add, upgrade, or remove the relevant package.
+2. (Recommended) Create and activate a fresh virtual environment.
+   ```sh
+   python -m venv .venv
+   source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+   ```
+3. Reinstall all dependencies with:
+   ```sh
+   pip install -r requirements.txt -r requirements-dev.txt
+   ```
+4. Regenerate the lockfile:
+   ```sh
+   pip freeze > requirements.lock
+   ```
+5. Run tests to ensure the environment works as expected.
+6. Commit the changes to `requirements.txt`, `requirements-dev.txt`, and `requirements.lock`.
+
+### Node.js
+
+**To upgrade or remove a dependency:**
+
+1. Use npm/yarn for dependency changes:
+   - To upgrade: `npm install <package>@latest`
+   - To remove: `npm uninstall <package>`
+2. This updates both `package.json` and `package-lock.json` automatically.
+3. Run tests to ensure everything works.
+4. Commit both `package.json` and `package-lock.json`.
+
+**Tips:**
+- After any dependency change, always check for (and address) new security issues flagged by CI.
+- If in doubt, let Dependabot handle version bumps and review/merge its PRs.
+
