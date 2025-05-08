@@ -213,30 +213,6 @@ jobs:
           echo "No package.json found. Skipping npm audit."
         fi
 
-    - name: Run npm audit for Node.js dependencies
-      id: npm-audit
-      continue-on-error: true
-      run: |
-        if [ -f package.json ]; then
-          echo "Running npm audit..."
-          npm install --package-lock-only
-          npm audit --audit-level=high --json > security-reports/npm-audit-results.json 2>&1 || {
-            echo "npm audit completed with warnings or errors"
-            if [ ! -f security-reports/npm-audit-results.json ] || [ ! -s security-reports/npm-audit-results.json ]; then
-              echo "[]" > security-reports/npm-audit-results.json
-            fi
-          }
-          if [ -f security-reports/npm-audit-results.json ]; then
-            echo "npm audit report saved to security-reports/npm-audit-results.json"
-            echo "File size: $(wc -c < security-reports/npm-audit-results.json) bytes"
-          else
-            echo "Warning: npm-audit-results.json was not created. Creating empty file."
-            echo "[]" > security-reports/npm-audit-results.json
-          fi
-        else
-          echo "No package.json file found, skipping npm audit."
-        fi
-
     - name: Run Bandit security scan
       id: bandit
       run: |
