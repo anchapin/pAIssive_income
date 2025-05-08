@@ -50,3 +50,52 @@
 - For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
 - Review and merge Dependabot PRs and address security alerts promptly.
 
+## Dependency Upgrade & Removal Workflow
+
+### Python
+
+1. **To upgrade a dependency:**
+   - Edit `requirements.txt` and/or `requirements-dev.txt` to change the version specifier.
+   - Run:
+     ```sh
+     pip install -r requirements.txt -r requirements-dev.txt
+     pip freeze > requirements.lock
+     ```
+   - Commit the updated requirements files and the new `requirements.lock`.
+   - Run tests and CI to confirm compatibility.
+
+2. **To remove a dependency:**
+   - Remove the package from `requirements.txt` and/or `requirements-dev.txt`.
+   - Uninstall it from your environment:
+     ```sh
+     pip uninstall <package-name>
+     ```
+   - Regenerate `requirements.lock` as above.
+   - Search the codebase for any usage and remove or refactor as needed.
+   - Run all tests and CI workflows to confirm removal is safe.
+
+### Node.js
+
+1. **To upgrade a dependency:**
+   - Run:
+     ```sh
+     npm install <package-name>@latest
+     ```
+     or specify a version as needed.
+   - Commit the updated `package.json` and `package-lock.json`.
+   - Run tests and CI to confirm compatibility.
+
+2. **To remove a dependency:**
+   - Run:
+     ```sh
+     npm uninstall <package-name>
+     ```
+   - Commit the updated `package.json` and `package-lock.json`.
+   - Remove all usage in the codebase.
+   - Run all tests and CI workflows.
+
+**Tips:**
+- After removal, search for any lingering imports/usages.
+- Always update lockfiles after changes.
+- Review CI results for issues after any dependency changes.
+
