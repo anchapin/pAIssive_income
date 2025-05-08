@@ -97,7 +97,7 @@ See [Getting Started Guide](docs/getting-started.md) for full setup and onboardi
 
 ## Feedback and Documentation Updates
 
-We welcome feedback and suggestions for improving documentation!  
+We welcome feedback and suggestions for improving documentation!
 - **For general suggestions or corrections:** Open a GitHub issue with the "documentation" label.
 - **For urgent changes or errors:** Contact the project maintainer via [email](mailto:a.n.chapin@gmail.com).
 
@@ -141,11 +141,21 @@ pre-commit install
 ```
 
 To run all pre-commit hooks manually on all files:
+
 ```bash
+# Using the provided scripts (recommended)
+# On Windows
+run_pre_commit.bat
+
+# On Unix/Linux
+./run_pre_commit.sh
+
+# Or manually
 pre-commit run --all-files
 ```
 
 To run specific hooks:
+
 ```bash
 pre-commit run trailing-whitespace --all-files
 pre-commit run ruff --all-files
@@ -156,17 +166,20 @@ pre-commit run ruff --all-files
 Use these commands to check and fix linting issues:
 
 1. Check for issues without fixing:
+
 ```bash
 scripts\lint_check.bat  # Windows
 ./scripts/lint_check.sh  # Unix/Linux
 ```
 
-2. Fix issues automatically:
+1. Fix issues automatically:
+
 ```bash
 python fix_all_issues_final.py
 ```
 
-3. Run specific checks:
+1. Run specific checks:
+
 ```bash
 scripts\lint_check.bat --ruff  # Run only Ruff
 scripts\lint_check.bat --mypy  # Run only MyPy
@@ -273,6 +286,14 @@ If you encounter issues with the CI workflow, try the following steps:
 5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
 
    ```bash
+   # Using the provided script (recommended)
+   # On Windows
+   setup_pre_commit.bat
+
+   # On Unix/Linux
+   ./setup_pre_commit.sh
+
+   # Or manually
    pre-commit uninstall
    pre-commit install
    ```

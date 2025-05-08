@@ -34,5 +34,5 @@ This framework provides a structured approach to creating specialized AI-powered
 
 ---
 
-**Feedback:**  
+**Feedback:**
 If you spot an error or want to suggest an improvement to this documentation, please open a GitHub issue or see the [documentation guide](documentation-guide.md) for more on update and feedback processes.

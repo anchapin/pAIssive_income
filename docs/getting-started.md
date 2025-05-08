@@ -45,19 +45,19 @@ pip install git+https://github.com/anchapin/pAIssive_income.git
 
 ## Development Tools
 
-- **Lint and format code:**  
+- **Lint and format code:**
   ```bash
   python run_linting.py
   ```
-- **Run tests:**  
+- **Run tests:**
   ```bash
   python run_tests.py
   ```
-- **Fix syntax/formatting issues:**  
+- **Fix syntax/formatting issues:**
   ```bash
   python fix_all_issues_final.py
   ```
-- **Run local CI workflow:**  
+- **Run local CI workflow:**
   ```bash
   python run_github_actions_locally.py --list
   ```
@@ -95,7 +95,7 @@ Now that you have the framework installed and running, you can:
 
 ---
 
-**Feedback:**  
+**Feedback:**
 To request changes or suggest improvements to this guide, [open a documentation issue](https://github.com/anchapin/pAIssive_income/issues/new?labels=documentation) or see [documentation-guide.md](documentation-guide.md).
 
 Now that you have the framework installed and running, you can:

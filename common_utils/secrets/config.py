@@ -1,0 +1,192 @@
+"""config - Module for common_utils/secrets.config.
+
+This module provides a configuration manager that can handle secret references.
+"""
+
+# Standard library imports
+import json
+import os
+from typing import Any, Dict, Optional
+
+# Third-party imports
+# Local imports
+from common_utils.logging import get_logger
+
+from .secrets_manager import SecretsBackend, get_secret, set_secret
+
+# Initialize logger
+logger = get_logger(__name__)
+
+
+class SecretConfig:
+    """Configuration manager that can handle secret references."""
+
+    def __init__(
+        self,
+        config_file: Optional[str] = None,
+        secrets_backend: SecretsBackend = SecretsBackend.ENV,
+    ):
+        """Initialize the configuration manager.
+
+        Args:
+        ----
+            config_file: Path to the configuration file
+            secrets_backend: Backend to use for secrets
+
+        """
+        self.config_file = config_file or os.environ.get(
+            "PAISSIVE_CONFIG_FILE", "config.json"
+        )
+        self.secrets_backend = secrets_backend
+        self.config: Dict[str, Any] = {}
+        self._load_config()
+        logger.info(f"Configuration manager initialized with file: {self.config_file}")
+
+    def _load_config(self) -> None:
+        """Load the configuration from the file."""
+        if self.config_file is None:
+            logger.warning("No configuration file specified")
+            return
+
+        if not os.path.exists(self.config_file):
+            logger.warning(f"Configuration file {self.config_file} not found")
+            return
+
+        try:
+            with open(self.config_file, encoding="utf-8") as f:
+                self.config = json.load(f)
+            logger.debug(f"Loaded configuration from {self.config_file}")
+        except Exception as e:
+            logger.error(f"Error loading configuration: {e}")
+
+    def _save_config(self) -> None:
+        """Save the configuration to the file."""
+        if self.config_file is None:
+            logger.warning("No configuration file specified")
+            return
+
+        try:
+            with open(self.config_file, "w", encoding="utf-8") as f:
+                json.dump(self.config, f, indent=2)
+            logger.debug(f"Saved configuration to {self.config_file}")
+        except Exception as e:
+            logger.error(f"Error saving configuration: {e}")
+
+    def get(self, key: str, default: Any = None, use_secret: bool = False) -> Any:
+        """Get a configuration value.
+
+        Args:
+        ----
+            key: The key to get
+            default: The default value to return if the key is not found
+            use_secret: Whether to treat the value as a secret
+
+        Returns:
+        -------
+            Any: The configuration value
+
+        """
+        # First try to get from environment variables
+        env_key = key.replace(".", "_").upper()
+        env_value = os.environ.get(env_key)
+        if env_value is not None:
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Got configuration value from environment")
+            return env_value
+
+        # Then try to get from the configuration file
+        parts = key.split(".")
+        value = self.config
+        for part in parts:
+            if not isinstance(value, dict) or part not in value:
+                # Don't log the actual key name as it might reveal sensitive information
+                logger.debug("Configuration key not found, using default")
+                return default
+            value = value[part]
+
+        # If it's a secret reference, get the actual secret
+        if use_secret and isinstance(value, str) and value.startswith("secret:"):
+            secret_key = value[7:]  # Remove "secret:" prefix
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Getting secret from configuration")
+            return get_secret(secret_key, self.secrets_backend)
+
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Got configuration value from config file")
+        return value
+
+    def set(self, key: str, value: Any, use_secret: bool = False) -> None:
+        """Set a configuration value.
+
+        Args:
+        ----
+            key: The key to set
+            value: The value to set
+            use_secret: Whether to treat the value as a secret
+
+        """
+        if use_secret:
+            # Store the value as a secret and save a reference
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Setting secret in configuration")
+            set_secret(key, str(value), self.secrets_backend)
+            value = f"secret:{key}"
+
+        # Set in the configuration file
+        parts = key.split(".")
+        config = self.config
+        for part in parts[:-1]:
+            if part not in config or not isinstance(config[part], dict):
+                config[part] = {}
+            config = config[part]
+        config[parts[-1]] = value
+
+        # Save the configuration
+        self._save_config()
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Set configuration value")
+
+    def delete(self, key: str, use_secret: bool = False) -> bool:
+        """Delete a configuration value.
+
+        Args:
+        ----
+            key: The key to delete
+            use_secret: Whether to treat the value as a secret
+
+        Returns:
+        -------
+            bool: True if the key was deleted, False otherwise
+
+        """
+        # Delete from the configuration file
+        parts = key.split(".")
+        config = self.config
+        for part in parts[:-1]:
+            if part not in config or not isinstance(config[part], dict):
+                # Don't log the actual key name as it might reveal sensitive information
+                logger.debug("Configuration key not found")
+                return False
+            config = config[part]
+
+        if parts[-1] not in config:
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Configuration key not found")
+            return False
+
+        # If it's a secret reference, delete the actual secret
+        value = config[parts[-1]]
+        if use_secret and isinstance(value, str) and value.startswith("secret:"):
+            secret_key = value[7:]  # Remove "secret:" prefix
+            # Don't log the actual key name as it might reveal sensitive information
+            logger.debug("Deleting secret from configuration")
+            from .secrets_manager import delete_secret
+
+            delete_secret(secret_key, self.secrets_backend)
+
+        # Delete from the configuration
+        del config[parts[-1]]
+        self._save_config()
+        # Don't log the actual key name as it might reveal sensitive information
+        logger.debug("Deleted configuration value")
+        return True

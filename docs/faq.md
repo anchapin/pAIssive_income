@@ -4,7 +4,7 @@
 
 ---
 
-**Help us improve this FAQ!**  
+**Help us improve this FAQ!**
 If you have suggestions or corrections, please open an issue with the "documentation" label or see [documentation-guide.md](documentation-guide.md).
         return result
 ```
