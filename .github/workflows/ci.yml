@@ -45,20 +45,39 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install ruff
+          python -m pip install --upgrade pip setuptools wheel
+          # Install ruff explicitly first to ensure it's available
+          pip install --upgrade ruff black flake8 mypy isort
           python -m ruff --version  # Verify installation
+
+          # Check for requirements files in order of priority
           if [ -f requirements.txt ]; then
+            echo "Found requirements.txt in root directory"
             pip install -r requirements.txt
-          elif [ -f ai_models/requirements.txt ]; then
+          fi
+          if [ -f requirements-dev.txt ]; then
+            echo "Found requirements-dev.txt in root directory"
+            pip install -r requirements-dev.txt
+          fi
+          if [ -f ai_models/requirements.txt ]; then
+            echo "Found requirements.txt in ai_models directory"
             pip install -r ai_models/requirements.txt
-          elif [ -f api/requirements.txt ]; then
+          fi
+          if [ -f api/requirements.txt ]; then
+            echo "Found requirements.txt in api directory"
             pip install -r api/requirements.txt
-          elif [ -f pyproject.toml ]; then
+          fi
+          if [ -f pyproject.toml ]; then
+            echo "Found pyproject.toml, installing with poetry"
             pip install poetry
             poetry install
-          else
-            echo "No requirements file found. Skipping dependency installation."
+          fi
+
+          # Fallback if no requirements files were found
+          if [ ! -f requirements.txt ] && [ ! -f requirements-dev.txt ] &&
+             [ ! -f ai_models/requirements.txt ] && [ ! -f api/requirements.txt ] &&
+             [ ! -f pyproject.toml ]; then
+            echo "Warning: No requirements files found. Only using explicitly installed packages."
           fi
       - name: Run Ruff
         run: |
