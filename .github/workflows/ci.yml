@@ -34,6 +34,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+  upload-artifact:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ github.run_id }}
+        path: junit/test-results.xml
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -57,7 +66,7 @@ jobs:
           .mypy_cache
           .ruff_cache
           .pytest_cache
-        key: ${{ runner.os }}-pip-lint-${{ hashFiles('**/requirements*.txt') }}
+        key: ${{ runner.os }}-pip-cache-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-lint-
 
