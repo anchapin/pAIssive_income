@@ -1,4 +1,8 @@
-"""Common validation utilities for input validation and error handling."""
+"""Common validation utilities for input validation and error handling.
+
+All usage must comply with the project's standards:
+See: docs/input_validation_and_error_handling_standards.md
+"""
 
 from typing import Type, TypeVar, Any, Dict
 from pydantic import BaseModel, ValidationError as PydanticValidationError

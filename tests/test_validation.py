@@ -1,4 +1,8 @@
-"""Tests for common_utils.validation input validation utility."""
+"""Tests for common_utils.validation input validation utility.
+
+All tests and validation logic must comply with:
+docs/input_validation_and_error_handling_standards.md
+"""
 
 import pytest
 from pydantic import BaseModel, Field
