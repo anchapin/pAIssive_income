@@ -1,14 +1,10 @@
-"""test_webhook_middleware_integration.py - Module for the pAIssive Income project."""
+"""test_webhook_middleware_integration - Module for tests/integration.
 
-# This file was automatically fixed by the syntax error correction script
-# The original content had syntax errors that could not be automatically fixed
-# Please review and update this file as needed
+Tests for webhook middleware integration functionality.
+"""
 
+# Standard library imports
 
-def main():
-    """Initialize the module."""
-    pass
+# Third-party imports
 
-
-if __name__ == "__main__":
-    main()
+# Local imports
