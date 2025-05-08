@@ -223,8 +223,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: false
-          tags: paissiveincome/app:test
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          tags: ${{ startsWith(github.ref, 'refs/tags/v') && format('{0}/{1}:{2}', secrets.DOCKERHUB_USERNAME, 'paissiveincome-app', github.ref_name) || 'paissiveincome/app:test' }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -233,17 +233,29 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      # === DEPLOYMENT STUB ===
-      # Replace the following with your real deployment step (e.g., Docker push, Helm, cloud deploy, etc.)
-      # Use OIDC or GitHub-provided secrets for authentication.
-      - name: Deploy Application (Stub)
-        run: |
-          echo "Add deployment logic here (e.g. Docker push, Helm, cloud provider CLI, etc.)"
-          echo "Use OIDC or repository secrets for authentication."
-        env:
-          # Example: ${{ secrets.DEPLOY_TOKEN }}
-          # Example: ${{ secrets.DOCKERHUB_USERNAME }}
-          # Example: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image to Docker Hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ format('{0}/{1}:{2}', secrets.DOCKERHUB_USERNAME, 'paissiveincome-app', github.ref_name) }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # === Docker Hub Deployment Details ===
+      # - Deployment occurs ONLY for tags matching v*.*.*
+      # - Requires GitHub secrets:
+      #     DOCKERHUB_USERNAME: your Docker Hub username
+      #     DOCKERHUB_TOKEN: a Docker Hub access token (from Docker Hub > Account Settings > Security)
+      # - Set these in GitHub: Settings > Secrets and variables > Actions > New repository secret
 
 # === BRANCH PROTECTION & SECRETS BEST PRACTICES ===
 # - Set up branch protection for main/dev/master (require status checks, require PR reviews, restrict who can push, etc.).
