@@ -70,255 +70,255 @@ jobs:
   upload-artifact:
     runs-on: ubuntu-latest
     steps:
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results-${{ github.run_id }}
-        path: junit/test-results.xml
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ github.run_id }}-${{ github.job }}
+          path: junit/test-results.xml
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
 
-    - name: Install dependencies
-      run: |
-        # Clean up any existing .egg-info directories to prevent conflicts
-        find . -type d -name "*.egg-info" -exec rm -rf {} + || true
-        python -m pip install --upgrade pip
-        python -m pip install ruff mypy pyright
-        python -m pip install -r requirements-dev.txt
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install dependencies
+        run: |
+          # Clean up any existing .egg-info directories to prevent conflicts
+          find . -type d -name "*.egg-info" -exec rm -rf {} + || true
+          python -m pip install --upgrade pip
+          python -m pip install ruff mypy pyright
+          python -m pip install -r requirements-dev.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Cache Python packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/pip
-          .mypy_cache
-          .ruff_cache
-          .pytest_cache
-        key: ${{ runner.os }}-pip-cache-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-lint-
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .mypy_cache
+            .ruff_cache
+            .pytest_cache
+          key: ${{ runner.os }}-pip-cache-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-lint-
 
-    - name: Create syntax check script
-      run: |
-        echo "Creating syntax check script..."
-        echo '#!/bin/bash
-        # Simple script to check Python syntax
+      - name: Create syntax check script
+        run: |
+          echo "Creating syntax check script..."
+          echo '#!/bin/bash
+          # Simple script to check Python syntax
 
-        # Check a specific file
-        check_file() {
-          python -m py_compile "$1" 2>/dev/null
-          if [ $? -ne 0 ]; then
-            echo "Syntax error in $1"
-            return 1
-          fi
-          return 0
-        }
-
-        # Find all Python files excluding common directories to ignore
-        find_python_files() {
-          find . -name "*.py" -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/.venv/*" -not -path "*/build/*" -not -path "*/dist/*" -not -path "*/__pycache__/*"
-        }
-
-        # Main function
-        main() {
-          if [ $# -gt 0 ]; then
-            # Check specific files provided as arguments
-            for file in "$@"; do
-              check_file "$file" || exit 1
-            done
-          else
-            # Find and check all Python files
-            files=$(find_python_files)
-            if [ -z "$files" ]; then
-              echo "No Python files found"
-              exit 0
+          # Check a specific file
+          check_file() {
+            python -m py_compile "$1" 2>/dev/null
+            if [ $? -ne 0 ]; then
+              echo "Syntax error in $1"
+              return 1
             fi
+            return 0
+          }
 
-            for file in $files; do
-              check_file "$file" || exit 1
-            done
-          fi
+          # Find all Python files excluding common directories to ignore
+          find_python_files() {
+            find . -name "*.py" -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/.venv/*" -not -path "*/build/*" -not -path "*/dist/*" -not -path "*/__pycache__/*"
+          }
 
-          echo "All Python files passed syntax check"
-          exit 0
-        }
-
-        # Run the main function with all arguments
-        main "$@"' > syntax_check.sh
-        chmod +x syntax_check.sh
-
-    - name: Create file path validation script
-      run: |
-        echo "Creating file path validation script..."
-        echo '#!/bin/bash
-        # Script to validate file paths to prevent command injection
-        # Usage: validate_file_path.sh <file_path> [<default_path>]
-        # Returns the validated path or the default path if validation fails
-
-        # Function to validate a file path
-        validate_file_path() {
-          local file_path="$1"
-          local default_path="${2:-}"
-
-          # Remove newlines and other control characters
-          local clean_path=$(echo "$file_path" | tr -d '"'"'\n'"'"' | sed '"'"'s/[^a-zA-Z0-9_\.\/-]//g'"'"')
-
-          # Validate path - only allow alphanumeric characters, underscores, dots, dashes, and slashes
-          if [[ "$clean_path" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
-            # Path is valid, check if it exists (if not empty)
-            if [ -n "$clean_path" ] && [ ! -e "$clean_path" ]; then
-              echo "Warning: Path '"'"'$clean_path'"'"' does not exist." >&2
-              # Still return the path if it'"'"'s syntactically valid
-              echo "$clean_path"
+          # Main function
+          main() {
+            if [ $# -gt 0 ]; then
+              # Check specific files provided as arguments
+              for file in "$@"; do
+                check_file "$file" || exit 1
+              done
             else
-              # Path exists or is empty, return it
-              echo "$clean_path"
+              # Find and check all Python files
+              files=$(find_python_files)
+              if [ -z "$files" ]; then
+                echo "No Python files found"
+                exit 0
+              fi
+
+              for file in $files; do
+                check_file "$file" || exit 1
+              done
             fi
-          else
-            # Invalid path, use default
-            echo "Warning: Invalid path provided. Using default path instead." >&2
-            echo "$default_path"
-          fi
-        }
 
-        # Main script execution
-        if [ $# -lt 1 ]; then
-          echo "Usage: $0 <file_path> [<default_path>]" >&2
-          exit 1
-        fi
+            echo "All Python files passed syntax check"
+            exit 0
+          }
 
-        validate_file_path "$1" "${2:-}"' > validate_file_path.sh
-        chmod +x validate_file_path.sh
+          # Run the main function with all arguments
+          main "$@"' > syntax_check.sh
+          chmod +x syntax_check.sh
 
-    - name: Check for syntax errors
-      run: |
-        # Run the syntax check script
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          # Validate file path using the validation script
-          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
-          if [ -n "$FILE_PATH" ]; then
-            # Check if the file is a Python file before syntax checking
-            if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Checking syntax for specific Python file: $FILE_PATH"
-              ./syntax_check.sh "$FILE_PATH"
+      - name: Create file path validation script
+        run: |
+          echo "Creating file path validation script..."
+          echo '#!/bin/bash
+          # Script to validate file paths to prevent command injection
+          # Usage: validate_file_path.sh <file_path> [<default_path>]
+          # Returns the validated path or the default path if validation fails
+
+          # Function to validate a file path
+          validate_file_path() {
+            local file_path="$1"
+            local default_path="${2:-}"
+
+            # Remove newlines and other control characters
+            local clean_path=$(echo "$file_path" | tr -d '"'"'\n'"'"' | sed '"'"'s/[^a-zA-Z0-9_\.\/-]//g'"'"')
+
+            # Validate path - only allow alphanumeric characters, underscores, dots, dashes, and slashes
+            if [[ "$clean_path" =~ ^[a-zA-Z0-9_\.\/-]+$ ]]; then
+              # Path is valid, check if it exists (if not empty)
+              if [ -n "$clean_path" ] && [ ! -e "$clean_path" ]; then
+                echo "Warning: Path '"'"'$clean_path'"'"' does not exist." >&2
+                # Still return the path if it'"'"'s syntactically valid
+                echo "$clean_path"
+              else
+                # Path exists or is empty, return it
+                echo "$clean_path"
+              fi
             else
-              echo "Skipping syntax check for non-Python file: $FILE_PATH"
+              # Invalid path, use default
+              echo "Warning: Invalid path provided. Using default path instead." >&2
+              echo "$default_path"
+            fi
+          }
+
+          # Main script execution
+          if [ $# -lt 1 ]; then
+            echo "Usage: $0 <file_path> [<default_path>]" >&2
+            exit 1
+          fi
+
+          validate_file_path "$1" "${2:-}"' > validate_file_path.sh
+          chmod +x validate_file_path.sh
+
+      - name: Check for syntax errors
+        run: |
+          # Run the syntax check script
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            # Validate file path using the validation script
+            FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+            if [ -n "$FILE_PATH" ]; then
+              # Check if the file is a Python file before syntax checking
+              if [[ "$FILE_PATH" == *.py ]]; then
+                echo "Checking syntax for specific Python file: $FILE_PATH"
+                ./syntax_check.sh "$FILE_PATH"
+              else
+                echo "Skipping syntax check for non-Python file: $FILE_PATH"
+              fi
+            else
+              echo "Invalid file path provided. Checking all Python files instead."
+              ./syntax_check.sh
             fi
           else
-            echo "Invalid file path provided. Checking all Python files instead."
+            echo "Checking syntax for all Python files..."
             ./syntax_check.sh
           fi
-        else
-          echo "Checking syntax for all Python files..."
-          ./syntax_check.sh
-        fi
 
-    - name: Lint with Ruff
-      run: |
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          # Validate file path using the validation script
-          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
-          if [ -n "$FILE_PATH" ]; then
-            # Check if the file is a Python file before linting
-            if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Linting specific Python file with Ruff: $FILE_PATH"
-              ruff check "$FILE_PATH"
-              ruff format --check "$FILE_PATH"
+      - name: Lint with Ruff
+        run: |
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            # Validate file path using the validation script
+            FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+            if [ -n "$FILE_PATH" ]; then
+              # Check if the file is a Python file before linting
+              if [[ "$FILE_PATH" == *.py ]]; then
+                echo "Linting specific Python file with Ruff: $FILE_PATH"
+                ruff check "$FILE_PATH"
+                ruff format --check "$FILE_PATH"
+              else
+                echo "Skipping Ruff linting for non-Python file: $FILE_PATH"
+              fi
             else
-              echo "Skipping Ruff linting for non-Python file: $FILE_PATH"
+              echo "Invalid file path provided. Linting all Python files instead."
+              ruff check .
+              ruff format --check .
             fi
           else
-            echo "Invalid file path provided. Linting all Python files instead."
+            echo "Linting all Python files with Ruff"
             ruff check .
             ruff format --check .
           fi
-        else
-          echo "Linting all Python files with Ruff"
-          ruff check .
-          ruff format --check .
-        fi
 
-    # Remove auto-fixing in CI; only check and fail on error.
-    - name: Fix formatting issues (if any)
-      if: always()
-      run: |
-        echo "Checking that all files are formatted correctly (no auto-fix in CI)..."
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          # Validate file path using the validation script
-          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
-          if [ -n "$FILE_PATH" ]; then
-            # Check if the file is a Python file before fixing
-            if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Checking specific Python file with Ruff: $FILE_PATH"
-              ruff check "$FILE_PATH"
-              ruff format --check "$FILE_PATH"
+      # Remove auto-fixing in CI; only check and fail on error.
+      - name: Fix formatting issues (if any)
+        if: always()
+        run: |
+          echo "Checking that all files are formatted correctly (no auto-fix in CI)..."
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            # Validate file path using the validation script
+            FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+            if [ -n "$FILE_PATH" ]; then
+              # Check if the file is a Python file before fixing
+              if [[ "$FILE_PATH" == *.py ]]; then
+                echo "Checking specific Python file with Ruff: $FILE_PATH"
+                ruff check "$FILE_PATH"
+                ruff format --check "$FILE_PATH"
+              else
+                echo "Skipping Ruff formatting for non-Python file: $FILE_PATH"
+              fi
             else
-              echo "Skipping Ruff formatting for non-Python file: $FILE_PATH"
+              echo "Invalid file path provided. Checking all Python files instead."
+              ruff check .
+              ruff format --check .
             fi
           else
-            echo "Invalid file path provided. Checking all Python files instead."
+            echo "Checking all Python files with Ruff"
             ruff check .
             ruff format --check .
           fi
-        else
-          echo "Checking all Python files with Ruff"
-          ruff check .
-          ruff format --check .
-        fi
 
-    - name: Type check with mypy and pyright
-      run: |
-        set -e
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          # Validate file path using the validation script
-          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
-          if [ -n "$FILE_PATH" ]; then
-            # Check if the file is a Python file before type checking
-            if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Type checking specific Python file: $FILE_PATH"
-              mypy "$FILE_PATH" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
-              pyright "$FILE_PATH"
+      - name: Type check with mypy and pyright
+        run: |
+          set -e
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            # Validate file path using the validation script
+            FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+            if [ -n "$FILE_PATH" ]; then
+              # Check if the file is a Python file before type checking
+              if [[ "$FILE_PATH" == *.py ]]; then
+                echo "Type checking specific Python file: $FILE_PATH"
+                mypy "$FILE_PATH" --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+                pyright "$FILE_PATH"
+              else
+                echo "Skipping type checking for non-Python file: $FILE_PATH"
+              fi
             else
-              echo "Skipping type checking for non-Python file: $FILE_PATH"
+              echo "Invalid file path provided. Type checking all Python files instead."
+              mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
+              pyright .
             fi
           else
-            echo "Invalid file path provided. Type checking all Python files instead."
+            echo "Type checking all Python files"
             mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
             pyright .
           fi
-        else
-          echo "Type checking all Python files"
-          mypy . --ignore-missing-imports --install-types --non-interactive --explicit-package-bases
-          pyright .
-        fi
 
-    - name: Check for unused imports
-      run: |
-        set -e
-        if [ -n "${{ github.event.inputs.specific_file }}" ]; then
-          # Validate file path using the validation script
-          FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
-          if [ -n "$FILE_PATH" ]; then
-            # Check if the file is a Python file before checking imports
-            if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Checking unused imports in specific Python file: $FILE_PATH"
-              ruff check "$FILE_PATH" --select F401
+      - name: Check for unused imports
+        run: |
+          set -e
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            # Validate file path using the validation script
+            FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
+            if [ -n "$FILE_PATH" ]; then
+              # Check if the file is a Python file before checking imports
+              if [[ "$FILE_PATH" == *.py ]]; then
+                echo "Checking unused imports in specific Python file: $FILE_PATH"
+                ruff check "$FILE_PATH" --select F401
+              else
+                echo "Skipping unused imports check for non-Python file: $FILE_PATH"
+              fi
             else
-              echo "Skipping unused imports check for non-Python file: $FILE_PATH"
+              echo "Invalid file path provided. Checking all Python files instead."
+              ruff check . --select F401
             fi
           else
-            echo "Invalid file path provided. Checking all Python files instead."
+            echo "Checking unused imports in all Python files"
             ruff check . --select F401
           fi
-        else
-          echo "Checking unused imports in all Python files"
-          ruff check . --select F401
-        fi
 
   test:
     runs-on: ubuntu-latest
@@ -447,7 +447,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results
+        name: test-results-${{ github.run_id }}
         path: junit/test-results.xml
 
     - name: Upload coverage report
