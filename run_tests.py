@@ -36,7 +36,7 @@ PHASE_MARKERS = {
 
 
 def main():
-    """Parse arguments and run the appropriate pytest command with markers."""
+    """Parse arguments and run the appropriate pytest command with markers and optional coverage enforcement."""
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
     )
@@ -58,6 +58,11 @@ def main():
         help="Custom pytest marker expression (used only with --phase custom).",
     )
     parser.add_argument(
+        "--with-coverage",
+        action="store_true",
+        help="Run tests with coverage and enforce minimum coverage threshold (90%)",
+    )
+    parser.add_argument(
         "extra_pytest_args",
         nargs=argparse.REMAINDER,
         help="Extra arguments to pass to pytest (e.g., -k, --maxfail, etc.)",
@@ -77,6 +82,13 @@ def main():
         marker_expr = PHASE_MARKERS[phase]
 
     pytest_cmd = [sys.executable, "-m", "pytest"]
+    if args.with_coverage:
+        pytest_cmd += [
+            "--cov=.",
+            "--cov-report=term-missing",
+            "--cov-report=xml",
+            "--cov-fail-under=90",
+        ]
     if marker_expr:
         pytest_cmd += ["-m", marker_expr]
     if args.extra_pytest_args:
@@ -85,6 +97,8 @@ def main():
     print(f"Running tests with phase: {phase}")
     if marker_expr:
         print(f"Pytest marker expression: {marker_expr}")
+    if args.with_coverage:
+        print("Coverage reporting enabled (minimum threshold: 90%)")
     if args.extra_pytest_args:
         print(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
 
