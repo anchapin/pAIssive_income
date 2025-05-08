@@ -89,7 +89,10 @@ def create_test_sarif_file(output_path="test-sarif.sarif"):
     # Create a minimal valid SARIF file
     sarif_data = {
         "version": "2.1.0",
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
+        ),
         "runs": [
             {
                 "tool": {

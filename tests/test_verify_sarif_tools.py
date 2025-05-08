@@ -4,12 +4,12 @@
 import os
 import subprocess
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 from io import StringIO
 from unittest import mock
 
-# Import the module to be tested
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from verify_sarif_tools import (
     check_sarif_tools_installed,
     create_test_sarif_file,
