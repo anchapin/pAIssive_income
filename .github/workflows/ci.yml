@@ -74,7 +74,7 @@ jobs:
           echo "Force installing ruff..."
           pip install --no-cache-dir ruff
           which ruff || echo "ruff binary not found in PATH"
-          python -c "import ruff; print(f'Ruff version: {ruff.__version__}')" || echo "Failed to import ruff module"
+          ruff --version || echo "Failed to verify Ruff installation"
 
           # Install essential tools
           echo "Installing essential linting tools..."
@@ -165,6 +165,15 @@ jobs:
         with:
           name: requirements-logs-${{ github.run_id }}-${{ github.job }}
           path: requirements_logs/
+
+      - name: Run Ruff (Fix Mode)
+        run: |
+          echo "Running Ruff in fix mode..."
+          ruff check . --fix
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Fix linting issues using Ruff" || echo "No changes to commit"
 
       - name: Run Ruff (Check Only)
         run: |

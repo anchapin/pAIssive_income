@@ -53,4 +53,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: playwright-report
-          path: ui/react_frontend/playwright-report/
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
