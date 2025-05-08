@@ -212,37 +212,88 @@ class SecretsManager:
 
         Returns:
         -------
-            Dict[str, Any]: Dictionary of secrets
+            Dict[str, Any]: Dictionary of secrets with sensitive information masked
+
+        Security:
+        --------
+            This method never returns actual secret values, only metadata about secrets
+            such as key names (when safe) and an indication of their presence.
 
         """
         backend = backend or self.default_backend
         logger.debug(f"Listing secrets from {backend.value} backend")
 
         if backend == SecretsBackend.ENV:
-            # Return a copy of the environment variables with sensitive values masked
+            # Import secure logging utilities with enhanced sensitive field patterns
             from common_utils.logging.secure_logging import (
-                SENSITIVE_FIELDS,
+                is_sensitive_key,
+                mask_sensitive_data,
             )
 
-            # Create a copy of environment variables
-            env_vars = dict(os.environ)
+            # Create a filtered and sanitized view of environment variables
+            safe_env_vars: Dict[str, Any] = {}
 
-            # Mask sensitive values
-            for key in env_vars.keys():
-                # Check if the key contains any sensitive terms
-                for sensitive_field in SENSITIVE_FIELDS:
-                    if sensitive_field.lower() in key.lower():
-                        # Mask the value
-                        env_vars[key] = "********"
-                        break
+            # Define additional patterns to catch more sensitive content
+            additional_sensitive_patterns = [
+                "token",
+                "secret",
+                "password",
+                "credential",
+                "auth",
+                "key",
+                "cert",
+                "private",
+                "ssh",
+                "access",
+                "api",
+                "security",
+            ]
 
-            return env_vars
+            # Process each environment variable
+            for key, value in os.environ.items():
+                # Skip environment variables that are clearly not secrets
+                if key.startswith(
+                    ("PATH", "PYTHON", "SYSTEM", "OS_", "COMPUTERNAME", "USERNAME")
+                ):
+                    continue
+
+                # Determine if this key potentially contains sensitive information
+                is_sensitive = is_sensitive_key(key) or any(
+                    pattern in key.lower() for pattern in additional_sensitive_patterns
+                )
+
+                # For sensitive keys, mask both key and value appropriately
+                if is_sensitive:
+                    # For highly sensitive keys, mask even the key name
+                    if any(
+                        high_risk in key.lower()
+                        for high_risk in ["password", "secret", "token", "key"]
+                    ):
+                        masked_key = f"***{key[-4:] if len(key) > 4 else '****'}"
+                        safe_env_vars[masked_key] = "********"
+                    else:
+                        # For moderate risk, keep key but mask value
+                        safe_env_vars[key] = "********"
+                else:
+                    # For regular environment variables, just indicate presence
+                    safe_env_vars[key] = f"<{len(value)} chars>"
+
+            # Apply final sanitization to catch any missed sensitive data
+            masked_result = mask_sensitive_data(safe_env_vars)
+            # Ensure we return a Dict[str, Any] as specified in the return type
+            if isinstance(masked_result, dict):
+                # mypy should recognize this is a dict after the isinstance check
+                return masked_result
+            return safe_env_vars  # Fallback to original if somehow not a dict
         elif backend == SecretsBackend.FILE:
             try:
                 from .file_backend import FileBackend
 
                 file_backend = FileBackend()
-                return file_backend.list_secrets()
+                # Ensure the returned secrets are properly sanitized
+                secrets = file_backend.list_secrets()
+                sanitized_secrets = self._sanitize_secrets_dict(secrets)
+                return sanitized_secrets
             except NotImplementedError:
                 logger.warning("File backend not yet fully implemented")
                 return {}
@@ -251,7 +302,10 @@ class SecretsManager:
                 from .memory_backend import MemoryBackend
 
                 memory_backend = MemoryBackend()
-                return memory_backend.list_secrets()
+                # Ensure the returned secrets are properly sanitized
+                secrets = memory_backend.list_secrets()
+                sanitized_secrets = self._sanitize_secrets_dict(secrets)
+                return sanitized_secrets
             except NotImplementedError:
                 logger.warning("Memory backend not yet fully implemented")
                 return {}
@@ -260,13 +314,49 @@ class SecretsManager:
                 from .vault_backend import VaultBackend
 
                 vault_backend = VaultBackend()
-                return vault_backend.list_secrets()
+                # Ensure the returned secrets are properly sanitized
+                secrets = vault_backend.list_secrets()
+                sanitized_secrets = self._sanitize_secrets_dict(secrets)
+                return sanitized_secrets
             except NotImplementedError:
                 logger.warning("Vault backend not yet fully implemented")
                 return {}
         else:
             logger.error("Unknown backend specified")
             return {}
+
+    def _sanitize_secrets_dict(self, secrets: Dict[str, Any]) -> Dict[str, Any]:
+        """Sanitize a dictionary of secrets to ensure no sensitive data is exposed.
+
+        Args:
+        ----
+            secrets: Dictionary of secrets
+
+        Returns:
+        -------
+            Dict[str, Any]: Sanitized dictionary with masked sensitive values
+
+        """
+        if not secrets:
+            return {}
+
+        # Import secure logging utility
+
+        # Create a sanitized copy
+        safe_secrets: Dict[str, Any] = {}
+
+        for key, value in secrets.items():
+            if isinstance(value, str):
+                # Always mask the actual value
+                safe_secrets[key] = "********"
+            elif isinstance(value, dict):
+                # Recursively sanitize nested dictionaries
+                safe_secrets[key] = self._sanitize_secrets_dict(value)
+            else:
+                # For non-string, non-dict values, convert to string and mask
+                safe_secrets[key] = "********"
+
+        return safe_secrets
 
 
 # Create a singleton instance of the secrets manager

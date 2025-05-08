@@ -6,7 +6,7 @@ credentials, authentication materials, and other sensitive data.
 
 import logging
 import re
-from typing import Any, Pattern
+from typing import Any, Dict, List, Pattern
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS = [
@@ -59,6 +59,45 @@ PATTERNS = {
 }
 
 
+def is_sensitive_key(key: str) -> bool:
+    """Check if a key name contains sensitive information patterns.
+
+    Args:
+    ----
+        key: The key name to check
+
+    Returns:
+    -------
+        bool: True if the key appears to reference sensitive information
+
+    """
+    if not key:
+        return False
+
+    key_lower = key.lower()
+    # Check against our predefined list of sensitive field names
+    for sensitive_field in SENSITIVE_FIELDS:
+        if sensitive_field in key_lower:
+            return True
+
+    # Check for common sensitive patterns
+    sensitive_terms = [
+        "password",
+        "token",
+        "secret",
+        "key",
+        "auth",
+        "credential",
+        "private",
+        "security",
+        "access",
+        "api",
+        "cert",
+    ]
+
+    return any(term in key_lower for term in sensitive_terms)
+
+
 def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4) -> Any:
     """Mask sensitive data in logs to prevent logging of sensitive information.
 
@@ -73,7 +112,8 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
 
     Returns:
     -------
-        The masked data with sensitive information hidden
+        Any: The masked data with sensitive information hidden.
+        Returns the same type as the input data.
 
     """
     if data is None:
@@ -87,15 +127,19 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
 
     elif isinstance(data, dict):
         # Recursively mask values in dictionary
-        return {
-            k: _mask_if_sensitive(k, v, mask_char, visible_chars)
-            for k, v in data.items()
-        }
+        dict_result: Dict[str, Any] = {}
+        for k, v in data.items():
+            dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
+        return dict_result  # Explicitly return a Dict[str, Any]
 
     elif isinstance(data, list):
         # Recursively mask values in list
-        return [mask_sensitive_data(item, mask_char, visible_chars) for item in data]
+        list_result: List[Any] = [
+            mask_sensitive_data(item, mask_char, visible_chars) for item in data
+        ]
+        return list_result
 
+    # For any other type, return as is
     return data
 
 
