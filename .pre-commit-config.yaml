@@ -39,8 +39,14 @@ repos:
     rev: v0.11.8
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [
+          "--check",
+          "--format=github",
+          "--select=E,F,W,I,N,B,UP,ANN,S,BLE,FBT,C,DTZ,T20,RET,SIM,PL,RUF",
+          "--ignore=ANN101,ANN102,ANN204"
+        ]
       - id: ruff-format
+        args: ["--check"]
 
   # Optional: Add mypy for type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
