@@ -47,17 +47,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ruff
+          python -m ruff --version  # Verify installation
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
+          elif [ -f ai_models/requirements.txt ]; then
+            pip install -r ai_models/requirements.txt
+          elif [ -f api/requirements.txt ]; then
+            pip install -r api/requirements.txt
           elif [ -f pyproject.toml ]; then
             pip install poetry
             poetry install
           else
             echo "No requirements file found. Skipping dependency installation."
+          fi
       - name: Run Ruff
         run: |
-          ruff check .
-          ruff format --check .
+          python -m ruff check .
+          python -m ruff format --check .
       - name: Run flake8
         run: flake8 .
       - name: Run black (check only)
@@ -96,7 +102,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ruff mypy pyright
           python -m pip install -r requirements-dev.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f ai_models/requirements.txt ]; then
+            pip install -r ai_models/requirements.txt
+          elif [ -f api/requirements.txt ]; then
+            pip install -r api/requirements.txt
+          elif [ -f pyproject.toml ]; then
+            pip install poetry
+            poetry install
+          fi
 
       - name: Cache Python packages
         uses: actions/cache@v4
@@ -157,6 +172,7 @@ jobs:
 
           # Run the main function with all arguments
           main "$@"' > syntax_check.sh
+          chmod +x syntax_check.sh
           chmod +x syntax_check.sh
 
       - name: Create file path validation script
@@ -234,20 +250,20 @@ jobs:
               # Check if the file is a Python file before linting
               if [[ "$FILE_PATH" == *.py ]]; then
                 echo "Linting specific Python file with Ruff: $FILE_PATH"
-                ruff check "$FILE_PATH"
-                ruff format --check "$FILE_PATH"
+                python -m ruff check "$FILE_PATH"
+                python -m ruff format --check "$FILE_PATH"
               else
                 echo "Skipping Ruff linting for non-Python file: $FILE_PATH"
               fi
             else
               echo "Invalid file path provided. Linting all Python files instead."
-              ruff check .
-              ruff format --check .
+              python -m ruff check .
+              python -m ruff format --check .
             fi
           else
             echo "Linting all Python files with Ruff"
-            ruff check .
-            ruff format --check .
+            python -m ruff check .
+            python -m ruff format --check .
           fi
 
       # Remove auto-fixing in CI; only check and fail on error.
@@ -262,20 +278,20 @@ jobs:
               # Check if the file is a Python file before fixing
               if [[ "$FILE_PATH" == *.py ]]; then
                 echo "Checking specific Python file with Ruff: $FILE_PATH"
-                ruff check "$FILE_PATH"
-                ruff format --check "$FILE_PATH"
+                python -m ruff check "$FILE_PATH"
+                python -m ruff format --check "$FILE_PATH"
               else
                 echo "Skipping Ruff formatting for non-Python file: $FILE_PATH"
               fi
             else
               echo "Invalid file path provided. Checking all Python files instead."
-              ruff check .
-              ruff format --check .
+              python -m ruff check .
+              python -m ruff format --check .
             fi
           else
             echo "Checking all Python files with Ruff"
-            ruff check .
-            ruff format --check .
+            python -m ruff check .
+            python -m ruff format --check .
           fi
 
       - name: Type check with mypy and pyright
@@ -314,15 +330,15 @@ jobs:
               # Check if the file is a Python file before checking imports
               if [[ "$FILE_PATH" == *.py ]]; then
                 echo "Checking unused imports in specific Python file: $FILE_PATH"
-                ruff check "$FILE_PATH" --select F401
+                python -m ruff check "$FILE_PATH" --select F401
               else
                 echo "Skipping unused imports check for non-Python file: $FILE_PATH"
               fi
             else
               echo "Invalid file path provided. Checking all Python files instead."
-              ruff check . --select F401
+              python -m ruff check . --select F401
             fi
           else
             echo "Checking unused imports in all Python files"
-            ruff check . --select F401
+            python -m ruff check . --select F401
           fi
