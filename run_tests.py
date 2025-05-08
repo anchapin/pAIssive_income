@@ -10,12 +10,14 @@ Examples:
     python run_tests.py --phase slow
     python run_tests.py --phase security
     python run_tests.py --phase custom -m 'api or webhook'
+
 """
 
 import argparse
 import subprocess
 import sys
 
+# Third-party imports
 
 PHASE_MARKERS = {
     "fast": "not slow and not integration and not dependency and not performance",

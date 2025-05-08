@@ -274,11 +274,21 @@ pre-commit install
 ```
 
 To run all pre-commit hooks manually on all files:
+
 ```bash
+# Using the provided scripts (recommended)
+# On Windows
+run_pre_commit.bat
+
+# On Unix/Linux
+./run_pre_commit.sh
+
+# Or manually
 pre-commit run --all-files
 ```
 
 To run specific hooks:
+
 ```bash
 pre-commit run trailing-whitespace --all-files
 pre-commit run ruff --all-files
@@ -289,17 +299,20 @@ pre-commit run ruff --all-files
 Use these commands to check and fix linting issues:
 
 1. Check for issues without fixing:
+
 ```bash
 scripts\lint_check.bat  # Windows
 ./scripts/lint_check.sh  # Unix/Linux
 ```
 
-2. Fix issues automatically:
+1. Fix issues automatically:
+
 ```bash
 python fix_all_issues_final.py
 ```
 
-3. Run specific checks:
+1. Run specific checks:
+
 ```bash
 scripts\lint_check.bat --ruff  # Run only Ruff
 scripts\lint_check.bat --mypy  # Run only MyPy
@@ -312,6 +325,23 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 
 All configuration files are version controlled to ensure consistent formatting across the project.
+
+## Claude Agentic Coding Best Practices
+
+This project follows [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) for safe, reliable, and auditable automation. All contributors are expected to review and adhere to these standards.
+
+Key principles include:
+- Explicit state and input/output handling
+- Modular, testable decomposition
+- Strong input validation
+- Deterministic, auditable steps
+- Idempotency and recovery
+- Human oversight and review
+- Comprehensive documentation
+- Unit/integration testing (including edge/failure modes)
+- Security and permissions best practices
+
+See [claude_coding_best_practices.md](claude_coding_best_practices.md) for the full checklist and details. Please review this document before submitting changes or pull requests.
 
 ## Documentation
 
@@ -389,6 +419,14 @@ If you encounter issues with the CI workflow, try the following steps:
 5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
 
    ```bash
+   # Using the provided script (recommended)
+   # On Windows
+   setup_pre_commit.bat
+
+   # On Unix/Linux
+   ./setup_pre_commit.sh
+
+   # Or manually
    pre-commit uninstall
    pre-commit install
    ```
