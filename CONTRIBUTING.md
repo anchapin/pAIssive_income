@@ -18,6 +18,11 @@ Before submitting your PR, please ensure:
 - [ ] New behaviors are covered by unit/integration tests.
 - [ ] This file/module/class is documented per the best practices guidelines.
 
+> **Note:**  
+> Only files tracked by git (i.e., not ignored by `.gitignore`) are processed by repository tests and scripts.  
+> If you want your files to be checked, linted, or tested, make sure they are tracked by git and not ignored.
+> This ensures consistency and prevents accidental testing/processing of ignored or temporary files.
+
 See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
 
 ## Pull Requests
