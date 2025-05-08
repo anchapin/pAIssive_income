@@ -1,14 +1,17 @@
-"""setup.py - Module for the pAIssive Income project."""
+"""setup - Module for services/service_discovery.setup."""
 
-# This file was automatically fixed by the syntax error correction script
-# The original content had syntax errors that could not be automatically fixed
-# Please review and update this file as needed
+# Standard library imports
 
+# Third-party imports
+from setuptools import find_packages, setup
 
-def main():
-    """Initialize the module."""
-    pass
+# Local imports
 
-
-if __name__ == "__main__":
-    main()
+setup(
+    # Unique name to prevent egg-info conflicts
+    name="paissive_income_service_discovery",
+    version="0.1.0",
+    description="Service discovery components for pAIssive income project",
+    packages=find_packages(),
+    python_requires=">=3.9",
+)
