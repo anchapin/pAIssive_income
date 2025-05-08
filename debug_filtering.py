@@ -1,17 +1,23 @@
-"""debug_filtering.py - Provides log filtering utilities for the pAIssive Income project."""
+"""Provides log filtering utilities for the pAIssive Income project."""
 
+# Standard library imports
 import logging
+
+# Third-party imports
+
+# Local imports
 
 
 def filter_debug_logs(logs, level=logging.INFO):
-    """
-    Filter log messages to only include messages at or above the specified level.
-    
+    """Filter log messages to only include messages at or above the specified level.
+
     Args:
         logs (list of tuples): List of (level, message) tuples.
         level (int): Logging level (e.g., logging.INFO).
+
     Returns:
         list: Filtered list of log messages.
+
     """
     return [msg for lvl, msg in logs if lvl >= level]
 

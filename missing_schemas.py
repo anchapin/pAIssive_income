@@ -1,13 +1,22 @@
 """missing_schemas.py - Utilities for detecting and reporting missing schemas."""
 
+# Standard library imports
+
+# Third-party imports
+
+# Local imports
+
+
 def report_missing_schemas(schema_names, available_schemas):
-    """
-    Print a report of which schemas are missing from the available list.
+    """Print a report of which schemas are missing from the available list.
+
     Args:
         schema_names (list): Required schema names.
         available_schemas (list): Available schema names.
+
     Returns:
         list: Missing schema names.
+
     """
     missing = [name for name in schema_names if name not in available_schemas]
     if missing:

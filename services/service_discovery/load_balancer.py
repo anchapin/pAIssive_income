@@ -1,14 +1,7 @@
-"""load_balancer.py - Module for the pAIssive Income project."""
+"""load_balancer - Module for services/service_discovery.load_balancer."""
 
-# This file was automatically fixed by the syntax error correction script
-# The original content had syntax errors that could not be automatically fixed
-# Please review and update this file as needed
+# Standard library imports
 
+# Third-party imports
 
-def main():
-    """Initialize the module."""
-    pass
-
-
-if __name__ == "__main__":
-    main()
+# Local imports

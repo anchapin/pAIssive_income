@@ -1,24 +1,7 @@
-"""run_linting.py - Script for the pAIssive Income project."""
+"""run_linting - Module for run_linting."""
 
-import argparse
-import sys
+# Standard library imports
 
+# Third-party imports
 
-def main():
-    """Initialize the module."""
-    parser = argparse.ArgumentParser(
-        description="Script for the pAIssive Income project"
-    )
-
-    # Use parse_known_args() to handle unexpected arguments gracefully
-    args, unknown = parser.parse_known_args()
-    if unknown:
-        print(f"Ignoring unrecognized arguments: {unknown}")
-
-    # TODO: Implement the functionality
-
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+# Local imports
