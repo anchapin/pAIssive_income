@@ -216,6 +216,7 @@ jobs:
         else
           echo "Running fast tests (default phase)"
           pytest -n auto -v \
+            -m "not slow and not integration and not dependency and not performance" \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
