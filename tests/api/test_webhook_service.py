@@ -1,15 +1,7 @@
-#!/usr/bin/env python3
+"""test_webhook_service - Module for tests/api.test_webhook_service."""
 
-"""Test webhook service functionality.
+# Standard library imports
 
-This is a placeholder file for testing the CI workflow.
-"""
+# Third-party imports
 
-
-def main():
-    """Initialize the module."""
-    pass
-
-
-if __name__ == "__main__":
-    main()
+# Local imports

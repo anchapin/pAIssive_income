@@ -1,1 +1,7 @@
-"""Module - Module for the pAIssive Income project."""
+"""__init__ - Module for tests/ai_models/fallbacks.__init__."""
+
+# Standard library imports
+
+# Third-party imports
+
+# Local imports
