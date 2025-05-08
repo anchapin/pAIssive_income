@@ -8,56 +8,18 @@ from pathlib import Path
 from typing import List, Optional
 
 
-def find_python_files(ignore_patterns: Optional[List[str]] = None) -> List[str]:
-    """Find all Python files in the current directory and subdirectories."""
-    if ignore_patterns is None:
-        # Default patterns to ignore - include both slash types for cross-platform
-        # compatibility
-        ignore_patterns = [
-            r"\.git[/\\]",
-            r"\.venv[/\\]",
-            r"venv[/\\]",
-            r"__pycache__[/\\]",
-            r"\.pytest_cache[/\\]",
-            r"\.mypy_cache[/\\]",
-            r"\.ruff_cache[/\\]",
-            r"\.eggs[/\\]",
-            r"\.tox[/\\]",
-            r"build[/\\]",
-            r"dist[/\\]",
-            r".*\.egg-info[/\\]",
-        ]
-
-    python_files = []
-    for root, dirs, files in os.walk("."):
-        # Skip directories that match ignore patterns
-        # Convert paths to use forward slashes for consistency in pattern matching
-        dirs[:] = [
-            d
-            for d in dirs
-            if not any(
-                re.search(pattern, os.path.join(root, d).replace("\\", "/"))
-                for pattern in ignore_patterns
-            )
-        ]
-
-        # Also explicitly remove .venv directory if it exists
-        if ".venv" in dirs:
-            dirs.remove(".venv")
-        if "venv" in dirs:
-            dirs.remove("venv")
-
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                # Check if the file path matches any ignore pattern
-                if not any(
-                    re.search(pattern, file_path.replace("\\", "/"))
-                    for pattern in ignore_patterns
-                ):
-                    python_files.append(file_path)
-
-    return python_files
+def find_python_files() -> List[str]:
+    """Find all Python files tracked by git (not ignored by .gitignore)."""
+    try:
+        # Use git ls-files to get all *.py files tracked by git
+        output = (
+            os.popen("git ls-files '*.py'").read()
+        )
+        python_files = [line.strip() for line in output.splitlines() if line.strip()]
+        return python_files
+    except Exception as e:
+        print(f"Error finding git-tracked Python files: {e}")
+        return []
 
 
 def fix_file(file_path: str, verbose: bool = False) -> bool:
