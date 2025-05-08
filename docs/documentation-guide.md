@@ -1,5 +1,7 @@
 # Documentation Guide
 
+**All new features and code changes must be accompanied by documentation updates or additions. Documentation is a required part of the review and merge process.**
+
 This guide describes the structure, standards, and update process for the documentation in the pAIssive Income Framework.
 
 ## Documentation Structure
@@ -41,6 +43,7 @@ This guide describes the structure, standards, and update process for the docume
 
 ## Keeping Documentation Up To Date
 
+- **All new features and code changes must include relevant documentation updates in the appropriate `docs/` file(s) as part of the pull request.**
 - Documentation should be updated with each major code or feature change.
 - Assign a reviewer for docs in large PRs.
 - Archive outdated docs in `docs/archive/` (create if needed).
