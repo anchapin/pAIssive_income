@@ -42,3 +42,49 @@ repos:
         additional_dependencies: [types-requests, types-PyYAML]
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
+
+  # Unified local quality and security check
+  - repo: local
+    hooks:
+      - id: manage-quality
+        name: Unified Quality/Security/Formatting (manage_quality.py)
+        entry: python scripts/manage_quality.py pre-commit
+        language: system
+        types: [python]
+        always_run: true
+        pass_filenames: false
+        description: "Run all code quality, formatting, lint, syntax, docstring, and security checks via the unified script."
+
+  # Unified local code quality hooks (entrypoint: scripts/manage_quality.py)
+  - repo: local
+    hooks:
+      - id: unified-lint
+        name: Unified Lint
+        entry: python scripts/manage_quality.py lint
+        language: system
+        types: [python]
+      - id: unified-format
+        name: Unified Format
+        entry: python scripts/manage_quality.py format
+        language: system
+        types: [python]
+      - id: unified-fix
+        name: Unified Fix
+        entry: python scripts/manage_quality.py fix
+        language: system
+        types: [python]
+      - id: unified-docstring-fix
+        name: Unified Docstring Fix
+        entry: python scripts/manage_quality.py docstring-fix
+        language: system
+        types: [python]
+      - id: unified-syntax-fix
+        name: Unified Syntax Fix
+        entry: python scripts/manage_quality.py syntax-fix
+        language: system
+        types: [python]
+      - id: unified-security-scan
+        name: Unified Security Scan
+        entry: python scripts/manage_quality.py security-scan
+        language: system
+        types: [python]

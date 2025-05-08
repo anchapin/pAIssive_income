@@ -131,67 +131,66 @@ The project enforces consistent code style and formatting through pre-commit hoo
 - Type annotation issues caught by MyPy
 - Ruff linting violations (see .ruff.toml for rules)
 
-### Using Pre-commit Hooks
+### Unified Code Quality, Linting, Formatting, and Security
 
-The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
+All code quality, linting, formatting, syntax, docstring, and security checks/fixes are consolidated under a single entrypoint and Makefile workflow.
+
+**Common commands:**
+
+```bash
+# Lint the codebase
+make lint
+
+# Format the codebase
+make format
+
+# Run all fixers (lint, format, docstring, syntax, etc.)
+make fix
+
+# Run docstring fixers
+make docstring-fix
+
+# Run syntax fixers
+make syntax-fix
+
+# Run security checks
+make security
+
+# Run all tests
+make test
+
+# Run all pre-commit checks (as CI does)
+make pre-commit
+
+# Run everything (all quality and security checks)
+make all
+```
+
+**Pre-commit Integration:**
+
+Pre-commit hooks are automatically set up for this repository. To install them:
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-To run all pre-commit hooks manually on all files:
+To run all pre-commit hooks manually:
 
 ```bash
-# Using the provided scripts (recommended)
-# On Windows
-run_pre_commit.bat
-
-# On Unix/Linux
-./run_pre_commit.sh
-
-# Or manually
 pre-commit run --all-files
 ```
 
-To run specific hooks:
+> The final step in the pre-commit workflow runs the unified quality script (`scripts/manage_quality.py pre-commit`) to ensure all code is linted, formatted, secure, and style-compliant.
 
-```bash
-pre-commit run trailing-whitespace --all-files
-pre-commit run ruff --all-files
-```
+**Configuration:**
 
-### Local Linting Commands
+- **Ruff**: Linting and formatting, configured in `.ruff.toml`
+- **MyPy**: Type checking, configured in `mypy.ini`
+- **Pre-commit**: Hooks, configured in `.pre-commit-config.yaml`
+- **Unified Entrypoint**: All-in-one quality management at `scripts/manage_quality.py`
 
-Use these commands to check and fix linting issues:
-
-1. Check for issues without fixing:
-
-```bash
-scripts\lint_check.bat  # Windows
-./scripts/lint_check.sh  # Unix/Linux
-```
-
-1. Fix issues automatically:
-
-```bash
-python fix_all_issues_final.py
-```
-
-1. Run specific checks:
-
-```bash
-scripts\lint_check.bat --ruff  # Run only Ruff
-scripts\lint_check.bat --mypy  # Run only MyPy
-```
-
-### Code Formatter Configuration
-
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
-- **MyPy**: Type checking configuration is in `mypy.ini`
-- **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
-
-All configuration files are version controlled to ensure consistent formatting across the project.
+All configuration files are version controlled to ensure consistent formatting and quality across the project.
 
 ## Claude Agentic Coding Best Practices
 

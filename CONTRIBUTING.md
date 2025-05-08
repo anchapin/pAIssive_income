@@ -20,6 +20,24 @@ Before submitting your PR, please ensure:
 
 See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
 
+## Code Quality Checklist
+
+Before submitting your PR, please ensure you have run all code quality, linting, formatting, and security checks. Use the unified workflow:
+
+```bash
+make all
+```
+
+Or, for a specific check (e.g., linting, formatting):
+
+```bash
+make lint
+make format
+make security
+```
+
+This will run all quality and security checks via `scripts/manage_quality.py` and ensure your code passes pre-commit and CI checks.
+
 ## Pull Requests
 
 - Reference the checklist above in your PR description.
