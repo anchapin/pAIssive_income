@@ -1,0 +1,80 @@
+# Security Documentation
+
+## Overview
+This document outlines security measures, fixes, and procedures implemented in the project.
+
+## Recent Security Fixes
+
+### ResearchAgent Attribute Access
+- Implemented secure attribute access using `self._name`
+- Added input validation for all attributes
+- Prevents unauthorized attribute access and injection attacks
+
+### DiskCache Security
+- Removed unsafe pickle serialization
+- Implemented JSON-only serialization
+- Prevents deserialization attacks and code execution
+
+### Server Security
+- Changed binding from 0.0.0.0 to 127.0.0.1
+- Restricted access to localhost only
+- Prevents unauthorized external access
+
+### Network Security
+- Added 30-second timeout on all network operations
+- Implemented in InvoiceDelivery and related components
+- Prevents hanging connections and DoS attacks
+
+### Import Security
+- Fixed import order in calculator.py and niche_analyzer.py
+- Prevents module resolution attacks
+- Ensures consistent and secure module loading
+
+### Hash Operations
+- Added `usedforsecurity=False` to SHA-256 operations
+- Updated hash implementations in disk_cache.py and niche_analyzer.py
+- Follows cryptographic best practices
+
+## Monitoring Procedures
+
+### Automated Monitoring
+- GitHub security alerts enabled
+- Dependabot alerts for dependency vulnerabilities
+- Code scanning enabled for all pull requests
+
+### Manual Monitoring
+- Weekly security review of new changes
+- Monthly dependency audit
+- Quarterly full codebase security review
+
+## Security Best Practices
+
+### Code Guidelines
+1. No use of pickle/marshal for serialization
+2. All network operations must have timeouts
+3. Input validation required for all external data
+4. Use secure defaults for all configurations
+5. Explicit imports only (no * imports)
+
+### Development Workflow
+1. Security review required for all PRs
+2. No sensitive data in logs/comments
+3. Regular dependency updates
+4. Code scanning must pass before merge
+
+## Audit Schedule
+
+### Weekly
+- Review security alerts
+- Check dependency vulnerabilities
+- Monitor system logs
+
+### Monthly
+- Full dependency audit
+- Review access controls
+- Check configuration settings
+
+### Quarterly
+- Complete codebase security review
+- Update security documentation
+- Review security procedures

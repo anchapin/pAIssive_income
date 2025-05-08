@@ -398,7 +398,7 @@ from ai_models.serving import RESTServer, RESTConfig, ServerProtocol
 config = RESTConfig(
     model_path="path/to/model",
     model_type="text-generation",
-    host="0.0.0.0",
+    host="127.0.0.1",  # Bind to localhost for security
     port=8000,
     enable_text_generation=True,
     enable_embedding=True,
@@ -413,7 +413,7 @@ server = RESTServer(config)
 server.load_model()
 server.start()
 
-# Server is now running at http://0.0.0.0:8000
+# Server is now running at http://127.0.0.1:8000
 # Stop the server when done
 server.stop()
 ```
@@ -482,7 +482,7 @@ python -m ai_models optimize --model-path models/gpt2 --output-path models/gpt2-
 python -m ai_models benchmark --model-path models/gpt2 --benchmark-type latency --num-runs 20
 
 # Serve a model with REST API
-python -m ai_models serve-rest --model-path models/gpt2 --host 0.0.0.0 --port 8000
+python -m ai_models serve-rest --model-path models/gpt2 --host 127.0.0.1 --port 8000
 
 # Deploy a model
 python -m ai_models deploy --model-path models/gpt2 --deployment-type docker --output-dir deployment

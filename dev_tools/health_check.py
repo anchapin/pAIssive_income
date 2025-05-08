@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-health_check.py.
+"""health_check.py.
 
 Orchestrates repository quality checks:
 - Linting (flake8, ruff)
@@ -30,6 +29,7 @@ def run(cmd, desc):
     Args:
         cmd (str): The command to run.
         desc (str): Description of the command.
+
     """
     print(f"\n\033[1m==> {desc}\033[0m")
     res = subprocess.run(cmd, shell=True)
@@ -48,6 +48,7 @@ def check_gitignore(path):
 
     Returns:
         bool: True if not git-ignored (placeholder).
+
     """
     return True  # Placeholder for future logic
 
