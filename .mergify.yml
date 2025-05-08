@@ -1,0 +1,8 @@
+queue_rules:
+  - batch_size: 15
+    checks_timeout: 54 m 21 s
+    autosquash: true
+    update_method: rebase
+    name: Stable
+merge_queue:
+  max_parallel_checks: 2
