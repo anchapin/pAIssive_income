@@ -208,35 +208,37 @@ jobs:
           ruff format --check .
         fi
 
+    # Remove auto-fixing in CI; only check and fail on error.
     - name: Fix formatting issues (if any)
       if: always()
       run: |
-        echo "Attempting to fix formatting and syntax issues..."
+        echo "Checking that all files are formatted correctly (no auto-fix in CI)..."
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           # Validate file path using the validation script
           FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
           if [ -n "$FILE_PATH" ]; then
             # Check if the file is a Python file before fixing
             if [[ "$FILE_PATH" == *.py ]]; then
-              echo "Fixing specific Python file with Ruff: $FILE_PATH"
-              ruff check --fix "$FILE_PATH"
-              ruff format "$FILE_PATH"
+              echo "Checking specific Python file with Ruff: $FILE_PATH"
+              ruff check "$FILE_PATH"
+              ruff format --check "$FILE_PATH"
             else
               echo "Skipping Ruff formatting for non-Python file: $FILE_PATH"
             fi
           else
-            echo "Invalid file path provided. Fixing all Python files instead."
-            ruff check --fix .
-            ruff format .
+            echo "Invalid file path provided. Checking all Python files instead."
+            ruff check .
+            ruff format --check .
           fi
         else
-          echo "Fixing all Python files with Ruff"
-          ruff check --fix .
-          ruff format .
+          echo "Checking all Python files with Ruff"
+          ruff check .
+          ruff format --check .
         fi
 
     - name: Type check with mypy and pyright
       run: |
+        set -e
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           # Validate file path using the validation script
           FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
@@ -262,6 +264,7 @@ jobs:
 
     - name: Check for unused imports
       run: |
+        set -e
         if [ -n "${{ github.event.inputs.specific_file }}" ]; then
           # Validate file path using the validation script
           FILE_PATH=$(./validate_file_path.sh "${{ github.event.inputs.specific_file }}")
@@ -313,10 +316,10 @@ jobs:
 
     - name: Cleanup conflicting files
       run: |
-        # More aggressive cleanup of egg-info directories
         find . -type d -name "*.egg-info" -exec rm -rf {} + || true
         find . -type d -name "*.dist-info" -exec rm -rf {} + || true
         find . -name "*.egg" -exec rm -f {} + || true
+        pip cache purge || true
 
         # Clear pip cache to avoid potential conflicts
         pip cache purge || true
@@ -331,22 +334,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
-
-        # Install requirements separately (dev first to ensure correct versions)
         if [ -f requirements-dev.txt ]; then
           python -m pip install -r requirements-dev.txt
         fi
         if [ -f requirements.txt ]; then
           python -m pip install -r requirements.txt
         fi
-
-        # Install in development mode with verbose output to debug any issues
         python -m pip install -e . -v
 
     - name: Create junit directory
       run: mkdir -p junit
 
-    - name: Run tests
+    - name: Run tests (phased runner)
       env:
         PYTHONPATH: ${{ github.workspace }}
       run: |
@@ -399,10 +398,9 @@ jobs:
               --junitxml=junit/test-results.xml
           fi
         else
-          echo "Running all tests"
-          pytest tests \
-            -n auto \
-            -v \
+          echo "Running fast tests (default phase)"
+          pytest -n auto -v \
+            -m "not slow and not integration and not dependency and not performance" \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
