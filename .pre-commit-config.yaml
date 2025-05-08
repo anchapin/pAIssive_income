@@ -42,3 +42,18 @@ repos:
         additional_dependencies: [types-requests, types-PyYAML]
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
+
+  # Add gitleaks for local secret scanning
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        name: gitleaks detect secrets
+        entry: gitleaks detect --no-git -v --config=.gitleaks.toml
+        language: golang
+        types: [file]
+        pass_filenames: false
+        require_serial: true
+        additional_dependencies: []
+        always_run: true
+        verbose: true
