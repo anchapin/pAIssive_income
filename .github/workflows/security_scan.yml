@@ -701,16 +701,7 @@ jobs:
         sarif_file: security-reports/bandit-results.sarif
         category: bandit
 
-    - name: Run CodeQL Analysis
-      uses: github/codeql-action/init@v3
-      with:
-        languages: python
-        queries: security-and-quality
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:python"
+    # [REMOVED] CodeQL analysis steps to avoid duplication with codeql.yml
 
     - name: Run Dependency Review
       uses: actions/dependency-review-action@v4

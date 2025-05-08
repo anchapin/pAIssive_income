@@ -2,6 +2,8 @@
 
 A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
 
+> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
+
 ---
 
 ## TL;DR Quickstart
@@ -275,3 +277,4 @@ The project includes comprehensive API documentation that can be built from sour
 
    ```bash
    python generate_api_docs.py
+   ```
