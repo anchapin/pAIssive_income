@@ -176,6 +176,21 @@ The project enforces consistent code style and formatting through pre-commit hoo
 - Type annotation issues caught by MyPy
 - Ruff linting violations (see .ruff.toml for rules)
 
+### Ruff Linting
+
+To ensure consistent code formatting and prevent CI pipeline failures:
+
+1. Before committing changes, run Ruff locally to fix any formatting issues:
+   ```bash
+   ruff check . --fix
+   ```
+
+2. The CI pipeline has been configured to:
+   - Automatically fix and commit Ruff formatting issues
+   - Continue execution even if Ruff check-only mode finds issues
+
+This helps maintain code quality while preventing pipeline failures due to formatting issues.
+
 ### Using Pre-commit Hooks
 
 The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:

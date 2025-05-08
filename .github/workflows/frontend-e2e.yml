@@ -48,6 +48,9 @@ jobs:
       - name: Run Playwright E2E tests
         run: npx playwright test
 
+      - name: Debug artifact path
+        run: ls -la playwright-report/
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v3
