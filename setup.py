@@ -1,11 +1,6 @@
 """setup - Module for setup."""
 
-# Standard library imports
-
-# Third-party imports
 from setuptools import find_packages, setup
-
-# Local imports
 
 setup(
     name="paissive_income",  # Main package name
