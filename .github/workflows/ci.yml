@@ -185,6 +185,8 @@ jobs:
           fi
 
           # First, fix scripts/sues.py specifically since it was mentioned in the error
+          # This file is explicitly fixed because it is known to frequently cause linting issues
+          # or is critical to the project's functionality. This ensures it is addressed first.
           echo "Fixing scripts/sues.py specifically..."
           ruff check scripts/sues.py --fix
 

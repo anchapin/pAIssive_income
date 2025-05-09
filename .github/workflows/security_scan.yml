@@ -40,67 +40,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install safety bandit pip-audit semgrep pylint
+        python -m pip install safety bandit pip-audit
 
         # Create security-reports directory early
         mkdir -p security-reports
         echo "Created security-reports directory"
 
-        # Create fallback SARIF files in case verification fails
-        echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://bandit.readthedocs.io/","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
-        echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","informationUri":"https://github.com/aquasecurity/trivy","rules":[]}},"results":[]}]}' > security-reports/trivy-results.sarif
-
-    - name: Set up environment for sarif-tools
-      id: setup_env
-      run: |
-        echo "Setting up environment variables for sarif-tools..."
-
-        # Get Python user site-packages directory
-        USER_SITE=$(python -c "import site; print(site.getusersitepackages())")
-        echo "User site-packages: $USER_SITE"
-
-        # Get Python user bin directory
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          USER_BIN=$(dirname "$USER_SITE")/Scripts
-        else
-          USER_BIN=$(dirname "$USER_SITE")/bin
-        fi
-        echo "User bin directory: $USER_BIN"
-
-        # Set environment variables
-        echo "PYTHONPATH=$USER_SITE:$PYTHONPATH" >> $GITHUB_ENV
-        echo "PATH=$USER_BIN:$PATH" >> $GITHUB_ENV
-
-        # Create directories
-        mkdir -p security-reports
-
-        # Create fallback SARIF files in case verification fails
-        echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://bandit.readthedocs.io/","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
-        echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","informationUri":"https://github.com/aquasecurity/trivy","rules":[]}},"results":[]}]}' > security-reports/trivy-results.sarif
-
-    - name: Verify sarif-tools installation
-      id: sarif_tools_check
-      timeout-minutes: 10
-      continue-on-error: true  # Continue workflow even if this step fails
-      run: |
-        echo "Verifying sarif-tools installation..."
+        # Initialize SARIF files using our utility script
+        python sarif_utils.py "[]" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"
+        python sarif_utils.py "[]" "security-reports/trivy-results.sarif" "Trivy" "https://github.com/aquasecurity/trivy"
 
         # Print environment for debugging
         echo "Current PATH: $PATH"
-        echo "Current PYTHONPATH: $PYTHONPATH"
         echo "Python executable: $(which python)"
-        python -m pip list | grep sarif
-
-        # Run verification script with explicit error handling
-        if ! python verify_sarif_tools.py; then
-          echo "::warning::Failed to verify sarif-tools installation"
-          echo "Continuing with fallback SARIF files..."
-          # Create fallback SARIF files again to be sure
-          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://bandit.readthedocs.io/","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
-          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","informationUri":"https://github.com/aquasecurity/trivy","rules":[]}},"results":[]}]}' > security-reports/trivy-results.sarif
-        else
-          echo "Verification completed successfully"
-        fi
 
     - name: Check for vulnerable dependencies with Safety
       id: safety
@@ -110,9 +62,34 @@ jobs:
         echo "Running Safety check..."
         mkdir -p security-reports
 
-        if ! safety check --json > security-reports/safety-results.json 2>&1; then
-          echo "::warning::Safety scan completed with issues detected"
-          echo "[]" > security-reports/safety-results.json
+        # Create fallback safety results file
+        echo "[]" > security-reports/safety-results.json
+
+        # Run safety check with better error handling
+        safety check --json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log || true
+
+        # Check if the output file exists and has content
+        if [ -s security-reports/safety-results.json.tmp ]; then
+          echo "Safety check completed, processing results..."
+          mv security-reports/safety-results.json.tmp security-reports/safety-results.json
+
+          # Count vulnerabilities
+          VULN_COUNT=$(grep -c "vulnerability" security-reports/safety-results.json || echo "0")
+          if [ "$VULN_COUNT" -gt "0" ]; then
+            echo "::warning::Safety scan found $VULN_COUNT potential vulnerabilities"
+          else
+            echo "No vulnerabilities found by Safety"
+          fi
+
+          # Convert Safety JSON to SARIF format
+          echo "Converting Safety results to SARIF format..."
+          python sarif_utils.py "security-reports/safety-results.json" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
+        else
+          echo "::warning::Safety check failed or produced no output"
+          cat security-reports/safety-error.log
+
+          # Create empty SARIF file
+          python sarif_utils.py "[]" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
         fi
 
     - name: Run bandit security scan
@@ -123,9 +100,14 @@ jobs:
         echo "Running Bandit security scan..."
         mkdir -p security-reports
 
-        if ! bandit -r . -f sarif -o security-reports/bandit-results.sarif; then
+        # Run bandit with JSON output format
+        if ! bandit -r . -f json -o security-reports/bandit-results.json; then
           echo "::warning::Bandit scan completed with security issues found"
         fi
+
+        # Convert JSON to SARIF format using our utility script
+        echo "Converting Bandit JSON output to SARIF format..."
+        python sarif_utils.py "security-reports/bandit-results.json" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -146,6 +128,14 @@ jobs:
         path: security-reports/
         retention-days: 7
         if-no-files-found: warn
+
+    - name: Upload Safety scan results
+      if: always()
+      uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
+      with:
+        sarif_file: security-reports/safety-results.sarif
+        category: safety
 
     - name: Upload Bandit scan results
       if: always()

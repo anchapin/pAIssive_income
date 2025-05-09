@@ -35,8 +35,18 @@ jobs:
           pip install -r ../../requirements-dev.txt
           pip install -e ../..
           nohup python ../../ui/api_server.py &
-          # Wait for API server to initialize
-          sleep 10
+          for i in {1..30}; do
+            if curl --silent --fail http://localhost:8000/health; then
+              echo "Backend API server is ready."
+              break
+            fi
+            echo "Waiting for backend API server to be ready..."
+            sleep 1
+          done
+          if ! curl --silent --fail http://localhost:8000/health; then
+            echo "Backend API server failed to start within 30 seconds."
+            exit 1
+          fi
 
       - name: Start React development server
         run: |
