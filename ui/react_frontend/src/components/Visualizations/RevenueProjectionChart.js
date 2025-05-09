@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   Brush,
-  Label
+  Label,
+  BarChart,
+  Bar
 } from 'recharts';
 import {
   Box,
@@ -25,13 +27,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,
+  // TextField is imported but not used
   Grid,
   Card,
   CardContent,
-  CardHeader,
-  Switch,
-  FormControlLabel,
+  // CardHeader is imported but not used
+  // Switch is imported but not used
+  // FormControlLabel is imported but not used
   Collapse,
   IconButton,
   Dialog,
@@ -40,16 +42,17 @@ import {
   DialogActions,
   Divider,
   useTheme,
-  Menu
+  Menu,
+  TableContainer
 } from '@mui/material';
-import DownloadIcon from '@mui/icons-material/Download';
-import SettingsIcon from '@mui/icons-material/Settings';
+// DownloadIcon is imported but not used
+// SettingsIcon is imported but not used
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import TuneIcon from '@mui/icons-material/Tune';
 import TableChartIcon from '@mui/icons-material/TableChart';
-import InfoIcon from '@mui/icons-material/Info';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SaveIcon from '@mui/icons-material/Save';
+// InfoIcon is imported but not used
+// ExpandMoreIcon is imported but not used
+// SaveIcon is imported but not used
 import InsightsIcon from '@mui/icons-material/Insights';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';

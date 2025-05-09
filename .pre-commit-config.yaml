@@ -29,6 +29,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        exclude: ".*package-lock\\.json$"
       - id: check-ast  # Check Python syntax
       - id: check-json
       - id: check-toml
@@ -39,8 +40,13 @@ repos:
     rev: v0.11.8
     hooks:
       - id: ruff
-        args: [--fix]
+        types: [python]
+        files: \.py$
+        entry: ruff check
       - id: ruff-format
+        types: [python]
+        files: \.py$
+        entry: ruff format
 
   # Optional: Add mypy for type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -78,5 +84,7 @@ repos:
             dist/.*|
             .*\.min\.(js|css)$|
             .*\.(jpg|jpeg|png|gif|bmp|svg|mp4|avi|mov|wmv|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|zip|tar|gz|rar)$|
-            \.github/workflows/.*\.yml$
+            \.github/workflows/.*\.yml$|
+            .*playwright-report/.*|
+            .*ui/react_frontend/playwright-report/.*
           )

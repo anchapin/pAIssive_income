@@ -11,7 +11,7 @@ import {
   Brush,
   ReferenceLine,
   ReferenceArea,
-  Label
+  // Label is imported but not used
 } from 'recharts';
 import {
   Box,
@@ -19,7 +19,7 @@ import {
   ButtonGroup,
   FormGroup,
   FormControlLabel,
-  Checkbox,
+  // Checkbox is imported but not used
   Switch,
   IconButton,
   Tooltip as MuiTooltip,
@@ -39,7 +39,7 @@ import {
   InputLabel,
   Slider
 } from '@mui/material';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
+// ZoomInIcon is imported but not used
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import DownloadIcon from '@mui/icons-material/Download';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -107,7 +107,8 @@ const MultiMetricLineChart = ({
     areaUnderLine: false,
     yAxisMin: 'auto',
     yAxisMax: 'auto',
-    connectNulls: true
+    connectNulls: true,
+    showSettingsDialog: false
   });
 
   // State for zoom functionality
@@ -546,7 +547,7 @@ const MultiMetricLineChart = ({
 
             <MuiTooltip title="Chart Settings">
               <Button
-                onClick={() => setShowSettingsDialog(true)}
+                onClick={() => setChartSettings(prev => ({ ...prev, showSettingsDialog: true }))}
                 startIcon={<SettingsIcon />}
               >
                 Settings
@@ -1012,7 +1013,10 @@ const MultiMetricLineChart = ({
       </Dialog>
 
       {/* Settings Dialog */}
-      <Dialog open={showSettingsDialog} onClose={() => setShowSettingsDialog(false)}>
+      <Dialog
+        open={chartSettings.showSettingsDialog || false}
+        onClose={() => setChartSettings(prev => ({ ...prev, showSettingsDialog: false }))}
+      >
         <DialogTitle>Chart Settings</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
@@ -1115,7 +1119,7 @@ const MultiMetricLineChart = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowSettingsDialog(false)}>Close</Button>
+          <Button onClick={() => setChartSettings(prev => ({ ...prev, showSettingsDialog: false }))}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>
