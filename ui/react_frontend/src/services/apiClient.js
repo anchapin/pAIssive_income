@@ -159,7 +159,7 @@ export const userAPI = {
   })
 };
 
-export default {
+const apiClient = {
   nicheAnalysis: nicheAnalysisAPI,
   developer: developerAPI,
   monetization: monetizationAPI,
@@ -167,3 +167,5 @@ export default {
   dashboard: dashboardAPI,
   user: userAPI
 };
+
+export default apiClient;

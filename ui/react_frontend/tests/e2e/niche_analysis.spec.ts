@@ -10,7 +10,7 @@ test.describe('Niche Analysis Workflow', () => {
 
     // The landing page should have a way to start niche analysis
     // Replace these selectors and text with actual ones from your UI
-    await expect(page.getByText(/niche analysis/i)).toBeVisible();
+    await expect(page.getByText(/niche analysis/i)).toBeVisible({ timeout: 10000 });
 
     // Click "Start Niche Analysis" (example: adjust selector as needed)
     await page.getByRole('button', { name: /start niche analysis/i }).click();

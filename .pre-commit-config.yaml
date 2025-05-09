@@ -46,7 +46,7 @@ repos:
       - id: ruff-format
         types: [python]
         files: \.py$
-        entry: ruff format --check
+        entry: ruff format
 
   # Optional: Add mypy for type checking
   - repo: https://github.com/pre-commit/mirrors-mypy

@@ -33,7 +33,8 @@ on:
         type: boolean
 
 permissions:
-  contents: write
+  contents: write    # For push branch
+  pull-requests: write    # For PR updates
 
 jobs:
   lint:
@@ -163,23 +164,55 @@ jobs:
         run: |
           echo "Running Ruff in fix mode..."
           ruff check . --fix
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Ensure we are on a branch
+          # Branch handling
           if [ -n "${GITHUB_HEAD_REF}" ]; then
-            echo "Checking out branch: ${GITHUB_HEAD_REF}"
-            git checkout "${GITHUB_HEAD_REF}"
+            echo "Checking out PR branch: ${GITHUB_HEAD_REF}"
+            git checkout "${GITHUB_HEAD_REF}" || {
+              echo "Failed to checkout PR branch"
+              exit 1
+            }
           else
-            echo "Defaulting to branch: main"
-            git checkout -b main || git checkout main
+            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+            echo "Checking out branch: ${BRANCH_NAME}"
+            git checkout "${BRANCH_NAME}" || {
+              echo "Failed to checkout branch"
+              exit 1
+            }
           fi
 
+          # Size check for changes
+          CHANGED_FILES=$(git diff --name-only | wc -l)
+          if [ "$CHANGED_FILES" -gt 50 ]; then
+            echo "Too many files modified by auto-fix (${CHANGED_FILES}). Manual review needed."
+            exit 1
+          fi
+
+          # Commit and push the changes
           git add .
           git commit -m "Fix linting issues using Ruff" || echo "No changes to commit"
-
-          # Push changes to the remote branch
           git push origin HEAD:${GITHUB_HEAD_REF:-main}
+        continue-on-error: true
+
+      - name: Notify Developer
+        if: failure()
+        run: |
+          {
+            echo "::error::Ruff auto-fix encountered issues:"
+            echo "::group::Error Details"
+            echo "- Check the Ruff output above for specific formatting issues"
+            echo "- Review failing files manually"
+            echo "- Consider running 'ruff check --fix' locally"
+            echo "::endgroup::"
+
+            if [ -n "$(git diff --name-only)" ]; then
+              echo "::group::Modified Files"
+              git diff --name-only
+              echo "::endgroup::"
+            fi
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Run Ruff (Check Only)
         run: |
