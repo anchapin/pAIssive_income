@@ -16,7 +16,10 @@ def create_sarif_file(file_path, tool_name, tool_url):
     """
     data = {
         "version": "2.1.0",
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
+        ),
         "runs": [
             {
                 "tool": {
