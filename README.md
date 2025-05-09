@@ -50,3 +50,42 @@
 - For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
 - Review and merge Dependabot PRs and address security alerts promptly.
 
+## Dependency Maintenance Workflow
+
+**Python:**
+1. **Add/Upgrade/Remove a Dependency:**
+   - Edit `requirements.txt` and/or `requirements-dev.txt` as needed.
+   - (Optional but recommended for upgrades: run `pip install --upgrade <package-name>` to update and test locally.)
+2. **Reinstall All Dependencies:**
+   - Run:
+     ```sh
+     pip install -r requirements.txt -r requirements-dev.txt
+     ```
+3. **Regenerate the Lockfile:**
+   - Run:
+     ```sh
+     pip freeze > requirements.lock
+     ```
+   - Commit all changed files (`requirements.txt`, `requirements-dev.txt`, `requirements.lock`).
+
+**Node.js:**
+1. **Add/Upgrade/Remove a Dependency:**
+   - Use npm commands (`npm install <pkg>`, `npm uninstall <pkg>`, `npm update <pkg>`).
+   - This will update both `package.json` and `package-lock.json`.
+2. **Test your changes locally:**
+   - Run:
+     ```sh
+     npm ci
+     ```
+3. **Commit both `package.json` and `package-lock.json`** if changed.
+
+**After Any Dependency Change:**
+- Run tests and linter to ensure nothing is broken.
+- Push your branch and check CI results (including security scan).
+- Review and address any security findings.
+
+**Dependabot PR Workflow:**
+- Review automated PRs for dependency updates.
+- Ensure CI passes and no new vulnerabilities are introduced.
+- Merge promptly to keep dependencies healthy and secure.
+
