@@ -11,7 +11,10 @@ import argparse
 import os
 import subprocess
 import sys
-from typing import List, Optional, Tuple
+
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 # Local imports
 from common_utils.logging import get_logger
@@ -206,6 +209,7 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
                     capture_output=True,
                     text=True,
                     shell=shell,
+                    check=False,
                 )
 
                 if result.returncode != 0:
@@ -568,6 +572,7 @@ def main() -> int:
                     capture_output=True,
                     text=True,
                     shell=shell,
+                    check=False,
                 )
 
                 if result.returncode == 0:

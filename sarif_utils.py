@@ -9,7 +9,12 @@ where installing additional packages might be problematic.
 import json
 import os
 import sys
-from typing import Any, Dict, List, Optional, Union
+
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
 
 def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:

@@ -32,6 +32,14 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    ```
 3. **Set up pre-commit hooks for code quality:**
    ```bash
+   # On Windows
+   install_pre_commit.bat
+
+   # On Unix/Linux
+   ./install_pre_commit.sh
+   ```
+   Or manually:
+   ```bash
    pip install pre-commit
    pre-commit install
    ```
@@ -264,7 +272,30 @@ scripts\lint_check.bat  # Windows
 2. Fix issues automatically:
 
 ```bash
-python fix_all_issues_final.py
+# Windows
+fix_linting_issues.bat
+
+# Unix/Linux
+./fix_linting_issues.sh
+
+# Or directly with Python
+python fix_linting_issues.py
+```
+
+You can also fix specific files:
+
+```bash
+python fix_linting_issues.py path/to/file1.py path/to/file2.py
+```
+
+Or run with specific options:
+
+```bash
+python fix_linting_issues.py --no-black  # Skip Black formatter
+python fix_linting_issues.py --no-isort  # Skip isort
+python fix_linting_issues.py --no-ruff   # Skip Ruff linter
+python fix_linting_issues.py --check     # Check only, don't fix
+python fix_linting_issues.py --verbose   # Show detailed output
 ```
 
 3. Run specific checks:

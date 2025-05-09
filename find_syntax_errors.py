@@ -8,7 +8,11 @@ import ast
 import os
 import sys
 import traceback
-from typing import Dict, List, Optional, Tuple
+
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 
 def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:

@@ -10,21 +10,21 @@ import hashlib
 import os
 import sys
 import time
+
 from secrets import compare_digest
 from typing import Optional
 
 # Local imports
-from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger
+from common_utils.logging.secure_logging import mask_sensitive_data
 
 from .audit import SecretsAuditor
 from .rotation import SecretRotation
-from .secrets_manager import (
-    SecretsBackend,
-    delete_secret,
-    get_secret,
-    list_secrets,
-    set_secret,
-)
+from .secrets_manager import SecretsBackend
+from .secrets_manager import delete_secret
+from .secrets_manager import get_secret
+from .secrets_manager import list_secrets
+from .secrets_manager import set_secret
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)
@@ -522,7 +522,7 @@ def handle_list(args: argparse.Namespace) -> None:
             raise
         failed_attempts["list"] = failed_attempts.get("list", 0) + 1
         logger.error("Error listing secrets", extra={"error": str(e)})
-        print(f"Error listing secrets: {str(e)}")
+        print(f"Error listing secrets: {e!s}")
         sys.exit(1)
 
 
@@ -576,7 +576,7 @@ def handle_audit(args: argparse.Namespace) -> None:
             logger.info("Audit completed successfully")
         except Exception as e:
             logger.error("Audit failed", extra={"error": str(e)})
-            print(f"Audit failed: {str(e)}")
+            print(f"Audit failed: {e!s}")
             sys.exit(1)
 
     except Exception as e:
@@ -584,7 +584,7 @@ def handle_audit(args: argparse.Namespace) -> None:
             raise
         failed_attempts["audit"] = failed_attempts.get("audit", 0) + 1
         logger.error("Error in audit command", extra={"error": str(e)})
-        print(f"Error in audit command: {str(e)}")
+        print(f"Error in audit command: {e!s}")
         sys.exit(1)
 
 

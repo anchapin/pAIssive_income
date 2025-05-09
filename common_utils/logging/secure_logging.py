@@ -6,7 +6,11 @@ credentials, authentication materials, and other sensitive data.
 
 import logging
 import re
-from typing import Any, Dict, List, Pattern
+
+from re import Pattern
+from typing import Any
+from typing import Dict
+from typing import List
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS = [

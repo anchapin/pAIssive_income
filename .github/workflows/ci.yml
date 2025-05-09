@@ -160,9 +160,65 @@ jobs:
           name: requirements-logs-${{ github.run_id }}-${{ github.job }}
           path: requirements_logs/
 
-      - name: Run Ruff (Fix Mode)
+      - name: Check if fix_linting_issues.py exists
+        id: check-script
         run: |
-          echo "Running Ruff in fix mode..."
+          if [ -f "fix_linting_issues.py" ]; then
+            echo "script_exists=true" >> $GITHUB_OUTPUT
+            echo "Script found, proceeding..."
+          else
+            echo "script_exists=false" >> $GITHUB_OUTPUT
+            echo "Warning: fix_linting_issues.py not found!"
+          fi
+
+      - name: Run fix_linting_issues.py
+        if: steps.check-script.outputs.script_exists == 'true'
+        run: |
+          echo "Running fix_linting_issues.py..."
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Branch handling
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            echo "Checking out PR branch: ${GITHUB_HEAD_REF}"
+            git checkout "${GITHUB_HEAD_REF}" || {
+              echo "Failed to checkout PR branch"
+              exit 1
+            }
+          else
+            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+            echo "Checking out branch: ${BRANCH_NAME}"
+            git checkout "${BRANCH_NAME}" || {
+              echo "Failed to checkout branch"
+              exit 1
+            }
+          fi
+
+          # Run the script
+          python fix_linting_issues.py --verbose
+
+          # Check if any files were modified
+          if [ -n "$(git diff --name-only)" ]; then
+            # Commit changes
+            git add .
+            git commit -m "Auto-fix linting issues" || echo "No changes to commit"
+
+            # Push changes
+            echo "Pushing changes..."
+            git push origin HEAD:${GITHUB_HEAD_REF:-main} || {
+              echo "::warning::Failed to push changes. This could be due to permissions or if no changes were made."
+            }
+          else
+            echo "No changes detected"
+          fi
+        continue-on-error: true
+
+      - name: Run Ruff (Fix Mode) - Fallback
+        if: steps.check-script.outputs.script_exists != 'true'
+        run: |
+          echo "Running Ruff in fix mode (fallback)..."
 
           # Configure git
           git config user.name "github-actions[bot]"
@@ -290,14 +346,17 @@ jobs:
             echo ""
             echo "To fix these issues locally, run:"
             echo "```bash"
-            echo "# Install Ruff if you don't have it"
-            echo "pip install ruff"
+            echo "# Install required tools if you don't have them"
+            echo "pip install black isort ruff"
             echo ""
-            echo "# Fix all issues automatically"
-            echo "ruff check . --fix"
+            echo "# Fix all issues automatically using our custom script"
+            echo "python fix_linting_issues.py --verbose"
             echo ""
             echo "# Or fix specific files"
-            echo "ruff check scripts/sues.py --fix"
+            echo "python fix_linting_issues.py path/to/file.py --verbose"
+            echo ""
+            echo "# Alternatively, use Ruff directly"
+            echo "ruff check . --fix"
             echo "```"
             echo "::endgroup::"
 
@@ -319,13 +378,16 @@ jobs:
             echo "" >> pr_comment.md
             echo "### How to fix:" >> pr_comment.md
             echo "" >> pr_comment.md
-            echo "1. Run Ruff locally to fix the issues:" >> pr_comment.md
+            echo "1. Run our linting fix script locally:" >> pr_comment.md
             echo "   \`\`\`bash" >> pr_comment.md
-            echo "   # Install Ruff if you don't have it" >> pr_comment.md
-            echo "   pip install ruff" >> pr_comment.md
+            echo "   # Install required tools if you don't have them" >> pr_comment.md
+            echo "   pip install black isort ruff" >> pr_comment.md
             echo "" >> pr_comment.md
-            echo "   # Fix all issues automatically" >> pr_comment.md
-            echo "   ruff check . --fix" >> pr_comment.md
+            echo "   # Fix all issues automatically using our custom script" >> pr_comment.md
+            echo "   python fix_linting_issues.py --verbose" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "   # Or fix specific files" >> pr_comment.md
+            echo "   python fix_linting_issues.py path/to/file.py --verbose" >> pr_comment.md
             echo "   \`\`\`" >> pr_comment.md
             echo "" >> pr_comment.md
             echo "2. Commit and push the changes" >> pr_comment.md

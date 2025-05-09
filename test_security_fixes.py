@@ -3,7 +3,9 @@
 import os
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
+
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from common_utils.secrets.audit import generate_report
 from common_utils.secrets.cli import handle_list

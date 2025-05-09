@@ -8,7 +8,9 @@ character ranges like [A-Za-z] and replaces them with safer alternatives like [A
 import os
 import re
 import sys
-from typing import List, Tuple
+
+from typing import List
+from typing import Tuple
 
 # Patterns to search for
 PROBLEMATIC_PATTERNS = [

@@ -1,0 +1,184 @@
+name: Fix Linting Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      specific_file:
+        description: 'Specific file to fix'
+        required: false
+        type: string
+      check_only:
+        description: 'Check only, do not fix'
+        required: false
+        default: false
+        type: boolean
+      no_black:
+        description: 'Skip Black formatter'
+        required: false
+        default: false
+        type: boolean
+      no_isort:
+        description: 'Skip isort'
+        required: false
+        default: false
+        type: boolean
+      no_ruff:
+        description: 'Skip Ruff linter'
+        required: false
+        default: false
+        type: boolean
+      verbose:
+        description: 'Enable verbose output'
+        required: false
+        default: true
+        type: boolean
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**.py'
+  push:
+    branches:
+      - main
+    paths:
+      - '**.py'
+
+permissions:
+  contents: write    # For push branch
+  pull-requests: write    # For PR updates
+
+jobs:
+  fix-linting-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0  # Fetch full history and all files
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install black isort ruff
+
+          # Install project dependencies
+          if [ -f requirements-dev.txt ]; then
+            python -m pip install -r requirements-dev.txt
+          fi
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+          # Install the package in development mode
+          python -m pip install -e .
+
+      - name: Check if fix_linting_issues.py exists
+        id: check-script
+        run: |
+          if [ -f "fix_linting_issues.py" ]; then
+            echo "script_exists=true" >> $GITHUB_OUTPUT
+            echo "Script found, proceeding..."
+          else
+            echo "script_exists=false" >> $GITHUB_OUTPUT
+            echo "Warning: fix_linting_issues.py not found!"
+          fi
+
+      - name: Fix linting issues
+        if: steps.check-script.outputs.script_exists == 'true'
+        run: |
+          # Build command with appropriate flags
+          CMD="python fix_linting_issues.py"
+
+          if [[ "${{ inputs.check_only }}" == "true" ]]; then
+            CMD+=" --check"
+          fi
+
+          if [[ "${{ inputs.no_black }}" == "true" ]]; then
+            CMD+=" --no-black"
+          fi
+
+          if [[ "${{ inputs.no_isort }}" == "true" ]]; then
+            CMD+=" --no-isort"
+          fi
+
+          if [[ "${{ inputs.no_ruff }}" == "true" ]]; then
+            CMD+=" --no-ruff"
+          fi
+
+          if [[ "${{ inputs.verbose }}" == "true" ]]; then
+            CMD+=" --verbose"
+          fi
+
+          # Run the command with specific file or all files
+          if [[ -n "${{ inputs.specific_file }}" ]]; then
+            FILE_PATH="${{ inputs.specific_file }}"
+            if [[ -f "$FILE_PATH" ]]; then
+              echo "Fixing specific file: $FILE_PATH"
+              $CMD "$FILE_PATH"
+            else
+              echo "Error: File $FILE_PATH not found!"
+              exit 1
+            fi
+          else
+            echo "Fixing all Python files..."
+            $CMD
+          fi
+
+      - name: Fallback to standard tools
+        if: steps.check-script.outputs.script_exists != 'true'
+        run: |
+          echo "Using standard tools as fallback..."
+
+          # Run Black
+          if [[ "${{ inputs.no_black }}" != "true" ]]; then
+            if [[ "${{ inputs.check_only }}" == "true" ]]; then
+              black --check .
+            else
+              black .
+            fi
+          fi
+
+          # Run isort
+          if [[ "${{ inputs.no_isort }}" != "true" ]]; then
+            if [[ "${{ inputs.check_only }}" == "true" ]]; then
+              isort --check-only .
+            else
+              isort .
+            fi
+          fi
+
+          # Run Ruff
+          if [[ "${{ inputs.no_ruff }}" != "true" ]]; then
+            if [[ "${{ inputs.check_only }}" == "true" ]]; then
+              ruff check .
+            else
+              ruff check --fix .
+            fi
+          fi
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected:"
+            git status --porcelain
+          else
+            echo "No changes detected"
+          fi
+
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true' && inputs.check_only != 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Auto-fix linting issues"
+          git push

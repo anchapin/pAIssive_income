@@ -4,8 +4,10 @@
 import os
 import re
 import sys
+
 from pathlib import Path
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 
 def find_python_files(ignore_patterns: Optional[List[str]] = None) -> List[str]:

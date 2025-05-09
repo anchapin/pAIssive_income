@@ -1,7 +1,11 @@
 """test_rate_limiting_api - Tests for API rate limiting enforcement and edge cases."""
 
-import pytest
 import time
+
+from unittest.mock import patch
+
+import pytest
+
 from fastapi.testclient import TestClient
 
 try:
@@ -10,6 +14,7 @@ except ImportError:
     app = None
 
 client = TestClient(app) if app else None
+
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")
 class TestRateLimitingAPI:
@@ -31,7 +36,10 @@ class TestRateLimitingAPI:
     def test_rate_limit_headers_present(self):
         resp = client.get(self.ENDPOINT)
         # Check for standard rate limit headers
-        assert any(header in resp.headers for header in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After"])
+        assert any(
+            header in resp.headers
+            for header in ["X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After"]
+        )
 
     def test_rate_limit_reset(self):
         # Exceed limit, then wait for reset window and try again
@@ -40,7 +48,8 @@ class TestRateLimitingAPI:
         resp = client.get(self.ENDPOINT)
         if resp.status_code == 429 and "Retry-After" in resp.headers:
             wait_time = int(resp.headers["Retry-After"])
-            time.sleep(min(wait_time, 3))  # Wait up to 3 seconds for test
+            with patch("time.sleep", return_value=None):
+                time.sleep(min(wait_time, 3))  # Wait up to 3 seconds for test
             resp2 = client.get(self.ENDPOINT)
             # Should eventually reset to allow again
             assert resp2.status_code in (200, 401, 403)

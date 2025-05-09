@@ -6,7 +6,11 @@ This module provides a unified interface for managing secrets across different b
 # Standard library imports
 import enum
 import os
-from typing import Any, Dict, Optional, Union
+
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 # Third-party imports
 # Local imports
@@ -225,10 +229,8 @@ class SecretsManager:
 
         if backend == SecretsBackend.ENV:
             # Import secure logging utilities with enhanced sensitive field patterns
-            from common_utils.logging.secure_logging import (
-                is_sensitive_key,
-                mask_sensitive_data,
-            )
+            from common_utils.logging.secure_logging import is_sensitive_key
+            from common_utils.logging.secure_logging import mask_sensitive_data
 
             # Create a filtered and sanitized view of environment variables
             safe_env_vars: Dict[str, Any] = {}
@@ -252,9 +254,14 @@ class SecretsManager:
             # Process each environment variable
             for key, _ in os.environ.items():
                 # Skip environment variables that are clearly not secrets
-                if key.startswith(
-                    ("PATH", "PYTHON", "SYSTEM", "OS_", "COMPUTERNAME", "USERNAME")
-                ):
+                if key.startswith((
+                    "PATH",
+                    "PYTHON",
+                    "SYSTEM",
+                    "OS_",
+                    "COMPUTERNAME",
+                    "USERNAME",
+                )):
                     continue
 
                 # Determine if this key potentially contains sensitive information

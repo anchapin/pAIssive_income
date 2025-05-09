@@ -16,7 +16,13 @@ import subprocess
 import sys
 import time  # Moved time import to the top level
 import uuid  # Added for secure report generation
-from typing import Any, Dict, List, Set, Tuple, cast
+
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import cast
 
 # Import the existing security tools if possible
 try:
@@ -330,45 +336,41 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
                 if isinstance(item, tuple) and len(item) >= 2:
                     # Handle tuple format (pattern_name, line_num, line, secret_value)
                     pattern_name, line_num = item[0], item[1]
-                    sarif_results.append(
-                        {
-                            "ruleId": "secret-detection",
-                            "level": "error",
-                            "message": {"text": f"Potential {pattern_name} found"},
-                            "locations": [
-                                {
-                                    "physicalLocation": {
-                                        "artifactLocation": {
-                                            "uri": sanitize_path(file_path)
-                                        },
-                                        "region": {"startLine": line_num},
-                                    }
+                    sarif_results.append({
+                        "ruleId": "secret-detection",
+                        "level": "error",
+                        "message": {"text": f"Potential {pattern_name} found"},
+                        "locations": [
+                            {
+                                "physicalLocation": {
+                                    "artifactLocation": {
+                                        "uri": sanitize_path(file_path)
+                                    },
+                                    "region": {"startLine": line_num},
                                 }
-                            ],
-                        }
-                    )
+                            }
+                        ],
+                    })
                 elif (
                     isinstance(item, dict) and "type" in item and "line_number" in item
                 ):
                     # Handle dict format from JSON
                     pattern_name, line_num = item["type"], item["line_number"]
-                    sarif_results.append(
-                        {
-                            "ruleId": "secret-detection",
-                            "level": "error",
-                            "message": {"text": f"Potential {pattern_name} found"},
-                            "locations": [
-                                {
-                                    "physicalLocation": {
-                                        "artifactLocation": {
-                                            "uri": sanitize_path(file_path)
-                                        },
-                                        "region": {"startLine": line_num},
-                                    }
+                    sarif_results.append({
+                        "ruleId": "secret-detection",
+                        "level": "error",
+                        "message": {"text": f"Potential {pattern_name} found"},
+                        "locations": [
+                            {
+                                "physicalLocation": {
+                                    "artifactLocation": {
+                                        "uri": sanitize_path(file_path)
+                                    },
+                                    "region": {"startLine": line_num},
                                 }
-                            ],
-                        }
-                    )
+                            }
+                        ],
+                    })
 
     try:
         with open(output_file, "w") as f:
@@ -493,7 +495,7 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
 
             # Create a dictionary mapping hash IDs to actual file paths
             path_mapping = {}
-            for file_path in results.keys():
+            for file_path in results:
                 path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
                 path_mapping[path_hash] = file_path
 
@@ -571,26 +573,22 @@ def main() -> int:
                             # Only keep pattern name and line number, exclude actual
                             # secret
                             pattern_name, line_num = item[0], item[1]
-                            sanitized_findings.append(
-                                {
-                                    "type": pattern_name,
-                                    "line_number": line_num,
-                                    "message": sanitize_finding_message(pattern_name),
-                                }
-                            )
+                            sanitized_findings.append({
+                                "type": pattern_name,
+                                "line_number": line_num,
+                                "message": sanitize_finding_message(pattern_name),
+                            })
                         elif (
                             isinstance(item, dict)
                             and "type" in item
                             and "line_number" in item
                         ):
                             # Copy only safe fields
-                            sanitized_findings.append(
-                                {
-                                    "type": item["type"],
-                                    "line_number": item["line_number"],
-                                    "message": sanitize_finding_message(item["type"]),
-                                }
-                            )
+                            sanitized_findings.append({
+                                "type": item["type"],
+                                "line_number": item["line_number"],
+                                "message": sanitize_finding_message(item["type"]),
+                            })
                 sanitized_results[sanitized_path] = sanitized_findings
 
             with open(args.output, "w") as f:

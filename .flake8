@@ -14,3 +14,7 @@ exclude =
 per-file-ignores =
     # Ignore line length in comprehensive_fix_linting.py
     comprehensive_fix_linting.py: E501
+    # Ignore line length in test files
+    tests/*: E501
+    # Ignore unused imports in test files
+    tests/*: F401,F811,F841

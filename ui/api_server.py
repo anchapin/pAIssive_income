@@ -10,7 +10,10 @@ import json
 import logging
 import os
 import socketserver
-from typing import Any, Dict, Tuple
+
+from typing import Any
+from typing import Dict
+from typing import Tuple
 from urllib.parse import urlparse
 
 # Configure logging
@@ -52,7 +55,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 logger.warning(f"404 error: {path}")
                 self._send_response(404, {"error": "Not found", "path": path})
         except Exception as e:
-            logger.error(f"Error handling request: {str(e)}")
+            logger.error(f"Error handling request: {e!s}")
             self._send_response(500, {"error": "Internal server error"})
 
     def do_OPTIONS(self) -> None:  # noqa: N802
@@ -98,7 +101,7 @@ def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
                 server_address = (host, port)
             else:
                 logger.error(
-                    f"Failed to start server after {max_retries} attempts: {str(e)}"
+                    f"Failed to start server after {max_retries} attempts: {e!s}"
                 )
                 raise
 

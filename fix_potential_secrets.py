@@ -9,8 +9,10 @@ import json
 import os
 import re
 import sys
+
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 # Regex patterns to detect sensitive information
 PATTERNS = {
@@ -88,9 +90,9 @@ def should_exclude(path: str) -> bool:
     # Check file extensions and names
     filename = Path(path).name
     for pattern in EXCLUDE_FILES:
-        if pattern.startswith("*") and filename.endswith(pattern[1:]):
-            return True
-        elif pattern == filename:
+        if (
+            pattern.startswith("*") and filename.endswith(pattern[1:])
+        ) or pattern == filename:
             return True
 
     return False
@@ -407,25 +409,23 @@ def main():
         safe_file_path = safe_log_file_path(file_path)
         for pattern_name, line_num, _secret_length in secrets:
             # Create a generic message that doesn't include length or other metadata
-            sarif_results.append(
-                {
-                    "ruleId": "secret-detection",
-                    "level": "error",
-                    "message": {"text": "Potential sensitive data detected"},
-                    "locations": [
-                        {
-                            "physicalLocation": {
-                                "artifactLocation": {"uri": safe_file_path},
-                                "region": {"startLine": line_num},
-                            }
+            sarif_results.append({
+                "ruleId": "secret-detection",
+                "level": "error",
+                "message": {"text": "Potential sensitive data detected"},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": safe_file_path},
+                            "region": {"startLine": line_num},
                         }
-                    ],
-                    "properties": {
-                        "securitySeverity": "high",
-                        "type": pattern_name,
-                    },
-                }
-            )
+                    }
+                ],
+                "properties": {
+                    "securitySeverity": "high",
+                    "type": pattern_name,
+                },
+            })
 
     try:
         with open("security-report.sarif", "w") as f:

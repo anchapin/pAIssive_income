@@ -8,6 +8,7 @@ to ensure it conforms to the expected format for GitHub Advanced Security.
 import json
 import os
 import sys
+
 from pathlib import Path
 
 

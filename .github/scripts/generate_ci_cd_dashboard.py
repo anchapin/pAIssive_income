@@ -13,6 +13,7 @@ visualizations to track CI/CD performance metrics including:
 import argparse
 import json
 import os
+
 from datetime import datetime
 
 import matplotlib.pyplot as plt

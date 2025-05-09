@@ -8,8 +8,11 @@ import hashlib
 import secrets
 import string
 import time
-from datetime import datetime, timedelta
-from typing import Optional, Tuple
+
+from datetime import datetime
+from datetime import timedelta
+from typing import Optional
+from typing import Tuple
 
 from common_utils.logging import get_logger
 

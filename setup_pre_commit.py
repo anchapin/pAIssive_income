@@ -8,7 +8,9 @@ then sets up the hooks according to the configuration in .pre-commit-config.yaml
 # Standard library imports
 import subprocess
 import sys
-from typing import List, Tuple
+
+from typing import List
+from typing import Tuple
 
 
 def run_command(command: List[str], check: bool = True) -> Tuple[int, str, str]:

@@ -11,7 +11,10 @@ import argparse
 import os
 import subprocess
 import sys
-from typing import List, Optional, Tuple
+
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 # Constants
 DEFAULT_LINE_LENGTH = 88

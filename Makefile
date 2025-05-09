@@ -28,4 +28,3 @@ pre-commit:
 
 all: lint format fix docstring-fix syntax-fix security test pre-commit
 	@echo "All code quality, security, and pre-commit checks have been run."
-

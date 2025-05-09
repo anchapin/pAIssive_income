@@ -1,6 +1,7 @@
 """test_user_api - Tests for User API endpoints, edge cases, and error handling."""
 
 import pytest
+
 from fastapi.testclient import TestClient
 
 try:
@@ -10,28 +11,35 @@ except ImportError:
 
 client = TestClient(app) if app else None
 
+
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")
 class TestUserAPI:
     def test_create_user_success(self):
-        response = client.post("/users/", json={
-            "username": "newuser",
-            "email": "newuser@example.com",
-            "password": "StrongPassword123!"
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "username": "newuser",
+                "email": "newuser@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
         assert response.status_code == 201
         assert response.json()["username"] == "newuser"
 
     def test_create_user_missing_fields(self):
-        response = client.post("/users/", json={
-            "username": "incomplete"
-        })
+        response = client.post("/users/", json={"username": "incomplete"})
         assert response.status_code == 422
 
     def test_get_user_success(self):
         # Setup: Create user
-        post_resp = client.post("/users/", json={
-            "username": "getme", "email": "getme@example.com", "password": "pw"
-        })
+        post_resp = client.post(
+            "/users/",
+            json={
+                "username": "getme",
+                "email": "getme@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
         user_id = post_resp.json().get("id")
         response = client.get(f"/users/{user_id}")
         assert response.status_code == 200
@@ -43,11 +51,18 @@ class TestUserAPI:
 
     def test_update_user_success(self):
         # Setup: Create user
-        post_resp = client.post("/users/", json={
-            "username": "updateu", "email": "updateu@example.com", "password": "pw"
-        })
+        post_resp = client.post(
+            "/users/",
+            json={
+                "username": "updateu",
+                "email": "updateu@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
         user_id = post_resp.json().get("id")
-        response = client.put(f"/users/{user_id}", json={"email": "updated@example.com"})
+        response = client.put(
+            f"/users/{user_id}", json={"email": "updated@example.com"}
+        )
         assert response.status_code in (200, 202)
         assert response.json()["email"] == "updated@example.com"
 
@@ -57,9 +72,14 @@ class TestUserAPI:
 
     def test_delete_user_success(self):
         # Setup: Create user
-        post_resp = client.post("/users/", json={
-            "username": "delu", "email": "delu@example.com", "password": "pw"
-        })
+        post_resp = client.post(
+            "/users/",
+            json={
+                "username": "delu",
+                "email": "delu@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
         user_id = post_resp.json().get("id")
         response = client.delete(f"/users/{user_id}")
         assert response.status_code in (200, 204)
@@ -85,16 +105,31 @@ class TestUserAPI:
         assert response.status_code in (401, 403, 405)
 
     def test_email_uniqueness(self):
-        client.post("/users/", json={
-            "username": "unique1", "email": "unique@example.com", "password": "pw"
-        })
-        response = client.post("/users/", json={
-            "username": "unique2", "email": "unique@example.com", "password": "pw"
-        })
+        client.post(
+            "/users/",
+            json={
+                "username": "unique1",
+                "email": "unique@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
+        response = client.post(
+            "/users/",
+            json={
+                "username": "unique2",
+                "email": "unique@example.com",
+                "password": "StrongPassword123!",
+            },
+        )
         assert response.status_code in (400, 409, 422)
 
     def test_password_strength_validation(self):
-        response = client.post("/users/", json={
-            "username": "weakpw", "email": "weakpw@example.com", "password": "123"
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "username": "weakpw",
+                "email": "weakpw@example.com",
+                "password": "123",
+            },
+        )
         assert response.status_code in (400, 422)

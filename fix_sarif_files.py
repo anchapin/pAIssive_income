@@ -8,6 +8,7 @@ GitHub Advanced Security by correcting common issues.
 import json
 import os
 import sys
+
 from pathlib import Path
 
 

@@ -4,7 +4,9 @@ This module provides integration with HashiCorp Vault for secrets management.
 """
 
 # Standard library imports
-from typing import Any, Dict, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 # Third-party imports
 # Import vault libraries when implemented

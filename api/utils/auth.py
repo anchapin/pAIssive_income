@@ -5,11 +5,15 @@ This module provides utility functions for authentication in the API.
 
 # Standard library imports
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
 
 # Third-party imports
-from fastapi import Depends, HTTPException, status
-from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import status
+from fastapi.security import APIKeyHeader
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from common_utils.logging import get_logger

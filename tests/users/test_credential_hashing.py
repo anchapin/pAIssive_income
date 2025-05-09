@@ -5,7 +5,8 @@ import unittest
 
 # Third-party imports
 # Local imports
-from users.auth import hash_credential, verify_credential
+from users.auth import hash_credential
+from users.auth import verify_credential
 
 
 class TestCredentialHashing(unittest.TestCase):

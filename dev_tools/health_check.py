@@ -32,7 +32,7 @@ def run(cmd, desc):
 
     """
     print(f"\n\033[1m==> {desc}\033[0m")
-    res = subprocess.run(cmd, shell=True)
+    res = subprocess.run(cmd, shell=True, check=False)
     if res.returncode != 0:
         print(f"\033[91mFAILED: {desc}\033[0m")
         sys.exit(1)

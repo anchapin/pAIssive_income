@@ -9,8 +9,13 @@ import json
 import os
 import re
 import uuid
+
 from datetime import datetime
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
 # Third-party imports
 from cryptography.fernet import Fernet
@@ -19,7 +24,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 # Local imports
-from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger
+from common_utils.logging.secure_logging import mask_sensitive_data
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)
@@ -323,27 +329,23 @@ def scan_directory(
                         )
 
                 except (PermissionError, FileNotFoundError) as e:
-                    error_files.append(
-                        {
-                            "file": file_path,
-                            "timestamp": datetime.now().isoformat(),
-                            "error_type": type(e).__name__,
-                            "error_id": str(uuid.uuid4()),
-                        }
-                    )
+                    error_files.append({
+                        "file": file_path,
+                        "timestamp": datetime.now().isoformat(),
+                        "error_type": type(e).__name__,
+                        "error_id": str(uuid.uuid4()),
+                    })
                     logger.warning(
                         "File access error",
                         extra={"file": file_path, "error": str(e)},
                     )
                 except Exception as e:
-                    error_files.append(
-                        {
-                            "file": file_path,
-                            "timestamp": datetime.now().isoformat(),
-                            "error_type": type(e).__name__,
-                            "error_id": str(uuid.uuid4()),
-                        }
-                    )
+                    error_files.append({
+                        "file": file_path,
+                        "timestamp": datetime.now().isoformat(),
+                        "error_type": type(e).__name__,
+                        "error_id": str(uuid.uuid4()),
+                    })
                     logger.error(
                         "Unexpected error processing file",
                         extra={
