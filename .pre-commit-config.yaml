@@ -84,5 +84,7 @@ repos:
             dist/.*|
             .*\.min\.(js|css)$|
             .*\.(jpg|jpeg|png|gif|bmp|svg|mp4|avi|mov|wmv|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|zip|tar|gz|rar)$|
-            \.github/workflows/.*\.yml$
+            \.github/workflows/.*\.yml$|
+            .*playwright-report/.*|
+            .*ui/react_frontend/playwright-report/.*
           )

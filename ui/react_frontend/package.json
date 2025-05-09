@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "node-notifier": "^8.0.2",
     "postcss": "^8.4.31",

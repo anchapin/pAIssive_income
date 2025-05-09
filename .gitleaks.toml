@@ -73,6 +73,11 @@ paths = [
 
     # Test cache files
     '''\.pytest_cache[/\\]v[/\\]cache[/\\]lastfailed''',
+
+    # Playwright report files (generated test reports)
+    '''.*[/\\]playwright-report[/\\].*''',
+    '''.*[/\\]playwright-report[/\\]index\.html''',
+    '''.*ui[/\\]react_frontend[/\\]playwright-report[/\\].*''',
 ]
 
 # Allowlist specific regexes that are known to be false positives
