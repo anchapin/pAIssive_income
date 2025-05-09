@@ -36,7 +36,8 @@ def fix_sarif_file(file_path):
         # Fix $schema field if it's malformed (contains newlines or spaces)
         # Always set the schema URL to ensure it's correct
         data["$schema"] = (
-            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
         )
         needs_fixing = True
         print(f"Set schema URL to the correct value for {file_path}")
@@ -49,7 +50,8 @@ def fix_sarif_file(file_path):
 
         if "$schema" not in data:
             data["$schema"] = (
-                "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
+                "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+                "Schemata/sarif-schema-2.1.0.json"
             )
             needs_fixing = True
             print(f"Added missing $schema field to {file_path}")
@@ -127,7 +129,10 @@ def create_empty_sarif_file(file_path):
     try:
         data = {
             "version": "2.1.0",
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "$schema": (
+                "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+                "Schemata/sarif-schema-2.1.0.json"
+            ),
             "runs": [
                 {
                     "tool": {

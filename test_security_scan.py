@@ -100,7 +100,8 @@ def test_safety_scan() -> bool:
     print("Converting Safety results to SARIF format...")
     stdout, stderr, return_code = run_command(
         "python sarif_utils.py security-reports/safety-results.json "
-        "security-reports/safety-results.sarif Safety https://pyup.io/safety/"
+        "security-reports/safety-results.sarif Safety "
+        "https://pyup.io/safety/"
     )
 
     if return_code != 0:
@@ -160,7 +161,8 @@ def test_bandit_scan() -> bool:
     print("Converting Bandit results to SARIF format...")
     stdout, stderr, return_code = run_command(
         "python sarif_utils.py security-reports/bandit-results.json "
-        "security-reports/bandit-results.sarif Bandit https://bandit.readthedocs.io/"
+        "security-reports/bandit-results.sarif Bandit "
+        "https://bandit.readthedocs.io/"
     )
 
     if return_code != 0:
@@ -189,7 +191,8 @@ def test_sarif_file_handling() -> bool:
 
         # Create a test SARIF file
         stdout, stderr, return_code = run_command(
-            'python sarif_utils.py "[]" security-reports/test-results.sarif Test https://example.com'
+            'python sarif_utils.py "[]" security-reports/test-results.sarif '
+            "Test https://example.com"
         )
 
         if return_code != 0:

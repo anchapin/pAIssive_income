@@ -25,7 +25,10 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:
     """
     return {
         "version": "2.1.0",
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
+        ),
         "runs": [
             {
                 "tool": {
