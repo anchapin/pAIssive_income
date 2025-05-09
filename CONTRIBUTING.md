@@ -26,4 +26,12 @@ See the full checklist and principles in [claude_coding_best_practices.md](claud
 - Use the checklist as part of your development and review workflow.
 - If you see areas where the repo does not yet meet these standards, please raise an issue or PR.
 
+---
+
+## File Inclusion Policy
+
+**Note:** Only files tracked by git (i.e., not ignored by `.gitignore`) are processed by tests and project scripts.  
+If your files are not added to git, they will be skipped by all automated linting, formatting, and testing tools.  
+To ensure your new or modified files are included, use `git add` before running tests or submitting a pull request.
+
 Thank you for helping us maintain high standards!
