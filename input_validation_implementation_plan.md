@@ -4,6 +4,8 @@
 
 This document outlines the plan for implementing consistent validation for user inputs across the pAIssive_income project. Based on the input validation audit, we will focus on ensuring all user input points have proper validation mechanisms.
 
+All validation and error handling must comply with [docs/input_validation_and_error_handling_standards.md](docs/input_validation_and_error_handling_standards.md).
+
 ## Implementation Steps
 
 ### 1. Standardize Input Validation Approach
@@ -127,17 +129,43 @@ This document outlines the plan for implementing consistent validation for user 
 ## Documentation
 
 1. **Code Documentation**
-   - Document all validation functions
-   - Document all validation schemas
-   - Document validation error handling
+   - Document all validation functions and schemas.
+   - Document validation error handling.
+   - Reference the standards in all module documentation.
 
 2. **User Documentation**
-   - Document validation requirements for API endpoints
-   - Document validation error responses
+   - Document validation requirements for API endpoints and CLI commands.
+   - Document validation error responses (format, codes).
 
-## Next Steps
+3. **Standards Documentation**
+   - See [docs/input_validation_and_error_handling_standards.md](docs/input_validation_and_error_handling_standards.md) for required practices.
 
-1. Create the centralized validation module
-2. Implement standard validation functions
-3. Apply validation to critical forms and API endpoints
-4. Gradually expand validation coverage to all user input points
+## Next Steps and Action Items
+
+1. Create the centralized validation module (per standards doc).
+2. Implement standard validation and sanitization functions.
+3. Apply validation to critical forms and API endpoints.
+4. Expand coverage to all user input points.
+5. Add/expand tests for invalid/malicious input and error handling (see checklist below).
+6. Ensure all validation, sanitization, and error handling matches the [standards](docs/input_validation_and_error_handling_standards.md).
+
+---
+
+## Checklist for Invalid and Malicious Input Testing
+
+For every input point (API, form, CLI, config, file upload):
+
+- [ ] Valid input (happy path)
+- [ ] Missing required fields
+- [ ] Extra/unknown fields
+- [ ] Invalid types and out-of-range values
+- [ ] XSS payloads (e.g., `<script>alert(1)</script>`)
+- [ ] SQL injection payloads (e.g., `'; DROP TABLE users; --`)
+- [ ] Oversized payloads/fields
+- [ ] Malformed files (for uploads)
+- [ ] Invalid/missing Content-Type headers
+- [ ] Invalid/missing API keys or auth tokens
+
+---
+
+All contributors must ensure their code and tests align with the [Input Validation and Error Handling Standards](docs/input_validation_and_error_handling_standards.md).

@@ -7,8 +7,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardHeader,
-  Divider,
   FormControl,
   InputLabel,
   Select,
@@ -69,7 +67,8 @@ const ApiAnalyticsDashboard = () => {
 
         // Process status code data
         const statusCodes = {};
-        requestsData.items?.forEach(item => {
+        const items = requestsData.items || [];
+        items.forEach(item => {
           const statusCode = item.status_code;
           const statusGroup = Math.floor(statusCode / 100) * 100;
           const statusName = getStatusCodeName(statusGroup);
@@ -80,12 +79,12 @@ const ApiAnalyticsDashboard = () => {
           statusCodes[statusName]++;
         });
 
-        const statusCodeData = Object.entries(statusCodes).map(([name, value]) => ({
+        const processedStatusCodeData = Object.entries(statusCodes).map(([name, value]) => ({
           name,
           value
         }));
 
-        setStatusCodeData(statusCodeData);
+        setStatusCodeData(processedStatusCodeData);
       } catch (err) {
         console.error('Error fetching analytics data:', err);
         setError(err.message);

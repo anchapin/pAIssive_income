@@ -1,6 +1,6 @@
 # CONTRIBUTING
 
-Thank you for your interest in contributing to this project! Please read the following guidelines to help us maintain high quality and reliability.
+Contribution guidelines and best practices have moved to [docs/contributing.md](docs/contributing.md) in the centralized documentation.
 
 ## Testing Standards
 
@@ -17,8 +17,9 @@ To maintain a robust, reliable, and high-quality codebase, all contributions mus
 - **CI Compliance:** All tests (unit, integration, etc.) must pass in CI, and coverage must meet the threshold. See `.github/workflows/ci.yml` for details of enforcement.
 - **Documentation:** When adding new modules, endpoints, or features, update or add docstrings and relevant documentation (including usage examples or test documentation) as appropriate.
 
-**Summary:**  
+**Summary:**
 Before submitting a PR:
+
 - Ensure your changes are fully tested, including edge/error cases.
 - Run `python run_tests.py --with-coverage` and confirm coverage is **at least 90%**.
 - Ensure your code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
@@ -26,15 +27,9 @@ Before submitting a PR:
 
 For questions or clarifications on testing, consult `test_coverage_plan.md`, review existing tests, or ask a maintainer.
 
-Thank you for helping us keep the codebase robust and maintainable!
-
 ## Pull Request Checklist
 
 - [ ] My code includes tests covering all new/changed logic and edge/error cases.
 - [ ] I ran `python run_tests.py --with-coverage` and confirmed coverage is ≥90%.
 - [ ] My code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
 - [ ] All automated tests pass in CI.
-
-For any questions on testing practices or coverage, please consult the test coverage plan (`test_coverage_plan.md`) or ask a maintainer.
-
-Happy testing and thank you for helping us maintain high quality!

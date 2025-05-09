@@ -10,8 +10,7 @@ import {
   ResponsiveContainer,
   Brush,
   ReferenceLine,
-  ReferenceArea,
-  ZoomOutIcon
+  ReferenceArea
 } from 'recharts';
 import {
   Button,
@@ -30,9 +29,9 @@ import {
   DialogActions,
   Box,
   Typography,
-  Divider
+  Divider,
+  Chip
 } from '@mui/material';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import DownloadIcon from '@mui/icons-material/Download';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -87,7 +86,6 @@ const UserGrowthLineChart = ({
 
   // Menu state
   const [anchorEl, setAnchorEl] = useState(null);
-  const [exportFormat, setExportFormat] = useState('csv');
   const open = Boolean(anchorEl);
 
   // Chart ref for exporting/saving

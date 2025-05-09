@@ -6,20 +6,20 @@ import {
   Paper,
   Chip,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  // FormControl is imported but not used
+  // InputLabel is imported but not used
+  // Select is imported but not used
+  // MenuItem is imported but not used
   Button,
   List,
   ListItem,
   ListItemText,
-  Divider,
+  // Divider is imported but not used
   LinearProgress,
   Card,
   CardContent,
   CardHeader,
-  Rating,
+  // Rating is imported but not used
   Tab,
   Tabs
 } from '@mui/material';
