@@ -2,6 +2,8 @@
 
 This directory contains various scripts for DevOps tasks such as running GitHub Actions workflows locally, linting code, running tests, and fixing syntax errors.
 
+> **Note:** Additional documentation for DevOps scripts and workflows can be found in [docs/ci_cd_pipeline.md](docs/ci_cd_pipeline.md) in the centralized documentation.
+
 ## Unified Workflow (Recommended)
 
 We now provide a **unified entrypoint** for all code quality, linting, formatting, syntax, docstring, and security tasks.

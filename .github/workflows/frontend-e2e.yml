@@ -1,0 +1,80 @@
+name: Frontend E2E Tests
+
+on:
+  pull_request:
+    paths:
+      - "ui/react_frontend/**"
+      - ".github/workflows/frontend-e2e.yml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ui/react_frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Start backend API server
+        run: |
+          pip install -r ../../requirements.txt
+          pip install -r ../../requirements-dev.txt
+          pip install -e ../..
+          nohup python ../../ui/api_server.py &
+          for i in {1..30}; do
+            if curl --silent --fail http://localhost:8000/health; then
+              echo "Backend API server is ready."
+              break
+            fi
+            echo "Waiting for backend API server to be ready..."
+            sleep 1
+          done
+          if ! curl --silent --fail http://localhost:8000/health; then
+            echo "Backend API server failed to start within 30 seconds."
+            exit 1
+          fi
+
+      - name: Start React development server
+        run: |
+          nohup npm start -- --port=3000 &
+          # Increase wait time to ensure React app is fully loaded
+          sleep 20
+
+          # Check if the server is responding
+          echo "Checking if React server is up..."
+          curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"
+
+      - name: Run Playwright E2E tests
+        run: |
+          # Run tests with retry mechanism
+          npx playwright test || npx playwright test --retries=2
+
+      - name: Debug artifact path
+        run: ls -la playwright-report/
+
+      - name: Create playwright-report directory
+        if: always()
+        run: mkdir -p playwright-report/
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 30

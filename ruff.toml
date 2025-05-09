@@ -19,6 +19,9 @@ exclude = [
     "*.ini",
     "*.cfg",
     "*.txt",
+    "!src/**/*.py",
+    "!tests/**/*.py",
+    "!utils/**/*.py"
 ]
 
 [lint]

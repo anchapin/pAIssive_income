@@ -1,12 +1,20 @@
 # Define default exclude patterns for all hooks
-# Using both absolute path pattern and directory name pattern to ensure .venv is fully excluded
+# Using regex pattern to exclude common third-party directories
 exclude: |
   (?x)^(
     \.venv/|
     venv/|
     \.git/|
+    node_modules/|
     .*\.venv/.*|
-    .*venv/.*
+    .*venv/.*|
+    .*node_modules/.*|
+    .*__pycache__/.*|
+    .*\.pytest_cache/.*|
+    .*\.mypy_cache/.*|
+    .*\.ruff_cache/.*|
+    .*build/.*|
+    .*dist/.*
   )$
 
 # Add fail_fast: false to continue running hooks even if one fails
@@ -21,6 +29,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        exclude: ".*package-lock\\.json$"
       - id: check-ast  # Check Python syntax
       - id: check-json
       - id: check-toml
@@ -31,8 +40,13 @@ repos:
     rev: v0.11.8
     hooks:
       - id: ruff
-        args: [--fix]
+        types: [python]
+        files: \.py$
+        entry: ruff check
       - id: ruff-format
+        types: [python]
+        files: \.py$
+        entry: ruff format
 
   # Optional: Add mypy for type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -42,6 +56,38 @@ repos:
         additional_dependencies: [types-requests, types-PyYAML]
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        name: gitleaks detect secrets
+        entry: gitleaks detect --no-git -v --config=.gitleaks.toml --no-banner
+        language: golang
+        types: [file]
+        pass_filenames: false
+        require_serial: true
+        additional_dependencies: []
+        always_run: true
+        verbose: true
+        # Override the global exclude pattern with a more specific one for gitleaks
+        exclude: |
+          (?x)^(
+            \.venv/.*|
+            venv/.*|
+            node_modules/.*|
+            \.git/.*|
+            __pycache__/.*|
+            \.pytest_cache/.*|
+            \.mypy_cache/.*|
+            \.ruff_cache/.*|
+            build/.*|
+            dist/.*|
+            .*\.min\.(js|css)$|
+            .*\.(jpg|jpeg|png|gif|bmp|svg|mp4|avi|mov|wmv|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|zip|tar|gz|rar)$|
+            \.github/workflows/.*\.yml$|
+            .*playwright-report/.*|
+            .*ui/react_frontend/playwright-report/.*
+          )
 
   # Unified local code quality workflow
   -   repo: local
