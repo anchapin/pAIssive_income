@@ -221,6 +221,35 @@ pre-commit run trailing-whitespace --all-files
 pre-commit run ruff --all-files
 ```
 
+### Unified Workflow (Recommended)
+
+We now provide a **unified entrypoint** for all code quality, linting, formatting, syntax, docstring, and security tasks.
+
+**Use the Makefile for common developer tasks:**
+
+```bash
+make all           # Run all checks and fixes
+make lint          # Lint codebase
+make format        # Format codebase
+make fix           # Run all automated code fixers
+make docstring-fix # Fix docstring issues
+make syntax-fix    # Fix syntax issues
+make security      # Run security scans
+make test          # Run all tests
+make pre-commit    # Run all pre-commit checks
+```
+
+Or, run tasks directly with the unified CLI:
+
+```bash
+python scripts/manage_quality.py lint
+python scripts/manage_quality.py fix
+python scripts/manage_quality.py security-scan
+# ...and more
+```
+
+The `.pre-commit-config.yaml` is configured to use this unified entrypoint for code quality hooks.
+
 ### Local Linting Commands
 
 Use these commands to check and fix linting issues:
@@ -232,13 +261,13 @@ scripts\lint_check.bat  # Windows
 ./scripts/lint_check.sh  # Unix/Linux
 ```
 
-1. Fix issues automatically:
+2. Fix issues automatically:
 
 ```bash
 python fix_all_issues_final.py
 ```
 
-1. Run specific checks:
+3. Run specific checks:
 
 ```bash
 scripts\lint_check.bat --ruff  # Run only Ruff
