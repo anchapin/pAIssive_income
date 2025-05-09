@@ -2,6 +2,7 @@
 
 # Standard library imports
 import argparse
+import datetime
 import os
 import shutil
 import sys
@@ -108,8 +109,6 @@ def backup_task(path: str, dry_run: bool) -> None:
                 return
 
     # Create backup filename with timestamp
-    import datetime
-
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_name = f"{path_obj.name}_{timestamp}"
     backup_path = backup_dir / backup_name
