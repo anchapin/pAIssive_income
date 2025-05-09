@@ -110,6 +110,7 @@ We use Markdown for documentation. Please follow these guidelines when writing d
 - Include examples where appropriate.
 - Follow the existing documentation structure (see [documentation-guide.md](documentation-guide.md)).
 - Use proper Markdown formatting.
+- **All new features and code changes must include relevant documentation updates in the appropriate `docs/` file(s) as part of the pull request.**
 
 ## Feedback and Documentation Updates
 
@@ -118,6 +119,13 @@ If you have suggestions for improving documentation, please open an issue with t
 ## Code Style
 
 We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, black, isort, ruff, and mypy for code linting, formatting, and type checking:
+
+> **Best Practices:**
+> All contributors are expected to review and adhere to the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md) for safe, reliable, and auditable automation. These include principles like explicit state and input/output handling, modular design, input validation, deterministic steps, and comprehensive documentation and testing.
+
+## Coding Best Practices
+
+All contributors should review and follow the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md) for safe, reliable, and auditable automation. These include explicit state handling, modular/testable design, strong validation, deterministic steps, idempotency, human oversight, comprehensive documentation, and robust testing. Please see the checklist in that document before submitting changes or pull requests.
 
 ```bash
 # Run pre-commit hooks on all files

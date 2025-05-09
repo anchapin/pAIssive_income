@@ -7,12 +7,10 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardActions,
   Button,
   Stepper,
   Step,
   StepLabel,
-  TextField,
   FormControl,
   InputLabel,
   Select,
@@ -32,8 +30,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CodeIcon from '@mui/icons-material/Code';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+// SettingsIcon is imported but not used
+// CloudDownloadIcon is imported but not used
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
 
 const Item = styled(Paper)(({ theme }) => ({

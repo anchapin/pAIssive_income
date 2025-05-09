@@ -3,8 +3,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from 'recharts';
 
 /**
@@ -54,10 +53,8 @@ const CustomerLifetimeValueGauge = ({
   const ltvFiveYear = data.five_year_value || 0;
   const ltvFull = data.lifetime_value || 0;
 
-  // Create datasets for each gauge
-  const oneYearData = createGaugeData(ltvOneYear, ltvFull);
+  // Create dataset for the gauge chart
   const threeYearData = createGaugeData(ltvThreeYear, ltvFull);
-  const fiveYearData = createGaugeData(ltvFiveYear, ltvFull);
 
   // Calculate sizes for responsive layout
   const gaugeSize = height * 0.8;
