@@ -39,6 +39,14 @@ The security scan stage performs security analysis using the following tools:
 - **bandit**: Checks for common security issues in Python code
 - **safety**: Checks for known vulnerabilities in dependencies
 
+### Documentation Update Check
+
+This stage ensures that code changes are accompanied by relevant documentation updates. It runs on every pull request and push to the main branches.
+
+- **Purpose**: Prevents changes to code or other non-documentation files without corresponding updates to documentation (such as files in `docs/`, `docs_source/`, or Markdown files at the repo root).
+- **How it works**: If any non-documentation files are changed, at least one documentation file must also be updated. Otherwise, the workflow fails.
+- **Resolution**: If this check fails, review your changes and update the relevant documentation to reflect your code modifications.
+
 ### Build
 
 The build stage builds a Docker image for the application and pushes it to Docker Hub. This stage only runs on pushes to the main and develop branches.
