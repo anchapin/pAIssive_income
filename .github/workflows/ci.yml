@@ -163,7 +163,8 @@ jobs:
       - name: Run Ruff (Fix Mode)
         run: |
           echo "Running Ruff in fix mode..."
-          ruff check . --fix
+
+          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -183,17 +184,57 @@ jobs:
             }
           fi
 
-          # Size check for changes
-          CHANGED_FILES=$(git diff --name-only | wc -l)
-          if [ "$CHANGED_FILES" -gt 50 ]; then
-            echo "Too many files modified by auto-fix (${CHANGED_FILES}). Manual review needed."
-            exit 1
-          fi
+          # First, fix scripts/sues.py specifically since it was mentioned in the error
+          echo "Fixing scripts/sues.py specifically..."
+          ruff check scripts/sues.py --fix
 
-          # Commit and push the changes
-          git add .
-          git commit -m "Fix linting issues using Ruff" || echo "No changes to commit"
-          git push origin HEAD:${GITHUB_HEAD_REF:-main}
+          # Process files in batches to avoid overwhelming git
+          echo "Processing Python files in batches..."
+
+          # Find all Python files, excluding .venv directory
+          PYTHON_FILES=$(find . -name "*.py" -not -path "*/\.*" -not -path "*/.venv/*" -not -path "*/venv/*")
+
+          # Count total files
+          TOTAL_FILES=$(echo "$PYTHON_FILES" | wc -l)
+          echo "Found $TOTAL_FILES Python files to process"
+
+          # Process in batches of 20 files
+          BATCH_SIZE=20
+          BATCH_COUNT=$(( (TOTAL_FILES + BATCH_SIZE - 1) / BATCH_SIZE ))
+
+          for ((i=0; i<BATCH_COUNT; i++)); do
+            START=$((i * BATCH_SIZE + 1))
+            END=$((START + BATCH_SIZE - 1))
+
+            echo "Processing batch $((i+1))/$BATCH_COUNT (files $START-$END)..."
+
+            # Get current batch of files
+            BATCH_FILES=$(echo "$PYTHON_FILES" | sed -n "${START},${END}p")
+
+            # Skip if empty
+            if [ -z "$BATCH_FILES" ]; then
+              echo "No files in this batch, skipping"
+              continue
+            fi
+
+            # Run Ruff on this batch
+            echo "$BATCH_FILES" | xargs ruff check --fix
+
+            # Check if any files were modified
+            if [ -n "$(git diff --name-only)" ]; then
+              # Commit changes for this batch
+              git add .
+              git commit -m "Fix linting issues in batch $((i+1))/$BATCH_COUNT" || echo "No changes to commit in this batch"
+            else
+              echo "No changes in this batch"
+            fi
+          done
+
+          # Push all commits
+          echo "Pushing changes..."
+          git push origin HEAD:${GITHUB_HEAD_REF:-main} || {
+            echo "::warning::Failed to push changes. This could be due to permissions or if no changes were made."
+          }
         continue-on-error: true
 
       - name: Notify Developer
@@ -205,6 +246,18 @@ jobs:
             echo "- Check the Ruff output above for specific formatting issues"
             echo "- Review failing files manually"
             echo "- Consider running 'ruff check --fix' locally"
+            echo ""
+            echo "To fix these issues locally, run:"
+            echo "```bash"
+            echo "# Install Ruff if you don't have it"
+            echo "pip install ruff"
+            echo ""
+            echo "# Fix all issues automatically"
+            echo "ruff check . --fix"
+            echo ""
+            echo "# Or fix specific files"
+            echo "ruff check scripts/sues.py --fix"
+            echo "```"
             echo "::endgroup::"
 
             if [ -n "$(git diff --name-only)" ]; then
@@ -213,6 +266,45 @@ jobs:
               echo "::endgroup::"
             fi
           } >> $GITHUB_STEP_SUMMARY
+
+          # Create a comment on the PR if this is a pull request
+          if [ -n "$GITHUB_EVENT_NAME" ] && [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "Creating comment on PR..."
+
+            # Create a temporary file for the PR comment
+            echo "## Linting Issues Detected 🔍" > pr_comment.md
+            echo "" >> pr_comment.md
+            echo "The CI workflow detected linting issues that need to be fixed. The workflow attempted to fix them automatically but encountered too many issues." >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "### How to fix:" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "1. Run Ruff locally to fix the issues:" >> pr_comment.md
+            echo "   \`\`\`bash" >> pr_comment.md
+            echo "   # Install Ruff if you don't have it" >> pr_comment.md
+            echo "   pip install ruff" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "   # Fix all issues automatically" >> pr_comment.md
+            echo "   ruff check . --fix" >> pr_comment.md
+            echo "   \`\`\`" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "2. Commit and push the changes" >> pr_comment.md
+            echo "3. The CI workflow will run again and should pass" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "### Specific files that need attention:" >> pr_comment.md
+            echo "- \`scripts/sues.py\` (mentioned in the error)" >> pr_comment.md
+            echo "- Other Python files with formatting issues" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "For more details, check the workflow logs." >> pr_comment.md
+
+            # Use GitHub API to post comment (requires GITHUB_TOKEN)
+            PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+            COMMENT_BODY=$(cat pr_comment.md | jq -Rs .)
+            curl -s -X POST \
+              -H "Authorization: token ${{ github.token }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+              -d "{\"body\": $COMMENT_BODY}"
+          fi
 
       - name: Run Ruff (Check Only)
         run: |

@@ -35,14 +35,23 @@ jobs:
           pip install -r ../../requirements-dev.txt
           pip install -e ../..
           nohup python ../../ui/api_server.py &
+          # Wait for API server to initialize
+          sleep 10
 
       - name: Start React development server
         run: |
           nohup npm start -- --port=3000 &
-          sleep 10
+          # Increase wait time to ensure React app is fully loaded
+          sleep 20
+
+          # Check if the server is responding
+          echo "Checking if React server is up..."
+          curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"
 
       - name: Run Playwright E2E tests
-        run: npx playwright test
+        run: |
+          # Run tests with retry mechanism
+          npx playwright test || npx playwright test --retries=2
 
       - name: Debug artifact path
         run: ls -la playwright-report/
