@@ -20,6 +20,12 @@ Before submitting your PR, please ensure:
 
 See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
 
+## Note on Tracked Files and .gitignore
+
+Only files tracked by git (i.e., not ignored by `.gitignore`) are processed by tests, scripts, and CI tools in this repository. 
+**If you add or modify files that are ignored by `.gitignore`, they will not be linted, tested, or included in automation.**
+Please ensure all source files that should be checked by automation are added to version control and not excluded by `.gitignore`.
+
 ## Pull Requests
 
 - Reference the checklist above in your PR description.
