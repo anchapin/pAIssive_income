@@ -35,7 +35,9 @@ The `.pre-commit-config.yaml` is configured to use this unified entrypoint for c
 
 ## Legacy Scripts (for reference)
 
-While the unified workflow is recommended, the following scripts are still available for direct or advanced use:
+**Note: The unified workflow described above is the recommended approach for routine development tasks.**
+
+The following scripts are maintained for backward compatibility and advanced use cases only. New development should use the unified workflow instead of these individual scripts:
 
 ### GitHub Actions
 

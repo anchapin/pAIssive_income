@@ -26,5 +26,6 @@ test:
 pre-commit:
 	python scripts/manage_quality.py pre-commit
 
-all: lint format fix docstring-fix syntax-fix security test
-	@echo "All code quality and security checks have been run."
+all: lint format fix docstring-fix syntax-fix security test pre-commit
+	@echo "All code quality, security, and pre-commit checks have been run."
+
