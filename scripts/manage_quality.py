@@ -87,7 +87,7 @@ def main():
     """Execute the main CLI functionality for code quality management."""
     parser = argparse.ArgumentParser(
         description="Unified Code Quality, Lint, Format, Syntax, Docstring, "
-                    "and Security Management"
+        "and Security Management"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
