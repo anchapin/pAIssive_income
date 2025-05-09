@@ -62,35 +62,56 @@ jobs:
         echo "Running Safety check..."
         mkdir -p security-reports
 
-        # Create fallback safety results file
+        # Create fallback safety results file with valid JSON
         echo "[]" > security-reports/safety-results.json
 
+        # Verify safety is installed and working
+        if ! command -v safety &> /dev/null; then
+          echo "::error::Safety command not found. Reinstalling..."
+          python -m pip install --upgrade safety
+        fi
+
         # Run safety check with better error handling
-        safety check --json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log || true
+        echo "Running safety check command..."
+        if safety check --json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log; then
+          echo "Safety check completed successfully"
+        else
+          echo "::warning::Safety check exited with non-zero status. This may be normal if vulnerabilities were found."
+        fi
 
         # Check if the output file exists and has content
         if [ -s security-reports/safety-results.json.tmp ]; then
-          echo "Safety check completed, processing results..."
-          mv security-reports/safety-results.json.tmp security-reports/safety-results.json
+          echo "Safety check produced output, processing results..."
 
-          # Count vulnerabilities
-          VULN_COUNT=$(grep -c "vulnerability" security-reports/safety-results.json || echo "0")
-          if [ "$VULN_COUNT" -gt "0" ]; then
-            echo "::warning::Safety scan found $VULN_COUNT potential vulnerabilities"
+          # Validate JSON format
+          if python -c "import json; json.load(open('security-reports/safety-results.json.tmp'))" 2>/dev/null; then
+            echo "Safety output is valid JSON"
+            mv security-reports/safety-results.json.tmp security-reports/safety-results.json
+
+            # Count vulnerabilities
+            VULN_COUNT=$(grep -c "vulnerability" security-reports/safety-results.json || echo "0")
+            if [ "$VULN_COUNT" -gt "0" ]; then
+              echo "::warning::Safety scan found $VULN_COUNT potential vulnerabilities"
+            else
+              echo "No vulnerabilities found by Safety"
+            fi
           else
-            echo "No vulnerabilities found by Safety"
+            echo "::warning::Safety output is not valid JSON. Using empty results."
+            echo "Invalid JSON content:"
+            cat security-reports/safety-results.json.tmp
+            # Keep the fallback file we created earlier
           fi
-
-          # Convert Safety JSON to SARIF format
-          echo "Converting Safety results to SARIF format..."
-          python sarif_utils.py "security-reports/safety-results.json" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
         else
-          echo "::warning::Safety check failed or produced no output"
-          cat security-reports/safety-error.log
-
-          # Create empty SARIF file
-          python sarif_utils.py "[]" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
+          echo "::warning::Safety check produced no output"
+          if [ -f security-reports/safety-error.log ]; then
+            echo "Safety error log:"
+            cat security-reports/safety-error.log
+          fi
         fi
+
+        # Convert Safety JSON to SARIF format (our improved script will handle empty or invalid files)
+        echo "Converting Safety results to SARIF format..."
+        python sarif_utils.py "security-reports/safety-results.json" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
 
     - name: Run bandit security scan
       id: bandit
@@ -100,9 +121,40 @@ jobs:
         echo "Running Bandit security scan..."
         mkdir -p security-reports
 
+        # Create fallback bandit results file with valid JSON
+        echo "[]" > security-reports/bandit-results.json
+
+        # Verify bandit is installed and working
+        if ! command -v bandit &> /dev/null; then
+          echo "::error::Bandit command not found. Reinstalling..."
+          python -m pip install --upgrade bandit
+        fi
+
         # Run bandit with JSON output format
-        if ! bandit -r . -f json -o security-reports/bandit-results.json; then
+        echo "Running bandit scan command..."
+        if bandit -r . -f json -o security-reports/bandit-results.json.tmp 2>security-reports/bandit-error.log; then
+          echo "Bandit scan completed successfully"
+          mv security-reports/bandit-results.json.tmp security-reports/bandit-results.json
+        else
           echo "::warning::Bandit scan completed with security issues found"
+
+          # Check if output file exists and has content
+          if [ -s security-reports/bandit-results.json.tmp ]; then
+            # Validate JSON format
+            if python -c "import json; json.load(open('security-reports/bandit-results.json.tmp'))" 2>/dev/null; then
+              echo "Bandit output is valid JSON"
+              mv security-reports/bandit-results.json.tmp security-reports/bandit-results.json
+            else
+              echo "::warning::Bandit output is not valid JSON. Using empty results."
+              # Keep the fallback file we created earlier
+            fi
+          else
+            echo "::warning::Bandit scan produced no output"
+            if [ -f security-reports/bandit-error.log ]; then
+              echo "Bandit error log:"
+              cat security-reports/bandit-error.log
+            fi
+          fi
         fi
 
         # Convert JSON to SARIF format using our utility script
@@ -119,6 +171,27 @@ jobs:
         format: 'sarif'
         output: 'security-reports/trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
+
+    - name: Debug Security Reports
+      if: always()
+      run: |
+        echo "Debugging security reports directory..."
+        ls -la security-reports/
+
+        # Check if SARIF files exist and have content
+        for file in security-reports/*.sarif; do
+          if [ -f "$file" ]; then
+            echo "File $file exists with size $(stat -c%s "$file") bytes"
+            # Validate SARIF format
+            if python -c "import json; json.load(open('$file'))" 2>/dev/null; then
+              echo "✅ $file is valid JSON"
+            else
+              echo "❌ $file is not valid JSON"
+            fi
+          else
+            echo "❌ File $file does not exist"
+          fi
+        done
 
     - name: Upload Security Reports
       if: always()

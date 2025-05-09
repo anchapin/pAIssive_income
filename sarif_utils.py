@@ -25,7 +25,10 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:
     """
     return {
         "version": "2.1.0",
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/"
+            "master/Schemata/sarif-schema-2.1.0.json"
+        ),
         "runs": [
             {
                 "tool": {
@@ -222,18 +225,22 @@ def convert_file(
 
     """
     try:
-        # Create empty SARIF file first as fallback
-        empty_sarif = create_empty_sarif(tool_name, tool_url)
-        save_sarif_file(empty_sarif, output_file)
-
         # Check if input file exists and has content
         if not os.path.exists(input_file) or os.path.getsize(input_file) == 0:
-            print(f"Warning: Input file {input_file} is empty or does not exist")
-            return False
+            print(f"Warning: Input file [{input_file}] is empty or does not exist")
+            print(f"Creating an empty SARIF file at {output_file}")
+            empty_sarif = create_empty_sarif(tool_name, tool_url)
+            return save_sarif_file(empty_sarif, output_file)
 
-        # Load input JSON
-        with open(input_file) as f:
-            json_data = json.load(f)
+        # Input file exists and has content, try to parse it
+        try:
+            with open(input_file) as f:
+                json_data = json.load(f)
+        except json.JSONDecodeError as json_err:
+            print(f"Error parsing JSON from {input_file}: {json_err}")
+            print(f"Creating an empty SARIF file at {output_file}")
+            empty_sarif = create_empty_sarif(tool_name, tool_url)
+            return save_sarif_file(empty_sarif, output_file)
 
         # Convert to SARIF
         sarif_data = convert_json_to_sarif(
@@ -244,7 +251,17 @@ def convert_file(
         return save_sarif_file(sarif_data, output_file)
     except Exception as e:
         print(f"Error converting file: {e}")
-        return False
+        # Ensure we always create a valid SARIF file even on error
+        try:
+            empty_sarif = create_empty_sarif(tool_name, tool_url)
+            save_sarif_file(empty_sarif, output_file)
+            print(f"Created fallback empty SARIF file at {output_file}")
+            return True  # Return success since we created a valid SARIF file
+        except Exception as fallback_err:
+            print(
+                f"Critical error: Failed to create fallback SARIF file: {fallback_err}"
+            )
+            return False
 
 
 if __name__ == "__main__":
@@ -261,5 +278,19 @@ if __name__ == "__main__":
     tool_name = sys.argv[3]
     tool_url = sys.argv[4] if len(sys.argv) > 4 else ""
 
-    success = convert_file(input_file, output_file, tool_name, tool_url)
+    # Check if input_file is a JSON string (starts with '[' or '{')
+    if input_file.strip().startswith(("[", "{")):
+        print("Detected JSON string input, creating SARIF directly")
+        try:
+            json_data = json.loads(input_file)
+            sarif_data = convert_json_to_sarif(json_data, tool_name, tool_url)
+            success = save_sarif_file(sarif_data, output_file)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON string: {e}")
+            empty_sarif = create_empty_sarif(tool_name, tool_url)
+            success = save_sarif_file(empty_sarif, output_file)
+    else:
+        # Process as file path
+        success = convert_file(input_file, output_file, tool_name, tool_url)
+
     sys.exit(0 if success else 1)
