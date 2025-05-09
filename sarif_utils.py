@@ -9,7 +9,7 @@ where installing additional packages might be problematic.
 import json
 import os
 import sys
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:
@@ -128,7 +128,7 @@ def add_result(
 
 
 def convert_json_to_sarif(
-    json_data: Dict[str, Any],
+    json_data: Union[Dict[str, Any], List[Any]],
     tool_name: str,
     tool_url: str = "",
     result_mapping: Optional[Dict[str, str]] = None,
@@ -136,7 +136,7 @@ def convert_json_to_sarif(
     """Convert generic JSON data to SARIF format.
 
     Args:
-        json_data: Tool-specific JSON data
+        json_data: Tool-specific JSON data (can be a list or dict)
         tool_name: Name of the tool that produced the results
         tool_url: URL with information about the tool
         result_mapping: Mapping from tool-specific fields to SARIF fields
@@ -159,8 +159,14 @@ def convert_json_to_sarif(
             "rule_description": "description",
         }
 
-    # Process results if they exist
-    results = json_data.get("results", [])
+    # Ensure we have a list of results to process
+    if isinstance(json_data, dict):
+        results = json_data.get("results", [])
+    elif isinstance(json_data, list):
+        results = json_data  # Assume the list itself contains results
+    else:
+        raise TypeError("Unsupported JSON data type. Expected dict or list.")
+
     if isinstance(results, list):
         for result in results:
             # Extract fields using mapping

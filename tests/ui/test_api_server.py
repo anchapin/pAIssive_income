@@ -4,8 +4,6 @@
 import http.client
 import json
 import os
-
-# Local imports
 import sys
 import threading
 import time
@@ -14,6 +12,8 @@ import unittest
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+# Local imports - this import must be after sys.path modification
+# flake8: noqa: E402
 from ui.api_server import run_server
 
 
