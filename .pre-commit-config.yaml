@@ -42,3 +42,76 @@ repos:
         additional_dependencies: [types-requests, types-PyYAML]
         args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
         exclude: "^tests/"  # Exclude tests directory
+
+  # Unified local code quality workflow
+  -   repo: local
+      hooks:
+        - id: unified-lint
+          name: Unified Lint
+          entry: python scripts/manage_quality.py lint
+          language: system
+          types: [python]
+        - id: unified-format
+          name: Unified Format
+          entry: python scripts/manage_quality.py format
+          language: system
+          types: [python]
+        - id: unified-fix
+          name: Unified Fix
+          entry: python scripts/manage_quality.py fix
+          language: system
+          types: [python]
+        - id: unified-docstring-fix
+          name: Unified Docstring Fix
+          entry: python scripts/manage_quality.py docstring-fix
+          language: system
+          types: [python]
+        - id: unified-syntax-fix
+          name: Unified Syntax Fix
+          entry: python scripts/manage_quality.py syntax-fix
+          language: system
+          types: [python]
+        - id: unified-security
+          name: Unified Security Scan
+          entry: python scripts/manage_quality.py security-scan
+          language: system
+          types: [python]
+        - id: unified-test
+          name: Unified Test
+          entry: python scripts/manage_quality.py test
+          language: system
+          types: [python]
+
+  # Unified local hooks for code quality and security
+  - repo: local
+    hooks:
+      - id: manage-quality-fix
+        name: Run all code fixers (unified)
+        entry: python scripts/manage_quality.py fix
+        language: system
+        types: [python]
+      - id: manage-quality-docstring
+        name: Fix docstring issues (unified)
+        entry: python scripts/manage_quality.py docstring-fix
+        language: system
+        types: [python]
+      - id: manage-quality-syntax
+        name: Fix syntax issues (unified)
+        entry: python scripts/manage_quality.py syntax-fix
+        language: system
+        types: [python]
+      - id: manage-quality-security
+        name: Run security scans (unified)
+        entry: python scripts/manage_quality.py security-scan
+        language: system
+        types: [python]
+      - id: manage-quality-test
+        name: Run all tests (unified)
+        entry: python scripts/manage_quality.py test
+        language: system
+        types: [python]
+      - id: manage-quality-pre-commit
+        name: Run pre-commit checks (unified)
+        entry: python scripts/manage_quality.py pre-commit
+        language: system
+        types: [python]
