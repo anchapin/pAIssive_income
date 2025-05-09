@@ -1,10 +1,6 @@
 name: Frontend E2E Tests
 
 on:
-  push:
-    paths:
-      - "ui/react_frontend/**"
-      - ".github/workflows/frontend-e2e.yml"
   pull_request:
     paths:
       - "ui/react_frontend/**"
