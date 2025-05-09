@@ -5,8 +5,8 @@
     {
       "tool": {
         "driver": {
-          "name": "Trivy",
-          "informationUri": "https://github.com/aquasecurity/trivy",
+          "name": "Safety",
+          "informationUri": "https://pyup.io/safety/",
           "rules": []
         }
       },

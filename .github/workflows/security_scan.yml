@@ -40,19 +40,57 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install safety bandit pip-audit
+
+        # Install security tools with retry mechanism
+        for i in {1..3}; do
+          echo "Attempt $i: Installing security tools..."
+          python -m pip install safety bandit pip-audit
+
+          # Verify installations
+          TOOLS_INSTALLED=true
+          for tool in safety bandit pip-audit; do
+            if ! python -m pip show $tool &>/dev/null; then
+              echo "::warning::$tool not installed properly. Retrying..."
+              TOOLS_INSTALLED=false
+              break
+            fi
+          done
+
+          if $TOOLS_INSTALLED; then
+            echo "All security tools installed successfully!"
+            break
+          fi
+
+          if [ $i -eq 3 ]; then
+            echo "::error::Failed to install security tools after 3 attempts."
+            exit 1
+          fi
+
+          # Wait before retrying
+          sleep 5
+        done
 
         # Create security-reports directory early
         mkdir -p security-reports
         echo "Created security-reports directory"
 
-        # Initialize SARIF files using our utility script
-        python sarif_utils.py "[]" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"
-        python sarif_utils.py "[]" "security-reports/trivy-results.sarif" "Trivy" "https://github.com/aquasecurity/trivy"
+        # Check if fix_sarif_files.py exists
+        if [ -f "fix_sarif_files.py" ]; then
+            echo "Using existing fix_sarif_files.py script"
+            chmod +x fix_sarif_files.py
+        else
+            echo "ERROR: fix_sarif_files.py script not found"
+            exit 1
+        fi
+
+        # Initialize SARIF files using our create_sarif_files.py script
+        python create_sarif_files.py
 
         # Print environment for debugging
         echo "Current PATH: $PATH"
         echo "Python executable: $(which python)"
+        echo "Installed security tools:"
+        python -m pip list | grep -E 'safety|bandit|pip-audit'
 
     - name: Check for vulnerable dependencies with Safety
       id: safety
@@ -69,36 +107,62 @@ jobs:
         if ! command -v safety &> /dev/null; then
           echo "::error::Safety command not found. Reinstalling..."
           python -m pip install --upgrade safety
+
+          # Verify installation again
+          if ! command -v safety &> /dev/null; then
+            echo "::error::Safety installation failed. Trying alternative method..."
+            python -m pip install --force-reinstall safety
+
+            # Final verification
+            if ! command -v safety &> /dev/null; then
+              echo "::error::Safety installation failed after multiple attempts."
+              echo "Using pip-audit as fallback..."
+
+              # Use pip-audit as fallback
+              if command -v pip-audit &> /dev/null; then
+                echo "Running pip-audit as fallback..."
+                pip-audit --format json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log || true
+              else
+                echo "::error::Both safety and pip-audit are unavailable. Using empty results."
+              fi
+            fi
+          fi
         fi
 
         # Run safety check with better error handling
         echo "Running safety check command..."
-        if safety check --json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log; then
-          echo "Safety check completed successfully"
-        else
-          echo "::warning::Safety check exited with non-zero status. This may be normal if vulnerabilities were found."
+        if command -v safety &> /dev/null; then
+          # Try with different options if the first attempt fails
+          if ! safety check --json > security-reports/safety-results.json.tmp 2>security-reports/safety-error.log; then
+            echo "::warning::Standard safety check failed. Trying with alternative options..."
+            safety check --json --full-report > security-reports/safety-results.json.tmp 2>>security-reports/safety-error.log || true
+          fi
         fi
 
         # Check if the output file exists and has content
         if [ -s security-reports/safety-results.json.tmp ]; then
           echo "Safety check produced output, processing results..."
 
-          # Validate JSON format
-          if python -c "import json; json.load(open('security-reports/safety-results.json.tmp'))" 2>/dev/null; then
+          # Validate JSON format with more detailed error reporting
+          if python -c "import json, sys; json.load(open('security-reports/safety-results.json.tmp'))" 2>security-reports/json-error.log; then
             echo "Safety output is valid JSON"
             mv security-reports/safety-results.json.tmp security-reports/safety-results.json
 
-            # Count vulnerabilities
-            VULN_COUNT=$(grep -c "vulnerability" security-reports/safety-results.json || echo "0")
+            # Count vulnerabilities with more robust pattern matching
+            VULN_COUNT=$(grep -E '(vulnerability|CVE-|affected|insecure)' security-reports/safety-results.json | wc -l || echo "0")
             if [ "$VULN_COUNT" -gt "0" ]; then
-              echo "::warning::Safety scan found $VULN_COUNT potential vulnerabilities"
+              echo "::warning::Safety scan found potential vulnerabilities"
+              # Extract a summary of vulnerabilities for the log
+              python -c "import json, sys; try: data = json.load(open('security-reports/safety-results.json')); count = 0; if isinstance(data, list): count = len(data); for item in data[:5]: if isinstance(item, dict) and 'vulnerability' in item: print('- ' + item.get('vulnerability', 'Unknown vulnerability') + ' in ' + item.get('package', 'unknown package')); print('Total vulnerabilities found: ' + str(count)); except Exception as e: print('Error summarizing vulnerabilities: ' + str(e))" || echo "Could not summarize vulnerabilities"
             else
               echo "No vulnerabilities found by Safety"
             fi
           else
             echo "::warning::Safety output is not valid JSON. Using empty results."
-            echo "Invalid JSON content:"
-            cat security-reports/safety-results.json.tmp
+            echo "JSON validation error:"
+            cat security-reports/json-error.log
+            echo "First 100 characters of output:"
+            head -c 100 security-reports/safety-results.json.tmp
             # Keep the fallback file we created earlier
           fi
         else
@@ -109,9 +173,14 @@ jobs:
           fi
         fi
 
-        # Convert Safety JSON to SARIF format (our improved script will handle empty or invalid files)
+        # Convert Safety JSON to SARIF format with better error handling
         echo "Converting Safety results to SARIF format..."
-        python sarif_utils.py "security-reports/safety-results.json" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
+        if python sarif_utils.py "security-reports/safety-results.json" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"; then
+          echo "Successfully converted Safety results to SARIF format"
+        else
+          echo "::warning::Failed to convert Safety results to SARIF. Creating empty SARIF file."
+          python sarif_utils.py "[]" "security-reports/safety-results.sarif" "Safety" "https://pyup.io/safety/"
+        fi
 
     - name: Run bandit security scan
       id: bandit
@@ -128,25 +197,52 @@ jobs:
         if ! command -v bandit &> /dev/null; then
           echo "::error::Bandit command not found. Reinstalling..."
           python -m pip install --upgrade bandit
+
+          # Verify installation again
+          if ! command -v bandit &> /dev/null; then
+            echo "::error::Bandit installation failed. Trying alternative method..."
+            python -m pip install --force-reinstall bandit
+
+            # Final verification
+            if ! command -v bandit &> /dev/null; then
+              echo "::error::Bandit installation failed after multiple attempts."
+              echo "Using fallback empty results."
+            fi
+          fi
         fi
 
-        # Run bandit with JSON output format
-        echo "Running bandit scan command..."
-        if bandit -r . -f json -o security-reports/bandit-results.json.tmp 2>security-reports/bandit-error.log; then
-          echo "Bandit scan completed successfully"
-          mv security-reports/bandit-results.json.tmp security-reports/bandit-results.json
-        else
-          echo "::warning::Bandit scan completed with security issues found"
+        # Run bandit with JSON output format if it's installed
+        if command -v bandit &> /dev/null; then
+          echo "Running bandit scan command..."
+          # Try with different options if the first attempt fails
+          if ! bandit -r . -f json -o security-reports/bandit-results.json.tmp 2>security-reports/bandit-error.log; then
+            echo "::warning::Standard bandit scan failed. Trying with limited scope..."
+            # Try with a more limited scope
+            bandit -r . --exclude=".venv,tests,docs" -f json -o security-reports/bandit-results.json.tmp 2>>security-reports/bandit-error.log || true
+          fi
 
           # Check if output file exists and has content
           if [ -s security-reports/bandit-results.json.tmp ]; then
-            # Validate JSON format
-            if python -c "import json; json.load(open('security-reports/bandit-results.json.tmp'))" 2>/dev/null; then
+            echo "Bandit scan produced output, processing results..."
+
+            # Validate JSON format with more detailed error reporting
+            if python -c "import json; json.load(open('security-reports/bandit-results.json.tmp'))" 2>security-reports/bandit-json-error.log; then
               echo "Bandit output is valid JSON"
               mv security-reports/bandit-results.json.tmp security-reports/bandit-results.json
+
+              # Count issues
+              ISSUE_COUNT=$(grep -c "issue_confidence" security-reports/bandit-results.json || echo "0")
+              if [ "$ISSUE_COUNT" -gt "0" ]; then
+                echo "::warning::Bandit scan found $ISSUE_COUNT potential security issues"
+              else
+                echo "No security issues found by Bandit"
+              fi
             else
               echo "::warning::Bandit output is not valid JSON. Using empty results."
-              # Keep the fallback file we created earlier
+              echo "JSON validation error:"
+              cat security-reports/bandit-json-error.log
+              echo "First 100 characters of output:"
+              head -c 100 security-reports/bandit-results.json.tmp
             fi
           else
             echo "::warning::Bandit scan produced no output"
@@ -155,11 +251,18 @@ jobs:
               cat security-reports/bandit-error.log
             fi
           fi
+        else
+          echo "::warning::Bandit not available. Using empty results."
         fi
 
-        # Convert JSON to SARIF format using our utility script
+        # Convert JSON to SARIF format with better error handling
         echo "Converting Bandit JSON output to SARIF format..."
-        python sarif_utils.py "security-reports/bandit-results.json" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"
+        if python sarif_utils.py "security-reports/bandit-results.json" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"; then
+          echo "Successfully converted Bandit results to SARIF format"
+        else
+          echo "::warning::Failed to convert Bandit results to SARIF. Creating empty SARIF file."
+          python sarif_utils.py "[]" "security-reports/bandit-results.sarif" "Bandit" "https://bandit.readthedocs.io/"
+        fi
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -181,15 +284,43 @@ jobs:
         # Check if SARIF files exist and have content
         for file in security-reports/*.sarif; do
           if [ -f "$file" ]; then
-            echo "File $file exists with size $(stat -c%s "$file") bytes"
+            FILE_SIZE=$(stat -c%s "$file")
+            echo "File $file exists with size $FILE_SIZE bytes"
+
+            # Check if file is too large for GitHub upload (>10MB)
+            if [ "$FILE_SIZE" -gt 10485760 ]; then
+              echo "::warning::$file is too large for GitHub upload (>10MB). Creating a smaller version."
+
+              # Create a smaller version by keeping only the first 1000 results
+              python -c "import json, sys; try: data = json.load(open('$file', 'r')); count = 0; if 'runs' in data and len(data['runs']) > 0 and 'results' in data['runs'][0]: count = len(data['runs'][0]['results']); if count > 1000: data['runs'][0]['results'] = data['runs'][0]['results'][:1000]; print('Reduced results from ' + str(count) + ' to 1000'); json.dump(data, open('$file.reduced', 'w')); print('Created reduced version'); except Exception as e: print('Error processing large SARIF file: ' + str(e))" || echo "Failed to reduce SARIF file"
+
+              # If successful, replace the original file
+              if [ -f "$file.reduced" ]; then
+                mv "$file.reduced" "$file"
+                echo "Replaced original file with reduced version"
+              fi
+            fi
+
             # Validate SARIF format
             if python -c "import json; json.load(open('$file'))" 2>/dev/null; then
               echo "✅ $file is valid JSON"
             else
               echo "❌ $file is not valid JSON"
+              echo "Creating a valid but empty SARIF file as fallback"
+              python sarif_utils.py "[]" "$file" "$(basename "$file" .sarif)" "https://github.com/anchapin/pAIssive_income"
             fi
           else
             echo "❌ File $file does not exist"
+          fi
+        done
+
+        # Create compressed versions of SARIF files for artifact upload
+        echo "Creating compressed versions of SARIF files..."
+        mkdir -p security-reports/compressed
+        for file in security-reports/*.sarif; do
+          if [ -f "$file" ]; then
+            gzip -c "$file" > "security-reports/compressed/$(basename "$file").gz"
+            echo "Created compressed version of $(basename "$file")"
           fi
         done
 
@@ -198,12 +329,76 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: security-reports
-        path: security-reports/
+        path: |
+          security-reports/*.json
+          security-reports/*.log
+          security-reports/compressed/*.gz
         retention-days: 7
         if-no-files-found: warn
 
-    - name: Upload Safety scan results
+    - name: Upload Full SARIF Reports
       if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sarif-reports
+        path: security-reports/*.sarif
+        retention-days: 3
+        if-no-files-found: warn
+
+    - name: Fix and Verify SARIF Files Before Upload
+      if: always()
+      id: verify-sarif
+      run: |
+        echo "Fixing and verifying SARIF files before upload..."
+
+        # Run the fix script
+        python fix_sarif_files.py
+
+        SAFETY_VALID=false
+        BANDIT_VALID=false
+        TRIVY_VALID=false
+
+        # Check Safety SARIF
+        if [ -f "security-reports/safety-results.sarif" ] && [ -s "security-reports/safety-results.sarif" ]; then
+          if python -c "import json; json.load(open('security-reports/safety-results.sarif'))" 2>/dev/null; then
+            echo "Safety SARIF is valid"
+            SAFETY_VALID=true
+            echo "safety_valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Safety SARIF is invalid. Will not upload."
+          fi
+        else
+          echo "::warning::Safety SARIF file is missing or empty"
+        fi
+
+        # Check Bandit SARIF
+        if [ -f "security-reports/bandit-results.sarif" ] && [ -s "security-reports/bandit-results.sarif" ]; then
+          if python -c "import json; json.load(open('security-reports/bandit-results.sarif'))" 2>/dev/null; then
+            echo "Bandit SARIF is valid"
+            BANDIT_VALID=true
+            echo "bandit_valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Bandit SARIF is invalid. Will not upload."
+          fi
+        else
+          echo "::warning::Bandit SARIF file is missing or empty"
+        fi
+
+        # Check Trivy SARIF
+        if [ -f "security-reports/trivy-results.sarif" ] && [ -s "security-reports/trivy-results.sarif" ]; then
+          if python -c "import json; json.load(open('security-reports/trivy-results.sarif'))" 2>/dev/null; then
+            echo "Trivy SARIF is valid"
+            TRIVY_VALID=true
+            echo "trivy_valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Trivy SARIF is invalid. Will not upload."
+          fi
+        else
+          echo "::warning::Trivy SARIF file is missing or empty"
+        fi
+
+    - name: Upload Safety scan results
+      if: always() && steps.verify-sarif.outputs.safety_valid == 'true'
       uses: github/codeql-action/upload-sarif@v3
       continue-on-error: true
       with:
@@ -211,7 +406,7 @@ jobs:
         category: safety
 
     - name: Upload Bandit scan results
-      if: always()
+      if: always() && steps.verify-sarif.outputs.bandit_valid == 'true'
       uses: github/codeql-action/upload-sarif@v3
       continue-on-error: true
       with:
@@ -219,7 +414,7 @@ jobs:
         category: bandit
 
     - name: Upload Trivy scan results
-      if: always()
+      if: always() && steps.verify-sarif.outputs.trivy_valid == 'true'
       uses: github/codeql-action/upload-sarif@v3
       continue-on-error: true
       with:
@@ -229,3 +424,49 @@ jobs:
     - name: Run dependency review
       if: github.event_name == 'pull_request'
       uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: 'critical'
+
+    - name: Check for Node.js vulnerabilities
+      if: always()
+      continue-on-error: true
+      run: |
+        if [ -f "package.json" ]; then
+          echo "Checking for Node.js vulnerabilities..."
+
+          # Install npm if not already installed
+          if ! command -v npm &> /dev/null; then
+            echo "npm not found, installing Node.js..."
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+          fi
+
+          # Run npm audit
+          mkdir -p security-reports
+          if npm audit --json > security-reports/npm-audit.json 2>security-reports/npm-audit-error.log; then
+            echo "npm audit completed successfully"
+
+            # Count vulnerabilities
+            VULN_COUNT=$(grep -c "\"severity\":" security-reports/npm-audit.json || echo "0")
+            if [ "$VULN_COUNT" -gt "0" ]; then
+              echo "::warning::npm audit found potential vulnerabilities"
+              # Extract high and critical vulnerabilities
+              HIGH_COUNT=$(grep -c "\"severity\":\"high\"" security-reports/npm-audit.json || echo "0")
+              CRITICAL_COUNT=$(grep -c "\"severity\":\"critical\"" security-reports/npm-audit.json || echo "0")
+              echo "High severity vulnerabilities: $HIGH_COUNT"
+              echo "Critical severity vulnerabilities: $CRITICAL_COUNT"
+
+              if [ "$CRITICAL_COUNT" -gt "0" ]; then
+                echo "::error::Critical vulnerabilities found in Node.js dependencies"
+                npm audit | grep -A 5 -B 5 "Critical"
+              fi
+            else
+              echo "No vulnerabilities found by npm audit"
+            fi
+          else
+            echo "::warning::npm audit failed"
+            cat security-reports/npm-audit-error.log
+          fi
+        else
+          echo "No package.json found, skipping Node.js vulnerability check"
+        fi

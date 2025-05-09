@@ -20,6 +20,9 @@ from ui.api_server import run_server
 class TestAPIServer(unittest.TestCase):
     """Test suite for the API server."""
 
+    # Declare server_thread as a class attribute
+    server_thread: threading.Thread
+
     @classmethod
     def setUpClass(cls):
         """Start the server in a separate thread."""

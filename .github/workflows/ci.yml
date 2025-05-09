@@ -188,39 +188,73 @@ jobs:
           # This file is explicitly fixed because it is known to frequently cause linting issues
           # or is critical to the project's functionality. This ensures it is addressed first.
           echo "Fixing scripts/sues.py specifically..."
-          ruff check scripts/sues.py --fix
+          if [ -f "scripts/sues.py" ]; then
+            # Use printf to handle the filename properly with null termination
+            printf "scripts/sues.py\0" | xargs -0 ruff check --fix
+          else
+            echo "Warning: scripts/sues.py not found, skipping specific fix"
+          fi
 
           # Process files in batches to avoid overwhelming git
           echo "Processing Python files in batches..."
 
-          # Find all Python files, excluding .venv directory
-          PYTHON_FILES=$(find . -name "*.py" -not -path "*/\.*" -not -path "*/.venv/*" -not -path "*/venv/*")
+          # Find all Python files, excluding .venv directory (using null separator for robust handling of filenames with spaces)
+          # Store file list in a temporary file to handle large numbers of files
+          TEMP_FILE=$(mktemp)
+          find . -name "*.py" -not -path "*/\.*" -not -path "*/.venv/*" -not -path "*/venv/*" -print0 > "$TEMP_FILE"
 
-          # Count total files
-          TOTAL_FILES=$(echo "$PYTHON_FILES" | wc -l)
+          # Count total files (careful counting with null-separated input)
+          TOTAL_FILES=$(tr -dc '\0' < "$TEMP_FILE" | wc -c)
           echo "Found $TOTAL_FILES Python files to process"
+
+          # If no files found, exit early
+          if [ "$TOTAL_FILES" -eq 0 ]; then
+            echo "No Python files found to process."
+            rm -f "$TEMP_FILE"
+            exit 0
+          fi
 
           # Process in batches of 20 files
           BATCH_SIZE=20
           BATCH_COUNT=$(( (TOTAL_FILES + BATCH_SIZE - 1) / BATCH_SIZE ))
 
-          for ((i=0; i<BATCH_COUNT; i++)); do
-            START=$((i * BATCH_SIZE + 1))
-            END=$((START + BATCH_SIZE - 1))
+          # Create a directory for batch files
+          BATCH_DIR=$(mktemp -d)
 
-            echo "Processing batch $((i+1))/$BATCH_COUNT (files $START-$END)..."
+          # Process files in batches using a more robust approach for null-separated input
+          # We'll use a counter to track batches
+          COUNTER=0
+          BATCH_FILE="$BATCH_DIR/batch-$COUNTER.txt"
+          touch "$BATCH_FILE"
 
-            # Get current batch of files
-            BATCH_FILES=$(echo "$PYTHON_FILES" | sed -n "${START},${END}p")
+          # Read null-separated filenames and distribute into batch files
+          tr '\0' '\n' < "$TEMP_FILE" | while IFS= read -r filename; do
+            if [ $((COUNTER % BATCH_SIZE)) -eq 0 ] && [ $COUNTER -gt 0 ]; then
+              # Start a new batch file
+              BATCH_FILE="$BATCH_DIR/batch-$((COUNTER / BATCH_SIZE)).txt"
+              touch "$BATCH_FILE"
+            fi
+
+            # Add filename to current batch file (with null terminator for xargs -0)
+            printf "%s\0" "$filename" >> "$BATCH_FILE"
+
+            COUNTER=$((COUNTER + 1))
+          done
+
+          # Process each batch file
+          BATCH_COUNT=$(find "$BATCH_DIR" -name "batch-*.txt" | wc -l)
+          for BATCH_FILE in "$BATCH_DIR"/batch-*.txt; do
+            BATCH_NUM=$(basename "$BATCH_FILE" | sed 's/batch-\(.*\)\.txt/\1/')
+            echo "Processing batch $BATCH_NUM of $BATCH_COUNT..."
 
             # Skip if empty
-            if [ -z "$BATCH_FILES" ]; then
+            if [ ! -s "$BATCH_FILE" ]; then
               echo "No files in this batch, skipping"
               continue
             fi
 
-            # Run Ruff on this batch
-            echo "$BATCH_FILES" | xargs ruff check --fix
+            # Run Ruff on this batch with null-separated input
+            xargs -0 ruff check --fix < "$BATCH_FILE"
 
             # Check if any files were modified
             if [ -n "$(git diff --name-only)" ]; then
@@ -231,6 +265,11 @@ jobs:
               echo "No changes in this batch"
             fi
           done
+
+          # Clean up temporary files
+          echo "Cleaning up temporary files..."
+          rm -f "$TEMP_FILE"
+          rm -rf "$BATCH_DIR"
 
           # Push all commits
           echo "Pushing changes..."
