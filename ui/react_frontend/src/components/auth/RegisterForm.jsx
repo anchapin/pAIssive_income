@@ -227,6 +227,8 @@ const RegisterForm = ({ onSuccess }) => {
           color="primary"
           sx={{ mt: 3, mb: 2 }}
           disabled={!isValid || isSubmitting}
+          aria-label="Register"
+          startIcon={!isSubmitting && <span role="img" aria-label="register">📝</span>}
         >
           {isSubmitting ? <CircularProgress size={24} /> : "Register"}
         </Button>
