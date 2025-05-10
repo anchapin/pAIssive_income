@@ -50,3 +50,59 @@
 - For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
 - Review and merge Dependabot PRs and address security alerts promptly.
 
+## Dependency Upgrade and Removal Workflow
+
+### Python
+
+**Removing a dependency:**
+1. Remove the package from `requirements.txt` and/or `requirements-dev.txt`.
+2. (Optional) Uninstall the package locally:  
+   ```sh
+   pip uninstall <package-name>
+   ```
+3. Reinstall all dependencies to ensure your environment matches the new requirements:  
+   ```sh
+   pip install -r requirements.txt -r requirements-dev.txt
+   ```
+4. Regenerate the lockfile:  
+   ```sh
+   pip freeze > requirements.lock
+   ```
+5. Run tests and check for breakage.
+6. Commit the changes (`requirements.txt`, `requirements-dev.txt`, and `requirements.lock`).
+
+**Upgrading a dependency:**
+1. Edit the version specifier in `requirements.txt`/`requirements-dev.txt` as needed.
+2. Reinstall dependencies:
+   ```sh
+   pip install -r requirements.txt -r requirements-dev.txt
+   ```
+3. Regenerate the lockfile.
+4. Run tests and the security scan workflow.
+5. Commit the changes.
+
+### Node.js
+
+**Removing a dependency:**
+1. Run:
+   ```sh
+   npm uninstall <package-name>
+   ```
+   This updates both `package.json` and `package-lock.json`.
+2. Run tests and check for issues.
+3. Commit the changes.
+
+**Upgrading a dependency:**
+1. Run:
+   ```sh
+   npm install <package-name>@latest
+   ```
+   or specify a version as needed.
+2. Run tests and review lockfile changes.
+3. Commit the changes.
+
+**General:**
+- Always rerun tests after upgrades/removals.
+- Regenerate lockfiles as described.
+- Push changes and let CI and Dependabot check for issues and vulnerabilities.
+
