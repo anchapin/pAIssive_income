@@ -32,7 +32,7 @@ import {
 } from '../components/Visualizations';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
   padding: theme.spacing(2),
   color: theme.palette.text.secondary,
@@ -344,7 +344,10 @@ const NicheAnalysisPage = () => {
                     <CardHeader
                       title={niche.name}
                       subheader={`Segment: ${niche.segment}`}
-                      sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }}
+                      sx={{
+                        backgroundColor: (theme) => theme.palette.background.default,
+                        borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+                      }}
                     />
                     <CardContent>
                       <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
