@@ -1,16 +1,25 @@
 #!/usr/bin/env python
 """Script to fix all Python files by replacing them with minimal valid Python files."""
 
+import logging
 import os
 import re
 import sys
 
 from pathlib import Path
-from typing import List
 from typing import Optional
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def find_python_files(ignore_patterns: Optional[List[str]] = None) -> List[str]:
+
+def _should_ignore_path(path: str, ignore_patterns: list[str]) -> bool:
+    """Check if a path should be ignored based on the patterns."""
+    # Convert path to use forward slashes for consistency in pattern matching
+    path = path.replace("\\", "/")
+    return any(re.search(pattern, path) for pattern in ignore_patterns)
+
+
+def find_python_files(ignore_patterns: Optional[list[str]] = None) -> list[str]:
     """Find all Python files in the current directory and subdirectories."""
     if ignore_patterns is None:
         # Default patterns to ignore - include both slash types for cross-platform
@@ -32,31 +41,18 @@ def find_python_files(ignore_patterns: Optional[List[str]] = None) -> List[str]:
 
     python_files = []
     for root, dirs, files in os.walk("."):
-        # Skip directories that match ignore patterns
-        # Convert paths to use forward slashes for consistency in pattern matching
+        # Filter out ignored directories
         dirs[:] = [
             d
             for d in dirs
-            if not any(
-                re.search(pattern, os.path.join(root, d).replace("\\", "/"))
-                for pattern in ignore_patterns
-            )
+            if not _should_ignore_path(os.path.join(root, d), ignore_patterns)
         ]
-
-        # Also explicitly remove .venv directory if it exists
-        if ".venv" in dirs:
-            dirs.remove(".venv")
-        if "venv" in dirs:
-            dirs.remove("venv")
 
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
                 # Check if the file path matches any ignore pattern
-                if not any(
-                    re.search(pattern, file_path.replace("\\", "/"))
-                    for pattern in ignore_patterns
-                ):
+                if not _should_ignore_path(file_path, ignore_patterns):
                     python_files.append(file_path)
 
     return python_files
@@ -71,13 +67,10 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
             compile(content, file_path, "exec")
 
         # If we get here, the file is valid Python
-        if verbose:
-            print(f"File {file_path} is already valid Python")
-        return True
     except SyntaxError:
         # If we get here, the file has syntax errors
         if verbose:
-            print(f"Fixing syntax errors in {file_path}")
+            logging.info(f"Fixing syntax errors in {file_path}")
 
         # Create a minimal valid Python file
         file_name = os.path.basename(file_path)
@@ -107,10 +100,14 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-        except Exception as e:
-            print(f"Error writing to file {file_path}: {e}")
+        except Exception:
+            logging.exception(f"Error writing to file {file_path}:")
             return False
 
+        return True
+    else:
+        if verbose:
+            logging.info(f"File {file_path} is already valid Python")
         return True
 
 
@@ -148,19 +145,19 @@ def main() -> int:
     fixed_files = 0
     total_files = len(python_files)
 
-    print(f"Processing {total_files} Python files...")
+    logging.info(f"Processing {total_files} Python files...")
 
     for file_path in python_files:
         if args.verbose:
-            print(f"Processing {file_path}...")
+            logging.info(f"Processing {file_path}...")
 
         if fix_file(file_path, args.verbose):
             fixed_files += 1
         else:
-            print(f"Failed to fix {file_path}")
+            logging.error(f"Failed to fix {file_path}")
             success = False
 
-    print(f"Fixed {fixed_files} out of {total_files} files.")
+    logging.info(f"Fixed {fixed_files} out of {total_files} files.")
 
     return 0 if success else 1
 

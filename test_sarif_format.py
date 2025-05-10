@@ -6,13 +6,16 @@ to ensure it conforms to the expected format for GitHub Advanced Security.
 """
 
 import json
+import logging
 import os
 import sys
 
 from pathlib import Path
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def create_test_sarif():
+
+def create_test_sarif() -> str:
     """Create a test SARIF file with the correct structure."""
     sarif_data = {
         "version": "2.1.0",
@@ -41,61 +44,60 @@ def create_test_sarif():
     with open("security-reports/test-bandit-results.sarif", "w") as f:
         json.dump(sarif_data, f, indent=2)
 
-    print("Created test SARIF file at security-reports/test-bandit-results.sarif")
+    logging.info(
+        "Created test SARIF file at security-reports/test-bandit-results.sarif"
+    )
     return "security-reports/test-bandit-results.sarif"
 
 
-def validate_sarif_file(file_path):
+def validate_sarif_file(file_path: str) -> bool:
     """Validate that a SARIF file has the correct structure."""
+    is_valid = True
     try:
         with open(file_path) as f:
             data = json.load(f)
 
         # Check required fields
         if "version" not in data:
-            print("ERROR: Missing 'version' field")
-            return False
-
+            logging.error("Missing 'version' field")
+            is_valid = False
         if "$schema" not in data:
-            print("ERROR: Missing '$schema' field")
-            return False
-
+            logging.error("Missing '$schema' field")
+            is_valid = False
         if (
             "runs" not in data
             or not isinstance(data["runs"], list)
             or len(data["runs"]) == 0
         ):
-            print("ERROR: Missing or invalid 'runs' field")
-            return False
-
-        run = data["runs"][0]
-        if "tool" not in run or "driver" not in run["tool"]:
-            print("ERROR: Missing 'tool.driver' field")
-            return False
-
-        driver = run["tool"]["driver"]
-        if "name" not in driver:
-            print("ERROR: Missing 'tool.driver.name' field")
-            return False
-
-        if "results" not in run:
-            print("ERROR: Missing 'results' field")
-            return False
-
-        print(f"✅ SARIF file {file_path} is valid")
-        return True
-
-    except json.JSONDecodeError as e:
-        print(f"ERROR: Invalid JSON in {file_path}: {e}")
-        return False
-    except Exception as e:
-        print(f"ERROR: Failed to validate {file_path}: {e}")
-        return False
+            logging.error("Missing or invalid 'runs' field")
+            is_valid = False
+        else:
+            run = data["runs"][0]
+            if "tool" not in run or "driver" not in run["tool"]:
+                logging.error("Missing 'tool.driver' field")
+                is_valid = False
+            else:
+                driver = run["tool"]["driver"]
+                if "name" not in driver:
+                    logging.error("Missing 'tool.driver.name' field")
+                    is_valid = False
+                if "results" not in run:
+                    logging.error("Missing 'results' field")
+                    is_valid = False
+    except json.JSONDecodeError:
+        logging.exception(f"Invalid JSON in {file_path}")
+        is_valid = False
+    except Exception:
+        logging.exception(f"Failed to validate {file_path}")
+        is_valid = False
+    if is_valid:
+        logging.info(f"\u2705 SARIF file {file_path} is valid")
+    return is_valid
 
 
-def main():
+def main() -> int:
     """Test SARIF file format."""
-    print("Testing SARIF file format...")
+    logging.info("Testing SARIF file format...")
 
     # Create a test SARIF file
     test_file = create_test_sarif()
@@ -107,7 +109,7 @@ def main():
     sarif_files = list(Path("security-reports").glob("*.sarif"))
     for file in sarif_files:
         if str(file) != test_file:
-            print(f"\nValidating existing SARIF file: {file}")
+            logging.info(f"\nValidating existing SARIF file: {file}")
             validate_sarif_file(str(file))
 
     return 0 if is_valid else 1

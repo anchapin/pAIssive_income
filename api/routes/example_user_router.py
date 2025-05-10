@@ -3,6 +3,8 @@
 See: docs/input_validation_and_error_handling_standards.md
 """
 
+from typing import Any
+
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Request
@@ -31,7 +33,7 @@ class CreateUserModel(BaseModel):
 
 
 @router.post("/", summary="Create a new user")
-async def create_user(request: Request):
+async def create_user(request: Request) -> dict[str, Any]:
     """Create a new user with validated input data."""
     try:
         payload = await request.json()
@@ -39,7 +41,8 @@ async def create_user(request: Request):
         # ... Insert user creation logic here ...
         return {"message": "User created", "user": user_in.model_dump()}
     except ValidationError as exc:
-        return validation_error_response(exc)
+        result: dict[str, Any] = validation_error_response(exc)
+        return result
     except Exception as exc:
         logger.error("An unexpected error occurred", exc_info=True)
         raise HTTPException(

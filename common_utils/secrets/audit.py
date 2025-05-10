@@ -11,11 +11,8 @@ import re
 import uuid
 
 from datetime import datetime
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Set
-from typing import Tuple
+from typing import cast
 
 # Third-party imports
 from cryptography.fernet import Fernet
@@ -117,9 +114,7 @@ def is_text_file(file_path: str) -> bool:
     try:
         with open(file_path, encoding="utf-8", errors="ignore") as f:
             sample = f.read(1024)
-            if "\0" in sample:
-                return False
-            return True
+            return "\x00" not in sample
     except Exception:
         return False
 
@@ -154,14 +149,10 @@ def is_example_code(content: str, line: str) -> bool:
         if indicator in line_lower:
             return True
 
-    if '"""' in content or "'''" in content:
-        if line.startswith("    "):
-            return True
-
-    return False
+    return ('"""' in content or "'''" in content) and line.startswith("    ")
 
 
-def should_exclude(file_path: str, exclude_dirs: Optional[Set[str]] = None) -> bool:
+def should_exclude(file_path: str, exclude_dirs: Optional[set[str]] = None) -> bool:
     """Check if a file should be excluded from scanning.
 
     Args:
@@ -180,16 +171,117 @@ def should_exclude(file_path: str, exclude_dirs: Optional[Set[str]] = None) -> b
     file_path = os.path.normpath(file_path)
     path_parts = file_path.split(os.sep)
 
-    for part in path_parts:
-        if part in exclude_dirs:
-            return True
+    return any(part in exclude_dirs for part in path_parts)
 
-    return False
+
+def _validate_file_access(file_path: str) -> None:
+    """Validate that a file exists and is readable.
+
+    Args:
+        file_path: Path to the file
+
+    Raises:
+        MissingFileError: If file not found
+        FilePermissionError: If insufficient permissions
+    """
+    if not os.path.exists(file_path):
+        from common_utils.exceptions import MissingFileError
+
+        raise MissingFileError(file_path)
+
+    if not os.access(file_path, os.R_OK):
+        from common_utils.exceptions import FilePermissionError
+
+        raise FilePermissionError(file_path)
+
+
+def _read_file_content(file_path: str) -> tuple[str, list[str]]:
+    """Read file content with appropriate error handling.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        Tuple of (file content, lines)
+
+    Raises:
+        UnicodeError: If file cannot be decoded even with replacement
+    """
+    try:
+        with open(file_path, encoding="utf-8", errors="strict") as f:
+            content = f.read()
+            lines = content.splitlines()
+            return content, lines
+    except UnicodeError as e:
+        logger.exception(
+            "UTF-8 decoding error", extra={"file": file_path, "error": str(e)}
+        )
+        # Try again with replacement characters
+        with open(file_path, encoding="utf-8", errors="replace") as f:
+            content = f.read()
+            lines = content.splitlines()
+            logger.warning(
+                "File processed with replacement characters",
+                extra={"file": file_path},
+            )
+            return content, lines
+
+
+def _process_pattern_matches(
+    pattern_name: str, pattern: re.Pattern, line: str, line_number: int, file_path: str
+) -> list[tuple[str, int, str, str]]:
+    """Process matches for a specific pattern in a line.
+
+    Args:
+        pattern_name: Name of the pattern
+        pattern: Compiled regex pattern
+        line: Line to check
+        line_number: Line number (1-based)
+        file_path: Path to the file
+
+    Returns:
+        List of (pattern_name, line_number, line, secret_value) tuples
+    """
+    results: list[tuple[str, int, str, str]] = []
+
+    try:
+        matches = pattern.findall(line)
+    except Exception as e:
+        logger.exception(
+            "Regex pattern error",
+            extra={
+                "file": file_path,
+                "line": line_number,
+                "pattern": pattern_name,
+                "error": type(e).__name__,
+            },
+        )
+        return results
+
+    if not matches:
+        return results
+
+    for match in matches:
+        try:
+            secret_value = match[1] if isinstance(match, tuple) else match
+            results.append((pattern_name, line_number, line, secret_value))
+        except (IndexError, AttributeError) as e:
+            logger.exception(
+                "Match processing error",
+                extra={
+                    "file": file_path,
+                    "line": line_number,
+                    "pattern": pattern_name,
+                    "error": str(e),
+                },
+            )
+
+    return results
 
 
 def find_potential_secrets(
     file_path: str,
-) -> List[Tuple[str, int, str, str]]:
+) -> list[tuple[str, int, str, str]]:
     """Find potential secrets in a file.
 
     Args:
@@ -198,7 +290,7 @@ def find_potential_secrets(
 
     Returns:
     -------
-        List[Tuple[str, int, str, str]]: List of pattern name, line number, line, value
+        list[tuple[str, int, str, str]]: List of pattern name, line number, line, value
 
     Raises:
     ------
@@ -207,71 +299,77 @@ def find_potential_secrets(
         UnicodeError: If file cannot be decoded
 
     """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
+    # Step 1: Validate file access
+    _validate_file_access(file_path)
 
-    if not os.access(file_path, os.R_OK):
-        raise PermissionError(f"Insufficient permissions to read file: {file_path}")
+    # Step 2: Read file content
+    content, lines = _read_file_content(file_path)
 
+    # Step 3: Process each line for potential secrets
     results = []
-    try:
-        with open(file_path, encoding="utf-8", errors="strict") as f:
-            content = f.read()
-            lines = content.splitlines()
-    except UnicodeError as e:
-        logger.error("UTF-8 decoding error", extra={"file": file_path, "error": str(e)})
-        with open(file_path, encoding="utf-8", errors="replace") as f:
-            content = f.read()
-            lines = content.splitlines()
-            logger.warning(
-                "File processed with replacement characters",
-                extra={"file": file_path},
-            )
 
     for i, line in enumerate(lines):
+        # Skip example code
         if is_example_code(content, line):
             continue
 
+        # Check each pattern
         for pattern_name, pattern in PATTERNS.items():
-            try:
-                matches = pattern.findall(line)
-            except (re.error, Exception) as e:
-                logger.error(
-                    "Regex pattern error",
-                    extra={
-                        "file": file_path,
-                        "line": i + 1,
-                        "pattern": pattern_name,
-                        "error": type(e).__name__,
-                    },
-                )
-                continue
-
-            if matches:
-                for match in matches:
-                    try:
-                        if isinstance(match, tuple):
-                            secret_value = match[1]
-                        else:
-                            secret_value = match
-                        results.append((pattern_name, i + 1, line, secret_value))
-                    except (IndexError, AttributeError) as e:
-                        logger.error(
-                            "Match processing error",
-                            extra={
-                                "file": file_path,
-                                "line": i + 1,
-                                "pattern": pattern_name,
-                                "error": str(e),
-                            },
-                        )
+            line_results = _process_pattern_matches(
+                pattern_name,
+                pattern,
+                line,
+                i + 1,  # Convert to 1-based line number
+                file_path,
+            )
+            results.extend(line_results)
 
     return results
 
 
+def process_file(
+    file_path: str, exclude_dirs: Optional[set[str]] = None
+) -> list[tuple[str, int, str, str]]:
+    """Process a single file for potential secrets.
+
+    Args:
+    ----
+        file_path: Path to the file to process
+        exclude_dirs: Directories to exclude
+
+    Returns:
+    -------
+        list[tuple[str, int, str, str]]: List of secrets found
+    """
+    if should_exclude(file_path, exclude_dirs) or not is_text_file(file_path):
+        return []
+
+    return find_potential_secrets(file_path)
+
+
+def handle_file_error(file_path: str, error: Exception) -> dict[str, str]:
+    """Handle file processing errors uniformly.
+
+    Args:
+    ----
+        file_path: Path to the file that caused the error
+        error: The exception that occurred
+
+    Returns:
+    -------
+        dict[str, str]: Error details dictionary
+    """
+    return {
+        "file": file_path,
+        "timestamp": datetime.now().isoformat(),
+        "error_type": type(error).__name__,
+        "error_id": str(uuid.uuid4()),
+    }
+
+
 def scan_directory(
-    directory: str, exclude_dirs: Optional[Set[str]] = None
-) -> Dict[str, List[Tuple[str, int, str, str]]]:
+    directory: str, exclude_dirs: Optional[set[str]] = None
+) -> dict[str, list[tuple[str, int, str, str]]]:
     """Scan a directory recursively for potential secrets.
 
     Args:
@@ -281,7 +379,11 @@ def scan_directory(
 
     Returns:
     -------
-        Dict[str, List[Tuple[str, int, str, str]]]: File paths to secrets mapping
+        dict[str,
+        list[tuple[str,
+        int,
+        str,
+        str]]]: Mapping of file paths to secrets found
 
     Raises:
     ------
@@ -290,16 +392,19 @@ def scan_directory(
 
     """
     if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory not found: {directory}")
+        from common_utils.exceptions import DirectoryNotFoundError
+
+        raise DirectoryNotFoundError(directory)
 
     if not os.access(directory, os.R_OK | os.X_OK):
-        msg = f"Insufficient permissions to read directory: {directory}"
-        raise PermissionError(msg)
+        from common_utils.exceptions import DirectoryPermissionError
+
+        raise DirectoryPermissionError()
 
     exclude_dirs = exclude_dirs or DEFAULT_EXCLUDE_DIRS
-    results: Dict[str, List[Tuple[str, int, str, str]]] = {}
+    results: dict[str, list[tuple[str, int, str, str]]] = {}
     scanned_files = 0
-    error_files = []
+    error_files: list[dict[str, str]] = []
 
     try:
         for root, dirs, files in os.walk(directory):
@@ -309,12 +414,7 @@ def scan_directory(
                 file_path = os.path.join(root, file)
 
                 try:
-                    if should_exclude(file_path, exclude_dirs) or not is_text_file(
-                        file_path
-                    ):
-                        continue
-
-                    secrets = find_potential_secrets(file_path)
+                    secrets = process_file(file_path, exclude_dirs)
                     if secrets:
                         results[file_path] = secrets
 
@@ -325,66 +425,204 @@ def scan_directory(
                             extra={
                                 "files_scanned": scanned_files,
                                 "files_with_secrets": len(results),
+                                "current_directory": root,
                             },
                         )
 
                 except (PermissionError, FileNotFoundError) as e:
-                    error_files.append({
-                        "file": file_path,
-                        "timestamp": datetime.now().isoformat(),
-                        "error_type": type(e).__name__,
-                        "error_id": str(uuid.uuid4()),
-                    })
+                    error_details = handle_file_error(file_path, e)
+                    error_files.append(error_details)
                     logger.warning(
                         "File access error",
-                        extra={"file": file_path, "error": str(e)},
+                        extra={"file": file_path, "error": str(e), **error_details},
                     )
                 except Exception as e:
-                    error_files.append({
-                        "file": file_path,
-                        "timestamp": datetime.now().isoformat(),
-                        "error_type": type(e).__name__,
-                        "error_id": str(uuid.uuid4()),
-                    })
-                    logger.error(
+                    error_details = handle_file_error(file_path, e)
+                    error_files.append(error_details)
+                    logger.exception(
                         "Unexpected error processing file",
                         extra={
                             "file": file_path,
-                            "error_type": type(e).__name__,
-                            "error_id": str(uuid.uuid4()),
+                            "error": str(e),
+                            "stack_trace": True,
+                            **error_details,
                         },
                     )
 
-        if error_files:
-            logger.warning(
-                "Scan completed with errors",
-                extra={
-                    "total_files": scanned_files,
-                    "error_files": len(error_files),
-                    "files_with_secrets": len(results),
-                },
-            )
-        else:
-            logger.info(
-                "Scan completed successfully",
-                extra={
-                    "total_files": scanned_files,
-                    "files_with_secrets": len(results),
-                },
-            )
+        log_scan_completion(scanned_files, error_files, results)
 
     except (PermissionError, OSError) as e:
-        logger.error(
+        logger.exception(
             "Directory traversal error",
-            extra={"directory": directory, "error": str(e)},
+            extra={
+                "directory": directory,
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "stack_trace": True,
+            },
         )
         raise
 
     return results
 
 
+def log_scan_completion(
+    scanned_files: int,
+    error_files: list[dict[str, str]],
+    results: dict[str, list[tuple[str, int, str, str]]],
+) -> None:
+    """Log scan completion status with appropriate metrics.
+
+    Args:
+    ----
+        scanned_files: Number of files scanned
+        error_files: List of files that had errors
+        results: Dictionary of files with secrets found
+    """
+    if error_files:
+        logger.warning(
+            "Scan completed with errors",
+            extra={
+                "total_files": scanned_files,
+                "error_files": len(error_files),
+                "files_with_secrets": len(results),
+                "error_types": {e["error_type"] for e in error_files},
+            },
+        )
+    else:
+        logger.info(
+            "Scan completed successfully",
+            extra={
+                "total_files": scanned_files,
+                "files_with_secrets": len(results),
+                "clean_files": scanned_files - len(results),
+            },
+        )
+
+
+def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) -> str:
+    """Generate a JSON format report.
+
+    Args:
+    ----
+        results: Dictionary of file paths to secrets
+
+    Returns:
+    -------
+        str: JSON formatted report with masked sensitive data
+    """
+    json_results = {}
+    for file_path, secrets in results.items():
+        masked_file_path = mask_sensitive_data(file_path)
+        json_results[masked_file_path] = [
+            {
+                "type": pattern_name,
+                "line_number": line_number,
+                "line": mask_sensitive_data(line),
+                "value": "[REDACTED]",
+            }
+            for pattern_name, line_number, line, _ in secrets
+        ]
+
+    masked_json = json.dumps(json_results, indent=2)
+    return cast(str, mask_sensitive_data(masked_json))
+
+
+def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) -> str:
+    """Generate a text format report.
+
+    Args:
+    ----
+        results: Dictionary of file paths to secrets
+
+    Returns:
+    -------
+        str: Text formatted report with masked sensitive data
+    """
+    lines = [
+        "Security Scan Report",
+        "===================",
+        "",
+        "Scan completed successfully",
+        "",
+    ]
+
+    for file_path, secrets in results.items():
+        masked_file_path = mask_sensitive_data(file_path)
+        lines.append(f"File: {masked_file_path}")
+        lines.append("-" * (len(masked_file_path) + 6))
+
+        for pattern_name, line_number, line, _ in secrets:
+            masked_line = mask_sensitive_data(line)
+            masked_line = mask_sensitive_data(masked_line, visible_chars=2)
+            lines.append(f"  Line {line_number}: {pattern_name}")
+            lines.append(f"    {masked_line.strip()}")
+            lines.append("")
+        lines.append("")
+
+    output = mask_sensitive_data("\n".join(lines))
+    return cast(str, mask_sensitive_data(output, visible_chars=2))
+
+
+def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
+    """Encrypt report content using environment key or system entropy.
+
+    Args:
+    ----
+        content: Content to encrypt
+
+    Returns:
+    -------
+        tuple[bytes, bytes]: Salt and encrypted content
+    """
+    salt = os.urandom(16)
+    system_entropy = f"{uuid.getnode()}{os.path.expanduser('~')}{os.getpid()}"
+
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend(),
+    )
+
+    key_material = os.environ.get("PAISSIVE_REPORT_KEY", "").encode(
+        "utf-8"
+    ) or system_entropy.encode("utf-8")
+
+    try:
+        derived_key = kdf.derive(key_material)
+        encoded_key = base64.urlsafe_b64encode(derived_key)
+        fernet = Fernet(encoded_key)
+        return salt, fernet.encrypt(content.encode())
+    finally:
+        # Clean up sensitive data
+        del key_material
+        if "derived_key" in locals():
+            del derived_key
+        if "encoded_key" in locals():
+            del encoded_key
+
+
+def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:
+    """Save encrypted report to file.
+
+    Args:
+    ----
+        path: Output file path
+        salt: Salt used for encryption
+        encrypted_content: Encrypted report content
+    """
+    output_dir = os.path.dirname(path)
+    if output_dir:
+        os.makedirs(output_dir, mode=0o700, exist_ok=True)
+
+    with open(path, "wb") as f:
+        f.write(salt + encrypted_content)
+
+
 def generate_report(
-    results: Dict[str, List[Tuple[str, int, str, str]]],
+    results: dict[str, list[tuple[str, int, str, str]]],
     output_file: Optional[str] = None,
     json_format: bool = False,
 ) -> None:
@@ -395,7 +633,6 @@ def generate_report(
         results: Dictionary of file paths to secrets
         output_file: Path to the output file
         json_format: Whether to output in JSON format
-
     """
     if not results:
         logger.info("No potential security findings")
@@ -407,137 +644,42 @@ def generate_report(
         extra={"scan_completed": True, "total_secrets": total_secrets},
     )
 
-    if json_format:
-        json_results = {}
-        for file_path, secrets in results.items():
-            # Mask the file path to prevent leaking sensitive paths
-            masked_file_path = mask_sensitive_data(file_path)
-            json_results[masked_file_path] = [
-                {
-                    "type": pattern_name,
-                    "line_number": line_number,
-                    "line": mask_sensitive_data(
-                        line
-                    ),  # Mask the entire line, not just the value
-                    "value": "[REDACTED]",  # Never expose the actual secret value
-                }
-                for pattern_name, line_number, line, _ in secrets
-            ]
-
-        # Create a pre-masked JSON string - never store unmasked data
-        masked_json = json.dumps(json_results, indent=2)
-        # Apply additional masking for extra security
-        output = mask_sensitive_data(masked_json)
-    else:
-        lines = [
-            "Security Scan Report",
-            "===================",
-            "",
-            "Scan completed successfully",
-            "",
-        ]
-
-        for file_path, secrets in results.items():
-            # Mask the file path in the report
-            masked_file_path = mask_sensitive_data(file_path)
-            lines.append(f"File: {masked_file_path}")
-            lines.append("-" * (len(masked_file_path) + 6))
-            for pattern_name, line_number, line, _ in secrets:
-                # Immediately mask the line to avoid storing sensitive data
-                # in clear text
-                masked_line = mask_sensitive_data(line)
-                # Apply second-level masking for critical parts
-                masked_line = mask_sensitive_data(masked_line, visible_chars=2)
-                lines.append(f"  Line {line_number}: {pattern_name}")
-                # Apply masking to the line content
-                lines.append(f"    {masked_line.strip()}")
-                lines.append("")
-            lines.append("")
-
-        # Apply multi-level masking to the full output
-        # First-level masking
-        output = mask_sensitive_data("\n".join(lines))
-        # Second-level masking with reduced visibility
-        output = mask_sensitive_data(output, visible_chars=2)
+    output = (
+        generate_json_report(results) if json_format else generate_text_report(results)
+    )
 
     if output_file:
         try:
-            # Apply additional security measures for the file content
-            # Triple-level masking to ensure no sensitive data is stored in clear text
+            # Apply additional security measures
             secure_output = mask_sensitive_data(output, visible_chars=1)
             secure_output = mask_sensitive_data(secure_output, visible_chars=0)
 
-            # Final verification - replace any suspicious patterns with fixed strings
+            # Remove any remaining sensitive patterns
             for _pattern_name, pattern in PATTERNS.items():
                 secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
-            # Encrypt the report content using environment-based key
-            # Rather than using a hardcoded secret
-            salt = os.urandom(16)
+            # Encrypt and save the report
+            salt, encrypted_content = encrypt_report_content(secure_output)
+            save_encrypted_report(output_file, salt, encrypted_content)
 
-            # Use a system-specific environmental factor for key derivation
-            # This avoids hardcoding any credentials in the code
-            system_entropy = (
-                str(uuid.getnode())  # MAC address as integer
-                + os.path.expanduser("~")  # User home directory
-                + str(os.getpid())  # Process ID for additional entropy
+            logger.info(
+                "Report saved successfully",
+                extra={"output_file": mask_sensitive_data(output_file)},
             )
-
-            # Create a key derivation function that uses the system entropy
-            kdf = PBKDF2HMAC(
-                algorithm=hashes.SHA256(),
-                length=32,
-                salt=salt,
-                iterations=100000,
-                backend=default_backend(),
-            )
-
-            # Get encryption key from environment or derive from system entropy
-            env_key = os.environ.get("PAISSIVE_REPORT_KEY")
-            if env_key:
-                # Use environment variable if available (preferred method)
-                key_material = env_key.encode("utf-8")
-            else:
-                # Fall back to system-derived entropy if no environment key
-                key_material = system_entropy.encode("utf-8")
-
-            # Derive the encryption key securely
-            derived_key = kdf.derive(key_material)
-            # Clear original key material from memory
-            del key_material
-
-            # Create a base64-encoded key for Fernet
-            encoded_key = base64.urlsafe_b64encode(derived_key)
-            # Clear derived key from memory
-            del derived_key
-
-            # Create the cipher and encrypt the data
-            cipher = Fernet(encoded_key)
-            encrypted_output = cipher.encrypt(secure_output.encode())
-
-            # Create the output directory if it doesn't exist
-            output_dir = os.path.dirname(output_file)
-            if output_dir and not os.path.exists(output_dir):
-                os.makedirs(output_dir, mode=0o700)  # Secure permissions
-
-            # Write the encrypted output to the file
-            with open(output_file, "wb") as f:
-                f.write(encrypted_output)
         except Exception as e:
             # Mask any potential sensitive data in error message
             masked_error = mask_sensitive_data(str(e))
-            logger.error("Error saving report", extra={"error": masked_error})
+            logger.exception("Error saving report", extra={"error": masked_error})
     else:
         # Don't log the full report, just that it was generated
         logger.info("Security scan report generated")
-        print("Security scan completed. Review the secured report for details.")
 
 
 class SecretsAuditor:
     """Utility for auditing code for hardcoded secrets."""
 
     def __init__(
-        self, exclude_dirs: Optional[Set[str]] = None, patterns: Optional[Dict] = None
+        self, exclude_dirs: Optional[set[str]] = None, patterns: Optional[dict] = None
     ):
         """Initialize the secrets auditor.
 
@@ -547,61 +689,67 @@ class SecretsAuditor:
             patterns: Patterns to use for detecting secrets
 
         """
-        self.exclude_dirs = exclude_dirs or DEFAULT_EXCLUDE_DIRS
-        self.patterns = patterns or PATTERNS
+        self.exclude_dirs: set[str] = exclude_dirs or DEFAULT_EXCLUDE_DIRS
+        self.patterns: dict = patterns or PATTERNS
         logger.info("Secrets auditor initialized")
 
-    def scan(self, directory: str) -> Dict[str, List[Tuple[str, int, str, str]]]:
+    def scan(self, directory: str) -> dict[str, list[tuple[str, int, str, str]]]:
         """Scan a directory for potential secrets.
 
         Args:
-        ----
             directory: Directory to scan
 
         Returns:
-        -------
-            Dict[str, List[Tuple[str, int, str, str]]]:
-            Dictionary of file paths to secrets
-
+            Dictionary mapping file paths to lists of (pattern_name,
+            line_number,
+            line_content,
+            secret_value)
         """
         return scan_directory(directory, self.exclude_dirs)
 
     def generate_report(
         self,
-        results: Dict[str, List[Tuple[str, int, str, str]]],
+        results: dict[str, list[tuple[str, int, str, str]]],
         output_file: Optional[str] = None,
         json_format: bool = False,
-    ) -> None:
-        """Generate a report of potential secrets.
+    ) -> dict[str, list[tuple[str, int, str, str]]]:
+        """Audit a directory for potential secrets and generate a report.
 
         Args:
-        ----
-            results: Dictionary of file paths to secrets
-            output_file: Path to the output file
+            results: Dictionary mapping file paths to lists of (pattern_name,
+            line_number,
+            line_content,
+            secret_value)
+            output_file: Optional output file path
             json_format: Whether to output in JSON format
 
+        Returns:
+            Dictionary mapping file paths to lists of (pattern_name,
+            line_number,
+            line_content,
+            secret_value)
         """
         generate_report(results, output_file, json_format)
+        return results
 
     def audit(
         self,
         directory: str,
         output_file: Optional[str] = None,
         json_format: bool = False,
-    ) -> Dict[str, List[Tuple[str, int, str, str]]]:
+    ) -> dict[str, list[tuple[str, int, str, str]]]:
         """Audit a directory for potential secrets and generate a report.
 
         Args:
-        ----
             directory: Directory to scan
             output_file: Path to the output file
             json_format: Whether to output in JSON format
 
         Returns:
-        -------
-            Dict[str, List[Tuple[str, int, str, str]]]:
-            Dictionary of file paths to secrets
-
+            Dictionary mapping file paths to lists of (pattern_name,
+            line_number,
+            line_content,
+            secret_value)
         """
         results = self.scan(directory)
         self.generate_report(results, output_file, json_format)

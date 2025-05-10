@@ -5,12 +5,18 @@ This script scans Python files for regular expressions with overly permissive
 character ranges like [A-Za-z] and replaces them with safer alternatives like [A-Za-z].
 """
 
+import logging
 import os
 import re
 import sys
 
-from typing import List
-from typing import Tuple
+# Import typing annotations
+
+# Constants
+MIN_ARGS = 2  # Program name + directory
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Patterns to search for
 PROBLEMATIC_PATTERNS = [
@@ -26,7 +32,7 @@ PROBLEMATIC_PATTERNS = [
 EXCLUDE_DIRS = [".git", ".venv", "venv", "__pycache__", "node_modules", "build", "dist"]
 
 
-def find_python_files(directory: str) -> List[str]:
+def find_python_files(directory: str) -> list[str]:
     """Find all Python files in the given directory and its subdirectories.
 
     Args:
@@ -51,7 +57,7 @@ def find_python_files(directory: str) -> List[str]:
     return python_files
 
 
-def check_file(file_path: str) -> List[Tuple[int, str, str, str]]:
+def check_file(file_path: str) -> list[tuple[int, str, str, str]]:
     """Check a file for problematic regex patterns.
 
     Args:
@@ -76,7 +82,7 @@ def check_file(file_path: str) -> List[Tuple[int, str, str, str]]:
     return issues
 
 
-def fix_file(file_path: str, dry_run: bool = False) -> List[Tuple[int, str, str]]:
+def fix_file(file_path: str, dry_run: bool = False) -> list[tuple[int, str, str]]:
     """Fix problematic regex patterns in a file.
 
     Args:
@@ -113,21 +119,21 @@ def fix_file(file_path: str, dry_run: bool = False) -> List[Tuple[int, str, str]
     return changes
 
 
-def main():
+def main() -> None:
     """Run the main script functionality."""
-    if len(sys.argv) < 2:
-        print(f"Usage: {sys.argv[0]} <directory> [--dry-run]")
+    if len(sys.argv) < MIN_ARGS:
+        logging.error(f"Usage: {sys.argv[0]} <directory> [--dry-run]")
         sys.exit(1)
 
     directory = sys.argv[1]
     dry_run = "--dry-run" in sys.argv
 
     if not os.path.isdir(directory):
-        print(f"Error: {directory} is not a directory")
+        logging.error(f"Error: {directory} is not a directory")
         sys.exit(1)
 
     python_files = find_python_files(directory)
-    print(f"Found {len(python_files)} Python files")
+    logging.info(f"Found {len(python_files)} Python files")
 
     total_issues = 0
     total_files_with_issues = 0
@@ -139,25 +145,25 @@ def main():
             total_issues += len(issues)
             total_files_with_issues += 1
 
-            print(f"\nIssues in {file_path}:")
+            logging.info(f"\nIssues in {file_path}:")
             for line_number, line, pattern, replacement in issues:
-                print(f"  Line {line_number}: {pattern} -> {replacement}")
-                print(f"    {line.strip()}")
+                logging.info(f"  Line {line_number}: {pattern} -> {replacement}")
+                logging.info(f"    {line.strip()}")
 
             changes = fix_file(file_path, dry_run)
 
             if changes:
-                print("\n  Changes:")
+                logging.info("\n  Changes:")
                 for line_number, old_line, new_line in changes:
-                    print(f"    Line {line_number}:")
-                    print(f"      - {old_line}")
-                    print(f"      + {new_line}")
+                    logging.info(f"    Line {line_number}:")
+                    logging.info(f"      - {old_line}")
+                    logging.info(f"      + {new_line}")
 
-    print(f"\nFound {total_issues} issues in {total_files_with_issues} files")
+    logging.info(f"\nFound {total_issues} issues in {total_files_with_issues} files")
     if dry_run:
-        print("Dry run - no files were modified")
+        logging.info("Dry run - no files were modified")
     else:
-        print(f"Fixed {total_issues} issues in {total_files_with_issues} files")
+        logging.info(f"Fixed {total_issues} issues in {total_files_with_issues} files")
 
 
 if __name__ == "__main__":

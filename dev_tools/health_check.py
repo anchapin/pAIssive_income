@@ -17,13 +17,16 @@ Requires tools: flake8, ruff, mypy, bandit, pip-audit, black,
 sphinx-build (optional).
 """
 
+import logging
 import os
 import shutil
 import subprocess
 import sys
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def run(cmd, desc):
+
+def run(cmd: str, desc: str) -> None:
     """Run a shell command and print result.
 
     Args:
@@ -31,16 +34,16 @@ def run(cmd, desc):
         desc (str): Description of the command.
 
     """
-    print(f"\n\033[1m==> {desc}\033[0m")
+    logging.info(f"\n==> {desc}")
     res = subprocess.run(cmd, shell=True, check=False)
     if res.returncode != 0:
-        print(f"\033[91mFAILED: {desc}\033[0m")
+        logging.error(f"FAILED: {desc}")
         sys.exit(1)
     else:
-        print(f"\033[92mPASSED: {desc}\033[0m")
+        logging.info(f"PASSED: {desc}")
 
 
-def check_gitignore(path):
+def check_gitignore(_path: str) -> bool:
     """Skip files/directories in .gitignore (for future extension).
 
     Args:
@@ -53,7 +56,7 @@ def check_gitignore(path):
     return True  # Placeholder for future logic
 
 
-def lint():
+def lint() -> None:
     """Run linting and formatting checks (ruff, flake8, black)."""
     if shutil.which("ruff"):
         run("ruff check .", "Ruff linting")
@@ -63,31 +66,31 @@ def lint():
         run("black --check .", "Black formatting check")
 
 
-def type_check():
+def type_check() -> None:
     """Run mypy static type checks."""
     if shutil.which("mypy"):
         run("mypy .", "Mypy static type checking")
     else:
-        print("mypy not found, skipping type checks.")
+        logging.warning("mypy not found, skipping type checks.")
 
 
-def security():
+def security() -> None:
     """Run bandit security scan."""
     if shutil.which("bandit"):
         run("bandit -r . -x tests", "Bandit security scan")
     else:
-        print("bandit not found, skipping security checks.")
+        logging.warning("bandit not found, skipping security checks.")
 
 
-def deps():
+def deps() -> None:
     """Run pip-audit for dependency security."""
     if shutil.which("pip-audit"):
         run("pip-audit", "Python dependency audit")
     else:
-        print("pip-audit not found, skipping dependency audit.")
+        logging.warning("pip-audit not found, skipping dependency audit.")
 
 
-def docs():
+def docs() -> None:
     """Build Sphinx documentation, if present."""
     if os.path.isdir("docs_source") and shutil.which("sphinx-build"):
         run(
@@ -95,15 +98,15 @@ def docs():
             "Sphinx documentation build",
         )
     else:
-        print("Sphinx not configured or not found, skipping docs build.")
+        logging.warning("Sphinx not configured or not found, skipping docs build.")
 
 
-def usage():
+def usage() -> None:
     """Print usage instructions."""
-    print(__doc__)
+    logging.info(__doc__)
 
 
-def main():
+def main() -> None:
     """Entry point for orchestrated health checks."""
     args = set(sys.argv[1:])
     if not args or "--all" in args:

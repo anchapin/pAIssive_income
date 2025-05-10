@@ -12,9 +12,11 @@ visualizations to track CI/CD performance metrics including:
 # Standard library imports
 import argparse
 import json
+import logging
 import os
 
 from datetime import datetime
+from typing import Any
 
 import matplotlib.pyplot as plt
 
@@ -32,8 +34,15 @@ COLORS = {
     "unknown": "#6c757d",
 }
 
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
-def load_metrics(input_file):
+
+def load_metrics(input_file: str) -> list[dict[str, Any]]:
     """Load workflow metrics from JSON file(s).
 
     Args:
@@ -57,7 +66,7 @@ def load_metrics(input_file):
                         else:
                             metrics_data.append(metrics)
                 except (OSError, json.JSONDecodeError) as e:
-                    print(f"Error loading {filename}: {e}")
+                    logging.warning(f"Error loading {filename}: {e}")
     else:
         # Load single file
         try:
@@ -68,13 +77,13 @@ def load_metrics(input_file):
                 else:
                     metrics_data.append(metrics)
         except (OSError, json.JSONDecodeError) as e:
-            print(f"Error loading {input_file}: {e}")
+            logging.warning(f"Error loading {input_file}: {e}")
             return []
 
     return metrics_data
 
 
-def process_metrics(metrics_data):
+def process_metrics(metrics_data: list[dict[str, Any]]) -> pd.DataFrame:
     """Process raw metrics into pandas DataFrame.
 
     Args:
@@ -85,7 +94,7 @@ def process_metrics(metrics_data):
 
     """
     if not metrics_data:
-        print("No metrics data to process")
+        logging.warning("No metrics data to process")
         return pd.DataFrame()
 
     # Convert to DataFrame
@@ -107,7 +116,7 @@ def process_metrics(metrics_data):
     return df
 
 
-def generate_success_rate_chart(df, output_dir):
+def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
     """Generate success rate chart.
 
     Args:
@@ -116,7 +125,7 @@ def generate_success_rate_chart(df, output_dir):
 
     """
     if df.empty or "status" not in df.columns:
-        print("No status data available for success rate chart")
+        logging.warning("No status data available for success rate chart")
         return
 
     plt.figure(figsize=(10, 6))
@@ -150,7 +159,7 @@ def generate_success_rate_chart(df, output_dir):
     plt.close()
 
 
-def generate_duration_chart(df, output_dir):
+def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
     """Generate workflow duration chart.
 
     Args:
@@ -159,7 +168,7 @@ def generate_duration_chart(df, output_dir):
 
     """
     if df.empty or "duration" not in df.columns:
-        print("No duration data available for duration chart")
+        logging.warning("No duration data available for duration chart")
         return
 
     plt.figure(figsize=(10, 6))
@@ -192,7 +201,7 @@ def generate_duration_chart(df, output_dir):
     plt.close()
 
 
-def generate_trend_chart(df, output_dir):
+def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
     """Generate workflow trend chart showing success/failure over time.
 
     Args:
@@ -201,7 +210,7 @@ def generate_trend_chart(df, output_dir):
 
     """
     if df.empty or "date" not in df.columns:
-        print("No date data available for trend chart")
+        logging.warning("No date data available for trend chart")
         return
 
     plt.figure(figsize=(12, 6))
@@ -235,7 +244,7 @@ def generate_trend_chart(df, output_dir):
     plt.close()
 
 
-def generate_branch_performance_chart(df, output_dir):
+def generate_branch_performance_chart(df: pd.DataFrame, output_dir: str) -> None:
     """Generate branch performance chart.
 
     Args:
@@ -244,7 +253,7 @@ def generate_branch_performance_chart(df, output_dir):
 
     """
     if df.empty or "branch" not in df.columns:
-        print("No branch data available for branch performance chart")
+        logging.warning("No branch data available for branch performance chart")
         return
 
     plt.figure(figsize=(10, 6))
@@ -280,7 +289,7 @@ def generate_branch_performance_chart(df, output_dir):
     plt.close()
 
 
-def generate_html_dashboard(output_dir):
+def generate_html_dashboard(output_dir: str) -> None:
     """Generate HTML dashboard from charts.
 
     Args:
@@ -408,10 +417,10 @@ def generate_html_dashboard(output_dir):
     with open(os.path.join(output_dir, "index.html"), "w") as f:
         f.write(dashboard_html)
 
-    print(f"Dashboard generated: {os.path.join(output_dir, 'index.html')}")
+    logging.info(f"Dashboard generated: {os.path.join(output_dir, 'index.html')}")
 
 
-def main():
+def main() -> int:
     """Implement the main entry point for the script."""
     parser = argparse.ArgumentParser(
         description="Generate CI/CD dashboard from workflow metrics"
@@ -433,7 +442,7 @@ def main():
     df = process_metrics(metrics_data)
 
     if df.empty:
-        print("No metrics data available to generate dashboard")
+        logging.warning("No metrics data available to generate dashboard")
         return 1
 
     # Generate charts
@@ -445,7 +454,7 @@ def main():
     # Generate HTML dashboard
     generate_html_dashboard(args.output_dir)
 
-    print(f"CI/CD dashboard generated successfully in {args.output_dir}")
+    logging.info(f"CI/CD dashboard generated successfully in {args.output_dir}")
     return 0
 
 

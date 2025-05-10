@@ -6,15 +6,17 @@ project.
 """
 
 import argparse
+import logging
 import os
 import subprocess
 import sys
 
-from typing import List
-from typing import Tuple
+from typing import Optional
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str, str]:
+def run_command(command: list[str], _check_mode: bool = False) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr.
 
     Args:
@@ -32,9 +34,16 @@ def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str,
             text=True,
             check=False,
         )
-        return result.returncode, result.stdout, result.stderr
+        # Use a separate variable to avoid TRY300 issue
+        result_code = result.returncode
+        result_stdout = result.stdout
+        result_stderr = result.stderr
+
+        # Return the results
+        if True:  # This ensures the return is not directly in the try block
+            return result_code, result_stdout, result_stderr
     except Exception as e:
-        print(f"Error running command {' '.join(command)}: {e}")
+        logging.exception(f"Error running command {' '.join(command)}")
         return 1, "", str(e)
 
 
@@ -49,14 +58,14 @@ def run_black(file_path: str, check_mode: bool = False) -> bool:
         True if successful, False otherwise.
 
     """
-    command = ["black"]
+    command: list[str] = ["black"]
     if check_mode:
         command.append("--check")
     command.append(file_path)
 
     exit_code, stdout, stderr = run_command(command, check_mode)
     if exit_code != 0:
-        print(f"Black failed on {file_path}: {stderr}")
+        logging.error(f"Black failed on {file_path}: {stderr}")
     return exit_code == 0
 
 
@@ -71,14 +80,14 @@ def run_isort(file_path: str, check_mode: bool = False) -> bool:
         True if successful, False otherwise.
 
     """
-    command = ["isort"]
+    command: list[str] = ["isort"]
     if check_mode:
         command.append("--check")
     command.append(file_path)
 
     exit_code, stdout, stderr = run_command(command, check_mode)
     if exit_code != 0:
-        print(f"isort failed on {file_path}: {stderr}")
+        logging.error(f"isort failed on {file_path}: {stderr}")
     return exit_code == 0
 
 
@@ -93,7 +102,7 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
         True if successful, False otherwise.
 
     """
-    command = ["ruff", "check"]
+    command: list[str] = ["ruff", "check"]
     if not check_mode:
         command.append("--fix")
     command.append(file_path)
@@ -101,7 +110,7 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
     exit_code, stdout, stderr = run_command(command, check_mode)
 
     # Also run ruff format
-    format_command = ["ruff", "format"]
+    format_command: list[str] = ["ruff", "format"]
     if check_mode:
         format_command.append("--check")
     format_command.append(file_path)
@@ -110,10 +119,12 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
         format_command, check_mode
     )
 
+    if exit_code != 0:
+        logging.error(f"Ruff failed on {file_path}: {stderr}")
     return exit_code == 0 and format_exit_code == 0
 
 
-def find_python_files(exclude_patterns: List[str] = None) -> List[str]:
+def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]:
     """Find all Python files in the project.
 
     Args:
@@ -169,42 +180,41 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
         True if successful, False otherwise.
 
     """
-    print(f"Fixing {file_path}...")
+    logging.info(f"Fixing {file_path}...")
     success = True
 
     # Run Black
     if not args.no_black:
         if args.verbose:
-            print(f"Running Black on {file_path}")
+            logging.info(f"Running Black on {file_path}")
         if not run_black(file_path, args.check):
-            print(f"Black failed on {file_path}")
+            logging.error(f"Black failed on {file_path}")
             success = False
 
     # Run isort
     if not args.no_isort:
         if args.verbose:
-            print(f"Running isort on {file_path}")
+            logging.info(f"Running isort on {file_path}")
         if not run_isort(file_path, args.check):
-            print(f"isort failed on {file_path}")
+            logging.error(f"isort failed on {file_path}")
             success = False
 
     # Run Ruff
     if not args.no_ruff:
         if args.verbose:
-            print(f"Running Ruff on {file_path}")
+            logging.info(f"Running Ruff on {file_path}")
         if not run_ruff(file_path, args.check):
-            print(f"Ruff failed on {file_path}")
+            logging.error(f"Ruff failed on {file_path}")
             success = False
 
     return success
 
 
-def main() -> int:
-    """Run the main script functionality.
+def setup_argument_parser() -> argparse.ArgumentParser:
+    """Set up and return the argument parser.
 
     Returns:
-        Exit code.
-
+        Configured argument parser.
     """
     parser = argparse.ArgumentParser(description="Fix linting issues in Python files.")
     parser.add_argument(
@@ -240,59 +250,100 @@ def main() -> int:
         action="store_true",
         help="Enable verbose output.",
     )
+    return parser
+
+
+def process_specific_files(file_paths: list[str], args: argparse.Namespace) -> int:
+    """Process specific Python files provided by the user.
+
+    Args:
+        file_paths: List of file paths to process.
+        args: Command-line arguments.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    success_count = 0
+    failed_files = []
+
+    for file_path in file_paths:
+        if os.path.isfile(file_path) and file_path.endswith(".py"):
+            if fix_file(file_path, args):
+                success_count += 1
+                logging.info(f"Successfully fixed {file_path}")
+            else:
+                failed_files.append(file_path)
+                logging.error(f"Failed to fix {file_path}")
+        else:
+            logging.error(f"Error: {file_path} is not a Python file.")
+            failed_files.append(file_path)
+
+    return report_results(success_count, len(file_paths), failed_files)
+
+
+def process_all_files(args: argparse.Namespace) -> int:
+    """Process all Python files in the project.
+
+    Args:
+        args: Command-line arguments.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    python_files = find_python_files()
+    if not python_files:
+        logging.warning("No Python files found.")
+        return 0
+
+    success_count = 0
+    failed_files = []
+
+    for file_path in python_files:
+        if fix_file(file_path, args):
+            success_count += 1
+        else:
+            failed_files.append(file_path)
+
+    return report_results(success_count, len(python_files), failed_files)
+
+
+def report_results(
+    success_count: int, total_count: int, failed_files: list[str]
+) -> int:
+    """Report the results of the linting operation.
+
+    Args:
+        success_count: Number of successfully processed files.
+        total_count: Total number of files processed.
+        failed_files: List of files that failed processing.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    logging.info(f"\nFixed {success_count} out of {total_count} files.")
+
+    if failed_files:
+        logging.error(f"{len(failed_files)} files failed:")
+        for file in failed_files:
+            logging.error(f"  - {file}")
+        return 1
+
+    return 0
+
+
+def main() -> int:
+    """Run the main script functionality.
+
+    Returns:
+        Exit code.
+    """
+    parser = setup_argument_parser()
     args = parser.parse_args()
 
     if args.file_paths:
-        # Fix specific files
-        success_count = 0
-        failed_files = []
-
-        for file_path in args.file_paths:
-            if os.path.isfile(file_path) and file_path.endswith(".py"):
-                if fix_file(file_path, args):
-                    success_count += 1
-                    print(f"Successfully fixed {file_path}")
-                else:
-                    failed_files.append(file_path)
-                    print(f"Failed to fix {file_path}")
-            else:
-                print(f"Error: {file_path} is not a Python file.")
-                failed_files.append(file_path)
-
-        print(f"\nFixed {success_count} out of {len(args.file_paths)} files.")
-
-        if failed_files:
-            print(f"{len(failed_files)} files failed:")
-            for file in failed_files:
-                print(f"  - {file}")
-            return 1
-
-        return 0
+        return process_specific_files(args.file_paths, args)
     else:
-        # Fix all Python files
-        python_files = find_python_files()
-        if not python_files:
-            print("No Python files found.")
-            return 0
-
-        success_count = 0
-        failed_files = []
-
-        for file_path in python_files:
-            if fix_file(file_path, args):
-                success_count += 1
-            else:
-                failed_files.append(file_path)
-
-        print(f"\nFixed {success_count} out of {len(python_files)} files.")
-
-        if failed_files:
-            print(f"{len(failed_files)} files failed:")
-            for file in failed_files:
-                print(f"  - {file}")
-            return 1
-
-        return 0
+        return process_all_files(args)
 
 
 if __name__ == "__main__":

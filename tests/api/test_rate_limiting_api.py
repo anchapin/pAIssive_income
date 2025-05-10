@@ -70,5 +70,10 @@ class TestRateLimitingAPI:
         # Should both return 200/401/403 or 429, but possibly different headers/limits
         assert resp_anon.status_code in (200, 401, 403, 429)
         assert resp_auth.status_code in (200, 401, 403, 429)
-        # Optionally, check for header differences
-        # assert resp_auth.headers.get("X-RateLimit-Limit") != resp_anon.headers.get("X-RateLimit-Limit")
+        # Check if rate limit headers are present
+        if (
+            "X-RateLimit-Limit" in resp_auth.headers
+            and "X-RateLimit-Limit" in resp_anon.headers
+        ):
+            # Different rate limits may be applied based on authentication status
+            pass

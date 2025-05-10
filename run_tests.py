@@ -14,6 +14,7 @@ Examples:
 """
 
 import argparse
+import logging
 import subprocess
 import sys
 
@@ -34,8 +35,10 @@ PHASE_MARKERS = {
     # Add more as needed
 }
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def main():
+
+def main() -> int:
     """Parse arguments and run the appropriate pytest command with markers and optional coverage enforcement."""
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
@@ -43,7 +46,7 @@ def main():
     parser.add_argument(
         "--phase",
         default="fast",
-        choices=list(PHASE_MARKERS.keys()) + ["custom"],
+        choices=[*list(PHASE_MARKERS.keys()), "custom"],
         help=(
             "Test phase to run. "
             "Default: fast (unit/smoke, excludes slow/integration/dependency). "
@@ -73,8 +76,8 @@ def main():
 
     if phase == "custom":
         if not args.marker:
-            print(
-                "ERROR: --phase custom requires a marker expression with --marker/-m."
+            logging.error(
+                "--phase custom requires a marker expression with --marker/-m."
             )
             return 2
         marker_expr = args.marker
@@ -94,19 +97,19 @@ def main():
     if args.extra_pytest_args:
         pytest_cmd += args.extra_pytest_args
 
-    print(f"Running tests with phase: {phase}")
+    logging.info(f"Running tests with phase: {phase}")
     if marker_expr:
-        print(f"Pytest marker expression: {marker_expr}")
+        logging.info(f"Pytest marker expression: {marker_expr}")
     if args.with_coverage:
-        print("Coverage reporting enabled (minimum threshold: 90%)")
+        logging.info("Coverage reporting enabled (minimum threshold: 90%)")
     if args.extra_pytest_args:
-        print(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
+        logging.info(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
 
     try:
-        result = subprocess.run(pytest_cmd, check=False)
-        return result.returncode
+        result: subprocess.CompletedProcess = subprocess.run(pytest_cmd, check=False)
+        return int(result.returncode)
     except KeyboardInterrupt:
-        print("Test run interrupted by user.")
+        logging.info("Test run interrupted by user.")
         return 1
 
 

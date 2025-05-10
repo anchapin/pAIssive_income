@@ -3,49 +3,56 @@
 # Standard library imports
 import argparse
 import json
+
+# Third-party imports
+# None required for basic functionality
+# Local imports
+# None required for basic functionality
+import logging
 import re
 
 from datetime import datetime
 
-# Third-party imports
-# None required for basic functionality
-
-# Local imports
-# None required for basic functionality
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def validate_input(input_str, pattern, default_value):
+def validate_input(input_str: str, pattern: str, default_value: str) -> str:
     """Validate input string against a regex pattern.
 
     Args:
     ----
-        input_str (str): The input string to validate
-        pattern (str): Regex pattern to validate against
-        default_value (str): Default value to return if validation fails
+        input_str: The input string to validate
+        pattern: Regex pattern to validate against
+        default_value: Default value to return if validation fails
 
     Returns:
     -------
         str: Validated input or default value
-
     """
     if not input_str or not re.match(pattern, input_str):
-        print(f"WARNING: Invalid input detected: {input_str}. Using default value.")
+        logging.warning(f"Invalid input detected: {input_str}. Using default value.")
         return default_value
     return input_str
 
 
-def collect_metrics(workflow, status, duration, branch, commit, output_file):
+def collect_metrics(
+    workflow: str,
+    status: str,
+    duration: str,
+    branch: str,
+    commit: str,
+    output_file: str,
+) -> None:
     """Collect and save workflow metrics.
 
     Args:
     ----
-        workflow (str): Name of the workflow
-        status (str): Conclusion status of the workflow
-        duration (str): Duration of the workflow in seconds
-        branch (str): Branch name
-        commit (str): Commit SHA
-        output_file (str): Path to output JSON file
-
+        workflow: Name of the workflow
+        status: Conclusion status of the workflow
+        duration: Duration of the workflow in seconds
+        branch: Branch name
+        commit: Commit SHA
+        output_file: Path to output JSON file
     """
     # Validate inputs
     workflow = validate_input(workflow, r"^[a-zA-Z0-9_\-\s]+$", "unknown-workflow")
@@ -53,10 +60,10 @@ def collect_metrics(workflow, status, duration, branch, commit, output_file):
 
     # Validate duration is a number
     try:
-        duration = int(duration)
+        duration_int = int(duration)
     except (ValueError, TypeError):
-        print(f"WARNING: Invalid duration: {duration}. Using 0.")
-        duration = 0
+        logging.warning(f"Invalid duration: {duration}. Using 0.")
+        duration_int = 0
 
     # Validate branch name
     branch = validate_input(branch, r"^[a-zA-Z0-9_\-\/]+$", "unknown-branch")
@@ -69,7 +76,7 @@ def collect_metrics(workflow, status, duration, branch, commit, output_file):
         "timestamp": datetime.utcnow().isoformat(),
         "workflow": workflow,
         "status": status,
-        "duration": duration,
+        "duration": duration_int,
         "branch": branch,
         "commit": commit,
     }
@@ -78,10 +85,10 @@ def collect_metrics(workflow, status, duration, branch, commit, output_file):
     with open(output_file, "w") as f:
         json.dump(metrics, f, indent=2)
 
-    print(f"Metrics saved to {output_file}")
+    logging.info(f"Metrics saved to {output_file}")
 
 
-def main():
+def main() -> None:
     """Implement the main entry point for the script."""
     parser = argparse.ArgumentParser(description="Collect workflow metrics")
     parser.add_argument("--workflow", required=True, help="Name of the workflow")

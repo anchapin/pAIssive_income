@@ -6,7 +6,6 @@ This module provides utility functions for authentication in the API.
 # Standard library imports
 from datetime import datetime
 from typing import Any
-from typing import Dict
 
 # Third-party imports
 from fastapi import Depends
@@ -46,7 +45,7 @@ class TokenData(BaseModel):
 async def get_current_user(
     token: str = oauth2_scheme_dependency,
     user_service: UserService = user_service_dependency,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get the current user from a JWT token.
 
     Args:
@@ -107,8 +106,8 @@ current_user_dependency = Depends(get_current_user)
 
 
 async def get_current_active_user(
-    current_user: Dict[str, Any] = current_user_dependency,
-) -> Dict[str, Any]:
+    current_user: dict[str, Any] = current_user_dependency,
+) -> dict[str, Any]:
     """Get the current active user.
 
     Args:
@@ -136,7 +135,7 @@ async def get_current_active_user(
 async def verify_api_key(
     api_key: str = api_key_header_dependency,
     user_service: UserService = user_service_dependency,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Verify an API key.
 
     Args:

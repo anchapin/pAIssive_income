@@ -10,6 +10,7 @@ additional CI-friendly features.
 import argparse
 import hashlib  # Added for path hashing functionality
 import json
+import logging
 import os
 import re
 import subprocess
@@ -18,15 +19,27 @@ import time  # Moved time import to the top level
 import uuid  # Added for secure report generation
 
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Set
-from typing import Tuple
 from typing import cast
+
+# Define constants for magic numbers
+MIN_PATTERN_LENGTH = 3
+MIN_TUPLE_LENGTH = 2
+CHAR_SUM_DIVISOR_1 = 5
+CHAR_SUM_DIVISOR_2 = 11
+CHAR_SUM_REMAINDER = 3
+CHAR_SUM_REMAINDER_2 = 1
+CHAR_SUM_DIVISOR_3 = 7
+CHAR_SUM_REMAINDER_3 = 3
+PATTERN_LENGTH_THRESHOLD = 5
+CHAR_THRESHOLD_1 = 110
+CHAR_THRESHOLD_2 = 115
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Import the existing security tools if possible
 try:
-    from fix_potential_secrets import scan_directory as scan_directory_for_secrets
+    from fix_potential_secrets import scan_directory
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
@@ -37,19 +50,21 @@ except ImportError:
     IMPORTED_SECRET_SCANNER = False
 
     # Define a fallback function to avoid unbound variable errors
-    def scan_directory_for_secrets(
-        directory: str,
-    ) -> Dict[str, List[Tuple[str, int, int]]]:
+    def scan_directory(
+        directory: str,  # Match the signature of the imported function
+    ) -> dict[str, list[tuple[str, int, int]]]:
         """Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
-            directory: Directory to scan
+            directory: Directory to scan (unused in fallback)
 
         Returns:
-            Dict[str, List[Tuple[str, int, int]]]: Empty result dictionary
+            dict[str, list[tuple[str, int, int]]]: Empty result dictionary
 
         """
-        print("scan_directory_for_secrets is not available. Using subprocess fallback.")
+        logging.warning(
+            f"scan_directory is not available for {directory}. Using subprocess fallback."
+        )
         return {}
 
 
@@ -164,7 +179,7 @@ def set_secure_file_permissions(file_path: str) -> None:
             # Use 0o600 (owner read/write only) for sensitive files
             os.chmod(file_path, 0o600)  # rw-------
         except Exception:
-            print(f"Warning: Could not set secure permissions on {file_path}")
+            logging.warning(f"Could not set secure permissions on {file_path}")
 
 
 def sanitize_finding_message(pattern_name: str) -> str:
@@ -175,7 +190,6 @@ def sanitize_finding_message(pattern_name: str) -> str:
 
     Returns:
         str: A sanitized message about the finding
-
     """
     # Using character hash sums to detect patterns without containing sensitive terms
     # This avoids triggering scanners while still categorizing findings
@@ -183,31 +197,57 @@ def sanitize_finding_message(pattern_name: str) -> str:
     # Convert to lowercase for consistent analysis
     pattern_lower = pattern_name.lower()
 
+    # Default message
+    message = "Sensitive data found"
+
+    if not pattern_lower:
+        return message
+
     # Calculate a simple hash of the pattern to identify it
     char_sum = sum(ord(c) for c in pattern_lower)
-    first_char = pattern_lower[0] if pattern_lower else ""
+    first_char = pattern_lower[0]
 
-    # Use character hash combinations instead of direct character checks
-    if first_char == "a" and any(ord(c) > 110 for c in pattern_lower):
-        return "Potential credential type 1 found"
-    elif first_char == "p" and any(ord(c) > 115 for c in pattern_lower):
-        return "Potential authentication material type A found"
-    elif first_char == "s" and len(pattern_lower) > 5:
-        return "Potential sensitive material found"
-    elif first_char == "t" and char_sum % 7 < 3:
-        return "Potential authentication material type B found"
-    elif first_char == "k" and len(pattern_lower) > 3:
-        return "Potential cryptographic material found"
-    elif first_char == "o" and char_sum % 5 == 1:
-        return "Potential secure access material found"
-    elif char_sum % 11 == 3:
-        return "Potential access material found"
+    # Pattern matching logic using a dictionary for cleaner code
+    pattern_messages = {
+        "a": (
+            "Potential credential type 1 found",
+            lambda p: any(ord(c) > CHAR_THRESHOLD_1 for c in p),
+        ),
+        "p": (
+            "Potential authentication material type A found",
+            lambda p: any(ord(c) > CHAR_THRESHOLD_2 for c in p),
+        ),
+        "s": (
+            "Potential sensitive material found",
+            lambda p: len(p) > PATTERN_LENGTH_THRESHOLD,
+        ),
+        "t": (
+            "Potential authentication material type B found",
+            lambda _: char_sum % CHAR_SUM_DIVISOR_3 < CHAR_SUM_REMAINDER_3,
+        ),
+        "k": (
+            "Potential cryptographic material found",
+            lambda p: len(p) > MIN_PATTERN_LENGTH,
+        ),
+        "o": (
+            "Potential secure access material found",
+            lambda _: char_sum % CHAR_SUM_DIVISOR_1 == CHAR_SUM_REMAINDER_2,
+        ),
+    }
 
-    # Default to generic message if no specific match
-    return "Sensitive data found"
+    # Check for first character match
+    if first_char in pattern_messages:
+        msg, condition = pattern_messages[first_char]
+        if condition(pattern_lower):
+            message = msg
+    # Check for character sum match (fallback)
+    elif char_sum % CHAR_SUM_DIVISOR_2 == CHAR_SUM_REMAINDER:
+        message = "Potential access material found"
+
+    return message
 
 
-def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
+def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
     """Run the security scan using the appropriate tool.
 
     Args:
@@ -215,18 +255,20 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
         exclude_dirs: Directories to exclude
 
     Returns:
-        Dict[str, Any]: Results of the scan
+        dict[str, Any]: Results of the scan
 
     """
-    print(f"Scanning directory: {directory}")
-    print(f"Excluding directories: {', '.join(exclude_dirs)}")
+    logging.info(f"Scanning directory: {directory}")
+    logging.info(f"Excluding directories: {', '.join(exclude_dirs)}")
 
     # Use imported function if available
-    if IMPORTED_SECRET_SCANNER and "scan_directory_for_secrets" in globals():
-        results = scan_directory_for_secrets(directory)
+    if IMPORTED_SECRET_SCANNER and "scan_directory" in globals():
+        results: dict[str, list[tuple[str, int, int]]] = scan_directory(directory)
         return results
     else:
-        print("Secret scanner is not available. Falling back to subprocess execution.")
+        logging.info(
+            "Secret scanner is not available. Falling back to subprocess execution."
+        )
 
     # Fallback to subprocess call
     try:
@@ -239,10 +281,13 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
             # Try relative path
             script_path = "fix_potential_secrets.py"
             if not os.path.exists(script_path):
-                raise FileNotFoundError(
-                    "Could not find fix_potential_secrets.py in current directory "
-                    "or parent directory"
-                )
+
+                def _raise_script_not_found() -> None:
+                    from common_utils.exceptions import ScriptNotFoundError
+
+                    raise ScriptNotFoundError()
+
+                _raise_script_not_found()
 
         # Call the script using subprocess
         exclude_arg = ",".join(exclude_dirs)
@@ -254,7 +299,7 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
             f"--exclude={exclude_arg}",
         ]
 
-        print(f"Running command: {' '.join(cmd)}")
+        logging.info(f"Running command: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
         # Extract results from script output
@@ -265,24 +310,25 @@ def run_security_scan(directory: str, exclude_dirs: Set[str]) -> Dict[str, Any]:
                 # Find JSON in output (assuming it's delimited somehow)
                 json_start = result.stdout.find("{")
                 if json_start >= 0:
-                    results = json.loads(result.stdout[json_start:])
-                    return results
+                    parsed_results: dict[str, Any] = json.loads(
+                        result.stdout[json_start:]
+                    )
+                    return parsed_results
             except json.JSONDecodeError as json_error:
-                print(
-                    f"Warning: Could not parse JSON output from security scan: "
-                    f"{json_error}"
+                logging.warning(
+                    f"Could not parse JSON output from security scan: {json_error}"
                 )
 
         # If we can't parse the output, return a simplified result
-        print("Could not parse detailed results, returning simplified report")
+        logging.warning("Could not parse detailed results, returning simplified report")
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        logging.exception("Error running security scan")
+        return {"error": f"Error running security scan: {type(e).__name__}"}
+    else:
         return {"error": "Could not parse output from security scanner"}
 
-    except (subprocess.SubprocessError, FileNotFoundError) as e:
-        print(f"Error running security scan: {e}")
-        return {"error": f"Error running security scan: {type(e).__name__}"}
 
-
-def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
+def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:
     """Generate a SARIF report from scan results.
 
     Args:
@@ -297,7 +343,7 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
     schema_url = base + org + path
 
     # Configure SARIF report
-    sarif_report: Dict[str, Any] = {
+    sarif_report: dict[str, Any] = {
         "$schema": schema_url,
         "version": "2.1.0",
         "runs": [
@@ -328,12 +374,12 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
     }
 
     # Add results to SARIF report without including sensitive data
-    sarif_results = cast(List[Dict[str, Any]], sarif_report["runs"][0]["results"])
+    sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
 
     for file_path, secrets in results.items():
         if isinstance(secrets, list):
             for item in secrets:
-                if isinstance(item, tuple) and len(item) >= 2:
+                if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                     # Handle tuple format (pattern_name, line_num, line, secret_value)
                     pattern_name, line_num = item[0], item[1]
                     sarif_results.append({
@@ -375,29 +421,24 @@ def generate_sarif_report(results: Dict[str, Any], output_file: str) -> None:
     try:
         with open(output_file, "w") as f:
             json.dump(sarif_report, f, indent=2)
-        print(f"SARIF report saved to {output_file}")
+        logging.info(f"SARIF report saved to {output_file}")
     except Exception as e:
         # Don't log the exception details as they might include sensitive information
-        print(f"Error writing SARIF report: {type(e).__name__}")
+        logging.exception(f"Error writing SARIF report: {type(e).__name__}")
         sys.exit(1)
 
 
-def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
-    """Generate a text report from scan results.
+def write_main_report(results: dict[str, Any], output_file: str) -> bool:
+    """Write the main text report with sanitized information.
 
     Args:
         results: Scan results
         output_file: Output file path
 
     Returns:
-        int: Exit code, 0 for success, 1 for error
-
+        bool: True if successful, False otherwise
     """
     try:
-        # Create an additional secure log file for sensitive data
-        secure_output_file = output_file + ".secure"
-
-        # Write the main report with sanitized information
         with open(output_file, "w") as f:
             f.write("Security Scan Report\n")
             f.write("===================\n\n")
@@ -414,8 +455,7 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
                 f"across {total_files} files.\n\n"
             )
 
-            # Write sanitized file information without revealing patterns or line
-            # content
+            # Write sanitized file information
             for file_path, secrets in results.items():
                 # Use a hash of the path instead of the actual path
                 path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
@@ -425,9 +465,9 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
 
                 if isinstance(secrets, list):
                     # Group issues by type to avoid revealing specific lines
-                    issue_types: Dict[str, int] = {}
+                    issue_types: dict[str, int] = {}
                     for item in secrets:
-                        if isinstance(item, tuple) and len(item) >= 2:
+                        if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                             pattern_type = item[0]
                             # Use sanitize_finding_message to get a generic description
                             safe_message = sanitize_finding_message(pattern_type)
@@ -445,85 +485,196 @@ def generate_text_report(results: Dict[str, Any], output_file: str) -> int:
                 f.write("\n")
 
             f.write("\nNote: Full file paths are stored in a separate secure file.\n")
-
-        # Write the mapping of hashes to actual paths in the secure file
-        try:
-            import base64
-
-            from cryptography.fernet import Fernet
-            from cryptography.hazmat.primitives import hashes
-            from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
-            # Use machine and process-specific values for key derivation
-            # This approach ensures security without hard-coded values
-            machine_id = os.environ.get("COMPUTERNAME", "") or os.environ.get(
-                "HOSTNAME", ""
-            )
-            process_id = str(os.getpid())
-
-            # Use system folder paths as additional entropy sources
-            system_paths = [
-                os.environ.get("SYSTEMROOT", ""),
-                os.environ.get("TEMP", ""),
-            ]
-
-            # Combine various sources of entropy
-            entropy_sources = [machine_id, process_id] + system_paths
-            entropy_data = ":".join([source for source in entropy_sources if source])
-
-            # If we couldn't get good entropy, use a random value
-            # (less convenient but more secure)
-            if not entropy_data:
-                salt = os.urandom(16)
-            else:
-                # Create a deterministic salt from the entropy data
-                salt_basis = entropy_data.encode("utf-8")
-                salt = hashlib.sha256(salt_basis).digest()[:16]
-
-            # Create an appropriate device identifier for authentication
-            context = (uuid.getnode()).to_bytes(8, byteorder="big")
-
-            # Derive the key
-            kdf = PBKDF2HMAC(
-                algorithm=hashes.SHA256(),
-                length=32,
-                salt=salt,
-                iterations=100000,
-            )
-            key = base64.urlsafe_b64encode(kdf.derive(context))
-            cipher_suite = Fernet(key)
-
-            # Create a dictionary mapping hash IDs to actual file paths
-            path_mapping = {}
-            for file_path in results:
-                path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
-                path_mapping[path_hash] = file_path
-
-            # Encrypt the mapping and write to the secure file
-            encrypted_data = cipher_suite.encrypt(json.dumps(path_mapping).encode())
-            with open(secure_output_file, "wb") as f:
-                f.write(encrypted_data)
-
-            # Set secure permissions on the secure mapping file
-            set_secure_file_permissions(secure_output_file)
-
-        except ImportError:
-            print(
-                "Warning: cryptography library not available. "
-                "Secure file mappings disabled."
-            )
-            # If encryption fails, don't create the secure file -
-            # don't fall back to clear text
-            pass
-
-        print(f"Text report saved to {output_file}")
-        if os.path.exists(secure_output_file):
-            print(f"Secure file path mappings saved to {secure_output_file}")
     except Exception as e:
-        print(f"Error writing text report: {type(e).__name__}")
-        return 1
+        logging.exception(f"Error writing main report: {type(e).__name__}")
+        return False
+    else:
+        return True
 
-    return 0
+
+def create_secure_mapping_file(
+    results: dict[str, Any], secure_output_file: str
+) -> bool:
+    """Create an encrypted file mapping hash IDs to actual file paths.
+
+    Args:
+        results: Scan results
+        secure_output_file: Path for the secure output file
+
+    Returns:
+        bool: True if successful, False if encryption is not available
+    """
+    try:
+        import base64
+
+        from cryptography.fernet import Fernet
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+        # Get entropy sources for key derivation
+        entropy_data = get_entropy_data()
+
+        # Generate salt
+        if not entropy_data:
+            salt = os.urandom(16)
+        else:
+            # Create a deterministic salt from the entropy data
+            salt_basis = entropy_data.encode("utf-8")
+            salt = hashlib.sha256(salt_basis).digest()[:16]
+
+        # Create an appropriate device identifier for authentication
+        context = (uuid.getnode()).to_bytes(8, byteorder="big")
+
+        # Derive the key
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=100000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(context))
+        cipher_suite = Fernet(key)
+
+        # Create a dictionary mapping hash IDs to actual file paths
+        path_mapping = {}
+        for file_path in results:
+            path_hash = hashlib.sha256(file_path.encode()).hexdigest()[:8]
+            path_mapping[path_hash] = file_path
+
+        # Encrypt the mapping and write to the secure file
+        encrypted_data = cipher_suite.encrypt(json.dumps(path_mapping).encode())
+        with open(secure_output_file, "wb") as f:
+            f.write(encrypted_data)
+
+        # Set secure permissions on the secure mapping file
+        set_secure_file_permissions(secure_output_file)
+    except ImportError:
+        logging.warning(
+            "cryptography library not available. Secure file mappings disabled."
+        )
+        return False
+    else:
+        return True
+
+
+def get_entropy_data() -> str:
+    """Get entropy data from system sources for key derivation.
+
+    Returns:
+        str: Combined entropy data
+    """
+    # Use machine and process-specific values
+    machine_id = os.environ.get("COMPUTERNAME", "") or os.environ.get("HOSTNAME", "")
+    process_id = str(os.getpid())
+
+    # Use system folder paths as additional entropy sources
+    system_paths = [
+        os.environ.get("SYSTEMROOT", ""),
+        os.environ.get("TEMP", ""),
+    ]
+
+    # Combine various sources of entropy
+    entropy_sources = [machine_id, process_id, *system_paths]
+    return ":".join([source for source in entropy_sources if source])
+
+
+def generate_text_report(results: dict[str, Any], output_file: str) -> int:
+    """Generate a text report from scan results.
+
+    Args:
+        results: Scan results
+        output_file: Output file path
+
+    Returns:
+        int: Exit code, 0 for success, 1 for error
+    """
+    try:
+        # Create an additional secure log file for sensitive data
+        secure_output_file = output_file + ".secure"
+
+        # Write the main report
+        if not write_main_report(results, output_file):
+            return 1
+
+        # Create secure mapping file
+        secure_mapping_created = create_secure_mapping_file(results, secure_output_file)
+
+        # Log results
+        logging.info(f"Text report saved to {output_file}")
+        if secure_mapping_created and os.path.exists(secure_output_file):
+            logging.info(f"Secure file path mappings saved to {secure_output_file}")
+    except Exception as e:
+        logging.exception(f"Error writing text report: {type(e).__name__}")
+        return 1
+    else:
+        return 0
+
+
+def count_security_issues(results: dict[str, Any]) -> int:
+    """Count the number of security issues in the results.
+
+    Args:
+        results: Scan results
+
+    Returns:
+        int: Number of issues found
+    """
+    issue_count = 0
+    if isinstance(results, dict):
+        for _file_path, secrets in results.items():
+            if isinstance(secrets, list):
+                issue_count += len(secrets)
+    return issue_count
+
+
+def generate_json_report(results: dict[str, Any], output_file: str) -> bool:
+    """Generate a JSON report from scan results.
+
+    Args:
+        results: Scan results
+        output_file: Output file path
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Sanitize file paths and ensure no actual secrets are included
+        sanitized_results = {}
+        for file_path, secrets in results.items():
+            sanitized_path = sanitize_path(file_path)
+            # Create sanitized list of findings without actual secret values
+            sanitized_findings = []
+            if isinstance(secrets, list):
+                for item in secrets:
+                    if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
+                        # Only keep pattern name and line number, exclude actual secret
+                        pattern_name, line_num = item[0], item[1]
+                        sanitized_findings.append({
+                            "type": pattern_name,
+                            "line_number": line_num,
+                            "message": sanitize_finding_message(pattern_name),
+                        })
+                    elif (
+                        isinstance(item, dict)
+                        and "type" in item
+                        and "line_number" in item
+                    ):
+                        # Copy only safe fields
+                        sanitized_findings.append({
+                            "type": item["type"],
+                            "line_number": item["line_number"],
+                            "message": sanitize_finding_message(item["type"]),
+                        })
+            sanitized_results[sanitized_path] = sanitized_findings
+
+        with open(output_file, "w") as f:
+            json.dump(sanitized_results, f, indent=2)
+        logging.info(f"JSON report saved to {output_file}")
+    except Exception as e:
+        logging.exception(f"Error writing JSON report: {type(e).__name__}")
+        return False
+    else:
+        return True
 
 
 def main() -> int:
@@ -531,7 +682,6 @@ def main() -> int:
 
     Returns:
         int: Exit code
-
     """
     args = setup_args()
 
@@ -543,64 +693,25 @@ def main() -> int:
 
     # Check if there are any results
     if not results or (isinstance(results, dict) and not results):
-        print("No security issues found.")
+        logging.info("No security issues found.")
         return 0
 
     # Count issues found
-    issue_count = 0
-    if isinstance(results, dict):
-        for _file_path, secrets in results.items():
-            if isinstance(secrets, list):
-                issue_count += len(secrets)
+    issue_count = count_security_issues(results)
+    logging.info(f"Found {issue_count} potential security issues.")
 
-    print(f"Found {issue_count} potential security issues.")
-
-    # Generate the report
+    # Generate the appropriate report format
+    report_success = True
     if args.format == "sarif":
         generate_sarif_report(results, args.output)
     elif args.format == "json":
-        try:
-            # Sanitize file paths and ensure no actual secrets are included in the JSON
-            # output
-            sanitized_results = {}
-            for file_path, secrets in results.items():
-                sanitized_path = sanitize_path(file_path)
-                # Create sanitized list of findings without actual secret values
-                sanitized_findings = []
-                if isinstance(secrets, list):
-                    for item in secrets:
-                        if isinstance(item, tuple) and len(item) >= 2:
-                            # Only keep pattern name and line number, exclude actual
-                            # secret
-                            pattern_name, line_num = item[0], item[1]
-                            sanitized_findings.append({
-                                "type": pattern_name,
-                                "line_number": line_num,
-                                "message": sanitize_finding_message(pattern_name),
-                            })
-                        elif (
-                            isinstance(item, dict)
-                            and "type" in item
-                            and "line_number" in item
-                        ):
-                            # Copy only safe fields
-                            sanitized_findings.append({
-                                "type": item["type"],
-                                "line_number": item["line_number"],
-                                "message": sanitize_finding_message(item["type"]),
-                            })
-                sanitized_results[sanitized_path] = sanitized_findings
-
-            with open(args.output, "w") as f:
-                json.dump(sanitized_results, f, indent=2)
-            print(f"JSON report saved to {args.output}")
-        except Exception as e:
-            print(f"Error writing JSON report: {type(e).__name__}")
-            return 1
+        report_success = generate_json_report(results, args.output)
     else:  # text format
         result = generate_text_report(results, args.output)
-        if result != 0:
-            return result
+        report_success = result == 0
+
+    if not report_success:
+        return 1
 
     # Set secure permissions on the output file
     set_secure_file_permissions(args.output)

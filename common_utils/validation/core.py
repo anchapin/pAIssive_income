@@ -5,10 +5,7 @@ See: docs/input_validation_and_error_handling_standards.md
 """
 
 from typing import Any
-from typing import Dict
-from typing import Type
 from typing import TypeVar
-from typing import cast
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -17,22 +14,21 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class ValidationError(Exception):
-    """Custom validation error for standardized error handling."""
+    """Raised when input validation fails."""
 
-    def __init__(self, message: str, details: Any = None):
+    def __init__(self, details: Any = None) -> None:
         """Initialize the ValidationError.
 
         Args:
-            message (str): The error message.
             details (Any, optional): Additional error details. Defaults to None.
 
         """
-        self.message = message
+        self.message = "Input validation failed"
         self.details = details
-        super().__init__(message)
+        super().__init__(self.message)
 
 
-def validate_input(model_cls: Type[T], data: Any) -> T:
+def validate_input(model_cls: type[T], data: Any) -> T:
     """Validate input data using a Pydantic model.
 
     Args:
@@ -47,12 +43,15 @@ def validate_input(model_cls: Type[T], data: Any) -> T:
 
     """
     try:
-        return cast(T, model_cls.model_validate(data))
+        model_instance = model_cls.model_validate(data)
+        assert isinstance(model_instance, model_cls)
     except PydanticValidationError as exc:
-        raise ValidationError("Input validation failed.", details=exc.errors()) from exc
+        raise ValidationError() from exc
+    else:
+        return model_instance
 
 
-def validation_error_response(exc: ValidationError) -> Dict[str, Any]:
+def validation_error_response(exc: ValidationError) -> dict[str, Any]:
     """Standardized error response for validation errors.
 
     Args:

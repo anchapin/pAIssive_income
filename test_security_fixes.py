@@ -7,6 +7,8 @@ import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import pytest
+
 from common_utils.secrets.audit import generate_report
 from common_utils.secrets.cli import handle_list
 
@@ -14,7 +16,7 @@ from common_utils.secrets.cli import handle_list
 class TestSecurityFixes(unittest.TestCase):
     """Test cases for security fixes."""
 
-    def test_generate_report_no_sensitive_data_in_logs(self):
+    def test_generate_report_no_sensitive_data_in_logs(self) -> None:
         """Test that generate_report doesn't log sensitive data."""
         # Mock results with non-sensitive test data
         results = {
@@ -43,13 +45,13 @@ class TestSecurityFixes(unittest.TestCase):
             for call_args in mock_logger.info.call_args_list:
                 msg = call_args[0][0]
                 # Ensure no sensitive data in log messages
-                self.assertNotIn("[TEST_PLACEHOLDER]", msg)
-                self.assertNotIn("access_credential_test", msg)
+                assert "[TEST_PLACEHOLDER]" not in msg
+                assert "access_credential_test" not in msg
                 # Verify we're logging safely
                 if "found" in msg.lower():
-                    self.assertIn("found", msg.lower())
+                    assert "found" in msg.lower()
 
-    def test_generate_report_file_output_no_sensitive_data(self):
+    def test_generate_report_file_output_no_sensitive_data(self) -> None:
         """Test that generate_report doesn't write sensitive data to file."""
         # Mock results with non-sensitive test data
         results = {
@@ -82,16 +84,16 @@ class TestSecurityFixes(unittest.TestCase):
                 content = f.read()
 
             # Ensure no sensitive data in file
-            self.assertNotIn("[TEST_PLACEHOLDER]", content)
+            assert "[TEST_PLACEHOLDER]" not in content
             # Check for appropriate masked content
-            self.assertIn("potential", content.lower())
+            assert "potential" in content.lower()
 
         finally:
             # Clean up
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
-    def test_handle_list_no_sensitive_keys(self):
+    def test_handle_list_no_sensitive_keys(self) -> None:
         """Test that handle_list doesn't print sensitive key names."""
         # Mock secrets with non-sensitive test identifiers
         test_credentials = {
@@ -104,36 +106,38 @@ class TestSecurityFixes(unittest.TestCase):
         args = MagicMock()
         args.backend = "env"
 
-        # Mock list_secrets to return our test data
-        with patch(
-            "common_utils.secrets.cli.list_secrets", return_value=test_credentials
+        # Use a single with statement with multiple contexts
+        with (
+            patch(
+                "common_utils.secrets.cli.list_secrets", return_value=test_credentials
+            ),
+            patch("builtins.print") as mock_print,
         ):
-            # Mock print to capture output
-            with patch("builtins.print") as mock_print:
-                # Call handle_list
-                handle_list(args)
+            # Call handle_list
+            handle_list(args)
 
-                # Check that print was called without exposing key names
-                for call_args in mock_print.call_args_list:
-                    msg = call_args[0][0]
-                    # Ensure no key names in output
-                    self.assertNotIn("access_item_1", msg)
-                    self.assertNotIn("access_item_2", msg)
-                    self.assertNotIn("access_item_3", msg)
-                    # Check that we're using a safe hash format
-                    if msg.startswith("  Secret #"):
-                        self.assertGreater(
-                            len(msg),
-                            10,
-                            "Secret hash should be longer than 10 characters",
-                        )
+            # Check that print was called without exposing key names
+            for call_args in mock_print.call_args_list:
+                msg = call_args[0][0]
+                # Ensure no key names in output
+                assert "access_item_1" not in msg
+                assert "access_item_2" not in msg
+                assert "access_item_3" not in msg
+                # Check that we're using a safe hash format
+                # Define minimum hash length
+                min_hash_length = 10
+                if msg.startswith("  Secret #"):
+                    assert len(msg) > min_hash_length, (
+                        f"Secret hash should be longer than {min_hash_length} characters"
+                    )
 
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
     @patch("fix_security_issues.globals")
     @patch("subprocess.run")
+    @pytest.mark.usefixtures("_")
     def test_run_security_scan_with_missing_imports(
-        self, mock_subprocess_run, mock_globals, _
-    ):
+        self, mock_subprocess_run: MagicMock, mock_globals: MagicMock
+    ) -> None:
         """Test that run_security_scan handles missing imports gracefully."""
         # Configure mock to simulate 'scan_directory_for_secrets' not in globals
         mock_globals.return_value = {}
@@ -148,11 +152,11 @@ class TestSecurityFixes(unittest.TestCase):
         from fix_security_issues import run_security_scan
 
         # Run the function with missing imports
-        result = run_security_scan("./test_directory", set([".git", "venv"]))
+        result = run_security_scan("./test_directory", {".git", "venv"})
 
         # Verify we got a result despite the import failing
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, dict)
+        assert result is not None
+        assert isinstance(result, dict)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,6 @@ This module provides integration with HashiCorp Vault for secrets management.
 
 # Standard library imports
 from typing import Any
-from typing import Dict
 from typing import Optional
 
 # Third-party imports
@@ -51,65 +50,28 @@ class VaultBackend:
         """
         return self._has_auth
 
-    def get_secret(self, key: str) -> Optional[str]:
+    def get_secret(self) -> Optional[str]:
         """Get a secret from Vault.
-
-        Args:
-        ----
-            key: Key of the secret
-
-        Returns:
-        -------
-            Optional[str]: The secret value
-
-        Raises:
-        ------
-            NotImplementedError: The Vault backend is not currently supported
-
+        Not implemented in this version.
         """
         logger.warning("Vault backend not yet implemented")
         raise NotImplementedError("The Vault backend is not currently supported.")
 
-    def set_secret(self, key: str, value: str) -> bool:
+    def set_secret(self) -> bool:
         """Set a secret in Vault.
-
-        Args:
-        ----
-            key: Key of the secret
-            value: Value of the secret
-
-        Returns:
-        -------
-            bool: True if the secret was set, False otherwise
-
-        Raises:
-        ------
-            NotImplementedError: The Vault backend is not currently supported
-
+        Not implemented in this version.
         """
         logger.warning("Vault backend not yet implemented")
         raise NotImplementedError("The Vault backend is not currently supported.")
 
-    def delete_secret(self, key: str) -> bool:
+    def delete_secret(self) -> bool:
         """Delete a secret from Vault.
-
-        Args:
-        ----
-            key: Key of the secret
-
-        Returns:
-        -------
-            bool: True if the secret was deleted, False otherwise
-
-        Raises:
-        ------
-            NotImplementedError: The Vault backend is not currently supported
-
+        Not implemented in this version.
         """
         logger.warning("Vault backend not yet implemented")
         raise NotImplementedError("The Vault backend is not currently supported.")
 
-    def list_secrets(self) -> Dict[str, Any]:
+    def list_secrets(self) -> dict[str, Any]:
         """List all secrets in Vault.
 
         Returns

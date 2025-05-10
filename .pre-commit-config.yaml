@@ -23,7 +23,7 @@ fail_fast: false
 repos:
   # Fast validation hooks (run first)
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-merge-conflict
       - id: check-case-conflict
@@ -32,7 +32,7 @@ repos:
 
   # Security checks (run early to fail fast)
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.4
+    rev: v8.25.1
     hooks:
       - id: gitleaks
         name: Detect secrets with Gitleaks
@@ -43,7 +43,7 @@ repos:
 
   # Primary code quality tool: Ruff (formatting, linting, import sorting)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.4
+    rev: v0.11.9
     hooks:
       - id: ruff-format
         name: Format code with Ruff
@@ -57,7 +57,7 @@ repos:
 
   # Type checking (run after formatting/linting)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
+    rev: v1.15.0
     hooks:
       - id: mypy
         name: Type check with MyPy

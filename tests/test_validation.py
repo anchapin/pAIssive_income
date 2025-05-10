@@ -36,7 +36,7 @@ class ExampleInputModel(BaseModel):
 
 
 @pytest.mark.parametrize(
-    "payload,expected_error",
+    ("payload", "expected_error"),
     [
         # Missing required field
         ({"username": "alice", "age": 30}, "Input validation failed."),
@@ -86,7 +86,7 @@ class ExampleInputModel(BaseModel):
         ),
     ],
 )
-def test_invalid_input_cases(payload, expected_error):
+def test_invalid_input_cases(payload: dict, expected_error: str) -> None:
     """Test that invalid inputs raise ValidationError with the expected message.
 
     Args:
@@ -99,7 +99,7 @@ def test_invalid_input_cases(payload, expected_error):
     assert expected_error in str(exc_info.value)
 
 
-def test_valid_input():
+def test_valid_input() -> None:
     """Test that valid input is correctly validated and returned as a model instance."""
     payload = {
         "username": "validuser",
