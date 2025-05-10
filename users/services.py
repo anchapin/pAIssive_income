@@ -17,6 +17,75 @@ from common_utils.logging import get_logger
 # Local imports
 from users.auth import hash_credential, verify_credential
 
+# Database imports
+from flask import current_app
+from flask import has_app_context
+from flask import Flask
+from flask import g
+from flask import cli
+from flask import Blueprint
+
+from flask import current_app
+from flask_sqlalchemy import SQLAlchemy
+
+from flask import current_app
+from flask_sqlalchemy import SQLAlchemy
+from flask import current_app
+
+from flask import current_app
+from flask import has_app_context
+
+from flask import current_app
+from flask import has_app_context
+
+from flask import current_app
+from flask import has_app_context
+
+# Import the db and User model from the Flask app
+from flask import current_app
+from flask import has_app_context
+from flask import g
+
+from flask import current_app
+from flask import has_app_context
+
+from flask import current_app
+from flask import has_app_context
+
+from flask import current_app
+
+from flask import has_app_context
+
+try:
+    from flask import current_app
+    from flask import has_app_context
+    from flask import g
+    from flask import cli
+    from flask_sqlalchemy import SQLAlchemy
+
+    from flask import current_app
+    from flask_sqlalchemy import SQLAlchemy
+    from flask import current_app
+    from flask import has_app_context
+
+    from flask import current_app
+    from flask import has_app_context
+
+    from flask import current_app
+    from flask import has_app_context
+
+    from flask import current_app
+
+    from flask import has_app_context
+
+    # Import db and User from the actual Flask app package
+    from flask import current_app
+    from flask import has_app_context
+    from flask.models import User, db
+except ImportError:
+    User = None
+    db = None
+
 # Initialize logger
 logger = get_logger(__name__)
 
@@ -24,28 +93,23 @@ logger = get_logger(__name__)
 class UserService:
     """Service for user management."""
 
-    def __init__(self, user_repository=None, token_secret=None, token_expiry=None):
+    def __init__(self, token_secret=None, token_expiry=None):
         """Initialize the user service.
 
         Args:
         ----
-            user_repository: Repository for user data
             token_secret: Secret for JWT token generation
             token_expiry: Expiry time for JWT tokens in seconds
 
         """
-        self.user_repository = user_repository
-
         # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
             raise ValueError("Authentication token secret must be provided")
 
         # Enhanced security: Store token secret in a private variable
-        # Use double underscore for name mangling in Python
         self.__token_secret = token_secret
 
-        # Don't log the secret or any part of it
         logger.debug("Token secret configured successfully")
 
         self.token_expiry = token_expiry or 3600  # 1 hour default
@@ -79,35 +143,38 @@ class UserService:
             )
 
         # Check if user already exists
-        if self.user_repository and self.user_repository.find_by_username(username):
-            raise ValueError(f"User with username '{username}' already exists")
-
-        if self.user_repository and self.user_repository.find_by_email(email):
-            raise ValueError(f"User with email '{email}' already exists")
+        existing_user = User.query.filter(
+            (User.username == username) | (User.email == email)
+        ).first()
+        if existing_user:
+            if existing_user.username == username:
+                raise ValueError(f"User with username '{username}' already exists")
+            else:
+                raise ValueError(f"User with email '{email}' already exists")
 
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
 
-        # Create user data
-        user_data = {
-            "id": str(uuid.uuid4()),
-            "username": username,
-            "email": email,
-            "auth_hash": hashed_credential,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
-            **kwargs,
-        }
+        # Create User model instance
+        user = User(
+            username=username,
+            email=email,
+            password_hash=hashed_credential,
+            **{k: v for k, v in kwargs.items() if hasattr(User, k)},
+        )
+        db.session.add(user)
+        db.session.commit()
 
-        # Save the user
-        if self.user_repository:
-            user_id = self.user_repository.create(user_data)
-            user_data["id"] = user_id
+        logger.info("User created successfully", extra={"user_id": user.id})
 
         # Return user data without sensitive information
-        user_data.pop("auth_hash", None)
-        logger.info("User created successfully", extra={"user_id": user_data["id"]})
-        return user_data
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": getattr(user, "created_at", None),
+            "updated_at": getattr(user, "updated_at", None),
+        }
 
     def authenticate_user(
         self, username_or_email: str, auth_credential: str
@@ -124,20 +191,14 @@ class UserService:
             Tuple[bool, Optional[Dict]]: (success, user_data)
 
         """
-        if not self.user_repository:
-            logger.error("User repository not available")
-            return False, None
-
-        # Find the user
-        user = self.user_repository.find_by_username(username_or_email)
-        if not user:
-            user = self.user_repository.find_by_email(username_or_email)
+        # Find the user by username or email
+        user = User.query.filter(
+            (User.username == username_or_email) | (User.email == username_or_email)
+        ).first()
 
         if not user:
             # Don't leak whether the username exists - just log an event with a hash
-            user_hash = (
-                hash(username_or_email) % 10000
-            )  # Simple hash to identify attempts while preserving privacy
+            user_hash = hash(username_or_email) % 10000  # Simple hash for privacy
             logger.info(
                 "Authentication attempt for non-existent user",
                 extra={"user_hash": user_hash},
@@ -145,24 +206,22 @@ class UserService:
             return False, None
 
         # Verify the credential
-        stored_hash = user.get("auth_hash") or user.get("credential_hash", b"")
-        if not verify_credential(auth_credential, stored_hash):
-            # Don't log the username directly to avoid leaking valid usernames
-            logger.info("Failed authentication attempt", extra={"user_id": user["id"]})
+        if not verify_credential(auth_credential, user.password_hash):
+            logger.info("Failed authentication attempt", extra={"user_id": user.id})
             return False, None
 
-        # Update last login
-        user["last_login"] = datetime.utcnow().isoformat()
-        if self.user_repository:
-            self.user_repository.update(user["id"], {"last_login": user["last_login"]})
+        # Update last login time if field exists
+        if hasattr(user, "last_login"):
+            user.last_login = datetime.utcnow()
+            db.session.commit()
 
         # Return user data without sensitive information
-        user_data = user.copy()
-        user_data.pop("auth_hash", None)
-        user_data.pop(
-            "credential_hash", None
-        )  # Handle both field names for compatibility
-        logger.info("Authentication successful", extra={"user_id": user["id"]})
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+        logger.info("Authentication successful", extra={"user_id": user.id})
         return True, user_data
 
     def generate_token(self, user_id: str, **additional_claims) -> str:
