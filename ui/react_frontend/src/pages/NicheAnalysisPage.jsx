@@ -311,7 +311,7 @@ const NicheAnalysisPage = () => {
                 onClick={handleAnalyze}
                 sx={{ minWidth: '200px' }}
                 aria-label="Analyze Niches"
-                startIcon={<span role="img" aria-label="analyze">🔍</span>}
+                startIcon={!isAnalyzing && <span role="img" aria-label="analyze">🔍</span>}
               >
                 {isAnalyzing ? 'Analyzing...' : 'Analyze Niches'}
               </Button>
