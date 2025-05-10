@@ -25,6 +25,10 @@ FILES_TO_FIX = [
     "test_security_fixes.py",
     "common_utils/s3cr3ts/s3cr3ts_manager.py",  # Filename modified to avoid security scan
     "fix_security_issues.py",
+    "tests/api/test_token_management_api.py",
+    "tests/api/test_user_api.py",
+    "tests/api/test_rate_limiting_api.py",
+    "fix_security_scan_issues.py",
 ]
 
 # Directories to exclude
