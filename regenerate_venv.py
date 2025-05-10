@@ -210,47 +210,41 @@ def install_packages(python_venv_exe: str) -> bool:
     """
     # Upgrade pip
     logging.info("Upgrading pip...")
-    pip_upgrade_result = run_command(
-        [
-            python_venv_exe,
-            "-m",
-            "pip",
-            "install",
-            "--upgrade",
-            "pip",
-        ]
-    )
+    pip_upgrade_result = run_command([
+        python_venv_exe,
+        "-m",
+        "pip",
+        "install",
+        "--upgrade",
+        "pip",
+    ])
     if pip_upgrade_result is None:
         return False
 
     # Install requirements
     logging.info("Installing requirements...")
-    req_result = run_command(
-        [
-            python_venv_exe,
-            "-m",
-            "pip",
-            "install",
-            "-r",
-            "requirements.txt",
-        ]
-    )
+    req_result = run_command([
+        python_venv_exe,
+        "-m",
+        "pip",
+        "install",
+        "-r",
+        "requirements.txt",
+    ])
     if req_result is None:
         return False
 
     # Install dev requirements if they exist
     if os.path.exists("requirements-dev.txt"):
         logging.info("Installing development requirements...")
-        dev_req_result = run_command(
-            [
-                python_venv_exe,
-                "-m",
-                "pip",
-                "install",
-                "-r",
-                "requirements-dev.txt",
-            ]
-        )
+        dev_req_result = run_command([
+            python_venv_exe,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            "requirements-dev.txt",
+        ])
         if dev_req_result is None:
             return False
 
