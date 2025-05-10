@@ -128,6 +128,7 @@ def main():
 
     # Generate or update requirements.lock using uv pip compile
     lockfile = "requirements.lock"
+    # Prefer pyproject.toml if present, otherwise combine requirements.txt and requirements-dev.txt
     if os.path.exists("pyproject.toml"):
         print("Generating/updating lockfile (requirements.lock) from pyproject.toml via uv...")
         compile_result = run_command([
@@ -135,6 +136,21 @@ def main():
         ])
         if compile_result is None:
             print("Failed to generate requirements.lock from pyproject.toml.")
+            return 1
+    elif os.path.exists("requirements.txt") and os.path.exists("requirements-dev.txt"):
+        # Merge requirements.txt and requirements-dev.txt for complete reproducibility
+        print("Combining requirements.txt and requirements-dev.txt into requirements-full.txt for locking...")
+        with open("requirements.txt", "r") as req, open("requirements-dev.txt", "r") as dev, open("requirements-full.txt", "w") as full:
+            full.write(req.read())
+            full.write("\n")
+            full.write(dev.read())
+        print("Generating/updating lockfile (requirements.lock) from requirements-full.txt via uv...")
+        compile_result = run_command([
+            python_venv_exe, "-m", "uv", "pip", "compile", "requirements-full.txt", "-o", lockfile
+        ])
+        os.remove("requirements-full.txt")
+        if compile_result is None:
+            print("Failed to generate requirements.lock from requirements-full.txt.")
             return 1
     elif os.path.exists("requirements.txt"):
         print("Generating/updating lockfile (requirements.lock) from requirements.txt via uv...")
@@ -165,10 +181,10 @@ def main():
         print("    source .venv/bin/activate")
 
     print("\nTo update dependencies in the future:")
-    print("  1. Edit pyproject.toml or requirements.txt as needed.")
-    print("  2. Run: uv pip compile pyproject.toml -o requirements.lock")
-    print("  3. Run this script to re-sync your environment: python regenerate_venv.py")
+    print("  1. Edit pyproject.toml or requirements.txt/requirements-dev.txt as needed.")
+    print("  2. Run this script to re-lock and re-sync your environment: python regenerate_venv.py")
     print("For deterministic installs, always use uv pip sync requirements.lock.")
+    print("NOTE: Both production and development dependencies are included in the lockfile for full reproducibility.")
 
     return 0
 
