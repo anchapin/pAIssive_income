@@ -35,13 +35,84 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    pip install pre-commit
    pre-commit install
    ```
-4. **Start the modern web UI (requires Node.js 14+ and npm):**
+
+4. **Start PostgreSQL database and application with Docker Compose:**
+   ```bash
+   docker-compose up --build
+   ```
+   This will launch both the main app (Flask backend) and the PostgreSQL database.
+
+5. **Initialize the database (first time only):**
+   Open a new terminal and run:
+   ```bash
+   # Activate your virtualenv if not already active
+   flask db upgrade
+   ```
+   This will apply all database migrations and create the necessary tables.
+
+6. **Start the modern web UI (requires Node.js 14+ and npm):**
    ```bash
    python ui/run_ui.py
    ```
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
-5. **Run all tests (unit, integration, frontend):**
+
+7. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
+
+---
+
+## Database Setup and Migration
+
+This project now uses PostgreSQL as the main database, managed via Docker Compose.
+
+- The backend Flask app is preconfigured to connect to the database using the environment variable `DATABASE_URL`.
+- The default configuration is:
+  ```
+  postgresql://myuser:mypassword@db:5432/mydb
+  ```
+- You can customize these credentials via the `docker-compose.yml` file or by setting your own `DATABASE_URL` environment variable.
+
+### Managing Database Migrations
+
+Database schema migrations are managed with [Flask-Migrate](https://flask-migrate.readthedocs.io/):
+
+1. **Initialize migration support (first time only):**
+   ```bash
+   flask db init
+   ```
+2. **Create a migration after changing models:**
+   ```bash
+   flask db migrate -m "Describe your change"
+   ```
+3. **Apply migrations to the database:**
+   ```bash
+   flask db upgrade
+   ```
+
+### Example Models and Usage
+
+ORM models are provided for **User**, **Team**, and **Agent** entities in `flask/models.py`. You can now persist and query these entities using SQLAlchemy:
+
+```python
+from flask import current_app
+from flask.models import db, User, Team, Agent
+
+# Create a team
+team = Team(name="AI Research", description="Research team for AI agents")
+db.session.add(team)
+db.session.commit()
+
+# Add an agent to the team
+agent = Agent(name="Alice", role="researcher", team=team)
+db.session.add(agent)
+db.session.commit()
+
+# Query teams and agents
+teams = Team.query.all()
+agents = Agent.query.filter_by(team_id=team.id).all()
+```
+
+See [docs/getting-started.md](docs/getting-started.md) for more detailed instructions.
 
 ---
 
