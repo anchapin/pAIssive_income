@@ -162,6 +162,23 @@ export default function Layout({ children }) {
           {children}
         </div>
       </Main>
+      {/* Responsive drawer toggle for smaller screens */}
+      <style>
+        {`
+          @media (max-width: 900px) {
+            .MuiDrawer-paper {
+              width: 180px !important;
+            }
+            .MuiToolbar-root {
+              padding-left: 12px !important;
+              padding-right: 12px !important;
+            }
+            .content-wrapper {
+              padding: 12px !important;
+            }
+          }
+        `}
+      </style>
     </Box>
   );
 }

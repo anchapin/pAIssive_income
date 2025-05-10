@@ -72,6 +72,8 @@ const NicheAnalysisPage = () => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [validationError, setValidationError] = useState('');
+  const [touched, setTouched] = useState(false);
 
   // Market segments available for analysis
   const marketSegments = [
@@ -99,12 +101,19 @@ const NicheAnalysisPage = () => {
   const handleSegmentSelect = (segment) => {
     if (!selectedSegments.includes(segment)) {
       setSelectedSegments([...selectedSegments, segment]);
+      setTouched(true);
+      setValidationError('');
     }
   };
 
   // Handle segment removal
   const handleSegmentRemove = (segmentToRemove) => {
-    setSelectedSegments(selectedSegments.filter(segment => segment !== segmentToRemove));
+    const newSegments = selectedSegments.filter(segment => segment !== segmentToRemove);
+    setSelectedSegments(newSegments);
+    setTouched(true);
+    if (newSegments.length === 0) {
+      setValidationError('Please select at least one segment.');
+    }
   };
 
   // Handle search term change
@@ -119,6 +128,12 @@ const NicheAnalysisPage = () => {
 
   // Handle analysis submission
   const handleAnalyze = () => {
+    setTouched(true);
+    if (selectedSegments.length === 0) {
+      setValidationError('Please select at least one segment.');
+      return;
+    }
+    setValidationError('');
     setIsAnalyzing(true);
 
     // Simulate API call delay
@@ -244,6 +259,7 @@ const NicheAnalysisPage = () => {
                 variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchChange}
+                inputProps={{ 'aria-label': 'search market segments' }}
               />
             </Box>
 
@@ -278,6 +294,15 @@ const NicheAnalysisPage = () => {
               ))}
             </Box>
 
+            {/* Validation feedback */}
+            {validationError && (
+              <Box sx={{ mt: 2 }}>
+                <Typography color="error" variant="body2" role="alert">
+                  {validationError}
+                </Typography>
+              </Box>
+            )}
+
             <Box mt={3} textAlign="center">
               <Button
                 variant="contained"
@@ -285,6 +310,8 @@ const NicheAnalysisPage = () => {
                 disabled={selectedSegments.length === 0 || isAnalyzing}
                 onClick={handleAnalyze}
                 sx={{ minWidth: '200px' }}
+                aria-label="Analyze Niches"
+                startIcon={<span role="img" aria-label="analyze">🔍</span>}
               >
                 {isAnalyzing ? 'Analyzing...' : 'Analyze Niches'}
               </Button>
