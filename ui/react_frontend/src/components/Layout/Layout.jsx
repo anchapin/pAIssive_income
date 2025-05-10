@@ -104,12 +104,12 @@ export default function Layout({ children }) {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex' }} role="main">
       <AppBarStyled position="fixed" open={open}>
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
+            aria-label="Open navigation drawer"
             onClick={handleDrawerOpen}
             edge="start"
             sx={{ mr: 2, ...(open && { display: 'none' }) }}
@@ -133,9 +133,11 @@ export default function Layout({ children }) {
         variant="persistent"
         anchor="left"
         open={open}
+        role="navigation"
+        aria-label="Main Navigation"
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton aria-label="Close navigation drawer" onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
@@ -146,6 +148,9 @@ export default function Layout({ children }) {
               <ListItemButton
                 selected={location.pathname === item.path}
                 onClick={() => handleNavigation(item.path)}
+                aria-label={item.text}
+                aria-current={location.pathname === item.path ? "page" : undefined}
+                tabIndex={0}
               >
                 <ListItemIcon>
                   {item.icon}
@@ -158,7 +163,7 @@ export default function Layout({ children }) {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <div className="content-wrapper">
+        <div className="content-wrapper" role="region" aria-label="Main Content">
           {children}
         </div>
       </Main>
