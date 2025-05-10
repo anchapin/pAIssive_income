@@ -18,6 +18,10 @@ Before submitting your PR, please ensure:
 - [ ] New behaviors are covered by unit/integration tests.
 - [ ] This file/module/class is documented per the best practices guidelines.
 
+> **Note:**  
+> Only files tracked by git (i.e., not ignored by `.gitignore`) will be processed by tests and project scripts. Any files or directories listed in `.gitignore` will be skipped by test discovery, linting, formatting, and related automation tools. There is a CI check (`verify_tracked_files.py`) that will fail if untracked Python files are present.  
+> **Ensure all files you wish to be tested, linted, or formatted are tracked in git.**
+
 See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
 
 ## Pull Requests
