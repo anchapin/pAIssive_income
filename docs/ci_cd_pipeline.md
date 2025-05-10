@@ -23,10 +23,14 @@ The CI/CD pipeline is defined in the `.github/workflows/ci-cd.yml` file. This fi
 
 The lint stage checks the code quality and style using the following tools:
 
+- **fix_linting_issues.py**: Our custom script that automatically fixes common linting issues
 - **flake8**: Checks for syntax errors and style issues
 - **black**: Checks code formatting
 - **isort**: Checks import order
+- **ruff**: Fast Python linter that finds and fixes issues
 - **mypy**: Checks type annotations
+
+The `fix_linting_issues.py` script is a comprehensive tool that combines the functionality of Black, isort, and Ruff to automatically fix common linting issues. It is run as part of the CI/CD pipeline to ensure code quality and consistency.
 
 ### Test
 

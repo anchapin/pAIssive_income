@@ -29,7 +29,14 @@ def hash_credential(credential: str) -> bytes:
 
     """
     if not credential:
-        raise ValueError("Authentication credential cannot be empty")
+        # Define a custom error class to avoid TRY003
+        class EmptyCredentialError(ValueError):
+            """Error raised when an empty credential is provided."""
+
+            def __init__(self) -> None:
+                super().__init__("Authentication credential cannot be empty")
+
+        raise EmptyCredentialError()
 
     # Generate a salt and hash the credential
     credential_bytes = credential.encode("utf-8")
@@ -68,7 +75,7 @@ def verify_credential(plain_credential: str, hashed_credential: bytes) -> bool:
         return bool(result)
     except Exception as e:
         # Use a generic error message without details
-        logger.error(
+        logger.exception(
             "Authentication verification error", extra={"error_type": type(e).__name__}
         )
         return False

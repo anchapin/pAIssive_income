@@ -5,7 +5,9 @@ This module provides a file-based backend for secrets management.
 
 # Standard library imports
 import os
-from typing import Any, Dict, Optional
+
+from typing import Any
+from typing import Optional
 
 # Third-party imports
 # Local imports
@@ -60,7 +62,7 @@ class FileBackend:
         # Don't log the actual directory path as it might contain sensitive information
         logger.info("File backend initialized successfully")
 
-    def get_secret(self, key: str) -> Optional[str]:
+    def get_secret(self, _key: str) -> Optional[str]:
         """Get a secret from the file backend.
 
         Args:
@@ -79,7 +81,7 @@ class FileBackend:
         logger.warning("File backend not yet implemented")
         raise NotImplementedError("The file backend is not currently supported.")
 
-    def set_secret(self, key: str, value: str) -> bool:
+    def set_secret(self, _key: str, _value: str) -> bool:
         """Set a secret in the file backend.
 
         Args:
@@ -99,7 +101,7 @@ class FileBackend:
         logger.warning("File backend not yet implemented")
         raise NotImplementedError("The file backend is not currently supported.")
 
-    def delete_secret(self, key: str) -> bool:
+    def delete_secret(self, _key: str) -> bool:
         """Delete a secret from the file backend.
 
         Args:
@@ -118,7 +120,7 @@ class FileBackend:
         logger.warning("File backend not yet implemented")
         raise NotImplementedError("The file backend is not currently supported.")
 
-    def list_secrets(self) -> Dict[str, Any]:
+    def list_secrets(self) -> dict[str, Any]:
         """List all secrets in the file backend.
 
         Returns

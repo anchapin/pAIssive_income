@@ -1,0 +1,133 @@
+setup_pre_commit.py:53: error: Returning Any from function declared to return "bool"  [no-any-return]
+run_tests.py:110: error: Returning Any from function declared to return "int"  [no-any-return]
+regenerate_venv.py:19: error: Incompatible default for argument "cwd" (default has type "None", argument has type "str")  [assignment]
+regenerate_venv.py:19: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+regenerate_venv.py:19: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+regenerate_venv.py:19: error: X | Y syntax for unions requires Python 3.10  [syntax]
+regenerate_venv.py:45: error: Returning Any from function declared to return "Optional[str]"  [no-any-return]
+install_pre_commit.py:41: error: Returning Any from function declared to return "int"  [no-any-return]
+install_pre_commit.py:46: error: Returning Any from function declared to return "int"  [no-any-return]
+install_pre_commit.py:67: error: Returning Any from function declared to return "bool"  [no-any-return]
+format_script_files.py:11: error: Function is missing a type annotation  [no-untyped-def]
+format_script_files.py:27: error: Function is missing a type annotation  [no-untyped-def]
+format_script_files.py:60: error: Function is missing a return type annotation  [no-untyped-def]
+fix_sarif_files.py:18: error: Function is missing a type annotation  [no-untyped-def]
+fix_sarif_files.py:127: error: Function is missing a type annotation  [no-untyped-def]
+fix_sarif_files.py:169: error: Function is missing a return type annotation  [no-untyped-def]
+fix_regex_ranges.py:117: error: Function is missing a return type annotation  [no-untyped-def]
+fix_regex_ranges.py:117: note: Use "-> None" if function does not return a value
+fix_linting_issues.py:62: error: Returning Any from function declared to return "bool"  [no-any-return]
+fix_linting_issues.py:84: error: Returning Any from function declared to return "bool"  [no-any-return]
+fix_linting_issues.py:117: error: Returning Any from function declared to return "bool"  [no-any-return]
+fix_linting_issues.py:120: error: Incompatible default for argument "exclude_patterns" (default has type "None", argument has type "list[str]")  [assignment]
+fix_linting_issues.py:120: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+fix_linting_issues.py:120: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+fix_linting_issues.py:131: error: Statement is unreachable  [unreachable]
+dependency_container.py:16: error: Function is missing a return type annotation  [no-untyped-def]
+dependency_container.py:16: note: Use "-> None" if function does not return a value
+dependency_container.py:20: error: Function is missing a type annotation  [no-untyped-def]
+dependency_container.py:35: error: Function is missing a type annotation  [no-untyped-def]
+dependency_container.py:47: error: Function is missing a return type annotation  [no-untyped-def]
+dependency_container.py:57: error: Function is missing a return type annotation  [no-untyped-def]
+dependency_container.py:57: note: Use "-> None" if function does not return a value
+debug_filtering.py:13: error: Function is missing a type annotation  [no-untyped-def]
+debug_filtering.py:27: error: Function is missing a return type annotation  [no-untyped-def]
+debug_filtering.py:27: note: Use "-> None" if function does not return a value
+create_sarif_files.py:11: error: Function is missing a type annotation  [no-untyped-def]
+create_sarif_files.py:48: error: Function is missing a return type annotation  [no-untyped-def]
+create_sarif_files.py:48: note: Use "-> None" if function does not return a value
+cleanup_egg_info.py:11: error: Function is missing a return type annotation  [no-untyped-def]
+cleanup_egg_info.py:11: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:29: error: Function is missing a type annotation  [no-untyped-def]
+dev_tools\health_check.py:46: error: Function is missing a type annotation  [no-untyped-def]
+dev_tools\health_check.py:59: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:59: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:69: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:69: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:77: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:77: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:85: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:85: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:93: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:93: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:104: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:104: note: Use "-> None" if function does not return a value
+dev_tools\health_check.py:109: error: Function is missing a return type annotation  [no-untyped-def]
+dev_tools\health_check.py:109: note: Use "-> None" if function does not return a value
+common_utils\logging\secure_logging.py:221: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:248: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:258: error: Returning Any from function declared to return "bool"  [no-any-return]
+common_utils\logging\secure_logging.py:265: error: Returning Any from function declared to return "int"  [no-any-return]
+common_utils\logging\secure_logging.py:280: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:280: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:284: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:284: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:288: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:288: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:295: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:295: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:299: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:299: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:306: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:306: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:310: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:310: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+common_utils\logging\secure_logging.py:314: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:322: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:325: error: Attribute "handlers" already defined on line 317  [no-redef]
+common_utils\logging\secure_logging.py:332: error: Returning Any from function declared to return "bool"  [no-any-return]
+common_utils\logging\secure_logging.py:337: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:344: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\logging\secure_logging.py:369: error: Function is missing a type annotation  [no-untyped-def]
+test_sarif_utils.py:21: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:21: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:27: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:27: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:32: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:32: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:57: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:57: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:80: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:80: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:105: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:105: note: Use "-> None" if function does not return a value
+test_sarif_utils.py:147: error: Function is missing a return type annotation  [no-untyped-def]
+test_sarif_utils.py:147: note: Use "-> None" if function does not return a value
+common_utils\logging\examples.py:9: error: Module "common_utils.logging.secure_logging" has no attribute "logger"  [attr-defined]
+common_utils\secrets\memory_backend.py:21: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\secrets\memory_backend.py:21: note: Use "-> None" if function does not return a value
+api\routes\example_user_router.py:34: error: Function is missing a return type annotation  [no-untyped-def]
+users\services.py:56: error: Function is missing a type annotation  [no-untyped-def]
+users\services.py:82: error: Function is missing a return type annotation  [no-untyped-def]
+users\services.py:256: error: Returning Any from function declared to return "str"  [no-any-return]
+users\services.py:256: error: "UserService" has no attribute "_ensure_string"  [attr-defined]
+users\password_reset.py:45: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\secrets\secrets_manager.py:37: error: Incompatible default for argument "default_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\secrets_manager.py:70: error: Returning Any from function declared to return "Optional[str]"  [no-any-return]
+common_utils\secrets\secrets_manager.py:85: error: Too many arguments for "get_secret" of "MemoryBackend"  [call-arg]
+common_utils\secrets\secrets_manager.py:94: error: Too many arguments for "get_secret" of "VaultBackend"  [call-arg]
+common_utils\secrets\secrets_manager.py:139: error: Too many arguments for "set_secret" of "MemoryBackend"  [call-arg]
+common_utils\secrets\secrets_manager.py:148: error: Too many arguments for "set_secret" of "VaultBackend"  [call-arg]
+common_utils\secrets\secrets_manager.py:192: error: Too many arguments for "delete_secret" of "MemoryBackend"  [call-arg]
+common_utils\secrets\secrets_manager.py:201: error: Too many arguments for "delete_secret" of "VaultBackend"  [call-arg]
+common_utils\secrets\rotation.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\config.py:31: error: Incompatible default for argument "secrets_backend" (default has type "str", argument has type "SecretsBackend")  [assignment]
+common_utils\secrets\config.py:112: error: Subclass of "dict[str, Any]" and "str" cannot exist: would have incompatible method signatures  [unreachable]
+common_utils\secrets\config.py:112: error: Right operand of "and" is never evaluated  [unreachable]
+common_utils\secrets\config.py:113: error: Statement is unreachable  [unreachable]
+common_utils\secrets\cli.py:44: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\secrets\cli.py:47: error: Function is missing a type annotation  [no-untyped-def]
+common_utils\secrets\cli.py:90: error: Returning Any from function declared to return "bool"  [no-any-return]
+common_utils\secrets\cli.py:178: error: "type[SecretsBackend]" has no attribute "__iter__" (not iterable)  [attr-defined]
+common_utils\secrets\cli.py:179: error: "str" has no attribute "value"  [attr-defined]
+common_utils\secrets\cli.py:270: error: Returning Any from function declared to return "Optional[str]"  [no-any-return]
+common_utils\secrets\cli.py:333: error: Function is missing a return type annotation  [no-untyped-def]
+common_utils\secrets\cli.py:333: note: Use "-> None" if function does not return a value
+test_security_fixes.py:17: error: Function is missing a return type annotation  [no-untyped-def]
+test_security_fixes.py:17: note: Use "-> None" if function does not return a value
+test_security_fixes.py:52: error: Function is missing a return type annotation  [no-untyped-def]
+test_security_fixes.py:52: note: Use "-> None" if function does not return a value
+test_security_fixes.py:94: error: Function is missing a return type annotation  [no-untyped-def]
+test_security_fixes.py:94: note: Use "-> None" if function does not return a value
+test_security_fixes.py:134: error: Function is missing a type annotation  [no-untyped-def]
+Found 103 errors in 25 files (checked 816 source files)

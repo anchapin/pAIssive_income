@@ -1,92 +1,81 @@
-# Line length configuration
+# Optimized Ruff configuration for comprehensive linting and formatting
+
+# Core settings
 line-length = 88
-
-# Enable auto-fixes
+target-version = "py39"
 fix = true
+unsafe-fixes = false
+cache-dir = ".ruff_cache"
 
-# Exclude non-Python files
-exclude = [
+# Extended exclude patterns for better performance
+extend-exclude = [
     ".git",
-    ".github/workflows/*.yml",
-    "*.md",
-    "Dockerfile",
-    ".dockerignore",
-    "docker-compose.yml",
-    "*.json",
-    "*.yaml",
-    "*.yml",
-    "*.toml",
-    "*.ini",
-    "*.cfg",
-    "*.txt",
-    "!src/**/*.py",
-    "!tests/**/*.py",
-    "!utils/**/*.py"
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".pytest_cache",
+    ".mypy_cache",
+    "build",
+    "dist",
+    "*.egg-info"
 ]
 
+# Comprehensive rule selection replacing Flake8
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and more
-select = ["E", "F", "W", "I", "N", "D", "UP", "B"]
-ignore = [
-    "D203",  # Ignore 'incorrect-blank-line-before-class' in favor of D211
-    "D213",  # Ignore 'multi-line-summary-second-line' in favor of D212
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C",   # flake8-comprehensions
+    "T",   # flake8-print
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+    "N",   # pep8-naming
+    "PT",  # flake8-pytest-style
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "ERA", # eradicate
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "FIX", # autofix
 ]
 
-# Enable isort rules
-extend-select = ["I"]
+ignore = [
+    "D203",  # One blank line before class
+    "D213",  # Multi-line summary style
+    "E501",  # Line length (handled by formatter)
+    "PLR0913", # Too many arguments in function definition
+]
 
+[lint.isort]
+known-first-party = ["src", "tests", "utils"]
+combine-as-imports = true
+force-single-line = true
+lines-between-types = 1
+
+# Simplified per-file-ignores with focused exceptions
 [lint.per-file-ignores]
-"__init__.py" = ["E402"]
-"comprehensive_fix_linting.py" = ["E501"]
-"fix_all_issues_final.py" = ["E501"]
-"ai_models/adapters/openai_compatible_adapter.py" = ["E501"]
-"ai_models/examples/agent_integration_example.py" = ["E501"]
-"ai_models/examples/performance_monitor_example.py" = ["E501"]
-"ai_models/optimization/quantization/bitsandbytes_quantizer.py" = ["E501"]
-"ai_models/serving/rest_api/routes/text_classification.py" = ["E501"]
-"sdk/python/paissive_income_sdk/services/niche_analysis.py" = ["E501"]
-"services/service_discovery/consul_service_registry.py" = ["E501"]
-"tests/ai_models/fallbacks/test_fallback_standalone.py" = ["E501"]
-"tests/ai_models/fallbacks/test_fallback_strategy.py" = ["E501"]
-"tests/ai_models/test_model_version_compatibility.py" = ["E501"]
-"tests/api/test_webhook_delivery_integration.py" = ["E501"]
-"tests/api/test_webhook_delivery_reliability.py" = ["E501"]
-"tests/api/test_webhook_event_processing.py" = ["E501"]
-"tests/api/test_webhook_performance_recovery.py" = ["E501"]
-"tests/api/test_webhook_schema_edge_cases.py" = ["E501"]
-"tests/api/test_webhook_security_advanced.py" = ["E501"]
-"tests/common_utils/db/test_concurrent_operations.py" = ["E501"]
-"tests/common_utils/test_analysis_batch_utils.py" = ["E501"]
-"tests/integration/test_ai_models_integration.py" = ["E501"]
-"tests/integration/test_analytics_data_collection.py" = ["E501"]
-"tests/integration/test_api_gateway_circuit_breaker.py" = ["E501"]
-"tests/integration/test_competitor_to_pricing_workflow.py" = ["E501"]
-"tests/integration/test_error_recovery_workflows.py" = ["E501"]
-"tests/integration/test_message_queue_integration.py" = ["E501"]
-"tests/integration/test_microservices_integration.py" = ["E501"]
-"tests/integration/test_monetization_integration.py" = ["E501"]
-"tests/integration/test_monetization_to_marketing.py" = ["E501"]
-"tests/integration/test_niche_to_ab_testing_workflow.py" = ["E501"]
-"tests/integration/test_persona_to_ab_testing_workflow.py" = ["E501"]
-"tests/integration/test_service_dependency_resolution.py" = ["E501"]
-"tests/integration/test_service_version_compatibility.py" = ["E501"]
-"tests/integration/test_solution_to_monetization.py" = ["E501"]
-"tests/integration/test_webhook_api_integration.py" = ["E501"]
-"tests/integration/test_webhook_middleware_integration.py" = ["E501"]
-"tests/integration/test_webhook_security_integration.py" = ["E501"]
-"tests/performance/test_resource_utilization.py" = ["E501"]
-"tests/security/test_advanced_authentication.py" = ["E501"]
-"tests/security/test_authorization_edge_cases.py" = ["E501"]
-"tests/test_fix_test_collection_warnings.py" = ["E501"]
-"tests/test_run_github_actions_locally.py" = ["E501"]
-"tests/unit/common_utils/caching/test_namespace_clearing.py" = ["E501"]
+"__init__.py" = ["F401", "E402"]  # Allow unused imports in __init__
+"tests/**/*.py" = [
+    "S101",     # Allow assert in tests
+    "PLR2004",  # Allow magic numbers in tests
+    "ARG001",   # Allow unused arguments in tests (fixtures)
+]
+"**/test_*.py" = [
+    "PLR0915",  # Allow long test functions
+]
 
-[lint.extend-per-file-ignores]
-"*/__init__.py" = ["E402"]
-"tests/**/*.py" = ["E501"]  # Ignore line length in all test files
-
+# Enhanced formatter settings
 [format]
 quote-style = "double"
 indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 88
 line-ending = "auto"
-skip-magic-trailing-comma = false
+preview = true

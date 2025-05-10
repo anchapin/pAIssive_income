@@ -6,10 +6,13 @@ credentials, authentication materials, and other sensitive data.
 
 import logging
 import re
-from typing import Any, Dict, List, Pattern
+
+from re import Pattern
+from typing import Any
+from typing import Optional
 
 # List of sensitive field names to mask in logs
-SENSITIVE_FIELDS = [
+SENSITIVE_FIELDS: list[str] = [
     "auth_credential",
     "access_credential",
     "auth_material",
@@ -30,7 +33,7 @@ SENSITIVE_FIELDS = [
 ]
 
 # Regex patterns to detect sensitive information
-PATTERNS = {
+PATTERNS: dict[str, Pattern] = {
     "credential_type_1": re.compile(
         (
             r'(access[_-]?credential|api_material)["\']?\s*[:=]\s*["\']?'
@@ -81,7 +84,7 @@ def is_sensitive_key(key: str) -> bool:
             return True
 
     # Check for common sensitive patterns
-    sensitive_terms = [
+    sensitive_terms: list[str] = [
         "password",
         "token",
         "secret",
@@ -127,14 +130,14 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
 
     elif isinstance(data, dict):
         # Recursively mask values in dictionary
-        dict_result: Dict[str, Any] = {}
+        dict_result: dict[str, Any] = {}
         for k, v in data.items():
             dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
         return dict_result  # Explicitly return a Dict[str, Any]
 
     elif isinstance(data, list):
         # Recursively mask values in list
-        list_result: List[Any] = [
+        list_result: list[Any] = [
             mask_sensitive_data(item, mask_char, visible_chars) for item in data
         ]
         return list_result
@@ -215,7 +218,7 @@ def _mask_pattern(
 
     """
 
-    def _replacer(match) -> str:
+    def _replacer(match: re.Match[str]) -> str:
         full_match: str = match.group(0)
         sensitive_value: str = match.group(2)
 
@@ -241,30 +244,38 @@ class SecureLogger:
 
         """
         self.logger = logging.getLogger(logger_name)
+        self._handlers: list[logging.Handler] = self.logger.handlers
 
-    def set_level(self, level):
+    @property
+    def handlers(self) -> list[logging.Handler]:
+        """Get the handlers for this logger."""
+        return self._handlers
+
+    def set_level(self, level: int) -> None:
         """Set the logging level of this logger."""
         self.logger.setLevel(level)
-        self.level = self.logger.level
+        self.level: int = self.logger.level
 
     # Standard logging compatibility aliases
     setLevel = set_level  # noqa: N815
 
-    def is_enabled_for(self, level):
+    def is_enabled_for(self, level: int) -> bool:
         """Check if this logger is enabled for the specified level."""
-        return self.logger.isEnabledFor(level)
+        result: bool = self.logger.isEnabledFor(level)
+        return result
 
     # Standard logging compatibility aliases
     isEnabledFor = is_enabled_for  # noqa: N815
 
-    def get_effective_level(self):
+    def get_effective_level(self) -> int:
         """Get the effective level for this logger."""
-        return self.logger.getEffectiveLevel()
+        result: int = self.logger.getEffectiveLevel()
+        return result
 
     # Standard logging compatibility aliases
     getEffectiveLevel = get_effective_level  # noqa: N815
 
-    def get_child(self, suffix):
+    def get_child(self, suffix: str) -> "SecureLogger":
         """Get a logger which is a descendant to this logger."""
         child_logger = self.logger.getChild(suffix)
         secure_child = SecureLogger(child_logger.name)
@@ -274,87 +285,91 @@ class SecureLogger:
     # Standard logging compatibility aliases
     getChild = get_child  # noqa: N815
 
-    def debug(self, msg: str, *args, **kwargs):
+    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log a debug message with sensitive information masked."""
         self.logger.debug(mask_sensitive_data(msg), *args, **kwargs)
 
-    def info(self, msg: str, *args, **kwargs):
+    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log an info message with sensitive information masked."""
         self.logger.info(mask_sensitive_data(msg), *args, **kwargs)
 
-    def warning(self, msg: str, *args, **kwargs):
+    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log a warning message with sensitive information masked."""
         self.logger.warning(mask_sensitive_data(msg), *args, **kwargs)
 
     # Alias for warning
     warn = warning
 
-    def error(self, msg: str, *args, **kwargs):
+    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log an error message with sensitive information masked."""
         self.logger.error(mask_sensitive_data(msg), *args, **kwargs)
 
-    def critical(self, msg: str, *args, **kwargs):
+    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log a critical message with sensitive information masked."""
         self.logger.critical(mask_sensitive_data(msg), *args, **kwargs)
 
     # Alias for critical
     fatal = critical
 
-    def exception(self, msg: str, *args, **kwargs):
+    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log an exception message with sensitive information masked."""
         self.logger.exception(mask_sensitive_data(msg), *args, **kwargs)
 
-    def log(self, level, msg, *args, **kwargs):
+    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
         """Log with specified level."""
         self.logger.log(level, mask_sensitive_data(msg), *args, **kwargs)
 
-    def add_handler(self, hdlr):
+    def add_handler(self, hdlr: logging.Handler) -> None:
         """Add the specified handler to this logger."""
         self.logger.addHandler(hdlr)
-        self.handlers = self.logger.handlers
+        # Store handlers in a property
+        self._handlers = self.logger.handlers
 
     # Standard logging compatibility aliases
     addHandler = add_handler  # noqa: N815
 
-    def remove_handler(self, hdlr):
+    def remove_handler(self, hdlr: logging.Handler) -> None:
         """Remove the specified handler from this logger."""
         self.logger.removeHandler(hdlr)
-        self.handlers = self.logger.handlers
+        # Update handlers attribute
+        self._handlers = self.logger.handlers
 
     # Standard logging compatibility aliases
     removeHandler = remove_handler  # noqa: N815
 
-    def has_handlers(self):
+    def has_handlers(self) -> bool:
         """Check if this logger has any handlers configured."""
-        return self.logger.hasHandlers()
+        result: bool = self.logger.hasHandlers()
+        return result
 
     # Standard logging compatibility aliases
     hasHandlers = has_handlers  # noqa: N815
 
-    def call_handlers(self, record):
+    def call_handlers(self, record: logging.LogRecord) -> None:
         """Pass a record to all relevant handlers."""
         self.logger.callHandlers(record)
 
     # Standard logging compatibility aliases
     callHandlers = call_handlers  # noqa: N815
 
-    def handle(self, record):
+    def handle(self, record: logging.LogRecord) -> bool:
         """Call the handlers for the specified record."""
-        return self.logger.handle(record)
+        result: bool = self.logger.handle(record)
+        return result
 
     def make_record(
         self,
-        name,
-        level,
-        fn,
-        lno,
-        msg,
-        args,
-        exc_info,
-        func=None,
-        extra=None,
-        sinfo=None,
-    ):
+        name: str,
+        level: int,
+        fn: str,
+        lno: int,
+        msg: str,
+        args: tuple,
+        exc_info: Optional[tuple],
+        func: Optional[str] = None,
+        extra: Optional[dict[str, Any]] = None,
+        sinfo: Optional[str] = None,
+    ) -> logging.LogRecord:
         """Make a LogRecord."""
         return self.logger.makeRecord(
             name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
@@ -363,9 +378,14 @@ class SecureLogger:
     # Standard logging compatibility aliases
     makeRecord = make_record  # noqa: N815
 
-    def find_caller(self, stack_info=False, stacklevel=1):
+    def find_caller(
+        self, stack_info: bool = False, stacklevel: int = 1
+    ) -> tuple[str, int, str, Optional[str]]:
         """Find the caller's source file and line number."""
-        return self.logger.findCaller(stack_info, stacklevel)
+        result: tuple[str, int, str, Optional[str]] = self.logger.findCaller(
+            stack_info, stacklevel
+        )
+        return result
 
     # Standard logging compatibility aliases
     findCaller = find_caller  # noqa: N815
