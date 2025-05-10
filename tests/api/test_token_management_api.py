@@ -1,4 +1,4 @@
-"""test_token_management_api - Tests for API token management, validation, refresh, and error handling."""
+"""Tests for API token management, validation, refresh, and error handling."""
 
 import pytest
 

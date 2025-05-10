@@ -39,7 +39,11 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def main() -> int:
-    """Parse arguments and run the appropriate pytest command with markers and optional coverage enforcement."""
+    """Parse arguments and run pytest with markers and coverage enforcement.
+
+    Returns:
+        Exit code from pytest execution.
+    """
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
     )

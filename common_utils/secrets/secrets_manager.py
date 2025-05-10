@@ -126,19 +126,16 @@ class SecretsManager:
             try:
                 self.default_backend = SecretsBackend.from_string(default_backend)
             except ValueError:
-                logger.warning(f"Invalid backend string: {default_backend}, using ENV")
+                logger.warning("Invalid backend string provided, using ENV")
                 # Keep the default ENV value
         else:
             # This branch should never be reached with proper type checking
-            logger.warning(f"Invalid backend type: {type(default_backend)}, using ENV")
+            logger.warning("Invalid backend type provided, using ENV")
             # Keep the default ENV value
 
         # Now self.default_backend is guaranteed to be a SecretsBackend instance
-        # Get the string value from the enum
-        backend_value: str = self.default_backend.value
-        logger.info(
-            f"Secrets manager initialized with default backend: {backend_value}"
-        )
+        # Don't log the actual backend value as it might contain sensitive information
+        logger.info("Secrets manager initialized with default backend")
 
     def _get_env_secret(self, key: str) -> Optional[str]:
         """Get a secret from environment variables.
@@ -166,7 +163,7 @@ class SecretsManager:
             file_backend = FileBackend()
             result: Optional[str] = file_backend.get_secret(key)
         except NotImplementedError:
-            logger.warning("File backend not yet fully implemented")
+            logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
@@ -187,7 +184,7 @@ class SecretsManager:
             # The memory backend get_secret method doesn't take arguments yet
             result: Optional[str] = memory_backend.get_secret()
         except NotImplementedError:
-            logger.warning("Memory backend not yet fully implemented")
+            logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
@@ -208,7 +205,7 @@ class SecretsManager:
             # The vault backend get_secret method doesn't take arguments yet
             result: Optional[str] = vault_backend.get_secret()
         except NotImplementedError:
-            logger.warning("Vault backend not yet fully implemented")
+            logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
@@ -539,10 +536,12 @@ class SecretsManager:
             dict[str, Any]: Updated dictionary with the processed key
         """
         if is_sensitive:
-            # For highly sensitive keys, use consistent masking that doesn't reveal any part of the key
+            # For highly sensitive keys, use consistent masking
+            # This approach doesn't reveal any part of the original key
             high_risk_patterns = ["password", "secret", "token", "key", "credential"]
             if any(high_risk in key.lower() for high_risk in high_risk_patterns):
                 # Don't include any part of the original key in the masked version
+                # Create a hash-based key identifier
                 masked_key = f"***SENSITIVE_KEY_{hash(key) % 10000:04d}***"
                 safe_env_vars[masked_key] = "********"
             else:
