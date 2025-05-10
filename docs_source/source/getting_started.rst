@@ -12,7 +12,7 @@ You can install pAIssive_income using pip:
 
 .. code-block: bash
 
-   pip install -e .
+   uv pip install -e .
 
 Requirements
 -----------

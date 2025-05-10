@@ -123,27 +123,28 @@ def main():
     else:
         python_venv_exe = os.path.join(venv_dir, "bin", "python")
 
-    # Upgrade pip
-    print("Upgrading pip...")
-    pip_upgrade_result = run_command(
-        [python_venv_exe, "-m", "pip", "install", "--upgrade", "pip"]
+    # Ensure latest uv is installed in the new venv
+    print("Ensuring latest uv is installed in the new venv...")
+    uv_upgrade_result = run_command(
+        [python_venv_exe, "-m", "pip", "install", "--upgrade", "uv"]
     )
-    if pip_upgrade_result is None:
+    if uv_upgrade_result is None:
+        print("Failed to install/upgrade uv.")
         return 1
 
-    # Install requirements
-    print("Installing requirements...")
+    # Install requirements using uv
+    print("Installing requirements with uv...")
     req_result = run_command(
-        [python_venv_exe, "-m", "pip", "install", "-r", "requirements.txt"]
+        [python_venv_exe, "-m", "uv", "pip", "install", "-r", "requirements.txt"]
     )
     if req_result is None:
         return 1
 
     # Install dev requirements if they exist
     if os.path.exists("requirements-dev.txt"):
-        print("Installing development requirements...")
+        print("Installing development requirements with uv...")
         dev_req_result = run_command(
-            [python_venv_exe, "-m", "pip", "install", "-r", "requirements-dev.txt"]
+            [python_venv_exe, "-m", "uv", "pip", "install", "-r", "requirements-dev.txt"]
         )
         if dev_req_result is None:
             return 1

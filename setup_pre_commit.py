@@ -63,66 +63,21 @@ def install_pre_commit() -> bool:
     """
     print("Installing pre-commit...")
     exit_code, stdout, stderr = run_command(
-        ["pip", "install", "pre-commit"], check=False
+        ["uv", "pip", "install", "pre-commit"], check=False
     )
-
-    if exit_code != 0:
-        print(f"Failed to install pre-commit: {stderr}")
-        return False
-
-    print("pre-commit installed successfully.")
-    return True
-
-
-def setup_hooks() -> bool:
-    """Set up pre-commit hooks.
+    print("  uv pip install pre-commit")
+    return exit_code == 0
+    """Install pre-commit if it's not already installed.
 
     Returns
     -------
-        True if setup was successful, False otherwise.
+        True if installation was successful, False otherwise.
 
     """
-    print("Setting up pre-commit hooks...")
-
-    # Install the hooks
-    exit_code, stdout, stderr = run_command(["pre-commit", "install"], check=False)
-
-    if exit_code != 0:
-        print(f"Failed to install pre-commit hooks: {stderr}")
-        return False
-
-    print("Pre-commit hooks installed successfully.")
-
-    # Update the hooks to the latest versions
-    print("Updating pre-commit hooks...")
-    exit_code, stdout, stderr = run_command(["pre-commit", "autoupdate"], check=False)
-
-    if exit_code != 0:
-        print(f"Failed to update pre-commit hooks: {stderr}")
-        # Not a critical error, so continue
-        print("Continuing with existing hook versions...")
-    else:
-        print("Pre-commit hooks updated successfully.")
-
-    return True
-
-
-def main() -> int:
-    """Set up pre-commit hooks.
-
-    Returns
-    -------
-        0 if successful, 1 otherwise.
-
-    """
-    print(f"Setting up pre-commit hooks for platform: {sys.platform}")
-
-    # Check if pre-commit is installed
-    if not check_pre_commit_installed():
-        print("pre-commit is not installed.")
-        if not install_pre_commit():
-            print("Failed to install pre-commit. Please install it manually:")
-            print("  pip install pre-commit")
+    print("Installing pre-commit...")
+    exit_code, stdout, stderr = run_command(
+        ["uv", "pip", "install", "pre-commit"], check=False
+print("  uv pip install pre-commit")
             return 1
 
     # Set up the hooks

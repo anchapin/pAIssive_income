@@ -85,10 +85,10 @@ if exist .venv (
         :: Install dependencies
         echo Installing dependencies...
         call .venv\Scripts\activate
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install --upgrade uv
+        python -m uv pip install -r requirements.txt
         if exist requirements-dev.txt (
-            python -m pip install -r requirements-dev.txt
+            python -m uv pip install -r requirements-dev.txt
         )
         call deactivate
     )
@@ -150,10 +150,10 @@ if exist .venv (
     :: Install dependencies
     echo Installing dependencies...
     call .venv\Scripts\activate
-    python -m pip install --upgrade pip
-    python -m pip install -r requirements.txt
+    python -m pip install --upgrade uv
+    python -m uv pip install -r requirements.txt
     if exist requirements-dev.txt (
-        python -m pip install -r requirements-dev.txt
+        python -m uv pip install -r requirements-dev.txt
     )
     call deactivate
 )
