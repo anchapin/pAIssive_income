@@ -235,7 +235,8 @@ class SecretsManager:
             try:
                 backend_enum = SecretsBackend.from_string(backend)
             except ValueError:
-                logger.exception(f"Invalid backend specified: {backend}")
+                # Don't log the actual backend value as it might contain sensitive information
+                logger.exception("Invalid backend specified")
                 return None
         elif isinstance(backend, SecretsBackend):
             backend_enum = backend
@@ -243,10 +244,9 @@ class SecretsManager:
             # If backend is None, use default
             # Use the default_backend directly as it's already a SecretsBackend
             backend_enum = self.default_backend
-        # Don't log the actual key name as it might reveal sensitive information
+        # Don't log the actual key name or backend as it might reveal sensitive information
         # backend_enum is guaranteed to be a SecretsBackend instance at this point
-        backend_str: str = backend_enum.value
-        logger.debug(f"Getting secret from {backend_str} backend")
+        logger.debug("Getting secret from backend")
 
         # Use the appropriate backend to get the secret
         if backend_enum == SecretsBackend.ENV:
@@ -304,13 +304,16 @@ class SecretsManager:
                 vault_backend = VaultBackend()
                 result = bool(vault_backend.set_secret())
             else:
-                logger.error(f"Unsupported backend type: {backend_type}")
+                # Don't log the actual backend type as it might contain sensitive information
+                logger.error("Unsupported backend type")
                 return False
         except NotImplementedError:
-            logger.warning(f"{backend_type.value} backend not yet fully implemented")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.warning("Backend not yet fully implemented")
             return False
         except Exception:
-            logger.exception(f"Error setting secret in {backend_type.value} backend")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.exception("Error setting secret in backend")
             return False
         else:
             return result
@@ -338,7 +341,8 @@ class SecretsManager:
             try:
                 backend_enum = SecretsBackend.from_string(backend)
             except ValueError:
-                logger.exception(f"Invalid backend specified: {backend}")
+                # Don't log the actual backend value as it might contain sensitive information
+                logger.exception("Invalid backend specified")
                 return False
         elif isinstance(backend, SecretsBackend):
             backend_enum = backend
@@ -346,10 +350,9 @@ class SecretsManager:
             # If backend is None, use default
             # Use the default_backend directly as it's already a SecretsBackend
             backend_enum = self.default_backend
-        # Don't log the actual key name as it might reveal sensitive information
+        # Don't log the actual key name or backend as it might reveal sensitive information
         # backend_enum is guaranteed to be a SecretsBackend instance at this point
-        backend_str: str = backend_enum.value
-        logger.debug(f"Setting secret in {backend_str} backend")
+        logger.debug("Setting secret in backend")
 
         if backend_enum == SecretsBackend.ENV:
             return self._set_env_secret(key, value)
@@ -404,13 +407,16 @@ class SecretsManager:
                 vault_backend = VaultBackend()
                 result = bool(vault_backend.delete_secret())
             else:
-                logger.error(f"Unsupported backend type: {backend_type}")
+                # Don't log the actual backend type as it might contain sensitive information
+                logger.error("Unsupported backend type")
                 return False
         except NotImplementedError:
-            logger.warning(f"{backend_type.value} backend not yet fully implemented")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.warning("Backend not yet fully implemented")
             return False
         except Exception:
-            logger.exception(f"Error deleting secret from {backend_type.value} backend")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.exception("Error deleting secret from backend")
             return False
         else:
             return result
@@ -435,7 +441,8 @@ class SecretsManager:
             try:
                 backend_enum = SecretsBackend.from_string(backend)
             except ValueError:
-                logger.exception(f"Invalid backend specified: {backend}")
+                # Don't log the actual backend value as it might contain sensitive information
+                logger.exception("Invalid backend specified")
                 return False
         elif isinstance(backend, SecretsBackend):
             backend_enum = backend
@@ -443,10 +450,9 @@ class SecretsManager:
             # If backend is None, use default
             # Use the default_backend directly as it's already a SecretsBackend
             backend_enum = self.default_backend
-        # Don't log the actual key name as it might reveal sensitive information
+        # Don't log the actual key name or backend as it might reveal sensitive information
         # backend_enum is guaranteed to be a SecretsBackend instance at this point
-        backend_str: str = backend_enum.value
-        logger.debug(f"Deleting secret from {backend_str} backend")
+        logger.debug("Deleting secret from backend")
 
         if backend_enum == SecretsBackend.ENV:
             return self._delete_env_secret(key)
@@ -574,15 +580,18 @@ class SecretsManager:
                 vault_backend = VaultBackend()
                 secrets = vault_backend.list_secrets()
             else:
-                logger.error(f"Unsupported backend type: {backend_type}")
+                # Don't log the actual backend type as it might contain sensitive information
+                logger.error("Unsupported backend type")
                 return {}
             return self._sanitize_secrets_dict(secrets)
 
         except NotImplementedError:
-            logger.warning(f"{backend_type.value} backend not yet fully implemented")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.warning("Backend not yet fully implemented")
             return {}
         except Exception:
-            logger.exception(f"Error listing secrets from {backend_type.value} backend")
+            # Don't log the actual backend type value as it might contain sensitive information
+            logger.exception("Error listing secrets from backend")
             return {}
 
     def list_secrets(self, backend: Optional[SecretsBackend] = None) -> dict[str, Any]:
@@ -609,7 +618,8 @@ class SecretsManager:
             try:
                 backend_enum = SecretsBackend.from_string(backend)
             except ValueError:
-                logger.exception(f"Invalid backend specified: {backend}")
+                # Don't log the actual backend value as it might contain sensitive information
+                logger.exception("Invalid backend specified")
                 return {}
         elif isinstance(backend, SecretsBackend):
             backend_enum = backend
@@ -618,8 +628,8 @@ class SecretsManager:
             # Use the default_backend directly as it's already a SecretsBackend
             backend_enum = self.default_backend
         # backend_enum is guaranteed to be a SecretsBackend instance at this point
-        backend_str: str = backend_enum.value
-        logger.debug(f"Listing secrets from {backend_str} backend")
+        # Don't log the actual backend as it might reveal sensitive information
+        logger.debug("Listing secrets from backend")
 
         if backend_enum == SecretsBackend.ENV:
             return self._list_env_secrets()
@@ -692,6 +702,7 @@ def get_secret(
         try:
             backend = SecretsBackend.from_string(backend)
         except ValueError:
+            # Don't log the actual backend value as it might contain sensitive information
             logger.exception("Invalid backend specified")
             return None
 
@@ -718,6 +729,7 @@ def set_secret(
         try:
             backend = SecretsBackend.from_string(backend)
         except ValueError:
+            # Don't log the actual backend value as it might contain sensitive information
             logger.exception("Invalid backend specified")
             return False
 
@@ -743,6 +755,7 @@ def delete_secret(
         try:
             backend = SecretsBackend.from_string(backend)
         except ValueError:
+            # Don't log the actual backend value as it might contain sensitive information
             logger.exception("Invalid backend specified")
             return False
 
@@ -767,6 +780,7 @@ def list_secrets(
         try:
             backend = SecretsBackend.from_string(backend)
         except ValueError:
+            # Don't log the actual backend value as it might contain sensitive information
             logger.exception("Invalid backend specified")
             return {}
 
