@@ -42,7 +42,7 @@ brew install consul
 Also install the Python dependencies:
 
 ```bash
-pip install python-consul fastapi uvicorn requests
+uv pip install python-consul fastapi uvicorn requests
 ```
 
 ### 2. Start the Services

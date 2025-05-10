@@ -26,7 +26,7 @@ Setting Up Development Environment
 
    .. code-block: bash
 
-      pip install -e ".[dev]"
+      uv pip install -e ".[dev]"
 
 Code Standards
 ------------

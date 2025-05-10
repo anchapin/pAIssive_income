@@ -71,7 +71,7 @@ def test_safety_scan() -> bool:
 
     if return_code != 0 and "command not found" in stderr:
         print("Safety not installed. Installing...")
-        run_command("pip install safety")
+        run_command("uv pip install safety")
         stdout, stderr, return_code = run_command("safety check --json")
 
     if stdout:
@@ -132,7 +132,7 @@ def test_bandit_scan() -> bool:
 
     if return_code != 0 and "command not found" in stderr:
         print("Bandit not installed. Installing...")
-        run_command("pip install bandit")
+        run_command("uv pip install bandit")
         stdout, stderr, return_code = run_command("bandit -r . -f json")
 
     if stdout:

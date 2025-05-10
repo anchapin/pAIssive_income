@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Regenerate the virtual environment.
+"""Regenerate the virtual environment using uv for full reproducibility.
 
-This script removes the existing virtual environment and creates a new one,
-then installs all the required dependencies from requirements.txt and
-requirements-dev.txt.
+This script removes the existing virtual environment and creates a new one using uv,
+then generates a requirements.lock with uv (from pyproject.toml if present),
+and finally syncs all dependencies using uv pip sync for an exact, reproducible environment.
 """
 
 import os
@@ -111,10 +111,11 @@ def main():
                 print(f"Error removing virtual environment: {e}")
                 return 1
 
-    # Create a new virtual environment
-    print(f"Creating new virtual environment at {venv_dir}...")
-    venv_result = run_command([python_exe, "-m", "venv", venv_dir])
+    # Create a new virtual environment with uv
+    print(f"Creating new virtual environment at {venv_dir} using uv...")
+    venv_result = run_command(["uv", "venv", ".venv"])
     if venv_result is None:
+        print("Failed to create virtual environment with uv.")
         return 1
 
     # Determine the python executable in the virtual environment
@@ -123,37 +124,67 @@ def main():
     else:
         python_venv_exe = os.path.join(venv_dir, "bin", "python")
 
-    # Upgrade pip
-    print("Upgrading pip...")
-    pip_upgrade_result = run_command(
-        [python_venv_exe, "-m", "pip", "install", "--upgrade", "pip"]
-    )
-    if pip_upgrade_result is None:
-        return 1
+    # Activate venv for subsequent uv commands (subprocess uses full path anyway)
 
-    # Install requirements
-    print("Installing requirements...")
-    req_result = run_command(
-        [python_venv_exe, "-m", "pip", "install", "-r", "requirements.txt"]
-    )
-    if req_result is None:
-        return 1
-
-    # Install dev requirements if they exist
-    if os.path.exists("requirements-dev.txt"):
-        print("Installing development requirements...")
-        dev_req_result = run_command(
-            [python_venv_exe, "-m", "pip", "install", "-r", "requirements-dev.txt"]
-        )
-        if dev_req_result is None:
+    # Generate or update requirements.lock using uv pip compile
+    lockfile = "requirements.lock"
+    # Prefer pyproject.toml if present, otherwise combine requirements.txt and requirements-dev.txt
+    if os.path.exists("pyproject.toml"):
+        print("Generating/updating lockfile (requirements.lock) from pyproject.toml via uv...")
+        compile_result = run_command([
+            python_venv_exe, "-m", "uv", "pip", "compile", "pyproject.toml", "-o", lockfile
+        ])
+        if compile_result is None:
+            print("Failed to generate requirements.lock from pyproject.toml.")
             return 1
+    elif os.path.exists("requirements.txt") and os.path.exists("requirements-dev.txt"):
+        # Merge requirements.txt and requirements-dev.txt for complete reproducibility
+        print("Combining requirements.txt and requirements-dev.txt into requirements-full.txt for locking...")
+        with open("requirements.txt", "r") as req, open("requirements-dev.txt", "r") as dev, open("requirements-full.txt", "w") as full:
+            full.write(req.read())
+            full.write("\n")
+            full.write(dev.read())
+        print("Generating/updating lockfile (requirements.lock) from requirements-full.txt via uv...")
+        compile_result = run_command([
+            python_venv_exe, "-m", "uv", "pip", "compile", "requirements-full.txt", "-o", lockfile
+        ])
+        os.remove("requirements-full.txt")
+        if compile_result is None:
+            print("Failed to generate requirements.lock from requirements-full.txt.")
+            return 1
+    elif os.path.exists("requirements.txt"):
+        print("Generating/updating lockfile (requirements.lock) from requirements.txt via uv...")
+        compile_result = run_command([
+            python_venv_exe, "-m", "uv", "pip", "compile", "requirements.txt", "-o", lockfile
+        ])
+        if compile_result is None:
+            print("Failed to generate requirements.lock from requirements.txt.")
+            return 1
+    else:
+        print("No pyproject.toml or requirements.txt found for locking.")
+        return 1
 
-    print("\nVirtual environment regenerated successfully!")
+    # Sync environment to the lockfile
+    print("Syncing environment to requirements.lock with uv pip sync (fully reproducible)...")
+    sync_result = run_command([
+        python_venv_exe, "-m", "uv", "pip", "sync", lockfile
+    ])
+    if sync_result is None:
+        print("Failed to sync environment to requirements.lock with uv.")
+        return 1
+
+    print("\nVirtual environment regenerated and fully synced with uv!")
     print("To activate the virtual environment, run:")
     if platform.system() == "Windows":
         print("    .venv\\Scripts\\activate")
     else:
         print("    source .venv/bin/activate")
+
+    print("\nTo update dependencies in the future:")
+    print("  1. Edit pyproject.toml or requirements.txt/requirements-dev.txt as needed.")
+    print("  2. Run this script to re-lock and re-sync your environment: python regenerate_venv.py")
+    print("For deterministic installs, always use uv pip sync requirements.lock.")
+    print("NOTE: Both production and development dependencies are included in the lockfile for full reproducibility.")
 
     return 0
 
