@@ -382,45 +382,41 @@ def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:
                 if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                     # Handle tuple format (pattern_name, line_num, line, secret_value)
                     pattern_name, line_num = item[0], item[1]
-                    sarif_results.append(
-                        {
-                            "ruleId": "secret-detection",
-                            "level": "error",
-                            "message": {"text": f"Potential {pattern_name} found"},
-                            "locations": [
-                                {
-                                    "physicalLocation": {
-                                        "artifactLocation": {
-                                            "uri": sanitize_path(file_path)
-                                        },
-                                        "region": {"startLine": line_num},
-                                    }
+                    sarif_results.append({
+                        "ruleId": "secret-detection",
+                        "level": "error",
+                        "message": {"text": f"Potential {pattern_name} found"},
+                        "locations": [
+                            {
+                                "physicalLocation": {
+                                    "artifactLocation": {
+                                        "uri": sanitize_path(file_path)
+                                    },
+                                    "region": {"startLine": line_num},
                                 }
-                            ],
-                        }
-                    )
+                            }
+                        ],
+                    })
                 elif (
                     isinstance(item, dict) and "type" in item and "line_number" in item
                 ):
                     # Handle dict format from JSON
                     pattern_name, line_num = item["type"], item["line_number"]
-                    sarif_results.append(
-                        {
-                            "ruleId": "secret-detection",
-                            "level": "error",
-                            "message": {"text": f"Potential {pattern_name} found"},
-                            "locations": [
-                                {
-                                    "physicalLocation": {
-                                        "artifactLocation": {
-                                            "uri": sanitize_path(file_path)
-                                        },
-                                        "region": {"startLine": line_num},
-                                    }
+                    sarif_results.append({
+                        "ruleId": "secret-detection",
+                        "level": "error",
+                        "message": {"text": f"Potential {pattern_name} found"},
+                        "locations": [
+                            {
+                                "physicalLocation": {
+                                    "artifactLocation": {
+                                        "uri": sanitize_path(file_path)
+                                    },
+                                    "region": {"startLine": line_num},
                                 }
-                            ],
-                        }
-                    )
+                            }
+                        ],
+                    })
 
     try:
         with open(output_file, "w") as f:
@@ -653,26 +649,22 @@ def generate_json_report(results: dict[str, Any], output_file: str) -> bool:
                     if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                         # Only keep pattern name and line number, exclude actual secret
                         pattern_name, line_num = item[0], item[1]
-                        sanitized_findings.append(
-                            {
-                                "type": pattern_name,
-                                "line_number": line_num,
-                                "message": sanitize_finding_message(pattern_name),
-                            }
-                        )
+                        sanitized_findings.append({
+                            "type": pattern_name,
+                            "line_number": line_num,
+                            "message": sanitize_finding_message(pattern_name),
+                        })
                     elif (
                         isinstance(item, dict)
                         and "type" in item
                         and "line_number" in item
                     ):
                         # Copy only safe fields
-                        sanitized_findings.append(
-                            {
-                                "type": item["type"],
-                                "line_number": item["line_number"],
-                                "message": sanitize_finding_message(item["type"]),
-                            }
-                        )
+                        sanitized_findings.append({
+                            "type": item["type"],
+                            "line_number": item["line_number"],
+                            "message": sanitize_finding_message(item["type"]),
+                        })
             sanitized_results[sanitized_path] = sanitized_findings
 
         with open(output_file, "w") as f:
