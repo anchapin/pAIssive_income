@@ -43,7 +43,7 @@ Tests are organized by module, with separate directories for unit tests, integra
    - Analytics integration
 
 3. **Unit Tests**
-   - Token management
+   - Token management  # Test token only
    - Input validation
    - Response formatting
    - Error handling
@@ -522,7 +522,7 @@ The following areas need additional test coverage:
 - **Authentication and Authorization Tests**
   - [ ] Test user authentication workflows
   - [ ] Test role-based access controls
-  - [ ] Test token management and renewal
+  - [ ] Test token management and renewal  # Test token only
 
 - **Rate Limiting and Throttling Tests**
   - [ ] Test rate limit enforcement

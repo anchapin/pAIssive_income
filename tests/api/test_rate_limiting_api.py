@@ -65,7 +65,7 @@ class TestRateLimitingAPI:
     def test_rate_limit_authenticated_vs_unauthenticated(self):
         # If different limits by auth, test both cases
         resp_anon = client.get(self.ENDPOINT)
-        headers = {"Authorization": "Bearer validtoken"}
+        headers = {"Authorization": "Bearer validtoken"}  # Test token only
         resp_auth = client.get(self.ENDPOINT, headers=headers)
         # Should both return 200/401/403 or 429, but possibly different headers/limits
         assert resp_anon.status_code in (200, 401, 403, 429)

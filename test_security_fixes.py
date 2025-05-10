@@ -129,7 +129,7 @@ class TestSecurityFixes(unittest.TestCase):
                 if msg.startswith("  Secret #"):
                     assert len(msg) > min_hash_length, (
                         f"Secret hash should be longer than {min_hash_length} characters"
-                    )
+                    )  # Test data - not a real credential
 
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
     @patch("fix_security_issues.globals")

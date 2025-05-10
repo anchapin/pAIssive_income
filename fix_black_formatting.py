@@ -25,6 +25,24 @@ FILES_TO_FIX = [
     "test_security_fixes.py",
     "common_utils/secrets/secrets_manager.py",
     "fix_security_issues.py",
+    "tests/api/test_token_management_api.py",
+    "tests/api/test_user_api.py",
+    "tests/api/test_rate_limiting_api.py",
+    "fix_security_scan_issues.py",
+]
+
+# Directories to exclude
+EXCLUDE_DIRS = [
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
 ]
 
 
@@ -75,6 +93,44 @@ def run_black(file_path: str, check_mode: bool = False) -> bool:
     return True
 
 
+def is_excluded_dir(path: str) -> bool:
+    """Check if a directory should be excluded.
+
+    Args:
+        path: Path to check
+
+    Returns:
+        bool: True if the directory should be excluded, False otherwise
+    """
+    from pathlib import Path
+
+    parts = Path(path).parts
+    return any(exclude_dir in parts for exclude_dir in EXCLUDE_DIRS)
+
+
+def find_python_files(directory: str) -> list[str]:
+    """Find all Python files in a directory.
+
+    Args:
+        directory: Directory to search
+
+    Returns:
+        list[str]: List of Python files
+    """
+    python_files = []
+    for root, dirs, files in os.walk(directory):
+        # Skip excluded directories
+        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
+
+        for file in files:
+            if file.endswith(".py"):
+                path = os.path.join(root, file)
+                if not is_excluded_dir(path):
+                    python_files.append(path)
+
+    return python_files
+
+
 def fix_files(files: list[str], check_mode: bool = False) -> bool:
     """Fix formatting issues in the specified files.
 
@@ -90,6 +146,11 @@ def fix_files(files: list[str], check_mode: bool = False) -> bool:
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             success = False
+            continue
+
+        # Skip excluded directories
+        if is_excluded_dir(file_path):
+            logger.info(f"Skipping excluded directory: {file_path}")
             continue
 
         logger.info(f"Running Black on {file_path}")
@@ -118,6 +179,24 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         help="Specific files to fix. If not provided, will use the predefined list.",
     )
+    parser.add_argument(
+        "--directory",
+        "-d",
+        default=".",
+        help="Directory to search for Python files (used with --all).",
+    )
+    parser.add_argument(
+        "--all",
+        "-a",
+        action="store_true",
+        help="Fix all Python files in the specified directory.",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose output.",
+    )
     return parser.parse_args()
 
 
@@ -128,7 +207,20 @@ def main() -> int:
         Exit code (0 for success, 1 for failure)
     """
     args = parse_args()
-    files_to_fix = args.files if args.files else FILES_TO_FIX
+
+    # Set log level based on verbose flag
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    # Determine which files to fix
+    if args.all:
+        logger.info(f"Finding all Python files in {args.directory}")
+        files_to_fix = find_python_files(args.directory)
+        logger.info(f"Found {len(files_to_fix)} Python files")
+    elif args.files:
+        files_to_fix = args.files
+    else:
+        files_to_fix = FILES_TO_FIX
 
     logger.info(f"Fixing Black formatting issues in {len(files_to_fix)} files")
     if args.check:

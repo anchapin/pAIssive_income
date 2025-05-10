@@ -142,7 +142,32 @@ regexes = [
     "resetPassword",
     "request_reset",
     "reset_auth_credential",
-    "generate_reset_code"
+    "generate_reset_code",
+
+    # Test data comments
+    "# Test credential only",
+    "# Test token only",
+    "# Test data - not a real credential",
+    "// Test credential only",
+    "// Test token only",
+    "// Test data - not a real credential",
+    "/* Test credential only */",
+    "/* Test token only */",
+    "/* Test data - not a real credential */",
+
+    # Intentionally weak test passwords
+    "123",
+    "WrongPassword",
+    "weakpw",
+
+    # Test usernames and emails
+    "testuser@example.com",
+    "newuser@example.com",
+    "getme@example.com",
+    "updateu@example.com",
+    "delu@example.com",
+    "unique@example.com",
+    "weakpw@example.com"
 ]
 
 [[rules]]

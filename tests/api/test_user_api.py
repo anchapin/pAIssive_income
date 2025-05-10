@@ -15,12 +15,13 @@ client = TestClient(app) if app else None
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")
 class TestUserAPI:
     def test_create_user_success(self):
+        # Test data - not real credentials
         response = client.post(
             "/users/",
             json={
                 "username": "newuser",
                 "email": "newuser@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
         assert response.status_code == 201
@@ -32,12 +33,13 @@ class TestUserAPI:
 
     def test_get_user_success(self):
         # Setup: Create user
+        # Test data - not real credentials
         post_resp = client.post(
             "/users/",
             json={
                 "username": "getme",
                 "email": "getme@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -51,12 +53,13 @@ class TestUserAPI:
 
     def test_update_user_success(self):
         # Setup: Create user
+        # Test data - not real credentials
         post_resp = client.post(
             "/users/",
             json={
                 "username": "updateu",
                 "email": "updateu@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -72,12 +75,13 @@ class TestUserAPI:
 
     def test_delete_user_success(self):
         # Setup: Create user
+        # Test data - not real credentials
         post_resp = client.post(
             "/users/",
             json={
                 "username": "delu",
                 "email": "delu@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -94,42 +98,47 @@ class TestUserAPI:
         assert response.status_code in (401, 403)
 
     def test_invalid_token(self):
-        headers = {"Authorization": "Bearer invalidtoken"}
+        # Test data - not a real token
+        headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
         response = client.get("/users/me", headers=headers)
         assert response.status_code in (401, 403)
 
     def test_access_forbidden_for_non_admin(self):
         # Simulate a non-admin token if RBAC is implemented
-        headers = {"Authorization": "Bearer nonadmintoken"}
+        # Test data - not a real token
+        headers = {"Authorization": "Bearer nonadmintoken"}  # Test token only
         response = client.delete("/users/1", headers=headers)
         assert response.status_code in (401, 403, 405)
 
     def test_email_uniqueness(self):
+        # Test data - not real credentials
         client.post(
             "/users/",
             json={
                 "username": "unique1",
                 "email": "unique@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
+        # Test data - not real credentials
         response = client.post(
             "/users/",
             json={
                 "username": "unique2",
                 "email": "unique@example.com",
-                "password": "StrongPassword123!",
+                "password": "StrongPassword123!",  # Test credential only
             },
         )
         assert response.status_code in (400, 409, 422)
 
     def test_password_strength_validation(self):
+        # Test data - intentionally weak password for testing validation
         response = client.post(
             "/users/",
             json={
                 "username": "weakpw",
                 "email": "weakpw@example.com",
-                "password": "123",
+                "password": "123",  # Intentionally weak test password
             },
         )
         assert response.status_code in (400, 422)
