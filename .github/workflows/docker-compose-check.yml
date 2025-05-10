@@ -1,0 +1,55 @@
+name: Docker Compose Integration Check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  docker-compose-integration:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:24.0.6
+        options: --privileged
+        ports:
+          - 5000:5000
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build and start services
+        run: |
+          docker-compose up --build -d
+
+      - name: Wait for Flask app to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:5000/health; then
+              echo "Flask app is healthy."
+              exit 0
+            else
+              echo "Waiting for Flask app..."
+              sleep 5
+            fi
+          done
+          echo "Flask app did not become healthy in time."
+          docker-compose logs
+          exit 1
+
+      - name: Tear down Docker Compose
+        if: always()
+        run: docker-compose down -v
