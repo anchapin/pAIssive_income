@@ -89,6 +89,29 @@ Database schema migrations are managed with [Flask-Migrate](https://flask-migrat
    flask db upgrade
    ```
 
+### Example Models and Usage
+
+ORM models are provided for **User**, **Team**, and **Agent** entities in `flask/models.py`. You can now persist and query these entities using SQLAlchemy:
+
+```python
+from flask import current_app
+from flask.models import db, User, Team, Agent
+
+# Create a team
+team = Team(name="AI Research", description="Research team for AI agents")
+db.session.add(team)
+db.session.commit()
+
+# Add an agent to the team
+agent = Agent(name="Alice", role="researcher", team=team)
+db.session.add(agent)
+db.session.commit()
+
+# Query teams and agents
+teams = Team.query.all()
+agents = Agent.query.filter_by(team_id=team.id).all()
+```
+
 See [docs/getting-started.md](docs/getting-started.md) for more detailed instructions.
 
 ---
