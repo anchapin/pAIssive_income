@@ -4,10 +4,8 @@ This package provides a JavaScript client for the pAIssive Income API, allowing 
 
 ## Installation
 
-You can install the package via npm:
-
-```bash
-npm install paissive-income-sdk
+You can install the package via pnpm:
+pnpm add paissive-income-sdk
 ```
 
 Or using yarn:

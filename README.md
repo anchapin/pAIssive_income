@@ -35,11 +35,14 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    pip install pre-commit
    pre-commit install
    ```
-4. **Start the modern web UI (requires Node.js 14+ and npm):**
+4. **Start the modern web UI (requires Node.js 14+ and pnpm):**
    ```bash
    python ui/run_ui.py
    ```
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
+   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**  
+   > Install pnpm globally if you haven't already:  
+   > `npm install -g pnpm`
 5. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
 
@@ -123,24 +126,24 @@ python -m pytest
 
 ### Frontend End-to-End (E2E) Tests
 
-> **Requires:** Node.js 14+, npm, and the UI dev server running at `http://localhost:3000`
+> **Requires:** Node.js 14+, [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
 
 1. Install Playwright and its browsers (first time only):
    ```bash
    cd ui/react_frontend
-   npm install
-   npx playwright install
+   pnpm install
+   pnpm exec playwright install
    ```
 
 2. Run all E2E tests:
    ```bash
-   npx playwright test
+   pnpm exec playwright test
    ```
 
 3. See `ui/react_frontend/tests/e2e/` for sample E2E tests.
    To run a specific test:
    ```bash
-   npx playwright test tests/e2e/niche_analysis.spec.ts
+   pnpm exec playwright test tests/e2e/niche_analysis.spec.ts
    ```
 
 Test output and screenshots will appear in the Playwright reports directory.
@@ -161,7 +164,8 @@ Running the main script generates a complete project plan including:
 
 - Python 3.8+
 - Node.js 14.0+ (for modern UI and frontend tests)
-- npm (comes with Node.js)
+- [pnpm](https://pnpm.io/) (for frontend dependencies)  
+  Install globally with: `npm install -g pnpm`
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting

@@ -22,6 +22,18 @@ There are many ways to contribute to the pAIssive Income Framework:
 - Python 3.8 or higher
 - Git
 - pip (Python package manager)
+- **pnpm (Node.js package manager for frontend dependencies)**
+
+> **Note:**  
+> The project now uses [pnpm](https://pnpm.io/) instead of npm for all frontend (JavaScript/TypeScript) dependencies and scripts.  
+> Please make sure you have pnpm installed:
+>
+> ```bash
+> npm install -g pnpm
+> ```
+>
+> Use `pnpm install` instead of `npm install` in all frontend directories.  
+> For running scripts, use `pnpm exec ...` instead of `npx ...`.
 
 ### Setting Up the Development Environment
 
