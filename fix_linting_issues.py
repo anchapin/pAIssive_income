@@ -1,7 +1,7 @@
 """fix_linting_issues - Script to fix common linting issues in Python files.
 
 This script automatically fixes common linting issues in Python files using tools like
-Black, isort, and Ruff. It can be run on a specific file or on all Python files in the
+isort and Ruff. It can be run on a specific file or on all Python files in the
 project.
 """
 
@@ -47,26 +47,7 @@ def run_command(command: list[str], _check_mode: bool = False) -> tuple[int, str
         return 1, "", str(e)
 
 
-def run_black(file_path: str, check_mode: bool = False) -> bool:
-    """Run Black formatter on a Python file.
-
-    Args:
-        file_path: Path to the Python file.
-        check_mode: Whether to run in check mode (don't modify files).
-
-    Returns:
-        True if successful, False otherwise.
-
-    """
-    command: list[str] = ["black"]
-    if check_mode:
-        command.append("--check")
-    command.append(file_path)
-
-    exit_code, stdout, stderr = run_command(command, check_mode)
-    if exit_code != 0:
-        logging.error(f"Black failed on {file_path}: {stderr}")
-    return exit_code == 0
+# Black formatter has been replaced by Ruff format
 
 
 def run_isort(file_path: str, check_mode: bool = False) -> bool:
@@ -183,13 +164,7 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
     logging.info(f"Fixing {file_path}...")
     success = True
 
-    # Run Black
-    if not args.no_black:
-        if args.verbose:
-            logging.info(f"Running Black on {file_path}")
-        if not run_black(file_path, args.check):
-            logging.error(f"Black failed on {file_path}")
-            success = False
+    # Black has been replaced by Ruff format
 
     # Run isort
     if not args.no_isort:
@@ -233,7 +208,7 @@ def setup_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-black",
         action="store_true",
-        help="Skip Black formatter.",
+        help="Skip Black formatter (deprecated - Black has been replaced by Ruff format).",
     )
     parser.add_argument(
         "--no-isort",
