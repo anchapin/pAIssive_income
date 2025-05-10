@@ -62,7 +62,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./ui/react_frontend
 
       - name: Install Playwright browsers
