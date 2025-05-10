@@ -291,7 +291,6 @@ python fix_linting_issues.py path/to/file1.py path/to/file2.py
 Or run with specific options:
 
 ```bash
-python fix_linting_issues.py --no-black  # Skip Black formatter
 python fix_linting_issues.py --no-isort  # Skip isort
 python fix_linting_issues.py --no-ruff   # Skip Ruff linter
 python fix_linting_issues.py --check     # Check only, don't fix
@@ -307,7 +306,7 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 ### Code Formatter Configuration
 
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **Ruff**: The project uses Ruff as the primary tool for both linting and formatting. Configuration is in `.ruff.toml`
 - **MyPy**: Type checking configuration is in `mypy.ini`
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 

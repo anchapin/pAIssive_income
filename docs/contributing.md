@@ -118,7 +118,7 @@ If you have suggestions for improving documentation, please open an issue with t
 
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, black, isort, ruff, and mypy for code linting, formatting, and type checking:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, isort, ruff, and mypy for code linting, formatting, and type checking:
 
 > **Best Practices:**
 > All contributors are expected to review and adhere to the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md) for safe, reliable, and auditable automation. These include principles like explicit state and input/output handling, modular design, input validation, deterministic steps, and comprehensive documentation and testing.
@@ -144,8 +144,8 @@ You can also run individual tools manually:
 # Check code style
 flake8
 
-# Format code
-black .
+# Format code with Ruff
+ruff format .
 
 # Sort imports
 isort .
