@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix formatting issues in specific files.
+"""Fix code formatting issues in specific files.
 
 This script runs Ruff formatter on the files that were identified as needing reformatting
 in the GitHub Actions workflow.
@@ -167,7 +167,7 @@ def parse_args() -> argparse.Namespace:
         Parsed arguments
     """
     parser = argparse.ArgumentParser(
-        description="Fix Ruff formatting issues in specific files."
+        description="Fix code formatting issues in specific files using Ruff."
     )
     parser.add_argument(
         "--check",
@@ -253,7 +253,7 @@ def main() -> int:
 
         files_to_fix = [*safe_files, file1, file2]
 
-    logger.info(f"Fixing Ruff formatting issues in {len(files_to_fix)} files")
+    logger.info(f"Fixing code formatting issues in {len(files_to_fix)} files")
     if args.check:
         logger.info("Running in check mode (no changes will be made)")
 
