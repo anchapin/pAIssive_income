@@ -127,9 +127,9 @@ class TestSecurityFixes(unittest.TestCase):
                 # Define minimum hash length
                 min_hash_length = 10
                 if msg.startswith("  Secret #"):
-                    assert len(msg) > min_hash_length, (
-                        f"Secret hash should be longer than {min_hash_length} characters"
-                    )
+                    assert (
+                        len(msg) > min_hash_length
+                    ), f"Secret hash should be longer than {min_hash_length} characters"
 
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
     @patch("fix_security_issues.globals")

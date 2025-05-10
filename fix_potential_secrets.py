@@ -467,23 +467,25 @@ def main() -> int:
         safe_file_path = safe_log_file_path(file_path)
         for pattern_name, line_num, _secret_length in secrets:
             # Create a generic message that doesn't include length or other metadata
-            sarif_results.append({
-                "ruleId": "secret-detection",
-                "level": "error",
-                "message": {"text": "Potential sensitive data detected"},
-                "locations": [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {"uri": safe_file_path},
-                            "region": {"startLine": line_num},
+            sarif_results.append(
+                {
+                    "ruleId": "secret-detection",
+                    "level": "error",
+                    "message": {"text": "Potential sensitive data detected"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": safe_file_path},
+                                "region": {"startLine": line_num},
+                            }
                         }
-                    }
-                ],
-                "properties": {
-                    "securitySeverity": "high",
-                    "type": pattern_name,
-                },
-            })
+                    ],
+                    "properties": {
+                        "securitySeverity": "high",
+                        "type": pattern_name,
+                    },
+                }
+            )
 
     try:
         with open("security-report.sarif", "w") as f:
