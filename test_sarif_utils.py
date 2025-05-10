@@ -18,18 +18,18 @@ import sarif_utils
 class TestSarifUtils(unittest.TestCase):
     """Test cases for sarif_utils.py."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test environment."""
         # Create a temporary directory for test files
         self.test_dir = tempfile.mkdtemp()
         self.output_file = os.path.join(self.test_dir, "output.sarif")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up test environment."""
         # Remove the temporary directory
         shutil.rmtree(self.test_dir)
 
-    def test_empty_input_file(self):
+    def test_empty_input_file(self) -> None:
         """Test with an empty input file."""
         # Create an empty input file
         input_file = os.path.join(self.test_dir, "empty.json")
@@ -42,19 +42,17 @@ class TestSarifUtils(unittest.TestCase):
         )
 
         # Check that conversion was successful
-        self.assertTrue(result)
+        assert result
         # Check that output file exists
-        self.assertTrue(os.path.exists(self.output_file))
+        assert os.path.exists(self.output_file)
         # Check that output file is valid SARIF
         with open(self.output_file) as f:
             sarif_data = json.load(f)
-            self.assertEqual(sarif_data["version"], "2.1.0")
-            self.assertEqual(
-                sarif_data["runs"][0]["tool"]["driver"]["name"], "TestTool"
-            )
-            self.assertEqual(len(sarif_data["runs"][0]["results"]), 0)
+            assert sarif_data["version"] == "2.1.0"
+            assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
+            assert len(sarif_data["runs"][0]["results"]) == 0
 
-    def test_nonexistent_input_file(self):
+    def test_nonexistent_input_file(self) -> None:
         """Test with a nonexistent input file."""
         # Use a file path that doesn't exist
         input_file = os.path.join(self.test_dir, "nonexistent.json")
@@ -65,19 +63,17 @@ class TestSarifUtils(unittest.TestCase):
         )
 
         # Check that conversion was successful (creates empty SARIF)
-        self.assertTrue(result)
+        assert result
         # Check that output file exists
-        self.assertTrue(os.path.exists(self.output_file))
+        assert os.path.exists(self.output_file)
         # Check that output file is valid SARIF
         with open(self.output_file) as f:
             sarif_data = json.load(f)
-            self.assertEqual(sarif_data["version"], "2.1.0")
-            self.assertEqual(
-                sarif_data["runs"][0]["tool"]["driver"]["name"], "TestTool"
-            )
-            self.assertEqual(len(sarif_data["runs"][0]["results"]), 0)
+            assert sarif_data["version"] == "2.1.0"
+            assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
+            assert len(sarif_data["runs"][0]["results"]) == 0
 
-    def test_invalid_json_input_file(self):
+    def test_invalid_json_input_file(self) -> None:
         """Test with an invalid JSON input file."""
         # Create an invalid JSON input file
         input_file = os.path.join(self.test_dir, "invalid.json")
@@ -90,19 +86,17 @@ class TestSarifUtils(unittest.TestCase):
         )
 
         # Check that conversion was successful (creates empty SARIF)
-        self.assertTrue(result)
+        assert result
         # Check that output file exists
-        self.assertTrue(os.path.exists(self.output_file))
+        assert os.path.exists(self.output_file)
         # Check that output file is valid SARIF
         with open(self.output_file) as f:
             sarif_data = json.load(f)
-            self.assertEqual(sarif_data["version"], "2.1.0")
-            self.assertEqual(
-                sarif_data["runs"][0]["tool"]["driver"]["name"], "TestTool"
-            )
-            self.assertEqual(len(sarif_data["runs"][0]["results"]), 0)
+            assert sarif_data["version"] == "2.1.0"
+            assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
+            assert len(sarif_data["runs"][0]["results"]) == 0
 
-    def test_valid_json_input_file(self):
+    def test_valid_json_input_file(self) -> None:
         """Test with a valid JSON input file."""
         # Create a valid JSON input file
         input_file = os.path.join(self.test_dir, "valid.json")
@@ -128,23 +122,21 @@ class TestSarifUtils(unittest.TestCase):
         )
 
         # Check that conversion was successful
-        self.assertTrue(result)
+        assert result
         # Check that output file exists
-        self.assertTrue(os.path.exists(self.output_file))
+        assert os.path.exists(self.output_file)
         # Check that output file is valid SARIF
         with open(self.output_file) as f:
             sarif_data = json.load(f)
-            self.assertEqual(sarif_data["version"], "2.1.0")
-            self.assertEqual(
-                sarif_data["runs"][0]["tool"]["driver"]["name"], "TestTool"
-            )
-            self.assertEqual(len(sarif_data["runs"][0]["results"]), 1)
-            self.assertEqual(sarif_data["runs"][0]["results"][0]["ruleId"], "test-rule")
-            self.assertEqual(
-                sarif_data["runs"][0]["results"][0]["message"]["text"], "Test message"
+            assert sarif_data["version"] == "2.1.0"
+            assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
+            assert len(sarif_data["runs"][0]["results"]) == 1
+            assert sarif_data["runs"][0]["results"][0]["ruleId"] == "test-rule"
+            assert (
+                sarif_data["runs"][0]["results"][0]["message"]["text"] == "Test message"
             )
 
-    def test_list_json_input_file(self):
+    def test_list_json_input_file(self) -> None:
         """Test with a JSON input file containing a list instead of a dict."""
         # Create a JSON input file with a list
         input_file = os.path.join(self.test_dir, "list.json")
@@ -177,25 +169,25 @@ class TestSarifUtils(unittest.TestCase):
         )
 
         # Check that conversion was successful
-        self.assertTrue(result)
+        assert result
         # Check that output file exists
-        self.assertTrue(os.path.exists(self.output_file))
+        assert os.path.exists(self.output_file)
         # Check that output file is valid SARIF
         with open(self.output_file) as f:
             sarif_data = json.load(f)
-            self.assertEqual(sarif_data["version"], "2.1.0")
-            self.assertEqual(
-                sarif_data["runs"][0]["tool"]["driver"]["name"], "TestTool"
-            )
+            assert sarif_data["version"] == "2.1.0"
+            assert sarif_data["runs"][0]["tool"]["driver"]["name"] == "TestTool"
+            # Define expected number of results
+            expected_results_count = 2
             # Should have two results
-            self.assertEqual(len(sarif_data["runs"][0]["results"]), 2)
+            assert len(sarif_data["runs"][0]["results"]) == expected_results_count
             # Check first result
             results = sarif_data["runs"][0]["results"]
-            self.assertEqual(results[0]["ruleId"], "test-rule-1")
-            self.assertEqual(results[0]["message"]["text"], "Test message 1")
+            assert results[0]["ruleId"] == "test-rule-1"
+            assert results[0]["message"]["text"] == "Test message 1"
             # Check second result
-            self.assertEqual(results[1]["ruleId"], "test-rule-2")
-            self.assertEqual(results[1]["message"]["text"], "Test message 2")
+            assert results[1]["ruleId"] == "test-rule-2"
+            assert results[1]["message"]["text"] == "Test message 2"
 
 
 if __name__ == "__main__":

@@ -8,14 +8,36 @@ import hashlib
 import secrets
 import string
 import time
-from datetime import datetime, timedelta
-from typing import Optional, Tuple
+
+from datetime import datetime
+from datetime import timedelta
+from typing import Optional
+from typing import Union
 
 from common_utils.logging import get_logger
-
-# Third-party imports
-# Local imports
 from users.auth import hash_credential
+
+# Type aliases
+ResetResult = tuple[bool, Optional[str]]
+UserDict = dict[str, Union[Optional[str], int]]
+
+
+# Define a proper interface for UserRepository
+class UserRepository:
+    """Interface for user repository operations."""
+
+    def find_by_email(self, email: str) -> Optional[UserDict]:
+        """Find a user by email."""
+        raise NotImplementedError
+
+    def find_by_reset_token(self, token: str) -> Optional[UserDict]:
+        """Find a user by reset token."""
+        raise NotImplementedError
+
+    def update(self, user_id: int, data: dict) -> bool:
+        """Update a user."""
+        raise NotImplementedError
+
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -41,7 +63,11 @@ def generate_reset_code(length: int = 32) -> str:
 class PasswordResetService:
     """Service for authentication credential reset operations."""
 
-    def __init__(self, user_repository=None, code_expiry=None):
+    def __init__(
+        self,
+        user_repository: Optional[UserRepository] = None,
+        code_expiry: Optional[int] = None,
+    ):
         """Initialize the credential reset service.
 
         Args:
@@ -53,7 +79,7 @@ class PasswordResetService:
         self.user_repository = user_repository
         self.code_expiry = code_expiry or 3600  # 1 hour default
 
-    def request_reset(self, email: str) -> Tuple[bool, Optional[str]]:
+    def request_reset(self, email: str) -> ResetResult:
         """Request an authentication credential reset.
 
         Args:
@@ -70,7 +96,7 @@ class PasswordResetService:
             return False, None
 
         # Find the user
-        user = self.user_repository.find_by_email(email)
+        user: Optional[UserDict] = self.user_repository.find_by_email(email)
         if not user:
             # Don't reveal whether email exists or not for security
             logger.info(
@@ -91,8 +117,10 @@ class PasswordResetService:
         hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
 
         # Update the user with the hashed reset code
+        # Ensure user ID is an integer
+        user_id = int(user["id"]) if user["id"] is not None else 0
         self.user_repository.update(
-            user["id"],
+            user_id,
             {
                 "auth_reset_token": hashed_reset_token,
                 "auth_reset_expires": expiry.isoformat(),
@@ -117,9 +145,6 @@ class PasswordResetService:
         else:
             masked_code = None
 
-        # Send the actual code via secure email channel (not implemented here)
-        # self.email_service.send_reset_code(email, reset_code)
-
         return True, masked_code  # Return masked code instead of actual code
 
     def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
@@ -143,7 +168,9 @@ class PasswordResetService:
         hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
 
         # Find the user with the reset code hash
-        user = self.user_repository.find_by_reset_token(hashed_reset_token)
+        user: Optional[UserDict] = self.user_repository.find_by_reset_token(
+            hashed_reset_token
+        )
         if not user:
             # Don't reveal whether code exists
             logger.warning(
@@ -168,8 +195,10 @@ class PasswordResetService:
         hashed_credential = hash_credential(new_credential)
 
         # Update the user with the new credential
+        # Ensure user ID is an integer
+        user_id = int(user["id"]) if user["id"] is not None else 0
         self.user_repository.update(
-            user["id"],
+            user_id,
             {
                 "auth_hash": hashed_credential,
                 "auth_reset_token": None,

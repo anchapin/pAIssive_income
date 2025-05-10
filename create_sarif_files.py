@@ -2,10 +2,13 @@
 """Create SARIF files for GitHub Advanced Security."""
 
 import json
+import logging
 import os
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def create_sarif_file(file_path, tool_name, tool_url):
+
+def create_sarif_file(file_path: str, tool_name: str, tool_url: str) -> None:
     """Create a SARIF file with the correct structure.
 
     Args:
@@ -39,10 +42,10 @@ def create_sarif_file(file_path, tool_name, tool_url):
     with open(file_path, "w") as f:
         json.dump(data, f, indent=2)
 
-    print(f"Created SARIF file: {file_path}")
+    logging.info(f"Created SARIF file: {file_path}")
 
 
-def main():
+def main() -> None:
     """Create SARIF files."""
     # Create Bandit SARIF file
     create_sarif_file(

@@ -128,3 +128,4 @@ example_project_plan.json
 .DS_Store
 Thumbs.db
 node_modules
+.aider*
