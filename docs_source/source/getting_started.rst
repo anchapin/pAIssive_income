@@ -8,7 +8,7 @@ This guide will help you get started with pAIssive_income.
 Installation
 -----------
 
-You can install pAIssive_income using pip:
+You can install pAIssive_income using uv:
 
 .. code-block: bash
 
