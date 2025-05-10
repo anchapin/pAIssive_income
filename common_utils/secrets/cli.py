@@ -189,9 +189,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         choices=backend_values,
-        default=SecretsBackend.ENV.value
-        if hasattr(SecretsBackend.ENV, "value")
-        else "env",
+        default=(
+            SecretsBackend.ENV.value if hasattr(SecretsBackend.ENV, "value") else "env"
+        ),
         help="Backend to use for secrets",
     )
 
