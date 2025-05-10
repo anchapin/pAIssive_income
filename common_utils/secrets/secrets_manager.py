@@ -495,14 +495,16 @@ class SecretsManager:
         # Process each environment variable
         for key, _ in os.environ.items():
             # Skip environment variables that are clearly not secrets
-            if key.startswith((
-                "PATH",
-                "PYTHON",
-                "SYSTEM",
-                "OS_",
-                "COMPUTERNAME",
-                "USERNAME",
-            )):
+            if key.startswith(
+                (
+                    "PATH",
+                    "PYTHON",
+                    "SYSTEM",
+                    "OS_",
+                    "COMPUTERNAME",
+                    "USERNAME",
+                )
+            ):
                 continue
 
             # Determine if this key potentially contains sensitive information
