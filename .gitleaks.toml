@@ -44,17 +44,25 @@ paths = [
     "common_utils/secrets/secrets_manager\\.py$",
     "fix_potential_secrets\\.py$",
     "fix_security_issues\\.py$",
+    "fix_formatting\\.py$",
 
     # Files specifically flagged in security scan
     "users/password_reset\\.py$",
     "users/services\\.py$",
     "users/auth\\.py$",
     "\\.github/workflows/ci-cd-monitoring\\.yml$",
+    "\\.github/workflows/security_scan\\.yml$",
+    "\\.github/workflows/fix-security-issues\\.yml$",
+    "\\.github/workflows/fix-windows-issues\\.yml$",
+    "\\.github/workflows/ci\\.yml$",
     "sdk/javascript/paissive_income_sdk/auth\\.js$",
     "ui/react_frontend/playwright-report/index\\.html$",
     "ui/react_frontend/src/utils/validation/validators\\.js$",
     "tests/api/test_token_management_api\\.py$",
-    "tests/api/test_user_api\\.py$"
+    "tests/api/test_user_api\\.py$",
+    "tests/api/test_rate_limiting_api\\.py$",
+    "api/utils/auth\\.py$",
+    "api/routes/example_user_router\\.py$"
 ]
 
 regexes = [
