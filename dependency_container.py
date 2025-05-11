@@ -2,7 +2,9 @@
 
 # Standard library imports
 import logging
-from typing import Any, Optional
+
+from typing import Any
+from typing import Optional
 
 # Third-party imports
 

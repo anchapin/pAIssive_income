@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import traceback
+
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
