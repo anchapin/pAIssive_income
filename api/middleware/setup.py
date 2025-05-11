@@ -3,7 +3,8 @@
 # Standard library imports
 
 # Third-party imports
-from setuptools import find_packages, setup
+from setuptools import find_packages
+from setuptools import setup
 
 # Local imports
 
