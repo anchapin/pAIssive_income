@@ -39,6 +39,56 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+REM Create IDE configuration files
+echo Creating .editorconfig file...
+echo # EditorConfig helps maintain consistent coding styles across different editors > .editorconfig
+echo # https://editorconfig.org/ >> .editorconfig
+echo. >> .editorconfig
+echo root = true >> .editorconfig
+echo. >> .editorconfig
+echo [*] >> .editorconfig
+echo end_of_line = lf >> .editorconfig
+echo insert_final_newline = true >> .editorconfig
+echo trim_trailing_whitespace = true >> .editorconfig
+echo charset = utf-8 >> .editorconfig
+echo. >> .editorconfig
+echo [*.{py,pyi}] >> .editorconfig
+echo indent_style = space >> .editorconfig
+echo indent_size = 4 >> .editorconfig
+echo max_line_length = 88 >> .editorconfig
+echo. >> .editorconfig
+echo [*.{json,yml,yaml,toml}] >> .editorconfig
+echo indent_style = space >> .editorconfig
+echo indent_size = 2 >> .editorconfig
+echo. >> .editorconfig
+echo [*.md] >> .editorconfig
+echo trim_trailing_whitespace = false >> .editorconfig
+echo. >> .editorconfig
+echo [Makefile] >> .editorconfig
+echo indent_style = tab >> .editorconfig
+
+echo Creating .vscode directory and settings.json...
+if not exist .vscode mkdir .vscode
+echo { > .vscode\settings.json
+echo     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python", >> .vscode\settings.json
+echo     "python.formatting.provider": "none", >> .vscode\settings.json
+echo     "editor.formatOnSave": true, >> .vscode\settings.json
+echo     "editor.codeActionsOnSave": { >> .vscode\settings.json
+echo         "source.fixAll": true, >> .vscode\settings.json
+echo         "source.organizeImports": true >> .vscode\settings.json
+echo     }, >> .vscode\settings.json
+echo     "[python]": { >> .vscode\settings.json
+echo         "editor.defaultFormatter": "charliermarsh.ruff", >> .vscode\settings.json
+echo         "editor.formatOnSave": true, >> .vscode\settings.json
+echo         "editor.codeActionsOnSave": { >> .vscode\settings.json
+echo             "source.fixAll": true, >> .vscode\settings.json
+echo             "source.organizeImports": true >> .vscode\settings.json
+echo         } >> .vscode\settings.json
+echo     }, >> .vscode\settings.json
+echo     "ruff.format.args": [], >> .vscode\settings.json
+echo     "ruff.lint.run": "onSave" >> .vscode\settings.json
+echo } >> .vscode\settings.json
+
 echo.
 echo Development environment setup complete!
 echo.

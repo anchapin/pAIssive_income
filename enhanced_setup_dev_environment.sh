@@ -28,6 +28,60 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Create IDE configuration files
+echo "Creating .editorconfig file..."
+cat <<EOL > .editorconfig
+# EditorConfig helps maintain consistent coding styles across different editors
+# https://editorconfig.org/
+
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.{py,pyi}]
+indent_style = space
+indent_size = 4
+max_line_length = 88
+
+[*.{json,yml,yaml,toml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+EOL
+
+echo "Creating .vscode directory and settings.json..."
+mkdir -p .vscode
+cat <<EOL > .vscode/settings.json
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.formatting.provider": "none",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+        "source.organizeImports": true
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            "source.organizeImports": true
+        }
+    },
+    "ruff.format.args": [],
+    "ruff.lint.run": "onSave"
+}
+EOL
+
 echo
 echo "Development environment setup complete!"
 echo
