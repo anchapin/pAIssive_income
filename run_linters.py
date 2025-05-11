@@ -10,7 +10,6 @@ import logging
 import os
 import subprocess
 import sys
-
 from typing import Optional
 
 # Configure logging
