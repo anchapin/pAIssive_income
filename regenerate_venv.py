@@ -248,6 +248,12 @@ def install_packages(python_venv_exe: str) -> bool:
         if dev_req_result is None:
             return False
 
+    logging.info("Running Ruff to fix linting issues...")
+    ruff_result = run_command([python_venv_exe, "-m", "ruff", "check", "--fix", "."])
+    if ruff_result is None:
+        logging.error("Ruff encountered errors.")
+        return False
+
     return True
 
 

@@ -37,6 +37,12 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+REM Debugging: Log Node.js and npm paths
+echo Node.js Path:
+where node
+echo npm Path:
+where npm
+
 REM Check Node.js version
 node -v | find "v18." >nul 2>nul
 if %ERRORLEVEL% neq 0 (

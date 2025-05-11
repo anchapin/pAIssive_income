@@ -681,6 +681,13 @@ def install_dependencies() -> bool:
         return False
     logger.debug(stdout)
 
+    # Run Ruff to fix linting issues
+    logger.info("Running Ruff to fix linting issues...")
+    ruff_exit_code, _, ruff_stderr = run_command(["ruff", "check", "--fix", "."])
+    if ruff_exit_code != 0:
+        logger.error(f"Ruff encountered errors: {ruff_stderr}")
+        return False
+
     return True
 
 

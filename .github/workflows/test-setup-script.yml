@@ -139,11 +139,13 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Verify Node.js installation
+      - name: Verify Node.js and npm installation
         run: |
+          echo Node.js Path: $(where node)
+          echo npm Path: $(where npm)
           node --version
           npm --version
-        shell: pwsh
+        shell: cmd
 
       - name: Install PyYAML
         run: pip install pyyaml
