@@ -67,11 +67,17 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Verify pnpm lock file
+        run: |
+          if [ ! -f "pnpm-lock.yaml" ]; then
+            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
+            exit 1
+          fi
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Verify Node.js installation
         run: |
@@ -148,11 +154,26 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
 
+      - name: Verify pnpm lock file
+        run: |
+          if [ ! -f "pnpm-lock.yaml" ]; then
+            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
+            exit 1
+          fi
+        shell: bash # Ensure bash is used for this script on Windows
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
+
+      - name: Check for package-lock.json
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash # Using bash for consistency with other checks
 
       - name: Install Node.js dependencies
         run: npm install
@@ -196,11 +217,17 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Verify pnpm lock file
+        run: |
+          if [ ! -f "pnpm-lock.yaml" ]; then
+            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
+            exit 1
+          fi
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Verify Node.js installation
         run: |
