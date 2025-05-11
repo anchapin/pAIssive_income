@@ -11,7 +11,9 @@ import argparse
 import os
 import subprocess
 import sys
-from typing import Callable, Optional
+
+from typing import Callable
+from typing import Optional
 
 # Local imports
 from common_utils.logging import get_logger
