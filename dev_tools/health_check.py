@@ -6,14 +6,14 @@ Orchestrates repository quality checks:
 - Formatting (black or ruff format)
 - Static typing (mypy)
 - Security (bandit)
-- Dependency audit (pip-audit)
+- Dependency audit (uv pip audit)
 - Documentation build (Sphinx, if configured).
 
 Usage:
     python dev_tools/health_check.py [--all | --lint | --type |
     --security | --deps | --docs]
 
-Requires tools: flake8, ruff, mypy, bandit, pip-audit, black,
+Requires tools: flake8, ruff, mypy, bandit, uv (with pip audit functionality), black,
 sphinx-build (optional).
 """
 
@@ -83,11 +83,11 @@ def security() -> None:
 
 
 def deps() -> None:
-    """Run pip-audit for dependency security."""
-    if shutil.which("pip-audit"):
-        run("pip-audit", "Python dependency audit")
+    """Run uv pip audit for dependency security."""
+    if shutil.which("uv"):
+        run("uv pip audit", "Python dependency audit")
     else:
-        logging.warning("pip-audit not found, skipping dependency audit.")
+        logging.warning("uv not found, skipping dependency audit.")
 
 
 def docs() -> None:

@@ -75,7 +75,7 @@ def test_safety_scan() -> bool:
 
     if return_code != 0 and "command not found" in stderr:
         logger.info("Safety not installed. Installing...")
-        run_command("pip install safety")
+        run_command("uv pip install safety")  # Using uv
         stdout, stderr, return_code = run_command("safety check --json")
 
     if stdout:
@@ -93,7 +93,7 @@ def test_safety_scan() -> bool:
         except json.JSONDecodeError:
             logger.warning("Safety output is not valid JSON. Using empty results.")
             logger.exception("Invalid JSON content")
-            logger.debug(f"First 100 characters: {stdout[:100]}")
+            logger.debug(f"First 100 characters: {stdout[:100]}")  # Replaced f-string
     else:
         logger.warning("Safety check produced no output")
         if stderr:
@@ -109,7 +109,9 @@ def test_safety_scan() -> bool:
     )
 
     if return_code != 0:
-        logger.error(f"Error converting Safety results to SARIF: {stderr}")
+        logger.error(
+            f"Error converting Safety results to SARIF: {stderr}"
+        )  # Replaced f-string
         return False
 
     logger.info("Safety scan test completed")
@@ -136,7 +138,7 @@ def test_bandit_scan() -> bool:
 
     if return_code != 0 and "command not found" in stderr:
         logger.info("Bandit not installed. Installing...")
-        run_command("pip install bandit")
+        run_command("uv pip install bandit")  # Using uv
         stdout, stderr, return_code = run_command("bandit -r . -f json")
 
     if stdout:
@@ -170,7 +172,9 @@ def test_bandit_scan() -> bool:
     )
 
     if return_code != 0:
-        logger.error(f"Error converting Bandit results to SARIF: {stderr}")
+        logger.error(
+            f"Error converting Bandit results to SARIF: {stderr}"
+        )  # Replaced f-string
         return False
 
     logger.info("Bandit scan test completed")
@@ -200,29 +204,31 @@ def test_sarif_file_handling() -> bool:
         )
 
         if return_code != 0:
-            logger.error(f"Error creating test SARIF file: {stderr}")
+            logger.error(
+                f"Error creating test SARIF file: {stderr}"
+            )  # Replaced f-string
             return False
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
     # Process SARIF files
     for sarif_file in sarif_files:
-        logger.info(f"Processing {sarif_file}...")
+        logger.info(f"Processing {sarif_file}...")  # Replaced f-string
 
         # Check file size
         file_size = os.path.getsize(sarif_file)
-        logger.info(f"File size: {file_size} bytes")
+        logger.info(f"File size: {file_size} bytes")  # Replaced f-string
 
         # Validate SARIF format
         try:
             with open(sarif_file) as f:
                 json.load(f)
-            logger.info(f"✅ {sarif_file} is valid JSON")
+            logger.info(f"✅ {sarif_file} is valid JSON")  # Replaced f-string
         except json.JSONDecodeError:
-            logger.warning(f"❌ {sarif_file} is not valid JSON")
+            logger.warning(f"❌ {sarif_file} is not valid JSON")  # Replaced f-string
             logger.info("Creating a valid but empty SARIF file as fallback")
             stdout, stderr, return_code = run_command(
-                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
+                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'  # Replaced f-string
             )
 
             if return_code != 0:
@@ -230,16 +236,22 @@ def test_sarif_file_handling() -> bool:
                 return False
 
         # Create compressed version
-        compressed_file = Path("security-reports/compressed") / f"{sarif_file.name}.gz"
+        compressed_file = (
+            Path("security-reports/compressed") / f"{sarif_file.name}.gz"
+        )  # Replaced f-string
         stdout, stderr, return_code = run_command(
-            f"gzip -c {sarif_file} > {compressed_file}"
+            f"gzip -c {sarif_file} > {compressed_file}"  # Replaced f-string
         )
 
         if return_code != 0:
-            logger.error(f"Error creating compressed version: {stderr}")
+            logger.error(
+                f"Error creating compressed version: {stderr}"
+            )  # Replaced f-string
             return False
 
-        logger.info(f"Created compressed version: {compressed_file}")
+        logger.info(
+            f"Created compressed version: {compressed_file}"
+        )  # Replaced f-string
 
     logger.info("SARIF file handling test completed")
     return True

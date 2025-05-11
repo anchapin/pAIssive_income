@@ -31,12 +31,15 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 
    Or manually:
    ```bash
-   python -m venv .venv
+   uv venv .venv
    source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-   pip install -e .
-   pip install pre-commit
+   uv pip install -r requirements.txt
+   uv pip install -r requirements-dev.txt
+   uv pip install -e .
+   ```
+3. **Set up pre-commit hooks for code quality:**
+   ```bash
+   uv pip install pre-commit
    pre-commit install
    ```
 4. **Start the modern web UI (requires Node.js 14+ and pnpm):**
@@ -210,7 +213,7 @@ This helps maintain code quality while preventing pipeline failures due to forma
 The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit
 pre-commit install
 ```
 

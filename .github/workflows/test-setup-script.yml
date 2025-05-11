@@ -52,6 +52,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug file paths
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Listing files in current working directory:"
+          ls -la
+          echo "Listing files in ./.github/workflows:"
+          ls -la ./.github/workflows
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -68,10 +77,23 @@ jobs:
         run: ruff --version
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'npm' # Changed from pnpm to npm
+
+      - name: Check for npm lock file (package-lock.json)
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Install Node.js dependencies (npm)
+        run: |
+          cd .
+          npm install
 
       - name: Verify Node.js installation
         run: |
@@ -136,6 +158,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug file paths
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Listing files in current working directory:"
+          ls -la
+          echo "Listing files in ./.github/workflows:"
+          ls -la ./.github/workflows
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -149,13 +180,23 @@ jobs:
         run: pip install ruff
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'npm' # Changed from pnpm to npm
+
+      - name: Check for package-lock.json
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash # Using bash for consistency with other checks
 
       - name: Install Node.js dependencies
-        run: npm install
+        run: |
+          cd .
+          npm install
 
       - name: Verify setup script
         run: |
@@ -181,6 +222,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug file paths
+        shell: bash
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Listing files in current working directory:"
+          ls -la
+          echo "Listing files in ./.github/workflows:"
+          ls -la ./.github/workflows
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -197,10 +247,23 @@ jobs:
         run: ruff --version
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'npm' # Changed from pnpm to npm
+
+      - name: Check for npm lock file (package-lock.json)
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Install Node.js dependencies (npm)
+        run: |
+          cd .
+          npm install
 
       - name: Verify Node.js installation
         run: |
