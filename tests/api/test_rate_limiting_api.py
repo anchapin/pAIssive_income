@@ -1,11 +1,9 @@
 """test_rate_limiting_api - Tests for API rate limiting enforcement and edge cases."""
 
 import time
-
 from unittest.mock import patch
 
 import pytest
-
 from fastapi.testclient import TestClient
 
 try:
