@@ -254,8 +254,8 @@ jobs:
               Write-Host "First directory in PATH: $firstPathDir"
               if ($firstPathDir) {
                 $expectedPnpmExe = Join-Path -Path $firstPathDir -ChildPath "pnpm.cmd"
-                Write-Host "Checking for pnpm.cmd at $expectedPnpmExe: $(Test-Path $expectedPnpmExe)"
-                Write-Host "Contents of $firstPathDir:"
+                Write-Host "Checking for pnpm.cmd at ${expectedPnpmExe}: $(Test-Path $expectedPnpmExe)"
+                Write-Host "Contents of ${firstPathDir}:"
                 Get-ChildItem -Path $firstPathDir -ErrorAction SilentlyContinue
               }
               exit 1
