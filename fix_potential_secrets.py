@@ -10,8 +10,11 @@ import logging
 import os
 import re
 import sys
+
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any
+from typing import Optional
+from typing import cast
 
 import pathspec  # New import
 
@@ -48,6 +51,33 @@ PATTERNS = {
         r"eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}"
     ),
 }
+
+
+def mask_string(
+    value: str,
+    visible_prefix_len: int = 3,
+    visible_suffix_len: int = 3,
+    min_len_to_mask: int = 8,
+) -> str:
+    """
+    Masks a string, showing a prefix and suffix if long enough,
+    otherwise masks it more completely.
+    """
+    s_value = str(value) if not isinstance(value, str) else value
+
+    # If string is too short to meaningfully show prefix/suffix, or if prefix+suffix is too large
+    if len(s_value) < min_len_to_mask or (
+        visible_prefix_len + visible_suffix_len >= len(s_value) and len(s_value) > 0
+    ):
+        return "*" * len(s_value) if len(s_value) > 0 else ""
+
+    prefix = s_value[:visible_prefix_len]
+    suffix = s_value[-visible_suffix_len:]
+    # Calculate number of asterisks, ensuring it's not negative
+    num_asterisks = max(0, len(s_value) - visible_prefix_len - visible_suffix_len)
+
+    return f"{prefix}{'*' * num_asterisks}{suffix}"
+
 
 # Directories and files to exclude (these are fallback, .gitignore is primary)
 EXCLUDE_DIRS = {
@@ -323,7 +353,7 @@ def apply_replacements(
                 modified = True
             else:
                 logging.warning(
-                    f"Secret '{secret_value}' not found in line {line_index} for replacement. Line content: {lines[line_index]}"
+                    f"Secret '{mask_string(secret_value)}' not found in line {line_index} for replacement. Line content: {lines[line_index]}"
                 )
     return modified
 
@@ -577,10 +607,11 @@ def main() -> int:  # noqa: C901, PLR0912
             generate_empty_sarif("security-report.sarif")
         return 0
 
-    total_secrets_found = sum(len(s) for s in results.values())
-    logging.info(
-        f"Found {total_secrets_found} total potential secrets in {len(results)} files."
-    )
+    # The sum of secrets and count of files are no longer logged directly at INFO level
+    # to address CodeQL py/clear-text-logging-sensitive-data alert.
+    # The 'if not results:' block handles the 'no secrets found' case.
+    # This message indicates that results were found and are being processed.
+    logging.info("Potential secrets scan complete. Processing results.")
 
     fixed_files_count = 0
     successfully_processed_files = 0
@@ -623,6 +654,8 @@ def main() -> int:  # noqa: C901, PLR0912
     # then this script's stdout is captured.
     # The current main() in this script doesn't print JSON to stdout.
     # It generates a SARIF file directly.
+
+    total_secrets_found = sum(len(s) for s in results.values())
 
     # Let's refine the return logic.
     # If fixes were attempted, success means all found items in all files were addressed.

@@ -142,6 +142,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install PyYAML
+        run: pip install pyyaml
+
       - name: Install Ruff
         run: pip install ruff
 
