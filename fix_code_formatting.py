@@ -21,7 +21,9 @@ logger = logging.getLogger(__name__)
 # Files that need reformatting according to the GitHub Actions workflow
 FILES_TO_FIX = [
     "regenerate_venv.py",
+    "fix_potential_secrets.py",  # gitleaks:allow
     "test_security_fixes.py",
+    "common_utils/secrets/secrets_manager.py",  # gitleaks:allow
     "fix_security_issues.py",
     "tests/api/test_token_management_api.py",
     "tests/api/test_user_api.py",

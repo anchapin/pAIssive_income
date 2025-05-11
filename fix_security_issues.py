@@ -17,9 +17,7 @@ import subprocess
 import sys
 import time  # Moved time import to the top level
 import uuid  # Added for secure report generation
-
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 # Define constants for magic numbers
 MIN_PATTERN_LENGTH = 3

@@ -20,7 +20,7 @@ test.describe.skip('Niche Analysis Workflow', () => {
       console.log('Successfully connected to the React app');
     } catch (error) {
       console.error('Could not connect to the React app. Is it running?');
-      console.error('To run the app: npm start');
+      console.error('To run the app: pnpm start');
       test.skip();
     }
   });
