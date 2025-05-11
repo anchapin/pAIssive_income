@@ -6,11 +6,8 @@ authentication, and profile management.
 
 # Standard library imports
 import uuid
-
-from datetime import datetime
-from datetime import timedelta
-from typing import Any
-from typing import Optional
+from datetime import datetime, timedelta
+from typing import Any, Optional
 
 # Third-party imports
 import jwt
@@ -18,8 +15,7 @@ import jwt
 from common_utils.logging import get_logger
 
 # Local imports
-from users.auth import hash_credential
-from users.auth import verify_credential
+from users.auth import hash_credential, verify_credential
 
 
 class AuthenticationError(ValueError):
