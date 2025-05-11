@@ -88,7 +88,15 @@ jobs:
 
       - name: Add pnpm to PATH
         shell: bash
-        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+        run: |
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          source $GITHUB_ENV
+
+      - name: Verify pnpm in PATH
+        shell: bash
+        run: |
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -96,20 +104,29 @@ jobs:
           node-version: '18'
           cache: 'pnpm' # Changed back to pnpm
 
+      - name: Check pnpm version
+        run: pnpm --version
+
       - name: Verify package.json
         shell: bash
         run: |
           if [ ! -f "package.json" ]; then
-            echo "Error: package.json not found."
+            echo "Error: package.json not found in the root directory."
+            ls -la
             exit 1
           fi
           echo "Contents of package.json:"
           cat package.json
 
       - name: Install Node.js dependencies (pnpm)
-        run: |
-          pnpm install --reporter=default || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
+        run: |
+          pnpm install --reporter=default || {
+            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
+            echo "- Missing or conflicting dependencies in package.json.";
+            echo "- pnpm not set up properly.";
+            exit 1;
+          }
 
       - name: Verify Node.js and pnpm installation
         run: |
@@ -238,17 +255,33 @@ jobs:
         shell: powershell
         run: echo "PATH=$(pnpm bin);${env:PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      - name: Verify pnpm in PATH
+        shell: powershell
+        run: |
+          Write-Host "Current PATH: $($env:PATH)"
+          Get-Command pnpm -ErrorAction SilentlyContinue | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Error: pnpm is still not in PATH after attempting to add it."
+            exit 1
+          }
+          pnpm --version
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'pnpm'
 
+      - name: Check pnpm version
+        shell: powershell
+        run: pnpm --version
+
       - name: Verify package.json
         shell: powershell
         run: |
           if (-not (Test-Path "package.json")) {
-            Write-Error "Error: package.json not found."
+            Write-Error "Error: package.json not found in the root directory."
+            Get-ChildItem -Force
             exit 1
           }
           Write-Host "Contents of package.json:"
@@ -278,7 +311,9 @@ jobs:
         run: |
           pnpm install --reporter=default
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."
+            Write-Error "Failed to install Node.js dependencies with pnpm. Possible issues:"
+            Write-Error "- Missing or conflicting dependencies in package.json."
+            Write-Error "- pnpm not set up properly."
             exit 1
           }
 
@@ -378,7 +413,15 @@ jobs:
 
       - name: Add pnpm to PATH
         shell: bash
-        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+        run: |
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          source $GITHUB_ENV
+
+      - name: Verify pnpm in PATH
+        shell: bash
+        run: |
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -386,20 +429,29 @@ jobs:
           node-version: '18'
           cache: 'pnpm' # Changed back to pnpm
 
+      - name: Check pnpm version
+        run: pnpm --version
+
       - name: Verify package.json
         shell: bash
         run: |
           if [ ! -f "package.json" ]; then
-            echo "Error: package.json not found."
+            echo "Error: package.json not found in the root directory."
+            ls -la
             exit 1
           fi
           echo "Contents of package.json:"
           cat package.json
 
       - name: Install Node.js dependencies (pnpm)
-        run: |
-          pnpm install --reporter=default || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
+        run: |
+          pnpm install --reporter=default || {
+            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
+            echo "- Missing or conflicting dependencies in package.json.";
+            echo "- pnpm not set up properly.";
+            exit 1;
+          }
 
       - name: Verify Node.js and pnpm installation
         run: |
