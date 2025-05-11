@@ -76,30 +76,27 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'pnpm' # Changed back to pnpm
 
-      - name: Check for npm lock file (package-lock.json)
+      - name: Install Node.js dependencies (pnpm)
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
-            exit 1
-          fi
+          pnpm install || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
 
-      - name: Install Node.js dependencies (npm)
-        run: |
-          cd .
-          npm install || { echo "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."; exit 1; }
-        shell: bash
-
-      - name: Verify Node.js installation
+      - name: Verify Node.js and pnpm installation
         run: |
           node --version
           npm --version
+          pnpm --version
 
       - name: Install PyYAML
         run: pip install pyyaml
@@ -204,13 +201,18 @@ jobs:
         shell: powershell
         run: pip install ruff
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
-      - name: Verify Python and Node.js Installation
+      - name: Verify Python, Node.js and pnpm Installation
         shell: powershell
         run: |
           python --version
@@ -223,23 +225,18 @@ jobs:
             Write-Error "Node.js is not installed or not in PATH."
             exit 1
           }
-
-      - name: Check for npm lock file
-        shell: powershell
-        run: |
-          if (-not (Test-Path "./package-lock.json")) {
-            Write-Error "Error: package-lock.json is missing. Please generate and commit it."
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "pnpm is not installed or not in PATH."
             exit 1
-          } else {
-            Write-Host "package-lock.json found."
           }
 
-      - name: Install Node.js Dependencies
+      - name: Install Node.js Dependencies (pnpm)
         shell: powershell
         run: |
-          npm install
+          pnpm install
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."
+            Write-Error "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."
             exit 1
           }
 
@@ -264,6 +261,9 @@ jobs:
           Write-Host "npm version:"
           npm --version
           if ($LASTEXITCODE -ne 0) { Write-Warning "npm not found or 'npm --version' failed." }
+          Write-Host "pnpm version:"
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "pnpm not found or 'pnpm --version' failed." }
           Write-Host "Python version:"
           python --version
           if ($LASTEXITCODE -ne 0) { Write-Warning "Python not found or 'python --version' failed." }
@@ -324,30 +324,27 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'pnpm' # Changed back to pnpm
 
-      - name: Check for npm lock file (package-lock.json)
+      - name: Install Node.js dependencies (pnpm)
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
-            exit 1
-          fi
+          pnpm install || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
 
-      - name: Install Node.js dependencies (npm)
-        run: |
-          cd .
-          npm install || { echo "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."; exit 1; }
-        shell: bash
-
-      - name: Verify Node.js installation
+      - name: Verify Node.js and pnpm installation
         run: |
           node --version
           npm --version
+          pnpm --version
 
       - name: Install PyYAML
         run: pip install pyyaml
@@ -360,6 +357,8 @@ jobs:
           node --version || echo "Node.js not found or 'node --version' failed."
           echo "npm version:"
           npm --version || echo "npm not found or 'npm --version' failed."
+          echo "pnpm version:"
+          pnpm --version || echo "pnpm not found or 'pnpm --version' failed."
           echo "Python version:"
           python --version || echo "Python not found or 'python --version' failed."
           echo "pip version:"

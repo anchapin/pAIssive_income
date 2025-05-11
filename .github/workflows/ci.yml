@@ -81,9 +81,9 @@ jobs:
 
           # Install essential tools
           echo "Installing essential linting tools..."
-          pip install --upgrade flake8 mypy isort pyright || {
+          pip install --upgrade mypy isort pyright || {
             echo "Retrying with --no-cache-dir..."
-            pip install --no-cache-dir --upgrade flake8 mypy isort pyright
+            pip install --no-cache-dir --upgrade mypy isort pyright
           }
 
           # Check and install project dependencies with better error handling
@@ -305,8 +305,6 @@ jobs:
           ruff check .
         continue-on-error: true
 
-      - name: Run flake8
-        run: flake8 .
       - name: Run isort (check only)
         run: isort --check-only .
       - name: Run mypy

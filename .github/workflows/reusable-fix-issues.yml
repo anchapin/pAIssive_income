@@ -63,7 +63,7 @@ jobs:
       if: inputs.shell == 'bash'
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff
+        python -m pip install black isort ruff
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -71,7 +71,7 @@ jobs:
       if: inputs.shell == 'pwsh'
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff
+        python -m pip install black isort ruff
         python -m pip install -r requirements-dev.txt
         if (Test-Path -Path "requirements.txt") {
           python -m pip install -r requirements.txt

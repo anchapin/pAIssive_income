@@ -41,7 +41,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff
+        python -m pip install black isort ruff
         if (Test-Path -Path "requirements-dev.txt") {
           python -m pip install -r requirements-dev.txt
         }
