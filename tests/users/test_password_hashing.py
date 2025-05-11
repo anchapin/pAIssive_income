@@ -7,8 +7,7 @@ import uuid
 import pytest
 
 # Local imports
-from users.auth import hash_credential
-from users.auth import verify_credential
+from users.auth import hash_credential, verify_credential
 
 
 @pytest.fixture

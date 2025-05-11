@@ -5,18 +5,11 @@ See: docs/input_validation_and_error_handling_standards.md
 
 from typing import Any
 
-from fastapi import APIRouter
-from fastapi import HTTPException
-from fastapi import Request
-from fastapi import status
-from pydantic import BaseModel
-from pydantic import EmailStr
-from pydantic import Field
+from fastapi import APIRouter, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr, Field
 
 from common_utils.logging import get_logger
-from common_utils.validation.core import ValidationError
-from common_utils.validation.core import validate_input
-from common_utils.validation.core import validation_error_response
+from common_utils.validation.core import ValidationError, validate_input, validation_error_response
 
 # Initialize logger
 logger = get_logger(__name__)

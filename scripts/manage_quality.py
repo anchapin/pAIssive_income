@@ -15,11 +15,8 @@ import signal
 import subprocess
 import sys
 import time
-
 from pathlib import Path
-from typing import Any
-from typing import Optional
-from typing import cast
+from typing import Any, Optional, cast
 
 # Maximum time to wait for any single check
 TIMEOUT_SECONDS = 300
