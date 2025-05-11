@@ -215,29 +215,32 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Run Ruff (Fix Mode)
-        id: run-ruff
+      - name: Fix Imports with Ruff and Isort
+        id: fix-imports
         run: |
-          echo "Running Ruff in fix mode..."
-          ruff check --fix .
-          # Check if Ruff made any changes
+          echo "Running Ruff in fix mode for import sorting and other fixes..."
+          ruff check --fix . || echo "Ruff command finished (may have encountered issues, or made no changes)."
+          echo "Running isort in fix mode for import sorting..."
+          isort . || echo "Isort command finished (may have encountered issues, or made no changes)."
+
+          echo "Checking for changes after ruff and isort..."
           if [ -n "$(git diff --name-only)" ]; then
-            echo "Ruff made changes. Setting fixed=true"
+            echo "Ruff or isort made changes. Setting fixed=true"
             echo "fixed=true" >> $GITHUB_OUTPUT
           else
-            echo "Ruff made no changes. Setting fixed=false"
+            echo "Neither ruff nor isort made changes. Setting fixed=false"
             echo "fixed=false" >> $GITHUB_OUTPUT
           fi
-        continue-on-error: true # Allow the pipeline to continue even if ruff fix has issues
+        continue-on-error: true
 
-      - name: Commit and Push Fixes
-        if: always() && steps.run-ruff.outputs.fixed == 'true'
+      - name: Commit and Push Import Fixes
+        if: always() && steps.fix-imports.outputs.fixed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Fix linting issues automatically"
-          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          git commit -m "Fix import formatting issues (ruff & isort)"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }} || echo "::warning::Failed to push import formatting changes. This could be due to permissions or if no changes were made."
 
       - name: Notify Developer
         if: failure()

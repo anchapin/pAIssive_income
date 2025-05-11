@@ -156,12 +156,12 @@ jobs:
 
       - name: Verify setup script
         run: |
-          if [ -f "./enhanced_setup_dev_environment.bat" ]; then
+          if exist "./enhanced_setup_dev_environment.bat" (
             echo "Setup script exists."
-          else
+          ) else (
             echo "Error: Setup script not found."
             exit 1
-          fi
+          )
         shell: cmd
 
       - name: Run setup script with full profile
