@@ -1,0 +1,237 @@
+name: Test Setup Script
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'enhanced_setup_dev_environment.py'
+      - 'enhanced_setup_dev_environment.bat'
+      - 'enhanced_setup_dev_environment.sh'
+      - '.github/workflows/test-setup-script.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'enhanced_setup_dev_environment.py'
+      - 'enhanced_setup_dev_environment.bat'
+      - 'enhanced_setup_dev_environment.sh'
+      - '.github/workflows/test-setup-script.yml'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test on'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ubuntu
+          - windows
+          - macos
+      setup_profile:
+        description: 'Setup profile to test'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - minimal
+          - ui-only
+          - backend-only
+
+permissions:
+  contents: read
+
+jobs:
+  test-ubuntu:
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install PyYAML
+        run: pip install pyyaml
+      
+      - name: Make script executable
+        run: chmod +x enhanced_setup_dev_environment.sh
+      
+      - name: Run setup script with minimal profile
+        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
+        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
+      
+      - name: Run setup script with backend-only profile
+        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
+        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
+      
+      - name: Run setup script with ui-only profile
+        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
+        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
+      
+      - name: Run setup script with full profile
+        if: ${{ github.event.inputs.setup_profile == 'full' }}
+        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+      
+      - name: Verify setup
+        run: |
+          # Check if virtual environment was created
+          if [ -d ".venv" ]; then
+            echo "Virtual environment created successfully"
+          else
+            echo "Error: Virtual environment not created"
+            exit 1
+          fi
+          
+          # Check if configuration files were created
+          if [ -f "setup_config.yaml" ]; then
+            echo "Configuration file created successfully"
+          else
+            echo "Error: Configuration file not created"
+            exit 1
+          fi
+          
+          # Check if IDE configuration files were created
+          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
+            echo "IDE configuration files created successfully"
+          else
+            echo "Error: IDE configuration files not created"
+            exit 1
+          fi
+
+  test-windows:
+    name: Test on Windows
+    runs-on: windows-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' || github.event.inputs.platform == '' }}
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install PyYAML
+        run: pip install pyyaml
+      
+      - name: Run setup script with minimal profile
+        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
+        run: .\enhanced_setup_dev_environment.bat --minimal --no-system-deps
+        shell: cmd
+      
+      - name: Run setup script with backend-only profile
+        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
+        run: .\enhanced_setup_dev_environment.bat --backend-only --no-system-deps
+        shell: cmd
+      
+      - name: Run setup script with ui-only profile
+        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
+        run: .\enhanced_setup_dev_environment.bat --ui-only --no-system-deps
+        shell: cmd
+      
+      - name: Run setup script with full profile
+        if: ${{ github.event.inputs.setup_profile == 'full' }}
+        run: .\enhanced_setup_dev_environment.bat --full --no-system-deps
+        shell: cmd
+      
+      - name: Verify setup
+        run: |
+          # Check if virtual environment was created
+          if (Test-Path -Path ".venv") {
+            Write-Host "Virtual environment created successfully"
+          } else {
+            Write-Error "Error: Virtual environment not created"
+            exit 1
+          }
+          
+          # Check if configuration files were created
+          if (Test-Path -Path "setup_config.yaml") {
+            Write-Host "Configuration file created successfully"
+          } else {
+            Write-Error "Error: Configuration file not created"
+            exit 1
+          }
+          
+          # Check if IDE configuration files were created
+          if ((Test-Path -Path ".editorconfig") -and (Test-Path -Path ".vscode")) {
+            Write-Host "IDE configuration files created successfully"
+          } else {
+            Write-Error "Error: IDE configuration files not created"
+            exit 1
+          }
+        shell: pwsh
+
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' || github.event.inputs.platform == '' }}
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install PyYAML
+        run: pip install pyyaml
+      
+      - name: Make script executable
+        run: chmod +x enhanced_setup_dev_environment.sh
+      
+      - name: Run setup script with minimal profile
+        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
+        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
+      
+      - name: Run setup script with backend-only profile
+        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
+        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
+      
+      - name: Run setup script with ui-only profile
+        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
+        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
+      
+      - name: Run setup script with full profile
+        if: ${{ github.event.inputs.setup_profile == 'full' }}
+        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+      
+      - name: Verify setup
+        run: |
+          # Check if virtual environment was created
+          if [ -d ".venv" ]; then
+            echo "Virtual environment created successfully"
+          else
+            echo "Error: Virtual environment not created"
+            exit 1
+          fi
+          
+          # Check if configuration files were created
+          if [ -f "setup_config.yaml" ]; then
+            echo "Configuration file created successfully"
+          else
+            echo "Error: Configuration file not created"
+            exit 1
+          fi
+          
+          # Check if IDE configuration files were created
+          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
+            echo "IDE configuration files created successfully"
+          else
+            echo "Error: IDE configuration files not created"
+            exit 1
+          fi
