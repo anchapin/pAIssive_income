@@ -25,7 +25,7 @@ class TestTokenManagementAPI:
             self.AUTH_ENDPOINT,
             data={
                 "username": "testuser",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },  # Test credential only
         )
         assert resp.status_code == 200
@@ -39,7 +39,7 @@ class TestTokenManagementAPI:
             self.AUTH_ENDPOINT,
             data={
                 "username": "invaliduser",
-                "password": "WrongPassword",  # Test credential only
+                "password": "invalid-test-password",  # Test credential only
             },  # Test credential only
         )
         assert resp.status_code in (401, 403)
@@ -51,7 +51,7 @@ class TestTokenManagementAPI:
             self.AUTH_ENDPOINT,
             data={
                 "username": "testuser",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },  # Test credential only
         )
         token = resp.json().get("access_token")  # Test token only
@@ -84,7 +84,7 @@ class TestTokenManagementAPI:
             self.AUTH_ENDPOINT,
             data={
                 "username": "testuser",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },  # Test credential only
         )
         refresh_token = auth_resp.json().get("refresh_token")  # Test token only
@@ -117,7 +117,7 @@ class TestTokenManagementAPI:
             self.AUTH_ENDPOINT,
             data={
                 "username": "testuser",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },  # Test credential only
         )
         access_token = auth_resp.json()["access_token"]  # Test token only

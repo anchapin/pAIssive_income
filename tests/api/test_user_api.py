@@ -21,7 +21,7 @@ class TestUserAPI:
             json={
                 "username": "newuser",
                 "email": "newuser@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         assert response.status_code == 201
@@ -39,7 +39,7 @@ class TestUserAPI:
             json={
                 "username": "getme",
                 "email": "getme@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -59,7 +59,7 @@ class TestUserAPI:
             json={
                 "username": "updateu",
                 "email": "updateu@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -81,7 +81,7 @@ class TestUserAPI:
             json={
                 "username": "delu",
                 "email": "delu@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         user_id = post_resp.json().get("id")
@@ -117,7 +117,7 @@ class TestUserAPI:
             json={
                 "username": "unique1",
                 "email": "unique@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         # Test data - not real credentials
@@ -126,7 +126,7 @@ class TestUserAPI:
             json={
                 "username": "unique2",
                 "email": "unique@example.com",
-                "password": "StrongPassword123!",  # Test credential only
+                "password": "test-password-123",  # Test credential only
             },
         )
         assert response.status_code in (400, 409, 422)
@@ -138,7 +138,7 @@ class TestUserAPI:
             json={
                 "username": "weakpw",
                 "email": "weakpw@example.com",
-                "password": "123",  # Intentionally weak test password
+                "password": "weak-test-pw",  # Intentionally weak test password
             },
         )
         assert response.status_code in (400, 422)
