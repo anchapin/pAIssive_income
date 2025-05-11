@@ -159,13 +159,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug file paths
-        shell: bash
+        shell: powershell
         run: |
-          echo "Current working directory: $(pwd)"
-          echo "Listing files in current working directory:"
-          ls -la
-          echo "Listing files in ./.github/workflows:"
-          ls -la ./.github/workflows
+          Write-Host "Current working directory: $(Get-Location)"
+          Write-Host "Listing files in current working directory:"
+          Get-ChildItem -Force
+          Write-Host "Listing files in ./.github/workflows:"
+          Get-ChildItem -Path ./.github/workflows -Force
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -173,44 +173,76 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install development dependencies
+        shell: powershell
+        run: pip install -r requirements-dev.txt
+
       - name: Install PyYAML
+        shell: powershell
         run: pip install pyyaml
 
       - name: Install Ruff
+        shell: powershell
         run: pip install ruff
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'npm'
 
-      - name: Check for package-lock.json
+      - name: Verify Python and Node.js Installation
+        shell: powershell
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
+          python --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Python is not installed or not in PATH."
             exit 1
-          fi
-        shell: bash # Using bash for consistency with other checks
+          }
+          node --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Node.js is not installed or not in PATH."
+            exit 1
+          }
 
-      - name: Install Node.js dependencies
+      - name: Check for npm lock file
+        shell: powershell
         run: |
-          cd .
-          npm install
+          if (-not (Test-Path "./package-lock.json")) {
+            Write-Error "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          } else {
+            Write-Host "package-lock.json found."
+          }
+
+      - name: Install Node.js Dependencies
+        shell: powershell
+        run: npm install
+
+      - name: Install Pre-commit Hooks
+        shell: powershell
+        run: |
+          pre-commit install
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Error installing pre-commit hooks."
+            exit 1
+          } else {
+            Write-Host "Pre-commit hooks installed successfully."
+          }
 
       - name: Verify setup script
+        shell: cmd
         run: |
-          if exist "./enhanced_setup_dev_environment.bat" (
+          if exist ".\\enhanced_setup_dev_environment.bat" (
             echo "Setup script exists."
           ) else (
             echo "Error: Setup script not found."
             exit 1
           )
-        shell: cmd
 
-      - name: Run setup script with full profile
-        run: .\enhanced_setup_dev_environment.bat --full --no-system-deps
+      - name: Run Batch Script
         shell: cmd
+        run: .\\enhanced_setup_dev_environment.bat --full
 
   test-macos:
     name: Test on macOS
