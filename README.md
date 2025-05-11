@@ -313,7 +313,7 @@ python fix_linting_issues.py path/to/file1.py path/to/file2.py
 Or run with specific options:
 
 ```bash
-python fix_linting_issues.py --no-isort  # Skip isort
+python fix_linting_issues.py # No isort option needed
 python fix_linting_issues.py --no-ruff   # Skip Ruff linter
 python fix_linting_issues.py --check     # Check only, don't fix
 python fix_linting_issues.py --verbose   # Show detailed output

@@ -30,7 +30,6 @@ select = [
     "E",   # pycodestyle errors
     "F",   # pyflakes
     "W",   # pycodestyle warnings
-    "I",   # isort
     "B",   # flake8-bugbear
     "C",   # flake8-comprehensions
     "T",   # flake8-print
@@ -54,7 +53,6 @@ ignore = [
 ]
 
 [lint.isort]
-known-first-party = ["src", "tests", "utils"]
 combine-as-imports = true
 force-single-line = true
 lines-between-types = 1

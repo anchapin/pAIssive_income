@@ -109,11 +109,6 @@ def parse_arguments() -> argparse.Namespace:
         help="Skip Ruff formatting.",
     )
     parser.add_argument(
-        "--no-isort",
-        action="store_true",
-        help="Skip isort import sorting.",
-    )
-    parser.add_argument(
         "--no-ruff",
         action="store_true",
         help="Skip Ruff linting.",

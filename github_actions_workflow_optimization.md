@@ -41,7 +41,7 @@ We've streamlined and consolidated the GitHub Actions workflows to improve maint
 ### CI Workflow (`ci.yml`)
 
 - **Configurable Execution**: Can run only linting or only tests via workflow dispatch inputs
-- **Comprehensive Linting**: Includes syntax error checks, Ruff, Flake8, Black, isort, and mypy
+- **Comprehensive Linting**: Includes syntax error checks, Ruff, Flake8, Black, and mypy
 - **Efficient Testing**: Uses pytest with coverage reporting and parallel execution
 - **Artifact Upload**: Uploads test results and coverage reports as artifacts
 

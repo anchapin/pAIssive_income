@@ -153,7 +153,7 @@ For detailed setup instructions, please see the [IDE Setup Guide](ide_setup.md).
 
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, isort, ruff, and mypy for code linting, formatting, and type checking:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, ruff, and mypy for code linting, formatting, and type checking:
 
 > **Important Note:**
 > This project uses **Ruff** as the primary code formatter, not Black. Please configure your IDE accordingly (see the [IDE Setup Guide](ide_setup.md) for instructions).
@@ -185,8 +185,6 @@ flake8
 # Format code with Ruff
 ruff format .
 
-# Sort imports
-isort .
 
 # Comprehensive linting with ruff
 ruff check .

@@ -4,7 +4,7 @@
 
 ### Current Toolset Analysis
 - **Ruff**: Handles linting and formatting
-- **Black + isort**: Additional formatting tools
+- **Black**: Additional formatting tools
 - **MyPy**: Type checking
 - **Pre-commit hooks**: Basic file checks
 - **Custom scripts**: Various quality checks through unified management system
@@ -16,13 +16,13 @@ graph TD
     B --> C[Primary: Ruff]
     B --> D[Secondary: MyPy]
     B --> E[Essential Hooks]
-    
+
     C --> C1[Linting]
     C --> C2[Formatting]
     C --> C3[Import Sorting]
-    
+
     D --> D1[Type Checking]
-    
+
     E --> E1[Security Checks]
     E --> E2[Large File Checks]
     E --> E3[Basic Validation]
@@ -36,7 +36,6 @@ graph TD
 
 2. **Remove**
    - Black: Redundant with Ruff's formatter
-   - isort: Redundant with Ruff's import sorting
    - Duplicate file checks from unified system
 
 ## 2. Execution Pipeline Optimization
@@ -50,11 +49,11 @@ graph LR
     C1 --> D1[Type Checking]
     D1 --> E1[Custom Scripts]
     end
-    
+
     subgraph Proposed
     A2[Fast Checks] --> B2[Parallel Execution]
     B2 --> C2[Full CI/CD Checks]
-    
+
     B2 --> D2[Ruff]
     B2 --> E2[MyPy]
     B2 --> F2[Essential Hooks]

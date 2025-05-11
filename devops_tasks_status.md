@@ -10,7 +10,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Combines functionality from multiple existing scripts
    - Fixes syntax errors (missing colons, class definitions, etc.)
    - Fixes formatting issues (trailing whitespace, line endings, etc.)
-   - Runs external tools like Ruff and isort to fix linting issues
+   - Runs external tools like Ruff to fix linting issues
    - Provides command-line options for customizing the fix process
    - Can be run in check-only mode to identify issues without fixing them
    - Replaces the previous scripts which had syntax errors
@@ -148,7 +148,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
 
 2. **Fix Linting Issues** ✅:
    - ✅ Create scripts to fix common linting issues
-   - ✅ Run linting tools like flake8, ruff, and isort to identify style issues
+   - ✅ Run linting tools like flake8 and ruff to identify style issues
    - ✅ Fix formatting issues with tools like Ruff or autopep8
 
 3. **Fix Test Failures** ✅:
@@ -174,7 +174,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixes syntax errors, formatting issues, and linting problems
    - Provides command-line options for customizing the fix process
    - Can be run in check-only mode to identify issues without fixing them
-   - Integrates with external tools like Ruff and isort
+   - Integrates with external tools like Ruff
    - Replaces the previous scripts which had syntax errors
 
 2. Updated CI workflow to use the new comprehensive fix script:
@@ -224,7 +224,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixed all syntax errors automatically
    - Verified that all files pass the `python -m compileall -q . -x ".venv"` check
    - Created a plan for addressing any remaining linting or test issues
-   - Implemented linting checks with flake8, ruff, and isort
+   - Implemented linting checks with flake8 and ruff
    - Created sample test files to verify test collection works
 
 9. Progress summary:

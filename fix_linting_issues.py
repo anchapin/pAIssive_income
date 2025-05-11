@@ -1,8 +1,7 @@
 """fix_linting_issues - Script to fix common linting issues in Python files.
 
-This script automatically fixes common linting issues in Python files using tools like
-isort and Ruff. It can be run on a specific file or on all Python files in the
-project.
+This script automatically fixes common linting issues in Python files using Ruff.
+It can be run on a specific file or on all Python files in the project.
 """
 
 import argparse
@@ -45,28 +44,6 @@ def run_command(command: list[str], _check_mode: bool = False) -> tuple[int, str
     except Exception as e:
         logging.exception(f"Error running command {' '.join(command)}")
         return 1, "", str(e)
-
-
-def run_isort(file_path: str, check_mode: bool = False) -> bool:
-    """Run isort on a Python file.
-
-    Args:
-        file_path: Path to the Python file.
-        check_mode: Whether to run in check mode (don't modify files).
-
-    Returns:
-        True if successful, False otherwise.
-
-    """
-    command: list[str] = ["isort"]
-    if check_mode:
-        command.append("--check")
-    command.append(file_path)
-
-    exit_code, stdout, stderr = run_command(command, check_mode)
-    if exit_code != 0:
-        logging.error(f"isort failed on {file_path}: {stderr}")
-    return exit_code == 0
 
 
 def run_ruff(file_path: str, check_mode: bool = False) -> bool:
@@ -161,14 +138,6 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
     logging.info(f"Fixing {file_path}...")
     success = True
 
-    # Run isort
-    if not args.no_isort:
-        if args.verbose:
-            logging.info(f"Running isort on {file_path}")
-        if not run_isort(file_path, args.check):
-            logging.error(f"isort failed on {file_path}")
-            success = False
-
     # Run Ruff
     if not args.no_ruff:
         if args.verbose:
@@ -199,11 +168,6 @@ def setup_argument_parser() -> argparse.ArgumentParser:
         "--check",
         action="store_true",
         help="Check for issues without fixing them.",
-    )
-    parser.add_argument(
-        "--no-isort",
-        action="store_true",
-        help="Skip isort.",
     )
     parser.add_argument(
         "--no-ruff",

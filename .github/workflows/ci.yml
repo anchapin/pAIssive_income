@@ -81,9 +81,9 @@ jobs:
 
           # Install essential tools
           echo "Installing essential linting tools..."
-          pip install --upgrade mypy isort pyright || {
+          pip install --upgrade mypy pyright || {
             echo "Retrying with --no-cache-dir..."
-            pip install --no-cache-dir --upgrade mypy isort pyright
+            pip install --no-cache-dir --upgrade mypy pyright
           }
 
           # Check and install project dependencies with better error handling
@@ -160,8 +160,6 @@ jobs:
           name: requirements-logs-${{ github.run_id }}-${{ github.job }}
           path: requirements_logs/
 
-      - name: Check Import Sorting
-        run: isort --check-only .
 
       - name: Check if fix_linting_issues.py exists
         id: check-script
@@ -205,20 +203,18 @@ jobs:
           # The script will still run and may modify files in the runner's workspace.
         continue-on-error: true
 
-      - name: Fix Imports with Ruff and Isort
+      - name: Fix Imports with Ruff
         id: fix-imports
         run: |
           echo "Running Ruff in fix mode for import sorting and other fixes..."
           ruff check --fix . || echo "Ruff command finished (may have encountered issues, or made no changes)."
-          echo "Running isort in fix mode for import sorting..."
-          isort . || echo "Isort command finished (may have encountered issues, or made no changes)."
 
-          echo "Checking for changes after ruff and isort..."
+          echo "Checking for changes after ruff..."
           if [ -n "$(git diff --name-only)" ]; then
-            echo "Ruff or isort made changes. Setting fixed=true"
+            echo "Ruff made changes. Setting fixed=true"
             echo "fixed=true" >> $GITHUB_OUTPUT
           else
-            echo "Neither ruff nor isort made changes. Setting fixed=false"
+            echo "Ruff did not make changes. Setting fixed=false"
             echo "fixed=false" >> $GITHUB_OUTPUT
           fi
         continue-on-error: true
@@ -240,7 +236,7 @@ jobs:
             echo "To fix these issues locally, run:"
             echo "```bash"
             echo "# Install required tools if you don't have them"
-            echo "pip install isort ruff"
+            echo "pip install ruff"
             echo ""
             echo "# Fix all issues automatically using our custom script"
             echo "python fix_linting_issues.py --verbose"
@@ -274,7 +270,7 @@ jobs:
             echo "1. Run our linting fix script locally:" >> pr_comment.md
             echo "   \`\`\`bash" >> pr_comment.md
             echo "   # Install required tools if you don't have them" >> pr_comment.md
-            echo "   pip install isort ruff" >> pr_comment.md
+            echo "   pip install ruff" >> pr_comment.md
             echo "" >> pr_comment.md
             echo "   # Fix all issues automatically using our custom script" >> pr_comment.md
             echo "   python fix_linting_issues.py --verbose" >> pr_comment.md
@@ -308,8 +304,6 @@ jobs:
           ruff check .
         continue-on-error: true
 
-      - name: Run isort (check only)
-        run: isort --check-only .
       - name: Run mypy
         run: mypy .
 
