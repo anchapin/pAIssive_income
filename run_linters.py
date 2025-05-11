@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run linters on all Python files except those in node_modules.
 
-This script runs ruff (format and lint) and flake8 on all Python files in the project,
+This script runs ruff (format and lint) on all Python files in the project,
 excluding files in node_modules and other directories specified in
 .gitignore.
 """
@@ -116,31 +116,6 @@ def run_ruff_format(files: list[str], check_only: bool = False) -> bool:
     return True
 
 
-def run_flake8(files: list[str]) -> bool:
-    """Run flake8 on the specified files.
-
-    Args:
-        files: List of files to run flake8 on
-
-    Returns:
-        True if successful, False otherwise
-    """
-    if not files:
-        logger.info("No Python files found to check with flake8")
-        return True
-
-    command = ["flake8"]
-    command.extend(files)
-
-    exit_code, stdout, stderr = run_command(command)
-    if exit_code != 0:
-        logger.error(f"Flake8 failed: {stdout}")
-        return False
-
-    logger.info("Flake8 succeeded")
-    return True
-
-
 def run_ruff(files: list[str], fix: bool = False) -> bool:
     """Run ruff on the specified files.
 
@@ -178,7 +153,7 @@ def main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Run linters on all Python files except those in node_modules"
+        description="Run ruff on all Python files except those in node_modules"
     )
     parser.add_argument(
         "--check-only",
@@ -189,11 +164,6 @@ def main() -> int:
         "--ruff-format-only",
         action="store_true",
         help="Run only ruff format",
-    )
-    parser.add_argument(
-        "--flake8-only",
-        action="store_true",
-        help="Run only flake8",
     )
     parser.add_argument(
         "--ruff-only",
@@ -214,27 +184,14 @@ def main() -> int:
     success = True
 
     # Run ruff format
-    if (
-        not args.flake8_only
-        and not args.ruff_only
-        and not run_ruff_format(
-            python_files, check_only=args.check_only and not args.fix
-        )
-    ):
-        success = False
-
-    # Run flake8
-    if (
-        not args.ruff_format_only
-        and not args.ruff_only
-        and not run_flake8(python_files)
+    if not args.ruff_only and not run_ruff_format(
+        python_files, check_only=args.check_only and not args.fix
     ):
         success = False
 
     # Run ruff lint
     if (
         not args.ruff_format_only
-        and not args.flake8_only
         and not run_ruff(
             python_files, fix=args.fix
         )  # Assuming ruff (lint) might also fix

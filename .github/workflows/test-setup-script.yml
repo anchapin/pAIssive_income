@@ -93,7 +93,8 @@ jobs:
       - name: Install Node.js dependencies (npm)
         run: |
           cd .
-          npm install
+          npm install || { echo "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."; exit 1; }
+        shell: bash
 
       - name: Verify Node.js installation
         run: |
@@ -102,6 +103,24 @@ jobs:
 
       - name: Install PyYAML
         run: pip install pyyaml
+
+      - name: Debug Environment Details
+        shell: bash
+        run: |
+          echo "===== Environment Details ====="
+          echo "Node.js version:"
+          node --version || echo "Node.js not found or 'node --version' failed."
+          echo "npm version:"
+          npm --version || echo "npm not found or 'npm --version' failed."
+          echo "Python version:"
+          python --version || echo "Python not found or 'python --version' failed."
+          echo "pip version:"
+          pip --version || echo "pip not found or 'pip --version' failed."
+          echo "Current working directory:"
+          pwd
+          echo "Listing current directory contents:"
+          ls -la
+          echo "============================="
 
       - name: Make script executable
         run: chmod +x enhanced_setup_dev_environment.sh
@@ -217,7 +236,12 @@ jobs:
 
       - name: Install Node.js Dependencies
         shell: powershell
-        run: npm install
+        run: |
+          npm install
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."
+            exit 1
+          }
 
       - name: Install Pre-commit Hooks
         shell: powershell
@@ -229,6 +253,28 @@ jobs:
           } else {
             Write-Host "Pre-commit hooks installed successfully."
           }
+
+      - name: Debug Environment Details
+        shell: powershell
+        run: |
+          Write-Host "===== Environment Details ====="
+          Write-Host "Node.js version:"
+          node --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "Node.js not found or 'node --version' failed." }
+          Write-Host "npm version:"
+          npm --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "npm not found or 'npm --version' failed." }
+          Write-Host "Python version:"
+          python --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "Python not found or 'python --version' failed." }
+          Write-Host "pip version:"
+          pip --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "pip not found or 'pip --version' failed." }
+          Write-Host "Current working directory:"
+          Get-Location
+          Write-Host "Listing current directory contents:"
+          Get-ChildItem -Force
+          Write-Host "============================="
 
       - name: Verify setup script
         shell: cmd
@@ -295,7 +341,8 @@ jobs:
       - name: Install Node.js dependencies (npm)
         run: |
           cd .
-          npm install
+          npm install || { echo "Failed to install Node.js dependencies. Check for missing or conflicting dependencies."; exit 1; }
+        shell: bash
 
       - name: Verify Node.js installation
         run: |
@@ -304,6 +351,24 @@ jobs:
 
       - name: Install PyYAML
         run: pip install pyyaml
+
+      - name: Debug Environment Details
+        shell: bash
+        run: |
+          echo "===== Environment Details ====="
+          echo "Node.js version:"
+          node --version || echo "Node.js not found or 'node --version' failed."
+          echo "npm version:"
+          npm --version || echo "npm not found or 'npm --version' failed."
+          echo "Python version:"
+          python --version || echo "Python not found or 'python --version' failed."
+          echo "pip version:"
+          pip --version || echo "pip not found or 'pip --version' failed."
+          echo "Current working directory:"
+          pwd
+          echo "Listing current directory contents:"
+          ls -la
+          echo "============================="
 
       - name: Make script executable
         run: chmod +x enhanced_setup_dev_environment.sh

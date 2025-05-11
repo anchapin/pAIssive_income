@@ -456,7 +456,10 @@ def main() -> int:
     # Initialize SARIF report structure
     sarif_report: dict[str, Any] = {
         "version": "2.1.0",
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
+        ),
         "runs": [
             {
                 "tool": {
@@ -469,7 +472,10 @@ def main() -> int:
                                     "text": "Potential sensitive data detected."
                                 },
                                 "fullDescription": {
-                                    "text": "This rule identifies potential hardcoded secrets or sensitive data."
+                                    "text": (
+                                        "This rule identifies potential hardcoded secrets "
+                                        "or sensitive data."
+                                    )
                                 },
                                 "defaultConfiguration": {"level": "error"},
                                 "properties": {"tags": ["security", "correctness"]},

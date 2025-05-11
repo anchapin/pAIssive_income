@@ -48,8 +48,14 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    ```
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
    > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
-   > Install pnpm globally if you haven't already:
-   > `npm install -g pnpm`
+   > To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+   > ```bash
+   > corepack enable
+   > ```
+   > If Corepack is not available, you can install pnpm globally using npm:
+   > ```bash
+   > npm install -g pnpm
+   > ```
 5. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
 
@@ -172,7 +178,14 @@ Running the main script generates a complete project plan including:
 - Python 3.8+
 - Node.js 14.0+ (for modern UI and frontend tests)
 - [pnpm](https://pnpm.io/) (for frontend dependencies)
-  Install globally with: `npm install -g pnpm`
+  To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+  ```bash
+  corepack enable
+  ```
+  If Corepack is not available, you can install pnpm globally using npm:
+  ```bash
+  npm install -g pnpm
+  ```
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting

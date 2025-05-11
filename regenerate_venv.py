@@ -124,8 +124,9 @@ def remove_venv_windows(
                 f"Using temporary directory {temp_venv_dir} for the new virtual environment."
             )
             logging.warning(
-                f"Please manually delete the old {venv_dir} directory and rename {temp_venv_dir} to {os.path.basename(venv_dir)} "
-                + "after closing all applications that might be using the old virtual environment."
+                f"Please manually delete the old {venv_dir} directory and rename "
+                f"{temp_venv_dir} to {os.path.basename(venv_dir)} after closing all "
+                "applications that might be using the old virtual environment."
             )
         except OSError:
             logging.exception(f"Could not create temporary directory {temp_venv_dir}")
@@ -308,8 +309,9 @@ def main() -> int:
     if venv_to_use != venv_dir_path:
         logging.warning(
             f"\nIMPORTANT: The new environment is in {venv_to_use}. "
-            + f"Remember to manually delete the old {os.path.basename(venv_dir_path)} directory and rename "
-            + f"{os.path.basename(venv_to_use)} to {os.path.basename(venv_dir_path)}."
+            f"Remember to manually delete the old {os.path.basename(venv_dir_path)} "
+            f"directory and rename {os.path.basename(venv_to_use)} "
+            f"to {os.path.basename(venv_dir_path)}."
         )
     return 0
 

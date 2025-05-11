@@ -237,13 +237,13 @@ def get_node_version() -> Optional[str]:
     return None
 
 
-def get_npm_version() -> Optional[str]:
-    """Get the installed npm version.
+def get_pnpm_version() -> Optional[str]:
+    """Get the installed pnpm version.
 
     Returns:
-        npm version string or None if not installed
+        pnpm version string or None if not installed
     """
-    exit_code, stdout, _ = run_command(["npm", "--version"])
+    exit_code, stdout, _ = run_command(["pnpm", "--version"])
     if exit_code == 0:
         return stdout.strip()
     return None
@@ -504,18 +504,20 @@ def check_system_dependencies(args: argparse.Namespace) -> bool:
         "Node.js", get_node_version, install_nodejs, args.node_version, args
     )
 
-    # Check npm (no install function as it comes with Node.js)
-    npm_installed = check_dependency("npm", get_npm_version, args=args)
-    if not npm_installed and args.force_install_deps:
+    # Check pnpm (it needs to be installed separately)
+    pnpm_installed = check_dependency(
+        "pnpm", get_pnpm_version, install_func=install_pnpm_globally, args=args
+    )
+    if not pnpm_installed and args.force_install_deps:
         logger.warning(
-            "npm should be installed with Node.js. Please check your installation."
+            "pnpm was not installed. Please check your installation or logs."
         )
 
     # Check Git
     git_installed = check_dependency("Git", get_git_version, install_git, args=args)
 
     # All dependencies must be installed
-    return node_installed and npm_installed and git_installed
+    return node_installed and pnpm_installed and git_installed
 
 
 def load_config_file(config_file: str) -> dict[str, Any]:
@@ -858,20 +860,54 @@ To configure PyCharm for this project:
     return True
 
 
+def install_pnpm_globally() -> bool:
+    """Install pnpm globally using npm."""
+    logger.info("Attempting to install pnpm globally using corepack...")
+    # Modern Node.js versions come with corepack, which can manage pnpm
+    exit_code, stdout, stderr = run_command(["corepack", "enable"])
+    if exit_code != 0:
+        logger.warning(
+            f"Failed to enable corepack: {stderr}. Trying npm install -g pnpm."
+        )
+        # Fallback for older Node or systems without corepack configured
+        exit_code_npm, stdout_npm, stderr_npm = run_command([
+            "npm",
+            "install",
+            "-g",
+            "pnpm",
+        ])
+        if exit_code_npm != 0:
+            logger.error(f"Error installing pnpm globally via npm: {stderr_npm}")
+            return False
+        logger.debug(stdout_npm)
+        logger.info("pnpm installed globally via npm successfully.")
+        return True
+    logger.debug(stdout)
+    logger.info("Corepack enabled. pnpm should now be available.")
+    # Verify pnpm installation after enabling corepack
+    pnpm_version = get_pnpm_version()
+    if pnpm_version:
+        logger.info(f"pnpm is available: {pnpm_version}")
+        return True
+    else:
+        logger.error("pnpm is still not available after enabling corepack.")
+        return False
+
+
 def install_node_dependencies() -> bool:
-    """Install Node.js dependencies.
+    """Install Node.js dependencies using pnpm.
 
     Returns:
         True if successful, False otherwise
     """
-    logger.info("Installing Node.js dependencies...")
+    logger.info("Installing Node.js dependencies using pnpm...")
 
     # Check for package.json in root directory
     if os.path.exists("package.json"):
         logger.info("Found package.json in root directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"])
+        exit_code, stdout, stderr = run_command(["pnpm", "install"])
         if exit_code != 0:
-            logger.error(f"Error installing Node.js dependencies: {stderr}")
+            logger.error(f"Error installing Node.js dependencies with pnpm: {stderr}")
             return False
         logger.debug(stdout)
 
@@ -879,9 +915,11 @@ def install_node_dependencies() -> bool:
     ui_dir = "ui/react_frontend"
     if os.path.exists(os.path.join(ui_dir, "package.json")):
         logger.info(f"Found package.json in {ui_dir} directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"], cwd=ui_dir)
+        exit_code, stdout, stderr = run_command(["pnpm", "install"], cwd=ui_dir)
         if exit_code != 0:
-            logger.error(f"Error installing Node.js dependencies in {ui_dir}: {stderr}")
+            logger.error(
+                f"Error installing Node.js dependencies with pnpm in {ui_dir}: {stderr}"
+            )
             return False
         logger.debug(stdout)
 
@@ -889,10 +927,10 @@ def install_node_dependencies() -> bool:
     sdk_dir = "sdk/javascript"
     if os.path.exists(os.path.join(sdk_dir, "package.json")):
         logger.info(f"Found package.json in {sdk_dir} directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"], cwd=sdk_dir)
+        exit_code, stdout, stderr = run_command(["pnpm", "install"], cwd=sdk_dir)
         if exit_code != 0:
             logger.error(
-                f"Error installing Node.js dependencies in {sdk_dir}: {stderr}"
+                f"Error installing Node.js dependencies with pnpm in {sdk_dir}: {stderr}"
             )
             return False
         logger.debug(stdout)
@@ -923,10 +961,10 @@ def print_enhanced_next_steps() -> None:
         "   pre-commit run --all-files",
         "\n4. Run tests to verify the setup:",
         "   pytest",
-        "   npm test (for UI components)",
+        "   pnpm test (for UI components)",
         "\n5. Start the development server:",
         "   For backend: python -m uvicorn api.main:app --reload",
-        "   For frontend: cd ui/react_frontend && npm start",
+        "   For frontend: cd ui/react_frontend && pnpm start",
         "\nFor more information, see the documentation:",
         "- README.md",
         "- docs/contributing.md",
