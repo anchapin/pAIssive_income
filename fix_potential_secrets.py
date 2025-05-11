@@ -10,11 +10,8 @@ import logging
 import os
 import re
 import sys
-
 from pathlib import Path
-from typing import Any
-from typing import Optional
-from typing import cast
+from typing import Any, Optional, cast
 
 import pathspec  # New import
 

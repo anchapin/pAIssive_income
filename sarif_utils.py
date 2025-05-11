@@ -10,9 +10,7 @@ import json
 import logging
 import os
 import sys
-
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
