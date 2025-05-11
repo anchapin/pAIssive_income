@@ -160,6 +160,9 @@ jobs:
           name: requirements-logs-${{ github.run_id }}-${{ github.job }}
           path: requirements_logs/
 
+      - name: Check Import Sorting
+        run: isort --check-only .
+
       - name: Check if fix_linting_issues.py exists
         id: check-script
         run: |
