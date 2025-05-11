@@ -4,6 +4,15 @@
  * This file exports all validation utilities to make them easier to import.
  */
 
+// Import validators to use in the schemas
+import {
+  validateString,
+  validateEmail,
+  validatePassword,
+  validateNumber,
+  validateArray
+} from './validators';
+
 // Export all validators
 export * from './validators';
 
@@ -130,12 +139,3 @@ export const validationSchemas = {
     })
   }
 };
-
-// Import validators to use in the schemas above
-import {
-  validateString,
-  validateEmail,
-  validatePassword,
-  validateNumber,
-  validateArray
-} from './validators';

@@ -18,9 +18,11 @@ export {
 };
 
 // Default export as an object for named imports
-export default {
+const authComponents = {
   LoginForm,
   RegisterForm,
   ProtectedRoute,
   AuthGuard
 };
+
+export default authComponents;

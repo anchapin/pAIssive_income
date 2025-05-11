@@ -1,59 +1,86 @@
-# Define default exclude patterns for all hooks
-# Using both absolute path pattern and directory name pattern to ensure .venv is fully excluded
-exclude: |
+# Pre-commit configuration optimized for speed and parallel execution
+default_language_version:
+    python: python3
+
+# Optimized exclude patterns
+exclude: &exclude_patterns
   (?x)^(
     \.venv/|
     venv/|
     \.git/|
-    .*\.venv/.*|
-    .*venv/.*
+    node_modules/|
+    .*__pycache__/.*|
+    .*\.pytest_cache/.*|
+    .*\.mypy_cache/.*|
+    .*\.ruff_cache/.*|
+    build/|
+    dist/
   )$
 
-# Add fail_fast: false to continue running hooks even if one fails
+default_stages: [pre-commit]
 fail_fast: false
 
-# Add auto-stage-modified: true to automatically stage files that are modified by hooks
 repos:
+  # Fast validation hooks (run first)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-case-conflict
       - id: check-added-large-files
-      - id: check-ast  # Check Python syntax
-      - id: check-json
-      - id: check-toml
-      - id: debug-statements
-      - id: detect-private-key
+        args: ['--maxkb=1024']
 
+  # Security checks (run early to fail fast)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.25.1
+    hooks:
+      - id: gitleaks
+        name: Detect secrets with Gitleaks
+        entry: gitleaks protect --staged -v --config=.gitleaks.toml --no-banner
+        language: golang
+        pass_filenames: false
+        stages: [pre-commit, pre-merge-commit]
+
+  # Primary code quality tool: Ruff (formatting, linting, import sorting)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.11.9
     hooks:
-      - id: ruff
-        args: [--fix]
       - id: ruff-format
+        name: Format code with Ruff
+        types: [python]
+        files: \.py$
+      - id: ruff
+        name: Lint with Ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
+        files: \.py$
 
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        args: ["--config=pyproject.toml"]
-        language_version: python3
-        exclude: |
-          (?x)(
-            \.venv/|
-            venv/|
-            \.git/|
-            .*\.venv/.*|
-            .*venv/.*
-          )
-
-  # Optional: Add mypy for type checking
+  # Type checking (run after formatting/linting)
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-requests, types-PyYAML]
-        args: ["--ignore-missing-imports", "--install-types", "--non-interactive", "--explicit-package-bases", "--exclude=ai_models/cli/commands/__init__.py"]
-        exclude: "^tests/"  # Exclude tests directory
+        name: Type check with MyPy
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - types-setuptools
+        args: [
+          "--ignore-missing-imports",
+          "--install-types",
+          "--non-interactive",
+          "--explicit-package-bases",
+          "--config-file=mypy.ini",
+          "--cache-dir=.mypy_cache"
+        ]
+
+  # Optimized local hooks for incremental checks
+  - repo: local
+    hooks:
+      - id: incremental-quality
+        name: Run incremental quality checks
+        entry: python scripts/manage_quality.py incremental
+        language: system
+        types: [python]
+        pass_filenames: true
+        stages: [pre-commit]

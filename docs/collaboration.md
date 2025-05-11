@@ -234,7 +234,7 @@ github_integration = integration_manager.add_integration(
     integration_type=IntegrationType.GITHUB,
     name="My GitHub Integration",
     config={
-        "token": "github_token",
+        "token": "your_github_token_here",
         "repository": "username/repo"
     },
     created_by="user123"

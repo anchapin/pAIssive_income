@@ -1,47 +1,35 @@
-# Contributing Guidelines
+# CONTRIBUTING
 
-Thank you for considering a contribution to this project!
+Contribution guidelines and best practices have moved to [docs/contributing.md](docs/contributing.md) in the centralized documentation.
 
-We follow [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) to ensure safe, reliable, and auditable automation. **All contributors must review and follow these guidelines before submitting pull requests.**
+## Testing Standards
 
-## Checklist for Contributors
+To maintain a robust, reliable, and high-quality codebase, all contributions must meet these **testing standards**:
 
-Before submitting your PR, please ensure:
+- **Minimum Coverage:** All code changes must maintain or increase overall test coverage. A minimum of **90% line coverage** is enforced by CI using coverage tools. Any PR that causes coverage to drop below this threshold will fail and cannot be merged.
+- **Coverage Enforcement:** Coverage is enforced in CI via `--cov-fail-under=90`. You must run `python run_tests.py --with-coverage` locally and confirm coverage before submitting a PR.
+- **Test Types:** All new features, bug fixes, or refactors must be accompanied by appropriate **unit** and/or **integration** tests. If your change introduces new paths, add tests for both success and error/failure scenarios.
+- **Edge Cases & Error Handling:** Tests must cover not only typical usage, but also edge cases, boundary conditions, invalid inputs, and error handling. For APIs, include tests for failure modes (e.g., bad requests, unauthorized access, rate limits).
+- **Markers & Organization:** Use `pytest` markers (such as `unit`, `integration`, `slow`, `api`, `security`) as described in `pytest.ini` to organize tests. This allows for selective and efficient test execution.
+- **Test Placement & Structure:** Place new or expanded tests in the appropriate directory under `tests/` (e.g., `tests/api/` for API endpoints, `tests/services/` for services). Follow the structure of existing test files.
+- **Mocking External Dependencies:** In unit tests, mock all external resources (such as databases, APIs, services) to ensure tests are deterministic and reliable.
+- **Test Readability:** Write clear, descriptive test names and docstrings, and structure tests for readability and maintainability.
+- **CI Compliance:** All tests (unit, integration, etc.) must pass in CI, and coverage must meet the threshold. See `.github/workflows/ci.yml` for details of enforcement.
+- **Documentation:** When adding new modules, endpoints, or features, update or add docstrings and relevant documentation (including usage examples or test documentation) as appropriate.
 
-- [ ] This code has explicit, documented inputs and outputs.
-- [ ] All external inputs are validated and sanitized.
-- [ ] Logic is broken into small, testable functions or modules.
-- [ ] All key actions are logged for traceability.
-- [ ] Code is idempotent and resilient to partial failures.
-- [ ] There is a clear path for human override or review.
-- [ ] Security, permissions, and side effects are explicitly handled.
-- [ ] New behaviors are covered by unit/integration tests.
-- [ ] This file/module/class is documented per the best practices guidelines.
-- [ ] The code has been formatted and linted using **Black** and **Ruff** (see below).
+**Summary:**
+Before submitting a PR:
 
-See the full checklist and principles in [claude_coding_best_practices.md](claude_coding_best_practices.md).
+- Ensure your changes are fully tested, including edge/error cases.
+- Run `python run_tests.py --with-coverage` and confirm coverage is **at least 90%**.
+- Ensure your code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
+- Check that all automated tests pass in CI.
 
----
+For questions or clarifications on testing, consult `test_coverage_plan.md`, review existing tests, or ask a maintainer.
 
-## Code Formatting and Linting
+## Pull Request Checklist
 
-Before submitting code, ensure it meets style requirements:
-
-- **Black** and **Ruff** are enforced via pre-commit hooks and CI.
-- Run `pre-commit run --all-files` before pushing to format and lint all code.
-- Manual commands (run from project root):
-
-  ```bash
-  black .
-  ruff check --fix .
-  ```
-
-- See `.pre-commit-config.yaml` for more.
-
-## Pull Requests
-
-- Reference the checklist above in your PR description.
-- Use the checklist as part of your development and review workflow.
-- If you see areas where the repo does not yet meet these standards, please raise an issue or PR.
-
-Thank you for helping us maintain high standards!
+- [ ] My code includes tests covering all new/changed logic and edge/error cases.
+- [ ] I ran `python run_tests.py --with-coverage` and confirmed coverage is ≥90%.
+- [ ] My code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
+- [ ] All automated tests pass in CI.

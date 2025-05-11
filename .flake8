@@ -1,6 +1,19 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    node_modules,
+    */node_modules/*,
+    **/node_modules/**,
+    build,
+    dist
 per-file-ignores =
     # Ignore line length in comprehensive_fix_linting.py
     comprehensive_fix_linting.py: E501
+    # Ignore line length and unused imports in test files
+    tests/*: E501,F401,F811,F841

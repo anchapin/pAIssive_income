@@ -7,7 +7,7 @@ This module provides utilities for rotating secrets.
 import datetime
 import json
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 # Third-party imports
 # Local imports
@@ -25,7 +25,7 @@ class SecretRotation:
     def __init__(
         self,
         rotation_file: Optional[str] = None,
-        secrets_backend: SecretsBackend = SecretsBackend.ENV,
+        secrets_backend: Optional[SecretsBackend] = None,
     ):
         """Initialize the secret rotation utility.
 
@@ -38,8 +38,8 @@ class SecretRotation:
         self.rotation_file = rotation_file or os.environ.get(
             "PAISSIVE_ROTATION_FILE", "secret_rotation.json"
         )
-        self.secrets_backend = secrets_backend
-        self.rotation_data: Dict[str, Dict] = {}
+        self.secrets_backend = secrets_backend or SecretsBackend.ENV
+        self.rotation_data: dict[str, dict] = {}
         self._load_rotation_data()
         logger.info(f"Secret rotation initialized with file: {self.rotation_file}")
 
@@ -57,8 +57,8 @@ class SecretRotation:
             with open(self.rotation_file, encoding="utf-8") as f:
                 self.rotation_data = json.load(f)
             logger.debug(f"Loaded rotation data from {self.rotation_file}")
-        except Exception as e:
-            logger.error(f"Error loading rotation data: {e}")
+        except Exception:
+            logger.exception("Error loading rotation data")
 
     def _save_rotation_data(self) -> None:
         """Save the rotation data to the file."""
@@ -70,8 +70,8 @@ class SecretRotation:
             with open(self.rotation_file, "w", encoding="utf-8") as f:
                 json.dump(self.rotation_data, f, indent=2)
             logger.debug(f"Saved rotation data to {self.rotation_file}")
-        except Exception as e:
-            logger.error(f"Error saving rotation data: {e}")
+        except Exception:
+            logger.exception("Error saving rotation data")
 
     def schedule_rotation(
         self, key: str, interval_days: int, generator_func: Optional[str] = None
@@ -94,7 +94,7 @@ class SecretRotation:
         self._save_rotation_data()
         logger.info(f"Scheduled rotation for {key} every {interval_days} days")
 
-    def get_secrets_due_for_rotation(self) -> List[str]:
+    def get_secrets_due_for_rotation(self) -> list[str]:
         """Get a list of secrets that are due for rotation.
 
         Returns
@@ -154,7 +154,7 @@ class SecretRotation:
         logger.info(f"Rotated secret {key}")
         return True
 
-    def rotate_all_due(self) -> Tuple[int, List[str]]:
+    def rotate_all_due(self) -> tuple[int, list[str]]:
         """Rotate all secrets that are due for rotation.
 
         Returns
