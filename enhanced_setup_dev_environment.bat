@@ -32,9 +32,8 @@ if %ERRORLEVEL% neq 0 (
 REM Check if pnpm is installed
 where pnpm >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Error: pnpm is not installed or not in PATH.
-    echo Please install pnpm, e.g., using "corepack enable" or "npm install -g pnpm".
-    exit /b 1
+    echo Warning: pnpm not found by 'where pnpm' in batch script. Python script will attempt installation if --force-install-deps is used.
+    REM Not exiting here, let Python script handle the installation attempt.
 )
 
 REM Debugging: Log Node.js and pnpm paths
@@ -58,14 +57,7 @@ if %ERRORLEVEL% neq 0 (
     )
 )
 
-REM Check pnpm version (Example: checking for pnpm 8.x or higher, adjust as needed)
-pnpm -v | findstr /R /C:"^[8-9]\." /C:"^[1-9][0-9]\." >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo Warning: pnpm version 8.x or higher is recommended.
-    echo Current pnpm version:
-    pnpm -v
-    REM Not exiting, as older pnpm might still work
-)
+REM pnpm version check is deferred to the Python script, which can also handle installation.
 
 REM Parse command-line arguments
 set ARGS=
