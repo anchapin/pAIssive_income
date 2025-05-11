@@ -10,10 +10,10 @@ import logging
 import os
 import re
 import sys
-from pathlib import Path
-from typing import Any, Optional, cast
 
-import pathspec  # New import
+from pathlib import Path
+from typing import Any
+from typing import cast
 
 # Configure logging
 logging.basicConfig(
@@ -111,96 +111,22 @@ SAFE_REPLACEMENTS = {
     "jwt_token": "your-jwt-token",
 }
 
-# Global variables for gitignore processing
-REPO_ROOT: Optional[str] = None
-GITIGNORE_SPEC: Optional[pathspec.PathSpec] = None
 
-
-def find_repo_root(start_path: str) -> str:
-    """Finds the repository root by looking for .git directory."""
-    current_path = Path(start_path).resolve()
-    original_resolved_start = current_path
-    # Loop upwards until .git is found or filesystem root is reached
-    while True:
-        if (current_path / ".git").is_dir():
-            return str(current_path)
-        parent = current_path.parent
-        if parent == current_path:  # Reached filesystem root
-            break
-        current_path = parent
-    logging.warning(
-        f"Could not find .git directory root starting from {start_path}. "
-        f"Using {original_resolved_start!s} as effective root for .gitignore."
-    )
-    return str(original_resolved_start)
-
-
-def load_gitignore_patterns(repo_root_dir: str) -> Optional[pathspec.PathSpec]:
-    """Loads and parses .gitignore patterns from the repository root."""
-    gitignore_file = Path(repo_root_dir) / ".gitignore"
-    if gitignore_file.is_file():
-        try:
-            with open(gitignore_file, encoding="utf-8", errors="ignore") as f:
-                gitignore_lines = f.readlines()
-            # Filter out empty lines and comments for pathspec
-            gitignore_lines = [
-                line
-                for line in gitignore_lines
-                if line.strip() and not line.strip().startswith("#")
-            ]
-            if gitignore_lines:
-                return pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, gitignore_lines
-                )
-            else:
-                logging.info(
-                    f".gitignore at {gitignore_file} is empty or only comments."
-                )
-        except Exception:
-            logging.exception(
-                f"Error loading or parsing .gitignore at {gitignore_file}"
-            )
-    else:
-        logging.info(
-            f".gitignore not found at {gitignore_file}. No gitignore patterns will be applied from it."
-        )
-    return None
-
-
-def should_exclude(
-    file_path_abs_str: str, path_relative_to_repo_root: Optional[str]
-) -> bool:
+def should_exclude(file_path: str) -> bool:
     """Check if a file or directory should be excluded from scanning."""
-    path_obj_abs = Path(file_path_abs_str)
+    path_obj = Path(file_path)
 
-    # 1. Check against EXCLUDE_DIRS (components of absolute path)
-    for part in path_obj_abs.parts:
+    # Check against EXCLUDE_DIRS
+    for part in path_obj.parts:
         if part in EXCLUDE_DIRS:
-            logging.debug(
-                f"Excluding '{file_path_abs_str}' due to EXCLUDE_DIRS: '{part}'"
-            )
             return True
 
-    # 2. Check against EXCLUDE_FILES (filename from absolute path)
-    filename = path_obj_abs.name
+    # Check against EXCLUDE_FILES
+    filename = path_obj.name
     for pattern in EXCLUDE_FILES:
         if (
             pattern.startswith("*") and filename.endswith(pattern[1:])
         ) or pattern == filename:
-            logging.debug(
-                f"Excluding '{file_path_abs_str}' due to EXCLUDE_FILES: '{pattern}'"
-            )
-            return True
-
-    # 3. New .gitignore check (using path_relative_to_repo_root)
-    if GITIGNORE_SPEC and path_relative_to_repo_root:
-        # pathspec expects paths to be relative to the .gitignore file's location (repo root)
-        # Ensure path_relative_to_repo_root uses '/' for pathspec
-        normalized_relative_path = path_relative_to_repo_root.replace(os.sep, "/")
-        if GITIGNORE_SPEC.match_file(normalized_relative_path):
-            logging.debug(
-                f"Excluding '{file_path_abs_str}' due to .gitignore pattern matching '{normalized_relative_path}'"
-            )
             return True
     return False
 
@@ -217,22 +143,10 @@ def is_example_code(content: str, line: str) -> bool:
         "```javascript",
     ]
     if any(marker in content for marker in code_block_markers):
-        # Further check if the specific line is within a detected code block
-        # This is a simplified check; more robust parsing might be needed for accuracy
-        # For now, if any marker exists in content, assume it could be an example.
-        # A more precise check would involve finding start/end of blocks.
         return True
 
-    example_indicators = [
-        "example",
-        "sample",
-        "demo",
-        "test",
-        "your-",
-        "placeholder",
-        "dummy",
-        "mock",
-    ]
+    # Check for common example indicators
+    example_indicators = ["example", "sample", "demo", "test", "your-", "placeholder"]
     return any(indicator.lower() in line.lower() for indicator in example_indicators)
 
 
@@ -251,11 +165,9 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
                 matches = pattern.findall(line)
                 if matches:
                     for match in matches:
-                        secret_value = (
-                            match[1]
-                            if isinstance(match, tuple) and len(match) > 1
-                            else match
-                        )
+                        # Handle different match formats
+                        # Use ternary operator for cleaner code
+                        secret_value = match[1] if isinstance(match, tuple) else match
 
                         if isinstance(
                             secret_value, tuple
@@ -274,46 +186,57 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
                         # Store length instead of the actual secret value
                         secret_length = len(str(secret_value)) if secret_value else 0
                         results.append((pattern_name, i + 1, secret_length))
+
+        # Results are returned in the else block if no exception occurs
     except Exception:
-        logging.exception(f"Error processing file {file_path}")
         return []
     else:  # TRY300
         return results
 
 
 def validate_file_path(file_path: str) -> str:
-    """Validate and normalize a file path to prevent path traversal attacks."""
-    try:
-        # Resolve symlinks and normalize the path
-        normalized_path = str(Path(file_path).resolve())
-        # Check if it's a file and exists
-        if not Path(normalized_path).is_file():
-            logging.warning(f"Path is not a file or does not exist: {normalized_path}")
-            return ""
-    except Exception:
-        logging.exception(f"Error validating file path {file_path}")
+    """Validate and normalize a file path to prevent path traversal attacks.
+
+    Args:
+        file_path: The file path to validate.
+
+    Returns:
+        The normalized path if valid, empty string otherwise.
+    """
+    normalized_path = os.path.normpath(os.path.abspath(file_path))
+    if not os.path.isfile(normalized_path):
         return ""
-    else:  # TRY300
-        return normalized_path
+    # Explicitly cast to str to satisfy mypy
+    return str(normalized_path)
 
 
-def read_file_content(file_path: str) -> Optional[tuple[str, list[str]]]:
-    """Read file content safely."""
-    try:
-        with open(file_path, encoding="utf-8", errors="ignore") as f:
-            content = f.read()
-            lines = content.splitlines()
-    except Exception:
-        logging.exception(f"Could not read file {file_path}")
-        return None
-    else:  # TRY300
-        return content, lines
+def read_file_content(file_path: str) -> tuple[str, list[str]]:
+    """Read file content safely.
+
+    Args:
+        file_path: Path to the file to read.
+
+    Returns:
+        Tuple of (full content, lines as list).
+    """
+    with open(file_path, encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+        lines = content.splitlines()
+    return content, lines
 
 
-def extract_actual_secrets(  # ARG001: file_path_for_logging removed
+def extract_actual_secrets(
     lines: list[str], content: str
 ) -> list[tuple[str, int, str]]:
-    """Extract actual secrets from file content."""
+    """Extract actual secrets from file content.
+
+    Args:
+        lines: List of lines from the file.
+        content: Full file content.
+
+    Returns:
+        List of tuples (pattern_name, line_index, secret_value).
+    """
     actual_secrets = []
     for i, line in enumerate(lines):
         for pattern_name, pattern in PATTERNS.items():
@@ -322,164 +245,122 @@ def extract_actual_secrets(  # ARG001: file_path_for_logging removed
                 continue
 
             for match in matches:
-                secret_value = (
-                    match[1] if isinstance(match, tuple) and len(match) > 1 else match
-                )
-                if isinstance(secret_value, tuple):
-                    secret_value = secret_value[0] if secret_value else ""
+                # Handle different match formats
+                secret_value = match[1] if isinstance(match, tuple) else match
 
                 if is_example_code(content, line):
-                    # Commented line removed by ERA001 fix
                     continue
 
-                actual_secrets.append((pattern_name, i, str(secret_value)))
+                actual_secrets.append((pattern_name, i, secret_value))
+
     return actual_secrets
 
 
 def apply_replacements(
     lines: list[str], actual_secrets: list[tuple[str, int, str]]
 ) -> bool:
-    """Apply replacements to the lines."""
+    """Apply replacements to the lines.
+
+    Args:
+        lines: List of lines to modify.
+        actual_secrets: List of secrets to replace.
+
+    Returns:
+        True if any replacements were made, False otherwise.
+    """
     modified = False
     for pattern_name, line_index, secret_value in actual_secrets:
         if line_index < len(lines):
             replacement = SAFE_REPLACEMENTS.get(pattern_name, "your-secret-value")
-            # Ensure we replace the specific secret_value found
-            if secret_value in lines[line_index]:
-                lines[line_index] = lines[line_index].replace(secret_value, replacement)
-                modified = True
-            else:
-                logging.warning(
-                    f"Secret '{mask_string(secret_value)}' not found in line {line_index} for replacement. Line content: {lines[line_index]}"
-                )
+            # Replace the actual secret value
+            lines[line_index] = lines[line_index].replace(secret_value, replacement)
+            modified = True
+
     return modified
 
 
 def write_file_with_security(file_path: str, lines: list[str]) -> bool:
-    """Write file content with security measures."""
+    """Write file content with security measures.
+
+    Args:
+        file_path: Path to write to.
+        lines: Lines to write.
+
+    Returns:
+        True if successful, False otherwise.
+    """
     try:
         with open(file_path, "w", encoding="utf-8") as f:
-            # Write lines, ensuring they end with a newline
-            for i, line_content in enumerate(lines):
-                f.write(line_content)
-                if (
-                    i < len(lines) - 1
-                ):  # Avoid adding extra newline at EOF if last line was empty
-                    f.write("\n")
-            if lines and lines[-1]:  # Add newline if last line had content
-                f.write("\n")
+            f.writelines(line + "\n" for line in lines)
 
-        if os.name != "nt":  # Unix-like systems
-            try:
-                os.chmod(file_path, 0o600)
-            except Exception as e_chmod:
-                logging.warning(
-                    f"Could not set secure permissions on {file_path}: {e_chmod}"
-                )
+        # Set restrictive permissions on Unix systems
+        if os.name != "nt":
+            import contextlib
+
+            with contextlib.suppress(Exception):
+                os.chmod(file_path, 0o600)  # rw------- (owner read/write only)
     except Exception:
-        logging.exception(f"Error writing file {file_path}")
         return False
-    else:  # TRY300
+    else:
         return True
 
 
-def fix_secrets_in_file(
-    file_path: str, secrets_metadata: list[tuple[str, int, int]]
-) -> bool:
-    """Fix secrets in a file by replacing them with safe values."""
-    if (
-        not secrets_metadata
-    ):  # secrets_metadata contains (pattern_name, line_num, secret_length)
+def fix_secrets_in_file(file_path: str, secrets: list[tuple[str, int, int]]) -> bool:
+    """Fix secrets in a file by replacing them with safe values.
+
+    Args:
+        file_path: Path to the file to fix.
+        secrets: List of secrets to fix.
+
+    Returns:
+        True if secrets were fixed, False otherwise.
+    """
+    if not secrets:
         return False
 
-    # Commented lines removed by ERA001 fix
-
-    # Read file content
-    read_result = read_file_content(file_path)  # file_path is absolute
-    if read_result is None:
-        return False
-    content, lines = read_result
-
-    # Extract actual secrets to be replaced
-    actual_secrets_to_replace = extract_actual_secrets(
-        lines, content
-    )  # ARG001: file_path_for_logging removed
-    if not actual_secrets_to_replace:
-        logging.info(
-            f"No actionable secrets found for replacement in {file_path} after example checks."
-        )
-        return False
-
-    # Apply replacements
-    modified = apply_replacements(lines, actual_secrets_to_replace)
-
-    if modified:
-        logging.info(f"Fixing secrets in {file_path}")
-        if write_file_with_security(file_path, lines):
-            logging.info(f"Successfully fixed secrets in {file_path}")
-            return True
-        else:
-            logging.error(f"Failed to write fixes to {file_path}")
+    try:
+        # Validate the file path
+        normalized_path = validate_file_path(file_path)
+        if not normalized_path:
             return False
-    return False
+
+        # Read file content
+        content, lines = read_file_content(normalized_path)
+
+        # Extract actual secrets
+        actual_secrets = extract_actual_secrets(lines, content)
+
+        # Apply replacements
+        modified = apply_replacements(lines, actual_secrets)
+
+        # Write file if modified
+        if modified:
+            return write_file_with_security(normalized_path, lines)
+    except Exception:
+        return False
+    else:
+        # If no modifications were made
+        return False
 
 
-def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:  # noqa: C901
+def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:
     """Scan a directory recursively for potential secrets."""
     results = {}
-    global REPO_ROOT, GITIGNORE_SPEC  # noqa: PLW0603
-
-    current_scan_path_abs = str(Path(directory).resolve())
-
-    if REPO_ROOT is None:
-        REPO_ROOT = find_repo_root(current_scan_path_abs)
-        logging.info(f"Determined repository root: {REPO_ROOT}")
-    if GITIGNORE_SPEC is None:
-        GITIGNORE_SPEC = load_gitignore_patterns(REPO_ROOT)
-
-    for root, dirs, files in os.walk(current_scan_path_abs, topdown=True):
-        # Filter dirs in place using EXCLUDE_DIRS. .gitignore will handle more specific nested ignores.
-        # This broad exclusion is for os.walk performance.
-        dirs[:] = [
-            d
-            for d in dirs
-            if d not in EXCLUDE_DIRS and not (Path(root) / d / ".git").is_dir()
-        ]
+    for root, dirs, files in os.walk(directory, topdown=True):
+        # Filter dirs in place
+        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
 
         for file_name in files:
-            file_path_abs_str = str(Path(root) / file_name)
-            path_relative_to_repo_root_str = None
-
-            if REPO_ROOT:  # Only try to make relative if REPO_ROOT was found
-                try:
-                    path_relative_to_repo_root_str = str(
-                        Path(file_path_abs_str).relative_to(REPO_ROOT)
-                    )
-                except ValueError:
-                    logging.debug(
-                        f"File {file_path_abs_str} is outside the determined repo root {REPO_ROOT}. "
-                        ".gitignore from repo root may not apply."
-                    )
-
-            if should_exclude(file_path_abs_str, path_relative_to_repo_root_str):
+            file_path = os.path.join(root, file_name)
+            if should_exclude(file_path):
                 continue
 
-            if not is_text_file(file_path_abs_str):
+            if not is_text_file(file_path):
                 continue
 
-            # Validate file path before finding secrets
-            validated_path = validate_file_path(file_path_abs_str)
-            if not validated_path:
-                logging.warning(
-                    f"Skipping invalid or non-existent file: {file_path_abs_str}"
-                )
-                continue
-
-            secrets = find_potential_secrets(
-                validated_path
-            )  # Pass absolute, validated path
+            secrets = find_potential_secrets(file_path)
             if secrets:
-                results[validated_path] = secrets  # Store with absolute, validated path
+                results[file_path] = secrets
     return results
 
 
@@ -567,169 +448,31 @@ def is_text_file(file_path: str) -> bool:
     return file_path_obj.suffix.lower() in text_extensions
 
 
-def main() -> int:  # noqa: C901, PLR0912
+def main() -> int:
     """Scan for and fix potential secrets."""
-    directory_to_scan = "."
-    scan_only_mode = "--scan-only" in sys.argv  # Check if --scan-only is passed
+    # Define the output file for the SARIF report
+    output_file = "secrets.sarif.json"
 
-    # Basic argument parsing for directory if provided
-    # More robust parsing is in fix_security_issues.py
-    args_iter = iter(sys.argv[1:])
-    for arg in args_iter:
-        if arg == "--scan-only":
-            continue  # Already handled
-        elif arg == "--exclude":
-            try:
-                # This script doesn't directly use --exclude from its own args,
-                # it's passed by fix_security_issues.py to its own run_security_scan
-                # For standalone run, EXCLUDE_DIRS is used.
-                next(args_iter)  # Consume the value for exclude
-            except StopIteration:
-                logging.exception("--exclude requires a value")
-                return 1
-        elif not arg.startswith("--"):
-            directory_to_scan = arg
-            break  # Assume first non-option arg is directory
-
-    logging.info(f"Starting secret scan in directory: {directory_to_scan}")
-    if scan_only_mode:
-        logging.info("Running in scan-only mode. No files will be modified.")
-
-    results = scan_directory(directory_to_scan)
-
-    if not results:
-        logging.info("No potential secrets found.")
-        # Output an empty SARIF if in scan_only mode and fix_security_issues.py expects it
-        if scan_only_mode and "fix_security_issues.py" in sys.argv[0]:  # Heuristic
-            generate_empty_sarif("security-report.sarif")
-        return 0
-
-    # The sum of secrets and count of files are no longer logged directly at INFO level
-    # to address CodeQL py/clear-text-logging-sensitive-data alert.
-    # The 'if not results:' block handles the 'no secrets found' case.
-    # This message indicates that results were found and are being processed.
-    logging.info("Potential secrets scan complete. Processing results.")
-
-    fixed_files_count = 0
-    successfully_processed_files = 0
-
-    if not scan_only_mode:
-        for file_path, secrets_in_file in results.items():
-            if fix_secrets_in_file(file_path, secrets_in_file):  # file_path is absolute
-                fixed_files_count += 1
-            successfully_processed_files += (
-                1  # Count even if no fix was made but processed
-            )
-        logging.info(
-            f"Attempted to fix secrets. {fixed_files_count} files were modified."
-        )
-    else:
-        # In scan-only mode, just report what was found
-        for file_path, secrets_in_file in results.items():
-            logging.info(f"File: {safe_log_file_path(file_path)}")
-            for pattern_name, line_num, _ in secrets_in_file:
-                logging.info(safe_log_sensitive_info(pattern_name, line_num))
-
-    # SARIF report generation (typically handled by fix_security_issues.py)
-    # If this script is run directly and scan_only, it might output its own SARIF.
-    # The main() in fix_security_issues.py calls its own generate_sarif_report.
-    # This script's main() also has SARIF generation logic. We should ensure only one is active
-    # or they output to different files if both are needed.
-    # For now, let's assume fix_security_issues.py handles the final SARIF.
-    # However, if this script is run standalone, its SARIF generation is useful.
-
-    # If this script is called by fix_security_issues.py, it might output JSON for it to consume.
-    # The subprocess call in fix_security_issues.py expects JSON if import fails.
-    if (
-        not scan_only_mode and "fix_security_issues.py" not in sys.argv[0]
-    ):  # If run standalone and not scan_only
-        logging.info("Standalone run (not scan-only): Fixes applied.")
-
-    # If called by fix_security_issues.py via subprocess, it should output JSON
-    # This part is tricky because the script has dual use.
-    # Let's assume if not imported (IMPORTER_SECRET_SCANNER is False in fix_security_issues.py),
-    # then this script's stdout is captured.
-    # The current main() in this script doesn't print JSON to stdout.
-    # It generates a SARIF file directly.
-
-    total_secrets_found = sum(len(s) for s in results.values())
-
-    # Let's refine the return logic.
-    # If fixes were attempted, success means all found items in all files were addressed.
-    # This is hard to measure perfectly without knowing if every single secret instance was replaceable.
-    # A simpler metric: if any file was modified, it implies fixes happened.
-    if not scan_only_mode:
-        return 0 if fixed_files_count > 0 or total_secrets_found == 0 else 1
-    else:  # scan_only_mode
-        # For scan_only, return 0 if no secrets, or if it's just reporting.
-        # The GitHub action might use the SARIF for pass/fail.
-        # If fix_security_issues.py uses this script's SARIF, then its content matters.
-        # The SARIF generation in this script's main:
-        try:
-            # This SARIF generation was outside scan_only_mode check.
-            # It should probably only run if this script is the main one generating the report.
-            # Let's assume fix_security_issues.py handles the SARIF if it calls this.
-            # If run standalone:
-            if (
-                "fix_security_issues.py" not in sys.argv[0]
-            ):  # A bit of a hack to check caller
-                generate_sarif_from_results(
-                    results, "fix_potential_secrets_report.sarif"
-                )
-                logging.info(
-                    "Standalone SARIF report generated: fix_potential_secrets_report.sarif"
-                )
-
-        except Exception:
-            logging.exception("Error generating standalone SARIF report")  # TRY401
-            return 1  # Error in reporting
-
-    return 0  # Default to success for scan_only if it reaches here.
-
-
-def generate_empty_sarif(output_file: str) -> None:
-    """Generates an empty SARIF report."""
-    base = "https://raw.githubusercontent.com/"
-    org = "oasis-tcs/sarif-spec/"
-    path = "master/Schemata/sarif-schema-2.1.0.json"
-    schema_url = base + org + path
+    # Initialize SARIF report structure
     sarif_report: dict[str, Any] = {
-        "$schema": schema_url,
         "version": "2.1.0",
-        "runs": [{"tool": {"driver": {"name": "SecretScanner"}}, "results": []}],
-    }
-    try:
-        with open(output_file, "w") as f:
-            json.dump(sarif_report, f, indent=2)
-        logging.info(f"Empty SARIF report saved to {output_file}")
-    except Exception:
-        logging.exception("Error writing empty SARIF report")  # TRY401
-
-
-def generate_sarif_from_results(
-    results: dict[str, list[tuple[str, int, int]]], output_file: str
-) -> None:
-    """Generates SARIF report from results."""
-    base = "https://raw.githubusercontent.com/"
-    org = "oasis-tcs/sarif-spec/"
-    path = "master/Schemata/sarif-schema-2.1.0.json"
-    schema_url = base + org + path
-    sarif_report: dict[str, Any] = {
-        "$schema": schema_url,
-        "version": "2.1.0",
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         "runs": [
             {
                 "tool": {
                     "driver": {
-                        "name": "SecretScanner (fix_potential_secrets.py)",
-                        "informationUri": "https://github.com/anchapin/pAIssive_income",  # Placeholder
+                        "name": "Secret Scanner",
                         "rules": [
                             {
-                                "id": "custom-secret-detection",
+                                "id": "secret-detection",
                                 "shortDescription": {
-                                    "text": "Detects hardcoded secrets using custom patterns."
+                                    "text": "Potential sensitive data detected."
+                                },
+                                "fullDescription": {
+                                    "text": "This rule identifies potential hardcoded secrets or sensitive data."
                                 },
                                 "defaultConfiguration": {"level": "error"},
+                                "properties": {"tags": ["security", "correctness"]},
                             }
                         ],
                     }
@@ -738,34 +481,58 @@ def generate_sarif_from_results(
             }
         ],
     }
-    sarif_results_list = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
-    for file_path, secrets_in_file in results.items():
-        safe_file_uri = Path(file_path).as_uri()  # SARIF expects URI
-        for pattern_name, line_num, _secret_length in secrets_in_file:
-            sarif_results_list.append({
-                "ruleId": "custom-secret-detection",  # Could be pattern_name for more specific rule IDs
-                "level": "error",  # Or "warning" depending on confidence
-                "message": {
-                    "text": f"Potential hardcoded secret: '{pattern_name}' detected."
-                },
+
+    directory = "."  # Default to current directory
+    if len(sys.argv) > 1:
+        directory = sys.argv[1]
+
+    results = scan_directory(directory)
+
+    if not results:
+        return 0
+
+    total_secrets = 0
+    fixed_files = 0
+
+    for file_path, secrets in results.items():
+        total_secrets += len(secrets)
+
+        # Fix secrets in the file
+        if fix_secrets_in_file(file_path, secrets):
+            fixed_files += 1
+
+    # Add results to SARIF report without including sensitive data
+    sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
+    for file_path, secrets in results.items():
+        # Use a safe file path in the report
+        safe_file_path = safe_log_file_path(file_path)
+        for pattern_name, line_num, _secret_length in secrets:
+            # Create a generic message that doesn't include length or other metadata
+            sarif_results.append({
+                "ruleId": "secret-detection",
+                "level": "error",
+                "message": {"text": "Potential sensitive data detected"},
                 "locations": [
                     {
                         "physicalLocation": {
-                            "artifactLocation": {"uri": safe_file_uri},
+                            "artifactLocation": {"uri": safe_file_path},
                             "region": {"startLine": line_num},
                         }
                     }
                 ],
                 "properties": {
                     "securitySeverity": "high",
-                    "pattern_type": pattern_name,
+                    "type": pattern_name,
                 },
             })
+
     try:
         with open(output_file, "w") as f:
             json.dump(sarif_report, f, indent=2)
     except Exception:
-        logging.exception(f"Error writing SARIF report to {output_file}")  # TRY401
+        pass
+
+    return 0 if fixed_files == len(results) else 1
 
 
 if __name__ == "__main__":

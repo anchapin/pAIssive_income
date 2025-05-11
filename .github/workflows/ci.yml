@@ -175,7 +175,6 @@ jobs:
         if: steps.check-script.outputs.script_exists == 'true'
         run: |
           echo "Running fix_linting_issues.py..."
-
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

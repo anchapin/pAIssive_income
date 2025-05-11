@@ -353,4 +353,3 @@ The project includes comprehensive API documentation that can be built from sour
 
    ```bash
    python generate_api_docs.py
-   ```

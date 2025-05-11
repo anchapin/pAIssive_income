@@ -5,7 +5,9 @@ This module provides a file-based backend for secrets management.
 
 # Standard library imports
 import os
-from typing import Any, Optional
+
+from typing import Any
+from typing import Optional
 
 # Third-party imports
 # Local imports

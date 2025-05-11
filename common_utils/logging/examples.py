@@ -6,7 +6,8 @@ to prevent sensitive information from being logged in clear text.
 
 import logging
 
-from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger
+from common_utils.logging.secure_logging import mask_sensitive_data
 
 # Create a default logger instance
 logger = get_secure_logger("examples")
