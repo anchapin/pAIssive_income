@@ -129,3 +129,6 @@ example_project_plan.json
 Thumbs.db
 node_modules
 .aider*
+
+# Playwright reports
+ui/react_frontend/playwright-report/

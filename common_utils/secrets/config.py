@@ -6,9 +6,7 @@ This module provides a configuration manager that can handle secret references.
 # Standard library imports
 import json
 import os
-
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 # Third-party imports
 # Local imports

@@ -15,11 +15,8 @@ import signal
 import subprocess
 import sys
 import time
-
 from pathlib import Path
-from typing import Any
-from typing import Optional
-from typing import cast
+from typing import Any, Optional, cast
 
 # Maximum time to wait for any single check
 TIMEOUT_SECONDS = 300
@@ -191,11 +188,14 @@ async def run_command_async(
 
 async def run_checks(files: set[Path]) -> list[CheckResult]:
     """Run all checks in parallel with optimal resource usage."""
+    python_executable = sys.executable
     checks = [
-        ("ruff", ["ruff", "check", "--fix"]),
+        ("ruff", [python_executable, "-m", "ruff", "check", "--fix"]),
         (
             "mypy",
             [
+                python_executable,
+                "-m",
                 "mypy",
                 "--ignore-missing-imports",
                 "--install-types",

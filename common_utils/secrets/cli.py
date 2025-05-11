@@ -12,9 +12,7 @@ import sys
 import time
 
 from secrets import compare_digest
-from typing import Any
-from typing import Callable
-from typing import Optional
+from typing import Any, Callable, Optional
 
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger
@@ -22,11 +20,7 @@ from common_utils.logging.secure_logging import mask_sensitive_data
 
 from .audit import SecretsAuditor
 from .rotation import SecretRotation
-from .secrets_manager import SecretsBackend
-from .secrets_manager import delete_secret
-from .secrets_manager import get_secret
-from .secrets_manager import list_secrets
-from .secrets_manager import set_secret
+from .secrets_manager import SecretsBackend, delete_secret, get_secret, list_secrets, set_secret
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)

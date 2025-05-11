@@ -3,9 +3,7 @@
 import os
 import tempfile
 import unittest
-
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -129,6 +127,7 @@ class TestSecurityFixes(unittest.TestCase):
                 if msg.startswith("  Secret #"):
                     assert len(msg) > min_hash_length, (
                         f"Secret hash should be longer than {min_hash_length} characters"
+                        # Test data - not a real credential
                     )
 
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)

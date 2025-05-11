@@ -11,8 +11,7 @@ import re
 import uuid
 
 from datetime import datetime
-from typing import Optional
-from typing import cast
+from typing import Optional, cast
 
 # Third-party imports
 from cryptography.fernet import Fernet

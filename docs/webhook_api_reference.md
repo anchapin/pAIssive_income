@@ -85,7 +85,7 @@ Creates a new webhook subscription.
   "is_active": true,
   "created_at": "2025-04-30T21:30:00Z",
   "last_called_at": null,
-  "secret": "whsec_abcdefghijklmnopqrstuvwxyz"
+  "secret": "whsec_example_secret_string_12345"
 }
 ```
 
@@ -123,7 +123,7 @@ Returns a list of all webhooks for your account.
       "is_active": true,
       "created_at": "2025-04-30T21:30:00Z",
       "last_called_at": "2025-04-30T22:15:00Z",
-      "secret": "whsec_abcdefghijklmnopqrstuvwxyz"
+      "secret": "whsec_example_secret_string_12345"
     }
   ],
   "total": 1,
@@ -161,7 +161,7 @@ Returns details for a specific webhook.
   "is_active": true,
   "created_at": "2025-04-30T21:30:00Z",
   "last_called_at": "2025-04-30T22:15:00Z",
-  "secret": "whsec_abcdefghijklmnopqrstuvwxyz"
+  "secret": "whsec_example_secret_string_12345"
 }
 ```
 
@@ -211,7 +211,7 @@ All fields are optional. Only include the fields you want to update.
   "is_active": true,
   "created_at": "2025-04-30T21:30:00Z",
   "last_called_at": "2025-04-30T22:15:00Z",
-  "secret": "whsec_abcdefghijklmnopqrstuvwxyz"
+  "secret": "whsec_example_secret_string_12345"
 }
 ```
 
@@ -484,7 +484,7 @@ If you need higher limits, please contact our support team.
 ```json
 {
   "webhook_id": "webhook-123",
-  "new_secret": "whsec_newSecretKey123",
+  "new_secret": "whsec_example_new_secret_key_67890",
   "old_secret_expiry": "2025-05-07T22:15:00Z"
 }
 ```

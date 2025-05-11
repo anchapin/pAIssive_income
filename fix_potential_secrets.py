@@ -49,9 +49,36 @@ PATTERNS = {
     ),
 }
 
-# Directories and files to exclude
+
+def mask_string(
+    value: str,
+    visible_prefix_len: int = 3,
+    visible_suffix_len: int = 3,
+    min_len_to_mask: int = 8,
+) -> str:
+    """
+    Masks a string, showing a prefix and suffix if long enough,
+    otherwise masks it more completely.
+    """
+    s_value = str(value) if not isinstance(value, str) else value
+
+    # If string is too short to meaningfully show prefix/suffix, or if prefix+suffix is too large
+    if len(s_value) < min_len_to_mask or (
+        visible_prefix_len + visible_suffix_len >= len(s_value) and len(s_value) > 0
+    ):
+        return "*" * len(s_value) if len(s_value) > 0 else ""
+
+    prefix = s_value[:visible_prefix_len]
+    suffix = s_value[-visible_suffix_len:]
+    # Calculate number of asterisks, ensuring it's not negative
+    num_asterisks = max(0, len(s_value) - visible_prefix_len - visible_suffix_len)
+
+    return f"{prefix}{'*' * num_asterisks}{suffix}"
+
+
+# Directories and files to exclude (these are fallback, .gitignore is primary)
 EXCLUDE_DIRS = {
-    ".git",
+    # ".git" is implicitly handled by find_repo_root and os.walk
     ".venv",
     "venv",
     "__pycache__",
@@ -63,8 +90,8 @@ EXCLUDE_DIRS = {
     ".ruff_cache",
 }
 EXCLUDE_FILES = {
-    ".gitignore",
-    ".dockerignore",
+    # ".gitignore" is read, not excluded from scan itself
+    ".dockerignore",  # Example: if you want to parse this too, add logic
     "*.pyc",
     "*.pyo",
     "*.pyd",
@@ -85,29 +112,27 @@ SAFE_REPLACEMENTS = {
 }
 
 
-def should_exclude(path: str) -> bool:
+def should_exclude(file_path: str) -> bool:
     """Check if a file or directory should be excluded from scanning."""
-    path_parts = Path(path).parts
+    path_obj = Path(file_path)
 
-    # Check if any part of the path matches excluded directories
-    for part in path_parts:
+    # Check against EXCLUDE_DIRS
+    for part in path_obj.parts:
         if part in EXCLUDE_DIRS:
             return True
 
-    # Check file extensions and names
-    filename = Path(path).name
+    # Check against EXCLUDE_FILES
+    filename = path_obj.name
     for pattern in EXCLUDE_FILES:
         if (
             pattern.startswith("*") and filename.endswith(pattern[1:])
         ) or pattern == filename:
             return True
-
     return False
 
 
 def is_example_code(content: str, line: str) -> bool:
     """Check if the line is part of example code or documentation."""
-    # Check if line is in a code block in markdown or rst
     code_block_markers = [
         "```",
         "~~~",
@@ -127,12 +152,8 @@ def is_example_code(content: str, line: str) -> bool:
 
 def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
     """Find potential secrets in a file.
-
-    Returns a list of tuples: (pattern_name, line_number, secret_length)
+    Assumes file_path is absolute and has already been vetted by should_exclude.
     """
-    if should_exclude(file_path):
-        return []
-
     try:
         with open(file_path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
@@ -148,20 +169,29 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
                         # Use ternary operator for cleaner code
                         secret_value = match[1] if isinstance(match, tuple) else match
 
-                        # Skip if this is clearly an example
-                        if is_example_code(content, line):
-                            continue
+                        if isinstance(
+                            secret_value, tuple
+                        ):  # If regex captures multiple groups but we only want one
+                            secret_value = secret_value[0] if secret_value else ""
+
+                        # SIM102: Combine nested if statements
+                        if is_example_code(content, line) and any(
+                            safe_val.lower() in str(secret_value).lower()
+                            for safe_val in SAFE_REPLACEMENTS.values()
+                        ):
+                            continue  # It's a known safe replacement value
+                        # If it's in an example context but not a known safe value, it might still be a finding
+                        # For now, let's be more aggressive in examples (commented lines below removed by ERA001 fix)
 
                         # Store length instead of the actual secret value
-                        secret_length = len(secret_value) if secret_value else 0
-                        # Don't include the actual line content in the results
+                        secret_length = len(str(secret_value)) if secret_value else 0
                         results.append((pattern_name, i + 1, secret_length))
 
-        # Return the results
-        if True:  # This ensures the return is not directly in the try block
-            return results
+        # Results are returned in the else block if no exception occurs
     except Exception:
         return []
+    else:  # TRY300
+        return results
 
 
 def validate_file_path(file_path: str) -> str:
@@ -316,53 +346,58 @@ def fix_secrets_in_file(file_path: str, secrets: list[tuple[str, int, int]]) -> 
 def scan_directory(directory: str) -> dict[str, list[tuple[str, int, int]]]:
     """Scan a directory recursively for potential secrets."""
     results = {}
-
-    for root, dirs, files in os.walk(directory):
-        # Skip excluded directories
+    for root, dirs, files in os.walk(directory, topdown=True):
+        # Filter dirs in place
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
 
-        for file in files:
-            file_path = os.path.join(root, file)
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
             if should_exclude(file_path):
                 continue
 
-            # Only scan text files
             if not is_text_file(file_path):
                 continue
 
             secrets = find_potential_secrets(file_path)
             if secrets:
                 results[file_path] = secrets
-
     return results
 
 
 def safe_log_sensitive_info(pattern_name: str, line_num: int) -> str:
-    """Log sensitive data info without exposing content.
-
-    Only reports the type of sensitive data and general location,
-    with no data about the actual sensitive content.
-    """
-    # Use more generic descriptions for the pattern type
+    """Log sensitive data info without exposing content."""
     sanitized_pattern = pattern_name.replace("_", " ").capitalize()
-
-    # Create a safe log message that doesn't include any information about the secret
     return f"  Line {line_num}: Potential {sanitized_pattern} - [REDACTED]"
 
 
 def safe_log_file_path(file_path: str) -> str:
     """Safely log file path without exposing potentially sensitive path information."""
-    # Check if the file path contains any sensitive keywords
     sensitive_keywords = ["secret", "password", "token", "key", "credential", "auth"]
     path_parts = Path(file_path).parts
+    # Create a new list of parts to avoid modifying path_parts during iteration if it were mutable
+    new_path_parts = list(path_parts)
 
-    for part in path_parts:
+    for i, part in enumerate(path_parts):
         for keyword in sensitive_keywords:
             if keyword.lower() in part.lower():
-                # Redact the sensitive part of the path
-                return file_path.replace(part, "[REDACTED]")
+                new_path_parts[i] = "[REDACTED_PATH_COMPONENT]"
+                # No break here, redact all sensitive components
 
-    return file_path
+    # Reconstruct the path using os.path.join for OS compatibility
+    # If it was an absolute path, the first part might be empty (for /) or a drive letter.
+    if Path(file_path).is_absolute():
+        # For absolute paths, the first part might be the root or drive.
+        # Path.parts on Windows for 'C:\foo' gives ('C:\\', 'foo').
+        # Path.parts on Linux for '/foo' gives ('/', 'foo').
+        # We need to handle this to reconstruct correctly.
+        if new_path_parts[0] == os.sep or (
+            os.name == "nt" and new_path_parts[0].endswith(os.sep)
+        ):
+            return str(os.path.join(new_path_parts[0], *new_path_parts[1:]))
+        else:  # Should not happen for absolute paths from Path.parts
+            return str(os.path.join(*new_path_parts))
+
+    return str(os.path.join(*new_path_parts))
 
 
 def is_text_file(file_path: str) -> bool:
@@ -390,14 +425,64 @@ def is_text_file(file_path: str) -> bool:
         ".svg",
         ".jsx",
         ".tsx",
+        ".env",
+        ".properties",
+        ".log",
+        # Add other common text file extensions
     }
+    # Also check for files with no extension, common for config files
+    file_path_obj = Path(file_path)
+    if not file_path_obj.suffix:  # Files like 'Dockerfile', 'Makefile', 'LICENSE'
+        # Basic check: try to read a small part, if it decodes, assume text.
+        # This is imperfect but better than just extension for extensionless files.
+        try:
+            with open(file_path_obj, "rb") as f:
+                f.read(1024).decode("utf-8")
+        except UnicodeDecodeError:
+            return False
+        except Exception:  # Other read errors
+            return False  # If we can't read it, can't scan it
+        else:  # TRY300
+            return True
 
-    return Path(file_path).suffix.lower() in text_extensions
+    return file_path_obj.suffix.lower() in text_extensions
 
 
 def main() -> int:
     """Scan for and fix potential secrets."""
-    directory = "."
+    # Define the output file for the SARIF report
+    output_file = "secrets.sarif.json"
+
+    # Initialize SARIF report structure
+    sarif_report: dict[str, Any] = {
+        "version": "2.1.0",
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "Secret Scanner",
+                        "rules": [
+                            {
+                                "id": "secret-detection",
+                                "shortDescription": {
+                                    "text": "Potential sensitive data detected."
+                                },
+                                "fullDescription": {
+                                    "text": "This rule identifies potential hardcoded secrets or sensitive data."
+                                },
+                                "defaultConfiguration": {"level": "error"},
+                                "properties": {"tags": ["security", "correctness"]},
+                            }
+                        ],
+                    }
+                },
+                "results": [],
+            }
+        ],
+    }
+
+    directory = "."  # Default to current directory
     if len(sys.argv) > 1:
         directory = sys.argv[1]
 
@@ -415,50 +500,6 @@ def main() -> int:
         # Fix secrets in the file
         if fix_secrets_in_file(file_path, secrets):
             fixed_files += 1
-
-    # Generate a SARIF report for CI integration
-    # Build URL in parts to avoid line length issues
-    base = "https://raw.githubusercontent.com/"
-    org = "oasis-tcs/sarif-spec/"
-    path = "master/Schemata/sarif-schema-2.1.0.json"
-    schema_url = base + org + path
-
-    # Configure SARIF report
-    sarif_report: dict[str, Any] = {
-        "$schema": schema_url,
-        "version": "2.1.0",
-        "runs": [
-            {
-                "tool": {
-                    "driver": {
-                        "name": "SecretScanner",
-                        "informationUri": (
-                            "https://github.com/anchapin/pAIssive_income"
-                        ),
-                        "rules": [
-                            {
-                                "id": "secret-detection",
-                                "shortDescription": {
-                                    "text": "Detect hardcoded secrets"
-                                },
-                                "fullDescription": {
-                                    "text": (
-                                        "Identifies hardcoded credentials, "
-                                        "tokens, and other secrets in code"
-                                    )
-                                },
-                                "helpUri": (
-                                    "https://github.com/anchapin/pAIssive_income"
-                                ),
-                                "defaultConfiguration": {"level": "error"},
-                            }
-                        ],
-                    }
-                },
-                "results": [],
-            }
-        ],
-    }
 
     # Add results to SARIF report without including sensitive data
     sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
@@ -486,7 +527,7 @@ def main() -> int:
             })
 
     try:
-        with open("security-report.sarif", "w") as f:
+        with open(output_file, "w") as f:
             json.dump(sarif_report, f, indent=2)
     except Exception:
         pass
@@ -495,4 +536,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # This script can be run standalone or be imported by fix_security_issues.py
+    # If run standalone, its main() is executed.
+    # If imported, fix_security_issues.py calls scan_directory().
+    # The sys.exit is important for standalone execution.
     sys.exit(main())

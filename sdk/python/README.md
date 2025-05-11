@@ -112,13 +112,13 @@ print(result)
 user = client.user.register({
     "username": "john_doe",
     "email": "john.doe@example.com",
-    "password": "secure_password123"
+    "password": "example_password_123"
 })
 
 # Log in
 login_result = client.user.login({
     "email": "john.doe@example.com",
-    "password": "secure_password123"
+    "password": "example_password_123"
 })
 
 # Get JWT token from login result

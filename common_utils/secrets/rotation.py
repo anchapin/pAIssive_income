@@ -7,7 +7,6 @@ This module provides utilities for rotating secrets.
 import datetime
 import json
 import os
-
 from typing import Optional
 
 # Third-party imports
