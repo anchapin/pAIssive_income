@@ -134,11 +134,11 @@ git commit -m "Merge fix_ci_workflow into security_enhancements"
 - Example fix:
   ```python
   # Before
-  hashed_password = hashlib.sha256(password.encode()).hexdigest()
+  hashed_password = hashlib.sha256(example_password.encode()).hexdigest()
 
   # After
   import bcrypt
-  hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+  hashed_password = bcrypt.hashpw(example_password.encode(), bcrypt.gensalt())
   ```
 
 #### Task 2.5: Implement NotImplementedError for Vault backend

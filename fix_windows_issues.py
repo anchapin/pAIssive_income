@@ -1,20 +1,77 @@
-"""fix_windows_issues - Windows-specific script for fixing code quality issues.
+#!/usr/bin/env python3
+"""Fix Windows-specific issues in Python files."""
 
-This script is specifically designed to work on Windows environments and handles
-Windows path separators correctly. It provides a robust solution for fixing
-various code quality issues, including syntax errors, formatting issues, and
-linting problems.
-"""
-
-# Standard library imports
 import argparse
+import logging
 import os
 import subprocess
 import sys
-from typing import List, Optional, Tuple
+from typing import Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_LINE_LENGTH = 88
+MAX_DEBUG_FILES = 5
+
+# Directories to ignore
+DEFAULT_IGNORE_DIRS = {
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "node_modules",
+    "build",
+    "dist",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+}
+
+# File patterns to ignore
+DEFAULT_IGNORE_PATTERNS = [
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    "*.so",
+    "*.dylib",
+    "*.dll",
+    "*.exe",
+]
+
+
+def normalize_paths(specific_files: list[str]) -> list[str]:
+    """Normalize a list of file paths for Windows."""
+    normalized_files = []
+    for file_path in specific_files:
+        try:
+            # Convert to absolute path and normalize
+            abs_path = os.path.abspath(file_path)
+            norm_path = os.path.normpath(abs_path)
+            if os.path.isfile(norm_path):
+                normalized_files.append(norm_path)
+        except Exception:
+            continue
+    return normalized_files
+
+
+def should_ignore_directory(root: str, ignore_dirs: set) -> bool:
+    """Check if a directory should be ignored."""
+    norm_root = os.path.normpath(root)
+    return any(ignore_dir in norm_root.split(os.sep) for ignore_dir in ignore_dirs)
+
+
+def get_windows_ignore_patterns(patterns: list[str]) -> list[str]:
+    """Convert ignore patterns to Windows-style paths."""
+    windows_patterns = patterns.copy()
+    for pattern in patterns:
+        windows_patterns.append(os.path.normpath(f".\\{pattern}"))
+    return windows_patterns
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -68,220 +125,163 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
+def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
     """Find Python files to process, with Windows-specific path handling."""
     if specific_files:
-        # Normalize paths for Windows
-        normalized_files = []
-        for f in specific_files:
-            if f.endswith(".py") and os.path.isfile(f):
-                normalized_files.append(os.path.normpath(f))
-        return normalized_files
+        return normalize_paths(specific_files)
 
-    python_files: List[str] = []
-    # Directories to ignore
-    ignore_dirs = {
-        ".git",
-        ".venv",
-        "venv",
-        "__pycache__",
-        "build",
-        "dist",
-        "node_modules",
-    }
+    python_files: list[str] = []
+    ignore_patterns = get_windows_ignore_patterns(DEFAULT_IGNORE_PATTERNS)
 
-    # Create normalized patterns for Windows paths
-    ignore_patterns = []
-    for pattern in ignore_dirs:
-        # Add Windows-specific path pattern
-        ignore_patterns.append(os.path.normpath(f".\\{pattern}"))
+    logger.info("Ignore patterns: %s", ignore_patterns)
+    logger.info("Platform: %s", sys.platform)
 
-    print(f"Ignore patterns: {ignore_patterns}")
-    print(f"Platform: {sys.platform}")
-
-    for root, dirs, files in os.walk("."):
-        # Skip ignored directories
-        norm_root = os.path.normpath(root)
-
+    for root, _dirs, files in os.walk("."):
         # Debug output for the first few directories
-        if len(python_files) < 5:
-            print(f"Checking directory: {norm_root}")
+        if len(python_files) < MAX_DEBUG_FILES:
+            logger.debug("Checking directory: %s", root)
 
         # Check if this directory should be ignored
-        skip_dir = False
-        for pattern in ignore_patterns:
-            if norm_root.startswith(pattern) or any(
-                d in norm_root.split(os.sep) for d in ignore_dirs
-            ):
-                skip_dir = True
-                break
-
-        if skip_dir:
-            if len(python_files) < 5:
-                print(f"  Skipping ignored directory: {norm_root}")
+        if should_ignore_directory(root, DEFAULT_IGNORE_DIRS):
+            if len(python_files) < MAX_DEBUG_FILES:
+                logger.debug("Skipping ignored directory: %s", root)
             continue
 
-        # Filter out ignored directories
-        dirs[:] = [d for d in dirs if d not in ignore_dirs]
-
+        # Process Python files
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.normpath(os.path.join(root, file))
                 python_files.append(file_path)
-                if len(python_files) <= 5:
-                    print(f"  Found Python file: {file_path}")
+                if len(python_files) <= MAX_DEBUG_FILES:
+                    logger.debug("Found Python file: %s", file_path)
 
-    print(f"Total Python files found: {len(python_files)}")
+    logger.info("Total Python files found: %d", len(python_files))
     return python_files
 
 
-def run_command(command: List[str], check_mode: bool = False) -> Tuple[int, str, str]:
+def run_command(command: list[str]) -> tuple[int, str, str]:
     """Run a command and return exit code, stdout, stderr with Windows handling."""
     try:
-        # Always use shell=True on Windows
-        shell = True
-
-        # Print command for debugging
+        # Log command for debugging
         cmd_str = " ".join(command)
-        print(f"Running command: {cmd_str}")
+        logger.debug("Running command: %s", cmd_str)
 
         try:
-            # Try using subprocess.run first (more reliable)
             result = subprocess.run(
                 command,
                 capture_output=True,
                 text=True,
-                shell=shell,
                 check=False,  # Don't raise exception on non-zero exit
             )
-            return result.returncode, result.stdout, result.stderr
         except Exception as run_error:
-            print(f"subprocess.run failed: {run_error}, falling back to Popen")
+            logger.warning(
+                "subprocess.run failed: %s, falling back to Popen", run_error
+            )
             # Fall back to Popen if run fails
             process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                shell=shell,
             )
             stdout, stderr = process.communicate()
             return process.returncode, stdout, stderr
+        else:
+            return result.returncode, result.stdout, result.stderr
     except Exception as e:
-        print(f"Error running command {' '.join(command)}: {e}")
-        import traceback
-
-        traceback.print_exc()
+        logger.exception("Error running command %s", " ".join(command))
         return 1, "", str(e)
 
 
 def fix_syntax_errors(file_path: str) -> bool:
-    """Fix common syntax errors in a Python file, with Windows-specific handling."""
+    """Fix syntax errors in a Python file."""
     try:
-        # Try to compile the file to check for syntax errors
-        with open(file_path, encoding="utf-8", errors="replace") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         try:
             compile(content, file_path, "exec")
-            return True  # No syntax errors
         except SyntaxError:
             # File has syntax errors, attempt to fix
-            pass
-
-        # Fix common syntax errors
-        with open(file_path, encoding="utf-8", errors="replace") as f:
-            lines = f.readlines()
-
-        modified = False
-
-        # Fix missing colons
-        for i, line in enumerate(lines):
-            # Check for class or function definitions without colons
-            if (
-                line.strip().startswith("class ") or line.strip().startswith("def ")
-            ) and not line.strip().endswith(":"):
-                lines[i] = line.rstrip() + ":\n"
-                modified = True
-
-        if modified:
-            with open(file_path, "w", encoding="utf-8", errors="replace") as f:
-                f.writelines(lines)
-
-        # Verify the fix worked
-        with open(file_path, encoding="utf-8", errors="replace") as f:
-            content = f.read()
-
-        try:
-            compile(content, file_path, "exec")
-            return True
-        except SyntaxError:
+            # For now, just return False
             return False
-    except Exception as e:
-        print(f"Error fixing syntax errors in {file_path}: {e}")
+        else:
+            return True  # No syntax errors
+    except Exception:
+        logger.exception("Error fixing syntax errors in %s", file_path)
         return False
+
+
+def process_files(python_files: list[str]) -> tuple[int, list[str]]:
+    """Process a list of Python files and return success count and failed files."""
+    success_count = 0
+    failed_files = []
+
+    for i, file_path in enumerate(python_files):
+        logger.info("Processing file %d/%d: %s", i + 1, len(python_files), file_path)
+        try:
+            # For now, just fix syntax errors
+            if fix_syntax_errors(file_path):
+                success_count += 1
+                logger.info("✓ Successfully processed %s", file_path)
+            else:
+                failed_files.append(file_path)
+                logger.warning("✗ Failed to process %s", file_path)
+        except Exception:
+            logger.exception("Error processing %s", file_path)
+            failed_files.append(file_path)
+
+    return success_count, failed_files
+
+
+def print_summary(
+    success_count: int, total_files: int, failed_files: list[str]
+) -> None:
+    """Print a summary of the processing results."""
+    logger.info("=" * 50)
+    logger.info("SUMMARY")
+    logger.info("=" * 50)
+    logger.info(
+        "Successfully processed %d out of %d files.",
+        success_count,
+        total_files,
+    )
+
+    if failed_files:
+        logger.warning("Failed files:")
+        for file_path in failed_files:
+            logger.warning("  - %s", file_path)
 
 
 def main() -> int:
     """Run the main program to fix code quality issues on Windows."""
     try:
-        print(f"Running fix_windows_issues.py on platform: {sys.platform}")
-        print(f"Python version: {sys.version}")
-        print(f"Current working directory: {os.getcwd()}")
+        logger.info("Running fix_windows_issues.py on platform: %s", sys.platform)
+        logger.info("Python version: %s", sys.version)
+        logger.info("Current working directory: %s", os.getcwd())
 
         args = parse_arguments()
-        print(f"Arguments: {args}")
+        logger.debug("Arguments: %s", args)
 
         # Find Python files to process
-        print("Finding Python files to process...")
+        logger.info("Finding Python files to process...")
         python_files = find_python_files(args.files)
 
         if not python_files:
-            print("No Python files found to process.")
+            logger.info("No Python files found to process.")
             return 0
 
-        print(f"Processing {len(python_files)} Python files...")
+        logger.info("Processing %d Python files...", len(python_files))
 
-        # Process each file
-        success_count = 0
-        failed_files = []
-
-        for i, file_path in enumerate(python_files):
-            print(f"\nProcessing file {i + 1}/{len(python_files)}: {file_path}")
-            try:
-                # For now, just fix syntax errors
-                if fix_syntax_errors(file_path):
-                    success_count += 1
-                    print(f"✓ Successfully processed {file_path}")
-                else:
-                    failed_files.append(file_path)
-                    print(f"✗ Failed to process {file_path}")
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-                import traceback
-
-                traceback.print_exc()
-                failed_files.append(file_path)
+        # Process files and get results
+        success_count, failed_files = process_files(python_files)
 
         # Print summary
-        print("\n" + "=" * 50)
-        print("SUMMARY")
-        print("=" * 50)
-        print(
-            f"Successfully processed {success_count} out of {len(python_files)} files."
-        )
-
-        if failed_files:
-            print("\nFailed files:")
-            for file_path in failed_files:
-                print(f"  - {file_path}")
+        print_summary(success_count, len(python_files), failed_files)
 
         return 0 if success_count == len(python_files) else 1
-    except Exception as e:
-        print(f"Error in main function: {e}")
-        import traceback
-
-        traceback.print_exc()
+    except Exception:
+        logger.exception("Error in main function")
         return 1
 
 

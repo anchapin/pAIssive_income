@@ -3,15 +3,13 @@
 See: docs/input_validation_and_error_handling_standards.md
 """
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
 from common_utils.logging import get_logger
-from common_utils.validation.core import (
-    ValidationError,
-    validate_input,
-    validation_error_response,
-)
+from common_utils.validation.core import ValidationError, validate_input, validation_error_response
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -28,7 +26,7 @@ class CreateUserModel(BaseModel):
 
 
 @router.post("/", summary="Create a new user")
-async def create_user(request: Request):
+async def create_user(request: Request) -> dict[str, Any]:
     """Create a new user with validated input data."""
     try:
         payload = await request.json()
@@ -36,7 +34,8 @@ async def create_user(request: Request):
         # ... Insert user creation logic here ...
         return {"message": "User created", "user": user_in.model_dump()}
     except ValidationError as exc:
-        return validation_error_response(exc)
+        result: dict[str, Any] = validation_error_response(exc)
+        return result
     except Exception as exc:
         logger.error("An unexpected error occurred", exc_info=True)
         raise HTTPException(

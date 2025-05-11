@@ -13,15 +13,22 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    git clone https://github.com/anchapin/pAIssive_income.git
    cd pAIssive_income
    ```
-2. **Set up Python environment and install dependencies:**
+2. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
    (Requires Python 3.8+)
    ```bash
    # On Windows
-   scripts\recreate_venv.bat
+   setup_dev_environment.bat
 
    # On Unix/Linux
-   ./scripts/recreate_venv.sh
+   ./setup_dev_environment.sh
    ```
+   This script will:
+   - Create a virtual environment
+   - Install dependencies
+   - Set up pre-commit hooks
+   - Configure IDE settings for VS Code and PyCharm
+   - Create .editorconfig for editor-agnostic settings
+
    Or manually:
    ```bash
    python -m venv .venv
@@ -29,9 +36,6 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    pip install -r requirements.txt
    pip install -r requirements-dev.txt
    pip install -e .
-   ```
-3. **Set up pre-commit hooks for code quality:**
-   ```bash
    pip install pre-commit
    pre-commit install
    ```
@@ -40,8 +44,8 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    python ui/run_ui.py
    ```
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
-   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**  
-   > Install pnpm globally if you haven't already:  
+   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
+   > Install pnpm globally if you haven't already:
    > `npm install -g pnpm`
 5. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
@@ -164,13 +168,19 @@ Running the main script generates a complete project plan including:
 
 - Python 3.8+
 - Node.js 14.0+ (for modern UI and frontend tests)
-- [pnpm](https://pnpm.io/) (for frontend dependencies)  
+- [pnpm](https://pnpm.io/) (for frontend dependencies)
   Install globally with: `npm install -g pnpm`
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
 
 The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
+
+### IDE Setup
+
+We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code, PyCharm, and other editors.
+
+See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.
 
 ### Common Formatting Issues to Watch For
 
@@ -268,7 +278,29 @@ scripts\lint_check.bat  # Windows
 2. Fix issues automatically:
 
 ```bash
-python fix_all_issues_final.py
+# Windows
+fix_linting_issues.bat
+
+# Unix/Linux
+./fix_linting_issues.sh
+
+# Or directly with Python
+python fix_linting_issues.py
+```
+
+You can also fix specific files:
+
+```bash
+python fix_linting_issues.py path/to/file1.py path/to/file2.py
+```
+
+Or run with specific options:
+
+```bash
+python fix_linting_issues.py --no-isort  # Skip isort
+python fix_linting_issues.py --no-ruff   # Skip Ruff linter
+python fix_linting_issues.py --check     # Check only, don't fix
+python fix_linting_issues.py --verbose   # Show detailed output
 ```
 
 3. Run specific checks:
@@ -280,7 +312,7 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 ### Code Formatter Configuration
 
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **Ruff**: The project uses Ruff as the primary tool for both linting and formatting. Configuration is in `.ruff.toml`
 - **MyPy**: Type checking configuration is in `mypy.ini`
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 
@@ -325,4 +357,3 @@ The project includes comprehensive API documentation that can be built from sour
 
    ```bash
    python generate_api_docs.py
-   ```

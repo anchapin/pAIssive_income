@@ -20,8 +20,8 @@ from .secrets_manager import (
 __all__ = [
     "SecretsBackend",
     "SecretsManager",
-    "get_secret",
-    "set_secret",
     "delete_secret",
+    "get_secret",
     "list_secrets",
+    "set_secret",
 ]

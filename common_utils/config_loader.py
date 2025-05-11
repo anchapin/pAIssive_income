@@ -29,8 +29,10 @@ def load_config(config_path: str) -> ExampleConfigModel:
         data = json.load(f)
     try:
         config = validate_input(ExampleConfigModel, data)
-        return config
     except ValidationError as exc:
         # Log the validation error
-        logger.error("Config validation failed: %s", exc.details)
+        logger.exception("Config validation failed: %s", exc.details)
         raise
+    else:
+        # Explicitly cast to the expected return type
+        return ExampleConfigModel(**config.dict())
