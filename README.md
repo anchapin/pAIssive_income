@@ -176,6 +176,12 @@ Running the main script generates a complete project plan including:
 
 The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
 
+### IDE Setup
+
+We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code, PyCharm, and other editors.
+
+See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.
+
 ### Common Formatting Issues to Watch For
 
 - Trailing whitespace at the end of lines
