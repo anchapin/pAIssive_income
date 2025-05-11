@@ -245,14 +245,16 @@ jobs:
       - name: Add pnpm to PATH
         shell: powershell
         run: |
-          $pnpmPath = pnpm bin
-          if (!$pnpmPath) {
+          $pnpmPath = pnpm bin | Out-String
+          if ([string]::IsNullOrWhiteSpace($pnpmPath)) {
               Write-Error "Error: Unable to determine pnpm binary path."
               exit 1
           }
+          $pnpmPath = $pnpmPath.Trim()
           $newPath = "$($pnpmPath);$($env:PATH)"
           Add-Content -Path $env:GITHUB_ENV -Value "PATH=$newPath"
           $env:PATH = $newPath
+          Write-Host "pnpm binary path added to PATH: $pnpmPath"
 
       - name: Verify pnpm in PATH
         shell: powershell
