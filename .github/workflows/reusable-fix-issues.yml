@@ -22,11 +22,6 @@ on:
         required: false
         default: false
         type: boolean
-      no_isort:
-        description: 'Skip isort'
-        required: false
-        default: false
-        type: boolean
       no_ruff:
         description: 'Skip Ruff linter'
         required: false
@@ -63,7 +58,7 @@ jobs:
       if: inputs.shell == 'bash'
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff
+        python -m pip install black ruff
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -71,7 +66,7 @@ jobs:
       if: inputs.shell == 'pwsh'
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff
+        python -m pip install black ruff
         python -m pip install -r requirements-dev.txt
         if (Test-Path -Path "requirements.txt") {
           python -m pip install -r requirements.txt
@@ -119,10 +114,6 @@ jobs:
           CMD+=" --no-black"
         fi
 
-        if [[ "${{ inputs.no_isort }}" == "true" ]]; then
-          CMD+=" --no-isort"
-        fi
-
         if [[ "${{ inputs.no_ruff }}" == "true" ]]; then
           CMD+=" --no-ruff"
         fi
@@ -168,10 +159,6 @@ jobs:
 
         if ('${{ inputs.no_black }}' -eq 'true') {
           $CMD += " --no-black"
-        }
-
-        if ('${{ inputs.no_isort }}' -eq 'true') {
-          $CMD += " --no-isort"
         }
 
         if ('${{ inputs.no_ruff }}' -eq 'true') {

@@ -76,32 +76,84 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: |
+          export PATH=$(pnpm bin):$PATH
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
+      - name: Verify pnpm in PATH
+        shell: bash
+        run: |
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+
+      - name: Debug PATH
+        shell: bash
+        run: >
+          echo "Final PATH: $PATH"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'pnpm' # Changed back to pnpm
 
-      - name: Check for npm lock file (package-lock.json)
+      - name: Check pnpm version
+        run: pnpm --version
+
+      - name: Verify package.json
+        shell: bash
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found in the root directory."
+            ls -la
             exit 1
           fi
+          echo "Contents of package.json:"
+          cat package.json
+
+      - name: Install Node.js dependencies (pnpm)
         shell: bash
-
-      - name: Install Node.js dependencies (npm)
         run: |
-          cd .
-          npm install
+          pnpm install --reporter=default || {
+            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
+            echo "- Missing or conflicting dependencies in package.json.";
+            echo "- pnpm not set up properly.";
+            exit 1;
+          }
 
-      - name: Verify Node.js installation
+      - name: Verify Node.js and pnpm installation
         run: |
           node --version
           npm --version
+          pnpm --version
 
       - name: Install PyYAML
         run: pip install pyyaml
+
+      - name: Debug Environment Details
+        shell: bash
+        run: |
+          echo "===== Environment Details ====="
+          echo "Node.js version:"
+          node --version || echo "Node.js not found or 'node --version' failed."
+          echo "npm version:"
+          npm --version || echo "npm not found or 'npm --version' failed."
+          echo "Python version:"
+          python --version || echo "Python not found or 'python --version' failed."
+          echo "pip version:"
+          pip --version || echo "pip not found or 'pip --version' failed."
+          echo "Current working directory:"
+          pwd
+          echo "Listing current directory contents:"
+          ls -la
+          echo "============================="
 
       - name: Make script executable
         run: chmod +x enhanced_setup_dev_environment.sh
@@ -159,13 +211,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug file paths
-        shell: bash
+        shell: powershell
         run: |
-          echo "Current working directory: $(pwd)"
-          echo "Listing files in current working directory:"
-          ls -la
-          echo "Listing files in ./.github/workflows:"
-          ls -la ./.github/workflows
+          Write-Host "Current working directory: $(Get-Location)"
+          Write-Host "Listing files in current working directory:"
+          Get-ChildItem -Force
+          Write-Host "Listing files in ./.github/workflows:"
+          Get-ChildItem -Path ./.github/workflows -Force
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -173,44 +225,151 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install development dependencies
+        shell: powershell
+        run: pip install -r requirements-dev.txt
+
       - name: Install PyYAML
+        shell: powershell
         run: pip install pyyaml
 
       - name: Install Ruff
+        shell: powershell
         run: pip install ruff
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Verify pnpm in PATH
+        shell: powershell
+        run: |
+          Write-Host "Current PATH: $($env:PATH)"
+          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+          if (-not $pnpmCmd) {
+              Write-Error "Error: pnpm is not found using Get-Command after relying solely on pnpm/action-setup."
+              # Diagnostic: Check if the pnpm.cmd file exists in the first PATH entry (usually where pnpm/action-setup puts it)
+              $firstPathDir = ($env:PATH -split ';')[0]
+              Write-Host "First directory in PATH: $firstPathDir"
+              if ($firstPathDir) {
+                $expectedPnpmExe = Join-Path -Path $firstPathDir -ChildPath "pnpm.cmd"
+                Write-Host "Checking for pnpm.cmd at ${expectedPnpmExe}: $(Test-Path $expectedPnpmExe)"
+                Write-Host "Contents of ${firstPathDir}:"
+                Get-ChildItem -Path $firstPathDir -ErrorAction SilentlyContinue
+              }
+              exit 1
+          } else {
+              Write-Host "pnpm command found by Get-Command at: $($pnpmCmd.Source)"
+              Write-Host "Attempting to run 'pnpm --version':"
+              pnpm --version
+          }
+
+      - name: Debug PATH
+        shell: powershell
+        run: |
+          Write-Host "Final PATH: $($env:PATH)"
+
+      - name: Check pnpm version
+        shell: powershell
+        run: pnpm --version
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'pnpm'
 
-      - name: Check for package-lock.json
+      - name: Verify package.json
+        shell: powershell
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
+          if (-not (Test-Path "package.json")) {
+            Write-Error "Error: package.json not found in the root directory."
+            Get-ChildItem -Force
             exit 1
-          fi
-        shell: bash # Using bash for consistency with other checks
+          }
+          Write-Host "Contents of package.json:"
+          Get-Content package.json
 
-      - name: Install Node.js dependencies
+      - name: Verify Python, Node.js and pnpm Installation
+        shell: powershell
         run: |
-          cd .
-          npm install
+          python --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Python is not installed or not in PATH."
+            exit 1
+          }
+          node --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Node.js is not installed or not in PATH."
+            exit 1
+          }
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "pnpm is not installed or not in PATH."
+            exit 1
+          }
+
+      - name: Install Node.js Dependencies (pnpm)
+        shell: powershell
+        run: |
+          pnpm install --reporter=default
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to install Node.js dependencies with pnpm. Possible issues:"
+            Write-Error "- Missing or conflicting dependencies in package.json."
+            Write-Error "- pnpm not set up properly."
+            exit 1
+          }
+
+      - name: Install Pre-commit Hooks
+        shell: powershell
+        run: |
+          pre-commit install
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Error installing pre-commit hooks."
+            exit 1
+          } else {
+            Write-Host "Pre-commit hooks installed successfully."
+          }
+
+      - name: Debug Environment Details
+        shell: powershell
+        run: |
+          Write-Host "===== Environment Details ====="
+          Write-Host "Node.js version:"
+          node --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "Node.js not found or 'node --version' failed." }
+          Write-Host "npm version:"
+          npm --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "npm not found or 'npm --version' failed." }
+          Write-Host "pnpm version:"
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "pnpm not found or 'pnpm --version' failed." }
+          Write-Host "Python version:"
+          python --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "Python not found or 'python --version' failed." }
+          Write-Host "pip version:"
+          pip --version
+          if ($LASTEXITCODE -ne 0) { Write-Warning "pip not found or 'pip --version' failed." }
+          Write-Host "Current working directory:"
+          Get-Location
+          Write-Host "Listing current directory contents:"
+          Get-ChildItem -Force
+          Write-Host "============================="
 
       - name: Verify setup script
+        shell: cmd
         run: |
-          if exist "./enhanced_setup_dev_environment.bat" (
+          if exist ".\\enhanced_setup_dev_environment.bat" (
             echo "Setup script exists."
           ) else (
             echo "Error: Setup script not found."
             exit 1
           )
-        shell: cmd
 
-      - name: Run setup script with full profile
-        run: .\enhanced_setup_dev_environment.bat --full --no-system-deps
+      - name: Run Batch Script
         shell: cmd
+        run: .\\enhanced_setup_dev_environment.bat --full
 
   test-macos:
     name: Test on macOS
@@ -246,32 +405,86 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: |
+          export PATH=$(pnpm bin):$PATH
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
+      - name: Verify pnpm in PATH
+        shell: bash
+        run: |
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+
+      - name: Debug PATH
+        shell: bash
+        run: >
+          echo "Final PATH: $PATH"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Changed from pnpm to npm
+          cache: 'pnpm' # Changed back to pnpm
 
-      - name: Check for npm lock file (package-lock.json)
+      - name: Check pnpm version
+        run: pnpm --version
+
+      - name: Verify package.json
+        shell: bash
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "Error: package-lock.json is missing. Please generate and commit it."
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found in the root directory."
+            ls -la
             exit 1
           fi
+          echo "Contents of package.json:"
+          cat package.json
+
+      - name: Install Node.js dependencies (pnpm)
         shell: bash
-
-      - name: Install Node.js dependencies (npm)
         run: |
-          cd .
-          npm install
+          pnpm install --reporter=default || {
+            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
+            echo "- Missing or conflicting dependencies in package.json.";
+            echo "- pnpm not set up properly.";
+            exit 1;
+          }
 
-      - name: Verify Node.js installation
+      - name: Verify Node.js and pnpm installation
         run: |
           node --version
           npm --version
+          pnpm --version
 
       - name: Install PyYAML
         run: pip install pyyaml
+
+      - name: Debug Environment Details
+        shell: bash
+        run: |
+          echo "===== Environment Details ====="
+          echo "Node.js version:"
+          node --version || echo "Node.js not found or 'node --version' failed."
+          echo "npm version:"
+          npm --version || echo "npm not found or 'npm --version' failed."
+          echo "pnpm version:"
+          pnpm --version || echo "pnpm not found or 'pnpm --version' failed."
+          echo "Python version:"
+          python --version || echo "Python not found or 'python --version' failed."
+          echo "pip version:"
+          pip --version || echo "pip not found or 'pip --version' failed."
+          echo "Current working directory:"
+          pwd
+          echo "Listing current directory contents:"
+          ls -la
+          echo "============================="
 
       - name: Make script executable
         run: chmod +x enhanced_setup_dev_environment.sh

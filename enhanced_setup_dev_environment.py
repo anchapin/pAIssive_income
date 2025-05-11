@@ -145,15 +145,40 @@ def run_command(
     Returns:
         Tuple of (exit_code, stdout, stderr)
     """
+    executable_path_str = cmd[0]  # Keep original for error messages if needed
+
+    # Resolve command using shutil.which if it's a bare command name.
+    # This helps find .cmd, .bat files on Windows correctly from PATH.
+    if not os.path.isabs(executable_path_str) and not os.path.dirname(
+        executable_path_str
+    ):
+        resolved_executable = shutil.which(executable_path_str)
+        if resolved_executable:
+            cmd_to_run = [resolved_executable] + cmd[1:]
+        else:
+            # If shutil.which doesn't find it, it's unlikely to be found by subprocess.run directly.
+            logger.debug(
+                f"shutil.which could not find '{executable_path_str}' in PATH: {os.environ.get('PATH')}"
+            )
+            return 1, "", f"Command '{executable_path_str}' not found in PATH."
+    else:
+        cmd_to_run = list(cmd)  # Ensure it's a mutable list copy
+
     try:
         process = subprocess.run(
-            cmd,
+            cmd_to_run,
             cwd=cwd,
             env=env,
             capture_output=True,
             text=True,
-            check=False,
+            check=False,  # Original script uses check=False
         )
+    except FileNotFoundError as e:
+        # This catch is a fallback, should be less likely if shutil.which is effective.
+        logger.debug(
+            f"FileNotFoundError for '{cmd_to_run[0]}' with PATH: {os.environ.get('PATH')}"
+        )
+        return 1, "", f"Execution failed for '{cmd_to_run[0]}': {e}"
     except Exception as e:
         return 1, "", str(e)
     else:
@@ -234,13 +259,14 @@ def get_node_version() -> Optional[str]:
     return None
 
 
-def get_npm_version() -> Optional[str]:
-    """Get the installed npm version.
+def get_pnpm_version() -> Optional[str]:
+    """Get the installed pnpm version.
 
     Returns:
-        npm version string or None if not installed
+        pnpm version string or None if not installed
     """
-    exit_code, stdout, _ = run_command(["npm", "--version"])
+    # Try with npx to bypass PATH issues for pnpm itself
+    exit_code, stdout, _ = run_command(["npx", "pnpm", "--version"])
     if exit_code == 0:
         return stdout.strip()
     return None
@@ -501,18 +527,20 @@ def check_system_dependencies(args: argparse.Namespace) -> bool:
         "Node.js", get_node_version, install_nodejs, args.node_version, args
     )
 
-    # Check npm (no install function as it comes with Node.js)
-    npm_installed = check_dependency("npm", get_npm_version, args=args)
-    if not npm_installed and args.force_install_deps:
+    # Check pnpm (it needs to be installed separately)
+    pnpm_installed = check_dependency(
+        "pnpm", get_pnpm_version, install_func=install_pnpm_globally, args=args
+    )
+    if not pnpm_installed and args.force_install_deps:
         logger.warning(
-            "npm should be installed with Node.js. Please check your installation."
+            "pnpm was not installed. Please check your installation or logs."
         )
 
     # Check Git
     git_installed = check_dependency("Git", get_git_version, install_git, args=args)
 
     # All dependencies must be installed
-    return node_installed and npm_installed and git_installed
+    return node_installed and pnpm_installed and git_installed
 
 
 def load_config_file(config_file: str) -> dict[str, Any]:
@@ -629,6 +657,9 @@ def apply_setup_profile(args: argparse.Namespace) -> argparse.Namespace:
     if args.full:
         logger.info("Applying full setup profile...")
         # Full setup with all dependencies
+        args.force_install_deps = (
+            True  # Ensure dependencies are forcibly installed with full profile
+        )
 
     return args
 
@@ -680,11 +711,26 @@ def install_dependencies() -> bool:
 
     # Run Ruff to fix linting issues
     logger.info("Running Ruff to fix linting issues...")
-    ruff_exit_code, _, ruff_stderr = run_command(["ruff", "check", "--fix", "."])
+    ruff_exit_code, ruff_stdout, ruff_stderr = run_command([
+        "ruff",
+        "check",
+        "--fix",
+        ".",
+    ])
     if ruff_exit_code != 0:
-        logger.error(f"Ruff encountered errors: {ruff_stderr}")
+        error_message = "Ruff command failed."
+        if ruff_stderr:
+            error_message += f" Stderr:\n{ruff_stderr.strip()}"
+        else:
+            error_message += " No stderr output."
+        if ruff_stdout:
+            error_message += f"\nStdout:\n{ruff_stdout.strip()}"
+        else:
+            error_message += "\nNo stdout output."
+        logger.error(error_message)
         return False
 
+    logger.info("Ruff check and fix completed successfully.")
     return True
 
 
@@ -855,20 +901,112 @@ To configure PyCharm for this project:
     return True
 
 
+def install_pnpm_globally() -> bool:  # noqa: C901, PLR0912
+    """Install pnpm globally using corepack or npm."""
+    logger.info("Attempting to install pnpm globally...")
+
+    corepack_exe = shutil.which("corepack")
+    if not corepack_exe:
+        logger.warning(
+            "corepack command not found in PATH. Cannot use corepack to enable pnpm."
+        )
+    else:
+        logger.info(
+            f"Found corepack at: {corepack_exe}. Attempting 'corepack enable'..."
+        )
+        exit_code, stdout, stderr = run_command([corepack_exe, "enable"])
+        if exit_code == 0:
+            # Allow stdout to be multiline by removing strip()
+            logger.info(f"corepack enable succeeded. Output:\n{stdout}")
+            if stderr:
+                logger.debug(f"corepack enable stderr:\n{stderr}")
+
+            # Verify pnpm installation after enabling corepack
+            logger.info("Verifying pnpm after 'corepack enable'...")
+            pnpm_version = get_pnpm_version()
+            if pnpm_version:
+                logger.info(f"pnpm is now available via corepack: {pnpm_version}")
+                return True
+            else:
+                logger.error(
+                    "pnpm is still not available after successful 'corepack enable'. This is unexpected. Will try npm install."
+                )
+                # Proceed to try npm install as a fallback
+        else:
+            logger.warning(
+                f"Failed to enable corepack (exit code {exit_code}). stderr:\n{stderr}\nstdout:\n{stdout}"
+            )
+
+    # Fallback to npm if corepack path failed or corepack enable didn't make pnpm available
+    logger.info(
+        "Attempting to install pnpm globally using npm as a fallback/alternative..."
+    )
+    npm_exe = shutil.which("npm")
+    if not npm_exe:
+        logger.error(
+            "npm command not found in PATH. Cannot install pnpm globally using npm."
+        )
+        return False
+
+    logger.info(f"Found npm at: {npm_exe}. Attempting 'npm install -g pnpm'...")
+    exit_code_npm, stdout_npm, stderr_npm = run_command([
+        npm_exe,
+        "install",
+        "-g",
+        "pnpm",
+    ])
+    if exit_code_npm != 0:
+        # Check if the error is EEXIST (file already exists)
+        if "EEXIST" in stderr_npm and "file already exists" in stderr_npm.lower():
+            logger.warning(
+                f"npm install -g pnpm reported EEXIST (file already exists). This is likely okay if pnpm (e.g. corepack shim) is already in place. stderr:\n{stderr_npm}"
+            )
+            # Proceed to verification, as pnpm might already be correctly installed/shimmed
+        else:
+            logger.error(
+                f"Error installing pnpm globally via npm (exit code {exit_code_npm}). stderr:\n{stderr_npm}"
+            )
+            if stdout_npm:  # Only log stdout if it's not empty
+                logger.debug(f"npm install stdout:\n{stdout_npm}")
+            return False
+    else:
+        logger.info("pnpm install via npm reported success.")
+    if stdout_npm:  # Only log stdout if it's not empty
+        logger.debug(f"npm install stdout:\n{stdout_npm}")
+    if (
+        stderr_npm
+    ):  # Also log stderr for npm install on success, as it might contain warnings
+        logger.debug(f"npm install stderr (on success):\n{stderr_npm}")
+
+    # Verify pnpm installation after npm install
+    logger.info("Verifying pnpm after 'npm install -g pnpm'...")
+    pnpm_version_after_npm = get_pnpm_version()
+    if pnpm_version_after_npm:
+        logger.info(f"pnpm is now available via npm install: {pnpm_version_after_npm}")
+        return True
+    else:
+        logger.error(
+            "pnpm is still not available after 'npm install -g pnpm' reported success. This may indicate a PATH issue not reflected in the current script environment."
+        )
+        return False
+
+
 def install_node_dependencies() -> bool:
-    """Install Node.js dependencies.
+    """Install Node.js dependencies using pnpm.
 
     Returns:
         True if successful, False otherwise
     """
-    logger.info("Installing Node.js dependencies...")
+    logger.info("Installing Node.js dependencies using pnpm...")
 
     # Check for package.json in root directory
     if os.path.exists("package.json"):
         logger.info("Found package.json in root directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"])
+        exit_code, stdout, stderr = run_command(["npx", "pnpm", "install"])
         if exit_code != 0:
-            logger.error(f"Error installing Node.js dependencies: {stderr}")
+            logger.error(
+                f"Error installing Node.js dependencies with npx pnpm: {stderr}"
+            )
             return False
         logger.debug(stdout)
 
@@ -876,9 +1014,11 @@ def install_node_dependencies() -> bool:
     ui_dir = "ui/react_frontend"
     if os.path.exists(os.path.join(ui_dir, "package.json")):
         logger.info(f"Found package.json in {ui_dir} directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"], cwd=ui_dir)
+        exit_code, stdout, stderr = run_command(["npx", "pnpm", "install"], cwd=ui_dir)
         if exit_code != 0:
-            logger.error(f"Error installing Node.js dependencies in {ui_dir}: {stderr}")
+            logger.error(
+                f"Error installing Node.js dependencies with npx pnpm in {ui_dir}: {stderr}"
+            )
             return False
         logger.debug(stdout)
 
@@ -886,10 +1026,10 @@ def install_node_dependencies() -> bool:
     sdk_dir = "sdk/javascript"
     if os.path.exists(os.path.join(sdk_dir, "package.json")):
         logger.info(f"Found package.json in {sdk_dir} directory")
-        exit_code, stdout, stderr = run_command(["npm", "install"], cwd=sdk_dir)
+        exit_code, stdout, stderr = run_command(["npx", "pnpm", "install"], cwd=sdk_dir)
         if exit_code != 0:
             logger.error(
-                f"Error installing Node.js dependencies in {sdk_dir}: {stderr}"
+                f"Error installing Node.js dependencies with npx pnpm in {sdk_dir}: {stderr}"
             )
             return False
         logger.debug(stdout)
@@ -920,10 +1060,10 @@ def print_enhanced_next_steps() -> None:
         "   pre-commit run --all-files",
         "\n4. Run tests to verify the setup:",
         "   pytest",
-        "   npm test (for UI components)",
+        "   pnpm test (for UI components)",
         "\n5. Start the development server:",
         "   For backend: python -m uvicorn api.main:app --reload",
-        "   For frontend: cd ui/react_frontend && npm start",
+        "   For frontend: cd ui/react_frontend && pnpm start",
         "\nFor more information, see the documentation:",
         "- README.md",
         "- docs/contributing.md",

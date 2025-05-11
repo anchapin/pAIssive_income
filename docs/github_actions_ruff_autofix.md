@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code quality auto-fix workflow is an automated code quality enhancement system implemented in our CI/CD pipeline. It automatically fixes common code style and formatting issues using our custom `fix_linting_issues.py` script (which combines Black, isort, and Ruff), commits the changes, and pushes them back to the repository with proper security controls.
+The code quality auto-fix workflow is an automated code quality enhancement system implemented in our CI/CD pipeline. It automatically fixes common code style and formatting issues using our custom `fix_linting_issues.py` script (which combines Black and Ruff), commits the changes, and pushes them back to the repository with proper security controls.
 
 ### Key Features
 

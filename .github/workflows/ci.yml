@@ -39,7 +39,7 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,11 +79,16 @@ jobs:
           pip install --no-cache-dir ruff
           ruff --version || { echo "ERROR: Ruff installation failed! Exiting..."; exit 1; }
 
+          # Install Pre-commit
+          echo "Installing Pre-commit..."
+          pip install --no-cache-dir pre-commit
+          pre-commit --version || { echo "ERROR: Pre-commit installation failed! Exiting..."; exit 1; }
+
           # Install essential tools
           echo "Installing essential linting tools..."
-          pip install --upgrade flake8 mypy isort pyright || {
+          pip install --upgrade mypy pyright types-PyYAML || {
             echo "Retrying with --no-cache-dir..."
-            pip install --no-cache-dir --upgrade flake8 mypy isort pyright
+            pip install --no-cache-dir --upgrade mypy pyright types-PyYAML
           }
 
           # Check and install project dependencies with better error handling
@@ -160,6 +165,7 @@ jobs:
           name: requirements-logs-${{ github.run_id }}-${{ github.job }}
           path: requirements_logs/
 
+
       - name: Check if fix_linting_issues.py exists
         id: check-script
         run: |
@@ -198,48 +204,29 @@ jobs:
           # Run the script
           python fix_linting_issues.py --verbose
 
-          # Check if any files were modified
-          if [ -n "$(git diff --name-only)" ]; then
-            # Commit changes
-            git add .
-            git commit -m "Auto-fix linting issues" || echo "No changes to commit"
-
-            # Push changes
-            echo "Pushing changes..."
-            git push origin HEAD:${GITHUB_HEAD_REF:-main} || {
-              echo "::warning::Failed to push changes. This could be due to permissions or if no changes were made."
-            }
-          else
-            echo "No changes detected"
-          fi
+          # Committing and pushing changes has been removed from this step.
+          # The script will still run and may modify files in the runner's workspace.
         continue-on-error: true
 
-      - name: Fix Imports with Ruff and Isort
+      - name: Fix Imports with Ruff
         id: fix-imports
         run: |
           echo "Running Ruff in fix mode for import sorting and other fixes..."
           ruff check --fix . || echo "Ruff command finished (may have encountered issues, or made no changes)."
-          echo "Running isort in fix mode for import sorting..."
-          isort . || echo "Isort command finished (may have encountered issues, or made no changes)."
 
-          echo "Checking for changes after ruff and isort..."
+          echo "Checking for changes after ruff..."
           if [ -n "$(git diff --name-only)" ]; then
-            echo "Ruff or isort made changes. Setting fixed=true"
+            echo "Ruff made changes. Setting fixed=true"
             echo "fixed=true" >> $GITHUB_OUTPUT
           else
-            echo "Neither ruff nor isort made changes. Setting fixed=false"
+            echo "Ruff did not make changes. Setting fixed=false"
             echo "fixed=false" >> $GITHUB_OUTPUT
           fi
         continue-on-error: true
 
-      - name: Commit and Push Import Fixes
-        if: always() && steps.fix-imports.outputs.fixed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Fix import formatting issues (ruff & isort)"
-          git push origin HEAD:${{ github.head_ref || github.ref_name }} || echo "::warning::Failed to push import formatting changes. This could be due to permissions or if no changes were made."
+      # The 'Commit and Push Import Fixes' step has been removed to prevent automated commits.
+      # Ruff and Isort will still run and may modify files in the runner's workspace,
+      # but these changes will not be committed.
 
       - name: Notify Developer
         if: failure()
@@ -254,7 +241,7 @@ jobs:
             echo "To fix these issues locally, run:"
             echo "```bash"
             echo "# Install required tools if you don't have them"
-            echo "pip install isort ruff"
+            echo "pip install ruff"
             echo ""
             echo "# Fix all issues automatically using our custom script"
             echo "python fix_linting_issues.py --verbose"
@@ -288,7 +275,7 @@ jobs:
             echo "1. Run our linting fix script locally:" >> pr_comment.md
             echo "   \`\`\`bash" >> pr_comment.md
             echo "   # Install required tools if you don't have them" >> pr_comment.md
-            echo "   pip install isort ruff" >> pr_comment.md
+            echo "   pip install ruff" >> pr_comment.md
             echo "" >> pr_comment.md
             echo "   # Fix all issues automatically using our custom script" >> pr_comment.md
             echo "   python fix_linting_issues.py --verbose" >> pr_comment.md
@@ -322,16 +309,17 @@ jobs:
           ruff check .
         continue-on-error: true
 
-      - name: Run flake8
-        run: flake8 .
-      - name: Run isort (check only)
-        run: isort --check-only .
       - name: Run mypy
         run: mypy .
 
+      - name: Debug Environment (Lint Job)
+        if: always()
+        shell: bash
+        run: env
+
   lint_and_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     if: ${{ !github.event.inputs.test_only }}
     steps:
       - name: Checkout code
@@ -365,6 +353,11 @@ jobs:
           echo "Installing Ruff..."
           pip install --no-cache-dir ruff
           ruff --version || { echo "ERROR: Ruff installation failed! Exiting..."; exit 1; }
+
+          # Install Pre-commit
+          echo "Installing Pre-commit..."
+          pip install --no-cache-dir pre-commit
+          pre-commit --version || { echo "ERROR: Pre-commit installation failed! Exiting..."; exit 1; }
 
           # Install test tools with error handling
           echo "Installing essential test tools..."
@@ -486,3 +479,71 @@ jobs:
         with:
           name: coverage-report-${{ github.run_id }}
           path: coverage.xml
+
+      - name: Debug Environment (Lint and Test Job)
+        if: always()
+        shell: bash
+        run: env
+
+  node_operations:
+    name: Node.js Operations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
+      - name: Verify package.json
+        shell: bash
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found."
+            exit 1
+          fi
+          echo "package.json content:"
+          cat package.json
+
+      - name: Install Node.js dependencies (pnpm)
+        run: |
+          pnpm install --reporter=default || {
+            echo "Error: Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."
+            exit 1;
+          }
+
+      - name: Debug Environment
+        if: always()
+        shell: bash
+        run: env
+
+  windows_specific_checks:
+    name: Windows Specific Checks
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify setup script (enhanced_setup_dev_environment.bat)
+        shell: cmd
+        run: |
+          if exist ".\\enhanced_setup_dev_environment.bat" (
+            echo "Setup script enhanced_setup_dev_environment.bat exists."
+          ) else (
+            echo "Error: Setup script enhanced_setup_dev_environment.bat not found."
+            exit 1
+          )
+
+      - name: Debug Environment
+        if: always()
+        shell: powershell
+        run: |
+          Get-ChildItem "Env:" | Sort-Object Name | Format-Table -AutoSize

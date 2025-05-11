@@ -66,7 +66,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort ruff pre-commit
+        python -m pip install black isort ruff pre-commit
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -106,32 +106,6 @@ jobs:
         else
           echo "- Found $syntax_errors files with syntax errors" >> $GITHUB_STEP_SUMMARY
           echo "::warning::$syntax_errors Python files have syntax errors"
-        fi
-
-    - name: List Style Issues with Flake8
-      id: flake8-check
-      continue-on-error: true
-      run: |
-        echo "## Checking Style with Flake8" >> $GITHUB_STEP_SUMMARY
-
-        # Run flake8 and save output
-        flake8 --output-file=flake8_issues.txt || true
-
-        if [ -s flake8_issues.txt ]; then
-          issue_count=$(wc -l < flake8_issues.txt)
-          echo "- Found $issue_count style issues" >> $GITHUB_STEP_SUMMARY
-          echo "::warning::$issue_count style issues found by Flake8"
-
-          # Show top issues in summary
-          echo "### Sample Issues:" >> $GITHUB_STEP_SUMMARY
-          head -n 20 flake8_issues.txt | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
-
-          # If more than 20 issues, mention the rest
-          if [ "$issue_count" -gt 20 ]; then
-            echo "- ... and $(($issue_count - 20)) more issues" >> $GITHUB_STEP_SUMMARY
-          fi
-        else
-          echo "- ✅ No style issues found!" >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Check Formatting with Black
@@ -204,19 +178,17 @@ jobs:
 
         # Count total issues
         syntax_errors=0
-        [ -f flake8_issues.txt ] && flake8_issues=$(wc -l < flake8_issues.txt) || flake8_issues=0
         [ -f black_issues.txt ] && black_issues=$(grep -c "would reformat" black_issues.txt) || black_issues=0
         [ -f isort_issues.txt ] && isort_issues=$(grep -c "ERROR:" isort_issues.txt) || isort_issues=0
         [ -f ruff_issues.txt ] && ruff_issues=$(wc -l < ruff_issues.txt) || ruff_issues=0
 
-        total_issues=$((syntax_errors + flake8_issues + black_issues + isort_issues + ruff_issues))
+        total_issues=$((syntax_errors + black_issues + isort_issues + ruff_issues))
 
         if [ "$total_issues" -eq 0 ]; then
           echo "### ✅ No issues found in the codebase!" >> $GITHUB_STEP_SUMMARY
         else
           echo "### Found $total_issues issues that need attention:" >> $GITHUB_STEP_SUMMARY
           echo "- Syntax errors: $syntax_errors" >> $GITHUB_STEP_SUMMARY
-          echo "- Style issues (Flake8): $flake8_issues" >> $GITHUB_STEP_SUMMARY
           echo "- Formatting issues (Black): $black_issues" >> $GITHUB_STEP_SUMMARY
           echo "- Import order issues (isort): $isort_issues" >> $GITHUB_STEP_SUMMARY
           echo "- Linting issues (Ruff): $ruff_issues" >> $GITHUB_STEP_SUMMARY

@@ -49,7 +49,8 @@ def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
         return e.returncode, stdout_val, stderr_val
     except FileNotFoundError:
         logging.exception(  # TRY401: Ensure exception object is not in message
-            f"Command not found: {command[0]}. Please ensure it is installed and in your PATH."  # Replaced f-string
+            f"Command not found: {command[0]}. "  # Replaced f-string
+            "Please ensure it is installed and in your PATH."
         )
         return -1, "", "Command not found"  # Indicate error clearly
     else:  # TRY300: Moved return to else block

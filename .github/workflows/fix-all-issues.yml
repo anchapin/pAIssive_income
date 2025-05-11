@@ -22,11 +22,6 @@ on:
         required: false
         default: false
         type: boolean
-      no_isort:
-        description: 'Skip isort'
-        required: false
-        default: false
-        type: boolean
       no_ruff:
         description: 'Skip Ruff linter'
         required: false
@@ -55,7 +50,6 @@ jobs:
       syntax_only: ${{ inputs.syntax_only }}
       format_only: ${{ inputs.format_only }}
       no_black: ${{ inputs.no_black }}
-      no_isort: ${{ inputs.no_isort }}
       no_ruff: ${{ inputs.no_ruff }}
       verbose: ${{ inputs.verbose }}
       shell: 'bash'

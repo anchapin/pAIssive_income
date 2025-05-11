@@ -87,7 +87,7 @@ The script checks for the following system dependencies:
 
 - Python 3.8 or higher (required)
 - Node.js (for UI development)
-- npm (for UI development)
+- pnpm (for UI development)
 - Git (for version control)
 
 If any of these dependencies are missing, the script will prompt you to install them or can attempt to install them automatically with the `--force-install-deps` option.

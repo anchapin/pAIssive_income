@@ -17,11 +17,6 @@ on:
         required: false
         default: true
         type: boolean
-      no_isort:
-        description: 'Skip isort'
-        required: false
-        default: false
-        type: boolean
       no_ruff:
         description: 'Skip Ruff linter'
         required: false
@@ -66,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install isort ruff
+          python -m pip install ruff
 
           # Install project dependencies
           if [ -f requirements-dev.txt ]; then
@@ -104,10 +99,6 @@ jobs:
             CMD+=" --no-black"
           fi
 
-          if [[ "${{ inputs.no_isort }}" == "true" ]]; then
-            CMD+=" --no-isort"
-          fi
-
           if [[ "${{ inputs.no_ruff }}" == "true" ]]; then
             CMD+=" --no-ruff"
           fi
@@ -137,15 +128,6 @@ jobs:
           echo "Using standard tools as fallback..."
 
           # Black has been removed in favor of Ruff format
-
-          # Run isort
-          if [[ "${{ inputs.no_isort }}" != "true" ]]; then
-            if [[ "${{ inputs.check_only }}" == "true" ]]; then
-              isort --check-only .
-            else
-              isort .
-            fi
-          fi
 
           # Run Ruff
           if [[ "${{ inputs.no_ruff }}" != "true" ]]; then

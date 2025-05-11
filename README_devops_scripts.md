@@ -65,7 +65,7 @@ To use the unified workflow and scripts, install the required dependencies:
 
 ```bash
 # Install linting tools
-pip install flake8 black isort ruff
+pip install flake8 ruff
 
 # Install testing tools
 pip install pytest pytest-cov pytest-xdist

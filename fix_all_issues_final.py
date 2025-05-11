@@ -11,7 +11,9 @@ import argparse
 import os
 import subprocess
 import sys
-from typing import Callable, Optional
+
+from typing import Callable
+from typing import Optional
 
 # Local imports
 from common_utils.logging import get_logger
@@ -49,14 +51,9 @@ def parse_arguments() -> argparse.Namespace:
         help="Fix only formatting issues.",
     )
     parser.add_argument(
-        "--no-black",
+        "--no-ruff-format",
         action="store_true",
-        help="Skip Black formatting.",
-    )
-    parser.add_argument(
-        "--no-isort",
-        action="store_true",
-        help="Skip isort import sorting.",
+        help="Skip Ruff formatting.",
     )
     parser.add_argument(
         "--no-ruff",
@@ -279,7 +276,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
     """
     try:
         # Check if the command exists before running it
-        if command and command[0] in ["black", "isort", "ruff"]:
+        if command and command[0] in ["ruff"]:  # Removed "black" and "isort"
             try:
                 # Use shell=True on Windows to find commands in PATH
                 shell = sys.platform == "win32"
@@ -543,8 +540,8 @@ def fix_syntax_errors(file_path: str) -> bool:
         return False
 
 
-def run_black(file_path: str, check_mode: bool = False) -> bool:
-    """Run Black formatter on a Python file.
+def run_ruff_format(file_path: str, check_mode: bool = False) -> bool:
+    """Run Ruff formatter on a Python file.
 
     Args:
     ----
@@ -556,29 +553,7 @@ def run_black(file_path: str, check_mode: bool = False) -> bool:
         True if successful, False otherwise.
 
     """
-    command = ["black"]
-    if check_mode:
-        command.append("--check")
-    command.append(file_path)
-
-    exit_code, stdout, stderr = run_command(command)
-    return exit_code == 0
-
-
-def run_isort(file_path: str, check_mode: bool = False) -> bool:
-    """Run isort on a Python file.
-
-    Args:
-    ----
-        file_path: Path to the Python file.
-        check_mode: Whether to run in check mode (don't modify files).
-
-    Returns:
-    -------
-        True if successful, False otherwise.
-
-    """
-    command = ["isort"]
+    command = ["ruff", "format"]
     if check_mode:
         command.append("--check")
     command.append(file_path)
@@ -709,11 +684,8 @@ def _run_external_formatters(file_path: str, args: argparse.Namespace) -> bool:
     formatters = []
 
     # Define which formatters to run
-    if not args.no_black:
-        formatters.append(("Black", run_black))
-
-    if not args.no_isort:
-        formatters.append(("isort", run_isort))
+    if not args.no_ruff_format:  # Changed from no_black
+        formatters.append(("Ruff Format", run_ruff_format))  # Changed from Black
 
     if not args.no_ruff:
         formatters.append(("Ruff", run_ruff))
@@ -776,10 +748,8 @@ def _get_required_tools(args: argparse.Namespace) -> list[str]:
     """
     tools_to_check = []
     if not args.syntax_only:
-        if not args.no_black:
-            tools_to_check.append("black")
-        if not args.no_isort:
-            tools_to_check.append("isort")
+        if not args.no_ruff_format:  # Changed from no_black
+            tools_to_check.append("ruff")  # Ruff handles formatting
         if not args.no_ruff:
             tools_to_check.append("ruff")
     return tools_to_check

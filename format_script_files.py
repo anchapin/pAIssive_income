@@ -34,16 +34,8 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
 
 
 def format_file(file_path: str) -> bool:
-    """Format a Python file using Black and Ruff."""
+    """Format a Python file using Ruff."""
     logging.info(f"Formatting {file_path}...")
-
-    # Run Black
-    black_cmd = ["black", file_path]
-    black_code, black_stdout, black_stderr = run_command(black_cmd)
-    if black_code != 0:
-        logging.error(f"Black failed on {file_path}: {black_stderr}")
-    else:
-        logging.info(f"Black succeeded on {file_path}")
 
     # Run Ruff format
     ruff_format_cmd = ["ruff", "format", file_path]
@@ -63,7 +55,7 @@ def format_file(file_path: str) -> bool:
     else:
         logging.info(f"Ruff check succeeded on {file_path}")
 
-    return black_code == 0 and ruff_format_code == 0 and ruff_check_code == 0
+    return ruff_format_code == 0 and ruff_check_code == 0
 
 
 def main() -> int:

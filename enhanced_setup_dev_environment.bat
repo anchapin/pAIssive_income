@@ -29,37 +29,35 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-REM Check if npm is installed
-where npm >nul 2>nul
+REM Check if pnpm is installed
+where pnpm >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Error: npm is not installed or not in PATH.
-    echo Please ensure npm is installed with Node.js.
-    exit /b 1
+    echo Warning: pnpm not found by 'where pnpm' in batch script. Python script will attempt installation if --force-install-deps is used.
+    REM Not exiting here, let Python script handle the installation attempt.
 )
 
-REM Debugging: Log Node.js and npm paths
+REM Debugging: Log Node.js and pnpm paths
 echo Node.js Path:
 where node
-echo npm Path:
-where npm
+echo pnpm Path:
+where pnpm
 
 REM Check Node.js version
 node -v | find "v18." >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Error: Node.js 18.x is required.
-    echo Current Node.js version:
-    node -v
-    exit /b 1
+    node -v | find "v20." >nul 2>nul
+    if %ERRORLEVEL% neq 0 (
+        node -v | find "v22." >nul 2>nul
+        if %ERRORLEVEL% neq 0 (
+            echo Error: Node.js 18.x or higher is recommended.
+            echo Current Node.js version:
+            node -v
+            REM Not exiting, as pnpm might still work with other versions
+        )
+    )
 )
 
-REM Check npm version
-npm -v | find "8." >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo Error: npm 8.x is required.
-    echo Current npm version:
-    npm -v
-    exit /b 1
-)
+REM pnpm version check is deferred to the Python script, which can also handle installation.
 
 REM Parse command-line arguments
 set ARGS=
