@@ -8,8 +8,11 @@ import hashlib
 import secrets
 import string
 import time
-from datetime import datetime, timedelta
-from typing import Optional, Union
+
+from datetime import datetime
+from datetime import timedelta
+from typing import Optional
+from typing import Union
 
 from common_utils.logging import get_logger
 from users.auth import hash_credential
