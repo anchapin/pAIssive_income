@@ -39,7 +39,7 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,11 +79,16 @@ jobs:
           pip install --no-cache-dir ruff
           ruff --version || { echo "ERROR: Ruff installation failed! Exiting..."; exit 1; }
 
+          # Install Pre-commit
+          echo "Installing Pre-commit..."
+          pip install --no-cache-dir pre-commit
+          pre-commit --version || { echo "ERROR: Pre-commit installation failed! Exiting..."; exit 1; }
+
           # Install essential tools
           echo "Installing essential linting tools..."
-          pip install --upgrade mypy pyright || {
+          pip install --upgrade mypy pyright types-PyYAML || {
             echo "Retrying with --no-cache-dir..."
-            pip install --no-cache-dir --upgrade mypy pyright
+            pip install --no-cache-dir --upgrade mypy pyright types-PyYAML
           }
 
           # Check and install project dependencies with better error handling
@@ -307,9 +312,14 @@ jobs:
       - name: Run mypy
         run: mypy .
 
+      - name: Debug Environment (Lint Job)
+        if: always()
+        shell: bash
+        run: env
+
   lint_and_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     if: ${{ !github.event.inputs.test_only }}
     steps:
       - name: Checkout code
@@ -343,6 +353,11 @@ jobs:
           echo "Installing Ruff..."
           pip install --no-cache-dir ruff
           ruff --version || { echo "ERROR: Ruff installation failed! Exiting..."; exit 1; }
+
+          # Install Pre-commit
+          echo "Installing Pre-commit..."
+          pip install --no-cache-dir pre-commit
+          pre-commit --version || { echo "ERROR: Pre-commit installation failed! Exiting..."; exit 1; }
 
           # Install test tools with error handling
           echo "Installing essential test tools..."
@@ -464,3 +479,71 @@ jobs:
         with:
           name: coverage-report-${{ github.run_id }}
           path: coverage.xml
+
+      - name: Debug Environment (Lint and Test Job)
+        if: always()
+        shell: bash
+        run: env
+
+  node_operations:
+    name: Node.js Operations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
+      - name: Verify package.json
+        shell: bash
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found."
+            exit 1
+          fi
+          echo "package.json content:"
+          cat package.json
+
+      - name: Install Node.js dependencies (pnpm)
+        run: |
+          pnpm install --reporter=default || {
+            echo "Error: Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."
+            exit 1;
+          }
+
+      - name: Debug Environment
+        if: always()
+        shell: bash
+        run: env
+
+  windows_specific_checks:
+    name: Windows Specific Checks
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify setup script (enhanced_setup_dev_environment.bat)
+        shell: cmd
+        run: |
+          if exist ".\\enhanced_setup_dev_environment.bat" (
+            echo "Setup script enhanced_setup_dev_environment.bat exists."
+          ) else (
+            echo "Error: Setup script enhanced_setup_dev_environment.bat not found."
+            exit 1
+          )
+
+      - name: Debug Environment
+        if: always()
+        shell: powershell
+        run: |
+          Get-ChildItem "Env:" | Sort-Object Name | Format-Table -AutoSize
