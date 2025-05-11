@@ -260,7 +260,8 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Current PATH: $($env:PATH)"
-          pnpm --version || {
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) {
               Write-Error "Error: pnpm not found after adding to PATH."
               exit 1
           }
