@@ -40,8 +40,7 @@ The following hooks are configured in our `.pre-commit-config.yaml` file:
 ### Code Quality
 
 - **ruff**: Fast Python linter that finds and fixes issues
-- **ruff-format**: Formats code using Ruff's formatter
-- **black**: Formats Python code
+- **ruff-format**: Formats code using Ruff's formatter (primary code formatter)
 - **isort**: Sorts imports
 - **flake8**: Checks for syntax errors and undefined names
 - **mypy**: Performs type checking

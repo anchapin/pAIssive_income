@@ -10,19 +10,14 @@ from typing import cast
 
 # Third-party imports
 # Local imports
-from .secure_logging import (
-    SENSITIVE_FIELDS,
-    SecureLogger,
-    get_secure_logger,
-    mask_sensitive_data,
-)
+from .secure_logging import SENSITIVE_FIELDS, SecureLogger, get_secure_logger, mask_sensitive_data
 
 __all__ = [
-    "mask_sensitive_data",
-    "get_secure_logger",
-    "SecureLogger",
     "SENSITIVE_FIELDS",
+    "SecureLogger",
     "get_logger",
+    "get_secure_logger",
+    "mask_sensitive_data",
 ]
 
 
@@ -49,6 +44,6 @@ def get_logger(name: str) -> logging.Logger:
     except Exception as e:
         # Fall back to standard logger if secure logger is not available
         logging.getLogger("logging_setup").warning(
-            f"Failed to create secure logger, falling back to standard logger: {str(e)}"
+            f"Failed to create secure logger, falling back to standard logger: {e!s}"
         )
         return logging.getLogger(name)

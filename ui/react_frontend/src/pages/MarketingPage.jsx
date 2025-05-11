@@ -7,10 +7,10 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardMedia,
+  // CardMedia is imported but not used
   Tabs,
   Tab,
-  TextField,
+  // TextField is imported but not used
   Button,
   List,
   ListItem,
@@ -147,8 +147,8 @@ const MarketingPage = () => {
           ],
           emailMarketing: [
             {
-              type: 'Welcome Email',
-              subject: 'Welcome to [Product Name]! Here's How to Get Started',
+              type: "Welcome Email",
+              subject: "Welcome to [Product Name]! Here's How to Get Started",
               content: `Hi [Name],
 
 Thank you for signing up for [Product Name]! We're excited to have you on board.

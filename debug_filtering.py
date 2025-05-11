@@ -3,12 +3,18 @@
 # Standard library imports
 import logging
 
+# Use built-in types for type annotations
+
 # Third-party imports
 
 # Local imports
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def filter_debug_logs(logs, level=logging.INFO):
+
+def filter_debug_logs(
+    logs: list[tuple[int, str]], level: int = logging.INFO
+) -> list[str]:
     """Filter log messages to only include messages at or above the specified level.
 
     Args:
@@ -22,7 +28,7 @@ def filter_debug_logs(logs, level=logging.INFO):
     return [msg for lvl, msg in logs if lvl >= level]
 
 
-def main():
+def main() -> None:
     """Demo usage of the debug log filtering utility."""
     sample_logs = [
         (logging.DEBUG, "Debug message"),
@@ -32,7 +38,7 @@ def main():
     ]
     filtered = filter_debug_logs(sample_logs, level=logging.WARNING)
     for msg in filtered:
-        print(msg)
+        logging.info(msg)
 
 
 if __name__ == "__main__":

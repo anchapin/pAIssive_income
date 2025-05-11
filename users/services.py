@@ -7,7 +7,7 @@ authentication, and profile management.
 # Standard library imports
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 # Third-party imports
 import jwt
@@ -17,6 +17,31 @@ from common_utils.logging import get_logger
 # Local imports
 from users.auth import hash_credential, verify_credential
 
+
+class AuthenticationError(ValueError):
+    """Raised when there's an authentication-related error."""
+
+    pass
+
+
+class UserExistsError(ValueError):
+    """Raised when a user already exists."""
+
+    pass
+
+
+class UserNotFoundError(ValueError):
+    """Raised when a user is not found."""
+
+    pass
+
+
+class TokenError(ValueError):
+    """Raised when there's a token-related error."""
+
+    pass
+
+
 # Initialize logger
 logger = get_logger(__name__)
 
@@ -24,11 +49,15 @@ logger = get_logger(__name__)
 class UserService:
     """Service for user management."""
 
-    def __init__(self, user_repository=None, token_secret=None, token_expiry=None):
+    def __init__(
+        self,
+        user_repository: Optional[Any] = None,
+        token_secret: Optional[str] = None,
+        token_expiry: Optional[int] = None,
+    ) -> None:
         """Initialize the user service.
 
         Args:
-        ----
             user_repository: Repository for user data
             token_secret: Secret for JWT token generation
             token_expiry: Expiry time for JWT tokens in seconds
@@ -39,7 +68,7 @@ class UserService:
         # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
-            raise ValueError("Authentication token secret must be provided")
+            raise AuthenticationError()
 
         # Enhanced security: Store token secret in a private variable
         # Use double underscore for name mangling in Python
@@ -51,13 +80,13 @@ class UserService:
         self.token_expiry = token_expiry or 3600  # 1 hour default
 
     @property
-    def token_secret(self):
+    def token_secret(self) -> str:
         """Securely access the token secret."""
         return self.__token_secret
 
     def create_user(
-        self, username: str, email: str, auth_credential: str, **kwargs
-    ) -> Dict[str, Any]:
+        self, username: str, email: str, auth_credential: str, **kwargs: Any
+    ) -> dict[str, str]:
         """Create a new user.
 
         Args:
@@ -74,16 +103,14 @@ class UserService:
         """
         # Validate inputs
         if not username or not email or not auth_credential:
-            raise ValueError(
-                "Username, email, and authentication credential are required"
-            )
+            raise AuthenticationError()
 
         # Check if user already exists
         if self.user_repository and self.user_repository.find_by_username(username):
-            raise ValueError(f"User with username '{username}' already exists")
+            raise UserExistsError()
 
         if self.user_repository and self.user_repository.find_by_email(email):
-            raise ValueError(f"User with email '{email}' already exists")
+            raise UserExistsError()
 
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
@@ -111,7 +138,7 @@ class UserService:
 
     def authenticate_user(
         self, username_or_email: str, auth_credential: str
-    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    ) -> tuple[bool, Optional[dict[str, str]]]:
         """Authenticate a user.
 
         Args:
@@ -165,7 +192,7 @@ class UserService:
         logger.info("Authentication successful", extra={"user_id": user["id"]})
         return True, user_data
 
-    def generate_token(self, user_id: str, **additional_claims) -> str:
+    def generate_token(self, user_id: str, **additional_claims: Any) -> str:
         """Generate a JWT token for a user.
 
         Args:
@@ -191,6 +218,7 @@ class UserService:
             "key",
             "auth",
         ]
+        max_claim_length = 1000  # Maximum length for token claims
         for key, value in additional_claims.items():
             # Skip any sensitive looking claims
             if any(
@@ -201,8 +229,8 @@ class UserService:
                 )
                 continue
             # Avoid adding large values to token payload
-            if isinstance(value, str) and len(value) > 1000:
-                logger.warning(f"Oversized claim '{key}' was truncated in token")
+            if isinstance(value, str) and len(value) > max_claim_length:
+                logger.warning(f"Oversized claim '{key}' was truncated")
                 safe_claims[key] = value[:100] + "..."
             else:
                 safe_claims[key] = value
@@ -226,31 +254,30 @@ class UserService:
                 "token_type": "JWT",
             },
         )
-        # Ensure we return a string
+        # Ensure auth_token is a string
         if isinstance(auth_token, bytes):
             return auth_token.decode("utf-8")
-        return str(auth_token)  # Explicitly cast to string to satisfy mypy
+        return str(auth_token)
 
-    def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    def verify_token(self, auth_token: str) -> tuple[bool, Optional[dict[str, Any]]]:
         """Verify a JWT token.
 
         Args:
-        ----
             auth_token: The JWT token to verify
 
         Returns:
-        -------
-            Tuple[bool, Optional[Dict]]: (success, payload)
-
+            tuple[bool, dict[str, Any] | None]: (success, payload)
         """
         try:
             payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])
-            return True, payload
         except jwt.ExpiredSignatureError:
-            # Don't include token details in logs
             logger.warning("Authentication verification failed: expired material")
             return False, None
         except jwt.InvalidTokenError:
-            # Don't include the specific error type or token details in logs
             logger.warning("Authentication verification failed: invalid material")
             return False, None
+        except Exception:
+            logger.exception("Token verification failed")
+            raise
+        else:
+            return True, payload

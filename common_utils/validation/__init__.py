@@ -1,7 +1,10 @@
-"""__init__ - Module for common_utils/validation.__init__."""
+"""Validation module for standardized input validation and error handling.
 
-# Standard library imports
+This module exports validation utilities from the core module.
+"""
 
-# Third-party imports
+# Import from the core module
+from common_utils.validation.core import ValidationError, validate_input, validation_error_response
 
-# Local imports
+# Export the imported names
+__all__ = ["ValidationError", "validate_input", "validation_error_response"]

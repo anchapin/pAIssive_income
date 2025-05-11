@@ -22,6 +22,18 @@ There are many ways to contribute to the pAIssive Income Framework:
 - Python 3.8 or higher
 - Git
 - pip (Python package manager)
+- **pnpm (Node.js package manager for frontend dependencies)**
+
+> **Note:**  
+> The project now uses [pnpm](https://pnpm.io/) instead of npm for all frontend (JavaScript/TypeScript) dependencies and scripts.  
+> Please make sure you have pnpm installed:
+>
+> ```bash
+> npm install -g pnpm
+> ```
+>
+> Use `pnpm install` instead of `npm install` in all frontend directories.  
+> For running scripts, use `pnpm exec ...` instead of `npx ...`.
 
 ### Setting Up the Development Environment
 
@@ -33,25 +45,31 @@ git clone https://github.com/your-username/pAIssive_income.git
 cd pAIssive_income
 ```
 
-3. Create a virtual environment and install dependencies:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-pip install -r requirements-dev.txt  # Development dependencies
-```
-
-4. Set up pre-commit hooks:
+3. Set up the development environment (one command):
 
 ```bash
 # On Windows
-setup_pre_commit.bat
+setup_dev_environment.bat
 
 # On Unix/Linux
-python setup_pre_commit.py
+./setup_dev_environment.sh
+```
 
-# Or manually
+This script will:
+- Create a virtual environment
+- Install dependencies
+- Set up pre-commit hooks
+- Configure IDE settings for VS Code and PyCharm
+- Create .editorconfig for editor-agnostic settings
+
+Or manually:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # Development dependencies
+pip install -e .
 pip install pre-commit
 pre-commit install
 ```
@@ -110,14 +128,35 @@ We use Markdown for documentation. Please follow these guidelines when writing d
 - Include examples where appropriate.
 - Follow the existing documentation structure (see [documentation-guide.md](documentation-guide.md)).
 - Use proper Markdown formatting.
+- **All new features and code changes must include relevant documentation updates in the appropriate `docs/` file(s) as part of the pull request.**
 
 ## Feedback and Documentation Updates
 
 If you have suggestions for improving documentation, please open an issue with the "documentation" label or contact the maintainer (see [documentation-guide.md](documentation-guide.md) for details).
 
+## IDE Setup
+
+To ensure consistent code formatting and a smooth development experience, we recommend configuring your IDE or editor to use Ruff as the primary formatter. We provide configuration files and detailed setup instructions for popular IDEs:
+
+- **VS Code**: Configuration is provided in `.vscode/settings.json`
+- **PyCharm**: Configuration is provided in `.idea/ruff.xml`
+- **Other Editors**: Basic formatting settings are provided in `.editorconfig`
+
+For detailed setup instructions, please see the [IDE Setup Guide](ide_setup.md).
+
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, black, isort, ruff, and mypy for code linting, formatting, and type checking:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, isort, ruff, and mypy for code linting, formatting, and type checking:
+
+> **Important Note:**
+> This project uses **Ruff** as the primary code formatter, not Black. Please configure your IDE accordingly (see the [IDE Setup Guide](ide_setup.md) for instructions).
+
+**Best Practices:**
+> All contributors are expected to review and adhere to the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md) for safe, reliable, and auditable automation. These include principles like explicit state and input/output handling, modular design, input validation, deterministic steps, and comprehensive documentation and testing.
+
+## Coding Best Practices
+
+All contributors should review and follow the [Claude Agentic Coding Best Practices](../claude_coding_best_practices.md) for safe, reliable, and auditable automation. These include explicit state handling, modular/testable design, strong validation, deterministic steps, idempotency, human oversight, comprehensive documentation, and robust testing. Please see the checklist in that document before submitting changes or pull requests.
 
 ```bash
 # Run pre-commit hooks on all files
@@ -136,8 +175,8 @@ You can also run individual tools manually:
 # Check code style
 flake8
 
-# Format code
-black .
+# Format code with Ruff
+ruff format .
 
 # Sort imports
 isort .
