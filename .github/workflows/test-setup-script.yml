@@ -81,15 +81,34 @@ jobs:
         with:
           version: 8
 
+      - name: Verify pnpm Installation (immediately after setup)
+        shell: bash
+        run: |
+          pnpm --version || { echo "Error: pnpm is not installed or not in PATH immediately after setup."; exit 1; }
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'pnpm' # Changed back to pnpm
 
+      - name: Verify package.json
+        shell: bash
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found."
+            exit 1
+          fi
+          echo "Contents of package.json:"
+          cat package.json
+
       - name: Install Node.js dependencies (pnpm)
         run: |
-          pnpm install || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
+          pnpm install --reporter=default || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
 
       - name: Verify Node.js and pnpm installation
@@ -206,11 +225,34 @@ jobs:
         with:
           version: 8
 
+      - name: Verify pnpm Installation (immediately after setup)
+        shell: powershell
+        run: |
+          pnpm --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Error: pnpm is not installed or not in PATH immediately after setup."
+            exit 1
+          }
+
+      - name: Add pnpm to PATH
+        shell: powershell
+        run: echo "PATH=$(pnpm bin);${env:PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'pnpm'
+
+      - name: Verify package.json
+        shell: powershell
+        run: |
+          if (-not (Test-Path "package.json")) {
+            Write-Error "Error: package.json not found."
+            exit 1
+          }
+          Write-Host "Contents of package.json:"
+          Get-Content package.json
 
       - name: Verify Python, Node.js and pnpm Installation
         shell: powershell
@@ -234,7 +276,7 @@ jobs:
       - name: Install Node.js Dependencies (pnpm)
         shell: powershell
         run: |
-          pnpm install
+          pnpm install --reporter=default
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."
             exit 1
@@ -329,15 +371,34 @@ jobs:
         with:
           version: 8
 
+      - name: Verify pnpm Installation (immediately after setup)
+        shell: bash
+        run: |
+          pnpm --version || { echo "Error: pnpm is not installed or not in PATH immediately after setup."; exit 1; }
+
+      - name: Add pnpm to PATH
+        shell: bash
+        run: echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'pnpm' # Changed back to pnpm
 
+      - name: Verify package.json
+        shell: bash
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "Error: package.json not found."
+            exit 1
+          fi
+          echo "Contents of package.json:"
+          cat package.json
+
       - name: Install Node.js dependencies (pnpm)
         run: |
-          pnpm install || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
+          pnpm install --reporter=default || { echo "Failed to install Node.js dependencies with pnpm. Check for missing or conflicting dependencies."; exit 1; }
         shell: bash
 
       - name: Verify Node.js and pnpm installation
