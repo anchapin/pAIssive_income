@@ -216,21 +216,28 @@ jobs:
         continue-on-error: true
 
       - name: Run Ruff (Fix Mode)
+        id: run-ruff
         run: |
           echo "Running Ruff in fix mode..."
           ruff check --fix .
-        # Configure git for potential commit and push if needed by ruff or subsequent steps
-        # This part can be expanded if ruff itself needs to commit changes.
-        # For now, assuming ruff --fix modifies files and subsequent steps handle commits.
-        # If ruff needs to commit, add:
-        #   git config user.name "github-actions[bot]"
-        #   git config user.email "github-actions[bot]@users.noreply.github.com"
-        #   if [ -n "$(git diff --name-only)" ]; then
-        #     git add .
-        #     git commit -m "Auto-fix linting issues (Ruff)"
-        #     git push origin HEAD:${GITHUB_HEAD_REF:-main} || echo "::warning::Failed to push Ruff fixes."
-        #   fi
+          # Check if Ruff made any changes
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "Ruff made changes. Setting fixed=true"
+            echo "fixed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Ruff made no changes. Setting fixed=false"
+            echo "fixed=false" >> $GITHUB_OUTPUT
+          fi
         continue-on-error: true # Allow the pipeline to continue even if ruff fix has issues
+
+      - name: Commit and Push Fixes
+        if: always() && steps.run-ruff.outputs.fixed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Fix linting issues automatically"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
 
       - name: Notify Developer
         if: failure()

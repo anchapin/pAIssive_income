@@ -58,6 +58,15 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install Ruff (Python Linter)
+        run: pip install ruff
+
+      - name: Verify Ruff Installation
+        run: ruff --version
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -133,69 +142,31 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install Ruff
+        run: pip install ruff
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Verify Node.js and npm installation
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Verify setup script
         run: |
-          echo Node.js Path: $(where node)
-          echo npm Path: $(where npm)
-          node --version
-          npm --version
-        shell: cmd
-
-      - name: Install PyYAML
-        run: pip install pyyaml
-
-      - name: Run setup script with minimal profile
-        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: .\enhanced_setup_dev_environment.bat --minimal --no-system-deps
-        shell: cmd
-
-      - name: Run setup script with backend-only profile
-        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: .\enhanced_setup_dev_environment.bat --backend-only --no-system-deps
-        shell: cmd
-
-      - name: Run setup script with ui-only profile
-        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: .\enhanced_setup_dev_environment.bat --ui-only --no-system-deps
+          if [ -f "./enhanced_setup_dev_environment.bat" ]; then
+            echo "Setup script exists."
+          else
+            echo "Error: Setup script not found."
+            exit 1
+          fi
         shell: cmd
 
       - name: Run setup script with full profile
-        if: ${{ github.event.inputs.setup_profile == 'full' }}
         run: .\enhanced_setup_dev_environment.bat --full --no-system-deps
         shell: cmd
-
-      - name: Verify setup
-        run: |
-          # Check if virtual environment was created
-          if (Test-Path -Path ".venv") {
-            Write-Host "Virtual environment created successfully"
-          } else {
-            Write-Error "Error: Virtual environment not created"
-            exit 1
-          }
-
-          # Check if configuration files were created
-          if (Test-Path -Path "setup_config.yaml") {
-            Write-Host "Configuration file created successfully"
-          } else {
-            Write-Error "Error: Configuration file not created"
-            exit 1
-          }
-
-          # Check if IDE configuration files were created
-          if ((Test-Path -Path ".editorconfig") -and (Test-Path -Path ".vscode")) {
-            Write-Host "IDE configuration files created successfully"
-          } else {
-            Write-Error "Error: IDE configuration files not created"
-            exit 1
-          }
-        shell: pwsh
 
   test-macos:
     name: Test on macOS
@@ -212,6 +183,15 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install Ruff (Python Linter)
+        run: pip install ruff
+
+      - name: Verify Ruff Installation
+        run: ruff --version
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

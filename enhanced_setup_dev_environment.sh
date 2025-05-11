@@ -20,6 +20,21 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Check if Ruff is installed
+if ! command -v ruff &> /dev/null; then
+    echo "Error: Ruff is not installed or not in PATH."
+    echo "Please install Ruff using 'pip install ruff'."
+    exit 1
+fi
+
+echo "Installing development dependencies from requirements-dev.txt..."
+if [ -f requirements-dev.txt ]; then
+    pip install -r requirements-dev.txt
+else
+    echo "Warning: requirements-dev.txt not found. Skipping development dependency installation."
+fi
+echo
+
 # Run the setup script
 python3 enhanced_setup_dev_environment.py "$@"
 
