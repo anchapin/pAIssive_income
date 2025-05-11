@@ -5,12 +5,9 @@ docs/input_validation_and_error_handling_standards.md
 """
 
 import pytest
+from pydantic import BaseModel, Field
 
-from pydantic import BaseModel
-from pydantic import Field
-
-from common_utils.validation.core import ValidationError
-from common_utils.validation.core import validate_input
+from common_utils.validation.core import ValidationError, validate_input
 
 
 class ExampleInputModel(BaseModel):

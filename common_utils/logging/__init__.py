@@ -6,15 +6,11 @@ is not logged in clear text.
 
 # Standard library imports
 import logging
-
 from typing import cast
 
 # Third-party imports
 # Local imports
-from .secure_logging import SENSITIVE_FIELDS
-from .secure_logging import SecureLogger
-from .secure_logging import get_secure_logger
-from .secure_logging import mask_sensitive_data
+from .secure_logging import SENSITIVE_FIELDS, SecureLogger, get_secure_logger, mask_sensitive_data
 
 __all__ = [
     "SENSITIVE_FIELDS",
