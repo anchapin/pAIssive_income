@@ -81,14 +81,10 @@ jobs:
         with:
           version: 8
 
-      - name: Verify pnpm Installation (immediately after setup)
-        shell: bash
-        run: |
-          pnpm --version || { echo "Error: pnpm is not installed or not in PATH immediately after setup."; exit 1; }
-
       - name: Add pnpm to PATH
         shell: bash
         run: |
+          export PATH=$(pnpm bin):$PATH
           echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
 
       - name: Verify pnpm in PATH
@@ -246,20 +242,13 @@ jobs:
         with:
           version: 8
 
-      - name: Verify pnpm Installation (immediately after setup)
-        shell: powershell
-        run: |
-          pnpm --version
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Error: pnpm is not installed or not in PATH immediately after setup."
-            exit 1
-          }
-
       - name: Add pnpm to PATH
         shell: powershell
         run: |
           $pnpmPath = pnpm bin
-          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PATH=$($pnpmPath);$($env:PATH)`n")
+          $newPath = "$($pnpmPath);$($env:PATH)"
+          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PATH=$newPath`n")
+          $env:PATH = $newPath
 
       - name: Verify pnpm in PATH
         shell: powershell
@@ -267,8 +256,8 @@ jobs:
           Write-Host "Current PATH: $($env:PATH)"
           Get-Command pnpm -ErrorAction SilentlyContinue | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Error: pnpm is still not in PATH.";
-            exit 1;
+            Write-Error "Error: pnpm is still not in PATH."
+            exit 1
           }
 
       - name: Debug PATH (Windows)
@@ -416,14 +405,10 @@ jobs:
         with:
           version: 8
 
-      - name: Verify pnpm Installation (immediately after setup)
-        shell: bash
-        run: |
-          pnpm --version || { echo "Error: pnpm is not installed or not in PATH immediately after setup."; exit 1; }
-
       - name: Add pnpm to PATH
         shell: bash
         run: |
+          export PATH=$(pnpm bin):$PATH
           echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
 
       - name: Verify pnpm in PATH
