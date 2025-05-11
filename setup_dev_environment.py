@@ -292,7 +292,8 @@ def create_editorconfig() -> bool:
     """
     print("Creating .editorconfig file...")
     editorconfig_path = Path(".editorconfig")
-    editorconfig_content = """# EditorConfig helps maintain consistent coding styles across different editors
+    editorconfig_content = """\
+# EditorConfig helps maintain consistent coding styles across different editors
 # https://editorconfig.org/
 
 root = true

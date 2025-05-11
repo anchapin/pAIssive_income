@@ -191,11 +191,14 @@ async def run_command_async(
 
 async def run_checks(files: set[Path]) -> list[CheckResult]:
     """Run all checks in parallel with optimal resource usage."""
+    python_executable = sys.executable
     checks = [
-        ("ruff", ["ruff", "check", "--fix"]),
+        ("ruff", [python_executable, "-m", "ruff", "check", "--fix"]),
         (
             "mypy",
             [
+                python_executable,
+                "-m",
                 "mypy",
                 "--ignore-missing-imports",
                 "--install-types",

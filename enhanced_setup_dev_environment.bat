@@ -21,6 +21,40 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+REM Check if Node.js is installed
+where node >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Error: Node.js is not installed or not in PATH.
+    echo Please install Node.js 18 or higher from https://nodejs.org/
+    exit /b 1
+)
+
+REM Check if npm is installed
+where npm >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Error: npm is not installed or not in PATH.
+    echo Please ensure npm is installed with Node.js.
+    exit /b 1
+)
+
+REM Check Node.js version
+node -v | find "v18." >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Error: Node.js 18.x is required.
+    echo Current Node.js version:
+    node -v
+    exit /b 1
+)
+
+REM Check npm version
+npm -v | find "8." >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Error: npm 8.x is required.
+    echo Current npm version:
+    npm -v
+    exit /b 1
+)
+
 REM Parse command-line arguments
 set ARGS=
 
@@ -81,19 +115,4 @@ echo     "[python]": { >> .vscode\settings.json
 echo         "editor.defaultFormatter": "charliermarsh.ruff", >> .vscode\settings.json
 echo         "editor.formatOnSave": true, >> .vscode\settings.json
 echo         "editor.codeActionsOnSave": { >> .vscode\settings.json
-echo             "source.fixAll": true, >> .vscode\settings.json
-echo             "source.organizeImports": true >> .vscode\settings.json
-echo         } >> .vscode\settings.json
-echo     }, >> .vscode\settings.json
-echo     "ruff.format.args": [], >> .vscode\settings.json
-echo     "ruff.lint.run": "onSave" >> .vscode\settings.json
-echo } >> .vscode\settings.json
-
-echo.
-echo Development environment setup complete!
-echo.
-echo To activate the virtual environment, run:
-echo .venv\Scripts\activate
-echo.
-
-exit /b 0
+echo             "source.fixAll": true, >> .vscode\settings.
