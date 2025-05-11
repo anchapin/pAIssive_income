@@ -10,7 +10,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Combines functionality from multiple existing scripts
    - Fixes syntax errors (missing colons, class definitions, etc.)
    - Fixes formatting issues (trailing whitespace, line endings, etc.)
-   - Runs external tools like Black, isort, and Ruff to fix linting issues
+   - Runs external tools like Ruff and isort to fix linting issues
    - Provides command-line options for customizing the fix process
    - Can be run in check-only mode to identify issues without fixing them
    - Replaces the previous scripts which had syntax errors
@@ -148,8 +148,8 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
 
 2. **Fix Linting Issues** ✅:
    - ✅ Create scripts to fix common linting issues
-   - ✅ Run linting tools like flake8, black, isort, and ruff to identify style issues
-   - ✅ Fix formatting issues with tools like Black or autopep8
+   - ✅ Run linting tools like flake8, ruff, and isort to identify style issues
+   - ✅ Fix formatting issues with tools like Ruff or autopep8
 
 3. **Fix Test Failures** ✅:
    - ✅ Run tests to identify any failing tests
@@ -163,7 +163,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
 
 5. **Future Improvements** ⏳:
    - ⏳ Add pre-commit hooks to prevent committing files with syntax errors
-   - ✅ Implement automated code formatting with tools like Black
+   - ✅ Implement automated code formatting with tools like Ruff
    - ✅ Set up linting with flake8 to catch style issues
    - ⏳ Add comprehensive test coverage to prevent regressions
 
@@ -174,7 +174,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixes syntax errors, formatting issues, and linting problems
    - Provides command-line options for customizing the fix process
    - Can be run in check-only mode to identify issues without fixing them
-   - Integrates with external tools like Black, isort, and Ruff
+   - Integrates with external tools like Ruff and isort
    - Replaces the previous scripts which had syntax errors
 
 2. Updated CI workflow to use the new comprehensive fix script:
@@ -224,7 +224,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixed all syntax errors automatically
    - Verified that all files pass the `python -m compileall -q . -x ".venv"` check
    - Created a plan for addressing any remaining linting or test issues
-   - Implemented linting checks with flake8, black, isort, and ruff
+   - Implemented linting checks with flake8, ruff, and isort
    - Created sample test files to verify test collection works
 
 9. Progress summary:

@@ -4,7 +4,8 @@ All usage must comply with the project's standards:
 See: docs/input_validation_and_error_handling_standards.md
 """
 
-from typing import Any, TypeVar
+from typing import Any
+from typing import TypeVar
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError

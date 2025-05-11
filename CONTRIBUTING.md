@@ -22,7 +22,7 @@ Before submitting a PR:
 
 - Ensure your changes are fully tested, including edge/error cases.
 - Run `python run_tests.py --with-coverage` and confirm coverage is **at least 90%**.
-- Ensure your code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
+- Ensure your code passes all linting and type checks (`ruff`, `mypy`, etc.).
 - Check that all automated tests pass in CI.
 
 For questions or clarifications on testing, consult `test_coverage_plan.md`, review existing tests, or ask a maintainer.
@@ -31,5 +31,5 @@ For questions or clarifications on testing, consult `test_coverage_plan.md`, rev
 
 - [ ] My code includes tests covering all new/changed logic and edge/error cases.
 - [ ] I ran `python run_tests.py --with-coverage` and confirmed coverage is ≥90%.
-- [ ] My code passes all linting and type checks (`ruff`, `black`, `mypy`, etc.).
+- [ ] My code passes all linting and type checks (`ruff`, `mypy`, etc.).
 - [ ] All automated tests pass in CI.

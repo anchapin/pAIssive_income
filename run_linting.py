@@ -1,25 +1,34 @@
-"""run_linting - Enforce linting and formatting with Ruff and Black.
+"""run_linting - Enforce linting and formatting with Ruff.
 
-This script runs Ruff (lint/fix) and Black (check) on the codebase.
+This script runs Ruff (lint/fix and format check) on the codebase.
 Intended for use in CI and pre-commit to enforce standards.
 """
 
+import logging
 import subprocess
 import sys
 
-def run(cmd, description):
-    print(f"Running: {description} ...")
-    result = subprocess.run(cmd, shell=True)
-    if result.returncode != 0:
-        print(f"❌ {description} failed.")
-        sys.exit(result.returncode)
-    print(f"✅ {description} passed.")
+from typing import Union
 
-def main():
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+
+def run(cmd: Union[str, list[str]], description: str) -> None:
+    logging.info(f"Running: {description} ...")
+    result = subprocess.run(cmd, shell=isinstance(cmd, str), check=False)
+    if result.returncode != 0:
+        logging.error(f"❌ {description} failed.")
+        sys.exit(result.returncode)
+    logging.info(f"✅ {description} passed.")
+
+
+def main() -> None:
     # Lint and fix with Ruff
     run("ruff check --fix .", "Ruff lint and auto-fix")
-    # Enforce Black formatting (check only, do not auto-fix in CI)
-    run("black --check .", "Black formatting check")
+    # Enforce Ruff formatting (check only, do not auto-fix in CI)
+    run("ruff format --check .", "Ruff formatting check")
+
 
 if __name__ == "__main__":
     main()

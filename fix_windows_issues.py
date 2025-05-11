@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 import sys
+
 from typing import Optional
 
 # Configure logging
@@ -103,9 +104,9 @@ def parse_arguments() -> argparse.Namespace:
         help="Fix only formatting issues.",
     )
     parser.add_argument(
-        "--no-black",
+        "--no-ruff-format",
         action="store_true",
-        help="Skip Black formatting.",
+        help="Skip Ruff formatting.",
     )
     parser.add_argument(
         "--no-isort",

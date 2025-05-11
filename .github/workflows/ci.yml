@@ -198,20 +198,8 @@ jobs:
           # Run the script
           python fix_linting_issues.py --verbose
 
-          # Check if any files were modified
-          if [ -n "$(git diff --name-only)" ]; then
-            # Commit changes
-            git add .
-            git commit -m "Auto-fix linting issues" || echo "No changes to commit"
-
-            # Push changes
-            echo "Pushing changes..."
-            git push origin HEAD:${GITHUB_HEAD_REF:-main} || {
-              echo "::warning::Failed to push changes. This could be due to permissions or if no changes were made."
-            }
-          else
-            echo "No changes detected"
-          fi
+          # Committing and pushing changes has been removed from this step.
+          # The script will still run and may modify files in the runner's workspace.
         continue-on-error: true
 
       - name: Fix Imports with Ruff and Isort
@@ -232,14 +220,9 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Commit and Push Import Fixes
-        if: always() && steps.fix-imports.outputs.fixed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Fix import formatting issues (ruff & isort)"
-          git push origin HEAD:${{ github.head_ref || github.ref_name }} || echo "::warning::Failed to push import formatting changes. This could be due to permissions or if no changes were made."
+      # The 'Commit and Push Import Fixes' step has been removed to prevent automated commits.
+      # Ruff and Isort will still run and may modify files in the runner's workspace,
+      # but these changes will not be committed.
 
       - name: Notify Developer
         if: failure()

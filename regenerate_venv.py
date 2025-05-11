@@ -6,7 +6,9 @@ import platform
 import shutil
 import subprocess
 import sys
-from typing import NoReturn, Optional
+
+from typing import NoReturn
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 

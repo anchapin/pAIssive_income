@@ -10,6 +10,7 @@ import logging
 import os
 import subprocess
 import sys
+
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -44,9 +45,6 @@ def run_command(command: list[str], _check_mode: bool = False) -> tuple[int, str
     except Exception as e:
         logging.exception(f"Error running command {' '.join(command)}")
         return 1, "", str(e)
-
-
-# Black formatter has been replaced by Ruff format
 
 
 def run_isort(file_path: str, check_mode: bool = False) -> bool:
@@ -163,8 +161,6 @@ def fix_file(file_path: str, args: argparse.Namespace) -> bool:
     logging.info(f"Fixing {file_path}...")
     success = True
 
-    # Black has been replaced by Ruff format
-
     # Run isort
     if not args.no_isort:
         if args.verbose:
@@ -203,11 +199,6 @@ def setup_argument_parser() -> argparse.ArgumentParser:
         "--check",
         action="store_true",
         help="Check for issues without fixing them.",
-    )
-    parser.add_argument(
-        "--no-black",
-        action="store_true",
-        help="Skip Black formatter (deprecated - Black has been replaced by Ruff format).",
     )
     parser.add_argument(
         "--no-isort",

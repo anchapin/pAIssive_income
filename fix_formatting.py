@@ -14,6 +14,7 @@ import logging
 import os
 import subprocess
 import sys
+
 from pathlib import Path
 from typing import Optional
 
@@ -79,23 +80,6 @@ def fix_formatting_with_ruff(files: list[str]) -> bool:
     return run_command(cmd)
 
 
-def fix_formatting_with_black(files: list[str]) -> bool:
-    """Fix formatting issues with Black.
-
-    Args:
-        files: List of files to fix
-
-    Returns:
-        bool: True if all files were fixed successfully, False otherwise
-    """
-    # Normalize paths
-    normalized_files = [str(Path(file).resolve()) for file in files]
-
-    # Run Black formatter
-    cmd = ["black", *normalized_files]
-    return run_command(cmd)
-
-
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments.
 
@@ -109,11 +93,6 @@ def parse_args() -> argparse.Namespace:
         "--files",
         nargs="+",
         help="Files to fix (defaults to the files identified in the GitHub Actions workflow)",
-    )
-    parser.add_argument(
-        "--use-black",
-        action="store_true",
-        help="Use Black instead of Ruff for formatting",
     )
     return parser.parse_args()
 
@@ -136,10 +115,7 @@ def main() -> int:
             return 1
 
     # Fix formatting issues
-    if args.use_black:
-        success = fix_formatting_with_black(files_to_fix)
-    else:
-        success = fix_formatting_with_ruff(files_to_fix)
+    success = fix_formatting_with_ruff(files_to_fix)
 
     if success:
         logger.info("Formatting issues fixed successfully")
