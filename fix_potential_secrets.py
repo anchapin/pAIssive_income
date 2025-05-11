@@ -10,10 +10,8 @@ import logging
 import os
 import re
 import sys
-
 from pathlib import Path
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 # Configure logging
 logging.basicConfig(

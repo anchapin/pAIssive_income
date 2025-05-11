@@ -4,8 +4,7 @@ This module provides an in-memory backend for secrets management, primarily for 
 """
 
 # Standard library imports
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 # Third-party imports
 # Local imports
