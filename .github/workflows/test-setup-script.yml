@@ -242,29 +242,27 @@ jobs:
         with:
           version: 8
 
-      - name: Add pnpm to PATH
-        shell: powershell
-        run: |
-          $pnpmPath = pnpm bin | Out-String
-          if ([string]::IsNullOrWhiteSpace($pnpmPath)) {
-              Write-Error "Error: Unable to determine pnpm binary path."
-              exit 1
-          }
-          $pnpmPath = $pnpmPath.Trim()
-          $newPath = "$($pnpmPath);$($env:PATH)"
-          [System.Environment]::SetEnvironmentVariable("PATH", $newPath, [System.EnvironmentVariableTarget]::Process)
-          Add-Content -Path $env:GITHUB_ENV -Value "PATH=$newPath"
-          $env:PATH = $newPath
-          Write-Host "pnpm binary path added to PATH: $pnpmPath"
-
       - name: Verify pnpm in PATH
         shell: powershell
         run: |
           Write-Host "Current PATH: $($env:PATH)"
-          Get-Command pnpm -ErrorAction SilentlyContinue | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "Error: pnpm is still not in PATH."
+          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+          if (-not $pnpmCmd) {
+              Write-Error "Error: pnpm is not found using Get-Command after relying solely on pnpm/action-setup."
+              # Diagnostic: Check if the pnpm.cmd file exists in the first PATH entry (usually where pnpm/action-setup puts it)
+              $firstPathDir = ($env:PATH -split ';')[0]
+              Write-Host "First directory in PATH: $firstPathDir"
+              if ($firstPathDir) {
+                $expectedPnpmExe = Join-Path -Path $firstPathDir -ChildPath "pnpm.cmd"
+                Write-Host "Checking for pnpm.cmd at $expectedPnpmExe: $(Test-Path $expectedPnpmExe)"
+                Write-Host "Contents of $firstPathDir:"
+                Get-ChildItem -Path $firstPathDir -ErrorAction SilentlyContinue
+              }
               exit 1
+          } else {
+              Write-Host "pnpm command found by Get-Command at: $($pnpmCmd.Source)"
+              Write-Host "Attempting to run 'pnpm --version':"
+              pnpm --version
           }
 
       - name: Debug PATH
