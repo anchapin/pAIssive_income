@@ -1,7 +1,6 @@
 """Tests for API token management, validation, refresh, and error handling."""  # Test token only
 
 import pytest
-
 from fastapi.testclient import TestClient
 
 try:

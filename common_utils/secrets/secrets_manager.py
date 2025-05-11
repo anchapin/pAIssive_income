@@ -6,11 +6,7 @@ This module provides a unified interface for managing secrets across different b
 # Standard library imports
 import enum
 import os
-
-from typing import Any
-from typing import Optional
-from typing import Protocol
-from typing import Union
+from typing import Any, Optional, Protocol, Union
 
 # Third-party imports
 # Local imports
@@ -470,8 +466,7 @@ class SecretsManager:
             dict[str, Any]: Dictionary of environment variables with sensitive information masked
         """
         # Import secure logging utilities with enhanced sensitive field patterns
-        from common_utils.logging.secure_logging import is_sensitive_key
-        from common_utils.logging.secure_logging import mask_sensitive_data
+        from common_utils.logging.secure_logging import is_sensitive_key, mask_sensitive_data
 
         # Create a filtered and sanitized view of environment variables
         safe_env_vars: dict[str, Any] = {}
