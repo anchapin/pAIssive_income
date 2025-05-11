@@ -42,8 +42,8 @@ class TestAPIServer(unittest.TestCase):
         response = conn.getresponse()
         data = json.loads(response.read().decode())
 
-        self.assertEqual(response.status, 200)
-        self.assertEqual(data["status"], "ok")
+        assert response.status == 200
+        assert data["status"] == "ok"
         conn.close()
 
     def test_not_found(self):
@@ -53,9 +53,9 @@ class TestAPIServer(unittest.TestCase):
         response = conn.getresponse()
         data = json.loads(response.read().decode())
 
-        self.assertEqual(response.status, 404)
-        self.assertEqual(data["error"], "Not found")
-        self.assertEqual(data["path"], "/nonexistent-endpoint")
+        assert response.status == 404
+        assert data["error"] == "Not found"
+        assert data["path"] == "/nonexistent-endpoint"
         conn.close()
 
 

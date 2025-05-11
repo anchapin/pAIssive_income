@@ -6,7 +6,10 @@ to prevent sensitive information from being logged in clear text.
 
 import logging
 
-from .secure_logging import get_secure_logger, mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
+
+# Create a default logger instance
+logger = get_secure_logger("examples")
 
 # Configure basic logging
 logging.basicConfig(
@@ -14,7 +17,7 @@ logging.basicConfig(
 )
 
 
-def example_secure_logger():
+def example_secure_logger() -> None:
     """Demonstrate the secure logger usage."""
     # Get a secure logger
     logger = get_secure_logger("example")
@@ -41,7 +44,7 @@ def example_secure_logger():
     logger.info(f"User data: {user_data}")
 
 
-def example_mask_sensitive_data():
+def example_mask_sensitive_data() -> None:
     """Demonstrate direct usage of the mask_sensitive_data function."""
     # Standard logger
     logger = logging.getLogger("standard_logger")
@@ -65,8 +68,8 @@ def example_mask_sensitive_data():
 
 
 if __name__ == "__main__":
-    print("Example of using secure logger:")
+    logger.info("Example of using secure logger:")
     example_secure_logger()
 
-    print("\nExample of using mask_sensitive_data function:")
+    logger.info("\nExample of using mask_sensitive_data function:")
     example_mask_sensitive_data()

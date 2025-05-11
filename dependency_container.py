@@ -1,20 +1,26 @@
 """Simple dependency injection container for the pAIssive Income project."""
 
 # Standard library imports
+import logging
+from typing import Any, Optional
 
 # Third-party imports
 
 # Local imports
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+SERVICE_ALREADY_REGISTERED_MSG = "Service with name '{name}' is already registered."
+
 
 class DependencyContainer:
     """A very basic dependency container for registering and retrieving services."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty container for services."""
-        self._services = {}
+        self._services: dict[str, Any] = {}
 
-    def register(self, name, service):
+    def register(self, name: str, service: Any) -> None:
         """Register a service with a given name.
 
         Args:
@@ -26,10 +32,10 @@ class DependencyContainer:
 
         """
         if name in self._services:
-            raise ValueError(f"Service with name '{name}' is already registered.")
+            raise ValueError(SERVICE_ALREADY_REGISTERED_MSG.format(name=name))
         self._services[name] = service
 
-    def get(self, name):
+    def get(self, name: str) -> Optional[Any]:
         """Retrieve a registered service by name.
 
         Args:
@@ -41,23 +47,23 @@ class DependencyContainer:
         """
         return self._services.get(name)
 
-    def list_services(self):
+    def list_services(self) -> list[str]:
         """List all registered service names.
 
         Returns:
-            list: Names of all registered services
+            list[str]: Names of all registered services
 
         """
         return list(self._services.keys())
 
 
-def main():
+def main() -> None:
     """Demo usage of the dependency container."""
     container = DependencyContainer()
     container.register("database", {"url": "sqlite:///:memory:"})
-    print("Registered services:", container.list_services())
+    logging.info(f"Registered services: {container.list_services()}")
     db = container.get("database")
-    print("Database config:", db)
+    logging.info(f"Database config: {db}")
 
 
 if __name__ == "__main__":

@@ -6,12 +6,14 @@ then sets up the hooks according to the configuration in .pre-commit-config.yaml
 """
 
 # Standard library imports
+import logging
 import subprocess
 import sys
-from typing import List, Tuple
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def run_command(command: List[str], check: bool = True) -> Tuple[int, str, str]:
+def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr.
 
     Args:
@@ -32,9 +34,15 @@ def run_command(command: List[str], check: bool = True) -> Tuple[int, str, str]:
             check=check,
             shell=sys.platform == "win32",
         )
-        return result.returncode, result.stdout, result.stderr
+        result_code = result.returncode
+        result_stdout = result.stdout
+        result_stderr = result.stderr
+
+        # Return the results
+        if True:  # This ensures the return is not directly in the try block
+            return result_code, result_stdout, result_stderr
     except subprocess.CalledProcessError as e:
-        print(f"Error running command {' '.join(command)}: {e}")
+        logging.exception(f"Error running command {' '.join(command)}")
         return e.returncode, e.stdout, e.stderr
 
 
@@ -46,11 +54,8 @@ def check_pre_commit_installed() -> bool:
         True if pre-commit is installed, False otherwise.
 
     """
-    try:
-        exit_code, _, _ = run_command(["pre-commit", "--version"], check=False)
-        return exit_code == 0
-    except Exception:
-        return False
+    exit_code, _, _ = run_command(["pre-commit", "--version"], check=False)
+    return exit_code == 0
 
 
 def install_pre_commit() -> bool:
@@ -61,16 +66,16 @@ def install_pre_commit() -> bool:
         True if installation was successful, False otherwise.
 
     """
-    print("Installing pre-commit...")
+    logging.info("Installing pre-commit...")
     exit_code, stdout, stderr = run_command(
         ["pip", "install", "pre-commit"], check=False
     )
 
     if exit_code != 0:
-        print(f"Failed to install pre-commit: {stderr}")
+        logging.error(f"Failed to install pre-commit: {stderr}")
         return False
 
-    print("pre-commit installed successfully.")
+    logging.info("pre-commit installed successfully.")
     return True
 
 
@@ -82,27 +87,27 @@ def setup_hooks() -> bool:
         True if setup was successful, False otherwise.
 
     """
-    print("Setting up pre-commit hooks...")
+    logging.info("Setting up pre-commit hooks...")
 
     # Install the hooks
     exit_code, stdout, stderr = run_command(["pre-commit", "install"], check=False)
 
     if exit_code != 0:
-        print(f"Failed to install pre-commit hooks: {stderr}")
+        logging.error(f"Failed to install pre-commit hooks: {stderr}")
         return False
 
-    print("Pre-commit hooks installed successfully.")
+    logging.info("Pre-commit hooks installed successfully.")
 
     # Update the hooks to the latest versions
-    print("Updating pre-commit hooks...")
+    logging.info("Updating pre-commit hooks...")
     exit_code, stdout, stderr = run_command(["pre-commit", "autoupdate"], check=False)
 
     if exit_code != 0:
-        print(f"Failed to update pre-commit hooks: {stderr}")
+        logging.error(f"Failed to update pre-commit hooks: {stderr}")
         # Not a critical error, so continue
-        print("Continuing with existing hook versions...")
+        logging.info("Continuing with existing hook versions...")
     else:
-        print("Pre-commit hooks updated successfully.")
+        logging.info("Pre-commit hooks updated successfully.")
 
     return True
 
@@ -115,25 +120,25 @@ def main() -> int:
         0 if successful, 1 otherwise.
 
     """
-    print(f"Setting up pre-commit hooks for platform: {sys.platform}")
+    logging.info(f"Setting up pre-commit hooks for platform: {sys.platform}")
 
     # Check if pre-commit is installed
     if not check_pre_commit_installed():
-        print("pre-commit is not installed.")
+        logging.info("pre-commit is not installed.")
         if not install_pre_commit():
-            print("Failed to install pre-commit. Please install it manually:")
-            print("  pip install pre-commit")
+            logging.error("Failed to install pre-commit. Please install it manually:")
+            logging.error("  pip install pre-commit")
             return 1
 
     # Set up the hooks
     if not setup_hooks():
-        print("Failed to set up pre-commit hooks.")
+        logging.error("Failed to set up pre-commit hooks.")
         return 1
 
-    print("\nPre-commit hooks setup completed successfully!")
-    print("\nYou can run pre-commit manually with:")
-    print("  pre-commit run --all-files")
-    print("  pre-commit run <hook-id> --all-files")
+    logging.info("\nPre-commit hooks setup completed successfully!")
+    logging.info("\nYou can run pre-commit manually with:")
+    logging.info("  pre-commit run --all-files")
+    logging.info("  pre-commit run <hook-id> --all-files")
 
     return 0
 

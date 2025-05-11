@@ -7,11 +7,14 @@ the changes made to the workflow file work as expected.
 
 import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 def run_command(command: str, cwd: Optional[str] = None) -> tuple:
@@ -36,9 +39,10 @@ def run_command(command: str, cwd: Optional[str] = None) -> tuple:
         )
         stdout, stderr = process.communicate()
         return_code = process.returncode
-        return stdout, stderr, return_code
     except Exception as e:
         return "", str(e), 1
+    else:
+        return stdout, stderr, return_code
 
 
 def ensure_directory(directory: str) -> None:
@@ -58,7 +62,7 @@ def test_safety_scan() -> bool:
         bool: True if successful, False otherwise
 
     """
-    print("\n=== Testing Safety Scan ===")
+    logger.info("\n=== Testing Safety Scan ===")
     ensure_directory("security-reports")
 
     # Create fallback safety results file
@@ -66,11 +70,11 @@ def test_safety_scan() -> bool:
         f.write("[]")
 
     # Run safety check
-    print("Running safety check...")
+    logger.info("Running safety check...")
     stdout, stderr, return_code = run_command("safety check --json")
 
     if return_code != 0 and "command not found" in stderr:
-        print("Safety not installed. Installing...")
+        logger.info("Safety not installed. Installing...")
         run_command("pip install safety")
         stdout, stderr, return_code = run_command("safety check --json")
 
@@ -81,23 +85,23 @@ def test_safety_scan() -> bool:
         # Validate JSON format
         try:
             json.loads(stdout)
-            print("Safety output is valid JSON")
+            logger.info("Safety output is valid JSON")
             os.rename(
                 "security-reports/safety-results.json.tmp",
                 "security-reports/safety-results.json",
             )
         except json.JSONDecodeError:
-            print("Safety output is not valid JSON. Using empty results.")
-            print("Invalid JSON content:")
-            print(stdout[:100])  # Show first 100 characters
+            logger.warning("Safety output is not valid JSON. Using empty results.")
+            logger.exception("Invalid JSON content")
+            logger.debug(f"First 100 characters: {stdout[:100]}")
     else:
-        print("Safety check produced no output")
+        logger.warning("Safety check produced no output")
         if stderr:
-            print("Safety error log:")
-            print(stderr)
+            logger.error("Safety error log:")
+            logger.error(stderr)
 
     # Convert to SARIF format
-    print("Converting Safety results to SARIF format...")
+    logger.info("Converting Safety results to SARIF format...")
     stdout, stderr, return_code = run_command(
         "python sarif_utils.py security-reports/safety-results.json "
         "security-reports/safety-results.sarif Safety "
@@ -105,10 +109,10 @@ def test_safety_scan() -> bool:
     )
 
     if return_code != 0:
-        print(f"Error converting Safety results to SARIF: {stderr}")
+        logger.error(f"Error converting Safety results to SARIF: {stderr}")
         return False
 
-    print("Safety scan test completed")
+    logger.info("Safety scan test completed")
     return True
 
 
@@ -119,7 +123,7 @@ def test_bandit_scan() -> bool:
         bool: True if successful, False otherwise
 
     """
-    print("\n=== Testing Bandit Scan ===")
+    logger.info("\n=== Testing Bandit Scan ===")
     ensure_directory("security-reports")
 
     # Create fallback bandit results file
@@ -127,11 +131,11 @@ def test_bandit_scan() -> bool:
         f.write("[]")
 
     # Run bandit scan
-    print("Running bandit scan...")
+    logger.info("Running bandit scan...")
     stdout, stderr, return_code = run_command("bandit -r . -f json")
 
     if return_code != 0 and "command not found" in stderr:
-        print("Bandit not installed. Installing...")
+        logger.info("Bandit not installed. Installing...")
         run_command("pip install bandit")
         stdout, stderr, return_code = run_command("bandit -r . -f json")
 
@@ -142,23 +146,23 @@ def test_bandit_scan() -> bool:
         # Validate JSON format
         try:
             json.loads(stdout)
-            print("Bandit output is valid JSON")
+            logger.info("Bandit output is valid JSON")
             os.rename(
                 "security-reports/bandit-results.json.tmp",
                 "security-reports/bandit-results.json",
             )
         except json.JSONDecodeError:
-            print("Bandit output is not valid JSON. Using empty results.")
-            print("Invalid JSON content:")
-            print(stdout[:100])  # Show first 100 characters
+            logger.warning("Bandit output is not valid JSON. Using empty results.")
+            logger.warning("Invalid JSON content:")
+            logger.warning(stdout[:100])  # Show first 100 characters
     else:
-        print("Bandit scan produced no output")
+        logger.warning("Bandit scan produced no output")
         if stderr:
-            print("Bandit error log:")
-            print(stderr)
+            logger.warning("Bandit error log:")
+            logger.warning(stderr)
 
     # Convert to SARIF format
-    print("Converting Bandit results to SARIF format...")
+    logger.info("Converting Bandit results to SARIF format...")
     stdout, stderr, return_code = run_command(
         "python sarif_utils.py security-reports/bandit-results.json "
         "security-reports/bandit-results.sarif Bandit "
@@ -166,10 +170,10 @@ def test_bandit_scan() -> bool:
     )
 
     if return_code != 0:
-        print(f"Error converting Bandit results to SARIF: {stderr}")
+        logger.error(f"Error converting Bandit results to SARIF: {stderr}")
         return False
 
-    print("Bandit scan test completed")
+    logger.info("Bandit scan test completed")
     return True
 
 
@@ -180,14 +184,14 @@ def test_sarif_file_handling() -> bool:
         bool: True if successful, False otherwise
 
     """
-    print("\n=== Testing SARIF File Handling ===")
+    logger.info("\n=== Testing SARIF File Handling ===")
     ensure_directory("security-reports")
     ensure_directory("security-reports/compressed")
 
     # Check if SARIF files exist
     sarif_files = list(Path("security-reports").glob("*.sarif"))
     if not sarif_files:
-        print("No SARIF files found. Creating a test SARIF file...")
+        logger.info("No SARIF files found. Creating a test SARIF file...")
 
         # Create a test SARIF file
         stdout, stderr, return_code = run_command(
@@ -196,33 +200,33 @@ def test_sarif_file_handling() -> bool:
         )
 
         if return_code != 0:
-            print(f"Error creating test SARIF file: {stderr}")
+            logger.error(f"Error creating test SARIF file: {stderr}")
             return False
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
     # Process SARIF files
     for sarif_file in sarif_files:
-        print(f"Processing {sarif_file}...")
+        logger.info(f"Processing {sarif_file}...")
 
         # Check file size
         file_size = os.path.getsize(sarif_file)
-        print(f"File size: {file_size} bytes")
+        logger.info(f"File size: {file_size} bytes")
 
         # Validate SARIF format
         try:
             with open(sarif_file) as f:
                 json.load(f)
-            print(f"✅ {sarif_file} is valid JSON")
+            logger.info(f"✅ {sarif_file} is valid JSON")
         except json.JSONDecodeError:
-            print(f"❌ {sarif_file} is not valid JSON")
-            print("Creating a valid but empty SARIF file as fallback")
+            logger.warning(f"❌ {sarif_file} is not valid JSON")
+            logger.info("Creating a valid but empty SARIF file as fallback")
             stdout, stderr, return_code = run_command(
                 f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
             )
 
             if return_code != 0:
-                print(f"Error creating fallback SARIF file: {stderr}")
+                logger.exception("Error creating fallback SARIF file")
                 return False
 
         # Create compressed version
@@ -232,12 +236,12 @@ def test_sarif_file_handling() -> bool:
         )
 
         if return_code != 0:
-            print(f"Error creating compressed version: {stderr}")
+            logger.error(f"Error creating compressed version: {stderr}")
             return False
 
-        print(f"Created compressed version: {compressed_file}")
+        logger.info(f"Created compressed version: {compressed_file}")
 
-    print("SARIF file handling test completed")
+    logger.info("SARIF file handling test completed")
     return True
 
 
@@ -274,10 +278,10 @@ def main() -> int:
         success = test_sarif_file_handling() and success
 
     if success:
-        print("\n✅ All tests completed successfully")
+        logger.info("\n✅ All tests completed successfully")
         return 0
     else:
-        print("\n❌ Some tests failed")
+        logger.warning("\n❌ Some tests failed")
         return 1
 
 
