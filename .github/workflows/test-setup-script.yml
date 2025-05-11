@@ -67,17 +67,22 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
-      - name: Verify pnpm lock file
-        run: |
-          if [ ! -f "pnpm-lock.yaml" ]; then
-            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
-            exit 1
-          fi
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'pnpm'
+          cache: 'npm' # Changed from pnpm to npm
+
+      - name: Check for npm lock file (package-lock.json)
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Install Node.js dependencies (npm)
+        run: npm install
 
       - name: Verify Node.js installation
         run: |
@@ -154,18 +159,11 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
 
-      - name: Verify pnpm lock file
-        run: |
-          if [ ! -f "pnpm-lock.yaml" ]; then
-            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
-            exit 1
-          fi
-        shell: bash # Ensure bash is used for this script on Windows
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'pnpm'
+          cache: 'npm' # Changed from pnpm to npm
 
       - name: Check for package-lock.json
         run: |
@@ -217,17 +215,22 @@ jobs:
       - name: Verify Ruff Installation
         run: ruff --version
 
-      - name: Verify pnpm lock file
-        run: |
-          if [ ! -f "pnpm-lock.yaml" ]; then
-            echo "Error: pnpm-lock.yaml is missing. Please commit pnpm-lock.yaml."
-            exit 1
-          fi
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'pnpm'
+          cache: 'npm' # Changed from pnpm to npm
+
+      - name: Check for npm lock file (package-lock.json)
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: package-lock.json is missing. Please generate and commit it."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Install Node.js dependencies (npm)
+        run: npm install
 
       - name: Verify Node.js installation
         run: |
