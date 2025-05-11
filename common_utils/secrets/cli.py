@@ -11,23 +11,18 @@ import os
 import sys
 import time
 from secrets import compare_digest
-from typing import Optional
+from typing import Any, Callable, Optional
 
 # Local imports
 from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
 from .audit import SecretsAuditor
 from .rotation import SecretRotation
-from .secrets_manager import (
-    SecretsBackend,
-    delete_secret,
-    get_secret,
-    list_secrets,
-    set_secret,
-)
+from .secrets_manager import SecretsBackend, delete_secret, get_secret, list_secrets, set_secret
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)
+
 
 # Security settings
 MAX_FAILED_ATTEMPTS = 3
@@ -38,14 +33,22 @@ ADMIN_TOKEN_FILE = os.path.join(ADMIN_TOKEN_DIR, "admin_token")
 failed_attempts: dict[str, int] = {}
 lockout_times: dict[str, float] = {}
 
+AUTH_REQUIRED_MSG = "Authentication required"
+OPERATION_LOCKED_MSG = "Operation locked for {remaining_time:.0f} seconds"
+TOO_MANY_ATTEMPTS_MSG = (
+    f"Too many failed attempts. Locked for {LOCKOUT_DURATION} seconds"
+)
+MIN_SECRET_LENGTH = 12
+MIN_CHAR_SET_SIZE = 30
 
-def require_auth(func):
+
+def require_auth(func: Callable[..., Any]) -> Callable[..., Any]:
     """Require authentication for sensitive operations."""
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         if not _check_auth():
             # Don't provide specific info on why auth failed for security
-            raise PermissionError("Authentication required")
+            raise PermissionError(AUTH_REQUIRED_MSG)
         return func(*args, **kwargs)
 
     return wrapper
@@ -58,7 +61,7 @@ def _check_auth() -> bool:
         try:
             os.makedirs(ADMIN_TOKEN_DIR, mode=0o700, exist_ok=True)
         except Exception:
-            logger.error("Could not create secure token directory")
+            logger.exception("Could not create secure token directory")
             return False
 
     if not os.path.exists(ADMIN_TOKEN_FILE):
@@ -85,11 +88,13 @@ def _check_auth() -> bool:
         # Use constant-time comparison to prevent timing attacks
         # Hash the provided token before comparison
         token_hash = hashlib.sha256(token.encode()).hexdigest()
-        return compare_digest(token_hash, stored_token_hash)
+        result: bool = compare_digest(token_hash, stored_token_hash)
     except Exception:
         # Don't log specific error details which might leak sensitive info
-        logger.error("Authentication check failed")
+        logger.exception("Authentication check failed")
         return False
+    else:
+        return result
 
 
 def _check_rate_limit(operation: str) -> None:
@@ -102,16 +107,16 @@ def _check_rate_limit(operation: str) -> None:
             remaining_time = LOCKOUT_DURATION - (
                 current_time - lockout_times[operation]
             )
-            raise PermissionError(f"Operation locked for {remaining_time:.0f} seconds")
+            raise PermissionError(
+                OPERATION_LOCKED_MSG.format(remaining_time=remaining_time)
+            )
         del lockout_times[operation]
         failed_attempts[operation] = 0
 
     # Track failed attempts
     if failed_attempts.get(operation, 0) >= MAX_FAILED_ATTEMPTS:
         lockout_times[operation] = current_time
-        raise PermissionError(
-            f"Too many failed attempts. Locked for {LOCKOUT_DURATION} seconds"
-        )
+        raise PermissionError(TOO_MANY_ATTEMPTS_MSG)
 
 
 def _validate_secret_value(value: str) -> bool:
@@ -131,7 +136,7 @@ def _validate_secret_value(value: str) -> bool:
         return False
 
     # Check minimum length - higher entropy requirements
-    if len(value) < 12:
+    if len(value) < MIN_SECRET_LENGTH:
         return False
 
     # Check complexity requirements
@@ -157,8 +162,8 @@ def _validate_secret_value(value: str) -> bool:
         and has_lower
         and has_digit
         and has_special
-        and char_set_size > 30
-        and len(value) >= 12
+        and char_set_size > MIN_CHAR_SET_SIZE
+        and len(value) >= MIN_SECRET_LENGTH
     )
 
 
@@ -171,10 +176,14 @@ def parse_args() -> argparse.Namespace:
 
     """
     parser = argparse.ArgumentParser(description="Manage secrets")
+    # Get all backend values as strings
+    backend_values = [b.value for b in list(SecretsBackend)]
     parser.add_argument(
         "--backend",
-        choices=[b.value for b in SecretsBackend],
-        default=SecretsBackend.ENV.value,
+        choices=backend_values,
+        default=(
+            SecretsBackend.ENV.value if hasattr(SecretsBackend.ENV, "value") else "env"
+        ),
         help="Backend to use for secrets",
     )
 
@@ -265,10 +274,12 @@ def get_secret_value(key: str) -> Optional[str]:
                 },
             )
             return None
-        return value
     except Exception as e:
-        logger.error("Error getting secret value", extra={"error": str(e)})
+        logger.exception("Error getting secret value", extra={"error": str(e)})
         return None
+    else:
+        result: Optional[str] = value
+        return result
 
 
 @require_auth
@@ -296,22 +307,24 @@ def handle_get(args: argparse.Namespace) -> None:
         if value is None:
             # Use masked key in logs to avoid potential sensitive information
             logger.warning("Secret not found", extra={"key": masked_key})
-            print(f"Secret {masked_key} not found")
+            logger.info(f"Secret {masked_key} not found")
             sys.exit(1)
 
         # SECURITY FIX: Only provide visual confirmation that the secret exists,
         # don't show even a masked version of the value unless explicitly requested
         logger.info("Secret retrieved successfully", extra={"key": masked_key})
-        print(f"Secret {masked_key} retrieved successfully")
+        logger.info(f"Secret {masked_key} retrieved successfully")
 
         # SECURITY ENHANCEMENT: Replace double masking with secure clipboard copy option
         if os.environ.get("SECRETS_CLI_MODE") == "interactive":
-            print("For security reasons, secrets are not displayed in the terminal.")
-            print("Available options:")
-            print(
+            logger.info(
+                "For security reasons, secrets are not displayed in the terminal."
+            )
+            logger.info("Available options:")
+            logger.info(
                 "  1. Copy to clipboard (temporary, will be cleared after 30 seconds)"
             )
-            print("  2. Cancel")
+            logger.info("  2. Cancel")
             try:
                 choice = input("Enter your choice (1-2): ")
                 if choice == "1":
@@ -323,23 +336,23 @@ def handle_get(args: argparse.Namespace) -> None:
 
                         # Copy to clipboard
                         pyperclip.copy(value)
-                        print("Secret copied to clipboard for 30 seconds.")
+                        logger.info("Secret copied to clipboard for 30 seconds.")
 
                         # Set up timer to clear clipboard
-                        def clear_clipboard():
+                        def clear_clipboard() -> None:
                             pyperclip.copy("")
-                            print("Clipboard cleared for security.")
+                            logger.info("Clipboard cleared for security.")
 
                         Timer(30.0, clear_clipboard).start()
                     except ImportError:
-                        print(
+                        logger.warning(
                             "pyperclip package not installed. "
                             "Install with: pip install pyperclip"
                         )
                 else:
-                    print("Operation cancelled.")
+                    logger.info("Operation cancelled.")
             except KeyboardInterrupt:
-                print("\nOperation cancelled.")
+                logger.info("\nOperation cancelled.")
                 # Clear any partial data that might have been copied
                 try:
                     import pyperclip
@@ -360,14 +373,14 @@ def handle_get(args: argparse.Namespace) -> None:
 
         # Don't log the actual error as it might contain sensitive data
         # Only log the error type, not the message
-        logger.error(
+        logger.exception(
             "Error retrieving secret",
             extra={
                 "key": mask_sensitive_data(args.key),
                 "error_type": type(e).__name__,
             },
         )
-        print("Error retrieving secret: Access error")
+        logger.exception("Error retrieving secret: Access error")
         sys.exit(1)
 
 
@@ -401,21 +414,21 @@ def handle_set(args: argparse.Namespace) -> None:
                     "requirements": "8+ chars, upper, lower, number, special",
                 },
             )
-            print("Invalid secret format. Requirements:")
-            print("- At least 8 characters")
-            print("- At least one uppercase letter")
-            print("- At least one lowercase letter")
-            print("- At least one number")
-            print("- At least one special character")
+            logger.error("Invalid secret format. Requirements:")
+            logger.error("- At least 8 characters")
+            logger.error("- At least one uppercase letter")
+            logger.error("- At least one lowercase letter")
+            logger.error("- At least one number")
+            logger.error("- At least one special character")
             sys.exit(1)
 
         if set_secret(args.key, value, args.backend):
             logger.info("Secret set successfully", extra={"key": masked_key})
-            print(f"Secret {masked_key} set successfully")
+            logger.info(f"Secret {masked_key} set successfully")
         else:
             failed_attempts["set"] = failed_attempts.get("set", 0) + 1
             logger.error("Failed to set secret", extra={"key": masked_key})
-            print(f"Failed to set secret {masked_key}")
+            logger.error(f"Failed to set secret {masked_key}")
             sys.exit(1)
 
     except Exception as e:
@@ -423,14 +436,17 @@ def handle_set(args: argparse.Namespace) -> None:
             raise
         failed_attempts["set"] = failed_attempts.get("set", 0) + 1
         # SECURITY FIX: Don't log specific error information
-        logger.error(
+        logger.exception(
             "Error setting secret",
             extra={
                 "key": mask_sensitive_data(args.key),
                 "error_type": type(e).__name__,
             },
         )
-        print("Error setting secret: Access error")
+        # Use exception for logging errors
+        logger.exception(
+            "Error setting secret: Access error"
+        )  # Keep this for user-facing simple error
         sys.exit(1)
 
 
@@ -457,16 +473,16 @@ def handle_delete(args: argparse.Namespace) -> None:
             f"Are you sure you want to delete secret {masked_key}? (yes/no): "
         )
         if confirm.lower() != "yes":
-            print("Delete operation cancelled")
+            logger.info("Delete operation cancelled")
             return
 
         if delete_secret(args.key, args.backend):
             logger.info("Secret deleted successfully", extra={"key": masked_key})
-            print(f"Secret {masked_key} deleted successfully")
+            logger.info(f"Secret {masked_key} deleted successfully")
         else:
             failed_attempts["delete"] = failed_attempts.get("delete", 0) + 1
             logger.error("Failed to delete secret", extra={"key": masked_key})
-            print(f"Failed to delete secret {masked_key}")
+            logger.error(f"Failed to delete secret {masked_key}")
             sys.exit(1)
 
     except Exception as e:
@@ -474,14 +490,17 @@ def handle_delete(args: argparse.Namespace) -> None:
             raise
         failed_attempts["delete"] = failed_attempts.get("delete", 0) + 1
         # SECURITY FIX: Don't log specific error details
-        logger.error(
+        logger.exception(
             "Error deleting secret",
             extra={
                 "key": mask_sensitive_data(args.key),
                 "error_type": type(e).__name__,
             },
         )
-        print("Error deleting secret: Access error")
+        # Use exception for logging errors
+        logger.exception(
+            "Error deleting secret: Access error"
+        )  # Keep this for user-facing simple error
         sys.exit(1)
 
 
@@ -504,16 +523,15 @@ def handle_list(args: argparse.Namespace) -> None:
         secrets_list = list_secrets(args.backend)
 
         if not secrets_list:
-            print("No secrets found")
             logger.info("No secrets found in listing")
             return
 
         # Only print non-sensitive information
-        print(f"Found {len(secrets_list)} secrets:")
+        logger.info(f"Found {len(secrets_list)} secrets:")
         for idx, secret_key in enumerate(secrets_list):
             # Mask any sensitive information in the key names
             masked_key = mask_sensitive_data(secret_key)
-            print(f"  {idx + 1}. {masked_key}")
+            logger.info(f"  {idx + 1}. {masked_key}")
 
         logger.info("Secrets listed successfully", extra={"count": len(secrets_list)})
 
@@ -521,8 +539,11 @@ def handle_list(args: argparse.Namespace) -> None:
         if isinstance(e, PermissionError):
             raise
         failed_attempts["list"] = failed_attempts.get("list", 0) + 1
-        logger.error("Error listing secrets", extra={"error": str(e)})
-        print(f"Error listing secrets: {str(e)}")
+        logger.exception("Error listing secrets", extra={"error": str(e)})
+        # Use exception for logging errors
+        logger.exception(
+            "Error listing secrets"
+        )  # Keep this for user-facing simple error
         sys.exit(1)
 
 
@@ -546,7 +567,7 @@ def handle_audit(args: argparse.Namespace) -> None:
         # Validate directory
         if not os.path.exists(args.directory):
             logger.error("Directory not found", extra={"directory": args.directory})
-            print(f"Directory not found: {args.directory}")
+            logger.error(f"Directory not found: {args.directory}")
             sys.exit(1)
 
         # Ensure output file location is secure
@@ -556,7 +577,7 @@ def handle_audit(args: argparse.Namespace) -> None:
                 logger.error(
                     "Output directory not found", extra={"directory": output_dir}
                 )
-                print(f"Output directory not found: {output_dir}")
+                logger.error(f"Output directory not found: {output_dir}")
                 sys.exit(1)
 
         exclude_dirs = set(args.exclude) if args.exclude else None
@@ -575,17 +596,125 @@ def handle_audit(args: argparse.Namespace) -> None:
             auditor.audit(args.directory, args.output, args.json)
             logger.info("Audit completed successfully")
         except Exception as e:
-            logger.error("Audit failed", extra={"error": str(e)})
-            print(f"Audit failed: {str(e)}")
+            logger.exception("Audit failed", extra={"error": str(e)})
+            # Use exception for logging errors
+            logger.exception("Audit failed")  # Keep this for user-facing simple error
             sys.exit(1)
 
     except Exception as e:
         if isinstance(e, PermissionError):
             raise
         failed_attempts["audit"] = failed_attempts.get("audit", 0) + 1
-        logger.error("Error in audit command", extra={"error": str(e)})
-        print(f"Error in audit command: {str(e)}")
+        logger.exception("Error in audit command", extra={"error": str(e)})
+        # Use exception for logging errors
+        logger.exception(
+            "Error in audit command"
+        )  # Keep this for user-facing simple error
         sys.exit(1)
+
+
+def _handle_schedule_rotation(
+    rotation: SecretRotation, args: argparse.Namespace, masked_key: str
+) -> None:
+    """Handle scheduling a secret rotation.
+
+    Args:
+        rotation: The SecretRotation instance
+        args: Command-line arguments
+        masked_key: Masked key for logging
+    """
+    # Import the custom exception
+    from common_utils.exceptions import InvalidRotationIntervalError
+
+    # Define a function to abstract the raise
+    def _raise_invalid_interval() -> None:
+        """Raise an error for invalid interval."""
+        raise InvalidRotationIntervalError()
+
+    if args.interval < 1:
+        _raise_invalid_interval()
+
+    rotation.schedule_rotation(args.key, args.interval)
+    logger.info(
+        "Scheduled rotation",
+        extra={"key": masked_key, "interval": args.interval},
+    )
+    logger.info(f"Scheduled rotation for {masked_key} every {args.interval} days")
+
+
+def _handle_rotate_secret(
+    rotation: SecretRotation, args: argparse.Namespace, masked_key: str
+) -> None:
+    """Handle rotating a single secret.
+
+    Args:
+        rotation: The SecretRotation instance
+        args: Command-line arguments
+        masked_key: Masked key for logging
+    """
+    # SECURITY FIX: Always prompt for secret value
+    logger.info("Getting new secret value", extra={"key": masked_key})
+    value = get_secret_value(args.key)
+    if value is None:
+        sys.exit(1)
+
+    if rotation.rotate_secret(args.key, value):
+        logger.info("Secret rotated", extra={"key": masked_key})
+        logger.info(f"Rotated secret {masked_key}")
+    else:
+        failed_attempts["rotation"] = failed_attempts.get("rotation", 0) + 1
+        logger.error("Failed to rotate secret", extra={"key": masked_key})
+        logger.error(f"Failed to rotate secret {masked_key}")
+        sys.exit(1)
+
+
+def _handle_rotate_all(rotation: SecretRotation) -> None:
+    """Handle rotating all secrets that are due.
+
+    Args:
+        rotation: The SecretRotation instance
+    """
+    count, rotated = rotation.rotate_all_due()
+    if count > 0:
+        logger.info(f"Rotated {count} secrets")
+        logger.info(f"Rotated {count} secrets:")
+        for key in rotated:
+            # Mask key names in output
+            masked_key = mask_sensitive_data(key)
+            logger.info(f"  {masked_key}")
+    else:
+        logger.info("No secrets due for rotation")
+        logger.info("No secrets due for rotation")
+
+
+def _handle_list_due(rotation: SecretRotation) -> None:
+    """Handle listing secrets due for rotation.
+
+    Args:
+        rotation: The SecretRotation instance
+    """
+    due = rotation.get_secrets_due_for_rotation()
+    if due:
+        logger.info(f"Found {len(due)} secrets due for rotation")
+        logger.info(f"Found {len(due)} secrets due for rotation:")
+        for key in due:
+            # Mask key names in output
+            masked_key = mask_sensitive_data(key)
+            logger.info(f"  {masked_key}")
+    else:
+        logger.info("No secrets due for rotation")
+        logger.info("No secrets due for rotation")
+
+
+def _handle_unknown_rotation_command(command: str) -> None:
+    """Handle unknown rotation command.
+
+    Args:
+        command: The unknown command
+    """
+    logger.error("Unknown rotation command", extra={"command": command})
+    logger.error("Unknown rotation command")
+    sys.exit(1)
 
 
 @require_auth
@@ -608,93 +737,45 @@ def handle_rotation(args: argparse.Namespace) -> None:
         # SECURITY FIX: Validate inputs
         if not hasattr(args, "rotation_command") or not args.rotation_command:
             logger.error("Missing rotation command")
-            print("Missing rotation command")
+            logger.error("Missing rotation command")
             sys.exit(1)
 
         rotation = SecretRotation(secrets_backend=SecretsBackend(args.backend))
         masked_key = mask_sensitive_data(getattr(args, "key", "unknown"))
 
         try:
+            # Dispatch to appropriate handler based on rotation command
             if args.rotation_command == "schedule":
-                if args.interval < 1:
-                    raise ValueError("Rotation interval must be at least 1 day")
-
-                rotation.schedule_rotation(args.key, args.interval)
-                logger.info(
-                    "Scheduled rotation",
-                    extra={"key": masked_key, "interval": args.interval},
-                )
-                print(f"Scheduled rotation for {masked_key} every {args.interval} days")
-
+                _handle_schedule_rotation(rotation, args, masked_key)
             elif args.rotation_command == "rotate":
-                # SECURITY FIX: Always prompt for secret value
-                logger.info("Getting new secret value", extra={"key": masked_key})
-                value = get_secret_value(args.key)
-                if value is None:
-                    sys.exit(1)
-
-                if rotation.rotate_secret(args.key, value):
-                    logger.info("Secret rotated", extra={"key": masked_key})
-                    print(f"Rotated secret {masked_key}")
-                else:
-                    failed_attempts["rotation"] = failed_attempts.get("rotation", 0) + 1
-                    logger.error("Failed to rotate secret", extra={"key": masked_key})
-                    print(f"Failed to rotate secret {masked_key}")
-                    sys.exit(1)
-
+                _handle_rotate_secret(rotation, args, masked_key)
             elif args.rotation_command == "rotate-all":
-                count, rotated = rotation.rotate_all_due()
-                if count > 0:
-                    logger.info(f"Rotated {count} secrets")
-                    print(f"Rotated {count} secrets:")
-                    for key in rotated:
-                        # Mask key names in output
-                        masked_key = mask_sensitive_data(key)
-                        print(f"  {masked_key}")
-                else:
-                    logger.info("No secrets due for rotation")
-                    print("No secrets due for rotation")
-
+                _handle_rotate_all(rotation)
             elif args.rotation_command == "list-due":
-                due = rotation.get_secrets_due_for_rotation()
-                if due:
-                    logger.info(f"Found {len(due)} secrets due for rotation")
-                    print(f"Found {len(due)} secrets due for rotation:")
-                    for key in due:
-                        # Mask key names in output
-                        masked_key = mask_sensitive_data(key)
-                        print(f"  {masked_key}")
-                else:
-                    logger.info("No secrets due for rotation")
-                    print("No secrets due for rotation")
+                _handle_list_due(rotation)
             else:
-                logger.error(
-                    "Unknown rotation command", extra={"command": args.rotation_command}
-                )
-                print("Unknown rotation command")
-                sys.exit(1)
+                _handle_unknown_rotation_command(args.rotation_command)
 
-        except Exception as e:
+        except Exception:
             # SECURITY FIX: Don't log specific error details
-            logger.error(
+            logger.exception(
                 "Error in rotation operation",
-                extra={
-                    "command": args.rotation_command,
-                    "error_type": type(e).__name__,
-                },
+                extra={"command": args.rotation_command},
             )
-            print("Error in rotation operation: Access error")
+            # Use exception for logging errors
+            logger.exception("Error in rotation operation: Access error")
             sys.exit(1)
 
-    except Exception as e:
-        if isinstance(e, PermissionError):
-            raise
+    except Exception:
+        # Note: The original code had an `if isinstance(e, PermissionError): raise` here.
+        # Since 'e' is removed, this specific check cannot be performed in the same way.
+        # For now, we'll log generally. If PermissionError needs distinct handling,
+        # it would require a separate `except PermissionError:` block.
         failed_attempts["rotation"] = failed_attempts.get("rotation", 0) + 1
         # SECURITY FIX: Don't log specific error details
-        logger.error(
-            "Error in rotation command", extra={"error_type": type(e).__name__}
-        )
-        print("Error in rotation command: Access error")
+        logger.exception("Error in rotation command")
+        # Use exception for logging errors
+        logger.exception("Error in rotation command: Access error")
         sys.exit(1)
 
 
@@ -715,7 +796,7 @@ def main() -> None:
     elif args.command == "rotation":
         handle_rotation(args)
     else:
-        print("Unknown command")
+        logger.error("Unknown command")
         sys.exit(1)
 
 

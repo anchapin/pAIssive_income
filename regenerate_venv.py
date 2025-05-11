@@ -1,193 +1,323 @@
-#!/usr/bin/env python3
-"""Regenerate the virtual environment using uv for full reproducibility.
+"""Regenerate venv using uv."""
 
-This script removes the existing virtual environment and creates a new one using uv,
-then generates a requirements.lock with uv (from pyproject.toml if present),
-and finally syncs all dependencies using uv pip sync for an exact, reproducible environment.
-"""
-
+import logging
 import os
 import platform
 import shutil
 import subprocess
 import sys
 
+from typing import NoReturn
+from typing import Optional
 
-def run_command(command, cwd=None):
-    """Run a command and return its output.
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    Args:
-        command: The command to run as a list of strings
-        cwd: The working directory to run the command in
 
-    Returns:
-        The command output as a string
+def run_command(
+    command: list[str], cwd: Optional[str] = None, capture_output: bool = True
+) -> Optional[str]:
+    """Run a command and return its output."""
+    logging.info("Running command: {}".format(" ".join(command)))
+    try:
+        process_result = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=capture_output,
+            text=True,
+            check=False,  # We handle the error code manually
+        )
 
-    """
-    print(f"Running command: {' '.join(command)}")
-    result = subprocess.run(
-        command,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+        if process_result.returncode != 0:
+            error_message = f"Command failed with exit code {process_result.returncode}"
+            logging.error(error_message)
+            if process_result.stdout:
+                stdout_content = process_result.stdout.strip()
+                logging.error(f"STDOUT: {stdout_content}")
+            if process_result.stderr:
+                stderr_content = process_result.stderr.strip()
+                logging.error(f"STDERR: {stderr_content}")
+            return None
+        elif capture_output:
+            return (
+                process_result.stdout.strip()
+                if process_result.stdout is not None
+                else ""
+            )
+        else:
+            return ""
 
-    if result.returncode != 0:
-        print(f"Command failed with exit code {result.returncode}")
-        print(f"STDOUT: {result.stdout}")
-        print(f"STDERR: {result.stderr}")
+    except FileNotFoundError:
+        logging.exception(  # TRY401
+            f"Command not found: {command[0]}. Please ensure it is installed and in your PATH."
+        )
+        return None
+    except Exception:  # TRY401
+        logging.exception(  # Removed str(e) from message
+            "Error running command '{}'".format(" ".join(command))
+        )
         return None
 
-    return result.stdout
 
-
-def is_venv_active():
+def is_venv_active() -> bool:
     """Check if a virtual environment is active."""
     return hasattr(sys, "real_prefix") or (
         hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
     )
 
 
-def main():
-    """Regenerate the virtual environment."""
-    # Determine the Python executable to use
-    python_exe = sys.executable
+def check_venv_status() -> bool:
+    """Check if we're in a virtual environment.
 
-    # Check if we're in a virtual environment
+    Returns:
+        bool: True if it's safe to proceed, False otherwise
+    """
     if is_venv_active():
-        print("Warning: You are currently in a virtual environment.")
-        print("This script will deactivate it and create a new one.")
-        print("Please run this script from outside any virtual environment.")
-        return 1
+        logging.warning("You are currently in a virtual environment.")
+        logging.warning(
+            "This script should be run from outside any virtual environment."
+        )
+    return True
 
-    # Determine the virtual environment directory
-    venv_dir = os.path.join(os.getcwd(), ".venv")
 
-    # Remove the existing virtual environment
+def remove_venv_windows(
+    venv_dir: str,
+) -> tuple[bool, str]:  # ARG001: Removed unused python_exe
+    """Remove virtual environment on Windows.
+
+    Args:
+        venv_dir: Path to the virtual environment
+
+    Returns:
+        tuple: (success, venv_dir_to_use)
+    """
+    try:
+        shutil.rmtree(venv_dir, ignore_errors=True)
+        if os.path.exists(venv_dir):
+            logging.info("Using Windows 'rd' command to force-remove directory...")
+            subprocess.run(
+                ["rd", "/s", "/q", venv_dir], check=False, capture_output=True
+            )
+
+        if not os.path.exists(venv_dir):
+            logging.info(f"Virtual environment at {venv_dir} removed successfully.")
+            return True, venv_dir
+    except (OSError, shutil.Error):
+        logging.exception(
+            f"Error removing virtual environment at {venv_dir} with shutil/rd"
+        )
+
     if os.path.exists(venv_dir):
-        print(f"Removing existing virtual environment at {venv_dir}...")
-
-        # On Windows, try using the rd command which can force-remove directories
-        if platform.system() == "Windows":
-            try:
-                # First try to use shutil.rmtree
-                shutil.rmtree(venv_dir, ignore_errors=True)
-
-                # If the directory still exists, use the rd command
-                if os.path.exists(venv_dir):
-                    print("Using Windows rd command to force-remove directory...")
-                    subprocess.run(["rd", "/s", "/q", venv_dir], check=False)
-            except Exception as e:
-                print(f"Error removing virtual environment with shutil: {e}")
-
-                # If the directory still exists, try a different approach
-                if os.path.exists(venv_dir):
-                    print(
-                        "Directory still exists. Creating a new virtual environment "
-                        "with a different name..."
-                    )
-                    temp_venv_dir = os.path.join(os.getcwd(), ".venv_new")
-                    venv_result = run_command([python_exe, "-m", "venv", temp_venv_dir])
-                    if venv_result is None:
-                        return 1
-
-                    print(f"New virtual environment created at {temp_venv_dir}")
-                    print(
-                        "Please manually delete the old .venv directory and rename "
-                        ".venv_new to .venv"
-                    )
-                    print(
-                        "after closing all applications that might be using "
-                        "the virtual environment."
-                    )
-                    return 0
+        logging.warning(
+            f"Failed to remove {venv_dir}. It might be in use. "
+            + "Attempting to create a new virtual environment with a different name (.venv_new)."
+        )
+        temp_venv_dir: str = os.path.join(os.path.dirname(venv_dir), ".venv_new")
+        if os.path.exists(temp_venv_dir):
+            shutil.rmtree(temp_venv_dir, ignore_errors=True)
+            if os.path.exists(temp_venv_dir):
+                subprocess.run(
+                    ["rd", "/s", "/q", temp_venv_dir], check=False, capture_output=True
+                )
+        try:
+            os.makedirs(temp_venv_dir, exist_ok=True)
+            logging.info(
+                f"Using temporary directory {temp_venv_dir} for the new virtual environment."
+            )
+            logging.warning(
+                f"Please manually delete the old {venv_dir} directory and rename {temp_venv_dir} to {os.path.basename(venv_dir)} "
+                + "after closing all applications that might be using the old virtual environment."
+            )
+        except OSError:
+            logging.exception(f"Could not create temporary directory {temp_venv_dir}")
+            return False, venv_dir
         else:
-            # On Unix-like systems, use shutil.rmtree
-            try:
-                shutil.rmtree(venv_dir)
-                print("Virtual environment removed successfully.")
-            except Exception as e:
-                print(f"Error removing virtual environment: {e}")
-                return 1
+            return True, temp_venv_dir
+    return True, venv_dir
 
-    # Create a new virtual environment with uv
-    print(f"Creating new virtual environment at {venv_dir} using uv...")
-    venv_result = run_command(["uv", "venv", ".venv"])
-    if venv_result is None:
-        print("Failed to create virtual environment with uv.")
-        return 1
 
-    # Determine the python executable in the virtual environment
-    if platform.system() == "Windows":
-        python_venv_exe = os.path.join(venv_dir, "Scripts", "python")
+def remove_venv_unix(venv_dir: str) -> bool:
+    """Remove virtual environment on Unix-like systems."""
+    try:
+        shutil.rmtree(venv_dir)
+        logging.info(f"Virtual environment at {venv_dir} removed successfully.")
+    except (OSError, shutil.Error):
+        logging.exception(f"Error removing virtual environment at {venv_dir}")
+        return False
     else:
-        python_venv_exe = os.path.join(venv_dir, "bin", "python")
+        return True
 
-    # Activate venv for subsequent uv commands (subprocess uses full path anyway)
 
-    # Generate or update requirements.lock using uv pip compile
-    lockfile = "requirements.lock"
-    # Prefer pyproject.toml if present, otherwise combine requirements.txt and requirements-dev.txt
+def remove_existing_venv(
+    venv_dir: str,
+) -> tuple[bool, str]:  # ARG001: Removed python_exe
+    """Remove the existing virtual environment."""
+    if not os.path.exists(venv_dir):
+        logging.info(f"No existing virtual environment found at {venv_dir}.")
+        return True, venv_dir
+
+    logging.info(f"Attempting to remove existing virtual environment at {venv_dir}...")
+    if platform.system() == "Windows":
+        return remove_venv_windows(venv_dir)
+    else:
+        success = remove_venv_unix(venv_dir)
+        return success, venv_dir
+
+
+def get_venv_python(venv_dir: str) -> str:
+    """Get the path to the Python executable in the virtual environment."""
+    if platform.system() == "Windows":
+        return str(os.path.join(venv_dir, "Scripts", "python.exe"))
+    else:
+        return str(os.path.join(venv_dir, "bin", "python"))
+
+
+def print_activation_instructions(venv_dir: str) -> None:
+    """Print instructions for activating the virtual environment."""
+    logging.info("To activate the virtual environment, run:")
+    rel_venv_dir = os.path.relpath(venv_dir)
+    if platform.system() == "Windows":
+        logging.info(f"    {rel_venv_dir}\\Scripts\\activate")
+    else:
+        logging.info(f"    source {rel_venv_dir}/bin/activate")
+
+
+def _determine_compile_sources() -> Optional[list[str]]:
+    """Determines the source files for `uv pip compile`.
+
+    Returns:
+        A list of source files, or None if no suitable source is found.
+    """
+    compile_sources = []
     if os.path.exists("pyproject.toml"):
-        print("Generating/updating lockfile (requirements.lock) from pyproject.toml via uv...")
-        compile_result = run_command([
-            python_venv_exe, "-m", "uv", "pip", "compile", "pyproject.toml", "-o", lockfile
-        ])
-        if compile_result is None:
-            print("Failed to generate requirements.lock from pyproject.toml.")
-            return 1
-    elif os.path.exists("requirements.txt") and os.path.exists("requirements-dev.txt"):
-        # Merge requirements.txt and requirements-dev.txt for complete reproducibility
-        print("Combining requirements.txt and requirements-dev.txt into requirements-full.txt for locking...")
-        with open("requirements.txt", "r") as req, open("requirements-dev.txt", "r") as dev, open("requirements-full.txt", "w") as full:
-            full.write(req.read())
-            full.write("\n")
-            full.write(dev.read())
-        print("Generating/updating lockfile (requirements.lock) from requirements-full.txt via uv...")
-        compile_result = run_command([
-            python_venv_exe, "-m", "uv", "pip", "compile", "requirements-full.txt", "-o", lockfile
-        ])
-        os.remove("requirements-full.txt")
-        if compile_result is None:
-            print("Failed to generate requirements.lock from requirements-full.txt.")
-            return 1
+        logging.info("Using pyproject.toml for lockfile generation.")
+        compile_sources.append("pyproject.toml")
     elif os.path.exists("requirements.txt"):
-        print("Generating/updating lockfile (requirements.lock) from requirements.txt via uv...")
-        compile_result = run_command([
-            python_venv_exe, "-m", "uv", "pip", "compile", "requirements.txt", "-o", lockfile
-        ])
-        if compile_result is None:
-            print("Failed to generate requirements.lock from requirements.txt.")
-            return 1
+        logging.info("Using requirements.txt for lockfile generation.")
+        compile_sources.append("requirements.txt")
+        if os.path.exists("requirements-dev.txt"):
+            logging.info("Including requirements-dev.txt for lockfile generation.")
+            compile_sources.append("requirements-dev.txt")
     else:
-        print("No pyproject.toml or requirements.txt found for locking.")
-        return 1
+        logging.error(
+            "No pyproject.toml or requirements.txt found for lockfile generation."
+        )
+        return None
+    return compile_sources
 
-    # Sync environment to the lockfile
-    print("Syncing environment to requirements.lock with uv pip sync (fully reproducible)...")
-    sync_result = run_command([
-        python_venv_exe, "-m", "uv", "pip", "sync", lockfile
-    ])
-    if sync_result is None:
-        print("Failed to sync environment to requirements.lock with uv.")
-        return 1
 
-    print("\nVirtual environment regenerated and fully synced with uv!")
-    print("To activate the virtual environment, run:")
-    if platform.system() == "Windows":
-        print("    .venv\\Scripts\\activate")
-    else:
-        print("    source .venv/bin/activate")
+def _perform_venv_creation_steps(
+    python_exe: str, venv_dir_path: str
+) -> tuple[bool, str]:
+    """Handles the core venv regeneration steps.
 
-    print("\nTo update dependencies in the future:")
-    print("  1. Edit pyproject.toml or requirements.txt/requirements-dev.txt as needed.")
-    print("  2. Run this script to re-lock and re-sync your environment: python regenerate_venv.py")
-    print("For deterministic installs, always use uv pip sync requirements.lock.")
-    print("NOTE: Both production and development dependencies are included in the lockfile for full reproducibility.")
+    Returns:
+        A tuple (success_flag, path_to_active_venv).
+    """
+    operation_successful = True
+    current_venv_path = venv_dir_path  # Start with original, update if temp is used
 
+    # Step 1: Remove existing venv
+    op_success, venv_to_use_after_removal = remove_existing_venv(venv_dir_path)
+    current_venv_path = venv_to_use_after_removal  # Update path, might be .venv_new
+    if not op_success:
+        logging.error("Failed to remove existing virtual environment. Aborting.")
+        operation_successful = False
+
+    # Step 2: Check for uv and create venv
+    if operation_successful:
+        logging.info(
+            f"Creating new virtual environment at {current_venv_path} using uv..."
+        )
+        if not shutil.which("uv"):
+            logging.error(
+                "uv command not found. Please install uv and ensure it's in your PATH."
+            )
+            operation_successful = False
+        else:
+            venv_creation_command = [
+                "uv",
+                "venv",
+                current_venv_path,
+                "--python",
+                python_exe,
+            ]
+            if run_command(venv_creation_command) is None:
+                logging.error(
+                    f"Failed to create virtual environment at {current_venv_path} with uv."
+                )
+                operation_successful = False
+
+    # Step 3: Compile requirements
+    if operation_successful:
+        python_in_venv: str = get_venv_python(current_venv_path)
+        lockfile: str = "requirements.lock"
+        logging.info(f"Generating/updating {lockfile} using uv pip compile...")
+        compile_command_base = ["uv", "pip", "compile"]
+        output_args = ["-o", lockfile]
+        compile_sources = _determine_compile_sources()
+        if compile_sources is None:  # Error already logged by helper
+            operation_successful = False
+        elif run_command(compile_command_base + compile_sources + output_args) is None:
+            logging.error(f"Failed to generate {lockfile}.")
+            operation_successful = False
+
+    # Step 4: Sync environment
+    if operation_successful:
+        # python_in_venv and lockfile are already defined in Step 3 and in scope.
+        # Re-getting python_in_venv is fine if current_venv_path could change, but it doesn't between step 3 and 4.
+        # For clarity, ensure they are used from the Step 3 definition.
+        logging.info(f"Syncing environment to {lockfile} with uv pip sync...")
+        sync_command = ["uv", "pip", "sync", lockfile, "--python", python_in_venv]
+        if run_command(sync_command) is None:
+            logging.error(f"Failed to sync environment to {lockfile} with uv.")
+            operation_successful = False
+
+    return operation_successful, current_venv_path
+
+
+def main() -> int:
+    """Regenerate the virtual environment using uv."""
+    if not check_venv_status():
+        # This path is currently not taken as check_venv_status always returns True
+        # If it could fail, this would be a return point.
+        pass
+
+    python_exe: str = sys.executable
+    base_venv_dir_name = ".venv"
+    venv_dir_path: str = os.path.join(os.getcwd(), base_venv_dir_name)
+
+    success, venv_to_use = _perform_venv_creation_steps(python_exe, venv_dir_path)
+
+    if not success:
+        return 1  # Errors are logged within the helper
+
+    logging.info("\nVirtual environment regenerated and fully synced with uv!")
+    print_activation_instructions(venv_to_use)
+
+    logging.info("\nTo update dependencies in the future:")
+    logging.info(
+        "  1. Edit pyproject.toml or requirements.txt/requirements-dev.txt as needed."
+    )
+    logging.info(
+        "  2. Run this script again (python regenerate_venv.py) to re-lock and re-sync."
+    )
+    logging.info(
+        "For deterministic installs, ensure requirements.lock is committed and use 'uv pip sync requirements.lock'."
+    )
+
+    if venv_to_use != venv_dir_path:
+        logging.warning(
+            f"\nIMPORTANT: The new environment is in {venv_to_use}. "
+            + f"Remember to manually delete the old {os.path.basename(venv_dir_path)} directory and rename "
+            + f"{os.path.basename(venv_to_use)} to {os.path.basename(venv_dir_path)}."
+        )
     return 0
 
 
+def _exit(code: int = 0) -> NoReturn:
+    """Exit the program with the given code."""
+    sys.exit(code)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    _exit(main())

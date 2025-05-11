@@ -5,13 +5,16 @@ about the errors found, including line numbers and error messages.
 """
 
 import ast
+import logging
 import os
 import sys
 import traceback
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
+def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
     """Find Python files to process.
 
     Args:
@@ -82,7 +85,7 @@ def find_python_files(specific_files: Optional[List[str]] = None) -> List[str]:
     return python_files
 
 
-def check_syntax(file_path: str) -> Tuple[bool, Optional[str], Optional[int]]:
+def check_syntax(file_path: str) -> tuple[bool, Optional[str], Optional[int]]:
     """Check a Python file for syntax errors.
 
     Args:
@@ -98,16 +101,17 @@ def check_syntax(file_path: str) -> Tuple[bool, Optional[str], Optional[int]]:
         with open(file_path, encoding="utf-8") as f:
             source = f.read()
 
-        # Try to parse the file with ast
-        ast.parse(source, filename=file_path)
-        return False, None, None
     except SyntaxError as e:
         return True, str(e), e.lineno
     except Exception as e:
         return True, str(e), None
+    else:
+        # Try to parse the file with ast
+        ast.parse(source, filename=file_path)
+        return False, None, None
 
 
-def check_files(files: List[str]) -> Dict[str, Tuple[str, Optional[int]]]:
+def check_files(files: list[str]) -> dict[str, tuple[str, Optional[int]]]:
     """Check multiple Python files for syntax errors.
 
     Args:
@@ -119,7 +123,7 @@ def check_files(files: List[str]) -> Dict[str, Tuple[str, Optional[int]]]:
         Dictionary mapping file paths to (error_message, line_number) tuples.
 
     """
-    errors: Dict[str, Tuple[str, Optional[int]]] = {}
+    errors: dict[str, tuple[str, Optional[int]]] = {}
     for file_path in files:
         has_error, error_message, line_number = check_syntax(file_path)
         if has_error and error_message is not None:
@@ -141,7 +145,7 @@ def show_error_context(
 
     """
     if line_number is None:
-        print(f"Cannot show context for {file_path} (line number unknown)")
+        logging.warning(f"Cannot show context for {file_path} (line number unknown)")
         return
 
     try:
@@ -151,53 +155,54 @@ def show_error_context(
         start_line = max(0, line_number - context_lines - 1)
         end_line = min(len(lines), line_number + context_lines)
 
-        print(f"\nContext for error in {file_path}:")
-        print("-" * 60)
+        logging.info(f"\nContext for error in {file_path}:")
+        logging.info("-" * 60)
 
         for i in range(start_line, end_line):
             line_marker = ">" if i == line_number - 1 else " "
-            print(f"{line_marker} {i + 1:4d}: {lines[i].rstrip()}")
+            logging.info(f"{line_marker} {i + 1:4d}: {lines[i].rstrip()}")
 
-        print("-" * 60)
-    except Exception as e:
-        print(f"Error showing context: {e}")
+        logging.info("-" * 60)
+    except Exception:
+        logging.exception("Error showing context:")
 
 
 def main() -> int:
     """Run the main program to find syntax errors."""
     try:
-        print(f"Running find_syntax_errors.py on platform: {sys.platform}")
-        print(f"Python version: {sys.version}")
+        logging.info(f"Running find_syntax_errors.py on platform: {sys.platform}")
+        logging.info(f"Python version: {sys.version}")
 
         # Get files to check
         specific_files = sys.argv[1:] if len(sys.argv) > 1 else None
         python_files = find_python_files(specific_files)
 
         if not python_files:
-            print("No Python files found to check.")
+            logging.info("No Python files found to check.")
             return 0
 
-        print(f"Checking {len(python_files)} Python files for syntax errors...")
+        logging.info(f"Checking {len(python_files)} Python files for syntax errors...")
 
         # Check files for syntax errors
         errors = check_files(python_files)
 
         # Print results
         if not errors:
-            print("\nNo syntax errors found!")
+            logging.info("\nNo syntax errors found!")
             return 0
 
-        print(f"\nFound syntax errors in {len(errors)} files:")
+        logging.info(f"\nFound syntax errors in {len(errors)} files:")
 
         for file_path, (error_message, line_number) in errors.items():
             line_info = f" (line {line_number})" if line_number else ""
-            print(f"\n{file_path}{line_info}: {error_message}")
+            logging.error(f"\n{file_path}{line_info}: {error_message}")
             show_error_context(file_path, line_number)
 
-        return 1
-    except Exception as e:
-        print(f"Error in main function: {e}")
+    except Exception:
+        logging.exception("Error in main function:")
         traceback.print_exc()
+        return 1
+    else:
         return 1
 
 

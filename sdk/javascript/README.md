@@ -4,10 +4,8 @@ This package provides a JavaScript client for the pAIssive Income API, allowing 
 
 ## Installation
 
-You can install the package via npm:
-
-```bash
-npm install paissive-income-sdk
+You can install the package via pnpm:
+pnpm add paissive-income-sdk
 ```
 
 Or using yarn:
@@ -155,13 +153,13 @@ async function registerAndLogin() {
     const user = await client.user.register({
       username: "john_doe",
       email: "john.doe@example.com",
-      password: "secure_password123"
+      password: "example_password_123"
     });
 
     // Login
     const loginResult = await client.user.login({
       email: "john.doe@example.com",
-      password: "secure_password123"
+      password: "example_password_123"
     });
 
     // Get JWT token from login result

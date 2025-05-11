@@ -9,3 +9,7 @@ in Python files.
 # Third-party imports
 
 # Local imports
+
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

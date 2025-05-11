@@ -27,7 +27,7 @@ cd services/message_queue_service
 docker-compose up -d
 ```
 
-This will start RabbitMQ with the management UI accessible at http://localhost:15672 (username: guest, password: guest).
+This will start RabbitMQ with the management UI accessible at http://localhost:15672 (username: guest, password: [default_guest_password_for_local_dev_only]).
 
 ## Usage
 

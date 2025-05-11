@@ -14,6 +14,7 @@ Examples:
 """
 
 import argparse
+import logging
 import subprocess
 import sys
 
@@ -34,16 +35,22 @@ PHASE_MARKERS = {
     # Add more as needed
 }
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def main():
-    """Parse arguments and run the appropriate pytest command with markers."""
+
+def main() -> int:
+    """Parse arguments and run pytest with markers and coverage enforcement.
+
+    Returns:
+        Exit code from pytest execution.
+    """
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
     )
     parser.add_argument(
         "--phase",
         default="fast",
-        choices=list(PHASE_MARKERS.keys()) + ["custom"],
+        choices=[*list(PHASE_MARKERS.keys()), "custom"],
         help=(
             "Test phase to run. "
             "Default: fast (unit/smoke, excludes slow/integration/dependency). "
@@ -58,6 +65,11 @@ def main():
         help="Custom pytest marker expression (used only with --phase custom).",
     )
     parser.add_argument(
+        "--with-coverage",
+        action="store_true",
+        help="Run tests with coverage and enforce minimum coverage threshold (90%)",
+    )
+    parser.add_argument(
         "extra_pytest_args",
         nargs=argparse.REMAINDER,
         help="Extra arguments to pass to pytest (e.g., -k, --maxfail, etc.)",
@@ -68,8 +80,8 @@ def main():
 
     if phase == "custom":
         if not args.marker:
-            print(
-                "ERROR: --phase custom requires a marker expression with --marker/-m."
+            logging.error(
+                "--phase custom requires a marker expression with --marker/-m."
             )
             return 2
         marker_expr = args.marker
@@ -77,22 +89,31 @@ def main():
         marker_expr = PHASE_MARKERS[phase]
 
     pytest_cmd = [sys.executable, "-m", "pytest"]
+    if args.with_coverage:
+        pytest_cmd += [
+            "--cov=.",
+            "--cov-report=term-missing",
+            "--cov-report=xml",
+            "--cov-fail-under=90",
+        ]
     if marker_expr:
         pytest_cmd += ["-m", marker_expr]
     if args.extra_pytest_args:
         pytest_cmd += args.extra_pytest_args
 
-    print(f"Running tests with phase: {phase}")
+    logging.info(f"Running tests with phase: {phase}")
     if marker_expr:
-        print(f"Pytest marker expression: {marker_expr}")
+        logging.info(f"Pytest marker expression: {marker_expr}")
+    if args.with_coverage:
+        logging.info("Coverage reporting enabled (minimum threshold: 90%)")
     if args.extra_pytest_args:
-        print(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
+        logging.info(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
 
     try:
-        result = subprocess.run(pytest_cmd, check=False)
-        return result.returncode
+        result: subprocess.CompletedProcess = subprocess.run(pytest_cmd, check=False)
+        return int(result.returncode)
     except KeyboardInterrupt:
-        print("Test run interrupted by user.")
+        logging.info("Test run interrupted by user.")
         return 1
 
 

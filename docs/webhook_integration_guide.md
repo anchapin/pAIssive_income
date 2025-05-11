@@ -60,7 +60,7 @@ POST /api/v1/webhooks
   "is_active": true,
   "created_at": "2025-04-30T21:30:00Z",
   "last_called_at": null,
-  "secret": "whsec_abcdefghijklmnopqrstuvwxyz"
+  "secret": "whsec_example_secret_string_12345"
 }
 ```
 

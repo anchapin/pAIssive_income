@@ -6,7 +6,7 @@ This module provides a configuration manager that can handle secret references.
 # Standard library imports
 import json
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 # Third-party imports
 # Local imports
@@ -24,7 +24,7 @@ class SecretConfig:
     def __init__(
         self,
         config_file: Optional[str] = None,
-        secrets_backend: SecretsBackend = SecretsBackend.ENV,
+        secrets_backend: Optional[SecretsBackend] = None,
     ):
         """Initialize the configuration manager.
 
@@ -37,8 +37,8 @@ class SecretConfig:
         self.config_file = config_file or os.environ.get(
             "PAISSIVE_CONFIG_FILE", "config.json"
         )
-        self.secrets_backend = secrets_backend
-        self.config: Dict[str, Any] = {}
+        self.secrets_backend = secrets_backend or SecretsBackend.ENV
+        self.config: dict[str, Any] = {}
         self._load_config()
         logger.info(f"Configuration manager initialized with file: {self.config_file}")
 
@@ -56,8 +56,8 @@ class SecretConfig:
             with open(self.config_file, encoding="utf-8") as f:
                 self.config = json.load(f)
             logger.debug(f"Loaded configuration from {self.config_file}")
-        except Exception as e:
-            logger.error(f"Error loading configuration: {e}")
+        except Exception:
+            logger.exception("Error loading configuration")
 
     def _save_config(self) -> None:
         """Save the configuration to the file."""
@@ -69,8 +69,8 @@ class SecretConfig:
             with open(self.config_file, "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=2)
             logger.debug(f"Saved configuration to {self.config_file}")
-        except Exception as e:
-            logger.error(f"Error saving configuration: {e}")
+        except Exception:
+            logger.exception("Error saving configuration")
 
     def get(self, key: str, default: Any = None, use_secret: bool = False) -> Any:
         """Get a configuration value.
@@ -104,12 +104,17 @@ class SecretConfig:
                 return default
             value = value[part]
 
-        # If it's a secret reference, get the actual secret
-        if use_secret and isinstance(value, str) and value.startswith("secret:"):
-            secret_key = value[7:]  # Remove "secret:" prefix
-            # Don't log the actual key name as it might reveal sensitive information
-            logger.debug("Getting secret from configuration")
-            return get_secret(secret_key, self.secrets_backend)
+        # Process secret references if requested and value is a string
+        # Explicitly annotate value to help mypy understand the type
+        value_to_check: Any = value
+        if use_secret and isinstance(value_to_check, str):
+            # Check for secret reference prefix
+            secret_prefix = "secret:"
+            if value_to_check.startswith(secret_prefix):
+                # Extract the key and get the secret
+                secret_key = value_to_check[len(secret_prefix) :]
+                logger.debug("Getting secret from configuration")
+                return get_secret(secret_key, self.secrets_backend)
 
         # Don't log the actual key name as it might reveal sensitive information
         logger.debug("Got configuration value from config file")
@@ -176,13 +181,25 @@ class SecretConfig:
 
         # If it's a secret reference, delete the actual secret
         value = config[parts[-1]]
-        if use_secret and isinstance(value, str) and value.startswith("secret:"):
-            secret_key = value[7:]  # Remove "secret:" prefix
-            # Don't log the actual key name as it might reveal sensitive information
-            logger.debug("Deleting secret from configuration")
-            from .secrets_manager import delete_secret
+        # Process secret references if requested and value is a string
+        # Explicitly annotate value to help mypy understand the type
+        value_to_check: Any = value
+        if use_secret and isinstance(value_to_check, str):
+            # Check for secret reference prefix
+            secret_prefix = "secret:"
+            if value_to_check.startswith(secret_prefix):
+                # Extract the key and delete the secret
+                secret_key = value_to_check[len(secret_prefix) :]
+                logger.debug("Deleting secret from configuration")
+                from .secrets_manager import delete_secret
 
-            delete_secret(secret_key, self.secrets_backend)
+                # Delete the secret
+                delete_result = delete_secret(secret_key, self.secrets_backend)
+                # Log the result
+                if delete_result:
+                    logger.debug("Secret deleted successfully")
+                else:
+                    logger.debug("Failed to delete secret")
 
         # Delete from the configuration
         del config[parts[-1]]
