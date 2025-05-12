@@ -2,6 +2,7 @@
 
 import os
 
+
 class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb"

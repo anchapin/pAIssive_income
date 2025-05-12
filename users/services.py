@@ -14,8 +14,14 @@ import jwt
 
 # Local imports
 from common_utils.logging import get_logger
-from flask.models import User, db
 from users.auth import hash_credential, verify_credential
+
+# Database imports
+try:
+    from flask.models import User, db
+except ImportError:
+    User = None
+    db = None
 
 
 class AuthenticationError(ValueError):

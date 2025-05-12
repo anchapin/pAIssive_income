@@ -2,6 +2,7 @@
 
 # Standard library imports
 import os
+from typing import Any, Dict, Tuple
 
 # Local imports
 # Third-party imports
@@ -12,8 +13,12 @@ app = create_app()
 
 # Add health check endpoint
 @app.route("/health")
-def health_check() -> tuple:
-    """Return health status."""
+def health_check() -> Tuple[Dict[str, Any], int]:
+    """Return health status.
+
+    Returns:
+        Tuple[Dict[str, Any], int]: JSON response with health status and HTTP status code
+    """
     return jsonify({"status": "healthy"}), 200
 
 

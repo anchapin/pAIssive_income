@@ -294,6 +294,9 @@ Running the main script generates a complete project plan including:
   npm install -g pnpm
   ```
 
+- PostgreSQL 15+ (for database)
+  The project uses PostgreSQL as the database backend. See [DATABASE.md](DATABASE.md) for setup and migration instructions.
+
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
