@@ -51,11 +51,14 @@ echo # Add a newline for better readability before Python script output
 # Run the setup script with all arguments passed to this script
 echo "Executing: python3 enhanced_setup_dev_environment.py $@"
 
-# Check if --minimal flag is passed
+# Parse and forward all arguments properly
+# Check for specific flags
 if [[ "$*" == *"--minimal"* ]]; then
     echo "Detected --minimal flag, ensuring minimal profile is used"
-    python3 enhanced_setup_dev_environment.py --minimal --no-system-deps
+    # Forward all arguments including --minimal and any other flags like --ci-mode
+    python3 enhanced_setup_dev_environment.py "$@"
 else
+    # Forward all arguments as is
     python3 enhanced_setup_dev_environment.py "$@"
 fi
 
