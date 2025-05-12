@@ -1,17 +1,11 @@
 """test_user_service - Test module for user service."""
 
-import pytest
-import jwt
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from users.services import (
-    UserService,
-    AuthenticationError,
-    UserExistsError,
-    UserNotFoundError,
-    TokenError,
-)
+import pytest
+
+from users.services import UserExistsError, UserService
 
 
 @pytest.fixture

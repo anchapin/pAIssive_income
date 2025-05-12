@@ -7,7 +7,10 @@ authentication, and profile management.
 # Standard library imports
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
+
+# Import database models with fallback for testing environments
+# Import database models with fallback for testing environments
+from typing import Any, Dict, Optional, Protocol, Tuple, Type, cast
 
 # Third-party imports
 import jwt
@@ -16,12 +19,44 @@ import jwt
 from common_utils.logging import get_logger
 from users.auth import hash_credential, verify_credential
 
-# Database imports
+
+# Define protocol for User model to help with type checking
+class UserProtocol(Protocol):
+    id: str
+    username: str
+    email: str
+    password_hash: str
+    query: Any
+
+    def __init__(
+        self, username: str, email: str, password_hash: str, **kwargs: Any
+    ) -> None: ...
+
+    @classmethod
+    def filter(cls, *args: Any) -> Any: ...
+
+
+# Define protocol for DB session
+class DBSessionProtocol(Protocol):
+    session: Any
+
+    def add(self, obj: Any) -> None: ...
+
+    def commit(self) -> None: ...
+
+
+# Initialize with None values that will be replaced if imports succeed
+UserModel: Optional[Type[UserProtocol]] = None
+db_session: Optional[DBSessionProtocol] = None
+
 try:
     from flask.models import User, db
+
+    UserModel = cast(Type[UserProtocol], User)
+    db_session = cast(DBSessionProtocol, db)
 except ImportError:
-    User = None
-    db = None
+    # Keep the imports but don't redefine variables
+    pass
 
 
 class AuthenticationError(ValueError):
@@ -53,13 +88,19 @@ class TokenError(ValueError):
     pass
 
 
-# Initialize fallbacks for when imports fail
-try:
-    # Import already done at the top
+class UserModelNotAvailableError(ValueError):
+    """Raised when the User model is not available."""
+
     pass
-except ImportError:
-    User = None
-    db = None
+
+
+class DatabaseSessionNotAvailableError(ValueError):
+    """Raised when the database session is not available."""
+
+    pass
+
+
+# Remove redundant import fallback - already handled above
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -132,8 +173,14 @@ class UserService:
             if self.user_repository.find_by_email(email):
                 raise UserExistsError(UserExistsError.EMAIL_EXISTS)
         else:
-            existing_user = User.query.filter(
-                (User.username == username) | (User.email == email)
+            # Check if UserModel is available
+            if UserModel is None:
+                raise UserModelNotAvailableError()
+
+            # Use UserModel directly since we've checked it's not None
+            model = UserModel
+            existing_user = model.query.filter(
+                (model.username == username) | (model.email == email)
             ).first()
             if existing_user:
                 if existing_user.username == username:
@@ -144,12 +191,24 @@ class UserService:
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
 
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError()
+
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError()
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
         # Create User model instance
-        user = User(
+        user = model(
             username=username,
             email=email,
             password_hash=hashed_credential,
-            **{k: v for k, v in kwargs.items() if hasattr(User, k)},
+            **{k: v for k, v in kwargs.items() if hasattr(model, k)},
         )
         db.session.add(user)
         db.session.commit()
@@ -183,9 +242,16 @@ class UserService:
             Tuple[bool, Optional[Dict]]: (success, user_data)
 
         """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError()
+
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+
         # Find the user by username or email
-        user = User.query.filter(
-            (User.username == username_or_email) | (User.email == username_or_email)
+        user = model.query.filter(
+            (model.username == username_or_email) | (model.email == username_or_email)
         ).first()
 
         if not user:
@@ -205,6 +271,13 @@ class UserService:
         # Update last login time if field exists
         if hasattr(user, "last_login"):
             user.last_login = datetime.utcnow()
+
+            # Check if db_session is available
+            if db_session is None:
+                raise DatabaseSessionNotAvailableError()
+
+            # Use db_session directly since we've checked it's not None
+            db = db_session
             db.session.commit()
 
         # Return user data without sensitive information

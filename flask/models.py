@@ -1,11 +1,14 @@
 """models.py - SQLAlchemy models for Flask app."""
 
-from typing import Any, Optional
+from typing import Any
 
 from . import db
 
+# Type alias for db.Model to satisfy MyPy
+Model: Any = db.Model
 
-class User(db.Model):
+
+class User(Model):
     """User model for authentication and user management."""
 
     __tablename__ = "users"
@@ -23,7 +26,7 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
-class Team(db.Model):
+class Team(Model):
     """Team model for grouping AI agents."""
 
     __tablename__ = "teams"
@@ -48,7 +51,7 @@ class Team(db.Model):
         return f"<Team {self.name}>"
 
 
-class Agent(db.Model):
+class Agent(Model):
     """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"

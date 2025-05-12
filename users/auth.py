@@ -48,10 +48,13 @@ def hash_credential(credential: str) -> str:
     logger.debug("Authentication material processing completed")
 
     # Return as a string for database storage
-    return hashed_credential.decode("utf-8")
+    result: str = hashed_credential.decode("utf-8")
+    return result
 
 
-def verify_credential(plain_credential: str, hashed_credential: Union[bytes, str]) -> bool:
+def verify_credential(
+    plain_credential: str, hashed_credential: Union[bytes, str]
+) -> bool:
     """Verify an authentication credential against a hashed credential.
 
     Args:

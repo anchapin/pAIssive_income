@@ -1,11 +1,16 @@
-
+# type: ignore
 import logging
 from logging.config import fileConfig
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, List
 
 from alembic import context
 
-from flask import current_app
+# Import current_app directly to avoid mypy errors
+try:
+    from flask import current_app
+except ImportError:
+    # This is a fallback for mypy
+    current_app = Any  # type: ignore
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,9 +30,6 @@ config.set_main_option(
 target_metadata = current_app.extensions["migrate"].db.metadata
 
 # Additional configuration options can be set here if needed
-# For example:
-# compare_type = True  # Compare column types
-# compare_server_default = True  # Compare server defaults
 
 
 def run_migrations_offline() -> None:

@@ -1,21 +1,25 @@
 """__init__.py - Flask app initialization with SQLAlchemy."""
 
+from typing import Any
+
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
-from flask import Flask
+
+# Import Flask with type ignore
+from flask import Flask  # type: ignore
 
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app() -> Flask:
+def create_app() -> Any:
     """Create and configure the Flask application.
 
     Returns:
-        Flask: The configured Flask application
+        Any: The configured Flask application
     """
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -25,10 +29,9 @@ def create_app() -> Flask:
     migrate.init_app(app, db)
 
     # Import models so they're registered with SQLAlchemy
+    # Import inside function to avoid circular imports
     from . import models
 
-    # Register routes when needed
-    # For example: from .views import main_blueprint
-    # Then: app.register_blueprint(main_blueprint)
+    # Register routes here when implementing views
 
     return app

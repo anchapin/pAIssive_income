@@ -1,13 +1,33 @@
 """init_db.py - Initialize the database with tables and initial data."""
 
 import logging
-from typing import List, Optional
+import os
+import string
+from secrets import randbelow
 
 from flask import create_app
 from flask.models import Agent, Team, User, db
+from users.auth import hash_credential
 
 # Set up logger
 logger = logging.getLogger(__name__)
+
+
+def generate_secure_password(length: int = 16) -> str:
+    """Generate a secure random password.
+
+    Args:
+        length: Length of the password to generate
+
+    Returns:
+        A secure random password string
+    """
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    # Use a more secure method for random selection
+    password = ""
+    for _ in range(length):
+        password += alphabet[randbelow(len(alphabet))]
+    return password
 
 
 def init_db() -> None:
@@ -20,11 +40,20 @@ def init_db() -> None:
         # Check if admin user exists
         admin = User.query.filter_by(username="admin").first()
         if not admin:
+            # Generate a secure password for admin
+            admin_password = os.environ.get("ADMIN_INITIAL_PASSWORD")
+            if not admin_password:
+                admin_password = generate_secure_password()
+                logger.info(f"Generated secure admin password: {admin_password}")
+
+            # Hash the password
+            password_hash = hash_credential(admin_password)
+
             # Create admin user
             admin = User(
                 username="admin",
                 email="admin@example.com",
-                password_hash="$2b$12$1xxxxxxxxxxxxxxxxxxxxuZLbwxnpY0o58unSvIPxddLxGystU.O",  # placeholder hash
+                password_hash=password_hash,
             )
             db.session.add(admin)
 

@@ -1,7 +1,6 @@
 """run_migrations.py - Run database migrations."""
 
 import logging
-from typing import NoReturn
 
 from flask_migrate import upgrade
 

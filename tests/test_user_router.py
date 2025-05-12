@@ -1,14 +1,14 @@
 """test_user_router - Test module for user router."""
 
 import json
-from typing import Any, Callable, Dict
-from unittest.mock import MagicMock, patch
+from typing import Any
+from unittest.mock import patch
 
 import pytest
 
 from api.routes.user_router import user_bp
 from flask import Flask
-from users.services import AuthenticationError, UserExistsError
+from users.services import UserExistsError
 
 
 @pytest.fixture

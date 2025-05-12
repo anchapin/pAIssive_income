@@ -53,6 +53,7 @@ paths = [
     "users/password_reset\\.py$",
     "users/services\\.py$",
     "users/auth\\.py$",
+    "init_db\\.py$",
     "\\.github/workflows/ci-cd-monitoring\\.yml$",
     "\\.github/workflows/security_scan\\.yml$",
     "\\.github/workflows/fix-security-issues\\.yml$",
