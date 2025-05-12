@@ -187,19 +187,19 @@ jobs:
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps --ci-mode
 
       - name: Run setup script with backend-only profile
         if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps --ci-mode
 
       - name: Run setup script with ui-only profile
         if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps --ci-mode
 
       - name: Run setup script with full profile
         if: ${{ github.event.inputs.setup_profile == 'full' }}
-        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps --ci-mode
 
       - name: Verify setup
         run: |
@@ -639,11 +639,11 @@ jobs:
         shell: cmd
         run: |
           echo Running enhanced_setup_dev_environment.bat with --full flag...
-          enhanced_setup_dev_environment.bat --full
+          enhanced_setup_dev_environment.bat --full --no-system-deps --ci-mode
           if %ERRORLEVEL% neq 0 (
             echo Script execution failed with error code %ERRORLEVEL%
-            echo Trying again with no arguments...
-            enhanced_setup_dev_environment.bat
+            echo Trying again with minimal profile...
+            enhanced_setup_dev_environment.bat --minimal --no-system-deps --ci-mode
           )
 
   test-macos:
@@ -793,19 +793,19 @@ jobs:
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps --ci-mode
 
       - name: Run setup script with backend-only profile
         if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps --ci-mode
 
       - name: Run setup script with ui-only profile
         if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps --ci-mode
 
       - name: Run setup script with full profile
         if: ${{ github.event.inputs.setup_profile == 'full' }}
-        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps --ci-mode
 
       - name: Verify setup
         run: |
