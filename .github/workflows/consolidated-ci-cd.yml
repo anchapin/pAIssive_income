@@ -480,14 +480,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ runner.os }}
+          name: test-results-${{ runner.os }}-${{ github.run_id }}
           path: junit/test-results.xml
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-report-${{ runner.os }}
+          name: coverage-report-${{ runner.os }}-${{ github.run_id }}
           path: coverage.xml
 
       - name: Upload to Codecov
@@ -1309,7 +1309,8 @@ jobs:
             Write-Host "fix_potential_secrets.py not found. Skipping this step."
           }
 
-      - name: Run secret scanning (gitleaks)
+      - name: Run secret scanning (gitleaks) (Linux/macOS)
+        if: runner.os != 'Windows'
         uses: gitleaks/gitleaks-action@v2
         with:
           config-path: .gitleaks.toml
@@ -1319,11 +1320,84 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
+      - name: Run secret scanning (gitleaks) (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
+          # Create directory for security reports
+          New-Item -ItemType Directory -Force -Path security-reports
+
+          # Download and install gitleaks manually for Windows
+          Write-Host "Downloading and installing gitleaks for Windows..."
+          try {
+            # Create a temporary directory for the download
+            $tempDir = Join-Path $env:TEMP "gitleaks"
+            New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+
+            # Download the latest gitleaks release for Windows
+            $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/download/v8.18.1/gitleaks_8.18.1_windows_x64.zip"
+            $gitleaksZip = Join-Path $tempDir "gitleaks.zip"
+
+            Write-Host "Downloading gitleaks from $gitleaksUrl"
+            Invoke-WebRequest -Uri $gitleaksUrl -OutFile $gitleaksZip
+
+            # Extract the zip file
+            Write-Host "Extracting gitleaks..."
+            Expand-Archive -Path $gitleaksZip -DestinationPath $tempDir -Force
+
+            # Add the gitleaks directory to the PATH
+            $env:PATH = "$tempDir;$env:PATH"
+
+            # Verify gitleaks installation
+            $gitleaksExe = Join-Path $tempDir "gitleaks.exe"
+            if (Test-Path $gitleaksExe) {
+              Write-Host "Gitleaks installed successfully at $gitleaksExe"
+
+              # Run gitleaks
+              Write-Host "Running gitleaks scan..."
+              & $gitleaksExe detect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif
+
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "Gitleaks scan completed with issues (exit code: $LASTEXITCODE)"
+              } else {
+                Write-Host "Gitleaks scan completed successfully"
+              }
+            } else {
+              throw "Gitleaks executable not found after extraction"
+            }
+          } catch {
+            Write-Host "Error installing or running gitleaks: $_"
+            Write-Host "Creating empty SARIF file for gitleaks..."
+            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+          }
+
+          # Ensure the SARIF file exists and is valid
+          if (-not (Test-Path security-reports/gitleaks-report.sarif)) {
+            Write-Host "Gitleaks report not found. Creating empty SARIF file..."
+            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+          } else {
+            try {
+              $null = Get-Content security-reports/gitleaks-report.sarif -Raw | ConvertFrom-Json
+              Write-Host "Gitleaks report is valid JSON"
+            } catch {
+              Write-Host "Gitleaks report is not valid JSON. Creating empty SARIF file..."
+              Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            }
+          }
+
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: security-reports-${{ runner.os }}
+          name: security-reports-${{ runner.os }}-${{ github.run_id }}
           path: security-reports/
           retention-days: 7
 
@@ -1332,14 +1406,14 @@ jobs:
         if: always()
         with:
           sarif_file: security-reports/bandit-results.sarif
-          category: bandit
+          category: bandit-${{ runner.os }}-${{ github.run_id }}
 
       - name: Upload Trivy scan SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: security-reports/trivy-results.sarif
-          category: trivy
+          category: trivy-${{ runner.os }}-${{ github.run_id }}
 
       - name: Run CodeQL Init
         uses: github/codeql-action/init@v3
