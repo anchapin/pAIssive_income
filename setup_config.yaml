@@ -1,0 +1,20 @@
+system_dependencies:
+  check_system_deps: true
+  node_version: 18.x
+  force_install_deps: false
+environment_setup:
+  create_venv: true
+  install_deps: true
+  setup_pre_commit: true
+  configure_ide: true
+  ide: all
+setup_profile:
+  profile: full
+dependencies:
+  backend:
+  - requirements.txt
+  - requirements-dev.txt
+  ui:
+  - ui/react_frontend/package.json
+  minimal:
+  - requirements.txt

@@ -43,6 +43,9 @@ module.exports = {
     historyApiFallback: true,
     port: 3000,
     open: true,
-    hot: true
+    hot: true,
+    setupMiddlewares: (middlewares, devServer) => {
+      return middlewares;
+    }
   }
 };

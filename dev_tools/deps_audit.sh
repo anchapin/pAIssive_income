@@ -1,9 +1,8 @@
 #!/bin/bash
-# Run pip-audit for Python dependency security audit
-
-if command -v pip-audit &>/dev/null; then
-  echo "Running pip-audit..."
-  pip-audit
+# Run dependency security audit using uv pip audit
+if command -v uv &>/dev/null; then
+    echo "Running uv pip audit..."
+    uv pip audit
 else
-  echo "pip-audit not found."
+    echo "uv not found."
 fi

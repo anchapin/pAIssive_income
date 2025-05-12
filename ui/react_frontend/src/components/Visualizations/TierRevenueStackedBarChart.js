@@ -9,8 +9,8 @@ import {
   Legend,
   ResponsiveContainer,
   Brush,
-  ReferenceArea,
-  ReferenceLine
+  ReferenceLine,
+  Line
 } from 'recharts';
 import {
   Box,
@@ -18,7 +18,6 @@ import {
   ButtonGroup,
   FormGroup,
   FormControlLabel,
-  Checkbox,
   IconButton,
   Tooltip as MuiTooltip,
   Menu,
@@ -35,7 +34,8 @@ import {
   Grid,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
+  Slider
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import MoreVertIcon from '@mui/icons-material/MoreVert';

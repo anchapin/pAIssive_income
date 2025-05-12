@@ -128,11 +128,24 @@ export const AppProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       dispatch({ type: ActionTypes.SET_LOADING, payload: true });
-      const userData = await apiClient.user.getCurrentUser();
+
+      // Add timeout to prevent hanging API calls
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('API request timeout')), 5000);
+      });
+
+      // Race the API call against the timeout
+      const userData = await Promise.race([
+        apiClient.user.getCurrentUser(),
+        timeoutPromise
+      ]);
+
       dispatch({ type: ActionTypes.SET_USER, payload: userData });
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Set user to null but don't block rendering
       dispatch({ type: ActionTypes.SET_USER, payload: null });
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
     }
   };
 
