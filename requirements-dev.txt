@@ -15,3 +15,10 @@ pyjwt>=2.0.0
 pathspec>=0.12.1
 types-PyYAML
 pyyaml>=6.0.0
+
+# Flask and database dependencies
+flask>=2.3.0
+flask-sqlalchemy>=3.1.0
+flask-migrate>=4.0.0
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.0
