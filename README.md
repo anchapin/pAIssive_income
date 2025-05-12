@@ -36,7 +36,7 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
    enhanced_setup_dev_environment.bat
 
    # On Unix/Linux
-   ./enhanced_setup_dev_environment.sh 
+   ./enhanced_setup_dev_environment.sh
    # If you used setup_dev_environment.py directly before, use enhanced_setup_dev_environment.py
    # python enhanced_setup_dev_environment.py
    ```
@@ -53,7 +53,7 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 
    ```bash
    # Create virtual environment (specify your Python interpreter if needed)
-   uv venv .venv --python python3.12 
+   uv venv .venv --python python3.12
    # Activate virtual environment
    source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
    # Install dependencies
@@ -413,3 +413,15 @@ The project includes comprehensive API documentation that can be built from sour
 
    ```bash
    python generate_api_docs.py
+   ```
+
+### Documentation Updates Policy
+
+This project enforces a policy that documentation must be updated whenever code changes are made. A GitHub Actions workflow automatically checks that documentation files are updated when non-documentation files are changed in pull requests.
+
+Documentation files are defined as:
+
+- Any Markdown (*.md) file at the repository root
+- Any file (of any type) within the 'docs/' or 'docs_source/' directories
+
+When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.
