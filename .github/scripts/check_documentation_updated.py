@@ -23,7 +23,6 @@ import logging
 import os
 import subprocess
 import sys
-import traceback
 from pathlib import Path
 from typing import List
 
@@ -32,7 +31,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def get_changed_files() -> List[str]:
+def get_changed_files() -> List[str]:  # noqa: C901, PLR0915
     """
     Returns a list of files changed in the current PR or commit range.
     In a GitHub Actions PR context, compares against the base branch.
@@ -124,12 +123,8 @@ def get_changed_files() -> List[str]:
 
         files = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         logger.info(f"Found {len(files)} changed files")
-        return files
-    else:
-        return []
-
     except subprocess.CalledProcessError as e:
-        logger.exception(f"Error executing git command: {e}")
+        logger.exception("Error executing git command")
         logger.info(f"Command output: {e.stdout if hasattr(e, 'stdout') else 'N/A'}")
         logger.info(f"Command error: {e.stderr if hasattr(e, 'stderr') else 'N/A'}")
 
@@ -155,10 +150,11 @@ def get_changed_files() -> List[str]:
                     ]
 
             logger.warning("Fallback method failed, using empty file list")
-            return []
-        except Exception as fallback_error:
-            logger.exception(f"Fallback method failed: {fallback_error}")
-            return []
+        except Exception:
+            logger.exception("Fallback method failed")
+        return []
+    else:
+        return files
 
 
 def is_doc_file(path: str) -> bool:
@@ -231,9 +227,9 @@ def main() -> None:
                     logger.info(f"  - {f}")
             logger.info("✅ Documentation check passed.")
             sys.exit(0)
-    except Exception as e:
+    except Exception:
         # Catch any unexpected errors and log them, but don't fail the build
-        logger.exception(f"❗ Error during documentation check: {e}")
+        logger.exception("❗ Error during documentation check")
         logger.info("✅ Documentation check passed (due to error handling).")
         sys.exit(0)
 
