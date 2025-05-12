@@ -3,6 +3,7 @@
 
 import logging
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -13,8 +14,15 @@ def find_python_files() -> list[str]:
     """Find all Python files tracked by git (not ignored by .gitignore)."""
     try:
         # Use git ls-files to get all *.py files tracked by git
-        output = os.popen("git ls-files '*.py'").read()
-        python_files = [line.strip() for line in output.splitlines() if line.strip()]
+        result = subprocess.run(
+            ["git", "ls-files", "*.py"], capture_output=True, text=True, check=True
+        )
+        python_files = [
+            line.strip() for line in result.stdout.splitlines() if line.strip()
+        ]
+    except subprocess.CalledProcessError:
+        logging.exception("Error executing git ls-files command")
+        return []
     except Exception:
         logging.exception("Error finding git-tracked Python files")
         return []
