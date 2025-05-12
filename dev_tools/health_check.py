@@ -2,7 +2,7 @@
 """health_check.py.
 
 Orchestrates repository quality checks:
-- Linting (ruff)
+- Linting (ruff, replacing flake8)
 - Formatting (ruff format)
 - Static typing (mypy)
 - Security (bandit)

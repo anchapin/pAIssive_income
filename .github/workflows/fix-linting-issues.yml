@@ -221,6 +221,7 @@ jobs:
             CURRENT=0
             SUCCESS_COUNT=0
             FAILED_FILES=()
+            ERROR_LOGS=()
 
             for FILE in $PYTHON_FILES; do
               CURRENT=$((CURRENT+1))
@@ -233,19 +234,52 @@ jobs:
                 echo "Processing files $CURRENT-$BATCH_END of $TOTAL_FILES..."
               fi
 
+              # Create a temporary file for error output
+              ERROR_LOG=$(mktemp)
+
               if [[ "${{ inputs.check_only }}" == "true" ]]; then
-                if ruff check "$FILE"; then
+                if ruff check "$FILE" 2> "$ERROR_LOG"; then
                   SUCCESS_COUNT=$((SUCCESS_COUNT+1))
                 else
                   FAILED_FILES+=("$FILE")
+                  ERROR_LOGS+=("$FILE: $(cat "$ERROR_LOG")")
+                  echo "Error in file $FILE:"
+                  cat "$ERROR_LOG"
                 fi
               else
-                if ruff check --fix "$FILE" && ruff format "$FILE"; then
+                # Run ruff check and format separately to capture specific errors
+                CHECK_SUCCESS=false
+                FORMAT_SUCCESS=false
+
+                if ruff check --fix "$FILE" 2> "$ERROR_LOG"; then
+                  CHECK_SUCCESS=true
+                else
+                  echo "Ruff check failed for $FILE:"
+                  cat "$ERROR_LOG"
+                  ERROR_LOGS+=("$FILE (check): $(cat "$ERROR_LOG")")
+                fi
+
+                # Create a new error log for format
+                rm "$ERROR_LOG"
+                ERROR_LOG=$(mktemp)
+
+                if ruff format "$FILE" 2> "$ERROR_LOG"; then
+                  FORMAT_SUCCESS=true
+                else
+                  echo "Ruff format failed for $FILE:"
+                  cat "$ERROR_LOG"
+                  ERROR_LOGS+=("$FILE (format): $(cat "$ERROR_LOG")")
+                fi
+
+                if $CHECK_SUCCESS && $FORMAT_SUCCESS; then
                   SUCCESS_COUNT=$((SUCCESS_COUNT+1))
                 else
                   FAILED_FILES+=("$FILE")
                 fi
               fi
+
+              # Clean up temporary file
+              rm "$ERROR_LOG"
 
               # Show progress after each batch
               if [[ $((CURRENT % BATCH_SIZE)) -eq 0 ]] || [[ $CURRENT -eq $TOTAL_FILES ]]; then
@@ -259,6 +293,22 @@ jobs:
               for FILE in "${FAILED_FILES[@]}"; do
                 echo "  - $FILE"
               done
+
+              # Log detailed errors (limited to first 10 for readability)
+              echo "Detailed error logs (first 10):"
+              ERROR_COUNT=${#ERROR_LOGS[@]}
+              MAX_ERRORS_TO_SHOW=$((ERROR_COUNT > 10 ? 10 : ERROR_COUNT))
+
+              for ((i=0; i<MAX_ERRORS_TO_SHOW; i++)); do
+                echo "-------------------------------------------"
+                echo "${ERROR_LOGS[$i]}"
+                echo "-------------------------------------------"
+              done
+
+              if [[ $ERROR_COUNT -gt 10 ]]; then
+                echo "... and $((ERROR_COUNT - 10)) more errors (truncated for readability)"
+              fi
+
               # Continue workflow even if some files failed
             fi
           fi
