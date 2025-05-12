@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 
 from flask import Blueprint, jsonify, request
 from users.services import AuthenticationError, UserExistsError, UserService
