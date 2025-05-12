@@ -5,3 +5,4 @@
 # Third-party imports
 
 # Local imports
+from . import user_router

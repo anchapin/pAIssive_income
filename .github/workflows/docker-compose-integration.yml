@@ -26,6 +26,13 @@ jobs:
           echo "Creating Docker network paissive-network..."
           docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
 
+      # Log in to Docker Hub to avoid rate limits
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME || 'anonymous' }}
+          password: ${{ secrets.DOCKER_PASSWORD || '' }}
+
       # Pull Docker images with retry logic
       - name: Pull Docker images
         run: |
@@ -117,8 +124,8 @@ jobs:
           docker compose logs || docker-compose logs
           exit 1
 
-      - name: Debugging logs (if failure)
-        if: failure()
+      - name: Debugging logs (always run)
+        if: always()
         run: |
           echo "Collecting debugging information..."
           echo "Docker version:"
@@ -140,5 +147,11 @@ jobs:
           df -h
           echo "Memory usage:"
           free -m
+          echo "Docker build logs:"
+          docker compose logs --no-color --timestamps app || docker-compose logs --no-color --timestamps app
+          echo "Docker container inspection:"
+          docker inspect $(docker ps -q -f name=paissive-income-app) || true
+          echo "Docker container health status:"
+          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-income-app) || true
 
       # The Docker Compose action will automatically tear down services in its post-run step

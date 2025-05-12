@@ -5,8 +5,8 @@ import os
 import string
 from secrets import randbelow
 
-from flask import create_app
-from flask.models import Agent, Team, User, db
+from flask import create_app, db
+from flask.models import Agent, Team, User
 from users.auth import hash_credential
 
 # Set up logger

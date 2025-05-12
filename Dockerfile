@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.10-slim
 
 # Set working directory
 WORKDIR /app
@@ -6,7 +6,8 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PATH="/app/.venv/bin:$PATH"
 
 # Install system dependencies
 RUN apt-get update \
@@ -27,28 +28,22 @@ COPY ai_models/requirements.txt ai_models_requirements.txt
 # Create a consolidated requirements file
 RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
 
-# Install uv (modern Python packaging tool)
-RUN pip install --no-cache-dir uv
-
-# Create a virtual environment
-RUN uv venv /app/.venv
-
-# Install Python dependencies with uv (much faster and reproducible)
-RUN /app/.venv/bin/uv pip install -r requirements.txt
-
-# Add virtual environment to PATH
-ENV PATH="/app/.venv/bin:$PATH"
-
-# If you use requirements.lock for fully deterministic builds, replace the above with:
-# COPY requirements.lock .
-# RUN uv pip sync requirements.lock
+# Create a virtual environment and install dependencies
+RUN python -m venv /app/.venv && \
+    /app/.venv/bin/pip install --upgrade pip && \
+    /app/.venv/bin/pip install --no-cache-dir uv && \
+    /app/.venv/bin/uv pip install -r requirements.txt
 
 # Copy project files
 COPY . .
 
+# Copy health check script
+COPY docker-healthcheck.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck.sh
+
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=5 \
+  CMD ["docker-healthcheck.sh"]
 
 # Expose port
 EXPOSE 5000
