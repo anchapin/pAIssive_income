@@ -82,8 +82,6 @@ The deployment process assumes that your servers are set up with Docker and Dock
 ### Example docker-compose.yml
 
 ```yaml
-version: '3.8'
-
 services:
   app:
     image: paissiveincome/app:latest
