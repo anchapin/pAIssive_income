@@ -26,10 +26,25 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
+          # Update package lists
           sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+          # Install Docker CLI only (avoid containerd conflicts)
+          sudo apt-get install -y --no-install-recommends docker.io
+
+          # Install Docker Compose directly from GitHub releases
+          DOCKER_COMPOSE_VERSION="v2.20.2"
+          sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
+
+          # Verify installation
+          docker-compose --version || {
+            echo "Docker Compose installation failed. Trying alternative method..."
+            sudo mkdir -p /usr/local/lib/docker/cli-plugins
+            sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+            sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            docker compose version
+          }
 
       - name: Build and start services
         run: |
