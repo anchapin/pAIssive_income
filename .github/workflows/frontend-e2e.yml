@@ -92,10 +92,57 @@ jobs:
         shell: bash
         run: |
           cd ../..
+          # Create virtual environment with uv, fallback to Python's venv module
+          echo "Creating virtual environment..."
           uv venv .venv || {
             echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
+            python -m venv .venv || {
+              echo "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
           }
+
+          # Verify virtual environment was created
+          if [ ! -d ".venv" ]; then
+            echo "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          fi
+
+          echo "Virtual environment created successfully at $(pwd)/.venv"
+
+          # Always ensure pip is installed in the virtual environment
+          echo "Ensuring pip is installed in the virtual environment..."
+          curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          .venv/bin/python get-pip.py || {
+            echo "Failed to bootstrap pip with get-pip.py. Trying alternative method..."
+            .venv/bin/python -m ensurepip || {
+              echo "Failed to bootstrap pip with ensurepip. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify pip installation
+          if [ ! -f ".venv/bin/pip" ] || ! .venv/bin/python -m pip --version &>/dev/null; then
+            echo "pip still not available after installation attempts. Exiting..."
+            exit 1
+          fi
+
+          echo "pip successfully installed in virtual environment."
+
+          # Upgrade pip first to ensure we have the latest version
+          .venv/bin/python -m pip install --upgrade pip || {
+            echo "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install setuptools and wheel with pip first
+          .venv/bin/python -m pip install --upgrade setuptools wheel || {
+            echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # List installed packages for debugging
+          echo "Installed packages in virtual environment:"
+          .venv/bin/python -m pip list
+
           cd ui/react_frontend
 
       - name: Create virtual environment (Windows)
@@ -103,11 +150,72 @@ jobs:
         shell: pwsh
         run: |
           cd ../..
+          # Create virtual environment with uv, fallback to Python's venv module
+          Write-Host "Creating virtual environment..."
           uv venv .venv
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
             python -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
           }
+
+          # Verify virtual environment was created
+          if (-not (Test-Path ".venv")) {
+            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          }
+
+          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
+
+          # Verify python executable exists
+          if (-not (Test-Path ".venv\Scripts\python.exe")) {
+            Write-Host "Python executable not found in virtual environment. Exiting..."
+            exit 1
+          }
+
+          # Check if pip module is available
+          $pipModuleCheck = .\.venv\Scripts\python.exe -c "import pip; print('pip module exists')" 2>$null
+          if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
+            Write-Host "pip module not found in virtual environment. Installing pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to bootstrap pip. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify pip executable exists
+          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
+            Write-Host "pip executable not found after bootstrap. Creating symlink as last resort..."
+            if (Test-Path ".venv\Scripts\python.exe") {
+              try {
+                New-Item -ItemType SymbolicLink -Path ".venv\Scripts\pip.exe" -Target ".venv\Scripts\python.exe" -ErrorAction SilentlyContinue
+              } catch {
+                Write-Host "Failed to create symlink. Continuing anyway..."
+              }
+            }
+          }
+
+          # Verify pip is working
+          try {
+            .\.venv\Scripts\python.exe -m pip --version
+            if ($LASTEXITCODE -ne 0) {
+              throw "pip command failed"
+            }
+          } catch {
+            Write-Host "pip verification failed. Attempting to reinstall pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+          }
+
+          # List installed packages for debugging
+          Write-Host "Installed packages in virtual environment:"
+          .\.venv\Scripts\python.exe -m pip list
+
           cd ui/react_frontend
 
       - name: Start backend API server (Linux/macOS)
@@ -117,27 +225,53 @@ jobs:
           cd ../..
           source .venv/bin/activate
 
-          # Ensure pip is installed in the virtual environment
-          uv pip install --upgrade pip setuptools wheel || {
-            echo "Failed to install basic packages with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade uv
-            uv pip install --upgrade pip setuptools wheel
+          # Always ensure pip is installed and working properly
+          echo "Verifying pip installation..."
+          if ! python -m pip --version; then
+            echo "pip module not available. Installing pip..."
+            curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python get-pip.py || {
+              echo "Failed to bootstrap pip with get-pip.py. Trying alternative method..."
+              python -m ensurepip || {
+                echo "Failed to bootstrap pip with ensurepip. Exiting..."
+                exit 1
+              }
+            }
+
+            # Verify pip installation was successful
+            if ! python -m pip --version; then
+              echo "pip still not available after installation attempts. Exiting..."
+              exit 1
+            fi
+          fi
+
+          echo "pip is available and working."
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip setuptools wheel || {
+            echo "Failed to upgrade pip. Continuing anyway..."
           }
 
-          # Install project dependencies
+          # Install uv in the virtual environment
+          python -m pip install --upgrade uv || {
+            echo "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Install project dependencies with fallback mechanisms
+          echo "Installing project dependencies..."
           uv pip install -r requirements.txt || {
-            echo "Failed to install requirements.txt with uv pip. Retrying..."
-            uv pip install -r requirements.txt
+            echo "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
+            python -m pip install -r requirements.txt
           }
 
           uv pip install -r requirements-dev.txt || {
-            echo "Failed to install requirements-dev.txt with uv pip. Retrying..."
-            uv pip install -r requirements-dev.txt
+            echo "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
+            python -m pip install -r requirements-dev.txt
           }
 
           uv pip install -e . || {
-            echo "Failed to install package in development mode with uv pip. Retrying..."
-            uv pip install -e .
+            echo "Failed to install package in development mode with uv pip. Falling back to regular pip..."
+            python -m pip install -e .
           }
 
           # Run the API server with the activated virtual environment
@@ -163,31 +297,72 @@ jobs:
           cd ../..
           .\.venv\Scripts\Activate.ps1
 
-          # Ensure pip is installed in the virtual environment
-          uv pip install --upgrade pip setuptools wheel
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install basic packages with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade uv
-            uv pip install --upgrade pip setuptools wheel
+          # Check if pip module is available
+          $pipModuleCheck = python -c "import pip; print('pip module exists')" 2>$null
+          if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
+            Write-Host "pip module not found in virtual environment. Installing pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to bootstrap pip. Exiting..."
+              exit 1
+            }
           }
 
-          # Install project dependencies
-          uv pip install -r requirements.txt
+          # Verify pip is working
+          try {
+            python -m pip --version
+            if ($LASTEXITCODE -ne 0) {
+              throw "pip command failed"
+            }
+          } catch {
+            Write-Host "pip verification failed. Attempting to reinstall pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+          }
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip setuptools wheel
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install requirements.txt with uv pip. Retrying..."
+            Write-Host "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment
+          python -m pip install --upgrade uv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Install project dependencies with fallback mechanisms
+          Write-Host "Installing project dependencies..."
+          try {
             uv pip install -r requirements.txt
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed with uv pip"
+            }
+          } catch {
+            Write-Host "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
+            python -m pip install -r requirements.txt
           }
 
-          uv pip install -r requirements-dev.txt
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install requirements-dev.txt with uv pip. Retrying..."
+          try {
             uv pip install -r requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed with uv pip"
+            }
+          } catch {
+            Write-Host "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
+            python -m pip install -r requirements-dev.txt
           }
 
-          uv pip install -e .
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install package in development mode with uv pip. Retrying..."
+          try {
             uv pip install -e .
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed with uv pip"
+            }
+          } catch {
+            Write-Host "Failed to install package in development mode with uv pip. Falling back to regular pip..."
+            python -m pip install -e .
           }
 
           # Run the API server with the activated virtual environment
