@@ -1,6 +1,6 @@
-# pAIssive Income
+# Project Environment & Dependency Management
 
-A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
+## Python
 
 > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
 
@@ -90,49 +90,50 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 
 ## Overview
 
-This project provides a structured approach to creating specialized AI-powered software tools that solve specific problems for targeted user groups. By focusing on niche markets with specific needs, these tools can provide high value to users while generating recurring subscription revenue.
+- **Dependency Locking**:
+  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`**, then regenerate the lockfile:
+  ```sh
+  pip install -r requirements.txt -r requirements-dev.txt
+  pip freeze > requirements.lock
+  ```
 
-The framework uses a team of specialized AI agents that collaborate to identify profitable niches, develop solutions, create monetization strategies, and market the products to target users.
+- **Development dependencies** are managed with `requirements-dev.txt`.
 
-## Project Structure
+## Node.js
 
-- **Agent Team**: A team of specialized AI agents that collaborate on different aspects of the product development and monetization process.
-- **Niche Analysis**: Tools and methodologies for identifying profitable niches and user pain points.
-- **Tool Templates**: Development templates for creating AI-powered software solutions.
-- **Monetization**: Subscription models and pricing strategies for maximizing recurring revenue.
-- **Marketing**: Strategies for reaching target users and promoting the AI tools.
-- **UI**: Web interface for interacting with the framework components.
+- **Install dependencies**:
+  ```sh
+  npm ci
+  ```
+- Dependencies are pinned via `package-lock.json`.
+- **Security scanning**: `npm audit` is run automatically in CI to detect vulnerabilities.
 
-## Agent Team
+## Automated Dependency Updates
 
-The project is built around a team of specialized AI agents:
+- [Dependabot](https://docs.github.com/en/code-security/dependabot) is enabled for Python, Node.js, Docker, and GitHub Actions dependencies. Update PRs are created automatically, including for the Python lockfile (`requirements.lock`).
 
-1. **Research Agent**: Identifies market opportunities and user needs in specific niches.
-2. **Developer Agent**: Creates AI-powered software solutions to address identified needs.
-3. **Monetization Agent**: Designs subscription models and pricing strategies.
-4. **Marketing Agent**: Develops strategies for reaching and engaging target users.
-5. **Feedback Agent**: Gathers and analyzes user feedback for product improvement.
+## Vulnerability Scanning
 
-## Key Features
+- Security scanning runs automatically on pushes and pull requests:
+  - Python: `pip-audit`, `safety`
+  - Node.js: `npm audit`
+  - Static analysis: `bandit`, `semgrep`, `pylint`
+  - Container: `trivy`
+  - Secret scanning: `gitleaks`
 
-- **Niche Identification**: Sophisticated analysis tools to identify profitable niches with specific user problems that can be solved with AI.
-- **Problem Analysis**: Detailed analysis of user problems and pain points to ensure solutions address real needs.
-- **Solution Design**: Templates and frameworks for designing AI-powered software solutions.
-- **Monetization Strategy**: Subscription models and pricing strategies optimized for recurring revenue.
-- **Marketing Plan**: Comprehensive marketing strategies tailored to each niche and target user group.
-- **Feedback Loop**: Tools for gathering and analyzing user feedback to continuously improve products.
+## Best Practices
 
-## Example Niches
+- Regularly review and address Dependabot and security scan PRs.
+- Regenerate the Python lockfile after any dependency updates.
+- See `.github/workflows/security_scan.yml` for the full list of automated checks.
 
-The framework has identified several promising niches for AI-powered tools:
+## Keeping Dependencies Healthy
 
-1. **YouTube Script Generator**: AI tools to help YouTube creators write engaging scripts faster.
-2. **Study Note Generator**: AI tools to help students create comprehensive study notes from lectures.
-3. **Freelance Proposal Writer**: AI tools to help freelancers write compelling client proposals.
-4. **Property Description Generator**: AI tools to help real estate agents write compelling property descriptions.
-5. **Inventory Management for Small E-commerce**: AI tools to help small e-commerce businesses manage inventory efficiently.
+- When adding or removing Python dependencies, update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`**.
+- For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
+- Review and merge Dependabot PRs and address security alerts promptly.
 
-## Getting Started
+## Dependency Upgrade and Removal Workflow
 
 This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
@@ -407,12 +408,6 @@ The project includes comprehensive API documentation that can be built from sour
 
    ```bash
    cd docs_source
-   ```
-
-2. Generate the API documentation from source code:
-
-   ```bash
-   python generate_api_docs.py
    ```
 
 ### Documentation Updates Policy
