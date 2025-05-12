@@ -23,10 +23,11 @@ The CI/CD pipeline is defined in the `.github/workflows/ci-cd.yml` file. This fi
 
 The lint stage checks the code quality and style using the following tools:
 
-- **flake8**: Checks for syntax errors and style issues
-- **black**: Checks code formatting
-- **isort**: Checks import order
+- **fix_linting_issues.py**: Our custom script that automatically fixes common linting issues
+- **ruff**: Fast Python linter that finds and fixes issues (including formatting)
 - **mypy**: Checks type annotations
+
+The `fix_linting_issues.py` script is a comprehensive tool that uses Ruff to automatically fix common linting issues. It is run as part of the CI/CD pipeline to ensure code quality and consistency.
 
 ### Test
 
@@ -38,6 +39,14 @@ The security scan stage performs security analysis using the following tools:
 
 - **bandit**: Checks for common security issues in Python code
 - **safety**: Checks for known vulnerabilities in dependencies
+
+### Documentation Update Check
+
+This stage ensures that code changes are accompanied by relevant documentation updates. It runs on every pull request and push to the main branches.
+
+- **Purpose**: Prevents changes to code or other non-documentation files without corresponding updates to documentation (such as files in `docs/`, `docs_source/`, or Markdown files at the repo root).
+- **How it works**: If any non-documentation files are changed, at least one documentation file must also be updated. Otherwise, the workflow fails.
+- **Resolution**: If this check fails, review your changes and update the relevant documentation to reflect your code modifications.
 
 ### Build
 

@@ -5,8 +5,8 @@ pydantic>=2.0.0
 starlette>=0.27.0
 
 # GraphQL dependencies
-strawberry-graphql>=0.171.1
-strawberry-graphql-fastapi>=0.171.1
+strawberry-graphql>=0.171.1  # Includes FastAPI integration
+# The strawberry-graphql-fastapi package doesn't exist separately - integration is in main package
 
 # Authentication and security
 python-jose>=3.3.0

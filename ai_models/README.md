@@ -27,7 +27,7 @@ The AI Models module includes the following components:
 To install the required dependencies, run:
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ## Usage

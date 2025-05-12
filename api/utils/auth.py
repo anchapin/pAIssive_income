@@ -5,11 +5,14 @@ This module provides utility functions for authentication in the API.
 
 # Standard library imports
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 # Third-party imports
-from fastapi import Depends, HTTPException, status
-from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import status
+from fastapi.security import APIKeyHeader
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from common_utils.logging import get_logger
@@ -42,7 +45,7 @@ class TokenData(BaseModel):
 async def get_current_user(
     token: str = oauth2_scheme_dependency,
     user_service: UserService = user_service_dependency,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get the current user from a JWT token.
 
     Args:
@@ -103,8 +106,8 @@ current_user_dependency = Depends(get_current_user)
 
 
 async def get_current_active_user(
-    current_user: Dict[str, Any] = current_user_dependency,
-) -> Dict[str, Any]:
+    current_user: dict[str, Any] = current_user_dependency,
+) -> dict[str, Any]:
     """Get the current active user.
 
     Args:
@@ -132,7 +135,7 @@ async def get_current_active_user(
 async def verify_api_key(
     api_key: str = api_key_header_dependency,
     user_service: UserService = user_service_dependency,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Verify an API key.
 
     Args:

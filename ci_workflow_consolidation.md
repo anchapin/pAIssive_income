@@ -81,7 +81,6 @@ The consolidated Fix All Issues workflow now includes:
 - `syntax_only`: Fix only syntax errors
 - `format_only`: Fix only formatting issues
 - `no_black`: Skip Black formatter
-- `no_isort`: Skip isort
 - `no_ruff`: Skip Ruff linter
 - `use_precommit`: Use pre-commit for syntax checking
 
