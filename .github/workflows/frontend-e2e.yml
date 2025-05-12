@@ -24,7 +24,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -50,7 +50,7 @@ jobs:
 
       - name: Start React development server
         run: |
-          nohup npm start -- --port=3000 &
+          nohup pnpm start -- --port=3000 &
           # Increase wait time to ensure React app is fully loaded
           sleep 20
 

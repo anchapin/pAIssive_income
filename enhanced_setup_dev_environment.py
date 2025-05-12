@@ -926,11 +926,13 @@ def install_pnpm_globally() -> bool:  # noqa: C901, PLR0912
             logger.info("Verifying pnpm after 'corepack enable'...")
             pnpm_version = get_pnpm_version()
             if pnpm_version:
-                logger.info(f"pnpm is now available via corepack: {pnpm_version}")
+                message = f"pnpm is now available via corepack: {pnpm_version}"
+                logger.info(message)
                 return True
             else:
                 logger.error(
-                    "pnpm is still not available after successful 'corepack enable'. This is unexpected. Will try npm install."
+                    "pnpm is still not available after successful 'corepack enable'. "
+                    "This is unexpected. Will try npm install."
                 )
                 # Proceed to try npm install as a fallback
         else:
@@ -959,14 +961,19 @@ def install_pnpm_globally() -> bool:  # noqa: C901, PLR0912
     if exit_code_npm != 0:
         # Check if the error is EEXIST (file already exists)
         if "EEXIST" in stderr_npm and "file already exists" in stderr_npm.lower():
-            logger.warning(
-                f"npm install -g pnpm reported EEXIST (file already exists). This is likely okay if pnpm (e.g. corepack shim) is already in place. stderr:\n{stderr_npm}"
+            log_message = (
+                "npm install -g pnpm reported EEXIST (file already exists). "
+                "This is likely okay if pnpm (e.g. corepack shim) is "
+                f"already in place. stderr:\n{stderr_npm}"
             )
+            logger.warning(log_message)
             # Proceed to verification, as pnpm might already be correctly installed/shimmed
         else:
-            logger.error(
-                f"Error installing pnpm globally via npm (exit code {exit_code_npm}). stderr:\n{stderr_npm}"
+            message = (
+                f"Error installing pnpm globally via npm (exit code {exit_code_npm}). "
+                f"stderr:\n{stderr_npm}"
             )
+            logger.error(message)
             if stdout_npm:  # Only log stdout if it's not empty
                 logger.debug(f"npm install stdout:\n{stdout_npm}")
             return False
@@ -987,7 +994,9 @@ def install_pnpm_globally() -> bool:  # noqa: C901, PLR0912
         return True
     else:
         logger.error(
-            "pnpm is still not available after 'npm install -g pnpm' reported success. This may indicate a PATH issue not reflected in the current script environment."
+            "pnpm is still not available after 'npm install -g pnpm' "
+            "reported success. This may indicate a PATH issue not "
+            "reflected in the current script environment."
         )
         return False
 

@@ -24,12 +24,10 @@ Options:
 
 import argparse
 import json
-import os
 import platform
+import shutil  # Added for shutil.which
 import subprocess
 import sys
-import venv
-
 from pathlib import Path
 from typing import Optional
 
@@ -95,71 +93,95 @@ def is_venv_activated() -> bool:
     )
 
 
+def check_uv_available() -> bool:
+    """Check if uv is installed and available."""
+    if shutil.which("uv"):
+        print("uv found.")
+        return True
+    print("Error: uv is not installed or not in PATH.")
+    print(
+        "Please install uv by following the instructions at https://github.com/astral-sh/uv"
+    )
+    print(
+        "For example: 'pip install uv' or 'curl -LsSf https://astral.sh/uv/install.sh | sh'"
+    )
+    return False
+
+
 def create_virtual_environment() -> bool:
-    """Create a virtual environment.
+    """Create a virtual environment using uv.
 
     Returns:
         True if successful, False otherwise
     """
-    print("Creating virtual environment...")
+    print("Creating virtual environment using uv...")
     venv_path = Path(".venv")
 
     if venv_path.exists():
         print(f"Virtual environment already exists at {venv_path}")
+        # We can optionally verify it's a uv-compatible venv or just proceed
         return True
 
-    try:
-        venv.create(venv_path, with_pip=True)
-    except Exception as e:
-        print(f"Error creating virtual environment: {e}")
+    # Use the Python interpreter that's running this script for the venv
+    python_executable = sys.executable
+    exit_code, stdout, stderr = run_command([
+        "uv",
+        "venv",
+        str(venv_path),
+        "--python",
+        python_executable,
+    ])
+    if exit_code != 0:
+        print(f"Error creating virtual environment with uv: {stderr}")
+        print(f"Stdout: {stdout}")
         return False
-    else:
-        print(f"Created virtual environment at {venv_path}")
-        return True
+
+    print(f"Created virtual environment at {venv_path} using uv.")
+    print(stdout)
+    return True
 
 
 def get_venv_python_path() -> str:
     """Get the path to the Python executable in the virtual environment."""
     if platform.system() == "Windows":
-        return str(os.path.join(".venv", "Scripts", "python.exe"))
-    return str(os.path.join(".venv", "bin", "python"))
-
-
-def get_venv_pip_path() -> str:
-    """Get the path to the pip executable in the virtual environment."""
-    if platform.system() == "Windows":
-        return str(os.path.join(".venv", "Scripts", "pip.exe"))
-    return str(os.path.join(".venv", "bin", "pip"))
+        return str(Path(".venv") / "Scripts" / "python.exe")
+    return str(Path(".venv") / "bin" / "python")
 
 
 def install_dependencies() -> bool:
-    """Install dependencies.
+    """Install dependencies using uv.
 
     Returns:
         True if successful, False otherwise
     """
-    print("Installing dependencies...")
-    pip_path = get_venv_pip_path()
+    print("Installing dependencies using uv...")
+    venv_python_path = get_venv_python_path()
 
     # Install requirements
     requirements_files = ["requirements.txt", "requirements-dev.txt"]
     for req_file in requirements_files:
-        if not os.path.exists(req_file):
+        if not Path(req_file).exists():
             print(f"Warning: {req_file} not found, skipping")
             continue
 
-        print(f"Installing dependencies from {req_file}...")
-        exit_code, stdout, stderr = run_command([pip_path, "install", "-r", req_file])
+        print(f"Installing dependencies from {req_file} using uv...")
+        # uv pip install will use the activated venv if available,
+        # or we can specify the python interpreter of the target venv.
+        cmd = ["uv", "pip", "install", "--python", venv_python_path, "-r", req_file]
+        exit_code, stdout, stderr = run_command(cmd)
         if exit_code != 0:
-            print(f"Error installing dependencies from {req_file}: {stderr}")
+            print(f"Error installing dependencies from {req_file} using uv: {stderr}")
+            print(f"Stdout: {stdout}")
             return False
         print(stdout)
 
     # Install the package in development mode
-    print("Installing package in development mode...")
-    exit_code, stdout, stderr = run_command([pip_path, "install", "-e", "."])
+    print("Installing package in development mode using uv...")
+    cmd = ["uv", "pip", "install", "--python", venv_python_path, "-e", "."]
+    exit_code, stdout, stderr = run_command(cmd)
     if exit_code != 0:
-        print(f"Error installing package in development mode: {stderr}")
+        print(f"Error installing package in development mode using uv: {stderr}")
+        print(f"Stdout: {stdout}")
         return False
     print(stdout)
 
@@ -167,31 +189,39 @@ def install_dependencies() -> bool:
 
 
 def setup_pre_commit() -> bool:
-    """Set up pre-commit hooks.
+    """Set up pre-commit hooks using uv.
 
     Returns:
         True if successful, False otherwise
     """
-    print("Setting up pre-commit hooks...")
-    pip_path = get_venv_pip_path()
-    python_path = get_venv_python_path()
+    print("Setting up pre-commit hooks using uv...")
+    venv_python_path = get_venv_python_path()
 
-    # Install pre-commit
-    exit_code, stdout, stderr = run_command([pip_path, "install", "pre-commit"])
+    # Install pre-commit using uv
+    print("Installing pre-commit using uv...")
+    cmd_install_precommit = [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        venv_python_path,
+        "pre-commit",
+    ]
+    exit_code, stdout, stderr = run_command(cmd_install_precommit)
     if exit_code != 0:
-        print(f"Error installing pre-commit: {stderr}")
+        print(f"Error installing pre-commit using uv: {stderr}")
+        print(f"Stdout: {stdout}")
         return False
     print(stdout)
 
-    # Install pre-commit hooks
-    exit_code, stdout, stderr = run_command([
-        python_path,
-        "-m",
-        "pre_commit",
-        "install",
-    ])
+    # Install pre-commit hooks using the venv's python
+    print("Installing pre-commit hooks...")
+    # pre_commit module is now available in the venv
+    cmd_setup_hooks = [venv_python_path, "-m", "pre_commit", "install"]
+    exit_code, stdout, stderr = run_command(cmd_setup_hooks)
     if exit_code != 0:
         print(f"Error installing pre-commit hooks: {stderr}")
+        print(f"Stdout: {stdout}")
         return False
     print(stdout)
 
@@ -359,13 +389,22 @@ def configure_ides(ide: str) -> bool:
 def print_next_steps() -> None:
     """Print next steps for the user."""
     print("\n=== Next Steps ===")
-    print("1. Activate the virtual environment:")
+    print("Ensure 'uv' is installed and in your PATH.")
+    print("You can install it via pip: 'pip install uv' or from https://astral.sh/uv")
+    print("\n1. Activate the virtual environment (created with uv):")
     if platform.system() == "Windows":
         print("   .venv\\Scripts\\activate")
     else:
         print("   source .venv/bin/activate")
 
-    print("\n2. Install IDE extensions:")
+    print("\n2. If you skipped dependency installation, install them with uv:")
+    print(f"   uv pip install -r requirements.txt --python {get_venv_python_path()}")
+    print(
+        f"   uv pip install -r requirements-dev.txt --python {get_venv_python_path()}"
+    )
+    print(f"   uv pip install -e . --python {get_venv_python_path()}")
+
+    print("\n3. Install IDE extensions:")
     print("   VS Code:")
     print(
         "   - Ruff: https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff"
@@ -376,10 +415,10 @@ def print_next_steps() -> None:
     print("\n   PyCharm:")
     print("   - Ruff: https://plugins.jetbrains.com/plugin/20574-ruff")
 
-    print("\n3. Run pre-commit hooks on all files:")
+    print("\n4. Run pre-commit hooks on all files (after activating venv):")
     print("   pre-commit run --all-files")
 
-    print("\n4. Run tests to verify the setup:")
+    print("\n5. Run tests to verify the setup (after activating venv):")
     print("   pytest")
 
     print("\nFor more information, see the documentation:")
@@ -397,15 +436,20 @@ def main() -> int:
     args = parse_args()
     success = True
 
+    # Check if uv is available
+    if not check_uv_available():
+        return 1  # uv is required, exit if not found
+
     # Check if running in a virtual environment
     if is_venv_activated():
         print("Warning: Running in an activated virtual environment.")
         print("This script is designed to be run outside of a virtual environment.")
+        print("It will create/use a '.venv' directory in the current location.")
         print("Continuing anyway...")
 
     # Create virtual environment
     if not args.no_venv and not create_virtual_environment():
-        print("Error: Failed to create virtual environment.")
+        print("Error: Failed to create virtual environment using uv.")
         return 1
 
     # Install dependencies

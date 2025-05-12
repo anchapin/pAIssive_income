@@ -20,20 +20,25 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Check if Ruff is installed
-if ! command -v ruff &> /dev/null; then
-    echo "Error: Ruff is not installed or not in PATH."
-    echo "Please install Ruff using 'pip install ruff'."
+# Check if uv is installed
+if ! command -v uv &> /dev/null; then
+    echo "Error: uv is not installed or not in PATH."
+    echo "Please install uv by following the instructions at https://github.com/astral-sh/uv"
+    echo "For example: 'pip install uv' or 'curl -LsSf https://astral.sh/uv/install.sh | sh'"
     exit 1
 fi
 
-echo "Installing development dependencies from requirements-dev.txt..."
-if [ -f requirements-dev.txt ]; then
-    pip install -r requirements-dev.txt
-else
-    echo "Warning: requirements-dev.txt not found. Skipping development dependency installation."
+# Check if Ruff is installed (Ruff is still used for linting/formatting, uv handles installation)
+if ! command -v ruff &> /dev/null; then
+    echo "Warning: Ruff is not installed globally or not in PATH."
+    echo "The setup script will attempt to install it into the virtual environment using uv."
+    # Not exiting, as setup_dev_environment.py will handle installing ruff via uv pip install from requirements-dev.txt
 fi
-echo
+
+# The Python script enhanced_setup_dev_environment.py will handle dependency installation using uv.
+# No need to pip install requirements-dev.txt here directly.
+
+echo # Add a newline for better readability before Python script output
 
 # Run the setup script
 python3 enhanced_setup_dev_environment.py "$@"

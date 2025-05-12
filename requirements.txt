@@ -20,7 +20,7 @@ cryptography>=41.0.0  # For encryption of sensitive files
 grpcio>=1.54.0
 grpcio-reflection>=1.54.0
 grpcio-health-checking>=1.54.0
-protobuf>=4.22.3
+protobuf>=3.19,<5.0
 
 # AI and ML dependencies
 torch>=1.10.0

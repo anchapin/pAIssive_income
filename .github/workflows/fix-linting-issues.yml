@@ -12,11 +12,6 @@ on:
         required: false
         default: false
         type: boolean
-      no_black:
-        description: 'Skip Black formatter (deprecated - Black has been replaced by Ruff format)'
-        required: false
-        default: true
-        type: boolean
       no_ruff:
         description: 'Skip Ruff linter'
         required: false
@@ -93,10 +88,6 @@ jobs:
 
           if [[ "${{ inputs.check_only }}" == "true" ]]; then
             CMD+=" --check"
-          fi
-
-          if [[ "${{ inputs.no_black }}" == "true" ]]; then
-            CMD+=" --no-black"
           fi
 
           if [[ "${{ inputs.no_ruff }}" == "true" ]]; then

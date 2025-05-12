@@ -228,7 +228,8 @@ def test_sarif_file_handling() -> bool:
             logger.warning(f"❌ {sarif_file} is not valid JSON")  # Replaced f-string
             logger.info("Creating a valid but empty SARIF file as fallback")
             stdout, stderr, return_code = run_command(
-                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'  # Replaced f-string
+                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
+                # Replaced f-string
             )
 
             if return_code != 0:

@@ -9,53 +9,80 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 ## TL;DR Quickstart
 
 1. **Clone the repo and enter it:**
+
    ```bash
    git clone https://github.com/anchapin/pAIssive_income.git
    cd pAIssive_income
    ```
-2. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
-   (Requires Python 3.8+)
+
+2. **Install `uv` (if not already installed):**
+   `uv` is a fast Python package installer and resolver, written in Rust.
+
+   ```bash
+   # Using pip (recommended if you have Python/pip)
+   pip install uv
+
+   # Or using the standalone installer (Linux/macOS)
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   Ensure `uv` is in your PATH.
+
+3. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
+   (Requires Python 3.8+ and `uv`)
+
    ```bash
    # On Windows
-   setup_dev_environment.bat
+   enhanced_setup_dev_environment.bat
 
    # On Unix/Linux
-   ./setup_dev_environment.sh
+   ./enhanced_setup_dev_environment.sh 
+   # If you used setup_dev_environment.py directly before, use enhanced_setup_dev_environment.py
+   # python enhanced_setup_dev_environment.py
    ```
-   This script will:
-   - Create a virtual environment
-   - Install dependencies
-   - Set up pre-commit hooks
+
+   This script will use `uv` to:
+   - Create a virtual environment (`.venv`)
+   - Install dependencies from `requirements.txt` and `requirements-dev.txt`
+   - Install the project in editable mode (`-e .`)
+   - Set up pre-commit hooks (installing `pre-commit` via `uv`)
    - Configure IDE settings for VS Code and PyCharm
    - Create .editorconfig for editor-agnostic settings
 
-   Or manually:
+   For manual setup using `uv`:
+
    ```bash
-   uv venv .venv
+   # Create virtual environment (specify your Python interpreter if needed)
+   uv venv .venv --python python3.12 
+   # Activate virtual environment
    source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
-   uv pip install -r requirements.txt
-   uv pip install -r requirements-dev.txt
-   uv pip install -e .
-   ```
-3. **Set up pre-commit hooks for code quality:**
-   ```bash
+   # Install dependencies
+   uv pip install -r requirements.txt -r requirements-dev.txt -e .
+   # Install pre-commit and hooks
    uv pip install pre-commit
    pre-commit install
    ```
+
 4. **Start the modern web UI (requires Node.js 14+ and pnpm):**
+
    ```bash
    python ui/run_ui.py
    ```
+
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
    > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
    > To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+>
    > ```bash
    > corepack enable
    > ```
+>
    > If Corepack is not available, you can install pnpm globally using npm:
+>
    > ```bash
    > npm install -g pnpm
    > ```
+>
 5. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
 
@@ -110,9 +137,11 @@ The framework has identified several promising niches for AI-powered tools:
 This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
 If you are new to this project, start here:
+
 - [Getting Started Guide](docs/getting-started.md)
 
 For quick reference, the following topics are included in the full guide:
+
 - Development environment setup (Python, Node, etc.)
 - Installing dependencies
 - Running and developing with the framework
@@ -131,6 +160,7 @@ The project includes Python and JavaScript/TypeScript tests.
 ### Python Unit/Integration Tests
 
 From the repo root, after environment setup:
+
 ```bash
 pytest
 # or
@@ -142,6 +172,7 @@ python -m pytest
 > **Requires:** Node.js 14+, [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
 
 1. Install Playwright and its browsers (first time only):
+
    ```bash
    cd ui/react_frontend
    pnpm install
@@ -149,12 +180,14 @@ python -m pytest
    ```
 
 2. Run all E2E tests:
+
    ```bash
    pnpm exec playwright test
    ```
 
 3. See `ui/react_frontend/tests/e2e/` for sample E2E tests.
    To run a specific test:
+
    ```bash
    pnpm exec playwright test tests/e2e/niche_analysis.spec.ts
    ```
@@ -176,16 +209,21 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
+- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 - Node.js 14.0+ (for modern UI and frontend tests)
 - [pnpm](https://pnpm.io/) (for frontend dependencies)
   To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+
   ```bash
   corepack enable
   ```
+
   If Corepack is not available, you can install pnpm globally using npm:
+
   ```bash
   npm install -g pnpm
   ```
+
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
@@ -211,6 +249,7 @@ See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on config
 To ensure consistent code formatting and prevent CI pipeline failures:
 
 1. Before committing changes, run Ruff locally to fix any formatting issues:
+
    ```bash
    ruff check . --fix
    ```
@@ -347,6 +386,7 @@ All configuration files are version controlled to ensure consistent formatting a
 This project follows [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) for safe, reliable, and auditable automation. All contributors are expected to review and adhere to these standards.
 
 Key principles include:
+
 - Explicit state and input/output handling
 - Modular, testable decomposition
 - Strong input validation

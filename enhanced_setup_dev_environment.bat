@@ -21,43 +21,45 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-REM Check if Node.js is installed
-where node >nul 2>nul
+REM Check if uv is installed
+where uv >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Error: Node.js is not installed or not in PATH.
-    echo Please install Node.js 18 or higher from https://nodejs.org/
+    echo Error: uv is not installed or not in PATH.
+    echo Please install uv by following the instructions at https://github.com/astral-sh/uv
+    echo For example: "pip install uv"
     exit /b 1
 )
 
-REM Check if pnpm is installed
-where pnpm >nul 2>nul
+REM Check if Node.js is installed (still needed if project has Node.js components)
+where node >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Warning: pnpm not found by 'where pnpm' in batch script. Python script will attempt installation if --force-install-deps is used.
-    REM Not exiting here, let Python script handle the installation attempt.
-)
-
-REM Debugging: Log Node.js and pnpm paths
-echo Node.js Path:
-where node
-echo pnpm Path:
-where pnpm
-
-REM Check Node.js version
-node -v | find "v18." >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    node -v | find "v20." >nul 2>nul
+    echo Warning: Node.js is not installed or not in PATH.
+    echo If your project uses Node.js, please install Node.js 18 or higher from https://nodejs.org/
+    REM Not exiting, as the core Python setup might not depend on Node.js
+) else (
+    REM Check Node.js version if Node is found
+    node -v | find "v18." >nul 2>nul
     if %ERRORLEVEL% neq 0 (
-        node -v | find "v22." >nul 2>nul
+        node -v | find "v20." >nul 2>nul
         if %ERRORLEVEL% neq 0 (
-            echo Error: Node.js 18.x or higher is recommended.
-            echo Current Node.js version:
-            node -v
-            REM Not exiting, as pnpm might still work with other versions
+            node -v | find "v22." >nul 2>nul
+            if %ERRORLEVEL% neq 0 (
+                echo Warning: Node.js 18.x or higher is recommended.
+                echo Current Node.js version:
+                node -v
+            )
         )
     )
 )
 
-REM pnpm version check is deferred to the Python script, which can also handle installation.
+REM Check if pnpm is installed (still needed if project has pnpm-managed Node.js components)
+where pnpm >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo Warning: pnpm not found. If your project uses pnpm for Node.js package management, please install it.
+    echo The Python setup script (enhanced_setup_dev_environment.py) might handle pnpm installation if configured to do so.
+)
+
+REM The Python script enhanced_setup_dev_environment.py will handle Python dependency installation using uv.
 
 REM Parse command-line arguments
 set ARGS=

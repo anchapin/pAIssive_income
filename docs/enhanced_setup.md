@@ -86,11 +86,12 @@ dependencies:
 The script checks for the following system dependencies:
 
 - Python 3.8 or higher (required)
+- `uv` (Python package installer and resolver, required). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 - Node.js (for UI development)
 - pnpm (for UI development)
 - Git (for version control)
 
-If any of these dependencies are missing, the script will prompt you to install them or can attempt to install them automatically with the `--force-install-deps` option.
+If `uv` or other critical dependencies are missing, the script will guide you to install them. The script uses `uv` for Python virtual environment creation and dependency installation.
 
 ## IDE Configuration
 
