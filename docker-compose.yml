@@ -35,7 +35,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:15-alpine
+    image: postgres:15.3-alpine
     container_name: paissive-postgres
     restart: unless-stopped
     ports:
@@ -49,7 +49,7 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb -h localhost"]
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb -h db"]
       interval: 10s
       timeout: 5s
       retries: 5

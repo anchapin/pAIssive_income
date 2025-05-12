@@ -26,6 +26,29 @@ jobs:
           echo "Creating Docker network paissive-network..."
           docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
 
+      # Pull Docker images with retry logic
+      - name: Pull Docker images
+        run: |
+          echo "Pulling Docker images with retry logic..."
+          max_attempts=3
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts to pull postgres:15.3-alpine"
+            if docker pull postgres:15.3-alpine; then
+              echo "Successfully pulled postgres:15.3-alpine"
+              break
+            else
+              echo "Failed to pull postgres:15.3-alpine on attempt $attempt"
+              if [ $attempt -eq $max_attempts ]; then
+                echo "All attempts to pull postgres:15.3-alpine failed"
+                exit 1
+              fi
+              sleep 10
+              attempt=$((attempt+1))
+            fi
+          done
+
       # Set up Docker Compose explicitly
       - name: Set up Docker Compose
         uses: hoverkraft-tech/compose-action@v2.2.0
@@ -47,17 +70,34 @@ jobs:
       - name: Check database health
         run: |
           echo "Checking database health..."
-          for i in {1..15}; do
-            if docker compose exec db pg_isready -U myuser -d mydb || docker-compose exec db pg_isready -U myuser -d mydb; then
+          max_attempts=15
+          for i in $(seq 1 $max_attempts); do
+            echo "Attempt $i of $max_attempts to check database health"
+
+            # Check container status first
+            if ! docker compose ps db | grep -q "Up" && ! docker-compose ps db | grep -q "Up"; then
+              echo "Database container is not running. Checking container logs:"
+              docker compose logs db || docker-compose logs db
+              if [ $i -eq $max_attempts ]; then
+                echo "Database container failed to start after $max_attempts attempts."
+                exit 1
+              fi
+              sleep 10
+              continue
+            fi
+
+            # Check database readiness
+            if docker compose exec db pg_isready -U myuser -d mydb -h db || docker-compose exec db pg_isready -U myuser -d mydb -h db; then
               echo "Database is ready."
               break
             else
-              echo "Waiting for database to be ready... (attempt $i/15)"
+              echo "Waiting for database to be ready... (attempt $i/$max_attempts)"
+              if [ $i -eq $max_attempts ]; then
+                echo "Database did not become ready in time."
+                docker compose logs db || docker-compose logs db
+                exit 1
+              fi
               sleep 10
-            fi
-            if [ $i -eq 15 ]; then
-              echo "Database did not become ready in time."
-              docker compose logs db || docker-compose logs db
             fi
           done
 
@@ -81,11 +121,24 @@ jobs:
         if: failure()
         run: |
           echo "Collecting debugging information..."
+          echo "Docker version:"
+          docker version
+          echo "Docker Compose version:"
+          docker compose version || docker-compose --version
+          echo "Docker service status:"
           docker compose ps || docker-compose ps
+          echo "Docker images:"
+          docker images
+          echo "Database logs:"
           docker compose logs db || docker-compose logs db
+          echo "App logs:"
           docker compose logs app || docker-compose logs app
-          echo "Checking network connectivity..."
+          echo "Network information:"
           docker network ls
           docker network inspect paissive-network || true
+          echo "Disk space:"
+          df -h
+          echo "Memory usage:"
+          free -m
 
       # The Docker Compose action will automatically tear down services in its post-run step
