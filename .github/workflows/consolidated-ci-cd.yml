@@ -1,5 +1,12 @@
 name: Consolidated CI/CD
 
+# This workflow is designed to run on both Linux and Windows platforms
+# It includes robust fallback mechanisms for virtual environment creation and dependency installation
+# The workflow is organized into three main jobs:
+# 1. lint-test: Runs linting, type checking, and tests
+# 2. security: Runs security scanning tools
+# 3. build-deploy: Builds and deploys Docker images (Linux only)
+
 on:
   push:
     branches: [ main, dev, master, develop ]
@@ -18,8 +25,12 @@ permissions:
 jobs:
   lint-test:
     name: Lint, Type Check, and Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false
     permissions:
       contents: read
       # Use more restrictive permissions here if possible
@@ -42,72 +53,314 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
 
-      - name: Install uv
+      - name: Install uv (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        # Alternatively, if uv is available via pip:
-        # python -m pip install --upgrade pip uv
 
-      - name: Create virtual environment with uv
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
+          python -m pip install --upgrade pip uv
+          uv --version
+
+      - name: Create and verify virtual environment (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Create virtual environment with uv, fallback to Python's venv module
+          echo "Creating virtual environment..."
           uv venv .venv || {
             echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
+            python -m venv .venv || {
+              echo "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
           }
 
-      - name: Verify virtual environment
-        run: |
+          # Verify virtual environment was created
           if [ ! -d ".venv" ]; then
-            echo "Virtual environment directory .venv not found. Creating it with uv..."
-            uv venv .venv || {
-              echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-              python -m venv .venv
+            echo "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          fi
+
+          echo "Virtual environment created successfully at $(pwd)/.venv"
+
+          # Activate virtual environment and upgrade pip
+          source .venv/bin/activate
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip || {
+            echo "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install setuptools and wheel with pip first
+          python -m pip install --upgrade setuptools wheel || {
+            echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment if needed
+          python -m pip install --upgrade uv || {
+            echo "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify pip is working in the virtual environment
+          if [ ! -f ".venv/bin/pip" ]; then
+            echo "pip not found in virtual environment. Creating symlink..."
+            if [ -f ".venv/bin/python" ]; then
+              ln -s python .venv/bin/pip || true
+            fi
+          }
+
+          echo "Virtual environment setup complete."
+
+      - name: Create and verify virtual environment (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Create virtual environment with uv, fallback to Python's venv module
+          Write-Host "Creating virtual environment..."
+          uv venv .venv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify virtual environment was created
+          if (-not (Test-Path ".venv")) {
+            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          }
+
+          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
+
+          # Activate virtual environment and upgrade pip
+          .\.venv\Scripts\Activate.ps1
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install setuptools and wheel with pip first
+          python -m pip install --upgrade setuptools wheel
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment if needed
+          python -m pip install --upgrade uv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify pip is working in the virtual environment
+          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
+            Write-Host "pip not found in virtual environment. Creating symlink..."
+            if (Test-Path ".venv\Scripts\python.exe") {
+              New-Item -ItemType SymbolicLink -Path ".venv\Scripts\pip.exe" -Target ".venv\Scripts\python.exe" -ErrorAction SilentlyContinue
+            }
+          }
+
+          Write-Host "Virtual environment setup complete."
+
+      - name: Install dependencies with uv (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install testing tools with uv pip, fallback to regular pip if needed
+          echo "Installing testing tools..."
+          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio || {
+            echo "Failed to install testing tools with uv pip. Falling back to regular pip..."
+            python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          }
+
+          # Install from requirements files
+          echo "Installing dependencies from requirements files..."
+          if [ -f requirements-dev.txt ]; then
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements-dev.txt
             }
           fi
-          echo "Virtual environment created successfully at $(pwd)/.venv"
-          # Ensure uv is available in the virtual environment
-          source .venv/bin/activate
-          # Install setuptools and wheel with uv pip
-          uv pip install setuptools wheel || {
-            echo "Failed to install packages with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade uv
-            uv pip install setuptools wheel
+
+          if [ -f requirements.txt ]; then
+            uv pip install -r requirements.txt || {
+              echo "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements.txt
+            }
+          fi
+
+          # Install package in development mode
+          echo "Installing package in development mode..."
+          uv pip install -e . -v || {
+            echo "Failed to install package with uv pip. Falling back to regular pip..."
+            python -m pip install -e . -v
           }
 
-      - name: Install dependencies with uv
-        run: |
-          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          # Install from requirements files
-          if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
-          uv pip install -e . -v
+          # List installed packages for debugging
+          echo "Installed packages:"
+          pip list
 
-      - name: Lint and Format with Ruff
+      - name: Install dependencies with uv (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          # Install testing tools with uv pip, fallback to regular pip if needed
+          Write-Host "Installing testing tools..."
+          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install testing tools with uv pip. Falling back to regular pip..."
+            python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          }
+
+          # Install from requirements files
+          Write-Host "Installing dependencies from requirements files..."
+          if (Test-Path "requirements-dev.txt") {
+            uv pip install -r requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements-dev.txt
+            }
+          }
+
+          if (Test-Path "requirements.txt") {
+            uv pip install -r requirements.txt
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements.txt
+            }
+          }
+
+          # Install package in development mode
+          Write-Host "Installing package in development mode..."
+          uv pip install -e . -v
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install package with uv pip. Falling back to regular pip..."
+            python -m pip install -e . -v
+          }
+
+          # List installed packages for debugging
+          Write-Host "Installed packages:"
+          pip list
+
+      - name: Lint and Format with Ruff (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Note: Ruff performs two distinct functions:
+          # 1. 'ruff check' - Linting (code quality and error detection)
+          # 2. 'ruff format' - Formatting (code style and appearance)
+          # We run both separately to get specific feedback on each aspect
+
+          echo "Running Ruff linting..."
           # Run Ruff for linting (with auto-fix disabled in CI)
           ruff check . || echo "Ruff linting found issues, but continuing..."
+
+          echo "Running Ruff formatting check..."
           # Run Ruff for formatting check
           ruff format --check . || echo "Ruff formatting check found issues, but continuing..."
 
-      - name: Type check with mypy
+      - name: Lint and Format with Ruff (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          # Note: Ruff performs two distinct functions:
+          # 1. 'ruff check' - Linting (code quality and error detection)
+          # 2. 'ruff format' - Formatting (code style and appearance)
+          # We run both separately to get specific feedback on each aspect
+
+          Write-Host "Running Ruff linting..."
+          # Run Ruff for linting (with auto-fix disabled in CI)
+          ruff check .
+          Write-Host "Ruff linting completed with exit code: $LASTEXITCODE"
+
+          Write-Host "Running Ruff formatting check..."
+          # Run Ruff for formatting check
+          ruff format --check .
+          Write-Host "Ruff formatting check completed with exit code: $LASTEXITCODE"
+
+      - name: Type check with mypy (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          echo "Running mypy type checking..."
           mypy . || echo "Type checking found issues, but continuing..."
 
-      - name: Run tests (pytest, junit, coverage)
+      - name: Type check with mypy (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          Write-Host "Running mypy type checking..."
+          mypy .
+          Write-Host "Type checking completed with exit code: $LASTEXITCODE"
+
+      - name: Run tests (pytest, junit, coverage) (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          echo "Creating junit directory..."
           mkdir -p junit
+
+          echo "Running pytest..."
           pytest -n auto -v \
             --import-mode=importlib \
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
             --junitxml=junit/test-results.xml || echo "Tests failed, but continuing to collect results..."
+
+      - name: Run tests (pytest, junit, coverage) (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          Write-Host "Creating junit directory..."
+          New-Item -ItemType Directory -Force -Path junit
+
+          Write-Host "Running pytest..."
+          pytest -n auto -v `
+            --import-mode=importlib `
+            --cov=. `
+            --cov-report=xml `
+            --cov-report=term-missing `
+            --junitxml=junit/test-results.xml
+          Write-Host "Tests completed with exit code: $LASTEXITCODE"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -130,8 +383,12 @@ jobs:
 
   security:
     name: Security & SAST
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false
     permissions:
       security-events: write
       contents: read
@@ -154,60 +411,171 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-security-
 
-      - name: Install uv
+      - name: Install uv (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        # Alternatively, if uv is available via pip:
-        # python -m pip install --upgrade pip uv
 
-      - name: Create virtual environment with uv
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
+          python -m pip install --upgrade pip uv
+          uv --version
+
+      - name: Create and verify virtual environment (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Create virtual environment with uv, fallback to Python's venv module
+          echo "Creating virtual environment..."
           uv venv .venv || {
             echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
+            python -m venv .venv || {
+              echo "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
           }
 
-      - name: Verify virtual environment
-        run: |
+          # Verify virtual environment was created
           if [ ! -d ".venv" ]; then
-            echo "Virtual environment directory .venv not found. Creating it with uv..."
-            uv venv .venv || {
-              echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-              python -m venv .venv
-            }
+            echo "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
           fi
+
           echo "Virtual environment created successfully at $(pwd)/.venv"
-          # Ensure uv is available in the virtual environment
+
+          # Activate virtual environment and upgrade pip
           source .venv/bin/activate
-          # Install setuptools and wheel with uv pip
-          uv pip install setuptools wheel || {
-            echo "Failed to install packages with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade uv
-            uv pip install setuptools wheel
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip || {
+            echo "Failed to upgrade pip. Continuing anyway..."
           }
 
-      - name: Install security tools with uv
+          # Install setuptools and wheel with pip first
+          python -m pip install --upgrade setuptools wheel || {
+            echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment if needed
+          python -m pip install --upgrade uv || {
+            echo "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify pip is working in the virtual environment
+          if [ ! -f ".venv/bin/pip" ]; then
+            echo "pip not found in virtual environment. Creating symlink..."
+            if [ -f ".venv/bin/python" ]; then
+              ln -s python .venv/bin/pip || true
+            fi
+          }
+
+          echo "Virtual environment setup complete."
+
+      - name: Create and verify virtual environment (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          # Install all security tools with uv pip
-          uv pip install pip-audit safety bandit semgrep pylint sarif-tools || {
-            echo "Failed to install security tools with uv pip. Falling back to pip for pip-audit..."
-            python -m pip install --upgrade pip
-            python -m pip install pip-audit || {
-              echo "pip-audit installation failed. Retrying with alternative method..."
-              python -m pip install --user pip-audit || {
-                echo "All pip-audit installation methods failed. Exiting..."
-                exit 1
-              }
+          # Create virtual environment with uv, fallback to Python's venv module
+          Write-Host "Creating virtual environment..."
+          uv venv .venv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
             }
-            # Try installing the rest with uv
-            uv pip install safety bandit semgrep pylint sarif-tools || {
-              echo "Retrying installation of remaining tools using pip..."
-              python -m pip install safety bandit semgrep pylint sarif-tools || {
-                echo "Warning: Some security tools could not be installed. Continuing anyway..."
+          }
+
+          # Verify virtual environment was created
+          if (-not (Test-Path ".venv")) {
+            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          }
+
+          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
+
+          # Activate virtual environment and upgrade pip
+          .\.venv\Scripts\Activate.ps1
+
+          # Upgrade pip first to ensure we have the latest version
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install setuptools and wheel with pip first
+          python -m pip install --upgrade setuptools wheel
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment if needed
+          python -m pip install --upgrade uv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify pip is working in the virtual environment
+          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
+            Write-Host "pip not found in virtual environment. Creating symlink..."
+            if (Test-Path ".venv\Scripts\python.exe") {
+              New-Item -ItemType SymbolicLink -Path ".venv\Scripts\pip.exe" -Target ".venv\Scripts\python.exe" -ErrorAction SilentlyContinue
+            }
+          }
+
+          Write-Host "Virtual environment setup complete."
+
+      - name: Install security tools with uv (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          echo "Installing security tools..."
+
+          # Install pip-audit first (most problematic)
+          echo "Installing pip-audit..."
+          python -m pip install pip-audit || {
+            echo "Failed to install pip-audit with pip. Trying alternative method..."
+            python -m pip install --user pip-audit || {
+              echo "Failed to install pip-audit with --user. Creating a wrapper script..."
+              # Create a wrapper script that uses python -m pip_audit
+              echo '#!/bin/bash' > pip-audit
+              echo 'python -m pip_audit "$@"' >> pip-audit
+              chmod +x pip-audit
+              mkdir -p .venv/bin
+              cp pip-audit .venv/bin/ || {
+                echo "Created pip-audit wrapper in current directory"
+                export PATH=$PATH:$(pwd)
               }
             }
           }
+
+          # Install other security tools one by one for better error handling
+          echo "Installing safety..."
+          uv pip install safety || python -m pip install safety
+
+          echo "Installing bandit..."
+          uv pip install bandit || python -m pip install bandit
+
+          echo "Installing semgrep..."
+          uv pip install semgrep || python -m pip install semgrep
+
+          echo "Installing pylint..."
+          uv pip install pylint || python -m pip install pylint
+
+          # Install project dependencies
+          echo "Installing project dependencies..."
+          if [ -f requirements.txt ]; then
+            uv pip install -r requirements.txt || python -m pip install -r requirements.txt
+          fi
+
+          if [ -f requirements-dev.txt ]; then
+            uv pip install -r requirements-dev.txt || python -m pip install -r requirements-dev.txt
+          fi
 
           # Verify pip-audit is installed and available
           echo "Verifying pip-audit installation..."
@@ -215,40 +583,119 @@ jobs:
             echo "pip-audit command not found in PATH. Checking alternative locations..."
             find ~/.local -name pip-audit 2>/dev/null || true
             find /usr/local -name pip-audit 2>/dev/null || true
-            find $VIRTUAL_ENV -name pip-audit 2>/dev/null || true
             find .venv -name pip-audit 2>/dev/null || true
 
-            # Try to locate pip-audit module and create a wrapper script
-            AUDIT_PATH=$(python -c "import importlib.util; print(importlib.util.find_spec('pip_audit'))" 2>/dev/null)
-            if [ -n "$AUDIT_PATH" ]; then
-              echo "Found pip_audit module. Creating wrapper script..."
-              echo '#!/bin/bash' > pip-audit
-              echo 'python -m pip_audit "$@"' >> pip-audit
-              chmod +x pip-audit
-              mv pip-audit .venv/bin/ || mv pip-audit ~/.local/bin/ || mv pip-audit /usr/local/bin/ || {
-                echo "Created pip-audit wrapper in current directory"
-                export PATH=$PATH:$(pwd)
-              }
+            # Try to locate pip-audit module
+            if python -c "import pip_audit" 2>/dev/null; then
+              echo "pip_audit module found. Will use python -m pip_audit instead of pip-audit command."
             else
-              echo "pip_audit module not found. Will try to run with python -m pip_audit"
+              echo "pip_audit module not found. Installing again..."
+              python -m pip install pip-audit
             fi
           }
 
-          # Install project dependencies
-          if [ -f requirements.txt ]; then uv pip install -r requirements.txt || python -m pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt || python -m pip install -r requirements-dev.txt; fi
-
           # Final verification of all tools
           echo "Installed security tools:"
-          pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint|sarif-tools' || true
+          pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint' || true
 
-      - name: Run Safety
+      - name: Install security tools with uv (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          Write-Host "Installing security tools..."
+
+          # Install pip-audit first (most problematic)
+          Write-Host "Installing pip-audit..."
+          python -m pip install pip-audit
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install pip-audit with pip. Trying alternative method..."
+            python -m pip install --user pip-audit
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install pip-audit with --user. Creating a wrapper script..."
+              # Create a wrapper script that uses python -m pip_audit
+              Set-Content -Path "pip-audit.bat" -Value "@echo off`r`npython -m pip_audit %*"
+              New-Item -ItemType Directory -Force -Path .venv\Scripts
+              Copy-Item -Path "pip-audit.bat" -Destination ".venv\Scripts\" -Force
+              Write-Host "Created pip-audit wrapper in .venv\Scripts"
+            }
+          }
+
+          # Install other security tools one by one for better error handling
+          Write-Host "Installing safety..."
+          uv pip install safety
+          if ($LASTEXITCODE -ne 0) {
+            python -m pip install safety
+          }
+
+          Write-Host "Installing bandit..."
+          uv pip install bandit
+          if ($LASTEXITCODE -ne 0) {
+            python -m pip install bandit
+          }
+
+          Write-Host "Installing semgrep..."
+          uv pip install semgrep
+          if ($LASTEXITCODE -ne 0) {
+            python -m pip install semgrep
+          }
+
+          Write-Host "Installing pylint..."
+          uv pip install pylint
+          if ($LASTEXITCODE -ne 0) {
+            python -m pip install pylint
+          }
+
+          # Install project dependencies
+          Write-Host "Installing project dependencies..."
+          if (Test-Path "requirements.txt") {
+            uv pip install -r requirements.txt
+            if ($LASTEXITCODE -ne 0) {
+              python -m pip install -r requirements.txt
+            }
+          }
+
+          if (Test-Path "requirements-dev.txt") {
+            uv pip install -r requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) {
+              python -m pip install -r requirements-dev.txt
+            }
+          }
+
+          # Verify pip-audit is installed and available
+          Write-Host "Verifying pip-audit installation..."
+          $pipAuditPath = Get-Command pip-audit -ErrorAction SilentlyContinue
+          if (-not $pipAuditPath) {
+            Write-Host "pip-audit command not found in PATH. Checking alternative locations..."
+
+            # Try to locate pip-audit module
+            try {
+              python -c "import pip_audit"
+              Write-Host "pip_audit module found. Will use python -m pip_audit instead of pip-audit command."
+            } catch {
+              Write-Host "pip_audit module not found. Installing again..."
+              python -m pip install pip-audit
+            }
+          }
+
+          # Final verification of all tools
+          Write-Host "Installed security tools:"
+          pip list | Select-String -Pattern 'pip-audit|safety|bandit|semgrep|pylint'
+
+      - name: Run Safety (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
           mkdir -p security-reports
+          echo "Running safety check..."
+
           # Try to run safety with fallback options
           if command -v safety &>/dev/null; then
-            echo "Running safety check..."
             safety check --json > security-reports/safety-results.json || echo "[]" > security-reports/safety-results.json
           else
             echo "Safety command not found. Trying to install and run..."
@@ -267,10 +714,62 @@ jobs:
             echo "[]" > security-reports/safety-results.json
           fi
 
-      - name: Run pip-audit
+      - name: Run Safety (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          New-Item -ItemType Directory -Force -Path security-reports
+          Write-Host "Running safety check..."
+
+          # Try to run safety with fallback options
+          $safetyCmdPath = Get-Command safety -ErrorAction SilentlyContinue
+          if ($safetyCmdPath) {
+            safety check --json > security-reports/safety-results.json
+            if ($LASTEXITCODE -ne 0) {
+              Set-Content -Path security-reports/safety-results.json -Value "[]"
+            }
+          } else {
+            Write-Host "Safety command not found. Trying to install and run..."
+            python -m pip install safety
+            $safetyCmdPath = Get-Command safety -ErrorAction SilentlyContinue
+            if ($safetyCmdPath) {
+              safety check --json > security-reports/safety-results.json
+              if ($LASTEXITCODE -ne 0) {
+                Set-Content -Path security-reports/safety-results.json -Value "[]"
+              }
+            } else {
+              Write-Host "Safety tool not available. Creating empty results file."
+              Set-Content -Path security-reports/safety-results.json -Value "[]"
+            }
+          }
+
+          # Verify the output file exists and is valid JSON
+          if (-not (Test-Path security-reports/safety-results.json)) {
+            Write-Host "Creating valid empty JSON file for safety results"
+            Set-Content -Path security-reports/safety-results.json -Value "[]"
+          } else {
+            try {
+              $null = Get-Content security-reports/safety-results.json | ConvertFrom-Json
+            } catch {
+              Write-Host "Invalid JSON detected. Creating valid empty JSON file."
+              Set-Content -Path security-reports/safety-results.json -Value "[]"
+            }
+          }
+
+      - name: Run pip-audit (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
           mkdir -p security-reports
+          echo "Running pip-audit..."
+
           # Try multiple ways to run pip-audit
           if command -v pip-audit &>/dev/null; then
             echo "Running pip-audit command..."
@@ -289,13 +788,64 @@ jobs:
             echo "[]" > security-reports/pip-audit-results.json
           fi
 
-      - name: Run Bandit
+      - name: Run pip-audit (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          New-Item -ItemType Directory -Force -Path security-reports
+          Write-Host "Running pip-audit..."
+
+          # Try multiple ways to run pip-audit
+          $pipAuditCmdPath = Get-Command pip-audit -ErrorAction SilentlyContinue
+          if ($pipAuditCmdPath) {
+            Write-Host "Running pip-audit command..."
+            pip-audit --format json > security-reports/pip-audit-results.json
+            if ($LASTEXITCODE -ne 0) {
+              Set-Content -Path security-reports/pip-audit-results.json -Value "[]"
+            }
+          } else {
+            try {
+              python -c "import pip_audit"
+              Write-Host "Running pip-audit as a module..."
+              python -m pip_audit --format json > security-reports/pip-audit-results.json
+              if ($LASTEXITCODE -ne 0) {
+                Set-Content -Path security-reports/pip-audit-results.json -Value "[]"
+              }
+            } catch {
+              Write-Host "pip-audit not available. Creating empty results file."
+              Set-Content -Path security-reports/pip-audit-results.json -Value "[]"
+            }
+          }
+
+          # Verify the output file exists and is valid JSON
+          if (-not (Test-Path security-reports/pip-audit-results.json)) {
+            Write-Host "Creating valid empty JSON file for pip-audit results"
+            Set-Content -Path security-reports/pip-audit-results.json -Value "[]"
+          } else {
+            try {
+              $null = Get-Content security-reports/pip-audit-results.json | ConvertFrom-Json
+            } catch {
+              Write-Host "Invalid JSON detected. Creating valid empty JSON file."
+              Set-Content -Path security-reports/pip-audit-results.json -Value "[]"
+            }
+          }
+
+      - name: Run Bandit (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
           mkdir -p security-reports
+          echo "Running bandit scan..."
+
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
-            echo "Running bandit scan..."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero || true
           else
             echo "Bandit command not found. Trying to install and run..."
@@ -310,7 +860,12 @@ jobs:
 
           # Ensure the SARIF file has the required "version" property and is valid
           if [ -f security-reports/bandit-results.sarif ]; then
-            if ! grep -q '"version"' security-reports/bandit-results.sarif; then
+            # Check if file is empty
+            if [ ! -s security-reports/bandit-results.sarif ]; then
+              echo "Bandit output file is empty. Creating valid empty SARIF file."
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+            # Check if version property exists
+            elif ! grep -q '"version"' security-reports/bandit-results.sarif; then
               echo "Adding version property to SARIF file"
               # Create a valid SARIF file with version property
               echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
@@ -326,6 +881,61 @@ jobs:
             echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
           fi
 
+      - name: Run Bandit (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          New-Item -ItemType Directory -Force -Path security-reports
+          Write-Host "Running bandit scan..."
+
+          # Try to run bandit with fallback options
+          $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
+          if ($banditCmdPath) {
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
+          } else {
+            Write-Host "Bandit command not found. Trying to install and run..."
+            python -m pip install bandit
+            $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
+            if ($banditCmdPath) {
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
+            } else {
+              Write-Host "Bandit tool not available. Creating empty SARIF file."
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            }
+          }
+
+          # Ensure the SARIF file has the required "version" property and is valid
+          if (Test-Path security-reports/bandit-results.sarif) {
+            # Check if file is empty
+            if ((Get-Item security-reports/bandit-results.sarif).Length -eq 0) {
+              Write-Host "Bandit output file is empty. Creating valid empty SARIF file."
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            } else {
+              # Check if version property exists
+              $fileContent = Get-Content security-reports/bandit-results.sarif -Raw
+              if (-not ($fileContent -match '"version"')) {
+                Write-Host "Adding version property to SARIF file"
+                # Create a valid SARIF file with version property
+                Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              }
+            }
+
+            # Verify the SARIF file is valid JSON
+            try {
+              $null = Get-Content security-reports/bandit-results.sarif -Raw | ConvertFrom-Json
+            } catch {
+              Write-Host "Invalid SARIF file detected. Creating valid empty SARIF file."
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            }
+          } else {
+            # Create a valid empty SARIF file if it doesn't exist
+            Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+          }
+
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
@@ -336,12 +946,17 @@ jobs:
           output: 'security-reports/trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
 
-      - name: Run Semgrep
+      - name: Run Semgrep (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          echo "Running semgrep scan..."
+
           # Try to run semgrep with fallback options
           if command -v semgrep &>/dev/null; then
-            echo "Running semgrep scan..."
             semgrep scan --config=auto --severity=ERROR || true
           else
             echo "Semgrep command not found. Trying to install and run..."
@@ -353,12 +968,42 @@ jobs:
             fi
           fi
 
-      - name: Run pylint (security warnings)
+      - name: Run Semgrep (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          Write-Host "Running semgrep scan..."
+
+          # Try to run semgrep with fallback options
+          $semgrepCmdPath = Get-Command semgrep -ErrorAction SilentlyContinue
+          if ($semgrepCmdPath) {
+            semgrep scan --config=auto --severity=ERROR
+          } else {
+            Write-Host "Semgrep command not found. Trying to install and run..."
+            python -m pip install semgrep
+            $semgrepCmdPath = Get-Command semgrep -ErrorAction SilentlyContinue
+            if ($semgrepCmdPath) {
+              semgrep scan --config=auto --severity=ERROR
+            } else {
+              Write-Host "Semgrep tool not available. Skipping scan."
+            }
+          }
+
+      - name: Run pylint (security warnings) (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          echo "Running pylint security scan..."
+
           # Try to run pylint with fallback options
           if command -v pylint &>/dev/null; then
-            echo "Running pylint security scan..."
             pylint --disable=all --enable=security . || true
           else
             echo "Pylint command not found. Trying to install and run..."
@@ -370,9 +1015,38 @@ jobs:
             fi
           fi
 
-      - name: Fix potential secrets
+      - name: Run pylint (security warnings) (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          Write-Host "Running pylint security scan..."
+
+          # Try to run pylint with fallback options
+          $pylintCmdPath = Get-Command pylint -ErrorAction SilentlyContinue
+          if ($pylintCmdPath) {
+            pylint --disable=all --enable=security .
+          } else {
+            Write-Host "Pylint command not found. Trying to install and run..."
+            python -m pip install pylint
+            $pylintCmdPath = Get-Command pylint -ErrorAction SilentlyContinue
+            if ($pylintCmdPath) {
+              pylint --disable=all --enable=security .
+            } else {
+              Write-Host "Pylint tool not available. Skipping scan."
+            }
+          }
+
+      - name: Fix potential secrets (Linux/macOS)
+        if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
           if [ -f fix_potential_secrets.py ]; then
             echo "Running fix_potential_secrets.py..."
             python fix_potential_secrets.py || {
@@ -381,6 +1055,24 @@ jobs:
           else
             echo "fix_potential_secrets.py not found. Skipping this step."
           fi
+
+      - name: Fix potential secrets (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          if (Test-Path "fix_potential_secrets.py") {
+            Write-Host "Running fix_potential_secrets.py..."
+            python fix_potential_secrets.py
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Warning: fix_potential_secrets.py failed but continuing..."
+            }
+          } else {
+            Write-Host "fix_potential_secrets.py not found. Skipping this step."
+          }
 
       - name: Run secret scanning (gitleaks)
         uses: gitleaks/gitleaks-action@v2
@@ -429,7 +1121,7 @@ jobs:
 
   build-deploy:
     name: Build & Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Keep Docker builds on Linux for better compatibility
     needs: [lint-test, security]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')) ||
@@ -443,7 +1135,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v4
@@ -453,34 +1145,69 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Set Docker image tag (Linux/macOS)
+        if: runner.os != 'Windows'
+        id: set-docker-tag-unix
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "DOCKER_TAG=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "SHOULD_PUSH=true" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG=paissiveincome/app:test" >> $GITHUB_ENV
+            echo "SHOULD_PUSH=false" >> $GITHUB_ENV
+          fi
+          echo "Docker tag set to: $DOCKER_TAG"
+
+      - name: Set Docker image tag (Windows)
+        if: runner.os == 'Windows'
+        id: set-docker-tag-win
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}".StartsWith("refs/tags/v")) {
+            echo "DOCKER_TAG=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "SHOULD_PUSH=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            echo "DOCKER_TAG=paissiveincome/app:test" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "SHOULD_PUSH=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+          Write-Host "Docker tag set to: $env:DOCKER_TAG"
+
       - name: Build Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          tags: ${{ startsWith(github.ref, 'refs/tags/v') && format('{0}/{1}:{2}', secrets.DOCKERHUB_USERNAME, 'paissiveincome-app', github.ref_name) || 'paissiveincome/app:test' }}
+          push: ${{ env.SHOULD_PUSH }}
+          tags: ${{ env.DOCKER_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Move Docker cache
+      - name: Move Docker cache (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+      - name: Move Docker cache (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force /tmp/.buildx-cache -ErrorAction SilentlyContinue
+          Move-Item -Path /tmp/.buildx-cache-new -Destination /tmp/.buildx-cache -Force
+
       - name: Log in to Docker Hub
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.SHOULD_PUSH == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Docker image to Docker Hub
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: docker/build-push-action@v4
+        if: env.SHOULD_PUSH == 'true'
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ format('{0}/{1}:{2}', secrets.DOCKERHUB_USERNAME, 'paissiveincome-app', github.ref_name) }}
+          tags: ${{ env.DOCKER_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
