@@ -63,7 +63,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
       - name: Install uv
         shell: bash
@@ -117,9 +116,30 @@ jobs:
         run: |
           cd ../..
           source .venv/bin/activate
-          uv pip install -r requirements.txt
-          uv pip install -r requirements-dev.txt
-          uv pip install -e .
+
+          # Ensure pip is installed in the virtual environment
+          uv pip install --upgrade pip setuptools wheel || {
+            echo "Failed to install basic packages with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install --upgrade pip setuptools wheel
+          }
+
+          # Install project dependencies
+          uv pip install -r requirements.txt || {
+            echo "Failed to install requirements.txt with uv pip. Retrying..."
+            uv pip install -r requirements.txt
+          }
+
+          uv pip install -r requirements-dev.txt || {
+            echo "Failed to install requirements-dev.txt with uv pip. Retrying..."
+            uv pip install -r requirements-dev.txt
+          }
+
+          uv pip install -e . || {
+            echo "Failed to install package in development mode with uv pip. Retrying..."
+            uv pip install -e .
+          }
+
           # Run the API server with the activated virtual environment
           nohup python ui/api_server.py &
           cd ui/react_frontend
@@ -142,9 +162,34 @@ jobs:
         run: |
           cd ../..
           .\.venv\Scripts\Activate.ps1
+
+          # Ensure pip is installed in the virtual environment
+          uv pip install --upgrade pip setuptools wheel
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install basic packages with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install --upgrade pip setuptools wheel
+          }
+
+          # Install project dependencies
           uv pip install -r requirements.txt
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install requirements.txt with uv pip. Retrying..."
+            uv pip install -r requirements.txt
+          }
+
           uv pip install -r requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install requirements-dev.txt with uv pip. Retrying..."
+            uv pip install -r requirements-dev.txt
+          }
+
           uv pip install -e .
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install package in development mode with uv pip. Retrying..."
+            uv pip install -e .
+          }
+
           # Run the API server with the activated virtual environment
           $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "ui/api_server.py" -PassThru -NoNewWindow
           cd ui/react_frontend

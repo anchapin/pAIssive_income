@@ -65,22 +65,41 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install development dependencies
-        run: pip install -r requirements-dev.txt
 
       - name: Install uv
-        run: pip install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Verify uv Installation
         run: uv --version
 
-      - name: Install Ruff (Python Linter)
-        run: pip install ruff
+      - name: Create virtual environment
+        run: |
+          uv venv .venv || {
+            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+          }
+          source .venv/bin/activate
+
+      - name: Install dependencies with uv
+        run: |
+          source .venv/bin/activate
+
+          # Install development dependencies
+          uv pip install -r requirements-dev.txt || {
+            echo "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install -r requirements-dev.txt
+          }
+
+          # Install Ruff
+          uv pip install ruff
 
       - name: Verify Ruff Installation
-        run: ruff --version
+        run: |
+          source .venv/bin/activate
+          ruff --version
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -141,7 +160,9 @@ jobs:
           pnpm --version
 
       - name: Install PyYAML
-        run: pip install pyyaml
+        run: |
+          source .venv/bin/activate
+          uv pip install pyyaml
 
       - name: Debug Environment Details
         shell: bash
@@ -229,27 +250,43 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install development dependencies
-        shell: powershell
-        run: pip install -r requirements-dev.txt
 
       - name: Install uv
         shell: powershell
-        run: pip install uv
+        run: |
+          pip install uv
+          uv --version
 
-      - name: Verify uv Installation
+      - name: Create virtual environment
         shell: powershell
-        run: uv --version
+        run: |
+          uv venv .venv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+          }
 
-      - name: Install PyYAML
+      - name: Install dependencies with uv
         shell: powershell
-        run: pip install pyyaml
+        run: |
+          .\.venv\Scripts\Activate.ps1
 
-      - name: Install Ruff
+          # Install development dependencies
+          uv pip install -r requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install -r requirements-dev.txt
+          }
+
+          # Install PyYAML and Ruff
+          uv pip install pyyaml ruff
+
+      - name: Verify Ruff Installation
         shell: powershell
-        run: pip install ruff
+        run: |
+          .\.venv\Scripts\Activate.ps1
+          ruff --version
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -570,22 +607,41 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install development dependencies
-        run: pip install -r requirements-dev.txt
 
       - name: Install uv
-        run: pip install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Verify uv Installation
         run: uv --version
 
-      - name: Install Ruff (Python Linter)
-        run: pip install ruff
+      - name: Create virtual environment
+        run: |
+          uv venv .venv || {
+            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+          }
+          source .venv/bin/activate
+
+      - name: Install dependencies with uv
+        run: |
+          source .venv/bin/activate
+
+          # Install development dependencies
+          uv pip install -r requirements-dev.txt || {
+            echo "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install -r requirements-dev.txt
+          }
+
+          # Install Ruff
+          uv pip install ruff
 
       - name: Verify Ruff Installation
-        run: ruff --version
+        run: |
+          source .venv/bin/activate
+          ruff --version
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -646,7 +702,9 @@ jobs:
           pnpm --version
 
       - name: Install PyYAML
-        run: pip install pyyaml
+        run: |
+          source .venv/bin/activate
+          uv pip install pyyaml
 
       - name: Debug Environment Details
         shell: bash

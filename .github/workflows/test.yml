@@ -22,17 +22,22 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: pip
 
-      - name: Cache Python packages
+      - name: Cache uv dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/pip
+            ~/.cache/uv
+            ~/.uv
             .pytest_cache
-          key: ${{ runner.os }}-pip-test-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-test-${{ hashFiles('**/requirements*.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-test-
+            ${{ runner.os }}-uv-test-
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -41,19 +46,30 @@ jobs:
           find . -type d -name "*.dist-info" -exec rm -rf {} + || true
           find . -name "*.egg" -exec rm -f {} + || true
 
-          pip cache purge || true
+          # Create virtual environment with uv
+          uv venv .venv || {
+            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+          }
 
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install dependencies with uv
+          uv pip install pytest pytest-cov pytest-xdist pytest-asyncio || {
+            echo "Failed to install test dependencies with uv pip. Installing uv in the virtual environment..."
+            python -m pip install --upgrade uv
+            uv pip install pytest pytest-cov pytest-xdist pytest-asyncio
+          }
 
           if [ -f requirements-dev.txt ]; then
-            python -m pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt
           fi
           if [ -f requirements.txt ]; then
-            python -m pip install -r requirements.txt
+            uv pip install -r requirements.txt
           fi
 
-          python -m pip install -e . -v
+          uv pip install -e . -v
 
       - name: Create junit directory
         run: mkdir -p junit
@@ -62,15 +78,19 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Run tests with pytest
           pytest ${{ inputs.test-path }} \
             -n auto \
             -v \
             --import-mode=importlib \
-          --cov=. \
-          --cov-report=xml \
-          --cov-report=term-missing \
-          --cov-fail-under=5 \
-          --junitxml=junit/test-results.xml
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=5 \
+            --junitxml=junit/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
