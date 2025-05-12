@@ -11,7 +11,6 @@ import logging
 import os
 import subprocess
 import sys
-
 from pathlib import Path
 from typing import Optional
 
@@ -229,7 +228,8 @@ def test_sarif_file_handling() -> bool:
             logger.warning(f"❌ {sarif_file} is not valid JSON")  # Replaced f-string
             logger.info("Creating a valid but empty SARIF file as fallback")
             stdout, stderr, return_code = run_command(
-                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'  # Replaced f-string
+                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
+                # Replaced f-string
             )
 
             if return_code != 0:
@@ -238,8 +238,9 @@ def test_sarif_file_handling() -> bool:
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
+        compressed_path_base = Path("security-reports/compressed")
         compressed_file = (
-            Path("security-reports/compressed") / compressed_file_name
+            compressed_path_base / compressed_file_name
         )  # Replaced f-string
         stdout, stderr, return_code = run_command(
             f"gzip -c {sarif_file} > {compressed_file}"  # Replaced f-string

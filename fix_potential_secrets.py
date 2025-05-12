@@ -10,10 +10,8 @@ import logging
 import os
 import re
 import sys
-
 from pathlib import Path
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 # Configure logging
 logging.basicConfig(
@@ -181,7 +179,8 @@ def find_potential_secrets(file_path: str) -> list[tuple[str, int, int]]:
                         ):
                             continue  # It's a known safe replacement value
                         # If it's in an example context but not a known safe value, it might still be a finding
-                        # For now, let's be more aggressive in examples (commented lines below removed by ERA001 fix)
+                        # For now, let's be more aggressive in examples
+                        # (commented lines below removed by ERA001 fix)
 
                         # Store length instead of the actual secret value
                         secret_length = len(str(secret_value)) if secret_value else 0

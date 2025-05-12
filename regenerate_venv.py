@@ -6,9 +6,7 @@ import platform
 import shutil
 import subprocess
 import sys
-
-from typing import NoReturn
-from typing import Optional
+from typing import NoReturn, Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
@@ -303,7 +301,8 @@ def main() -> int:
         "  2. Run this script again (python regenerate_venv.py) to re-lock and re-sync."
     )
     logging.info(
-        "For deterministic installs, ensure requirements.lock is committed and use 'uv pip sync requirements.lock'."
+        "For deterministic installs, ensure requirements.lock is committed and use "
+        "'uv pip sync requirements.lock'."
     )
 
     if venv_to_use != venv_dir_path:

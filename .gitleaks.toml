@@ -46,6 +46,9 @@ paths = [
     "fix_security_issues\\.py$",
     "fix_formatting\\.py$",
 
+    # GitHub workflow files referencing security scripts
+    "\\.github/workflows/consolidated-ci-cd\\.yml$",
+
     # Files specifically flagged in security scan
     "users/password_reset\\.py$",
     "users/services\\.py$",

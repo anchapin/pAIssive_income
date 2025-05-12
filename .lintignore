@@ -1,0 +1,41 @@
+# .lintignore - Patterns to exclude from linting
+#
+# This file contains patterns to exclude from linting when using the fix_linting_issues.py script.
+# Each line is a pattern that will be matched against file paths.
+# Empty lines and lines starting with # are ignored.
+#
+# Examples:
+# - Exclude specific directories:
+#   tests/
+#   legacy/
+#
+# - Exclude specific files:
+#   setup.py
+#   conftest.py
+#
+# - Exclude files matching a pattern:
+#   *_test.py
+#   test_*.py
+
+# Common directories to exclude
+.git/
+__pycache__/
+.venv/
+venv/
+env/
+node_modules/
+build/
+dist/
+.pytest_cache/
+.coverage/
+htmlcov/
+
+# Common files to exclude
+setup.py
+conftest.py
+
+# Add your custom exclusions below
+# examples:
+# tests/
+# legacy/
+# experimental/

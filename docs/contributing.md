@@ -21,7 +21,8 @@ There are many ways to contribute to the pAIssive Income Framework:
 
 - Python 3.8 or higher
 - Git
-- pip (Python package manager)
+- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
+- `pip` (Python package manager, may be needed to install `uv` itself if not using the curl script)
 - **pnpm (Node.js package manager for frontend dependencies)**
 
 > **Note:**
@@ -56,28 +57,35 @@ cd pAIssive_income
 
 ```bash
 # On Windows
-setup_dev_environment.bat
+enhanced_setup_dev_environment.bat
 
 # On Unix/Linux
-./setup_dev_environment.sh
+./enhanced_setup_dev_environment.sh
+# Or if running the Python script directly:
+# python enhanced_setup_dev_environment.py
 ```
 
-This script will:
-- Create a virtual environment
-- Install dependencies
-- Set up pre-commit hooks
+This script will use `uv` to:
+- Create a virtual environment (`.venv`) using `uv venv`
+- Install dependencies from `requirements.txt` and `requirements-dev.txt` using `uv pip install`
+- Install the project in editable mode (`-e .`) using `uv pip install`
+- Set up pre-commit hooks (installing `pre-commit` via `uv pip install`)
 - Configure IDE settings for VS Code and PyCharm
 - Create .editorconfig for editor-agnostic settings
 
-Or manually:
+Or manually (using `uv`):
 
 ```bash
-python -m venv .venv
+# Create virtual environment (e.g., with Python 3.12)
+uv venv .venv --python 3.12
+# Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-pip install -r requirements-dev.txt  # Development dependencies
-pip install -e .
-pip install pre-commit
+# Install dependencies
+uv pip install -r requirements.txt
+uv pip install -r requirements-dev.txt  # Development dependencies
+uv pip install -e .
+# Install pre-commit and hooks
+uv pip install pre-commit
 pre-commit install
 ```
 
@@ -153,7 +161,7 @@ For detailed setup instructions, please see the [IDE Setup Guide](ide_setup.md).
 
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, ruff, and mypy for code linting, formatting, and type checking:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with ruff (for linting and formatting) and mypy for type checking:
 
 > **Important Note:**
 > This project uses **Ruff** as the primary code formatter, not Black. Please configure your IDE accordingly (see the [IDE Setup Guide](ide_setup.md) for instructions).
@@ -179,10 +187,8 @@ pre-commit autoupdate
 You can also run individual tools manually:
 
 ```bash
-# Check code style
-flake8
-
-# Format code with Ruff
+# Check code style and format code with Ruff
+ruff check .
 ruff format .
 
 

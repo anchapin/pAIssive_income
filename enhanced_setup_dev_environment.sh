@@ -3,6 +3,7 @@
 # This script runs enhanced_setup_dev_environment.py to set up the development environment
 
 echo "Setting up development environment..."
+echo "Running with arguments: $@"
 
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then
@@ -20,27 +21,57 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Check if Ruff is installed
+# Check if enhanced_setup_dev_environment.py exists
+if [ ! -f "enhanced_setup_dev_environment.py" ]; then
+    echo "Error: enhanced_setup_dev_environment.py not found in the current directory."
+    echo "Current directory contents:"
+    ls -la
+    exit 1
+fi
+
+# Check if uv is installed
+if ! command -v uv &> /dev/null; then
+    echo "Warning: uv is not installed or not in PATH."
+    echo "Will attempt to proceed without uv. Some features may not work correctly."
+    # Not exiting, will try to continue without uv
+fi
+
+# Check if Ruff is installed (Ruff is still used for linting/formatting, uv handles installation)
 if ! command -v ruff &> /dev/null; then
-    echo "Error: Ruff is not installed or not in PATH."
-    echo "Please install Ruff using 'pip install ruff'."
-    exit 1
+    echo "Warning: Ruff is not installed globally or not in PATH."
+    echo "The setup script will attempt to install it into the virtual environment."
+    # Not exiting, as setup_dev_environment.py will handle installing ruff
 fi
 
-echo "Installing development dependencies from requirements-dev.txt..."
-if [ -f requirements-dev.txt ]; then
-    pip install -r requirements-dev.txt
+# The Python script enhanced_setup_dev_environment.py will handle dependency installation using uv.
+# No need to pip install requirements-dev.txt here directly.
+
+echo # Add a newline for better readability before Python script output
+
+# Run the setup script with all arguments passed to this script
+echo "Executing: python3 enhanced_setup_dev_environment.py $@"
+
+# Parse and forward all arguments properly
+# Check for specific flags
+if [[ "$*" == *"--minimal"* ]]; then
+    echo "Detected --minimal flag, ensuring minimal profile is used"
+    # Forward all arguments including --minimal and any other flags like --ci-mode
+    python3 enhanced_setup_dev_environment.py "$@"
 else
-    echo "Warning: requirements-dev.txt not found. Skipping development dependency installation."
+    # Forward all arguments as is
+    python3 enhanced_setup_dev_environment.py "$@"
 fi
-echo
 
-# Run the setup script
-python3 enhanced_setup_dev_environment.py "$@"
+PYTHON_EXIT_CODE=$?
+if [ $PYTHON_EXIT_CODE -ne 0 ]; then
+    echo "Error: Python script failed with exit code $PYTHON_EXIT_CODE"
+    echo "Trying to run with default arguments..."
+    python3 enhanced_setup_dev_environment.py
 
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to set up development environment."
-    exit 1
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to set up development environment even with default arguments."
+        exit 1
+    fi
 fi
 
 # Create IDE configuration files
