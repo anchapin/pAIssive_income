@@ -2,6 +2,92 @@
 
 A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
 
+> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
+
+---
+
+## TL;DR Quickstart
+
+1. **Clone the repo and enter it:**
+
+   ```bash
+   git clone https://github.com/anchapin/pAIssive_income.git
+   cd pAIssive_income
+   ```
+
+2. **Install `uv` (if not already installed):**
+   `uv` is a fast Python package installer and resolver, written in Rust.
+
+   ```bash
+   # Using pip (recommended if you have Python/pip)
+   pip install uv
+
+   # Or using the standalone installer (Linux/macOS)
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   Ensure `uv` is in your PATH.
+
+3. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
+   (Requires Python 3.8+ and `uv`)
+
+   ```bash
+   # On Windows
+   enhanced_setup_dev_environment.bat
+
+   # On Unix/Linux
+   ./enhanced_setup_dev_environment.sh
+   # If you used setup_dev_environment.py directly before, use enhanced_setup_dev_environment.py
+   # python enhanced_setup_dev_environment.py
+   ```
+
+   This script will use `uv` to:
+   - Create a virtual environment (`.venv`)
+   - Install dependencies from `requirements.txt` and `requirements-dev.txt`
+   - Install the project in editable mode (`-e .`)
+   - Set up pre-commit hooks (installing `pre-commit` via `uv`)
+   - Configure IDE settings for VS Code and PyCharm
+   - Create .editorconfig for editor-agnostic settings
+
+   For manual setup using `uv`:
+
+   ```bash
+   # Create virtual environment (specify your Python interpreter if needed)
+   uv venv .venv --python python3.12
+   # Activate virtual environment
+   source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
+   # Install dependencies
+   uv pip install -r requirements.txt -r requirements-dev.txt -e .
+   # Install pre-commit and hooks
+   uv pip install pre-commit
+   pre-commit install
+   ```
+
+4. **Start the modern web UI (requires Node.js 14+ and pnpm):**
+
+   ```bash
+   python ui/run_ui.py
+   ```
+
+   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
+   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
+   > To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+>
+   > ```bash
+   > corepack enable
+   > ```
+>
+   > If Corepack is not available, you can install pnpm globally using npm:
+>
+   > ```bash
+   > npm install -g pnpm
+   > ```
+>
+5. **Run all tests (unit, integration, frontend):**
+   See the "Running Tests" section below.
+
+---
+
 ## Overview
 
 This project provides a structured approach to creating specialized AI-powered software tools that solve specific problems for targeted user groups. By focusing on niche markets with specific needs, these tools can provide high value to users while generating recurring subscription revenue.
@@ -48,14 +134,14 @@ The framework has identified several promising niches for AI-powered tools:
 
 ## Getting Started
 
-**For full setup, onboarding, and usage instructions, see [docs/getting-started.md](docs/getting-started.md).**
-
 This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
 If you are new to this project, start here:
+
 - [Getting Started Guide](docs/getting-started.md)
 
 For quick reference, the following topics are included in the full guide:
+
 - Development environment setup (Python, Node, etc.)
 - Installing dependencies
 - Running and developing with the framework
@@ -67,41 +153,48 @@ For quick reference, the following topics are included in the full guide:
 
 ---
 
-### Feedback & Documentation Contributions
+## Running Tests
 
-To suggest improvements or report issues in the documentation, please:
-- [Open an issue](https://github.com/anchapin/pAIssive_income/issues) with the label `documentation`
-- Or email the maintainer: a.n.chapin@gmail.com
+The project includes Python and JavaScript/TypeScript tests.
 
-For documentation contribution standards and process, see [docs/documentation-guide.md](docs/documentation-guide.md).
+### Python Unit/Integration Tests
 
-See [Getting Started Guide](docs/getting-started.md) for full setup and onboarding instructions.
+From the repo root, after environment setup:
 
-## Documentation Structure
+```bash
+pytest
+# or
+python -m pytest
+```
 
-- **Quickstart & Setup:** [docs/getting-started.md](docs/getting-started.md)
-- **Framework Overview & Architecture:** [docs/overview.md](docs/overview.md), [docs/architecture/](docs/architecture/)
-- **Project Structure:** [docs/project-structure.md](docs/project-structure.md)
-- **Agent Team Details:** [docs/agent-team.md](docs/agent-team.md)
-- **Niche Analysis:** [docs/niche-analysis.md](docs/niche-analysis.md)
-- **AI Models:** [docs/ai-models.md](docs/ai-models.md)
-- **Monetization:** [docs/monetization.md](docs/monetization.md)
-- **Marketing:** [docs/marketing.md](docs/marketing.md)
-- **UI/Web Interface:** [docs/ui.md](docs/ui.md)
-- **Tool Templates:** [docs/tool-templates.md](docs/tool-templates.md)
-- **API Reference:** [docs/api-reference.md](docs/api-reference.md)
-- **DevOps & CI/CD:** [docs/devops-workflow.md](docs/devops-workflow.md)
-- **Troubleshooting & FAQ:** [docs/troubleshooting.md](docs/troubleshooting.md), [docs/faq.md](docs/faq.md)
-- **Contributing:** [docs/contributing.md](docs/contributing.md)
-- **Documentation Guide:** [docs/documentation-guide.md](docs/documentation-guide.md)
+### Frontend End-to-End (E2E) Tests
 
-## Feedback and Documentation Updates
+> **Requires:** Node.js 14+, [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
 
-We welcome feedback and suggestions for improving documentation!
-- **For general suggestions or corrections:** Open a GitHub issue with the "documentation" label.
-- **For urgent changes or errors:** Contact the project maintainer via [email](mailto:a.n.chapin@gmail.com).
+1. Install Playwright and its browsers (first time only):
 
-For more on documentation standards and structure, see [docs/documentation-guide.md](docs/documentation-guide.md).
+   ```bash
+   cd ui/react_frontend
+   pnpm install
+   pnpm exec playwright install
+   ```
+
+2. Run all E2E tests:
+
+   ```bash
+   pnpm exec playwright test
+   ```
+
+3. See `ui/react_frontend/tests/e2e/` for sample E2E tests.
+   To run a specific test:
+
+   ```bash
+   pnpm exec playwright test tests/e2e/niche_analysis.spec.ts
+   ```
+
+Test output and screenshots will appear in the Playwright reports directory.
+
+---
 
 ## Example Output
 
@@ -116,12 +209,32 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
-- Node.js 14.0+ (for modern UI)
+- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
+- Node.js 14.0+ (for modern UI and frontend tests)
+- [pnpm](https://pnpm.io/) (for frontend dependencies)
+  To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+
+  ```bash
+  corepack enable
+  ```
+
+  If Corepack is not available, you can install pnpm globally using npm:
+
+  ```bash
+  npm install -g pnpm
+  ```
+
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
 
 The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
+
+### IDE Setup
+
+We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code, PyCharm, and other editors.
+
+See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.
 
 ### Common Formatting Issues to Watch For
 
@@ -131,12 +244,28 @@ The project enforces consistent code style and formatting through pre-commit hoo
 - Type annotation issues caught by MyPy
 - Ruff linting violations (see .ruff.toml for rules)
 
+### Ruff Linting
+
+To ensure consistent code formatting and prevent CI pipeline failures:
+
+1. Before committing changes, run Ruff locally to fix any formatting issues:
+
+   ```bash
+   ruff check . --fix
+   ```
+
+2. The CI pipeline has been configured to:
+   - Automatically fix and commit Ruff formatting issues
+   - Continue execution even if Ruff check-only mode finds issues
+
+This helps maintain code quality while preventing pipeline failures due to formatting issues.
+
 ### Using Pre-commit Hooks
 
 The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit
 pre-commit install
 ```
 
@@ -161,6 +290,35 @@ pre-commit run trailing-whitespace --all-files
 pre-commit run ruff --all-files
 ```
 
+### Unified Workflow (Recommended)
+
+We now provide a **unified entrypoint** for all code quality, linting, formatting, syntax, docstring, and security tasks.
+
+**Use the Makefile for common developer tasks:**
+
+```bash
+make all           # Run all checks and fixes
+make lint          # Lint codebase
+make format        # Format codebase
+make fix           # Run all automated code fixers
+make docstring-fix # Fix docstring issues
+make syntax-fix    # Fix syntax issues
+make security      # Run security scans
+make test          # Run all tests
+make pre-commit    # Run all pre-commit checks
+```
+
+Or, run tasks directly with the unified CLI:
+
+```bash
+python scripts/manage_quality.py lint
+python scripts/manage_quality.py fix
+python scripts/manage_quality.py security-scan
+# ...and more
+```
+
+The `.pre-commit-config.yaml` is configured to use this unified entrypoint for code quality hooks.
+
 ### Local Linting Commands
 
 Use these commands to check and fix linting issues:
@@ -172,13 +330,35 @@ scripts\lint_check.bat  # Windows
 ./scripts/lint_check.sh  # Unix/Linux
 ```
 
-1. Fix issues automatically:
+2. Fix issues automatically:
 
 ```bash
-python fix_all_issues_final.py
+# Windows
+fix_linting_issues.bat
+
+# Unix/Linux
+./fix_linting_issues.sh
+
+# Or directly with Python
+python fix_linting_issues.py
 ```
 
-1. Run specific checks:
+You can also fix specific files:
+
+```bash
+python fix_linting_issues.py path/to/file1.py path/to/file2.py
+```
+
+Or run with specific options:
+
+```bash
+python fix_linting_issues.py # No isort option needed
+python fix_linting_issues.py --no-ruff   # Skip Ruff linter
+python fix_linting_issues.py --check     # Check only, don't fix
+python fix_linting_issues.py --verbose   # Show detailed output
+```
+
+3. Run specific checks:
 
 ```bash
 scripts\lint_check.bat --ruff  # Run only Ruff
@@ -187,17 +367,26 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 ### Code Formatter Configuration
 
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **Ruff**: The project uses Ruff as the primary tool for both linting and formatting. Configuration is in `.ruff.toml`
 - **MyPy**: Type checking configuration is in `mypy.ini`
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 
 All configuration files are version controlled to ensure consistent formatting across the project.
+
+## Configuration & Environment
+
+- Most features work out-of-the-box.
+- No secrets or special environment variables are required for basic functionality.
+- For advanced features, see the relevant module's README.
+
+---
 
 ## Claude Agentic Coding Best Practices
 
 This project follows [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) for safe, reliable, and auditable automation. All contributors are expected to review and adhere to these standards.
 
 Key principles include:
+
 - Explicit state and input/output handling
 - Modular, testable decomposition
 - Strong input validation
@@ -226,78 +415,13 @@ The project includes comprehensive API documentation that can be built from sour
    python generate_api_docs.py
    ```
 
-3. Build the HTML documentation:
+### Documentation Updates Policy
 
-   ```bash
-   make html
-   ```
+This project enforces a policy that documentation must be updated whenever code changes are made. A GitHub Actions workflow automatically checks that documentation files are updated when non-documentation files are changed in pull requests.
 
-   On Windows, use:
+Documentation files are defined as:
 
-   ```bash
-   make.bat html
-   ```
+- Any Markdown (*.md) file at the repository root
+- Any file (of any type) within the 'docs/' or 'docs_source/' directories
 
-4. The generated documentation will be available in `docs_source/build/html/`
-
-You can view the documentation by opening `docs_source/build/html/index.html` in your web browser.
-
-## Troubleshooting
-
-### CI Workflow Issues
-
-If you encounter issues with the CI workflow, try the following steps:
-
-1. **Syntax and Formatting Issues**: Use the comprehensive fix script to identify and fix issues:
-
-   ```bash
-   # Check for issues without fixing
-   python fix_all_issues_final.py --check path/to/file.py
-
-   # Fix all issues
-   python fix_all_issues_final.py path/to/file.py
-
-   # Or use the batch file
-   fix_all_issues.bat path/to/file.py
-   ```
-
-2. **Run GitHub Actions Workflow Locally**: Use the dedicated workflow to fix issues:
-
-   ```bash
-   # Install act (GitHub Actions local runner)
-   # See: https://github.com/nektos/act
-
-   # Run the fix-all-issues workflow
-   act -j fix-issues -W .github/workflows/fix-all-issues.yml
-   ```
-
-3. **Linting Issues**: Run the linting checks locally to identify and fix issues:
-
-   ```bash
-   scripts\lint_check.bat --file path/to/file.py
-   ```
-
-4. **Virtual Environment Issues**: If you encounter issues with the virtual environment, recreate it:
-
-   ```bash
-   scripts\recreate_venv.bat
-   ```
-
-5. **Pre-commit Hook Issues**: If pre-commit hooks are not working correctly, reinstall them:
-
-   ```bash
-   # Using the provided script (recommended)
-   # On Windows
-   setup_pre_commit.bat
-
-   # On Unix/Linux
-   ./setup_pre_commit.sh
-
-   # Or manually
-   pre-commit uninstall
-   pre-commit install
-   ```
-
-## License
-
-[MIT License](LICENSE)
+When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.

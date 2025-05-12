@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 """Script to fix all Python files by replacing them with minimal valid Python files."""
 
+import logging
 import os
-import re
 import sys
 from pathlib import Path
-from typing import List, Optional
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def find_python_files() -> List[str]:
+def find_python_files() -> list[str]:
     """Find all Python files tracked by git (not ignored by .gitignore)."""
     try:
         # Use git ls-files to get all *.py files tracked by git
-        output = (
-            os.popen("git ls-files '*.py'").read()
-        )
+        output = os.popen("git ls-files '*.py'").read()
         python_files = [line.strip() for line in output.splitlines() if line.strip()]
-        return python_files
-    except Exception as e:
-        print(f"Error finding git-tracked Python files: {e}")
+    except Exception:
+        logging.exception("Error finding git-tracked Python files")
         return []
+    else:
+        return python_files
 
 
 def fix_file(file_path: str, verbose: bool = False) -> bool:
@@ -31,13 +31,10 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
             compile(content, file_path, "exec")
 
         # If we get here, the file is valid Python
-        if verbose:
-            print(f"File {file_path} is already valid Python")
-        return True
     except SyntaxError:
         # If we get here, the file has syntax errors
         if verbose:
-            print(f"Fixing syntax errors in {file_path}")
+            logging.info(f"Fixing syntax errors in {file_path}")
 
         # Create a minimal valid Python file
         file_name = os.path.basename(file_path)
@@ -67,10 +64,14 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-        except Exception as e:
-            print(f"Error writing to file {file_path}: {e}")
+        except Exception:
+            logging.exception(f"Error writing to file {file_path}:")
             return False
 
+        return True
+    else:
+        if verbose:
+            logging.info(f"File {file_path} is already valid Python")
         return True
 
 
@@ -108,19 +109,19 @@ def main() -> int:
     fixed_files = 0
     total_files = len(python_files)
 
-    print(f"Processing {total_files} Python files...")
+    logging.info(f"Processing {total_files} Python files...")
 
     for file_path in python_files:
         if args.verbose:
-            print(f"Processing {file_path}...")
+            logging.info(f"Processing {file_path}...")
 
         if fix_file(file_path, args.verbose):
             fixed_files += 1
         else:
-            print(f"Failed to fix {file_path}")
+            logging.error(f"Failed to fix {file_path}")
             success = False
 
-    print(f"Fixed {fixed_files} out of {total_files} files.")
+    logging.info(f"Fixed {fixed_files} out of {total_files} files.")
 
     return 0 if success else 1
 
