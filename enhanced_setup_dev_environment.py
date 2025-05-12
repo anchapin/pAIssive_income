@@ -158,7 +158,8 @@ def run_command(
         else:
             # If shutil.which doesn't find it, it's unlikely to be found by subprocess.run directly.
             logger.debug(
-                f"shutil.which could not find '{executable_path_str}' in PATH: {os.environ.get('PATH')}"
+                f"shutil.which could not find '{executable_path_str}' "
+                f"in PATH: {os.environ.get('PATH')}"
             )
             return 1, "", f"Command '{executable_path_str}' not found in PATH."
     else:

@@ -11,7 +11,6 @@ import logging
 import os
 import subprocess
 import sys
-
 from pathlib import Path
 from typing import Optional
 
@@ -238,8 +237,9 @@ def test_sarif_file_handling() -> bool:
 
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
+        compressed_path_base = Path("security-reports/compressed")
         compressed_file = (
-            Path("security-reports/compressed") / compressed_file_name
+            compressed_path_base / compressed_file_name
         )  # Replaced f-string
         stdout, stderr, return_code = run_command(
             f"gzip -c {sarif_file} > {compressed_file}"  # Replaced f-string
