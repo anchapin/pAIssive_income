@@ -299,6 +299,35 @@ jobs:
           echo "Installed packages:"
           pip list
 
+      - name: Install pre-commit (Linux/macOS)
+        if: runner.os != 'Windows'
+        continue-on-error: true
+        run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install pre-commit
+          echo "Installing pre-commit..."
+          python -m pip install pre-commit || {
+            echo "Failed to install pre-commit with pip. Trying with uv..."
+            uv pip install pre-commit || {
+              echo "Failed to install pre-commit. Continuing anyway..."
+            }
+          }
+
+          # Verify pre-commit installation and install hooks
+          if command -v pre-commit &>/dev/null; then
+            echo "Pre-commit installed successfully."
+
+            # Install pre-commit hooks
+            echo "Installing pre-commit hooks..."
+            pre-commit install || {
+              echo "Failed to install pre-commit hooks, but continuing..."
+            }
+          else
+            echo "Pre-commit verification failed. Continuing anyway..."
+          fi
+
       - name: Install dependencies with uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -343,6 +372,42 @@ jobs:
           # List installed packages for debugging
           Write-Host "Installed packages:"
           pip list
+
+      - name: Install pre-commit (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          # Activate virtual environment
+          .\.venv\Scripts\Activate.ps1
+
+          # Install pre-commit
+          Write-Host "Installing pre-commit..."
+          python -m pip install pre-commit
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install pre-commit with pip. Trying with uv..."
+            uv pip install pre-commit
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install pre-commit. Continuing anyway..."
+            }
+          }
+
+          # Verify pre-commit installation
+          try {
+            pre-commit --version
+            Write-Host "Pre-commit installed successfully."
+
+            # Install pre-commit hooks
+            Write-Host "Installing pre-commit hooks..."
+            pre-commit install
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install pre-commit hooks, but continuing..."
+            } else {
+              Write-Host "Pre-commit hooks installed successfully."
+            }
+          } catch {
+            Write-Host "Pre-commit verification failed. Continuing anyway..."
+          }
 
       - name: Lint and Format with Ruff (Linux/macOS)
         if: runner.os != 'Windows'
@@ -770,6 +835,15 @@ jobs:
           echo "Installing pylint..."
           uv pip install pylint || python -m pip install pylint
 
+          # Install pre-commit
+          echo "Installing pre-commit..."
+          python -m pip install pre-commit || {
+            echo "Failed to install pre-commit with pip. Trying with uv..."
+            uv pip install pre-commit || {
+              echo "Failed to install pre-commit. Continuing anyway..."
+            }
+          }
+
           # Install project dependencies
           echo "Installing project dependencies..."
           if [ -f requirements.txt ]; then
@@ -797,9 +871,22 @@ jobs:
             fi
           }
 
+          # Verify pre-commit installation and install hooks
+          if command -v pre-commit &>/dev/null; then
+            echo "Pre-commit installed successfully."
+
+            # Install pre-commit hooks
+            echo "Installing pre-commit hooks..."
+            pre-commit install || {
+              echo "Failed to install pre-commit hooks, but continuing..."
+            }
+          else
+            echo "Pre-commit verification failed. Continuing anyway..."
+          fi
+
           # Final verification of all tools
           echo "Installed security tools:"
-          pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint' || true
+          pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint|pre-commit' || true
 
       - name: Install security tools with uv (Windows)
         if: runner.os == 'Windows'
@@ -859,6 +946,17 @@ jobs:
             python -m pip install pylint
           }
 
+          # Install pre-commit
+          Write-Host "Installing pre-commit..."
+          python -m pip install pre-commit
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install pre-commit with pip. Trying with uv..."
+            uv pip install pre-commit
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install pre-commit. Continuing anyway..."
+            }
+          }
+
           # Install project dependencies
           Write-Host "Installing project dependencies..."
           if (Test-Path "requirements.txt") {
@@ -891,9 +989,26 @@ jobs:
             }
           }
 
+          # Verify pre-commit installation and install hooks
+          try {
+            pre-commit --version
+            Write-Host "Pre-commit installed successfully."
+
+            # Install pre-commit hooks
+            Write-Host "Installing pre-commit hooks..."
+            pre-commit install
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install pre-commit hooks, but continuing..."
+            } else {
+              Write-Host "Pre-commit hooks installed successfully."
+            }
+          } catch {
+            Write-Host "Pre-commit verification failed. Continuing anyway..."
+          }
+
           # Final verification of all tools
           Write-Host "Installed security tools:"
-          pip list | Select-String -Pattern 'pip-audit|safety|bandit|semgrep|pylint'
+          pip list | Select-String -Pattern 'pip-audit|safety|bandit|semgrep|pylint|pre-commit'
 
       - name: Run Safety (Linux/macOS)
         if: runner.os != 'Windows'
