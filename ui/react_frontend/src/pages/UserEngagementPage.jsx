@@ -13,9 +13,9 @@ import {
   Select,
   MenuItem,
   Button,
-  Slider,
-  Stack,
-  Chip
+  // Slider is imported but not used
+  // Stack is imported but not used
+  // Chip is imported but not used
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DateRangeIcon from '@mui/icons-material/DateRange';

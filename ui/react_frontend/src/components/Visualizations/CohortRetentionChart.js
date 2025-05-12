@@ -135,7 +135,6 @@ const CohortRetentionChart = ({
             sx={{
               width: '20px',
               height: '20px',
-              display: 'inline-block',
               backgroundColor: getBackgroundColor(value),
               mr: 0.5,
               border: '1px solid #ccc',

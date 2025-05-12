@@ -23,7 +23,7 @@ git clone https://github.com/your-username/pAIssive_income.git
 cd pAIssive_income
 
 # Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ### Basic Usage

@@ -1,0 +1,115 @@
+[1mdiff --git a/fix_security_issues.py b/fix_security_issues.py[m
+[1mindex 198532e7..649cfb92 100644[m
+[1m--- a/fix_security_issues.py[m
+[1m+++ b/fix_security_issues.py[m
+[36m@@ -382,41 +382,45 @@[m [mdef generate_sarif_report(results: dict[str, Any], output_file: str) -> None:[m
+                 if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:[m
+                     # Handle tuple format (pattern_name, line_num, line, secret_value)[m
+                     pattern_name, line_num = item[0], item[1][m
+[31m-                    sarif_results.append({[m
+[31m-                        "ruleId": "secret-detection",[m
+[31m-                        "level": "error",[m
+[31m-                        "message": {"text": f"Potential {pattern_name} found"},[m
+[31m-                        "locations": [[m
+[31m-                            {[m
+[31m-                                "physicalLocation": {[m
+[31m-                                    "artifactLocation": {[m
+[31m-                                        "uri": sanitize_path(file_path)[m
+[31m-                                    },[m
+[31m-                                    "region": {"startLine": line_num},[m
+[32m+[m[32m                    sarif_results.append([m
+[32m+[m[32m                        {[m
+[32m+[m[32m                            "ruleId": "secret-detection",[m
+[32m+[m[32m                            "level": "error",[m
+[32m+[m[32m                            "message": {"text": f"Potential {pattern_name} found"},[m
+[32m+[m[32m                            "locations": [[m
+[32m+[m[32m                                {[m
+[32m+[m[32m                                    "physicalLocation": {[m
+[32m+[m[32m                                        "artifactLocation": {[m
+[32m+[m[32m                                            "uri": sanitize_path(file_path)[m
+[32m+[m[32m                                        },[m
+[32m+[m[32m                                        "region": {"startLine": line_num},[m
+[32m+[m[32m                                    }[m
+                                 }[m
+[31m-                            }[m
+[31m-                        ],[m
+[31m-                    })[m
+[32m+[m[32m                            ],[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    )[m
+                 elif ([m
+                     isinstance(item, dict) and "type" in item and "line_number" in item[m
+                 ):[m
+                     # Handle dict format from JSON[m
+                     pattern_name, line_num = item["type"], item["line_number"][m
+[31m-                    sarif_results.append({[m
+[31m-                        "ruleId": "secret-detection",[m
+[31m-                        "level": "error",[m
+[31m-                        "message": {"text": f"Potential {pattern_name} found"},[m
+[31m-                        "locations": [[m
+[31m-                            {[m
+[31m-                                "physicalLocation": {[m
+[31m-                                    "artifactLocation": {[m
+[31m-                                        "uri": sanitize_path(file_path)[m
+[31m-                                    },[m
+[31m-                                    "region": {"startLine": line_num},[m
+[32m+[m[32m                    sarif_results.append([m
+[32m+[m[32m                        {[m
+[32m+[m[32m                            "ruleId": "secret-detection",[m
+[32m+[m[32m                            "level": "error",[m
+[32m+[m[32m                            "message": {"text": f"Potential {pattern_name} found"},[m
+[32m+[m[32m                            "locations": [[m
+[32m+[m[32m                                {[m
+[32m+[m[32m                                    "physicalLocation": {[m
+[32m+[m[32m                                        "artifactLocation": {[m
+[32m+[m[32m                                            "uri": sanitize_path(file_path)[m
+[32m+[m[32m                                        },[m
+[32m+[m[32m                                        "region": {"startLine": line_num},[m
+[32m+[m[32m                                    }[m
+                                 }[m
+[31m-                            }[m
+[31m-                        ],[m
+[31m-                    })[m
+[32m+[m[32m                            ],[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    )[m
+ [m
+     try:[m
+         with open(output_file, "w") as f:[m
+[36m@@ -649,22 +653,26 @@[m [mdef generate_json_report(results: dict[str, Any], output_file: str) -> bool:[m
+                     if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:[m
+                         # Only keep pattern name and line number, exclude actual secret[m
+                         pattern_name, line_num = item[0], item[1][m
+[31m-                        sanitized_findings.append({[m
+[31m-                            "type": pattern_name,[m
+[31m-                            "line_number": line_num,[m
+[31m-                            "message": sanitize_finding_message(pattern_name),[m
+[31m-                        })[m
+[32m+[m[32m                        sanitized_findings.append([m
+[32m+[m[32m                            {[m
+[32m+[m[32m                                "type": pattern_name,[m
+[32m+[m[32m                                "line_number": line_num,[m
+[32m+[m[32m                                "message": sanitize_finding_message(pattern_name),[m
+[32m+[m[32m                            }[m
+[32m+[m[32m                        )[m
+                     elif ([m
+                         isinstance(item, dict)[m
+                         and "type" in item[m
+                         and "line_number" in item[m
+                     ):[m
+                         # Copy only safe fields[m
+[31m-                        sanitized_findings.append({[m
+[31m-                            "type": item["type"],[m
+[31m-                            "line_number": item["line_number"],[m
+[31m-                            "message": sanitize_finding_message(item["type"]),[m
+[31m-                        })[m
+[32m+[m[32m                        sanitized_findings.append([m
+[32m+[m[32m                            {[m
+[32m+[m[32m                                "type": item["type"],[m
+[32m+[m[32m                                "line_number": item["line_number"],[m
+[32m+[m[32m                                "message": sanitize_finding_message(item["type"]),[m
+[32m+[m[32m                            }[m
+[32m+[m[32m                        )[m
+             sanitized_results[sanitized_path] = sanitized_findings[m
+ [m
+         with open(output_file, "w") as f:[m

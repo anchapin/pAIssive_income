@@ -85,16 +85,6 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
     ? formatSingleOpportunity(Array.isArray(data) ? data[0] : data)
     : formatMultipleOpportunities(data);
 
-  // Generate random colors for multiple opportunities
-  const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
   // Define colors for up to 10 opportunities
   const colors = [
     '#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe',
