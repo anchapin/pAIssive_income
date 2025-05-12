@@ -1,10 +1,6 @@
 name: Frontend Unit Tests (Vitest)
 
 on:
-  push:
-    paths:
-      - "ui/react_frontend/**"
-      - ".github/workflows/frontend-vitest.yml"
   pull_request:
     paths:
       - "ui/react_frontend/**"
