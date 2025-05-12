@@ -7,13 +7,6 @@ on:
 jobs:
   docker-compose-integration:
     runs-on: ubuntu-22.04
-    services:
-      docker:
-        image: docker:24.0.6
-        options: --privileged
-        ports:
-          - 5000:5000
-          - 5432:5432
 
     steps:
       - name: Checkout repository
@@ -24,31 +17,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Set up Docker Compose
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Docker Compose is included with Docker Buildx setup
+      # Verify Docker Compose installation
+      - name: Verify Docker Compose installation
         run: |
-          # Update package lists
-          sudo apt-get update
-
-          # Install Docker CLI only (avoid containerd conflicts)
-          sudo apt-get install -y --no-install-recommends docker.io
-
-          # Install Docker Compose directly from GitHub releases
-          DOCKER_COMPOSE_VERSION="v2.20.2"
-          sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
-          # Verify installation
-          docker-compose --version || {
-            echo "Docker Compose installation failed. Trying alternative method..."
-            sudo mkdir -p /usr/local/lib/docker/cli-plugins
-            sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
-            sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-            docker compose version
-          }
+          docker compose version || docker-compose --version
 
       - name: Build and start services
         run: |
-          docker-compose up --build -d
+          # Try both docker compose and docker-compose commands for compatibility
+          docker compose up --build -d || docker-compose up --build -d
 
       - name: Wait for Flask app to be healthy
         run: |
@@ -62,9 +43,9 @@ jobs:
             fi
           done
           echo "Flask app did not become healthy in time."
-          docker-compose logs
+          docker compose logs || docker-compose logs
           exit 1
 
       - name: Tear down Docker Compose
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v || docker-compose down -v

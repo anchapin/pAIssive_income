@@ -9,7 +9,7 @@ on:
 jobs:
   docker-compose-integration:
     runs-on: ubuntu-22.04
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,9 +25,16 @@ jobs:
         with:
           version: latest
 
+      # Docker Compose is included with Docker Buildx setup
+      # Verify Docker Compose installation
+      - name: Verify Docker Compose installation
+        run: |
+          docker compose version || docker-compose --version
+
       - name: Build and start services
         run: |
-          docker-compose up --build -d
+          # Try both docker compose and docker-compose commands for compatibility
+          docker compose up --build -d || docker-compose up --build -d
 
       - name: Wait for Flask app to be healthy
         run: |
@@ -41,9 +48,9 @@ jobs:
             fi
           done
           echo "Flask app did not become healthy in time."
-          docker-compose logs
+          docker compose logs || docker-compose logs
           exit 1
 
       - name: Tear down Docker Compose
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v || docker-compose down -v
