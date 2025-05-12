@@ -3,59 +3,31 @@
 
 import logging
 import os
-import re
+import subprocess
 import sys
-
 from pathlib import Path
-from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def _should_ignore_path(path: str, ignore_patterns: list[str]) -> bool:
-    """Check if a path should be ignored based on the patterns."""
-    # Convert path to use forward slashes for consistency in pattern matching
-    path = path.replace("\\", "/")
-    return any(re.search(pattern, path) for pattern in ignore_patterns)
-
-
-def find_python_files(ignore_patterns: Optional[list[str]] = None) -> list[str]:
-    """Find all Python files in the current directory and subdirectories."""
-    if ignore_patterns is None:
-        # Default patterns to ignore - include both slash types for cross-platform
-        # compatibility
-        ignore_patterns = [
-            r"\.git[/\\]",
-            r"\.venv[/\\]",
-            r"venv[/\\]",
-            r"__pycache__[/\\]",
-            r"\.pytest_cache[/\\]",
-            r"\.mypy_cache[/\\]",
-            r"\.ruff_cache[/\\]",
-            r"\.eggs[/\\]",
-            r"\.tox[/\\]",
-            r"build[/\\]",
-            r"dist[/\\]",
-            r".*\.egg-info[/\\]",
+def find_python_files() -> list[str]:
+    """Find all Python files tracked by git (not ignored by .gitignore)."""
+    try:
+        # Use git ls-files to get all *.py files tracked by git
+        result = subprocess.run(
+            ["git", "ls-files", "*.py"], capture_output=True, text=True, check=True
+        )
+        python_files = [
+            line.strip() for line in result.stdout.splitlines() if line.strip()
         ]
-
-    python_files = []
-    for root, dirs, files in os.walk("."):
-        # Filter out ignored directories
-        dirs[:] = [
-            d
-            for d in dirs
-            if not _should_ignore_path(os.path.join(root, d), ignore_patterns)
-        ]
-
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                # Check if the file path matches any ignore pattern
-                if not _should_ignore_path(file_path, ignore_patterns):
-                    python_files.append(file_path)
-
-    return python_files
+    except subprocess.CalledProcessError:
+        logging.exception("Error executing git ls-files command")
+        return []
+    except Exception:
+        logging.exception("Error finding git-tracked Python files")
+        return []
+    else:
+        return python_files
 
 
 def fix_file(file_path: str, verbose: bool = False) -> bool:
