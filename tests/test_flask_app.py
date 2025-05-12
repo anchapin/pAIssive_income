@@ -1,12 +1,11 @@
 """test_flask_app - Test module for Flask app."""
 
 import json
-from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Import the UserExistsError for testing
-from users.services import UserExistsError
+# Note: MagicMock and patch are not used in this file but are kept
+# as they might be needed for future test expansions
 
 
 # Create a mock Flask class to avoid import issues

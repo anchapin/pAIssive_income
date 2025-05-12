@@ -39,6 +39,7 @@ def create_user() -> Tuple[Dict[str, Any], int]:
     except Exception:
         # Log the exception but don't expose details to the client
         logger.exception("Error creating user")
+        # Return a generic error message to avoid information exposure
         return jsonify({"error": "An error occurred while creating the user"}), 500
 
 

@@ -7,9 +7,6 @@ authentication, and profile management.
 # Standard library imports
 import uuid
 from datetime import datetime, timedelta
-
-# Import database models with fallback for testing environments
-# Import database models with fallback for testing environments
 from typing import Any, Dict, Optional, Protocol, Tuple, Type, cast
 
 # Third-party imports

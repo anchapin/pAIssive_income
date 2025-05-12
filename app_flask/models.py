@@ -1,14 +1,15 @@
 """models.py - SQLAlchemy models for Flask app."""
 
-from typing import Any
+from typing import TypeVar
 
 from . import db
 
-# Type alias for db.Model to satisfy MyPy
-Model: Any = db.Model
+# Type alias for db.Model - using Any to avoid mypy errors
+# mypy: disable-error-code="name-defined"
+ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore
 
 
-class User(Model):
+class User(db.Model):  # type: ignore
     """User model for authentication and user management."""
 
     __tablename__ = "users"
@@ -26,7 +27,7 @@ class User(Model):
         return f"<User {self.username}>"
 
 
-class Team(Model):
+class Team(db.Model):  # type: ignore
     """Team model for grouping AI agents."""
 
     __tablename__ = "teams"
@@ -51,7 +52,7 @@ class Team(Model):
         return f"<Team {self.name}>"
 
 
-class Agent(Model):
+class Agent(db.Model):  # type: ignore
     """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"

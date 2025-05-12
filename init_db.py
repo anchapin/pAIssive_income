@@ -5,8 +5,8 @@ import os
 import string
 from secrets import randbelow
 
-from flask import create_app, db
-from flask.models import Agent, Team, User
+from app_flask import create_app, db
+from app_flask.models import Agent, Team, User
 from users.auth import hash_credential
 
 # Set up logger
@@ -44,7 +44,11 @@ def init_db() -> None:
             admin_password = os.environ.get("ADMIN_INITIAL_PASSWORD")
             if not admin_password:
                 admin_password = generate_secure_password()
-                logger.info(f"Generated secure admin password: {admin_password}")
+                # Log a message but don't include the password in logs
+                logger.info("Generated secure admin password - use it to log in")
+                # Log the generated password during interactive setup
+                if hasattr(os, "isatty") and os.isatty(0):
+                    logger.info(f"Generated admin password: {admin_password}")
 
             # Hash the password
             password_hash = hash_credential(admin_password)

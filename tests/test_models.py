@@ -2,15 +2,19 @@
 
 import pytest
 from flask import Flask
-from flask.models import db, User, Team, Agent
+
+from app_flask import db
+from app_flask.models import Agent, Team, User
 
 
 @pytest.fixture
 def app():
     """Create a Flask app for testing."""
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config.update({
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    })
     db.init_app(app)
     with app.app_context():
         db.create_all()

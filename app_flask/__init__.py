@@ -1,12 +1,14 @@
-"""__init__.py - Flask app initialization with SQLAlchemy."""
+"""__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
-from typing import Any, cast
+# Standard library imports
+from typing import Any
 
+# Third-party imports
+from flask import Flask, current_app, g
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-# Import the actual Flask library with an alias to avoid naming conflicts
-import flask as flask_lib
+# Local imports
 from config import Config
 
 # Initialize extensions
@@ -14,13 +16,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 # Define FlaskApp as an alias for the actual Flask class
-# Use type ignore to bypass mypy checks
-FlaskApp = flask_lib.Flask  # type: ignore
-
-# Define proxies for flask objects to avoid cyclic imports
-# These are needed for compatibility with flask_migrate
-current_app = flask_lib.current_app  # type: ignore
-g = flask_lib.g  # type: ignore
+FlaskApp = Flask
 
 
 def create_app() -> Any:
@@ -37,9 +33,11 @@ def create_app() -> Any:
     migrate.init_app(app, db)
 
     # Import models so they're registered with SQLAlchemy
-    # Import inside function to avoid circular imports
     from . import models
 
-    # Register routes here when implementing views
+    # Register blueprints
+    from api.routes.user_router import user_bp
+
+    app.register_blueprint(user_bp)
 
     return app
