@@ -1703,7 +1703,7 @@ jobs:
           Write-Host "Docker tag set to: $env:DOCKER_TAG"
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ env.SHOULD_PUSH }}
@@ -1733,7 +1733,7 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         if: env.SHOULD_PUSH == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
