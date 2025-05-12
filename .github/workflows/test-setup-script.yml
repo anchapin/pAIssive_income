@@ -1,51 +1,35 @@
-name: Test Setup Script
+name: Test Setup Scripts
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+      - 'cosine/**'
     paths:
       - 'enhanced_setup_dev_environment.py'
-      - 'enhanced_setup_dev_environment.bat'
       - 'enhanced_setup_dev_environment.sh'
+      - 'enhanced_setup_dev_environment.bat'
       - '.github/workflows/test-setup-script.yml'
+      - 'requirements-dev.txt'
+      - 'package.json'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'enhanced_setup_dev_environment.py'
-      - 'enhanced_setup_dev_environment.bat'
       - 'enhanced_setup_dev_environment.sh'
+      - 'enhanced_setup_dev_environment.bat'
       - '.github/workflows/test-setup-script.yml'
+      - 'requirements-dev.txt'
+      - 'package.json'
   workflow_dispatch:
-    inputs:
-      platform:
-        description: 'Platform to test on'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - ubuntu
-          - windows
-          - macos
-      setup_profile:
-        description: 'Setup profile to test'
-        required: false
-        default: 'full'
-        type: choice
-        options:
-          - full
-          - minimal
-          - ui-only
-          - backend-only
-
-permissions:
-  contents: read
 
 jobs:
   test-ubuntu:
-    name: Test on Ubuntu
+    name: Test Setup Script on Ubuntu
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
 
     steps:
@@ -56,56 +40,7 @@ jobs:
         shell: bash
         run: |
           echo "Current working directory: $(pwd)"
-          echo "Listing files in current working directory:"
           ls -la
-          echo "Listing files in ./.github/workflows:"
-          ls -la ./.github/workflows
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install development dependencies
-        run: pip install -r requirements-dev.txt
-
-      - name: Install Ruff (Python Linter)
-        run: pip install ruff
-
-      - name: Verify Ruff Installation
-        run: ruff --version
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
-
-      - name: Add pnpm to PATH
-        shell: bash
-        run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-
-      - name: Verify pnpm in PATH
-        shell: bash
-        run: |
-          echo "Current PATH: $PATH"
-          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-
-      - name: Debug PATH
-        shell: bash
-        run: >
-          echo "Final PATH: $PATH"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm' # Changed back to pnpm
-
-      - name: Check pnpm version
-        run: pnpm --version
 
       - name: Verify package.json
         shell: bash
@@ -118,6 +53,63 @@ jobs:
           echo "Contents of package.json:"
           cat package.json
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Verify uv Installation
+        run: uv --version
+
+      - name: Install Ruff (Python Linter)
+        run: pip install ruff
+
+      - name: Verify Ruff Installation
+        run: ruff --version
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Verify Node.js and pnpm
+        shell: bash
+        run: |
+          node --version
+          if [ $? -ne 0 ]; then
+            echo "Error: Node.js is not installed or not in PATH."
+            exit 1
+          fi
+          npm --version
+          if [ $? -ne 0 ]; then
+            echo "Error: npm is not installed or not in PATH."
+            exit 1
+          fi
+          pnpm --version
+          if [ $? -ne 0 ]; then
+            echo "Error: pnpm is not installed or not in PATH."
+            exit 1
+          fi
+
       - name: Install Node.js dependencies (pnpm)
         shell: bash
         run: |
@@ -128,11 +120,35 @@ jobs:
             exit 1;
           }
 
-      - name: Verify Node.js and pnpm installation
+      - name: Install pre-commit hooks
+        shell: bash
         run: |
-          node --version
-          npm --version
-          pnpm --version
+          pre-commit install
+          if [ $? -ne 0 ]; then
+            echo "Error installing pre-commit hooks."
+            exit 1
+          else
+            echo "Pre-commit hooks installed successfully."
+          fi
+
+      - name: Debug Environment Details
+        shell: bash
+        run: |
+          echo "===== Environment Details ====="
+          echo "Node.js version:"
+          node --version || echo "Node.js not found or 'node --version' failed."
+          echo "npm version:"
+          npm --version || echo "npm not found or 'npm --version' failed."
+          echo "pnpm version:"
+          pnpm --version || echo "pnpm not found or 'pnpm --version' failed."
+          echo "Python version:"
+          python --version || echo "Python not found or 'python --version' failed."
+          echo "pip version:"
+          pip --version || echo "pip not found or 'pip --version' failed."
+          echo "Current working directory:"
+          pwd
+          echo "Listing current directory contents:"
+          ls -la
 
       - name: Install PyYAML
         run: pip install pyyaml
@@ -145,6 +161,8 @@ jobs:
           node --version || echo "Node.js not found or 'node --version' failed."
           echo "npm version:"
           npm --version || echo "npm not found or 'npm --version' failed."
+          echo "pnpm version:"
+          pnpm --version || echo "pnpm not found or 'pnpm --version' failed."
           echo "Python version:"
           python --version || echo "Python not found or 'python --version' failed."
           echo "pip version:"
@@ -153,26 +171,9 @@ jobs:
           pwd
           echo "Listing current directory contents:"
           ls -la
-          echo "============================="
 
-      - name: Make script executable
-        run: chmod +x enhanced_setup_dev_environment.sh
-
-      - name: Run setup script with minimal profile
-        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
-
-      - name: Run setup script with backend-only profile
-        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
-
-      - name: Run setup script with ui-only profile
-        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
-
-      - name: Run setup script with full profile
-        if: ${{ github.event.inputs.setup_profile == 'full' }}
-        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+      - name: Run setup script
+        run: python enhanced_setup_dev_environment.py --ci
 
       - name: Verify setup
         run: |
@@ -184,26 +185,17 @@ jobs:
             exit 1
           fi
 
-          # Check if configuration files were created
-          if [ -f "setup_config.yaml" ]; then
-            echo "Configuration file created successfully"
+          # Check if pre-commit hooks are installed
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "Pre-commit hooks installed successfully"
           else
-            echo "Error: Configuration file not created"
-            exit 1
-          fi
-
-          # Check if IDE configuration files were created
-          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
-            echo "IDE configuration files created successfully"
-          else
-            echo "Error: IDE configuration files not created"
+            echo "Error: Pre-commit hooks not installed"
             exit 1
           fi
 
   test-windows:
-    name: Test on Windows
+    name: Test Setup Script on Windows
     runs-on: windows-latest
-    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
 
     steps:
@@ -214,12 +206,31 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Current working directory: $(Get-Location)"
-          Write-Host "Listing files in current working directory:"
           Get-ChildItem -Force
-          Write-Host "Listing files in ./.github/workflows:"
-          Get-ChildItem -Path ./.github/workflows -Force
 
-      - name: Set up Python
+      - name: Verify package.json
+        shell: powershell
+        run: |
+          if (-not (Test-Path "package.json")) {
+            Write-Error "Error: package.json not found in the root directory."
+            Get-ChildItem -Force
+            exit 1
+          }
+          Write-Host "Contents of package.json:"
+          Get-Content "package.json"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -228,6 +239,14 @@ jobs:
       - name: Install development dependencies
         shell: powershell
         run: pip install -r requirements-dev.txt
+
+      - name: Install uv
+        shell: powershell
+        run: pip install uv
+
+      - name: Verify uv Installation
+        shell: powershell
+        run: uv --version
 
       - name: Install PyYAML
         shell: powershell
@@ -240,58 +259,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
+          run_install: false
 
-      - name: Verify pnpm in PATH
-        shell: powershell
-        run: |
-          Write-Host "Current PATH: $($env:PATH)"
-          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
-          if (-not $pnpmCmd) {
-              Write-Error "Error: pnpm is not found using Get-Command after relying solely on pnpm/action-setup."
-              # Diagnostic: Check if the pnpm.cmd file exists in the first PATH entry (usually where pnpm/action-setup puts it)
-              $firstPathDir = ($env:PATH -split ';')[0]
-              Write-Host "First directory in PATH: $firstPathDir"
-              if ($firstPathDir) {
-                $expectedPnpmExe = Join-Path -Path $firstPathDir -ChildPath "pnpm.cmd"
-                Write-Host "Checking for pnpm.cmd at ${expectedPnpmExe}: $(Test-Path $expectedPnpmExe)"
-                Write-Host "Contents of ${firstPathDir}:"
-                Get-ChildItem -Path $firstPathDir -ErrorAction SilentlyContinue
-              }
-              exit 1
-          } else {
-              Write-Host "pnpm command found by Get-Command at: $($pnpmCmd.Source)"
-              Write-Host "Attempting to run 'pnpm --version':"
-              pnpm --version
-          }
-
-      - name: Debug PATH
-        shell: powershell
-        run: |
-          Write-Host "Final PATH: $($env:PATH)"
-
-      - name: Check pnpm version
-        shell: powershell
-        run: pnpm --version
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-
-      - name: Verify package.json
-        shell: powershell
-        run: |
-          if (-not (Test-Path "package.json")) {
-            Write-Error "Error: package.json not found in the root directory."
-            Get-ChildItem -Force
-            exit 1
-          }
-          Write-Host "Contents of package.json:"
-          Get-Content package.json
-
-      - name: Verify Python, Node.js and pnpm Installation
+      - name: Verify Node.js and pnpm
         shell: powershell
         run: |
           python --version
@@ -310,7 +281,7 @@ jobs:
             exit 1
           }
 
-      - name: Install Node.js Dependencies (pnpm)
+      - name: Install Node.js dependencies (pnpm)
         shell: powershell
         run: |
           pnpm install --reporter=default
@@ -321,7 +292,7 @@ jobs:
             exit 1
           }
 
-      - name: Install Pre-commit Hooks
+      - name: Install pre-commit hooks
         shell: powershell
         run: |
           pre-commit install
@@ -355,26 +326,33 @@ jobs:
           Get-Location
           Write-Host "Listing current directory contents:"
           Get-ChildItem -Force
-          Write-Host "============================="
 
-      - name: Verify setup script
-        shell: cmd
+      - name: Run setup script
+        shell: powershell
+        run: python enhanced_setup_dev_environment.py --ci
+
+      - name: Verify setup
+        shell: powershell
         run: |
-          if exist ".\\enhanced_setup_dev_environment.bat" (
-            echo "Setup script exists."
-          ) else (
-            echo "Error: Setup script not found."
+          # Check if virtual environment was created
+          if (Test-Path ".venv") {
+            Write-Host "Virtual environment created successfully"
+          } else {
+            Write-Error "Error: Virtual environment not created"
             exit 1
-          )
+          }
 
-      - name: Run Batch Script
-        shell: cmd
-        run: .\\enhanced_setup_dev_environment.bat --full
+          # Check if pre-commit hooks are installed
+          if (Test-Path ".git/hooks/pre-commit") {
+            Write-Host "Pre-commit hooks installed successfully"
+          } else {
+            Write-Error "Error: Pre-commit hooks not installed"
+            exit 1
+          }
 
   test-macos:
-    name: Test on macOS
+    name: Test Setup Script on macOS
     runs-on: macos-latest
-    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
 
     steps:
@@ -385,56 +363,7 @@ jobs:
         shell: bash
         run: |
           echo "Current working directory: $(pwd)"
-          echo "Listing files in current working directory:"
           ls -la
-          echo "Listing files in ./.github/workflows:"
-          ls -la ./.github/workflows
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install development dependencies
-        run: pip install -r requirements-dev.txt
-
-      - name: Install Ruff (Python Linter)
-        run: pip install ruff
-
-      - name: Verify Ruff Installation
-        run: ruff --version
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
-
-      - name: Add pnpm to PATH
-        shell: bash
-        run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
-
-      - name: Verify pnpm in PATH
-        shell: bash
-        run: |
-          echo "Current PATH: $PATH"
-          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
-
-      - name: Debug PATH
-        shell: bash
-        run: >
-          echo "Final PATH: $PATH"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm' # Changed back to pnpm
-
-      - name: Check pnpm version
-        run: pnpm --version
 
       - name: Verify package.json
         shell: bash
@@ -447,21 +376,62 @@ jobs:
           echo "Contents of package.json:"
           cat package.json
 
-      - name: Install Node.js dependencies (pnpm)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Verify uv Installation
+        run: uv --version
+
+      - name: Install Ruff (Python Linter)
+        run: pip install ruff
+
+      - name: Verify Ruff Installation
+        run: ruff --version
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Verify Node.js and pnpm
         shell: bash
         run: |
-          pnpm install --reporter=default || {
-            echo "Failed to install Node.js dependencies with pnpm. Possible issues:";
-            echo "- Missing or conflicting dependencies in package.json.";
-            echo "- pnpm not set up properly.";
-            exit 1;
-          }
-
-      - name: Verify Node.js and pnpm installation
-        run: |
           node --version
+          if [ $? -ne 0 ]; then
+            echo "Error: Node.js is not installed or not in PATH."
+            exit 1
+          fi
           npm --version
+          if [ $? -ne 0 ]; then
+            echo "Error: npm is not installed or not in PATH."
+            exit 1
+          fi
           pnpm --version
+          if [ $? -ne 0 ]; then
+            echo "Error: pnpm is not installed or not in PATH."
+            exit 1
+          fi
 
       - name: Install PyYAML
         run: pip install pyyaml
@@ -484,26 +454,9 @@ jobs:
           pwd
           echo "Listing current directory contents:"
           ls -la
-          echo "============================="
 
-      - name: Make script executable
-        run: chmod +x enhanced_setup_dev_environment.sh
-
-      - name: Run setup script with minimal profile
-        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps
-
-      - name: Run setup script with backend-only profile
-        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps
-
-      - name: Run setup script with ui-only profile
-        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps
-
-      - name: Run setup script with full profile
-        if: ${{ github.event.inputs.setup_profile == 'full' }}
-        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps
+      - name: Run setup script
+        run: python enhanced_setup_dev_environment.py --ci
 
       - name: Verify setup
         run: |
@@ -515,18 +468,10 @@ jobs:
             exit 1
           fi
 
-          # Check if configuration files were created
-          if [ -f "setup_config.yaml" ]; then
-            echo "Configuration file created successfully"
+          # Check if pre-commit hooks are installed
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "Pre-commit hooks installed successfully"
           else
-            echo "Error: Configuration file not created"
-            exit 1
-          fi
-
-          # Check if IDE configuration files were created
-          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
-            echo "IDE configuration files created successfully"
-          else
-            echo "Error: IDE configuration files not created"
+            echo "Error: Pre-commit hooks not installed"
             exit 1
           fi
