@@ -70,6 +70,12 @@ jobs:
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
 
+      - name: Install uv
+        run: pip install uv
+
+      - name: Verify uv Installation
+        run: uv --version
+
       - name: Install Ruff (Python Linter)
         run: pip install ruff
 
@@ -228,6 +234,14 @@ jobs:
       - name: Install development dependencies
         shell: powershell
         run: pip install -r requirements-dev.txt
+
+      - name: Install uv
+        shell: powershell
+        run: pip install uv
+
+      - name: Verify uv Installation
+        shell: powershell
+        run: uv --version
 
       - name: Install PyYAML
         shell: powershell
@@ -398,6 +412,12 @@ jobs:
 
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Verify uv Installation
+        run: uv --version
 
       - name: Install Ruff (Python Linter)
         run: pip install ruff
