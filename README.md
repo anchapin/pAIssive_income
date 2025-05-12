@@ -190,6 +190,15 @@ See [docs/getting-started.md](docs/getting-started.md) for more detailed instruc
   - Container: `trivy`
   - Secret scanning: `gitleaks`
 
+## GitHub Actions Secrets
+
+The following secrets are used by GitHub Actions workflows:
+
+- `DOCKERHUB_USERNAME`: Your Docker Hub username
+- `DOCKERHUB_TOKEN`: Your Docker Hub access token (not your password)
+
+These secrets are used for Docker Hub authentication to avoid rate limits when pulling images. Set these in your repository settings under Settings > Secrets and variables > Actions.
+
 ## Best Practices
 
 - Regularly review and address Dependabot and security scan PRs.
