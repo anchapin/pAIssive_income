@@ -50,15 +50,39 @@ import venv
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-import yaml
-
-# Configure logging
+# Configure logging first so we can use it in the yaml import fallback
 logging.basicConfig(
     level=logging.INFO,
     format="%(levelname)s: %(message)s",
     handlers=[logging.StreamHandler()],
 )
-logger = logging.getLogger("setup")
+logger = logging.getLogger(__name__)
+
+# Try to import yaml, install it if not available
+try:
+    import yaml
+except ImportError:
+    logger.warning("PyYAML module not found. Installing it now...")
+
+    # Define a function to get pip path before it's defined in the script
+    def get_pip_path() -> str:
+        """Get the path to pip executable."""
+        if os.name == "nt":  # Windows
+            return "pip"
+        else:  # Unix/Linux/macOS
+            return "pip3"
+
+    pip_path = get_pip_path()
+    try:
+        subprocess.check_call([pip_path, "install", "pyyaml"])
+        import yaml
+
+        logger.info("PyYAML installed successfully.")
+    except Exception:
+        logger.exception("Failed to install PyYAML")
+        sys.exit(1)
+
+# Logger is already configured above
 
 
 def parse_args() -> argparse.Namespace:

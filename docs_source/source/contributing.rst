@@ -43,8 +43,9 @@ To check your code:
 
 .. code-block: bash
 
-   # Run linting checks
-   flake8 .
+   # Run linting and formatting checks
+   ruff check .
+   ruff format --check .
 
    # Run type checking
    mypy .

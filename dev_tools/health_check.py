@@ -2,7 +2,7 @@
 """health_check.py.
 
 Orchestrates repository quality checks:
-- Linting (flake8, ruff)
+- Linting (ruff)
 - Formatting (ruff format)
 - Static typing (mypy)
 - Security (bandit)
@@ -13,7 +13,7 @@ Usage:
     python dev_tools/health_check.py [--all | --lint | --type |
     --security | --deps | --docs]
 
-Requires tools: flake8, ruff, mypy, bandit, uv (with pip audit functionality),
+Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
 
@@ -57,12 +57,12 @@ def check_gitignore(_path: str) -> bool:
 
 
 def lint() -> None:
-    """Run linting and formatting checks (ruff, flake8)."""
+    """Run linting and formatting checks with Ruff."""
     if shutil.which("ruff"):
         run("ruff check .", "Ruff linting")
         run("ruff format --check .", "Ruff formatting check")
-    if shutil.which("flake8"):
-        run("flake8 .", "Flake8 linting")
+    else:
+        logging.warning("ruff not found, skipping linting and formatting checks.")
 
 
 def type_check() -> None:

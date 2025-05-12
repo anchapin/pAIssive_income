@@ -164,7 +164,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
 5. **Future Improvements** ⏳:
    - ⏳ Add pre-commit hooks to prevent committing files with syntax errors
    - ✅ Implement automated code formatting with tools like Ruff
-   - ✅ Set up linting with flake8 to catch style issues
+   - ✅ Set up linting with ruff to catch style issues
    - ⏳ Add comprehensive test coverage to prevent regressions
 
 ## Summary of Changes Made
@@ -224,7 +224,7 @@ We've been working on fixing GitHub Actions workflow failures in the `devops_tas
    - Fixed all syntax errors automatically
    - Verified that all files pass the `python -m compileall -q . -x ".venv"` check
    - Created a plan for addressing any remaining linting or test issues
-   - Implemented linting checks with flake8 and ruff
+   - Implemented linting checks with ruff
    - Created sample test files to verify test collection works
 
 9. Progress summary:
