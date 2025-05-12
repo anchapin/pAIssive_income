@@ -121,4 +121,17 @@ echo     "[python]": { >> .vscode\settings.json
 echo         "editor.defaultFormatter": "charliermarsh.ruff", >> .vscode\settings.json
 echo         "editor.formatOnSave": true, >> .vscode\settings.json
 echo         "editor.codeActionsOnSave": { >> .vscode\settings.json
-echo             "source.fixAll": true, >> .vscode\settings.
+echo             "source.fixAll": true, >> .vscode\settings.json
+echo             "source.organizeImports": true >> .vscode\settings.json
+echo         } >> .vscode\settings.json
+echo     }, >> .vscode\settings.json
+echo     "ruff.format.args": [], >> .vscode\settings.json
+echo     "ruff.lint.run": "onSave" >> .vscode\settings.json
+echo } >> .vscode\settings.json
+
+echo.
+echo Development environment setup complete!
+echo.
+echo To activate the virtual environment, run:
+echo .venv\Scripts\activate
+echo.
