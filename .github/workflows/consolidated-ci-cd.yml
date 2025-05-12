@@ -417,8 +417,8 @@ jobs:
                   if (-not (Test-Path ".git\hooks")) {
                     New-Item -ItemType Directory -Path ".git\hooks" -Force | Out-Null
                   }
-                  # Create a dummy pre-commit hook
-                  Set-Content -Path ".git\hooks\pre-commit" -Value "#!/bin/sh`necho 'Dummy pre-commit hook'`nexit 0"
+                  # Create a dummy pre-commit hook with Windows-compatible content
+                  Set-Content -Path ".git\hooks\pre-commit" -Value "@echo off`r`necho Dummy pre-commit hook`r`nexit /b 0"
                   Write-Host "Dummy pre-commit hook created successfully."
                 } else {
                   Write-Host ".git directory not found. Skipping hook creation."
@@ -432,7 +432,7 @@ jobs:
                   if (-not (Test-Path ".git\hooks")) {
                     New-Item -ItemType Directory -Path ".git\hooks" -Force | Out-Null
                   }
-                  Set-Content -Path ".git\hooks\pre-commit" -Value "#!/bin/sh`necho 'Dummy pre-commit hook'`nexit 0"
+                  Set-Content -Path ".git\hooks\pre-commit" -Value "@echo off`r`necho Dummy pre-commit hook`r`nexit /b 0"
                   Write-Host "Dummy pre-commit hook created."
                 } else {
                   Write-Host ".git directory not found. Skipping hook creation."
@@ -451,8 +451,8 @@ jobs:
                 if (-not (Test-Path ".git\hooks")) {
                   New-Item -ItemType Directory -Path ".git\hooks" -Force | Out-Null
                 }
-                # Create a dummy pre-commit hook
-                Set-Content -Path ".git\hooks\pre-commit" -Value "#!/bin/sh`necho 'Dummy pre-commit hook'`nexit 0"
+                # Create a dummy pre-commit hook with Windows-compatible content
+                Set-Content -Path ".git\hooks\pre-commit" -Value "@echo off`r`necho Dummy pre-commit hook`r`nexit /b 0"
                 Write-Host "Dummy pre-commit hook created successfully."
               } else {
                 Write-Host ".git directory not found. Skipping hook creation."
@@ -466,8 +466,8 @@ jobs:
               if (-not (Test-Path ".git\hooks")) {
                 New-Item -ItemType Directory -Path ".git\hooks" -Force | Out-Null
               }
-              # Create a dummy pre-commit hook
-              Set-Content -Path ".git\hooks\pre-commit" -Value "#!/bin/sh`necho 'Dummy pre-commit hook'`nexit 0"
+              # Create a dummy pre-commit hook with Windows-compatible content
+              Set-Content -Path ".git\hooks\pre-commit" -Value "@echo off`r`necho Dummy pre-commit hook`r`nexit /b 0"
               Write-Host "Dummy pre-commit hook created."
             } else {
               Write-Host ".git directory not found. Skipping hook creation."
