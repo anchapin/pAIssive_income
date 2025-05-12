@@ -12,76 +12,45 @@ from typing import Any, Dict, Optional, Tuple
 # Third-party imports
 import jwt
 
-from common_utils.logging import get_logger
-
 # Local imports
+from common_utils.logging import get_logger
+from flask.models import User, db
 from users.auth import hash_credential, verify_credential
 
-# Database imports
-from flask import current_app
-from flask import has_app_context
-from flask import Flask
-from flask import g
-from flask import cli
-from flask import Blueprint
 
-from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
+class AuthenticationError(ValueError):
+    """Raised when there's an authentication-related error."""
 
-from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
-from flask import current_app
+    pass
 
-from flask import current_app
-from flask import has_app_context
 
-from flask import current_app
-from flask import has_app_context
+class UserExistsError(ValueError):
+    """Raised when a user already exists."""
 
-from flask import current_app
-from flask import has_app_context
+    USERNAME_EXISTS = "Username already exists"
+    EMAIL_EXISTS = "Email already exists"
 
-# Import the db and User model from the Flask app
-from flask import current_app
-from flask import has_app_context
-from flask import g
+    def __init__(self, message: Optional[str] = None) -> None:
+        """Initialize with a default message if none provided."""
+        super().__init__(message or "User already exists")
 
-from flask import current_app
-from flask import has_app_context
 
-from flask import current_app
-from flask import has_app_context
+class UserNotFoundError(ValueError):
+    """Raised when a user is not found."""
 
-from flask import current_app
+    pass
 
-from flask import has_app_context
 
+class TokenError(ValueError):
+    """Raised when there's a token-related error."""
+
+    pass
+
+
+# Initialize fallbacks for when imports fail
 try:
-    from flask import current_app
-    from flask import has_app_context
-    from flask import g
-    from flask import cli
-    from flask_sqlalchemy import SQLAlchemy
-
-    from flask import current_app
-    from flask_sqlalchemy import SQLAlchemy
-    from flask import current_app
-    from flask import has_app_context
-
-    from flask import current_app
-    from flask import has_app_context
-
-    from flask import current_app
-    from flask import has_app_context
-
-    from flask import current_app
-
-    from flask import has_app_context
-
-    # Import db and User from the actual Flask app package
-    from flask import current_app
-    from flask import has_app_context
-    from flask.models import User, db
+    # Import already done at the top
+    pass
 except ImportError:
     User = None
     db = None
@@ -93,19 +62,28 @@ logger = get_logger(__name__)
 class UserService:
     """Service for user management."""
 
-    def __init__(self, token_secret=None, token_expiry=None):
+    def __init__(
+        self,
+        user_repository: Optional[Any] = None,
+        token_secret: Optional[str] = None,
+        token_expiry: Optional[int] = None,
+    ) -> None:
         """Initialize the user service.
 
         Args:
-        ----
+            user_repository: Repository for user data
             token_secret: Secret for JWT token generation
             token_expiry: Expiry time for JWT tokens in seconds
 
         """
+        # Store the user repository if provided
+        if user_repository is not None:
+            self.user_repository = user_repository
+
         # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
-            raise ValueError("Authentication token secret must be provided")
+            raise AuthenticationError()
 
         # Enhanced security: Store token secret in a private variable
         self.__token_secret = token_secret
@@ -115,12 +93,12 @@ class UserService:
         self.token_expiry = token_expiry or 3600  # 1 hour default
 
     @property
-    def token_secret(self):
+    def token_secret(self) -> str:
         """Securely access the token secret."""
         return self.__token_secret
 
     def create_user(
-        self, username: str, email: str, auth_credential: str, **kwargs
+        self, username: str, email: str, auth_credential: str, **kwargs: Any
     ) -> Dict[str, Any]:
         """Create a new user.
 
@@ -138,19 +116,24 @@ class UserService:
         """
         # Validate inputs
         if not username or not email or not auth_credential:
-            raise ValueError(
-                "Username, email, and authentication credential are required"
-            )
+            raise AuthenticationError()
 
         # Check if user already exists
-        existing_user = User.query.filter(
-            (User.username == username) | (User.email == email)
-        ).first()
-        if existing_user:
-            if existing_user.username == username:
-                raise ValueError(f"User with username '{username}' already exists")
-            else:
-                raise ValueError(f"User with email '{email}' already exists")
+        if hasattr(self, "user_repository") and self.user_repository:
+            if self.user_repository.find_by_username(username):
+                raise UserExistsError(UserExistsError.USERNAME_EXISTS)
+
+            if self.user_repository.find_by_email(email):
+                raise UserExistsError(UserExistsError.EMAIL_EXISTS)
+        else:
+            existing_user = User.query.filter(
+                (User.username == username) | (User.email == email)
+            ).first()
+            if existing_user:
+                if existing_user.username == username:
+                    raise UserExistsError(UserExistsError.USERNAME_EXISTS)
+                else:
+                    raise UserExistsError(UserExistsError.EMAIL_EXISTS)
 
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
@@ -168,12 +151,15 @@ class UserService:
         logger.info("User created successfully", extra={"user_id": user.id})
 
         # Return user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+
         return {
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "created_at": getattr(user, "created_at", None),
-            "updated_at": getattr(user, "updated_at", None),
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
         }
 
     def authenticate_user(
@@ -224,7 +210,7 @@ class UserService:
         logger.info("Authentication successful", extra={"user_id": user.id})
         return True, user_data
 
-    def generate_token(self, user_id: str, **additional_claims) -> str:
+    def generate_token(self, user_id: str, **additional_claims: Any) -> str:
         """Generate a JWT token for a user.
 
         Args:
@@ -250,6 +236,7 @@ class UserService:
             "key",
             "auth",
         ]
+        max_claim_length = 1000  # Maximum length for token claims
         for key, value in additional_claims.items():
             # Skip any sensitive looking claims
             if any(
@@ -260,8 +247,8 @@ class UserService:
                 )
                 continue
             # Avoid adding large values to token payload
-            if isinstance(value, str) and len(value) > 1000:
-                logger.warning(f"Oversized claim '{key}' was truncated in token")
+            if isinstance(value, str) and len(value) > max_claim_length:
+                logger.warning(f"Oversized claim '{key}' was truncated")
                 safe_claims[key] = value[:100] + "..."
             else:
                 safe_claims[key] = value
@@ -285,31 +272,30 @@ class UserService:
                 "token_type": "JWT",
             },
         )
-        # Ensure we return a string
+        # Ensure auth_token is a string
         if isinstance(auth_token, bytes):
             return auth_token.decode("utf-8")
-        return str(auth_token)  # Explicitly cast to string to satisfy mypy
+        return str(auth_token)
 
     def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Verify a JWT token.
 
         Args:
-        ----
             auth_token: The JWT token to verify
 
         Returns:
-        -------
-            Tuple[bool, Optional[Dict]]: (success, payload)
-
+            Tuple[bool, Optional[Dict[str, Any]]]: (success, payload)
         """
         try:
             payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])
-            return True, payload
         except jwt.ExpiredSignatureError:
-            # Don't include token details in logs
             logger.warning("Authentication verification failed: expired material")
             return False, None
         except jwt.InvalidTokenError:
-            # Don't include the specific error type or token details in logs
             logger.warning("Authentication verification failed: invalid material")
             return False, None
+        except Exception:
+            logger.exception("Token verification failed")
+            raise
+        else:
+            return True, payload

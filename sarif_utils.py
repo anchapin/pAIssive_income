@@ -7,12 +7,17 @@ where installing additional packages might be problematic.
 """
 
 import json
+import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Union
+
+from typing import Any
+from typing import Optional
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:
+def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     """Create an empty SARIF file structure.
 
     Args:
@@ -44,7 +49,7 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> Dict[str, Any]:
     }
 
 
-def save_sarif_file(sarif_data: Dict[str, Any], output_file: str) -> bool:
+def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
     """Save SARIF data to a file.
 
     Args:
@@ -61,14 +66,15 @@ def save_sarif_file(sarif_data: Dict[str, Any], output_file: str) -> bool:
 
         with open(output_file, "w") as f:
             json.dump(sarif_data, f, indent=2)
-        return True
-    except Exception as e:
-        print(f"Error saving SARIF file: {e}")
+    except Exception:
+        logging.exception("Error saving SARIF file")
         return False
+    else:
+        return True
 
 
 def add_result(
-    sarif_data: Dict[str, Any],
+    sarif_data: dict[str, Any],
     rule_id: str,
     message: str,
     file_path: str,
@@ -76,7 +82,7 @@ def add_result(
     level: str = "warning",
     rule_name: str = "",
     rule_description: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a result to a SARIF data structure.
 
     Args:
@@ -128,11 +134,11 @@ def add_result(
 
 
 def convert_json_to_sarif(
-    json_data: Union[Dict[str, Any], List[Any]],
+    json_data: Any,
     tool_name: str,
     tool_url: str = "",
-    result_mapping: Optional[Dict[str, str]] = None,
-) -> Dict[str, Any]:
+    result_mapping: Optional[dict[str, str]] = None,
+) -> dict[str, Any]:
     """Convert generic JSON data to SARIF format.
 
     Args:
@@ -165,7 +171,9 @@ def convert_json_to_sarif(
     elif isinstance(json_data, list):
         results = json_data  # Assume the list itself contains results
     else:
-        raise TypeError("Unsupported JSON data type. Expected dict or list.")
+        # Define a more specific error message
+        error_msg = "Unsupported JSON data type. Expected dict or list."
+        raise TypeError(error_msg)
 
     if isinstance(results, list):
         for result in results:
@@ -215,7 +223,7 @@ def convert_file(
     output_file: str,
     tool_name: str,
     tool_url: str = "",
-    result_mapping: Optional[Dict[str, str]] = None,
+    result_mapping: Optional[dict[str, str]] = None,
 ) -> bool:
     """Convert a JSON file to SARIF format.
 
@@ -233,8 +241,8 @@ def convert_file(
     try:
         # Check if input file exists and has content
         if not os.path.exists(input_file) or os.path.getsize(input_file) == 0:
-            print(f"Warning: Input file [{input_file}] is empty or does not exist")
-            print(f"Creating an empty SARIF file at {output_file}")
+            logging.warning(f"Input file [{input_file}] is empty or does not exist")
+            logging.info(f"Creating an empty SARIF file at {output_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
 
@@ -242,9 +250,9 @@ def convert_file(
         try:
             with open(input_file) as f:
                 json_data = json.load(f)
-        except json.JSONDecodeError as json_err:
-            print(f"Error parsing JSON from {input_file}: {json_err}")
-            print(f"Creating an empty SARIF file at {output_file}")
+        except json.JSONDecodeError:
+            logging.exception(f"Error parsing JSON from {input_file}")
+            logging.info(f"Creating an empty SARIF file at {output_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
 
@@ -255,25 +263,25 @@ def convert_file(
 
         # Save SARIF file
         return save_sarif_file(sarif_data, output_file)
-    except Exception as e:
-        print(f"Error converting file: {e}")
+    except Exception:
+        logging.exception("Error converting file")
         # Ensure we always create a valid SARIF file even on error
         try:
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             save_sarif_file(empty_sarif, output_file)
-            print(f"Created fallback empty SARIF file at {output_file}")
-            return True  # Return success since we created a valid SARIF file
-        except Exception as fallback_err:
-            print(
-                f"Critical error: Failed to create fallback SARIF file: {fallback_err}"
-            )
+            logging.info(f"Created fallback empty SARIF file at {output_file}")
+        except Exception:
+            logging.critical("Critical error: Failed to create fallback SARIF file")
             return False
+        else:
+            return True  # Return success since we created a valid SARIF file
 
 
 if __name__ == "__main__":
     # Simple command-line interface
-    if len(sys.argv) < 4:
-        print(
+    MIN_ARGS = 4  # input_file, output_file, tool_name are required
+    if len(sys.argv) < MIN_ARGS:
+        logging.error(
             "Usage: python sarif_utils.py <input_file> <output_file> <tool_name> "
             "[tool_url]"
         )
@@ -282,17 +290,17 @@ if __name__ == "__main__":
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     tool_name = sys.argv[3]
-    tool_url = sys.argv[4] if len(sys.argv) > 4 else ""
+    tool_url = sys.argv[4] if len(sys.argv) > MIN_ARGS else ""
 
     # Check if input_file is a JSON string (starts with '[' or '{')
     if input_file.strip().startswith(("[", "{")):
-        print("Detected JSON string input, creating SARIF directly")
+        logging.info("Detected JSON string input, creating SARIF directly")
         try:
             json_data = json.loads(input_file)
             sarif_data = convert_json_to_sarif(json_data, tool_name, tool_url)
             success = save_sarif_file(sarif_data, output_file)
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON string: {e}")
+        except json.JSONDecodeError:
+            logging.exception("Error parsing JSON string")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             success = save_sarif_file(empty_sarif, output_file)
     else:

@@ -7,7 +7,7 @@ This document summarizes the changes made to fix the GitHub Actions workflows, p
 The "Fix All Issues" workflow was failing, likely due to one or more of the following issues:
 
 1. **Path handling issues**: The script was not correctly handling Windows path separators.
-2. **Tool availability**: There were issues with how tools like Black, isort, and Ruff were being found or executed.
+2. **Tool availability**: There were issues with how tools like Black and Ruff were being found or executed.
 3. **File encoding issues**: There might have been files with non-UTF-8 encoding that the script was having trouble processing.
 4. **Permission issues**: There might have been permission issues when trying to modify certain files.
 5. **Syntax errors that can't be automatically fixed**: There might have been complex syntax errors that the script couldn't automatically fix.
