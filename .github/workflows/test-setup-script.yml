@@ -264,23 +264,85 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
             python -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
           }
+
+          # Verify virtual environment was created
+          if (-not (Test-Path ".venv")) {
+            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          }
+
+          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
+
+          # Bootstrap pip if missing
+          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
+            Write-Host "pip not found. Bootstrapping pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to bootstrap pip. Exiting..."
+              exit 1
+            }
+          }
+
+          # List installed packages for debugging
+          Write-Host "Installed packages in virtual environment:"
+          .\.venv\Scripts\python.exe -m pip list
 
       - name: Install dependencies with uv
         shell: powershell
         run: |
           .\.venv\Scripts\Activate.ps1
 
-          # Install development dependencies
-          uv pip install -r requirements-dev.txt
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
-            python -m pip install --upgrade uv
-            uv pip install -r requirements-dev.txt
+          # Verify pip is available
+          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
+            Write-Host "pip not found. Bootstrapping pip..."
+            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            .\.venv\Scripts\python.exe get-pip.py
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to bootstrap pip. Exiting..."
+              exit 1
+            }
           }
 
-          # Install PyYAML and Ruff
-          uv pip install pyyaml ruff
+          # Ensure pip is installed in the virtual environment
+          python -m pip install --upgrade pip setuptools wheel
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install uv in the virtual environment
+          python -m pip install --upgrade uv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Install project dependencies with fallback mechanisms
+          Write-Host "Installing project dependencies..."
+          try {
+            uv pip install -r requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed with uv pip"
+            }
+          } catch {
+            Write-Host "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
+            python -m pip install -r requirements-dev.txt
+          }
+
+          # Install PyYAML and Ruff with fallback
+          try {
+            uv pip install pyyaml ruff
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed with uv pip"
+            }
+          } catch {
+            Write-Host "Failed to install PyYAML and Ruff with uv pip. Falling back to regular pip..."
+            python -m pip install pyyaml ruff
+          }
 
       - name: Verify Ruff Installation
         shell: powershell

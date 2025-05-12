@@ -164,16 +164,32 @@ jobs:
           $pipModuleCheck = .\.venv\Scripts\python.exe -c "import pip; print('pip module exists')" 2>$null
           if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
             Write-Host "pip module not found in virtual environment. Installing pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to bootstrap pip. Exiting..."
-              exit 1
+            try {
+              Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+              .\.venv\Scripts\python.exe get-pip.py
+              if ($LASTEXITCODE -ne 0) {
+                throw "Failed to bootstrap pip with get-pip.py"
+              }
+            } catch {
+              Write-Host "Failed to bootstrap pip with get-pip.py. Trying ensurepip..."
+              .\.venv\Scripts\python.exe -m ensurepip --upgrade
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "Failed to bootstrap pip with ensurepip. Exiting..."
+                exit 1
+              }
             }
           }
 
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
+          # Verify Python version
+          $pythonVersion = & python --version
+          Write-Host "Python version in virtual environment: $pythonVersion"
 
           # Verify pip is working
           try {
@@ -203,6 +219,26 @@ jobs:
           python -m pip install --upgrade uv
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify uv version and functionality
+          try {
+            $uvVersion = & uv --version
+            Write-Host "uv version in virtual environment: $uvVersion"
+
+            # Test uv functionality
+            uv --help | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "uv command is working properly"
+            } else {
+              Write-Host "uv command returned non-zero exit code. Attempting to reinstall..."
+              python -m pip uninstall -y uv
+              python -m pip install --upgrade uv
+            }
+          } catch {
+            Write-Host "uv command not found or not working. Attempting to reinstall..."
+            python -m pip uninstall -y uv
+            python -m pip install --upgrade uv
           }
 
           # Verify pip executable exists
@@ -575,16 +611,32 @@ jobs:
           $pipModuleCheck = .\.venv\Scripts\python.exe -c "import pip; print('pip module exists')" 2>$null
           if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
             Write-Host "pip module not found in virtual environment. Installing pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to bootstrap pip. Exiting..."
-              exit 1
+            try {
+              Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+              .\.venv\Scripts\python.exe get-pip.py
+              if ($LASTEXITCODE -ne 0) {
+                throw "Failed to bootstrap pip with get-pip.py"
+              }
+            } catch {
+              Write-Host "Failed to bootstrap pip with get-pip.py. Trying ensurepip..."
+              .\.venv\Scripts\python.exe -m ensurepip --upgrade
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "Failed to bootstrap pip with ensurepip. Exiting..."
+                exit 1
+              }
             }
           }
 
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
+          # Verify Python version
+          $pythonVersion = & python --version
+          Write-Host "Python version in virtual environment: $pythonVersion"
 
           # Verify pip is working
           try {
@@ -614,6 +666,26 @@ jobs:
           python -m pip install --upgrade uv
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
+          }
+
+          # Verify uv version and functionality
+          try {
+            $uvVersion = & uv --version
+            Write-Host "uv version in virtual environment: $uvVersion"
+
+            # Test uv functionality
+            uv --help | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "uv command is working properly"
+            } else {
+              Write-Host "uv command returned non-zero exit code. Attempting to reinstall..."
+              python -m pip uninstall -y uv
+              python -m pip install --upgrade uv
+            }
+          } catch {
+            Write-Host "uv command not found or not working. Attempting to reinstall..."
+            python -m pip uninstall -y uv
+            python -m pip install --upgrade uv
           }
 
           # Verify pip executable exists
@@ -710,6 +782,14 @@ jobs:
         run: |
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
+          # Verify Python version
+          $pythonVersion = & python --version
+          Write-Host "Python version in virtual environment: $pythonVersion"
 
           Write-Host "Installing security tools..."
 
@@ -828,6 +908,10 @@ jobs:
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
 
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
           New-Item -ItemType Directory -Force -Path security-reports
           Write-Host "Running safety check..."
 
@@ -901,6 +985,10 @@ jobs:
         run: |
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
 
           New-Item -ItemType Directory -Force -Path security-reports
           Write-Host "Running pip-audit..."
@@ -995,6 +1083,10 @@ jobs:
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
 
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
           New-Item -ItemType Directory -Force -Path security-reports
           Write-Host "Running bandit scan..."
 
@@ -1082,6 +1174,10 @@ jobs:
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
 
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
           Write-Host "Running semgrep scan..."
 
           # Try to run semgrep with fallback options
@@ -1129,6 +1225,10 @@ jobs:
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
 
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
+
           Write-Host "Running pylint security scan..."
 
           # Try to run pylint with fallback options
@@ -1169,6 +1269,10 @@ jobs:
         run: |
           # Activate virtual environment
           .\.venv\Scripts\Activate.ps1
+
+          # Add virtual environment Scripts directory to PATH
+          $env:PATH = "$(Get-Location)\.venv\Scripts;$env:PATH"
+          Write-Host "Added virtual environment Scripts directory to PATH"
 
           if (Test-Path "fix_potential_secrets.py") {
             Write-Host "Running fix_potential_secrets.py..."
