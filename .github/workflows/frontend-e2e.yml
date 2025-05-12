@@ -16,25 +16,66 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'pnpm'
+
+      - name: Verify pnpm installation
+        run: pnpm --version
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            ~/.uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Create virtual environment
+        run: |
+          cd ../..
+          uv venv .venv || {
+            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+          }
+          cd ui/react_frontend
+
       - name: Start backend API server
         run: |
-          pip install -r ../../requirements.txt
-          pip install -r ../../requirements-dev.txt
-          pip install -e ../..
-          nohup python ../../ui/api_server.py &
+          cd ../..
+          source .venv/bin/activate
+          uv pip install -r requirements.txt
+          uv pip install -r requirements-dev.txt
+          uv pip install -e .
+          # Run the API server with the activated virtual environment
+          nohup python ui/api_server.py &
+          cd ui/react_frontend
           for i in {1..30}; do
             if curl --silent --fail http://localhost:8000/health; then
               echo "Backend API server is ready."
@@ -50,7 +91,7 @@ jobs:
 
       - name: Start React development server
         run: |
-          nohup npm start -- --port=3000 &
+          nohup pnpm start -- --port=3000 &
           # Increase wait time to ensure React app is fully loaded
           sleep 20
 
