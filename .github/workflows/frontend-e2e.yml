@@ -5,7 +5,6 @@ on:
     paths:
       - "ui/react_frontend/**"
       - ".github/workflows/frontend-e2e.yml"
-      - ".github/workflows/setup-pnpm.yml"
   workflow_dispatch:
     inputs:
       platform:
@@ -30,16 +29,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Use the reusable workflow for pnpm setup
-      - name: Setup Node.js and pnpm
-        uses: ./.github/workflows/setup-pnpm.yml
+      # Set up Node.js and pnpm directly in this job
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: '8'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-          pnpm-version: '8'
-          working-directory: 'ui/react_frontend'
-          install-dependencies: true
-          verify-package-json: true
-          create-if-missing: false
+          cache: 'pnpm'
+
+      # Install global pnpm if needed (for Windows)
+      - name: Install global pnpm (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+          if (-not $pnpmCmd) {
+            Write-Host "Installing pnpm globally with npm..."
+            npm install -g pnpm
+          }
+          pnpm --version
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
