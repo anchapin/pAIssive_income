@@ -26,7 +26,7 @@ Setting Up Development Environment
 
    .. code-block: bash
 
-      pip install -e ".[dev]"
+      uv pip install -e ".[dev]"
 
 Code Standards
 ------------
@@ -43,8 +43,9 @@ To check your code:
 
 .. code-block: bash
 
-   # Run linting checks
-   flake8 .
+   # Run linting and formatting checks
+   ruff check .
+   ruff format --check .
 
    # Run type checking
    mypy .

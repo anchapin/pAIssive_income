@@ -4,7 +4,8 @@ This module provides an in-memory backend for secrets management, primarily for 
 """
 
 # Standard library imports
-from typing import Any, Dict, Optional
+from typing import Any
+from typing import Optional
 
 # Third-party imports
 # Local imports
@@ -17,12 +18,12 @@ logger = get_logger(__name__)
 class MemoryBackend:
     """Backend for storing secrets in memory (for testing)."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the memory backend."""
-        self.secrets: Dict[str, str] = {}
+        self.secrets: dict[str, str] = {}
         logger.info("Memory backend initialized")
 
-    def get_secret(self, key: str) -> Optional[str]:
+    def get_secret(self) -> Optional[str]:
         """Get a secret from memory.
 
         Args:
@@ -41,7 +42,7 @@ class MemoryBackend:
         logger.warning("Memory backend not yet implemented")
         raise NotImplementedError("The memory backend is not currently supported.")
 
-    def set_secret(self, key: str, value: str) -> bool:
+    def set_secret(self) -> bool:
         """Set a secret in memory.
 
         Args:
@@ -61,7 +62,7 @@ class MemoryBackend:
         logger.warning("Memory backend not yet implemented")
         raise NotImplementedError("The memory backend is not currently supported.")
 
-    def delete_secret(self, key: str) -> bool:
+    def delete_secret(self) -> bool:
         """Delete a secret from memory.
 
         Args:
@@ -80,7 +81,7 @@ class MemoryBackend:
         logger.warning("Memory backend not yet implemented")
         raise NotImplementedError("The memory backend is not currently supported.")
 
-    def list_secrets(self) -> Dict[str, Any]:
+    def list_secrets(self) -> dict[str, Any]:
         """List all secrets in memory.
 
         Returns

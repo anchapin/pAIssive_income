@@ -1,6 +1,6 @@
-# pAIssive Income
+# Project Environment & Dependency Management
 
-A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI models.
+## Python
 
 > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
 
@@ -9,37 +9,80 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 ## TL;DR Quickstart
 
 1. **Clone the repo and enter it:**
+
    ```bash
    git clone https://github.com/anchapin/pAIssive_income.git
    cd pAIssive_income
    ```
-2. **Set up Python environment and install dependencies:**
-   (Requires Python 3.8+)
+
+2. **Install `uv` (if not already installed):**
+   `uv` is a fast Python package installer and resolver, written in Rust.
+
+   ```bash
+   # Using pip (recommended if you have Python/pip)
+   pip install uv
+
+   # Or using the standalone installer (Linux/macOS)
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   Ensure `uv` is in your PATH.
+
+3. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
+   (Requires Python 3.8+ and `uv`)
+
    ```bash
    # On Windows
-   scripts\recreate_venv.bat
+   enhanced_setup_dev_environment.bat
 
    # On Unix/Linux
-   ./scripts/recreate_venv.sh
+   ./enhanced_setup_dev_environment.sh
+   # If you used setup_dev_environment.py directly before, use enhanced_setup_dev_environment.py
+   # python enhanced_setup_dev_environment.py
    ```
-   Or manually:
+
+   This script will use `uv` to:
+   - Create a virtual environment (`.venv`)
+   - Install dependencies from `requirements.txt` and `requirements-dev.txt`
+   - Install the project in editable mode (`-e .`)
+   - Set up pre-commit hooks (installing `pre-commit` via `uv`)
+   - Configure IDE settings for VS Code and PyCharm
+   - Create .editorconfig for editor-agnostic settings
+
+   For manual setup using `uv`:
+
    ```bash
-   python -m venv .venv
+   # Create virtual environment (specify your Python interpreter if needed)
+   uv venv .venv --python python3.12
+   # Activate virtual environment
    source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-   pip install -e .
-   ```
-3. **Set up pre-commit hooks for code quality:**
-   ```bash
-   pip install pre-commit
+   # Install dependencies
+   uv pip install -r requirements.txt -r requirements-dev.txt -e .
+   # Install pre-commit and hooks
+   uv pip install pre-commit
    pre-commit install
    ```
-4. **Start the modern web UI (requires Node.js 14+ and npm):**
+
+4. **Start the modern web UI (requires Node.js 14+ and pnpm):**
+
    ```bash
    python ui/run_ui.py
    ```
+
    If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
+   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
+   > To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+>
+   > ```bash
+   > corepack enable
+   > ```
+>
+   > If Corepack is not available, you can install pnpm globally using npm:
+>
+   > ```bash
+   > npm install -g pnpm
+   > ```
+>
 5. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
 
@@ -47,56 +90,59 @@ A comprehensive framework for developing and monetizing niche AI agents to gener
 
 ## Overview
 
-This project provides a structured approach to creating specialized AI-powered software tools that solve specific problems for targeted user groups. By focusing on niche markets with specific needs, these tools can provide high value to users while generating recurring subscription revenue.
+- **Dependency Locking**:
+  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`**, then regenerate the lockfile:
+  ```sh
+  pip install -r requirements.txt -r requirements-dev.txt
+  pip freeze > requirements.lock
+  ```
 
-The framework uses a team of specialized AI agents that collaborate to identify profitable niches, develop solutions, create monetization strategies, and market the products to target users.
+- **Development dependencies** are managed with `requirements-dev.txt`.
 
-## Project Structure
+## Node.js
 
-- **Agent Team**: A team of specialized AI agents that collaborate on different aspects of the product development and monetization process.
-- **Niche Analysis**: Tools and methodologies for identifying profitable niches and user pain points.
-- **Tool Templates**: Development templates for creating AI-powered software solutions.
-- **Monetization**: Subscription models and pricing strategies for maximizing recurring revenue.
-- **Marketing**: Strategies for reaching target users and promoting the AI tools.
-- **UI**: Web interface for interacting with the framework components.
+- **Install dependencies**:
+  ```sh
+  npm ci
+  ```
+- Dependencies are pinned via `package-lock.json`.
+- **Security scanning**: `npm audit` is run automatically in CI to detect vulnerabilities.
 
-## Agent Team
+## Automated Dependency Updates
 
-The project is built around a team of specialized AI agents:
+- [Dependabot](https://docs.github.com/en/code-security/dependabot) is enabled for Python, Node.js, Docker, and GitHub Actions dependencies. Update PRs are created automatically, including for the Python lockfile (`requirements.lock`).
 
-1. **Research Agent**: Identifies market opportunities and user needs in specific niches.
-2. **Developer Agent**: Creates AI-powered software solutions to address identified needs.
-3. **Monetization Agent**: Designs subscription models and pricing strategies.
-4. **Marketing Agent**: Develops strategies for reaching and engaging target users.
-5. **Feedback Agent**: Gathers and analyzes user feedback for product improvement.
+## Vulnerability Scanning
 
-## Key Features
+- Security scanning runs automatically on pushes and pull requests:
+  - Python: `pip-audit`, `safety`
+  - Node.js: `npm audit`
+  - Static analysis: `bandit`, `semgrep`, `pylint`
+  - Container: `trivy`
+  - Secret scanning: `gitleaks`
 
-- **Niche Identification**: Sophisticated analysis tools to identify profitable niches with specific user problems that can be solved with AI.
-- **Problem Analysis**: Detailed analysis of user problems and pain points to ensure solutions address real needs.
-- **Solution Design**: Templates and frameworks for designing AI-powered software solutions.
-- **Monetization Strategy**: Subscription models and pricing strategies optimized for recurring revenue.
-- **Marketing Plan**: Comprehensive marketing strategies tailored to each niche and target user group.
-- **Feedback Loop**: Tools for gathering and analyzing user feedback to continuously improve products.
+## Best Practices
 
-## Example Niches
+- Regularly review and address Dependabot and security scan PRs.
+- Regenerate the Python lockfile after any dependency updates.
+- See `.github/workflows/security_scan.yml` for the full list of automated checks.
 
-The framework has identified several promising niches for AI-powered tools:
+## Keeping Dependencies Healthy
 
-1. **YouTube Script Generator**: AI tools to help YouTube creators write engaging scripts faster.
-2. **Study Note Generator**: AI tools to help students create comprehensive study notes from lectures.
-3. **Freelance Proposal Writer**: AI tools to help freelancers write compelling client proposals.
-4. **Property Description Generator**: AI tools to help real estate agents write compelling property descriptions.
-5. **Inventory Management for Small E-commerce**: AI tools to help small e-commerce businesses manage inventory efficiently.
+- When adding or removing Python dependencies, update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`**.
+- For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
+- Review and merge Dependabot PRs and address security alerts promptly.
 
-## Getting Started
+## Dependency Upgrade and Removal Workflow
 
 This repository contains a summary of the project and high-level information. The main onboarding guide, including development setup, installation, and usage details, is maintained in the documentation directory for consistency and easier updates.
 
 If you are new to this project, start here:
+
 - [Getting Started Guide](docs/getting-started.md)
 
 For quick reference, the following topics are included in the full guide:
+
 - Development environment setup (Python, Node, etc.)
 - Installing dependencies
 - Running and developing with the framework
@@ -115,6 +161,7 @@ The project includes Python and JavaScript/TypeScript tests.
 ### Python Unit/Integration Tests
 
 From the repo root, after environment setup:
+
 ```bash
 pytest
 # or
@@ -123,24 +170,27 @@ python -m pytest
 
 ### Frontend End-to-End (E2E) Tests
 
-> **Requires:** Node.js 14+, npm, and the UI dev server running at `http://localhost:3000`
+> **Requires:** Node.js 14+, [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
 
 1. Install Playwright and its browsers (first time only):
+
    ```bash
    cd ui/react_frontend
-   npm install
-   npx playwright install
+   pnpm install
+   pnpm exec playwright install
    ```
 
 2. Run all E2E tests:
+
    ```bash
-   npx playwright test
+   pnpm exec playwright test
    ```
 
 3. See `ui/react_frontend/tests/e2e/` for sample E2E tests.
    To run a specific test:
+
    ```bash
-   npx playwright test tests/e2e/niche_analysis.spec.ts
+   pnpm exec playwright test tests/e2e/niche_analysis.spec.ts
    ```
 
 Test output and screenshots will appear in the Playwright reports directory.
@@ -160,13 +210,32 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
+- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 - Node.js 14.0+ (for modern UI and frontend tests)
-- npm (comes with Node.js)
+- [pnpm](https://pnpm.io/) (for frontend dependencies)
+  To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+
+  ```bash
+  corepack enable
+  ```
+
+  If Corepack is not available, you can install pnpm globally using npm:
+
+  ```bash
+  npm install -g pnpm
+  ```
+
 - Dependencies listed in each module's README
 
 ## Code Style and Formatting
 
 The project enforces consistent code style and formatting through pre-commit hooks and automated tools. Here are the key formatting guidelines and tools:
+
+### IDE Setup
+
+We recommend configuring your IDE or editor to use Ruff as the primary formatter for a smooth development experience. Configuration files are provided for VS Code, PyCharm, and other editors.
+
+See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.
 
 ### Common Formatting Issues to Watch For
 
@@ -181,6 +250,7 @@ The project enforces consistent code style and formatting through pre-commit hoo
 To ensure consistent code formatting and prevent CI pipeline failures:
 
 1. Before committing changes, run Ruff locally to fix any formatting issues:
+
    ```bash
    ruff check . --fix
    ```
@@ -196,7 +266,7 @@ This helps maintain code quality while preventing pipeline failures due to forma
 The project uses pre-commit hooks to automatically check and fix common issues. The hooks are installed automatically when setting up the development environment, but you can also install them manually:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit
 pre-commit install
 ```
 
@@ -264,7 +334,29 @@ scripts\lint_check.bat  # Windows
 2. Fix issues automatically:
 
 ```bash
-python fix_all_issues_final.py
+# Windows
+fix_linting_issues.bat
+
+# Unix/Linux
+./fix_linting_issues.sh
+
+# Or directly with Python
+python fix_linting_issues.py
+```
+
+You can also fix specific files:
+
+```bash
+python fix_linting_issues.py path/to/file1.py path/to/file2.py
+```
+
+Or run with specific options:
+
+```bash
+python fix_linting_issues.py # No isort option needed
+python fix_linting_issues.py --no-ruff   # Skip Ruff linter
+python fix_linting_issues.py --check     # Check only, don't fix
+python fix_linting_issues.py --verbose   # Show detailed output
 ```
 
 3. Run specific checks:
@@ -276,7 +368,7 @@ scripts\lint_check.bat --mypy  # Run only MyPy
 
 ### Code Formatter Configuration
 
-- **Ruff**: The project uses Ruff for both linting and formatting. Configuration is in `.ruff.toml`
+- **Ruff**: The project uses Ruff as the primary tool for both linting and formatting. Configuration is in `.ruff.toml`
 - **MyPy**: Type checking configuration is in `mypy.ini`
 - **Pre-commit**: Hook configuration is in `.pre-commit-config.yaml`
 
@@ -295,6 +387,7 @@ All configuration files are version controlled to ensure consistent formatting a
 This project follows [Claude Agentic Coding Best Practices](claude_coding_best_practices.md) for safe, reliable, and auditable automation. All contributors are expected to review and adhere to these standards.
 
 Key principles include:
+
 - Explicit state and input/output handling
 - Modular, testable decomposition
 - Strong input validation
@@ -317,8 +410,13 @@ The project includes comprehensive API documentation that can be built from sour
    cd docs_source
    ```
 
-2. Generate the API documentation from source code:
+### Documentation Updates Policy
 
-   ```bash
-   python generate_api_docs.py
-   ```
+This project enforces a policy that documentation must be updated whenever code changes are made. A GitHub Actions workflow automatically checks that documentation files are updated when non-documentation files are changed in pull requests.
+
+Documentation files are defined as:
+
+- Any Markdown (*.md) file at the repository root
+- Any file (of any type) within the 'docs/' or 'docs_source/' directories
+
+When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.

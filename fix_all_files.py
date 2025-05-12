@@ -1,63 +1,33 @@
 #!/usr/bin/env python
 """Script to fix all Python files by replacing them with minimal valid Python files."""
 
+import logging
 import os
-import re
+import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def find_python_files(ignore_patterns: Optional[List[str]] = None) -> List[str]:
-    """Find all Python files in the current directory and subdirectories."""
-    if ignore_patterns is None:
-        # Default patterns to ignore - include both slash types for cross-platform
-        # compatibility
-        ignore_patterns = [
-            r"\.git[/\\]",
-            r"\.venv[/\\]",
-            r"venv[/\\]",
-            r"__pycache__[/\\]",
-            r"\.pytest_cache[/\\]",
-            r"\.mypy_cache[/\\]",
-            r"\.ruff_cache[/\\]",
-            r"\.eggs[/\\]",
-            r"\.tox[/\\]",
-            r"build[/\\]",
-            r"dist[/\\]",
-            r".*\.egg-info[/\\]",
+def find_python_files() -> list[str]:
+    """Find all Python files tracked by git (not ignored by .gitignore)."""
+    try:
+        # Use git ls-files to get all *.py files tracked by git
+        result = subprocess.run(
+            ["git", "ls-files", "*.py"], capture_output=True, text=True, check=True
+        )
+        python_files = [
+            line.strip() for line in result.stdout.splitlines() if line.strip()
         ]
-
-    python_files = []
-    for root, dirs, files in os.walk("."):
-        # Skip directories that match ignore patterns
-        # Convert paths to use forward slashes for consistency in pattern matching
-        dirs[:] = [
-            d
-            for d in dirs
-            if not any(
-                re.search(pattern, os.path.join(root, d).replace("\\", "/"))
-                for pattern in ignore_patterns
-            )
-        ]
-
-        # Also explicitly remove .venv directory if it exists
-        if ".venv" in dirs:
-            dirs.remove(".venv")
-        if "venv" in dirs:
-            dirs.remove("venv")
-
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                # Check if the file path matches any ignore pattern
-                if not any(
-                    re.search(pattern, file_path.replace("\\", "/"))
-                    for pattern in ignore_patterns
-                ):
-                    python_files.append(file_path)
-
-    return python_files
+    except subprocess.CalledProcessError:
+        logging.exception("Error executing git ls-files command")
+        return []
+    except Exception:
+        logging.exception("Error finding git-tracked Python files")
+        return []
+    else:
+        return python_files
 
 
 def fix_file(file_path: str, verbose: bool = False) -> bool:
@@ -69,13 +39,10 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
             compile(content, file_path, "exec")
 
         # If we get here, the file is valid Python
-        if verbose:
-            print(f"File {file_path} is already valid Python")
-        return True
     except SyntaxError:
         # If we get here, the file has syntax errors
         if verbose:
-            print(f"Fixing syntax errors in {file_path}")
+            logging.info(f"Fixing syntax errors in {file_path}")
 
         # Create a minimal valid Python file
         file_name = os.path.basename(file_path)
@@ -105,10 +72,14 @@ def fix_file(file_path: str, verbose: bool = False) -> bool:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-        except Exception as e:
-            print(f"Error writing to file {file_path}: {e}")
+        except Exception:
+            logging.exception(f"Error writing to file {file_path}:")
             return False
 
+        return True
+    else:
+        if verbose:
+            logging.info(f"File {file_path} is already valid Python")
         return True
 
 
@@ -146,19 +117,19 @@ def main() -> int:
     fixed_files = 0
     total_files = len(python_files)
 
-    print(f"Processing {total_files} Python files...")
+    logging.info(f"Processing {total_files} Python files...")
 
     for file_path in python_files:
         if args.verbose:
-            print(f"Processing {file_path}...")
+            logging.info(f"Processing {file_path}...")
 
         if fix_file(file_path, args.verbose):
             fixed_files += 1
         else:
-            print(f"Failed to fix {file_path}")
+            logging.error(f"Failed to fix {file_path}")
             success = False
 
-    print(f"Fixed {fixed_files} out of {total_files} files.")
+    logging.info(f"Fixed {fixed_files} out of {total_files} files.")
 
     return 0 if success else 1
 

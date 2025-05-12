@@ -133,7 +133,7 @@ python fix_indentation_issues.py        # Fix indentation in all Python files
 
 2. **run_linting.py**:
    - Checks for syntax errors and linting issues
-   - Uses flake8, black, isort, and ruff for comprehensive checks
+   - Uses ruff for comprehensive checks
 
 3. **fix_indentation_issues.py**:
    - Automatically fixes indentation issues across the codebase
@@ -145,7 +145,7 @@ python fix_indentation_issues.py        # Fix indentation in all Python files
 1. ✅ **Add Pre-commit Hooks**:
    - Implemented pre-commit hooks to catch syntax errors before they're committed
    - Added syntax checking as part of the development workflow
-   - Configured pre-commit with flake8, black, isort, ruff, and mypy
+   - Configured pre-commit with ruff and mypy
    - Created setup scripts for easy installation
 
 2. **Improve Code Quality Standards**:

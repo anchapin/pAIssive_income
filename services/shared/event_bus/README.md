@@ -22,7 +22,7 @@ The Event Bus enables:
 ### Installation
 
 ```bash
-pip install -r services/shared/event_bus/requirements.txt
+uv pip install -r services/shared/event_bus/requirements.txt
 ```
 
 ## Usage
