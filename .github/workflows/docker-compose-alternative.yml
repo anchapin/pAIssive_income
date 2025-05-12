@@ -31,6 +31,12 @@ jobs:
         run: |
           docker compose version || docker-compose --version
 
+      # Create Docker network explicitly before starting services
+      - name: Create Docker network
+        run: |
+          echo "Creating Docker network paissive-network..."
+          docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
+
       - name: Build and start services
         run: |
           # Try both docker compose and docker-compose commands for compatibility
