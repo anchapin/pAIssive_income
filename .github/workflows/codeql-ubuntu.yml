@@ -141,7 +141,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:Linux"
+          category: "security/os:ubuntu-latest"
           upload: true
           output: sarif-results/javascript-typescript-ubuntu.sarif
 
@@ -239,7 +239,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:Linux"
+          category: "security/os:ubuntu-latest"
           upload: true
           output: sarif-results/python-ubuntu.sarif
 

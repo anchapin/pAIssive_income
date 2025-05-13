@@ -135,7 +135,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:Windows"
+          category: "security/os:windows-latest"
           upload: true
           output: sarif-results/javascript-typescript-windows.sarif
 
@@ -241,7 +241,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:Windows"
+          category: "security/os:windows-latest"
           upload: true
           output: sarif-results/python-windows.sarif
 
