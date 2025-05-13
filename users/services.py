@@ -47,7 +47,7 @@ UserModel: Optional[Type[UserProtocol]] = None
 db_session: Optional[DBSessionProtocol] = None
 
 try:
-    from flask.models import User, db
+    from app_flask.models import User, db
 
     UserModel = cast(Type[UserProtocol], User)
     db_session = cast(DBSessionProtocol, db)

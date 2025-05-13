@@ -37,12 +37,14 @@ RUN python -m venv /app/.venv && \
 # Copy project files
 COPY . .
 
-# Copy health check script
+# Copy health check script and wait-for-db script
 COPY docker-healthcheck.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-healthcheck.sh
+COPY wait-for-db.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck.sh && \
+    chmod +x /usr/local/bin/wait-for-db.sh
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=60s --start-period=120s --retries=10 \
   CMD ["docker-healthcheck.sh"]
 
 # Expose port
@@ -52,5 +54,5 @@ EXPOSE 5000
 RUN addgroup --system appgroup && adduser --system --no-create-home appuser --ingroup appgroup
 USER appuser
 
-# Run the application
-CMD ["python", "run_ui.py"]
+# Run the application with wait-for-db script
+CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 python run_ui.py"]

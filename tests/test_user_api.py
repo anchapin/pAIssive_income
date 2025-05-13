@@ -1,29 +1,8 @@
 """Test the user API endpoints with the ORM/database."""
 
 import pytest
-from flask import Flask
-from flask import json
-from flask import current_app
 
-from flask.models import db
-from flask.__init__ import create_app
-
-
-@pytest.fixture
-def app():
-    app = create_app()
-    app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
+# The app and client fixtures are imported from conftest.py
 
 
 def test_create_and_authenticate_user(client):

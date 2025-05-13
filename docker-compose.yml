@@ -15,14 +15,18 @@ services:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
       - PATH=/app/.venv/bin:$PATH
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydb
+      - POSTGRES_HOST=db
     networks:
       - paissive-network
     healthcheck:
       test: ["CMD", "docker-healthcheck.sh"]
       interval: 30s
-      timeout: 30s
-      retries: 5
-      start_period: 60s
+      timeout: 60s
+      retries: 10
+      start_period: 120s
     deploy:
       resources:
         limits:

@@ -49,6 +49,7 @@ def init_db() -> None:
                 # Log the generated password during interactive setup
                 if hasattr(os, "isatty") and os.isatty(0):
                     logger.info(f"Generated admin password: {admin_password}")
+                    logger.info("Admin password was printed to console")
 
             # Hash the password
             password_hash = hash_credential(admin_password)
