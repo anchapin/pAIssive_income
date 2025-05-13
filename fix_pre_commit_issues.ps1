@@ -1,5 +1,5 @@
 # Fix trailing whitespace and end-of-file issues
- = @(
+$filesToFix = @(
     'docs/getting-started.md',
     'docs/faq.md',
     'docs/README.md',
@@ -13,25 +13,18 @@
     'dev_tools/health_check.py'
 )
 
-foreach ( in ) {
-    if (Test-Path ) {
+foreach ($file in $filesToFix) {
+    if (Test-Path $file) {
         # Read content, trim trailing whitespace, ensure ending newline
-         = Get-Content -Raw
-         =  -replace '[ \t]+$', '' -replace '\r', ''
-        if ( -and -not .EndsWith(\
-
-\)) {
-             =  + \
-\
+        $content = Get-Content -Raw $file
+        $content = $content -replace '[ \t]+$', '' -replace '\r', ''
+        if ($content -and -not $content.EndsWith("`n")) {
+            $content = $content + "`n"
         }
         # Write content back to the file
-         | Set-Content -NoNewline
-        Write-Host \Fixed:
-\
+        $content | Set-Content -NoNewline $file
+        Write-Host "Fixed: $file"
     } else {
-        Write-Host \File
-not
-found:
-\
+        Write-Host "File not found: $file"
     }
 }

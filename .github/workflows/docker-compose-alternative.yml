@@ -1,0 +1,90 @@
+name: Docker Compose Alternative Integration
+
+on:
+  # This is a template workflow - uncomment to enable
+  # pull_request:
+  #   branches: [main, master]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  docker-compose-integration:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Alternative approach using Docker's official GitHub Action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: latest
+
+      # Docker Compose is included with Docker Buildx setup
+      # Verify Docker Compose installation
+      - name: Verify Docker Compose installation
+        run: |
+          docker compose version || docker-compose --version
+
+      # Create Docker network explicitly before starting services
+      - name: Create Docker network
+        run: |
+          echo "Creating Docker network paissive-network..."
+          docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
+
+      - name: Build and start services
+        run: |
+          # Try both docker compose and docker-compose commands for compatibility
+          docker compose up --build -d || docker-compose up --build -d
+
+      - name: Wait for Flask app to be healthy
+        run: |
+          echo "Waiting for Flask app to be healthy..."
+          max_attempts=50  # Increased from 30 to 50
+          for i in $(seq 1 $max_attempts); do
+            # More verbose curl for better diagnostics
+            echo "Attempt $i: Checking Flask app health..."
+            if curl -v -f -m 10 http://localhost:5000/health; then
+              echo "Flask app is healthy."
+              exit 0
+            else
+              echo "Waiting for Flask app... (attempt $i/$max_attempts)"
+
+              # Check container status
+              echo "Container status:"
+              docker compose ps app || docker-compose ps app || true
+
+              # On every 5th attempt, check the logs
+              if [ $((i % 5)) -eq 0 ]; then
+                echo "Checking Flask app logs at attempt $i:"
+                docker compose logs app || docker-compose logs app
+
+                # Check if the container is actually running
+                echo "Checking if Flask app container is running:"
+                docker compose ps app || docker-compose ps app
+              fi
+
+              sleep 10  # Increased from 5 to 10 seconds
+            fi
+          done
+
+          echo "Flask app did not become healthy in time."
+          echo "Final container status:"
+          docker compose ps || docker-compose ps
+
+          echo "Final app logs:"
+          docker compose logs app || docker-compose logs app
+
+          echo "Final system status:"
+          df -h
+          docker system df
+          exit 1
+
+      - name: Tear down Docker Compose
+        if: always()
+        run: docker compose down -v || docker-compose down -v

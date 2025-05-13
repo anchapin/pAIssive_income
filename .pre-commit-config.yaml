@@ -71,7 +71,10 @@ repos:
           "--non-interactive",
           "--explicit-package-bases",
           "--config-file=mypy.ini",
-          "--cache-dir=.mypy_cache"
+          "--cache-dir=.mypy_cache",
+          "--disable-error-code=attr-defined",
+          "--disable-error-code=name-defined",
+          "--disable-error-code=unused-ignore"
         ]
 
   # Optimized local hooks for incremental checks

@@ -1,0 +1,130 @@
+name: "Python CodeQL Configuration"
+
+# This configuration file customizes the CodeQL analysis for Python
+# It specifies paths to include/exclude and query suites to run
+
+# Specify paths to analyze
+paths:
+  - '**/*.py'
+  - '**/*.pyw'
+  - '**/*.pyi'
+
+# Specify paths to exclude from analysis
+paths-ignore:
+  # Test files
+  - '**/tests/**'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/conftest.py'
+  - '**/pytest_*.py'
+  - '**/__tests__/**'
+
+  # Compiled and cache files
+  - '**/*.pyc'
+  - '**/__pycache__/**'
+  - '**/.pytest_cache/**'
+  - '**/.coverage'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+
+  # Virtual environments
+  - '.venv/**'
+  - 'venv/**'
+  - 'env/**'
+  - '.env/**'
+  - '**/virtualenv/**'
+
+  # External dependencies
+  - '**/node_modules/**'
+  - '**/site-packages/**'
+  - '**/dist-packages/**'
+
+  # Database migrations
+  - '**/migrations/**'
+  - '**/alembic/**'
+  - '**/versions/**'
+
+  # Type stubs and generated code
+  - '**/mypy_stubs/**'
+  - '**/typings/**'
+  - '**/generated/**'
+  - '**/proto/**'
+  - '**/build/**'
+  - '**/dist/**'
+
+  # Documentation
+  - '**/docs/**'
+  - '**/*.md'
+  - '**/*.rst'
+  - '**/sphinx/**'
+
+  # Configuration files
+  - '**/setup.py'
+  - '**/setup.cfg'
+  - '**/pyproject.toml'
+  - '**/.flake8'
+  - '**/.pylintrc'
+  - '**/tox.ini'
+  - '**/.coveragerc'
+
+# Query filters
+queries:
+  # Include the standard Python security and quality queries
+  - uses: security-and-quality
+
+  # Include additional security queries
+  - uses: security-extended
+
+  # Include Python-specific security queries
+  - uses: ./python-security-queries.qls
+
+  # Exclude specific queries that might cause false positives
+  - exclude:
+      id: py/unused-local-variable
+      reason: "Not a security concern"
+  - exclude:
+      id: py/empty-except-block
+      reason: "Handled in linting"
+  - exclude:
+      id: py/redundant-else
+      reason: "Not a security concern"
+  - exclude:
+      id: py/constant-comparison
+      reason: "Not a security concern"
+  - exclude:
+      id: py/unused-import
+      reason: "Not a security concern"
+  - exclude:
+      id: py/similar-function
+      reason: "Not a security concern"
+  - exclude:
+      id: py/unreachable-statement
+      reason: "Handled in linting"
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Query suite definitions
+query-filters:
+  - exclude:
+      tags contain: test
+  - exclude:
+      tags contain: maintainability
+      precision below: high
+  - exclude:
+      tags contain: correctness
+      precision below: high
+
+# Trap errors during extraction
+trap-for-errors: true
+
+# Database extraction settings
+database:
+  # Exclude files that are too large to analyze effectively
+  max-file-size-mb: 10
+  # Exclude files with too many lines
+  max-lines-of-code: 25000
+  # Exclude files with too many AST nodes
+  max-ast-nodes: 500000
+  # Extraction timeout per file
+  extraction-timeout: 300

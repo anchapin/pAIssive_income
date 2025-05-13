@@ -36,14 +36,26 @@ The deployment architecture consists of the following components:
 For local development and testing, the framework can be run directly on your machine:
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# Or if curl is unavailable:
+# pip install uv
+
+# Create virtual environment with uv
+uv venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies with uv
+uv pip install -r requirements.txt
 
 # Run the UI
 python run_ui.py
 ```
 
 This setup is suitable for:
+
 - Individual developers
 - Small-scale testing
 - Prototype development
@@ -81,6 +93,7 @@ generate_docker_config(docker_config, "docker")
 ```
 
 This setup is suitable for:
+
 - Development teams
 - Staging environments
 - Small-scale production deployments
@@ -128,6 +141,7 @@ generate_kubernetes_config(k8s_config, "kubernetes")
 ```
 
 This setup is suitable for:
+
 - Production deployments
 - Large-scale applications
 - High-availability requirements
@@ -222,6 +236,7 @@ generate_cloud_config(azure_config, "azure")
 ```
 
 This setup is suitable for:
+
 - Production deployments
 - Managed infrastructure
 - Pay-as-you-go scaling
@@ -231,7 +246,7 @@ This setup is suitable for:
 
 ### Local Deployment Architecture
 
-```
+```ascii
 +-------------------+       +-------------------+
 |                   |       |                   |
 |   Web Interface   |<----->|   Agent Team      |
@@ -251,7 +266,7 @@ This setup is suitable for:
 
 ### Container Deployment Architecture
 
-```
+```ascii
 +-------------------+       +-------------------+
 |                   |       |                   |
 |   Web Interface   |<----->|   Agent Team      |
@@ -271,7 +286,7 @@ This setup is suitable for:
 
 ### Kubernetes Deployment Architecture
 
-```
+```ascii
 +-------------------+       +-------------------+
 |                   |       |                   |
 |   Web Interface   |<----->|   Agent Team      |
@@ -300,7 +315,7 @@ This setup is suitable for:
 
 ### Cloud Deployment Architecture
 
-```
+```ascii
 +-------------------+       +-------------------+
 |                   |       |                   |
 |   Web Interface   |<----->|   Agent Team      |
@@ -391,7 +406,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
       - name: Install dependencies
@@ -474,8 +489,11 @@ test:
   stage: test
   image: python:3.9
   script:
-    - pip install -r requirements.txt
-    - pip install -r requirements-dev.txt
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - uv venv .venv
+    - source .venv/bin/activate
+    - uv pip install -r requirements.txt
+    - uv pip install -r requirements-dev.txt
     - pytest --cov=./ --cov-report=term
   artifacts:
     reports:
@@ -557,10 +575,12 @@ stages:
         versionSpec: '3.9'
         addToPath: true
     - script: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
-      displayName: 'Install dependencies'
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        uv venv .venv
+        source .venv/bin/activate
+        uv pip install -r requirements.txt
+        uv pip install -r requirements-dev.txt
+      displayName: 'Install dependencies with uv'
     - script: |
         pytest --cov=./ --cov-report=xml
       displayName: 'Run tests'
@@ -652,9 +672,12 @@ phases:
     runtime-versions:
       python: 3.9
     commands:
-      - echo Installing dependencies...
-      - pip install -r requirements.txt
-      - pip install -r requirements-dev.txt
+      - echo Installing uv and dependencies...
+      - curl -LsSf https://astral.sh/uv/install.sh | sh
+      - uv venv .venv
+      - source .venv/bin/activate
+      - uv pip install -r requirements.txt
+      - uv pip install -r requirements-dev.txt
 
   pre_build:
     commands:

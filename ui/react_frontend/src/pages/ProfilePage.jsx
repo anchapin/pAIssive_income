@@ -19,7 +19,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useAppContext } from '../context/AppContext';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
   padding: theme.spacing(2),
   color: theme.palette.text.secondary,
