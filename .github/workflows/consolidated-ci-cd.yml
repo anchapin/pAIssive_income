@@ -3030,20 +3030,17 @@ EOF
           sarif_file: security-reports/trivy-results.sarif
           category: trivy-${{ runner.os }}-14988964552
 
-      # Note: Dedicated CodeQL workflows are now available in:
-      # - .github/workflows/codeql-ubuntu.yml
-      # - .github/workflows/codeql-windows.yml
-      # - .github/workflows/codeql-macos.yml
-      # This is kept for backward compatibility but will be removed in a future update
+      # Note: CodeQL analysis is now performed by the dedicated codeql.yml workflow
+      # This workflow references the main codeql.yml workflow which supports:
+      # - All operating systems (Ubuntu, Windows, macOS)
+      # - Multiple languages (JavaScript/TypeScript, Python)
 
-      # Skip CodeQL analysis in this workflow as it's now handled by dedicated workflows
-      - name: Skip CodeQL Analysis (Using dedicated workflows)
+      - name: Skip CodeQL Analysis (Using dedicated workflow)
         shell: pwsh
         run: |
-          Write-Host "CodeQL analysis is now performed by dedicated workflows for each OS:"
-          Write-Host "- .github/workflows/codeql-ubuntu.yml for Ubuntu"
-          Write-Host "- .github/workflows/codeql-windows.yml for Windows"
-          Write-Host "- .github/workflows/codeql-macos.yml for macOS"
+          Write-Host "CodeQL analysis is now performed by the dedicated codeql.yml workflow"
+          Write-Host "This workflow supports all operating systems and languages"
+          Write-Host "See .github/workflows/codeql.yml for details"
 
       - name: Dependency Review (PRs only)
         if: github.event_name == 'pull_request'

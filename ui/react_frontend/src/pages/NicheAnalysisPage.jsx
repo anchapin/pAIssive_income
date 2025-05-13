@@ -31,6 +31,9 @@ import {
     ScoreDistributionPieChart
 } from '../components/Visualizations';
 
+// Constants
+const ERROR_MESSAGE_SELECT_SEGMENT = 'Please select at least one segment.';
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
@@ -109,7 +112,7 @@ const NicheAnalysisPage = () => {
     const newSegments = selectedSegments.filter(segment => segment !== segmentToRemove);
     setSelectedSegments(newSegments);
     if (newSegments.length === 0) {
-      setValidationError('Please select at least one segment.');
+      setValidationError(ERROR_MESSAGE_SELECT_SEGMENT);
     }
   };
 
@@ -126,7 +129,7 @@ const NicheAnalysisPage = () => {
   // Handle analysis submission
   const handleAnalyze = () => {
     if (selectedSegments.length === 0) {
-      setValidationError('Please select at least one segment.');
+      setValidationError(ERROR_MESSAGE_SELECT_SEGMENT);
       return;
     }
     setValidationError('');

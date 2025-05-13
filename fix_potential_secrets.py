@@ -334,15 +334,15 @@ def log_failed_files(failed_files: list[str]) -> None:
     if not failed_files:
         return
 
-    # Log counts separately from the message to avoid any risk of exposing sensitive data
+    # Log counts using extra parameter to avoid exposing sensitive data in the message
     logging.warning(
-        f"Some files could not be processed: {len(failed_files)} files failed"
+        "Some files could not be processed.", extra={"failed_count": len(failed_files)}
     )
 
     # Log only the base filename to avoid potential path disclosure
     for file_path in failed_files:
         safe_path = os.path.basename(file_path)
-        logging.warning(f"Failed file: {safe_path}")
+        logging.warning("Failed to process file.", extra={"file": safe_path})
 
 
 def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str]]]:
@@ -450,17 +450,23 @@ def process_scan_results(
     total_secrets = sum(len(secrets) for secrets in results.values())
 
     if results:
-        # Use count of sensitive data rather than actual values to avoid logging sensitive info
         # Use a generic message that doesn't reveal any sensitive information
-        # Log counts separately from the message to avoid any risk of exposing sensitive data
         logging.info("Scan complete. Potential sensitive data found.")
-        logging.info(f"Found {total_secrets} potential issues in {len(results)} files.")
+        # Log counts using extra parameter to avoid exposing sensitive data in the message
+        logging.info(
+            "Found potential issues in files.",
+            extra={"issue_count": total_secrets, "file_count": len(results)},
+        )
 
         if fix:
-            # Log counts separately from the message to avoid any risk of exposing sensitive data
-            logging.info("Files processed. Potential sensitive data addressed.")
+            # Log counts using extra parameter to avoid exposing sensitive data in the message
             logging.info(
-                f"Fixed {fixed_files} of {len(results)} files. Failed to process {len(failed_files)} files."
+                "Files processed. Potential sensitive data addressed.",
+                extra={
+                    "fixed_files": fixed_files,
+                    "total_files": len(results),
+                    "failed_files": len(failed_files),
+                },
             )
         else:
             logging.info("Scan-only mode. No files were modified.")
@@ -472,9 +478,11 @@ def process_scan_results(
         safe_path = os.path.basename(file_path)
 
         # Log the file and the secrets found - use generic message without revealing details
-        # Log file information separately to avoid any risk of exposing sensitive data
-        logging.info(f"Processing file: {safe_path}")
-        logging.info(f"Found {len(secrets)} potential issues in this file.")
+        # Log file information using extra parameter to avoid exposing sensitive data in the message
+        logging.info(
+            "Processing file with potential issues.",
+            extra={"file": safe_path, "issue_count": len(secrets)},
+        )
 
         for pattern_name, line_index, _ in secrets:
             logging.info(safe_log_sensitive_info(pattern_name, line_index + 1))
@@ -483,12 +491,18 @@ def process_scan_results(
             try:
                 if fix_secrets_in_file(file_path, secrets):
                     fixed_files += 1
-                    logging.info(f"File processed successfully: {safe_path}")
+                    logging.info(
+                        "File processed successfully.", extra={"file": safe_path}
+                    )
                 else:
-                    logging.warning(f"File processing failed: {safe_path}")
+                    logging.warning(
+                        "File processing failed.", extra={"file": safe_path}
+                    )
                     failed_files.append(file_path)
             except Exception:
-                logging.exception(f"Exception during file processing: {safe_path}")
+                logging.exception(
+                    "Exception during file processing.", extra={"file": safe_path}
+                )
                 failed_files.append(file_path)
 
     if failed_files:

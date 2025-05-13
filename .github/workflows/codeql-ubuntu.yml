@@ -183,21 +183,33 @@ jobs:
       # Install dependencies if requirements.txt exists
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
           if [ -f requirements.txt ]; then
-            echo "Installing pip dependencies from requirements.txt..."
-            pip install -r requirements.txt
+            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            uv pip install -r requirements.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
           elif [ -f requirements-dev.txt ]; then
-            echo "Installing pip dependencies from requirements-dev.txt..."
-            pip install -r requirements-dev.txt
+            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
           else
             echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
           fi
 
           # Install package in development mode if setup.py exists
           if [ -f setup.py ]; then
-            echo "Installing package in development mode..."
-            pip install -e .
+            echo "Installing package in development mode using 'uv pip'..."
+            uv pip install -e . || {
+              echo "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
           fi
         continue-on-error: true
 

@@ -178,21 +178,39 @@ jobs:
       - name: Install dependencies
         shell: pwsh
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
           if (Test-Path requirements.txt) {
-            Write-Host "Installing pip dependencies from requirements.txt..."
-            pip install -r requirements.txt
+            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
           } elseif (Test-Path requirements-dev.txt) {
-            Write-Host "Installing pip dependencies from requirements-dev.txt..."
-            pip install -r requirements-dev.txt
+            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements-dev.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
           } else {
             Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
           }
 
           # Install package in development mode if setup.py exists
           if (Test-Path setup.py) {
-            Write-Host "Installing package in development mode..."
-            pip install -e .
+            Write-Host "Installing package in development mode using 'uv pip'..."
+            try {
+              python -m uv pip install -e .
+            } catch {
+              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
           }
         continue-on-error: true
 
