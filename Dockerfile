@@ -18,6 +18,8 @@ RUN apt-get update \
        curl \
        libpq-dev \
        postgresql-client \
+       libffi-dev \
+       python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

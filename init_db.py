@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """init_db.py - Initialize the database with tables and initial data."""
 
 import logging

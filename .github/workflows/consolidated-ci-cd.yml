@@ -259,6 +259,17 @@ jobs:
 
           Write-Host "Virtual environment setup complete."
 
+      - name: Install system dependencies for bcrypt (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          # Install system dependencies required for bcrypt
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y build-essential libffi-dev python3-dev
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            brew install libffi || true
+          fi
+
       - name: Install dependencies with uv (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
@@ -270,6 +281,13 @@ jobs:
           uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio || {
             echo "Failed to install testing tools with uv pip. Falling back to regular pip..."
             python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          }
+
+          # Install bcrypt explicitly first to ensure it builds correctly
+          echo "Installing bcrypt..."
+          uv pip install bcrypt>=4.0.1 || {
+            echo "Failed to install bcrypt with uv pip. Falling back to regular pip..."
+            python -m pip install bcrypt>=4.0.1
           }
 
           # Install from requirements files
@@ -328,6 +346,21 @@ jobs:
             echo "Pre-commit verification failed. Continuing anyway..."
           fi
 
+      - name: Install system dependencies for bcrypt (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install Visual C++ Build Tools for bcrypt
+          Write-Host "Installing Visual C++ Build Tools for bcrypt..."
+          # Note: On GitHub Actions Windows runners, Visual C++ Build Tools are pre-installed
+          # We'll just verify the environment is ready for bcrypt compilation
+          Write-Host "Checking for Visual C++ Build Tools..."
+          if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio") {
+            Write-Host "Visual Studio installation found."
+          } else {
+            Write-Host "Warning: Visual Studio installation not found. bcrypt compilation may fail."
+          }
+
       - name: Install dependencies with uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -341,6 +374,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install testing tools with uv pip. Falling back to regular pip..."
             python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          }
+
+          # Install bcrypt explicitly first to ensure it builds correctly
+          Write-Host "Installing bcrypt..."
+          uv pip install bcrypt>=4.0.1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install bcrypt with uv pip. Falling back to regular pip..."
+            python -m pip install bcrypt>=4.0.1
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install bcrypt with pip. Trying with --no-binary option..."
+              python -m pip install --no-binary bcrypt bcrypt>=4.0.1
+            }
           }
 
           # Install from requirements files
@@ -862,6 +907,17 @@ jobs:
 
           Write-Host "Virtual environment setup complete."
 
+      - name: Install system dependencies for bcrypt (Linux/macOS Security)
+        if: runner.os != 'Windows'
+        run: |
+          # Install system dependencies required for bcrypt
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y build-essential libffi-dev python3-dev
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            brew install libffi || true
+          fi
+
       - name: Install security tools with uv (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
@@ -869,6 +925,13 @@ jobs:
           source .venv/bin/activate
 
           echo "Installing security tools..."
+
+          # Install bcrypt explicitly first to ensure it builds correctly
+          echo "Installing bcrypt..."
+          uv pip install bcrypt>=4.0.1 || {
+            echo "Failed to install bcrypt with uv pip. Falling back to regular pip..."
+            python -m pip install bcrypt>=4.0.1
+          }
 
           # Install pip-audit first (most problematic)
           echo "Installing pip-audit..."
@@ -954,6 +1017,21 @@ jobs:
           echo "Installed security tools:"
           pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint|pre-commit' || true
 
+      - name: Install system dependencies for bcrypt (Windows Security)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install Visual C++ Build Tools for bcrypt
+          Write-Host "Installing Visual C++ Build Tools for bcrypt..."
+          # Note: On GitHub Actions Windows runners, Visual C++ Build Tools are pre-installed
+          # We'll just verify the environment is ready for bcrypt compilation
+          Write-Host "Checking for Visual C++ Build Tools..."
+          if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio") {
+            Write-Host "Visual Studio installation found."
+          } else {
+            Write-Host "Warning: Visual Studio installation not found. bcrypt compilation may fail."
+          }
+
       - name: Install security tools with uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -970,6 +1048,18 @@ jobs:
           Write-Host "Python version in virtual environment: $pythonVersion"
 
           Write-Host "Installing security tools..."
+
+          # Install bcrypt explicitly first to ensure it builds correctly
+          Write-Host "Installing bcrypt..."
+          uv pip install bcrypt>=4.0.1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to install bcrypt with uv pip. Falling back to regular pip..."
+            python -m pip install bcrypt>=4.0.1
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to install bcrypt with pip. Trying with --no-binary option..."
+              python -m pip install --no-binary bcrypt bcrypt>=4.0.1
+            }
+          }
 
           # Install pip-audit first (most problematic)
           Write-Host "Installing pip-audit..."
