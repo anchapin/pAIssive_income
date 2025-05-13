@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
-  Grid,
-  Paper,
-  Chip,
-  TextField,
-  // FormControl is imported but not used
-  // InputLabel is imported but not used
-  // Select is imported but not used
-  // MenuItem is imported but not used
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  // Divider is imported but not used
-  LinearProgress,
-  Card,
-  CardContent,
-  CardHeader,
-  // Rating is imported but not used
-  Tab,
-  Tabs
+    Box,
+    // FormControl is imported but not used
+    // InputLabel is imported but not used
+    // Select is imported but not used
+    // MenuItem is imported but not used
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Chip,
+    Grid,
+    // Divider is imported but not used
+    LinearProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Paper,
+    // Rating is imported but not used
+    Tab,
+    Tabs,
+    TextField,
+    Typography
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useState } from 'react';
 // Import our new visualization components
 import {
-  OpportunityRadarChart,
-  OpportunityBarChart,
-  ScoreDistributionPieChart
+    OpportunityBarChart,
+    OpportunityRadarChart,
+    ScoreDistributionPieChart
 } from '../components/Visualizations';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -73,6 +73,7 @@ const NicheAnalysisPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [validationError, setValidationError] = useState('');
+  // 'touched' tracks if user has interacted with the form, used for validation logic
   const [touched, setTouched] = useState(false);
 
   // Market segments available for analysis
