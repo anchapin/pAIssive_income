@@ -3,7 +3,7 @@ import { Box, Typography, Grid, Paper, Card, CardContent, CardHeader, LinearProg
 import { styled } from '@mui/material/styles';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
   padding: theme.spacing(2),
   color: theme.palette.text.secondary,
@@ -29,7 +29,13 @@ const DashboardPage = () => {
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} md={4}>
           <Card>
-            <CardHeader title="Total Revenue" sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }} />
+            <CardHeader
+              title="Total Revenue"
+              sx={{
+                backgroundColor: (theme) => theme.palette.background.default,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+              }}
+            />
             <CardContent>
               <Typography variant="h3" color="primary">
                 ${totalRevenue}
@@ -43,7 +49,13 @@ const DashboardPage = () => {
 
         <Grid item xs={12} md={4}>
           <Card>
-            <CardHeader title="Subscribers" sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }} />
+            <CardHeader
+              title="Subscribers"
+              sx={{
+                backgroundColor: (theme) => theme.palette.background.default,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+              }}
+            />
             <CardContent>
               <Typography variant="h3" color="primary">
                 {totalSubscribers}
@@ -57,7 +69,13 @@ const DashboardPage = () => {
 
         <Grid item xs={12} md={4}>
           <Card>
-            <CardHeader title="Projects" sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }} />
+            <CardHeader
+              title="Projects"
+              sx={{
+                backgroundColor: (theme) => theme.palette.background.default,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+              }}
+            />
             <CardContent>
               <Typography variant="h3" color="primary">
                 {projectsData.length}
