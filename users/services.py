@@ -7,15 +7,97 @@ authentication, and profile management.
 # Standard library imports
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Protocol, Tuple, Type, cast
 
 # Third-party imports
 import jwt
 
-from common_utils.logging import get_logger
-
 # Local imports
+from common_utils.logging import get_logger
 from users.auth import hash_credential, verify_credential
+
+
+# Define protocol for User model to help with type checking
+class UserProtocol(Protocol):
+    id: str
+    username: str
+    email: str
+    password_hash: str
+    query: Any
+
+    def __init__(
+        self, username: str, email: str, password_hash: str, **kwargs: Any
+    ) -> None: ...
+
+    @classmethod
+    def filter(cls, *args: Any) -> Any: ...
+
+
+# Define protocol for DB session
+class DBSessionProtocol(Protocol):
+    session: Any
+
+    def add(self, obj: Any) -> None: ...
+
+    def commit(self) -> None: ...
+
+
+# Initialize with None values that will be replaced if imports succeed
+UserModel: Optional[Type[UserProtocol]] = None
+db_session: Optional[DBSessionProtocol] = None
+
+try:
+    from app_flask.models import User, db
+
+    UserModel = cast(Type[UserProtocol], User)
+    db_session = cast(DBSessionProtocol, db)
+except ImportError:
+    # Keep the imports but don't redefine variables
+    pass
+
+
+class AuthenticationError(ValueError):
+    """Raised when there's an authentication-related error."""
+
+    pass
+
+
+class UserExistsError(ValueError):
+    """Raised when a user already exists."""
+
+    USERNAME_EXISTS = "Username already exists"
+    EMAIL_EXISTS = "Email already exists"
+
+    def __init__(self, message: Optional[str] = None) -> None:
+        """Initialize with a default message if none provided."""
+        super().__init__(message or "User already exists")
+
+
+class UserNotFoundError(ValueError):
+    """Raised when a user is not found."""
+
+    pass
+
+
+class TokenError(ValueError):
+    """Raised when there's a token-related error."""
+
+    pass
+
+
+class UserModelNotAvailableError(ValueError):
+    """Raised when the User model is not available."""
+
+    pass
+
+
+class DatabaseSessionNotAvailableError(ValueError):
+    """Raised when the database session is not available."""
+
+    pass
+
+
+# Remove redundant import fallback - already handled above
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -24,39 +106,43 @@ logger = get_logger(__name__)
 class UserService:
     """Service for user management."""
 
-    def __init__(self, user_repository=None, token_secret=None, token_expiry=None):
+    def __init__(
+        self,
+        user_repository: Optional[Any] = None,
+        token_secret: Optional[str] = None,
+        token_expiry: Optional[int] = None,
+    ) -> None:
         """Initialize the user service.
 
         Args:
-        ----
             user_repository: Repository for user data
             token_secret: Secret for JWT token generation
             token_expiry: Expiry time for JWT tokens in seconds
 
         """
-        self.user_repository = user_repository
+        # Store the user repository if provided
+        if user_repository is not None:
+            self.user_repository = user_repository
 
         # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
-            raise ValueError("Authentication token secret must be provided")
+            raise AuthenticationError()
 
         # Enhanced security: Store token secret in a private variable
-        # Use double underscore for name mangling in Python
         self.__token_secret = token_secret
 
-        # Don't log the secret or any part of it
         logger.debug("Token secret configured successfully")
 
         self.token_expiry = token_expiry or 3600  # 1 hour default
 
     @property
-    def token_secret(self):
+    def token_secret(self) -> str:
         """Securely access the token secret."""
         return self.__token_secret
 
     def create_user(
-        self, username: str, email: str, auth_credential: str, **kwargs
+        self, username: str, email: str, auth_credential: str, **kwargs: Any
     ) -> Dict[str, Any]:
         """Create a new user.
 
@@ -74,40 +160,69 @@ class UserService:
         """
         # Validate inputs
         if not username or not email or not auth_credential:
-            raise ValueError(
-                "Username, email, and authentication credential are required"
-            )
+            raise AuthenticationError()
 
         # Check if user already exists
-        if self.user_repository and self.user_repository.find_by_username(username):
-            raise ValueError(f"User with username '{username}' already exists")
+        if hasattr(self, "user_repository") and self.user_repository:
+            if self.user_repository.find_by_username(username):
+                raise UserExistsError(UserExistsError.USERNAME_EXISTS)
 
-        if self.user_repository and self.user_repository.find_by_email(email):
-            raise ValueError(f"User with email '{email}' already exists")
+            if self.user_repository.find_by_email(email):
+                raise UserExistsError(UserExistsError.EMAIL_EXISTS)
+        else:
+            # Check if UserModel is available
+            if UserModel is None:
+                raise UserModelNotAvailableError()
+
+            # Use UserModel directly since we've checked it's not None
+            model = UserModel
+            existing_user = model.query.filter(
+                (model.username == username) | (model.email == email)
+            ).first()
+            if existing_user:
+                if existing_user.username == username:
+                    raise UserExistsError(UserExistsError.USERNAME_EXISTS)
+                else:
+                    raise UserExistsError(UserExistsError.EMAIL_EXISTS)
 
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
 
-        # Create user data
-        user_data = {
-            "id": str(uuid.uuid4()),
-            "username": username,
-            "email": email,
-            "auth_hash": hashed_credential,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
-            **kwargs,
-        }
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError()
 
-        # Save the user
-        if self.user_repository:
-            user_id = self.user_repository.create(user_data)
-            user_data["id"] = user_id
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError()
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
+        # Create User model instance
+        user = model(
+            username=username,
+            email=email,
+            password_hash=hashed_credential,
+            **{k: v for k, v in kwargs.items() if hasattr(model, k)},
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        logger.info("User created successfully", extra={"user_id": user.id})
 
         # Return user data without sensitive information
-        user_data.pop("auth_hash", None)
-        logger.info("User created successfully", extra={"user_id": user_data["id"]})
-        return user_data
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
+        }
 
     def authenticate_user(
         self, username_or_email: str, auth_credential: str
@@ -124,20 +239,21 @@ class UserService:
             Tuple[bool, Optional[Dict]]: (success, user_data)
 
         """
-        if not self.user_repository:
-            logger.error("User repository not available")
-            return False, None
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError()
 
-        # Find the user
-        user = self.user_repository.find_by_username(username_or_email)
-        if not user:
-            user = self.user_repository.find_by_email(username_or_email)
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+
+        # Find the user by username or email
+        user = model.query.filter(
+            (model.username == username_or_email) | (model.email == username_or_email)
+        ).first()
 
         if not user:
             # Don't leak whether the username exists - just log an event with a hash
-            user_hash = (
-                hash(username_or_email) % 10000
-            )  # Simple hash to identify attempts while preserving privacy
+            user_hash = hash(username_or_email) % 10000  # Simple hash for privacy
             logger.info(
                 "Authentication attempt for non-existent user",
                 extra={"user_hash": user_hash},
@@ -145,27 +261,32 @@ class UserService:
             return False, None
 
         # Verify the credential
-        stored_hash = user.get("auth_hash") or user.get("credential_hash", b"")
-        if not verify_credential(auth_credential, stored_hash):
-            # Don't log the username directly to avoid leaking valid usernames
-            logger.info("Failed authentication attempt", extra={"user_id": user["id"]})
+        if not verify_credential(auth_credential, user.password_hash):
+            logger.info("Failed authentication attempt", extra={"user_id": user.id})
             return False, None
 
-        # Update last login
-        user["last_login"] = datetime.utcnow().isoformat()
-        if self.user_repository:
-            self.user_repository.update(user["id"], {"last_login": user["last_login"]})
+        # Update last login time if field exists
+        if hasattr(user, "last_login"):
+            user.last_login = datetime.utcnow()
+
+            # Check if db_session is available
+            if db_session is None:
+                raise DatabaseSessionNotAvailableError()
+
+            # Use db_session directly since we've checked it's not None
+            db = db_session
+            db.session.commit()
 
         # Return user data without sensitive information
-        user_data = user.copy()
-        user_data.pop("auth_hash", None)
-        user_data.pop(
-            "credential_hash", None
-        )  # Handle both field names for compatibility
-        logger.info("Authentication successful", extra={"user_id": user["id"]})
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+        logger.info("Authentication successful", extra={"user_id": user.id})
         return True, user_data
 
-    def generate_token(self, user_id: str, **additional_claims) -> str:
+    def generate_token(self, user_id: str, **additional_claims: Any) -> str:
         """Generate a JWT token for a user.
 
         Args:
@@ -191,6 +312,7 @@ class UserService:
             "key",
             "auth",
         ]
+        max_claim_length = 1000  # Maximum length for token claims
         for key, value in additional_claims.items():
             # Skip any sensitive looking claims
             if any(
@@ -201,8 +323,8 @@ class UserService:
                 )
                 continue
             # Avoid adding large values to token payload
-            if isinstance(value, str) and len(value) > 1000:
-                logger.warning(f"Oversized claim '{key}' was truncated in token")
+            if isinstance(value, str) and len(value) > max_claim_length:
+                logger.warning(f"Oversized claim '{key}' was truncated")
                 safe_claims[key] = value[:100] + "..."
             else:
                 safe_claims[key] = value
@@ -226,31 +348,30 @@ class UserService:
                 "token_type": "JWT",
             },
         )
-        # Ensure we return a string
+        # Ensure auth_token is a string
         if isinstance(auth_token, bytes):
             return auth_token.decode("utf-8")
-        return str(auth_token)  # Explicitly cast to string to satisfy mypy
+        return str(auth_token)
 
     def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Verify a JWT token.
 
         Args:
-        ----
             auth_token: The JWT token to verify
 
         Returns:
-        -------
-            Tuple[bool, Optional[Dict]]: (success, payload)
-
+            Tuple[bool, Optional[Dict[str, Any]]]: (success, payload)
         """
         try:
             payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])
-            return True, payload
         except jwt.ExpiredSignatureError:
-            # Don't include token details in logs
             logger.warning("Authentication verification failed: expired material")
             return False, None
         except jwt.InvalidTokenError:
-            # Don't include the specific error type or token details in logs
             logger.warning("Authentication verification failed: invalid material")
             return False, None
+        except Exception:
+            logger.exception("Token verification failed")
+            raise
+        else:
+            return True, payload

@@ -1,0 +1,391 @@
+name: Docker Compose Integration
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  docker-compose-integration:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Initial disk space check
+        run: |
+          echo "Initial disk space:"
+          df -h
+          echo "Memory usage:"
+          free -m
+
+      - name: Clean up runner workspace
+        run: |
+          echo "Cleaning up runner workspace..."
+          rm -rf /tmp/* || true
+          sudo apt-get clean
+          echo "Disk space after workspace cleanup:"
+          df -h
+
+      - name: Clean up Docker system
+        run: |
+          echo "Cleaning up unused Docker images, containers, and volumes..."
+          docker system prune -a -f --volumes
+          echo "Disk space after Docker cleanup:"
+          df -h
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Create Docker network explicitly before starting services
+      - name: Create Docker network
+        run: |
+          echo "Creating Docker network paissive-network..."
+          docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
+
+      # Check if Docker Hub secrets are set
+      - name: Check Docker Hub secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "::warning::DOCKERHUB_USERNAME and/or DOCKERHUB_TOKEN secrets are not set. Docker Hub login will be skipped, which may lead to rate limiting."
+            echo "dockerhub_secrets_set=false" >> $GITHUB_OUTPUT
+          else
+            echo "dockerhub_secrets_set=true" >> $GITHUB_OUTPUT
+          fi
+
+      # Log in to Docker Hub to avoid rate limits
+      # This step will only run if DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets are set
+      # Set these secrets in your repository settings to avoid Docker Hub rate limits
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        if: steps.check-secrets.outputs.dockerhub_secrets_set == 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Check disk space before pulling images
+      - name: Check disk space before pulling images
+        run: |
+          echo "Disk space before pulling images:"
+          df -h
+
+      # Pull Docker images with enhanced retry logic
+      - name: Pull Docker images
+        run: |
+          echo "Pulling Docker images with enhanced retry logic..."
+          max_attempts=5  # Increased from 3 to 5
+          attempt=1
+
+          # Function to check if we have enough disk space
+          check_disk_space() {
+            available_space=$(df -m / | awk 'NR==2 {print $4}')
+            if [ "$available_space" -lt 500 ]; then
+              echo "WARNING: Low disk space detected ($available_space MB). Cleaning up..."
+              docker system prune -a -f --volumes
+              return 1
+            fi
+            return 0
+          }
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts to pull postgres:15.3-alpine"
+
+            # Check disk space before pulling
+            check_disk_space
+
+            # Try to pull with a timeout to handle network issues
+            if timeout 300s docker pull postgres:15.3-alpine; then
+              echo "Successfully pulled postgres:15.3-alpine"
+              break
+            else
+              echo "Failed to pull postgres:15.3-alpine on attempt $attempt"
+
+              # Check if we're out of disk space
+              available_space=$(df -m / | awk 'NR==2 {print $4}')
+              echo "Available disk space: $available_space MB"
+
+              if [ "$available_space" -lt 100 ]; then
+                echo "CRITICAL: Extremely low disk space. Performing emergency cleanup..."
+                docker system prune -a -f --volumes
+                rm -rf /tmp/* || true
+                sudo apt-get clean
+                echo "Disk space after emergency cleanup:"
+                df -h
+              fi
+
+              if [ $attempt -eq $max_attempts ]; then
+                echo "All attempts to pull postgres:15.3-alpine failed"
+                echo "Trying to use a smaller alternative image as fallback..."
+                if docker pull postgres:14-alpine; then
+                  echo "Successfully pulled postgres:14-alpine as fallback"
+                  # Update docker-compose.yml to use the fallback image
+                  sed -i 's/postgres:15.3-alpine/postgres:14-alpine/g' docker-compose.yml
+                  echo "Updated docker-compose.yml to use postgres:14-alpine"
+                  break
+                else
+                  echo "Failed to pull fallback image as well. Exiting."
+                  exit 1
+                fi
+              fi
+              sleep 15  # Increased from 10 to 15 seconds
+              attempt=$((attempt+1))
+            fi
+          done
+
+          # Final disk space check after pulling images
+          echo "Disk space after pulling images:"
+          df -h
+
+      # Check disk space before starting Docker Compose
+      - name: Check disk space before Docker Compose
+        run: |
+          echo "Disk space before starting Docker Compose:"
+          df -h
+
+          # If disk space is critically low, perform additional cleanup
+          available_space=$(df -m / | awk 'NR==2 {print $4}')
+          if [ "$available_space" -lt 200 ]; then
+            echo "CRITICAL: Low disk space before starting Docker Compose. Performing additional cleanup..."
+            docker system prune -a -f --volumes
+            rm -rf /tmp/* || true
+            sudo apt-get clean
+            echo "Disk space after additional cleanup:"
+            df -h
+          fi
+
+      # Set up Docker Compose explicitly with reduced resource usage
+      - name: Set up Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.2.0
+        with:
+          compose-file: "./docker-compose.yml"
+          up-flags: "--detach"
+
+      # Check disk space after Docker Compose startup
+      - name: Check disk space after Docker Compose startup
+        run: |
+          echo "Disk space after starting Docker Compose:"
+          df -h
+
+      # Install curl for health checks
+      - name: Install curl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+
+      - name: Check Docker services status
+        run: |
+          echo "Checking Docker services status..."
+          docker compose ps || docker-compose ps
+          echo "Docker disk usage:"
+          docker system df
+
+      - name: Check database health
+        run: |
+          echo "Checking database health..."
+          max_attempts=15
+          for i in $(seq 1 $max_attempts); do
+            echo "Attempt $i of $max_attempts to check database health"
+
+            # Check disk space during health checks
+            if [ $((i % 3)) -eq 0 ]; then  # Check every 3 attempts
+              echo "Disk space during database health check (attempt $i):"
+              df -h
+
+              # If disk space is critically low, perform emergency cleanup
+              available_space=$(df -m / | awk 'NR==2 {print $4}')
+              if [ "$available_space" -lt 100 ]; then
+                echo "CRITICAL: Low disk space during database health check. Performing emergency cleanup..."
+                docker system prune -a -f --volumes
+                rm -rf /tmp/* || true
+                sudo apt-get clean
+              fi
+            fi
+
+            # Check container status first
+            if ! docker compose ps db | grep -q "Up" && ! docker-compose ps db | grep -q "Up"; then
+              echo "Database container is not running. Checking container logs:"
+              docker compose logs db || docker-compose logs db
+
+              # Try to restart the database container if it's not running
+              echo "Attempting to restart the database container..."
+              docker compose restart db || docker-compose restart db
+
+              if [ $i -eq $max_attempts ]; then
+                echo "Database container failed to start after $max_attempts attempts."
+                echo "Final system status:"
+                df -h
+                docker system df
+                exit 1
+              fi
+              sleep 10
+              continue
+            fi
+
+            # Check database readiness
+            if docker compose exec db pg_isready -U myuser -d mydb -h db || docker-compose exec db pg_isready -U myuser -d mydb -h db; then
+              echo "Database is ready."
+              break
+            else
+              echo "Waiting for database to be ready... (attempt $i/$max_attempts)"
+              if [ $i -eq $max_attempts ]; then
+                echo "Database did not become ready in time."
+                docker compose logs db || docker-compose logs db
+                echo "Final system status:"
+                df -h
+                docker system df
+                exit 1
+              fi
+              sleep 10
+            fi
+          done
+
+      - name: Check disk space before Flask app health check
+        run: |
+          echo "Disk space before Flask app health check:"
+          df -h
+          docker system df
+
+      - name: Wait for Flask app to be healthy
+        run: |
+          echo "Waiting for Flask app to be healthy..."
+          max_attempts=50  # Increased from 30 to 50
+          for i in $(seq 1 $max_attempts); do
+            # Check disk space during health checks
+            if [ $((i % 5)) -eq 0 ]; then  # Check every 5 attempts
+              echo "Disk space during Flask app health check (attempt $i):"
+              df -h
+
+              # If disk space is critically low, perform emergency cleanup
+              available_space=$(df -m / | awk 'NR==2 {print $4}')
+              if [ "$available_space" -lt 100 ]; then
+                echo "CRITICAL: Low disk space during Flask app health check. Performing emergency cleanup..."
+                docker system prune -a -f --volumes
+                rm -rf /tmp/* || true
+                sudo apt-get clean
+              fi
+            fi
+
+            # More verbose curl for better diagnostics
+            echo "Attempt $i: Checking Flask app health..."
+            if curl -v -f -m 10 http://localhost:5000/health; then
+              echo "Flask app is healthy."
+              exit 0
+            else
+              echo "Waiting for Flask app... (attempt $i/$max_attempts)"
+
+              # Check container status
+              echo "Container status:"
+              docker compose ps app || docker-compose ps app || true
+
+              # On every 5th attempt, check the logs (increased frequency)
+              if [ $((i % 5)) -eq 0 ]; then
+                echo "Checking Flask app logs at attempt $i:"
+                docker compose logs app || docker-compose logs app
+
+                # Check if the container is actually running
+                echo "Checking if Flask app container is running:"
+                docker compose ps app || docker-compose ps app
+
+                # Try to execute a command inside the container to verify it's responsive
+                echo "Trying to execute command in container:"
+                docker compose exec app ps aux || docker-compose exec app ps aux || true
+              fi
+
+              sleep 10  # Increased from 5 to 10 seconds
+            fi
+          done
+
+          echo "Flask app did not become healthy in time."
+          echo "Final container status:"
+          docker compose ps || docker-compose ps
+
+          echo "Final app logs:"
+          docker compose logs app || docker-compose logs app
+
+          echo "Checking if Flask process is running in container:"
+          docker compose exec app ps aux | grep python || docker-compose exec app ps aux | grep python || true
+
+          echo "Checking if port 5000 is listening in container:"
+          docker compose exec app netstat -tulpn | grep 5000 || docker-compose exec app netstat -tulpn | grep 5000 || true
+
+          echo "Final system status:"
+          df -h
+          docker system df
+          exit 1
+
+      - name: Debugging logs (always run)
+        if: always()
+        run: |
+          echo "Collecting comprehensive debugging information..."
+
+          echo "===== SYSTEM INFORMATION ====="
+          echo "Disk space:"
+          df -h
+          echo "Memory usage:"
+          free -m
+          echo "CPU information:"
+          lscpu || cat /proc/cpuinfo
+          echo "System load:"
+          uptime
+          echo "Running processes (top 10 by memory):"
+          ps aux --sort=-%mem | head -n 10
+
+          echo "===== DOCKER INFORMATION ====="
+          echo "Docker version:"
+          docker version || true
+          echo "Docker Compose version:"
+          docker compose version || docker-compose --version || true
+          echo "Docker system info:"
+          docker info || true
+          echo "Docker disk usage:"
+          docker system df -v || true
+          echo "Docker service status:"
+          docker compose ps || docker-compose ps || true
+          echo "Docker images:"
+          docker images || true
+          echo "Docker containers (all):"
+          docker ps -a || true
+
+          echo "===== LOGS ====="
+          echo "Database logs:"
+          docker compose logs db || docker-compose logs db || true
+          echo "App logs:"
+          docker compose logs app || docker-compose logs app || true
+          echo "Docker build logs:"
+          docker compose logs --no-color --timestamps app || docker-compose logs --no-color --timestamps app || true
+
+          echo "===== NETWORK INFORMATION ====="
+          echo "Network interfaces:"
+          ip addr || ifconfig || true
+          echo "Network routes:"
+          ip route || route -n || true
+          echo "Docker networks:"
+          docker network ls || true
+          echo "Docker network inspection:"
+          docker network inspect paissive-network || true
+
+          echo "===== CONTAINER DETAILS ====="
+          echo "Docker container inspection (app):"
+          docker inspect $(docker ps -q -f name=paissive-income-app) || true
+          echo "Docker container health status (app):"
+          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-income-app) || true
+          echo "Docker container inspection (db):"
+          docker inspect $(docker ps -q -f name=paissive-postgres) || true
+          echo "Docker container health status (db):"
+          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-postgres) || true
+
+          echo "===== FINAL CLEANUP ====="
+          echo "Performing final cleanup to free space for artifact uploads..."
+          docker system prune -a -f --volumes || true
+          rm -rf /tmp/* || true
+          sudo apt-get clean || true
+          echo "Final disk space:"
+          df -h
+
+      # The Docker Compose action will automatically tear down services in its post-run step

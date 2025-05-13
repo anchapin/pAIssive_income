@@ -1,0 +1,50 @@
+from typing import (Any, Callable, Dict, Generic, List, Optional, Type, TypeVar, Union,
+                    overload)
+
+T = TypeVar('T')
+_T = TypeVar('_T')
+
+# Define BaseQuery class to avoid name conflicts
+class BaseQuery:
+    """Base query class to avoid name conflicts."""
+    def all(self) -> List[Any]: ...
+    def first(self) -> Optional[Any]: ...
+    def filter_by(self, **kwargs: Any) -> 'BaseQuery': ...
+    def filter(self, *args: Any) -> 'BaseQuery': ...
+    def order_by(self, *args: Any) -> 'BaseQuery': ...
+    def limit(self, limit: int) -> 'BaseQuery': ...
+    def offset(self, offset: int) -> 'BaseQuery': ...
+    def count(self) -> int: ...
+
+# Define Model class
+class ModelBase:
+    """Base model class for SQLAlchemy models."""
+    query_class: Type[BaseQuery]
+    query: BaseQuery  # This is a class property, not a method
+    __tablename__: str
+
+    def save(self) -> None: ...
+    def delete(self) -> None: ...
+
+# Define SQLAlchemy class
+class SQLAlchemy:
+    """SQLAlchemy extension for Flask."""
+    Model: Type[ModelBase]  # This is a class attribute, not an instance
+    Column: Any
+    String: Any
+    Integer: Any
+    Float: Any
+    Boolean: Any
+    Text: Any
+    DateTime: Any
+    ForeignKey: Any
+    relationship: Any
+    backref: Any
+    session: Any
+    func: Any
+
+    def __init__(self, app: Optional[Any] = None, **kwargs: Any) -> None: ...
+    def init_app(self, app: Any) -> None: ...
+    def create_all(self) -> None: ...
+    def drop_all(self) -> None: ...
+    def get_engine(self) -> Any: ...

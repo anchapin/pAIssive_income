@@ -1,7 +1,4 @@
-"""__init__ - Module for api/routes.__init__."""
+"""__init__ - Module for api routes package."""
 
-# Standard library imports
-
-# Third-party imports
-
-# Local imports
+# This file intentionally left empty to mark the directory as a Python package.
+# Routes are registered dynamically in the application factory.

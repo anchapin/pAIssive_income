@@ -10,7 +10,8 @@ import json
 import logging
 import os
 import socketserver
-from typing import Any, Dict, Tuple
+
+from typing import Any
 from urllib.parse import urlparse
 
 # Configure logging
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 class APIHandler(http.server.BaseHTTPRequestHandler):
     """HTTP request handler for the API server."""
 
-    def _send_response(self, status_code: int, data: Dict[str, Any]) -> None:
+    def _send_response(self, status_code: int, data: dict[str, Any]) -> None:
         """Send a JSON response.
 
         Args:
@@ -51,8 +52,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             else:
                 logger.warning(f"404 error: {path}")
                 self._send_response(404, {"error": "Not found", "path": path})
-        except Exception as e:
-            logger.error(f"Error handling request: {str(e)}")
+        except Exception:
+            logger.exception("Error handling request")
             self._send_response(500, {"error": "Internal server error"})
 
     def do_OPTIONS(self) -> None:  # noqa: N802
@@ -63,7 +64,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def log_message(self, format: str, *args: Tuple) -> None:
+    def log_message(self, format: str, *args: tuple) -> None:
         """Log messages to the logger instead of stderr."""
         logger.info(f"{self.address_string()} - {format % args}")
 
@@ -91,14 +92,14 @@ def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
         try:
             httpd = ThreadedHTTPServer(server_address, APIHandler)
             break
-        except OSError as e:
+        except OSError:
             if retry < max_retries - 1:
                 logger.warning(f"Port {port} is in use, trying port {port + 1}")
                 port += 1
                 server_address = (host, port)
             else:
-                logger.error(
-                    f"Failed to start server after {max_retries} attempts: {str(e)}"
+                logger.exception(
+                    "Failed to start server after %d attempts", max_retries
                 )
                 raise
 
@@ -114,7 +115,14 @@ def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
 
 if __name__ == "__main__":
     # Get port from environment variable or use default
-    port = int(os.environ.get("PORT", 8000))
+    port_str = os.environ.get("PORT", "8000")
+    try:
+        port = int(port_str)
+    except ValueError:
+        logger.warning(
+            f"Invalid PORT environment variable: {port_str}, using default 8000"
+        )
+        port = 8000
 
     # Run the server
     run_server(port=port)

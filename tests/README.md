@@ -75,7 +75,7 @@ async def registered_webhook(running_webhook_service) -> Dict[str, Any]:
         "url": "https://example.com/test-webhook",
         "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
         "description": "Test webhook for automated tests",
-        "headers": {"Authorization": "Bearer test-token"},
+        "headers": {"Authorization": "Bearer test-token"},  # Test token only
         "is_active": True,
     }
 

@@ -1,0 +1,43 @@
+name: Check Documentation Updates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for accurate file change detection
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Debug Git Info
+        run: |
+          echo "GitHub Event: ${{ github.event_name }}"
+          echo "Base Ref: ${{ github.base_ref }}"
+          echo "Head Ref: ${{ github.head_ref }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Current branch:"
+          git branch --show-current
+          echo "Git status:"
+          git status
+          echo "Git log (last 5 commits):"
+          git log -n 5 --oneline
+
+      - name: Check documentation updates
+        run: |
+          python .github/scripts/check_documentation_updated.py

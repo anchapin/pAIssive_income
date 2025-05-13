@@ -11,6 +11,12 @@ updates:
     directory: "/" # Looks for requirements.txt or pyproject.toml in the root directory
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "all"
+    # Also update requirements.lock
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"

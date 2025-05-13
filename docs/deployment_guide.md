@@ -29,6 +29,12 @@ To use the deployment workflows, you need to set up the following secrets in you
 - `DOCKERHUB_USERNAME`: Your DockerHub username
 - `DOCKERHUB_TOKEN`: Your DockerHub access token (not your password)
 
+These secrets are used for:
+
+- Pushing Docker images to DockerHub during deployment
+- Authenticating with DockerHub during Docker Compose integration tests to avoid rate limits
+- Pulling Docker images in CI/CD workflows
+
 ### Development Environment Secrets
 
 - `DEV_HOST`: The hostname or IP address of your development server
@@ -82,8 +88,6 @@ The deployment process assumes that your servers are set up with Docker and Dock
 ### Example docker-compose.yml
 
 ```yaml
-version: '3.8'
-
 services:
   app:
     image: paissiveincome/app:latest

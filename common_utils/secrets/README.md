@@ -62,7 +62,7 @@ The module includes a CLI for managing secrets:
 python -m common_utils.secrets.cli set API_KEY
 
 # With explicit value (less secure, avoid in production)
-python -m common_utils.secrets.cli set API_KEY --value="your-secret"
+python -m common_utils.secrets.cli set API_KEY --value="example-secret-value"
 
 # Get a secret
 python -m common_utils.secrets.cli get API_KEY
@@ -84,7 +84,7 @@ To use HashiCorp Vault as a backend:
 1. Set up Vault environment variables:
    ```bash
    export VAULT_ADDR="http://127.0.0.1:8200"
-   export VAULT_TOKEN="your-vault-token"
+   export VAULT_TOKEN="example-vault-token"
    ```
 
 2. Use the Vault backend:

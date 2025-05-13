@@ -31,6 +31,7 @@ dependencies = [
     "redis>=4.5.0",
     "flask>=2.0.1",
     "httpx>=0.24.0",
+    "bcrypt>=4.0.1",
     # Add other dependencies as needed
 ]
 
@@ -63,7 +64,3 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-
-[tool.ruff]
-line-length = 100
-target-version = "py38"
