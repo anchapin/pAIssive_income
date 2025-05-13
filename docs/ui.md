@@ -534,7 +534,18 @@ To run the UI, use the `run_ui.py` script:
 python run_ui.py
 ```
 
-This will start a web server at http://localhost:5000 where you can access the UI.
+This will start a web server at [http://localhost:5000](http://localhost:5000) where you can access the UI.
+
+### Dependencies
+
+The UI module uses Flask 3.1.1 as its web framework. This version includes the following improvements over previous versions:
+
+- Fixed signing key selection order when key rotation is enabled via `SECRET_KEY_FALLBACKS`
+- Fixed type hint for `cli_runner.invoke`
+- Improved `flask --help` command to load the app and plugins first to ensure all commands are shown
+- Enhanced typing support for views that return `AsyncIterable` (for compatibility with Quart)
+
+For a complete list of changes, see the [Flask 3.1.1 changelog](https://flask.palletsprojects.com/en/stable/changes/#version-3-1-1).
 
 ## Extending the UI
 
