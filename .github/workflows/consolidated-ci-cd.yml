@@ -3035,12 +3035,35 @@ EOF
       # - All operating systems (Ubuntu, Windows, macOS)
       # - Multiple languages (JavaScript/TypeScript, Python)
 
-      - name: Skip CodeQL Analysis (Using dedicated workflow)
+      # Run CodeQL analysis for backward compatibility
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ runner.os == 'Windows' && 'javascript-typescript,python' || 'javascript-typescript,python' }}
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'ubuntu' }}.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis (Linux/macOS)
+      - name: Check disk space (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: df -h
+
+      # Display disk space before analysis (Windows)
+      - name: Check disk space (Windows)
+        if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          Write-Host "CodeQL analysis is now performed by the dedicated codeql.yml workflow"
-          Write-Host "This workflow supports all operating systems and languages"
-          Write-Host "See .github/workflows/codeql.yml for details"
+        run: Get-Volume
+
+      # Perform CodeQL Analysis for each OS
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "security/os:${{ runner.os == 'Windows' && 'windows-latest' || runner.os == 'macOS' && 'macos-latest' || 'ubuntu-latest' }}"
+          upload: true
 
       - name: Dependency Review (PRs only)
         if: github.event_name == 'pull_request'

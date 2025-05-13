@@ -231,7 +231,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:${{ matrix.os }}"
+          category: "/language:javascript-typescript"
           upload: true
           output: sarif-results/javascript-typescript-${{ runner.os }}.sarif
 
@@ -400,7 +400,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:${{ matrix.os }}"
+          category: "/language:python"
           upload: true
           output: sarif-results/python-${{ runner.os }}.sarif
 
