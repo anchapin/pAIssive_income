@@ -139,6 +139,14 @@ jobs:
           upload: true
           output: sarif-results/javascript-typescript-windows.sarif
 
+      # Add OS-specific configuration for Windows
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-windows.sarif
+          category: "security/os:windows-latest"
+
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
@@ -236,6 +244,14 @@ jobs:
           category: "security/os:Windows"
           upload: true
           output: sarif-results/python-windows.sarif
+
+      # Add OS-specific configuration for Windows
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-windows.sarif
+          category: "security/os:windows-latest"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results

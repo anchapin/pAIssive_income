@@ -235,6 +235,14 @@ jobs:
           upload: true
           output: sarif-results/javascript-typescript-${{ runner.os }}.sarif
 
+      # Add language-specific configuration for JavaScript/TypeScript
+      - name: Upload language-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-${{ runner.os }}.sarif
+          category: "/language:javascript-typescript"
+
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
@@ -403,6 +411,14 @@ jobs:
           category: "security/os:${{ runner.os }}/language:python"
           upload: true
           output: sarif-results/python-${{ runner.os }}.sarif
+
+      # Add language-specific configuration for Python
+      - name: Upload language-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-${{ runner.os }}.sarif
+          category: "/language:python"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results

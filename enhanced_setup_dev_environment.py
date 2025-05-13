@@ -78,13 +78,15 @@ def install_pyyaml() -> bool:
     # Try multiple installation methods
     methods = [
         # Method 1: Use uv if available
-        lambda: install_with_uv(),
+        install_with_uv,
         # Method 2: Use system pip
-        lambda: install_with_pip(get_pip_path()),
+        lambda: install_with_pip(
+            get_pip_path()
+        ),  # Keep lambda for this one as it needs the function call result
         # Method 3: Use python -m pip
-        lambda: install_with_python_pip(),
+        install_with_python_pip,
         # Method 4: Use pip module directly
-        lambda: install_with_pip_module(),
+        install_with_pip_module,
     ]
 
     for method in methods:
@@ -192,7 +194,7 @@ except ImportError:
                 logger.warning(
                     "Using minimal YAML implementation - only JSON-compatible syntax supported"
                 )
-                import json
+                # json is already imported at the top of the file
 
                 try:
                     result = json.loads(stream)
@@ -218,7 +220,7 @@ except ImportError:
                     **_kwargs: Ignored keyword arguments for compatibility
                 """
                 logger.warning("Using minimal YAML implementation - saving as JSON")
-                import json
+                # json is already imported at the top of the file
 
                 json.dump(data, file, indent=2)
 

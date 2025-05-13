@@ -3065,6 +3065,31 @@ EOF
           category: "security/os:${{ runner.os }}"
           upload: true
 
+      # Add OS-specific configurations for CodeQL
+      - name: Upload OS-specific CodeQL configuration (Ubuntu)
+        if: runner.os == 'Linux'
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results.sarif
+          category: ".github/workflows/consolidated-ci-cd.yml:security/os:ubuntu-latest"
+
+      - name: Upload OS-specific CodeQL configuration (Windows)
+        if: runner.os == 'Windows'
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results.sarif
+          category: ".github/workflows/consolidated-ci-cd.yml:security/os:windows-latest"
+
+      - name: Upload OS-specific CodeQL configuration (macOS)
+        if: runner.os == 'macOS'
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results.sarif
+          category: ".github/workflows/consolidated-ci-cd.yml:security/os:macos-latest"
+
       - name: Dependency Review (PRs only)
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4

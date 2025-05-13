@@ -314,7 +314,7 @@ Running the main script generates a complete project plan including:
     ```bash
     corepack enable
     ```
-  - If Corepack is not available, you may use `npm` **only** to bootstrap pnpm:
+  - If Corepack is not available, you can bootstrap pnpm with npm:
     ```bash
     npm install -g pnpm
     ```
