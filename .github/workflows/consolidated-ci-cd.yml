@@ -1384,41 +1384,72 @@ jobs:
           mkdir -p security-reports
           echo "Running bandit scan..."
 
+          # Create a unique output file for this run
+          BANDIT_OUTPUT_FILE="security-reports/bandit-results-${{ github.run_id }}.sarif"
+
+          # Use the platform-specific configuration file
+          BANDIT_CONFIG_FILE=".github/bandit/bandit-config-linux-${{ github.run_id }}.yaml"
+
+          # Fallback to the generic configuration file if the specific one doesn't exist
+          if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
+            echo "Platform-specific configuration file not found. Using generic configuration."
+            BANDIT_CONFIG_FILE=".github/bandit/bandit-config-linux.yaml"
+
+            # Fallback to the .bandit file if the generic configuration doesn't exist
+            if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
+              echo "Generic configuration file not found. Using .bandit file."
+              BANDIT_CONFIG_FILE=".bandit"
+            fi
+          fi
+
+          echo "Using Bandit configuration file: $BANDIT_CONFIG_FILE"
+
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit || true
+            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
+            # Also create a copy with the standard name for backward compatibility
+            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
           else
             echo "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             if command -v bandit &>/dev/null; then
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit || true
+              bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
+              # Also create a copy with the standard name for backward compatibility
+              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
             else
               echo "Bandit tool not available. Creating empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+              # Also create a copy with the standard name for backward compatibility
+              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
             fi
           fi
 
           # Ensure the SARIF file has the required "version" property and is valid
-          if [ -f security-reports/bandit-results.sarif ]; then
+          if [ -f "$BANDIT_OUTPUT_FILE" ]; then
             # Check if file is empty
-            if [ ! -s security-reports/bandit-results.sarif ]; then
+            if [ ! -s "$BANDIT_OUTPUT_FILE" ]; then
               echo "Bandit output file is empty. Creating valid empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
             # Check if version property exists
-            elif ! grep -q '"version"' security-reports/bandit-results.sarif; then
+            elif ! grep -q '"version"' "$BANDIT_OUTPUT_FILE"; then
               echo "Adding version property to SARIF file"
               # Create a valid SARIF file with version property
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
             fi
 
             # Verify the SARIF file is valid JSON
-            if ! python -c "import json; json.load(open('security-reports/bandit-results.sarif'))" &>/dev/null; then
+            if ! python -c "import json; json.load(open('$BANDIT_OUTPUT_FILE'))" &>/dev/null; then
               echo "Invalid SARIF file detected. Creating valid empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
             fi
           else
             # Create a valid empty SARIF file if it doesn't exist
-            echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
+            echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+          fi
+
+          # Also ensure the standard file exists for backward compatibility
+          if [ ! -f "security-reports/bandit-results.sarif" ]; then
+            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
           fi
 
       - name: Run Bandit (Windows)
@@ -1436,49 +1467,158 @@ jobs:
           New-Item -ItemType Directory -Force -Path security-reports
           Write-Host "Running bandit scan..."
 
+          # Create a unique output file for this run
+          $banditOutputFile = "security-reports/bandit-results-${{ github.run_id }}.sarif"
+
+          # Use the platform-specific configuration file
+          $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
+
+          # Fallback to the generic configuration file if the specific one doesn't exist
+          if (-not (Test-Path $banditConfigFile)) {
+            Write-Host "Platform-specific configuration file not found. Using generic configuration."
+            $banditConfigFile = ".github/bandit/bandit-config-windows.yaml"
+
+            # Fallback to the .bandit file if the generic configuration doesn't exist
+            if (-not (Test-Path $banditConfigFile)) {
+              Write-Host "Generic configuration file not found. Using .bandit file."
+              $banditConfigFile = ".bandit"
+            }
+          }
+
+          Write-Host "Using Bandit configuration file: $banditConfigFile"
+
           # Try to run bandit with fallback options
           $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
           if ($banditCmdPath) {
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit
+            bandit -r . -f sarif -o $banditOutputFile --exit-zero -c $banditConfigFile
+            # Also create a copy with the standard name for backward compatibility
+            Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
           } else {
             Write-Host "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
             if ($banditCmdPath) {
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit
+              bandit -r . -f sarif -o $banditOutputFile --exit-zero -c $banditConfigFile
+              # Also create a copy with the standard name for backward compatibility
+              Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
             } else {
               Write-Host "Bandit tool not available. Creating empty SARIF file."
-              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              # Also create a copy with the standard name for backward compatibility
+              Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
             }
           }
 
           # Ensure the SARIF file has the required "version" property and is valid
-          if (Test-Path security-reports/bandit-results.sarif) {
+          if (Test-Path $banditOutputFile) {
             # Check if file is empty
-            if ((Get-Item security-reports/bandit-results.sarif).Length -eq 0) {
+            if ((Get-Item $banditOutputFile).Length -eq 0) {
               Write-Host "Bandit output file is empty. Creating valid empty SARIF file."
-              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             } else {
               # Check if version property exists
-              $fileContent = Get-Content security-reports/bandit-results.sarif -Raw
+              $fileContent = Get-Content $banditOutputFile -Raw
               if (-not ($fileContent -match '"version"')) {
                 Write-Host "Adding version property to SARIF file"
                 # Create a valid SARIF file with version property
-                Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+                Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
               }
             }
 
             # Verify the SARIF file is valid JSON
             try {
-              $null = Get-Content security-reports/bandit-results.sarif -Raw | ConvertFrom-Json
+              $null = Get-Content $banditOutputFile -Raw | ConvertFrom-Json
             } catch {
               Write-Host "Invalid SARIF file detected. Creating valid empty SARIF file."
-              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             }
           } else {
             # Create a valid empty SARIF file if it doesn't exist
-            Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
           }
+
+          # Also ensure the standard file exists for backward compatibility
+          if (-not (Test-Path "security-reports/bandit-results.sarif")) {
+            Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Run Bandit (macOS)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        run: |
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          mkdir -p security-reports
+          echo "Running bandit scan..."
+
+          # Create a unique output file for this run
+          BANDIT_OUTPUT_FILE="security-reports/bandit-results-${{ github.run_id }}.sarif"
+
+          # Use the platform-specific configuration file
+          BANDIT_CONFIG_FILE=".github/bandit/bandit-config-macos-${{ github.run_id }}.yaml"
+
+          # Fallback to the generic configuration file if the specific one doesn't exist
+          if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
+            echo "Platform-specific configuration file not found. Using generic configuration."
+            BANDIT_CONFIG_FILE=".github/bandit/bandit-config-macos.yaml"
+
+            # Fallback to the .bandit file if the generic configuration doesn't exist
+            if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
+              echo "Generic configuration file not found. Using .bandit file."
+              BANDIT_CONFIG_FILE=".bandit"
+            fi
+          fi
+
+          echo "Using Bandit configuration file: $BANDIT_CONFIG_FILE"
+
+          # Try to run bandit with fallback options
+          if command -v bandit &>/dev/null; then
+            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
+            # Also create a copy with the standard name for backward compatibility
+            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+          else
+            echo "Bandit command not found. Trying to install and run..."
+            python -m pip install bandit
+            if command -v bandit &>/dev/null; then
+              bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
+              # Also create a copy with the standard name for backward compatibility
+              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+            else
+              echo "Bandit tool not available. Creating empty SARIF file."
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+              # Also create a copy with the standard name for backward compatibility
+              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+            fi
+          fi
+
+          # Ensure the SARIF file has the required "version" property and is valid
+          if [ -f "$BANDIT_OUTPUT_FILE" ]; then
+            # Check if file is empty
+            if [ ! -s "$BANDIT_OUTPUT_FILE" ]; then
+              echo "Bandit output file is empty. Creating valid empty SARIF file."
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+            # Check if version property exists
+            elif ! grep -q '"version"' "$BANDIT_OUTPUT_FILE"; then
+              echo "Adding version property to SARIF file"
+              # Create a valid SARIF file with version property
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+            fi
+
+            # Verify the SARIF file is valid JSON
+            if ! python -c "import json; json.load(open('$BANDIT_OUTPUT_FILE'))" &>/dev/null; then
+              echo "Invalid SARIF file detected. Creating valid empty SARIF file."
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+            fi
+          else
+            # Create a valid empty SARIF file if it doesn't exist
+            echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+          fi
+
+          # Also ensure the standard file exists for backward compatibility
+          if [ ! -f "security-reports/bandit-results.sarif" ]; then
+            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+          fi
 
       - name: Run Trivy (Linux)
         if: runner.os == 'Linux'
@@ -1764,7 +1904,30 @@ jobs:
           path: security-reports/
           retention-days: 7
 
-      - name: Upload Bandit scan SARIF
+      # Upload platform-specific Bandit scan SARIF files
+      - name: Upload Bandit scan SARIF (Linux)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-${{ github.run_id }}
+
+      - name: Upload Bandit scan SARIF (Windows)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-${{ github.run_id }}
+
+      - name: Upload Bandit scan SARIF (macOS)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-${{ github.run_id }}
+
+      # Keep the original upload for backward compatibility
+      - name: Upload Bandit scan SARIF (Legacy)
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
