@@ -257,7 +257,10 @@ def fix_secrets_in_file(file_path: str, secrets: list[tuple[str, int, str]]) -> 
         else:
             return False
     except Exception:
-        logging.exception(f"Error fixing secrets in {file_path}")
+        # Use a generic message without revealing the full file path
+        logging.exception(
+            "Error processing file", extra={"file": os.path.basename(file_path)}
+        )
         return False
 
 
@@ -277,7 +280,10 @@ def scan_file(file_path: str) -> list[tuple[str, int, str]]:
 
         return extract_actual_secrets(lines, content)
     except Exception:
-        logging.exception(f"Error scanning file {file_path}")
+        # Use a generic message without revealing the full file path
+        logging.exception(
+            "Error scanning file", extra={"file": os.path.basename(file_path)}
+        )
         return []
 
 
@@ -333,11 +339,13 @@ def log_failed_files(failed_files: list[str]) -> None:
         return
 
     logging.warning(
-        "Failed to fix potential sensitive data in some files",
+        "Some files could not be processed",
         extra={"failed_count": len(failed_files)},
     )
+    # Log only the base filename to avoid potential path disclosure
     for file_path in failed_files:
-        logging.warning(f"  {file_path}")
+        safe_path = os.path.basename(file_path)
+        logging.warning("Failed file", extra={"file": safe_path})
 
 
 def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str]]]:
@@ -446,14 +454,15 @@ def process_scan_results(
 
     if results:
         # Use count of sensitive data rather than actual values to avoid logging sensitive info
+        # Use a generic message that doesn't reveal any sensitive information
         logging.info(
-            "Scan complete. Found potential sensitive data.",
+            "Scan complete. Potential sensitive data found.",
             extra={"count": total_secrets, "file_count": len(results)},
         )
 
         if fix:
             logging.info(
-                "Fixed files containing potential sensitive data.",
+                "Files processed. Potential sensitive data addressed.",
                 extra={
                     "fixed_files": fixed_files,
                     "total_files": len(results),
@@ -469,9 +478,9 @@ def process_scan_results(
         # Use a safe path for logging
         safe_path = os.path.basename(file_path)
 
-        # Log the file and the secrets found
+        # Log the file and the secrets found - use generic message without revealing details
         logging.info(
-            "Found potential sensitive data",
+            "Processing file",
             extra={"count": len(secrets), "file": safe_path},
         )
 
@@ -483,17 +492,17 @@ def process_scan_results(
                 if fix_secrets_in_file(file_path, secrets):
                     fixed_files += 1
                     logging.info(
-                        "Fixed potential sensitive data", extra={"file": safe_path}
+                        "File processed successfully", extra={"file": safe_path}
                     )
                 else:
                     logging.warning(
-                        "Failed to fix potential sensitive data",
+                        "File processing failed",
                         extra={"file": safe_path},
                     )
                     failed_files.append(file_path)
             except Exception:
                 logging.exception(
-                    f"Exception while fixing potential sensitive data in {safe_path}"
+                    "Exception during file processing", extra={"file": safe_path}
                 )
                 failed_files.append(file_path)
 
@@ -534,12 +543,19 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        logging.info(f"Scanning directory: {args.directory}")
+        # Use a generic message without revealing the full directory path
+        logging.info(
+            "Starting scan", extra={"directory": os.path.basename(args.directory)}
+        )
         results = scan_directory(args.directory)
         failed_files = process_scan_results(results, fix=not args.scan_only)
 
         if args.sarif:
-            logging.info(f"Generating SARIF report: {args.sarif_output}")
+            # Use a generic message without revealing the full file path
+            logging.info(
+                "Generating SARIF report",
+                extra={"output": os.path.basename(args.sarif_output)},
+            )
             generate_sarif_report(results, args.sarif_output)
 
         if failed_files:
@@ -547,7 +563,8 @@ def main() -> int:
         else:
             return 0
     except Exception:
-        logging.exception("Unhandled exception")
+        # Use a generic message that doesn't reveal any sensitive information
+        logging.exception("Process failed due to an unexpected error")
         return 1
 
 

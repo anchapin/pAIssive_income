@@ -73,8 +73,6 @@ const NicheAnalysisPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [validationError, setValidationError] = useState('');
-  // 'touched' tracks if user has interacted with the form, used for validation logic
-  const [touched, setTouched] = useState(false);
 
   // Market segments available for analysis
   const marketSegments = [
@@ -102,7 +100,6 @@ const NicheAnalysisPage = () => {
   const handleSegmentSelect = (segment) => {
     if (!selectedSegments.includes(segment)) {
       setSelectedSegments([...selectedSegments, segment]);
-      setTouched(true);
       setValidationError('');
     }
   };
@@ -111,7 +108,6 @@ const NicheAnalysisPage = () => {
   const handleSegmentRemove = (segmentToRemove) => {
     const newSegments = selectedSegments.filter(segment => segment !== segmentToRemove);
     setSelectedSegments(newSegments);
-    setTouched(true);
     if (newSegments.length === 0) {
       setValidationError('Please select at least one segment.');
     }
@@ -129,7 +125,6 @@ const NicheAnalysisPage = () => {
 
   // Handle analysis submission
   const handleAnalyze = () => {
-    setTouched(true);
     if (selectedSegments.length === 0) {
       setValidationError('Please select at least one segment.');
       return;

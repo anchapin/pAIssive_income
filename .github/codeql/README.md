@@ -6,12 +6,15 @@ This directory contains configuration files for GitHub's CodeQL analysis tool, w
 
 - `codeql-javascript-config.yml`: Configuration for JavaScript/TypeScript analysis
 - `codeql-python-config.yml`: Configuration for Python analysis
+- `codeql-config-macos.yml`: Combined configuration for macOS platform
+- `codeql-config-ubuntu.yml`: Combined configuration for Ubuntu platform
+- `codeql-config-windows.yml`: Combined configuration for Windows platform
 - `javascript-security-queries.qls`: Custom query suite for JavaScript/TypeScript security analysis
 - `python-security-queries.qls`: Custom query suite for Python security analysis
 
 ## Workflow
 
-The CodeQL analysis is configured in the `.github/workflows/codeql.yml` workflow file. This workflow:
+The CodeQL analysis is configured in the `.github/workflows/codeql.yml` workflow file. Additionally, the `.github/workflows/consolidated-ci-cd.yml` workflow also includes CodeQL analysis for backward compatibility. These workflows:
 
 1. Runs on push to main branches, pull requests to main branches, and on a weekly schedule (Monday at 4 AM UTC)
 2. Performs separate analysis for JavaScript/TypeScript and Python
