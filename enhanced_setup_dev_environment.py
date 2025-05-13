@@ -64,17 +64,26 @@ try:
 except ImportError:
     logger.warning("PyYAML module not found. Installing it now...")
 
-    # Define a function to get pip path before it's defined in the script
-    def get_pip_path() -> str:
-        """Get the path to pip executable."""
-        if os.name == "nt":  # Windows
-            return "pip"
-        else:  # Unix/Linux/macOS
-            return "pip3"
-
-    pip_path = get_pip_path()
+    # Try to install with uv first, fall back to pip if needed
     try:
-        subprocess.check_call([pip_path, "install", "pyyaml"])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info("Installing PyYAML with uv...")
+            subprocess.check_call(["uv", "pip", "install", "pyyaml"])
+        else:
+            # Define a function to get pip path before it's defined in the script
+            def get_pip_path() -> str:
+                """Get the path to pip executable."""
+                if os.name == "nt":  # Windows
+                    return "pip"
+                else:  # Unix/Linux/macOS
+                    return "pip3"
+
+            pip_path = get_pip_path()
+            logger.info("uv not found, installing PyYAML with pip...")
+            subprocess.check_call([pip_path, "install", "pyyaml"])
+
         import yaml
 
         logger.info("PyYAML installed successfully.")
@@ -225,7 +234,7 @@ def is_venv_activated() -> bool:
 
 
 def create_virtual_environment() -> bool:
-    """Create a virtual environment.
+    """Create a virtual environment using uv if available, falling back to venv.
 
     Returns:
         True if successful, False otherwise
@@ -237,6 +246,26 @@ def create_virtual_environment() -> bool:
         logger.info(f"Virtual environment already exists at {venv_path}")
         return True
 
+    # Check if uv is available
+    uv_available = shutil.which("uv") is not None
+
+    if uv_available:
+        logger.info("Creating virtual environment with uv...")
+        try:
+            exit_code, stdout, stderr = run_command(["uv", "venv", str(venv_path)])
+            if exit_code == 0:
+                logger.info(f"Created virtual environment at {venv_path} using uv")
+                return True
+            else:
+                logger.warning(f"Error creating virtual environment with uv: {stderr}")
+                logger.info("Falling back to standard venv module...")
+        except Exception as e:
+            logger.warning(f"Exception when creating virtual environment with uv: {e}")
+            logger.info("Falling back to standard venv module...")
+    else:
+        logger.info("uv not found, using standard venv module...")
+
+    # Fall back to standard venv module
     try:
         logger.info("Attempting to create virtual environment with venv module...")
         venv.create(venv_path, with_pip=True)
@@ -733,15 +762,29 @@ def apply_setup_profile(args: argparse.Namespace) -> argparse.Namespace:
 
 # Helper functions for install_dependencies
 def _upgrade_pip(pip_path: str) -> bool:
-    """Upgrade pip to the latest version."""
+    """Upgrade pip to the latest version using uv if available."""
     logger.info("Upgrading pip...")
     try:
-        exit_code, _, stderr = run_command([
-            pip_path,
-            "install",
-            "--upgrade",
-            "pip",
-        ])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info("Using uv to upgrade pip...")
+            exit_code, _, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                "--upgrade",
+                "pip",
+            ])
+        else:
+            logger.info("uv not found, using pip directly...")
+            exit_code, _, stderr = run_command([
+                pip_path,
+                "install",
+                "--upgrade",
+                "pip",
+            ])
+
         if exit_code != 0:
             logger.warning(f"Failed to upgrade pip: {stderr}")
             # Continue anyway, not critical
@@ -752,19 +795,33 @@ def _upgrade_pip(pip_path: str) -> bool:
 
 
 def _install_requirements(pip_path: str, req_file: str) -> bool:
-    """Install dependencies from a requirements file."""
+    """Install dependencies from a requirements file using uv if available."""
     if not os.path.exists(req_file):
         logger.debug(f"Requirements file not found: {req_file}")
         return True  # Not an error if file doesn't exist
 
     logger.info(f"Installing dependencies from {req_file}...")
     try:
-        exit_code, stdout, stderr = run_command([
-            pip_path,
-            "install",
-            "-r",
-            req_file,
-        ])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info(f"Using uv to install dependencies from {req_file}...")
+            exit_code, stdout, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                "-r",
+                req_file,
+            ])
+        else:
+            logger.info(f"uv not found, using pip directly for {req_file}...")
+            exit_code, stdout, stderr = run_command([
+                pip_path,
+                "install",
+                "-r",
+                req_file,
+            ])
+
         if exit_code != 0:
             logger.error(f"Error installing {req_file}: {stderr}")
             return False
@@ -778,10 +835,23 @@ def _install_requirements(pip_path: str, req_file: str) -> bool:
 
 
 def _install_package(pip_path: str, package_name: str, critical: bool = True) -> bool:
-    """Install a specific Python package."""
+    """Install a specific Python package using uv if available."""
     logger.info(f"Installing {package_name}...")
     try:
-        exit_code, stdout, stderr = run_command([pip_path, "install", package_name])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info(f"Using uv to install {package_name}...")
+            exit_code, stdout, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                package_name,
+            ])
+        else:
+            logger.info(f"uv not found, using pip directly for {package_name}...")
+            exit_code, stdout, stderr = run_command([pip_path, "install", package_name])
+
         if exit_code != 0:
             log_func = logger.error if critical else logger.warning
             log_func(f"Error installing {package_name}: {stderr}")

@@ -30,10 +30,9 @@ COPY ai_models/requirements.txt ai_models_requirements.txt
 # Create a consolidated requirements file
 RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
 
-# Create a virtual environment and install dependencies
-RUN python -m venv /app/.venv && \
-    /app/.venv/bin/pip install --upgrade pip && \
-    /app/.venv/bin/pip install --no-cache-dir uv && \
+# Install uv and create a virtual environment
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    uv venv /app/.venv && \
     /app/.venv/bin/uv pip install -r requirements.txt
 
 # Copy project files

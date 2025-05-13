@@ -121,13 +121,14 @@ if %ERRORLEVEL% NEQ 0 (
     )
 )
 
-:: Install dependencies
-echo Installing dependencies...
+:: Install uv and dependencies
+echo Installing uv and dependencies...
 call %VENV_DIR%\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade uv
+echo Using uv to install dependencies...
+uv pip install -r requirements.txt
 if exist requirements-dev.txt (
-    python -m pip install -r requirements-dev.txt
+    uv pip install -r requirements-dev.txt
 )
 call deactivate
 

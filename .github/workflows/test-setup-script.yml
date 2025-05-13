@@ -74,13 +74,12 @@ jobs:
       - name: Verify uv Installation
         run: uv --version
 
-      - name: Create virtual environment
+      - name: Create virtual environment with uv
         run: |
           uv venv .venv || {
             echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
             python -m venv .venv
           }
-          source .venv/bin/activate
 
       - name: Install dependencies with uv
         run: |
@@ -254,67 +253,44 @@ jobs:
       - name: Install uv
         shell: powershell
         run: |
-          pip install uv
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade uv
           uv --version
 
-      - name: Create virtual environment
+      - name: Create virtual environment with uv
         shell: powershell
         run: |
-          Write-Host "Creating virtual environment..."
+          Write-Host "Creating virtual environment with uv..."
 
-          # Try multiple methods to create a virtual environment
-          $venvCreated = $false
-
-          # Method 1: Try with uv
           try {
-            Write-Host "Attempting to create virtual environment with uv..."
+            # Try with uv first (preferred method)
             uv venv .venv
             if ($LASTEXITCODE -eq 0 -and (Test-Path ".venv")) {
               Write-Host "Successfully created virtual environment with uv."
-              $venvCreated = $true
             } else {
-              Write-Warning "Failed to create virtual environment with uv. Trying Python's venv module..."
-            }
-          } catch {
-            Write-Warning "Exception when creating virtual environment with uv: $_"
-          }
+              Write-Warning "Failed to create virtual environment with uv. Falling back to Python's venv module..."
 
-          # Method 2: Try with Python's venv module
-          if (-not $venvCreated) {
-            try {
-              Write-Host "Attempting to create virtual environment with Python's venv module..."
+              # Fall back to Python's venv module
               python -m venv .venv
               if ($LASTEXITCODE -eq 0 -and (Test-Path ".venv")) {
                 Write-Host "Successfully created virtual environment with Python's venv module."
-                $venvCreated = $true
               } else {
                 Write-Warning "Failed to create virtual environment with Python's venv module. Trying virtualenv..."
-              }
-            } catch {
-              Write-Warning "Exception when creating virtual environment with Python's venv module: $_"
-            }
-          }
 
-          # Method 3: Try with virtualenv if installed
-          if (-not $venvCreated) {
-            try {
-              Write-Host "Attempting to install and use virtualenv..."
-              python -m pip install virtualenv
-              python -m virtualenv .venv
-              if ($LASTEXITCODE -eq 0 -and (Test-Path ".venv")) {
-                Write-Host "Successfully created virtual environment with virtualenv."
-                $venvCreated = $true
-              } else {
-                Write-Warning "Failed to create virtual environment with virtualenv."
+                # Last resort: try with virtualenv
+                python -m pip install virtualenv
+                python -m virtualenv .venv
+                if ($LASTEXITCODE -eq 0 -and (Test-Path ".venv")) {
+                  Write-Host "Successfully created virtual environment with virtualenv."
+                } else {
+                  Write-Error "Failed to create virtual environment using all available methods. Exiting..."
+                  exit 1
+                }
               }
-            } catch {
-              Write-Warning "Exception when creating virtual environment with virtualenv: $_"
             }
-          }
-
-          # Final check
-          if (-not (Test-Path ".venv")) {
-            Write-Error "Failed to create virtual environment using all available methods. Exiting..."
+          } catch {
+            Write-Warning "Exception when creating virtual environment: $_"
+            Write-Error "Failed to create virtual environment. Exiting..."
             exit 1
           }
 
@@ -363,7 +339,7 @@ jobs:
           Write-Host "Installed packages in virtual environment:"
           .\.venv\Scripts\python.exe -m pip list
 
-      - name: Install dependencies
+      - name: Install dependencies with uv
         shell: powershell
         run: |
           # Activate virtual environment
@@ -388,79 +364,58 @@ jobs:
             Write-Host "Created minimal requirements-dev.txt."
           }
 
-          # Install dependencies with multiple fallback mechanisms
-          Write-Host "Installing project dependencies..."
-          $dependenciesInstalled = $false
+          # Install dependencies with uv (preferred) and fallback mechanisms
+          Write-Host "Installing project dependencies with uv..."
 
-          # Method 1: Try with uv pip
           try {
-            Write-Host "Attempting to install dependencies with uv pip..."
+            # Install PyYAML first
+            Write-Host "Installing PyYAML with uv..."
+            uv pip install pyyaml
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning "Failed to install PyYAML with uv. Falling back to regular pip..."
+              .\.venv\Scripts\python.exe -m pip install pyyaml
+            }
 
-            # First, try to install uv in the virtual environment
-            .\.venv\Scripts\python.exe -m pip install --upgrade uv
-            if ($LASTEXITCODE -eq 0) {
-              Write-Host "Successfully installed uv in the virtual environment."
+            # Install development dependencies
+            Write-Host "Installing development dependencies with uv..."
+            uv pip install -r requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning "Failed to install dependencies with uv. Falling back to regular pip..."
+              .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 
-              # Now try to install dependencies with uv pip
-              .\.venv\Scripts\python.exe -m uv pip install -r requirements-dev.txt
-              if ($LASTEXITCODE -eq 0) {
-                Write-Host "Successfully installed dependencies with uv pip."
-                $dependenciesInstalled = $true
-              } else {
-                Write-Warning "Failed to install dependencies with uv pip. Will try system uv..."
+              if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Failed to install dependencies with regular pip. Trying essential packages individually..."
+                .\.venv\Scripts\python.exe -m pip install pytest ruff pyyaml
 
-                # Try with system uv
-                uv pip install -r requirements-dev.txt
-                if ($LASTEXITCODE -eq 0) {
-                  Write-Host "Successfully installed dependencies with system uv pip."
-                  $dependenciesInstalled = $true
+                if ($LASTEXITCODE -ne 0) {
+                  Write-Warning "Failed to install essential packages individually."
+                  Write-Warning "Continuing with the workflow, but some steps may fail."
                 } else {
-                  Write-Warning "Failed to install dependencies with system uv pip."
+                  Write-Host "Successfully installed essential packages individually."
                 }
+              } else {
+                Write-Host "Successfully installed dependencies with regular pip."
               }
             } else {
-              Write-Warning "Failed to install uv in the virtual environment."
+              Write-Host "Successfully installed dependencies with uv."
             }
           } catch {
-            Write-Warning "Exception when installing dependencies with uv pip: $_"
-          }
+            Write-Warning "Exception when installing dependencies: $_"
 
-          # Method 2: Try with regular pip
-          if (-not $dependenciesInstalled) {
+            # Try with regular pip as a fallback
             try {
-              Write-Host "Attempting to install dependencies with regular pip..."
+              Write-Host "Falling back to regular pip for dependency installation..."
               .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
               if ($LASTEXITCODE -eq 0) {
                 Write-Host "Successfully installed dependencies with regular pip."
-                $dependenciesInstalled = $true
               } else {
                 Write-Warning "Failed to install dependencies with regular pip."
+                Write-Warning "Continuing with the workflow, but some steps may fail."
               }
             } catch {
               Write-Warning "Exception when installing dependencies with regular pip: $_"
+              Write-Warning "Continuing with the workflow, but some steps may fail."
             }
-          }
-
-          # Method 3: Try installing essential packages individually
-          if (-not $dependenciesInstalled) {
-            try {
-              Write-Host "Attempting to install essential packages individually..."
-              .\.venv\Scripts\python.exe -m pip install pytest ruff pyyaml
-              if ($LASTEXITCODE -eq 0) {
-                Write-Host "Successfully installed essential packages individually."
-                $dependenciesInstalled = $true
-              } else {
-                Write-Warning "Failed to install essential packages individually."
-              }
-            } catch {
-              Write-Warning "Exception when installing essential packages individually: $_"
-            }
-          }
-
-          # Final check
-          if (-not $dependenciesInstalled) {
-            Write-Warning "Failed to install dependencies using all available methods."
-            Write-Warning "Continuing with the workflow, but some steps may fail."
           }
 
           # List installed packages for debugging
@@ -893,24 +848,46 @@ jobs:
             Write-Host "Continuing with the workflow despite Node.js dependency installation issues..."
           }
 
-      - name: Install Pre-commit Package
+      - name: Install Pre-commit Package with uv
         shell: powershell
         run: |
           # Ensure pre-commit is installed before trying to use it
           try {
-            python -m pip install pre-commit
-            if ($LASTEXITCODE -ne 0) {
-              Write-Warning "Failed to install pre-commit with pip. Trying alternative method..."
-              # Try alternative installation method
-              python -m pip install --user pre-commit
+            # Try with uv first (preferred method)
+            Write-Host "Installing pre-commit with uv..."
+            uv pip install pre-commit
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Successfully installed pre-commit with uv."
+            } else {
+              Write-Warning "Failed to install pre-commit with uv. Falling back to regular pip..."
+
+              # Fall back to regular pip
+              python -m pip install pre-commit
               if ($LASTEXITCODE -ne 0) {
-                Write-Error "Failed to install pre-commit. Please check Python and pip installation."
-                exit 1
+                Write-Warning "Failed to install pre-commit with pip. Trying alternative method..."
+                # Try alternative installation method
+                python -m pip install --user pre-commit
+                if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Failed to install pre-commit. Please check Python and pip installation."
+                  exit 1
+                }
               }
             }
           } catch {
-            Write-Error "Exception occurred while installing pre-commit: $_"
-            exit 1
+            Write-Warning "Exception occurred while installing pre-commit: $_"
+            Write-Host "Trying alternative installation method..."
+            try {
+              python -m pip install --user pre-commit
+              if ($LASTEXITCODE -eq 0) {
+                Write-Host "Successfully installed pre-commit with pip --user."
+              } else {
+                Write-Error "Failed to install pre-commit. Please check Python and pip installation."
+                exit 1
+              }
+            } catch {
+              Write-Error "Exception occurred while installing pre-commit with alternative method: $_"
+              exit 1
+            }
           }
           Write-Host "Pre-commit package installed successfully."
 
