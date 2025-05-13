@@ -29,39 +29,53 @@ if [ -d ".venv" ]; then
         fi
     else
         # Directory was successfully removed, create a new one
-        echo "Creating new virtual environment..."
-        python3 -m venv .venv
+        echo "Creating new virtual environment with uv..."
+        # Install uv if not already installed
+        python3 -m pip install --upgrade uv
+
+        # Create virtual environment with uv
+        uv venv .venv
         if [ $? -ne 0 ]; then
-            echo "Failed to create virtual environment."
-            exit 1
+            echo "Failed to create virtual environment with uv. Falling back to venv..."
+            python3 -m venv .venv
+            if [ $? -ne 0 ]; then
+                echo "Failed to create virtual environment."
+                exit 1
+            fi
         fi
 
-        # Install dependencies
-        echo "Installing dependencies..."
+        # Install dependencies with uv
+        echo "Installing dependencies with uv..."
         source .venv/bin/activate
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        uv pip install -r requirements.txt
         if [ -f "requirements-dev.txt" ]; then
-            python -m pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt
         fi
         deactivate
     fi
 else
     # No existing virtual environment, create a new one
-    echo "Creating new virtual environment..."
-    python3 -m venv .venv
+    echo "Creating new virtual environment with uv..."
+    # Install uv if not already installed
+    python3 -m pip install --upgrade uv
+
+    # Create virtual environment with uv
+    uv venv .venv
     if [ $? -ne 0 ]; then
-        echo "Failed to create virtual environment."
-        exit 1
+        echo "Failed to create virtual environment with uv. Falling back to venv..."
+        python3 -m venv .venv
+        if [ $? -ne 0 ]; then
+            echo "Failed to create virtual environment."
+            exit 1
+        fi
     fi
 
-    # Install dependencies
-    echo "Installing dependencies..."
+    # Install dependencies with uv
+    echo "Installing dependencies with uv..."
     source .venv/bin/activate
-    python -m pip install --upgrade pip
-    python -m pip install -r requirements.txt
+    uv pip install -r requirements.txt
     if [ -f "requirements-dev.txt" ]; then
-        python -m pip install -r requirements-dev.txt
+        uv pip install -r requirements-dev.txt
     fi
     deactivate
 fi
@@ -71,4 +85,8 @@ echo "Virtual environment regenerated successfully!"
 echo ""
 echo "To activate the virtual environment, run:"
 echo "    source .venv/bin/activate"
+echo ""
+echo "Note: This script uses uv for faster and more reliable dependency management."
+echo "If you need to install additional packages, use:"
+echo "    uv pip install <package-name>"
 echo ""
