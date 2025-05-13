@@ -64,11 +64,16 @@ The following scripts are maintained for backward compatibility and advanced use
 To use the unified workflow and scripts, install the required dependencies:
 
 ```bash
-# Install linting tools
-pip install ruff
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# Or if curl is unavailable:
+# pip install uv
 
-# Install testing tools
-pip install pytest pytest-cov pytest-xdist
+# Install linting tools with uv
+uv pip install ruff
+
+# Install testing tools with uv
+uv pip install pytest pytest-cov pytest-xdist
 
 # Install Act for running GitHub Actions locally
 # On Windows:
