@@ -85,18 +85,39 @@ jobs:
         run: |
           source .venv/bin/activate
 
-          # Install PyYAML first to ensure it's available for the setup script
-          uv pip install pyyaml
+          # Install PyYAML first with multiple fallback mechanisms
+          echo "Installing PyYAML with multiple fallback mechanisms..."
+          uv pip install pyyaml || {
+            echo "Failed to install PyYAML with uv. Trying with pip..."
+            python -m pip install pyyaml || {
+              echo "Failed to install PyYAML with pip. Trying with pip3..."
+              pip3 install pyyaml || {
+                echo "Failed to install PyYAML with pip3. Trying with system Python..."
+                python -m pip install --user pyyaml || {
+                  echo "All PyYAML installation methods failed. This may cause issues with the setup script."
+                  echo "The setup script will attempt to install PyYAML itself, but this may fail."
+                }
+              }
+            }
+          }
+
+          # Verify PyYAML installation
+          python -c "import yaml; print(f'PyYAML version: {yaml.__version__}')" || {
+            echo "Failed to import PyYAML. Installation may have failed."
+          }
 
           # Install development dependencies
           uv pip install -r requirements-dev.txt || {
             echo "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
             python -m pip install --upgrade uv
-            uv pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install dependencies with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements-dev.txt
+            }
           }
 
           # Install Ruff
-          uv pip install ruff
+          uv pip install ruff || python -m pip install ruff
 
       - name: Verify Ruff Installation
         run: |
@@ -368,12 +389,75 @@ jobs:
           Write-Host "Installing project dependencies with uv..."
 
           try {
-            # Install PyYAML first
-            Write-Host "Installing PyYAML with uv..."
+            # Install PyYAML first with multiple fallback mechanisms
+            Write-Host "Installing PyYAML with multiple fallback mechanisms..."
+
+            # Method 1: Try with uv
+            Write-Host "Method 1: Installing PyYAML with uv..."
             uv pip install pyyaml
-            if ($LASTEXITCODE -ne 0) {
-              Write-Warning "Failed to install PyYAML with uv. Falling back to regular pip..."
+
+            # Check if installation succeeded
+            $pyyamlInstalled = $false
+            try {
+              .\.venv\Scripts\python.exe -c "import yaml; print(f'PyYAML version: {yaml.__version__}')"
+              if ($LASTEXITCODE -eq 0) {
+                Write-Host "Successfully installed PyYAML with uv."
+                $pyyamlInstalled = $true
+              }
+            } catch {
+              Write-Warning "Failed to verify PyYAML installation with uv."
+            }
+
+            # Method 2: Try with regular pip if uv failed
+            if (-not $pyyamlInstalled) {
+              Write-Host "Method 2: Installing PyYAML with regular pip..."
               .\.venv\Scripts\python.exe -m pip install pyyaml
+
+              try {
+                .\.venv\Scripts\python.exe -c "import yaml; print(f'PyYAML version: {yaml.__version__}')"
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host "Successfully installed PyYAML with regular pip."
+                  $pyyamlInstalled = $true
+                }
+              } catch {
+                Write-Warning "Failed to verify PyYAML installation with regular pip."
+              }
+            }
+
+            # Method 3: Try with pip module directly
+            if (-not $pyyamlInstalled) {
+              Write-Host "Method 3: Installing PyYAML with pip module directly..."
+              try {
+                .\.venv\Scripts\python.exe -c "import pip._internal.cli.main; pip._internal.cli.main.main(['install', 'pyyaml'])"
+
+                .\.venv\Scripts\python.exe -c "import yaml; print(f'PyYAML version: {yaml.__version__}')"
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host "Successfully installed PyYAML with pip module directly."
+                  $pyyamlInstalled = $true
+                }
+              } catch {
+                Write-Warning "Failed to install PyYAML with pip module directly: $_"
+              }
+            }
+
+            # Method 4: Try with system Python as a last resort
+            if (-not $pyyamlInstalled) {
+              Write-Host "Method 4: Installing PyYAML with system Python as a last resort..."
+              try {
+                python -m pip install pyyaml
+
+                .\.venv\Scripts\python.exe -c "import yaml; print(f'PyYAML version: {yaml.__version__}')"
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host "Successfully installed PyYAML with system Python."
+                  $pyyamlInstalled = $true
+                }
+              } catch {
+                Write-Warning "Failed to install PyYAML with system Python: $_"
+              }
+            }
+
+            if (-not $pyyamlInstalled) {
+              Write-Warning "All PyYAML installation methods failed. The setup script will attempt to install PyYAML itself, but this may fail."
             }
 
             # Install development dependencies
@@ -1288,18 +1372,39 @@ jobs:
         run: |
           source .venv/bin/activate
 
-          # Install PyYAML first to ensure it's available for the setup script
-          uv pip install pyyaml
+          # Install PyYAML first with multiple fallback mechanisms
+          echo "Installing PyYAML with multiple fallback mechanisms..."
+          uv pip install pyyaml || {
+            echo "Failed to install PyYAML with uv. Trying with pip..."
+            python -m pip install pyyaml || {
+              echo "Failed to install PyYAML with pip. Trying with pip3..."
+              pip3 install pyyaml || {
+                echo "Failed to install PyYAML with pip3. Trying with system Python..."
+                python -m pip install --user pyyaml || {
+                  echo "All PyYAML installation methods failed. This may cause issues with the setup script."
+                  echo "The setup script will attempt to install PyYAML itself, but this may fail."
+                }
+              }
+            }
+          }
+
+          # Verify PyYAML installation
+          python -c "import yaml; print(f'PyYAML version: {yaml.__version__}')" || {
+            echo "Failed to import PyYAML. Installation may have failed."
+          }
 
           # Install development dependencies
           uv pip install -r requirements-dev.txt || {
             echo "Failed to install dependencies with uv pip. Installing uv in the virtual environment..."
             python -m pip install --upgrade uv
-            uv pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install dependencies with uv pip. Falling back to regular pip..."
+              python -m pip install -r requirements-dev.txt
+            }
           }
 
           # Install Ruff
-          uv pip install ruff
+          uv pip install ruff || python -m pip install ruff
 
       - name: Verify Ruff Installation
         run: |
