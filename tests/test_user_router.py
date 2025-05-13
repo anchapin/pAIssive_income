@@ -5,8 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Mock the user_bp instead of importing it
-# UserExistsError is used in test_create_user_already_exists
+# Import only what's needed for the tests
 from users.services import UserExistsError
 
 

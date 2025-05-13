@@ -7,7 +7,10 @@ import sys
 from typing import Any, Dict, Tuple
 
 # Third-party imports
-from flask import create_app, jsonify
+from flask import jsonify
+
+# Local imports
+from app_flask import create_app
 
 # Configure logging
 logging.basicConfig(
@@ -23,7 +26,11 @@ try:
     app = create_app()
     logger.info("Flask application created successfully")
 except Exception:
+    # Log a generic error message without exposing exception details
     logger.exception("Error creating Flask application")
+    # Log detailed exception only in development mode
+    if os.environ.get("FLASK_ENV") == "development":
+        logger.info("Detailed error logged due to development environment")
     raise
 
 
@@ -48,8 +55,12 @@ def health_check() -> Tuple[Dict[str, Any], int]:
         db.session.commit()
         logger.info("Health check: Database connection successful")
         health_status["components"]["database"] = "connected"
-    except Exception as e:
-        logger.warning(f"Health check: Database connection issue: {e!s}")
+    except Exception:
+        # Log without exposing exception details in production
+        logger.warning("Health check: Database connection issue")
+        # Log detailed exception only in development mode
+        if os.environ.get("FLASK_ENV") == "development":
+            logger.exception("Detailed database connection error")
         health_status["components"]["database"] = "error"
         # Don't fail the entire health check just because of database issues
         # This allows the container to start and potentially recover
@@ -68,5 +79,9 @@ if __name__ == "__main__":
     try:
         app.run(host="0.0.0.0", port=port)
     except Exception:
+        # Log a generic error message without exposing exception details
         logger.exception("Error starting Flask application")
+        # Log detailed exception only in development mode
+        if os.environ.get("FLASK_ENV") == "development":
+            logger.info("Detailed error logged due to development environment")
         sys.exit(1)

@@ -47,8 +47,13 @@ def init_db() -> None:
                 admin_password = generate_secure_password()
                 # Log a message but don't include the password in logs
                 logger.info("Generated secure admin password - use it to log in")
-                # Log the generated password during interactive setup
-                if hasattr(os, "isatty") and os.isatty(0):
+                # Log the generated password during interactive setup only
+                # Only log password in interactive console sessions, never in production
+                if (
+                    hasattr(os, "isatty")
+                    and os.isatty(0)
+                    and os.environ.get("FLASK_ENV") != "production"
+                ):
                     logger.info(f"Generated admin password: {admin_password}")
                     logger.info("Admin password was logged to console")
 
