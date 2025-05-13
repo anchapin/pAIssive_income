@@ -50,3 +50,12 @@ tmp/
 build/
 dist/
 *.egg-info/
+
+# Node.js
+node_modules/
+**/node_modules/
+ui/react_frontend/node_modules/
+sdk/javascript/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
