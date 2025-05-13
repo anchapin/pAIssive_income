@@ -9,55 +9,107 @@ This guide will help you get started with the pAIssive Income Framework. It cove
 ## Prerequisites
 
 - Python 3.8 or higher
-- pip (Python package manager)
+- [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver)
+- Node.js 16.10+ (for UI components)
+- [`pnpm`](https://pnpm.io/) (Node.js package manager)
 - Git (optional, for cloning the repository)
+
+> **Important:** This project requires using `uv` for Python package management and `pnpm` for Node.js package management. Do not use `pip`, `venv`, `npm`, or `yarn` directly.
 
 ## Installation
 
-### Option 1: Clone the Repository
+### Step 1: Install Required Package Managers
+
+#### Install uv
+
+```bash
+# Recommended (Linux/macOS/Windows with curl)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# If curl is unavailable, you may use pip ONLY for this step:
+pip install uv
+```
+
+#### Install pnpm
+
+```bash
+# Recommended (using Corepack, included with Node.js v16.10+)
+corepack enable
+
+# If Corepack is not available, you may use npm ONLY for this step:
+npm install -g pnpm
+```
+
+### Step 2: Clone the Repository
 
 ```bash
 git clone https://github.com/anchapin/pAIssive_income.git
 cd pAIssive_income
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-pip install -e .
+```
+
+### Step 3: Set Up Development Environment
+
+#### Automated Setup (Recommended)
+
+```bash
+# On Windows
+enhanced_setup_dev_environment.bat
+
+# On Unix/Linux
+./enhanced_setup_dev_environment.sh
+```
+
+#### Manual Setup
+
+```bash
+# Create virtual environment with uv
+uv venv .venv
+
+# Activate virtual environment
+# On Linux/macOS:
+source .venv/bin/activate
+# On Windows:
+.venv\Scripts\activate
+
+# Install dependencies with uv
+uv pip install -r requirements.txt
+uv pip install -r requirements-dev.txt
+uv pip install -e .
+
+# Install Node.js dependencies with pnpm
+pnpm install
 ```
 
 ### Option 2: Install from Source
 
 ```bash
-pip install git+https://github.com/anchapin/pAIssive_income.git
+uv pip install git+https://github.com/anchapin/pAIssive_income.git
 ```
-
-### Environment Setup (Recommended)
-
-- Create a virtual environment:
-  ```bash
-  python -m venv .venv
-  source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-  ```
-- Set up pre-commit hooks:
-  ```bash
-  pip install pre-commit
-  pre-commit install
-  ```
 
 ## Development Tools
 
+### Code Quality and Testing
+
 - **Lint and format code:**
+
   ```bash
-  python run_linting.py
+  python scripts/manage_quality.py lint
   ```
+
 - **Run tests:**
+
   ```bash
-  python run_tests.py
+  python scripts/manage_quality.py test
   ```
+
 - **Fix syntax/formatting issues:**
+
   ```bash
-  python fix_all_issues_final.py
+  python scripts/manage_quality.py fix
   ```
+
 - **Run local CI workflow:**
+
   ```bash
   python run_github_actions_locally.py --list
   ```
@@ -80,7 +132,7 @@ The framework includes a web interface that you can use to interact with the fra
 python run_ui.py
 ```
 
-This will start a web server at http://localhost:5000 where you can access the UI.
+This will start a web server at `http://localhost:5000` where you can access the UI.
 
 ## Next Steps
 

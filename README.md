@@ -8,6 +8,11 @@
 
 ## TL;DR Quickstart
 
+> **Tooling Requirement:**
+> - **Python:** Use [`uv`](https://github.com/astral-sh/uv) for all dependency/environment management.
+> - **Node.js:** Use [`pnpm`](https://pnpm.io/) for all JavaScript/TypeScript dependencies and scripts.
+> - Do **NOT** use `pip`, `venv`, `npm`, or `yarn` for development, testing, or CI.
+
 1. **Clone the repo and enter it:**
 
    ```bash
@@ -19,11 +24,11 @@
    `uv` is a fast Python package installer and resolver, written in Rust.
 
    ```bash
-   # Using pip (recommended if you have Python/pip)
-   pip install uv
-
-   # Or using the standalone installer (Linux/macOS)
+   # Recommended (Linux/macOS/Windows with curl)
    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # If curl is unavailable, you may use pip ONLY for this step:
+   pip install uv
    ```
 
    Ensure `uv` is in your PATH.
@@ -37,11 +42,11 @@
 
    # On Unix/Linux
    ./enhanced_setup_dev_environment.sh
-   # If you used setup_dev_environment.py directly before, use enhanced_setup_dev_environment.py
+   # Or, to run the Python script directly:
    # python enhanced_setup_dev_environment.py
    ```
 
-   This script will use `uv` to:
+   This script uses `uv` to:
    - Create a virtual environment (`.venv`)
    - Install dependencies from `requirements.txt` and `requirements-dev.txt`
    - Install the project in editable mode (`-e .`)
@@ -57,7 +62,9 @@
    # Activate virtual environment
    source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
    # Install dependencies
-   uv pip install -r requirements.txt -r requirements-dev.txt -e .
+   uv pip install -r requirements.txt
+   uv pip install -r requirements-dev.txt
+   uv pip install -e .
    # Install pre-commit and hooks
    uv pip install pre-commit
    pre-commit install
@@ -77,25 +84,26 @@
    ```
    This will apply all database migrations and create the necessary tables.
 
-6. **Start the modern web UI (requires Node.js 14+ and pnpm):**
-   ```bash
-   python ui/run_ui.py
-   ```
+6. **Set up and start the modern web UI (requires Node.js 16.10+ and pnpm):**
 
-   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
-   > **Frontend dependencies are now managed with [pnpm](https://pnpm.io/).**
-   > To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
+   > **Frontend dependencies are managed with [pnpm](https://pnpm.io/).**
    >
+   > **Install `pnpm` (recommended):**
    > ```bash
    > corepack enable
    > ```
-   >
-   > If Corepack is not available, you can install pnpm globally using npm:
-   >
+   > If Corepack is not available, you may bootstrap pnpm with npm (for this step only):
    > ```bash
    > npm install -g pnpm
    > ```
-   >
+
+   ```bash
+   cd ui/
+   pnpm install
+   pnpm start
+   ```
+
+   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
 
 7. **Run all tests (unit, integration, frontend):**
    See the "Running Tests" section below.
@@ -159,11 +167,12 @@ See [docs/getting-started.md](docs/getting-started.md) for more detailed instruc
 
 ## Overview
 
-- **Dependency Locking**:
-  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`**, then regenerate the lockfile:
+- **Dependency Locking (Python):**
+  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`** using `uv`, then regenerate the lockfile:
   ```sh
-  pip install -r requirements.txt -r requirements-dev.txt
-  pip freeze > requirements.lock
+  uv pip install -r requirements.txt
+  uv pip install -r requirements-dev.txt
+  # Regenerate lockfile (see scripts/regenerate_venv.py or .sh for details)
   ```
 
 - **Development dependencies** are managed with `requirements-dev.txt`.
@@ -172,10 +181,10 @@ See [docs/getting-started.md](docs/getting-started.md) for more detailed instruc
 
 - **Install dependencies**:
   ```sh
-  npm ci
+  pnpm install
   ```
-- Dependencies are pinned via `package-lock.json`.
-- **Security scanning**: `npm audit` is run automatically in CI to detect vulnerabilities.
+- Dependencies are pinned via `pnpm-lock.yaml`.
+- **Security scanning**: `pnpm audit` is run automatically in CI to detect vulnerabilities.
 
 ## Automated Dependency Updates
 
@@ -207,8 +216,8 @@ These secrets are used for Docker Hub authentication to avoid rate limits when p
 
 ## Keeping Dependencies Healthy
 
-- When adding or removing Python dependencies, update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`**.
-- For Node.js, always use `npm ci` for installation and let Dependabot update `package-lock.json`.
+- When adding or removing Python dependencies, update both `requirements.txt`/`requirements-dev.txt` and **regenerate `requirements.lock`** using `uv`.
+- For Node.js, always use `pnpm install` for installation and let Dependabot update `pnpm-lock.yaml`.
 - Review and merge Dependabot PRs and address security alerts promptly.
 
 ## Dependency Upgrade and Removal Workflow
@@ -232,6 +241,14 @@ For quick reference, the following topics are included in the full guide:
 
 ---
 
+> **Summary:**
+> - Use **`uv`** for all Python dependency and environment management.
+> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.
+> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.
+> - For any questions, see the top of this document or ask a maintainer.
+
+---
+
 ## Running Tests
 
 The project includes Python and JavaScript/TypeScript tests.
@@ -248,7 +265,7 @@ python -m pytest
 
 ### Frontend End-to-End (E2E) Tests
 
-> **Requires:** Node.js 14+, [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
+> **Requires:** Node.js 16.10+ and [pnpm](https://pnpm.io/), and the UI dev server running at `http://localhost:3000`
 
 1. Install Playwright and its browsers (first time only):
 
@@ -288,20 +305,21 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
-- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
-- Node.js 14.0+ (for modern UI and frontend tests)
-- [pnpm](https://pnpm.io/) (for frontend dependencies)
-  To install pnpm, the recommended way is to use Corepack (included with Node.js v16.10+):
-
-  ```bash
-  corepack enable
-  ```
-
-  If Corepack is not available, you can install pnpm globally using npm:
-
-  ```bash
-  npm install -g pnpm
-  ```
+- [`uv`](https://github.com/astral-sh/uv) (Python package installer and resolver; **required for all Python environments/dependencies**)
+  - Install via: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+  - If `curl` is unavailable, you may use `pip install uv` ONLY for initial installation.
+- Node.js 16.10+ (**required for modern UI and frontend tests**)
+- [`pnpm`](https://pnpm.io/) (**required for all Node.js/JavaScript/TypeScript dependencies**)
+  - To install pnpm, use [Corepack](https://nodejs.org/api/corepack.html) (recommended; included with Node.js v16.10+):
+    ```bash
+    corepack enable
+    ```
+  - If Corepack is not available, you can bootstrap pnpm with npm:
+    ```bash
+    npm install -g pnpm
+    ```
+    > **Note:** Use npm only for this initial installation of pnpm. For all other package management tasks, use pnpm.
+    > Refer to the [Corepack documentation](https://nodejs.org/api/corepack.html) for more details on managing package managers in Node.js.
 
 - PostgreSQL 15+ (for database)
   The project uses PostgreSQL as the database backend. See [DATABASE.md](DATABASE.md) for setup and migration instructions.
@@ -501,3 +519,17 @@ Documentation files are defined as:
 - Any file (of any type) within the 'docs/' or 'docs_source/' directories
 
 When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.
+
+For specific documentation on configuration files and environment setup, see:
+
+- [Environment Variables](docs/environment_variables.md) - Documentation of all environment variables used in the project
+- [Cursor Integration](docs/cursor_integration.md) - Details about the Cursor AI integration and configuration
+- [.gitignore Configuration](docs/gitignore_configuration.md) - Information about the .gitignore file and excluded patterns
+
+### UI Documentation
+
+For information about the React frontend components and UI features, see:
+
+- [UI Components Guide](docs/ui_components_guide.md) - Detailed documentation of React components, styling, and accessibility features
+- [UI Accessibility Guide](docs/ui_accessibility_guide.md) - Comprehensive guide to accessibility features and best practices
+- [React Frontend Updates](docs/react_frontend_updates.md) - Details of recent updates to React components
