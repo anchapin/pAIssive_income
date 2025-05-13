@@ -310,15 +310,14 @@ Running the main script generates a complete project plan including:
   - If `curl` is unavailable, you may use `pip install uv` ONLY for initial installation.
 - Node.js 16.10+ (**required for modern UI and frontend tests**)
 - [`pnpm`](https://pnpm.io/) (**required for all Node.js/JavaScript/TypeScript dependencies**)
-  - To install pnpm, use Corepack (recommended; included with Node.js v16.10+):
+  - To install pnpm, use [Corepack](https://nodejs.org/api/corepack.html) (recommended; included with Node.js v16.10+):
     ```bash
     corepack enable
     ```
-  - If Corepack is not available, bootstrap pnpm with npm:
+  - If Corepack is not available, you may use `npm` **only** to bootstrap pnpm (do not use npm for any other project tasks):
     ```bash
     npm install -g pnpm
     ```
-    (Only use npm for this installation step!)
 
 - PostgreSQL 15+ (for database)
   The project uses PostgreSQL as the database backend. See [DATABASE.md](DATABASE.md) for setup and migration instructions.
