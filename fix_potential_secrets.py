@@ -447,13 +447,13 @@ def is_text_file(file_path: str) -> bool:
     return file_path_obj.suffix.lower() in text_extensions
 
 
-def main() -> int:
-    """Scan for and fix potential secrets."""
-    # Define the output file for the SARIF report
-    output_file = "secrets.sarif.json"
+def initialize_sarif_report() -> dict[str, Any]:
+    """Initialize the SARIF report structure.
 
-    # Initialize SARIF report structure
-    sarif_report: dict[str, Any] = {
+    Returns:
+        A dictionary containing the SARIF report structure.
+    """
+    return {
         "version": "2.1.0",
         "$schema": (
             "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
@@ -487,24 +487,65 @@ def main() -> int:
         ],
     }
 
+
+def parse_arguments() -> tuple[bool, str]:
+    """Parse command line arguments.
+
+    Returns:
+        A tuple containing (scan_only, directory).
+    """
+    scan_only = False
     directory = "."  # Default to current directory
+
+    # Simple argument parsing
     if len(sys.argv) > 1:
-        directory = sys.argv[1]
+        for arg in sys.argv[1:]:
+            if arg == "--scan-only":
+                scan_only = True
+            elif arg.startswith("--exclude="):
+                # Handle exclude patterns (not implemented in this version)
+                pass
+            elif not arg.startswith("--"):
+                directory = arg
 
-    results = scan_directory(directory)
+    return scan_only, directory
 
+
+def process_scan_results(
+    results: dict[str, list[tuple[str, int, int]]],
+    scan_only: bool,
+    sarif_report: dict[str, Any],
+) -> tuple[int, int, int]:
+    """Process scan results and update SARIF report.
+
+    Args:
+        results: Dictionary mapping file paths to lists of secrets.
+        scan_only: Whether to only scan and not fix.
+        sarif_report: SARIF report to update.
+
+    Returns:
+        A tuple containing (total_secrets, fixed_files, exit_code).
+    """
     if not results:
-        return 0
+        logging.info("No potential secrets found.")
+        return 0, 0, 0
+
+    logging.info(f"Found potential secrets in {len(results)} files.")
 
     total_secrets = 0
     fixed_files = 0
 
     for file_path, secrets in results.items():
         total_secrets += len(secrets)
+        logging.info(f"Found {len(secrets)} potential secrets in {file_path}")
 
-        # Fix secrets in the file
-        if fix_secrets_in_file(file_path, secrets):
-            fixed_files += 1
+        # Fix secrets in the file if not in scan-only mode
+        if not scan_only:
+            if fix_secrets_in_file(file_path, secrets):
+                fixed_files += 1
+                logging.info(f"Fixed secrets in {file_path}")
+            else:
+                logging.warning(f"Failed to fix secrets in {file_path}")
 
     # Add results to SARIF report without including sensitive data
     sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
@@ -531,13 +572,83 @@ def main() -> int:
                 },
             })
 
+    # Determine exit code
+    exit_code = 0
+    if scan_only:
+        logging.info(
+            f"Scan complete. Found {total_secrets} potential secrets in {len(results)} files."
+        )
+        exit_code = 1 if total_secrets > 0 else 0
+    else:
+        logging.info(
+            f"Fixed {fixed_files} of {len(results)} files containing potential secrets."
+        )
+        exit_code = 0 if fixed_files == len(results) else 1
+
+    return total_secrets, fixed_files, exit_code
+
+
+def write_sarif_report(sarif_report: dict[str, Any], output_file: str) -> bool:
+    """Write SARIF report to file.
+
+    Args:
+        sarif_report: SARIF report to write.
+        output_file: Path to output file.
+
+    Returns:
+        True if successful, False otherwise.
+    """
     try:
         with open(output_file, "w") as f:
             json.dump(sarif_report, f, indent=2)
+        logging.info(f"SARIF report written to {output_file}")
+    except Exception:
+        logging.exception("Failed to write SARIF report")
+        return False
+    else:
+        return True
+
+
+def write_empty_sarif_report(output_file: str) -> None:
+    """Write an empty SARIF report in case of error.
+
+    Args:
+        output_file: Path to output file.
+    """
+    try:
+        with open(output_file, "w") as f:
+            json.dump({"version": "2.1.0", "runs": []}, f)
     except Exception:
         pass
 
-    return 0 if fixed_files == len(results) else 1
+
+def main() -> int:
+    """Scan for and fix potential secrets."""
+    # Define the output file for the SARIF report
+    output_file = "secrets.sarif.json"
+
+    # Parse command line arguments
+    scan_only, directory = parse_arguments()
+
+    # Initialize SARIF report structure
+    sarif_report = initialize_sarif_report()
+
+    try:
+        logging.info(f"Scanning directory: {directory}")
+        results = scan_directory(directory)
+
+        # Process scan results and update SARIF report
+        _, _, exit_code = process_scan_results(results, scan_only, sarif_report)
+
+        # Write SARIF report
+        write_sarif_report(sarif_report, output_file)
+    except Exception:
+        logging.exception("Error in main function")
+        # Create a minimal valid SARIF report in case of error
+        write_empty_sarif_report(output_file)
+        return 1
+    else:
+        return exit_code
 
 
 if __name__ == "__main__":
