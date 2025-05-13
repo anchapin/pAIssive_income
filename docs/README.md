@@ -19,6 +19,7 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
     - [CI/CD Pipeline](ci_cd_pipeline.md)
     - [Setup PNPM Workflow](ci_cd/setup-pnpm.md)
     - [Test Setup Script Workflow](ci_cd/test-setup-script.md)
+    - [Documentation Check Workflow](documentation-check-workflow.md)
     - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
     - [Docker Compose Workflows](docker-compose-workflows.md)
 13. [Frontend Development](frontend/)

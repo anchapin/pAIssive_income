@@ -13,9 +13,10 @@ Our CI/CD pipeline automates the process of testing, building, and deploying the
 1. **Lint**: Check code quality and style
 2. **Test**: Run automated tests
 3. **Security Scan**: Perform security analysis
-4. **Build**: Build Docker image
-5. **Deploy to Staging**: Deploy to staging environment (for develop branch)
-6. **Deploy to Production**: Deploy to production environment (for main branch)
+4. **Documentation Check**: Ensure code changes are accompanied by documentation updates
+5. **Build**: Build Docker image
+6. **Deploy to Staging**: Deploy to staging environment (for develop branch)
+7. **Deploy to Production**: Deploy to production environment (for main branch)
 
 For detailed information about our CI/CD pipeline, see [CI/CD Pipeline](ci_cd_pipeline.md).
 
@@ -31,6 +32,7 @@ We have two main Docker Compose workflows:
 2. **docker-compose-alternative.yml**: An alternative approach using Docker's official GitHub Action with improved health checks.
 
 For detailed information about using Docker Compose in GitHub Actions, see:
+
 - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
 - [Docker Compose Workflows](docker-compose-workflows.md)
 
@@ -61,6 +63,7 @@ We have a comprehensive security scanning workflow that includes:
 5. **Pylint**: Security-specific linting
 
 For detailed information about our security scanning workflows, see:
+
 - [Security Overview](security.md)
 - [CodeQL Workflows](security/codeql_workflows.md)
 - [Security Scanning](security_scanning.md)
@@ -96,6 +99,7 @@ For more detailed troubleshooting information, see [Troubleshooting](troubleshoo
 ## Related Documentation
 
 - [CI/CD Pipeline](ci_cd_pipeline.md)
+- [Documentation Check Workflow](documentation-check-workflow.md)
 - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
 - [Docker Compose Workflows](docker-compose-workflows.md)
 - [Setup PNPM Workflow](ci_cd/setup-pnpm.md)
