@@ -19,29 +19,29 @@ There are many ways to contribute to the pAIssive Income Framework:
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- Git
-- `uv` (Python package installer and resolver). Install via `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`.
-- `pip` (Python package manager, may be needed to install `uv` itself if not using the curl script)
-- **pnpm (Node.js package manager for frontend dependencies)**
+**You must use _only_ the following tools for all local development and CI:**
 
-> **Note:**
-> The project now uses [pnpm](https://pnpm.io/) instead of npm for all frontend (JavaScript/TypeScript) dependencies and scripts.
-> Please make sure you have pnpm installed. The recommended way is to use Corepack, which is included with Node.js v16.10+ (and v14.19+).
->
-> Enable Corepack (if not already enabled):
-> ```bash
-> corepack enable
-> ```
-> This will automatically make `pnpm` available.
->
-> If you are using an older Node.js version or Corepack is not available, you can install pnpm globally using npm:
-> ```bash
-> npm install -g pnpm
-> ```
->
-> Use `pnpm install` instead of `npm install` in all frontend directories.
-> For running scripts, use `pnpm exec ...` instead of `npx ...`.
+- **Python:** [`uv`](https://github.com/astral-sh/uv) (for all Python dependency management and virtual environment tasks)
+- **Node.js:** [`pnpm`](https://pnpm.io/) (for all Node.js/JavaScript/TypeScript dependency management—frontend and scripts)
+- **Do _not_ use:** `pip`, `venv`, `npm`, or `yarn` directly for development, testing, or CI. Contributions using unsupported tools will not be accepted.
+
+> **Install `uv`:**  
+> - Preferred: `curl -LsSf https://astral.sh/uv/install.sh | sh`  
+> - If curl is unavailable: `pip install uv` (only for initial installation)
+
+> **Install `pnpm`:**
+> - Preferred (with Node.js v16.10+):  
+>   ```bash
+>   corepack enable
+>   ```
+>   This will make `pnpm` available.
+> - If Corepack is unavailable:  
+>   ```bash
+>   npm install -g pnpm
+>   ```
+>   (Only for bootstrapping; do not use `npm` for anything else.)
+
+> **All code and documentation assumes you are using `uv` and `pnpm` exclusively.**
 
 ### Setting Up the Development Environment
 
@@ -53,41 +53,41 @@ git clone https://github.com/your-username/pAIssive_income.git
 cd pAIssive_income
 ```
 
-3. Set up the development environment (one command):
+3. **Set up the Python environment (choose one):**
 
-```bash
-# On Windows
-enhanced_setup_dev_environment.bat
+- **Recommended:**  
+  ```bash
+  # On Windows
+  enhanced_setup_dev_environment.bat
 
-# On Unix/Linux
-./enhanced_setup_dev_environment.sh
-# Or if running the Python script directly:
-# python enhanced_setup_dev_environment.py
-```
+  # On Unix/Linux
+  ./enhanced_setup_dev_environment.sh
+  # Or if running the Python script directly:
+  # python enhanced_setup_dev_environment.py
+  ```
 
-This script will use `uv` to:
-- Create a virtual environment (`.venv`) using `uv venv`
-- Install dependencies from `requirements.txt` and `requirements-dev.txt` using `uv pip install`
-- Install the project in editable mode (`-e .`) using `uv pip install`
-- Set up pre-commit hooks (installing `pre-commit` via `uv pip install`)
-- Configure IDE settings for VS Code and PyCharm
-- Create .editorconfig for editor-agnostic settings
+- **Manually (using uv):**
+  ```bash
+  uv venv .venv --python 3.12
+  # Activate virtual environment
+  source .venv/bin/activate      # On Windows: .venv\Scripts\activate
+  # Install dependencies
+  uv pip install -r requirements.txt
+  uv pip install -r requirements-dev.txt
+  uv pip install -e .
+  # Install pre-commit and hooks
+  uv pip install pre-commit
+  pre-commit install
+  ```
 
-Or manually (using `uv`):
+4. **Set up Node.js dependencies (frontend/scripts):**
 
-```bash
-# Create virtual environment (e.g., with Python 3.12)
-uv venv .venv --python 3.12
-# Activate virtual environment
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-# Install dependencies
-uv pip install -r requirements.txt
-uv pip install -r requirements-dev.txt  # Development dependencies
-uv pip install -e .
-# Install pre-commit and hooks
-uv pip install pre-commit
-pre-commit install
-```
+  ```bash
+  # In any frontend or Node.js project directory (e.g., ./ui/, ./sdk/)
+  pnpm install
+  ```
+
+**All subsequent development, testing, and dependency management must use `uv` for Python and `pnpm` for Node.js.**
 
 ### Development Workflow
 
@@ -191,14 +191,25 @@ You can also run individual tools manually:
 ruff check .
 ruff format .
 
-
-# Comprehensive linting with ruff
-ruff check .
-
 # Type checking
 mypy .
+
+# Run Node.js/unit tests for frontend (if applicable)
+pnpm test
 ```
 
 ## License
+
+By contributing to the pAIssive Income Framework, you agree that your contributions will be licensed under the project's [MIT License](../LICENSE).
+
+---
+
+> **Summary:**  
+> - Use **`uv`** for all Python dependency and environment management.  
+> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.  
+> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.  
+> - For any questions, see the top of this document or ask a maintainer.
+
+```
 
 By contributing to the pAIssive Income Framework, you agree that your contributions will be licensed under the project's [MIT License](../LICENSE).

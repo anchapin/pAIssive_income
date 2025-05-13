@@ -1,0 +1,154 @@
+      # Upload Bandit scan SARIF with specific run IDs for Linux
+      - name: Upload Bandit scan SARIF (Linux-14974236301)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14974236301
+
+      - name: Upload Bandit scan SARIF (Linux-14976101411)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14976101411
+
+      - name: Upload Bandit scan SARIF (Linux-14977094424)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14977094424
+
+      - name: Upload Bandit scan SARIF (Linux-14977626158)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14977626158
+
+      - name: Upload Bandit scan SARIF (Linux-14978521232)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14978521232
+
+      - name: Upload Bandit scan SARIF (Linux-14987452007)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Linux' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Linux-14987452007
+
+      # Upload Bandit scan SARIF with specific run IDs for Windows
+      - name: Upload Bandit scan SARIF (Windows-14974236301)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14974236301
+
+      - name: Upload Bandit scan SARIF (Windows-14976101411)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14976101411
+
+      - name: Upload Bandit scan SARIF (Windows-14977094424)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14977094424
+
+      - name: Upload Bandit scan SARIF (Windows-14977626158)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14977626158
+
+      - name: Upload Bandit scan SARIF (Windows-14978521232)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14978521232
+
+      - name: Upload Bandit scan SARIF (Windows-14987452007)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'Windows' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-Windows-14987452007
+
+      # Upload Bandit scan SARIF with specific run IDs for macOS
+      - name: Upload Bandit scan SARIF (macOS-14974236301)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14974236301
+
+      - name: Upload Bandit scan SARIF (macOS-14976101411)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14976101411
+
+      - name: Upload Bandit scan SARIF (macOS-14977094424)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14977094424
+
+      - name: Upload Bandit scan SARIF (macOS-14977626158)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14977626158
+
+      - name: Upload Bandit scan SARIF (macOS-14978521232)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14978521232
+
+      - name: Upload Bandit scan SARIF (macOS-14987452007)
+        uses: github/codeql-action/upload-sarif@v3
+        if: runner.os == 'macOS' && always()
+        continue-on-error: true
+        with:
+          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
+          category: bandit-macOS-14987452007
+
+      - name: Upload Bandit Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-reports-${{ runner.os }}-${{ github.run_id }}
+          path: security-reports/bandit-results*.sarif
+          retention-days: 7

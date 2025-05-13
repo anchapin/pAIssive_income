@@ -1,0 +1,260 @@
+name: "CodeQL Analysis - Ubuntu"
+
+# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Ubuntu
+# It runs on push to main branches, pull requests to main branches, and on a weekly schedule
+# The workflow is designed to provide comprehensive security analysis with detailed configuration
+
+on:
+  push:
+    branches: [ main, dev, master, develop ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+  pull_request:
+    branches: [ main, dev, master, develop ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
+  workflow_dispatch:  # Allow manual triggering
+
+# Limit concurrent runs to conserve resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Required for all workflows
+  security-events: write
+  # Only needed for workflows in private repositories
+  actions: read
+  contents: read
+
+jobs:
+  analyze-javascript:
+    name: Analyze JavaScript/TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 90  # Increased timeout for larger codebases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-javascript-${{ github.sha }}
+          restore-keys: |
+            codeql-javascript-
+
+      # Set up pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+
+      # Add pnpm to PATH (Linux)
+      - name: Add pnpm to PATH
+        shell: bash
+        run: |
+          export PATH=$(pnpm bin):$PATH
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+
+      # Set up Node.js for better JavaScript/TypeScript analysis
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # Verify pnpm installation
+      - name: Check pnpm version
+        run: pnpm --version
+
+      # Install dependencies if package.json exists
+      - name: Install dependencies
+        run: |
+          # Check for package.json in the root directory
+          if [ -f package.json ]; then
+            echo "Installing dependencies with pnpm in root directory..."
+            pnpm install
+          else
+            echo "No package.json found in root directory, checking ui/react_frontend..."
+            # Check for package.json in ui/react_frontend
+            if [ -f ui/react_frontend/package.json ]; then
+              echo "Installing dependencies with pnpm in ui/react_frontend..."
+              cd ui/react_frontend && pnpm install
+            else
+              echo "No package.json found in ui/react_frontend, skipping dependency installation."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-config.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space
+        run: df -h
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "security/os:ubuntu-latest"
+          upload: true
+          output: sarif-results/javascript-typescript-ubuntu.sarif
+
+      # Add OS-specific configuration for Ubuntu
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-ubuntu.sarif
+          category: "security/os:ubuntu-latest"
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: javascript-typescript-ubuntu-sarif
+          path: sarif-results/javascript-typescript-ubuntu.sarif
+          retention-days: 7
+
+  analyze-python:
+    name: Analyze Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 90  # Increased timeout for larger codebases
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-python-${{ github.sha }}
+          restore-keys: |
+            codeql-python-
+
+      # Set up Python for better analysis
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Install dependencies if requirements.txt exists
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade uv
+          if [ -f requirements.txt ]; then
+            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            uv pip install -r requirements.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          elif [ -f requirements-dev.txt ]; then
+            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
+          else
+            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          fi
+
+          # Install package in development mode if setup.py exists
+          if [ -f setup.py ]; then
+            echo "Installing package in development mode using 'uv pip'..."
+            uv pip install -e . || {
+              echo "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
+          fi
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-config.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space
+        run: df -h
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "security/os:ubuntu-latest"
+          upload: true
+          output: sarif-results/python-ubuntu.sarif
+
+      # Add OS-specific configuration for Ubuntu
+      - name: Upload OS-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-ubuntu.sarif
+          category: "security/os:ubuntu-latest"
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-ubuntu-sarif
+          path: sarif-results/python-ubuntu.sarif
+          retention-days: 7

@@ -1,5 +1,14 @@
 # CONTRIBUTING
 
+> **Environment Tooling Requirement**
+>
+> - **Python**: All Python dependencies and environments must be managed using [`uv`](https://github.com/astral-sh/uv). Do not use `pip` or `venv` directly.
+> - **Node.js**: All Node.js dependencies and scripts must be managed using [`pnpm`](https://pnpm.io/). Do not use `npm` or `yarn`.
+>
+> For installation and usage details, see [docs/contributing.md](docs/contributing.md).
+>
+> **All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other tools are not supported for development or CI.**
+
 Contribution guidelines and best practices have moved to [docs/contributing.md](docs/contributing.md) in the centralized documentation.
 
 ## Testing Standards

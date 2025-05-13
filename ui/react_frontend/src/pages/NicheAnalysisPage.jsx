@@ -1,38 +1,41 @@
-import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
-  Grid,
-  Paper,
-  Chip,
-  TextField,
-  // FormControl is imported but not used
-  // InputLabel is imported but not used
-  // Select is imported but not used
-  // MenuItem is imported but not used
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  // Divider is imported but not used
-  LinearProgress,
-  Card,
-  CardContent,
-  CardHeader,
-  // Rating is imported but not used
-  Tab,
-  Tabs
+    Box,
+    // FormControl is imported but not used
+    // InputLabel is imported but not used
+    // Select is imported but not used
+    // MenuItem is imported but not used
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Chip,
+    Grid,
+    // Divider is imported but not used
+    LinearProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Paper,
+    // Rating is imported but not used
+    Tab,
+    Tabs,
+    TextField,
+    Typography
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useState } from 'react';
 // Import our new visualization components
 import {
-  OpportunityRadarChart,
-  OpportunityBarChart,
-  ScoreDistributionPieChart
+    OpportunityBarChart,
+    OpportunityRadarChart,
+    ScoreDistributionPieChart
 } from '../components/Visualizations';
 
+// Constants
+const ERROR_MESSAGE_SELECT_SEGMENT = 'Please select at least one segment.';
+
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
   padding: theme.spacing(2),
   color: theme.palette.text.secondary,
@@ -72,6 +75,7 @@ const NicheAnalysisPage = () => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [validationError, setValidationError] = useState('');
 
   // Market segments available for analysis
   const marketSegments = [
@@ -99,12 +103,17 @@ const NicheAnalysisPage = () => {
   const handleSegmentSelect = (segment) => {
     if (!selectedSegments.includes(segment)) {
       setSelectedSegments([...selectedSegments, segment]);
+      setValidationError('');
     }
   };
 
   // Handle segment removal
   const handleSegmentRemove = (segmentToRemove) => {
-    setSelectedSegments(selectedSegments.filter(segment => segment !== segmentToRemove));
+    const newSegments = selectedSegments.filter(segment => segment !== segmentToRemove);
+    setSelectedSegments(newSegments);
+    if (newSegments.length === 0) {
+      setValidationError(ERROR_MESSAGE_SELECT_SEGMENT);
+    }
   };
 
   // Handle search term change
@@ -119,6 +128,11 @@ const NicheAnalysisPage = () => {
 
   // Handle analysis submission
   const handleAnalyze = () => {
+    if (selectedSegments.length === 0) {
+      setValidationError(ERROR_MESSAGE_SELECT_SEGMENT);
+      return;
+    }
+    setValidationError('');
     setIsAnalyzing(true);
 
     // Simulate API call delay
@@ -244,6 +258,7 @@ const NicheAnalysisPage = () => {
                 variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchChange}
+                inputProps={{ 'aria-label': 'search market segments' }}
               />
             </Box>
 
@@ -278,6 +293,15 @@ const NicheAnalysisPage = () => {
               ))}
             </Box>
 
+            {/* Validation feedback */}
+            {validationError && (
+              <Box sx={{ mt: 2 }}>
+                <Typography color="error" variant="body2" role="alert">
+                  {validationError}
+                </Typography>
+              </Box>
+            )}
+
             <Box mt={3} textAlign="center">
               <Button
                 variant="contained"
@@ -285,6 +309,8 @@ const NicheAnalysisPage = () => {
                 disabled={selectedSegments.length === 0 || isAnalyzing}
                 onClick={handleAnalyze}
                 sx={{ minWidth: '200px' }}
+                aria-label="Analyze Niches"
+                startIcon={!isAnalyzing && <span role="img" aria-label="analyze">🔍</span>}
               >
                 {isAnalyzing ? 'Analyzing...' : 'Analyze Niches'}
               </Button>
@@ -317,7 +343,10 @@ const NicheAnalysisPage = () => {
                     <CardHeader
                       title={niche.name}
                       subheader={`Segment: ${niche.segment}`}
-                      sx={{ backgroundColor: '#f8f9fc', borderBottom: '1px solid #e3e6f0' }}
+                      sx={{
+                        backgroundColor: (theme) => theme.palette.background.default,
+                        borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+                      }}
                     />
                     <CardContent>
                       <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
