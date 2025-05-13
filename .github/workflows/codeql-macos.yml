@@ -80,7 +80,7 @@ jobs:
 
       # Set up pnpm
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: '8'
 
