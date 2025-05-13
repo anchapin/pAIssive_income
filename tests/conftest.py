@@ -67,7 +67,7 @@ def app():
         try:
             db.session.execute(text("SELECT 1"))
             logger.info("Database connection verified!")
-        except Exception as e:
+        except Exception:
             logger.exception("Database connection failed")
             pytest.fail("Could not connect to database")
 
