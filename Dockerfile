@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.10-slim
 
 # Set working directory
 WORKDIR /app
@@ -6,7 +6,8 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PATH="/app/.venv/bin:$PATH"
 
 # Install system dependencies
 RUN apt-get update \
@@ -14,6 +15,11 @@ RUN apt-get update \
        build-essential \
        gcc \
        git \
+       curl \
+       libpq-dev \
+       postgresql-client \
+       libffi-dev \
+       python3-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,22 +30,35 @@ COPY ai_models/requirements.txt ai_models_requirements.txt
 # Create a consolidated requirements file
 RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
 
-# Install uv (modern Python packaging tool)
-RUN pip install --no-cache-dir uv
-
-# Install Python dependencies with uv (much faster and reproducible)
-RUN uv pip install -r requirements.txt
-
-# If you use requirements.lock for fully deterministic builds, replace the above with:
-# COPY requirements.lock .
-# RUN uv pip sync requirements.lock
+# Create a virtual environment and install dependencies
+RUN python -m venv /app/.venv && \
+    /app/.venv/bin/pip install --upgrade pip && \
+    /app/.venv/bin/pip install --no-cache-dir uv && \
+    /app/.venv/bin/uv pip install -r requirements.txt
 
 # Copy project files
 COPY . .
 
+# Copy health check script and wait-for-db script
+COPY docker-healthcheck.sh /usr/local/bin/
+COPY wait-for-db.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck.sh && \
+    chmod +x /usr/local/bin/wait-for-db.sh && \
+    # Make sure the scripts have the right line endings
+    sed -i 's/\r$//' /usr/local/bin/docker-healthcheck.sh && \
+    sed -i 's/\r$//' /usr/local/bin/wait-for-db.sh && \
+    # Install additional diagnostic tools
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        net-tools \
+        netcat-openbsd \
+        procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=60s --start-period=180s --retries=10 \
+  CMD ["/usr/local/bin/docker-healthcheck.sh"]
 
 # Expose port
 EXPOSE 5000
@@ -48,5 +67,5 @@ EXPOSE 5000
 RUN addgroup --system appgroup && adduser --system --no-create-home appuser --ingroup appgroup
 USER appuser
 
-# Run the application
-CMD ["python", "run_ui.py"]
+# Run the application with wait-for-db script
+CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 python run_ui.py"]

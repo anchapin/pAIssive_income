@@ -1,10 +1,20 @@
 """conftest - Module for tests.conftest.
 
 Ensures that pytest does not collect or execute any files or directories ignored by .gitignore.
+Provides fixtures for database setup using Docker Compose.
 """
 
+import logging
 import os
 import subprocess
+
+import pytest
+from sqlalchemy import text
+
+from app_flask import create_app, db
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 
 def is_git_tracked(path) -> bool:
@@ -35,3 +45,39 @@ def pytest_collect_file(parent, path):
             return None
     # Let pytest handle normal collection
     # Returning None means normal behavior if not ignored
+
+
+@pytest.fixture(scope="session")
+def app():
+    """Create a Flask application for testing."""
+    test_config = {
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    }
+
+    app = create_app(test_config)
+
+    with app.app_context():
+        # Create all tables
+        db.create_all()
+
+        # Verify database connection
+        try:
+            db.session.execute(text("SELECT 1"))
+            logger.info("Database connection verified!")
+        except Exception:
+            logger.exception("Database connection failed")
+            pytest.fail("Could not connect to database")
+
+        yield app
+
+        # Clean up after tests
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture
+def client(app):
+    """Create a test client for the app."""
+    return app.test_client()

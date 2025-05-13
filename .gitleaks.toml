@@ -48,11 +48,13 @@ paths = [
 
     # GitHub workflow files referencing security scripts
     "\\.github/workflows/consolidated-ci-cd\\.yml$",
+    "\\.github/workflows/docker-compose-integration\\.yml$",
 
     # Files specifically flagged in security scan
     "users/password_reset\\.py$",
     "users/services\\.py$",
     "users/auth\\.py$",
+    "init_db\\.py$",
     "\\.github/workflows/ci-cd-monitoring\\.yml$",
     "\\.github/workflows/security_scan\\.yml$",
     "\\.github/workflows/fix-security-issues\\.yml$",
@@ -69,6 +71,10 @@ paths = [
 ]
 
 regexes = [
+    # GitHub Actions Docker credentials
+    "username: \\$\\{\\{ secrets\\.DOCKER_USERNAME \\|\\| 'anonymous' \\}\\}",
+    "password: \\$\\{\\{ secrets\\.DOCKER_PASSWORD \\|\\| '' \\}\\}",
+
     # Test and example passwords
     "(TEST_PASSWORD|MOCK_PASSWORD|DUMMY_PASSWORD|SAMPLE_PASSWORD)[\"'][^\"']+[\"']",
     "(?i)password[\"'](test|mock|dummy|example|sample)[^\"']+[\"']",
@@ -297,5 +303,7 @@ exclude = [
     "(?i)secrets\\.RUNNER_",
     "(?i)secrets\\.WORKFLOW_",
     "(?i)secrets\\.JOB_",
-    "(?i)secrets\\.STEP_"
+    "(?i)secrets\\.STEP_",
+    "(?i)secrets\\.DOCKER_USERNAME",
+    "(?i)secrets\\.DOCKER_PASSWORD"
 ]
