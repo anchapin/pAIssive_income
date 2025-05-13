@@ -501,3 +501,11 @@ Documentation files are defined as:
 - Any file (of any type) within the 'docs/' or 'docs_source/' directories
 
 When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.
+
+### UI Documentation
+
+For information about the React frontend components and UI features, see:
+
+- [UI Components Guide](docs/ui_components_guide.md) - Detailed documentation of React components, styling, and accessibility features
+- [UI Accessibility Guide](docs/ui_accessibility_guide.md) - Comprehensive guide to accessibility features and best practices
+- [React Frontend Updates](docs/react_frontend_updates.md) - Details of recent updates to React components

@@ -1375,12 +1375,12 @@ jobs:
 
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero || true
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit || true
           else
             echo "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             if command -v bandit &>/dev/null; then
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero || true
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit || true
             else
               echo "Bandit tool not available. Creating empty SARIF file."
               echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
@@ -1428,13 +1428,13 @@ jobs:
           # Try to run bandit with fallback options
           $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
           if ($banditCmdPath) {
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit
           } else {
             Write-Host "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
             if ($banditCmdPath) {
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero -c .bandit
             } else {
               Write-Host "Bandit tool not available. Creating empty SARIF file."
               Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
@@ -1469,7 +1469,8 @@ jobs:
             Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
           }
 
-      - name: Run Trivy
+      - name: Run Trivy (Linux)
+        if: runner.os == 'Linux'
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
@@ -1478,6 +1479,31 @@ jobs:
           format: 'sarif'
           output: 'security-reports/trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Run Trivy (Windows)
+        if: runner.os == 'Windows'
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'security-reports/trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Run Trivy (macOS)
+        if: runner.os == 'macOS'
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'security-reports/trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
 
       - name: Run Semgrep (Linux/macOS)
         if: runner.os != 'Windows'
@@ -1716,7 +1742,7 @@ jobs:
         if: always()
         with:
           sarif_file: security-reports/bandit-results.sarif
-          category: bandit-${{ runner.os }}-${{ github.run_id }}
+          category: bandit
 
       - name: Upload Trivy scan SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -1725,14 +1751,19 @@ jobs:
           sarif_file: security-reports/trivy-results.sarif
           category: trivy-${{ runner.os }}-${{ github.run_id }}
 
+      # Note: A dedicated CodeQL workflow is now available in .github/workflows/codeql.yml
+      # This is kept for backward compatibility but will be removed in a future update
       - name: Run CodeQL Init
         uses: github/codeql-action/init@v3
         with:
           languages: python, javascript-typescript
           queries: security-and-quality
+          config-file: ./.github/codeql/codeql-${{ matrix.os == 'windows-latest' && 'javascript' || 'python' }}-config.yml
 
       - name: Run CodeQL Analyze
         uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.os == 'windows-latest' && 'javascript-typescript' || 'python' }}"
 
       - name: Dependency Review (PRs only)
         if: github.event_name == 'pull_request'

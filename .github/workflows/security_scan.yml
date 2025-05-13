@@ -1,0 +1,85 @@
+name: Security Scan
+
+# This workflow runs security scanning tools to identify vulnerabilities in the codebase
+# It includes Trivy for scanning the filesystem and dependencies
+
+on:
+  push:
+    branches: [ main, dev, master, develop ]
+  pull_request:
+    branches: [ main, dev, master, develop ]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly, for regular security scans
+  workflow_dispatch:
+
+permissions:
+  # Default: no broad permissions for all jobs, override per job/step
+  contents: read
+  security-events: write
+
+jobs:
+  trivy-scan:
+    name: Trivy Security Scan
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create security-reports directory
+        run: mkdir -p security-reports
+        shell: bash
+
+      - name: Run Trivy vulnerability scanner (Linux)
+        if: runner.os == 'Linux'
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'security-reports/trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Run Trivy vulnerability scanner (Windows)
+        if: runner.os == 'Windows'
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'security-reports/trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Run Trivy vulnerability scanner (macOS)
+        if: runner.os == 'macOS'
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'security-reports/trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy scan SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: security-reports/trivy-results.sarif
+          category: trivy-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-reports-${{ runner.os }}-${{ github.run_id }}
+          path: security-reports/
+          retention-days: 7

@@ -1,0 +1,25 @@
+# .trivyignore - Patterns to exclude from Trivy scanning
+#
+# This file contains patterns to exclude from Trivy vulnerability scanning.
+# Each line is a vulnerability ID or a pattern that will be ignored.
+# Empty lines and lines starting with # are ignored.
+#
+# Format:
+# - CVE-YYYY-NNNNN: Specific CVE ID
+# - GHSA-XXXX-YYYY-ZZZZ: GitHub Security Advisory ID
+# - package-name@version: Specific package version
+#
+# Examples:
+# CVE-2021-44228  # Log4j vulnerability
+# GHSA-j8xg-fqg3-53r7  # GitHub advisory
+# lodash@4.17.20  # Specific package version
+
+# Test and development dependencies (examples)
+# pytest@*  # All pytest versions
+# pylint@*  # All pylint versions
+
+# Known false positives or accepted risks
+# Add specific vulnerabilities that have been reviewed and accepted
+
+# Documentation and example files
+# These are not part of the production code and don't pose a real risk
