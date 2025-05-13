@@ -61,12 +61,15 @@ describe('MyComponent', () => {
 
 ## CI Workflow
 
-The GitHub Actions workflow automatically runs Vitest tests when changes are made to the React frontend code. The workflow:
+The GitHub Actions workflow (`.github/workflows/frontend-vitest.yml`) automatically runs Vitest tests when changes are made to the React frontend code. The workflow:
 
-1. Sets up the Node.js environment with pnpm
-2. Installs dependencies
-3. Runs the tests
-4. Uploads coverage reports as artifacts
+1. Sets up the Node.js environment with Node.js 20.x
+2. Configures pnpm using the pnpm/action-setup@v4 action
+3. Adds pnpm to the PATH environment variable
+4. Verifies pnpm installation with version checks
+5. Installs dependencies using pnpm
+6. Runs the tests with proper error handling
+7. Uploads coverage reports as artifacts
 
 ## Coverage Reports
 
