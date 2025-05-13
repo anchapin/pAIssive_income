@@ -128,7 +128,7 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-and-quality
-          config-file: ./.github/codeql/security-os-config.yml
+          config-file: ./.github/codeql/security-os-macos.yml
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild
@@ -141,7 +141,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:macOS"
+          category: "security/os:macOS-latest"
           upload: true
           output: sarif-results/javascript-typescript-macos.sarif
 
@@ -239,7 +239,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "security/os:macOS"
+          category: "security/os:macOS-latest"
           upload: true
           output: sarif-results/python-macos.sarif
 
