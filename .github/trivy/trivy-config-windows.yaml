@@ -1,0 +1,55 @@
+# Trivy Configuration for Windows
+# This configuration is used by GitHub Advanced Security for Trivy scanning on Windows
+
+# Scan targets
+scan:
+  # Scan type: fs (filesystem)
+  type: fs
+  # Target to scan
+  target: .
+  # Skip directories not required for scanning
+  skip-dirs:
+    - .git
+    - .github
+    - .venv
+    - venv
+    - node_modules
+    - __pycache__
+    - .pytest_cache
+    - .mypy_cache
+    - .ruff_cache
+    - build
+    - dist
+
+# Vulnerability scanning options
+vulnerability:
+  # Severity levels to report
+  severity:
+    - CRITICAL
+    - HIGH
+  # Ignore unfixed vulnerabilities
+  ignore-unfixed: false
+  # Specify vulnerability types to scan
+  type:
+    - os
+    - library
+
+# Miscellaneous options
+misc:
+  # Skip update of vulnerability database
+  skip-db-update: false
+  # Timeout duration (default: 5min)
+  timeout: 10m
+  # Quiet mode
+  quiet: false
+  # Debug mode
+  debug: false
+  # Insecure mode (skip TLS verification)
+  insecure: false
+
+# Output options
+output:
+  # Output format (table, json, sarif)
+  format: sarif
+  # Report output file
+  report: security-reports/trivy-results.sarif

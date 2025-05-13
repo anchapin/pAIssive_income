@@ -6,8 +6,7 @@
 import pytest
 
 # Local imports
-from users.auth import hash_credential
-from users.auth import verify_credential
+from users.auth import hash_credential, verify_credential
 
 
 def test_hash_credential():
@@ -15,11 +14,11 @@ def test_hash_credential():
     credential = "test_credential"
     hashed = hash_credential(credential)
 
-    # Check that the hash is a bytes object
-    assert isinstance(hashed, bytes)
+    # Check that the hash is a string object (as per updated implementation)
+    assert isinstance(hashed, str)
 
     # Check that the hash starts with the bcrypt identifier
-    assert hashed.startswith(b"$2b$")
+    assert hashed.startswith("$2b$")
 
     # Check that the hash is not the same as the original credential
     assert hashed != credential.encode("utf-8")
@@ -51,10 +50,10 @@ def test_verify_credential_empty():
     assert not verify_credential("", hashed)
 
     # Empty hash
-    assert not verify_credential("test_credential", b"")
+    assert not verify_credential("test_credential", "")
 
     # Both empty
-    assert not verify_credential("", b"")
+    assert not verify_credential("", "")
 
 
 def test_hash_credential_empty():

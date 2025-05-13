@@ -5,6 +5,7 @@ verification.
 """
 
 # Standard library imports
+from typing import Union
 
 # Third-party imports
 import bcrypt
@@ -16,7 +17,7 @@ from common_utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def hash_credential(credential: str) -> bytes:
+def hash_credential(credential: str) -> str:
     """Hash an authentication credential using bcrypt.
 
     Args:
@@ -25,7 +26,7 @@ def hash_credential(credential: str) -> bytes:
 
     Returns:
     -------
-        bytes: The hashed authentication credential
+        str: The hashed authentication credential as a string
 
     """
     if not credential:
@@ -45,17 +46,22 @@ def hash_credential(credential: str) -> bytes:
 
     # Only log that the operation was performed, not any details
     logger.debug("Authentication material processing completed")
-    # Ensure we return bytes
-    return bytes(hashed_credential)
+
+    # Return as a string for database storage
+    result: str = hashed_credential.decode("utf-8")
+    return result
 
 
-def verify_credential(plain_credential: str, hashed_credential: bytes) -> bool:
+def verify_credential(
+    plain_credential: str, hashed_credential: Union[bytes, str]
+) -> bool:
     """Verify an authentication credential against a hashed credential.
 
     Args:
     ----
         plain_credential: The plain text authentication credential to verify
         hashed_credential: The hashed authentication credential to verify against
+                          (can be bytes or string)
 
     Returns:
     -------
@@ -64,6 +70,14 @@ def verify_credential(plain_credential: str, hashed_credential: bytes) -> bool:
     """
     if not plain_credential or not hashed_credential:
         return False
+
+    # Convert string hashed_credential to bytes if needed
+    if isinstance(hashed_credential, str):
+        try:
+            hashed_credential = hashed_credential.encode("utf-8")
+        except (UnicodeEncodeError, AttributeError):
+            logger.exception("Invalid hashed credential format")
+            return False
 
     # Verify the credential
     credential_bytes = plain_credential.encode("utf-8")
