@@ -5,137 +5,21 @@
 # The workflow is organized into three main jobs:
 # 1. lint-test: Runs linting, type checking, and tests
 # 2. security: Runs security scanning tools
-# 3. build-deploy: Builds and deploys Docker images (Linux only)
-
-on:
-  push:
-    branches: [ main, dev, master, develop ]
-    tags:
-      - 'v*.*.*'
-  pull_request:
-    branches: [ main, dev, master, develop ]
-  schedule:
-    - cron: '0 0 * * 0'  # Weekly, for regular security scans
-  workflow_dispatch:
-
-permissions:
-  # Default: no broad permissions for all jobs, override per job/step
-  contents: read
-
-# Reusable workflow commands
-# These are referenced in multiple jobs to reduce duplication and improve maintainability
-env:
-  # System dependencies installation commands for bcrypt
-  # These commands are used in both the lint-test and security jobs
-  # Centralizing them here makes it easier to update all instances at once
-  LINUX_BCRYPT_DEPS: |
-    sudo apt-get update
-    sudo apt-get install -y build-essential libffi-dev python3-dev
-  MACOS_BCRYPT_DEPS: |
-    brew install libffi || true
-  WINDOWS_BCRYPT_DEPS: |
-    # Install Visual C++ Build Tools if not already present
-    Write-Host "Checking for Visual C++ Build Tools..."
-    $vsInstallPaths = @(
-      "C:\Program Files (x86)\Microsoft Visual Studio",
-      "C:\Program Files\Microsoft Visual Studio",
-      "C:\Program Files (x86)\Microsoft Visual Studio\2019",
-      "C:\Program Files (x86)\Microsoft Visual Studio\2022"
-    )
-
-    $vsInstalled = $false
-    foreach ($path in $vsInstallPaths) {
-      if (Test-Path $path) {
-        Write-Host "Visual Studio installation found at $path"
-        $vsInstalled = $true
-        break
-      }
-    }
-
-    if (-not $vsInstalled) {
-      Write-Host "Visual Studio installation not found. Installing Visual C++ Build Tools..."
-      try {
-        # Install Visual C++ Build Tools using Chocolatey
-        choco install visualstudio2019buildtools -y --no-progress --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-        if ($LASTEXITCODE -ne 0) {
-          throw "Failed to install Visual Studio 2019 Build Tools"
-        }
-
-        choco install windows-sdk-10.1 -y --no-progress
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Warning: Failed to install Windows SDK 10.1, but continuing..."
-        }
-
-        # Install additional dependencies that might be needed
-        choco install visualstudio2019-workload-vctools -y --no-progress
-
-        # Verify installation
-        $vsInstalled = $false
-        foreach ($path in $vsInstallPaths) {
-          if (Test-Path $path) {
-            Write-Host "Visual Studio installation found at $path after installation"
-            $vsInstalled = $true
-            break
-          }
-        }
-
-        if (-not $vsInstalled) {
-          Write-Host "WARNING: Visual Studio Build Tools installation verification failed. Will attempt to continue anyway..."
-        }
-      } catch {
-        Write-Host "ERROR: Exception during Visual Studio Build Tools installation: $_"
-        Write-Host "Will attempt to continue anyway, but bcrypt compilation may fail."
-      }
-    }
-
-    # Set up environment variables for Visual C++ build tools
-    try {
-      # Try to find vcvarsall.bat in common locations
-      $vcvarsallPaths = @(
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat"
-      )
-
-      $vcvarsallFound = $false
-      foreach ($path in $vcvarsallPaths) {
-        if (Test-Path $path) {
-          Write-Host "Found vcvarsall.bat at $path"
-          $vcvarsallFound = $true
-          # We don't actually call vcvarsall.bat here as it would affect only this script's scope
-          # Instead, we'll set some common environment variables directly
-          break
-        }
-      }
-
-      if (-not $vcvarsallFound) {
-        Write-Host "WARNING: Could not find vcvarsall.bat. Some environment variables may not be set correctly."
-      }
-    } catch {
-      Write-Host "ERROR: Exception while setting up environment variables: $_"
-      Write-Host "Will attempt to continue anyway."
-    }
-
-jobs:
-  lint-test:
-    name: Lint, Type Check, and Test
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-      fail-fast: false
+# 3. build-deploy:
+    name: Build and Deploy (Linux only)
+    runs-on: ubuntu-latest
+    if: runner.os == 'Linux'
     permissions:
       contents: read
-      # Use more restrictive permissions here if possible
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install Buildx as default builder
+        run: docker buildx install
         with:
           fetch-depth: 0  # Fetch full history to ensure gitleaks can access commit ranges
 
