@@ -258,9 +258,7 @@ def fix_secrets_in_file(file_path: str, secrets: list[tuple[str, int, str]]) -> 
             return False
     except Exception:
         # Use a generic message without revealing the full file path
-        logging.exception(
-            "Error processing file", extra={"file": os.path.basename(file_path)}
-        )
+        logging.exception(f"Error processing file: {os.path.basename(file_path)}")
         return False
 
 
@@ -281,9 +279,7 @@ def scan_file(file_path: str) -> list[tuple[str, int, str]]:
         return extract_actual_secrets(lines, content)
     except Exception:
         # Use a generic message without revealing the full file path
-        logging.exception(
-            "Error scanning file", extra={"file": os.path.basename(file_path)}
-        )
+        logging.exception(f"Error scanning file: {os.path.basename(file_path)}")
         return []
 
 
@@ -338,14 +334,15 @@ def log_failed_files(failed_files: list[str]) -> None:
     if not failed_files:
         return
 
+    # Log counts separately from the message to avoid any risk of exposing sensitive data
     logging.warning(
-        "Some files could not be processed",
-        extra={"failed_count": len(failed_files)},
+        f"Some files could not be processed: {len(failed_files)} files failed"
     )
+
     # Log only the base filename to avoid potential path disclosure
     for file_path in failed_files:
         safe_path = os.path.basename(file_path)
-        logging.warning("Failed file", extra={"file": safe_path})
+        logging.warning(f"Failed file: {safe_path}")
 
 
 def scan_directory(directory: str) -> dict[str, list[tuple[str, int, str]]]:
@@ -455,19 +452,15 @@ def process_scan_results(
     if results:
         # Use count of sensitive data rather than actual values to avoid logging sensitive info
         # Use a generic message that doesn't reveal any sensitive information
-        logging.info(
-            "Scan complete. Potential sensitive data found.",
-            extra={"count": total_secrets, "file_count": len(results)},
-        )
+        # Log counts separately from the message to avoid any risk of exposing sensitive data
+        logging.info("Scan complete. Potential sensitive data found.")
+        logging.info(f"Found {total_secrets} potential issues in {len(results)} files.")
 
         if fix:
+            # Log counts separately from the message to avoid any risk of exposing sensitive data
+            logging.info("Files processed. Potential sensitive data addressed.")
             logging.info(
-                "Files processed. Potential sensitive data addressed.",
-                extra={
-                    "fixed_files": fixed_files,
-                    "total_files": len(results),
-                    "failed_files": len(failed_files),
-                },
+                f"Fixed {fixed_files} of {len(results)} files. Failed to process {len(failed_files)} files."
             )
         else:
             logging.info("Scan-only mode. No files were modified.")
@@ -479,10 +472,9 @@ def process_scan_results(
         safe_path = os.path.basename(file_path)
 
         # Log the file and the secrets found - use generic message without revealing details
-        logging.info(
-            "Processing file",
-            extra={"count": len(secrets), "file": safe_path},
-        )
+        # Log file information separately to avoid any risk of exposing sensitive data
+        logging.info(f"Processing file: {safe_path}")
+        logging.info(f"Found {len(secrets)} potential issues in this file.")
 
         for pattern_name, line_index, _ in secrets:
             logging.info(safe_log_sensitive_info(pattern_name, line_index + 1))
@@ -491,19 +483,12 @@ def process_scan_results(
             try:
                 if fix_secrets_in_file(file_path, secrets):
                     fixed_files += 1
-                    logging.info(
-                        "File processed successfully", extra={"file": safe_path}
-                    )
+                    logging.info(f"File processed successfully: {safe_path}")
                 else:
-                    logging.warning(
-                        "File processing failed",
-                        extra={"file": safe_path},
-                    )
+                    logging.warning(f"File processing failed: {safe_path}")
                     failed_files.append(file_path)
             except Exception:
-                logging.exception(
-                    "Exception during file processing", extra={"file": safe_path}
-                )
+                logging.exception(f"Exception during file processing: {safe_path}")
                 failed_files.append(file_path)
 
     if failed_files:
@@ -544,17 +529,14 @@ def main() -> int:
 
     try:
         # Use a generic message without revealing the full directory path
-        logging.info(
-            "Starting scan", extra={"directory": os.path.basename(args.directory)}
-        )
+        logging.info(f"Starting scan in directory: {os.path.basename(args.directory)}")
         results = scan_directory(args.directory)
         failed_files = process_scan_results(results, fix=not args.scan_only)
 
         if args.sarif:
             # Use a generic message without revealing the full file path
             logging.info(
-                "Generating SARIF report",
-                extra={"output": os.path.basename(args.sarif_output)},
+                f"Generating SARIF report: {os.path.basename(args.sarif_output)}"
             )
             generate_sarif_report(results, args.sarif_output)
 
