@@ -520,6 +520,12 @@ Documentation files are defined as:
 
 When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.
 
+For specific documentation on configuration files and environment setup, see:
+
+- [Environment Variables](docs/environment_variables.md) - Documentation of all environment variables used in the project
+- [Cursor Integration](docs/cursor_integration.md) - Details about the Cursor AI integration and configuration
+- [.gitignore Configuration](docs/gitignore_configuration.md) - Information about the .gitignore file and excluded patterns
+
 ### UI Documentation
 
 For information about the React frontend components and UI features, see:
