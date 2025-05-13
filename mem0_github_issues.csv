@@ -28,3 +28,15 @@ Update deployment scripts and monitor performance,"- Update Dockerfiles/deployme
 - Add migration/init scripts for memory storage if needed.
 - Monitor memory usage and performance; profile as necessary.",,mem0,,
 (Optional) Contribute improvements to mem0,"- If you extend mem0 for your needs, consider contributing improvements or bugfixes upstream.",,mem0,,
+Coordinate mem0 and vector DB/RAG architectures,"- Analyze and document points of intersection between mem0 and vector DB/RAG memory.
+- Decide on shared schemas, identifiers, and context propagation.
+- Ensure deduplication and context sharing between systems.",,mem0,RAG,,
+Design integration layer/APIs for mem0 + vector DB/RAG,"- Specify APIs for agents to query both mem0 and vector DB/RAG.
+- Design fallback and aggregation logic (e.g., if mem0 recall fails, query RAG).
+- Ensure interface supports extensibility and future knowledge sources.",,mem0,RAG,,
+Implement and test memory + RAG coordination,"- Implement middleware/service to orchestrate memory/retrieval queries and aggregate responses for agents.
+- Write tests simulating agent lookups across both systems, including conflict resolution.
+- Test performance and cost tradeoffs for memory/RAG operations.",,mem0,RAG,,
+Document best practices for combined use of mem0 and RAG,"- Document when and how agents should use mem0 vs. RAG, and how to combine both in workflows.
+- Provide examples for isolated and synergistic use cases.
+- Update project documentation and onboarding materials.",,mem0,RAG,,
