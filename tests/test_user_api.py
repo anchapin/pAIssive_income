@@ -1,7 +1,5 @@
 """Test the user API endpoints with the ORM/database."""
 
-import pytest
-
 # The app and client fixtures are imported from conftest.py
 
 

@@ -22,11 +22,11 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      test: ["CMD", "docker-healthcheck.sh"]
+      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
       interval: 30s
       timeout: 60s
       retries: 10
-      start_period: 120s
+      start_period: 180s
     deploy:
       resources:
         limits:

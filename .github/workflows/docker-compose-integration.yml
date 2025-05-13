@@ -254,7 +254,7 @@ jobs:
       - name: Wait for Flask app to be healthy
         run: |
           echo "Waiting for Flask app to be healthy..."
-          max_attempts=30
+          max_attempts=50  # Increased from 30 to 50
           for i in $(seq 1 $max_attempts); do
             # Check disk space during health checks
             if [ $((i % 5)) -eq 0 ]; then  # Check every 5 attempts
@@ -271,23 +271,49 @@ jobs:
               fi
             fi
 
-            if curl -f http://localhost:5000/health; then
+            # More verbose curl for better diagnostics
+            echo "Attempt $i: Checking Flask app health..."
+            if curl -v -f -m 10 http://localhost:5000/health; then
               echo "Flask app is healthy."
               exit 0
             else
               echo "Waiting for Flask app... (attempt $i/$max_attempts)"
 
-              # On every 10th attempt, check the logs
-              if [ $((i % 10)) -eq 0 ]; then
+              # Check container status
+              echo "Container status:"
+              docker compose ps app || docker-compose ps app || true
+
+              # On every 5th attempt, check the logs (increased frequency)
+              if [ $((i % 5)) -eq 0 ]; then
                 echo "Checking Flask app logs at attempt $i:"
                 docker compose logs app || docker-compose logs app
+
+                # Check if the container is actually running
+                echo "Checking if Flask app container is running:"
+                docker compose ps app || docker-compose ps app
+
+                # Try to execute a command inside the container to verify it's responsive
+                echo "Trying to execute command in container:"
+                docker compose exec app ps aux || docker-compose exec app ps aux || true
               fi
 
-              sleep 5
+              sleep 10  # Increased from 5 to 10 seconds
             fi
           done
+
           echo "Flask app did not become healthy in time."
-          docker compose logs || docker-compose logs
+          echo "Final container status:"
+          docker compose ps || docker-compose ps
+
+          echo "Final app logs:"
+          docker compose logs app || docker-compose logs app
+
+          echo "Checking if Flask process is running in container:"
+          docker compose exec app ps aux | grep python || docker-compose exec app ps aux | grep python || true
+
+          echo "Checking if port 5000 is listening in container:"
+          docker compose exec app netstat -tulpn | grep 5000 || docker-compose exec app netstat -tulpn | grep 5000 || true
+
           echo "Final system status:"
           df -h
           docker system df

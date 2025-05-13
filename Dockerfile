@@ -41,11 +41,22 @@ COPY . .
 COPY docker-healthcheck.sh /usr/local/bin/
 COPY wait-for-db.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-healthcheck.sh && \
-    chmod +x /usr/local/bin/wait-for-db.sh
+    chmod +x /usr/local/bin/wait-for-db.sh && \
+    # Make sure the scripts have the right line endings
+    sed -i 's/\r$//' /usr/local/bin/docker-healthcheck.sh && \
+    sed -i 's/\r$//' /usr/local/bin/wait-for-db.sh && \
+    # Install additional diagnostic tools
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        net-tools \
+        netcat-openbsd \
+        procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=60s --start-period=120s --retries=10 \
-  CMD ["docker-healthcheck.sh"]
+HEALTHCHECK --interval=30s --timeout=60s --start-period=180s --retries=10 \
+  CMD ["/usr/local/bin/docker-healthcheck.sh"]
 
 # Expose port
 EXPOSE 5000

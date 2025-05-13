@@ -7,7 +7,6 @@ Provides fixtures for database setup using Docker Compose.
 import logging
 import os
 import subprocess
-import time
 
 import pytest
 from sqlalchemy import text
