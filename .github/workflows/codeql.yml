@@ -129,28 +129,65 @@ jobs:
           languages: javascript-typescript
           queries: security-and-quality
           config-file: ./.github/codeql/codeql-javascript-config.yml
-          setup-python-dependencies: false
 
       # Install Node.js dependencies before autobuild
       - name: Install Node.js dependencies
         run: |
+          # Function to install dependencies with fallback
+          install_deps() {
+            local dir=$1
+            local original_dir=$(pwd)
+
+            if [ -n "$dir" ]; then
+              cd "$dir" || return 1
+            fi
+
+            echo "Installing dependencies in $(pwd)..."
+
+            # Try with pnpm first (preferred)
+            if command -v pnpm &>/dev/null; then
+              echo "Using pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  cd "$original_dir"
+                  return 1
+                }
+              }
+            else
+              # Fallback to npm if pnpm is not available
+              echo "pnpm not found, using npm to install dependencies..."
+              npm install || {
+                echo "npm installation failed in $(pwd)"
+                cd "$original_dir"
+                return 1
+              }
+            fi
+
+            if [ -n "$dir" ]; then
+              cd "$original_dir"
+            fi
+
+            return 0
+          }
+
+          # Install dependencies in root directory if package.json exists
           if [ -f "package.json" ]; then
-            echo "Installing npm dependencies..."
-            npm install
+            echo "Found package.json in root directory"
+            install_deps
           fi
 
+          # Install dependencies in ui/react_frontend if package.json exists
           if [ -f "ui/react_frontend/package.json" ]; then
-            echo "Installing UI dependencies..."
-            cd ui/react_frontend
-            npm install
-            cd ../..
+            echo "Found package.json in ui/react_frontend"
+            install_deps "ui/react_frontend"
           fi
 
+          # Install dependencies in sdk/javascript if package.json exists
           if [ -f "sdk/javascript/package.json" ]; then
-            echo "Installing SDK dependencies..."
-            cd sdk/javascript
-            npm install
-            cd ../..
+            echo "Found package.json in sdk/javascript"
+            install_deps "sdk/javascript"
           fi
 
       # Autobuild attempts to build any compiled languages
@@ -230,7 +267,6 @@ jobs:
           languages: python
           queries: security-and-quality
           config-file: ./.github/codeql/codeql-python-config.yml
-          setup-python-dependencies: true
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild
