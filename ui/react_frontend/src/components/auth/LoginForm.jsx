@@ -145,6 +145,8 @@ const LoginForm = ({ onSuccess }) => {
           color="primary"
           sx={{ mt: 3, mb: 2 }}
           disabled={!isValid || isSubmitting}
+          aria-label="Log In"
+          startIcon={!isSubmitting && <span role="img" aria-label="login">🔑</span>}
         >
           {isSubmitting ? <CircularProgress size={24} /> : "Log In"}
         </Button>
