@@ -35,6 +35,7 @@ For detailed information about using Docker Compose in GitHub Actions, see:
 
 - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
 - [Docker Compose Workflows](docker-compose-workflows.md)
+- [Docker Build and Push Action Update](docker-build-push-action-update.md)
 
 ## Setup Workflows
 
@@ -102,6 +103,7 @@ For more detailed troubleshooting information, see [Troubleshooting](troubleshoo
 - [Documentation Check Workflow](documentation-check-workflow.md)
 - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
 - [Docker Compose Workflows](docker-compose-workflows.md)
+- [Docker Build and Push Action Update](docker-build-push-action-update.md)
 - [Setup PNPM Workflow](ci_cd/setup-pnpm.md)
 - [Test Setup Script Workflow](ci_cd/test-setup-script.md)
 - [Security Overview](security.md)

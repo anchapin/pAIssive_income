@@ -22,6 +22,7 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
     - [Documentation Check Workflow](documentation-check-workflow.md)
     - [Docker Compose in GitHub Actions](github-actions-docker-compose.md)
     - [Docker Compose Workflows](docker-compose-workflows.md)
+    - [Docker Build and Push Action Update](docker-build-push-action-update.md)
 13. [Frontend Development](frontend/)
     - [Vitest Framework](frontend/vitest-framework.md)
     - [E2E Testing](frontend/e2e-testing.md)
