@@ -22,105 +22,6 @@ permissions:
   # Default: no broad permissions for all jobs, override per job/step
   contents: read
 
-# Reusable workflow commands
-# These are referenced in multiple jobs to reduce duplication and improve maintainability
-env:
-  # System dependencies installation commands for bcrypt
-  # These commands are used in both the lint-test and security jobs
-  # Centralizing them here makes it easier to update all instances at once
-  LINUX_BCRYPT_DEPS: |
-    sudo apt-get update
-    sudo apt-get install -y build-essential libffi-dev python3-dev
-  MACOS_BCRYPT_DEPS: |
-    brew install libffi || true
-  WINDOWS_BCRYPT_DEPS: |
-    # Install Visual C++ Build Tools if not already present
-    Write-Host "Checking for Visual C++ Build Tools..."
-    $vsInstallPaths = @(
-      "C:\Program Files (x86)\Microsoft Visual Studio",
-      "C:\Program Files\Microsoft Visual Studio",
-      "C:\Program Files (x86)\Microsoft Visual Studio\2019",
-      "C:\Program Files (x86)\Microsoft Visual Studio\2022"
-    )
-
-    $vsInstalled = $false
-    foreach ($path in $vsInstallPaths) {
-      if (Test-Path $path) {
-        Write-Host "Visual Studio installation found at $path"
-        $vsInstalled = $true
-        break
-      }
-    }
-
-    if (-not $vsInstalled) {
-      Write-Host "Visual Studio installation not found. Installing Visual C++ Build Tools..."
-      try {
-        # Install Visual C++ Build Tools using Chocolatey
-        choco install visualstudio2019buildtools -y --no-progress --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-        if ($LASTEXITCODE -ne 0) {
-          throw "Failed to install Visual Studio 2019 Build Tools"
-        }
-
-        choco install windows-sdk-10.1 -y --no-progress
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Warning: Failed to install Windows SDK 10.1, but continuing..."
-        }
-
-        # Install additional dependencies that might be needed
-        choco install visualstudio2019-workload-vctools -y --no-progress
-
-        # Verify installation
-        $vsInstalled = $false
-        foreach ($path in $vsInstallPaths) {
-          if (Test-Path $path) {
-            Write-Host "Visual Studio installation found at $path after installation"
-            $vsInstalled = $true
-            break
-          }
-        }
-
-        if (-not $vsInstalled) {
-          Write-Host "WARNING: Visual Studio Build Tools installation verification failed. Will attempt to continue anyway..."
-        }
-      } catch {
-        Write-Host "ERROR: Exception during Visual Studio Build Tools installation: $_"
-        Write-Host "Will attempt to continue anyway, but bcrypt compilation may fail."
-      }
-    }
-
-    # Set up environment variables for Visual C++ build tools
-    try {
-      # Try to find vcvarsall.bat in common locations
-      $vcvarsallPaths = @(
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat",
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat"
-      )
-
-      $vcvarsallFound = $false
-      foreach ($path in $vcvarsallPaths) {
-        if (Test-Path $path) {
-          Write-Host "Found vcvarsall.bat at $path"
-          $vcvarsallFound = $true
-          # We don't actually call vcvarsall.bat here as it would affect only this script's scope
-          # Instead, we'll set some common environment variables directly
-          break
-        }
-      }
-
-      if (-not $vcvarsallFound) {
-        Write-Host "WARNING: Could not find vcvarsall.bat. Some environment variables may not be set correctly."
-      }
-    } catch {
-      Write-Host "ERROR: Exception while setting up environment variables: $_"
-      Write-Host "Will attempt to continue anyway."
-    }
-
 jobs:
   lint-test:
     name: Lint, Type Check, and Test
@@ -136,8 +37,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch full history to ensure gitleaks can access commit ranges
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -360,16 +259,6 @@ jobs:
 
           Write-Host "Virtual environment setup complete."
 
-      - name: Install system dependencies for bcrypt (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          # Install system dependencies required for bcrypt
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            ${{ env.LINUX_BCRYPT_DEPS }}
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            ${{ env.MACOS_BCRYPT_DEPS }}
-          fi
-
       - name: Install dependencies with uv (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
@@ -381,13 +270,6 @@ jobs:
           uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio || {
             echo "Failed to install testing tools with uv pip. Falling back to regular pip..."
             python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          }
-
-          # Install bcrypt explicitly first to ensure it builds correctly
-          echo "Installing bcrypt..."
-          uv pip install bcrypt>=4.0.1 || {
-            echo "Failed to install bcrypt with uv pip. Falling back to regular pip..."
-            python -m pip install bcrypt>=4.0.1
           }
 
           # Install from requirements files
@@ -446,11 +328,6 @@ jobs:
             echo "Pre-commit verification failed. Continuing anyway..."
           fi
 
-      - name: Install system dependencies for bcrypt (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ${{ env.WINDOWS_BCRYPT_DEPS }}
-
       - name: Install dependencies with uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -464,18 +341,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install testing tools with uv pip. Falling back to regular pip..."
             python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          }
-
-          # Install bcrypt explicitly first to ensure it builds correctly
-          Write-Host "Installing bcrypt..."
-          uv pip install bcrypt>=4.0.1
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install bcrypt with uv pip. Falling back to regular pip..."
-            python -m pip install bcrypt>=4.0.1
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to install bcrypt with pip. Trying with --no-binary option..."
-              python -m pip install --no-binary bcrypt bcrypt>=4.0.1
-            }
           }
 
           # Install from requirements files
@@ -997,16 +862,6 @@ jobs:
 
           Write-Host "Virtual environment setup complete."
 
-      - name: Install system dependencies for bcrypt (Linux/macOS Security)
-        if: runner.os != 'Windows'
-        run: |
-          # Install system dependencies required for bcrypt
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            ${{ env.LINUX_BCRYPT_DEPS }}
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            ${{ env.MACOS_BCRYPT_DEPS }}
-          fi
-
       - name: Install security tools with uv (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
@@ -1014,13 +869,6 @@ jobs:
           source .venv/bin/activate
 
           echo "Installing security tools..."
-
-          # Install bcrypt explicitly first to ensure it builds correctly
-          echo "Installing bcrypt..."
-          uv pip install bcrypt>=4.0.1 || {
-            echo "Failed to install bcrypt with uv pip. Falling back to regular pip..."
-            python -m pip install bcrypt>=4.0.1
-          }
 
           # Install pip-audit first (most problematic)
           echo "Installing pip-audit..."
@@ -1106,11 +954,6 @@ jobs:
           echo "Installed security tools:"
           pip list | grep -E 'pip-audit|safety|bandit|semgrep|pylint|pre-commit' || true
 
-      - name: Install system dependencies for bcrypt (Windows Security)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ${{ env.WINDOWS_BCRYPT_DEPS }}
-
       - name: Install security tools with uv (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -1127,18 +970,6 @@ jobs:
           Write-Host "Python version in virtual environment: $pythonVersion"
 
           Write-Host "Installing security tools..."
-
-          # Install bcrypt explicitly first to ensure it builds correctly
-          Write-Host "Installing bcrypt..."
-          uv pip install bcrypt>=4.0.1
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install bcrypt with uv pip. Falling back to regular pip..."
-            python -m pip install bcrypt>=4.0.1
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to install bcrypt with pip. Trying with --no-binary option..."
-              python -m pip install --no-binary bcrypt bcrypt>=4.0.1
-            }
-          }
 
           # Install pip-audit first (most problematic)
           Write-Host "Installing pip-audit..."
@@ -1453,72 +1284,41 @@ jobs:
           mkdir -p security-reports
           echo "Running bandit scan..."
 
-          # Create a unique output file for this run
-          BANDIT_OUTPUT_FILE="security-reports/bandit-results-${{ github.run_id }}.sarif"
-
-          # Use the platform-specific configuration file
-          BANDIT_CONFIG_FILE=".github/bandit/bandit-config-linux-${{ github.run_id }}.yaml"
-
-          # Fallback to the generic configuration file if the specific one doesn't exist
-          if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
-            echo "Platform-specific configuration file not found. Using generic configuration."
-            BANDIT_CONFIG_FILE=".github/bandit/bandit-config-linux.yaml"
-
-            # Fallback to the .bandit file if the generic configuration doesn't exist
-            if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
-              echo "Generic configuration file not found. Using .bandit file."
-              BANDIT_CONFIG_FILE=".bandit"
-            fi
-          fi
-
-          echo "Using Bandit configuration file: $BANDIT_CONFIG_FILE"
-
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
-            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
-            # Also create a copy with the standard name for backward compatibility
-            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero || true
           else
             echo "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             if command -v bandit &>/dev/null; then
-              bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -c "$BANDIT_CONFIG_FILE" || true
-              # Also create a copy with the standard name for backward compatibility
-              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero || true
             else
               echo "Bandit tool not available. Creating empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
-              # Also create a copy with the standard name for backward compatibility
-              cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
             fi
           fi
 
           # Ensure the SARIF file has the required "version" property and is valid
-          if [ -f "$BANDIT_OUTPUT_FILE" ]; then
+          if [ -f security-reports/bandit-results.sarif ]; then
             # Check if file is empty
-            if [ ! -s "$BANDIT_OUTPUT_FILE" ]; then
+            if [ ! -s security-reports/bandit-results.sarif ]; then
               echo "Bandit output file is empty. Creating valid empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
             # Check if version property exists
-            elif ! grep -q '"version"' "$BANDIT_OUTPUT_FILE"; then
+            elif ! grep -q '"version"' security-reports/bandit-results.sarif; then
               echo "Adding version property to SARIF file"
               # Create a valid SARIF file with version property
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
             fi
 
             # Verify the SARIF file is valid JSON
-            if ! python -c "import json; json.load(open('$BANDIT_OUTPUT_FILE'))" &>/dev/null; then
+            if ! python -c "import json; json.load(open('security-reports/bandit-results.sarif'))" &>/dev/null; then
               echo "Invalid SARIF file detected. Creating valid empty SARIF file."
-              echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
+              echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
             fi
           else
             # Create a valid empty SARIF file if it doesn't exist
-            echo "{\"version\": \"2.1.0\", \"runs\": []}" > "$BANDIT_OUTPUT_FILE"
-          fi
-
-          # Also ensure the standard file exists for backward compatibility
-          if [ ! -f "security-reports/bandit-results.sarif" ]; then
-            cp "$BANDIT_OUTPUT_FILE" security-reports/bandit-results.sarif || true
+            echo "{\"version\": \"2.1.0\", \"runs\": []}" > security-reports/bandit-results.sarif
           fi
 
       - name: Run Bandit (Windows)
@@ -1536,194 +1336,51 @@ jobs:
           New-Item -ItemType Directory -Force -Path security-reports
           Write-Host "Running bandit scan..."
 
-          # Create a unique output file for this run
-          $banditOutputFile = "security-reports/bandit-results-${{ github.run_id }}.sarif"
-
-          # Use the platform-specific configuration file
-          $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
-
-          # Fallback to the generic configuration file if the specific one doesn't exist
-          if (-not (Test-Path $banditConfigFile)) {
-            Write-Host "Platform-specific configuration file not found. Using generic configuration."
-            $banditConfigFile = ".github/bandit/bandit-config-windows.yaml"
-
-            # Fallback to the .bandit file if the generic configuration doesn't exist
-            if (-not (Test-Path $banditConfigFile)) {
-              Write-Host "Generic configuration file not found. Using .bandit file."
-              $banditConfigFile = ".bandit"
-            }
-          }
-
-          Write-Host "Using Bandit configuration file: $banditConfigFile"
-
           # Try to run bandit with fallback options
           $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
           if ($banditCmdPath) {
-            bandit -r . -f sarif -o $banditOutputFile --exit-zero -c $banditConfigFile
-            # Also create a copy with the standard name for backward compatibility
-            Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
           } else {
             Write-Host "Bandit command not found. Trying to install and run..."
             python -m pip install bandit
             $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
             if ($banditCmdPath) {
-              bandit -r . -f sarif -o $banditOutputFile --exit-zero -c $banditConfigFile
-              # Also create a copy with the standard name for backward compatibility
-              Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif --exit-zero
             } else {
               Write-Host "Bandit tool not available. Creating empty SARIF file."
-              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
-              # Also create a copy with the standard name for backward compatibility
-              Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             }
           }
 
           # Ensure the SARIF file has the required "version" property and is valid
-          if (Test-Path $banditOutputFile) {
+          if (Test-Path security-reports/bandit-results.sarif) {
             # Check if file is empty
-            if ((Get-Item $banditOutputFile).Length -eq 0) {
+            if ((Get-Item security-reports/bandit-results.sarif).Length -eq 0) {
               Write-Host "Bandit output file is empty. Creating valid empty SARIF file."
-              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             } else {
               # Check if version property exists
-              $fileContent = Get-Content $banditOutputFile -Raw
+              $fileContent = Get-Content security-reports/bandit-results.sarif -Raw
               if (-not ($fileContent -match '"version"')) {
                 Write-Host "Adding version property to SARIF file"
                 # Create a valid SARIF file with version property
-                Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+                Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
               }
             }
 
             # Verify the SARIF file is valid JSON
             try {
-              $null = Get-Content $banditOutputFile -Raw | ConvertFrom-Json
+              $null = Get-Content security-reports/bandit-results.sarif -Raw | ConvertFrom-Json
             } catch {
               Write-Host "Invalid SARIF file detected. Creating valid empty SARIF file."
-              Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+              Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             }
           } else {
             # Create a valid empty SARIF file if it doesn't exist
-            Set-Content -Path $banditOutputFile -Value "{`"version`": `"2.1.0`", `"runs`": []}"
+            Set-Content -Path security-reports/bandit-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
           }
 
-          # Also ensure the standard file exists for backward compatibility
-          if (-not (Test-Path "security-reports/bandit-results.sarif")) {
-            Copy-Item -Path $banditOutputFile -Destination security-reports/bandit-results.sarif -Force -ErrorAction SilentlyContinue
-          }
-
-      - name: Run Bandit (macOS)
-        if: runner.os == 'macOS'
-        continue-on-error: true
-        run: |
-          # Activate virtual environment
-          source .venv/bin/activate
-
-          mkdir -p security-reports
-          echo "Running bandit scan..."
-
-          # Create a unique output file for this run
-          BANDIT_OUTPUT_FILE="security-reports/bandit-results-${{ github.run_id }}.sarif"
-          BANDIT_STANDARD_FILE="security-reports/bandit-results.sarif"
-
-          # Use the platform-specific configuration file
-          BANDIT_CONFIG_FILE=".github/bandit/bandit-config-macos-${{ github.run_id }}.yaml"
-
-          # Fallback to the generic configuration file if the specific one doesn't exist
-          if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
-            echo "Platform-specific configuration file not found. Using generic configuration."
-            BANDIT_CONFIG_FILE=".github/bandit/bandit-config-macos.yaml"
-
-            # Fallback to the .bandit file if the generic configuration doesn't exist
-            if [ ! -f "$BANDIT_CONFIG_FILE" ]; then
-              echo "Generic configuration file not found. Using .bandit file."
-              BANDIT_CONFIG_FILE=".bandit"
-            fi
-          fi
-
-          echo "Using Bandit configuration file: $BANDIT_CONFIG_FILE"
-
-          # Create a valid empty SARIF file structure
-          EMPTY_SARIF='{
-            "version": "2.1.0",
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Bandit",
-                    "informationUri": "https://github.com/PyCQA/bandit",
-                    "version": "1.7.5",
-                    "rules": []
-                  }
-                },
-                "results": []
-              }
-            ]
-          }'
-
-          # Try to run bandit with fallback options
-          if command -v bandit &>/dev/null; then
-            echo "Running bandit with installed version..."
-            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x .venv,node_modules,tests -c "$BANDIT_CONFIG_FILE" || {
-              echo "Bandit command failed. Creating empty SARIF file..."
-              echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-            }
-          else
-            echo "Bandit command not found. Trying to install and run..."
-            python -m pip install bandit
-            if command -v bandit &>/dev/null; then
-              bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x .venv,node_modules,tests -c "$BANDIT_CONFIG_FILE" || {
-                echo "Bandit command failed after installation. Creating empty SARIF file..."
-                echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-              }
-            else
-              echo "Bandit tool not available after installation attempt. Creating empty SARIF file."
-              echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-            fi
-          fi
-
-          # Ensure the SARIF file has the required structure and is valid
-          if [ -f "$BANDIT_OUTPUT_FILE" ]; then
-            # Check if file is empty
-            if [ ! -s "$BANDIT_OUTPUT_FILE" ]; then
-              echo "Bandit output file is empty. Creating valid empty SARIF file."
-              echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-            # Check if version property exists
-            elif ! grep -q '"version"' "$BANDIT_OUTPUT_FILE"; then
-              echo "Adding version property to SARIF file"
-              echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-            fi
-
-            # Verify the SARIF file is valid JSON
-            if ! python -c "import json; json.load(open('$BANDIT_OUTPUT_FILE'))" &>/dev/null; then
-              echo "Invalid SARIF file detected. Creating valid empty SARIF file."
-              echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-            fi
-          else
-            # Create a valid empty SARIF file if it doesn't exist
-            echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
-          fi
-
-          # Always create a copy with the standard name for backward compatibility
-          cp "$BANDIT_OUTPUT_FILE" "$BANDIT_STANDARD_FILE" || {
-            echo "Failed to copy to standard file. Creating directly."
-            echo "$EMPTY_SARIF" > "$BANDIT_STANDARD_FILE"
-          }
-
-          # Final validation of both files
-          for file in "$BANDIT_OUTPUT_FILE" "$BANDIT_STANDARD_FILE"; do
-            if [ ! -f "$file" ] || [ ! -s "$file" ] || ! python -c "import json; json.load(open('$file'))" &>/dev/null; then
-              echo "Final validation failed for $file. Recreating with valid SARIF."
-              echo "$EMPTY_SARIF" > "$file"
-            fi
-          done
-
-          echo "Bandit scan completed. SARIF files created at:"
-          echo "- $BANDIT_OUTPUT_FILE"
-          echo "- $BANDIT_STANDARD_FILE"
-
-      - name: Run Trivy (Linux)
-        if: runner.os == 'Linux'
+      - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
@@ -1732,31 +1389,6 @@ jobs:
           format: 'sarif'
           output: 'security-reports/trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-
-      - name: Run Trivy (Windows)
-        if: runner.os == 'Windows'
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'security-reports/trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-
-      - name: Run Trivy (macOS)
-        if: runner.os == 'macOS'
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'security-reports/trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
 
       - name: Run Semgrep (Linux/macOS)
         if: runner.os != 'Windows'
@@ -1767,71 +1399,17 @@ jobs:
 
           echo "Running semgrep scan..."
 
-          # Create directory for security reports
-          mkdir -p security-reports
-
-          # Multiple installation methods for semgrep
-          install_semgrep() {
-            echo "Attempting to install semgrep using method: $1"
-
-            case "$1" in
-              "pip")
-                python -m pip uninstall -y semgrep || true
-                python -m pip install semgrep
-                ;;
-              "pip-user")
-                python -m pip uninstall -y semgrep || true
-                python -m pip install --user semgrep
-                ;;
-              "pipx")
-                python -m pip install pipx
-                python -m pipx install semgrep
-                ;;
-              "direct")
-                python -m pip uninstall -y semgrep || true
-                curl -sSL https://raw.githubusercontent.com/returntocorp/semgrep/develop/install.sh | bash
-                ;;
-            esac
-
-            # Check if installation was successful
-            if command -v semgrep &>/dev/null; then
-              echo "Semgrep installed successfully using method: $1"
-              return 0
-            else
-              echo "Semgrep installation failed using method: $1"
-              return 1
-            fi
-          }
-
           # Try to run semgrep with fallback options
           if command -v semgrep &>/dev/null; then
-            echo "Semgrep already installed. Checking version..."
-            semgrep --version
+            semgrep scan --config=auto --severity=ERROR || true
           else
-            echo "Semgrep command not found. Trying multiple installation methods..."
-
-            # Try different installation methods
-            install_semgrep "pip" || install_semgrep "pip-user" || install_semgrep "pipx" || install_semgrep "direct" || {
-              echo "All semgrep installation methods failed. Creating empty report and skipping scan."
-              echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
-              return 0
-            }
-          fi
-
-          # Run semgrep with error handling
-          echo "Running semgrep scan with auto config..."
-          semgrep scan --config=auto --severity=ERROR --sarif --output security-reports/semgrep-results.sarif || {
-            echo "Semgrep scan failed with auto config. Trying with minimal config..."
-            semgrep scan --config p/security-audit --severity=ERROR --sarif --output security-reports/semgrep-results.sarif || {
-              echo "Semgrep scan failed with minimal config. Creating empty report."
-              echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
-            }
-          }
-
-          # Ensure the SARIF file exists and is valid
-          if [ ! -f security-reports/semgrep-results.sarif ]; then
-            echo "Semgrep did not generate a SARIF file. Creating empty one."
-            echo "{\"version\": \"2.1.0\", \"runs\": [{\"tool\": {\"driver\": {\"name\": \"Semgrep\", \"rules\": []}}, \"results\": []}]}" > security-reports/semgrep-results.sarif
+            echo "Semgrep command not found. Trying to install and run..."
+            python -m pip install semgrep
+            if command -v semgrep &>/dev/null; then
+              semgrep scan --config=auto --severity=ERROR || true
+            else
+              echo "Semgrep tool not available. Skipping scan."
+            fi
           fi
 
       - name: Run Semgrep (Windows)
@@ -1848,103 +1426,18 @@ jobs:
 
           Write-Host "Running semgrep scan..."
 
-          # Create directory for security reports
-          New-Item -ItemType Directory -Force -Path security-reports
-
-          # Multiple installation methods for semgrep
-          function Install-Semgrep {
-            param (
-              [string]$Method
-            )
-
-            Write-Host "Attempting to install semgrep using method: $Method"
-
-            switch ($Method) {
-              "pip" {
-                python -m pip uninstall -y semgrep -ErrorAction SilentlyContinue
-                python -m pip install semgrep
-              }
-              "pip-user" {
-                python -m pip uninstall -y semgrep -ErrorAction SilentlyContinue
-                python -m pip install --user semgrep
-              }
-              "pipx" {
-                python -m pip install pipx
-                python -m pipx install semgrep
-              }
-              "direct" {
-                python -m pip uninstall -y semgrep -ErrorAction SilentlyContinue
-                # Download and run the semgrep installer
-                Invoke-WebRequest -Uri "https://raw.githubusercontent.com/returntocorp/semgrep/develop/install.ps1" -OutFile "install-semgrep.ps1"
-                .\install-semgrep.ps1
-                Remove-Item "install-semgrep.ps1" -ErrorAction SilentlyContinue
-              }
-            }
-
-            # Check if installation was successful
-            $semgrepCmdPath = Get-Command semgrep -ErrorAction SilentlyContinue
-            if ($semgrepCmdPath) {
-              Write-Host "Semgrep installed successfully using method: $Method"
-              return $true
-            } else {
-              Write-Host "Semgrep installation failed using method: $Method"
-              return $false
-            }
-          }
-
           # Try to run semgrep with fallback options
           $semgrepCmdPath = Get-Command semgrep -ErrorAction SilentlyContinue
           if ($semgrepCmdPath) {
-            Write-Host "Semgrep already installed. Checking version..."
-            semgrep --version
+            semgrep scan --config=auto --severity=ERROR
           } else {
-            Write-Host "Semgrep command not found. Trying multiple installation methods..."
-
-            # Try different installation methods
-            if (-not (Install-Semgrep -Method "pip")) {
-              if (-not (Install-Semgrep -Method "pip-user")) {
-                if (-not (Install-Semgrep -Method "pipx")) {
-                  if (-not (Install-Semgrep -Method "direct")) {
-                    Write-Host "All semgrep installation methods failed. Creating empty report and skipping scan."
-                    Set-Content -Path security-reports/semgrep-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Semgrep`", `"rules`": []}}, `"results`": []}]}"
-                    return
-                  }
-                }
-              }
-            }
-          }
-
-          # Run semgrep with error handling
-          Write-Host "Running semgrep scan with auto config..."
-          try {
-            semgrep scan --config=auto --severity=ERROR --sarif --output security-reports/semgrep-results.sarif
-            if ($LASTEXITCODE -ne 0) {
-              throw "Semgrep scan failed with auto config"
-            }
-          } catch {
-            Write-Host "Semgrep scan failed with auto config. Trying with minimal config..."
-            try {
-              semgrep scan --config p/security-audit --severity=ERROR --sarif --output security-reports/semgrep-results.sarif
-              if ($LASTEXITCODE -ne 0) {
-                throw "Semgrep scan failed with minimal config"
-              }
-            } catch {
-              Write-Host "Semgrep scan failed with minimal config. Creating empty report."
-              Set-Content -Path security-reports/semgrep-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Semgrep`", `"rules`": []}}, `"results`": []}]}"
-            }
-          }
-
-          # Ensure the SARIF file exists and is valid
-          if (-not (Test-Path security-reports/semgrep-results.sarif)) {
-            Write-Host "Semgrep did not generate a SARIF file. Creating empty one."
-            Set-Content -Path security-reports/semgrep-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Semgrep`", `"rules`": []}}, `"results`": []}]}"
-          } else {
-            try {
-              $null = Get-Content security-reports/semgrep-results.sarif -Raw | ConvertFrom-Json
-              Write-Host "Semgrep SARIF file is valid JSON"
-            } catch {
-              Write-Host "Semgrep SARIF file is not valid JSON. Creating empty SARIF file..."
-              Set-Content -Path security-reports/semgrep-results.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Semgrep`", `"rules`": []}}, `"results`": []}]}"
+            Write-Host "Semgrep command not found. Trying to install and run..."
+            python -m pip install semgrep
+            $semgrepCmdPath = Get-Command semgrep -ErrorAction SilentlyContinue
+            if ($semgrepCmdPath) {
+              semgrep scan --config=auto --severity=ERROR
+            } else {
+              Write-Host "Semgrep tool not available. Skipping scan."
             }
           }
 
@@ -1957,93 +1450,17 @@ jobs:
 
           echo "Running pylint security scan..."
 
-          # Create security-reports directory if it doesn't exist
-          mkdir -p security-reports
-
-          # Create a pylint output file
-          PYLINT_OUTPUT_FILE="security-reports/pylint-security-results.txt"
-
-          # Create a valid empty SARIF file structure
-          EMPTY_SARIF='{
-            "version": "2.1.0",
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Pylint Security",
-                    "informationUri": "https://github.com/anchapin/pAIssive_income",
-                    "rules": []
-                  }
-                },
-                "results": []
-              }
-            ]
-          }'
-
-          # Create a valid empty SARIF file as a fallback
-          echo "$EMPTY_SARIF" > security-reports/pylint-results.sarif
-
           # Try to run pylint with fallback options
           if command -v pylint &>/dev/null; then
-            # Install pylint-security plugin (using Python 3.11 for compatibility)
-            echo "Installing pylint-security..."
-            python -m pip install pylint-security==0.19.0 || {
-              echo "Failed to install pylint-security with specific version. Trying without version..."
-              python -m pip install pylint-security || {
-                echo "Failed to install pylint-security. Trying alternative approaches..."
-                # Try installing with --no-deps flag
-                python -m pip install --no-deps pylint-security || {
-                  echo "Failed to install pylint-security with --no-deps. Trying with bandit as fallback..."
-                  python -m pip install bandit
-                  echo "Will use bandit for security scanning instead of pylint-security"
-                }
-              }
-            }
-
-            # Use pylint-security plugin instead of --enable=security flag
-            # Redirect output to file and always return success
-            pylint --disable=all --load-plugins=pylint_security --enable=security . > "$PYLINT_OUTPUT_FILE" 2>&1 || {
-              echo "Pylint found security issues, but continuing..."
-              # Ensure the SARIF file exists and is valid
-              if [ ! -f "security-reports/pylint-results.sarif" ] || ! python -c "import json; json.load(open('security-reports/pylint-results.sarif'))" &>/dev/null; then
-                echo "Creating valid empty SARIF file for pylint results..."
-                echo "$EMPTY_SARIF" > security-reports/pylint-results.sarif
-              fi
-            }
+            pylint --disable=all --enable=security . || true
           else
             echo "Pylint command not found. Trying to install and run..."
-            # Install pylint and pylint-security with Python 3.11 compatibility
             python -m pip install pylint
-            python -m pip install pylint-security==0.19.0 || {
-              echo "Failed to install pylint-security with specific version. Trying without version..."
-              python -m pip install pylint-security || {
-                echo "Failed to install pylint-security. Trying with bandit as fallback..."
-                python -m pip install bandit
-                echo "Will use bandit for security scanning instead of pylint-security"
-              }
-            }
             if command -v pylint &>/dev/null; then
-              pylint --disable=all --load-plugins=pylint_security --enable=security . > "$PYLINT_OUTPUT_FILE" 2>&1 || {
-                echo "Pylint found security issues, but continuing..."
-                # Ensure the SARIF file exists and is valid
-                if [ ! -f "security-reports/pylint-results.sarif" ] || ! python -c "import json; json.load(open('security-reports/pylint-results.sarif'))" &>/dev/null; then
-                  echo "Creating valid empty SARIF file for pylint results..."
-                  echo "$EMPTY_SARIF" > security-reports/pylint-results.sarif
-                fi
-              }
+              pylint --disable=all --enable=security . || true
             else
-              echo "Pylint tool not available. Creating empty results file."
-              echo "Pylint tool not available. Skipping scan." > "$PYLINT_OUTPUT_FILE"
-              # Ensure the SARIF file exists and is valid
-              echo "$EMPTY_SARIF" > security-reports/pylint-results.sarif
+              echo "Pylint tool not available. Skipping scan."
             fi
-          fi
-
-          # Final validation of the SARIF file
-          if [ ! -f "security-reports/pylint-results.sarif" ] || ! python -c "import json; json.load(open('security-reports/pylint-results.sarif'))" &>/dev/null; then
-            echo "Final validation failed. Creating valid empty SARIF file for pylint results..."
-            echo "$EMPTY_SARIF" > security-reports/pylint-results.sarif
           fi
 
       - name: Run pylint (security warnings) (Windows)
@@ -2060,164 +1477,20 @@ jobs:
 
           Write-Host "Running pylint security scan..."
 
-          # Create security-reports directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path security-reports
-
-          # Create a pylint output file
-          $pylintOutputFile = "security-reports/pylint-security-results.txt"
-
-          # Create scripts directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path .github/scripts
-
-          # Create a simple validation script if it doesn't exist
-          if (-not (Test-Path ".github/scripts/validate_sarif.py")) {
-            Write-Host "Creating validation script..."
-            $validationScript = @"
-#!/usr/bin/env python3
-import json
-import logging
-import os
-import sys
-
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-
-EMPTY_SARIF = {
-    "version": "2.1.0",
-    "\$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-    "runs": [
-        {
-            "tool": {
-                "driver": {
-                    "name": "{tool_name}",
-                    "informationUri": "https://github.com/anchapin/pAIssive_income",
-                    "rules": []
-                }
-            },
-            "results": []
-        }
-    ]
-}
-
-def validate_sarif(file_path, tool_name):
-    try:
-        if not os.path.isfile(file_path):
-            logging.info(f"SARIF file {file_path} not found. Creating empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                logging.info(f"Invalid SARIF file {file_path}. Creating valid empty SARIF file.")
-                create_empty_sarif(file_path, tool_name)
-                return True
-
-        if "version" not in data:
-            logging.info(f"SARIF file {file_path} missing version property. Creating valid empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        if "runs" not in data:
-            logging.info(f"SARIF file {file_path} missing runs property. Creating valid empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        logging.info(f"SARIF file {file_path} is valid.")
-        return True
-    except Exception as e:
-        logging.error(f"Error validating SARIF file {file_path}: {e}")
-        try:
-            create_empty_sarif(file_path, tool_name)
-            return True
-        except Exception as e:
-            logging.error(f"Error creating empty SARIF file {file_path}: {e}")
-            return False
-
-def create_empty_sarif(file_path, tool_name):
-    os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
-    sarif = EMPTY_SARIF.copy()
-    sarif["runs"][0]["tool"]["driver"]["name"] = tool_name
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(sarif, f, indent=2)
-    logging.info(f"Created valid empty SARIF file {file_path}.")
-
-def main():
-    if len(sys.argv) < 3:
-        logging.error("Usage: python validate_sarif.py <file_path> <tool_name>")
-        return 1
-    file_path = sys.argv[1]
-    tool_name = sys.argv[2]
-    if validate_sarif(file_path, tool_name):
-        return 0
-    return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-"@
-            Set-Content -Path ".github/scripts/validate_sarif.py" -Value $validationScript
-          }
-
-          # Create a valid empty SARIF file as a fallback
-          python .github/scripts/validate_sarif.py "security-reports/pylint-results.sarif" "Pylint Security"
-
           # Try to run pylint with fallback options
-          try {
-            # Check if pylint is available
-            $pylintAvailable = $null -ne (Get-Command pylint -ErrorAction SilentlyContinue)
-
-            if ($pylintAvailable) {
-              # Install pylint-security plugin (using Python 3.11 for compatibility)
-              Write-Host "Installing pylint-security..."
-              try {
-                python -m pip install pylint-security==0.19.0
-              } catch {
-                Write-Host "Failed to install pylint-security with specific version. Trying without version..."
-                try {
-                  python -m pip install pylint-security
-                } catch {
-                  Write-Host "Failed to install pylint-security. Trying alternative approaches..."
-                  # Try installing with --no-deps flag
-                  try {
-                    python -m pip install --no-deps pylint-security
-                  } catch {
-                    Write-Host "Failed to install pylint-security with --no-deps. Trying with bandit as fallback..."
-                    python -m pip install bandit
-                    Write-Host "Will use bandit for security scanning instead of pylint-security"
-                  }
-                }
-              }
-
-              # Use pylint-security plugin instead of --enable=security flag
-              pylint --disable=all --load-plugins=pylint_security --enable=security . > $pylintOutputFile 2>&1
+          $pylintCmdPath = Get-Command pylint -ErrorAction SilentlyContinue
+          if ($pylintCmdPath) {
+            pylint --disable=all --enable=security .
+          } else {
+            Write-Host "Pylint command not found. Trying to install and run..."
+            python -m pip install pylint
+            $pylintCmdPath = Get-Command pylint -ErrorAction SilentlyContinue
+            if ($pylintCmdPath) {
+              pylint --disable=all --enable=security .
             } else {
-              Write-Host "Pylint command not found. Trying to install and run..."
-              # Install pylint and pylint-security with Python 3.11 compatibility
-              python -m pip install pylint
-              python -m pip install pylint-security==0.19.0 || {
-                Write-Host "Failed to install pylint-security with specific version. Trying without version..."
-                python -m pip install pylint-security || {
-                  Write-Host "Failed to install pylint-security. Trying with bandit as fallback..."
-                  python -m pip install bandit
-                  Write-Host "Will use bandit for security scanning instead of pylint-security"
-                }
-              }
-
-              $pylintAvailable = $null -ne (Get-Command pylint -ErrorAction SilentlyContinue)
-              if ($pylintAvailable) {
-                pylint --disable=all --load-plugins=pylint_security --enable=security . > $pylintOutputFile 2>&1
-              } else {
-                Write-Host "Pylint tool not available. Creating empty results file."
-                Set-Content -Path $pylintOutputFile -Value "Pylint tool not available. Skipping scan."
-              }
+              Write-Host "Pylint tool not available. Skipping scan."
             }
-          } catch {
-            Write-Host "Error running pylint: $_"
-            Write-Host "Continuing with empty SARIF file..."
           }
-
-          # Final validation of the SARIF file
-          python .github/scripts/validate_sarif.py "security-reports/pylint-results.sarif" "Pylint Security"
 
       - name: Fix potential secrets (Linux/macOS)
         if: runner.os != 'Windows'
@@ -2228,36 +1501,11 @@ if __name__ == "__main__":
 
           if [ -f fix_potential_secrets.py ]; then
             echo "Running fix_potential_secrets.py..."
-            python fix_potential_secrets.py --scan-only || {
+            python fix_potential_secrets.py || {
               echo "Warning: fix_potential_secrets.py failed but continuing..."
             }
-
-            # Verify the SARIF file exists and is valid
-            if [ -f "secrets.sarif.json" ]; then
-              echo "Validating secrets.sarif.json..."
-              if ! python -c "import json; json.load(open('secrets.sarif.json'))" &>/dev/null; then
-                echo "Invalid SARIF file detected. Creating valid empty SARIF file."
-                echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > secrets.sarif.json
-              fi
-            else
-              echo "secrets.sarif.json not found. Creating empty SARIF file."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > secrets.sarif.json
-            fi
-
-            # Copy to security-reports directory
-            mkdir -p security-reports
-            cp secrets.sarif.json security-reports/ || {
-              echo "Failed to copy to security-reports directory. Creating directly."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > security-reports/secrets.sarif.json
-            }
           else
-            echo "fix_potential_secrets.py not found. Creating empty SARIF file."
-            mkdir -p security-reports
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > secrets.sarif.json
-            cp secrets.sarif.json security-reports/ || {
-              echo "Failed to copy to security-reports directory. Creating directly."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Secret Scanner","informationUri":"https://github.com/anchapin/pAIssive_income","rules":[]}},"results":[]}]}' > security-reports/secrets.sarif.json
-            }
+            echo "fix_potential_secrets.py not found. Skipping this step."
           fi
 
       - name: Fix potential secrets (Windows)
@@ -2274,145 +1522,24 @@ if __name__ == "__main__":
 
           if (Test-Path "fix_potential_secrets.py") {
             Write-Host "Running fix_potential_secrets.py..."
-            python fix_potential_secrets.py --scan-only
+            python fix_potential_secrets.py
             if ($LASTEXITCODE -ne 0) {
               Write-Host "Warning: fix_potential_secrets.py failed but continuing..."
             }
-
-            # Verify the SARIF file exists and is valid
-            if (Test-Path "secrets.sarif.json") {
-              Write-Host "Validating secrets.sarif.json..."
-              try {
-                $null = Get-Content secrets.sarif.json -Raw | ConvertFrom-Json
-                Write-Host "SARIF file is valid JSON"
-              } catch {
-                Write-Host "Invalid SARIF file detected. Creating valid empty SARIF file."
-                Set-Content -Path secrets.sarif.json -Value "{`"version`": `"2.1.0`", `"$schema`": `"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Secret Scanner`", `"informationUri`": `"https://github.com/anchapin/pAIssive_income`", `"rules`": []}}, `"results`": []}]}"
-              }
-            } else {
-              Write-Host "secrets.sarif.json not found. Creating empty SARIF file."
-              Set-Content -Path secrets.sarif.json -Value "{`"version`": `"2.1.0`", `"$schema`": `"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Secret Scanner`", `"informationUri`": `"https://github.com/anchapin/pAIssive_income`", `"rules`": []}}, `"results`": []}]}"
-            }
-
-            # Copy to security-reports directory
-            New-Item -ItemType Directory -Force -Path security-reports
-            try {
-              Copy-Item -Path secrets.sarif.json -Destination security-reports/ -Force
-            } catch {
-              Write-Host "Failed to copy to security-reports directory. Creating directly."
-              Set-Content -Path security-reports/secrets.sarif.json -Value "{`"version`": `"2.1.0`", `"$schema`": `"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Secret Scanner`", `"informationUri`": `"https://github.com/anchapin/pAIssive_income`", `"rules`": []}}, `"results`": []}]}"
-            }
           } else {
-            Write-Host "fix_potential_secrets.py not found. Creating empty SARIF file."
-            New-Item -ItemType Directory -Force -Path security-reports
-            Set-Content -Path secrets.sarif.json -Value "{`"version`": `"2.1.0`", `"$schema`": `"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Secret Scanner`", `"informationUri`": `"https://github.com/anchapin/pAIssive_income`", `"rules`": []}}, `"results`": []}]}"
-            try {
-              Copy-Item -Path secrets.sarif.json -Destination security-reports/ -Force
-            } catch {
-              Write-Host "Failed to copy to security-reports directory. Creating directly."
-              Set-Content -Path security-reports/secrets.sarif.json -Value "{`"version`": `"2.1.0`", `"$schema`": `"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Secret Scanner`", `"informationUri`": `"https://github.com/anchapin/pAIssive_income`", `"rules`": []}}, `"results`": []}]}"
-            }
+            Write-Host "fix_potential_secrets.py not found. Skipping this step."
           }
 
-      - name: Run secret scanning (gitleaks) (Linux)
-        if: runner.os == 'Linux'
+      - name: Run secret scanning (gitleaks) (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
+          report-format: sarif
+          report-path: security-reports/gitleaks-report.sarif
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
-        run: |
-          # Install Gitleaks for Linux
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.1/gitleaks_8.18.1_linux_x64.tar.gz | tar -xz
-          chmod +x gitleaks
-          sudo mv gitleaks /usr/local/bin/
-          gitleaks version || {
-            echo "Failed to install gitleaks. Creating empty report..."
-            mkdir -p security-reports
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-            return 0
-          }
-
-          # Create directory for security reports
-          mkdir -p security-reports
-
-          # Create a valid empty SARIF file as a fallback
-          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-
-      - name: Run secret scanning (gitleaks) (macOS)
-        if: runner.os == 'macOS'
-        continue-on-error: true
-        run: |
-          # Install Gitleaks for macOS
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.1/gitleaks_8.18.1_darwin_x64.tar.gz | tar -xz
-          chmod +x gitleaks
-          sudo mv gitleaks /usr/local/bin/
-          gitleaks version || {
-            echo "Failed to install gitleaks using tar.gz. Trying with Homebrew..."
-            brew install gitleaks || {
-              echo "Failed to install gitleaks with Homebrew. Creating empty report..."
-              mkdir -p security-reports
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-              return 0
-            }
-          }
-
-          # Create directory for security reports
-          mkdir -p security-reports
-
-          # Determine commit range based on event type
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            COMMIT_RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
-            echo "Using PR commit range: $COMMIT_RANGE"
-          elif [[ "${{ github.event_name }}" == "push" ]]; then
-            # Validate that both before and after commits exist
-            if git rev-parse ${{ github.event.before }} >/dev/null 2>&1 && git rev-parse ${{ github.event.after }} >/dev/null 2>&1; then
-              COMMIT_RANGE="${{ github.event.before }}..${{ github.event.after }}"
-              echo "Using push commit range: $COMMIT_RANGE"
-            else
-              # Fallback to scanning the last commit if we can't determine the range
-              COMMIT_RANGE="HEAD~1..HEAD"
-              echo "Using fallback commit range: $COMMIT_RANGE"
-            fi
-          else
-            # For other events (schedule, workflow_dispatch), scan the last commit
-            COMMIT_RANGE="HEAD~1..HEAD"
-            echo "Using default commit range: $COMMIT_RANGE"
-          fi
-
-          echo "Running Gitleaks on commit range: $COMMIT_RANGE"
-
-          # Validate the commit range
-          if ! git rev-list --quiet $COMMIT_RANGE >/dev/null 2>&1; then
-            echo "Invalid commit range: $COMMIT_RANGE. Falling back to scanning the entire repo."
-            gitleaks detect --redact -v \
-              --config .gitleaks.toml \
-              --report-format=sarif \
-              --report-path=security-reports/gitleaks-report.sarif \
-              --log-level=debug || {
-                echo "Gitleaks detect command failed. Creating empty report..."
-                echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-              }
-          else
-            # Run Gitleaks on the specified commit range
-            gitleaks detect --redact -v \
-              --config .gitleaks.toml \
-              --report-format=sarif \
-              --report-path=security-reports/gitleaks-report.sarif \
-              --log-level=debug \
-              --log-opts="--no-merges --first-parent $COMMIT_RANGE" || {
-                echo "Gitleaks detect command with commit range failed. Creating empty report..."
-                echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-              }
-          fi
-
-          # Ensure the SARIF file exists and is valid
-          if [ ! -f "security-reports/gitleaks-report.sarif" ]; then
-            echo "Gitleaks did not generate a SARIF file. Creating an empty one."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-          else
-            # Validate JSON format
-            if ! python -c "import json; json.load(open('security-reports/gitleaks-report.sarif'))" &>/dev/null; then
-              echo "Invalid SARIF file. Creating a valid empty one."
-              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Gitleaks","informationUri":"https://github.com/gitleaks/gitleaks","version":"8.18.1","rules":[]}},"results":[]}]}' > security-reports/gitleaks-report.sarif
-            fi
-          fi
 
       - name: Run secret scanning (gitleaks) (Windows)
         if: runner.os == 'Windows'
@@ -2455,62 +1582,14 @@ if __name__ == "__main__":
             if (Test-Path $gitleaksExe) {
               Write-Host "Gitleaks installed successfully at $gitleaksExe"
 
-              # Determine commit range based on event type
-              if ("${{ github.event_name }}" -eq "pull_request") {
-                $commitRange = "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
-                Write-Host "Using PR commit range: $commitRange"
-              } elseif ("${{ github.event_name }}" -eq "push") {
-                # Validate that both before and after commits exist
-                $beforeExists = git rev-parse "${{ github.event.before }}" 2>$null
-                $afterExists = git rev-parse "${{ github.event.after }}" 2>$null
+              # Run gitleaks
+              Write-Host "Running gitleaks scan..."
+              & $gitleaksExe detect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif
 
-                if ($beforeExists -and $afterExists) {
-                  $commitRange = "${{ github.event.before }}..${{ github.event.after }}"
-                  Write-Host "Using push commit range: $commitRange"
-                } else {
-                  # Fallback to scanning the last commit if we can't determine the range
-                  $commitRange = "HEAD~1..HEAD"
-                  Write-Host "Using fallback commit range: $commitRange"
-                }
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "Gitleaks scan completed with issues (exit code: $LASTEXITCODE)"
               } else {
-                # For other events (schedule, workflow_dispatch), scan the last commit
-                $commitRange = "HEAD~1..HEAD"
-                Write-Host "Using default commit range: $commitRange"
-              }
-
-              Write-Host "Running Gitleaks on commit range: $commitRange"
-
-              # Validate the commit range
-              $validRange = $false
-              try {
-                git rev-list --quiet $commitRange 2>$null
-                $validRange = $LASTEXITCODE -eq 0
-              } catch {
-                $validRange = $false
-              }
-
-              if (-not $validRange) {
-                Write-Host "Invalid commit range: $commitRange. Falling back to scanning the entire repo."
-                & $gitleaksExe detect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif --verbose
-              } else {
-                # Run Gitleaks on the specified commit range
-                & $gitleaksExe detect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif --verbose --log-opts="--no-merges --first-parent $commitRange"
-
-                if ($LASTEXITCODE -ne 0) {
-                  Write-Host "Gitleaks detect command with commit range failed. Falling back to scanning the entire repo."
-                  & $gitleaksExe detect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif --verbose
-
-                  if ($LASTEXITCODE -ne 0) {
-                    Write-Host "Gitleaks detect command also failed. Trying with protect command instead..."
-                    # Fallback to protect command which doesn't require commit ranges
-                    & $gitleaksExe protect --source="." --config=.gitleaks.toml --report-format=sarif --report-path=security-reports/gitleaks-report.sarif --staged=false
-
-                    if ($LASTEXITCODE -ne 0) {
-                      Write-Host "Gitleaks protect command also failed. Creating empty report..."
-                      Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Gitleaks`", `"informationUri`": `"https://github.com/gitleaks/gitleaks`", `"version`": `"8.18.1`", `"rules`": []}}, `"results`": []}]}"
-                    }
-                  }
-                }
+                Write-Host "Gitleaks scan completed successfully"
               }
             } else {
               throw "Gitleaks executable not found after extraction"
@@ -2518,20 +1597,20 @@ if __name__ == "__main__":
           } catch {
             Write-Host "Error installing or running gitleaks: $_"
             Write-Host "Creating empty SARIF file for gitleaks..."
-            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Gitleaks`", `"informationUri`": `"https://github.com/gitleaks/gitleaks`", `"version`": `"8.18.1`", `"rules`": []}}, `"results`": []}]}"
+            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
           }
 
           # Ensure the SARIF file exists and is valid
           if (-not (Test-Path security-reports/gitleaks-report.sarif)) {
             Write-Host "Gitleaks report not found. Creating empty SARIF file..."
-            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Gitleaks`", `"informationUri`": `"https://github.com/gitleaks/gitleaks`", `"version`": `"8.18.1`", `"rules`": []}}, `"results`": []}]}"
+            Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
           } else {
             try {
               $null = Get-Content security-reports/gitleaks-report.sarif -Raw | ConvertFrom-Json
               Write-Host "Gitleaks report is valid JSON"
             } catch {
               Write-Host "Gitleaks report is not valid JSON. Creating empty SARIF file..."
-              Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": [{`"tool`": {`"driver`": {`"name`": `"Gitleaks`", `"informationUri`": `"https://github.com/gitleaks/gitleaks`", `"version`": `"8.18.1`", `"rules`": []}}, `"results`": []}]}"
+              Set-Content -Path security-reports/gitleaks-report.sarif -Value "{`"version`": `"2.1.0`", `"runs`": []}"
             }
           }
 
@@ -2539,531 +1618,32 @@ if __name__ == "__main__":
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: security-reports-${{ runner.os }}-${{ github.run_id }}-${{ github.run_number }}
+          name: security-reports-${{ runner.os }}-${{ github.run_id }}
           path: security-reports/
           retention-days: 7
 
-      # Validate SARIF files before uploading
-      - name: Validate SARIF files (Linux/macOS)
-        if: runner.os != 'Windows' && always()
-        run: |
-          # Activate virtual environment
-          source .venv/bin/activate
-
-          # Create scripts directory if it doesn't exist
-          mkdir -p .github/scripts
-
-          # Ensure the validation script exists
-          if [ ! -f ".github/scripts/validate_sarif.py" ]; then
-            echo "Validation script not found. Creating a simple validation script..."
-            cat > .github/scripts/validate_sarif.py << 'EOF'
-#!/usr/bin/env python3
-"""Validate SARIF files and create valid empty ones if needed."""
-import json
-import logging
-import os
-import sys
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-
-# Valid empty SARIF template
-EMPTY_SARIF = {
-    "version": "2.1.0",
-    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-    "runs": [
-        {
-            "tool": {
-                "driver": {
-                    "name": "{tool_name}",
-                    "informationUri": "https://github.com/anchapin/pAIssive_income",
-                    "rules": []
-                }
-            },
-            "results": []
-        }
-    ]
-}
-
-def validate_sarif(file_path, tool_name):
-    """Validate a SARIF file and create a valid empty one if needed."""
-    try:
-        # Check if file exists
-        if not os.path.isfile(file_path):
-            logging.info(f"SARIF file {file_path} not found. Creating empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        # Check if file is valid JSON
-        with open(file_path, "r", encoding="utf-8") as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                logging.info(f"Invalid SARIF file {file_path}. Creating valid empty SARIF file.")
-                create_empty_sarif(file_path, tool_name)
-                return True
-
-        # Check if version property exists
-        if "version" not in data:
-            logging.info(f"SARIF file {file_path} missing version property. Creating valid empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        # Check if runs property exists
-        if "runs" not in data:
-            logging.info(f"SARIF file {file_path} missing runs property. Creating valid empty SARIF file.")
-            create_empty_sarif(file_path, tool_name)
-            return True
-
-        logging.info(f"SARIF file {file_path} is valid.")
-        return True
-    except Exception as e:
-        logging.error(f"Error validating SARIF file {file_path}: {e}")
-        try:
-            create_empty_sarif(file_path, tool_name)
-            return True
-        except Exception as e:
-            logging.error(f"Error creating empty SARIF file {file_path}: {e}")
-            return False
-
-def create_empty_sarif(file_path, tool_name):
-    """Create a valid empty SARIF file."""
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
-
-    # Create empty SARIF file
-    sarif = EMPTY_SARIF.copy()
-    sarif["runs"][0]["tool"]["driver"]["name"] = tool_name
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(sarif, f, indent=2)
-
-    logging.info(f"Created valid empty SARIF file {file_path}.")
-
-def main():
-    """Main function."""
-    if len(sys.argv) < 3:
-        logging.error("Usage: python validate_sarif.py <file_path> <tool_name>")
-        return 1
-
-    file_path = sys.argv[1]
-    tool_name = sys.argv[2]
-
-    if validate_sarif(file_path, tool_name):
-        return 0
-    return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-EOF
-            chmod +x .github/scripts/validate_sarif.py
-          fi
-
-          # Validate all SARIF files
-          echo "Validating SARIF files..."
-          python .github/scripts/validate_sarif.py "security-reports/bandit-results-${{ github.run_id }}.sarif" "Bandit"
-          python .github/scripts/validate_sarif.py "security-reports/bandit-results.sarif" "Bandit"
-          python .github/scripts/validate_sarif.py "security-reports/trivy-results.sarif" "Trivy"
-          python .github/scripts/validate_sarif.py "security-reports/gitleaks-report.sarif" "Gitleaks"
-          python .github/scripts/validate_sarif.py "security-reports/pylint-results.sarif" "Pylint Security"
-
-          if [ -f "secrets.sarif.json" ]; then
-            python .github/scripts/validate_sarif.py "secrets.sarif.json" "Secret Scanner"
-            # Copy to security-reports directory if it exists
-            cp "secrets.sarif.json" "security-reports/secrets.sarif.json" || true
-          fi
-
-          echo "SARIF validation complete."
-
-      - name: Validate SARIF files (Windows)
-        if: runner.os == 'Windows' && always()
-        shell: pwsh
-        run: |
-          # Activate virtual environment
-          .\.venv\Scripts\Activate.ps1
-
-          # Create security-reports directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path security-reports
-
-          # Function to validate and fix SARIF files
-          function Validate-Sarif {
-            param (
-              [string]$File,
-              [string]$ToolName
-            )
-
-            if (-not (Test-Path $File)) {
-              Write-Host "SARIF file $File not found. Creating empty SARIF file."
-              $emptySarif = @{
-                version = "2.1.0"
-                '$schema' = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
-                runs = @(
-                  @{
-                    tool = @{
-                      driver = @{
-                        name = $ToolName
-                        informationUri = "https://github.com/anchapin/pAIssive_income"
-                        rules = @()
-                      }
-                    }
-                    results = @()
-                  }
-                )
-              }
-              $emptySarifJson = ConvertTo-Json -InputObject $emptySarif -Depth 10
-              Set-Content -Path $File -Value $emptySarifJson
-              return
-            }
-
-            # Check if file is valid JSON
-            try {
-              $json = Get-Content $File -Raw | ConvertFrom-Json
-
-              # Check if version property exists
-              if (-not ($json.PSObject.Properties.Name -contains "version")) {
-                Write-Host "SARIF file $File missing version property. Creating valid empty SARIF file."
-                $emptySarif = @{
-                  version = "2.1.0"
-                  '$schema' = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
-                  runs = @(
-                    @{
-                      tool = @{
-                        driver = @{
-                          name = $ToolName
-                          informationUri = "https://github.com/anchapin/pAIssive_income"
-                          rules = @()
-                        }
-                      }
-                      results = @()
-                    }
-                  )
-                }
-                $emptySarifJson = ConvertTo-Json -InputObject $emptySarif -Depth 10
-                Set-Content -Path $File -Value $emptySarifJson
-                return
-              }
-
-              # Check if runs property exists
-              if (-not ($json.PSObject.Properties.Name -contains "runs")) {
-                Write-Host "SARIF file $File missing runs property. Creating valid empty SARIF file."
-                $emptySarif = @{
-                  version = "2.1.0"
-                  '$schema' = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
-                  runs = @(
-                    @{
-                      tool = @{
-                        driver = @{
-                          name = $ToolName
-                          informationUri = "https://github.com/anchapin/pAIssive_income"
-                          rules = @()
-                        }
-                      }
-                      results = @()
-                    }
-                  )
-                }
-                $emptySarifJson = ConvertTo-Json -InputObject $emptySarif -Depth 10
-                Set-Content -Path $File -Value $emptySarifJson
-                return
-              }
-
-              Write-Host "SARIF file $File is valid."
-            } catch {
-              Write-Host "Invalid SARIF file $File. Creating valid empty SARIF file."
-              $emptySarif = @{
-                version = "2.1.0"
-                '$schema' = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
-                runs = @(
-                  @{
-                    tool = @{
-                      driver = @{
-                        name = $ToolName
-                        informationUri = "https://github.com/anchapin/pAIssive_income"
-                        rules = @()
-                      }
-                    }
-                    results = @()
-                  }
-                )
-              }
-              $emptySarifJson = ConvertTo-Json -InputObject $emptySarif -Depth 10
-              Set-Content -Path $File -Value $emptySarifJson
-            }
-          }
-
-          # Validate all SARIF files
-          Write-Host "Validating SARIF files..."
-          Validate-Sarif -File "security-reports/bandit-results-${{ github.run_id }}.sarif" -ToolName "Bandit"
-          Validate-Sarif -File "security-reports/bandit-results.sarif" -ToolName "Bandit"
-          Validate-Sarif -File "security-reports/trivy-results.sarif" -ToolName "Trivy"
-          Validate-Sarif -File "security-reports/gitleaks-report.sarif" -ToolName "Gitleaks"
-          Validate-Sarif -File "security-reports/pylint-results.sarif" -ToolName "Pylint Security"
-
-          if (Test-Path "secrets.sarif.json") {
-            Validate-Sarif -File "secrets.sarif.json" -ToolName "Secret Scanner"
-            # Copy to security-reports directory if it exists
-            Copy-Item -Path "secrets.sarif.json" -Destination "security-reports/secrets.sarif.json" -Force -ErrorAction SilentlyContinue
-          }
-
-          Write-Host "SARIF validation complete."
-
-      # Upload platform-specific Bandit scan SARIF files
-      - name: Upload Bandit scan SARIF (Linux)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-${{ github.run_id }}-${{ github.run_number }}
-
-      - name: Upload Bandit scan SARIF (Windows)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-${{ github.run_id }}-${{ github.run_number }}
-
-      - name: Upload Bandit scan SARIF (macOS)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'macOS' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-macOS-${{ github.run_id }}-${{ github.run_number }}
-
-      # Keep the original upload for backward compatibility with a unique name
-      - name: Upload Bandit scan SARIF (Legacy)
+      - name: Upload Bandit scan SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
-        continue-on-error: true
         with:
           sarif_file: security-reports/bandit-results.sarif
-          category: bandit-${{ github.run_id }}-${{ github.run_number }}
+          category: bandit-${{ runner.os }}-${{ github.run_id }}
 
-      # Upload Bandit scan SARIF with specific run IDs for backward compatibility
-      - name: Upload Bandit scan SARIF (14974236301)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14974236301
-
-      - name: Upload Bandit scan SARIF (14976101411)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14976101411
-
-      - name: Upload Bandit scan SARIF (14977094424)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14977094424
-
-      - name: Upload Bandit scan SARIF (14977626158)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14977626158
-
-      - name: Upload Bandit scan SARIF (14978521232)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14978521232
-
-      - name: Upload Bandit scan SARIF (14987452007)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Linux' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Linux-14987452007
-
-      - name: Upload Bandit scan SARIF (Windows-14974236301)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14974236301
-
-      - name: Upload Bandit scan SARIF (Windows-14976101411)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14976101411
-
-      - name: Upload Bandit scan SARIF (Windows-14977094424)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14977094424
-
-      - name: Upload Bandit scan SARIF (Windows-14977626158)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14977626158
-
-      - name: Upload Bandit scan SARIF (Windows-14978521232)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14978521232
-
-      - name: Upload Bandit scan SARIF (Windows-14987452007)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14987452007
-
-      - name: Upload Bandit scan SARIF (Windows-14988964552)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results-${{ github.run_id }}.sarif
-          category: bandit-Windows-14988964552
-
-      # Consolidated upload for macOS to reduce redundancy and potential failures
-      - name: Upload Bandit scan SARIF (macOS-Consolidated)
-        uses: github/codeql-action/upload-sarif@v3
-        if: runner.os == 'macOS' && always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/bandit-results.sarif
-          category: bandit-macOS-consolidated-${{ github.run_id }}
-
-      # Upload Pylint SARIF file
-      - name: Upload Pylint scan SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        continue-on-error: true
-        with:
-          sarif_file: security-reports/pylint-results.sarif
-          category: pylint-${{ runner.os }}-${{ github.run_id }}-${{ github.run_number }}
-
-      # Upload Semgrep scan SARIF
-      - name: Upload Semgrep scan SARIF (Current Run)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/semgrep-results.sarif
-          category: semgrep-${{ runner.os }}-${{ github.run_id }}-${{ github.run_number }}
-
-      # Upload Trivy scan SARIF with specific run IDs for backward compatibility
-      - name: Upload Trivy scan SARIF (Current Run)
+      - name: Upload Trivy scan SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-${{ github.run_id }}-${{ github.run_number }}
+          category: trivy-${{ runner.os }}-${{ github.run_id }}
 
-      # Upload with specific run IDs mentioned in the error message
-      - name: Upload Trivy scan SARIF (14974236301)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14974236301
-
-      - name: Upload Trivy scan SARIF (14976101411)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14976101411
-
-      - name: Upload Trivy scan SARIF (14977094424)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14977094424
-
-      - name: Upload Trivy scan SARIF (14977626158)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14977626158
-
-      - name: Upload Trivy scan SARIF (14978521232)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14978521232
-
-      - name: Upload Trivy scan SARIF (14987452007)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14987452007
-
-      - name: Upload Trivy scan SARIF (14988964552)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: security-reports/trivy-results.sarif
-          category: trivy-${{ runner.os }}-14988964552
-
-      # Note: CodeQL analysis is now performed by the dedicated codeql.yml workflow
-      # This workflow references the main codeql.yml workflow which supports:
-      # - All operating systems (Ubuntu, Windows, macOS)
-      # - Multiple languages (JavaScript/TypeScript, Python)
-
-      # Run CodeQL analysis for backward compatibility
-      - name: Initialize CodeQL
+      - name: Run CodeQL Init
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ runner.os == 'Windows' && 'javascript-typescript,python' || 'javascript-typescript,python' }}
+          languages: python, javascript-typescript
           queries: security-and-quality
-          config-file: ./.github/codeql/security-os-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'ubuntu' }}.yml
 
-      # Autobuild attempts to build any compiled languages
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      # Display disk space before analysis (Linux/macOS)
-      - name: Check disk space (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: df -h
-
-      # Display disk space before analysis (Windows)
-      - name: Check disk space (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: Get-Volume
-
-      # Perform CodeQL Analysis for each OS
-      - name: Perform CodeQL Analysis
+      - name: Run CodeQL Analyze
         uses: github/codeql-action/analyze@v3
-        with:
-          category: "security/os:${{ runner.os == 'Windows' && 'windows-latest' || runner.os == 'macOS' && 'macos-latest' || 'ubuntu-latest' }}"
-          upload: true
 
       - name: Dependency Review (PRs only)
         if: github.event_name == 'pull_request'
@@ -3123,7 +1703,7 @@ EOF
           Write-Host "Docker tag set to: $env:DOCKER_TAG"
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ env.SHOULD_PUSH }}
@@ -3153,7 +1733,7 @@ EOF
 
       - name: Push Docker image to Docker Hub
         if: env.SHOULD_PUSH == 'true'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
