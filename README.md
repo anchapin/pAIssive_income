@@ -8,9 +8,9 @@
 
 ## TL;DR Quickstart
 
-> **Tooling Requirement:**  
-> - **Python:** Use [`uv`](https://github.com/astral-sh/uv) for all dependency/environment management.  
-> - **Node.js:** Use [`pnpm`](https://pnpm.io/) for all JavaScript/TypeScript dependencies and scripts.  
+> **Tooling Requirement:**
+> - **Python:** Use [`uv`](https://github.com/astral-sh/uv) for all dependency/environment management.
+> - **Node.js:** Use [`pnpm`](https://pnpm.io/) for all JavaScript/TypeScript dependencies and scripts.
 > - Do **NOT** use `pip`, `venv`, `npm`, or `yarn` for development, testing, or CI.
 
 1. **Clone the repo and enter it:**
@@ -241,10 +241,10 @@ For quick reference, the following topics are included in the full guide:
 
 ---
 
-> **Summary:**  
-> - Use **`uv`** for all Python dependency and environment management.  
-> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.  
-> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.  
+> **Summary:**
+> - Use **`uv`** for all Python dependency and environment management.
+> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.
+> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.
 > - For any questions, see the top of this document or ask a maintainer.
 
 ---
@@ -314,11 +314,12 @@ Running the main script generates a complete project plan including:
     ```bash
     corepack enable
     ```
-  - If Corepack is not available, bootstrap pnpm with npm:
+  - If Corepack is not available, you can bootstrap pnpm with npm:
     ```bash
     npm install -g pnpm
     ```
-    (Only use npm for this installation step!)
+    > **Note:** Use npm only for this initial installation of pnpm. For all other package management tasks, use pnpm.
+    > Refer to the [Corepack documentation](https://nodejs.org/api/corepack.html) for more details on managing package managers in Node.js.
 
 - PostgreSQL 15+ (for database)
   The project uses PostgreSQL as the database backend. See [DATABASE.md](DATABASE.md) for setup and migration instructions.
