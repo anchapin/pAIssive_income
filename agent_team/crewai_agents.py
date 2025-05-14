@@ -49,9 +49,14 @@ reporting_team = Crew(
 )
 
 if __name__ == "__main__":
+    import logging
+
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
     # Example: Run the workflow (for demonstration; adapt as needed)
     reporting_team.run()
-    print("CrewAI reporting workflow completed.")
+    logging.info("CrewAI reporting workflow completed.")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.
