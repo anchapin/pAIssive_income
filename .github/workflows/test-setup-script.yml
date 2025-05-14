@@ -30,23 +30,49 @@ on:
       setup_profile:
         description: 'Setup profile to test'
         required: false
-        default: 'full'
+        default: 'all'
         type: choice
         options:
+          - all
           - full
           - minimal
           - ui-only
           - backend-only
+      python_version:
+        description: 'Python version to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - '3.10'
+          - '3.11'
+          - '3.12'
 
 permissions:
   contents: read
 
 jobs:
   test-ubuntu:
-    name: Test on Ubuntu
+    name: Test on Ubuntu (Python ${{ matrix.python-version }}, ${{ matrix.profile }} profile)
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ubuntu' || github.event.inputs.platform == '' }}
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - ${{ github.event.inputs.python_version == 'all' || github.event.inputs.python_version == '' && '3.10' || github.event.inputs.python_version }}
+          - ${{ github.event.inputs.python_version == 'all' && '3.11' || github.event.inputs.python_version == '3.11' && '3.11' || github.event.inputs.python_version == '' && '3.11' || '' }}
+          - ${{ github.event.inputs.python_version == 'all' && '3.12' || github.event.inputs.python_version == '3.12' && '3.12' || github.event.inputs.python_version == '' && '3.12' || '' }}
+        profile:
+          - ${{ github.event.inputs.setup_profile == 'all' && 'minimal' || github.event.inputs.setup_profile == 'minimal' && 'minimal' || github.event.inputs.setup_profile == '' && 'full' || github.event.inputs.setup_profile }}
+          - ${{ github.event.inputs.setup_profile == 'all' && 'backend-only' || github.event.inputs.setup_profile == 'backend-only' && 'backend-only' || '' }}
+          - ${{ github.event.inputs.setup_profile == 'all' && 'ui-only' || github.event.inputs.setup_profile == 'ui-only' && 'ui-only' || '' }}
+          - ${{ github.event.inputs.setup_profile == 'all' && 'full' || github.event.inputs.setup_profile == 'full' && 'full' || '' }}
+        exclude:
+          - python-version: ''
+          - profile: ''
 
     steps:
       - name: Checkout code
@@ -64,7 +90,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install uv
         run: |
@@ -219,47 +245,171 @@ jobs:
           # Display the script version for debugging
           head -n 5 enhanced_setup_dev_environment.sh
 
-      - name: Run setup script with minimal profile
-        if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
-        run: ./enhanced_setup_dev_environment.sh --minimal --no-system-deps --ci-mode
-
-      - name: Run setup script with backend-only profile
-        if: ${{ github.event.inputs.setup_profile == 'backend-only' }}
-        run: ./enhanced_setup_dev_environment.sh --backend-only --no-system-deps --ci-mode
-
-      - name: Run setup script with ui-only profile
-        if: ${{ github.event.inputs.setup_profile == 'ui-only' }}
-        run: ./enhanced_setup_dev_environment.sh --ui-only --no-system-deps --ci-mode
-
-      - name: Run setup script with full profile
-        if: ${{ github.event.inputs.setup_profile == 'full' }}
-        run: ./enhanced_setup_dev_environment.sh --full --no-system-deps --ci-mode
+      - name: Run setup script
+        run: ./enhanced_setup_dev_environment.sh --${{ matrix.profile }} --no-system-deps --ci-mode
 
       - name: Verify setup
         run: |
+          echo "Running comprehensive verification checks..."
+
           # Check if virtual environment was created
           if [ -d ".venv" ]; then
-            echo "Virtual environment created successfully"
+            echo "✅ Virtual environment directory exists"
           else
-            echo "Error: Virtual environment not created"
+            echo "❌ Error: Virtual environment not created"
             exit 1
+          fi
+
+          # Check if Python is installed in the virtual environment
+          if [ -f ".venv/bin/python" ]; then
+            echo "✅ Python found in virtual environment (Unix path)"
+            PYTHON_PATH=".venv/bin/python"
+          elif [ -f ".venv/Scripts/python.exe" ]; then
+            echo "✅ Python found in virtual environment (Windows path)"
+            PYTHON_PATH=".venv/Scripts/python.exe"
+          else
+            echo "❌ Error: Python not found in virtual environment."
+            exit 1
+          fi
+
+          # Verify Python version in virtual environment
+          $PYTHON_PATH --version
+          if [ $? -ne 0 ]; then
+            echo "❌ Error: Failed to get Python version from virtual environment."
+            exit 1
+          else
+            echo "✅ Python in virtual environment is working"
+          fi
+
+          # Check if pip is installed in the virtual environment
+          if [ -f ".venv/bin/pip" ]; then
+            echo "✅ pip found in virtual environment (Unix path)"
+            PIP_PATH=".venv/bin/pip"
+          elif [ -f ".venv/Scripts/pip.exe" ]; then
+            echo "✅ pip found in virtual environment (Windows path)"
+            PIP_PATH=".venv/Scripts/pip.exe"
+          else
+            echo "❌ Error: pip not found in virtual environment."
+            exit 1
+          fi
+
+          # Verify pip version in virtual environment
+          $PIP_PATH --version
+          if [ $? -ne 0 ]; then
+            echo "❌ Error: Failed to get pip version from virtual environment."
+            exit 1
+          else
+            echo "✅ pip in virtual environment is working"
           fi
 
           # Check if configuration files were created
           if [ -f "setup_config.yaml" ]; then
-            echo "Configuration file created successfully"
+            echo "✅ Configuration file created successfully"
           else
-            echo "Error: Configuration file not created"
+            echo "❌ Error: Configuration file not created"
             exit 1
           fi
 
           # Check if IDE configuration files were created
-          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
-            echo "IDE configuration files created successfully"
+          if [ -d ".vscode" ]; then
+            echo "✅ VS Code configuration directory exists"
+            # Check if settings.json exists
+            if [ -f ".vscode/settings.json" ]; then
+              echo "✅ VS Code settings.json exists"
+            else
+              echo "⚠️ Warning: VS Code settings.json not found."
+            fi
           else
-            echo "Error: IDE configuration files not created"
+            echo "❌ Error: .vscode directory not found"
             exit 1
           fi
+
+          # Check if .editorconfig exists
+          if [ -f ".editorconfig" ]; then
+            echo "✅ .editorconfig file exists"
+          else
+            echo "❌ Error: .editorconfig file not found"
+            exit 1
+          fi
+
+          # Check if pre-commit is installed
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "✅ pre-commit hook is installed"
+          else
+            echo "⚠️ Warning: pre-commit hook not found."
+            # Not a critical error, so don't exit
+          fi
+
+          echo "Setup verification completed successfully."
+
+      - name: Run unit tests
+        if: ${{ matrix.profile != 'ui-only' }}
+        run: |
+          source .venv/bin/activate
+
+          # Check if pytest is installed
+          if ! python -c "import pytest" &> /dev/null; then
+            echo "Installing pytest..."
+            pip install pytest
+          fi
+
+          # Run tests
+          echo "Running unit tests..."
+          python -m pytest -xvs tests/
+
+      - name: Verify application startup
+        run: |
+          source .venv/bin/activate
+
+          # Create a simple test script to verify application can start
+          cat > test_app_startup.py << 'EOF'
+          """Test script to verify application can start."""
+          import importlib.util
+          import sys
+
+          def check_module(module_name):
+              """Check if a module can be imported."""
+              try:
+                  importlib.import_module(module_name)
+                  print(f"✅ Successfully imported {module_name}")
+                  return True
+              except ImportError as e:
+                  print(f"❌ Failed to import {module_name}: {e}")
+                  return False
+
+          # List of core modules to check
+          core_modules = [
+              "yaml",  # PyYAML
+              "pytest",
+              "ruff",
+          ]
+
+          # Check profile-specific modules
+          profile = "${{ matrix.profile }}"
+
+          if profile == "backend-only" or profile == "full":
+              core_modules.extend([
+                  "flask",
+                  "requests",
+              ])
+
+          if profile == "ui-only" or profile == "full":
+              # These are typically Node.js modules, but we can check if Python can find them
+              pass
+
+          # Check all modules
+          success = True
+          for module in core_modules:
+              if not check_module(module):
+                  success = False
+
+          # Exit with appropriate status code
+          sys.exit(0 if success else 1)
+          EOF
+
+          # Run the test script
+          echo "Verifying application dependencies..."
+          python test_app_startup.py
 
   test-windows:
     name: Test on Windows
