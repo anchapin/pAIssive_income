@@ -256,7 +256,41 @@ team = AgentTeam("My Team", agent_model_provider=provider)
 
 ## Example: Complete Workflow
 
+
 Here's a complete example that demonstrates the entire workflow of the Agent Team:
+
+## CrewAI Integration
+
+This section describes the CrewAI integration in `agent_team/crewai_agents.py`. This integration provides a different approach to agent teams, using the CrewAI framework for multi-agent orchestration.
+
+### Usage
+
+The `agent_team/crewai_agents.py` file defines example agent roles (Data Gatherer, Analyzer, Writer) and a simple workflow using the CrewAI framework.
+
+To run the included workflow:
+
+```bash
+python agent_team/crewai_agents.py
+```
+
+This will execute the example agents and tasks, demonstrating a basic CrewAI workflow.
+
+### Extending the CrewAI Integration
+
+To extend the CrewAI integration, you can:
+
+- Define new agent roles with specific goals and backstories.
+- Create tasks that agents can perform.
+- Assemble agents and tasks into crews to create complex workflows.
+
+Refer to the CrewAI documentation for more information on how to use and extend the framework:
+
+- [CrewAI Documentation](https://docs.crewai.com/)
+- [CrewAI GitHub](https://github.com/VisionBlack/CrewAI)
+
+### Testing
+
+A minimal test scaffold is provided in `tests/test_crewai_agents.py` to verify the CrewAI integration.
 
 ```python
 from agent_team import AgentTeam

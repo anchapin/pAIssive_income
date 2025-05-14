@@ -14,7 +14,7 @@ paths:
   - '**/*.tsx'
   - '**/*.json'
   - '**/*.html'
-  
+
   # Python paths
   - '**/*.py'
   - '**/*.pyw'
@@ -30,7 +30,7 @@ paths-ignore:
   - '**/vendor/**'
   - '**/external/**'
   - '**/third_party/**'
-  
+
   # Test files
   - '**/test/**'
   - '**/tests/**'
@@ -44,13 +44,13 @@ paths-ignore:
   - '**/*.spec.ts'
   - '**/*.spec.jsx'
   - '**/*.spec.tsx'
-  
+
   # Configuration files
   - '**/.github/**'
   - '**/.vscode/**'
   - '**/.idea/**'
   - '**/coverage/**'
-  
+
   # Documentation
   - '**/docs/**'
   - '**/*.md'
@@ -83,6 +83,34 @@ query-filters:
   - exclude:
       tags contain: correctness
       precision below: high
+
+# OS-specific settings
+windows:
+  # Handle Windows path separators
+  path-separator: '\\'
+  # Windows-specific file extensions
+  additional-extensions:
+    - '.bat'
+    - '.cmd'
+    - '.ps1'
+
+macos:
+  # Handle macOS path separators
+  path-separator: '/'
+  # macOS-specific file extensions
+  additional-extensions:
+    - '.sh'
+    - '.bash'
+    - '.zsh'
+
+linux:
+  # Handle Linux path separators
+  path-separator: '/'
+  # Linux-specific file extensions
+  additional-extensions:
+    - '.sh'
+    - '.bash'
+    - '.pl'
 
 # Trap errors during extraction
 trap-for-errors: true
