@@ -202,13 +202,8 @@ jobs:
           ls -la
           echo "============================="
 
-      - name: Create and make script executable
+      - name: Make script executable
         run: |
-          # Create a simple wrapper script
-          echo '#!/bin/bash' > enhanced_setup_dev_environment.sh
-          echo '# Shell script wrapper for enhanced_setup_dev_environment.py' >> enhanced_setup_dev_environment.sh
-          echo 'python enhanced_setup_dev_environment.py "$@"' >> enhanced_setup_dev_environment.sh
-
           # Make the script executable
           chmod +x enhanced_setup_dev_environment.sh
 
@@ -221,9 +216,8 @@ jobs:
             exit 1
           fi
 
-          # Display the script for debugging
-          echo "Script contents:"
-          cat enhanced_setup_dev_environment.sh
+          # Display the script version for debugging
+          head -n 5 enhanced_setup_dev_environment.sh
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
@@ -1511,13 +1505,8 @@ jobs:
           ls -la
           echo "============================="
 
-      - name: Create and make script executable
+      - name: Make script executable
         run: |
-          # Create a simple wrapper script
-          echo '#!/bin/bash' > enhanced_setup_dev_environment.sh
-          echo '# Shell script wrapper for enhanced_setup_dev_environment.py' >> enhanced_setup_dev_environment.sh
-          echo 'python enhanced_setup_dev_environment.py "$@"' >> enhanced_setup_dev_environment.sh
-
           # Make the script executable
           chmod +x enhanced_setup_dev_environment.sh
 
@@ -1530,9 +1519,8 @@ jobs:
             exit 1
           fi
 
-          # Display the script for debugging
-          echo "Script contents:"
-          cat enhanced_setup_dev_environment.sh
+          # Display the script version for debugging
+          head -n 5 enhanced_setup_dev_environment.sh
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
@@ -1552,26 +1540,94 @@ jobs:
 
       - name: Verify setup
         run: |
+          echo "Running comprehensive verification checks..."
+
           # Check if virtual environment was created
           if [ -d ".venv" ]; then
-            echo "Virtual environment created successfully"
+            echo "✅ Virtual environment directory exists"
           else
-            echo "Error: Virtual environment not created"
+            echo "❌ Error: Virtual environment not created"
             exit 1
+          fi
+
+          # Check if Python is installed in the virtual environment
+          if [ -f ".venv/bin/python" ]; then
+            echo "✅ Python found in virtual environment (Unix path)"
+            PYTHON_PATH=".venv/bin/python"
+          elif [ -f ".venv/Scripts/python.exe" ]; then
+            echo "✅ Python found in virtual environment (Windows path)"
+            PYTHON_PATH=".venv/Scripts/python.exe"
+          else
+            echo "❌ Error: Python not found in virtual environment."
+            exit 1
+          fi
+
+          # Verify Python version in virtual environment
+          $PYTHON_PATH --version
+          if [ $? -ne 0 ]; then
+            echo "❌ Error: Failed to get Python version from virtual environment."
+            exit 1
+          else
+            echo "✅ Python in virtual environment is working"
+          fi
+
+          # Check if pip is installed in the virtual environment
+          if [ -f ".venv/bin/pip" ]; then
+            echo "✅ pip found in virtual environment (Unix path)"
+            PIP_PATH=".venv/bin/pip"
+          elif [ -f ".venv/Scripts/pip.exe" ]; then
+            echo "✅ pip found in virtual environment (Windows path)"
+            PIP_PATH=".venv/Scripts/pip.exe"
+          else
+            echo "❌ Error: pip not found in virtual environment."
+            exit 1
+          fi
+
+          # Verify pip version in virtual environment
+          $PIP_PATH --version
+          if [ $? -ne 0 ]; then
+            echo "❌ Error: Failed to get pip version from virtual environment."
+            exit 1
+          else
+            echo "✅ pip in virtual environment is working"
           fi
 
           # Check if configuration files were created
           if [ -f "setup_config.yaml" ]; then
-            echo "Configuration file created successfully"
+            echo "✅ Configuration file created successfully"
           else
-            echo "Error: Configuration file not created"
+            echo "❌ Error: Configuration file not created"
             exit 1
           fi
 
           # Check if IDE configuration files were created
-          if [ -f ".editorconfig" ] && [ -d ".vscode" ]; then
-            echo "IDE configuration files created successfully"
+          if [ -d ".vscode" ]; then
+            echo "✅ VS Code configuration directory exists"
+            # Check if settings.json exists
+            if [ -f ".vscode/settings.json" ]; then
+              echo "✅ VS Code settings.json exists"
+            else
+              echo "⚠️ Warning: VS Code settings.json not found."
+            fi
           else
-            echo "Error: IDE configuration files not created"
+            echo "❌ Error: .vscode directory not found"
             exit 1
           fi
+
+          # Check if .editorconfig exists
+          if [ -f ".editorconfig" ]; then
+            echo "✅ .editorconfig file exists"
+          else
+            echo "❌ Error: .editorconfig file not found"
+            exit 1
+          fi
+
+          # Check if pre-commit is installed
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "✅ pre-commit hook is installed"
+          else
+            echo "⚠️ Warning: pre-commit hook not found."
+            # Not a critical error, so don't exit
+          fi
+
+          echo "Setup verification completed successfully."
