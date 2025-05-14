@@ -10,6 +10,15 @@ from .openai_compatible_adapter import OpenAICompatibleAdapter
 from .lmstudio_adapter import LMStudioAdapter
 from .tensorrt_adapter import TensorRTAdapter
 
+class AdapterError(Exception):
+    """Base class for adapter-related errors."""
+
+class MCPAdapterNotAvailableError(AdapterError):
+    """Raised when MCP adapter is not available."""
+
+class UnsupportedServerTypeError(AdapterError):
+    """Raised when an unsupported server type is provided."""
+
 try:
     from .mcp_adapter import MCPAdapter
 except ImportError:
@@ -30,7 +39,7 @@ def get_adapter(server_type: str, host: str, port: int, **kwargs):
         return TensorRTAdapter(host, port, **kwargs)
     elif server_type == "mcp":
         if MCPAdapter is None:
-            raise ImportError("MCPAdapter not available. Ensure ai_models/adapters/mcp_adapter.py exists and mcp-use is installed.")
+            raise MCPAdapterNotAvailableError("MCPAdapter missing. Install mcp-use and ensure the file exists.")
         return MCPAdapter(host, port, **kwargs)
     else:
-        raise ValueError(f"Unsupported server type: {server_type}")
+        raise UnsupportedServerTypeError(f"Unsupported server type: {server_type}")

@@ -20,7 +20,7 @@ def load_settings():
         try:
             data = json.load(f)
         except Exception as e:
-            logging.error("Failed to decode JSON from settings file '%s': %s", MCP_SETTINGS_FILE, e)
+            logging.exception("Failed to decode JSON from settings file '%s'", MCP_SETTINGS_FILE)
             data = {}
     if MCP_SERVERS_KEY not in data:
         data[MCP_SERVERS_KEY] = []

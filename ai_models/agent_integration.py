@@ -33,7 +33,7 @@ def get_mcp_adapters():
         try:
             adapters[name] = get_adapter("mcp", host, port)
         except Exception as e:
-            logging.error(f"Failed to instantiate adapter for server '{name}' with host '{host}' and port '{port}': {e}")
+            logging.exception(f"Failed to instantiate adapter for server '{name}' with host '{host}' and port '{port}'")
             continue
     return adapters
 
