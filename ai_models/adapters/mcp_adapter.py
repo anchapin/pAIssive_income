@@ -2,19 +2,19 @@
 
 # Third-party imports
 try:
-    import mcp_use
+    import modelcontextprotocol as mcp
 except ImportError:
-    mcp_use = None
+    mcp = None
 
 # Example MCPAdapter class
 class MCPAdapter:
     """
-    Adapter for connecting to MCP servers using the mcp-use library.
+    Adapter for connecting to MCP servers using the official modelcontextprotocol SDK.
     """
 
     def __init__(self, host: str, port: int, **kwargs):
-        if mcp_use is None:
-            raise ImportError("mcp-use library is not installed. Please install it with `pip install mcp-use`.")
+        if mcp is None:
+            raise ImportError("modelcontextprotocol-python-sdk is not installed. Please install it with `pip install modelcontextprotocol-python-sdk`.")
         self.host = host
         self.port = port
         self.client = None
@@ -24,7 +24,8 @@ class MCPAdapter:
         """
         Connect to the MCP server.
         """
-        self.client = mcp_use.MCPClient(self.host, self.port, **self.kwargs)
+        endpoint = f"http://{self.host}:{self.port}"
+        self.client = mcp.Client(endpoint, **self.kwargs)
         self.client.connect()
 
     def send_message(self, message: str) -> str:
@@ -40,5 +41,5 @@ class MCPAdapter:
         Close the connection to the MCP server.
         """
         if self.client:
-            self.client.close()
+            self.client.disconnect()
             self.client = None
