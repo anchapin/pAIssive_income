@@ -42,6 +42,10 @@ class WebhookService:
         Returns:
             Dictionary containing the created webhook details
         """
+        # Validate required fields
+        if "url" not in webhook_data:
+            raise ValueError("Webhook URL is required")
+
         # Generate a webhook ID and secret
         webhook_id = f"webhook-{uuid.uuid4().hex[:8]}"
         webhook_secret = f"whsec_{uuid.uuid4().hex}"
@@ -186,7 +190,7 @@ class WebhookService:
         full_event = {
             "type": event_type,
             "data": event_data,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Deliver to each webhook

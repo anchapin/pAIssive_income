@@ -160,15 +160,19 @@ class WebhookIPAllowlist:
             return True
 
         # Check if the IP is in any of the networks in the allowlist
-        ip_obj = ipaddress.ip_address(ip)
-        for item in allowlist:
-            try:
-                # Check if the item is a network
-                if "/" in item:
-                    network = ipaddress.ip_network(item)
-                    if ip_obj in network:
-                        return True
-            except ValueError:
-                continue
+        try:
+            ip_obj = ipaddress.ip_address(ip)
+            for item in allowlist:
+                try:
+                    # Check if the item is a network
+                    if "/" in item:
+                        network = ipaddress.ip_network(item)
+                        if ip_obj in network:
+                            return True
+                except ValueError:
+                    continue
+        except ValueError:
+            logger.error(f"Invalid IP address format: {ip}")
+            return False
 
         return False
