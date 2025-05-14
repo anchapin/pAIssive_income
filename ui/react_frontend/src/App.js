@@ -1,12 +1,44 @@
-import React from 'react';
-// Import AgentUI (or another component) from ag-ui
+import React, { useCallback } from 'react';
 import { AgentUI } from '@ag-ui-protocol/ag-ui';
 
+// Example agent configuration
+const agent = {
+  id: "demo-agent",
+  name: "Demo Agent",
+  avatarUrl: "https://avatars.githubusercontent.com/u/1234567?v=4",
+  description: "This is a sample agent powered by ag-ui.",
+  // ...other agent properties as supported by ag-ui
+};
+
+// Example theme configuration
+const theme = {
+  primaryColor: "#007bff",
+  secondaryColor: "#f5f5f5",
+  fontFamily: "Roboto, Arial, sans-serif",
+  borderRadius: "8px",
+  darkMode: false,
+  // ...other theme settings
+};
+
+// Example action handler
+function handleAgentAction(action) {
+  // Replace with real logic as needed
+  alert(`Agent action triggered: ${JSON.stringify(action)}`);
+}
+
 function App() {
+  // Optionally use useCallback if you want stable handler references
+  const onAction = useCallback(handleAgentAction, []);
+
   return (
     <div className="App">
-      {/* ag-ui sample integration */}
-      <AgentUI />
+      {/* Enhanced ag-ui integration */}
+      <AgentUI
+        agent={agent}
+        theme={theme}
+        onAction={onAction}
+        // Add other props as needed, e.g. session, messages, etc.
+      />
       {/* Your existing code here */}
     </div>
   );
