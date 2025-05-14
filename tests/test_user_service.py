@@ -25,8 +25,8 @@ class MockDB:
 
 
 # Create patch for flask.models
-patch("flask.models.User", MockUser).start()
-patch("flask.models.db", MockDB()).start()
+patch("users.models.User", MockUser).start()
+patch("users.models.db", MockDB()).start()
 
 
 @pytest.fixture

@@ -103,8 +103,15 @@ jobs:
       - name: Create virtual environment with uv
         run: |
           uv venv .venv || {
-            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
+            echo "uv failed. Falling back to Python's venv module..."
+            python -m venv .venv || {
+              echo "Python venv failed. Trying virtualenv..."
+              python -m pip install virtualenv
+              python -m virtualenv .venv || {
+                echo "All methods to create a virtual environment failed."
+                exit 1
+              }
+            }
           }
 
       - name: Install dependencies with uv
@@ -192,6 +199,10 @@ jobs:
           echo "Contents of package.json:"
           cat package.json
 
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm
+          pnpm --version
       - name: Install Node.js dependencies (pnpm)
         shell: bash
         run: |
