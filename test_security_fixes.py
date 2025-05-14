@@ -80,8 +80,10 @@ class TestSecurityFixes(unittest.TestCase):
             generate_report(results, output_file=temp_path)
 
             # Read the file content
-            with open(temp_path) as f:
+            import codecs
+            with open(temp_path, "rb") as f:
                 content = f.read()
+            content = codecs.decode(content, 'utf-8', 'ignore')
 
             # Ensure no sensitive data in file
             assert "[TEST_PLACEHOLDER]" not in content
@@ -111,6 +113,7 @@ class TestSecurityFixes(unittest.TestCase):
             patch(
                 "common_utils.secrets.cli.list_secrets", return_value=test_credentials
             ),
+            patch("common_utils.secrets.cli._check_auth", return_value=True),
             patch("builtins.print") as mock_print,
         ):
             # Call handle_list
@@ -135,7 +138,6 @@ class TestSecurityFixes(unittest.TestCase):
     @patch("fix_security_issues.IMPORTED_SECRET_SCANNER", False)
     @patch("fix_security_issues.globals")
     @patch("subprocess.run")
-    @pytest.mark.usefixtures("_")
     def test_run_security_scan_with_missing_imports(
         self, mock_subprocess_run: MagicMock, mock_globals: MagicMock
     ) -> None:

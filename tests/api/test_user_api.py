@@ -142,3 +142,17 @@ class TestUserAPI:
             },
         )
         assert response.status_code in (400, 422)
+
+    def test_create_user_unexpected_error(self):
+        with patch("api.routes.user_router.user_service.create_user") as mock_create_user:
+            mock_create_user.side_effect = Exception("Unexpected error")
+            response = client.post(
+                "/users/",
+                json={
+                    "username": "testuser",
+                    "email": "test@example.com",
+                    "password": "password123",
+                },
+            )
+            assert response.status_code == 500
+            assert response.json()["error"] == "An error occurred while creating the user"

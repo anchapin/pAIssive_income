@@ -1,53 +1,98 @@
-"""Common utilities for secure logging and log management.
+"""Logging utilities module."""
 
-This package provides tools for secure logging, ensuring sensitive information
-is not logged in clear text.
-"""
-
-# Standard library imports
 import logging
+from logging import Logger
+from typing import Dict, Union
 
-from typing import cast
+class SecureLogger(Logger):
+    """Secure logger with enhanced security features."""
 
-# Third-party imports
-# Local imports
-from .secure_logging import SENSITIVE_FIELDS
-from .secure_logging import SecureLogger
-from .secure_logging import get_secure_logger
-from .secure_logging import mask_sensitive_data
+    def __init__(self, name: str):
+        """Initialize secure logger.
+        
+        Args:
+            name: Logger name
+        """
+        super().__init__(name)
+        self._configure()
 
-__all__ = [
-    "SENSITIVE_FIELDS",
-    "SecureLogger",
-    "get_logger",
-    "get_secure_logger",
-    "mask_sensitive_data",
-]
-
-
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the given name.
-
-    This is a convenience function that returns a secure logger by default,
-    which automatically masks sensitive information.
-
-    Args:
-    ----
-        name: Name of the logger
-
-    Returns:
-    -------
-        logging.Logger: The secure logger or a standard logger as fallback
-
-    """
-    try:
-        # Return a SecureLogger that masks sensitive information
-        logger = get_secure_logger(name)
-        # Cast to logging.Logger to satisfy type checking
-        return cast(logging.Logger, logger)
-    except Exception as e:
-        # Fall back to standard logger if secure logger is not available
-        logging.getLogger("logging_setup").warning(
-            f"Failed to create secure logger, falling back to standard logger: {e!s}"
+    def _configure(self):
+        """Configure logger with security settings."""
+        # Set secure logging format
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            '%Y-%m-%d %H:%M:%S'
         )
-        return logging.getLogger(name)
+
+        # Add console handler
+        console = logging.StreamHandler()
+        console.setFormatter(formatter)
+        self.addHandler(console)
+
+        # Set default level
+        self.setLevel(logging.INFO)
+
+    def error(self, msg: str, *args, **kwargs):
+        """Log error message with secure formatting.
+        
+        Args:
+            msg: Error message
+            args: Additional positional args
+            kwargs: Additional keyword args
+        """
+        # Add security context if available
+        if kwargs.get('secure_context'):
+            msg = f"[SECURE] {msg}"
+        super().error(msg, *args, **kwargs)
+
+    def warning(self, msg: str, *args, **kwargs):
+        """Log warning message with secure formatting.
+        
+        Args:
+            msg: Warning message
+            args: Additional positional args
+            kwargs: Additional keyword args
+        """
+        if kwargs.get('secure_context'):
+            msg = f"[SECURE] {msg}"
+        super().warning(msg, *args, **kwargs)
+
+    def info(self, msg: str, *args, **kwargs):
+        """Log info message with secure formatting.
+        
+        Args:
+            msg: Info message
+            args: Additional positional args 
+            kwargs: Additional keyword args
+        """
+        if kwargs.get('secure_context'):
+            msg = f"[SECURE] {msg}"
+        super().info(msg, *args, **kwargs)
+
+# Logger cache to avoid creating duplicate loggers
+_logger_cache: Dict[str, Union[SecureLogger, Logger]] = {}
+
+def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, Logger]:
+    """Get a logger instance.
+    
+    Args:
+        name: Logger name
+        secure: Whether to return a secure logger (default True)
+        
+    Returns:
+        Logger instance (SecureLogger if secure=True)
+    """
+    if name in _logger_cache:
+        return _logger_cache[name]
+        
+    if secure:
+        logger = SecureLogger(name)
+    else:
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.INFO)
+        
+    _logger_cache[name] = logger
+    return logger
+
+# Create global secure logger instance
+secure_logger = get_logger("secure_logger")
