@@ -47,4 +47,14 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Any:
 
     app.register_blueprint(user_bp)
 
+    # Add health check endpoint
+    @app.route("/health")
+    def health_check() -> Dict[str, str]:
+        """Health check endpoint for monitoring.
+
+        Returns:
+            Dict[str, str]: Health status information
+        """
+        return {"status": "healthy", "service": "paissive-income-ui"}
+
     return app

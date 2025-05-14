@@ -19,6 +19,7 @@ RUN apt-get update \
        postgresql-client \
        libffi-dev \
        python3-dev \
+       docker-compose \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

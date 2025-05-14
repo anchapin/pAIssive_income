@@ -245,9 +245,13 @@ jobs:
           echo "Disk space after all cleanup operations:"
           df -h
 
-      # Verify Docker Compose installation and version
-      - name: Verify Docker Compose installation
+      # Install and verify Docker Compose
+      - name: Install and verify Docker Compose
         run: |
+          echo "Installing Docker Compose..."
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
           echo "Checking Docker Compose installation..."
           docker compose version || docker-compose --version
 

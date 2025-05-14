@@ -10,6 +10,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./run_ui.py:/app/run_ui.py
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
