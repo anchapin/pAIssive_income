@@ -8,16 +8,10 @@ This document explains how to use and extend the [CrewAI](https://docs.crewai.co
 
 1. **Install dependencies**
 
-   Ensure you’ve installed project dependencies, including CrewAI:
+   Ensure you’ve installed project dependencies, including CrewAI, by running:
 
    ```bash
-   pip install -e .
-   ```
-
-   Or, if not using editable installs:
-
-   ```bash
-   pip install crewai
+   pip install -r requirements.txt
    ```
 
 2. **Configure API keys**
