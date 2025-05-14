@@ -54,10 +54,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode("utf-8"))
-
-    def _get_db_connection(self):
-        """Establish a PostgreSQL connection using DATABASE_URL env var."""        db_url = os.environ.get("DATABASE_URL")
+        self.wfile.write(json.dumps(data).encode("utf-8"))    def _get_db_connection(self):
+        """Establish a PostgreSQL connection using DATABASE_URL env var."""
+        db_url = os.environ.get("DATABASE_URL")
         if not db_url:
             raise DatabaseConfigError()
         try:
@@ -74,9 +73,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
             if path == "/health":
                 logger.info("Health check request received")
-                self._send_response(200, {"status": "ok"})
-            elif path == "/api/agent":
-                logger.info("Agent info GET request received")                try:
+                self._send_response(200, {"status": "ok"})            elif path == "/api/agent":
+                logger.info("Agent info GET request received")
+                try:
                     with self._get_db_connection() as conn, conn.cursor() as cursor:
                         cursor.execute("SELECT * FROM agent LIMIT 1;")
                         agent = cursor.fetchone()

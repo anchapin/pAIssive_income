@@ -287,7 +287,8 @@ jobs:
           # Debug: Check port availability
           if nc -z localhost 8000 2>/dev/null; then
             echo "Error: Port 8000 is already in use"
-            ps aux | grep ':8000' || true
+            echo "Processes using port 8000:"
+            lsof -i :8000 || ps aux | grep ':8000'
             exit 1
           fi
           
@@ -295,23 +296,26 @@ jobs:
           export PYTHONVERBOSE=1
           export PYTHONDEVMODE=1
 
-          # Run the API server with the activated virtual environment and capture logs
-          nohup python -X dev -W default ui/api_server.py > api_server.log 2>&1 &
+          # Run the API server with the activated virtual environment and capture detailed logs
+          nohup python -X dev -W default ui/api_server.py > api_server_detailed.log 2>&1 &
           echo "API server started, checking logs..."
-          tail -f api_server.log &
+          tail -f api_server_detailed.log &
           tail_pid=$!
 
           cd ui/react_frontend
-          for i in {1..60}; do
+          for i in {1..120}; do
             if curl --silent --fail http://localhost:8000/health; then
               echo "Backend API server is ready."
+              kill $tail_pid 2>/dev/null || true
               break
             fi
-            echo "Waiting for backend API server to be ready... (Attempt $i/60)"
+            echo "Waiting for backend API server to be ready... (Attempt $i/120)"
             sleep 1
           done
           if ! curl --silent --fail http://localhost:8000/health; then
-            echo "Backend API server failed to start within 60 seconds."
+            echo "Backend API server failed to start within 120 seconds."
+            echo "Last 50 lines of server log:"
+            tail -n 50 ../../api_server_detailed.log
             exit 1
           fi
 
@@ -411,7 +415,10 @@ jobs:
             $testConnection.Connect("localhost", 8000)
             $testConnection.Close()
             Write-Error "Error: Port 8000 is already in use"
-            Get-Process | Where-Object {$_.Name -like "*python*"} | Select-Object Id, ProcessName, Path
+            Write-Host "Processes potentially using port 8000:"
+            Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | 
+              ForEach-Object { Get-Process -Id $_.OwningProcess } |
+              Select-Object Id, ProcessName, Path
             exit 1
           } catch {
             Write-Host "Port 8000 is available"
@@ -421,12 +428,13 @@ jobs:
           $env:PYTHONVERBOSE = "1"
           $env:PYTHONDEVMODE = "1"
 
-          # Run the API server with the activated virtual environment and capture logs
-          $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "-X dev -W default ui/api_server.py" -RedirectStandardOutput "api_server.log" -RedirectStandardError "api_server_error.log" -PassThru -NoNewWindow
+          # Run the API server with the activated virtual environment and capture detailed logs
+          $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "-X dev -W default ui/api_server.py" -RedirectStandardOutput "api_server_detailed.log" -RedirectStandardError "api_server_error.log" -PassThru -NoNewWindow
           Write-Host "API server started, checking logs..."
-          Start-Job -ScriptBlock { Get-Content -Path "api_server.log" -Wait } | Receive-Job -Wait
+          Start-Job -ScriptBlock { Get-Content -Path "api_server_detailed.log" -Wait } | Receive-Job -Wait
 
-          cd ui/react_frontend          $maxRetries = 60
+          cd ui/react_frontend
+          $maxRetries = 120
           $retryCount = 0
           $serverReady = $false
 
@@ -445,7 +453,9 @@ jobs:
           }
 
           if (-not $serverReady) {
-            Write-Error "Backend API server failed to start within 60 seconds."
+            Write-Host "Backend API server failed to start within 120 seconds."
+            Write-Host "Last 50 lines of server log:"
+            Get-Content -Path "api_server_detailed.log" -Tail 50
             exit 1
           }
 

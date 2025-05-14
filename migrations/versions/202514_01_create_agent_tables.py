@@ -1,7 +1,7 @@
 """create agent and agent_action tables
 
 Revision ID: 20240601_01
-Revises: 
+Revises:
 Create Date: 2024-06-01 10:00:00.000000
 
 """

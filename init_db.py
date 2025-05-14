@@ -3,6 +3,7 @@
 
 import logging
 import os
+import sys
 from secrets import randbelow
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError
 
@@ -133,6 +134,6 @@ if __name__ == "__main__":
     success = init_db()
     if not success:
         logger.error("Database initialization failed")
-        exit(1)
+        sys.exit(1)
     else:
         logger.info("Database initialization completed successfully")

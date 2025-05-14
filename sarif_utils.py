@@ -28,14 +28,14 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
         Dict containing a valid empty SARIF structure
 
     Raises:
-        ValueError: If tool_name is empty or contains only whitespace
+        ValueError: If tool_name is invalid
         TypeError: If tool_name is not a string
     """
     if not isinstance(tool_name, str):
         raise TypeError("Tool name must be a string")
     if not tool_name or tool_name.isspace():
-        raise ValueError("Tool name cannot be empty or contain only whitespace")
-        
+        raise ValueError("Invalid tool name")
+
     try:
         return {
             "version": "2.1.0",
@@ -57,7 +57,7 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
             ],
         }
     except Exception as e:
-        logging.error(f"Failed to create SARIF structure: {str(e)}")
+        logging.error("Failed to create SARIF structure")
         raise
 
 
@@ -72,14 +72,14 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
         bool: True if successful, False otherwise
 
     Raises:
-        ValueError: If output_file is empty
+        ValueError: If output path is invalid
         OSError: If there are filesystem related errors
-        TypeError: If sarif_data is not a valid dict
+        TypeError: If data is invalid
     """
     if not output_file:
-        raise ValueError("Output file path cannot be empty")
+        raise ValueError("Invalid output path")
     if not isinstance(sarif_data, dict):
-        raise TypeError("sarif_data must be a dictionary")
+        raise TypeError("Invalid SARIF data")
 
     try:
         # Create directory if it doesn't exist
@@ -88,13 +88,13 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
         with open(output_file, "w") as f:
             json.dump(sarif_data, f, indent=2)
     except OSError as e:
-        logging.error(f"Filesystem error while saving SARIF file: {str(e)}")
+        logging.error("Filesystem error")
         return False
     except TypeError as e:
-        logging.error(f"Invalid data type in SARIF structure: {str(e)}")
+        logging.error("Invalid data type in SARIF")
         return False
     except json.JSONEncodeError as e:
-        logging.error(f"Error encoding SARIF data to JSON: {str(e)}")
+        logging.error("JSON encoding error")
         return False
     else:
         return True
@@ -255,21 +255,19 @@ def convert_file(
     """Convert a JSON file to SARIF format.
 
     Args:
-        input_file: Path to input JSON file
-        output_file: Path to output SARIF file
+        input_file: Path to the input JSON file
+        output_file: Path to save the SARIF file
         tool_name: Name of the tool that produced the results
         tool_url: URL with information about the tool
-        result_mapping: Mapping from tool-specific fields to SARIF fields
+        result_mapping: Optional mapping of JSON keys to SARIF fields
 
     Returns:
         bool: True if successful, False otherwise
-
     """
     try:
-        # Check if input file exists and has content
+        # If input file doesn't exist or is empty, create an empty SARIF file
         if not os.path.exists(input_file) or os.path.getsize(input_file) == 0:
-            logging.warning(f"Input file [{input_file}] is empty or does not exist")
-            logging.info(f"Creating an empty SARIF file at {output_file}")
+            logging.info(f"Creating empty SARIF file for {input_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
 
@@ -278,7 +276,7 @@ def convert_file(
             with open(input_file) as f:
                 json_data = json.load(f)
         except json.JSONDecodeError:
-            logging.exception(f"Error parsing JSON from {input_file}")
+            logging.exception("Error parsing input file")
             logging.info(f"Creating an empty SARIF file at {output_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
