@@ -13,7 +13,7 @@ services:
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5433/mydb
       - PATH=/app/.venv/bin:$PATH
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
@@ -22,7 +22,7 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
+      test: ["CMD", "/app/docker-healthcheck.sh"]
       interval: 30s
       timeout: 60s
       retries: 10
@@ -44,7 +44,7 @@ services:
     container_name: paissive-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
