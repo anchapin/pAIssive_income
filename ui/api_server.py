@@ -21,6 +21,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
 class APIHandler(http.server.BaseHTTPRequestHandler):
     """HTTP request handler for the API server."""
 
@@ -40,6 +43,13 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
+    def _get_db_connection(self):
+        """Establish a PostgreSQL connection using DATABASE_URL env var."""
+        db_url = os.environ.get("DATABASE_URL")
+        if not db_url:
+            raise RuntimeError("DATABASE_URL environment variable not set")
+        return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
         try:
@@ -49,11 +59,71 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             if path == "/health":
                 logger.info("Health check request received")
                 self._send_response(200, {"status": "ok"})
+            elif path == "/api/agent":
+                logger.info("Agent info GET request received")
+                try:
+                    with self._get_db_connection() as conn:
+                        with conn.cursor() as cursor:
+                            cursor.execute("SELECT * FROM agent LIMIT 1;")
+                            agent = cursor.fetchone()
+                            if agent:
+                                self._send_response(200, agent)
+                            else:
+                                self._send_response(404, {"error": "Agent not found"})
+                except Exception as e:
+                    logger.exception("Error fetching agent data")
+                    self._send_response(500, {"error": "Failed to fetch agent data", "details": str(e)})
             else:
                 logger.warning(f"404 error: {path}")
                 self._send_response(404, {"error": "Not found", "path": path})
         except Exception:
             logger.exception("Error handling request")
+            self._send_response(500, {"error": "Internal server error"})
+
+    def do_POST(self) -> None:  # noqa: N802
+        """Handle POST requests."""
+        try:
+            parsed_path = urlparse(self.path)
+            path = parsed_path.path
+
+            if path == "/api/agent/action":
+                logger.info("Agent action POST request received")
+                content_length = int(self.headers.get('Content-Length', 0))
+                if content_length == 0:
+                    self._send_response(400, {"error": "No data provided"})
+                    return
+                post_data = self.rfile.read(content_length)
+                try:
+                    action = json.loads(post_data.decode("utf-8"))
+                except Exception:
+                    self._send_response(400, {"error": "Invalid JSON"})
+                    return
+
+                try:
+                    with self._get_db_connection() as conn:
+                        with conn.cursor() as cursor:
+                            cursor.execute(
+                                """
+                                INSERT INTO agent_action (agent_id, action_type, action_payload)
+                                VALUES (%s, %s, %s)
+                                RETURNING id;
+                                """,
+                                (
+                                    action.get("agent_id"),
+                                    action.get("action_type"),
+                                    json.dumps(action.get("payload", {})),
+                                ),
+                            )
+                            conn.commit()
+                            action_id = cursor.fetchone()["id"]
+                            self._send_response(200, {"status": "success", "action_id": action_id})
+                except Exception as e:
+                    logger.exception("Error saving agent action")
+                    self._send_response(500, {"error": "Failed to save agent action", "details": str(e)})
+            else:
+                self._send_response(404, {"error": "Not found", "path": path})
+        except Exception:
+            logger.exception("Error handling POST request")
             self._send_response(500, {"error": "Internal server error"})
 
     def do_OPTIONS(self) -> None:  # noqa: N802
