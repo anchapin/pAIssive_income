@@ -25,6 +25,9 @@ jobs:
         with:
           version: latest
 
+      - name: Install Buildx as default builder
+        run: docker buildx install
+
       # Docker Compose is included with Docker Buildx setup
       # Verify Docker Compose installation
       - name: Verify Docker Compose installation
