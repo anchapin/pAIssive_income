@@ -1,11 +1,30 @@
 name: Consolidated CI/CD
 
-# This workflow is designed to run on both Linux and Windows platforms
-# It includes robust fallback mechanisms for virtual environment creation and dependency installation
-# The workflow is organized into three main jobs:
-# 1. lint-test: Runs linting, type checking, and tests
-# 2. security: Runs security scanning tools
-# 3. build-deploy: Builds and deploys Docker images (Linux only)
+# Consolidated CI/CD Pipeline
+# This workflow handles continuous integration and deployment across multiple platforms.
+#
+# Jobs:
+# - lint-test: Code quality, type checking, and testing
+#   - Runs on: Ubuntu, Windows, MacOS
+#   - Performs: linting (ruff), type checking (mypy), testing (pytest)
+#   - Generates: test reports and coverage data
+#
+# - security: Comprehensive security scanning
+#   - Runs on: Ubuntu, Windows, MacOS
+#   - Tools: Safety, Bandit, Trivy, Semgrep, pip-audit, Gitleaks
+#   - Generates: SARIF reports and security artifacts
+#
+# - build-deploy: Docker image building and publishing
+#   - Runs on: Ubuntu only (for Docker compatibility)
+#   - Triggers: On main/dev branch pushes and version tags
+#   - Handles: Docker image building, caching, and publishing
+#
+# Permissions:
+# - Minimal permissions by default (contents: read)
+# - Elevated only where needed:
+#   - security-events: write (for SARIF uploads)
+#   - packages: write (for Docker publishing)
+#   - id-token: write (for OIDC cloud authentication)
 
 on:
   push:
@@ -110,17 +129,17 @@ jobs:
           source .venv/bin/activate
 
           # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip || {
+          uv pip install --upgrade pip || {
             echo "Failed to upgrade pip. Continuing anyway..."
           }
 
           # Install setuptools and wheel with pip first
-          python -m pip install --upgrade setuptools wheel || {
+          uv pip install --upgrade setuptools wheel || {
             echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
           }
 
           # Install uv in the virtual environment if needed
-          python -m pip install --upgrade uv || {
+          uv pip install --upgrade uv || {
             echo "Failed to install uv in the virtual environment. Will use system uv..."
           }
 
@@ -387,7 +406,7 @@ jobs:
 
           # Install pre-commit
           Write-Host "Installing pre-commit..."
-          python -m pip install pre-commit
+          uv pip install pre-commit
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install pre-commit with pip. Trying with uv..."
             uv pip install pre-commit
@@ -713,17 +732,17 @@ jobs:
           source .venv/bin/activate
 
           # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip || {
+          uv pip install --upgrade pip || {
             echo "Failed to upgrade pip. Continuing anyway..."
           }
 
           # Install setuptools and wheel with pip first
-          python -m pip install --upgrade setuptools wheel || {
+          uv pip install --upgrade setuptools wheel || {
             echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
           }
 
           # Install uv in the virtual environment if needed
-          python -m pip install --upgrade uv || {
+          uv pip install --upgrade uv || {
             echo "Failed to install uv in the virtual environment. Will use system uv..."
           }
 
@@ -973,10 +992,10 @@ jobs:
 
           # Install pip-audit first (most problematic)
           Write-Host "Installing pip-audit..."
-          python -m pip install pip-audit
+          uv pip install pip-audit
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install pip-audit with pip. Trying alternative method..."
-            python -m pip install --user pip-audit
+            uv pip install --user pip-audit
             if ($LASTEXITCODE -ne 0) {
               Write-Host "Failed to install pip-audit with --user. Creating a wrapper script..."
               # Create a wrapper script that uses python -m pip_audit

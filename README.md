@@ -556,3 +556,38 @@ For information about the React frontend components and UI features, see:
 - [UI Components Guide](docs/ui_components_guide.md) - Detailed documentation of React components, styling, and accessibility features
 - [UI Accessibility Guide](docs/ui_accessibility_guide.md) - Comprehensive guide to accessibility features and best practices
 - [React Frontend Updates](docs/react_frontend_updates.md) - Details of recent updates to React components
+
+---
+
+## Demo: Vector RAG
+
+The `demo_vector_rag.py` script demonstrates a basic Vector Database + RAG (Retrieval-Augmented Generation) implementation using ChromaDB and Sentence Transformers.
+
+### Prerequisites
+
+1.  Install the required libraries:
+
+    ```bash
+    pip install chromadb sentence-transformers
+    ```
+
+### Usage
+
+1.  Run the script:
+
+    ```bash
+    python demo_vector_rag.py
+    ```
+
+### Explanation
+
+This script performs the following steps:
+
+1.  Initializes a ChromaDB client (local, in-memory for demo).
+2.  Prepares demo data (texts with metadata).
+3.  Loads an embedding model (Sentence Transformers).
+4.  Creates/gets a collection in ChromaDB.
+5.  Embeds and adds documents to the collection.
+6.  Performs a query and retrieves the most relevant context.
+
+Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge. This script embeds example texts, stores them in a local vector DB, then retrieves the most relevant context for a query.
