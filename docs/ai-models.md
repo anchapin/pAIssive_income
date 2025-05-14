@@ -522,6 +522,57 @@ python -m ai_models serve --model-id model-id --port 8000
 python -m ai_models deploy --model-id model-id --deployment-type docker --output-dir deployment
 ```
 
+## Artist Agent
+
+The `ArtistAgent` class provides a simple framework for agentic reasoning. It discovers available tools during initialization and uses naive keyword-based logic to select tools based on user prompts.
+
+```python
+from ai_models.artist_agent import ArtistAgent
+
+# Create an artist agent
+agent = ArtistAgent()
+
+# View available tools
+print("Available tools:", list(agent.tools.keys()))
+
+# Process a prompt
+test_prompt = "Calculate 2 + 3 * 4"
+result = agent.run(test_prompt)
+print(f"Result: {result}")  # Output: Result: 14
+```
+
+### Methods
+
+#### `decide_tool(prompt: str) -> str`
+
+Selects a tool based on keywords in the prompt. Currently implements naive tool selection logic based on prompt keywords, which can be expanded with more sophisticated reasoning as needed.
+
+```python
+# Example of tool selection
+agent = ArtistAgent()
+tool_name = agent.decide_tool("Calculate 2 + 2")
+print(f"Selected tool: {tool_name}")  # Output: Selected tool: calculator
+```
+
+#### `run(prompt: str) -> Any`
+
+Processes the prompt, selects a tool, and invokes it to get the result.
+
+```python
+# Example of running a prompt
+agent = ArtistAgent()
+result = agent.run("Calculate 2 + 3 * 4")
+print(f"Result: {result}")  # Output: Result: 14
+```
+
+### Extensibility
+
+The ArtistAgent is designed as a scaffold for further expansion. You can extend it by:
+
+1. Adding more tools to the registry using `common_utils.tooling.register_tool`
+2. Enhancing the tool selection logic in `decide_tool` with more sophisticated reasoning
+3. Implementing additional methods for more complex agent behaviors
+
 ## Integration with Agent Team
 
 The AI Models module is integrated with the Agent Team module through the `AgentModelProvider` class, allowing agents to use local AI models for their tasks.

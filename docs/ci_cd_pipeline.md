@@ -46,7 +46,11 @@ This stage ensures that code changes are accompanied by relevant documentation u
 
 - **Purpose**: Prevents changes to code or other non-documentation files without corresponding updates to documentation (such as files in `docs/`, `docs_source/`, or Markdown files at the repo root).
 - **How it works**: If any non-documentation files are changed, at least one documentation file must also be updated. Otherwise, the workflow fails.
+- **Implementation**: Uses a custom Python script (`.github/scripts/check_documentation_updated.py`) that analyzes Git changes and categorizes files as documentation or non-documentation.
+- **Workflow File**: Defined in `.github/workflows/check-documentation.yml`.
 - **Resolution**: If this check fails, review your changes and update the relevant documentation to reflect your code modifications.
+
+For more detailed information about this workflow, see [Documentation Check Workflow](documentation-check-workflow.md).
 
 ### Build
 

@@ -36,7 +36,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: ${{ inputs.pnpm-version }}
 
