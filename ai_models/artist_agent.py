@@ -5,7 +5,7 @@ This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
 
-from typing import Any, Dict
+from typing import Any
 from common_utils import tooling
 
 class ArtistAgent:
@@ -29,6 +29,24 @@ class ArtistAgent:
         # Add more heuristics for other tools here
         return ""
 
+    def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
+        """
+        Extract the relevant expression from the prompt based on the tool.
+        This is a naive implementation for the calculator tool.
+
+        Args:
+            prompt (str): The user's input or problem description.
+            tool_name (str): The name of the selected tool.
+
+        Returns:
+            str: The extracted relevant expression.
+        """
+        if tool_name == "calculator":
+            # Naive extraction: assume the entire prompt is the expression
+            # This should be improved for more complex prompts
+            return prompt
+        return prompt # Default to returning the whole prompt if extraction logic is not defined
+
     def run(self, prompt: str) -> Any:
         """
         Process a prompt, select a tool, and return the tool's output.
@@ -42,8 +60,8 @@ class ArtistAgent:
         tool_name = self.decide_tool(prompt)
         if tool_name and tool_name in self.tools:
             tool_func = self.tools[tool_name]
-            # For this scaffold, assume the tool takes the prompt directly
-            return tool_func(prompt)
+            relevant_expression = self.extract_relevant_expression(prompt, tool_name)
+            return tool_func(relevant_expression)
         else:
             return "No suitable tool found for this prompt."
 
