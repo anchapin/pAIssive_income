@@ -29,6 +29,7 @@ dependencies = [
     "redis>=4.5.0",
     "flask>=2.0.1",
     "httpx>=0.24.0",
+    "crewai>=0.20.8",  # AI agent orchestration framework
     # Add other dependencies as needed
 ]
 

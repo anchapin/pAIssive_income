@@ -12,6 +12,7 @@ pyjwt>=2.6.0
 bcrypt>=4.0.0
 pyperclip>=1.8.2  # For secure clipboard operations
 cryptography>=41.0.0  # For encryption of sensitive files
+crewai>=0.21.4  # AI agent orchestration framework
 
 # Service dependencies
 grpcio>=1.54.0
