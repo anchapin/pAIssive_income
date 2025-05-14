@@ -50,7 +50,7 @@ plotly==5.13.0
 hypothesis==6.76.0
 cryptography==41.0.0
 pyperclip==1.8.2
-flask==2.0.1
+Flask==3.1.1
 flask-socketio==5.1.0
 
 # ...plus all nested dependencies. Regenerate this file regularly!

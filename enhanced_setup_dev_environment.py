@@ -58,29 +58,174 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def get_pip_path() -> str:
+    """Get the path to pip executable."""
+    if os.name == "nt":  # Windows
+        return "pip"
+    else:  # Unix/Linux/macOS
+        return "pip3"
+
+
+def install_pyyaml() -> bool:
+    """Install PyYAML module using multiple fallback mechanisms.
+
+    Returns:
+        True if installation was successful, False otherwise
+    """
+    logger.info("Installing PyYAML module...")
+
+    # Try multiple installation methods
+    methods = [
+        # Method 1: Use uv if available
+        install_with_uv,
+        # Method 2: Use system pip
+        lambda: install_with_pip(
+            get_pip_path()
+        ),  # Keep lambda for this one as it needs the function call result
+        # Method 3: Use python -m pip
+        install_with_python_pip,
+        # Method 4: Use pip module directly
+        install_with_pip_module,
+    ]
+
+    for method in methods:
+        try:
+            if method():
+                # Try to import yaml to verify installation
+                try:
+                    # Use importlib.util.find_spec to test for availability instead of direct import
+                    import importlib.util
+
+                    if importlib.util.find_spec("yaml"):
+                        logger.info("PyYAML installed and imported successfully.")
+                        return True
+                except ImportError:
+                    logger.warning(
+                        "PyYAML installed but import still failed. Trying next method..."
+                    )
+                    continue
+        except Exception as e:
+            logger.warning(f"PyYAML installation method failed: {e!s}")
+
+    logger.error("All PyYAML installation methods failed.")
+    return False
+
+
+def install_with_uv() -> bool:
+    """Install PyYAML using uv."""
+    uv_available = shutil.which("uv") is not None
+    if not uv_available:
+        logger.debug("uv not available for PyYAML installation")
+        return False
+
+    logger.info("Installing PyYAML with uv...")
+    try:
+        subprocess.check_call(["uv", "pip", "install", "pyyaml"])
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to install PyYAML with uv: {e}")
+        return False
+    else:
+        return True
+
+
+def install_with_pip(pip_path: str) -> bool:
+    """Install PyYAML using pip."""
+    logger.info(f"Installing PyYAML with {pip_path}...")
+    try:
+        subprocess.check_call([pip_path, "install", "pyyaml"])
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to install PyYAML with {pip_path}: {e}")
+        return False
+    else:
+        return True
+
+
+def install_with_python_pip() -> bool:
+    """Install PyYAML using python -m pip."""
+    logger.info("Installing PyYAML with python -m pip...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyyaml"])
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to install PyYAML with python -m pip: {e}")
+        return False
+    else:
+        return True
+
+
+def install_with_pip_module() -> bool:
+    """Install PyYAML using pip module directly."""
+    logger.info("Installing PyYAML with pip module directly...")
+    try:
+        import pip._internal.cli.main
+
+        pip._internal.cli.main.main(["install", "pyyaml"])
+    except Exception as e:
+        logger.warning(f"Failed to install PyYAML with pip module: {e}")
+        return False
+    else:
+        return True
+
+
 # Try to import yaml, install it if not available
 try:
     import yaml
 except ImportError:
     logger.warning("PyYAML module not found. Installing it now...")
 
-    # Define a function to get pip path before it's defined in the script
-    def get_pip_path() -> str:
-        """Get the path to pip executable."""
-        if os.name == "nt":  # Windows
-            return "pip"
-        else:  # Unix/Linux/macOS
-            return "pip3"
+    # Try to install PyYAML with multiple fallback mechanisms
+    if not install_pyyaml():
+        logger.warning(
+            "Failed to install PyYAML. Continuing without it, but some features may not work."
+        )
 
-    pip_path = get_pip_path()
-    try:
-        subprocess.check_call([pip_path, "install", "pyyaml"])
-        import yaml
+        # Create a minimal yaml module with safe_load function to allow script to continue
+        class MinimalYaml:
+            @staticmethod
+            def safe_load(stream: str) -> dict[str, Any]:
+                """Load YAML data from a string.
 
-        logger.info("PyYAML installed successfully.")
-    except Exception:
-        logger.exception("Failed to install PyYAML")
-        sys.exit(1)
+                Args:
+                    stream: String containing YAML/JSON data
+
+                Returns:
+                    Parsed data as a dictionary
+                """
+                logger.warning(
+                    "Using minimal YAML implementation - only JSON-compatible syntax supported"
+                )
+                # json is already imported at the top of the file
+
+                try:
+                    result = json.loads(stream)
+                    # Ensure we return a dict[str, Any]
+                    if not isinstance(result, dict):
+                        logger.warning(
+                            "JSON result is not a dictionary, returning empty dict"
+                        )
+                        return {}
+                except Exception:
+                    logger.exception("Failed to parse YAML/JSON")
+                    return {}
+                else:
+                    return result
+
+            @staticmethod
+            def dump(data: dict[str, Any], file: Any, **_kwargs: Any) -> None:
+                """Dump data to a file in JSON format.
+
+                Args:
+                    data: Data to dump
+                    file: File-like object to write to
+                    **_kwargs: Ignored keyword arguments for compatibility
+                """
+                logger.warning("Using minimal YAML implementation - saving as JSON")
+                # json is already imported at the top of the file
+
+                json.dump(data, file, indent=2)
+
+        # Use the minimal implementation as a fallback
+        yaml = MinimalYaml()
 
 # Logger is already configured above
 
@@ -224,8 +369,86 @@ def is_venv_activated() -> bool:
     )
 
 
+def _try_create_venv_with_uv(venv_path: Path) -> bool:
+    """Try to create a virtual environment using uv.
+
+    Args:
+        venv_path: Path where to create the virtual environment
+
+    Returns:
+        True if successful, False otherwise
+    """
+    uv_available = shutil.which("uv") is not None
+    if not uv_available:
+        logger.info("uv not found, skipping uv venv creation")
+        return False
+
+    logger.info("Creating virtual environment with uv...")
+    try:
+        exit_code, stdout, stderr = run_command(["uv", "venv", str(venv_path)])
+        if exit_code != 0:
+            logger.warning(f"Error creating virtual environment with uv: {stderr}")
+            return False
+    except Exception as e:
+        logger.warning(f"Exception when creating virtual environment with uv: {e}")
+        return False
+
+    logger.info(f"Created virtual environment at {venv_path} using uv")
+    return True
+
+
+def _try_create_venv_with_module(venv_path: Path) -> bool:
+    """Try to create a virtual environment using the venv module.
+
+    Args:
+        venv_path: Path where to create the virtual environment
+
+    Returns:
+        True if successful, False otherwise
+    """
+    logger.info("Attempting to create virtual environment with venv module...")
+    try:
+        venv.create(venv_path, with_pip=True)
+    except Exception as e:
+        logger.warning(f"Error creating virtual environment with venv module: {e}")
+        return False
+
+    logger.info(f"Created virtual environment at {venv_path}")
+    return True
+
+
+def _try_create_venv_with_subprocess(venv_path: Path) -> bool:
+    """Try to create a virtual environment using subprocess.
+
+    Args:
+        venv_path: Path where to create the virtual environment
+
+    Returns:
+        True if successful, False otherwise
+    """
+    logger.info("Trying to create virtual environment with subprocess...")
+    try:
+        if platform.system() == "Windows":
+            cmd = [sys.executable, "-m", "venv", str(venv_path)]
+        else:
+            cmd = ["python3", "-m", "venv", str(venv_path)]
+
+        exit_code, stdout, stderr = run_command(cmd)
+        if exit_code != 0:
+            logger.exception(
+                f"Failed to create virtual environment with subprocess: {stderr}"
+            )
+            return False
+    except Exception:
+        logger.exception("Error creating virtual environment with subprocess")
+        return False
+
+    logger.info(f"Created virtual environment at {venv_path} using subprocess")
+    return True
+
+
 def create_virtual_environment() -> bool:
-    """Create a virtual environment.
+    """Create a virtual environment using uv if available, falling back to venv.
 
     Returns:
         True if successful, False otherwise
@@ -237,39 +460,16 @@ def create_virtual_environment() -> bool:
         logger.info(f"Virtual environment already exists at {venv_path}")
         return True
 
-    try:
-        logger.info("Attempting to create virtual environment with venv module...")
-        venv.create(venv_path, with_pip=True)
-    except Exception as e:
-        logger.warning(f"Error creating virtual environment with venv module: {e}")
-        logger.info("Trying alternative method with subprocess...")
-
-        # Try using subprocess as a fallback
-        try:
-            if platform.system() == "Windows":
-                cmd = [sys.executable, "-m", "venv", str(venv_path)]
-            else:
-                cmd = ["python3", "-m", "venv", str(venv_path)]
-
-            exit_code, stdout, stderr = run_command(cmd)
-            if exit_code != 0:
-                # TRY400 fix: Use logger.exception inside except block (missed this one)
-                logger.exception(
-                    f"Failed to create virtual environment with subprocess: {stderr}"
-                )
-                return False
-            else:
-                logger.info(
-                    f"Created virtual environment at {venv_path} using subprocess"
-                )
-                return True
-        except Exception:  # No need to capture e2 if not used directly
-            # TRY401 fix: Remove redundant exception object from log message
-            logger.exception("Error creating virtual environment with subprocess")
-            return False
-    else:  # Correctly aligned with the outer try
-        logger.info(f"Created virtual environment at {venv_path}")
+    # Try each method in order until one succeeds
+    if _try_create_venv_with_uv(venv_path):
         return True
+
+    logger.info("Falling back to standard venv module...")
+    if _try_create_venv_with_module(venv_path):
+        return True
+
+    logger.info("Falling back to subprocess method...")
+    return _try_create_venv_with_subprocess(venv_path)
 
 
 def get_venv_python_path() -> str:  # Ensure proper spacing/dedent before function def
@@ -733,15 +933,29 @@ def apply_setup_profile(args: argparse.Namespace) -> argparse.Namespace:
 
 # Helper functions for install_dependencies
 def _upgrade_pip(pip_path: str) -> bool:
-    """Upgrade pip to the latest version."""
+    """Upgrade pip to the latest version using uv if available."""
     logger.info("Upgrading pip...")
     try:
-        exit_code, _, stderr = run_command([
-            pip_path,
-            "install",
-            "--upgrade",
-            "pip",
-        ])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info("Using uv to upgrade pip...")
+            exit_code, _, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                "--upgrade",
+                "pip",
+            ])
+        else:
+            logger.info("uv not found, using pip directly...")
+            exit_code, _, stderr = run_command([
+                pip_path,
+                "install",
+                "--upgrade",
+                "pip",
+            ])
+
         if exit_code != 0:
             logger.warning(f"Failed to upgrade pip: {stderr}")
             # Continue anyway, not critical
@@ -752,19 +966,33 @@ def _upgrade_pip(pip_path: str) -> bool:
 
 
 def _install_requirements(pip_path: str, req_file: str) -> bool:
-    """Install dependencies from a requirements file."""
+    """Install dependencies from a requirements file using uv if available."""
     if not os.path.exists(req_file):
         logger.debug(f"Requirements file not found: {req_file}")
         return True  # Not an error if file doesn't exist
 
     logger.info(f"Installing dependencies from {req_file}...")
     try:
-        exit_code, stdout, stderr = run_command([
-            pip_path,
-            "install",
-            "-r",
-            req_file,
-        ])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info(f"Using uv to install dependencies from {req_file}...")
+            exit_code, stdout, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                "-r",
+                req_file,
+            ])
+        else:
+            logger.info(f"uv not found, using pip directly for {req_file}...")
+            exit_code, stdout, stderr = run_command([
+                pip_path,
+                "install",
+                "-r",
+                req_file,
+            ])
+
         if exit_code != 0:
             logger.error(f"Error installing {req_file}: {stderr}")
             return False
@@ -778,10 +1006,23 @@ def _install_requirements(pip_path: str, req_file: str) -> bool:
 
 
 def _install_package(pip_path: str, package_name: str, critical: bool = True) -> bool:
-    """Install a specific Python package."""
+    """Install a specific Python package using uv if available."""
     logger.info(f"Installing {package_name}...")
     try:
-        exit_code, stdout, stderr = run_command([pip_path, "install", package_name])
+        # Check if uv is available
+        uv_available = shutil.which("uv") is not None
+        if uv_available:
+            logger.info(f"Using uv to install {package_name}...")
+            exit_code, stdout, stderr = run_command([
+                "uv",
+                "pip",
+                "install",
+                package_name,
+            ])
+        else:
+            logger.info(f"uv not found, using pip directly for {package_name}...")
+            exit_code, stdout, stderr = run_command([pip_path, "install", package_name])
+
         if exit_code != 0:
             log_func = logger.error if critical else logger.warning
             log_func(f"Error installing {package_name}: {stderr}")
@@ -869,7 +1110,12 @@ def install_dependencies() -> bool:
 
     # Install PyYAML explicitly (needed for setup, but maybe not critical for setup script itself?)
     # Let's treat it as non-critical for the overall setup success status
-    _install_package(pip_path, "PyYAML", critical=False)
+    # Use our robust PyYAML installation function instead of the generic _install_package
+    if not install_pyyaml():
+        logger.warning(
+            "Failed to install PyYAML in virtual environment. Some features may not work correctly."
+        )
+        # Continue with setup - this is non-critical
 
     # Try to run Ruff to fix linting issues (not critical)
     _run_ruff_fix()
