@@ -5,3 +5,7 @@
 # Third-party imports
 
 # Local imports
+
+
+class User:
+    pass  # Add necessary attributes or methods if required for tests
