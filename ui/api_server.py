@@ -14,6 +14,7 @@ import socketserver
 from typing import Any
 from urllib.parse import urlparse
 
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -23,6 +24,18 @@ logger = logging.getLogger(__name__)
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+
+class DatabaseError(RuntimeError):
+    """Base exception class for database-related errors."""
+    pass
+
+
+class DatabaseConfigError(DatabaseError):
+    """Raised when database configuration is missing or invalid."""
+    def __init__(self):
+        super().__init__("DATABASE_URL environment variable not set")
+
 
 class APIHandler(http.server.BaseHTTPRequestHandler):
     """HTTP request handler for the API server."""
@@ -44,11 +57,14 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
     def _get_db_connection(self):
-        """Establish a PostgreSQL connection using DATABASE_URL env var."""
-        db_url = os.environ.get("DATABASE_URL")
+        """Establish a PostgreSQL connection using DATABASE_URL env var."""        db_url = os.environ.get("DATABASE_URL")
         if not db_url:
-            raise RuntimeError("DATABASE_URL environment variable not set")
-        return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+            raise DatabaseConfigError()
+        try:
+            return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+        except psycopg2.Error as e:
+            # Wrap DB-specific error in our custom exception
+            raise DatabaseError(f"Failed to connect to database: {e.__class__.__name__}") from e
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
@@ -60,17 +76,15 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 logger.info("Health check request received")
                 self._send_response(200, {"status": "ok"})
             elif path == "/api/agent":
-                logger.info("Agent info GET request received")
-                try:
-                    with self._get_db_connection() as conn:
-                        with conn.cursor() as cursor:
-                            cursor.execute("SELECT * FROM agent LIMIT 1;")
-                            agent = cursor.fetchone()
-                            if agent:
-                                self._send_response(200, agent)
-                            else:
-                                self._send_response(404, {"error": "Agent not found"})
-                except Exception as e:
+                logger.info("Agent info GET request received")                try:
+                    with self._get_db_connection() as conn, conn.cursor() as cursor:
+                        cursor.execute("SELECT * FROM agent LIMIT 1;")
+                        agent = cursor.fetchone()
+                        if agent:
+                            self._send_response(200, agent)
+                        else:
+                            self._send_response(404, {"error": "Agent not found"})
+                except (DatabaseError, psycopg2.Error) as e:
                     logger.exception("Error fetching agent data")
                     self._send_response(500, {"error": "Failed to fetch agent data", "details": str(e)})
             else:
@@ -99,25 +113,23 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                     self._send_response(400, {"error": "Invalid JSON"})
                     return
 
-                try:
-                    with self._get_db_connection() as conn:
-                        with conn.cursor() as cursor:
-                            cursor.execute(
-                                """
-                                INSERT INTO agent_action (agent_id, action_type, action_payload)
-                                VALUES (%s, %s, %s)
-                                RETURNING id;
-                                """,
-                                (
-                                    action.get("agent_id"),
-                                    action.get("action_type"),
-                                    json.dumps(action.get("payload", {})),
-                                ),
-                            )
-                            conn.commit()
-                            action_id = cursor.fetchone()["id"]
-                            self._send_response(200, {"status": "success", "action_id": action_id})
-                except Exception as e:
+                try:                    with self._get_db_connection() as conn, conn.cursor() as cursor:
+                        cursor.execute(
+                            """
+                            INSERT INTO agent_action (agent_id, action_type, action_payload)
+                            VALUES (%s, %s, %s)
+                            RETURNING id;
+                            """,
+                            (
+                                action.get("agent_id"),
+                                action.get("action_type"),
+                                json.dumps(action.get("payload", {})),
+                            ),
+                        )
+                        conn.commit()
+                        action_id = cursor.fetchone()["id"]
+                        self._send_response(200, {"status": "success", "action_id": action_id})
+                except (DatabaseError, psycopg2.Error) as e:
                     logger.exception("Error saving agent action")
                     self._send_response(500, {"error": "Failed to save agent action", "details": str(e)})
             else:

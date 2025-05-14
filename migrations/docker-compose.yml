@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -41,7 +43,8 @@ services:
 
   db:
     image: postgres:15.3-alpine
-    container_name: paissive-postgres    restart: unless-stopped
+    container_name: paissive-postgres
+    restart: unless-stopped
     ports:
       - "5433:5432"
     volumes:
@@ -59,29 +62,10 @@ services:
       retries: 10
       start_period: 60s
 
-  # Uncomment the following section to enable Redis caching
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: paissive-redis
-  #   restart: unless-stopped
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis-data:/data
-  #   networks:
-  #     - paissive-network
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 3
-
 networks:
   paissive-network:
     driver: bridge
 
 volumes:
-  redis-data:
-    driver: local
   postgres-data:
     driver: local
