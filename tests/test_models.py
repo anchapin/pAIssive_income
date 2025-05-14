@@ -1,14 +1,17 @@
 """test_models - Test module for database models."""
 
+from typing import Generator
+
 import pytest
 from flask import Flask
+from flask.testing import FlaskClient
 
 from app_flask import db
 from app_flask.models import Agent, Team, User
 
 
 @pytest.fixture
-def app():
+def app() -> Generator[Flask, None, None]:
     """Create a Flask app for testing."""
     app = Flask(__name__)
     app.config.update({
@@ -23,12 +26,12 @@ def app():
 
 
 @pytest.fixture
-def client(app):
+def client(app: Flask) -> FlaskClient:
     """Create a test client."""
     return app.test_client()
 
 
-def test_user_model(app):
+def test_user_model(app: Flask) -> None:
     """Test the User model."""
     with app.app_context():
         # Create a user
@@ -41,14 +44,14 @@ def test_user_model(app):
         db.session.commit()
 
         # Query the user
-        user = User.query.filter_by(username="testuser").first()
-        assert user is not None
-        assert user.username == "testuser"
-        assert user.email == "test@example.com"
-        assert user.password_hash == "hashed_password"
+        queried_user = User.query.filter_by(username="testuser").first()
+        assert queried_user is not None
+        assert queried_user.username == "testuser"
+        assert queried_user.email == "test@example.com"
+        assert queried_user.password_hash == "hashed_password"
 
 
-def test_team_model(app):
+def test_team_model(app: Flask) -> None:
     """Test the Team model."""
     with app.app_context():
         # Create a team
@@ -57,13 +60,13 @@ def test_team_model(app):
         db.session.commit()
 
         # Query the team
-        team = Team.query.filter_by(name="Test Team").first()
-        assert team is not None
-        assert team.name == "Test Team"
-        assert team.description == "A test team"
+        queried_team = Team.query.filter_by(name="Test Team").first()
+        assert queried_team is not None
+        assert queried_team.name == "Test Team"
+        assert queried_team.description == "A test team"
 
 
-def test_agent_model(app):
+def test_agent_model(app: Flask) -> None:
     """Test the Agent model."""
     with app.app_context():
         # Create a team
@@ -82,15 +85,15 @@ def test_agent_model(app):
         db.session.commit()
 
         # Query the agent
-        agent = Agent.query.filter_by(name="Test Agent").first()
-        assert agent is not None
-        assert agent.name == "Test Agent"
-        assert agent.role == "tester"
-        assert agent.description == "A test agent"
-        assert agent.team_id == team.id
+        queried_agent = Agent.query.filter_by(name="Test Agent").first()
+        assert queried_agent is not None
+        assert queried_agent.name == "Test Agent"
+        assert queried_agent.role == "tester"
+        assert queried_agent.description == "A test agent"
+        assert queried_agent.team_id == team.id
 
 
-def test_team_agent_relationship(app):
+def test_team_agent_relationship(app: Flask) -> None:
     """Test the relationship between Team and Agent models."""
     with app.app_context():
         # Create a team
@@ -109,10 +112,10 @@ def test_team_agent_relationship(app):
         db.session.commit()
 
         # Query the team and check its agents
-        team = Team.query.filter_by(name="Test Team").first()
-        assert len(team.agents) == 2
-        assert team.agents[0].name in ["Agent 1", "Agent 2"]
-        assert team.agents[1].name in ["Agent 1", "Agent 2"]
+        queried_team = Team.query.filter_by(name="Test Team").first()
+        assert len(queried_team.agents) == 2
+        assert queried_team.agents[0].name in ["Agent 1", "Agent 2"]
+        assert queried_team.agents[1].name in ["Agent 1", "Agent 2"]
 
         # Query an agent and check its team
         agent = Agent.query.filter_by(name="Agent 1").first()

@@ -5,7 +5,6 @@ verification.
 """
 
 # Standard library imports
-from typing import Union
 
 # Third-party imports
 import bcrypt
@@ -52,9 +51,7 @@ def hash_credential(credential: str) -> str:
     return result
 
 
-def verify_credential(
-    plain_credential: str, hashed_credential: Union[bytes, str]
-) -> bool:
+def verify_credential(plain_credential: str, hashed_credential: bytes | str) -> bool:
     """Verify an authentication credential against a hashed credential.
 
     Args:

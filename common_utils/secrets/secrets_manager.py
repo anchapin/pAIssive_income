@@ -6,11 +6,7 @@ This module provides a unified interface for managing secrets across different b
 # Standard library imports
 import enum
 import os
-
-from typing import Any
-from typing import Optional
-from typing import Protocol
-from typing import Union
+from typing import Any, Optional, Protocol
 
 # Third-party imports
 # Local imports
@@ -98,12 +94,11 @@ class SecretBackendProtocol(Protocol):
 
 
 class SecretsManager:
-    """Manager for handling secrets across different backends."""
+    """Manager for handling secrets across different backends."""  # Define class variable for type checking
 
-    # Define class variable for type checking
     default_backend: SecretsBackend
 
-    def __init__(self, default_backend: Optional[Union[SecretsBackend, str]] = None):
+    def __init__(self, default_backend: SecretsBackend | str | None = None):
         """Initialize the secrets manager.
 
         Args:
@@ -470,8 +465,10 @@ class SecretsManager:
             dict[str, Any]: Dictionary of environment variables with sensitive information masked
         """
         # Import secure logging utilities with enhanced sensitive field patterns
-        from common_utils.logging.secure_logging import is_sensitive_key
-        from common_utils.logging.secure_logging import mask_sensitive_data
+        from common_utils.logging.secure_logging import (
+            is_sensitive_key,
+            mask_sensitive_data,
+        )
 
         # Create a filtered and sanitized view of environment variables
         safe_env_vars: dict[str, Any] = {}
@@ -644,7 +641,7 @@ class SecretsManager:
 
     def _sanitize_secrets_dict(
         self, secrets: dict[str, Any]
-    ) -> dict[str, Union[str, dict[str, Any]]]:
+    ) -> dict[str, str | dict[str, Any]]:
         """Sanitize a dictionary of secrets to ensure no sensitive data is exposed.
 
         Args:
@@ -653,16 +650,14 @@ class SecretsManager:
 
         Returns:
         -------
-            Dict[str, Any]: Sanitized dictionary with masked sensitive values
+            dict[str, str | dict[str, Any]]: Sanitized dictionary with masked sensitive values
 
         """
         if not secrets:
             return {}
 
-        # Import secure logging utility
-
-        # Create a sanitized copy
-        safe_secrets: dict[str, Union[str, dict[str, Any]]] = {}
+        # Import secure logging utility        # Create a sanitized copy
+        safe_secrets: dict[str, str | dict[str, Any]] = {}
 
         for key, value in secrets.items():
             if isinstance(value, str):
@@ -682,9 +677,7 @@ class SecretsManager:
 _secrets_manager = SecretsManager()
 
 
-def get_secret(
-    key: str, backend: Optional[Union[SecretsBackend, str]] = None
-) -> Optional[str]:
+def get_secret(key: str, backend: SecretsBackend | str | None = None) -> str | None:
     """Get a secret from the specified backend.
 
     Args:
@@ -709,7 +702,7 @@ def get_secret(
 
 
 def set_secret(
-    key: str, value: str, backend: Optional[Union[SecretsBackend, str]] = None
+    key: str, value: str, backend: SecretsBackend | str | None = None
 ) -> bool:
     """Set a secret in the specified backend.
 
@@ -735,9 +728,7 @@ def set_secret(
     return _secrets_manager.set_secret(key, value, backend)
 
 
-def delete_secret(
-    key: str, backend: Optional[Union[SecretsBackend, str]] = None
-) -> bool:
+def delete_secret(key: str, backend: SecretsBackend | str | None = None) -> bool:
     """Delete a secret from the specified backend.
 
     Args:
@@ -762,8 +753,8 @@ def delete_secret(
 
 
 def list_secrets(
-    backend: Optional[Union[SecretsBackend, str]] = None,
-) -> dict[str, Union[str, dict[str, Any]]]:
+    backend: SecretsBackend | str | None = None,
+) -> dict[str, str | dict[str, Any]]:
     """List all secrets in the specified backend.
 
     Args:

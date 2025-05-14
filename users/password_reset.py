@@ -8,18 +8,15 @@ import hashlib
 import secrets
 import string
 import time
-
-from datetime import datetime
-from datetime import timedelta
-from typing import Optional
-from typing import Union
+from datetime import datetime, timedelta
+from typing import Optional, TypeAlias
 
 from common_utils.logging import get_logger
 from users.auth import hash_credential
 
 # Type aliases
-ResetResult = tuple[bool, Optional[str]]
-UserDict = dict[str, Union[Optional[str], int]]
+ResetResult: TypeAlias = tuple[bool, Optional[str]]
+UserDict: TypeAlias = dict[str, Optional[str] | int]
 
 
 # Define a proper interface for UserRepository

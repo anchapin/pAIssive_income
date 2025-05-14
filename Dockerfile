@@ -66,8 +66,23 @@ HEALTHCHECK --interval=30s --timeout=60s --start-period=180s --retries=10 \
 # Expose port
 EXPOSE 5000
 
-# Add a non-root user (using Debian commands)
-RUN groupadd --system appgroup && useradd --system --no-create-home --gid appgroup appuser
+# Create logs directory and set permissions
+RUN mkdir -p /app/logs && \
+    mkdir -p /app/data && \
+    # Add a non-root user (using Debian commands)
+    groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser && \
+    # Set ownership and permissions for logs directory to allow writing
+    chown -R appuser:appgroup /app/logs && \
+    chmod 2777 /app/logs && \
+    # Set ownership and permissions for data directory
+    chown -R appuser:appgroup /app/data && \
+    chmod 755 /app/data && \
+    # Create log files with correct permissions
+    touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log && \
+    chown -R appuser:appgroup /app/logs/*.log && \
+    chmod 666 /app/logs/*.log
+
 USER appuser
 
 # Run the application with wait-for-db script

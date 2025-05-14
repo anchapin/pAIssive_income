@@ -5,13 +5,20 @@ This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
 
+import logging
 from typing import Any
+
 from common_utils import tooling
 
+logger = logging.getLogger(__name__)
+
+
 class ArtistAgent:
-    def __init__(self):
+    def __init__(self) -> None:
+        from typing import Callable, Dict
+
         # Discover available tools at initialization
-        self.tools = tooling.list_tools()
+        self.tools: Dict[str, Callable[..., Any]] = tooling.list_tools()
 
     def decide_tool(self, prompt: str) -> str:
         """
@@ -24,7 +31,20 @@ class ArtistAgent:
         Returns:
             str: Name of the tool to use.
         """
-        if any(k in prompt.lower() for k in ["calculate", "add", "subtract", "multiply", "divide", "+", "-", "*", "/"]):
+        if any(
+            k in prompt.lower()
+            for k in [
+                "calculate",
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "+",
+                "-",
+                "*",
+                "/",
+            ]
+        ):
             return "calculator"
         # Add more heuristics for other tools here
         return ""
@@ -45,7 +65,7 @@ class ArtistAgent:
             # Naive extraction: assume the entire prompt is the expression
             # This should be improved for more complex prompts
             return prompt
-        return prompt # Default to returning the whole prompt if extraction logic is not defined
+        return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
     def run(self, prompt: str) -> Any:
         """
@@ -66,10 +86,15 @@ class ArtistAgent:
             return "No suitable tool found for this prompt."
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run example usage of ArtistAgent."""
     agent = ArtistAgent()
     # Example usage
-    print("Available tools:", list(agent.tools.keys()))
+    logger.info("Available tools: %s", list(agent.tools.keys()))
     test_prompt = "Calculate 2 + 3 * 4"
-    print(f"Prompt: {test_prompt}")
-    print("Agent output:", agent.run("2 + 3 * 4"))
+    logger.info("Prompt: %s", test_prompt)
+    logger.info("Agent output: %s", agent.run("2 + 3 * 4"))
+
+
+if __name__ == "__main__":
+    main()

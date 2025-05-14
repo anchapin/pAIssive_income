@@ -86,9 +86,17 @@ class MinimalYaml:
 def install_pyyaml() -> bool:
     """Install PyYAML module using multiple fallback mechanisms."""
     methods = [
-        lambda: subprocess.check_call(["uv", "pip", "install", "pyyaml"]) == 0
-        if shutil.which("uv")
-        else False,
+        lambda: subprocess.check_call(["uv", "pip", "install", "pyyaml"]) == 0,
+        lambda: subprocess.check_call([
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "uv",
+        ])
+        == 0
+        and subprocess.check_call(["uv", "pip", "install", "pyyaml"]) == 0,
         lambda: subprocess.check_call([
             sys.executable,
             "-m",
@@ -100,17 +108,13 @@ def install_pyyaml() -> bool:
         lambda: subprocess.check_call(["pip", "install", "pyyaml"]) == 0,
     ]
 
-    success = False
     for method in methods:
         try:
             if method():
-                success = True
-                break
-        except Exception as e:
-            logger.warning(f"PyYAML installation method failed: {e}")
+                return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
             continue
-
-    return success
+    return False
 
 
 def get_yaml_module() -> Any:
@@ -174,7 +178,7 @@ def run_command(
 
 
 def create_virtual_environment() -> bool:
-    """Create a virtual environment using uv if available."""
+    """Create a virtual environment using multiple fallback methods."""
     logger.info("Creating virtual environment...")
     venv_path = Path(".venv")
 
@@ -194,15 +198,29 @@ def create_virtual_environment() -> bool:
         except Exception as e:
             logger.warning(f"Exception when creating virtual environment with uv: {e}")
 
-    # Fallback to regular venv
-    try:
+    # Fallback to regular venv    try:
         venv.create(venv_path, with_pip=True)
-    except Exception:
-        logger.exception("Error creating virtual environment")
-        return False
-    else:
         logger.info(f"Created virtual environment at {venv_path}")
-        return True
+    except Exception:
+        logger.exception("Failed to create virtual environment using venv")
+        return False
+    return True
+        # Try virtualenv as last resort
+        try:
+            subprocess.check_call([
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "virtualenv",
+            ])
+            subprocess.check_call([sys.executable, "-m", "virtualenv", str(venv_path)])
+            logger.info(f"Created virtual environment at {venv_path} using virtualenv")
+        except Exception:
+            logger.exception("Failed to create virtual environment using virtualenv")
+            return False
+        else:
+            return True
 
 
 def get_venv_python_path() -> str:
@@ -318,22 +336,53 @@ def configure_vscode() -> bool:
     logger.info("Configuring VSCode settings...")
     vscode_dir = Path(".vscode")
     try:
+        # Ensure parent directory exists
+        vscode_dir.parent.mkdir(parents=True, exist_ok=True)
+        # Create .vscode directory
         vscode_dir.mkdir(exist_ok=True)
+        logger.info(f"Created/verified .vscode directory at {vscode_dir}")
+
+        # Determine platform-specific Python path
+        python_path = str(
+            Path(
+                ".venv/Scripts/python.exe"
+                if platform.system() == "Windows"
+                else ".venv/bin/python"
+            ).resolve()
+        )
 
         settings = {
-            "python.defaultInterpreterPath": str(Path(".venv/bin/python").resolve()),
+            "python.defaultInterpreterPath": python_path,
             "python.formatting.provider": "black",
             "python.linting.enabled": True,
             "python.linting.flake8Enabled": True,
             "python.linting.mypyEnabled": True,
         }
 
-        with open(vscode_dir / "settings.json", "w") as f:
+        settings_file = vscode_dir / "settings.json"
+        logger.info(f"Writing VS Code settings to {settings_file}")
+
+        with open(settings_file, "w") as f:
             json.dump(settings, f, indent=4)
 
         logger.info("VSCode configuration complete")
+    except PermissionError:
+        logger.exception(
+            "Permission denied when configuring VSCode. Try running with elevated privileges."
+        )
+        return False
+    except OSError:
+        logger.exception("OS error when configuring VSCode")
+        return False
     except Exception:
-        logger.exception("Error configuring VSCode")
+        logger.exception("Unexpected error configuring VSCode")
+        # Create a basic .vscode directory if we couldn't create the full configuration
+        if not vscode_dir.exists():
+            try:
+                vscode_dir.mkdir(parents=True, exist_ok=True)
+                logger.info("Created basic .vscode directory")
+            except Exception:
+                logger.exception("Failed to create basic .vscode directory")
         return False
     else:
         return True

@@ -2,9 +2,9 @@
 
 import logging
 import os
-from typing import Any, Dict, Tuple
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
+
 from users.services import AuthenticationError, UserExistsError, UserService
 
 # Set up logger
@@ -18,11 +18,11 @@ user_service = UserService(token_secret=TOKEN_SECRET)
 
 
 @user_bp.route("/", methods=["POST"])
-def create_user() -> Tuple[Dict[str, Any], int]:
+def create_user() -> tuple[Response, int]:
     """Create a new user.
 
     Returns:
-        Tuple[Dict[str, Any], int]: JSON response with user data or error and HTTP status code
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
     """
     data = request.get_json()
     username = data.get("username")
@@ -44,11 +44,11 @@ def create_user() -> Tuple[Dict[str, Any], int]:
 
 
 @user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Tuple[Dict[str, Any], int]:
+def authenticate_user() -> tuple[Response, int]:
     """Authenticate a user.
 
     Returns:
-        Tuple[Dict[str, Any], int]: JSON response with user data or error and HTTP status code
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
     """
     data = request.get_json()
     username_or_email = data.get("username_or_email")
