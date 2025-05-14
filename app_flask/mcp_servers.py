@@ -2,6 +2,7 @@
 
 import os
 import json
+import logging
 import threading
 from flask import Blueprint, request, jsonify, abort
 
@@ -18,7 +19,8 @@ def load_settings():
     with open(MCP_SETTINGS_FILE, "r", encoding="utf-8") as f:
         try:
             data = json.load(f)
-        except Exception:
+        except Exception as e:
+            logging.error("Failed to decode JSON from settings file '%s': %s", MCP_SETTINGS_FILE, e)
             data = {}
     if MCP_SERVERS_KEY not in data:
         data[MCP_SERVERS_KEY] = []

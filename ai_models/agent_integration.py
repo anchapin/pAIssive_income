@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from ai_models.adapters.adapter_factory import get_adapter
 
 MCP_SETTINGS_FILE = os.path.abspath("cline_mcp_settings.json")
@@ -32,7 +33,7 @@ def get_mcp_adapters():
         try:
             adapters[name] = get_adapter("mcp", host, port)
         except Exception as e:
-            # Could log error or skip invalid configs
+            logging.error(f"Failed to instantiate adapter for server '{name}' with host '{host}' and port '{port}': {e}")
             continue
     return adapters
 

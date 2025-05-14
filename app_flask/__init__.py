@@ -1,19 +1,15 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
+from typing import Any, Dict, Optional
 
 # Third-party imports
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 # Local imports
-
-from flask import Flask
 from .mcp_servers import mcp_servers_api
-
-def create_app():
-    app = Flask(__name__)
-    app.register_blueprint(mcp_servers_api)
-    # Register other blueprints or config here
-    return app
 from config import Config
 
 # Initialize extensions
