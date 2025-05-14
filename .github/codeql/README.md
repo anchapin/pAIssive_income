@@ -6,15 +6,32 @@ This directory contains configuration files for GitHub's CodeQL analysis tool, w
 
 - `codeql-javascript-config.yml`: Configuration for JavaScript/TypeScript analysis
 - `codeql-python-config.yml`: Configuration for Python analysis
-- `codeql-config-macos.yml`: Combined configuration for macOS platform
-- `codeql-config-ubuntu.yml`: Combined configuration for Ubuntu platform
-- `codeql-config-windows.yml`: Combined configuration for Windows platform
+- `security-os-config.yml`: Unified configuration for all platforms (Windows, macOS, Linux)
 - `javascript-security-queries.qls`: Custom query suite for JavaScript/TypeScript security analysis
 - `python-security-queries.qls`: Custom query suite for Python security analysis
 
+### Legacy Files (Deprecated)
+
+The following files are kept for backward compatibility but are no longer actively used:
+
+- `security-os-windows.yml`: Windows-specific configuration (deprecated)
+- `security-os-macos.yml`: macOS-specific configuration (deprecated)
+- `security-os-ubuntu.yml`: Ubuntu-specific configuration (deprecated)
+- `codeql-config-macos.yml`: Combined configuration for macOS platform (deprecated)
+- `codeql-config-ubuntu.yml`: Combined configuration for Ubuntu platform (deprecated)
+- `codeql-config-windows.yml`: Combined configuration for Windows platform (deprecated)
+
 ## Workflow
 
-The CodeQL analysis is configured in the `.github/workflows/codeql.yml` workflow file. Additionally, the `.github/workflows/consolidated-ci-cd.yml` workflow also includes CodeQL analysis for backward compatibility. These workflows:
+The CodeQL analysis is configured in the following workflow files:
+
+- `.github/workflows/codeql.yml`: Main workflow for all platforms
+- `.github/workflows/codeql-ubuntu.yml`: Ubuntu-specific workflow
+- `.github/workflows/codeql-windows.yml`: Windows-specific workflow
+- `.github/workflows/codeql-macos.yml`: macOS-specific workflow
+- `.github/workflows/consolidated-ci-cd.yml`: Includes CodeQL analysis for backward compatibility
+
+These workflows:
 
 1. Runs on push to main branches, pull requests to main branches, and on a weekly schedule (Monday at 4 AM UTC)
 2. Performs separate analysis for JavaScript/TypeScript and Python
@@ -31,6 +48,7 @@ The configuration files include:
 - **Paths-ignore**: Specify which files to exclude from the analysis
 - **Queries**: Specify which query suites to run
 - **Query filters**: Filter out specific queries or categories of queries
+- **OS-specific settings**: Configure platform-specific behavior (Windows, macOS, Linux)
 - **Database settings**: Configure database extraction parameters
 - **Trap-for-errors**: Configure error handling during extraction
 
