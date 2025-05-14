@@ -35,14 +35,7 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 collection = client.get_or_create_collection("demo_rag")
 
 # 5. Embed and add documents
-for doc in documents:
-    embedding = embedder.encode(doc["content"]).tolist()
-    collection.add(
-        documents=[doc["content"]],
-        embeddings=[embedding],
-        ids=[doc["id"]],
-        metadatas=[{"source": "demo"}]
-    )
+embed_and_insert_documents(documents, embedder, collection)
 
 print("Documents stored in ChromaDB.")
 
