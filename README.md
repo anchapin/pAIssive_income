@@ -251,16 +251,29 @@ For quick reference, the following topics are included in the full guide:
 
 ## Running Tests
 
-The project includes Python and JavaScript/TypeScript tests.
+The project includes Python and JavaScript/TypeScript tests with coverage requirements.
 
 ### Python Unit/Integration Tests
 
 From the repo root, after environment setup:
 
 ```bash
+# Run tests without coverage
 pytest
-# or
-python -m pytest
+
+# Run tests with coverage (will fail if coverage is below 80%)
+python run_tests.py --with-coverage
+```
+
+### Frontend Unit Tests
+
+From the frontend directory:
+
+```bash
+cd ui/react_frontend
+pnpm install
+pnpm run test:unit         # Run unit tests
+pnpm run test:unit:coverage # Run unit tests with coverage (will fail if coverage is below 80%)
 ```
 
 ### Frontend End-to-End (E2E) Tests
@@ -287,6 +300,16 @@ python -m pytest
    ```bash
    pnpm exec playwright test tests/e2e/niche_analysis.spec.ts
    ```
+
+### Test Coverage Requirements
+
+All code must maintain a minimum of 80% test coverage. This is enforced by:
+
+- The GitHub Actions workflow in `.github/workflows/test-coverage.yml`
+- The pytest configuration with `--cov-fail-under=80`
+- The Vitest configuration with coverage thresholds
+
+For more details, see [Test Coverage Workflow](docs/test-coverage-workflow.md).
 
 Test output and screenshots will appear in the Playwright reports directory.
 

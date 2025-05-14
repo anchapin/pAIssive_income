@@ -9,6 +9,10 @@ export default defineConfig({
     exclude: ["**/tests/e2e/**", "**/node_modules/**"],
     coverage: {
       reporter: ["text", "json", "html"],
+      lines: 80,
+      functions: 80,
+      branches: 80,
+      statements: 80,
     },
   },
 });

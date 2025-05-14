@@ -17,6 +17,8 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
 11. [API Reference](api-reference.md)
 12. [DevOps & CI/CD Workflow](devops-workflow.md)
     - [CI/CD Pipeline](ci_cd_pipeline.md)
+    - [Python Tests Workflow](github_actions_test_workflow.md)
+    - [Test Coverage Workflow](test-coverage-workflow.md)
     - [Setup PNPM Workflow](ci_cd/setup-pnpm.md)
     - [Test Setup Script Workflow](ci_cd/test-setup-script.md)
     - [Documentation Check Workflow](documentation-check-workflow.md)
