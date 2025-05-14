@@ -1,7 +1,34 @@
+"""
+ADK Demo Main Module
+
+This module serves as the entry point for the ADK demonstration.
+It sets up the agent communication infrastructure and provides a simple CLI interface.
+
+Features:
+- Agent initialization and communication setup
+- User input handling
+- Message routing with retry mechanism
+- Proper cleanup on completion
+"""
+
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 
 def main():
+    """
+    Main function that orchestrates the ADK demonstration.
+    
+    Flow:
+    1. Sets up communication infrastructure
+    2. Initializes and starts agents
+    3. Handles user input
+    4. Manages message flow with retry mechanism
+    5. Performs cleanup
+    
+    Configuration:
+    - MAX_RETRIES: 10 attempts for message reception
+    - Timeout: 5.0 seconds per attempt
+    """
     # Set up communicator
     communicator = AgentCommunicator()
 

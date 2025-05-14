@@ -1,11 +1,30 @@
 name: Consolidated CI/CD
 
-# This workflow is designed to run on both Linux and Windows platforms
-# It includes robust fallback mechanisms for virtual environment creation and dependency installation
-# The workflow is organized into three main jobs:
-# 1. lint-test: Runs linting, type checking, and tests
-# 2. security: Runs security scanning tools
-# 3. build-deploy: Builds and deploys Docker images (Linux only)
+# Consolidated CI/CD Pipeline
+# This workflow handles continuous integration and deployment across multiple platforms.
+#
+# Jobs:
+# - lint-test: Code quality, type checking, and testing
+#   - Runs on: Ubuntu, Windows, MacOS
+#   - Performs: linting (ruff), type checking (mypy), testing (pytest)
+#   - Generates: test reports and coverage data
+#
+# - security: Comprehensive security scanning
+#   - Runs on: Ubuntu, Windows, MacOS
+#   - Tools: Safety, Bandit, Trivy, Semgrep, pip-audit, Gitleaks
+#   - Generates: SARIF reports and security artifacts
+#
+# - build-deploy: Docker image building and publishing
+#   - Runs on: Ubuntu only (for Docker compatibility)
+#   - Triggers: On main/dev branch pushes and version tags
+#   - Handles: Docker image building, caching, and publishing
+#
+# Permissions:
+# - Minimal permissions by default (contents: read)
+# - Elevated only where needed:
+#   - security-events: write (for SARIF uploads)
+#   - packages: write (for Docker publishing)
+#   - id-token: write (for OIDC cloud authentication)
 
 on:
   push:
