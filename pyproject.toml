@@ -64,3 +64,18 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+
+[tool.ty]
+exclude = [
+    ".venv/",
+    "venv/",
+    ".git/",
+    "node_modules/",
+    "__pycache__/",
+    ".pytest_cache/",
+    ".ruff_cache/",
+    "build/",
+    "dist/",
+    "migrations/",
+    "tests/",
+]

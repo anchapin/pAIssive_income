@@ -55,27 +55,15 @@ repos:
         types: [python]
         files: \.py$
 
-  # Type checking (run after formatting/linting)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+  # Type checking with ty (run after formatting/linting)
+  - repo: https://github.com/astral-sh/ty
+    rev: v0.1.5
     hooks:
-      - id: mypy
-        name: Type check with MyPy
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-setuptools
-        args: [
-          "--ignore-missing-imports",
-          "--install-types",
-          "--non-interactive",
-          "--explicit-package-bases",
-          "--config-file=mypy.ini",
-          "--cache-dir=.mypy_cache",
-          "--disable-error-code=attr-defined",
-          "--disable-error-code=name-defined",
-          "--disable-error-code=unused-ignore"
-        ]
+      - id: ty
+        name: Type check with Ty
+        args: ["check", "."]
+        types: [python]
+        files: \.py$
 
   # Optimized local hooks for incremental checks
   - repo: local
