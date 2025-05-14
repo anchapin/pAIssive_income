@@ -110,17 +110,17 @@ jobs:
           source .venv/bin/activate
 
           # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip || {
+          uv pip install --upgrade pip || {
             echo "Failed to upgrade pip. Continuing anyway..."
           }
 
           # Install setuptools and wheel with pip first
-          python -m pip install --upgrade setuptools wheel || {
+          uv pip install --upgrade setuptools wheel || {
             echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
           }
 
           # Install uv in the virtual environment if needed
-          python -m pip install --upgrade uv || {
+          uv pip install --upgrade uv || {
             echo "Failed to install uv in the virtual environment. Will use system uv..."
           }
 
@@ -387,7 +387,7 @@ jobs:
 
           # Install pre-commit
           Write-Host "Installing pre-commit..."
-          python -m pip install pre-commit
+          uv pip install pre-commit
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install pre-commit with pip. Trying with uv..."
             uv pip install pre-commit
@@ -713,17 +713,17 @@ jobs:
           source .venv/bin/activate
 
           # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip || {
+          uv pip install --upgrade pip || {
             echo "Failed to upgrade pip. Continuing anyway..."
           }
 
           # Install setuptools and wheel with pip first
-          python -m pip install --upgrade setuptools wheel || {
+          uv pip install --upgrade setuptools wheel || {
             echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
           }
 
           # Install uv in the virtual environment if needed
-          python -m pip install --upgrade uv || {
+          uv pip install --upgrade uv || {
             echo "Failed to install uv in the virtual environment. Will use system uv..."
           }
 
@@ -973,10 +973,10 @@ jobs:
 
           # Install pip-audit first (most problematic)
           Write-Host "Installing pip-audit..."
-          python -m pip install pip-audit
+          uv pip install pip-audit
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Failed to install pip-audit with pip. Trying alternative method..."
-            python -m pip install --user pip-audit
+            uv pip install --user pip-audit
             if ($LASTEXITCODE -ne 0) {
               Write-Host "Failed to install pip-audit with --user. Creating a wrapper script..."
               # Create a wrapper script that uses python -m pip_audit

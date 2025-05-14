@@ -34,12 +34,17 @@ def main():
         )
     )
 
-    # Wait for summary result (very basic loop)
-    while True:
+    # Wait for summary result (with retry limit)
+    MAX_RETRIES = 10
+    retries = 0
+    while retries < MAX_RETRIES:
         msg = communicator.receive(receiver=user_name, timeout=5.0)
         if msg and msg.type == "summary_result":
             print(f"\nSummary: {msg.payload['summary']}")
             break
+        retries += 1
+    else:
+        print("\nFailed to receive summary message after multiple attempts. Exiting.")
 
     # Clean up
     gatherer.stop()
