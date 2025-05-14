@@ -4,13 +4,19 @@ import logging
 import time
 import traceback
 import uuid
-from logging import ERROR, INFO
-from logging import getattr as logging_getattr
 from typing import Any, Dict, TypedDict, cast
 
 from flask import Flask, Response, current_app, g, request
-
 from ..utils.logging_utils import sanitize_log_data, structured_log
+
+# Use consistent logging import
+INFO = logging.INFO
+ERROR = logging.ERROR
+
+
+def logging_getattr(module: Any, name: str, default: Any = None) -> Any:
+    """Safe getattr for logging module."""
+    return getattr(module, name, default)
 
 
 class FlaskConfig(TypedDict, total=False):

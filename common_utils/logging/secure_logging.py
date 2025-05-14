@@ -347,15 +347,22 @@ class SecureLogger:
 
     def call_handlers(self, record: logging.LogRecord) -> None:
         """Pass a record to all relevant handlers."""
-        self.logger.callHandlers(record)
+        self.logger.callHandlers(record)  # Standard logging compatibility aliases
 
-    # Standard logging compatibility aliases
     callHandlers = call_handlers  # noqa: N815
 
     def handle(self, record: logging.LogRecord) -> bool:
-        """Call the handlers for the specified record."""
-        result: bool = self.logger.handle(record)
-        return result
+        """Call the handlers for the specified record.
+
+        Returns:
+            bool: True if the record was handled successfully
+        """
+        self.logger.handle(
+            record
+        )  # Logger.handle() always returns None in standard lib
+        return (
+            True  # Return True to maintain compatibility with logging.Handler interface
+        )
 
     def make_record(
         self,

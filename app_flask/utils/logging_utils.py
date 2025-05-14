@@ -4,7 +4,6 @@ import functools
 import logging
 import re
 import time
-from logging import getLogger
 from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
 from flask import current_app, g
@@ -87,22 +86,27 @@ def structured_log(
     level: Any = logging.INFO,
     extra: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """Log a structured log message.
+    """Log a structured log message with sanitized inputs.
 
     Args:
-        event: The event type/name
-        message: The log message
+        event: The event type/name (will be sanitized)
+        message: The log message (will be sanitized)
         level: The log level (can be string name or int constant)
-        extra: Additional fields to include in the log
+        extra: Additional fields to include in the log (will be sanitized)
 
     Note:
         The level parameter can be either a string (e.g. 'INFO') or an int constant from the logging module.
         If a string is provided, it will be converted to the corresponding logging level constant.
+        All user-provided inputs are sanitized to prevent log injection attacks.
     """
-    log = getLogger()
-    log_data = {"event": event}
+    log = current_app.logger
 
-    # Add extra fields
+    # Sanitize all inputs including event name and message
+    safe_event = sanitize_log_data(event)
+    safe_message = sanitize_log_data(message)
+    log_data = {"event": safe_event}
+
+    # Add sanitized extra fields
     if extra:
         log_data.update(sanitize_log_data(extra))
 
@@ -113,7 +117,7 @@ def structured_log(
     elif isinstance(level, int):
         numeric_level = level
 
-    log.log(numeric_level, message, extra=log_data)
+    log.log(numeric_level, safe_message, extra=log_data)
 
 
 def audit_log(

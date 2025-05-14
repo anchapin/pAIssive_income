@@ -154,9 +154,8 @@ def setup_handlers() -> tuple[List[logging.Handler], Queue]:
 
     Returns:
         Tuple of (list of handlers, logging queue)
-    """
-    # Create logging queue
-    log_queue = Queue(maxsize=Config.LOG_QUEUE_SIZE)
+    """  # Create logging queue
+    log_queue: Queue = Queue(maxsize=Config.LOG_QUEUE_SIZE)
 
     # Create main and error log handlers
     file_handler = create_compressed_handler(Config.LOG_FILE)
