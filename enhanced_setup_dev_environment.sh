@@ -68,6 +68,15 @@ fi
 PYTHON_FULL_VERSION=$($PYTHON_CMD --version 2>&1)
 log "$INFO" "Using $PYTHON_FULL_VERSION"
 
+# Install uv using the detected Python command
+log "$INFO" "Installing uv..."
+if ! "$PYTHON_CMD" -m pip install --upgrade pip; then
+    log "$WARNING" "Failed to upgrade pip. Continuing anyway."
+fi
+if ! "$PYTHON_CMD" -m pip install uv; then
+    log "$ERROR" "Failed to install uv. Virtual environment creation and dependency installation may fall back to standard venv/pip."
+fi
+
 # Make the Python script executable
 if ! chmod +x enhanced_setup_dev_environment.py; then
     error_exit "Failed to make enhanced_setup_dev_environment.py executable.\nPlease check file permissions." 4
@@ -81,7 +90,7 @@ else
 fi
 
 # Run the Python script with all arguments
-./$PYTHON_CMD enhanced_setup_dev_environment.py "$@"
+"$PYTHON_CMD" enhanced_setup_dev_environment.py "$@"
 PYTHON_EXIT_CODE=$?
 
 # Check the exit code of the Python script
