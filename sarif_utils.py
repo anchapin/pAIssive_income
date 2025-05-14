@@ -27,26 +27,38 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     Returns:
         Dict containing a valid empty SARIF structure
 
+    Raises:
+        ValueError: If tool_name is empty or contains only whitespace
+        TypeError: If tool_name is not a string
     """
-    return {
-        "version": "2.1.0",
-        "$schema": (
-            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
-            "Schemata/sarif-schema-2.1.0.json"
-        ),
-        "runs": [
-            {
-                "tool": {
-                    "driver": {
-                        "name": tool_name,
-                        "informationUri": tool_url,
-                        "rules": [],
-                    }
-                },
-                "results": [],
-            }
-        ],
-    }
+    if not isinstance(tool_name, str):
+        raise TypeError("Tool name must be a string")
+    if not tool_name or tool_name.isspace():
+        raise ValueError("Tool name cannot be empty or contain only whitespace")
+        
+    try:
+        return {
+            "version": "2.1.0",
+            "$schema": (
+                "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+                "Schemata/sarif-schema-2.1.0.json"
+            ),
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": tool_name,
+                            "informationUri": tool_url,
+                            "rules": [],
+                        }
+                    },
+                    "results": [],
+                }
+            ],
+        }
+    except Exception as e:
+        logging.error(f"Failed to create SARIF structure: {str(e)}")
+        raise
 
 
 def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
@@ -59,15 +71,30 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
     Returns:
         bool: True if successful, False otherwise
 
+    Raises:
+        ValueError: If output_file is empty
+        OSError: If there are filesystem related errors
+        TypeError: If sarif_data is not a valid dict
     """
+    if not output_file:
+        raise ValueError("Output file path cannot be empty")
+    if not isinstance(sarif_data, dict):
+        raise TypeError("sarif_data must be a dictionary")
+
     try:
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
 
         with open(output_file, "w") as f:
             json.dump(sarif_data, f, indent=2)
-    except Exception:
-        logging.exception("Error saving SARIF file")
+    except OSError as e:
+        logging.error(f"Filesystem error while saving SARIF file: {str(e)}")
+        return False
+    except TypeError as e:
+        logging.error(f"Invalid data type in SARIF structure: {str(e)}")
+        return False
+    except json.JSONEncodeError as e:
+        logging.error(f"Error encoding SARIF data to JSON: {str(e)}")
         return False
     else:
         return True

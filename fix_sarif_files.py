@@ -161,7 +161,14 @@ def create_empty_sarif_file(file_path: str) -> bool:
     Returns:
         bool: True if successful, False otherwise
 
+    Raises:
+        ValueError: If file_path is empty
+        OSError: If there are filesystem related errors
     """
+    if not file_path:
+        logging.error("File path cannot be empty")
+        return False
+
     try:
         data = {
             "version": "2.1.0",
@@ -183,10 +190,17 @@ def create_empty_sarif_file(file_path: str) -> bool:
             ],
         }
 
+        os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
         with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
-    except Exception:
-        logging.exception(f"Failed to create empty SARIF file {file_path}")
+    except OSError as e:
+        logging.error(f"Filesystem error while creating SARIF file: {str(e)}")
+        return False
+    except TypeError as e:
+        logging.error(f"Invalid data type in SARIF structure: {str(e)}")
+        return False
+    except json.JSONEncodeError as e:
+        logging.error(f"Error encoding SARIF data to JSON: {str(e)}")
         return False
     else:
         logging.info(f"Created empty SARIF file: {file_path}")

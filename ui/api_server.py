@@ -106,8 +106,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 if content_length == 0:
                     self._send_response(400, {"error": "No data provided"})
                     return
-                post_data = self.rfile.read(content_length)
-                try:
+                post_data = self.rfile.read(content_length)                try:
                     action = json.loads(post_data.decode("utf-8"))
                 except json.JSONDecodeError:
                     self._send_response(400, {"error": "Invalid JSON"})

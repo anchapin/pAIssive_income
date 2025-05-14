@@ -21,7 +21,7 @@ config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
-# Set database URL
+# Get database URL
 config.set_main_option(
     "sqlalchemy.url",
     "postgresql://myuser:mypassword@localhost:5433/mydb"

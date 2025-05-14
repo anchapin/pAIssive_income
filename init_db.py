@@ -3,14 +3,18 @@
 
 import logging
 import os
-import string
 from secrets import randbelow
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError
 
 from app_flask import create_app, db
 from app_flask.models import Agent, Team, User
 from users.auth import hash_credential
 
-# Set up logger
+# Set up logger with more detailed formatting
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -31,80 +35,104 @@ def generate_secure_password(length: int = 16) -> str:
     return password
 
 
-def init_db() -> None:
-    """Initialize the database with tables and initial data."""
+def init_db() -> bool:
+    """Initialize the database with required tables and initial data.
+
+    Returns:
+        bool: True if initialization was successful, False otherwise
+    """
     app = create_app()
-    with app.app_context():
-        # Create all tables
-        db.create_all()
+    try:
+        with app.app_context():
+            # Create all tables
+            db.create_all()
+            logger.info("Tables created")
 
-        # Check if admin user exists
-        admin = User.query.filter_by(username="admin").first()
-        if not admin:
-            # Generate a secure password for admin
-            admin_password = os.environ.get("ADMIN_INITIAL_PASSWORD")
-            if not admin_password:
-                admin_password = generate_secure_password()
-                # Log a message but don't include the password in logs
-                logger.info("Generated secure admin password - use it to log in")
-                # Log the generated password during interactive setup only
-                # Only log password in interactive console sessions, never in production
-                if (
-                    hasattr(os, "isatty")
-                    and os.isatty(0)
-                    and os.environ.get("FLASK_ENV") != "production"
-                ):
-                    logger.info(f"Generated admin password: {admin_password}")
-                    logger.info("Admin password was logged to console")
+            # Check if admin user exists
+            admin = User.query.filter_by(username="admin").first()
+            if not admin:
+                # Generate a random password
+                password = generate_secure_password()
 
-            # Hash the password
-            password_hash = hash_credential(admin_password)
+                # Create admin user
+                admin = User(
+                    username="admin",
+                    password_hash=hash_credential(password),
+                )
+                db.session.add(admin)
+                logger.info("Admin user created")
 
-            # Create admin user
-            admin = User(
-                username="admin",
-                email="admin@example.com",
-                password_hash=password_hash,
-            )
-            db.session.add(admin)
+                # Create default team
+                default_team = Team(
+                    name="Default Team", description="Default team for AI agents"
+                )
+                db.session.add(default_team)
+                logger.info("Default team created")
 
-            # Create default team
-            default_team = Team(
-                name="Default Team", description="Default team for AI agents"
-            )
-            db.session.add(default_team)
+                # Create sample agents
+                agents = [
+                    Agent(
+                        name="Research Agent",
+                        role="researcher",
+                        description="Conducts research on topics",
+                        team=default_team,
+                    ),
+                    Agent(
+                        name="Content Agent",
+                        role="writer",
+                        description="Creates content based on research",
+                        team=default_team,
+                    ),
+                    Agent(
+                        name="Marketing Agent",
+                        role="marketer",
+                        description="Develops marketing strategies",
+                        team=default_team,
+                    ),
+                ]
+                db.session.add_all(agents)
+                logger.info("Sample agents created")
 
-            # Create sample agents
-            agents = [
-                Agent(
-                    name="Research Agent",
-                    role="researcher",
-                    description="Conducts research on topics",
-                    team=default_team,
-                ),
-                Agent(
-                    name="Content Agent",
-                    role="writer",
-                    description="Creates content based on research",
-                    team=default_team,
-                ),
-                Agent(
-                    name="Marketing Agent",
-                    role="marketer",
-                    description="Develops marketing strategies",
-                    team=default_team,
-                ),
-            ]
-            db.session.add_all(agents)
+                try:
+                    # Commit all changes
+                    db.session.commit()
+                    logger.info("Database initialized successfully")
+                    logger.info(f"Admin password: {password}")
 
-            # Commit changes
-            db.session.commit()
-            logger.info("Database initialized with default data")
-        else:
-            logger.info("Database already contains data")
+                    # Verify the initialization with proper error handling
+                    try:
+                        agent_count = db.session.query(Agent).count()
+                        if agent_count != len(agents):
+                            logger.warning(
+                                f"Agent count mismatch: expected {len(agents)}, found {agent_count}"
+                            )
+                            return False
+                        return True
+                    except SQLAlchemyError as e:
+                        logger.error(f"Error verifying agent count: {str(e)}")
+                        return False
+
+                except IntegrityError as e:
+                    db.session.rollback()
+                    logger.error(f"Database integrity error: {str(e)}")
+                    return False
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    logger.error(f"Database error: {str(e)}")
+                    return False
+            else:
+                logger.info("Database already initialized")
+                return True
+
+    except Exception as e:
+        logger.error(f"Critical error during database initialization: {str(e)}")
+        return False
 
 
 if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    init_db()
+    success = init_db()
+    if not success:
+        logger.error("Database initialization failed")
+        exit(1)
+    else:
+        logger.info("Database initialization completed successfully")

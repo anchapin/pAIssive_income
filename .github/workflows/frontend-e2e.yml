@@ -301,7 +301,8 @@ jobs:
           tail -f api_server.log &
           tail_pid=$!
 
-          cd ui/react_frontend          for i in {1..60}; do
+          cd ui/react_frontend
+          for i in {1..60}; do
             if curl --silent --fail http://localhost:8000/health; then
               echo "Backend API server is ready."
               break
