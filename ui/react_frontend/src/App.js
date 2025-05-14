@@ -1,16 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AgentUI } from '@ag-ui-protocol/ag-ui';
 
-// Example agent configuration
-const agent = {
-  id: "demo-agent",
-  name: "Demo Agent",
-  avatarUrl: "https://avatars.githubusercontent.com/u/1234567?v=4",
-  description: "This is a sample agent powered by ag-ui.",
-  // ...other agent properties as supported by ag-ui
-};
-
-// Example theme configuration
+// Example theme configuration (customize as needed)
 const theme = {
   primaryColor: "#007bff",
   secondaryColor: "#f5f5f5",
@@ -20,19 +11,51 @@ const theme = {
   // ...other theme settings
 };
 
-// Example action handler
-function handleAgentAction(action) {
-  // Replace with real logic as needed
-  alert(`Agent action triggered: ${JSON.stringify(action)}`);
-}
-
 function App() {
-  // Optionally use useCallback if you want stable handler references
-  const onAction = useCallback(handleAgentAction, []);
+  const [agent, setAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch agent info from backend
+  useEffect(() => {
+    async function fetchAgent() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/agent');
+        if (!response.ok) throw new Error('Failed to fetch agent data');
+        const data = await response.json();
+        setAgent(data);
+      } catch (err) {
+        setError(err.message || 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgent();
+  }, []);
+
+  // Handle actions from ag-ui and send to backend
+  const onAction = useCallback(async (action) => {
+    try {
+      const response = await fetch('/api/agent/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      });
+      if (!response.ok) throw new Error('Failed to submit action');
+      // Optionally, refetch agent data or update UI here
+    } catch (err) {
+      alert('Error sending action: ' + (err.message || err));
+    }
+  }, []);
+
+  if (loading) return <div>Loading agent...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!agent) return <div>No agent data available.</div>;
 
   return (
     <div className="App">
-      {/* Enhanced ag-ui integration */}
       <AgentUI
         agent={agent}
         theme={theme}
