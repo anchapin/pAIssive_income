@@ -31,7 +31,13 @@ RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
 
 # Install Python dependencies using uv and create a virtual environment
 RUN uv venv .venv && \
-    # Use the system-wide uv to install packages into the virtual environment
+    # First install the MCP SDK from GitHub
+    git clone https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk && \
+    cd /tmp/mcp-sdk && \
+    /app/.venv/bin/pip install . && \
+    cd /app && \
+    rm -rf /tmp/mcp-sdk && \
+    # Then install the rest of the requirements
     uv pip install --no-cache -r requirements.txt --python .venv/bin/python
 
 # Update PATH to include virtual environment for subsequent commands and runtime
