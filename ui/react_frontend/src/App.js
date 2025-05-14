@@ -1,4 +1,18 @@
 import React from 'react';
+// Import AgentUI (or another component) from ag-ui
+import { AgentUI } from '@ag-ui-protocol/ag-ui';
+
+function App() {
+  return (
+    <div className="App">
+      {/* ag-ui sample integration */}
+      <AgentUI />
+      {/* Your existing code here */}
+    </div>
+  );
+}
+
+export default App;
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
