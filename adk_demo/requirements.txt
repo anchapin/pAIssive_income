@@ -1,0 +1,8 @@
+# Core dependency for Google's Agent Development Kit
+# Version >= 1.0.0 required for stable message routing
+adk>=1.0.0
+
+# Optional dependencies for extended functionality
+# Uncomment as needed:
+adk[monitoring]>=1.0.0  # For monitoring capabilities
+adk[testing]>=1.0.0    # For testing utilities
