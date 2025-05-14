@@ -202,41 +202,14 @@ jobs:
           ls -la
           echo "============================="
 
-      - name: Fix line endings and make script executable
+      - name: Create and make script executable
         run: |
-          # Check if the script exists
-          if [ ! -f "enhanced_setup_dev_environment.sh" ]; then
-            echo "Error: enhanced_setup_dev_environment.sh not found in the current directory."
-            ls -la
-            exit 1
-          fi
-
-          # Fix line endings
-          echo "Fixing line endings in the script..."
-          cat > fix_line_endings.py << 'EOF'
-          #!/usr/bin/env python3
-          import os
-          import sys
-
-          def fix_line_endings(file_path):
-              with open(file_path, 'rb') as f:
-                  content = f.read()
-
-              # Replace all line endings with Unix line endings
-              content = content.replace(b'\r\n', b'\n')
-
-              with open(file_path, 'wb') as f:
-                  f.write(content)
-
-          if __name__ == '__main__':
-              fix_line_endings(sys.argv[1])
-              print(f"Fixed line endings in {sys.argv[1]}")
-          EOF
-
-          python fix_line_endings.py enhanced_setup_dev_environment.sh
+          # Create a simple wrapper script
+          echo '#!/bin/bash' > enhanced_setup_dev_environment.sh
+          echo '# Shell script wrapper for enhanced_setup_dev_environment.py' >> enhanced_setup_dev_environment.sh
+          echo 'python enhanced_setup_dev_environment.py "$@"' >> enhanced_setup_dev_environment.sh
 
           # Make the script executable
-          echo "Making the script executable..."
           chmod +x enhanced_setup_dev_environment.sh
 
           # Verify the script is executable
@@ -248,9 +221,9 @@ jobs:
             exit 1
           fi
 
-          # Display the first few lines of the script for debugging
-          echo "First 10 lines of the script:"
-          head -n 10 enhanced_setup_dev_environment.sh
+          # Display the script for debugging
+          echo "Script contents:"
+          cat enhanced_setup_dev_environment.sh
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
@@ -1538,41 +1511,14 @@ jobs:
           ls -la
           echo "============================="
 
-      - name: Fix line endings and make script executable
+      - name: Create and make script executable
         run: |
-          # Check if the script exists
-          if [ ! -f "enhanced_setup_dev_environment.sh" ]; then
-            echo "Error: enhanced_setup_dev_environment.sh not found in the current directory."
-            ls -la
-            exit 1
-          fi
-
-          # Fix line endings
-          echo "Fixing line endings in the script..."
-          cat > fix_line_endings.py << 'EOF'
-          #!/usr/bin/env python3
-          import os
-          import sys
-
-          def fix_line_endings(file_path):
-              with open(file_path, 'rb') as f:
-                  content = f.read()
-
-              # Replace all line endings with Unix line endings
-              content = content.replace(b'\r\n', b'\n')
-
-              with open(file_path, 'wb') as f:
-                  f.write(content)
-
-          if __name__ == '__main__':
-              fix_line_endings(sys.argv[1])
-              print(f"Fixed line endings in {sys.argv[1]}")
-          EOF
-
-          python fix_line_endings.py enhanced_setup_dev_environment.sh
+          # Create a simple wrapper script
+          echo '#!/bin/bash' > enhanced_setup_dev_environment.sh
+          echo '# Shell script wrapper for enhanced_setup_dev_environment.py' >> enhanced_setup_dev_environment.sh
+          echo 'python enhanced_setup_dev_environment.py "$@"' >> enhanced_setup_dev_environment.sh
 
           # Make the script executable
-          echo "Making the script executable..."
           chmod +x enhanced_setup_dev_environment.sh
 
           # Verify the script is executable
@@ -1584,9 +1530,9 @@ jobs:
             exit 1
           fi
 
-          # Display the first few lines of the script for debugging
-          echo "First 10 lines of the script:"
-          head -n 10 enhanced_setup_dev_environment.sh
+          # Display the script for debugging
+          echo "Script contents:"
+          cat enhanced_setup_dev_environment.sh
 
       - name: Run setup script with minimal profile
         if: ${{ github.event.inputs.setup_profile == 'minimal' || github.event.inputs.setup_profile == '' }}
