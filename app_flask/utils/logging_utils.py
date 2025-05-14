@@ -2,12 +2,12 @@
 
 import functools
 import logging
-from logging import getLogger
 import re
 import time
+from logging import getLogger
 from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
-from flask import current_app, g, request
+from flask import current_app, g
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])
@@ -82,53 +82,38 @@ def log_execution_time(logger: Optional[logging.Logger] = None) -> Callable[[F],
 
 
 def structured_log(
-    event_type: str,
+    event: str,
     message: str,
-    level: int = logging.INFO,
+    level: Any = logging.INFO,
     extra: Optional[Dict[str, Any]] = None,
-    logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Log a structured event with consistent formatting.
+    """Log a structured log message.
 
     Args:
-        event_type: Type of event being logged
-        message: Log message
-        level: Log level (default: INFO)
-        extra: Additional fields to log
-        logger: Logger to use (default: app logger)
+        event: The event type/name
+        message: The log message
+        level: The log level (can be string name or int constant)
+        extra: Additional fields to include in the log
+
+    Note:
+        The level parameter can be either a string (e.g. 'INFO') or an int constant from the logging module.
+        If a string is provided, it will be converted to the corresponding logging level constant.
     """
-    # Get or create logger
-    log = logger or getLogger("app")
-
-    # Build structured log data
-    log_data = {
-        "event_type": event_type,
-        "message": message,
-        "correlation_id": getattr(g, "correlation_id", None),
-        "request_id": getattr(g, "request_id", None),
-    }
-
-    # Add request context if available
-    try:
-        if request:
-            log_data.update({
-                "path": request.path,
-                "method": request.method,
-                "remote_addr": request.remote_addr,
-            })
-    except RuntimeError:
-        # Not in request context
-        pass
+    log = getLogger()
+    log_data = {"event": event}
 
     # Add extra fields
     if extra:
         log_data.update(sanitize_log_data(extra))
 
-    # Set log level
+    # Set log level with explicit typing
+    numeric_level: int = logging.INFO
     if isinstance(level, str):
-        level = getattr(logging, level.upper(), logging.INFO)
+        numeric_level = getattr(logging, level.upper(), logging.INFO)
+    elif isinstance(level, int):
+        numeric_level = level
 
-    log.log(level, message, extra=log_data)
+    log.log(numeric_level, message, extra=log_data)
 
 
 def audit_log(

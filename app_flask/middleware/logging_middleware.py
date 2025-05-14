@@ -6,11 +6,23 @@ import traceback
 import uuid
 from logging import ERROR, INFO
 from logging import getattr as logging_getattr
-from typing import Any, Callable, Dict, Union
+from typing import Any, Dict, TypedDict, cast
 
 from flask import Flask, Response, current_app, g, request
 
 from ..utils.logging_utils import sanitize_log_data, structured_log
+
+
+class FlaskConfig(TypedDict, total=False):
+    """Type definition for Flask config used in logging middleware."""
+
+    LOG_REQUEST_ID_HEADER: str
+    LOG_CORRELATION_ID_HEADER: str
+
+
+def get_config() -> Dict[str, Any]:
+    """Get typed config from current app."""
+    return cast(Dict[str, Any], current_app.config)
 
 
 def get_request_context() -> Dict[str, Any]:
@@ -43,10 +55,11 @@ def setup_request_logging(app: Flask) -> None:
         app: Flask application instance
     """
 
-    @app.before_request    def before_request() -> None:
+    @app.before_request
+    def before_request() -> None:
         """Set up logging context before each request."""
         # Generate or get request and correlation IDs
-        config: Dict[str, Any] = current_app.config  # type: ignore
+        config = get_config()
         request_id_header = config["LOG_REQUEST_ID_HEADER"]
         correlation_id_header = config["LOG_CORRELATION_ID_HEADER"]
 
@@ -76,16 +89,16 @@ def setup_request_logging(app: Flask) -> None:
 
         Returns:
             Flask response object
-        """
-        # Skip detailed logging for health check endpoints
+        """  # Skip detailed logging for health check endpoints
         if request.path == "/health":
             return response
 
         duration_ms = int((time.perf_counter() - g.start_time) * 1000)
 
         # Determine if request was slow
-        slow_threshold = current_app.config["LOG_SLOW_REQUEST_THRESHOLD"]
-        very_slow_threshold = current_app.config["LOG_VERY_SLOW_REQUEST_THRESHOLD"]
+        config = get_config()
+        slow_threshold = config["LOG_SLOW_REQUEST_THRESHOLD"]
+        very_slow_threshold = config["LOG_VERY_SLOW_REQUEST_THRESHOLD"]
 
         log_data = {
             **get_request_context(),
@@ -113,11 +126,10 @@ def setup_request_logging(app: Flask) -> None:
         )
 
         # Add tracking headers to response
-        response.headers[current_app.config["LOG_REQUEST_ID_HEADER"]] = g.request_id
+        config = get_config()
+        response.headers[config["LOG_REQUEST_ID_HEADER"]] = g.request_id
         if getattr(g, "correlation_id", None):
-            response.headers[current_app.config["LOG_CORRELATION_ID_HEADER"]] = (
-                g.correlation_id
-            )
+            response.headers[config["LOG_CORRELATION_ID_HEADER"]] = g.correlation_id
 
         return response
 
@@ -137,13 +149,14 @@ def setup_request_logging(app: Flask) -> None:
             "error_message": str(error),
         }
 
-        if current_app.config["LOG_INCLUDE_TRACE"]:
-            tb_limit = current_app.config["LOG_MAX_TRACEBACK_DEPTH"]
+        config = get_config()
+        if config["LOG_INCLUDE_TRACE"]:
+            tb_limit = config["LOG_MAX_TRACEBACK_DEPTH"]
             error_data["traceback"] = traceback.format_tb(
                 error.__traceback__, limit=tb_limit
             )
 
-        if current_app.config["LOG_SANITIZE_ERRORS"]:
+        if config["LOG_SANITIZE_ERRORS"]:
             error_data = sanitize_log_data(error_data)
 
         structured_log(

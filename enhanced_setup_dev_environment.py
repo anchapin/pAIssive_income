@@ -198,13 +198,12 @@ def create_virtual_environment() -> bool:
         except Exception as e:
             logger.warning(f"Exception when creating virtual environment with uv: {e}")
 
-    # Fallback to regular venv    try:
+    # Fallback to regular venv
+    try:
         venv.create(venv_path, with_pip=True)
         logger.info(f"Created virtual environment at {venv_path}")
     except Exception:
         logger.exception("Failed to create virtual environment using venv")
-        return False
-    return True
         # Try virtualenv as last resort
         try:
             subprocess.check_call([
@@ -221,6 +220,8 @@ def create_virtual_environment() -> bool:
             return False
         else:
             return True
+    else:
+        return True
 
 
 def get_venv_python_path() -> str:
