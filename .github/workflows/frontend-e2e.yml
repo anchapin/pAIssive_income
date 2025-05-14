@@ -272,21 +272,45 @@ jobs:
           uv pip install -e . || {
             echo "Failed to install package in development mode with uv pip. Falling back to regular pip..."
             python -m pip install -e .
-          }
+          }          # Debug: List all installed packages
+          python -m pip list
 
-          # Run the API server with the activated virtual environment
-          nohup python ui/api_server.py &
-          cd ui/react_frontend
-          for i in {1..30}; do
+          # Debug: Check if uv is installed and working
+          if ! python -m pip show uv; then
+            echo "Warning: uv package is not installed in the virtual environment"
+          fi
+
+          # Debug: Verify all required packages are installed
+          echo "Checking if all required packages are installed..."
+          python -m pip check || echo "Warning: Some packages have missing dependencies"
+
+          # Debug: Check port availability
+          if nc -z localhost 8000 2>/dev/null; then
+            echo "Error: Port 8000 is already in use"
+            ps aux | grep ':8000' || true
+            exit 1
+          fi
+          
+          # Debug: Enable more verbose Python logging
+          export PYTHONVERBOSE=1
+          export PYTHONDEVMODE=1
+
+          # Run the API server with the activated virtual environment and capture logs
+          nohup python -X dev -W default ui/api_server.py > api_server.log 2>&1 &
+          echo "API server started, checking logs..."
+          tail -f api_server.log &
+          tail_pid=$!
+
+          cd ui/react_frontend          for i in {1..60}; do
             if curl --silent --fail http://localhost:8000/health; then
               echo "Backend API server is ready."
               break
             fi
-            echo "Waiting for backend API server to be ready..."
+            echo "Waiting for backend API server to be ready... (Attempt $i/60)"
             sleep 1
           done
           if ! curl --silent --fail http://localhost:8000/health; then
-            echo "Backend API server failed to start within 30 seconds."
+            echo "Backend API server failed to start within 60 seconds."
             exit 1
           fi
 
@@ -363,12 +387,45 @@ jobs:
           } catch {
             Write-Host "Failed to install package in development mode with uv pip. Falling back to regular pip..."
             python -m pip install -e .
+          }          # Debug: List all installed packages
+          python -m pip list
+
+          # Debug: Check if uv is installed and working
+          try {
+            python -m pip show uv
+          } catch {
+            Write-Host "Warning: uv package is not installed in the virtual environment"
           }
 
-          # Run the API server with the activated virtual environment
-          $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "ui/api_server.py" -PassThru -NoNewWindow
-          cd ui/react_frontend
-          $maxRetries = 30
+          # Debug: Verify all required packages are installed
+          Write-Host "Checking if all required packages are installed..."
+          python -m pip check
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Warning: Some packages have missing dependencies"
+          }
+
+          # Debug: Check port availability
+          try {
+            $testConnection = New-Object System.Net.Sockets.TcpClient
+            $testConnection.Connect("localhost", 8000)
+            $testConnection.Close()
+            Write-Error "Error: Port 8000 is already in use"
+            Get-Process | Where-Object {$_.Name -like "*python*"} | Select-Object Id, ProcessName, Path
+            exit 1
+          } catch {
+            Write-Host "Port 8000 is available"
+          }
+
+          # Debug: Enable more verbose Python logging
+          $env:PYTHONVERBOSE = "1"
+          $env:PYTHONDEVMODE = "1"
+
+          # Run the API server with the activated virtual environment and capture logs
+          $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "-X dev -W default ui/api_server.py" -RedirectStandardOutput "api_server.log" -RedirectStandardError "api_server_error.log" -PassThru -NoNewWindow
+          Write-Host "API server started, checking logs..."
+          Start-Job -ScriptBlock { Get-Content -Path "api_server.log" -Wait } | Receive-Job -Wait
+
+          cd ui/react_frontend          $maxRetries = 60
           $retryCount = 0
           $serverReady = $false
 
@@ -387,7 +444,7 @@ jobs:
           }
 
           if (-not $serverReady) {
-            Write-Error "Backend API server failed to start within 30 seconds."
+            Write-Error "Backend API server failed to start within 60 seconds."
             exit 1
           }
 

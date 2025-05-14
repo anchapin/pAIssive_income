@@ -109,11 +109,12 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 post_data = self.rfile.read(content_length)
                 try:
                     action = json.loads(post_data.decode("utf-8"))
-                except Exception:
+                except json.JSONDecodeError:
                     self._send_response(400, {"error": "Invalid JSON"})
                     return
 
-                try:                    with self._get_db_connection() as conn, conn.cursor() as cursor:
+                try:
+                    with self._get_db_connection() as conn, conn.cursor() as cursor:
                         cursor.execute(
                             """
                             INSERT INTO agent_action (agent_id, action_type, action_payload)
@@ -132,6 +133,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 except (DatabaseError, psycopg2.Error) as e:
                     logger.exception("Error saving agent action")
                     self._send_response(500, {"error": "Failed to save agent action", "details": str(e)})
+                except Exception as e:
+                    logger.exception("Unexpected error while saving agent action")
+                    self._send_response(500, {"error": "Internal server error"})
             else:
                 self._send_response(404, {"error": "Not found", "path": path})
         except Exception:
@@ -145,6 +149,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+        return  # Explicitly return after handling OPTIONS request
 
     def log_message(self, format: str, *args: tuple) -> None:
         """Log messages to the logger instead of stderr."""

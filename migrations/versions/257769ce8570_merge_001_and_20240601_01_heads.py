@@ -5,10 +5,6 @@ Revises: 20240601_01, 001
 Create Date: 2025-05-14 13:47:43.875999
 
 """
-from alembic import op
-import sqlalchemy as sa
-
-
 # revision identifiers, used by Alembic.
 revision = '257769ce8570'
 down_revision = ('20240601_01', '001')

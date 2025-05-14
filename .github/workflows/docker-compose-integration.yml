@@ -27,12 +27,24 @@ jobs:
       - name: Clean up Docker system
         run: |
           echo "Cleaning up unused Docker images, containers, and volumes..."
-          docker system prune -a -f --volumes
-          echo "Disk space after Docker cleanup:"
+          docker system prune -a -f --volumes          echo "Disk space after Docker cleanup:"
           df -h
 
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          # Install both standalone and plugin versions
+          sudo apt-get install -y docker-compose docker-compose-plugin
+          # Verify installations
+          docker compose version || docker-compose --version
+          docker compose --version
+          # Create symbolic link if needed
+          if ! command -v docker-compose &> /dev/null; then
+            sudo ln -s $(which docker-compose) /usr/local/bin/docker-compose
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -78,120 +90,54 @@ jobs:
           echo "Disk space before pulling images:"
           df -h
 
-      # Pull Docker images with enhanced retry logic and exponential backoff
+      # Pull Docker images with enhanced retry logic and fallback options
       - name: Pull Docker images
         run: |
-          echo "Pulling Docker images with enhanced retry logic and exponential backoff..."
-          max_attempts=7  # Increased from 5 to 7 for more retries
+          echo "Pulling Docker images with enhanced retry logic and fallback options..."
+          max_attempts=5
           attempt=1
-
-          # Function to check if we have enough disk space and clean up if needed
-          check_disk_space() {
-            available_space=$(df -m / | awk 'NR==2 {print $4}')
-            echo "Available disk space: $available_space MB"
-
-            if [ "$available_space" -lt 1000 ]; then
-              echo "WARNING: Low disk space detected ($available_space MB). Performing cleanup..."
-              docker system prune -a -f --volumes
-              rm -rf /tmp/* || true
-              sudo apt-get clean
-
-              # Check if we freed up enough space
-              available_space=$(df -m / | awk 'NR==2 {print $4}')
-              echo "Available disk space after cleanup: $available_space MB"
-
-              if [ "$available_space" -lt 500 ]; then
-                echo "CRITICAL: Still low on disk space after cleanup. Removing additional files..."
-                sudo rm -rf /var/lib/apt/lists/* || true
-                sudo rm -rf /usr/share/dotnet || true
-                sudo rm -rf /usr/local/lib/android || true
-                sudo rm -rf /opt/ghc || true
-
-                available_space=$(df -m / | awk 'NR==2 {print $4}')
-                echo "Available disk space after aggressive cleanup: $available_space MB"
+          
+          # Function to try pulling an image with retries
+          try_pull_image() {
+            local image="$1"
+            local current_attempt=1
+            local max_local_attempts=3
+            
+            while [ $current_attempt -le $max_local_attempts ]; do
+              echo "Attempt $current_attempt of $max_local_attempts to pull $image"
+              if docker pull "$image"; then
+                return 0
               fi
-            fi
-
-            # Return success if we have at least 500MB
-            if [ "$available_space" -ge 500 ]; then
-              return 0
-            else
-              return 1
-            fi
+              current_attempt=$((current_attempt + 1))
+              sleep $((current_attempt * 5))
+            done
+            return 1
           }
 
-          # Try to pull the main image with exponential backoff
-          while [ $attempt -le $max_attempts ]; do
-            echo "Attempt $attempt of $max_attempts to pull postgres:15.3-alpine"
-
-            # Check and ensure we have enough disk space
-            check_disk_space
-
-            # Calculate backoff time (exponential with jitter)
-            backoff_time=$((5 * 2 ** (attempt - 1) + RANDOM % 5))
-            echo "Using backoff time of $backoff_time seconds if this attempt fails"
-
-            # Try to pull with a timeout to handle network issues
-            if timeout 300s docker pull postgres:15.3-alpine; then
-              echo "Successfully pulled postgres:15.3-alpine"
-              break
-            else
-              echo "Failed to pull postgres:15.3-alpine on attempt $attempt"
-
-              # Check if we're out of disk space
-              check_disk_space
-
-              # Try alternative registry mirrors if we're at later attempts
-              if [ $attempt -ge 3 ] && [ $attempt -lt $max_attempts ]; then
-                echo "Trying alternative registry for postgres:15.3-alpine..."
-                if timeout 300s docker pull mcr.microsoft.com/mirror/docker/library/postgres:15.3-alpine 2>/dev/null; then
-                  echo "Successfully pulled postgres:15.3-alpine from Microsoft mirror"
-                  docker tag mcr.microsoft.com/mirror/docker/library/postgres:15.3-alpine postgres:15.3-alpine
-                  break
-                fi
+          # Try to pull postgres image with fallbacks
+          postgres_image="postgres:15.3-alpine"
+          fallback_images=("postgres:14-alpine" "postgres:13-alpine" "postgres:12-alpine")
+          
+          if ! try_pull_image "$postgres_image"; then
+            echo "Primary postgres image failed. Trying fallback images..."
+            for fallback_image in "${fallback_images[@]}"; do
+              if try_pull_image "$fallback_image"; then
+                echo "Successfully pulled fallback image $fallback_image"
+                # Update docker-compose.yml with the successful fallback image
+                sed -i "s|postgres:15.3-alpine|$fallback_image|g" docker-compose.yml
+                postgres_image="$fallback_image"
+                break
               fi
-
-              # If this is the last attempt, try fallback images
-              if [ $attempt -eq $max_attempts ]; then
-                echo "All attempts to pull postgres:15.3-alpine failed"
-                echo "Trying fallback images in order of preference..."
-
-                # Try multiple fallback images in order of preference
-                for fallback_image in "postgres:14-alpine" "postgres:13-alpine" "postgres:alpine"; do
-                  echo "Trying fallback image: $fallback_image"
-                  if timeout 180s docker pull $fallback_image; then
-                    echo "Successfully pulled $fallback_image as fallback"
-                    # Update docker-compose.yml to use the fallback image
-                    sed -i "s|postgres:15.3-alpine|$fallback_image|g" docker-compose.yml
-                    echo "Updated docker-compose.yml to use $fallback_image"
-
-                    # Verify the change was made
-                    echo "Verifying docker-compose.yml update:"
-                    grep -A 2 "image: postgres" docker-compose.yml
-
-                    # Successfully pulled a fallback image
-                    break 2  # Break out of both loops
-                  fi
-                done
-
-                # If we get here, all fallback images failed too
-                echo "CRITICAL: All fallback images failed to pull. Checking system status:"
-                df -h
-                docker info
-                curl -v https://registry-1.docker.io/v2/ || true
-                echo "Failed to pull any PostgreSQL image. Exiting."
-                exit 1
-              fi
-
-              echo "Retrying in $backoff_time seconds..."
-              sleep $backoff_time
-              attempt=$((attempt+1))
-            fi
-          done
-
-          # Final disk space check after pulling images
-          echo "Disk space after pulling images:"
-          df -h
+            done
+          fi
+          
+          # Verify we have a postgres image
+          if ! docker image inspect "$postgres_image" >/dev/null 2>&1; then
+            echo "Failed to pull any postgres image. Exiting."
+            exit 1
+          fi
+          
+          echo "Successfully pulled all required images"
 
       # Check disk space before starting Docker Compose
       - name: Check disk space before Docker Compose
@@ -263,6 +209,18 @@ jobs:
           if ! docker compose config >/dev/null 2>&1 && ! docker-compose config >/dev/null 2>&1; then
             echo "ERROR: docker-compose.yml has syntax errors. Displaying file content:"
             cat docker-compose.yml
+            exit 1
+          fi
+
+      # Validate docker-compose.yml
+      - name: Validate docker-compose.yml
+        run: |
+          echo "Validating docker-compose.yml configuration..."
+          docker compose config -q || docker-compose config -q
+          if [ $? -eq 0 ]; then
+            echo "docker-compose.yml validation successful"
+          else
+            echo "docker-compose.yml validation failed"
             exit 1
           fi
 

@@ -41,7 +41,8 @@ services:
 
   db:
     image: postgres:15.3-alpine
-    container_name: paissive-postgres    restart: unless-stopped
+    container_name: paissive-postgres
+    restart: unless-stopped
     ports:
       - "5433:5432"
     volumes:
