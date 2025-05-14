@@ -7,6 +7,7 @@ import uuid
 from typing import Any, Dict, TypedDict, cast
 
 from flask import Flask, Response, current_app, g, request
+
 from ..utils.logging_utils import sanitize_log_data, structured_log
 
 # Use consistent logging import
