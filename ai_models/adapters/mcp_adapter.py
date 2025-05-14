@@ -6,15 +6,16 @@ try:
 except ImportError:
     mcp = None
 
+# Local imports
+from .exceptions import ModelContextProtocolError
+
 # Example MCPAdapter class
 class MCPAdapter:
     """
     Adapter for connecting to MCP servers using the official modelcontextprotocol SDK.
-    """
-
-    def __init__(self, host: str, port: int, **kwargs):
+    """    def __init__(self, host: str, port: int, **kwargs):
         if mcp is None:
-            raise ImportError("modelcontextprotocol-python-sdk is not installed. Please install it with `pip install modelcontextprotocol-python-sdk`.")
+            raise ModelContextProtocolError()
         self.host = host
         self.port = port
         self.client = None

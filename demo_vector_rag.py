@@ -2,7 +2,7 @@
 Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB
 
 Steps:
- 1. pip install chromadb sentence-transformers
+ 1. uv pip install chromadb sentence-transformers
  2. python demo_vector_rag.py
 
 This script embeds example texts, stores them in a local vector DB,
