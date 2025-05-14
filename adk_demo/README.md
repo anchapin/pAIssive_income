@@ -24,10 +24,27 @@ This directory contains a minimal demonstration of Google's Agent Development Ki
 
 ## Configuration
 
-- **Message Reception**:
+### Message Reception
+- **Retry Settings**:
   - Maximum retries: 10 attempts
   - Timeout per attempt: 5.0 seconds
   - Total maximum wait time: 50 seconds
+
+### Dependencies
+- **Core Requirements**:
+  - adk>=1.0.0: Required for stable message routing
+- **Optional Extensions**:
+  - adk[monitoring]>=1.0.0: Enables monitoring capabilities
+  - adk[testing]>=1.0.0: Provides testing utilities
+
+### Agent Communication
+- **Message Flow**:
+  1. User → DataGatherer: 'gather' type with query
+  2. DataGatherer → Summarizer: 'summarize' type with data
+  3. Summarizer → User: 'summary_result' type with result
+- **Retry Mechanism**: 
+  - Implements progressive retry for message reception
+  - Graceful timeout handling after max attempts
 
 ## Installation
 

@@ -3,6 +3,15 @@ ADK Demo Agents Module
 
 This module defines the agents and skills used in the ADK demonstration.
 It showcases basic agent communication patterns and skill implementation.
+
+Message Types:
+    DataGathererAgent:
+        Receives: 'gather' with payload {'query': str}
+        Sends: 'summarize' with payload {'data': str, 'original_sender': str}
+    
+    SummarizerAgent:
+        Receives: 'summarize' with payload {'data': str, 'original_sender': str}
+        Sends: 'summary_result' with payload {'summary': str}
 """
 
 from adk.agent import Agent

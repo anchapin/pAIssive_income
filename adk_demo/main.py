@@ -9,6 +9,29 @@ Features:
 - User input handling
 - Message routing with retry mechanism
 - Proper cleanup on completion
+
+Configuration:
+- MAX_RETRIES: 10 attempts for message reception
+- TIMEOUT: 5.0 seconds per attempt
+- Total wait time: 50 seconds (MAX_RETRIES * TIMEOUT)
+
+Message Flow:
+1. User → DataGatherer: 
+   - Type: 'gather'
+   - Payload: {'query': str}
+
+2. DataGatherer → Summarizer:
+   - Type: 'summarize'
+   - Payload: {'data': str, 'original_sender': str}
+
+3. Summarizer → User:
+   - Type: 'summary_result'
+   - Payload: {'summary': str}
+
+Error Handling:
+- Implements timeout per attempt
+- Progressive retry mechanism
+- Graceful cleanup on failure
 """
 
 from adk.communication import AgentCommunicator, Message
