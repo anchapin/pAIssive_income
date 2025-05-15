@@ -3,6 +3,7 @@
 
 # Set variables
 HEALTH_ENDPOINT="http://localhost:5000/health"
+AGENT_ENDPOINT="http://localhost:5000/api/agent"
 MAX_RETRIES=8
 INITIAL_RETRY_INTERVAL=5
 MAX_RETRY_INTERVAL=30
@@ -132,13 +133,27 @@ check_health() {
     # Try multiple methods to check health endpoint
     log "Attempting to connect to $HEALTH_ENDPOINT..."
 
-    # Method 1: Silent curl
+    # Method 1: Silent curl to health endpoint
     response_output=$(curl -s -f -m $CURL_TIMEOUT $HEALTH_ENDPOINT 2>&1)
     curl_exit_code=$?
 
     if [ $curl_exit_code -eq 0 ]; then
-      log "✅ Health check successful!"
+      log "✅ Health endpoint check successful!"
       log "Response: $response_output"
+
+      # Also check the agent endpoint
+      log "Checking agent endpoint..."
+      agent_response=$(curl -s -f -m $CURL_TIMEOUT $AGENT_ENDPOINT 2>&1)
+      agent_curl_exit_code=$?
+
+      if [ $agent_curl_exit_code -eq 0 ]; then
+        log "✅ Agent endpoint check successful!"
+        log "Agent response: $agent_response"
+      else
+        log "⚠️ Agent endpoint check failed, but health endpoint is working"
+        log "This is acceptable for the health check to pass"
+      fi
+
       return 0
     else
       log "❌ Health check failed with curl exit code: $curl_exit_code"

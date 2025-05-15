@@ -1,6 +1,6 @@
 /**
  * Script to run the mock API server tests
- * 
+ *
  * This script starts the mock API server and runs the tests against it.
  * It's used to verify that the server is working correctly before running the E2E tests.
  */
@@ -40,20 +40,30 @@ setTimeout(() => {
   const test = spawn('node', [path.join(__dirname, 'mock_api_server.test.js')], {
     stdio: 'inherit'
   });
-  
+
   test.on('close', (code) => {
     console.log(`Tests exited with code ${code}`);
-    
+
     // Create a test report
     const reportPath = path.join(reportDir, 'mock-api-test-report.txt');
     fs.writeFileSync(reportPath, `Mock API server test completed at ${new Date().toISOString()}\nExit code: ${code}`);
     console.log(`Test report saved to ${reportPath}`);
-    
-    // Kill the server
+
+    // Kill the server - use different approach for Windows vs Unix
     if (server.pid) {
-      process.kill(-server.pid);
+      try {
+        if (process.platform === 'win32') {
+          // Windows-specific process termination
+          require('child_process').exec(`taskkill /pid ${server.pid} /T /F`);
+        } else {
+          // Unix-specific process termination
+          process.kill(-server.pid);
+        }
+      } catch (error) {
+        console.error(`Error killing server process: ${error}`);
+      }
     }
-    
+
     process.exit(code);
   });
 }, 2000);
@@ -61,7 +71,17 @@ setTimeout(() => {
 // Handle script termination
 process.on('SIGINT', () => {
   if (server.pid) {
-    process.kill(-server.pid);
+    try {
+      if (process.platform === 'win32') {
+        // Windows-specific process termination
+        require('child_process').exec(`taskkill /pid ${server.pid} /T /F`);
+      } else {
+        // Unix-specific process termination
+        process.kill(-server.pid);
+      }
+    } catch (error) {
+      console.error(`Error killing server process: ${error}`);
+    }
   }
   process.exit();
 });

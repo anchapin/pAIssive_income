@@ -18,5 +18,19 @@ ENV PORT=3000
 # Expose port
 EXPOSE 3000
 
-# Start development server
-CMD ["pnpm", "start"]
+# Install additional dependencies for the mock API server
+RUN pnpm add express cors
+
+# Create a startup script
+RUN echo '#!/bin/sh\n\
+if [ "$MOCK_API_ENABLED" = "true" ]; then\n\
+  echo "Starting mock API server on port $MOCK_API_PORT..."\n\
+  node tests/mock_api_server.js &\n\
+fi\n\
+\n\
+echo "Starting React development server..."\n\
+pnpm start\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Start development server with mock API server if enabled
+CMD ["/app/start.sh"]

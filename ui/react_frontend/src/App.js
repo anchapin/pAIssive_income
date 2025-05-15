@@ -7,13 +7,40 @@ import CssBaseline from '@mui/material/CssBaseline';
 // This ensures we always have a working component even if the external package is not available
 let AgentUI;
 try {
+  // Check if we should use the mock implementation based on environment variable
+  if (process.env.REACT_APP_AG_UI_ENABLED === 'false') {
+    throw new Error('AgentUI disabled by environment variable');
+  }
+
   // Try to import from the external package
   AgentUI = require('@ag-ui-protocol/ag-ui').AgentUI;
   console.log('Using external @ag-ui-protocol/ag-ui package');
 } catch (error) {
+  console.log('Failed to load external @ag-ui-protocol/ag-ui package:', error.message);
+
   // Fall back to local implementation
-  AgentUI = require('./components/AgentUI').AgentUI;
-  console.log('Using local AgentUI implementation');
+  try {
+    AgentUI = require('./components/AgentUI').AgentUI;
+    console.log('Using local AgentUI implementation');
+  } catch (fallbackError) {
+    console.error('Failed to load local AgentUI implementation:', fallbackError.message);
+
+    // Create a simple placeholder component as a last resort
+    AgentUI = (props) => {
+      console.warn('Using placeholder AgentUI component');
+      return (
+        <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
+          <h3>Agent UI Placeholder</h3>
+          <p>The AgentUI component could not be loaded.</p>
+          <p>Agent ID: {props.agent?.id || 'N/A'}</p>
+          <p>Agent Name: {props.agent?.name || 'N/A'}</p>
+          <button onClick={() => props.onAction?.({ type: 'HELP', agentId: props.agent?.id })}>
+            Help
+          </button>
+        </div>
+      );
+    };
+  }
 }
 
 // Context

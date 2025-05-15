@@ -69,5 +69,5 @@ EXPOSE 5000
 RUN groupadd --system appgroup && useradd --system --no-create-home --gid appgroup appuser
 USER appuser
 
-# Run the application with wait-for-db script
-CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 python run_ui.py"]
+# Run the application with wait-for-db script and initialize agent database
+CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 && python init_agent_db.py && python run_ui.py"]

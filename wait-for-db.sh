@@ -127,6 +127,16 @@ else
   log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
 fi
 
+# Initialize the agent database
+log "Initializing agent database..."
+if python init_agent_db.py; then
+  log "✅ Agent database initialization successful"
+else
+  agent_db_init_exit_code=$?
+  log "⚠️ WARNING: Agent database initialization failed with exit code $agent_db_init_exit_code"
+  log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
+fi
+
 # Create necessary directories
 log "Creating required directories..."
 mkdir -p /app/logs
