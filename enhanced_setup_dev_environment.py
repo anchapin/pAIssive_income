@@ -44,9 +44,10 @@ import argparse
 import contextlib
 import json
 import logging
+import os
 import platform
 import shutil
-import subprocess
+import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import venv
 from pathlib import Path
@@ -158,24 +159,49 @@ yaml = get_yaml_module()
 def run_command(
     cmd: list[str], cwd: str | None = None, env: dict[str, str] | None = None
 ) -> tuple[int, str, str]:
-    """Run a command and return the exit code, stdout, and stderr."""
-    executable_path_str = cmd[0]
+    """Run a command and return the exit code, stdout, and stderr.
+
+    Args:
+        cmd: Command to run as a list of strings
+        cwd: Working directory
+        env: Environment variables
+
+    Returns:
+        Tuple of (exit_code, stdout, stderr)
+    """
+    # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
+    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
+        logger.error("Invalid command format: command must be a list of strings")
+        return 1, "", "Invalid command format"
+
+    # Check for common command injection patterns in the first argument (the executable)
+    if cmd and (';' in cmd[0] or '&' in cmd[0] or '|' in cmd[0] or
+               '>' in cmd[0] or '<' in cmd[0] or '$(' in cmd[0] or
+               '`' in cmd[0]):
+        logger.error(f"Potential command injection detected in: {cmd[0]}")
+        return 1, "", "Potential command injection detected"
+
+    executable_path_str = cmd[0]  # Keep original for error messages if needed
+
+    # Resolve command using shutil.which if it's a bare command name.
+    # This helps find .cmd, .bat files on Windows correctly from PATH.
+    if not Path(executable_path_str).is_absolute() and Path(executable_path_str).parent == Path():
+        resolved_executable = shutil.which(executable_path_str)
+        if resolved_executable:
+            cmd_to_run = [resolved_executable] + cmd[1:]
+        else:
+            # If shutil.which doesn't find it, it's unlikely to be found by subprocess.run directly.
+            logger.debug(
+                f"shutil.which could not find '{executable_path_str}' "
+                f"in PATH: {os.environ.get('PATH')}"
+            )
+            return 1, "", f"Command '{executable_path_str}' not found in PATH."
+    else:
+        cmd_to_run = list(cmd)  # Ensure it's a mutable list copy
 
     try:
-        # Resolve command using shutil.which if needed
-        executable_path = Path(executable_path_str)
-        if not executable_path.is_absolute() and executable_path.parent == Path():
-            resolved_executable = shutil.which(executable_path_str)
-            if resolved_executable:
-                cmd_to_run = [resolved_executable] + cmd[1:]
-            else:
-                message = f"Command '{executable_path_str}' not found in PATH"
-                logger.debug(message)
-                return 1, "", message + "."
-        else:
-            cmd_to_run = list(cmd)
-
-        process = subprocess.run(  # noqa: S603 - Using resolved executable path
+        # nosec comment below tells Bandit to ignore this line since we've added proper validation
+        process = subprocess.run(  # nosec B603
             cmd_to_run,
             cwd=cwd,
             env=env,

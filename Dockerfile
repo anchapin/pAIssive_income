@@ -12,7 +12,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=run_ui.py \
     FLASK_ENV=production \
     CI=$CI
-
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -32,7 +31,7 @@ RUN apt-get update \
        iputils-ping \
        wget \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /lib/apt/lists/*
 
 # Copy requirements files
 COPY requirements-dev.txt .
@@ -110,11 +109,8 @@ RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
   CMD ["/usr/local/bin/docker-healthcheck.sh"]
 
-# Expose port
-EXPOSE 5000
-
 # Switch to non-root user for security
 USER appuser
 
-# Run the application with wait-for-db script
-CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 python run_ui.py"]
+# Command to run the application
+CMD ["python", "run_ui.py"]

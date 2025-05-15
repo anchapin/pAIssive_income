@@ -141,7 +141,6 @@ jobs:
             "target-version = 'py310'" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
             Write-Host "Created ruff.toml with basic configuration"
           }
-
       - name: Run linting (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -227,7 +226,6 @@ jobs:
 
           # Run safety check
           safety check || true
-
           # Run Bandit with the generated configuration
           platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
           bandit_config_file=".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
@@ -238,7 +236,6 @@ jobs:
             echo "Bandit configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
           fi
-
           # Ensure the SARIF file exists
           if [ ! -f "security-reports/bandit-results.sarif" ]; then
             echo "Bandit did not generate a SARIF file. Creating an empty one."
@@ -262,10 +259,8 @@ jobs:
 }
 EOF
           fi
-
           # Run pip-audit
           pip-audit || true
-
           # Run semgrep
           semgrep scan --config auto || true
 
@@ -276,7 +271,6 @@ EOF
         run: |
           # Create security-reports directory if it doesn't exist
           New-Item -ItemType Directory -Force -Path security-reports
-
           # Create .github/bandit directory if it doesn't exist
           New-Item -ItemType Directory -Force -Path .github/bandit
 
@@ -285,7 +279,6 @@ EOF
 
           # Run safety check
           safety check
-
           # Run Bandit with the generated configuration
           $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
           if (Test-Path $banditConfigFile) {
@@ -320,10 +313,8 @@ EOF
 "@
             Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarif
           }
-
           # Run pip-audit
           pip-audit
-
           # Run semgrep
           semgrep scan --config auto
 

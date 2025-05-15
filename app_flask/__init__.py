@@ -10,9 +10,9 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+# Local imports
 from config import Config
 
-# Local imports
 from .mcp_servers import mcp_servers_api
 
 # Initialize extensions

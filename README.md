@@ -509,6 +509,61 @@ The project includes comprehensive API documentation that can be built from sour
    cd docs_source
    ```
 
+---
+
+## MCP Server Integration
+
+This project supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) for connecting AI agents to a wide range of external tool and data servers.
+
+### What is MCP?
+
+MCP is an open protocol for secure, extensible communication between AI agents and a wide ecosystem of servers providing data, tools, and capabilities. MCP lets you supercharge your agents by connecting them to hundreds of community and official servers (e.g., GitHub, databases, web search, automation, etc.).
+
+### Adding MCP Servers
+
+You can add, list, and remove MCP servers using the REST API:
+
+- **List all MCP servers:**
+  ```
+  GET /api/mcp_servers
+  ```
+- **Add an MCP server:**
+  ```
+  POST /api/mcp_servers
+  Content-Type: application/json
+  {
+    "name": "my-github-server",
+    "host": "localhost",
+    "port": 1337,
+    "description": "GitHub integration server"
+  }
+  ```
+- **Remove an MCP server:**
+  ```
+  DELETE /api/mcp_servers/<name>
+  ```
+
+Server configurations are stored in `cline_mcp_settings.json` and are loaded dynamically for agent use.
+
+### Example and Recommended Servers
+
+An extensive list of official, third-party, and community MCP servers can be found here:
+- [https://github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)
+
+You can deploy your own server or connect to one of the many public options.
+
+### Requirements
+
+- Python 3.8+
+- The [`mcp-use`](https://pypi.org/project/mcp-use/) Python library (already included in requirements)
+- (Optional) See [modelcontextprotocol.io](https://modelcontextprotocol.io/) for protocol and SDK docs
+
+### Usage
+
+Agents can enumerate and use MCP servers as tools or resources via the agent runtime. See the codebase and [docs/](docs/) for integration details.
+
+---
+
 ### Documentation Updates Policy
 
 This project enforces a policy that documentation must be updated whenever code changes are made. A GitHub Actions workflow automatically checks that documentation files are updated when non-documentation files are changed in pull requests.

@@ -1,13 +1,15 @@
-name: Docker Compose Integration
+name: Docker Compose Integration Tests
 
 on:
+  push:
+    branches: [ main, develop ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, develop ]
 
 jobs:
-  docker-compose-integration:
-    runs-on: ubuntu-22.04
-
+  integration-test:
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Initial disk space check
         run: |

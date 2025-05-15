@@ -5,12 +5,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Import at the top level
 from users.models import db
 from users.services import UserExistsError, UserService
 
 
-# Mock the flask.models module to avoid import issues
+# Mock the app_flask module to avoid import issues
 class MockUser:
+    username = None
+    email = None
+    password_hash = None
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)

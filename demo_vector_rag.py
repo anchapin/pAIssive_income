@@ -61,7 +61,6 @@ def embed_and_insert_documents(
         docs: List of document dictionaries with 'id' and 'content' keys
         embedder_model: SentenceTransformer model for embedding
         collection: ChromaDB collection to insert into
-
     """
     ids = [doc["id"] for doc in docs]
     contents = [doc["content"] for doc in docs]

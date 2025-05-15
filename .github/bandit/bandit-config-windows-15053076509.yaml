@@ -1,0 +1,36 @@
+# Bandit Configuration for Windows (Run ID: 15053076509)
+# This configuration is used by GitHub Advanced Security for Bandit scanning on Windows
+
+# Exclude directories from security scans
+exclude_dirs:
+  - tests
+  - venv
+  - .venv
+  - env
+  - .env
+  - __pycache__
+  - custom_stubs
+  - node_modules
+  - build
+  - dist
+
+# Skip specific test IDs
+skips:
+  # B101: Use of assert detected
+  - B101
+  # B311: Standard pseudo-random generators are not suitable for security/cryptographic purposes
+  - B311
+
+# Set the output format for GitHub Advanced Security
+output_format: json
+
+# Set the output file for GitHub Advanced Security
+output_file: security-reports/bandit-results-15053076509.json
+
+# Set the severity level for GitHub Advanced Security
+# Options: LOW, MEDIUM, HIGH
+severity: MEDIUM
+
+# Set the confidence level for GitHub Advanced Security
+# Options: LOW, MEDIUM, HIGH
+confidence: MEDIUM

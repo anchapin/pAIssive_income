@@ -20,6 +20,7 @@ from adk.memory import SimpleMemory
 from adk.skill import Skill
 
 
+
 class DataGathererSkill(Skill):
     """
     Simulates data gathering functionality.

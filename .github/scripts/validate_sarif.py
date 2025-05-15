@@ -91,6 +91,8 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
         except Exception:
             logger.exception("Error creating empty SARIF file %s", file_path)
             return False
+        else:
+            return True
 
         return True
     else:

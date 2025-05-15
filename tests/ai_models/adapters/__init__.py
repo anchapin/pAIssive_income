@@ -1,1 +1,1 @@
-"""AI Models Adapters test package."""
+"""Tests for the AI models adapters."""

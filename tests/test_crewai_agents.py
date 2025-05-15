@@ -25,6 +25,8 @@ def test_crewai_task_and_crew():
         # Mock the Agent to avoid actual model calls
         mock_agent = MagicMock(spec=Agent)
         mock_agent.execute_task.return_value = "Mock task output"
+        # Add required attributes to the mock agent
+        mock_agent.role = "Test Agent"
 
         # Minimal Task instantiation check
         task = Task(description="Test task description", agent=mock_agent)
