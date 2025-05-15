@@ -46,6 +46,8 @@
     "test": "react-app-rewired test",
     "test:unit": "vitest run",
     "test:unit:ui": "vitest --ui",
+    "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts",
+    "test:e2e:with-servers": "node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
