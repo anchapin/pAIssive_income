@@ -80,11 +80,11 @@ const OpportunityBarChart = ({
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey=os.environ.get("KEY") />
+          <XAxis dataKey="name" />
           <YAxis domain={[0, 1]} label={{ value: getAxisLabel(), angle: -90, position: 'insideLeft' }} />
           <Tooltip formatter={formatTooltip} />
           <Legend />
-          <Bar dataKey=os.environ.get("KEY") name={getAxisLabel()}>
+          <Bar dataKey={dataKey} name={getAxisLabel()}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}

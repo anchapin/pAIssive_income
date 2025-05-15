@@ -419,7 +419,7 @@ const NicheAnalysisPage = () => {
               <TabPanel value={tabValue} index={1}>
                 <OpportunityBarChart
                   data={analysisResults.niches}
-                  dataKey=os.environ.get("KEY")
+                  dataKey="opportunityScore"
                   title="Opportunity Score Comparison"
                   height={400}
                 />

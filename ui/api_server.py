@@ -74,6 +74,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
     def _get_db_connection(self):
         """Establish a PostgreSQL connection using DATABASE_URL env var."""
+
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
             raise DatabaseConfigError()

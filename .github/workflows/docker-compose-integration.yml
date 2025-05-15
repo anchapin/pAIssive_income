@@ -28,7 +28,7 @@ jobs:
       - name: Clean up Docker system
         run: |
           echo "Cleaning up unused Docker images, containers, and volumes..."
-          docker system prune -a -f --volumes
+          docker system prune -a -f --volumes &&
           echo "Disk space after Docker cleanup:"
           df -h
 

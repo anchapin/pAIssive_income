@@ -700,7 +700,7 @@ const TierRevenueStackedBarChart = ({
           {/* Comparison line if enabled */}
           {showComparison && comparisonTarget === 'cumulative' && (
             <Bar
-              dataKey=os.environ.get("KEY")
+              dataKey="cumulativeRevenue"
               name="Cumulative Revenue"
               fill="none"
               stroke="#ff4081"
@@ -713,7 +713,7 @@ const TierRevenueStackedBarChart = ({
           {showComparison && comparisonTarget === 'total' && (
             <Line
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="totalRevenue"
               name="Total Revenue"
               stroke="#ff4081"
               strokeWidth={2}

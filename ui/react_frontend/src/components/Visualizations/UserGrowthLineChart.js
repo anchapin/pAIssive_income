@@ -399,7 +399,7 @@ const UserGrowthLineChart = ({
           onMouseUp={handleZoomEnd}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey=os.environ.get("KEY") />
+          <XAxis dataKey="monthLabel" />
           <YAxis
             tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
             domain={['auto', 'auto']}
@@ -410,7 +410,7 @@ const UserGrowthLineChart = ({
           {showTotal && (
             <Line
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="totalUsers"
               name="Total Users"
               stroke="#8884d8"
               activeDot={{ r: 8 }}
@@ -421,7 +421,7 @@ const UserGrowthLineChart = ({
           {showFree && (
             <Line
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="freeUsers"
               name="Free Users"
               stroke="#82ca9d"
               strokeWidth={2}
@@ -431,7 +431,7 @@ const UserGrowthLineChart = ({
           {showPaid && (
             <Line
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="paidUsers"
               name="Paid Users"
               stroke="#ff8042"
               strokeWidth={2}
@@ -461,7 +461,7 @@ const UserGrowthLineChart = ({
           )}
 
           <Brush
-            dataKey=os.environ.get("KEY")
+            dataKey="monthLabel"
             height={30}
             stroke="#8884d8"
             onChange={({ startIndex, endIndex }) => {

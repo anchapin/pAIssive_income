@@ -128,7 +128,7 @@ const RevenueAreaChart = ({
           margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey=os.environ.get("KEY") />
+          <XAxis dataKey="monthLabel" />
           <YAxis
             tickFormatter={(value) => `$${value}`}
           />
@@ -138,7 +138,7 @@ const RevenueAreaChart = ({
           {showMonthly && (
             <Area
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="monthlyRevenue"
               name="Monthly Revenue"
               stroke="#8884d8"
               fill="#8884d8"
@@ -150,7 +150,7 @@ const RevenueAreaChart = ({
           {showCumulative && (
             <Area
               type="monotone"
-              dataKey=os.environ.get("KEY")
+              dataKey="cumulativeRevenue"
               name="Cumulative Revenue"
               stroke="#82ca9d"
               fill="#82ca9d"
@@ -168,7 +168,7 @@ const RevenueAreaChart = ({
             />
           ))}
 
-          <Brush dataKey=os.environ.get("KEY") height={30} stroke="#8884d8" />
+          <Brush dataKey="monthLabel" height={30} stroke="#8884d8" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

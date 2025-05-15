@@ -123,7 +123,7 @@ const UserActivityChart = ({
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey=os.environ.get("KEY") />
+          <XAxis dataKey="date" />
 
           {/* Primary Y-axis for user counts */}
           <YAxis
@@ -173,7 +173,7 @@ const UserActivityChart = ({
             }
           })}
 
-          <Brush dataKey=os.environ.get("KEY") height={30} stroke="#8884d8" />
+          <Brush dataKey="date" height={30} stroke="#8884d8" />
         </ComposedChart>
       </ResponsiveContainer>
 
