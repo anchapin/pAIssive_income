@@ -13,46 +13,46 @@ from crewai import Agent, Task, Crew
 data_gatherer = Agent(
     role="Data Gatherer",
     goal="Collect relevant information and data for the project",
-    backstory="An AI specialized in data collection from APIs and databases."
+    backstory="An AI specialized in data collection from APIs and databases.",
 )
 
 analyzer = Agent(
     role="Analyzer",
     goal="Analyze collected data and extract actionable insights",
-    backstory="An AI expert in analytics and pattern recognition."
+    backstory="An AI expert in analytics and pattern recognition.",
 )
 
 writer = Agent(
     role="Writer",
     goal="Generate clear, readable reports from analyzed data",
-    backstory="An AI that excels at communicating insights in natural language."
+    backstory="An AI that excels at communicating insights in natural language.",
 )
 
 # Example: Define tasks
 task_collect = Task(
     description="Gather all relevant data from internal and external sources.",
-    agent=data_gatherer
+    agent=data_gatherer,
 )
 task_analyze = Task(
-    description="Analyze gathered data for trends and anomalies.",
-    agent=analyzer
+    description="Analyze gathered data for trends and anomalies.", agent=analyzer
 )
 task_report = Task(
-    description="Write a summary report based on analysis.",
-    agent=writer
+    description="Write a summary report based on analysis.", agent=writer
 )
 
 # Example: Assemble into a Crew (team)
 reporting_team = Crew(
     agents=[data_gatherer, analyzer, writer],
-    tasks=[task_collect, task_analyze, task_report]
+    tasks=[task_collect, task_analyze, task_report],
 )
 
 if __name__ == "__main__":
     import logging
 
     # Configure logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     reporting_team.run()

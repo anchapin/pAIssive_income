@@ -32,33 +32,31 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
         TypeError: If tool_name is not a string
     """
     if not isinstance(tool_name, str):
-        raise TypeError("Tool name must be a string")
+        raise TypeError()
     if not tool_name or tool_name.isspace():
-        raise ValueError("Invalid tool name")
+        raise ValueError()
 
-    try:
-        return {
-            "version": "2.1.0",
-            "$schema": (
-                "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
-                "Schemata/sarif-schema-2.1.0.json"
-            ),
-            "runs": [
-                {
-                    "tool": {
-                        "driver": {
-                            "name": tool_name,
-                            "informationUri": tool_url,
-                            "rules": [],
-                        }
-                    },
-                    "results": [],
-                }
-            ],
-        }
-    except Exception as e:
-        logging.error("Failed to create SARIF structure")
-        raise
+    # Return the SARIF structure directly - no need for try/except here
+    # as the structure is static and won't raise exceptions
+    return {
+        "version": "2.1.0",
+        "$schema": (
+            "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/"
+            "Schemata/sarif-schema-2.1.0.json"
+        ),
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": tool_name,
+                        "informationUri": tool_url,
+                        "rules": [],
+                    }
+                },
+                "results": [],
+            }
+        ],
+    }
 
 
 def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
@@ -77,9 +75,9 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
         TypeError: If data is invalid
     """
     if not output_file:
-        raise ValueError("Invalid output path")
+        raise ValueError()
     if not isinstance(sarif_data, dict):
-        raise TypeError("Invalid SARIF data")
+        raise TypeError()
 
     try:
         # Create directory if it doesn't exist
@@ -87,14 +85,14 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
 
         with open(output_file, "w") as f:
             json.dump(sarif_data, f, indent=2)
-    except OSError as e:
-        logging.error("Filesystem error")
+    except OSError:
+        logging.exception("Filesystem error")
         return False
-    except TypeError as e:
-        logging.error("Invalid data type in SARIF")
+    except TypeError:
+        logging.exception("Invalid data type in SARIF")
         return False
-    except json.JSONEncodeError as e:
-        logging.error("JSON encoding error")
+    except json.JSONEncodeError:
+        logging.exception("JSON encoding error")
         return False
     else:
         return True

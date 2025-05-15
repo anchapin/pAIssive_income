@@ -10,10 +10,12 @@ import json
 import logging
 import os
 import socketserver
-
 from typing import Any
 from urllib.parse import urlparse
 
+# Third-party imports
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 # Configure logging
 logging.basicConfig(
@@ -22,17 +24,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-
 class DatabaseError(RuntimeError):
     """Base exception class for database-related errors."""
-    pass
+
+    def __init__(self, message="Database error occurred"):
+        super().__init__(message)
 
 
 class DatabaseConfigError(DatabaseError):
     """Raised when database configuration is missing or invalid."""
+
     def __init__(self):
         super().__init__("DATABASE_URL environment variable not set")
 
@@ -50,11 +51,28 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         """
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")  # Allow CORS
+
+        # Get allowed origins from environment variable or use default
+        allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
+        origin = self.headers.get("Origin", "*")
+
+        # If specific origins are defined, check if the request origin is allowed
+        if allowed_origins != "*" and origin != "*":
+            allowed_origins_list = allowed_origins.split(",")
+            if origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", origin)
+            else:
+                self.send_header("Access-Control-Allow-Origin", "*")
+        else:
+            self.send_header("Access-Control-Allow-Origin", "*")
+
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Credentials", "true")
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode("utf-8"))    def _get_db_connection(self):
+        self.wfile.write(json.dumps(data).encode("utf-8"))
+
+    def _get_db_connection(self):
         """Establish a PostgreSQL connection using DATABASE_URL env var."""
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
@@ -63,7 +81,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
         except psycopg2.Error as e:
             # Wrap DB-specific error in our custom exception
-            raise DatabaseError(f"Failed to connect to database: {e.__class__.__name__}") from e
+            raise DatabaseError() from e
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
@@ -73,7 +91,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
             if path == "/health":
                 logger.info("Health check request received")
-                self._send_response(200, {"status": "ok"})            elif path == "/api/agent":
+                self._send_response(200, {"status": "ok"})
+            elif path == "/api/agent":
                 logger.info("Agent info GET request received")
                 try:
                     with self._get_db_connection() as conn, conn.cursor() as cursor:
@@ -85,7 +104,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                             self._send_response(404, {"error": "Agent not found"})
                 except (DatabaseError, psycopg2.Error) as e:
                     logger.exception("Error fetching agent data")
-                    self._send_response(500, {"error": "Failed to fetch agent data", "details": str(e)})
+                    self._send_response(
+                        500, {"error": "Failed to fetch agent data", "details": str(e)}
+                    )
             else:
                 logger.warning(f"404 error: {path}")
                 self._send_response(404, {"error": "Not found", "path": path})
@@ -101,11 +122,12 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
             if path == "/api/agent/action":
                 logger.info("Agent action POST request received")
-                content_length = int(self.headers.get('Content-Length', 0))
+                content_length = int(self.headers.get("Content-Length", 0))
                 if content_length == 0:
                     self._send_response(400, {"error": "No data provided"})
                     return
-                post_data = self.rfile.read(content_length)                try:
+                post_data = self.rfile.read(content_length)
+                try:
                     action = json.loads(post_data.decode("utf-8"))
                 except json.JSONDecodeError:
                     self._send_response(400, {"error": "Invalid JSON"})
@@ -127,11 +149,15 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         )
                         conn.commit()
                         action_id = cursor.fetchone()["id"]
-                        self._send_response(200, {"status": "success", "action_id": action_id})
+                        self._send_response(
+                            200, {"status": "success", "action_id": action_id}
+                        )
                 except (DatabaseError, psycopg2.Error) as e:
                     logger.exception("Error saving agent action")
-                    self._send_response(500, {"error": "Failed to save agent action", "details": str(e)})
-                except Exception as e:
+                    self._send_response(
+                        500, {"error": "Failed to save agent action", "details": str(e)}
+                    )
+                except Exception:
                     logger.exception("Unexpected error while saving agent action")
                     self._send_response(500, {"error": "Internal server error"})
             else:
@@ -143,9 +169,24 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:  # noqa: N802
         """Handle OPTIONS requests for CORS preflight."""
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
+
+        # Get allowed origins from environment variable or use default
+        allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
+        origin = self.headers.get("Origin", "*")
+
+        # If specific origins are defined, check if the request origin is allowed
+        if allowed_origins != "*" and origin != "*":
+            allowed_origins_list = allowed_origins.split(",")
+            if origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", origin)
+            else:
+                self.send_header("Access-Control-Allow-Origin", "*")
+        else:
+            self.send_header("Access-Control-Allow-Origin", "*")
+
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Credentials", "true")
         self.end_headers()
         return  # Explicitly return after handling OPTIONS request
 

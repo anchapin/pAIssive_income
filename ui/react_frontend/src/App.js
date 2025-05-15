@@ -1,76 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { AgentUI } from '@ag-ui-protocol/ag-ui';
-
-// Example theme configuration (customize as needed)
-const theme = {
-  primaryColor: "#007bff",
-  secondaryColor: "#f5f5f5",
-  fontFamily: "Roboto, Arial, sans-serif",
-  borderRadius: "8px",
-  darkMode: false,
-  // ...other theme settings
-};
-
-function App() {
-  const [agent, setAgent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Fetch agent info from backend
-  useEffect(() => {
-    async function fetchAgent() {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch('/api/agent');
-        if (!response.ok) throw new Error('Failed to fetch agent data');
-        const data = await response.json();
-        setAgent(data);
-      } catch (err) {
-        setError(err.message || 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAgent();
-  }, []);
-
-  // Handle actions from ag-ui and send to backend
-  const onAction = useCallback(async (action) => {
-    try {
-      const response = await fetch('/api/agent/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(action),
-      });
-      if (!response.ok) throw new Error('Failed to submit action');
-      // Optionally, refetch agent data or update UI here
-    } catch (err) {
-      alert('Error sending action: ' + (err.message || err));
-    }
-  }, []);
-
-  if (loading) return <div>Loading agent...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!agent) return <div>No agent data available.</div>;
-
-  return (
-    <div className="App">
-      <AgentUI
-        agent={agent}
-        theme={theme}
-        onAction={onAction}
-        // Add other props as needed, e.g. session, messages, etc.
-      />
-      {/* Your existing code here */}
-    </div>
-  );
-}
-
-export default App;
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { AgentUI } from './components/AgentUI';
 
 // Context
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -105,6 +37,44 @@ function AppWithProviders() {
 // App content with theme based on context
 function AppContent() {
   const { darkMode } = useAppContext();
+  const [agent, setAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch agent info from backend
+  useEffect(() => {
+    async function fetchAgent() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/agent');
+        if (!response.ok) throw new Error('Failed to fetch agent data');
+        const data = await response.json();
+        setAgent(data);
+      } catch (err) {
+        setError(err.message || 'An error occurred');
+        console.error('Error fetching agent data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgent();
+  }, []);
+
+  // Handle actions from ag-ui and send to backend
+  const onAction = useCallback(async (action) => {
+    try {
+      const response = await fetch('/api/agent/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      });
+      if (!response.ok) throw new Error('Failed to submit action');
+      // Optionally, refetch agent data or update UI here
+    } catch (err) {
+      console.error('Error sending action:', err);
+    }
+  }, []);
 
   // Create a theme instance based on dark mode preference
   const theme = createTheme({
@@ -138,6 +108,15 @@ function AppContent() {
     },
   });
 
+  // AgentUI theme configuration
+  const agentTheme = {
+    primaryColor: theme.palette.primary.main,
+    secondaryColor: theme.palette.secondary.main,
+    fontFamily: theme.typography.fontFamily,
+    borderRadius: "8px",
+    darkMode: darkMode,
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -151,7 +130,23 @@ function AppContent() {
           <Route path="/marketing" element={<MarketingPage />} />
           <Route path="/user-engagement" element={<UserEngagementPage />} />
           <Route path="/api-analytics" element={<ApiAnalyticsPage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about" element={
+            <div>
+              <AboutPage />
+              {agent && !loading && !error && (
+                <div className="agent-ui-container" style={{ marginTop: '2rem' }}>
+                  <h2>Agent UI Integration</h2>
+                  <AgentUI
+                    agent={agent}
+                    theme={agentTheme}
+                    onAction={onAction}
+                  />
+                </div>
+              )}
+              {loading && <div>Loading agent...</div>}
+              {error && <div>Error loading agent: {error}</div>}
+            </div>
+          } />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>

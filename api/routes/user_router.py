@@ -29,7 +29,7 @@ def create_user() -> Tuple[Dict[str, Any], int]:
     try:
         data = request.get_json()
         username = data.get("username")
-        email = data.get("email") 
+        email = data.get("email")
         password = data.get("password")
 
         logger.info("Creating new user")
@@ -44,7 +44,7 @@ def create_user() -> Tuple[Dict[str, Any], int]:
     except AuthenticationError:
         logger.warning("Invalid credentials provided during user creation")
         return jsonify({"error": "Invalid credentials"}), 400
-        
+
     except Exception:
         logger.exception("Failed to create user")
         return jsonify({"error": "An error occurred while creating the user"}), 500

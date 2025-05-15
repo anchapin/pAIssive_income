@@ -27,7 +27,8 @@ jobs:
       - name: Clean up Docker system
         run: |
           echo "Cleaning up unused Docker images, containers, and volumes..."
-          docker system prune -a -f --volumes          echo "Disk space after Docker cleanup:"
+          docker system prune -a -f --volumes
+          echo "Disk space after Docker cleanup:"
           df -h
 
       - name: Checkout repository
@@ -120,13 +121,13 @@ jobs:
           echo "Pulling Docker images with enhanced retry logic and fallback options..."
           max_attempts=5
           attempt=1
-          
+
           # Function to try pulling an image with retries
           try_pull_image() {
             local image="$1"
             local current_attempt=1
             local max_local_attempts=3
-            
+
             while [ $current_attempt -le $max_local_attempts ]; do
               echo "Attempt $current_attempt of $max_local_attempts to pull $image"
               if docker pull "$image"; then
@@ -141,7 +142,7 @@ jobs:
           # Try to pull postgres image with fallbacks
           postgres_image="postgres:15.3-alpine"
           fallback_images=("postgres:14-alpine" "postgres:13-alpine" "postgres:12-alpine")
-          
+
           if ! try_pull_image "$postgres_image"; then
             echo "Primary postgres image failed. Trying fallback images..."
             for fallback_image in "${fallback_images[@]}"; do
@@ -154,13 +155,13 @@ jobs:
               fi
             done
           fi
-          
+
           # Verify we have a postgres image
           if ! docker image inspect "$postgres_image" >/dev/null 2>&1; then
             echo "Failed to pull any postgres image. Exiting."
             exit 1
           fi
-          
+
           echo "Successfully pulled all required images"
 
       # Check disk space before starting Docker Compose
@@ -240,13 +241,39 @@ jobs:
       - name: Validate docker-compose.yml
         run: |
           echo "Validating docker-compose.yml configuration..."
-          docker compose config -q || docker-compose config -q
-          if [ $? -eq 0 ]; then
-            echo "docker-compose.yml validation successful"
-          else
-            echo "docker-compose.yml validation failed"
+
+          # First, check for syntax errors
+          if ! docker compose config -q 2>/dev/null && ! docker-compose config -q 2>/dev/null; then
+            echo "ERROR: docker-compose.yml has syntax errors. Displaying file content:"
+            cat docker-compose.yml
+            echo "Attempting to fix common issues..."
+
+            # Check for indentation issues
+            sed -i 's/\t/  /g' docker-compose.yml
+
+            # Check for line ending issues
+            dos2unix docker-compose.yml || true
+
+            # Try validation again after fixes
+            if ! docker compose config -q 2>/dev/null && ! docker-compose config -q 2>/dev/null; then
+              echo "ERROR: docker-compose.yml still has syntax errors after attempted fixes."
+              exit 1
+            else
+              echo "Fixed docker-compose.yml syntax issues."
+            fi
+          fi
+
+          # Validate service configurations
+          echo "Validating service configurations..."
+          docker compose config || docker-compose config
+
+          # Check for required services
+          if ! docker compose config --services | grep -q "app" || ! docker compose config --services | grep -q "db"; then
+            echo "ERROR: Required services 'app' and 'db' not found in docker-compose.yml"
             exit 1
           fi
+
+          echo "docker-compose.yml validation successful"
 
       # Set up Docker Compose with fallback mechanism
       - name: Set up Docker Compose

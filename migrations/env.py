@@ -21,10 +21,12 @@ config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
-# Get database URL
+# Get database URL from environment or use default
+import os
+db_url = os.environ.get("DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb")
 config.set_main_option(
     "sqlalchemy.url",
-    "postgresql://myuser:mypassword@localhost:5433/mydb"
+    db_url
 )
 target_metadata = None  # We're not using model metadata for these migrations
 
@@ -77,6 +79,7 @@ def run_migrations_online() -> None:
             logger.info("No changes in schema detected.")
 
     from sqlalchemy import create_engine
+
     engine = create_engine(config.get_main_option("sqlalchemy.url"))
 
     with engine.connect() as connection:
