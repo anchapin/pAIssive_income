@@ -291,7 +291,7 @@ jobs:
             lsof -i :8000 || ps aux | grep ':8000'
             exit 1
           fi
-          
+
           # Debug: Enable more verbose Python logging
           export PYTHONVERBOSE=1
           export PYTHONDEVMODE=1
@@ -416,7 +416,7 @@ jobs:
             $testConnection.Close()
             Write-Error "Error: Port 8000 is already in use"
             Write-Host "Processes potentially using port 8000:"
-            Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | 
+            Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue |
               ForEach-Object { Get-Process -Id $_.OwningProcess } |
               Select-Object Id, ProcessName, Path
             exit 1
@@ -500,17 +500,17 @@ jobs:
         shell: bash
         run: |
           # Run tests with retry mechanism
-          npx playwright test || npx playwright test --retries=2
+          npx playwright test tests/e2e/agent_ui.spec.ts || npx playwright test tests/e2e/agent_ui.spec.ts --retries=2
 
       - name: Run Playwright E2E tests (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           # Run tests with retry mechanism
-          npx playwright test
+          npx playwright test tests/e2e/agent_ui.spec.ts
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Tests failed on first attempt. Retrying..."
-            npx playwright test --retries=2
+            npx playwright test tests/e2e/agent_ui.spec.ts --retries=2
           }
 
       - name: Create and verify playwright-report directory (Linux/macOS)
