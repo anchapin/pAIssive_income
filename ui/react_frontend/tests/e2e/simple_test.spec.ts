@@ -180,23 +180,46 @@ test.describe('Simple Tests', () => {
   test('AgentUI component test', async () => {
     console.log('Running AgentUI component test');
     try {
-      // Check if the AgentUI component file exists
-      const agentUIPath = path.join(process.cwd(), 'src', 'components', 'AgentUI.js');
-      const exists = fs.existsSync(agentUIPath);
-      console.log(`AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}`);
+      // Check multiple possible locations for the AgentUI component
+      const possiblePaths = [
+        path.join(process.cwd(), 'src', 'components', 'AgentUI.js'),
+        path.join(process.cwd(), 'src', 'components', 'AgentUI', 'index.js'),
+        path.join(process.cwd(), 'src', 'components', 'AgentUI.jsx'),
+        path.join(process.cwd(), 'src', 'components', 'AgentUI.tsx'),
+        path.join(process.cwd(), 'src', 'mocks', 'AgentUI.jsx'),
+        path.join(process.cwd(), 'src', '__mocks__', 'components', 'AgentUI', 'index.js')
+      ];
+
+      let foundPath = null;
+      let exists = false;
+
+      // Check each possible path
+      for (const agentUIPath of possiblePaths) {
+        if (fs.existsSync(agentUIPath)) {
+          exists = true;
+          foundPath = agentUIPath;
+          console.log(`AgentUI component found at ${agentUIPath}`);
+          break;
+        }
+      }
+
+      if (!exists) {
+        console.log(`AgentUI component not found in any of the expected locations`);
+      }
 
       // This test always passes, we just want to log the information
       expect(true).toBeTruthy();
 
       createReport('agent-ui-test.txt',
-        `AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}\n` +
+        `AgentUI component ${exists ? `exists at ${foundPath}` : 'does not exist in any expected location'}\n` +
+        `Checked paths:\n${possiblePaths.join('\n')}\n` +
         `Test run at ${new Date().toISOString()}`
       );
 
       // If the file exists, try to read its content
-      if (exists) {
+      if (exists && foundPath) {
         try {
-          const content = fs.readFileSync(agentUIPath, 'utf8');
+          const content = fs.readFileSync(foundPath, 'utf8');
           const contentPreview = content.substring(0, 500) + (content.length > 500 ? '...' : '');
           createReport('agent-ui-content.txt',
             `AgentUI component content preview:\n${contentPreview}\n` +
@@ -205,7 +228,41 @@ test.describe('Simple Tests', () => {
           );
         } catch (readError) {
           console.error(`Error reading AgentUI component: ${readError}`);
+          createReport('agent-ui-read-error.txt',
+            `Error reading AgentUI component at ${foundPath}: ${readError}\n` +
+            `Test run at ${new Date().toISOString()}`
+          );
         }
+      }
+
+      // Also check for the @ag-ui-protocol/ag-ui package
+      try {
+        const nodeModulesPath = path.join(process.cwd(), 'node_modules', '@ag-ui-protocol', 'ag-ui');
+        const packageExists = fs.existsSync(nodeModulesPath);
+        console.log(`@ag-ui-protocol/ag-ui package ${packageExists ? 'exists' : 'does not exist'} at ${nodeModulesPath}`);
+
+        createReport('ag-ui-package-test.txt',
+          `@ag-ui-protocol/ag-ui package ${packageExists ? 'exists' : 'does not exist'} at ${nodeModulesPath}\n` +
+          `Test run at ${new Date().toISOString()}`
+        );
+
+        // Check for the mock package as well
+        const mockPackagePath = path.join(process.cwd(), 'node_modules', '@ag-ui-protocol', 'ag-ui-mock');
+        const mockPackageExists = fs.existsSync(mockPackagePath);
+        console.log(`@ag-ui-protocol/ag-ui-mock package ${mockPackageExists ? 'exists' : 'does not exist'} at ${mockPackagePath}`);
+
+        if (mockPackageExists) {
+          createReport('ag-ui-mock-package-exists.txt',
+            `@ag-ui-protocol/ag-ui-mock package exists at ${mockPackagePath}\n` +
+            `Test run at ${new Date().toISOString()}`
+          );
+        }
+      } catch (packageError) {
+        console.error(`Error checking for @ag-ui-protocol/ag-ui package: ${packageError}`);
+        createReport('ag-ui-package-error.txt',
+          `Error checking for @ag-ui-protocol/ag-ui package: ${packageError}\n` +
+          `Test run at ${new Date().toISOString()}`
+        );
       }
     } catch (error) {
       console.error(`Error in AgentUI test: ${error}`);
