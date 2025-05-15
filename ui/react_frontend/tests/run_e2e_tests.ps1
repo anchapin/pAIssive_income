@@ -61,7 +61,7 @@ if (-not $appReady) {
 
 # Run the Playwright tests
 Write-Host "Running Playwright tests..."
-npx playwright test tests/e2e/agent_ui.spec.ts
+npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list
 
 # Capture the exit code
 $testExitCode = $LASTEXITCODE
