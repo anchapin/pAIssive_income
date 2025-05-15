@@ -20,6 +20,8 @@
 
 # Known false positives or accepted risks
 # Add specific vulnerabilities that have been reviewed and accepted
+CVE-2021-3803  # nth-check vulnerability - addressed in package.json overrides
+CVE-2023-44270  # postcss vulnerability - addressed in package.json overrides
 
 # Documentation and example files
 # These are not part of the production code and don't pose a real risk
