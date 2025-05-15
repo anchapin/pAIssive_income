@@ -156,6 +156,21 @@ jobs:
             done
           fi
 
+          # Try to pull node image for frontend
+          node_image="node:18-alpine"
+          if ! try_pull_image "$node_image"; then
+            echo "Failed to pull node image. Trying fallback images..."
+            fallback_node_images=("node:16-alpine" "node:14-alpine")
+            for fallback_image in "${fallback_node_images[@]}"; do
+              if try_pull_image "$fallback_image"; then
+                echo "Successfully pulled fallback node image $fallback_image"
+                # Update Dockerfile.dev with the successful fallback image
+                sed -i "s|FROM node:18-alpine|FROM $fallback_image|g" ui/react_frontend/Dockerfile.dev
+                break
+              fi
+            done
+          fi
+
           # Verify we have a postgres image
           if ! docker image inspect "$postgres_image" >/dev/null 2>&1; then
             echo "Failed to pull any postgres image. Exiting."
@@ -271,6 +286,20 @@ jobs:
           if ! docker compose config --services | grep -q "app" || ! docker compose config --services | grep -q "db"; then
             echo "ERROR: Required services 'app' and 'db' not found in docker-compose.yml"
             exit 1
+          fi
+
+          # Check for frontend service
+          if ! docker compose config --services | grep -q "frontend"; then
+            echo "ERROR: Required service 'frontend' not found in docker-compose.yml"
+            exit 1
+          fi
+
+          # Verify ag-ui environment variable is set in frontend service
+          echo "Checking for ag-ui environment variable in frontend service..."
+          if ! grep -q "REACT_APP_AG_UI_ENABLED" docker-compose.yml; then
+            echo "WARNING: REACT_APP_AG_UI_ENABLED environment variable not found in frontend service."
+            echo "Adding REACT_APP_AG_UI_ENABLED=true to frontend service environment..."
+            sed -i '/CHOKIDAR_USEPOLLING=true/a \      - REACT_APP_AG_UI_ENABLED=true' docker-compose.yml
           fi
 
           echo "docker-compose.yml validation successful"
@@ -507,6 +536,36 @@ jobs:
             fi
           }
 
+          # Function to check frontend container status
+          check_frontend_status() {
+            echo "Checking frontend container status:"
+            docker compose ps frontend || docker-compose ps frontend || true
+
+            echo "Checking frontend container details:"
+            docker inspect $(docker ps -aq -f name=paissive-frontend) || true
+
+            echo "Checking frontend logs:"
+            docker compose logs --tail=50 frontend || docker-compose logs --tail=50 frontend || true
+
+            # Check if the container is actually running
+            echo "Checking if frontend container is running:"
+            if docker ps | grep -q paissive-frontend; then
+              echo "Frontend container is running. Checking processes inside container:"
+              docker compose exec frontend ps aux || docker-compose exec frontend ps aux || docker exec paissive-frontend ps aux || true
+
+              # Check if Node process is running
+              echo "Checking for Node process:"
+              docker compose exec frontend ps aux | grep node || docker-compose exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
+
+              # Check if port 3000 is listening
+              echo "Checking if port 3000 is listening in container:"
+              docker compose exec frontend netstat -tulpn | grep 3000 || docker-compose exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
+            else
+              echo "Frontend container is not running. Attempting to restart..."
+              docker compose restart frontend || docker-compose restart frontend || true
+            fi
+          }
+
           # Try to reach the health endpoint with increasing timeout
           for i in $(seq 1 $max_attempts); do
             # Check disk space periodically
@@ -522,28 +581,56 @@ jobs:
             # Try different methods to check health
             if curl -v -f -m $timeout http://localhost:5000/health 2>/dev/null; then
               echo "SUCCESS: Flask app is healthy!"
-              exit 0
+
+              # Now check frontend health
+              echo "Checking frontend health..."
+              if curl -v -f -m $timeout http://localhost:3000 2>/dev/null; then
+                echo "SUCCESS: Frontend is also healthy!"
+                exit 0
+              else
+                echo "WARNING: Flask app is healthy but frontend is not responding."
+                check_frontend_status
+
+                # If we're getting close to max attempts, try to restart the frontend
+                if [ $i -gt $((max_attempts - 15)) ]; then
+                  echo "Getting close to max attempts, trying to restart the frontend container..."
+                  docker compose restart frontend || docker-compose restart frontend || true
+                  sleep 15  # Give it a bit more time to restart
+                fi
+              fi
             elif wget -O- -T $timeout http://localhost:5000/health 2>/dev/null; then
               echo "SUCCESS: Flask app is healthy (verified with wget)!"
-              exit 0
+
+              # Now check frontend health
+              echo "Checking frontend health..."
+              if wget -O- -T $timeout http://localhost:3000 2>/dev/null; then
+                echo "SUCCESS: Frontend is also healthy (verified with wget)!"
+                exit 0
+              else
+                echo "WARNING: Flask app is healthy but frontend is not responding."
+                check_frontend_status
+              fi
             else
               echo "Health check failed on attempt $i/$max_attempts"
 
               # More detailed diagnostics on regular intervals
               if [ $((i % 5)) -eq 0 ] || [ $i -gt $((max_attempts - 5)) ]; then
                 check_container_status
+                check_frontend_status
 
-                # Try to restart the app container if we're getting close to max attempts
+                # Try to restart the containers if we're getting close to max attempts
                 if [ $i -gt $((max_attempts - 10)) ]; then
-                  echo "Getting close to max attempts, trying to restart the app container..."
-                  docker compose restart app || docker-compose restart app || true
+                  echo "Getting close to max attempts, trying to restart the containers..."
+                  docker compose restart app frontend || docker-compose restart app frontend || true
                   sleep 15  # Give it a bit more time to restart
                 fi
               fi
 
-              # Check network connectivity to the port
+              # Check network connectivity to the ports
               echo "Checking network connectivity to port 5000..."
               nc -zv localhost 5000 || true
+              echo "Checking network connectivity to port 3000..."
+              nc -zv localhost 3000 || true
 
               # Calculate sleep time with progressive increase but cap at 20 seconds
               sleep_time=$((5 + i / 6))
@@ -555,7 +642,7 @@ jobs:
             fi
           done
 
-          echo "FAILURE: Flask app did not become healthy after $max_attempts attempts."
+          echo "FAILURE: Services did not become healthy after $max_attempts attempts."
           echo "Collecting final diagnostic information..."
 
           echo "Final container status:"
@@ -563,6 +650,9 @@ jobs:
 
           echo "Final app logs:"
           docker compose logs --tail=100 app || docker-compose logs --tail=100 app || docker logs paissive-income-app
+
+          echo "Final frontend logs:"
+          docker compose logs --tail=100 frontend || docker-compose logs --tail=100 frontend || docker logs paissive-frontend
 
           echo "Checking Flask app configuration:"
           docker compose exec app cat /app/run_ui.py || docker-compose exec app cat /app/run_ui.py || true
@@ -573,16 +663,24 @@ jobs:
           echo "Checking if port 5000 is listening in container:"
           docker compose exec app netstat -tulpn | grep 5000 || docker-compose exec app netstat -tulpn | grep 5000 || docker exec paissive-income-app netstat -tulpn | grep 5000 || true
 
+          echo "Checking if Node process is running in frontend container:"
+          docker compose exec frontend ps aux | grep node || docker-compose exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
+
+          echo "Checking if port 3000 is listening in frontend container:"
+          docker compose exec frontend netstat -tulpn | grep 3000 || docker-compose exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
+
           echo "Checking host port bindings:"
-          netstat -tulpn | grep 5000 || ss -tulpn | grep 5000 || true
+          netstat -tulpn | grep -E '5000|3000' || ss -tulpn | grep -E '5000|3000' || true
 
           echo "Final system status:"
           df -h
           docker system df
 
-          # Try one last direct check of the health endpoint with maximum verbosity
-          echo "Final attempt with maximum verbosity:"
+          # Try one last direct check of the health endpoints with maximum verbosity
+          echo "Final attempt with maximum verbosity for Flask app:"
           curl -v -m 30 http://localhost:5000/health || true
+          echo "Final attempt with maximum verbosity for frontend:"
+          curl -v -m 30 http://localhost:3000 || true
 
           exit 1
 
@@ -624,8 +722,12 @@ jobs:
           docker compose logs db || docker-compose logs db || true
           echo "App logs:"
           docker compose logs app || docker-compose logs app || true
-          echo "Docker build logs:"
+          echo "Frontend logs:"
+          docker compose logs frontend || docker-compose logs frontend || true
+          echo "Docker build logs (app):"
           docker compose logs --no-color --timestamps app || docker-compose logs --no-color --timestamps app || true
+          echo "Docker build logs (frontend):"
+          docker compose logs --no-color --timestamps frontend || docker-compose logs --no-color --timestamps frontend || true
 
           echo "===== NETWORK INFORMATION ====="
           echo "Network interfaces:"
@@ -646,6 +748,10 @@ jobs:
           docker inspect $(docker ps -q -f name=paissive-postgres) || true
           echo "Docker container health status (db):"
           docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-postgres) || true
+          echo "Docker container inspection (frontend):"
+          docker inspect $(docker ps -q -f name=paissive-frontend) || true
+          echo "Docker container health status (frontend):"
+          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-frontend) || true
 
           echo "===== FINAL CLEANUP ====="
           echo "Performing final cleanup to free space for artifact uploads..."

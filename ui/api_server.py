@@ -188,7 +188,6 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.send_header("Access-Control-Allow-Credentials", "true")
         self.end_headers()
-        return  # Explicitly return after handling OPTIONS request
 
     def log_message(self, format: str, *args: tuple) -> None:
         """Log messages to the logger instead of stderr."""

@@ -1,5 +1,6 @@
 # type: ignore
 import logging
+import os
 from logging.config import fileConfig
 from typing import Any, List
 
@@ -22,7 +23,6 @@ fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
 # Get database URL from environment or use default
-import os
 db_url = os.environ.get("DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb")
 config.set_main_option(
     "sqlalchemy.url",

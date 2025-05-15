@@ -55,6 +55,7 @@ services:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://app:5000
       - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_AG_UI_ENABLED=true
     networks:
       - paissive-network
     healthcheck:
