@@ -123,7 +123,10 @@ jobs:
         run: |
           ruff check .
           mypy .
-          pytest -v --cov=. --cov-report=xml --cov-report=term-missing
+          # Run MCP adapter tests separately using the custom script
+          python run_mcp_tests.py
+          # Run all other tests
+          pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
