@@ -4,7 +4,6 @@
 import os
 import sys
 import logging
-from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -61,13 +60,10 @@ any_other_function_with_shell_equals_true:
 """
 
 
-def main():
+def main() -> None:
     """Generate Bandit configuration files for specific run IDs."""
     # Get run ID from command line argument or use default
-    if len(sys.argv) > 1:
-        run_id = sys.argv[1]
-    else:
-        run_id = "15053076509"  # Default run ID
+    run_id = sys.argv[1] if len(sys.argv) > 1 else "15053076509"  # Default run ID
 
     # Create the .github/bandit directory if it doesn't exist
     os.makedirs(".github/bandit", exist_ok=True)

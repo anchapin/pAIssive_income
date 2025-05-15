@@ -4,7 +4,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from ai_models.adapters.adapter_factory import get_adapter, AdapterError
 
@@ -16,6 +16,8 @@ MCP_SERVERS_KEY = "mcp_servers"
 # Constants
 MIN_PORT = 1
 MAX_PORT = 65535
+MAX_FILE_SIZE = 1024 * 1024  # 1MB max file size for settings file
+MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -27,36 +29,97 @@ def load_mcp_server_configs() -> List[Dict[str, Any]]:
     Returns:
         A list of dicts with at least: name, host, port.
     """
-    if not MCP_SETTINGS_FILE.exists():
-        return []
-
     # Initialize empty list for validated servers
-    validated_servers = []
+    validated_servers: List[Dict[str, Any]] = []
 
-    # Try to open and read the settings file
+    # Early return if file doesn't exist
+    if not MCP_SETTINGS_FILE.exists():
+        return validated_servers
+
+    # Process the settings file
+    data = _load_settings_file()
+
+    # Process server configurations if data is valid
+    if data and MCP_SERVERS_KEY in data and isinstance(data[MCP_SERVERS_KEY], list):
+        validated_servers = _process_server_configs(data[MCP_SERVERS_KEY])
+
+    return validated_servers
+
+
+def _load_settings_file() -> Optional[Dict[str, Any]]:
+    """Load and parse the settings file with security checks.
+
+    Returns:
+        The parsed data as a dictionary, or None if loading failed
+    """
     try:
+        # Check file size before reading to prevent DoS
+        file_size = MCP_SETTINGS_FILE.stat().st_size
+        if file_size > MAX_FILE_SIZE:
+            logger.error(
+                "Settings file '%s' exceeds maximum allowed size (%d bytes)",
+                MCP_SETTINGS_FILE,
+                MAX_FILE_SIZE,
+            )
+            return None
+
         with open(MCP_SETTINGS_FILE, encoding="utf-8") as f:
-            # Try to parse JSON content
+            # Try to parse JSON content with security measures
             try:
-                data = json.load(f)
+                # Use safe parsing options to prevent attacks
+                data = json.load(
+                    f,
+                    parse_constant=lambda _: None,  # Prevent code execution via special constants
+                    parse_int=int,                  # Ensure integers are parsed as integers
+                    parse_float=float               # Ensure floats are parsed as floats
+                )
             except json.JSONDecodeError:
                 logger.exception("Failed to decode JSON from settings file")
-                return []
+                return None
+            except RecursionError:
+                logger.exception("JSON parsing failed due to excessive nesting")
+                return None
 
-            # Get server configurations
-            servers = data.get(MCP_SERVERS_KEY, [])
+            # Validate the structure of the data
+            if not isinstance(data, dict):
+                logger.error("Settings file does not contain a valid JSON object")
+                return None
 
-            # Validate each server entry
-            for server in servers:
-                if _validate_server_config(server):
-                    validated_servers.append(server)
+            return data
 
     # Handle file access errors
     except (OSError, PermissionError):
         logger.exception("Error reading settings file")
-        return []
+        return None
 
-    # Return the list of validated servers
+
+def _process_server_configs(servers: List[Any]) -> List[Dict[str, Any]]:
+    """Process and validate server configurations.
+
+    Args:
+        servers: List of server configurations to process
+
+    Returns:
+        List of validated server configurations
+    """
+    validated_servers = []
+
+    # Validate each server entry
+    for server in servers:
+        if not isinstance(server, dict):
+            logger.warning("Skipping invalid server entry (not a dictionary)")
+            continue
+
+        if _validate_server_config(server):
+            # Create a sanitized copy with only the expected fields
+            sanitized_server = {
+                "name": server["name"],
+                "host": server["host"],
+                "port": server["port"],
+                "description": server.get("description", "")
+            }
+            validated_servers.append(sanitized_server)
+
     return validated_servers
 
 

@@ -595,82 +595,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           # Generate Bandit configuration files for the current run ID
-          python -c "
-import os
-import json
+          python generate_bandit_config.py ${{ github.run_id }}
 
-# Create directories
-os.makedirs('.github/bandit', exist_ok=True)
-os.makedirs('security-reports', exist_ok=True)
 
-# Create config file
-config_content = '''# Bandit Configuration for Windows (Run ID: ${{ github.run_id }})
-# This configuration is used by GitHub Advanced Security for Bandit scanning on Windows
-
-# Exclude directories from security scans
-exclude_dirs:
-  - tests
-  - venv
-  - .venv
-  - env
-  - .env
-  - __pycache__
-  - custom_stubs
-  - node_modules
-  - build
-  - dist
-
-# Skip specific test IDs
-skips:
-  # B101: Use of assert detected
-  - B101
-  # B311: Standard pseudo-random generators are not suitable for security/cryptographic purposes
-  - B311
-
-# Set the output format for GitHub Advanced Security
-output_format: json
-
-# Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results-${{ github.run_id }}.json
-
-# Set the severity level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-severity: MEDIUM
-
-# Set the confidence level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-confidence: MEDIUM
-'''
-
-with open('.github/bandit/bandit-config-windows-${{ github.run_id }}.yaml', 'w') as f:
-    f.write(config_content)
-
-# Create empty SARIF file
-empty_sarif = {
-    'version': '2.1.0',
-    '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
-    'runs': [{
-        'tool': {
-            'driver': {
-                'name': 'Bandit',
-                'informationUri': 'https://github.com/PyCQA/bandit',
-                'version': '1.7.5',
-                'rules': []
-            }
-        },
-        'results': []
-    }]
-}
-
-# Write the SARIF files
-with open('security-reports/bandit-results-${{ github.run_id }}.sarif', 'w') as f:
-    json.dump(empty_sarif, f, indent=2)
-
-with open('security-reports/bandit-results.sarif', 'w') as f:
-    json.dump(empty_sarif, f, indent=2)
-
-print('Generated Bandit configuration and SARIF files successfully')
-          "
 
       - name: Run Bandit (Windows)
         if: runner.os == 'Windows'
@@ -712,26 +639,7 @@ print('Generated Bandit configuration and SARIF files successfully')
           } else {
             Write-Host "- $banditOutputFile DOES NOT EXIST - recreating"
             # Use Python to create a valid SARIF file
-            python -c "
-import json
-empty_sarif = {
-    'version': '2.1.0',
-    '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
-    'runs': [{
-        'tool': {
-            'driver': {
-                'name': 'Bandit',
-                'informationUri': 'https://github.com/PyCQA/bandit',
-                'version': '1.7.5',
-                'rules': []
-            }
-        },
-        'results': []
-    }]
-}
-with open('$banditOutputFile', 'w') as f:
-    json.dump(empty_sarif, f, indent=2)
-            "
+            python -c "import json; empty_sarif = {'version': '2.1.0', '$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json', 'runs': [{'tool': {'driver': {'name': 'Bandit', 'informationUri': 'https://github.com/PyCQA/bandit', 'version': '1.7.5', 'rules': []}}, 'results': []}]}; f = open('$banditOutputFile', 'w'); json.dump(empty_sarif, f, indent=2); f.close()"
           }
 
           if (Test-Path "security-reports/bandit-results.sarif") {
