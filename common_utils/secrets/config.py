@@ -46,6 +46,33 @@ class SecretConfig:
         self._load_config()
         logger.info(f"Configuration manager initialized with file: {self.config_file}")
 
+    def _is_secret_reference(self, value: Any) -> bool:
+        """Check if a value is a secret reference.
+
+        Args:
+            value: The value to check
+
+        Returns:
+            bool: True if the value is a secret reference, False otherwise
+        """
+        if not isinstance(value, str):
+            return False
+        return value.startswith("secret:")
+
+    def _extract_secret_key(self, value: Any) -> Optional[str]:
+        """Extract the key from a secret reference.
+
+        Args:
+            value: The value to extract the key from
+
+        Returns:
+            Optional[str]: The extracted key, or None if the value is not a secret reference
+        """
+        if not self._is_secret_reference(value):
+            return None
+        # Extract the key by removing the "secret:" prefix
+        return value[len("secret:"):]
+
     def _load_config(self) -> None:
         """Load the configuration from the file."""
         if self.config_file is None:
@@ -90,6 +117,11 @@ class SecretConfig:
             Any: The configuration value
 
         """
+        # Handle empty key - return the entire config
+        if not key:
+            logger.debug("Empty key provided, returning entire config")
+            return self.config
+
         # First try to get from environment variables
         env_key = key.replace(".", "_").upper()
         env_value = os.environ.get(env_key)
@@ -113,16 +145,16 @@ class SecretConfig:
         value_to_check: Any = value
         if use_secret and isinstance(value_to_check, str):
             # Check for secret reference prefix
-            secret_prefix = "secret:"
-            if value_to_check.startswith(secret_prefix):
+            if self._is_secret_reference(value_to_check):
                 # Extract the key and get the secret
-                secret_key = value_to_check[len(secret_prefix) :]
-                logger.debug("Getting secret from configuration")
-                secret_value = get_secret(secret_key, self.secrets_backend)
-                # If the secret is not found, return the default value
-                if secret_value is None:
-                    return default
-                return secret_value
+                secret_key = self._extract_secret_key(value_to_check)
+                if secret_key:
+                    logger.debug("Getting secret from configuration")
+                    secret_value = get_secret(secret_key, self.secrets_backend)
+                    # If the secret is not found, return the default value
+                    if secret_value is None:
+                        return default
+                    return secret_value
 
         # Don't log the actual key name as it might reveal sensitive information
         logger.debug("Got configuration value from config file")
@@ -138,11 +170,25 @@ class SecretConfig:
             use_secret: Whether to treat the value as a secret
 
         """
+        # Handle empty key - replace the entire config
+        if not key:
+            if isinstance(value, dict):
+                self.config = value
+                self._save_config()
+                logger.debug("Replaced entire configuration")
+                return
+            else:
+                logger.warning("Cannot set non-dict value as entire configuration")
+                return
+
         if use_secret:
             # Store the value as a secret and save a reference
             # Don't log the actual key name as it might reveal sensitive information
             logger.debug("Setting secret in configuration")
-            set_secret(key, str(value), self.secrets_backend)
+            success = set_secret(key, str(value), self.secrets_backend)
+            if not success:
+                logger.error("Failed to set secret in backend")
+                return
             value = f"secret:{key}"
 
         # Set in the configuration file
@@ -172,6 +218,13 @@ class SecretConfig:
             bool: True if the key was deleted, False otherwise
 
         """
+        # Handle empty key - clear the entire config
+        if not key:
+            self.config = {}
+            self._save_config()
+            logger.debug("Cleared entire configuration")
+            return True
+
         # Delete from the configuration file
         parts = key.split(".")
         config = self.config
@@ -194,20 +247,20 @@ class SecretConfig:
         value_to_check: Any = value
         if use_secret and isinstance(value_to_check, str):
             # Check for secret reference prefix
-            secret_prefix = "secret:"
-            if value_to_check.startswith(secret_prefix):
+            if self._is_secret_reference(value_to_check):
                 # Extract the key and delete the secret
-                secret_key = value_to_check[len(secret_prefix) :]
-                logger.debug("Deleting secret from configuration")
-                from .secrets_manager import delete_secret
+                secret_key = self._extract_secret_key(value_to_check)
+                if secret_key:
+                    logger.debug("Deleting secret from configuration")
+                    from .secrets_manager import delete_secret
 
-                # Delete the secret
-                delete_result = delete_secret(secret_key, self.secrets_backend)
-                # Log the result
-                if delete_result:
-                    logger.debug("Secret deleted successfully")
-                else:
-                    logger.debug("Failed to delete secret")
+                    # Delete the secret
+                    delete_result = delete_secret(secret_key, self.secrets_backend)
+                    # Log the result
+                    if delete_result:
+                        logger.debug("Secret deleted successfully")
+                    else:
+                        logger.debug("Failed to delete secret")
 
         # Delete from the configuration
         del config[parts[-1]]

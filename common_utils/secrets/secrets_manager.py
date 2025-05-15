@@ -137,6 +137,66 @@ class SecretsManager:
         # Don't log the actual backend value as it might contain sensitive information
         logger.info("Secrets manager initialized with default backend")
 
+    def _get_backend_instance(self, backend_type: SecretsBackend) -> Optional[Any]:
+        """Get a backend instance based on the backend type.
+
+        Args:
+            backend_type: The backend type to get an instance for
+
+        Returns:
+            Optional[Any]: The backend instance, or None if an error occurred
+        """
+        try:
+            if backend_type == SecretsBackend.ENV:
+                # For ENV backend, just return self as it's handled internally
+                return self
+            elif backend_type == SecretsBackend.FILE:
+                from .file_backend import FileBackend
+                return FileBackend()
+            elif backend_type == SecretsBackend.MEMORY:
+                from .memory_backend import MemoryBackend
+                return MemoryBackend()
+            elif backend_type == SecretsBackend.VAULT:
+                from .vault_backend import VaultBackend
+                return VaultBackend()
+            else:
+                logger.error(f"Unknown backend type: {backend_type.name}")
+                return None
+        except Exception:
+            logger.exception(f"Error creating backend instance for {backend_type.name}")
+            return None
+
+    def _sanitize_secrets_dict(self, secrets: dict[str, Any]) -> dict[str, Any]:
+        """Sanitize a dictionary of secrets by masking sensitive values.
+
+        Args:
+            secrets: The dictionary of secrets to sanitize
+
+        Returns:
+            dict[str, Any]: The sanitized dictionary
+        """
+        # Create a copy to avoid modifying the original
+        sanitized = {}
+
+        # Define sensitive key patterns
+        sensitive_patterns = [
+            "password", "api_key", "token", "secret", "credential"
+        ]
+
+        # Mask sensitive values
+        for key, value in secrets.items():
+            # Check if the key contains any sensitive pattern
+            is_sensitive = False
+            for pattern in sensitive_patterns:
+                if pattern in key.lower():
+                    is_sensitive = True
+                    break
+
+            # Mask sensitive values, keep others as is
+            sanitized[key] = "********" if is_sensitive else value
+
+        return sanitized
+
     def _get_env_secret(self, key: str) -> Optional[str]:
         """Get a secret from environment variables.
 
