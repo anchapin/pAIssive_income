@@ -2,10 +2,10 @@
 """init_db.py - Initialize the database with tables and initial data."""
 
 import logging
-import os
+import string
 import sys
 from secrets import randbelow
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from app_flask import create_app, db
 from app_flask.models import Agent, Team, User
@@ -43,6 +43,8 @@ def init_db() -> bool:
         bool: True if initialization was successful, False otherwise
     """
     app = create_app()
+    success = False
+
     try:
         with app.app_context():
             # Create all tables
@@ -51,83 +53,115 @@ def init_db() -> bool:
 
             # Check if admin user exists
             admin = User.query.filter_by(username="admin").first()
-            if not admin:
-                # Generate a random password
-                password = generate_secure_password()
-
-                # Create admin user
-                admin = User(
-                    username="admin",
-                    password_hash=hash_credential(password),
-                )
-                db.session.add(admin)
-                logger.info("Admin user created")
-
-                # Create default team
-                default_team = Team(
-                    name="Default Team", description="Default team for AI agents"
-                )
-                db.session.add(default_team)
-                logger.info("Default team created")
-
-                # Create sample agents
-                agents = [
-                    Agent(
-                        name="Research Agent",
-                        role="researcher",
-                        description="Conducts research on topics",
-                        team=default_team,
-                    ),
-                    Agent(
-                        name="Content Agent",
-                        role="writer",
-                        description="Creates content based on research",
-                        team=default_team,
-                    ),
-                    Agent(
-                        name="Marketing Agent",
-                        role="marketer",
-                        description="Develops marketing strategies",
-                        team=default_team,
-                    ),
-                ]
-                db.session.add_all(agents)
-                logger.info("Sample agents created")
-
-                try:
-                    # Commit all changes
-                    db.session.commit()
-                    logger.info("Database initialized successfully")
-                    logger.info(f"Admin password: {password}")
-
-                    # Verify the initialization with proper error handling
-                    try:
-                        agent_count = db.session.query(Agent).count()
-                        if agent_count != len(agents):
-                            logger.warning(
-                                f"Agent count mismatch: expected {len(agents)}, found {agent_count}"
-                            )
-                            return False
-                        return True
-                    except SQLAlchemyError as e:
-                        logger.error(f"Error verifying agent count: {str(e)}")
-                        return False
-
-                except IntegrityError as e:
-                    db.session.rollback()
-                    logger.error(f"Database integrity error: {str(e)}")
-                    return False
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    logger.error(f"Database error: {str(e)}")
-                    return False
-            else:
+            if admin:
                 logger.info("Database already initialized")
-                return True
+                success = True
+            else:
+                success = _initialize_database_data()
 
-    except Exception as e:
-        logger.error(f"Critical error during database initialization: {str(e)}")
+    except Exception:
+        logger.exception("Critical error during database initialization")
+        success = False
+
+    return success
+
+
+def _initialize_database_data() -> bool:
+    """Initialize database with initial data.
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Generate a random password
+        password = generate_secure_password()
+
+        # Create admin user
+        admin = User(
+            username="admin",
+            password_hash=hash_credential(password),
+        )
+        db.session.add(admin)
+        logger.info("Admin user created")
+
+        # Create default team
+        default_team = Team(
+            name="Default Team", description="Default team for AI agents"
+        )
+        db.session.add(default_team)
+        logger.info("Default team created")
+
+        # Create sample agents
+        agents = [
+            Agent(
+                name="Research Agent",
+                role="researcher",
+                description="Conducts research on topics",
+                team=default_team,
+            ),
+            Agent(
+                name="Content Agent",
+                role="writer",
+                description="Creates content based on research",
+                team=default_team,
+            ),
+            Agent(
+                name="Marketing Agent",
+                role="marketer",
+                description="Develops marketing strategies",
+                team=default_team,
+            ),
+        ]
+        db.session.add_all(agents)
+        logger.info("Sample agents created")
+
+        # Commit all changes
+        try:
+            db.session.commit()
+            logger.info("Database initialized successfully")
+            # Security: Don't log passwords, only indicate that a password was generated
+            logger.info(
+                "Admin user created with generated password (not logged for security reasons)"
+            )
+
+            # Verify the initialization
+            return _verify_initialization(agents)
+
+        except IntegrityError:
+            db.session.rollback()
+            logger.exception("Database integrity error")
+            return False
+        except SQLAlchemyError:
+            db.session.rollback()
+            logger.exception("Database error")
+            return False
+
+    except Exception:
+        logger.exception("Error during database data initialization")
         return False
+
+
+def _verify_initialization(agents) -> bool:
+    """Verify that database initialization was successful.
+
+    Args:
+        agents: List of agents that should have been created
+
+    Returns:
+        bool: True if verification passed, False otherwise
+    """
+    try:
+        agent_count = db.session.query(Agent).count()
+        if agent_count != len(agents):
+            logger.warning(
+                f"Agent count mismatch: expected {len(agents)}, found {agent_count}"
+            )
+            return False
+    except SQLAlchemyError:
+        logger.exception("Error verifying agent count")
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":

@@ -5,9 +5,10 @@ Revises: 20240601_01, 001
 Create Date: 2025-05-14 13:47:43.875999
 
 """
+
 # revision identifiers, used by Alembic.
-revision = '257769ce8570'
-down_revision = ('20240601_01', '001')
+revision = "257769ce8570"
+down_revision = ("20240601_01", "001")
 branch_labels = None
 depends_on = None
 

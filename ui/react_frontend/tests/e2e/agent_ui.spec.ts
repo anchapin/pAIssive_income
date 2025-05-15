@@ -34,7 +34,6 @@ test.describe('AgentUI Integration', () => {
 
     // Check if the About page content is loaded
     await expect(page.getByText(/about paissive income framework/i)).toBeVisible({ timeout: 10000 });
-
     // Mock the API response for /api/agent
     await page.route('/api/agent', async (route) => {
       await route.fulfill({
@@ -63,7 +62,6 @@ test.describe('AgentUI Integration', () => {
     // Check if the buttons are present
     await expect(page.getByRole('button', { name: 'Help' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start' })).toBeVisible();
-
     // Take a screenshot for visual verification
     await page.screenshot({ path: 'agent-ui-component.png', fullPage: true });
   });
@@ -71,7 +69,6 @@ test.describe('AgentUI Integration', () => {
   test('AgentUI buttons trigger actions', async ({ page }) => {
     // Navigate to the About page where AgentUI is integrated
     await page.goto(`${BASE_URL}/about`);
-
     // Mock the API response for /api/agent
     await page.route('/api/agent', async (route) => {
       await route.fulfill({
@@ -84,12 +81,10 @@ test.describe('AgentUI Integration', () => {
         })
       });
     });
-
     // Mock the API response for /api/agent/action
     await page.route('/api/agent/action', async (route, request) => {
       const postData = request.postDataJSON();
       console.log('Action received:', postData);
-
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -108,7 +103,6 @@ test.describe('AgentUI Integration', () => {
 
     // Click the Start button
     await page.getByRole('button', { name: 'Start' }).click();
-
     // We can't directly assert on network requests in Playwright,
     // but we can check that the page doesn't show any errors
     await expect(page.getByText(/error/i)).not.toBeVisible({ timeout: 5000 });

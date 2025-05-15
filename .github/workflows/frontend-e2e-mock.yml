@@ -43,18 +43,16 @@ jobs:
         run: |
           node tests/mock_api_server.js &
           echo "Mock API server started"
-
           # Wait for the server to start
           for i in {1..30}; do
-            if curl --silent --fail http://localhost:5000/health; then
+            if curl --silent --fail http://localhost:8000/health; then
               echo "Mock API server is ready."
               break
             fi
             echo "Waiting for mock API server to be ready... (Attempt $i/30)"
             sleep 1
           done
-
-          if ! curl --silent --fail http://localhost:5000/health; then
+          if ! curl --silent --fail http://localhost:8000/health; then
             echo "Mock API server failed to start within 30 seconds."
             exit 1
           fi
@@ -71,7 +69,6 @@ jobs:
           # Wait for server to start
           echo "Waiting for React server to start..."
           sleep 20
-
           # Check if the server is responding
           echo "Checking if React server is up..."
           curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"

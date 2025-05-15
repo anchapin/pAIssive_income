@@ -16,7 +16,7 @@ Configuration:
 - Total wait time: 50 seconds (MAX_RETRIES * TIMEOUT)
 
 Message Flow:
-1. User → DataGatherer: 
+1. User → DataGatherer:
    - Type: 'gather'
    - Payload: {'query': str}
 
@@ -34,20 +34,25 @@ Error Handling:
 - Graceful cleanup on failure
 """
 
+import logging
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
 
 def main():
     """
     Main function that orchestrates the ADK demonstration.
-    
+
     Flow:
     1. Sets up communication infrastructure
     2. Initializes and starts agents
     3. Handles user input
     4. Manages message flow with retry mechanism
     5. Performs cleanup
-    
+
     Configuration:
     - MAX_RETRIES: 10 attempts for message reception
     - Timeout: 5.0 seconds per attempt
@@ -71,7 +76,7 @@ def main():
     user_name = "user"
     query = input("Enter your research query: ").strip()
     if not query:
-        print("No query entered. Exiting.")
+        logging.warning("No query entered. Exiting.")
         return
 
     # Send initial message to DataGathererAgent
@@ -80,25 +85,28 @@ def main():
             sender=user_name,
             receiver="gatherer",
             type="gather",
-            payload={"query": query}
+            payload={"query": query},
         )
     )
 
     # Wait for summary result (with retry limit)
-    MAX_RETRIES = 10
+    max_retries = 10
     retries = 0
-    while retries < MAX_RETRIES:
+    while retries < max_retries:
         msg = communicator.receive(receiver=user_name, timeout=5.0)
         if msg and msg.type == "summary_result":
-            print(f"\nSummary: {msg.payload['summary']}")
+            logging.info(f"\nSummary: {msg.payload['summary']}")
             break
         retries += 1
     else:
-        print("\nFailed to receive summary message after multiple attempts. Exiting.")
+        logging.error(
+            "\nFailed to receive summary message after multiple attempts. Exiting."
+        )
 
     # Clean up
     gatherer.stop()
     summarizer.stop()
+
 
 if __name__ == "__main__":
     main()

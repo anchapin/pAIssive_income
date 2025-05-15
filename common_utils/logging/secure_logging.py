@@ -253,7 +253,7 @@ class SecureLogger:
 
     def handle(self, record: logging.LogRecord) -> bool:
         """Call the handlers for the specified record.
-        
+
         Args:
             record: The log record to handle
 
@@ -261,7 +261,7 @@ class SecureLogger:
             bool: True if the message was handled
         """
         return self.logger.handle(record)
-        
+
     def make_record(
         self,
         name: str,
@@ -276,7 +276,7 @@ class SecureLogger:
         sinfo: Optional[str] = None,
     ) -> logging.LogRecord:
         """Make a LogRecord.
-        
+
         Args:
             name: The logger name
             level: The logging level
@@ -368,7 +368,7 @@ class SecureLogger:
         msg = mask_sensitive_data(msg)
         self.logger.critical(msg, *args, **kwargs)
 
-    # Standard aliases 
+    # Standard aliases
     warn = warning
     fatal = critical
 

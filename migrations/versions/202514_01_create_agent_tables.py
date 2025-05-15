@@ -5,13 +5,15 @@ Revises:
 Create Date: 2024-06-01 10:00:00.000000
 
 """
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '20240601_01'
+revision = "20240601_01"
 down_revision = None
 branch_labels = None
 depends_on = None
+
 
 def upgrade():
     op.execute("""
@@ -32,6 +34,7 @@ def upgrade():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+
 
 def downgrade():
     op.execute("DROP TABLE IF EXISTS agent_action;")
