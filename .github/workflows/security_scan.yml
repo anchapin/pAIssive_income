@@ -621,25 +621,8 @@ jobs:
           Write-Host "Using Bandit configuration file: $banditConfigFile"
 
           # Create a valid empty SARIF file structure
-          $emptySarif = @'
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-'@
+          $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
+          $emptySarif = $emptySarifContent
 
           # Try to run bandit with fallback options
           $banditCmdPath = Get-Command bandit -ErrorAction SilentlyContinue
