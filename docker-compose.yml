@@ -28,10 +28,10 @@ services:
       - paissive-network
     healthcheck:
       test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
-      interval: 20s
-      timeout: 30s
-      retries: 15
-      start_period: 120s
+      interval: 10s  # Reduced from 20s for faster feedback in CI
+      timeout: 20s   # Reduced from 30s for faster feedback in CI
+      retries: 10    # Reduced from 15 for faster feedback in CI
+      start_period: 60s  # Reduced from 120s for faster feedback in CI
     deploy:
       resources:
         limits:
@@ -60,10 +60,10 @@ services:
       - paissive-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
+      interval: 3s   # Reduced from 5s for faster feedback in CI
+      timeout: 3s    # Reduced from 5s for faster feedback in CI
+      retries: 15    # Reduced from 20 for faster feedback in CI
+      start_period: 15s  # Reduced from 30s for faster feedback in CI
     command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
     deploy:
       resources:
@@ -73,7 +73,8 @@ services:
 networks:
   paissive-network:
     driver: bridge
-    name: paissive-network
+    # Removed explicit name to avoid conflicts with pre-created network
+    # The network will be named based on the project directory and service name
 
 volumes:
   postgres-data:

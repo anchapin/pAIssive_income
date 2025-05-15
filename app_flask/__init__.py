@@ -1,7 +1,7 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
-from typing import Any, Callable, Dict, Optional, Union, cast
+from typing import Any, Callable, Dict, Optional, TypeVar, Union, cast
 
 # Third-party imports
 from flask import Flask
