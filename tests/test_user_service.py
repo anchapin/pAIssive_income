@@ -5,10 +5,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Import at the top level
+from users.models import db
 from users.services import UserExistsError, UserService
 
 
-# Mock the flask.models module to avoid import issues
+# Mock the app_flask module to avoid import issues
 class MockUser:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -24,9 +26,9 @@ class MockDB:
         self.session = MagicMock()
 
 
-# Create patch for flask.models
-patch("flask.models.User", MockUser).start()
-patch("flask.models.db", MockDB()).start()
+# Create patch for app_flask
+patch("users.services.UserModel", MockUser).start()
+patch("users.services.db_session", MockDB()).start()
 
 
 @pytest.fixture

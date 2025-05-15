@@ -66,21 +66,44 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
 
+      - name: Install uv (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          iwr -useb https://astral.sh/uv/install.ps1 | iex
+          echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
+
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          uv pip install --upgrade pip
+          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
+          if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
+          # Install MCP SDK from GitHub
+          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk
+          cd /tmp/mcp-sdk
+          uv pip install -e .
+          cd $GITHUB_WORKSPACE
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          if (Test-Path requirements-dev.txt) { pip install -r requirements-dev.txt }
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+          uv pip install --upgrade pip
+          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          if (Test-Path requirements-dev.txt) { uv pip install -r requirements-dev.txt }
+          if (Test-Path requirements.txt) { uv pip install -r requirements.txt }
+          # Install MCP SDK from GitHub
+          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git $env:TEMP\mcp-sdk
+          cd $env:TEMP\mcp-sdk
+          uv pip install -e .
+          cd $env:GITHUB_WORKSPACE
         shell: pwsh
 
       - name: Run linting and tests
