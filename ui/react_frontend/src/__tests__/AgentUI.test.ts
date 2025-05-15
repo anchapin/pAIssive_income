@@ -1,5 +1,3 @@
-import { describe, it, expect, vi } from 'vitest';
-
 /**
  * Tests for the AgentUI component integration
  *
@@ -7,6 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
  * into the application. It uses a simple assertion to ensure the test
  * suite passes while we implement more comprehensive tests.
  */
+// Using Jest for testing
 describe('AgentUI Component', () => {
   it('should be properly integrated', () => {
     // This is a placeholder test to ensure the test suite passes
