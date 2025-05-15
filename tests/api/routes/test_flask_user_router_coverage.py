@@ -125,6 +125,56 @@ class TestFlaskUserRouterCoverage:
             assert "error" in data
             assert "Invalid input" in data["error"]
 
+    def test_create_user_validation_error_with_message(self, client):
+        """Test validation error handling in create_user endpoint with custom message."""
+        # Create a custom exception with a message attribute
+        class ValidationError(Exception):
+            def __init__(self, message):
+                self.message = message
+                super().__init__(message)
+
+        # Mock the user service to raise the custom exception
+        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create_user:
+            mock_create_user.side_effect = ValidationError("Custom validation error")
+
+            # Test the endpoint
+            response = client.post(
+                '/api/users/',
+                json={
+                    'username': 'newuser',
+                    'email': 'new@example.com',
+                    'password': 'password123'
+                }
+            )
+
+            # Verify response
+            assert response.status_code == 400
+            data = json.loads(response.data)
+            assert "error" in data
+            assert data["error"] == "Custom validation error"
+
+    def test_create_user_validation_error_with_safe_terms(self, client):
+        """Test validation error handling with safe terms in the error message."""
+        # Mock the user service to raise an exception with safe terms
+        with patch('api.routes.flask_user_router.user_service.create_user') as mock_create_user:
+            mock_create_user.side_effect = Exception("Email already exists")
+
+            # Test the endpoint
+            response = client.post(
+                '/api/users/',
+                json={
+                    'username': 'newuser',
+                    'email': 'new@example.com',
+                    'password': 'password123'
+                }
+            )
+
+            # Verify response
+            assert response.status_code == 400
+            data = json.loads(response.data)
+            assert "error" in data
+            assert "already exists" in data["error"]
+
     def test_authenticate_user_missing_json(self, client):
         """Test authenticate_user with missing JSON data."""
         # Test with no JSON content

@@ -1,12 +1,11 @@
 """Utility functions for secure logging."""
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from common_utils.logging.secure_logging import (
     SecureLogger,
     get_secure_logger,
-    mask_sensitive_data,
     prevent_log_injection,
 )
 
@@ -65,7 +64,7 @@ def log_user_input_safely(
     """
     # Sanitize the user input
     sanitized_input = sanitize_user_input(user_input)
-    
+
     # Log the message with the sanitized input
     if isinstance(logger, SecureLogger):
         logger.log(level, message, sanitized_input, *args, **kwargs)
@@ -114,27 +113,27 @@ def configure_secure_logging(
     """
     # Get the root logger
     root_logger = logging.getLogger()
-    
+
     # Set the logging level
     root_logger.setLevel(level)
-    
+
     # Remove any existing handlers
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
-    
+
     # Add the specified handlers or create a default one
     if handlers:
         for handler in handlers:
             root_logger.addHandler(handler)
     else:
         handler = logging.StreamHandler()
-        
+
         # Set the format
         if format_string is None:
             format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         formatter = logging.Formatter(format_string)
         handler.setFormatter(formatter)
-        
+
         root_logger.addHandler(handler)
 
 
@@ -161,7 +160,7 @@ def log_user_id_safely(
     """
     # Sanitize the user ID
     sanitized_id = sanitize_user_input(user_id)
-    
+
     # Log the message with the sanitized ID
     if isinstance(logger, SecureLogger):
         logger.log(level, message, sanitized_id, *args, **kwargs)
@@ -170,17 +169,17 @@ def log_user_id_safely(
 
 
 # Example usage:
-# 
+#
 # from common_utils.logging.log_utils import get_logger, log_user_input_safely
-# 
+#
 # logger = get_logger(__name__)
-# 
+#
 # # Instead of:
 # # logger.info(f"User {user_id} logged in")
-# 
+#
 # # Use:
 # log_user_id_safely(logger, logging.INFO, "User %s logged in", user_id)
-# 
+#
 # # Or:
 # logger.info("User logged in")
 # log_user_id_safely(logger, logging.INFO, "User ID: %s", user_id)

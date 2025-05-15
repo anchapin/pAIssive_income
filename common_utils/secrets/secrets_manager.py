@@ -615,7 +615,11 @@ class SecretsManager:
                 # Don't log the actual backend type as it might contain sensitive information
                 logger.error("Unsupported backend type")
                 return {}
-            return self._sanitize_secrets_dict(secrets)
+
+            # Ensure we sanitize the secrets before returning them
+            sanitized_secrets = self._sanitize_secrets_dict(secrets)
+            logger.debug("Sanitized secrets from backend")
+            return sanitized_secrets
 
         except NotImplementedError:
             # Don't log the actual backend type value as it might contain sensitive information
@@ -693,6 +697,7 @@ class SecretsManager:
             return {}
 
         # Import secure logging utility
+        from common_utils.logging.secure_logging import mask_sensitive_data
 
         # Create a sanitized copy
         safe_secrets: dict[str, Union[str, dict[str, Any]]] = {}
@@ -708,7 +713,8 @@ class SecretsManager:
                 # For non-string, non-dict values, convert to string and mask
                 safe_secrets[key] = "********"
 
-        return safe_secrets
+        # Apply additional masking for sensitive keys
+        return mask_sensitive_data(safe_secrets)
 
 
 # Create a singleton instance of the secrets manager

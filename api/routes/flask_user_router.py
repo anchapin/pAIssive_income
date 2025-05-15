@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request
 from app_flask.models import User
 from app_flask import db
 from users.services import UserService
+from common_utils.logging.log_utils import log_user_id_safely
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -57,7 +58,8 @@ def get_user(user_id: str):
     except Exception:
         # Fix for CodeQL Log Injection issue - don't include user input in log messages
         logger.exception("Error getting user")
-        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
+        # Use secure logging utility to prevent log injection
+        log_user_id_safely(logger, logging.INFO, "Failed user_id: %s", user_id)
         return jsonify({"error": "An error occurred while getting the user"}), 500
 
 
@@ -94,13 +96,18 @@ def create_user():
             # Create a safe error message that doesn't expose implementation details
             error_message = "Invalid input data"
             if hasattr(e, "message"):
+                # Only use the exception's message attribute if it exists
                 error_message = e.message
             elif str(e):
                 # Only use the exception message if it's a validation error message
-                # that's safe to show to users
-                if any(safe_term in str(e).lower() for safe_term in
-                      ["invalid", "required", "must be", "cannot be", "already exists"]):
-                    error_message = str(e)
+                # that's safe to show to users - use a whitelist approach
+                safe_terms = ["invalid", "required", "must be", "cannot be", "already exists"]
+                if any(safe_term in str(e).lower() for safe_term in safe_terms):
+                    # Still sanitize the message to avoid any potential injection
+                    from common_utils.logging.log_utils import sanitize_user_input
+                    error_message = sanitize_user_input(str(e))
+            # Log the actual exception for debugging but return sanitized message to user
+            logger.debug("Validation error details", extra={"error": str(e)})
             return jsonify({"error": error_message}), 400
     except Exception:
         logger.exception("Server error creating user")
@@ -174,7 +181,8 @@ def update_user(user_id: str):
     except Exception:
         # Fix for CodeQL Log Injection issue - don't include user input in log messages
         logger.exception("Error updating user")
-        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
+        # Use secure logging utility to prevent log injection
+        log_user_id_safely(logger, logging.INFO, "Failed user_id %s", user_id)
         db.session.rollback()
         return jsonify({"error": "An error occurred while updating the user"}), 500
 
@@ -194,6 +202,7 @@ def delete_user(user_id: str):
     except Exception:
         # Fix for CodeQL Log Injection issue - don't include user input in log messages
         logger.exception("Error deleting user")
-        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
+        # Use secure logging utility to prevent log injection
+        log_user_id_safely(logger, logging.INFO, "Failed user_id %s", user_id)
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the user"}), 500

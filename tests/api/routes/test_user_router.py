@@ -241,3 +241,42 @@ class TestUserRouter:
         # Test DELETE with invalid ID
         response = client.delete("/users/invalid")
         assert response.status_code == 422
+
+    def test_get_user_by_id_special_case(self, client):
+        """Test get_user_by_id with special case ID 999."""
+        # Send request to the special case ID that returns None
+        response = client.get("/users/999")
+
+        # Verify response
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert "not found" in data["detail"].lower()
+
+    def test_update_user_special_case(self, client):
+        """Test update_user with special case ID 999."""
+        # User data to send
+        user_data = {
+            "username": "updateduser",
+            "email": "updated@example.com"
+        }
+
+        # Send request to the special case ID
+        response = client.put("/users/999", json=user_data)
+
+        # Verify response
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert "not found" in data["detail"].lower()
+
+    def test_delete_user_special_case(self, client):
+        """Test delete_user with special case ID 999."""
+        # Send request to the special case ID
+        response = client.delete("/users/999")
+
+        # Verify response
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert "not found" in data["detail"].lower()

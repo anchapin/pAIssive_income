@@ -51,7 +51,7 @@ class TestFlaskUserRouterSecurity:
             user_id = user.id
 
         # Set up logging capture
-        caplog.set_level(logging.ERROR)
+        caplog.set_level(logging.INFO)
 
         # Create a malicious user_id that could be used for log injection
         malicious_id = f"{user_id}\n\nERROR: Injected log message"
@@ -70,6 +70,14 @@ class TestFlaskUserRouterSecurity:
                 if "Error getting user" in record.getMessage():
                     assert "Injected log message" not in record.getMessage()
 
+            # Check for the INFO level log message with the user_id
+            found_log = False
+            for record in caplog.records:
+                if record.levelno == logging.INFO and "Failed user_id" in record.getMessage():
+                    found_log = True
+                    break
+            assert found_log, "Expected INFO log with 'Failed user_id' not found"
+
     def test_update_user_no_log_injection(self, client, app, caplog):
         """Test that user_id is not directly included in log messages for update_user."""
         # Create a test user
@@ -80,7 +88,7 @@ class TestFlaskUserRouterSecurity:
             user_id = user.id
 
         # Set up logging capture
-        caplog.set_level(logging.ERROR)
+        caplog.set_level(logging.INFO)
 
         # Test the endpoint with a valid ID but force an exception
         with patch('api.routes.flask_user_router.User.query.get') as mock_get:
@@ -104,8 +112,14 @@ class TestFlaskUserRouterSecurity:
                     if "Error updating user" in record.getMessage():
                         # Verify we're not using f-strings with user input
                         assert f"Error updating user {user_id}" not in record.getMessage()
-                        # Verify we're logging the user_id separately with proper formatting
-                        assert "Failed user_id" in caplog.text
+
+                # Check for the INFO level log message with the user_id
+                found_log = False
+                for record in caplog.records:
+                    if record.levelno == logging.INFO and "Failed user_id" in record.getMessage():
+                        found_log = True
+                        break
+                assert found_log, "Expected INFO log with 'Failed user_id' not found"
 
     def test_delete_user_no_log_injection(self, client, app, caplog):
         """Test that user_id is not directly included in log messages for delete_user."""
@@ -117,7 +131,7 @@ class TestFlaskUserRouterSecurity:
             user_id = user.id
 
         # Set up logging capture
-        caplog.set_level(logging.ERROR)
+        caplog.set_level(logging.INFO)
 
         # Test the endpoint with a valid ID but force an exception
         with patch('api.routes.flask_user_router.User.query.get') as mock_get:
@@ -138,8 +152,14 @@ class TestFlaskUserRouterSecurity:
                     if "Error deleting user" in record.getMessage():
                         # Verify we're not using f-strings with user input
                         assert f"Error deleting user {user_id}" not in record.getMessage()
-                        # Verify we're logging the user_id separately with proper formatting
-                        assert "Failed user_id" in caplog.text
+
+                # Check for the INFO level log message with the user_id
+                found_log = False
+                for record in caplog.records:
+                    if record.levelno == logging.INFO and "Failed user_id" in record.getMessage():
+                        found_log = True
+                        break
+                assert found_log, "Expected INFO log with 'Failed user_id' not found"
 
     def test_create_user_no_exception_exposure(self, client, app):
         """Test that exception details are not exposed to users."""

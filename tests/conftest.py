@@ -7,11 +7,49 @@ Provides fixtures for database setup using Docker Compose.
 import logging
 import os
 import subprocess
+import sys
+from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy import text
 
 from app_flask import create_app, db
+
+# Mock crewai module for testing
+class MockCrewAI:
+    """Mock for the crewai module."""
+
+    class Agent:
+        """Mock Agent class."""
+        def __init__(self, role=None, goal=None, backstory=None, **kwargs):
+            self.role = role
+            self.goal = goal
+            self.backstory = backstory
+            self.kwargs = kwargs
+
+    class Task:
+        """Mock Task class."""
+        def __init__(self, description=None, agent=None, **kwargs):
+            self.description = description
+            self.agent = agent
+            self.kwargs = kwargs
+
+    class Crew:
+        """Mock Crew class."""
+        def __init__(self, agents=None, tasks=None, **kwargs):
+            self.agents = agents or []
+            self.tasks = tasks or []
+            self.kwargs = kwargs
+
+        def run(self, *args, **kwargs):
+            """Mock run method."""
+            return "Mock crew execution result"
+
+# Add mock modules to sys.modules
+sys.modules['crewai'] = MagicMock()
+sys.modules['crewai'].Agent = MockCrewAI.Agent
+sys.modules['crewai'].Task = MockCrewAI.Task
+sys.modules['crewai'].Crew = MockCrewAI.Crew
 
 # Set up logger
 logger = logging.getLogger(__name__)

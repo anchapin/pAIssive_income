@@ -16,16 +16,23 @@ logger = logging.getLogger(__name__)
 class MockBaseModelAdapter:
     """Mock implementation of BaseModelAdapter for testing."""
 
+    def __init__(self):
+        """Initialize the mock base model adapter."""
+        logger.info("Initialized MockBaseModelAdapter")
+
     async def list_models(self) -> List[Dict[str, Any]]:
         """List available models.
 
         Returns:
             List of model information dictionaries
         """
-        return [
+        logger.info("Listing mock models")
+        models = [
             {"name": "mock-model-1", "size": "7B"},
             {"name": "mock-model-2", "size": "13B"},
         ]
+        logger.info(f"Found {len(models)} mock models")
+        return models
 
     async def generate_text(self, model: str, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate text using the specified model.
@@ -38,11 +45,14 @@ class MockBaseModelAdapter:
         Returns:
             Response dictionary containing the generated text
         """
-        return {
+        logger.info(f"Generating text with model {model}")
+        response = {
             "model": model,
             "response": f"Mock response for prompt: {prompt}",
             "done": True
         }
+        logger.info("Text generation completed")
+        return response
 
     async def generate_chat_completions(self, model: str, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
         """Generate chat completions using the specified model.
@@ -55,16 +65,20 @@ class MockBaseModelAdapter:
         Returns:
             Response dictionary containing the generated chat completion
         """
-        return {
+        logger.info(f"Generating chat completion with model {model} for {len(messages)} messages")
+        response = {
             "model": model,
             "message": {
                 "role": "assistant",
                 "content": f"Mock chat response for {len(messages)} messages"
             }
         }
+        logger.info("Chat completion generated")
+        return response
 
     async def close(self):
         """Close any resources."""
+        logger.info("Closing mock adapter resources")
         pass
 
 
@@ -78,6 +92,7 @@ class MockOllamaAdapter(MockBaseModelAdapter):
             base_url: The base URL of the Ollama API server
             timeout: Request timeout in seconds
         """
+        super().__init__()
         self.base_url = base_url
         self.timeout = timeout
         self._session = None
@@ -95,6 +110,7 @@ class MockLMStudioAdapter(MockBaseModelAdapter):
             api_key: Optional API key for authentication
             timeout: Request timeout in seconds
         """
+        super().__init__()
         self.base_url = base_url
         self.api_key = api_key
         self.timeout = timeout
@@ -113,6 +129,7 @@ class MockOpenAICompatibleAdapter(MockBaseModelAdapter):
             api_key: API key for authentication
             timeout: Request timeout in seconds
         """
+        super().__init__()
         self.base_url = base_url
         self.api_key = api_key
         self.timeout = timeout
@@ -172,4 +189,7 @@ class MockAdapterFactory:
         Returns:
             List of available adapter type names
         """
-        return list(cls._adapter_registry.keys())
+        logger.info("Getting available adapter types")
+        adapter_types = list(cls._adapter_registry.keys())
+        logger.info(f"Found {len(adapter_types)} available adapter types")
+        return adapter_types

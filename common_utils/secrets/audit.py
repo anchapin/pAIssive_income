@@ -736,14 +736,16 @@ class SecretsAuditor:
         self,
         directory: str,
         output_file: Optional[str] = None,
-        json_format: bool = False,
+        format: str = "text",
+        json_format: bool = None,  # For backward compatibility
     ) -> dict[str, list[tuple[str, int, str, str]]]:
         """Audit a directory for potential secrets and generate a report.
 
         Args:
             directory: Directory to scan
             output_file: Path to the output file
-            json_format: Whether to output in JSON format
+            format: Output format ("json" or "text")
+            json_format: Deprecated - Whether to output in JSON format
 
         Returns:
             Dictionary mapping file paths to lists of (pattern_name,
@@ -752,5 +754,13 @@ class SecretsAuditor:
             secret_value)
         """
         results = self.scan(directory)
-        self.generate_report(results, output_file, json_format)
+
+        # Handle backward compatibility with json_format parameter
+        use_json = False
+        if json_format is not None:
+            use_json = json_format
+        elif format.lower() == "json":
+            use_json = True
+
+        self.generate_report(results, output_file, use_json)
         return results

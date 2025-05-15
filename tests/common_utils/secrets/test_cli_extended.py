@@ -403,7 +403,7 @@ class TestCliExtended(unittest.TestCase):
         mock_auditor.audit.assert_called_once_with(
             directory="test_dir",
             output_file="test_output.txt",
-            output_format="text"
+            format="text"
         )
 
     @patch("common_utils.secrets.cli._check_auth", return_value=True)

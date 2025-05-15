@@ -1,4 +1,4 @@
-"""Tests for the secrets package __init__ module."""
+"""Tests for the secrets package __init__ module. Renamed to avoid conflicts."""
 
 import os
 import pytest
@@ -14,8 +14,8 @@ from common_utils.secrets import (
 )
 
 
-class TestInit:
-    """Tests for the __init__ module."""
+class TestSecretsInit:
+    """Tests for the secrets __init__ module."""
 
     def test_imports(self):
         """Test that all expected symbols are imported."""

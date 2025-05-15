@@ -48,20 +48,17 @@ class TestTokenManagementAPI:
         token = resp.json().get("access_token")  # Test token only
         headers = {"Authorization": f"Bearer {token}"}  # Test token only
         resp2 = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        # In our test environment, 422 is also acceptable for token validation
-        # This is because the OAuth2PasswordBearer dependency is raising a 422 error
-        # In a real environment, this would be 200
-        assert resp2.status_code in (200, 422)
+        assert resp2.status_code == 200
 
     def test_token_validation_invalid_token(self, mock_client):
         # Test data - not a real token
         headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
         resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        assert resp.status_code in (401, 403, 422)  # 422 is also acceptable for invalid tokens
+        assert resp.status_code in (401, 403)
 
     def test_token_validation_missing_token(self, mock_client):
         resp = mock_client.get(self.PROTECTED_ENDPOINT)
-        assert resp.status_code in (401, 403, 422)  # 422 is also acceptable for missing tokens
+        assert resp.status_code in (401, 403)
 
     def test_token_validation_expired_token(self, mock_client):
         # This test assumes short-lived tokens in test or mockable expiry
@@ -69,7 +66,7 @@ class TestTokenManagementAPI:
         # Test data - not a real token
         headers = {"Authorization": "Bearer expiredtoken"}  # Test token only
         resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        assert resp.status_code in (401, 403, 422)  # 422 is also acceptable for expired tokens
+        assert resp.status_code in (401, 403)
 
     def test_token_refresh_success(self, mock_client):
         # Obtain refresh token
@@ -120,7 +117,7 @@ class TestTokenManagementAPI:
         assert revoke_resp.status_code in (200, 204)
         # Should no longer be able to use the token
         protected_resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        assert protected_resp.status_code in (401, 403, 422)  # 422 is also acceptable for revoked tokens
+        assert protected_resp.status_code in (401, 403)
 
     def test_token_revocation_invalid_token(self, mock_client):
         # Test data - not a real token
@@ -132,10 +129,10 @@ class TestTokenManagementAPI:
         # Test data - malformed token for testing
         headers = {"Authorization": "Bearer "}  # Intentionally malformed test token
         resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        assert resp.status_code in (401, 403, 422)  # 422 is also acceptable for malformed tokens
+        assert resp.status_code in (401, 403)
 
     def test_empty_authorization_header(self, mock_client):
         # Test data - empty authorization header for testing
         headers = {"Authorization": ""}  # Intentionally empty test header
         resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
-        assert resp.status_code in (401, 403, 422)  # 422 is also acceptable for empty headers
+        assert resp.status_code in (401, 403)

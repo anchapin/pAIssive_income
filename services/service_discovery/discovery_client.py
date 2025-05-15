@@ -52,7 +52,9 @@ class ConsulServiceRegistry:
         service_metadata = {} if metadata is None else metadata
 
         # Use logging.info directly to make it easier to mock in tests
+        # Ensure the exact format expected by tests
         logging.info(f"Registering service {service_name} on port {port}")
+        # Additional logging that can be useful for debugging
         logging.info(f"Service tags: {service_tags}")
         logging.info(f"Service metadata: {service_metadata}")
 
