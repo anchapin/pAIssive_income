@@ -24,6 +24,9 @@ def test_create_and_authenticate_user(client):
         json={"username_or_email": "testuser", "password": "testpassword"},
     )
     assert response.status_code == 200
-    user_data = response.get_json()
+    data = response.get_json()
+    assert "token" in data
+    assert "user" in data
+    user_data = data["user"]
     assert user_data["username"] == "testuser"
     assert user_data["email"] == "testuser@example.com"

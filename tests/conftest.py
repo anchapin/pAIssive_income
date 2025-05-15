@@ -54,6 +54,7 @@ def app():
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SECRET_KEY": "test-key",
     }
 
     app = create_app(test_config)
@@ -75,6 +76,39 @@ def app():
         # Clean up after tests
         db.session.remove()
         db.drop_all()
+
+
+@pytest.fixture(scope="function")
+def test_db(app):
+    """Create a fresh database for each test."""
+    with app.app_context():
+        db.create_all()
+        yield db
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture(scope="function")
+def session(test_db):
+    """Create a new database session for a test."""
+    connection = test_db.engine.connect()
+    transaction = connection.begin()
+
+    options = dict(bind=connection, binds={})
+    session = test_db.create_scoped_session(options=options)
+
+    # Replace the session with our test session
+    old_session = test_db.session
+    test_db.session = session
+
+    yield session
+
+    # Restore original session
+    test_db.session = old_session
+
+    transaction.rollback()
+    connection.close()
+    session.remove()
 
 
 @pytest.fixture

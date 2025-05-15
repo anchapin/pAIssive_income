@@ -7,7 +7,6 @@ import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import pytest
 
 from common_utils.secrets.audit import generate_report
 from common_utils.secrets.cli import handle_list

@@ -8,9 +8,11 @@ import bcrypt
 import jwt
 import pytest
 from flask import Flask
+from sqlalchemy.exc import SQLAlchemyError
 
+from app_flask import db
 from users.services import (
-    AuthenticationError, 
+    AuthenticationError,
     DatabaseSessionNotAvailableError,
     TokenError,
     UserExistsError,
@@ -51,21 +53,19 @@ class TestUserService(unittest.TestCase):
     @pytest.mark.unit
     def test_init_without_token_secret(self):
         """Test initializing without a token secret."""
-        with self.assertRaises(AuthenticationError) as ctx:
+        with pytest.raises(AuthenticationError, match="Token secret is required"):
             UserService(token_secret=None)
-        self.assertEqual(str(ctx.exception), "Token secret is required")
 
     @pytest.mark.unit
     def test_init_with_empty_token_secret(self):
         """Test initializing with empty token secret."""
-        with self.assertRaises(AuthenticationError) as ctx:
+        with pytest.raises(AuthenticationError, match="Token secret is required"):
             UserService(token_secret="")
-        self.assertEqual(str(ctx.exception), "Token secret is required")
 
     @pytest.mark.unit
     def test_token_secret_property(self):
         """Test the token_secret property."""
-        self.assertEqual(self.user_service.token_secret, self.token_secret)
+        assert self.user_service.token_secret == self.token_secret
 
     @pytest.mark.unit
     def test_create_user_missing_inputs(self):
@@ -80,10 +80,8 @@ class TestUserService(unittest.TestCase):
         ]
 
         for username, email, password, expected_error in test_cases:
-            with self.subTest(missing_field=expected_error):
-                with self.assertRaises(AuthenticationError) as ctx:
-                    self.user_service.create_user(username, email, password)
-                self.assertEqual(str(ctx.exception), expected_error)
+            with self.subTest(missing_field=expected_error), pytest.raises(AuthenticationError, match=expected_error):
+                self.user_service.create_user(username, email, password)
 
     @pytest.mark.unit
     def test_create_user_success(self):
@@ -100,16 +98,19 @@ class TestUserService(unittest.TestCase):
         mock_db = MagicMock()
 
         with patch("users.services.UserModel") as mock_user_model, \
-             patch("users.services.db_session", mock_db), \
+             patch("users.services.db", mock_db), \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = None
+            # Set up the filter chain for username and email check
+            filter_mock = MagicMock()
+            filter_mock.first.return_value = None
+            mock_user_model.query.filter.return_value = filter_mock
             mock_user_model.return_value = mock_user
 
             result = self.user_service.create_user(username, email, password)
 
-            self.assertEqual(result["username"], username)
-            self.assertEqual(result["email"], email)
-            self.assertEqual(result["id"], "user-123")
+            assert result["username"] == username
+            assert result["email"] == email
+            assert result["id"] == "user-123"
             mock_db.session.add.assert_called_once()
             mock_db.session.commit.assert_called_once()
 
@@ -126,12 +127,83 @@ class TestUserService(unittest.TestCase):
 
         with patch("users.services.UserModel") as mock_user_model, \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = mock_existing_user
+            # Set up the filter chain for username check
+            filter_mock = MagicMock()
+            filter_mock.first.return_value = mock_existing_user
+            mock_user_model.query.filter.return_value = filter_mock
 
-            with self.assertRaises(UserExistsError) as context:
+            with pytest.raises(UserExistsError, match=UserExistsError.USERNAME_EXISTS):
                 self.user_service.create_user(username, email, password)
 
-            self.assertEqual(str(context.exception), UserExistsError.USERNAME_EXISTS)
+    @pytest.mark.unit
+    def test_create_user_email_exists(self):
+        """Test creating a user with an existing email."""
+        username = "newuser"
+        email = "existing@example.com"
+        password = "password123"
+
+        mock_existing_user = MagicMock()
+        mock_existing_user.username = "otheruser"
+        mock_existing_user.email = email
+
+        with patch("users.services.UserModel") as mock_user_model, \
+             self.app.app_context():
+            # Set up the filter chain for email check
+            filter_mock = MagicMock()
+            filter_mock.first.return_value = mock_existing_user
+            mock_user_model.query.filter.return_value = filter_mock
+
+            with pytest.raises(UserExistsError, match=UserExistsError.EMAIL_EXISTS):
+                self.user_service.create_user(username, email, password)
+
+    @pytest.mark.unit
+    def test_create_user_db_session_none(self):
+        """Test creating a user when db.session is None."""
+        username = "newuser"
+        email = "new@example.com"
+        password = "password123"
+
+        with patch("users.services.db") as mock_db, \
+             self.app.app_context():
+            # Set db.session to None
+            mock_db.session = None
+
+            with pytest.raises(DatabaseSessionNotAvailableError):
+                self.user_service.create_user(username, email, password)
+
+    @pytest.mark.unit
+    def test_create_user_db_error(self):
+        """Test creating a user when db session has an error."""
+        username = "newuser"
+        email = "new@example.com"
+        password = "password123"
+
+        # Create a mock db that raises an exception on commit
+        mock_db = MagicMock()
+        mock_db.session.commit.side_effect = SQLAlchemyError("DB Error")
+        mock_db.session.rollback = MagicMock()
+
+        with patch("users.services.UserModel") as mock_user_model, \
+             patch("users.services.db", mock_db), \
+             patch("users.services.logger") as mock_logger, \
+             self.app.app_context():
+            # Set up the filter chain for username and email check
+            filter_mock = MagicMock()
+            filter_mock.first.return_value = None
+            mock_user_model.query.filter.return_value = filter_mock
+
+            # Create a mock user
+            mock_user = MagicMock()
+            mock_user_model.return_value = mock_user
+
+            # We expect a DatabaseSessionNotAvailableError to be raised
+            with pytest.raises(DatabaseSessionNotAvailableError):
+                self.user_service.create_user(username, email, password)
+
+            # Verify rollback was called
+            mock_db.session.rollback.assert_called_once()
+            # Verify logger.exception was called
+            mock_logger.exception.assert_called_once()
 
     @pytest.mark.unit
     def test_authenticate_user_success(self):
@@ -139,19 +211,27 @@ class TestUserService(unittest.TestCase):
         username = "testuser"
         password = "password123"
 
+        # Create a test user with a string password_hash to match the mock expectations
+        test_user = MagicMock()
+        test_user.id = "user-123"
+        test_user.username = "testuser"
+        test_user.email = "test@example.com"
+        test_user.password_hash = self.hashed_password.decode('utf-8')  # Convert bytes to string
+        test_user.last_login = None
+
         with patch("users.services.UserModel") as mock_user_model, \
              patch("users.services.verify_credential", return_value=True) as mock_verify, \
-             patch("users.services.db_session", MagicMock()), \
+             patch("users.services.db", MagicMock()), \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = self.test_user
+            mock_user_model.query.filter_by.return_value.first.return_value = test_user
 
             success, user_data = self.user_service.authenticate_user(username, password)
 
-            self.assertTrue(success)
-            self.assertEqual(user_data["username"], username)
-            self.assertEqual(user_data["email"], "test@example.com")
-            self.assertEqual(user_data["id"], "user-123")
-            mock_verify.assert_called_once_with(password, self.hashed_password)
+            assert success
+            assert user_data["username"] == username
+            assert user_data["email"] == "test@example.com"
+            assert user_data["id"] == "user-123"
+            mock_verify.assert_called_once_with(password, test_user.password_hash)
 
     @pytest.mark.unit
     def test_authenticate_user_wrong_password(self):
@@ -159,28 +239,36 @@ class TestUserService(unittest.TestCase):
         username = "testuser"
         password = "wrongpassword"
 
+        # Create a test user with a string password_hash to match the mock expectations
+        test_user = MagicMock()
+        test_user.id = "user-123"
+        test_user.username = "testuser"
+        test_user.email = "test@example.com"
+        test_user.password_hash = self.hashed_password.decode('utf-8')  # Convert bytes to string
+        test_user.last_login = None
+
         with patch("users.services.UserModel") as mock_user_model, \
              patch("users.services.verify_credential", return_value=False) as mock_verify, \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = self.test_user
+            mock_user_model.query.filter_by.return_value.first.return_value = test_user
 
             success, user_data = self.user_service.authenticate_user(username, password)
 
-            self.assertFalse(success)
-            self.assertIsNone(user_data)
-            mock_verify.assert_called_once_with(password, self.hashed_password)
+            assert not success
+            assert user_data is None
+            mock_verify.assert_called_once_with(password, test_user.password_hash)
 
     @pytest.mark.unit
     def test_authenticate_user_not_found(self):
         """Test authenticating a non-existent user."""
         with patch("users.services.UserModel") as mock_user_model, \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = None
+            mock_user_model.query.filter_by.return_value.first.return_value = None
 
             success, user_data = self.user_service.authenticate_user("nonexistent", "password123")
 
-            self.assertFalse(success)
-            self.assertIsNone(user_data)
+            assert not success
+            assert user_data is None
 
     @pytest.mark.unit
     def test_authenticate_user_with_last_login(self):
@@ -189,19 +277,27 @@ class TestUserService(unittest.TestCase):
         password = "password123"
         mock_db = MagicMock()
 
+        # Create a test user with a string password_hash to match the mock expectations
+        test_user = MagicMock()
+        test_user.id = "user-123"
+        test_user.username = "testuser"
+        test_user.email = "test@example.com"
+        test_user.password_hash = self.hashed_password.decode('utf-8')  # Convert bytes to string
+        test_user.last_login = None
+
         with patch("users.services.UserModel") as mock_user_model, \
-             patch("users.services.db_session", mock_db), \
+             patch("users.services.db", mock_db), \
              patch("users.services.verify_credential", return_value=True), \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = self.test_user
+            mock_user_model.query.filter_by.return_value.first.return_value = test_user
 
             before_login = datetime.now(timezone.utc)
             success, user_data = self.user_service.authenticate_user(username, password)
             after_login = datetime.now(timezone.utc)
 
-            self.assertTrue(success)
-            self.assertIsNotNone(self.test_user.last_login)
-            self.assertTrue(before_login <= self.test_user.last_login <= after_login)
+            assert success
+            assert test_user.last_login is not None
+            assert before_login <= test_user.last_login <= after_login
             mock_db.session.commit.assert_called_once()
 
     @pytest.mark.unit
@@ -212,16 +308,24 @@ class TestUserService(unittest.TestCase):
         mock_db = MagicMock()
         mock_db.session.commit.side_effect = Exception("DB Error")
 
+        # Create a test user with a string password_hash to match the mock expectations
+        test_user = MagicMock()
+        test_user.id = "user-123"
+        test_user.username = "testuser"
+        test_user.email = "test@example.com"
+        test_user.password_hash = self.hashed_password.decode('utf-8')  # Convert bytes to string
+        test_user.last_login = None
+
         with patch("users.services.UserModel") as mock_user_model, \
-             patch("users.services.db_session", mock_db), \
+             patch("users.services.db", mock_db), \
              patch("users.services.verify_credential", return_value=True), \
              self.app.app_context():
-            mock_user_model.query.filter.return_value.first.return_value = self.test_user
+            mock_user_model.query.filter_by.return_value.first.return_value = test_user
 
             success, user_data = self.user_service.authenticate_user(username, password)
 
-            self.assertFalse(success)
-            self.assertIsNone(user_data)
+            assert not success
+            assert user_data is None
             mock_db.session.commit.assert_called_once()
 
     @pytest.mark.unit
@@ -243,19 +347,19 @@ class TestUserService(unittest.TestCase):
             options={"verify_exp": False}
         )
 
-        self.assertEqual(payload["sub"], user_id)
-        self.assertEqual(payload["username"], claims["username"])
-        self.assertEqual(payload["email"], claims["email"])
-        self.assertEqual(payload["role"], claims["role"])
-        self.assertIn("jti", payload)
-        self.assertIn("iat", payload)
-        self.assertIn("exp", payload)
+        assert payload["sub"] == user_id
+        assert payload["username"] == claims["username"]
+        assert payload["email"] == claims["email"]
+        assert payload["role"] == claims["role"]
+        assert "jti" in payload
+        assert "iat" in payload
+        assert "exp" in payload
 
         # Verify expiration time
         now = datetime.now(timezone.utc)
         exp_time = datetime.fromtimestamp(payload["exp"], timezone.utc)
-        self.assertGreater(exp_time, now)
-        self.assertLess(exp_time, now + timedelta(seconds=self.token_expiry + 60))
+        assert exp_time > now
+        assert exp_time < now + timedelta(seconds=self.token_expiry + 60)
 
     @pytest.mark.unit
     def test_generate_token_with_sensitive_claims(self):
@@ -278,10 +382,10 @@ class TestUserService(unittest.TestCase):
             options={"verify_exp": False}
         )
 
-        self.assertEqual(payload["username"], "testuser")
+        assert payload["username"] == "testuser"
         sensitive_fields = ["password", "token", "secret", "key"]
         for field in sensitive_fields:
-            self.assertNotIn(field, payload)
+            assert field not in payload
 
     @pytest.mark.unit
     def test_verify_token_success(self):
@@ -295,10 +399,10 @@ class TestUserService(unittest.TestCase):
         token = self.user_service.generate_token(user_id, **claims)
         success, payload = self.user_service.verify_token(token)
 
-        self.assertTrue(success)
-        self.assertEqual(payload["sub"], user_id)
-        self.assertEqual(payload["username"], claims["username"])
-        self.assertEqual(payload["email"], claims["email"])
+        assert success
+        assert payload["sub"] == user_id
+        assert payload["username"] == claims["username"]
+        assert payload["email"] == claims["email"]
 
     @pytest.mark.unit
     def test_verify_token_expired(self):
@@ -317,8 +421,8 @@ class TestUserService(unittest.TestCase):
         token = jwt.encode(claims, self.token_secret, algorithm="HS256")
         success, payload = self.user_service.verify_token(token)
 
-        self.assertFalse(success)
-        self.assertIsNone(payload)
+        assert not success
+        assert payload is None
 
     @pytest.mark.unit
     def test_verify_token_invalid(self):
@@ -334,8 +438,8 @@ class TestUserService(unittest.TestCase):
         for token, case in test_cases:
             with self.subTest(case=case):
                 success, payload = self.user_service.verify_token(token)
-                self.assertFalse(success, f"Token verification should fail for {case}")
-                self.assertIsNone(payload)
+                assert not success, f"Token verification should fail for {case}"
+                assert payload is None
 
     @pytest.mark.unit
     def test_verify_token_missing_claims(self):
@@ -359,8 +463,29 @@ class TestUserService(unittest.TestCase):
                 token = jwt.encode(claims, self.token_secret, algorithm="HS256")
                 success, payload = self.user_service.verify_token(token)
 
-                self.assertFalse(success, f"Token missing {claim} claim should be invalid")
-                self.assertIsNone(payload)
+                assert not success, f"Token missing {claim} claim should be invalid"
+                assert payload is None
+
+    @pytest.mark.unit
+    def test_verify_token_general_exception(self):
+        """Test verifying a token when a general exception occurs."""
+        token = "valid.looking.token"
+
+        with patch("jwt.decode") as mock_decode:
+            # Simulate a general exception during token verification
+            mock_decode.side_effect = Exception("Unexpected error")
+
+            # Call the method
+            success, payload = self.user_service.verify_token(token)
+
+            # Verify the result
+            assert not success
+            assert payload is None
+            mock_decode.assert_called_once_with(
+                token,
+                self.token_secret,
+                algorithms=["HS256"]
+            )
 
 if __name__ == "__main__":
     pytest.main(["-v"])

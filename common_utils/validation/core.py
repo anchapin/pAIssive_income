@@ -4,8 +4,7 @@ All usage must comply with the project's standards:
 See: docs/input_validation_and_error_handling_standards.md
 """
 
-from typing import Any
-from typing import TypeVar
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -55,32 +54,66 @@ def validate_input(model_cls: type[T], data: Any) -> T:
         return model_instance
 
 
-def validation_error_response(exc: ValidationError) -> dict[str, Any]:
+def format_validation_error(error: PydanticValidationError) -> List[Dict[str, str]]:
+    """Format a Pydantic ValidationError into a standardized format.
+
+    Args:
+        error: The Pydantic ValidationError instance.
+
+    Returns:
+        List of dictionaries with field, message, and type.
+    """
+    formatted_errors = []
+    for err in error.errors():
+        field = ".".join(str(loc) for loc in err.get("loc", []))
+        message = err.get("msg", "Invalid value")
+        error_type = err.get("type", "validation_error")
+
+        formatted_errors.append({
+            "field": field,
+            "message": message,
+            "type": error_type
+        })
+
+    return formatted_errors
+
+
+def validation_error_response(
+    error: Union[PydanticValidationError, ValidationError, Exception],
+    message: Optional[str] = None
+) -> Dict[str, Any]:
     """Standardized error response for validation errors.
 
     Args:
-        exc: The ValidationError instance.
+        error: The error instance (PydanticValidationError, ValidationError, or generic Exception).
+        message: Optional custom error message.
 
     Returns:
         Dictionary conforming to error response standards.
     """
-    # Format the error details into a more user-friendly structure
     formatted_errors = []
+    error_message = message or "An error occurred processing the request"
 
-    if exc.details and isinstance(exc.details, list):
-        for error in exc.details:
-            # Extract field and error message
-            field = ".".join(str(loc) for loc in error.get("loc", []))
-            message = error.get("msg", "Invalid value")
+    if isinstance(error, PydanticValidationError):
+        formatted_errors = format_validation_error(error)
+        error_message = message or "Validation error"
+    elif isinstance(error, ValidationError):
+        error_message = message or error.message
 
-            formatted_errors.append({
-                "field": field,
-                "message": message,
-                "type": error.get("type", "validation_error")
-            })
+        if error.details and isinstance(error.details, list):
+            for err in error.details:
+                # Extract field and error message
+                field = ".".join(str(loc) for loc in err.get("loc", []))
+                err_message = err.get("msg", "Invalid value")
+
+                formatted_errors.append({
+                    "field": field,
+                    "message": err_message,
+                    "type": err.get("type", "validation_error")
+                })
 
     return {
         "error_code": "validation_error",
-        "message": exc.message,
-        "errors": formatted_errors or [{"field": "unknown", "message": exc.message}],
+        "message": error_message,
+        "errors": formatted_errors or [{"field": "unknown", "message": error_message}],
     }

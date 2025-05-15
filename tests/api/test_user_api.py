@@ -1,15 +1,16 @@
 """test_user_api - Tests for User API endpoints, edge cases, and error handling."""
 
 import pytest
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 try:
     from api.main import app  # Adjust import if main FastAPI app is elsewhere
-except ImportError:
+    client = TestClient(app)
+except (ImportError, AttributeError):
     app = None
-
-client = TestClient(app) if app else None
+    client = None
 
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")

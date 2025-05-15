@@ -1,19 +1,18 @@
 """User service module."""
 
 from datetime import datetime, timezone
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 import uuid
 
 import jwt
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 
+from app_flask import db
 from app_flask.models import UserModel
 from users.auth import verify_credential
 from common_utils.logging import get_logger
 
 logger = get_logger(__name__)
-db = SQLAlchemy()
 
 class AuthenticationError(Exception):
     """Raised when authentication fails."""
@@ -44,17 +43,17 @@ class UserService:
 
     def __init__(self, token_secret: str):
         """Initialize the service.
-        
+
         Args:
             token_secret: Secret key for JWT token generation/verification
-            
+
         Raises:
             AuthenticationError: If token_secret is not provided
         """
         if not token_secret:
             logger.error("No token secret provided")
             raise AuthenticationError(AuthenticationError.TOKEN_REQUIRED)
-            
+
         self.__token_secret = token_secret
         self.__token_expiry = 3600  # 1 hour default
 
@@ -65,15 +64,15 @@ class UserService:
 
     def create_user(self, username: str, email: str, password: str) -> Dict:
         """Create a new user.
-        
+
         Args:
             username: Username for the new user
             email: Email address for the new user
             password: Password for the new user
-            
+
         Returns:
             Dict containing user data
-            
+
         Raises:
             AuthenticationError: If required fields are missing
             UserExistsError: If username/email already exists
@@ -84,7 +83,7 @@ class UserService:
         if not username:
             raise AuthenticationError(AuthenticationError.USERNAME_REQUIRED)
         if not email:
-            raise AuthenticationError(AuthenticationError.EMAIL_REQUIRED) 
+            raise AuthenticationError(AuthenticationError.EMAIL_REQUIRED)
         if not password:
             raise AuthenticationError(AuthenticationError.PASSWORD_REQUIRED)
 
@@ -113,9 +112,9 @@ class UserService:
             db.session.add(new_user)
             db.session.commit()
         except SQLAlchemyError as e:
-            logger.error(f"Database error creating user: {e}")
+            logger.exception("Database error creating user")
             db.session.rollback()
-            raise DatabaseSessionNotAvailableError()
+            raise DatabaseSessionNotAvailableError() from e
 
         return {
             "id": new_user.id,
@@ -125,11 +124,11 @@ class UserService:
 
     def authenticate_user(self, username: str, password: str) -> Tuple[bool, Optional[Dict]]:
         """Authenticate a user with username and password.
-        
+
         Args:
             username: Username of the user
             password: Password to verify
-            
+
         Returns:
             Tuple of (success, user_data)
             success: True if authentication successful
@@ -148,8 +147,8 @@ class UserService:
         try:
             user.last_login = datetime.now(timezone.utc)
             db.session.commit()
-        except Exception as e:
-            logger.error(f"Error updating last login: {e}")
+        except Exception:
+            logger.exception("Error updating last login")
             return False, None
 
         return True, {
@@ -160,23 +159,24 @@ class UserService:
 
     def generate_token(self, user_id: str, **claims: Dict) -> str:
         """Generate a JWT token for a user.
-        
+
         Args:
             user_id: ID of the user
             claims: Additional claims to include in token
-            
+
         Returns:
             JWT token string
         """
         now = datetime.now(timezone.utc)
-        
+
         # Filter out sensitive claims
+        max_claim_length = 1000
         safe_claims = {
-            k: str(v)[:1000] + "..." if len(str(v)) > 1000 else v
+            k: str(v)[:max_claim_length] + "..." if len(str(v)) > max_claim_length else v
             for k, v in claims.items()
             if k.lower() not in ["password", "token", "secret", "key"]
         }
-        
+
         payload = {
             "sub": user_id,
             "iat": now.timestamp(),
@@ -184,15 +184,15 @@ class UserService:
             "jti": str(uuid.uuid4()),
             **safe_claims
         }
-        
+
         return jwt.encode(payload, self.__token_secret, algorithm="HS256")
 
     def verify_token(self, token: str) -> Tuple[bool, Optional[Dict]]:
         """Verify and decode a JWT token.
-        
+
         Args:
             token: JWT token string
-            
+
         Returns:
             Tuple of (success, payload)
             success: True if token is valid
@@ -212,8 +212,8 @@ class UserService:
             required_claims = ["sub"]
             if not all(claim in payload for claim in required_claims):
                 return False, None
-
-            return True, payload
+            else:
+                return True, payload
 
         except jwt.ExpiredSignatureError:
             logger.warning("Token expired")
@@ -221,6 +221,6 @@ class UserService:
         except jwt.InvalidTokenError as e:
             logger.warning(f"Invalid token: {e}")
             return False, None
-        except Exception as e:
-            logger.error(f"Token verification error: {e}")
+        except Exception:
+            logger.exception("Token verification error")
             return False, None

@@ -118,7 +118,11 @@ class SecretConfig:
                 # Extract the key and get the secret
                 secret_key = value_to_check[len(secret_prefix) :]
                 logger.debug("Getting secret from configuration")
-                return get_secret(secret_key, self.secrets_backend)
+                secret_value = get_secret(secret_key, self.secrets_backend)
+                # If the secret is not found, return the default value
+                if secret_value is None:
+                    return default
+                return secret_value
 
         # Don't log the actual key name as it might reveal sensitive information
         logger.debug("Got configuration value from config file")

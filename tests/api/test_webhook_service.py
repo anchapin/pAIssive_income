@@ -43,12 +43,12 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.register_webhook(webhook_data)
 
         # Assert
-        self.assertEqual(result["url"], webhook_data["url"])
-        self.assertEqual(result["events"], webhook_data["events"])
-        self.assertEqual(result["description"], webhook_data["description"])
-        self.assertEqual(result["is_active"], webhook_data["is_active"])
-        self.assertEqual(result["id"], "webhook-123")
-        self.assertEqual(result["secret"], "whsec_test_secret")
+        assert result["url"] == webhook_data["url"]
+        assert result["events"] == webhook_data["events"]
+        assert result["description"] == webhook_data["description"]
+        assert result["is_active"] == webhook_data["is_active"]
+        assert result["id"] == "webhook-123"
+        assert result["secret"] == "whsec_test_secret"
         self.mock_db.add_webhook.assert_called_once_with(webhook_data)
 
     def test_register_webhook_without_db(self):
@@ -65,11 +65,11 @@ class TestWebhookService(unittest.TestCase):
         result = webhook_service.register_webhook(webhook_data)
 
         # Assert
-        self.assertIn("id", result)
-        self.assertIn("secret", result)
-        self.assertTrue(result["id"].startswith("webhook-"))
-        self.assertTrue(result["secret"].startswith("whsec_"))
-        self.assertEqual(result["url"], webhook_data["url"])
+        assert "id" in result
+        assert "secret" in result
+        assert result["id"].startswith("webhook-")
+        assert result["secret"].startswith("whsec_")
+        assert result["url"] == webhook_data["url"]
 
     def test_register_webhook_missing_url(self):
         """Test registering a webhook with missing URL."""
@@ -80,7 +80,7 @@ class TestWebhookService(unittest.TestCase):
         }
 
         # Act & Assert
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.webhook_service.register_webhook(webhook_data)
 
     def test_get_webhook(self):
@@ -100,7 +100,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.get_webhook(webhook_id)
 
         # Assert
-        self.assertEqual(result, expected_webhook)
+        assert result == expected_webhook
         self.mock_db.get_webhook.assert_called_once_with(webhook_id)
 
     def test_get_webhook_not_found(self):
@@ -113,7 +113,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.get_webhook(webhook_id)
 
         # Assert
-        self.assertIsNone(result)
+        assert result is None
         self.mock_db.get_webhook.assert_called_once_with(webhook_id)
 
     def test_list_webhooks(self):
@@ -141,7 +141,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.list_webhooks()
 
         # Assert
-        self.assertEqual(result, expected_webhooks)
+        assert result == expected_webhooks
         self.mock_db.list_webhooks.assert_called_once()
 
     def test_list_webhooks_with_filters(self):
@@ -160,7 +160,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.list_webhooks(filters)
 
         # Assert
-        self.assertEqual(result, expected_webhooks)
+        assert result == expected_webhooks
         self.mock_db.list_webhooks.assert_called_once_with(filters)
 
     def test_update_webhook(self):
@@ -184,7 +184,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.update_webhook(webhook_id, update_data)
 
         # Assert
-        self.assertEqual(result, expected_webhook)
+        assert result == expected_webhook
         self.mock_db.update_webhook.assert_called_once_with(webhook_id, update_data)
 
     def test_update_nonexistent_webhook(self):
@@ -198,7 +198,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.update_webhook(webhook_id, update_data)
 
         # Assert
-        self.assertIsNone(result)
+        assert result is None
         self.mock_db.update_webhook.assert_called_once_with(webhook_id, update_data)
 
     def test_delete_webhook(self):
@@ -211,7 +211,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.delete_webhook(webhook_id)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.delete_webhook.assert_called_once_with(webhook_id)
 
     def test_delete_nonexistent_webhook(self):
@@ -224,7 +224,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.delete_webhook(webhook_id)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         self.mock_db.delete_webhook.assert_called_once_with(webhook_id)
 
     @patch("api.services.webhook_service.requests")
@@ -253,14 +253,14 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.deliver_webhook(webhook, event_data)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         mock_requests.post.assert_called_once()
         # Verify the URL was correct
-        self.assertEqual(mock_requests.post.call_args[0][0], webhook["url"])
+        assert mock_requests.post.call_args[0][0] == webhook["url"]
         # Verify headers were passed correctly
         headers = mock_requests.post.call_args[1]["headers"]
-        self.assertEqual(headers["Authorization"], "Bearer test-token")
-        self.assertIn("X-Webhook-Signature", headers)
+        assert headers["Authorization"] == "Bearer test-token"
+        assert "X-Webhook-Signature" in headers
 
     @patch("api.services.webhook_service.requests")
     def test_deliver_webhook_timeout(self, mock_requests):
@@ -278,7 +278,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.deliver_webhook(webhook, event_data)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         mock_requests.post.assert_called_once()
 
     @patch("api.services.webhook_service.requests")
@@ -297,7 +297,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.deliver_webhook(webhook, event_data)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         mock_requests.post.assert_called_once()
 
     @patch("api.services.webhook_service.requests")
@@ -318,7 +318,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.deliver_webhook(webhook, event_data)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         mock_requests.post.assert_called_once()
 
     def test_process_event(self):
@@ -347,9 +347,9 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.process_event(event_type, event_data)
 
         # Assert
-        self.assertEqual(result, 2)  # Both webhooks should be delivered successfully
+        assert result == 2  # Both webhooks should be delivered successfully
         self.mock_db.find_webhooks_by_event.assert_called_once_with(event_type, active_only=True)
-        self.assertEqual(self.webhook_service.deliver_webhook.call_count, 2)
+        assert self.webhook_service.deliver_webhook.call_count == 2
 
     def test_process_event_partial_success(self):
         """Test processing an event with partial delivery success."""
@@ -369,8 +369,8 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.process_event(event_type, event_data)
 
         # Assert
-        self.assertEqual(result, 1)  # Only one webhook should be delivered successfully
-        self.assertEqual(self.webhook_service.deliver_webhook.call_count, 2)
+        assert result == 1  # Only one webhook should be delivered successfully
+        assert self.webhook_service.deliver_webhook.call_count == 2
 
     def test_process_event_no_webhooks(self):
         """Test processing an event with no matching webhooks."""
@@ -383,7 +383,7 @@ class TestWebhookService(unittest.TestCase):
         result = self.webhook_service.process_event(event_type, event_data)
 
         # Assert
-        self.assertEqual(result, 0)
+        assert result == 0
         self.mock_db.find_webhooks_by_event.assert_called_once_with(event_type, active_only=True)
 
     def test_process_event_without_db(self):
@@ -397,4 +397,4 @@ class TestWebhookService(unittest.TestCase):
         result = webhook_service.process_event(event_type, event_data)
 
         # Assert
-        self.assertEqual(result, 0)
+        assert result == 0

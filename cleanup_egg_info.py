@@ -13,8 +13,11 @@ def cleanup_egg_info() -> None:
     count = 0
     for egg_info in glob.glob("**/*.egg-info", recursive=True):
         logging.info(f"Removing: {egg_info}")
-        shutil.rmtree(egg_info)
-        count += 1
+        try:
+            shutil.rmtree(egg_info)
+            count += 1
+        except OSError as e:
+            logging.error(f"Error removing {egg_info}: {e}")
 
     if count > 0:
         logging.info(f"Removed {count} .egg-info directories.")

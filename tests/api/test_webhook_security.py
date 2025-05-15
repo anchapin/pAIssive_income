@@ -23,8 +23,8 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         signature = self.verifier.create_signature(self.payload, self.secret)
 
         # Assert
-        self.assertIsInstance(signature, str)
-        self.assertTrue(len(signature) > 0)
+        assert isinstance(signature, str)
+        assert len(signature) > 0
 
     def test_verify_signature_valid(self):
         """Test verifying a valid signature."""
@@ -35,7 +35,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, signature, self.secret)
 
         # Assert
-        self.assertTrue(result)
+        assert result
 
     def test_verify_signature_invalid(self):
         """Test verifying an invalid signature."""
@@ -47,7 +47,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, wrong_signature, self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_verify_signature_different_payload(self):
         """Test verifying a signature with a different payload."""
@@ -59,7 +59,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(different_payload, signature, self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_verify_signature_exception(self):
         """Test signature verification with invalid input causing exception."""
@@ -67,7 +67,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, None, self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_verify_signature_encoding_error(self):
         """Test signature verification with encoding error."""
@@ -75,7 +75,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, "invalid-base64!", self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     @patch("hmac.new")
     def test_verify_signature_hmac_error(self, mock_hmac_new):
@@ -87,7 +87,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, "signature", self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         mock_hmac_new.assert_called_once()
 
     @patch("base64.b64encode")
@@ -100,7 +100,7 @@ class TestWebhookSignatureVerifier(unittest.TestCase):
         result = self.verifier.verify_signature(self.payload, "signature", self.secret)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
 class TestWebhookIPAllowlist(unittest.TestCase):
     """Test suite for WebhookIPAllowlist."""
@@ -122,7 +122,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.add_ip(self.webhook_id, self.ip)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.add_ip_to_allowlist.assert_called_once_with(self.webhook_id, self.ip)
 
     def test_add_ip_without_db(self):
@@ -134,7 +134,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = allowlist.add_ip(self.webhook_id, self.ip)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_add_network_valid(self):
         """Test adding a valid network."""
@@ -145,7 +145,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.add_network(self.webhook_id, self.network)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.add_ip_to_allowlist.assert_called_once_with(self.webhook_id, self.network)
 
     def test_add_network_invalid(self):
@@ -154,7 +154,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.add_network(self.webhook_id, "invalid_network")
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         self.mock_db.add_ip_to_allowlist.assert_not_called()
 
     def test_add_network_validation_error(self):
@@ -164,7 +164,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
             result = self.allowlist.add_network(self.webhook_id, "192.168.1.256/24")
 
         # Assert
-        self.assertFalse(result)
+        assert not result
         self.mock_db.add_ip_to_allowlist.assert_not_called()
 
     def test_remove_ip(self):
@@ -176,7 +176,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.remove_ip(self.webhook_id, self.ip)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.remove_ip_from_allowlist.assert_called_once_with(self.webhook_id, self.ip)
 
     def test_remove_ip_without_db(self):
@@ -188,7 +188,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = allowlist.remove_ip(self.webhook_id, self.ip)
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_remove_network(self):
         """Test removing a network."""
@@ -199,7 +199,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.remove_network(self.webhook_id, self.network)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.remove_ip_from_allowlist.assert_called_once_with(self.webhook_id, self.network)
 
     def test_is_allowed_empty_allowlist(self):
@@ -211,7 +211,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, self.ip)
 
         # Assert
-        self.assertTrue(result)
+        assert result
         self.mock_db.get_ip_allowlist.assert_called_once_with(self.webhook_id)
 
     def test_is_allowed_ip_match(self):
@@ -223,7 +223,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, self.ip)
 
         # Assert
-        self.assertTrue(result)
+        assert result
 
     def test_is_allowed_network_match(self):
         """Test IP check with network match."""
@@ -234,7 +234,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, "192.168.1.100")
 
         # Assert
-        self.assertTrue(result)
+        assert result
 
     def test_is_allowed_no_match(self):
         """Test IP check with no match."""
@@ -245,7 +245,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, "10.0.0.1")
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_is_allowed_without_db(self):
         """Test IP check without a database connection."""
@@ -256,7 +256,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = allowlist_without_db.is_allowed(self.webhook_id, self.ip)
 
         # Assert
-        self.assertTrue(result)
+        assert result
 
     def test_is_allowed_invalid_ip(self):
         """Test IP check with invalid IP address."""
@@ -267,7 +267,7 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, "invalid-ip")
 
         # Assert
-        self.assertFalse(result)
+        assert not result
 
     def test_is_allowed_invalid_network(self):
         """Test IP check with invalid network in allowlist."""
@@ -278,4 +278,4 @@ class TestWebhookIPAllowlist(unittest.TestCase):
         result = self.allowlist.is_allowed(self.webhook_id, self.ip)
 
         # Assert
-        self.assertFalse(result)
+        assert not result

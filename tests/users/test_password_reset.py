@@ -26,14 +26,14 @@ class MockUserRepository(UserRepository):
 
     def find_by_email(self, email):
         """Find a user by email."""
-        for user_id, user in self.users.items():
+        for _, user in self.users.items():
             if user.get("email") == email:
                 return user
         return None
 
     def find_by_reset_token(self, token):
         """Find a user by reset token."""
-        for user_id, user in self.users.items():
+        for _, user in self.users.items():
             if user.get("auth_reset_token") == token:
                 return user
         return None
@@ -68,8 +68,8 @@ class TestGenerateResetCode(unittest.TestCase):
         code = generate_reset_code()
 
         # Assert
-        self.assertEqual(len(code), 32)
-        self.assertTrue(all(c.isalnum() for c in code))
+        assert len(code) == 32
+        assert all(c.isalnum() for c in code)
 
     def test_generate_reset_code_custom_length(self):
         """Test generating a reset code with custom length."""
@@ -80,8 +80,8 @@ class TestGenerateResetCode(unittest.TestCase):
         code = generate_reset_code(length)
 
         # Assert
-        self.assertEqual(len(code), length)
-        self.assertTrue(all(c.isalnum() for c in code))
+        assert len(code) == length
+        assert all(c.isalnum() for c in code)
 
     def test_generate_reset_code_uniqueness(self):
         """Test that generated reset codes are unique."""
@@ -90,7 +90,7 @@ class TestGenerateResetCode(unittest.TestCase):
         code2 = generate_reset_code()
 
         # Assert
-        self.assertNotEqual(code1, code2)
+        assert code1 != code2
 
 
 class TestPasswordResetService(unittest.TestCase):
@@ -121,8 +121,8 @@ class TestPasswordResetService(unittest.TestCase):
         service = PasswordResetService()
 
         # Assert
-        self.assertIsNone(service.user_repository)
-        self.assertEqual(service.code_expiry, 3600)  # Default is 1 hour
+        assert service.user_repository is None
+        assert service.code_expiry == 3600  # Default is 1 hour
 
     def test_init_with_custom_values(self):
         """Test initializing with custom values."""
@@ -134,8 +134,8 @@ class TestPasswordResetService(unittest.TestCase):
         service = PasswordResetService(user_repository=repo, code_expiry=expiry)
 
         # Assert
-        self.assertEqual(service.user_repository, repo)
-        self.assertEqual(service.code_expiry, expiry)
+        assert service.user_repository == repo
+        assert service.code_expiry == expiry
 
     @patch('users.password_reset.generate_reset_code')
     @patch('users.password_reset.datetime')
@@ -157,22 +157,22 @@ class TestPasswordResetService(unittest.TestCase):
         success, masked_code = self.service.request_reset(email)
 
         # Assert
-        self.assertTrue(success)
+        assert success
         # The actual masked code length depends on the reset_code length (48 chars in the implementation)
         # Just check that it starts with "te" and ends with "de" and has asterisks in between
-        self.assertTrue(masked_code.startswith("te"))
-        self.assertTrue(masked_code.endswith("de"))
-        self.assertTrue("*" in masked_code)
+        assert masked_code.startswith("te")
+        assert masked_code.endswith("de")
+        assert "*" in masked_code
 
         # Check that the user was updated correctly
         updates = self.user_repository.updates.get(1, [])
-        self.assertEqual(len(updates), 1)
+        assert len(updates) == 1
 
         # Check that the reset token was hashed
         import hashlib
         expected_hash = hashlib.sha256(reset_code.encode()).hexdigest()
-        self.assertEqual(updates[0]["auth_reset_token"], expected_hash)
-        self.assertEqual(updates[0]["auth_reset_expires"], expiry.isoformat())
+        assert updates[0]["auth_reset_token"] == expected_hash
+        assert updates[0]["auth_reset_expires"] == expiry.isoformat()
 
     def test_request_reset_no_repository(self):
         """Test requesting a reset with no repository."""
@@ -183,8 +183,8 @@ class TestPasswordResetService(unittest.TestCase):
         success, masked_code = service.request_reset("test@example.com")
 
         # Assert
-        self.assertFalse(success)
-        self.assertIsNone(masked_code)
+        assert not success
+        assert masked_code is None
 
     def test_request_reset_user_not_found(self):
         """Test requesting a reset for a non-existent user."""
@@ -196,8 +196,8 @@ class TestPasswordResetService(unittest.TestCase):
             success, masked_code = self.service.request_reset(email)
 
         # Assert
-        self.assertFalse(success)
-        self.assertIsNone(masked_code)
+        assert not success
+        assert masked_code is None
         mock_sleep.assert_called_once_with(0.2)  # Check that sleep was called
 
     @patch('users.password_reset.hash_credential')
@@ -222,17 +222,17 @@ class TestPasswordResetService(unittest.TestCase):
         success = self.service.reset_auth_credential(reset_code, new_credential)
 
         # Assert
-        self.assertTrue(success)
+        assert success
 
         # Check that the user was updated correctly
         updates = self.user_repository.updates.get(1, [])
-        self.assertEqual(len(updates), 2)  # First update for setup, second for reset
+        assert len(updates) == 2  # First update for setup, second for reset
 
         # Check the second update (the actual reset)
-        self.assertEqual(updates[1]["auth_hash"], hashed_credential)
-        self.assertIsNone(updates[1]["auth_reset_token"])
-        self.assertIsNone(updates[1]["auth_reset_expires"])
-        self.assertIsNotNone(updates[1]["updated_at"])
+        assert updates[1]["auth_hash"] == hashed_credential
+        assert updates[1]["auth_reset_token"] is None
+        assert updates[1]["auth_reset_expires"] is None
+        assert updates[1]["updated_at"] is not None
 
     def test_reset_auth_credential_no_repository(self):
         """Test resetting a credential with no repository."""
@@ -243,7 +243,7 @@ class TestPasswordResetService(unittest.TestCase):
         success = service.reset_auth_credential("code", "new_password")
 
         # Assert
-        self.assertFalse(success)
+        assert not success
 
     def test_reset_auth_credential_invalid_code(self):
         """Test resetting a credential with an invalid code."""
@@ -255,7 +255,7 @@ class TestPasswordResetService(unittest.TestCase):
         success = self.service.reset_auth_credential(reset_code, new_credential)
 
         # Assert
-        self.assertFalse(success)
+        assert not success
 
     def test_reset_auth_credential_expired_code(self):
         """Test resetting a credential with an expired code."""
@@ -276,7 +276,7 @@ class TestPasswordResetService(unittest.TestCase):
         success = self.service.reset_auth_credential(reset_code, new_credential)
 
         # Assert
-        self.assertFalse(success)
+        assert not success
 
     def test_reset_auth_credential_no_expiry(self):
         """Test resetting a credential with no expiry date."""
@@ -296,4 +296,4 @@ class TestPasswordResetService(unittest.TestCase):
         success = self.service.reset_auth_credential(reset_code, new_credential)
 
         # Assert
-        self.assertFalse(success)
+        assert not success

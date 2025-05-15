@@ -588,7 +588,7 @@ def handle_audit(args: argparse.Namespace) -> None:
                 logger.error(f"Output directory not found: {output_dir}")
                 sys.exit(1)
 
-        exclude_dirs = set(args.exclude) if args.exclude else None
+        exclude_dirs = args.exclude if args.exclude else None
         auditor = SecretsAuditor(exclude_dirs=exclude_dirs)
 
         logger.info(
@@ -601,7 +601,11 @@ def handle_audit(args: argparse.Namespace) -> None:
         )
 
         try:
-            auditor.audit(args.directory, args.output, args.json)
+            auditor.audit(
+                directory=args.directory,
+                output_file=args.output,
+                output_format="text" if not args.json else "json"
+            )
             logger.info("Audit completed successfully")
         except Exception as e:
             logger.exception("Audit failed", extra={"error": str(e)})
@@ -661,17 +665,14 @@ def _handle_rotate_secret(
         masked_key: Masked key for logging
     """
     # SECURITY FIX: Always prompt for secret value
-    logger.info("Getting new secret value", extra={"key": masked_key})
     value = get_secret_value(args.key)
     if value is None:
         sys.exit(1)
 
-    if rotation.rotate_secret(args.key, value):
-        logger.info("Secret rotated", extra={"key": masked_key})
+    if rotation.rotate_secret(args.key):
         logger.info(f"Rotated secret {masked_key}")
     else:
         failed_attempts["rotation"] = failed_attempts.get("rotation", 0) + 1
-        logger.error("Failed to rotate secret", extra={"key": masked_key})
         logger.error(f"Failed to rotate secret {masked_key}")
         sys.exit(1)
 
@@ -684,14 +685,12 @@ def _handle_rotate_all(rotation: SecretRotation) -> None:
     """
     count, rotated = rotation.rotate_all_due()
     if count > 0:
-        logger.info(f"Rotated {count} secrets")
         logger.info(f"Rotated {count} secrets:")
         for key in rotated:
             # Mask key names in output
             masked_key = mask_sensitive_data(key)
             logger.info(f"  {masked_key}")
     else:
-        logger.info("No secrets due for rotation")
         logger.info("No secrets due for rotation")
 
 
@@ -701,16 +700,14 @@ def _handle_list_due(rotation: SecretRotation) -> None:
     Args:
         rotation: The SecretRotation instance
     """
-    due = rotation.get_secrets_due_for_rotation()
+    due = rotation.get_due_secrets()
     if due:
-        logger.info(f"Found {len(due)} secrets due for rotation")
         logger.info(f"Found {len(due)} secrets due for rotation:")
         for key in due:
             # Mask key names in output
             masked_key = mask_sensitive_data(key)
             logger.info(f"  {masked_key}")
     else:
-        logger.info("No secrets due for rotation")
         logger.info("No secrets due for rotation")
 
 
@@ -721,7 +718,7 @@ def _handle_unknown_rotation_command(command: str) -> None:
         command: The unknown command
     """
     logger.error("Unknown rotation command", extra={"command": command})
-    logger.error("Unknown rotation command")
+    logger.error(f"Unknown rotation command: {command}")
     sys.exit(1)
 
 

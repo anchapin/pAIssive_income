@@ -5,7 +5,6 @@ import base64
 import hashlib
 import hmac
 import ipaddress
-from typing import List, Optional, Union
 
 # Third-party imports
 
@@ -55,8 +54,8 @@ class WebhookSignatureVerifier:
 
             # Compare signatures using constant-time comparison
             return hmac.compare_digest(signature, expected_signature)
-        except Exception as e:
-            logger.error(f"Signature verification failed: {str(e)}")
+        except Exception:
+            logger.exception("Signature verification failed")
             return False
 
 
@@ -102,9 +101,10 @@ class WebhookIPAllowlist:
             # Add to the allowlist
             if self.db:
                 return self.db.add_ip_to_allowlist(webhook_id, network)
-            return False
+            else:
+                return False
         except ValueError:
-            logger.error(f"Invalid network format: {network}")
+            logger.exception("Invalid network format")
             return False
 
     def remove_ip(self, webhook_id: str, ip: str) -> bool:
@@ -172,7 +172,7 @@ class WebhookIPAllowlist:
                 except ValueError:
                     continue
         except ValueError:
-            logger.error(f"Invalid IP address format: {ip}")
+            logger.exception("Invalid IP address format")
             return False
 
         return False

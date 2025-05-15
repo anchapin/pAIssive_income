@@ -2,10 +2,10 @@
 
 # Standard library imports
 import functools
-from typing import Any, Callable, Dict, Type, TypeVar
+from typing import Callable, Type, TypeVar
 
 # Third-party imports
-from pydantic import BaseModel, ValidationError as PydanticValidationError
+from pydantic import BaseModel
 
 # Local imports
 from common_utils.logging import get_logger
@@ -31,7 +31,7 @@ def validate_request_body(model_class: Type[T]) -> Callable:
         async def wrapper(request, *args, **kwargs):
             try:
                 # Get the request body as JSON
-                request_data = await request.json()
+                request_data = await request.get_json()
 
                 # Validate the request data against the model
                 model_instance = validate_input(model_class, request_data)
@@ -41,12 +41,12 @@ def validate_request_body(model_class: Type[T]) -> Callable:
 
             except ValidationError as e:
                 # Return a validation error response
-                logger.warning(f"Validation error: {str(e)}")
+                logger.warning(f"Validation error: {e!s}")
                 return validation_error_response(e)
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {str(e)}")
+                logger.error(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {
@@ -84,12 +84,12 @@ def validate_query_params(model_class: Type[T]) -> Callable:
 
             except ValidationError as e:
                 # Return a validation error response
-                logger.warning(f"Query parameter validation error: {str(e)}")
+                logger.warning(f"Query parameter validation error: {e!s}")
                 return validation_error_response(e)
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {str(e)}")
+                logger.error(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {
@@ -127,12 +127,12 @@ def validate_path_params(model_class: Type[T]) -> Callable:
 
             except ValidationError as e:
                 # Return a validation error response
-                logger.warning(f"Path parameter validation error: {str(e)}")
+                logger.warning(f"Path parameter validation error: {e!s}")
                 return validation_error_response(e)
 
             except Exception as e:
                 # Handle other exceptions
-                logger.error(f"Error processing request: {str(e)}")
+                logger.error(f"Error processing request: {e!s}")
                 return {
                     "errors": [
                         {

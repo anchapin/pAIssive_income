@@ -84,13 +84,13 @@ def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, Logger]:
     """
     if name in _logger_cache:
         return _logger_cache[name]
-        
+
     if secure:
         logger = SecureLogger(name)
     else:
         logger = logging.getLogger(name)
         logger.setLevel(logging.INFO)
-        
+
     _logger_cache[name] = logger
     return logger
 

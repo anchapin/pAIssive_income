@@ -2,21 +2,22 @@
 
 import pytest
 from flask import Flask
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from unittest.mock import patch
 
 from app_flask import db
-from app_flask.models import Agent, Team, User
+from app_flask.models import Agent, Team, User, UserProfile
 
 
 @pytest.fixture
 def app():
     """Create a Flask app for testing."""
-    app = Flask(__name__)
-    app.config.update({
+    from app_flask import create_app
+    app = create_app({
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "TESTING": True,
     })
-    db.init_app(app)
     with app.app_context():
         db.create_all()
         yield app
@@ -348,6 +349,33 @@ def test_user_model(app):
         assert user.email == "test@example.com"
         assert user.password_hash == "hashed_password"
 
+        # Test to_dict method
+        user_dict = user.to_dict()
+        assert user_dict["username"] == "testuser"
+        assert user_dict["email"] == "test@example.com"
+        assert "password_hash" not in user_dict
+        assert "created_at" in user_dict
+        assert "updated_at" in user_dict
+
+        # Test from_dict method
+        new_user_data = {
+            "username": "newuser",
+            "email": "new@example.com",
+            "password_hash": "new_hash",
+            "is_admin": True,
+            "is_active": False
+        }
+        new_user = User.from_dict(new_user_data)
+        assert new_user.username == "newuser"
+        assert new_user.email == "new@example.com"
+        assert new_user.password_hash == "new_hash"
+        assert new_user.is_admin == "true"  # String-based boolean
+        assert new_user.is_active == "false"  # String-based boolean
+
+        # Test update_last_login method
+        user.update_last_login()
+        assert user.last_login is not None
+
 
 def test_team_model(app):
     """Test the Team model."""
@@ -418,3 +446,105 @@ def test_team_agent_relationship(app):
         # Query an agent and check its team
         agent = Agent.query.filter_by(name="Agent 1").first()
         assert agent.team.name == "Test Team"
+
+
+def test_user_profile_model(app):
+    """Test the UserProfile model."""
+    with app.app_context():
+        # Create a user
+        user = User(
+            username="profileuser",
+            email="profile@example.com",
+            password_hash="hashed_password",
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Create a profile for the user
+        profile = UserProfile(
+            user=user,
+            first_name="Test",
+            last_name="User",
+            bio="Test bio",
+            avatar_url="https://example.com/avatar.jpg"
+        )
+        db.session.add(profile)
+        db.session.commit()
+
+        # Query the profile
+        retrieved_profile = UserProfile.query.filter_by(user_id=user.id).first()
+        assert retrieved_profile is not None
+        assert retrieved_profile.first_name == "Test"
+        assert retrieved_profile.last_name == "User"
+        assert retrieved_profile.bio == "Test bio"
+        assert retrieved_profile.avatar_url == "https://example.com/avatar.jpg"
+        assert retrieved_profile.user_id == user.id
+
+        # Test the relationship from user to profile
+        assert user.profile is not None
+        assert user.profile.first_name == "Test"
+
+        # Test to_dict method
+        profile_dict = retrieved_profile.to_dict()
+        assert profile_dict["first_name"] == "Test"
+        assert profile_dict["last_name"] == "User"
+        assert profile_dict["bio"] == "Test bio"
+        assert profile_dict["avatar_url"] == "https://example.com/avatar.jpg"
+        assert "created_at" in profile_dict
+        assert "updated_at" in profile_dict
+
+        # Test user.to_dict with include_profile=True
+        user_dict = user.to_dict(include_profile=True)
+        assert "profile" in user_dict
+        assert user_dict["profile"]["first_name"] == "Test"
+        assert user_dict["profile"]["last_name"] == "User"
+
+        # Create a new user for testing from_dict
+        new_user = User(
+            username="newprofileuser",
+            email="newprofile@example.com",
+            password_hash="hashed_password",
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Test from_dict method
+        new_profile_data = {
+            "first_name": "New",
+            "last_name": "Profile",
+            "bio": "New bio",
+            "avatar_url": "https://example.com/new_avatar.jpg"
+        }
+        new_profile = UserProfile.from_dict(new_profile_data, new_user)
+        assert new_profile.user_id == new_user.id
+        assert new_profile.first_name == "New"
+        assert new_profile.last_name == "Profile"
+        assert new_profile.bio == "New bio"
+        assert new_profile.avatar_url == "https://example.com/new_avatar.jpg"
+
+
+def test_user_update_last_login_error(app):
+    """Test the update_last_login method with a database error."""
+    with app.app_context():
+        # Create a user
+        user = User(
+            username="loginuser",
+            email="login@example.com",
+            password_hash="hashed_password",
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Import SQLAlchemyError
+        from sqlalchemy.exc import SQLAlchemyError
+
+        # Mock the db.session.commit method to raise an exception
+        with patch.object(db.session, 'commit', side_effect=SQLAlchemyError("Database error")), \
+             patch.object(db.session, 'rollback') as mock_rollback:
+
+            # Call the method and check that it handles the exception
+            with pytest.raises(SQLAlchemyError):
+                user.update_last_login()
+
+            # Check that db.session.rollback was called
+            mock_rollback.assert_called_once()

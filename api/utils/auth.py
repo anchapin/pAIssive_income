@@ -4,7 +4,7 @@ This module provides utility functions for authentication in the API.
 """
 
 # Standard library imports
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 # Third-party imports
@@ -171,7 +171,7 @@ async def verify_api_key(
     # Check if the API key is expired
     if (
         api_key_data.get("expires_at")
-        and api_key_data.get("expires_at") < datetime.now(datetime.UTC).isoformat()
+        and api_key_data.get("expires_at") < datetime.now(timezone.utc).isoformat()
     ):
         logger.warning("Expired API key")
         raise HTTPException(

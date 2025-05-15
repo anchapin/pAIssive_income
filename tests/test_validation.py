@@ -166,7 +166,7 @@ class MockRequest:
     def __init__(self, json_data: Dict[str, Any]):
         self._json = json_data
 
-    async def json(self) -> Dict[str, Any]:
+    async def get_json(self) -> Dict[str, Any]:
         return self._json
 
 

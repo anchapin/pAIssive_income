@@ -28,7 +28,7 @@ class MockFlask:
     def test_client(self):
         return MockClient(self)
 
-    def register_blueprint(self, blueprint, **kwargs):
+    def register_blueprint(self, blueprint, **_kwargs):
         self.blueprints[blueprint.name] = blueprint
 
 
@@ -137,14 +137,16 @@ def test_flask_route(mock_app, mock_client):
 
 def test_create_app_function():
     """Test the create_app function."""
-    # Test with default config
-    app = create_app()
+    # Test with custom config only to avoid connecting to real database
+    test_config = {
+        "TESTING": True,
+        "SECRET_KEY": "test_key",
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+    }
+    app = create_app(test_config)
     assert app is not None
     assert isinstance(app, Flask)
-
-    # Test with custom config
-    test_config = {"TESTING": True, "SECRET_KEY": "test_key"}
-    app = create_app(test_config)
     assert app.config["TESTING"] is True
     assert app.config["SECRET_KEY"] == "test_key"
 
@@ -259,8 +261,10 @@ class TestFlaskApp(unittest.TestCase):
 
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert data["username"] == "testuser"
-        assert data["email"] == "test@example.com"
+        assert "token" in data
+        assert "user" in data
+        assert data["user"]["username"] == "testuser"
+        assert data["user"]["email"] == "test@example.com"
 
         # Verify the mock was called with the right arguments
         mock_authenticate.assert_called_once_with(

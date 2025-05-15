@@ -2,11 +2,11 @@
 
 # Standard library imports
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict
 from urllib.parse import urlparse
 
 # Third-party imports
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import field_validator
 
 # Local imports
 from common_utils.logging import get_logger
@@ -182,21 +182,24 @@ def validate_username(username: str) -> Dict[str, Any]:
 class ValidationMixin:
     """Mixin class with common validation methods for Pydantic models."""
 
-    @validator("email")
+    @field_validator("email")
+    @classmethod
     def validate_email_field(cls, v):
         """Validate email field."""
         if not validate_email(v):
             raise ValueError("Invalid email address")
         return v
 
-    @validator("url")
+    @field_validator("url")
+    @classmethod
     def validate_url_field(cls, v):
         """Validate URL field."""
         if not validate_url(v):
             raise ValueError("Invalid URL")
         return v
 
-    @validator("username")
+    @field_validator("username")
+    @classmethod
     def validate_username_field(cls, v):
         """Validate username field."""
         result = validate_username(v)
@@ -204,7 +207,8 @@ class ValidationMixin:
             raise ValueError(", ".join(result["errors"]))
         return v
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password_field(cls, v):
         """Validate password field."""
         result = validate_password_strength(v)

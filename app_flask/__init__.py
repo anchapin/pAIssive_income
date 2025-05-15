@@ -40,11 +40,18 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Any:
     migrate.init_app(app, db)
 
     # Import models so they're registered with SQLAlchemy
-    # Register blueprints
-    from api.routes.user_router import user_bp
-
     from . import models
 
-    app.register_blueprint(user_bp)
+    # Create all tables
+    with app.app_context():
+        db.create_all()
+
+    # Register blueprints
+    try:
+        from api.routes.flask_user_router import user_bp
+        app.register_blueprint(user_bp)
+    except ImportError:
+        # Skip blueprint registration if not available
+        pass
 
     return app

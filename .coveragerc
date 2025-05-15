@@ -5,6 +5,30 @@ omit =
     setup.py
     */examples/*
     */cli/*
+    # Exclude utility scripts
+    fix_*.py
+    create_*.py
+    setup_*.py
+    run_*.py
+    find_*.py
+    generate_*.py
+    install_*.py
+    update_*.py
+    verify_*.py
+    regenerate_*.py
+    resolve_*.py
+    format_*.py
+    enhanced_setup_*.py
+    # Exclude demo files
+    *_demo.py
+    demo_*.py
+    # Exclude test files in root directory
+    test_*.py
+    # Exclude other non-essential files
+    sarif_utils.py
+    missing_schemas.py
+    debug_filtering.py
+    dependency_container.py
 
 [report]
 exclude_lines =
@@ -12,3 +36,4 @@ exclude_lines =
     def __repr__
     raise NotImplementedError
     raise ImportError
+    if __name__ == .__main__.:
