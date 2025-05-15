@@ -66,12 +66,21 @@ jobs:
           # Start React server in background
           nohup pnpm start -- --port=3000 &
 
-          # Wait for server to start
+          # Wait for server to start with a loop that checks if it's up
           echo "Waiting for React server to start..."
-          sleep 20
-          # Check if the server is responding
-          echo "Checking if React server is up..."
-          curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"
+          for i in {1..30}; do
+            if curl --silent --fail http://localhost:3000/; then
+              echo "React server is ready."
+              break
+            fi
+            echo "Waiting for React server to be ready... (Attempt $i/30)"
+            sleep 1
+          done
+
+          if ! curl --silent --fail http://localhost:3000/; then
+            echo "React server failed to start within 30 seconds."
+            exit 1
+          fi
 
       - name: Run Playwright E2E tests
         shell: bash

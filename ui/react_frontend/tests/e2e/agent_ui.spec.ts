@@ -3,6 +3,37 @@ import { test, expect } from '@playwright/test';
 // Adjust this URL if your dev server runs elsewhere
 const BASE_URL = 'http://localhost:3000';
 
+// Helper function to mock the agent API
+async function mockAgentApi(page) {
+  await page.route('/api/agent', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 1,
+        name: 'Test Agent',
+        description: 'This is a test agent for e2e testing'
+      })
+    });
+  });
+}
+
+// Helper function to mock the agent action API
+async function mockAgentActionApi(page) {
+  await page.route('/api/agent/action', async (route, request) => {
+    const postData = request.postDataJSON();
+    if (process.env.DEBUG === 'true') {
+      console.log('Action received:', postData);
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: 'success', action_id: 123 })
+    });
+  });
+}
+
 test.describe('AgentUI Integration', () => {
   // Add a hook to capture screenshots on test failure
   test.afterEach(async ({ page }, testInfo) => {
@@ -43,18 +74,8 @@ test.describe('AgentUI Integration', () => {
     const headings = await page.locator('h1, h2, h3, h4, h5, h6').count();
     console.log('Number of headings found:', headings);
 
-    // Mock the API response for /api/agent
-    await page.route('/api/agent', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 1,
-          name: 'Test Agent',
-          description: 'This is a test agent for e2e testing'
-        })
-      });
-    });
+    // Mock the API response for /api/agent using the helper function
+    await mockAgentApi(page);
 
     // Reload the page to trigger the API call with our mock
     await page.reload();
@@ -90,8 +111,16 @@ test.describe('AgentUI Integration', () => {
     // Take a screenshot for visual verification
     await page.screenshot({ path: 'agent-ui-component.png', fullPage: true });
 
-    // Simple assertion that always passes
-    expect(true).toBeTruthy();
+    // Assert that the "Agent UI Integration" section is present
+    expect(await page.locator('h6:has-text("Agent UI Integration")').count()).toBeGreaterThan(0);
+
+    // Assert that the agent's name and description are visible
+    expect(await page.locator('text="Test Agent"').count()).toBeGreaterThan(0);
+    expect(await page.locator('text="This is a test agent for e2e testing"').count()).toBeGreaterThan(0);
+
+    // Assert that the "Help" and "Start" buttons are present
+    expect(await page.locator('button:has-text("Help")').count()).toBeGreaterThan(0);
+    expect(await page.locator('button:has-text("Start")').count()).toBeGreaterThan(0);
   });
 
   test('AgentUI buttons trigger actions', async ({ page }) => {
@@ -104,30 +133,9 @@ test.describe('AgentUI Integration', () => {
     // Take a screenshot to see what's actually on the page
     await page.screenshot({ path: 'about-page-buttons-test.png', fullPage: true });
 
-    // Mock the API response for /api/agent
-    await page.route('/api/agent', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 1,
-          name: 'Test Agent',
-          description: 'This is a test agent for e2e testing'
-        })
-      });
-    });
-
-    // Mock the API response for /api/agent/action
-    await page.route('/api/agent/action', async (route, request) => {
-      const postData = request.postDataJSON();
-      console.log('Action received:', postData);
-
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ status: 'success', action_id: 123 })
-      });
-    });
+    // Mock the API responses using helper functions
+    await mockAgentApi(page);
+    await mockAgentActionApi(page);
 
     // Reload the page to trigger the API call with our mock
     await page.reload();
@@ -153,7 +161,15 @@ test.describe('AgentUI Integration', () => {
       }
     }
 
-    // Simple assertion that always passes
-    expect(true).toBeTruthy();
+    // Assert that the "Agent UI Integration" section is present
+    expect(await page.locator('h6:has-text("Agent UI Integration")').count()).toBeGreaterThan(0);
+
+    // Assert that the agent's name and description are visible
+    expect(await page.locator('text="Test Agent"').count()).toBeGreaterThan(0);
+    expect(await page.locator('text="This is a test agent for e2e testing"').count()).toBeGreaterThan(0);
+
+    // Assert that the "Help" and "Start" buttons are present
+    expect(await page.locator('button:has-text("Help")').count()).toBeGreaterThan(0);
+    expect(await page.locator('button:has-text("Start")').count()).toBeGreaterThan(0);
   });
 });
