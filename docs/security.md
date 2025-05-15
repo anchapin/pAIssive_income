@@ -5,6 +5,13 @@ This document outlines security measures, fixes, and procedures implemented in t
 
 ## Recent Security Fixes
 
+### Subprocess Security (May 2025)
+- Added input validation for all subprocess calls
+- Implemented absolute path resolution using `shutil.which()`
+- Added checks for shell metacharacters to prevent command injection
+- Fixed security issues in `install_mcp_sdk.py`, `setup_dev_environment.py`, and `enhanced_setup_dev_environment.py`
+- All subprocess calls use `shell=False` to prevent shell injection attacks
+
 ### ResearchAgent Attribute Access
 - Implemented secure attribute access using `self._name`
 - Added input validation for all attributes
@@ -55,6 +62,9 @@ This document outlines security measures, fixes, and procedures implemented in t
 3. Input validation required for all external data
 4. Use secure defaults for all configurations
 5. Explicit imports only (no * imports)
+6. Never use `shell=True` with subprocess calls
+7. Always validate command arguments for subprocess calls
+8. Use absolute paths for executables when possible
 
 ### Development Workflow
 1. Security review required for all PRs
