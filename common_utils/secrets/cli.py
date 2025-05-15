@@ -355,7 +355,7 @@ def handle_get(args: argparse.Namespace) -> None:
                     except ImportError:
                         logger.warning(
                             "pyperclip package not installed. "
-                            "Install with: pip install pyperclip"
+                            "Install with: uv pip install pyperclip"
                         )
                 else:
                     logger.info("Operation cancelled.")

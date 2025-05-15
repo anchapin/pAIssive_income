@@ -278,21 +278,10 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
         # Check if the command exists before running it
         if command and command[0] in ["ruff"]:  # Removed "black" and "isort"
             try:
-                # Use shell=True on Windows to find commands in PATH
-                shell = sys.platform == "win32"
-
-                # For Windows, use where command to check if tool exists
-                check_cmd = ["where", command[0]] if shell else ["which", command[0]]
-
-                result = subprocess.run(
-                    check_cmd,
-                    capture_output=True,
-                    text=True,
-                    shell=shell,
-                    check=False,
-                )
-
-                if result.returncode != 0:
+                # Use shutil.which to find commands in PATH safely
+                import shutil
+                cmd_path = shutil.which(command[0])
+                if cmd_path is None:
                     logger.warning(f"Command not found: {command[0]}")
                     return 0, "", f"Command '{command[0]}' not found. Skipped."
 
@@ -300,8 +289,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
                 logger.exception(f"Tool check failed: {command[0]}")
                 return 0, "", f"Command '{command[0]}' not found. Skipped."
 
-        # Use shell=True on Windows to find commands in PATH
-        shell = sys.platform == "win32"
+        # Always use shell=False for security
 
         # Log command for debugging
         cmd_str = " ".join(command)
@@ -313,7 +301,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
                 command,
                 capture_output=True,
                 text=True,
-                shell=shell,
+                shell=False,  # Always use shell=False for security
                 check=False,  # Don't raise exception on non-zero exit
             )
         except Exception:
@@ -324,7 +312,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                shell=shell,
+                shell=False,  # Always use shell=False for security
             )
             stdout, stderr = process.communicate()
             return process.returncode, stdout, stderr

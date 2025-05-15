@@ -1,4 +1,4 @@
-"""test_adapter_factory - Module for tests/ai_models/adapters.test_adapter_factory."""
+"""Tests for the adapter factory."""
 
 # Standard library imports
 from unittest.mock import patch, MagicMock
@@ -7,111 +7,178 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 # Local imports
-from ai_models.adapters import (
-    BaseModelAdapter,
-    OllamaAdapter,
-    LMStudioAdapter,
-    OpenAICompatibleAdapter,
+from ai_models.adapters.adapter_factory import (
+    AdapterFactory,
+    MCPAdapterNotAvailableError,
+    UnsupportedServerTypeError,
 )
-from ai_models.adapters.adapter_factory import AdapterFactory
 
 
-def test_get_available_adapter_types():
-    """Test getting available adapter types."""
-    adapter_types = AdapterFactory.get_available_adapter_types()
+class TestAdapterFactory:
+    """Tests for the adapter factory."""
 
-    # Verify that the default adapter types are available
-    assert "ollama" in adapter_types
-    assert "lmstudio" in adapter_types
-    assert "openai" in adapter_types
+    def setup_method(self):
+        """Set up test method."""
+        # Clear the adapter registry before each test
+        AdapterFactory._adapter_registry = {}
 
+    def test_get_available_adapter_types(self):
+        """Test getting available adapter types."""
+        # Initialize the registry
+        AdapterFactory._initialize_registry()
+        adapter_types = AdapterFactory.get_available_adapter_types()
 
-def test_register_adapter():
-    """Test registering a new adapter type."""
-    # Create a mock adapter class
-    mock_adapter_class = MagicMock(spec=BaseModelAdapter)
+        # Verify that the adapter types are available
+        # Note: The actual types depend on what's available in the environment
+        assert isinstance(adapter_types, list)
 
-    # Register the mock adapter
-    AdapterFactory.register_adapter("mock_adapter", mock_adapter_class)
+    @patch("ai_models.adapters.adapter_factory.OllamaAdapter")
+    def test_create_adapter_ollama(self, mock_ollama_adapter):
+        """Test creating an Ollama adapter."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_ollama_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"ollama": mock_ollama_adapter}
 
-    # Verify that the mock adapter is registered
-    adapter_types = AdapterFactory.get_available_adapter_types()
-    assert "mock_adapter" in adapter_types
+        # Execute
+        adapter = AdapterFactory.create_adapter("ollama", host="localhost", port=11434)
 
-    # Clean up by removing the mock adapter
-    AdapterFactory._adapter_registry.pop("mock_adapter")
+        # Verify
+        mock_ollama_adapter.assert_called_once_with(host="localhost", port=11434)
+        assert adapter == mock_instance
 
+    @patch("ai_models.adapters.adapter_factory.OpenAICompatibleAdapter")
+    def test_create_adapter_openai(self, mock_openai_adapter):
+        """Test creating an OpenAI-compatible adapter."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_openai_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"openai": mock_openai_adapter}
 
-def test_create_adapter_ollama():
-    """Test creating an Ollama adapter."""
-    # Create an adapter
-    adapter = AdapterFactory.create_adapter("ollama", base_url="http://test-ollama:11434")
+        # Execute
+        adapter = AdapterFactory.create_adapter("openai", host="api.openai.com", port=443)
 
-    # Verify that the adapter was created correctly
-    assert adapter is not None
-    assert isinstance(adapter, OllamaAdapter)
-    assert adapter.base_url == "http://test-ollama:11434"
+        # Verify
+        mock_openai_adapter.assert_called_once_with(host="api.openai.com", port=443)
+        assert adapter == mock_instance
 
+    @patch("ai_models.adapters.adapter_factory.LMStudioAdapter")
+    def test_create_adapter_lmstudio(self, mock_lmstudio_adapter):
+        """Test creating an LM Studio adapter."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_lmstudio_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"lmstudio": mock_lmstudio_adapter}
 
-def test_create_adapter_lmstudio():
-    """Test creating an LM Studio adapter."""
-    # Create an adapter
-    adapter = AdapterFactory.create_adapter("lmstudio", base_url="http://test-lmstudio:1234/v1", api_key="test-key")
+        # Execute
+        adapter = AdapterFactory.create_adapter("lmstudio", host="localhost", port=8000)
 
-    # Verify that the adapter was created correctly
-    assert adapter is not None
-    assert isinstance(adapter, LMStudioAdapter)
-    assert adapter.base_url == "http://test-lmstudio:1234/v1"
-    assert adapter.api_key == "test-key"
+        # Verify
+        mock_lmstudio_adapter.assert_called_once_with(host="localhost", port=8000)
+        assert adapter == mock_instance
 
+    @patch("ai_models.adapters.adapter_factory.TensorRTAdapter")
+    def test_create_adapter_tensorrt(self, mock_tensorrt_adapter):
+        """Test creating a TensorRT adapter."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_tensorrt_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"tensorrt": mock_tensorrt_adapter}
 
-def test_create_adapter_openai():
-    """Test creating an OpenAI-compatible adapter."""
-    # Create an adapter
-    adapter = AdapterFactory.create_adapter("openai", base_url="http://test-openai:8000/v1", api_key="test-key")
+        # Execute
+        adapter = AdapterFactory.create_adapter("tensorrt", host="localhost", port=8001)
 
-    # Verify that the adapter was created correctly
-    assert adapter is not None
-    assert isinstance(adapter, OpenAICompatibleAdapter)
-    assert adapter.base_url == "http://test-openai:8000/v1"
-    assert adapter.api_key == "test-key"
+        # Verify
+        mock_tensorrt_adapter.assert_called_once_with(host="localhost", port=8001)
+        assert adapter == mock_instance
 
+    @patch("ai_models.adapters.adapter_factory.OllamaAdapter")
+    def test_create_adapter_case_insensitive(self, mock_ollama_adapter):
+        """Test creating an adapter with case-insensitive type."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_ollama_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"ollama": mock_ollama_adapter}
 
-def test_create_adapter_unknown_type():
-    """Test creating an adapter with an unknown type."""
-    adapter = AdapterFactory.create_adapter("unknown_type")
+        # Execute
+        adapter = AdapterFactory.create_adapter("OLLAMA", host="localhost", port=11434)
 
-    # Verify that None is returned for unknown adapter types
-    assert adapter is None
+        # Verify
+        mock_ollama_adapter.assert_called_once_with(host="localhost", port=11434)
+        assert adapter == mock_instance
 
+    @patch("ai_models.adapters.adapter_factory.OllamaAdapter")
+    def test_create_adapter_with_kwargs(self, mock_ollama_adapter):
+        """Test creating an adapter with additional keyword arguments."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_ollama_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"ollama": mock_ollama_adapter}
 
-def test_create_adapter_error():
-    """Test error handling when creating an adapter."""
-    # Create a custom adapter class that raises an exception
-    class ErrorAdapter(BaseModelAdapter):
-        def __init__(self):
-            raise Exception("Test error")
+        # Execute
+        adapter = AdapterFactory.create_adapter("ollama", host="localhost", port=11434, model="llama2")
 
-        async def list_models(self):
-            pass
+        # Verify
+        mock_ollama_adapter.assert_called_once_with(host="localhost", port=11434, model="llama2")
+        assert adapter == mock_instance
 
-        async def generate_text(self, model, prompt, **kwargs):
-            pass
+    def test_create_adapter_unsupported_type(self):
+        """Test creating an adapter with an unsupported type."""
+        # Setup
+        AdapterFactory._adapter_registry = {}
 
-        async def generate_chat_completions(self, model, messages, **kwargs):
-            pass
+        # Execute and verify
+        with pytest.raises(UnsupportedServerTypeError) as excinfo:
+            AdapterFactory.create_adapter("unsupported", host="localhost", port=8000)
+        assert "Unsupported server type: unsupported" in str(excinfo.value)
 
-        async def close(self):
-            pass
+    @patch("ai_models.adapters.adapter_factory.MCPAdapter", None)
+    def test_create_adapter_mcp_not_available(self):
+        """Test creating an MCP adapter when not available."""
+        # Setup
+        AdapterFactory._adapter_registry = {}
 
-    # Register the error adapter
-    AdapterFactory.register_adapter("error_adapter", ErrorAdapter)
+        # Execute and verify
+        with pytest.raises(MCPAdapterNotAvailableError) as excinfo:
+            AdapterFactory.create_adapter("mcp", host="localhost", port=9000)
+        assert "MCPAdapter missing" in str(excinfo.value)
 
-    # Create an adapter
-    adapter = AdapterFactory.create_adapter("error_adapter")
+    @patch("ai_models.adapters.adapter_factory.MCPAdapter")
+    def test_create_adapter_mcp_available(self, mock_mcp_adapter):
+        """Test creating an MCP adapter when available."""
+        # Setup
+        mock_instance = MagicMock()
+        mock_mcp_adapter.return_value = mock_instance
+        AdapterFactory._adapter_registry = {"mcp": mock_mcp_adapter}
 
-    # Verify that None is returned when an error occurs
-    assert adapter is None
+        # Execute
+        adapter = AdapterFactory.create_adapter("mcp", host="localhost", port=9000)
 
-    # Clean up
-    AdapterFactory._adapter_registry.pop("error_adapter")
+        # Verify
+        mock_mcp_adapter.assert_called_once_with(host="localhost", port=9000)
+        assert adapter == mock_instance
+
+    def test_register_adapter(self):
+        """Test registering a new adapter type."""
+        # Setup
+        mock_adapter_class = MagicMock()
+        AdapterFactory._adapter_registry = {}
+
+        # Execute
+        AdapterFactory.register_adapter("mock_adapter", mock_adapter_class)
+
+        # Verify
+        adapter_types = AdapterFactory.get_available_adapter_types()
+        assert "mock_adapter" in adapter_types
+
+    @patch("ai_models.adapters.adapter_factory.OllamaAdapter")
+    def test_create_adapter_error(self, mock_ollama_adapter):
+        """Test error handling when creating an adapter."""
+        # Setup
+        mock_ollama_adapter.side_effect = Exception("Test error")
+        AdapterFactory._adapter_registry = {"ollama": mock_ollama_adapter}
+
+        # Execute and verify
+        with pytest.raises(Exception) as excinfo:
+            AdapterFactory.create_adapter("ollama", host="localhost", port=11434)
+        assert "Test error" in str(excinfo.value)

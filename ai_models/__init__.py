@@ -1,7 +1,9 @@
 """__init__ - Module for ai_models.__init__."""
 
 # Standard library imports
+import contextlib
 import logging
+from typing import Any, Optional, Type
 
 # Third-party imports
 try:
@@ -14,18 +16,39 @@ except ImportError:
     logging.warning("aiohttp not available, using mock implementations")
 
 # Local imports
+
+# Define variables that will be populated when importing adapters
+BaseModelAdapter: Optional[Any] = None
+OllamaAdapter: Optional[Any] = None
+OpenAICompatibleAdapter: Optional[Any] = None
+LMStudioAdapter: Optional[Any] = None
+TensorRTAdapter: Optional[Any] = None
+MCPAdapter: Optional[Any] = None
+AdapterFactory: Optional[Any] = None
+AdapterError: Optional[Type[Exception]] = None
+ModelContextProtocolError: Optional[Type[Exception]] = None
+
+# Check if aiohttp is available before importing adapters
 if AIOHTTP_AVAILABLE:
-    try:
+    # Use contextlib.suppress instead of try-except-pass
+    with contextlib.suppress(ImportError):
+        # Import adapters
         from .adapters import (
             BaseModelAdapter,
             OllamaAdapter,
-            LMStudioAdapter,
             OpenAICompatibleAdapter,
+            LMStudioAdapter,
+            TensorRTAdapter,
+            MCPAdapter,
             AdapterFactory,
+            AdapterError,
+            ModelContextProtocolError,
         )
-    except ImportError as e:
-        logging.warning(f"Error importing adapters: {e}")
-        # Use mock implementations
+else:
+    # Log warning about using mock implementations
+    logging.warning("Using mock adapters due to missing aiohttp")
+    # Import mock adapters
+    with contextlib.suppress(ImportError):
         from .mock_adapters import (
             MockBaseModelAdapter as BaseModelAdapter,
             MockOllamaAdapter as OllamaAdapter,
@@ -33,20 +56,20 @@ if AIOHTTP_AVAILABLE:
             MockOpenAICompatibleAdapter as OpenAICompatibleAdapter,
             MockAdapterFactory as AdapterFactory,
         )
-else:
-    # Use mock implementations
-    from .mock_adapters import (
-        MockBaseModelAdapter as BaseModelAdapter,
-        MockOllamaAdapter as OllamaAdapter,
-        MockLMStudioAdapter as LMStudioAdapter,
-        MockOpenAICompatibleAdapter as OpenAICompatibleAdapter,
-        MockAdapterFactory as AdapterFactory,
-    )
 
+# Version information
+from .version import __version__
+
+# Define what should be exported
 __all__ = [
-    'AdapterFactory',
-    'BaseModelAdapter',
-    'LMStudioAdapter',
-    'OllamaAdapter',
-    'OpenAICompatibleAdapter',
+    "AdapterError",
+    "AdapterFactory",
+    "BaseModelAdapter",
+    "LMStudioAdapter",
+    "MCPAdapter",
+    "ModelContextProtocolError",
+    "OllamaAdapter",
+    "OpenAICompatibleAdapter",
+    "TensorRTAdapter",
+    "__version__",
 ]

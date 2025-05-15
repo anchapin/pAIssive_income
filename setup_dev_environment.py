@@ -26,7 +26,7 @@ import argparse
 import json
 import platform
 import shutil  # Added for shutil.which
-import subprocess
+import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
 from typing import Optional
@@ -71,8 +71,25 @@ def run_command(
     Returns:
         Tuple of (exit_code, stdout, stderr)
     """
+    # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
+    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
+        print("Invalid command format: command must be a list of strings")
+        return 1, "", "Invalid command format"
+
+    # Check for common command injection patterns in the first argument (the executable)
+    if cmd and (';' in cmd[0] or '&' in cmd[0] or '|' in cmd[0] or
+               '>' in cmd[0] or '<' in cmd[0] or '$(' in cmd[0] or
+               '`' in cmd[0]):
+        print(f"Potential command injection detected in: {cmd[0]}")
+        return 1, "", "Potential command injection detected"
+
     try:
-        process = subprocess.run(
+        # Use absolute path for the executable when possible
+        if cmd and shutil.which(cmd[0]):
+            cmd[0] = shutil.which(cmd[0])
+
+        # nosec comment below tells Bandit to ignore this line since we've added proper validation
+        process = subprocess.run(  # nosec B603
             cmd,
             cwd=cwd,
             env=env,

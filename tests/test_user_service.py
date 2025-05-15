@@ -10,7 +10,12 @@ import pytest
 from flask import Flask
 from sqlalchemy.exc import SQLAlchemyError
 
-from app_flask import db
+# Import at the top level
+try:
+    from app_flask import db
+except ImportError:
+    from users.models import db
+
 from users.services import (
     AuthenticationError,
     DatabaseSessionNotAvailableError,
@@ -19,6 +24,18 @@ from users.services import (
     UserModelNotAvailableError,
     UserService,
 )
+
+
+# Mock the app_flask module to avoid import issues
+class MockUser:
+    username = None
+    email = None
+    password_hash = None
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
 
 @pytest.mark.unit
 class TestUserService(unittest.TestCase):
@@ -49,6 +66,9 @@ class TestUserService(unittest.TestCase):
         self.test_user.email = "test@example.com"
         self.test_user.password_hash = self.hashed_password
         self.test_user.last_login = None
+
+        # Create patch for app_flask
+        patch("users.services.UserModel", MockUser).start()
 
     @pytest.mark.unit
     def test_init_without_token_secret(self):
