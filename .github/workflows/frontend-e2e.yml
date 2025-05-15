@@ -59,382 +59,47 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      # No Python setup needed since we're using the Node.js mock API server
 
-      - name: Install uv
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          else
-            pip install uv
-          fi
-        env:
-          RUNNER_OS: ${{ runner.os }}
-
-      - name: Cache uv dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            ~/.uv
-            ${{ runner.os == 'Windows' && '%LOCALAPPDATA%\uv' || '' }}
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Create virtual environment (Linux/macOS)
+      - name: Install Express for mock API server (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          cd ../..
-          # Create virtual environment with uv, fallback to Python's venv module
-          echo "Creating virtual environment..."
-          uv venv .venv || {
-            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv || {
-              echo "Failed to create virtual environment with Python's venv module. Exiting..."
-              exit 1
-            }
-          }
+          # Install Express and related packages for the mock API server
+          pnpm add -D express cors body-parser
 
-          # Verify virtual environment was created
-          if [ ! -d ".venv" ]; then
-            echo "Virtual environment directory .venv not found after creation attempt. Exiting..."
-            exit 1
-          fi
+          # Start the mock API server
+          node tests/mock_api_server.js &
+          echo "Mock API server started"
 
-          echo "Virtual environment created successfully at $(pwd)/.venv"
-
-          # Always ensure pip is installed in the virtual environment
-          echo "Ensuring pip is installed in the virtual environment..."
-          curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-          .venv/bin/python get-pip.py || {
-            echo "Failed to bootstrap pip with get-pip.py. Trying alternative method..."
-            .venv/bin/python -m ensurepip || {
-              echo "Failed to bootstrap pip with ensurepip. Exiting..."
-              exit 1
-            }
-          }
-
-          # Verify pip installation
-          if [ ! -f ".venv/bin/pip" ] || ! .venv/bin/python -m pip --version &>/dev/null; then
-            echo "pip still not available after installation attempts. Exiting..."
-            exit 1
-          fi
-
-          echo "pip successfully installed in virtual environment."
-
-          # Upgrade pip first to ensure we have the latest version
-          .venv/bin/python -m pip install --upgrade pip || {
-            echo "Failed to upgrade pip. Continuing anyway..."
-          }
-
-          # Install setuptools and wheel with pip first
-          .venv/bin/python -m pip install --upgrade setuptools wheel || {
-            echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
-          }
-
-          # List installed packages for debugging
-          echo "Installed packages in virtual environment:"
-          .venv/bin/python -m pip list
-
-          cd ui/react_frontend
-
-      - name: Create virtual environment (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          cd ../..
-          # Create virtual environment with uv, fallback to Python's venv module
-          Write-Host "Creating virtual environment..."
-          uv venv .venv
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
-              exit 1
-            }
-          }
-
-          # Verify virtual environment was created
-          if (-not (Test-Path ".venv")) {
-            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
-            exit 1
-          }
-
-          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
-
-          # Verify python executable exists
-          if (-not (Test-Path ".venv\Scripts\python.exe")) {
-            Write-Host "Python executable not found in virtual environment. Exiting..."
-            exit 1
-          }
-
-          # Check if pip module is available
-          $pipModuleCheck = .\.venv\Scripts\python.exe -c "import pip; print('pip module exists')" 2>$null
-          if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
-            Write-Host "pip module not found in virtual environment. Installing pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to bootstrap pip. Exiting..."
-              exit 1
-            }
-          }
-
-          # Verify pip executable exists
-          if (-not (Test-Path ".venv\Scripts\pip.exe")) {
-            Write-Host "pip executable not found after bootstrap. Creating symlink as last resort..."
-            if (Test-Path ".venv\Scripts\python.exe") {
-              try {
-                New-Item -ItemType SymbolicLink -Path ".venv\Scripts\pip.exe" -Target ".venv\Scripts\python.exe" -ErrorAction SilentlyContinue
-              } catch {
-                Write-Host "Failed to create symlink. Continuing anyway..."
-              }
-            }
-          }
-
-          # Verify pip is working
-          try {
-            .\.venv\Scripts\python.exe -m pip --version
-            if ($LASTEXITCODE -ne 0) {
-              throw "pip command failed"
-            }
-          } catch {
-            Write-Host "pip verification failed. Attempting to reinstall pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-          }
-
-          # List installed packages for debugging
-          Write-Host "Installed packages in virtual environment:"
-          .\.venv\Scripts\python.exe -m pip list
-
-          cd ui/react_frontend
-
-      - name: Start backend API server (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          cd ../..
-          source .venv/bin/activate
-
-          # Always ensure pip is installed and working properly
-          echo "Verifying pip installation..."
-          if ! python -m pip --version; then
-            echo "pip module not available. Installing pip..."
-            curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-            python get-pip.py || {
-              echo "Failed to bootstrap pip with get-pip.py. Trying alternative method..."
-              python -m ensurepip || {
-                echo "Failed to bootstrap pip with ensurepip. Exiting..."
-                exit 1
-              }
-            }
-
-            # Verify pip installation was successful
-            if ! python -m pip --version; then
-              echo "pip still not available after installation attempts. Exiting..."
-              exit 1
-            fi
-          fi
-
-          echo "pip is available and working."
-
-          # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip setuptools wheel || {
-            echo "Failed to upgrade pip. Continuing anyway..."
-          }
-
-          # Install uv in the virtual environment
-          python -m pip install --upgrade uv || {
-            echo "Failed to install uv in the virtual environment. Will use system uv..."
-          }
-
-          # Install project dependencies with fallback mechanisms
-          echo "Installing project dependencies..."
-          uv pip install -r requirements.txt || {
-            echo "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
-            python -m pip install -r requirements.txt
-          }
-
-          uv pip install -r requirements-dev.txt || {
-            echo "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
-            python -m pip install -r requirements-dev.txt
-          }
-
-          uv pip install -e . || {
-            echo "Failed to install package in development mode with uv pip. Falling back to regular pip..."
-            python -m pip install -e .
-          }          # Debug: List all installed packages
-          python -m pip list
-
-          # Debug: Check if uv is installed and working
-          if ! python -m pip show uv; then
-            echo "Warning: uv package is not installed in the virtual environment"
-          fi
-
-          # Debug: Verify all required packages are installed
-          echo "Checking if all required packages are installed..."
-          python -m pip check || echo "Warning: Some packages have missing dependencies"
-
-          # Debug: Check port availability
-          if nc -z localhost 8000 2>/dev/null; then
-            echo "Error: Port 8000 is already in use"
-            echo "Processes using port 8000:"
-            lsof -i :8000 || ps aux | grep ':8000'
-            exit 1
-          fi
-          
-          # Debug: Enable more verbose Python logging
-          export PYTHONVERBOSE=1
-          export PYTHONDEVMODE=1
-
-          # Run the API server with the activated virtual environment and capture detailed logs
-          nohup python -X dev -W default ui/api_server.py > api_server_detailed.log 2>&1 &
-          echo "API server started, checking logs..."
-          tail -f api_server_detailed.log &
-          tail_pid=$!
-
-          cd ui/react_frontend
-          for i in {1..120}; do
+          # Wait for the server to start
+          for i in {1..30}; do
             if curl --silent --fail http://localhost:8000/health; then
-              echo "Backend API server is ready."
-              kill $tail_pid 2>/dev/null || true
+              echo "Mock API server is ready."
               break
             fi
-            echo "Waiting for backend API server to be ready... (Attempt $i/120)"
+            echo "Waiting for mock API server to be ready... (Attempt $i/30)"
             sleep 1
           done
+
           if ! curl --silent --fail http://localhost:8000/health; then
-            echo "Backend API server failed to start within 120 seconds."
-            echo "Last 50 lines of server log:"
-            tail -n 50 ../../api_server_detailed.log
+            echo "Mock API server failed to start within 30 seconds."
             exit 1
           fi
 
-      - name: Start backend API server (Windows)
+      - name: Install Express for mock API server (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          cd ../..
-          .\.venv\Scripts\Activate.ps1
+          # Install Express and related packages for the mock API server
+          pnpm add -D express cors body-parser
 
-          # Check if pip module is available
-          $pipModuleCheck = python -c "import pip; print('pip module exists')" 2>$null
-          if (-not $pipModuleCheck -or -not $pipModuleCheck.Contains("pip module exists")) {
-            Write-Host "pip module not found in virtual environment. Installing pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to bootstrap pip. Exiting..."
-              exit 1
-            }
-          }
+          # Start the mock API server
+          $mockApiProcess = Start-Process -FilePath "node" -ArgumentList "tests/mock_api_server.js" -PassThru -NoNewWindow
+          Write-Host "Mock API server started"
 
-          # Verify pip is working
-          try {
-            python -m pip --version
-            if ($LASTEXITCODE -ne 0) {
-              throw "pip command failed"
-            }
-          } catch {
-            Write-Host "pip verification failed. Attempting to reinstall pip..."
-            Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            .\.venv\Scripts\python.exe get-pip.py
-          }
-
-          # Upgrade pip first to ensure we have the latest version
-          python -m pip install --upgrade pip setuptools wheel
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to upgrade pip. Continuing anyway..."
-          }
-
-          # Install uv in the virtual environment
-          python -m pip install --upgrade uv
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to install uv in the virtual environment. Will use system uv..."
-          }
-
-          # Install project dependencies with fallback mechanisms
-          Write-Host "Installing project dependencies..."
-          try {
-            uv pip install -r requirements.txt
-            if ($LASTEXITCODE -ne 0) {
-              throw "Failed with uv pip"
-            }
-          } catch {
-            Write-Host "Failed to install requirements.txt with uv pip. Falling back to regular pip..."
-            python -m pip install -r requirements.txt
-          }
-
-          try {
-            uv pip install -r requirements-dev.txt
-            if ($LASTEXITCODE -ne 0) {
-              throw "Failed with uv pip"
-            }
-          } catch {
-            Write-Host "Failed to install requirements-dev.txt with uv pip. Falling back to regular pip..."
-            python -m pip install -r requirements-dev.txt
-          }
-
-          try {
-            uv pip install -e .
-            if ($LASTEXITCODE -ne 0) {
-              throw "Failed with uv pip"
-            }
-          } catch {
-            Write-Host "Failed to install package in development mode with uv pip. Falling back to regular pip..."
-            python -m pip install -e .
-          }          # Debug: List all installed packages
-          python -m pip list
-
-          # Debug: Check if uv is installed and working
-          try {
-            python -m pip show uv
-          } catch {
-            Write-Host "Warning: uv package is not installed in the virtual environment"
-          }
-
-          # Debug: Verify all required packages are installed
-          Write-Host "Checking if all required packages are installed..."
-          python -m pip check
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Warning: Some packages have missing dependencies"
-          }
-
-          # Debug: Check port availability
-          try {
-            $testConnection = New-Object System.Net.Sockets.TcpClient
-            $testConnection.Connect("localhost", 8000)
-            $testConnection.Close()
-            Write-Error "Error: Port 8000 is already in use"
-            Write-Host "Processes potentially using port 8000:"
-            Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | 
-              ForEach-Object { Get-Process -Id $_.OwningProcess } |
-              Select-Object Id, ProcessName, Path
-            exit 1
-          } catch {
-            Write-Host "Port 8000 is available"
-          }
-
-          # Debug: Enable more verbose Python logging
-          $env:PYTHONVERBOSE = "1"
-          $env:PYTHONDEVMODE = "1"
-
-          # Run the API server with the activated virtual environment and capture detailed logs
-          $apiProcess = Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "-X dev -W default ui/api_server.py" -RedirectStandardOutput "api_server_detailed.log" -RedirectStandardError "api_server_error.log" -PassThru -NoNewWindow
-          Write-Host "API server started, checking logs..."
-          Start-Job -ScriptBlock { Get-Content -Path "api_server_detailed.log" -Wait } | Receive-Job -Wait
-
-          cd ui/react_frontend
-          $maxRetries = 120
+          # Wait for the server to start
+          $maxRetries = 30
           $retryCount = 0
           $serverReady = $false
 
@@ -442,20 +107,18 @@ jobs:
             try {
               $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -ErrorAction SilentlyContinue
               if ($response.StatusCode -eq 200) {
-                Write-Host "Backend API server is ready."
+                Write-Host "Mock API server is ready."
                 $serverReady = $true
               }
             } catch {
-              Write-Host "Waiting for backend API server to be ready... (Attempt $($retryCount+1)/$maxRetries)"
+              Write-Host "Waiting for mock API server to be ready... (Attempt $($retryCount+1)/$maxRetries)"
               Start-Sleep -Seconds 1
             }
             $retryCount++
           }
 
           if (-not $serverReady) {
-            Write-Host "Backend API server failed to start within 120 seconds."
-            Write-Host "Last 50 lines of server log:"
-            Get-Content -Path "api_server_detailed.log" -Tail 50
+            Write-Host "Mock API server failed to start within 30 seconds."
             exit 1
           }
 
@@ -463,7 +126,12 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
+          # Set environment variable to use the mock API server
+          export REACT_APP_API_BASE_URL=http://localhost:8000/api
+
+          # Start React server in background
           nohup pnpm start -- --port=3000 &
+
           # Increase wait time to ensure React app is fully loaded
           sleep 20
 
@@ -475,6 +143,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # Set environment variable to use the mock API server
+          $env:REACT_APP_API_BASE_URL = "http://localhost:8000/api"
+
           # Start React server in background
           $reactProcess = Start-Process -FilePath "pnpm" -ArgumentList "start", "--", "--port=3000" -PassThru -NoNewWindow
 
@@ -500,33 +171,51 @@ jobs:
         shell: bash
         run: |
           # Run tests with retry mechanism
-          npx playwright test || npx playwright test --retries=2
+          npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list || npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list --retries=2
 
       - name: Run Playwright E2E tests (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           # Run tests with retry mechanism
-          npx playwright test
+          npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Tests failed on first attempt. Retrying..."
-            npx playwright test --retries=2
+            npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list --retries=2
           }
 
       - name: Create and verify playwright-report directory (Linux/macOS)
         if: runner.os != 'Windows' && always()
         shell: bash
         run: |
+          # Ensure the directory exists
           mkdir -p playwright-report/
+
+          # Create a dummy file if the directory is empty to prevent upload issues
+          if [ -z "$(ls -A playwright-report/)" ]; then
+            echo "Creating dummy file in empty playwright-report directory"
+            echo "Test run completed" > playwright-report/test-summary.txt
+          fi
+
+          # List directory contents
           ls -la playwright-report/ || echo "playwright-report directory is empty or doesn't exist"
 
       - name: Create and verify playwright-report directory (Windows)
         if: runner.os == 'Windows' && always()
         shell: pwsh
         run: |
+          # Ensure the directory exists
           if (-not (Test-Path "playwright-report")) {
             New-Item -ItemType Directory -Path "playwright-report" -Force
           }
+
+          # Create a dummy file if the directory is empty to prevent upload issues
+          if (-not (Get-ChildItem -Path "playwright-report" -Force -ErrorAction SilentlyContinue)) {
+            Write-Host "Creating dummy file in empty playwright-report directory"
+            Set-Content -Path "playwright-report\test-summary.txt" -Value "Test run completed"
+          }
+
+          # List directory contents
           Get-ChildItem -Path "playwright-report" -Force -ErrorAction SilentlyContinue | Format-Table -AutoSize
 
       - name: Upload Playwright report

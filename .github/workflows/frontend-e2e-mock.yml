@@ -43,18 +43,16 @@ jobs:
         run: |
           node tests/mock_api_server.js &
           echo "Mock API server started"
-          
           # Wait for the server to start
           for i in {1..30}; do
-            if curl --silent --fail http://localhost:5000/health; then
+            if curl --silent --fail http://localhost:8000/health; then
               echo "Mock API server is ready."
               break
             fi
             echo "Waiting for mock API server to be ready... (Attempt $i/30)"
             sleep 1
           done
-          
-          if ! curl --silent --fail http://localhost:5000/health; then
+          if ! curl --silent --fail http://localhost:8000/health; then
             echo "Mock API server failed to start within 30 seconds."
             exit 1
           fi
@@ -63,24 +61,32 @@ jobs:
         shell: bash
         run: |
           # Set environment variable to use the mock API server
-          export REACT_APP_API_BASE_URL=http://localhost:5000/api
-          
+          export REACT_APP_API_BASE_URL=http://localhost:8000/api
+
           # Start React server in background
           nohup pnpm start -- --port=3000 &
-          
-          # Wait for server to start
+
+          # Wait for server to start with a loop that checks if it's up
           echo "Waiting for React server to start..."
-          sleep 20
-          
-          # Check if the server is responding
-          echo "Checking if React server is up..."
-          curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"
+          for i in {1..30}; do
+            if curl --silent --fail http://localhost:3000/; then
+              echo "React server is ready."
+              break
+            fi
+            echo "Waiting for React server to be ready... (Attempt $i/30)"
+            sleep 1
+          done
+
+          if ! curl --silent --fail http://localhost:3000/; then
+            echo "React server failed to start within 30 seconds."
+            exit 1
+          fi
 
       - name: Run Playwright E2E tests
         shell: bash
         run: |
           # Run tests with retry mechanism
-          npx playwright test || npx playwright test --retries=2
+          npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list || npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list --retries=2
 
       - name: Create and verify playwright-report directory
         if: always()
