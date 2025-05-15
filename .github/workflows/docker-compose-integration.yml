@@ -36,15 +36,130 @@ jobs:
 
       - name: Install Docker Compose
         run: |
-          sudo apt-get update
-          # Install both standalone and plugin versions
-          sudo apt-get install -y docker-compose docker-compose-plugin
-          # Verify installations
-          docker compose version || docker-compose --version
-          docker compose --version
-          # Create symbolic link if needed
-          if ! command -v docker-compose &> /dev/null; then
-            sudo ln -s $(which docker-compose) /usr/local/bin/docker-compose
+          echo "Installing Docker Compose with robust error handling..."
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Function to install Docker Compose plugin
+          install_docker_compose_plugin() {
+            echo "Installing Docker Compose plugin..."
+            sudo apt-get update
+            sudo apt-get install -y docker-compose-plugin
+
+            # Verify installation
+            if command_exists "docker compose"; then
+              echo "✅ Docker Compose plugin installed successfully"
+              docker compose version
+              return 0
+            else
+              echo "❌ Failed to install Docker Compose plugin"
+              return 1
+            fi
+          }
+
+          # Function to install standalone Docker Compose
+          install_docker_compose_standalone() {
+            echo "Installing standalone Docker Compose..."
+
+            # Get latest release version
+            COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
+            echo "Latest Docker Compose version: $COMPOSE_VERSION"
+
+            # Download and install
+            sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
+            # Create symbolic link
+            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+            # Verify installation
+            if command_exists "docker-compose"; then
+              echo "✅ Standalone Docker Compose installed successfully"
+              docker-compose --version
+              return 0
+            else
+              echo "❌ Failed to install standalone Docker Compose"
+              return 1
+            fi
+          }
+
+          # Function to install Docker Compose using apt
+          install_docker_compose_apt() {
+            echo "Installing Docker Compose using apt..."
+            sudo apt-get update
+            sudo apt-get install -y docker-compose
+
+            # Verify installation
+            if command_exists "docker-compose"; then
+              echo "✅ Docker Compose installed successfully using apt"
+              docker-compose --version
+              return 0
+            else
+              echo "❌ Failed to install Docker Compose using apt"
+              return 1
+            fi
+          }
+
+          # Check if Docker is installed
+          if ! command_exists "docker"; then
+            echo "❌ Docker is not installed. Please install Docker first."
+            exit 1
+          fi
+
+          # Check if Docker Compose plugin is already installed
+          if command_exists "docker compose"; then
+            echo "✅ Docker Compose plugin is already installed"
+            docker compose version
+          else
+            echo "Docker Compose plugin is not installed. Attempting to install..."
+            install_docker_compose_plugin
+          fi
+
+          # Check if standalone Docker Compose is already installed
+          if command_exists "docker-compose"; then
+            echo "✅ Standalone Docker Compose is already installed"
+            docker-compose --version
+          else
+            echo "Standalone Docker Compose is not installed. Attempting to install..."
+
+            # Try apt installation first
+            if ! install_docker_compose_apt; then
+              # If apt installation fails, try direct download
+              if ! install_docker_compose_standalone; then
+                echo "❌ All installation methods failed. Please install Docker Compose manually."
+                exit 1
+              fi
+            fi
+          fi
+
+          # Final verification
+          echo "Verifying Docker Compose installations..."
+
+          # Check plugin version
+          if command_exists "docker compose"; then
+            echo "Docker Compose plugin version:"
+            docker compose version
+          else
+            echo "⚠️ Docker Compose plugin is not available"
+          fi
+
+          # Check standalone version
+          if command_exists "docker-compose"; then
+            echo "Standalone Docker Compose version:"
+            docker-compose --version
+          else
+            echo "⚠️ Standalone Docker Compose is not available"
+          fi
+
+          # Ensure at least one version is installed
+          if command_exists "docker compose" || command_exists "docker-compose"; then
+            echo "✅ Docker Compose installation completed successfully"
+          else
+            echo "❌ Docker Compose installation failed"
+            exit 1
           fi
 
       - name: Set up Python
@@ -238,27 +353,89 @@ jobs:
       - name: Verify Docker Compose installation
         run: |
           echo "Checking Docker Compose installation..."
-          docker compose version || docker-compose --version
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Check which Docker Compose version is available
+          if command_exists "docker compose"; then
+            echo "Using Docker Compose plugin:"
+            docker compose version
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            echo "Using standalone Docker Compose:"
+            docker-compose --version
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found. Attempting emergency installation..."
+
+            # Try emergency installation of Docker Compose
+            COMPOSE_VERSION="v2.20.2"  # Use a specific stable version
+            sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+            if command_exists "docker-compose"; then
+              echo "Emergency installation successful:"
+              docker-compose --version
+              COMPOSE_CMD="docker-compose"
+            else
+              echo "ERROR: All Docker Compose installation attempts failed."
+              exit 1
+            fi
+          fi
 
           # Validate docker-compose.yml file
           echo "Validating docker-compose.yml file..."
-          docker compose config || docker-compose config
+          $COMPOSE_CMD config || {
+            echo "ERROR: docker-compose.yml validation failed. Checking file existence and permissions..."
+            ls -la docker-compose.yml
 
-          # Check for any syntax errors in the file
-          echo "Checking for syntax errors in docker-compose.yml..."
-          if ! docker compose config >/dev/null 2>&1 && ! docker-compose config >/dev/null 2>&1; then
-            echo "ERROR: docker-compose.yml has syntax errors. Displaying file content:"
+            echo "Checking file content:"
             cat docker-compose.yml
-            exit 1
-          fi
+
+            echo "Checking for common syntax issues..."
+            # Check for indentation issues
+            sed -i 's/\t/  /g' docker-compose.yml
+
+            # Check for line ending issues
+            dos2unix docker-compose.yml 2>/dev/null || true
+
+            # Try validation again after fixes
+            if ! $COMPOSE_CMD config; then
+              echo "ERROR: docker-compose.yml still has syntax errors after attempted fixes."
+              exit 1
+            else
+              echo "Fixed docker-compose.yml syntax issues."
+            fi
+          }
+
+          echo "Docker Compose verification completed successfully."
 
       # Validate docker-compose.yml
       - name: Validate docker-compose.yml
         run: |
           echo "Validating docker-compose.yml configuration..."
 
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+
           # First, check for syntax errors
-          if ! docker compose config -q 2>/dev/null && ! docker-compose config -q 2>/dev/null; then
+          if ! $COMPOSE_CMD config -q 2>/dev/null; then
             echo "ERROR: docker-compose.yml has syntax errors. Displaying file content:"
             cat docker-compose.yml
             echo "Attempting to fix common issues..."
@@ -267,10 +444,10 @@ jobs:
             sed -i 's/\t/  /g' docker-compose.yml
 
             # Check for line ending issues
-            dos2unix docker-compose.yml || true
+            dos2unix docker-compose.yml 2>/dev/null || true
 
             # Try validation again after fixes
-            if ! docker compose config -q 2>/dev/null && ! docker-compose config -q 2>/dev/null; then
+            if ! $COMPOSE_CMD config -q 2>/dev/null; then
               echo "ERROR: docker-compose.yml still has syntax errors after attempted fixes."
               exit 1
             else
@@ -280,16 +457,16 @@ jobs:
 
           # Validate service configurations
           echo "Validating service configurations..."
-          docker compose config || docker-compose config
+          $COMPOSE_CMD config
 
           # Check for required services
-          if ! docker compose config --services | grep -q "app" || ! docker compose config --services | grep -q "db"; then
+          if ! $COMPOSE_CMD config --services | grep -q "app" || ! $COMPOSE_CMD config --services | grep -q "db"; then
             echo "ERROR: Required services 'app' and 'db' not found in docker-compose.yml"
             exit 1
           fi
 
           # Check for frontend service
-          if ! docker compose config --services | grep -q "frontend"; then
+          if ! $COMPOSE_CMD config --services | grep -q "frontend"; then
             echo "ERROR: Required service 'frontend' not found in docker-compose.yml"
             exit 1
           fi
@@ -300,9 +477,35 @@ jobs:
             echo "WARNING: REACT_APP_AG_UI_ENABLED environment variable not found in frontend service."
             echo "Adding REACT_APP_AG_UI_ENABLED=true to frontend service environment..."
             sed -i '/CHOKIDAR_USEPOLLING=true/a \      - REACT_APP_AG_UI_ENABLED=true' docker-compose.yml
+
+            # Verify the change was made
+            if grep -q "REACT_APP_AG_UI_ENABLED" docker-compose.yml; then
+              echo "Successfully added REACT_APP_AG_UI_ENABLED environment variable."
+            else
+              echo "WARNING: Failed to add REACT_APP_AG_UI_ENABLED environment variable. Trying alternative approach..."
+              # Try an alternative approach using awk
+              awk '/CHOKIDAR_USEPOLLING=true/ { print; print "      - REACT_APP_AG_UI_ENABLED=true"; next }1' docker-compose.yml > docker-compose.yml.tmp
+              mv docker-compose.yml.tmp docker-compose.yml
+
+              # Final verification
+              if grep -q "REACT_APP_AG_UI_ENABLED" docker-compose.yml; then
+                echo "Successfully added REACT_APP_AG_UI_ENABLED environment variable using alternative approach."
+              else
+                echo "WARNING: Could not add REACT_APP_AG_UI_ENABLED environment variable. Manual inspection required."
+              fi
+            fi
+          else
+            echo "REACT_APP_AG_UI_ENABLED environment variable is already set in frontend service."
           fi
 
-          echo "docker-compose.yml validation successful"
+          # Final validation after all modifications
+          echo "Performing final validation of docker-compose.yml..."
+          if $COMPOSE_CMD config; then
+            echo "docker-compose.yml validation successful"
+          else
+            echo "ERROR: Final validation of docker-compose.yml failed."
+            exit 1
+          fi
 
       # Set up Docker Compose with fallback mechanism
       - name: Set up Docker Compose
@@ -319,20 +522,56 @@ jobs:
         run: |
           echo "Docker Compose action failed. Trying manual Docker Compose setup..."
 
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found. Attempting emergency installation..."
+
+            # Try emergency installation of Docker Compose
+            COMPOSE_VERSION="v2.20.2"  # Use a specific stable version
+            sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+            if command_exists "docker-compose"; then
+              echo "Emergency installation successful:"
+              docker-compose --version
+              COMPOSE_CMD="docker-compose"
+            else
+              echo "ERROR: All Docker Compose installation attempts failed."
+              exit 1
+            fi
+          fi
+
           # Try to start services manually
-          echo "Starting services manually with docker compose..."
-          docker compose up -d || docker-compose up -d
+          echo "Starting services manually with $COMPOSE_CMD..."
+          $COMPOSE_CMD up -d
 
           # Check if services started
           echo "Checking if services started..."
-          if ! docker compose ps || ! docker-compose ps; then
-            echo "ERROR: Failed to start services with docker compose. Trying with build flag..."
-            docker compose up -d --build || docker-compose up -d --build
+          if ! $COMPOSE_CMD ps; then
+            echo "ERROR: Failed to start services with $COMPOSE_CMD. Trying with build flag..."
+            $COMPOSE_CMD up -d --build
+
+            # Check again after build
+            if ! $COMPOSE_CMD ps; then
+              echo "ERROR: Failed to start services even with build flag. Checking for errors..."
+              $COMPOSE_CMD logs
+              exit 1
+            fi
           fi
 
           # Final check
           echo "Final service status check:"
-          docker compose ps || docker-compose ps
+          $COMPOSE_CMD ps
 
       # Check disk space after Docker Compose startup
       - name: Check disk space after Docker Compose startup
@@ -349,13 +588,45 @@ jobs:
       - name: Check Docker services status
         run: |
           echo "Checking Docker services status..."
-          docker compose ps || docker-compose ps
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+
+          $COMPOSE_CMD ps
           echo "Docker disk usage:"
           docker system df
 
       - name: Check database health
         run: |
           echo "Checking database health..."
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+
           max_attempts=20  # Increased from 15 to 20 for more patience
           for i in $(seq 1 $max_attempts); do
             echo "Attempt $i of $max_attempts to check database health"
@@ -388,9 +659,9 @@ jobs:
 
             # Check container status first with detailed diagnostics
             echo "Checking database container status..."
-            if ! (docker compose ps db | grep -q "Up" || docker-compose ps db | grep -q "Up"); then
+            if ! ($COMPOSE_CMD ps db | grep -q "Up"); then
               echo "Database container is not running. Checking container logs:"
-              docker compose logs db || docker-compose logs db
+              $COMPOSE_CMD logs db
 
               echo "Checking container details:"
               docker inspect $(docker ps -aq -f name=paissive-postgres) || true
@@ -402,10 +673,10 @@ jobs:
 
                 # Try to restart the database container
                 echo "Attempting to restart the database container..."
-                docker compose restart db || docker-compose restart db || docker restart paissive-postgres
+                $COMPOSE_CMD restart db || docker restart paissive-postgres
               else
                 echo "Container does not exist. Attempting to recreate it..."
-                docker compose up -d db || docker-compose up -d db
+                $COMPOSE_CMD up -d db
               fi
 
               # If this is the last attempt, give up
@@ -427,19 +698,19 @@ jobs:
 
             # Check database readiness with more detailed diagnostics
             echo "Checking if PostgreSQL is accepting connections..."
-            if docker compose exec db pg_isready -U myuser -d mydb -h db || docker-compose exec db pg_isready -U myuser -d mydb -h db; then
+            if $COMPOSE_CMD exec db pg_isready -U myuser -d mydb -h db; then
               echo "Database is ready and accepting connections."
 
               # Verify we can actually connect and run a simple query
               echo "Verifying database connection with a simple query..."
-              if docker compose exec db psql -U myuser -d mydb -c "SELECT 1" || docker-compose exec db psql -U myuser -d mydb -c "SELECT 1"; then
+              if $COMPOSE_CMD exec db psql -U myuser -d mydb -c "SELECT 1"; then
                 echo "Database connection verified successfully."
                 break
               else
                 echo "WARNING: pg_isready succeeded but psql query failed. This may indicate partial readiness."
                 if [ $i -eq $max_attempts ]; then
                   echo "Database connection verification failed after $max_attempts attempts."
-                  docker compose logs db || docker-compose logs db
+                  $COMPOSE_CMD logs db
                   exit 1
                 fi
               fi
@@ -449,16 +720,16 @@ jobs:
               # On every 5th attempt, check PostgreSQL logs in more detail
               if [ $((i % 5)) -eq 0 ]; then
                 echo "Checking PostgreSQL logs in detail (attempt $i):"
-                docker compose exec db cat /var/log/postgresql/postgresql-*.log 2>/dev/null || true
+                $COMPOSE_CMD exec db cat /var/log/postgresql/postgresql-*.log 2>/dev/null || true
 
                 # Check if PostgreSQL process is running inside container
                 echo "Checking if PostgreSQL process is running inside container:"
-                docker compose exec db ps aux | grep postgres || docker-compose exec db ps aux | grep postgres || true
+                $COMPOSE_CMD exec db ps aux | grep postgres || true
               fi
 
               if [ $i -eq $max_attempts ]; then
                 echo "Database did not become ready in time after $max_attempts attempts."
-                docker compose logs db || docker-compose logs db
+                $COMPOSE_CMD logs db
                 echo "Final system status:"
                 df -h
                 docker system df
@@ -483,6 +754,22 @@ jobs:
       - name: Wait for Flask app to be healthy
         run: |
           echo "Waiting for Flask app to be healthy..."
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+
           max_attempts=60  # Increased from 50 to 60 for more patience
 
           # Function to check disk space and clean up if needed
@@ -505,64 +792,64 @@ jobs:
           # Function to check container status and logs
           check_container_status() {
             echo "Checking container status:"
-            docker compose ps app || docker-compose ps app || true
+            $COMPOSE_CMD ps app || true
 
             echo "Checking container details:"
             docker inspect $(docker ps -aq -f name=paissive-income-app) || true
 
             echo "Checking Flask app logs:"
-            docker compose logs --tail=50 app || docker-compose logs --tail=50 app || true
+            $COMPOSE_CMD logs --tail=50 app || true
 
             # Check if the container is actually running
             echo "Checking if Flask app container is running:"
             if docker ps | grep -q paissive-income-app; then
               echo "Container is running. Checking processes inside container:"
-              docker compose exec app ps aux || docker-compose exec app ps aux || docker exec paissive-income-app ps aux || true
+              $COMPOSE_CMD exec app ps aux || docker exec paissive-income-app ps aux || true
 
               # Check if Flask process is running
               echo "Checking for Python/Flask process:"
-              docker compose exec app ps aux | grep python || docker-compose exec app ps aux | grep python || docker exec paissive-income-app ps aux | grep python || true
+              $COMPOSE_CMD exec app ps aux | grep python || docker exec paissive-income-app ps aux | grep python || true
 
               # Check if port 5000 is listening
               echo "Checking if port 5000 is listening in container:"
-              docker compose exec app netstat -tulpn | grep 5000 || docker-compose exec app netstat -tulpn | grep 5000 || docker exec paissive-income-app netstat -tulpn | grep 5000 || true
+              $COMPOSE_CMD exec app netstat -tulpn | grep 5000 || docker exec paissive-income-app netstat -tulpn | grep 5000 || true
 
               # Check logs for common Flask errors
               echo "Checking logs for common Flask errors:"
-              docker compose logs app | grep -i "error" | tail -20 || docker-compose logs app | grep -i "error" | tail -20 || true
+              $COMPOSE_CMD logs app | grep -i "error" | tail -20 || true
             else
               echo "Container is not running. Attempting to restart..."
-              docker compose restart app || docker-compose restart app || true
+              $COMPOSE_CMD restart app || true
             fi
           }
 
           # Function to check frontend container status
           check_frontend_status() {
             echo "Checking frontend container status:"
-            docker compose ps frontend || docker-compose ps frontend || true
+            $COMPOSE_CMD ps frontend || true
 
             echo "Checking frontend container details:"
             docker inspect $(docker ps -aq -f name=paissive-frontend) || true
 
             echo "Checking frontend logs:"
-            docker compose logs --tail=50 frontend || docker-compose logs --tail=50 frontend || true
+            $COMPOSE_CMD logs --tail=50 frontend || true
 
             # Check if the container is actually running
             echo "Checking if frontend container is running:"
             if docker ps | grep -q paissive-frontend; then
               echo "Frontend container is running. Checking processes inside container:"
-              docker compose exec frontend ps aux || docker-compose exec frontend ps aux || docker exec paissive-frontend ps aux || true
+              $COMPOSE_CMD exec frontend ps aux || docker exec paissive-frontend ps aux || true
 
               # Check if Node process is running
               echo "Checking for Node process:"
-              docker compose exec frontend ps aux | grep node || docker-compose exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
+              $COMPOSE_CMD exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
 
               # Check if port 3000 is listening
               echo "Checking if port 3000 is listening in container:"
-              docker compose exec frontend netstat -tulpn | grep 3000 || docker-compose exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
+              $COMPOSE_CMD exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
             else
               echo "Frontend container is not running. Attempting to restart..."
-              docker compose restart frontend || docker-compose restart frontend || true
+              $COMPOSE_CMD restart frontend || true
             fi
           }
 
@@ -621,7 +908,7 @@ jobs:
                 # Try to restart the containers if we're getting close to max attempts
                 if [ $i -gt $((max_attempts - 10)) ]; then
                   echo "Getting close to max attempts, trying to restart the containers..."
-                  docker compose restart app frontend || docker-compose restart app frontend || true
+                  $COMPOSE_CMD restart app frontend || true
                   sleep 15  # Give it a bit more time to restart
                 fi
               fi
@@ -646,28 +933,28 @@ jobs:
           echo "Collecting final diagnostic information..."
 
           echo "Final container status:"
-          docker compose ps || docker-compose ps || docker ps
+          $COMPOSE_CMD ps || docker ps
 
           echo "Final app logs:"
-          docker compose logs --tail=100 app || docker-compose logs --tail=100 app || docker logs paissive-income-app
+          $COMPOSE_CMD logs --tail=100 app || docker logs paissive-income-app
 
           echo "Final frontend logs:"
-          docker compose logs --tail=100 frontend || docker-compose logs --tail=100 frontend || docker logs paissive-frontend
+          $COMPOSE_CMD logs --tail=100 frontend || docker logs paissive-frontend
 
           echo "Checking Flask app configuration:"
-          docker compose exec app cat /app/run_ui.py || docker-compose exec app cat /app/run_ui.py || true
+          $COMPOSE_CMD exec app cat /app/run_ui.py || true
 
           echo "Checking if Flask process is running in container:"
-          docker compose exec app ps aux | grep python || docker-compose exec app ps aux | grep python || docker exec paissive-income-app ps aux | grep python || true
+          $COMPOSE_CMD exec app ps aux | grep python || docker exec paissive-income-app ps aux | grep python || true
 
           echo "Checking if port 5000 is listening in container:"
-          docker compose exec app netstat -tulpn | grep 5000 || docker-compose exec app netstat -tulpn | grep 5000 || docker exec paissive-income-app netstat -tulpn | grep 5000 || true
+          $COMPOSE_CMD exec app netstat -tulpn | grep 5000 || docker exec paissive-income-app netstat -tulpn | grep 5000 || true
 
           echo "Checking if Node process is running in frontend container:"
-          docker compose exec frontend ps aux | grep node || docker-compose exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
+          $COMPOSE_CMD exec frontend ps aux | grep node || docker exec paissive-frontend ps aux | grep node || true
 
           echo "Checking if port 3000 is listening in frontend container:"
-          docker compose exec frontend netstat -tulpn | grep 3000 || docker-compose exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
+          $COMPOSE_CMD exec frontend netstat -tulpn | grep 3000 || docker exec paissive-frontend netstat -tulpn | grep 3000 || true
 
           echo "Checking host port bindings:"
           netstat -tulpn | grep -E '5000|3000' || ss -tulpn | grep -E '5000|3000' || true
@@ -704,30 +991,64 @@ jobs:
           echo "===== DOCKER INFORMATION ====="
           echo "Docker version:"
           docker version || true
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "WARNING: No Docker Compose installation found."
+            COMPOSE_CMD=""
+          fi
+
           echo "Docker Compose version:"
-          docker compose version || docker-compose --version || true
+          if [ -n "$COMPOSE_CMD" ]; then
+            $COMPOSE_CMD version
+          else
+            echo "Docker Compose not available"
+          fi
+
           echo "Docker system info:"
           docker info || true
           echo "Docker disk usage:"
           docker system df -v || true
           echo "Docker service status:"
-          docker compose ps || docker-compose ps || true
+          if [ -n "$COMPOSE_CMD" ]; then
+            $COMPOSE_CMD ps || true
+          else
+            docker ps || true
+          fi
           echo "Docker images:"
           docker images || true
           echo "Docker containers (all):"
           docker ps -a || true
 
           echo "===== LOGS ====="
-          echo "Database logs:"
-          docker compose logs db || docker-compose logs db || true
-          echo "App logs:"
-          docker compose logs app || docker-compose logs app || true
-          echo "Frontend logs:"
-          docker compose logs frontend || docker-compose logs frontend || true
-          echo "Docker build logs (app):"
-          docker compose logs --no-color --timestamps app || docker-compose logs --no-color --timestamps app || true
-          echo "Docker build logs (frontend):"
-          docker compose logs --no-color --timestamps frontend || docker-compose logs --no-color --timestamps frontend || true
+          if [ -n "$COMPOSE_CMD" ]; then
+            echo "Database logs:"
+            $COMPOSE_CMD logs db || true
+            echo "App logs:"
+            $COMPOSE_CMD logs app || true
+            echo "Frontend logs:"
+            $COMPOSE_CMD logs frontend || true
+            echo "Docker build logs (app):"
+            $COMPOSE_CMD logs --no-color --timestamps app || true
+            echo "Docker build logs (frontend):"
+            $COMPOSE_CMD logs --no-color --timestamps frontend || true
+          else
+            echo "Docker Compose not available for logs. Using docker logs instead."
+            echo "Database logs:"
+            docker logs paissive-postgres || true
+            echo "App logs:"
+            docker logs paissive-income-app || true
+            echo "Frontend logs:"
+            docker logs paissive-frontend || true
+          fi
 
           echo "===== NETWORK INFORMATION ====="
           echo "Network interfaces:"
@@ -740,18 +1061,35 @@ jobs:
           docker network inspect paissive-network || true
 
           echo "===== CONTAINER DETAILS ====="
-          echo "Docker container inspection (app):"
-          docker inspect $(docker ps -q -f name=paissive-income-app) || true
-          echo "Docker container health status (app):"
-          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-income-app) || true
-          echo "Docker container inspection (db):"
-          docker inspect $(docker ps -q -f name=paissive-postgres) || true
-          echo "Docker container health status (db):"
-          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-postgres) || true
-          echo "Docker container inspection (frontend):"
-          docker inspect $(docker ps -q -f name=paissive-frontend) || true
-          echo "Docker container health status (frontend):"
-          docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-frontend) || true
+          # Check if app container exists
+          if docker ps -q -f name=paissive-income-app >/dev/null 2>&1; then
+            echo "Docker container inspection (app):"
+            docker inspect $(docker ps -q -f name=paissive-income-app)
+            echo "Docker container health status (app):"
+            docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-income-app)
+          else
+            echo "App container not found"
+          fi
+
+          # Check if db container exists
+          if docker ps -q -f name=paissive-postgres >/dev/null 2>&1; then
+            echo "Docker container inspection (db):"
+            docker inspect $(docker ps -q -f name=paissive-postgres)
+            echo "Docker container health status (db):"
+            docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-postgres)
+          else
+            echo "DB container not found"
+          fi
+
+          # Check if frontend container exists
+          if docker ps -q -f name=paissive-frontend >/dev/null 2>&1; then
+            echo "Docker container inspection (frontend):"
+            docker inspect $(docker ps -q -f name=paissive-frontend)
+            echo "Docker container health status (frontend):"
+            docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-frontend)
+          else
+            echo "Frontend container not found"
+          fi
 
           echo "===== FINAL CLEANUP ====="
           echo "Performing final cleanup to free space for artifact uploads..."
