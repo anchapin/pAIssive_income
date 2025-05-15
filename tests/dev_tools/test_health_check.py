@@ -38,7 +38,7 @@ class TestHealthCheck(unittest.TestCase):
         run(cmd, desc)
 
         # Assert
-        mock_subprocess_run.assert_called_once_with(cmd, shell=True, check=False)
+        mock_subprocess_run.assert_called_once_with(cmd.split(), shell=False, check=False)
         mock_info.assert_has_calls([
             call(f"\n==> {desc}"),
             call(f"PASSED: {desc}")
@@ -61,7 +61,7 @@ class TestHealthCheck(unittest.TestCase):
         run(cmd, desc)
 
         # Assert
-        mock_subprocess_run.assert_called_once_with(cmd, shell=True, check=False)
+        mock_subprocess_run.assert_called_once_with(cmd.split(), shell=False, check=False)
         mock_info.assert_called_once_with(f"\n==> {desc}")
         mock_error.assert_called_once_with(f"FAILED: {desc}")
         mock_exit.assert_called_once_with(1)
