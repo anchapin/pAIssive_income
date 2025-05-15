@@ -1,0 +1,38 @@
+name: Docker Compose Integration (Local)
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  docker-compose-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Docker status
+        run: |
+          docker info
+          docker compose version || docker-compose --version
+
+      - name: Create Docker network
+        run: |
+          docker network create paissive-network || echo "Network already exists"
+          docker network ls
+
+      - name: Pull required images
+        run: |
+          docker pull postgres:15.3-alpine
+
+      - name: Start containers
+        run: |
+          docker compose up -d
+          docker ps
+          sleep 10
+          docker compose ps
+
+      - name: Check service health
+        run: |
+          docker compose ps
+          docker compose logs

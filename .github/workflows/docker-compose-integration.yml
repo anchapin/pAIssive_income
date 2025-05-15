@@ -57,43 +57,35 @@ jobs:
       - name: Install Buildx as default builder
         run: docker buildx install
 
-      # Create Docker network explicitly before starting services with enhanced error handling
-      - name: Create Docker network
+      # Check Docker daemon status before network creation
+      - name: Verify Docker setup
         run: |
-          echo "Ensuring Docker network 'paissive-network' exists..."
-          if ! docker network inspect paissive-network >/dev/null 2>&1; then
-            echo "Network 'paissive-network' not found. Attempting to create it..."
-            if ! docker network create paissive-network; then
-              echo "ERROR: Failed to create Docker network 'paissive-network'."
-              
-              # Check Docker daemon status
-              echo "Checking Docker daemon status..."
-              if ! docker info >/dev/null 2>&1; then
-                echo "Docker daemon is not responding. Attempting to restart..."
-                sudo systemctl restart docker || true
-                sleep 10
-                if ! docker info >/dev/null 2>&1; then
-                  echo "ERROR: Docker daemon failed to restart."
-                  exit 1
-                fi
-                # Try creating network again after Docker restart
-                if ! docker network create paissive-network; then
-                  echo "ERROR: Failed to create network even after Docker restart."
-                  exit 1
-                fi
-              else
-                echo "Docker daemon appears to be working."
-                echo "Checking available networks:"
-                docker network ls
-                echo "Checking system resources:"
-                df -h
-                free -h
-                exit 1
-              fi
+          echo "Checking Docker daemon status..."
+          if ! docker info >/dev/null 2>&1; then
+            echo "ERROR: Docker daemon is not responding. Attempting to restart..."
+            sudo systemctl restart docker || true
+            sleep 10
+            if ! docker info >/dev/null 2>&1; then
+              echo "CRITICAL: Docker daemon failed to restart."
+              exit 1
             fi
           fi
-          echo "Docker network 'paissive-network' is ready."
+          echo "Docker is running."
+
+      # Create Docker network with simple approach
+      - name: Create Docker network
+        run: |
+          echo "Creating Docker network 'paissive-network'..."
+          docker network create paissive-network || echo "Network 'paissive-network' already exists."
           docker network inspect paissive-network
+
+      # Debug Docker networks
+      - name: Debug Docker networks
+        run: |
+          echo "Inspecting all Docker networks..."
+          docker network ls
+          echo "Inspecting 'paissive-network'..."
+          docker network inspect paissive-network || echo "Network 'paissive-network' does not exist."
 
       # Check if Docker Hub secrets are set
       - name: Check Docker Hub secrets
