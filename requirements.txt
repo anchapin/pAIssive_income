@@ -1,1 +1,2 @@
 crewai>=0.21.4
+modelcontextprotocol>=0.1.0  # Required for MCP server integration

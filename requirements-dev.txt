@@ -15,7 +15,7 @@ pyjwt>=2.0.0
 pathspec>=0.12.1
 types-PyYAML
 pyyaml>=6.0.0
-modelcontextprotocol>=1.0.0  # Required for MCP server integration
+modelcontextprotocol>=0.1.0  # Required for MCP server integration
 
 # Flask and database dependencies
 flask>=2.3.0

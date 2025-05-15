@@ -24,21 +24,21 @@ RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
 # Set up virtual environment and install dependencies
 RUN uv venv /app/.venv \
     && . /app/.venv/bin/activate \
-    # Clone and install MCP SDK directly from Git
+    # Clone and install MCP SDK first
     && git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk \
     && cd /tmp/mcp-sdk \
     && uv pip install -e . \
     && cd /app \
     && rm -rf /tmp/mcp-sdk \
-    # Install remaining requirements
+    # Then install other requirements
     && uv pip install --no-cache -r requirements.txt --python /app/.venv/bin/python
 
 # Copy application code
 COPY . .
 
 # Set up PATH and PYTHONPATH
-ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONPATH="/app:${PYTHONPATH:-}"
+ENV PYTHONPATH="/app"
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Set virtual environment activation
 ENV VIRTUAL_ENV="/app/.venv"
@@ -52,3 +52,5 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 
+# Command to run the application
+CMD ["python", "run_ui.py"]

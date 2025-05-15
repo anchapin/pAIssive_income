@@ -1,1 +1,2 @@
-
+# AI model dependencies
+modelcontextprotocol>=0.1.0  # Required for MCP server integration
