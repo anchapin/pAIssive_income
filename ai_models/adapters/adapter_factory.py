@@ -6,10 +6,35 @@ import logging
 # Third-party imports
 
 # Local imports
-from .ollama_adapter import OllamaAdapter
-from .openai_compatible_adapter import OpenAICompatibleAdapter
-from .lmstudio_adapter import LMStudioAdapter
-from .tensorrt_adapter import TensorRTAdapter
+# Import placeholders for adapters
+# These will be properly implemented in their respective files
+class OllamaAdapter:
+    """Adapter for Ollama servers."""
+    def __init__(self, host: str, port: int, **kwargs):
+        self.host = host
+        self.port = port
+        self.kwargs = kwargs
+
+class OpenAICompatibleAdapter:
+    """Adapter for OpenAI compatible servers."""
+    def __init__(self, host: str, port: int, **kwargs):
+        self.host = host
+        self.port = port
+        self.kwargs = kwargs
+
+class LMStudioAdapter:
+    """Adapter for LMStudio servers."""
+    def __init__(self, host: str, port: int, **kwargs):
+        self.host = host
+        self.port = port
+        self.kwargs = kwargs
+
+class TensorRTAdapter:
+    """Adapter for TensorRT servers."""
+    def __init__(self, host: str, port: int, **kwargs):
+        self.host = host
+        self.port = port
+        self.kwargs = kwargs
 
 # Configure logging
 logger = logging.getLogger(__name__)
