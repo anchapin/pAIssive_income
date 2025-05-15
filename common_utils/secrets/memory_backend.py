@@ -25,6 +25,36 @@ class MemoryBackend:
         self.secrets: dict[str, str] = {}
         logger.info("Memory backend initialized")
 
+    def _mask_key_for_logging(self, key: str) -> str:
+        """
+        Mask a key for logging to avoid exposing sensitive information.
+
+        Args:
+        ----
+            key: The key to mask
+
+        Returns:
+        -------
+            str: The masked key
+
+        """
+        # Constants for masking logic
+        long_key_threshold = 8
+        short_key_threshold = 3
+        visible_chars = 3
+
+        if not key:
+            return "[empty]"
+
+        # If key is longer than threshold, show first and last few characters
+        if len(key) > long_key_threshold:
+            return f"{key[:visible_chars]}...{key[-visible_chars:]}"
+        # Otherwise, just replace middle characters with *
+        if len(key) > short_key_threshold:
+            return f"{key[0]}{'*' * (len(key) - 2)}{key[-1]}"
+        # For very short keys, just use ***
+        return "***"
+
     def get_secret(self, key: str) -> str | None:
         """
         Get a secret from memory.
@@ -42,7 +72,9 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented for key: %s", key)
+        # Use a masked key reference to avoid logging sensitive information
+        masked_key = self._mask_key_for_logging(key)
+        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
@@ -64,7 +96,8 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented for key: %s", key)
+        masked_key = self._mask_key_for_logging(key)
+        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
         # Use value in a no-op to avoid unused argument warning
         if value:
             pass
@@ -88,7 +121,8 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented for key: %s", key)
+        masked_key = self._mask_key_for_logging(key)
+        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
