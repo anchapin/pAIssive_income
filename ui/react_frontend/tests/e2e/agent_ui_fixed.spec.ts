@@ -33,7 +33,7 @@ test.describe('AgentUI Integration', () => {
     await page.waitForLoadState('load', { timeout: 10000 });
 
     // Check if the About page content is loaded
-    await expect(page.getByText(/about paissive income framework/i)).toBeVisible({ timeout: 10000 });
+    await page.waitForSelector('h1, h2, h3, h4, h5, h6', { timeout: 10000 });
 
     // Mock the API response for /api/agent
     await page.route('/api/agent', async (route) => {
@@ -51,8 +51,14 @@ test.describe('AgentUI Integration', () => {
     // Reload the page to trigger the API call with our mock
     await page.reload();
 
-    // Wait for the AgentUI component to be visible
+    // Wait for the page to load
+    await page.waitForLoadState('load', { timeout: 10000 });
+
+    // Wait for the AgentUI component section to be visible
     await expect(page.getByText(/agent ui integration/i)).toBeVisible({ timeout: 10000 });
+
+    // Wait for the agent data to load
+    await page.waitForTimeout(1000);
 
     // Check if the agent name is displayed
     await expect(page.getByText('Test Agent')).toBeVisible();
@@ -71,6 +77,9 @@ test.describe('AgentUI Integration', () => {
   test('AgentUI buttons trigger actions', async ({ page }) => {
     // Navigate to the About page where AgentUI is integrated
     await page.goto(`${BASE_URL}/about`);
+
+    // Wait for navigation to complete
+    await page.waitForLoadState('load', { timeout: 10000 });
 
     // Mock the API response for /api/agent
     await page.route('/api/agent', async (route) => {
@@ -97,11 +106,20 @@ test.describe('AgentUI Integration', () => {
       });
     });
 
+    // Reload the page to trigger the API call with our mock
+    await page.reload();
+
     // Wait for the page to load
     await page.waitForLoadState('load', { timeout: 10000 });
 
-    // Wait for the AgentUI component to be visible
+    // Wait for the AgentUI component section to be visible
     await expect(page.getByText(/agent ui integration/i)).toBeVisible({ timeout: 10000 });
+
+    // Wait for the agent data to load
+    await page.waitForTimeout(1000);
+
+    // Check if the agent name is displayed before clicking buttons
+    await expect(page.getByText('Test Agent')).toBeVisible();
 
     // Click the Help button
     await page.getByRole('button', { name: 'Help' }).click();

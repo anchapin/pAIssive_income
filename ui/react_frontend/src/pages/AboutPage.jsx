@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -22,6 +22,8 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import PeopleIcon from '@mui/icons-material/People';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import WebIcon from '@mui/icons-material/Web';
+// Import the mock AgentUI component for testing
+import { AgentUI } from '../mocks/AgentUI';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,7 +32,53 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+// Example theme configuration for AgentUI
+const theme = {
+  primaryColor: "#007bff",
+  secondaryColor: "#f5f5f5",
+  fontFamily: "Roboto, Arial, sans-serif",
+  borderRadius: "8px",
+  darkMode: false,
+};
+
 const AboutPage = () => {
+  const [agent, setAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch agent info from backend
+  useEffect(() => {
+    async function fetchAgent() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/agent');
+        if (!response.ok) throw new Error('Failed to fetch agent data');
+        const data = await response.json();
+        setAgent(data);
+      } catch (err) {
+        setError(err.message || 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgent();
+  }, []);
+
+  // Handle actions from ag-ui and send to backend
+  const onAction = useCallback(async (action) => {
+    try {
+      const response = await fetch('/api/agent/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      });
+      if (!response.ok) throw new Error('Failed to submit action');
+      // Optionally, refetch agent data or update UI here
+    } catch (err) {
+      alert('Error sending action: ' + (err.message || err));
+    }
+  }, []);
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>
@@ -327,6 +375,27 @@ const AboutPage = () => {
                 <ListItemText primary="Storage" secondary="10+ GB for models" />
               </ListItem>
             </List>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="h6" gutterBottom>
+              Agent UI Integration
+            </Typography>
+            {loading ? (
+              <Typography>Loading agent...</Typography>
+            ) : error ? (
+              <Typography color="error">Error: {error}</Typography>
+            ) : agent ? (
+              <Box sx={{ mt: 2 }}>
+                <AgentUI
+                  agent={agent}
+                  theme={theme}
+                  onAction={onAction}
+                />
+              </Box>
+            ) : (
+              <Typography>No agent data available.</Typography>
+            )}
           </Item>
         </Grid>
       </Grid>

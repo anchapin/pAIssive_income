@@ -18,14 +18,17 @@
     "@babel/plugin-transform-optional-chaining": "^7.27.1",
     "@jest/reporters": "^29.7.0",
     "@playwright/test": "^1.52.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@vitest/ui": "^1.6.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "customize-cra": "^1.0.0",
+    "express": "^5.1.0",
     "react-app-rewired": "^2.2.1",
     "resolve-url-loader": "^5.0.0",
     "tough-cookie": "^4.1.4",
-    "vitest": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0"
+    "vitest": "^1.6.0"
   },
   "overrides": {
     "nth-check": "^2.0.1",
