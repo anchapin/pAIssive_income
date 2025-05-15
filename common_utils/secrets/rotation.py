@@ -1,22 +1,22 @@
-"""rotation - Module for common_utils/secrets.rotation.
+"""
+rotation - Module for common_utils/secrets.rotation.
 
 This module provides utilities for rotating secrets.
 """
+
+from __future__ import annotations
 
 # Standard library imports
 import datetime
 import json
 import os
-
-from typing import Optional
+from pathlib import Path
 
 # Third-party imports
 # Local imports
 from common_utils.logging import get_logger
 
-from .secrets_manager import SecretsBackend
-from .secrets_manager import get_secret
-from .secrets_manager import set_secret
+from .secrets_manager import SecretsBackend, get_secret, set_secret
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -27,24 +27,36 @@ class SecretRotation:
 
     def __init__(
         self,
-        rotation_file: Optional[str] = None,
-        secrets_backend: Optional[SecretsBackend] = None,
-    ):
-        """Initialize the secret rotation utility.
+        rotation_file: str | None = None,
+        secrets_backend: SecretsBackend | str | None = None,
+    ) -> None:
+        """
+        Initialize the secret rotation utility.
 
         Args:
         ----
             rotation_file: Path to the rotation file
-            secrets_backend: Backend to use for secrets
+            secrets_backend: Backend to use for secrets (SecretsBackend enum, string, or None)
 
         """
         self.rotation_file = rotation_file or os.environ.get(
             "PAISSIVE_ROTATION_FILE", "secret_rotation.json"
         )
-        self.secrets_backend = secrets_backend or SecretsBackend.ENV
+
+        # Handle different types for secrets_backend
+        if secrets_backend is None:
+            self.secrets_backend = SecretsBackend.ENV
+        elif isinstance(secrets_backend, str):
+            try:
+                self.secrets_backend = SecretsBackend.from_string(secrets_backend)
+            except ValueError:
+                logger.warning("Invalid backend string provided, using ENV")
+                self.secrets_backend = SecretsBackend.ENV
+        else:
+            self.secrets_backend = secrets_backend
         self.rotation_data: dict[str, dict] = {}
         self._load_rotation_data()
-        logger.info(f"Secret rotation initialized with file: {self.rotation_file}")
+        logger.info("Secret rotation initialized with file: %s", self.rotation_file)
 
     def _load_rotation_data(self) -> None:
         """Load the rotation data from the file."""
@@ -52,14 +64,15 @@ class SecretRotation:
             logger.warning("No rotation file specified")
             return
 
-        if not os.path.exists(self.rotation_file):
-            logger.warning(f"Rotation file {self.rotation_file} not found")
+        rotation_path = Path(self.rotation_file)
+        if not rotation_path.exists():
+            logger.warning("Rotation file %s not found", self.rotation_file)
             return
 
         try:
-            with open(self.rotation_file, encoding="utf-8") as f:
+            with rotation_path.open(encoding="utf-8") as f:
                 self.rotation_data = json.load(f)
-            logger.debug(f"Loaded rotation data from {self.rotation_file}")
+            logger.debug("Loaded rotation data from %s", self.rotation_file)
         except Exception:
             logger.exception("Error loading rotation data")
 
@@ -70,16 +83,18 @@ class SecretRotation:
             return
 
         try:
-            with open(self.rotation_file, "w", encoding="utf-8") as f:
+            rotation_path = Path(self.rotation_file)
+            with rotation_path.open("w", encoding="utf-8") as f:
                 json.dump(self.rotation_data, f, indent=2)
-            logger.debug(f"Saved rotation data to {self.rotation_file}")
+            logger.debug("Saved rotation data to %s", self.rotation_file)
         except Exception:
             logger.exception("Error saving rotation data")
 
     def schedule_rotation(
-        self, key: str, interval_days: int, generator_func: Optional[str] = None
+        self, key: str, interval_days: int, generator_func: str | None = None
     ) -> None:
-        """Schedule a secret for rotation.
+        """
+        Schedule a secret for rotation.
 
         Args:
         ----
@@ -88,24 +103,25 @@ class SecretRotation:
             generator_func: The name of a function to generate a new secret value
 
         """
-        now = datetime.datetime.now().isoformat()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
         self.rotation_data[key] = {
             "last_rotated": now,
             "interval_days": interval_days,
             "generator_func": generator_func,
         }
         self._save_rotation_data()
-        logger.info(f"Scheduled rotation for {key} every {interval_days} days")
+        logger.info("Scheduled rotation for %s every %s days", key, interval_days)
 
     def get_secrets_due_for_rotation(self) -> list[str]:
-        """Get a list of secrets that are due for rotation.
+        """
+        Get a list of secrets that are due for rotation.
 
         Returns
         -------
             List[str]: List of secret keys due for rotation
 
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         due_for_rotation = []
 
         for key, data in self.rotation_data.items():
@@ -118,8 +134,9 @@ class SecretRotation:
 
         return due_for_rotation
 
-    def rotate_secret(self, key: str, new_value: Optional[str] = None) -> bool:
-        """Rotate a secret.
+    def rotate_secret(self, key: str, new_value: str | None = None) -> bool:
+        """
+        Rotate a secret.
 
         Args:
         ----
@@ -132,33 +149,37 @@ class SecretRotation:
 
         """
         if key not in self.rotation_data:
-            logger.warning(f"Secret {key} not scheduled for rotation")
+            logger.warning("Secret %s not scheduled for rotation", key)
             return False
 
         # Get the current value
         current_value = get_secret(key, self.secrets_backend)
         if current_value is None:
-            logger.warning(f"Secret {key} not found")
+            logger.warning("Secret %s not found", key)
             return False
 
         # Set the new value
         if new_value is None:
             # Use a simple default if no generator function is specified
-            new_value = f"{current_value}_rotated_{datetime.datetime.now().isoformat()}"
+            now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+            new_value = f"{current_value}_rotated_{now}"
 
         # Set the new value
         if not set_secret(key, new_value, self.secrets_backend):
-            logger.error(f"Failed to set new value for {key}")
+            logger.error("Failed to set new value for %s", key)
             return False
 
         # Update the rotation data
-        self.rotation_data[key]["last_rotated"] = datetime.datetime.now().isoformat()
+        self.rotation_data[key]["last_rotated"] = datetime.datetime.now(
+            tz=datetime.timezone.utc
+        ).isoformat()
         self._save_rotation_data()
-        logger.info(f"Rotated secret {key}")
+        logger.info("Rotated secret %s", key)
         return True
 
     def rotate_all_due(self) -> tuple[int, list[str]]:
-        """Rotate all secrets that are due for rotation.
+        """
+        Rotate all secrets that are due for rotation.
 
         Returns
         -------
@@ -166,10 +187,5 @@ class SecretRotation:
 
         """
         due_for_rotation = self.get_secrets_due_for_rotation()
-        rotated = []
-
-        for key in due_for_rotation:
-            if self.rotate_secret(key):
-                rotated.append(key)
-
+        rotated = [key for key in due_for_rotation if self.rotate_secret(key)]
         return len(rotated), rotated

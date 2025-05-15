@@ -1,23 +1,23 @@
 """collect_workflow_metrics - Module for github/scripts.collect_workflow_metrics."""
 
+from __future__ import annotations
+
 # Standard library imports
 import argparse
 import json
-
-# Third-party imports
-# None required for basic functionality
-# Local imports
-# None required for basic functionality
 import logging
 import re
+from datetime import datetime, timezone
+from pathlib import Path
 
-from datetime import datetime
-
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def validate_input(input_str: str, pattern: str, default_value: str) -> str:
-    """Validate input string against a regex pattern.
+    """
+    Validate input string against a regex pattern.
 
     Args:
     ----
@@ -28,9 +28,10 @@ def validate_input(input_str: str, pattern: str, default_value: str) -> str:
     Returns:
     -------
         str: Validated input or default value
+
     """
     if not input_str or not re.match(pattern, input_str):
-        logging.warning(f"Invalid input detected: {input_str}. Using default value.")
+        logger.warning("Invalid input detected: %s. Using default value.", input_str)
         return default_value
     return input_str
 
@@ -43,7 +44,8 @@ def collect_metrics(
     commit: str,
     output_file: str,
 ) -> None:
-    """Collect and save workflow metrics.
+    """
+    Collect and save workflow metrics.
 
     Args:
     ----
@@ -53,6 +55,7 @@ def collect_metrics(
         branch: Branch name
         commit: Commit SHA
         output_file: Path to output JSON file
+
     """
     # Validate inputs
     workflow = validate_input(workflow, r"^[a-zA-Z0-9_\-\s]+$", "unknown-workflow")
@@ -62,7 +65,7 @@ def collect_metrics(
     try:
         duration_int = int(duration)
     except (ValueError, TypeError):
-        logging.warning(f"Invalid duration: {duration}. Using 0.")
+        logger.warning("Invalid duration: %s. Using 0.", duration)
         duration_int = 0
 
     # Validate branch name
@@ -73,7 +76,7 @@ def collect_metrics(
 
     # Create metrics data
     metrics = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(tz=timezone.utc).isoformat(),
         "workflow": workflow,
         "status": status,
         "duration": duration_int,
@@ -82,10 +85,11 @@ def collect_metrics(
     }
 
     # Save to file
-    with open(output_file, "w") as f:
+    output_path = Path(output_file)
+    with output_path.open("w") as f:
         json.dump(metrics, f, indent=2)
 
-    logging.info(f"Metrics saved to {output_file}")
+    logger.info("Metrics saved to %s", output_file)
 
 
 def main() -> None:

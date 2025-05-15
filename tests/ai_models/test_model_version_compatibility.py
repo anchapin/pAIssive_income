@@ -1,4 +1,5 @@
-"""Module for tests/ai_models.test_model_version_compatibility.
+"""
+Module for tests/ai_models.test_model_version_compatibility.
 
 Tests for version compatibility between different model versions.
 """

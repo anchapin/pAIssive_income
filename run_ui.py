@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """run_ui.py - Entry point for the Flask web application."""
 
+from __future__ import annotations
+
 import contextlib
 import gzip
 import logging
@@ -9,9 +11,10 @@ import os
 import sys
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from queue import Queue
-from typing import Any, Dict, List, TypeVar
+from typing import TypeVar
 
 from flask.globals import current_app
 from werkzeug.local import LocalProxy
@@ -32,7 +35,7 @@ logger = LocalProxy[logging.Logger](lambda: current_app.logger)
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
     """Extended handler that compresses rotated logs."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         """Initialize with compression delay."""
         self.compress_delay = kwargs.pop("compress_delay", 60)
         super().__init__(*args, **kwargs)
@@ -47,10 +50,11 @@ class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
         def delayed_compress() -> None:
             """Compress file after delay to avoid race conditions."""
             time.sleep(self.compress_delay)
-            with open(source, "rb") as f_in, gzip.open(f"{dest}.gz", "wb") as f_out:
+            source_path = Path(source)
+            with source_path.open("rb") as f_in, gzip.open(f"{dest}.gz", "wb") as f_out:
                 f_out.writelines(f_in)
             with contextlib.suppress(OSError):
-                os.remove(source)
+                source_path.unlink()
 
         threading.Thread(target=delayed_compress, daemon=True).start()
 
@@ -69,7 +73,7 @@ class ContextFilter(logging.Filter):
 
         self.process = psutil.Process(self.process_id)
 
-    def get_memory_usage(self) -> Dict[str, float]:
+    def get_memory_usage(self) -> dict[str, float]:
         """Get current memory usage."""
         try:
             mem_info = self.process.memory_info()
@@ -78,7 +82,7 @@ class ContextFilter(logging.Filter):
                 "memory_vms_mb": mem_info.vms / 1024 / 1024,
                 "memory_percent": self.process.memory_percent(),
             }
-        except Exception:
+        except (AttributeError, OSError):
             return {}
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -95,7 +99,8 @@ class ContextFilter(logging.Filter):
 def create_compressed_handler(
     filename: str, compress_delay: int = 60
 ) -> logging.Handler:
-    """Create a rotating file handler with compression.
+    """
+    Create a rotating file handler with compression.
 
     Args:
         filename: Path to the log file
@@ -103,8 +108,9 @@ def create_compressed_handler(
 
     Returns:
         CompressedRotatingFileHandler instance
+
     """
-    handler = CompressedRotatingFileHandler(
+    return CompressedRotatingFileHandler(
         filename,
         when="midnight",
         interval=1,
@@ -113,29 +119,33 @@ def create_compressed_handler(
         compress_delay=compress_delay,
         encoding="utf-8",
     )
-    return handler
 
 
 def verify_log_files(*log_files: str) -> None:
-    """Verify log files can be written to.
+    """
+    Verify log files can be written to.
 
     Args:
         log_files: One or more log file paths
+
     """
     for log_file in log_files:
-        if os.path.exists(log_file):
-            with open(log_file, "a"):
+        log_path = Path(log_file)
+        if log_path.exists():
+            with log_path.open("a"):
                 pass
 
 
 def create_console_handler(level: str = Config.LOG_LEVEL) -> logging.Handler:
-    """Create console handler with basic formatting.
+    """
+    Create console handler with basic formatting.
 
     Args:
         level: Log level
 
     Returns:
         Handler for console output
+
     """
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
@@ -144,13 +154,15 @@ def create_console_handler(level: str = Config.LOG_LEVEL) -> logging.Handler:
 
 
 def setup_file_formatter(use_json: bool = Config.LOG_FORMAT_JSON) -> logging.Formatter:
-    """Set up formatter for file handlers.
+    """
+    Set up formatter for file handlers.
 
     Args:
         use_json: Whether to use JSON formatting
 
     Returns:
         Formatter for file log handlers
+
     """
     if use_json:
         return logging.Formatter("%(message)s")
@@ -159,12 +171,15 @@ def setup_file_formatter(use_json: bool = Config.LOG_FORMAT_JSON) -> logging.For
     )
 
 
-def setup_handlers() -> tuple[List[logging.Handler], Queue]:
-    """Set up and configure all log handlers.
+def setup_handlers() -> tuple[list[logging.Handler], Queue]:
+    """
+    Set up and configure all log handlers.
 
     Returns:
         Tuple of (list of handlers, logging queue)
-    """  # Create logging queue
+
+    """
+    # Create logging queue
     log_queue: Queue = Queue(maxsize=Config.LOG_QUEUE_SIZE)
 
     # Create main and error log handlers
@@ -193,13 +208,15 @@ def setup_handlers() -> tuple[List[logging.Handler], Queue]:
 
 
 def setup_root_logger(level: str) -> logging.Logger:
-    """Configure the root logger.
+    """
+    Configure the root logger.
 
     Args:
         level: Logging level
 
     Returns:
         The configured root logger
+
     """
     root_logger = logging.getLogger()
     root_logger.setLevel(getattr(logging, level))
@@ -211,7 +228,7 @@ def setup_root_logger(level: str) -> logging.Logger:
 def setup_logging() -> None:
     """Set up application logging with rotation and formatting."""
     try:
-        os.makedirs(Config.LOG_DIR, exist_ok=True)
+        Path(Config.LOG_DIR).mkdir(parents=True, exist_ok=True)
         verify_log_files(Config.LOG_FILE, Config.LOG_ERROR_FILE)
 
         # Set up handlers and queue
@@ -245,12 +262,12 @@ def setup_logging() -> None:
             },
         )
 
-    except Exception as e:
+    except Exception:
         # Fall back to console logging
         console_handler = create_console_handler("INFO")
         root_logger = setup_root_logger("INFO")
         root_logger.addHandler(console_handler)
-        root_logger.error(f"Failed to initialize file logging: {e}", exc_info=True)
+        root_logger.exception("Failed to initialize file logging")
 
 
 # Initialize logging first
@@ -269,22 +286,39 @@ if hasattr(app, "logger"):
 
 
 @app.route("/health")
-def health_check() -> Dict[str, str]:
-    """Health check endpoint for monitoring.
+def health_check() -> dict[str, str]:
+    """
+    Health check endpoint for monitoring.
 
     Returns:
-        Dict[str, str]: Health status information
+        dict[str, str]: Health status information
+
     """
     return {
         "status": "healthy",
         "service": "paissive-income-ui",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(tz=timezone.utc).isoformat(),
     }
 
 
 if __name__ == "__main__":
     # Get host and port from environment variables or use defaults
-    host = os.environ.get("FLASK_HOST", "0.0.0.0")
+    # Use 127.0.0.1 as default for security (localhost only)
+    # Only use 0.0.0.0 in containerized environments where needed
+    is_container = os.environ.get("CONTAINER", "false").lower() in ("true", "1", "yes")
+
+    # Default to localhost for security, only bind to all interfaces in container
+    if is_container:
+        default_host = "0.0.0.0"  # noqa: S104 - Intentional for container environments
+        if hasattr(app, "logger"):
+            app.logger.warning(
+                "Binding to all network interfaces (0.0.0.0). "
+                "This is expected in container environments but may pose a security risk otherwise."
+            )
+    else:
+        default_host = "127.0.0.1"
+
+    host = os.environ.get("FLASK_HOST", default_host)
     port = int(os.environ.get("FLASK_PORT", "5000"))
 
     # Log startup information with extra context

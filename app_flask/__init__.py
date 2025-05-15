@@ -1,7 +1,9 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
+from __future__ import annotations
+
 # Standard library imports
-from typing import Any, Dict, Optional, TypeVar, Union, cast
+from typing import Any, TypeVar, Union, cast
 
 # Third-party imports
 from flask import Flask
@@ -23,15 +25,17 @@ FlaskConfig = Any
 
 
 def create_app(
-    test_config: Optional[dict[str, Any]] = None,
+    test_config: dict[str, Any] | None = None,
 ) -> Flask:
-    """Create and configure the Flask application.
+    """
+    Create and configure the Flask application.
 
     Args:
         test_config: Optional configuration dictionary for testing
 
     Returns:
         Flask: The configured Flask application
+
     """
     app = FlaskApp(__name__)
     # Load configuration
@@ -56,10 +60,12 @@ def create_app(
     # Add health check endpoint
     @app.route("/health")
     def health_check() -> dict[str, str]:
-        """Health check endpoint for monitoring.
+        """
+        Health check endpoint for monitoring.
 
         Returns:
             dict[str, str]: Health status information
+
         """
         return {"status": "healthy", "service": "paissive-income-ui"}
 

@@ -1,10 +1,12 @@
 """Utilities for enhanced application logging."""
 
+from __future__ import annotations
+
 import functools
 import logging
 import re
 import time
-from typing import Any, Callable, Dict, Optional, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 from flask.globals import current_app, g
 from werkzeug.local import LocalProxy
@@ -32,14 +34,16 @@ SENSITIVE_PATTERNS = [
 ]
 
 
-def sanitize_log_data(data: Any) -> Any:
-    """Remove sensitive information and prevent log injection from log data.
+def sanitize_log_data(data: object) -> object:
+    """
+    Remove sensitive information and prevent log injection from log data.
 
     Args:
         data: Data to sanitize
 
     Returns:
         Sanitized data
+
     """
     if isinstance(data, str):
         # First remove any potential log injection characters
@@ -60,45 +64,48 @@ def sanitize_log_data(data: Any) -> Any:
             result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
 
         return result
-    elif isinstance(data, dict):
+    if isinstance(data, dict):
         # Recursively sanitize dictionary values
         return {k: sanitize_log_data(v) for k, v in data.items()}
-    elif isinstance(data, (list, tuple)):
+    if isinstance(data, (list, tuple)):
         # Recursively sanitize sequence items
         return type(data)(sanitize_log_data(x) for x in data)
     return data
 
 
-def log_execution_time(logger: Optional[logging.Logger] = None) -> Callable[[F], F]:
-    """Decorator to log function execution time.
+def log_execution_time(logger: logging.Logger | None = None) -> Callable[[F], F]:
+    """
+    Log function execution time.
 
     Args:
         logger: Logger to use, defaults to app logger
 
     Returns:
         Decorated function
+
     """
 
     def decorator(func: F) -> F:
         @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper(*args: object, **kwargs: object) -> object:
             start_time = time.perf_counter()
             result = func(*args, **kwargs)
             duration = (time.perf_counter() - start_time) * 1000  # ms
 
             log = logger or current_app.logger
             log.info(
-                f"{func.__name__} executed",
+                "%s executed",
+                func.__name__,
                 extra={
                     "duration_ms": duration,
                     "function": func.__name__,
-                    "module": func.__module__,
+                    "func_module": func.__module__,  # Renamed to avoid clash with LogRecord field
                     "correlation_id": getattr(g, "correlation_id", None),
                 },
             )
             return result
 
-        return cast(F, wrapper)
+        return cast("F", wrapper)
 
     return decorator
 
@@ -106,10 +113,11 @@ def log_execution_time(logger: Optional[logging.Logger] = None) -> Callable[[F],
 def structured_log(
     event: str,
     message: str,
-    level: Any = logging.INFO,
-    extra: Optional[Dict[str, Any]] = None,
+    level: int | str = logging.INFO,
+    extra: dict[str, object] | None = None,
 ) -> None:
-    """Log a structured log message with sanitized inputs.
+    """
+    Log a structured log message with sanitized inputs.
 
     Args:
         event: The event type/name (will be sanitized)
@@ -121,6 +129,7 @@ def structured_log(
         The level parameter can be either a string (e.g. 'INFO') or an int constant from the logging module.
         If a string is provided, it will be converted to the corresponding logging level constant.
         All user-provided inputs are sanitized to prevent log injection attacks.
+
     """
     log = current_app.logger
 
@@ -131,7 +140,10 @@ def structured_log(
 
     # Add sanitized extra fields
     if extra:
-        log_data.update(sanitize_log_data(extra))
+        # Cast to dict to satisfy mypy
+        sanitized_extra = sanitize_log_data(extra)
+        if isinstance(sanitized_extra, dict):
+            log_data.update(sanitized_extra)
 
     # Set log level with explicit typing
     numeric_level: int = logging.INFO
@@ -146,16 +158,18 @@ def structured_log(
 def audit_log(
     action: str,
     status: str,
-    user_id: Optional[str] = None,
-    details: Optional[Dict[str, Any]] = None,
+    user_id: str | None = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
-    """Log an audit event.
+    """
+    Log an audit event.
 
     Args:
         action: The action being audited
         status: Status of the action (success/failure)
         user_id: ID of user performing action
         details: Additional audit details
+
     """
     log_data = {
         "event_type": "audit",
@@ -168,4 +182,4 @@ def audit_log(
     if details:
         log_data["details"] = sanitize_log_data(details)
 
-    current_app.logger.info(f"Audit: {action}", extra=log_data)
+    current_app.logger.info("Audit: %s", action, extra=log_data)

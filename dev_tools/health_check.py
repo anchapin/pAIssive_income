@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""health_check.py.
+"""
+health_check.py.
 
 Orchestrates repository quality checks:
 - Linting (ruff, replacing flake8)
@@ -18,33 +19,57 @@ sphinx-build (optional).
 """
 
 import logging
-import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
+# Initialize logger
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def run(cmd: str, desc: str) -> None:
-    """Run a shell command and print result.
+    """
+    Run a shell command and print result.
 
     Args:
         cmd (str): The command to run.
         desc (str): Description of the command.
 
     """
-    logging.info(f"\n==> {desc}")
-    res = subprocess.run(cmd, shell=True, check=False)
-    if res.returncode != 0:
-        logging.error(f"FAILED: {desc}")
+    message = f"\n==> {desc}"
+    logger.info(message)
+
+    try:
+        # Split the command into a list for safer execution
+        cmd_parts = cmd.split()
+        # Find the executable with full path
+        executable = shutil.which(cmd_parts[0])
+        if not executable:
+            message = f"Command not found: {cmd_parts[0]}"
+            logger.error(message)
+            sys.exit(1)
+
+        # Run the command with the full path to the executable
+        res = subprocess.run([executable] + cmd_parts[1:], check=False)  # noqa: S603 - Using full path to executable
+
+        if res.returncode != 0:
+            message = f"FAILED: {desc}"
+            logger.error(message)
+            sys.exit(1)
+        else:
+            message = f"PASSED: {desc}"
+            logger.info(message)
+    except (subprocess.SubprocessError, OSError) as e:
+        message = f"ERROR: {desc} - {e!s}"
+        logger.exception(message)
         sys.exit(1)
-    else:
-        logging.info(f"PASSED: {desc}")
 
 
 def check_gitignore(_path: str) -> bool:
-    """Skip files/directories in .gitignore (for future extension).
+    """
+    Skip files/directories in .gitignore (for future extension).
 
     Args:
         path (str): Path to check.
@@ -62,7 +87,7 @@ def lint() -> None:
         run("ruff check .", "Ruff linting")
         run("ruff format --check .", "Ruff formatting check")
     else:
-        logging.warning("ruff not found, skipping linting and formatting checks.")
+        logger.warning("ruff not found, skipping linting and formatting checks.")
 
 
 def type_check() -> None:
@@ -70,7 +95,7 @@ def type_check() -> None:
     if shutil.which("mypy"):
         run("mypy .", "Mypy static type checking")
     else:
-        logging.warning("mypy not found, skipping type checks.")
+        logger.warning("mypy not found, skipping type checks.")
 
 
 def security() -> None:
@@ -78,7 +103,7 @@ def security() -> None:
     if shutil.which("bandit"):
         run("bandit -r . -x tests", "Bandit security scan")
     else:
-        logging.warning("bandit not found, skipping security checks.")
+        logger.warning("bandit not found, skipping security checks.")
 
 
 def deps() -> None:
@@ -86,23 +111,23 @@ def deps() -> None:
     if shutil.which("uv"):
         run("uv pip audit", "Python dependency audit")
     else:
-        logging.warning("uv not found, skipping dependency audit.")
+        logger.warning("uv not found, skipping dependency audit.")
 
 
 def docs() -> None:
     """Build Sphinx documentation, if present."""
-    if os.path.isdir("docs_source") and shutil.which("sphinx-build"):
+    if Path("docs_source").is_dir() and shutil.which("sphinx-build"):
         run(
             "sphinx-build docs_source docs/_build",
             "Sphinx documentation build",
         )
     else:
-        logging.warning("Sphinx not configured or not found, skipping docs build.")
+        logger.warning("Sphinx not configured or not found, skipping docs build.")
 
 
 def usage() -> None:
     """Print usage instructions."""
-    logging.info(__doc__)
+    logger.info(__doc__)
 
 
 def main() -> None:

@@ -1,5 +1,5 @@
 """
-ADK Demo Main Module
+ADK Demo Main Module.
 
 This module serves as the entry point for the ADK demonstration.
 It sets up the agent communication infrastructure and provides a simple CLI interface.
@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 def main() -> None:
     """
-    Main function that orchestrates the ADK demonstration.
+    Orchestrate the ADK demonstration.
 
     Flow:
     1. Sets up communication infrastructure

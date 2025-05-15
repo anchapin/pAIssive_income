@@ -48,7 +48,7 @@ patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext()))
 @pytest.fixture
 def user_service():
     """Create a UserService instance for testing."""
-    return UserService(token_secret="test_secret")
+    return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
 
 
 def test_create_user(user_service):
@@ -58,8 +58,8 @@ def test_create_user(user_service):
         id=1,
         username="testuser",
         email="test@example.com",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(tz=datetime.timezone.utc),
+        updated_at=datetime.now(tz=datetime.timezone.utc),
     )
 
     # Set up the mocks
@@ -116,7 +116,7 @@ def test_authenticate_user_success(user_service):
         id=1,
         username="testuser",
         email="test@example.com",
-        password_hash="hashed_password",
+        password_hash="hashed_password",  # noqa: S106 - Test data only
     )
 
     # Set up the mocks
@@ -149,7 +149,7 @@ def test_authenticate_user_failure(user_service):
         id=1,
         username="testuser",
         email="test@example.com",
-        password_hash="hashed_password",
+        password_hash="hashed_password",  # noqa: S106 - Test data only
     )
 
     # Set up the mocks

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced Setup Development Environment Script
+Enhanced Setup Development Environment Script.
 
 This script automates the setup of a development environment for the pAIssive Income project.
 It performs the following tasks:
@@ -38,11 +38,12 @@ Options:
     --help                Show this help message
 """
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import json
 import logging
-import os
 import platform
 import shutil
 import subprocess
@@ -77,7 +78,7 @@ class MinimalYaml:
             return {}
 
     @staticmethod
-    def dump(data: dict[str, Any], file: Any, **_kwargs: Any) -> None:
+    def dump(data: dict[str, Any], file: object, **_kwargs: object) -> None:
         """Dump data to a file in JSON format."""
         logger.warning("Using minimal YAML implementation - saving as JSON")
         json.dump(data, file, indent=2)
@@ -85,39 +86,54 @@ class MinimalYaml:
 
 def install_pyyaml() -> bool:
     """Install PyYAML module using multiple fallback mechanisms."""
+    # Get full paths to executables
+    uv_path = shutil.which("uv")
+    pip_path = shutil.which("pip")
+
     methods = [
-        lambda: subprocess.check_call(["uv", "pip", "install", "pyyaml"]) == 0,
-        lambda: subprocess.check_call([
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--upgrade",
-            "uv",
-        ])
-        == 0
-        and subprocess.check_call(["uv", "pip", "install", "pyyaml"]) == 0,
-        lambda: subprocess.check_call([
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "pyyaml",
-        ])
+        # Using full path when available or trusted executables
+        lambda: subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"])  # noqa: S603 - Using full path when available
         == 0,
-        lambda: subprocess.check_call(["pip", "install", "pyyaml"]) == 0,
+        lambda: subprocess.check_call(  # noqa: S603 - Using sys.executable
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "uv",
+            ]
+        )
+        == 0
+        and subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"]) == 0,  # noqa: S603 - Using full path when available
+        lambda: subprocess.check_call(  # noqa: S603 - Using sys.executable
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "pyyaml",
+            ]
+        )
+        == 0,
+        lambda: subprocess.check_call([pip_path or "pip", "install", "pyyaml"]) == 0,  # noqa: S603 - Using full path when available
     ]
 
+    # Try each method in sequence
+    import contextlib
+
     for method in methods:
-        try:
-            if method():
-                return True
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            continue
+        success = False
+        with contextlib.suppress(subprocess.CalledProcessError, FileNotFoundError):
+            success = method()
+
+        if success:
+            return True
+
     return False
 
 
-def get_yaml_module() -> Any:
+def get_yaml_module() -> object:
     """Get the YAML module, either PyYAML or our minimal implementation."""
     try:
         import yaml
@@ -140,26 +156,26 @@ yaml = get_yaml_module()
 
 
 def run_command(
-    cmd: list[str], cwd: Optional[str] = None, env: Optional[dict[str, str]] = None
+    cmd: list[str], cwd: str | None = None, env: dict[str, str] | None = None
 ) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr."""
     executable_path_str = cmd[0]
 
     try:
         # Resolve command using shutil.which if needed
-        if not os.path.isabs(executable_path_str) and not os.path.dirname(
-            executable_path_str
-        ):
+        executable_path = Path(executable_path_str)
+        if not executable_path.is_absolute() and executable_path.parent == Path():
             resolved_executable = shutil.which(executable_path_str)
             if resolved_executable:
                 cmd_to_run = [resolved_executable] + cmd[1:]
             else:
-                logger.debug(f"Command '{executable_path_str}' not found in PATH")
-                return 1, "", f"Command '{executable_path_str}' not found in PATH."
+                message = f"Command '{executable_path_str}' not found in PATH"
+                logger.debug(message)
+                return 1, "", message + "."
         else:
             cmd_to_run = list(cmd)
 
-        process = subprocess.run(
+        process = subprocess.run(  # noqa: S603 - Using resolved executable path
             cmd_to_run,
             cwd=cwd,
             env=env,
@@ -168,8 +184,9 @@ def run_command(
             check=False,
         )
     except FileNotFoundError:
-        logger.exception(f"Command not found: {executable_path_str}")
-        return 1, "", f"Command not found: {executable_path_str}"
+        message = f"Command not found: {executable_path_str}"
+        logger.exception(message)
+        return 1, "", message
     except Exception as e:
         logger.exception("Error executing command")
         return 1, "", str(e)
@@ -183,7 +200,8 @@ def create_virtual_environment() -> bool:
     venv_path = Path(".venv")
 
     if venv_path.exists():
-        logger.info(f"Virtual environment already exists at {venv_path}")
+        message = f"Virtual environment already exists at {venv_path}"
+        logger.info(message)
         return True
 
     # Try with uv first
@@ -192,30 +210,37 @@ def create_virtual_environment() -> bool:
         try:
             exit_code, _, stderr = run_command(["uv", "venv", str(venv_path)])
             if exit_code == 0:
-                logger.info(f"Created virtual environment at {venv_path} using uv")
+                message = f"Created virtual environment at {venv_path} using uv"
+                logger.info(message)
                 return True
-            logger.warning(f"Error creating virtual environment with uv: {stderr}")
-        except Exception as e:
-            logger.warning(f"Exception when creating virtual environment with uv: {e}")
+            message = f"Error creating virtual environment with uv: {stderr}"
+            logger.warning(message)
+        except (subprocess.SubprocessError, OSError) as e:
+            message = f"Exception when creating virtual environment with uv: {e}"
+            logger.warning(message)
 
     # Fallback to regular venv
     try:
         venv.create(venv_path, with_pip=True)
-        logger.info(f"Created virtual environment at {venv_path}")
-    except Exception:
+        message = f"Created virtual environment at {venv_path}"
+        logger.info(message)
+    except (venv.EnvBuilderError, OSError):
         logger.exception("Failed to create virtual environment using venv")
         # Try virtualenv as last resort
         try:
-            subprocess.check_call([
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "virtualenv",
-            ])
-            subprocess.check_call([sys.executable, "-m", "virtualenv", str(venv_path)])
-            logger.info(f"Created virtual environment at {venv_path} using virtualenv")
-        except Exception:
+            subprocess.check_call(  # noqa: S603 - Using sys.executable
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "virtualenv",
+                ]
+            )
+            subprocess.check_call([sys.executable, "-m", "virtualenv", str(venv_path)])  # noqa: S603 - Using sys.executable
+            message = f"Created virtual environment at {venv_path} using virtualenv"
+            logger.info(message)
+        except (subprocess.SubprocessError, OSError):
             logger.exception("Failed to create virtual environment using virtualenv")
             return False
         else:
@@ -226,16 +251,18 @@ def create_virtual_environment() -> bool:
 
 def get_venv_python_path() -> str:
     """Get the path to the Python executable in the virtual environment."""
+    venv_path = Path(".venv")
     if platform.system() == "Windows":
-        return str(os.path.join(".venv", "Scripts", "python.exe"))
-    return str(os.path.join(".venv", "bin", "python"))
+        return str(venv_path / "Scripts" / "python.exe")
+    return str(venv_path / "bin" / "python")
 
 
 def get_venv_pip_path() -> str:
     """Get the path to the pip executable in the virtual environment."""
+    venv_path = Path(".venv")
     if platform.system() == "Windows":
-        return str(os.path.join(".venv", "Scripts", "pip.exe"))
-    return str(os.path.join(".venv", "bin", "pip"))
+        return str(venv_path / "Scripts" / "pip.exe")
+    return str(venv_path / "bin" / "pip")
 
 
 def _upgrade_pip() -> bool:
@@ -243,27 +270,34 @@ def _upgrade_pip() -> bool:
     logger.info("Upgrading pip...")
     try:
         if shutil.which("uv"):
-            exit_code, _, stderr = run_command([
-                "uv",
-                "pip",
-                "install",
-                "--upgrade",
-                "pip",
-            ])
+            exit_code, _, stderr = run_command(
+                [
+                    "uv",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "pip",
+                ]
+            )
             if exit_code != 0:
-                logger.warning(f"Failed to upgrade pip with uv: {stderr}")
-    except Exception as e:
-        logger.warning(f"Error upgrading pip: {e}")
+                message = f"Failed to upgrade pip with uv: {stderr}"
+                logger.warning(message)
+    except (subprocess.SubprocessError, OSError, FileNotFoundError) as e:
+        message = f"Error upgrading pip: {e}"
+        logger.warning(message)
     return True  # Continue anyway, not critical
 
 
 def _install_requirements(pip_path: str, req_file: str) -> bool:
     """Install dependencies from a requirements file."""
-    if not os.path.exists(req_file):
-        logger.debug(f"Requirements file not found: {req_file}")
+    req_file_path = Path(req_file)
+    if not req_file_path.exists():
+        message = f"Requirements file not found: {req_file}"
+        logger.debug(message)
         return True  # Not an error if file doesn't exist
 
-    logger.info(f"Installing dependencies from {req_file}...")
+    message = f"Installing dependencies from {req_file}..."
+    logger.info(message)
 
     # Try with uv first
     if shutil.which("uv"):
@@ -271,17 +305,20 @@ def _install_requirements(pip_path: str, req_file: str) -> bool:
             exit_code, _, stderr = run_command(["uv", "pip", "install", "-r", req_file])
             if exit_code == 0:
                 return True
-            logger.warning(f"Failed to install with uv: {stderr}")
-        except Exception as e:
-            logger.warning(f"Error using uv to install dependencies: {e}")
+            message = f"Failed to install with uv: {stderr}"
+            logger.warning(message)
+        except (subprocess.SubprocessError, OSError, FileNotFoundError) as e:
+            message = f"Error using uv to install dependencies: {e}"
+            logger.warning(message)
 
     # Fallback to regular pip
     try:
         exit_code, _, stderr = run_command([pip_path, "install", "-r", req_file])
         if exit_code != 0:
-            logger.error(f"Failed to install with pip: {stderr}")
+            message = f"Failed to install with pip: {stderr}"
+            logger.error(message)
             return False
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         logger.exception("Error using pip to install dependencies")
         return False
     else:
@@ -322,7 +359,7 @@ def setup_pre_commit_hooks(python_path: str) -> bool:
     try:
         exit_code, _, stderr = run_command([python_path, "-m", "pre_commit", "install"])
         if exit_code != 0:
-            logger.error(f"Failed to set up pre-commit hooks: {stderr}")
+            logger.error("Failed to set up pre-commit hooks: %s", stderr)
             return False
         logger.info("Pre-commit hooks installed successfully")
     except Exception:
@@ -341,7 +378,7 @@ def configure_vscode() -> bool:
         vscode_dir.parent.mkdir(parents=True, exist_ok=True)
         # Create .vscode directory
         vscode_dir.mkdir(exist_ok=True)
-        logger.info(f"Created/verified .vscode directory at {vscode_dir}")
+        logger.info("Created/verified .vscode directory at %s", vscode_dir)
 
         # Determine platform-specific Python path
         python_path = str(
@@ -361,9 +398,9 @@ def configure_vscode() -> bool:
         }
 
         settings_file = vscode_dir / "settings.json"
-        logger.info(f"Writing VS Code settings to {settings_file}")
+        logger.info("Writing VS Code settings to %s", settings_file)
 
-        with open(settings_file, "w") as f:
+        with settings_file.open("w") as f:
             json.dump(settings, f, indent=4)
 
         logger.info("VSCode configuration complete")
@@ -375,14 +412,14 @@ def configure_vscode() -> bool:
     except OSError:
         logger.exception("OS error when configuring VSCode")
         return False
-    except Exception:
-        logger.exception("Unexpected error configuring VSCode")
+    except json.JSONDecodeError:
+        logger.exception("JSON error when configuring VSCode")
         # Create a basic .vscode directory if we couldn't create the full configuration
         if not vscode_dir.exists():
             try:
                 vscode_dir.mkdir(parents=True, exist_ok=True)
                 logger.info("Created basic .vscode directory")
-            except Exception:
+            except OSError:
                 logger.exception("Failed to create basic .vscode directory")
         return False
     else:
@@ -396,7 +433,7 @@ def configure_pycharm() -> bool:
         idea_dir = Path(".idea")
         idea_dir.mkdir(exist_ok=True)
         logger.info("PyCharm configuration complete")
-    except Exception:
+    except OSError:
         logger.exception("Error configuring PyCharm")
         return False
     else:
@@ -432,7 +469,7 @@ def install_pnpm_globally() -> bool:
         logger.warning("Failed to install pnpm with npm, trying npx...")
         exit_code, _, stderr = run_command(["npx", "pnpm", "setup"])
         if exit_code != 0:
-            logger.error(f"Failed to install pnpm: {stderr}")
+            logger.error("Failed to install pnpm: %s", stderr)
             return False
 
         logger.info("pnpm installed successfully")
@@ -453,17 +490,17 @@ def check_dependency(
     """Check for a specific dependency and install if missing."""
     version = get_version_func()
     if version:
-        logger.info(f"{name} is installed: {version}")
+        logger.info("%s is installed: %s", name, version)
         return True
 
-    logger.warning(f"{name} is not installed.")
+    logger.warning("%s is not installed.", name)
     if args and args.force_install_deps and install_func:
         if version_arg:
             return bool(install_func(version_arg))
         return bool(install_func())
 
     if args:
-        logger.warning(f"Please install {name} or run with --force-install-deps")
+        logger.warning("Please install %s or run with --force-install-deps", name)
     return False
 
 
@@ -581,43 +618,56 @@ def parse_args() -> argparse.Namespace:
             "--config-file", help="Specify a configuration file for setup options"
         )
 
-    except Exception:
+    except (argparse.ArgumentError, ValueError, TypeError):
         logger.exception("Error parsing arguments")
         sys.exit(1)
     else:
         return parser.parse_args()
 
 
+def run_setup_steps(args: argparse.Namespace) -> bool:
+    """Run all setup steps and return success status."""
+    # Virtual environment setup
+    if not args.no_venv and not create_virtual_environment():
+        logger.error("Failed to create virtual environment")
+        return False
+
+    # Dependencies installation
+    if not install_dependencies(args):
+        logger.error("Failed to install dependencies")
+        return False
+
+    # Pre-commit hooks setup
+    if not args.no_pre_commit:
+        python_path = get_venv_python_path()
+        if not setup_pre_commit_hooks(python_path):
+            logger.error("Failed to set up pre-commit hooks")
+            return False
+
+    # IDE configuration
+    if not configure_ide(args):
+        logger.error("Failed to configure IDE settings")
+        return False
+
+    return True
+
+
 def main() -> int:
-    """Main entry point."""
+    """Execute the main setup process."""
     try:
         args = parse_args()
         args = apply_setup_profile(args)
 
-        if not args.no_venv and not create_virtual_environment():
-            logger.error("Failed to create virtual environment")
-            return 1
-
-        if not install_dependencies(args):
-            logger.error("Failed to install dependencies")
-            return 1
-
-        if not args.no_pre_commit:
-            python_path = get_venv_python_path()
-            if not setup_pre_commit_hooks(python_path):
-                logger.error("Failed to set up pre-commit hooks")
-                return 1
-
-        if not configure_ide(args):
-            logger.error("Failed to configure IDE settings")
-            return 1
-
-        logger.info("Development environment setup completed successfully")
+        if run_setup_steps(args):
+            logger.info("Development environment setup completed successfully")
+            return 0
+        return 1  # noqa: TRY300
+    except (OSError, subprocess.SubprocessError):
+        logger.exception("Error in environment setup")
+        return 1
     except Exception:
         logger.exception("Unexpected error in main")
         return 1
-    else:
-        return 0
 
 
 if __name__ == "__main__":

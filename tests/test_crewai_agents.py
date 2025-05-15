@@ -18,8 +18,9 @@ def test_crewai_import_and_agent():
 
 def test_crewai_task_and_crew():
     try:
-        from crewai import Agent, Task, Crew
         from unittest.mock import MagicMock
+
+        from crewai import Agent, Crew, Task
 
         # Mock the Agent to avoid actual model calls
         mock_agent = MagicMock(spec=Agent)

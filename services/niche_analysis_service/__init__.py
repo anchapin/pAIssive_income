@@ -1,0 +1,1 @@
+"""Niche Analysis Service package."""

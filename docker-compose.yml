@@ -24,6 +24,7 @@ services:
       - POSTGRES_HOST=db
       - LOG_LEVEL=INFO
       - CI=${CI:-false}
+      - CONTAINER=true
     networks:
       - paissive-network
     healthcheck:

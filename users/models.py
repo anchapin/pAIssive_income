@@ -23,4 +23,4 @@ db = MockDB()
 class User:
     """User model class."""
 
-    pass  # Add necessary attributes or methods if required for tests
+    # Add necessary attributes or methods if required for tests

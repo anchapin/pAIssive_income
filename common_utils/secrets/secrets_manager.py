@@ -1,12 +1,15 @@
-"""secrets_manager - Module for common_utils/secrets.secrets_manager.
+"""
+secrets_manager - Module for common_utils/secrets.secrets_manager.
 
 This module provides a unified interface for managing secrets across different backends.
 """
 
+from __future__ import annotations
+
 # Standard library imports
 import enum
 import os
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 # Third-party imports
 # Local imports
@@ -28,8 +31,9 @@ class SecretsBackend(enum.Enum):
     VAULT = "vault"
 
     @classmethod
-    def from_string(cls, backend_str: str) -> "SecretsBackend":
-        """Create a SecretsBackend from a string.
+    def from_string(cls, backend_str: str) -> SecretsBackend:
+        """
+        Create a SecretsBackend from a string.
 
         Args:
             backend_str: The string representation of the backend
@@ -39,6 +43,7 @@ class SecretsBackend(enum.Enum):
 
         Raises:
             ValueError: If the string does not match any backend
+
         """
         # Simply call the constructor directly
         # If it raises ValueError, let it propagate up
@@ -46,13 +51,15 @@ class SecretsBackend(enum.Enum):
 
     @classmethod
     def is_valid_backend(cls, backend_str: str) -> bool:
-        """Check if a string is a valid backend.
+        """
+        Check if a string is a valid backend.
 
         Args:
             backend_str: The string representation of the backend
 
         Returns:
             bool: True if the string is a valid backend, False otherwise
+
         """
         try:
             cls(backend_str)
@@ -62,21 +69,22 @@ class SecretsBackend(enum.Enum):
             return True
 
     @classmethod
-    def get_default(cls) -> "SecretsBackend":
-        """Get the default backend.
+    def get_default(cls) -> SecretsBackend:
+        """
+        Get the default backend.
 
         Returns:
             SecretsBackend: The default backend (ENV)
+
         """
-        # Explicitly cast to the correct type to help mypy
-        backend: SecretsBackend = cls.ENV  # type: ignore
-        return backend
+        # Return the enum value directly
+        return cls.ENV  # type: ignore[return-value]
 
 
 class SecretBackendProtocol(Protocol):
     """Protocol for secret backend implementations."""
 
-    def get_secret(self) -> Optional[str]:
+    def get_secret(self) -> str | None:
         """Get a secret from the backend."""
         ...
 
@@ -98,8 +106,9 @@ class SecretsManager:
 
     default_backend: SecretsBackend
 
-    def __init__(self, default_backend: SecretsBackend | str | None = None):
-        """Initialize the secrets manager.
+    def __init__(self, default_backend: SecretsBackend | str | None = None) -> None:
+        """
+        Initialize the secrets manager.
 
         Args:
         ----
@@ -132,83 +141,90 @@ class SecretsManager:
         # Don't log the actual backend value as it might contain sensitive information
         logger.info("Secrets manager initialized with default backend")
 
-    def _get_env_secret(self, key: str) -> Optional[str]:
-        """Get a secret from environment variables.
+    def _get_env_secret(self, key: str) -> str | None:
+        """
+        Get a secret from environment variables.
 
         Args:
             key: The key of the secret
 
         Returns:
             Optional[str]: The secret value, or None if not found
+
         """
         return os.environ.get(key) if key in os.environ else None
 
-    def _get_file_secret(self, key: str) -> Optional[str]:
-        """Get a secret from the file backend.
+    def _get_file_secret(self, key: str) -> str | None:
+        """
+        Get a secret from the file backend.
 
         Args:
             key: The key of the secret
 
         Returns:
             Optional[str]: The secret value, or None if not found
+
         """
         try:
             from .file_backend import FileBackend
 
             file_backend = FileBackend()
-            result: Optional[str] = file_backend.get_secret(key)
+            result: str | None = file_backend.get_secret(key)
         except NotImplementedError:
             logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
 
-    def _get_memory_secret(self, _key: str) -> Optional[str]:
-        """Get a secret from the memory backend.
+    def _get_memory_secret(self, _key: str) -> str | None:
+        """
+        Get a secret from the memory backend.
 
         Args:
             _key: The key of the secret (unused in current implementation)
 
         Returns:
             Optional[str]: The secret value, or None if not found
+
         """
         try:
             from .memory_backend import MemoryBackend
 
             memory_backend = MemoryBackend()
-            # The memory backend get_secret method doesn't take arguments yet
-            result: Optional[str] = memory_backend.get_secret()
+            # The memory backend get_secret method requires a key parameter
+            result: str | None = memory_backend.get_secret(_key)
         except NotImplementedError:
             logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
 
-    def _get_vault_secret(self, _key: str) -> Optional[str]:
-        """Get a secret from the vault backend.
+    def _get_vault_secret(self, _key: str) -> str | None:
+        """
+        Get a secret from the vault backend.
 
         Args:
             _key: The key of the secret (unused in current implementation)
 
         Returns:
             Optional[str]: The secret value, or None if not found
+
         """
         try:
             from .vault_backend import VaultBackend
 
             vault_backend = VaultBackend()
-            # The vault backend get_secret method doesn't take arguments yet
-            result: Optional[str] = vault_backend.get_secret()
+            # The vault backend get_secret method requires a key parameter
+            result: str | None = vault_backend.get_secret(_key)
         except NotImplementedError:
             logger.warning("Backend not yet fully implemented")
             return None
         else:
             return result
 
-    def get_secret(
-        self, key: str, backend: Optional[SecretsBackend] = None
-    ) -> Optional[str]:
-        """Get a secret from the specified backend.
+    def get_secret(self, key: str, backend: SecretsBackend | None = None) -> str | None:
+        """
+        Get a secret from the specified backend.
 
         Args:
         ----
@@ -243,18 +259,18 @@ class SecretsManager:
         # Use the appropriate backend to get the secret
         if backend_enum == SecretsBackend.ENV:
             return self._get_env_secret(key)
-        elif backend_enum == SecretsBackend.FILE:
+        if backend_enum == SecretsBackend.FILE:
             return self._get_file_secret(key)
-        elif backend_enum == SecretsBackend.MEMORY:
+        if backend_enum == SecretsBackend.MEMORY:
             return self._get_memory_secret(key)
-        elif backend_enum == SecretsBackend.VAULT:
+        if backend_enum == SecretsBackend.VAULT:
             return self._get_vault_secret(key)
-        else:
-            logger.error("Unknown backend specified")
-            return None
+        logger.error("Unknown backend specified")
+        return None
 
     def _set_env_secret(self, key: str, value: str) -> bool:
-        """Set a secret in the environment variables.
+        """
+        Set a secret in the environment variables.
 
         Args:
             key: The key of the secret
@@ -262,6 +278,7 @@ class SecretsManager:
 
         Returns:
             bool: True if the secret was set successfully
+
         """
         os.environ[key] = value
         return True
@@ -269,7 +286,8 @@ class SecretsManager:
     def _set_backend_secret(
         self, _key: str, _value: str, backend_type: SecretsBackend
     ) -> bool:
-        """Set a secret in a specific backend.
+        """
+        Set a secret in a specific backend.
 
         Args:
             key: The key of the secret
@@ -278,6 +296,7 @@ class SecretsManager:
 
         Returns:
             bool: True if the secret was set successfully, False otherwise
+
         """
         try:
             # Import backends
@@ -291,10 +310,10 @@ class SecretsManager:
                 result: bool = file_backend.set_secret(_key, _value)
             elif backend_type == SecretsBackend.MEMORY:
                 memory_backend = MemoryBackend()
-                result = bool(memory_backend.set_secret())
+                result = bool(memory_backend.set_secret(_key, _value))
             elif backend_type == SecretsBackend.VAULT:
                 vault_backend = VaultBackend()
-                result = bool(vault_backend.set_secret())
+                result = bool(vault_backend.set_secret(_key, _value))
             else:
                 # Don't log the actual backend type as it might contain sensitive information
                 logger.error("Unsupported backend type")
@@ -311,9 +330,10 @@ class SecretsManager:
             return result
 
     def set_secret(
-        self, key: str, value: str, backend: Optional[SecretsBackend] = None
+        self, key: str, value: str, backend: SecretsBackend | None = None
     ) -> bool:
-        """Set a secret in the specified backend.
+        """
+        Set a secret in the specified backend.
 
         Args:
         ----
@@ -348,24 +368,25 @@ class SecretsManager:
 
         if backend_enum == SecretsBackend.ENV:
             return self._set_env_secret(key, value)
-        elif backend_enum in (
+        if backend_enum in (
             SecretsBackend.FILE,
             SecretsBackend.MEMORY,
             SecretsBackend.VAULT,
         ):
             return self._set_backend_secret(key, value, backend_enum)
-        else:
-            logger.error("Unknown backend specified")
-            return False
+        logger.error("Unknown backend specified")
+        return False
 
     def _delete_env_secret(self, key: str) -> bool:
-        """Delete a secret from environment variables.
+        """
+        Delete a secret from environment variables.
 
         Args:
             key: The key of the secret
 
         Returns:
             bool: True if the secret was deleted successfully, False otherwise
+
         """
         if key in os.environ:
             del os.environ[key]
@@ -373,7 +394,8 @@ class SecretsManager:
         return False
 
     def _delete_backend_secret(self, _key: str, backend_type: SecretsBackend) -> bool:
-        """Delete a secret from a specific backend.
+        """
+        Delete a secret from a specific backend.
 
         Args:
             key: The key of the secret
@@ -381,6 +403,7 @@ class SecretsManager:
 
         Returns:
             bool: True if the secret was deleted successfully, False otherwise
+
         """
         try:
             # Import backends
@@ -394,10 +417,10 @@ class SecretsManager:
                 result: bool = file_backend.delete_secret(_key)
             elif backend_type == SecretsBackend.MEMORY:
                 memory_backend = MemoryBackend()
-                result = bool(memory_backend.delete_secret())
+                result = bool(memory_backend.delete_secret(_key))
             elif backend_type == SecretsBackend.VAULT:
                 vault_backend = VaultBackend()
-                result = bool(vault_backend.delete_secret())
+                result = bool(vault_backend.delete_secret(_key))
             else:
                 # Don't log the actual backend type as it might contain sensitive information
                 logger.error("Unsupported backend type")
@@ -413,8 +436,9 @@ class SecretsManager:
         else:
             return result
 
-    def delete_secret(self, key: str, backend: Optional[SecretsBackend] = None) -> bool:
-        """Delete a secret from the specified backend.
+    def delete_secret(self, key: str, backend: SecretsBackend | None = None) -> bool:
+        """
+        Delete a secret from the specified backend.
 
         Args:
         ----
@@ -448,21 +472,22 @@ class SecretsManager:
 
         if backend_enum == SecretsBackend.ENV:
             return self._delete_env_secret(key)
-        elif backend_enum in (
+        if backend_enum in (
             SecretsBackend.FILE,
             SecretsBackend.MEMORY,
             SecretsBackend.VAULT,
         ):
             return self._delete_backend_secret(key, backend_enum)
-        else:
-            logger.error("Unknown backend specified")
-            return False
+        logger.error("Unknown backend specified")
+        return False
 
     def _list_env_secrets(self) -> dict[str, Any]:
-        """List secrets from environment variables.
+        """
+        List secrets from environment variables.
 
         Returns:
             dict[str, Any]: Dictionary of environment variables with sensitive information masked
+
         """
         # Import secure logging utilities with enhanced sensitive field patterns
         from common_utils.logging.secure_logging import (
@@ -490,16 +515,18 @@ class SecretsManager:
         ]
 
         # Process each environment variable
-        for key, _ in os.environ.items():
+        for key in os.environ:
             # Skip environment variables that are clearly not secrets
-            if key.startswith((
-                "PATH",
-                "PYTHON",
-                "SYSTEM",
-                "OS_",
-                "COMPUTERNAME",
-                "USERNAME",
-            )):
+            if key.startswith(
+                (
+                    "PATH",
+                    "PYTHON",
+                    "SYSTEM",
+                    "OS_",
+                    "COMPUTERNAME",
+                    "USERNAME",
+                )
+            ):
                 continue
 
             # Determine if this key potentially contains sensitive information
@@ -522,7 +549,8 @@ class SecretsManager:
     def _process_env_key(
         self, key: str, is_sensitive: bool, safe_env_vars: dict[str, Any]
     ) -> dict[str, Any]:
-        """Process an environment variable key based on its sensitivity.
+        """
+        Process an environment variable key based on its sensitivity.
 
         Args:
             key: The environment variable key
@@ -531,6 +559,7 @@ class SecretsManager:
 
         Returns:
             dict[str, Any]: Updated dictionary with the processed key
+
         """
         if is_sensitive:
             # For highly sensitive keys, use consistent masking
@@ -551,13 +580,15 @@ class SecretsManager:
         return safe_env_vars
 
     def _list_backend_secrets(self, backend_type: SecretsBackend) -> dict[str, Any]:
-        """List secrets from a specific backend.
+        """
+        List secrets from a specific backend.
 
         Args:
             backend_type: The backend type to use
 
         Returns:
             dict[str, Any]: Dictionary of secrets with sensitive information masked
+
         """
         try:
             # Import backends
@@ -590,8 +621,9 @@ class SecretsManager:
             logger.exception("Error listing secrets from backend")
             return {}
 
-    def list_secrets(self, backend: Optional[SecretsBackend] = None) -> dict[str, Any]:
-        """List all secrets in the specified backend.
+    def list_secrets(self, backend: SecretsBackend | None = None) -> dict[str, Any]:
+        """
+        List all secrets in the specified backend.
 
         Args:
         ----
@@ -629,20 +661,20 @@ class SecretsManager:
 
         if backend_enum == SecretsBackend.ENV:
             return self._list_env_secrets()
-        elif backend_enum in (
+        if backend_enum in (
             SecretsBackend.FILE,
             SecretsBackend.MEMORY,
             SecretsBackend.VAULT,
         ):
             return self._list_backend_secrets(backend_enum)
-        else:
-            logger.error("Unknown backend specified")
-            return {}
+        logger.error("Unknown backend specified")
+        return {}
 
     def _sanitize_secrets_dict(
         self, secrets: dict[str, Any]
     ) -> dict[str, str | dict[str, Any]]:
-        """Sanitize a dictionary of secrets to ensure no sensitive data is exposed.
+        """
+        Sanitize a dictionary of secrets to ensure no sensitive data is exposed.
 
         Args:
         ----
@@ -678,7 +710,8 @@ _secrets_manager = SecretsManager()
 
 
 def get_secret(key: str, backend: SecretsBackend | str | None = None) -> str | None:
-    """Get a secret from the specified backend.
+    """
+    Get a secret from the specified backend.
 
     Args:
     ----
@@ -687,7 +720,7 @@ def get_secret(key: str, backend: SecretsBackend | str | None = None) -> str | N
 
     Returns:
     -------
-        Optional[str]: The secret value, or None if not found
+        str | None: The secret value, or None if not found
 
     """
     if isinstance(backend, str):
@@ -704,7 +737,8 @@ def get_secret(key: str, backend: SecretsBackend | str | None = None) -> str | N
 def set_secret(
     key: str, value: str, backend: SecretsBackend | str | None = None
 ) -> bool:
-    """Set a secret in the specified backend.
+    """
+    Set a secret in the specified backend.
 
     Args:
     ----
@@ -729,7 +763,8 @@ def set_secret(
 
 
 def delete_secret(key: str, backend: SecretsBackend | str | None = None) -> bool:
-    """Delete a secret from the specified backend.
+    """
+    Delete a secret from the specified backend.
 
     Args:
     ----
@@ -755,7 +790,8 @@ def delete_secret(key: str, backend: SecretsBackend | str | None = None) -> bool
 def list_secrets(
     backend: SecretsBackend | str | None = None,
 ) -> dict[str, str | dict[str, Any]]:
-    """List all secrets in the specified backend.
+    """
+    List all secrets in the specified backend.
 
     Args:
     ----

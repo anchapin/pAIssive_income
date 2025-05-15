@@ -1,11 +1,13 @@
-"""memory_backend - Module for common_utils/secrets.memory_backend.
+"""
+memory_backend - Module for common_utils/secrets.memory_backend.
 
 This module provides an in-memory backend for secrets management, primarily for testing.
 """
 
+from __future__ import annotations
+
 # Standard library imports
 from typing import Any
-from typing import Optional
 
 # Third-party imports
 # Local imports
@@ -23,8 +25,9 @@ class MemoryBackend:
         self.secrets: dict[str, str] = {}
         logger.info("Memory backend initialized")
 
-    def get_secret(self) -> Optional[str]:
-        """Get a secret from memory.
+    def get_secret(self, key: str) -> str | None:
+        """
+        Get a secret from memory.
 
         Args:
         ----
@@ -32,18 +35,20 @@ class MemoryBackend:
 
         Returns:
         -------
-            Optional[str]: The secret value
+            str | None: The secret value
 
         Raises:
         ------
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented")
-        raise NotImplementedError("The memory backend is not currently supported.")
+        logger.warning("Memory backend not yet implemented for key: %s", key)
+        error_msg = "The memory backend is not currently supported."
+        raise NotImplementedError(error_msg)
 
-    def set_secret(self) -> bool:
-        """Set a secret in memory.
+    def set_secret(self, key: str, value: str) -> bool:
+        """
+        Set a secret in memory.
 
         Args:
         ----
@@ -59,11 +64,16 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented")
-        raise NotImplementedError("The memory backend is not currently supported.")
+        logger.warning("Memory backend not yet implemented for key: %s", key)
+        # Use value in a no-op to avoid unused argument warning
+        if value:
+            pass
+        error_msg = "The memory backend is not currently supported."
+        raise NotImplementedError(error_msg)
 
-    def delete_secret(self) -> bool:
-        """Delete a secret from memory.
+    def delete_secret(self, key: str) -> bool:
+        """
+        Delete a secret from memory.
 
         Args:
         ----
@@ -78,11 +88,13 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented")
-        raise NotImplementedError("The memory backend is not currently supported.")
+        logger.warning("Memory backend not yet implemented for key: %s", key)
+        error_msg = "The memory backend is not currently supported."
+        raise NotImplementedError(error_msg)
 
     def list_secrets(self) -> dict[str, Any]:
-        """List all secrets in memory.
+        """
+        List all secrets in memory.
 
         Returns
         -------
@@ -94,4 +106,5 @@ class MemoryBackend:
 
         """
         logger.warning("Memory backend not yet implemented")
-        raise NotImplementedError("The memory backend is not currently supported.")
+        error_msg = "The memory backend is not currently supported."
+        raise NotImplementedError(error_msg)

@@ -15,13 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 def generate_secure_password(length: int = 16) -> str:
-    """Generate a secure random password.
+    """
+    Generate a secure random password.
 
     Args:
         length: Length of the password to generate
 
     Returns:
         A secure random password string
+
     """
     alphabet = string.ascii_letters + string.digits + string.punctuation
     # Use a more secure method for random selection
@@ -54,7 +56,7 @@ def init_db() -> None:
                     and os.isatty(0)
                     and os.environ.get("FLASK_ENV") != "production"
                 ):
-                    logger.info(f"Generated admin password: {admin_password}")
+                    logger.info("Generated admin password: %s", admin_password)
                     logger.info("Admin password was logged to console")
 
             # Hash the password

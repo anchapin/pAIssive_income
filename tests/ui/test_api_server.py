@@ -3,14 +3,19 @@
 # Standard library imports
 import http.client
 import json
-import os
 import sys
 import threading
 import time
 import unittest
 
+# Constants
+HTTP_OK = 200
+HTTP_NOT_FOUND = 404
+
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.resolve()))
 
 # Local imports - this import must be after sys.path modification
 # flake8: noqa: E402
@@ -42,7 +47,7 @@ class TestAPIServer(unittest.TestCase):
         response = conn.getresponse()
         data = json.loads(response.read().decode())
 
-        assert response.status == 200
+        assert response.status == HTTP_OK
         assert data["status"] == "ok"
         conn.close()
 
@@ -53,7 +58,7 @@ class TestAPIServer(unittest.TestCase):
         response = conn.getresponse()
         data = json.loads(response.read().decode())
 
-        assert response.status == 404
+        assert response.status == HTTP_NOT_FOUND
         assert data["error"] == "Not found"
         assert data["path"] == "/nonexistent-endpoint"
         conn.close()

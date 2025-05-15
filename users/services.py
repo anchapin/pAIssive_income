@@ -1,13 +1,16 @@
-"""services - Module for users.services.
+"""
+services - Module for users.services.
 
 This module provides services for user management, including user creation,
 authentication, and profile management.
 """
 
 # Standard library imports
+from __future__ import annotations
+
 import uuid
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Protocol, Tuple, Type, cast
+from datetime import datetime, timedelta, timezone
+from typing import Any, Protocol, Type, cast
 
 # Third-party imports
 import jwt
@@ -19,6 +22,8 @@ from users.auth import hash_credential, verify_credential
 
 # Define protocol for User model to help with type checking
 class UserProtocol(Protocol):
+    """Protocol defining the interface for User models."""
+
     id: str
     username: str
     email: str
@@ -26,31 +31,41 @@ class UserProtocol(Protocol):
     query: Any
 
     def __init__(
-        self, username: str, email: str, password_hash: str, **kwargs: Any
-    ) -> None: ...
+        self, username: str, email: str, password_hash: str, **kwargs: object
+    ) -> None:
+        """Initialize a user model with required attributes."""
+        ...
 
     @classmethod
-    def filter(cls, *args: Any) -> Any: ...
+    def filter(cls, *args: object) -> object:
+        """Filter users based on provided criteria."""
+        ...
 
 
 # Define protocol for DB session
 class DBSessionProtocol(Protocol):
+    """Protocol defining the interface for database session objects."""
+
     session: Any
 
-    def add(self, obj: Any) -> None: ...
+    def add(self, obj: object) -> None:
+        """Add an object to the session."""
+        ...
 
-    def commit(self) -> None: ...
+    def commit(self) -> None:
+        """Commit the current transaction."""
+        ...
 
 
 # Initialize with None values that will be replaced if imports succeed
-UserModel: Optional[Type[UserProtocol]] = None
-db_session: Optional[DBSessionProtocol] = None
+UserModel: type[UserProtocol] | None = None
+db_session: DBSessionProtocol | None = None
 
 try:
     from app_flask.models import User, db
 
-    UserModel = cast(Type[UserProtocol], User)
-    db_session = cast(DBSessionProtocol, db)
+    UserModel = cast("Type[UserProtocol]", User)
+    db_session = cast("DBSessionProtocol", db)
 except ImportError:
     # Keep the imports but don't redefine variables
     pass
@@ -59,8 +74,6 @@ except ImportError:
 class AuthenticationError(ValueError):
     """Raised when there's an authentication-related error."""
 
-    pass
-
 
 class UserExistsError(ValueError):
     """Raised when a user already exists."""
@@ -68,7 +81,7 @@ class UserExistsError(ValueError):
     USERNAME_EXISTS = "Username already exists"
     EMAIL_EXISTS = "Email already exists"
 
-    def __init__(self, message: Optional[str] = None) -> None:
+    def __init__(self, message: str | None = None) -> None:
         """Initialize with a default message if none provided."""
         super().__init__(message or "User already exists")
 
@@ -76,25 +89,17 @@ class UserExistsError(ValueError):
 class UserNotFoundError(ValueError):
     """Raised when a user is not found."""
 
-    pass
-
 
 class TokenError(ValueError):
     """Raised when there's a token-related error."""
-
-    pass
 
 
 class UserModelNotAvailableError(ValueError):
     """Raised when the User model is not available."""
 
-    pass
-
 
 class DatabaseSessionNotAvailableError(ValueError):
     """Raised when the database session is not available."""
-
-    pass
 
 
 # Remove redundant import fallback - already handled above
@@ -108,11 +113,12 @@ class UserService:
 
     def __init__(
         self,
-        user_repository: Optional[Any] = None,
-        token_secret: Optional[str] = None,
-        token_expiry: Optional[int] = None,
+        user_repository: object | None = None,
+        token_secret: str | None = None,
+        token_expiry: int | None = None,
     ) -> None:
-        """Initialize the user service.
+        """
+        Initialize the user service.
 
         Args:
             user_repository: Repository for user data
@@ -127,7 +133,7 @@ class UserService:
         # Don't set a default token secret - require it to be provided
         if not token_secret:
             logger.error("No token secret provided")
-            raise AuthenticationError()
+            raise AuthenticationError
 
         # Enhanced security: Store token secret in a private variable
         self.__token_secret = token_secret
@@ -142,9 +148,10 @@ class UserService:
         return self.__token_secret
 
     def create_user(
-        self, username: str, email: str, auth_credential: str, **kwargs: Any
-    ) -> Dict[str, Any]:
-        """Create a new user.
+        self, username: str, email: str, auth_credential: str, **kwargs: object
+    ) -> dict[str, object]:
+        """
+        Create a new user.
 
         Args:
         ----
@@ -160,19 +167,20 @@ class UserService:
         """
         # Validate inputs
         if not username or not email or not auth_credential:
-            raise AuthenticationError()
+            raise AuthenticationError
 
         # Check if user already exists
         if hasattr(self, "user_repository") and self.user_repository:
-            if self.user_repository.find_by_username(username):
+            user_repo = cast("Any", self.user_repository)
+            if user_repo.find_by_username(username):
                 raise UserExistsError(UserExistsError.USERNAME_EXISTS)
 
-            if self.user_repository.find_by_email(email):
+            if user_repo.find_by_email(email):
                 raise UserExistsError(UserExistsError.EMAIL_EXISTS)
         else:
             # Check if UserModel is available
             if UserModel is None:
-                raise UserModelNotAvailableError()
+                raise UserModelNotAvailableError
 
             # Use UserModel directly since we've checked it's not None
             model = UserModel
@@ -182,19 +190,18 @@ class UserService:
             if existing_user:
                 if existing_user.username == username:
                     raise UserExistsError(UserExistsError.USERNAME_EXISTS)
-                else:
-                    raise UserExistsError(UserExistsError.EMAIL_EXISTS)
+                raise UserExistsError(UserExistsError.EMAIL_EXISTS)
 
         # Hash the credential
         hashed_credential = hash_credential(auth_credential)
 
         # Check if UserModel is available
         if UserModel is None:
-            raise UserModelNotAvailableError()
+            raise UserModelNotAvailableError
 
         # Check if db_session is available
         if db_session is None:
-            raise DatabaseSessionNotAvailableError()
+            raise DatabaseSessionNotAvailableError
 
         # Use variables directly since we've checked they're not None
         model = UserModel
@@ -226,8 +233,9 @@ class UserService:
 
     def authenticate_user(
         self, username_or_email: str, auth_credential: str
-    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
-        """Authenticate a user.
+    ) -> tuple[bool, dict[str, object] | None]:
+        """
+        Authenticate a user.
 
         Args:
         ----
@@ -241,7 +249,7 @@ class UserService:
         """
         # Check if UserModel is available
         if UserModel is None:
-            raise UserModelNotAvailableError()
+            raise UserModelNotAvailableError
 
         # Use UserModel directly since we've checked it's not None
         model = UserModel
@@ -267,11 +275,11 @@ class UserService:
 
         # Update last login time if field exists
         if hasattr(user, "last_login"):
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(tz=timezone.utc)
 
             # Check if db_session is available
             if db_session is None:
-                raise DatabaseSessionNotAvailableError()
+                raise DatabaseSessionNotAvailableError
 
             # Use db_session directly since we've checked it's not None
             db = db_session
@@ -286,8 +294,9 @@ class UserService:
         logger.info("Authentication successful", extra={"user_id": user.id})
         return True, user_data
 
-    def generate_token(self, user_id: str, **additional_claims: Any) -> str:
-        """Generate a JWT token for a user.
+    def generate_token(self, user_id: str, **additional_claims: object) -> str:
+        """
+        Generate a JWT token for a user.
 
         Args:
         ----
@@ -299,7 +308,7 @@ class UserService:
             str: The generated JWT token
 
         """
-        now = datetime.utcnow()
+        now = datetime.now(tz=timezone.utc)
         expiry = now + timedelta(seconds=self.token_expiry)
 
         # Sanitize additional claims to prevent sensitive data leakage
@@ -319,15 +328,16 @@ class UserService:
                 sensitive_term in key.lower() for sensitive_term in sensitive_claim_keys
             ):
                 logger.warning(
-                    f"Potentially sensitive claim '{key}' was excluded from token"
+                    "Potentially sensitive claim '%s' was excluded from token", key
                 )
                 continue
             # Avoid adding large values to token payload
             if isinstance(value, str) and len(value) > max_claim_length:
-                logger.warning(f"Oversized claim '{key}' was truncated")
+                logger.warning("Oversized claim '%s' was truncated", key)
                 safe_claims[key] = value[:100] + "..."
             else:
-                safe_claims[key] = value
+                # Ensure we're storing a string value
+                safe_claims[key] = str(value) if value is not None else ""
 
         payload = {
             "sub": user_id,
@@ -351,16 +361,19 @@ class UserService:
         # Ensure auth_token is a string
         if isinstance(auth_token, bytes):
             return auth_token.decode("utf-8")
+        # Explicitly cast to string to satisfy mypy
         return str(auth_token)
 
-    def verify_token(self, auth_token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
-        """Verify a JWT token.
+    def verify_token(self, auth_token: str) -> tuple[bool, dict[str, object] | None]:
+        """
+        Verify a JWT token.
 
         Args:
             auth_token: The JWT token to verify
 
         Returns:
             Tuple[bool, Optional[Dict[str, Any]]]: (success, payload)
+
         """
         try:
             payload = jwt.decode(auth_token, self.token_secret, algorithms=["HS256"])

@@ -2,6 +2,9 @@
 
 # The app and client fixtures are imported from conftest.py
 
+# Import constants
+from tests.constants import HTTP_CREATED, HTTP_OK
+
 
 def test_create_and_authenticate_user(client):
     # Create a user
@@ -13,7 +16,7 @@ def test_create_and_authenticate_user(client):
             "password": "testpassword",
         },
     )
-    assert response.status_code == 201
+    assert response.status_code == HTTP_CREATED
     data = response.get_json()
     assert data["username"] == "testuser"
     assert data["email"] == "testuser@example.com"
@@ -23,7 +26,7 @@ def test_create_and_authenticate_user(client):
         "/api/users/authenticate",
         json={"username_or_email": "testuser", "password": "testpassword"},
     )
-    assert response.status_code == 200
+    assert response.status_code == HTTP_OK
     user_data = response.get_json()
     assert user_data["username"] == "testuser"
     assert user_data["email"] == "testuser@example.com"

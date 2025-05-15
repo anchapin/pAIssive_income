@@ -2,12 +2,15 @@
 
 import os
 from datetime import timedelta
+from pathlib import Path
 
 
 class Config:
+    """Configuration settings for the application."""
+
     # Base paths
-    APP_DIR = os.path.dirname(os.path.abspath(__file__))
-    LOG_DIR = os.path.join(APP_DIR, "logs")
+    APP_DIR = Path(__file__).parent.resolve()
+    LOG_DIR = APP_DIR / "logs"
 
     # Database settings
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -16,8 +19,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Logging settings
-    LOG_FILE = os.path.join(LOG_DIR, "flask.log")
-    LOG_ERROR_FILE = os.path.join(LOG_DIR, "error.log")  # Separate error log
+    LOG_FILE = LOG_DIR / "flask.log"
+    LOG_ERROR_FILE = LOG_DIR / "error.log"  # Separate error log
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
     LOG_FORMAT_JSON = True  # Use JSON formatting for file logs
     LOG_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -37,7 +40,7 @@ class Config:
 
     # Audit logging settings
     LOG_AUDIT_EVENTS = True  # Enable audit logging
-    LOG_AUDIT_FILE = os.path.join(LOG_DIR, "audit.log")  # Separate file for audit logs
+    LOG_AUDIT_FILE = LOG_DIR / "audit.log"  # Separate file for audit logs
 
     # Set more detailed logging in development
     if os.environ.get("FLASK_ENV") == "development":

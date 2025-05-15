@@ -7,7 +7,7 @@ for different platforms and run IDs.
 """
 
 import logging
-import os
+from pathlib import Path
 
 # Define the platforms and run IDs
 PLATFORMS = ["Linux", "Windows", "macOS"]
@@ -77,23 +77,25 @@ def main() -> None:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
+    logger = logging.getLogger(__name__)
 
     # Create the .github/bandit directory if it doesn't exist
-    os.makedirs(".github/bandit", exist_ok=True)
+    bandit_dir = Path(".github/bandit")
+    bandit_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate configuration files for each platform and run ID
     for platform in PLATFORMS:
         for run_id in RUN_IDS:
             config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=run_id)
-            config_file = (
-                f".github/bandit/bandit-config-{platform.lower()}-{run_id}.yaml"
+            config_file_path = (
+                bandit_dir / f"bandit-config-{platform.lower()}-{run_id}.yaml"
             )
 
-            with open(config_file, "w") as f:
+            with config_file_path.open("w") as f:
                 f.write(config_content)
 
             # Log the generated file instead of using print
-            logging.info(f"Generated {config_file}")
+            logger.info("Generated %s", config_file_path)
 
 
 if __name__ == "__main__":

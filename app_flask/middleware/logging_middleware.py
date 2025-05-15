@@ -1,67 +1,80 @@
 """Logging middleware for Flask application."""
 
+from __future__ import annotations
+
 import logging
 import time
 import traceback
 import uuid
-from typing import Any, Dict, Tuple, Union, cast
 
-from flask.app import Flask
+# Import for type checking only
+from typing import TYPE_CHECKING, Any, Union, cast
+
+if TYPE_CHECKING:
+    from flask.app import Flask
+    from flask.wrappers import Response
+    from werkzeug.wrappers import Response as WerkzeugResponse
+
 from flask.globals import current_app, g, request
-from flask.wrappers import Response
-from werkzeug.wrappers import Response as WerkzeugResponse
 
-from ..utils.logging_utils import sanitize_log_data, structured_log
+from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 
 # Type hint for Flask app logger
 FlaskLogger = logging.Logger
 
 
-def logging_getattr(module: Any, name: str, default: Any = None) -> Any:
+def logging_getattr(module: object, name: str, default: object = None) -> object:
     """Safe getattr for logging module."""
     return getattr(module, name, default)
 
 
-class FlaskConfig(Dict[str, Any]):
+class FlaskConfig(dict[str, Any]):
     """Type definition for Flask config used in logging middleware."""
 
     LOG_REQUEST_ID_HEADER: str
     LOG_CORRELATION_ID_HEADER: str
 
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> dict[str, Any]:
     """Get typed config from current app."""
-    return cast(Dict[str, Any], current_app.config)
+    return cast("dict[str, Any]", current_app.config)
 
 
-def get_request_context() -> Dict[str, Any]:
-    """Get common request context for logging.
+def get_request_context() -> dict[str, Any]:
+    """
+    Get common request context for logging.
 
     Returns:
         Dict with common request context fields
+
     """
-    context: Dict[str, Any] = {}
+    context: dict[str, Any] = {}
     try:
-        context.update({
-            "request_id": getattr(g, "request_id", "unknown"),
-            "correlation_id": getattr(g, "correlation_id", None),
-            "method": request.method,
-            "path": request.path,
-            "remote_addr": request.remote_addr,
-        })
+        context.update(
+            {
+                "request_id": getattr(g, "request_id", "unknown"),
+                "correlation_id": getattr(g, "correlation_id", None),
+                "method": request.method,
+                "path": request.path,
+                "remote_addr": request.remote_addr,
+            }
+        )
         if request.user_agent:
             context["user_agent"] = request.user_agent.string
-    except Exception:
+    except (AttributeError, RuntimeError):
         # Handle case where request context is not available
-        pass
+        logger = logging.getLogger(__name__)
+        logger.debug("Failed to get request context", exc_info=True)
     return context
 
 
-def setup_request_logging(app: Flask) -> None:
-    """Set up request logging middleware.
+def _setup_before_request(app: Flask) -> None:
+    """
+    Set up before request handler.
 
     Args:
         app: Flask application instance
+
     """
 
     @app.before_request
@@ -89,70 +102,116 @@ def setup_request_logging(app: Flask) -> None:
             },
         )
 
+
+def _get_log_level_for_duration(duration_ms: int, config: dict) -> tuple[str, dict]:
+    """
+    Determine log level based on request duration.
+
+    Args:
+        duration_ms: Request duration in milliseconds
+        config: Application configuration
+
+    Returns:
+        Tuple of (log_level, additional_log_data)
+
+    """
+    slow_threshold = config["LOG_SLOW_REQUEST_THRESHOLD"]
+    very_slow_threshold = config["LOG_VERY_SLOW_REQUEST_THRESHOLD"]
+
+    additional_data = {}
+
+    if duration_ms > very_slow_threshold:
+        log_level = "warning"
+        additional_data["performance_warning"] = "very_slow_request"
+    elif duration_ms > slow_threshold:
+        log_level = "info"
+        additional_data["performance_warning"] = "slow_request"
+    else:
+        log_level = "info"
+
+    return log_level, additional_data
+
+
+def _setup_after_request(app: Flask) -> None:
+    """
+    Set up after request handler.
+
+    Args:
+        app: Flask application instance
+
+    """
+
     @app.after_request
     def after_request(response: Response) -> Response:
-        """Log request details after each request.
+        """
+        Log request details after each request.
 
         Args:
             response: Flask response object
 
         Returns:
             Flask response object
-        """  # Skip detailed logging for health check endpoints
+
+        """
+        # Skip detailed logging for health check endpoints
         if request.path == "/health":
             return response
 
         duration_ms = int((time.perf_counter() - g.start_time) * 1000)
-
-        # Determine if request was slow
         config = get_config()
-        slow_threshold = config["LOG_SLOW_REQUEST_THRESHOLD"]
-        very_slow_threshold = config["LOG_VERY_SLOW_REQUEST_THRESHOLD"]
+
+        # Get log level and additional data based on duration
+        log_level, performance_data = _get_log_level_for_duration(duration_ms, config)
 
         log_data = {
             **get_request_context(),
+            **performance_data,
             "status_code": response.status_code,
             "duration_ms": duration_ms,
             "response_size": len(response.get_data()),
             "response_headers": sanitize_log_data(dict(response.headers)),
         }
 
-        # Add performance warning for slow requests
-        if duration_ms > very_slow_threshold:
-            log_level = "warning"
-            log_data["performance_warning"] = "very_slow_request"
-        elif duration_ms > slow_threshold:
-            log_level = "info"
-            log_data["performance_warning"] = "slow_request"
-        else:
-            log_level = "info"
-
+        log_level_value = cast(
+            "int", logging_getattr(logging, log_level.upper(), logging.INFO)
+        )
         structured_log(
             "request.completed",
             f"Completed {request.method} {request.path} in {duration_ms}ms",
-            level=logging_getattr(logging, log_level.upper(), logging.INFO),
+            level=log_level_value,
             extra=log_data,
         )
 
         # Add tracking headers to response
-        config = get_config()
         response.headers[config["LOG_REQUEST_ID_HEADER"]] = g.request_id
         if getattr(g, "correlation_id", None):
             response.headers[config["LOG_CORRELATION_ID_HEADER"]] = g.correlation_id
 
         return response
 
+
+def _setup_error_handler(app: Flask) -> None:
+    """
+    Set up exception handler.
+
+    Args:
+        app: Flask application instance
+
+    """
+
     @app.errorhandler(Exception)
     def log_exception(
         error: Exception,
-    ) -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
-        """Log unhandled exceptions.
+    ) -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+        """
+        Log unhandled exceptions.
 
         Args:
             error: The unhandled exception
 
         Returns:
             Tuple of (response, status_code)
+
         """
         error_data = {
             **get_request_context(),
@@ -168,7 +227,9 @@ def setup_request_logging(app: Flask) -> None:
             )
 
         if config["LOG_SANITIZE_ERRORS"]:
-            error_data = sanitize_log_data(error_data)
+            sanitized_data = sanitize_log_data(error_data)
+            if isinstance(sanitized_data, dict):
+                error_data = sanitized_data
 
         structured_log(
             "request.error",
@@ -178,3 +239,16 @@ def setup_request_logging(app: Flask) -> None:
         )
 
         return {"error": "Internal server error", "request_id": g.request_id}, 500
+
+
+def setup_request_logging(app: Flask) -> None:
+    """
+    Set up request logging middleware.
+
+    Args:
+        app: Flask application instance
+
+    """
+    _setup_before_request(app)
+    _setup_after_request(app)
+    _setup_error_handler(app)

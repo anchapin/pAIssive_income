@@ -1,25 +1,28 @@
 """test_models - Test module for database models."""
 
-from typing import Any, Generator
+from typing import Generator
 
 import pytest
-from flask import Flask as _Flask  # Import Flask type for type checking
 from flask.app import Flask  # Import actual Flask class
-from flask.config import Config as FlaskConfig
 from flask.testing import FlaskClient
 
 from app_flask import db
 from app_flask.models import Agent, Team, User
+
+# Constants
+EXPECTED_AGENT_COUNT = 2
 
 
 @pytest.fixture
 def app() -> Generator[Flask, None, None]:
     """Create a Flask app for testing."""
     app = Flask(__name__)
-    app.config.update({
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-    })
+    app.config.update(
+        {
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        }
+    )
     db.init_app(app)
     with app.app_context():
         db.create_all()
@@ -40,7 +43,7 @@ def test_user_model(app: Flask) -> None:
         user = User(
             username="testuser",
             email="test@example.com",
-            password_hash="hashed_password",
+            password_hash="hashed_password",  # noqa: S106 - Test data only
         )
         db.session.add(user)
         db.session.commit()
@@ -50,7 +53,7 @@ def test_user_model(app: Flask) -> None:
         assert queried_user is not None
         assert queried_user.username == "testuser"
         assert queried_user.email == "test@example.com"
-        assert queried_user.password_hash == "hashed_password"
+        assert queried_user.password_hash == "hashed_password"  # noqa: S105 - Test data only
 
 
 def test_team_model(app: Flask) -> None:
@@ -115,7 +118,7 @@ def test_team_agent_relationship(app: Flask) -> None:
 
         # Query the team and check its agents
         queried_team = Team.query.filter_by(name="Test Team").first()
-        assert len(queried_team.agents) == 2
+        assert len(queried_team.agents) == EXPECTED_AGENT_COUNT
         assert queried_team.agents[0].name in ["Agent 1", "Agent 2"]
         assert queried_team.agents[1].name in ["Agent 1", "Agent 2"]
 

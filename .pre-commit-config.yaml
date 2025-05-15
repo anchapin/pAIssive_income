@@ -74,7 +74,9 @@ repos:
           "--cache-dir=.mypy_cache",
           "--disable-error-code=attr-defined",
           "--disable-error-code=name-defined",
-          "--disable-error-code=unused-ignore"
+          "--disable-error-code=unused-ignore",
+          "--exclude=.github/scripts",
+          "--exclude=scripts/__init__.py"
         ]
 
   # Optimized local hooks for incremental checks

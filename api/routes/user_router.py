@@ -1,14 +1,20 @@
 """user_router - User API endpoints using SQLAlchemy ORM."""
 
+from __future__ import annotations
+
 import logging
 import os
-from typing import Tuple, Union
+
+# Type checking imports
+from typing import TYPE_CHECKING, Union
 
 from flask.blueprints import Blueprint
 from flask.globals import request
 from flask.helpers import jsonify
-from flask.wrappers import Response
-from werkzeug.wrappers import Response as WerkzeugResponse
+
+if TYPE_CHECKING:
+    from flask.wrappers import Response
+    from werkzeug.wrappers import Response as WerkzeugResponse
 
 from users.services import AuthenticationError, UserExistsError, UserService
 
@@ -23,11 +29,13 @@ user_service = UserService(token_secret=TOKEN_SECRET)
 
 
 @user_bp.route("/", methods=["POST"])
-def create_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
-    """Create a new user.
+def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Create a new user.
 
     Returns:
         tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     data = request.get_json()
     username = data.get("username")
@@ -49,11 +57,13 @@ def create_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
 
 
 @user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
-    """Authenticate a user.
+def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Authenticate a user.
 
     Returns:
         tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     data = request.get_json()
     username_or_email = data.get("username_or_email")
@@ -61,5 +71,4 @@ def authenticate_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, i
     success, user = user_service.authenticate_user(username_or_email, password)
     if success:
         return jsonify(user), 200
-    else:
-        return jsonify({"error": "Invalid credentials"}), 401
+    return jsonify({"error": "Invalid credentials"}), 401

@@ -1,5 +1,5 @@
 """
-Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB
+Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB.
 
 Steps:
  1. pip install chromadb sentence-transformers
@@ -9,12 +9,19 @@ This script embeds example texts, stores them in a local vector DB,
 then retrieves the most relevant context for a query.
 """
 
+from __future__ import annotations
+
 import logging
 
+# Type checking imports
+from typing import TYPE_CHECKING
+
 import chromadb
-from chromadb.api.models.Collection import Collection
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
+
+if TYPE_CHECKING:
+    from chromadb.api.models.Collection import Collection
 
 # Setup logger
 logging.basicConfig(level=logging.INFO)
@@ -48,12 +55,14 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 def embed_and_insert_documents(
     documents: list[dict], embedder: SentenceTransformer, collection: Collection
 ) -> None:
-    """Embed documents and insert them into the ChromaDB collection.
+    """
+    Embed documents and insert them into the ChromaDB collection.
 
     Args:
         documents: List of document dictionaries with 'id' and 'content' fields
         embedder: SentenceTransformer model for embedding generation
         collection: ChromaDB collection to insert into
+
     """
     # Extract document content and IDs
     texts = [doc["content"] for doc in documents]

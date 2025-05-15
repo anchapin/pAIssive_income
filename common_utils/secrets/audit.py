@@ -1,18 +1,20 @@
-"""audit - Module for common_utils/secrets.audit.
+"""
+audit - Module for common_utils/secrets.audit.
 
 This module provides utilities for auditing code for hardcoded secrets.
 """
 
 # Standard library imports
+from __future__ import annotations
+
 import base64
 import json
 import os
 import re
 import uuid
-
-from datetime import datetime
-from typing import Optional
-from typing import cast
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Optional, cast
 
 # Third-party imports
 from cryptography.fernet import Fernet
@@ -21,8 +23,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 # Local imports
-from common_utils.logging.secure_logging import get_secure_logger
-from common_utils.logging.secure_logging import mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
 # Initialize secure logger
 logger = get_secure_logger(__name__)
@@ -96,7 +97,8 @@ TEXT_FILE_EXTENSIONS = {
 
 
 def is_text_file(file_path: str) -> bool:
-    """Check if a file is a text file.
+    """
+    Check if a file is a text file.
 
     Args:
     ----
@@ -107,20 +109,22 @@ def is_text_file(file_path: str) -> bool:
         bool: True if the file is a text file, False otherwise
 
     """
-    _, ext = os.path.splitext(file_path.lower())
-    if ext in TEXT_FILE_EXTENSIONS:
+    path = Path(file_path)
+    if path.suffix.lower() in TEXT_FILE_EXTENSIONS:
         return True
 
     try:
-        with open(file_path, encoding="utf-8", errors="ignore") as f:
+        with Path(file_path).open(encoding="utf-8", errors="ignore") as f:
             sample = f.read(1024)
             return "\x00" not in sample
-    except Exception:
+    except (OSError, UnicodeError) as e:
+        logger.debug("Error checking if file is text: %s", e)
         return False
 
 
 def is_example_code(content: str, line: str) -> bool:
-    """Check if a line is part of example code.
+    """
+    Check if a line is part of example code.
 
     Args:
     ----
@@ -153,7 +157,8 @@ def is_example_code(content: str, line: str) -> bool:
 
 
 def should_exclude(file_path: str, exclude_dirs: Optional[set[str]] = None) -> bool:
-    """Check if a file should be excluded from scanning.
+    """
+    Check if a file should be excluded from scanning.
 
     Args:
     ----
@@ -168,14 +173,15 @@ def should_exclude(file_path: str, exclude_dirs: Optional[set[str]] = None) -> b
     if exclude_dirs is None:
         exclude_dirs = DEFAULT_EXCLUDE_DIRS
 
-    file_path = os.path.normpath(file_path)
-    path_parts = file_path.split(os.sep)
+    path = Path(file_path).resolve()
+    path_parts = path.parts
 
     return any(part in exclude_dirs for part in path_parts)
 
 
 def _validate_file_access(file_path: str) -> None:
-    """Validate that a file exists and is readable.
+    """
+    Validate that a file exists and is readable.
 
     Args:
         file_path: Path to the file
@@ -183,8 +189,10 @@ def _validate_file_access(file_path: str) -> None:
     Raises:
         MissingFileError: If file not found
         FilePermissionError: If insufficient permissions
+
     """
-    if not os.path.exists(file_path):
+    path = Path(file_path)
+    if not path.exists():
         from common_utils.exceptions import MissingFileError
 
         raise MissingFileError(file_path)
@@ -196,7 +204,8 @@ def _validate_file_access(file_path: str) -> None:
 
 
 def _read_file_content(file_path: str) -> tuple[str, list[str]]:
-    """Read file content with appropriate error handling.
+    """
+    Read file content with appropriate error handling.
 
     Args:
         file_path: Path to the file
@@ -206,9 +215,11 @@ def _read_file_content(file_path: str) -> tuple[str, list[str]]:
 
     Raises:
         UnicodeError: If file cannot be decoded even with replacement
+
     """
+    path = Path(file_path)
     try:
-        with open(file_path, encoding="utf-8", errors="strict") as f:
+        with path.open(encoding="utf-8", errors="strict") as f:
             content = f.read()
             lines = content.splitlines()
             return content, lines
@@ -217,7 +228,7 @@ def _read_file_content(file_path: str) -> tuple[str, list[str]]:
             "UTF-8 decoding error", extra={"file": file_path, "error": str(e)}
         )
         # Try again with replacement characters
-        with open(file_path, encoding="utf-8", errors="replace") as f:
+        with path.open(encoding="utf-8", errors="replace") as f:
             content = f.read()
             lines = content.splitlines()
             logger.warning(
@@ -230,7 +241,8 @@ def _read_file_content(file_path: str) -> tuple[str, list[str]]:
 def _process_pattern_matches(
     pattern_name: str, pattern: re.Pattern, line: str, line_number: int, file_path: str
 ) -> list[tuple[str, int, str, str]]:
-    """Process matches for a specific pattern in a line.
+    """
+    Process matches for a specific pattern in a line.
 
     Args:
         pattern_name: Name of the pattern
@@ -241,6 +253,7 @@ def _process_pattern_matches(
 
     Returns:
         List of (pattern_name, line_number, line, secret_value) tuples
+
     """
     results: list[tuple[str, int, str, str]] = []
 
@@ -261,20 +274,13 @@ def _process_pattern_matches(
     if not matches:
         return results
 
+    # Process all matches outside the loop to avoid try-except inside loop
     for match in matches:
-        try:
-            secret_value = match[1] if isinstance(match, tuple) else match
-            results.append((pattern_name, line_number, line, secret_value))
-        except (IndexError, AttributeError) as e:
-            logger.exception(
-                "Match processing error",
-                extra={
-                    "file": file_path,
-                    "line": line_number,
-                    "pattern": pattern_name,
-                    "error": str(e),
-                },
-            )
+        if isinstance(match, tuple) and len(match) > 1:
+            secret_value = match[1]
+        else:
+            secret_value = match
+        results.append((pattern_name, line_number, line, secret_value))
 
     return results
 
@@ -282,7 +288,8 @@ def _process_pattern_matches(
 def find_potential_secrets(
     file_path: str,
 ) -> list[tuple[str, int, str, str]]:
-    """Find potential secrets in a file.
+    """
+    Find potential secrets in a file.
 
     Args:
     ----
@@ -330,7 +337,8 @@ def find_potential_secrets(
 def process_file(
     file_path: str, exclude_dirs: Optional[set[str]] = None
 ) -> list[tuple[str, int, str, str]]:
-    """Process a single file for potential secrets.
+    """
+    Process a single file for potential secrets.
 
     Args:
     ----
@@ -340,6 +348,7 @@ def process_file(
     Returns:
     -------
         list[tuple[str, int, str, str]]: List of secrets found
+
     """
     if should_exclude(file_path, exclude_dirs) or not is_text_file(file_path):
         return []
@@ -348,7 +357,8 @@ def process_file(
 
 
 def handle_file_error(file_path: str, error: Exception) -> dict[str, str]:
-    """Handle file processing errors uniformly.
+    """
+    Handle file processing errors uniformly.
 
     Args:
     ----
@@ -358,10 +368,11 @@ def handle_file_error(file_path: str, error: Exception) -> dict[str, str]:
     Returns:
     -------
         dict[str, str]: Error details dictionary
+
     """
     return {
         "file": file_path,
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(tz=timezone.utc).isoformat(),
         "error_type": type(error).__name__,
         "error_id": str(uuid.uuid4()),
     }
@@ -370,7 +381,8 @@ def handle_file_error(file_path: str, error: Exception) -> dict[str, str]:
 def scan_directory(
     directory: str, exclude_dirs: Optional[set[str]] = None
 ) -> dict[str, list[tuple[str, int, str, str]]]:
-    """Scan a directory recursively for potential secrets.
+    """
+    Scan a directory recursively for potential secrets.
 
     Args:
     ----
@@ -391,7 +403,8 @@ def scan_directory(
         PermissionError: If insufficient permissions
 
     """
-    if not os.path.exists(directory):
+    dir_path = Path(directory)
+    if not dir_path.exists():
         from common_utils.exceptions import DirectoryNotFoundError
 
         raise DirectoryNotFoundError(directory)
@@ -399,7 +412,7 @@ def scan_directory(
     if not os.access(directory, os.R_OK | os.X_OK):
         from common_utils.exceptions import DirectoryPermissionError
 
-        raise DirectoryPermissionError()
+        raise DirectoryPermissionError
 
     exclude_dirs = exclude_dirs or DEFAULT_EXCLUDE_DIRS
     results: dict[str, list[tuple[str, int, str, str]]] = {}
@@ -411,7 +424,7 @@ def scan_directory(
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
             for file in files:
-                file_path = os.path.join(root, file)
+                file_path = str(Path(root) / file)
 
                 try:
                     secrets = process_file(file_path, exclude_dirs)
@@ -471,13 +484,15 @@ def log_scan_completion(
     error_files: list[dict[str, str]],
     results: dict[str, list[tuple[str, int, str, str]]],
 ) -> None:
-    """Log scan completion status with appropriate metrics.
+    """
+    Log scan completion status with appropriate metrics.
 
     Args:
     ----
         scanned_files: Number of files scanned
         error_files: List of files that had errors
         results: Dictionary of files with secrets found
+
     """
     if error_files:
         logger.warning(
@@ -501,7 +516,8 @@ def log_scan_completion(
 
 
 def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) -> str:
-    """Generate a JSON format report.
+    """
+    Generate a JSON format report.
 
     Args:
     ----
@@ -510,6 +526,7 @@ def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     Returns:
     -------
         str: JSON formatted report with masked sensitive data
+
     """
     json_results = {}
     for file_path, secrets in results.items():
@@ -525,11 +542,12 @@ def generate_json_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
         ]
 
     masked_json = json.dumps(json_results, indent=2)
-    return cast(str, mask_sensitive_data(masked_json))
+    return cast("str", mask_sensitive_data(masked_json))
 
 
 def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) -> str:
-    """Generate a text format report.
+    """
+    Generate a text format report.
 
     Args:
     ----
@@ -538,6 +556,7 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     Returns:
     -------
         str: Text formatted report with masked sensitive data
+
     """
     lines = [
         "Security Scan Report",
@@ -550,7 +569,7 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
     for file_path, secrets in results.items():
         masked_file_path = mask_sensitive_data(file_path)
         lines.append(f"File: {masked_file_path}")
-        lines.append("-" * (len(masked_file_path) + 6))
+        lines.append("-" * (len(str(masked_file_path)) + 6))
 
         for pattern_name, line_number, line, _ in secrets:
             masked_line = mask_sensitive_data(line)
@@ -561,11 +580,12 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
         lines.append("")
 
     output = mask_sensitive_data("\n".join(lines))
-    return cast(str, mask_sensitive_data(output, visible_chars=2))
+    return cast("str", mask_sensitive_data(output, visible_chars=2))
 
 
 def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
-    """Encrypt report content using environment key or system entropy.
+    """
+    Encrypt report content using environment key or system entropy.
 
     Args:
     ----
@@ -574,9 +594,10 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
     Returns:
     -------
         tuple[bytes, bytes]: Salt and encrypted content
+
     """
     salt = os.urandom(16)
-    system_entropy = f"{uuid.getnode()}{os.path.expanduser('~')}{os.getpid()}"
+    system_entropy = f"{uuid.getnode()}{Path.home()}{os.getpid()}"
 
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -605,19 +626,21 @@ def encrypt_report_content(content: str) -> tuple[bytes, bytes]:
 
 
 def save_encrypted_report(path: str, salt: bytes, encrypted_content: bytes) -> None:
-    """Save encrypted report to file.
+    """
+    Save encrypted report to file.
 
     Args:
     ----
         path: Output file path
         salt: Salt used for encryption
         encrypted_content: Encrypted report content
-    """
-    output_dir = os.path.dirname(path)
-    if output_dir:
-        os.makedirs(output_dir, mode=0o700, exist_ok=True)
 
-    with open(path, "wb") as f:
+    """
+    output_path = Path(path)
+    if output_path.parent != Path():
+        output_path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
+
+    with output_path.open("wb") as f:
         f.write(salt + encrypted_content)
 
 
@@ -626,13 +649,15 @@ def generate_report(
     output_file: Optional[str] = None,
     json_format: bool = False,
 ) -> None:
-    """Generate a report of potential secrets.
+    """
+    Generate a report of potential secrets.
 
     Args:
     ----
         results: Dictionary of file paths to secrets
         output_file: Path to the output file
         json_format: Whether to output in JSON format
+
     """
     if not results:
         logger.info("No potential security findings")
@@ -655,11 +680,11 @@ def generate_report(
             secure_output = mask_sensitive_data(secure_output, visible_chars=0)
 
             # Remove any remaining sensitive patterns
-            for _pattern_name, pattern in PATTERNS.items():
+            for pattern in PATTERNS.values():
                 secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
             # Encrypt and save the report
-            salt, encrypted_content = encrypt_report_content(secure_output)
+            salt, encrypted_content = encrypt_report_content(str(secure_output))
             save_encrypted_report(output_file, salt, encrypted_content)
 
             logger.info(
@@ -680,8 +705,9 @@ class SecretsAuditor:
 
     def __init__(
         self, exclude_dirs: Optional[set[str]] = None, patterns: Optional[dict] = None
-    ):
-        """Initialize the secrets auditor.
+    ) -> None:
+        """
+        Initialize the secrets auditor.
 
         Args:
         ----
@@ -694,7 +720,8 @@ class SecretsAuditor:
         logger.info("Secrets auditor initialized")
 
     def scan(self, directory: str) -> dict[str, list[tuple[str, int, str, str]]]:
-        """Scan a directory for potential secrets.
+        """
+        Scan a directory for potential secrets.
 
         Args:
             directory: Directory to scan
@@ -704,6 +731,7 @@ class SecretsAuditor:
             line_number,
             line_content,
             secret_value)
+
         """
         return scan_directory(directory, self.exclude_dirs)
 
@@ -713,7 +741,8 @@ class SecretsAuditor:
         output_file: Optional[str] = None,
         json_format: bool = False,
     ) -> dict[str, list[tuple[str, int, str, str]]]:
-        """Audit a directory for potential secrets and generate a report.
+        """
+        Audit a directory for potential secrets and generate a report.
 
         Args:
             results: Dictionary mapping file paths to lists of (pattern_name,
@@ -728,6 +757,7 @@ class SecretsAuditor:
             line_number,
             line_content,
             secret_value)
+
         """
         generate_report(results, output_file, json_format)
         return results
@@ -738,7 +768,8 @@ class SecretsAuditor:
         output_file: Optional[str] = None,
         json_format: bool = False,
     ) -> dict[str, list[tuple[str, int, str, str]]]:
-        """Audit a directory for potential secrets and generate a report.
+        """
+        Audit a directory for potential secrets and generate a report.
 
         Args:
             directory: Directory to scan
@@ -750,6 +781,7 @@ class SecretsAuditor:
             line_number,
             line_content,
             secret_value)
+
         """
         results = self.scan(directory)
         self.generate_report(results, output_file, json_format)
