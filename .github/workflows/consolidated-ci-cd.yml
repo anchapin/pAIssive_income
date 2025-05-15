@@ -103,6 +103,7 @@ jobs:
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           # Ensure pip is up to date
           python -m pip install --upgrade pip
@@ -110,22 +111,32 @@ jobs:
           # Install testing tools
           python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
 
-          # Install requirements
-          if (Test-Path requirements-dev.txt) { python -m pip install -r requirements-dev.txt }
-          if (Test-Path requirements.txt) { python -m pip install -r requirements.txt }
+          # Install requirements (excluding MCP-related packages)
+          if (Test-Path requirements-dev.txt) {
+            python -m pip install -r requirements-dev.txt
+          }
 
-          # Install MCP SDK using the installation script
-          Write-Host "Installing MCP SDK using installation script..."
-          python install_mcp_sdk.py
-        shell: pwsh
+          # Install requirements.txt but skip MCP packages
+          if (Test-Path requirements.txt) {
+            $requirements = Get-Content requirements.txt | Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
+            $requirements | Set-Content -Path "requirements_filtered.txt"
+            python -m pip install -r requirements_filtered.txt
+          }
 
-      - name: Run linting and tests
+      - name: Run linting
         run: |
           ruff check .
           mypy .
+
+      - name: Run MCP tests (Unix only)
+        if: runner.os != 'Windows'
+        run: |
           # Run MCP adapter tests separately using the custom script
           python run_mcp_tests.py
-          # Run all other tests
+
+      - name: Run other tests
+        run: |
+          # Run all tests except MCP adapter tests
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py
 
       - name: Upload coverage to Codecov

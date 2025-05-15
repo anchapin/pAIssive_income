@@ -12,6 +12,10 @@ from users.services import UserExistsError, UserService
 
 # Mock the app_flask module to avoid import issues
 class MockUser:
+    username = None
+    email = None
+    password_hash = None
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -27,8 +31,9 @@ class MockDB:
 
 
 # Create patch for app_flask
+mock_db = MockDB()
 patch("users.services.UserModel", MockUser).start()
-patch("users.services.db_session", MockDB()).start()
+patch("users.services.db_session", mock_db).start()
 
 
 @pytest.fixture
