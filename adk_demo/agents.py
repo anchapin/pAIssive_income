@@ -19,11 +19,13 @@ from adk.skill import Skill
 from adk.memory import SimpleMemory
 from adk.communication import Message
 
+
 class DataGathererSkill(Skill):
     """
     Simulates data gathering functionality.
     In a real application, this would interact with databases, APIs, etc.
     """
+
     def run(self, query: str) -> str:
         """
         Simulates data collection process.
@@ -36,6 +38,7 @@ class DataGathererSkill(Skill):
         """
         return f"Data found for '{query}': [Example data about '{query}']."
 
+
 class DataGathererAgent(Agent):
     """
     Agent responsible for handling data gathering requests.
@@ -45,6 +48,7 @@ class DataGathererAgent(Agent):
         Receives: 'gather' with payload {'query': str}
         Sends: 'summarize' with payload {'data': str, 'original_sender': str}
     """
+
     def __init__(self, name: str) -> None:
         super().__init__(name)
         self.memory = SimpleMemory()
@@ -59,15 +63,17 @@ class DataGathererAgent(Agent):
                     sender=self.name,
                     receiver="summarizer",
                     type="summarize",
-                    payload={"data": data, "original_sender": message.sender}
+                    payload={"data": data, "original_sender": message.sender},
                 )
             )
+
 
 class SummarizerSkill(Skill):
     """
     Simulates data summarization functionality.
     In a real application, this might use an LLM or other summarization technique.
     """
+
     def run(self, data: str) -> str:
         """
         Simulates text summarization.
@@ -80,7 +86,12 @@ class SummarizerSkill(Skill):
         """
         # Define a constant for the maximum summary length
         max_summary_length = 75
-        return data[:max_summary_length] + "..." if len(data) > max_summary_length else data
+        return (
+            data[:max_summary_length] + "..."
+            if len(data) > max_summary_length
+            else data
+        )
+
 
 class SummarizerAgent(Agent):
     """
@@ -91,6 +102,7 @@ class SummarizerAgent(Agent):
         Receives: 'summarize' with payload {'data': str, 'original_sender': str}
         Sends: 'summary_result' with payload {'summary': str}
     """
+
     def __init__(self, name: str) -> None:
         super().__init__(name)
         self.memory = SimpleMemory()
@@ -105,6 +117,6 @@ class SummarizerAgent(Agent):
                     sender=self.name,
                     receiver=message.payload["original_sender"],
                     type="summary_result",
-                    payload={"summary": summary}
+                    payload={"summary": summary},
                 )
             )

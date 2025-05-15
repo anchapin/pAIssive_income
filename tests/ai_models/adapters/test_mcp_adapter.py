@@ -20,28 +20,28 @@ def mock_mcp():
 class TestMCPAdapter:
     """Tests for the MCPAdapter class."""
 
-    def test_init_with_valid_params(self):
+    def test_init_with_valid_params(self, mock_mcp):  # noqa: ARG002
         """Test initialization with valid parameters."""
         adapter = MCPAdapter(host="localhost", port=9000)
         assert adapter.host == "localhost"
         assert adapter.port == 9000
         assert adapter.client is None
 
-    def test_init_with_invalid_host(self):
+    def test_init_with_invalid_host(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid host."""
         with pytest.raises(
             ValueError, match="Host must contain only alphanumeric characters"
         ):
             MCPAdapter(host="local;host", port=9000)
 
-    def test_init_with_invalid_port_type(self):
+    def test_init_with_invalid_port_type(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid port type."""
         with pytest.raises(
             ValueError, match="Port must be an integer between 1 and 65535"
         ):
             MCPAdapter(host="localhost", port="9000")
 
-    def test_init_with_invalid_port_range(self):
+    def test_init_with_invalid_port_range(self, mock_mcp):  # noqa: ARG002
         """Test initialization with invalid port range."""
         with pytest.raises(
             ValueError, match="Port must be an integer between 1 and 65535"

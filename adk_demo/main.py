@@ -37,6 +37,7 @@ Error Handling:
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 
+
 def main() -> None:
     """
     Main function that orchestrates the ADK demonstration.
@@ -81,7 +82,7 @@ def main() -> None:
             sender=user_name,
             receiver="gatherer",
             type="gather",
-            payload={"query": query}
+            payload={"query": query},
         )
     )
 
@@ -102,6 +103,7 @@ def main() -> None:
     # Clean up
     gatherer.stop()
     summarizer.stop()
+
 
 if __name__ == "__main__":
     main()
