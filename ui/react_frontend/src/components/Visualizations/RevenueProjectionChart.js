@@ -630,7 +630,7 @@ const RevenueProjectionChart = ({
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                dataKey="date"
+                dataKey=os.environ.get("KEY")
                 padding={{ left: 20, right: 20 }}
                 tick={{ fontSize: 12 }}
               />
@@ -662,7 +662,7 @@ const RevenueProjectionChart = ({
               {activeScenarios.includes('baseline') && (
                 <Line
                   type="monotone"
-                  dataKey="revenue"
+                  dataKey=os.environ.get("KEY")
                   name="Baseline"
                   stroke={scenarioColors.baseline}
                   strokeWidth={2}
@@ -704,7 +704,7 @@ const RevenueProjectionChart = ({
               )}
 
               <Brush
-                dataKey="date"
+                dataKey=os.environ.get("KEY")
                 height={30}
                 stroke="#8884d8"
                 startIndex={0}
@@ -795,12 +795,12 @@ const RevenueProjectionChart = ({
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis dataKey=os.environ.get("KEY") />
                   <YAxis tickFormatter={(value) => formatCurrency(value)} />
                   <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Line
                     type="monotone"
-                    dataKey="cumulative"
+                    dataKey=os.environ.get("KEY")
                     name="Cumulative Revenue"
                     stroke="#8884d8"
                     fill="#8884d8"
@@ -830,7 +830,7 @@ const RevenueProjectionChart = ({
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis dataKey=os.environ.get("KEY") />
                   <YAxis
                     tickFormatter={(value) => `${value.toFixed(1)}%`}
                   />
@@ -838,7 +838,7 @@ const RevenueProjectionChart = ({
                   <Tooltip formatter={(value) => `${value.toFixed(2)}%`} />
                   <Line
                     type="monotone"
-                    dataKey="growth"
+                    dataKey=os.environ.get("KEY")
                     name="Monthly Growth"
                     stroke="#82ca9d"
                   />
@@ -1111,7 +1111,7 @@ const RevenueProjectionChart = ({
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" tickFormatter={(value) => `${value}%`} />
-                    <YAxis dataKey="name" type="category" />
+                    <YAxis dataKey=os.environ.get("KEY") type="category" />
                     <Tooltip
                       formatter={(value, name, props) => [
                         `${value}%`, 'Revenue Impact'
@@ -1119,7 +1119,7 @@ const RevenueProjectionChart = ({
                       labelFormatter={() => '10% Increase In Parameter'}
                     />
                     <Bar
-                      dataKey="impact"
+                      dataKey=os.environ.get("KEY")
                       fill={(entry) => entry.impact > 0 ? '#4caf50' : '#f44336'}
                       label={{
                         position: 'right',

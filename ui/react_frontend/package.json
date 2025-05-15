@@ -34,6 +34,7 @@
     "@vitest/ui": "^1.6.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
     "express": "^5.1.0",
     "react-app-rewired": "^2.2.1",
@@ -59,11 +60,15 @@
     "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts",
     "test:e2e:with-servers": "node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
-    "test:ci": "npx playwright test tests/e2e/simple_test.spec.ts",
+    "test:ci": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/agent_ui_ci.spec.ts --reporter=list,json",
+    "test:ci:windows": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/agent_ui_ci.spec.ts --reporter=list,json --skip-browser-install",
     "test:simple": "npx playwright test tests/e2e/simple_test.spec.ts",
+    "test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",
+    "ensure:report-dir": "node tests/ensure_report_dir.js",
     "start:mock-api": "node tests/mock_api_server.js",
     "start:fallback": "node tests/fallback_server.js",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "preinstall": "npx only-allow pnpm"
   },
   "eslintConfig": {
     "extends": [

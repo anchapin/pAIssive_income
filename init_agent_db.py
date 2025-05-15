@@ -36,7 +36,7 @@ def init_agent_db() -> bool:
         # Check if agent table exists
         cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
+                SELECT FROM information_schema.tables
                 WHERE table_name = 'agent'
             );
         """)
@@ -57,7 +57,7 @@ def init_agent_db() -> bool:
         # Check if agent_action table exists
         cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
+                SELECT FROM information_schema.tables
                 WHERE table_name = 'agent_action'
             );
         """)
@@ -85,8 +85,8 @@ def init_agent_db() -> bool:
             cursor.execute("""
                 INSERT INTO agent (name, avatar_url, description)
                 VALUES (
-                    'Test Agent', 
-                    'https://example.com/avatar.png', 
+                    'Test Agent',
+                    'https://example.com/avatar.png',
                     'This is a test agent for integration testing'
                 );
             """)
@@ -97,11 +97,12 @@ def init_agent_db() -> bool:
 
         conn.close()
         logger.info("Agent database initialization completed successfully")
-        return True
 
-    except Exception as e:
-        logger.exception(f"Error initializing agent database: {e}")
+    except Exception:
+        logger.exception("Error initializing agent database")
         return False
+    else:
+        return True
 
 
 if __name__ == "__main__":

@@ -132,7 +132,7 @@ const CustomerLifetimeValueGauge = ({
                   innerRadius={innerRadius}
                   startAngle={180}
                   endAngle={0}
-                  dataKey="value"
+                  dataKey=os.environ.get("KEY")
                 >
                   {threeYearData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />

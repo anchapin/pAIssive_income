@@ -463,7 +463,7 @@ const ConversionFunnelChart = ({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" />
             <YAxis
-              dataKey="name"
+              dataKey=os.environ.get("KEY")
               type="category"
               tickLine={false}
               axisLine={false}
@@ -487,7 +487,7 @@ const ConversionFunnelChart = ({
             )}
 
             <Bar
-              dataKey="value"
+              dataKey=os.environ.get("KEY")
               name="Current Users"
               fill="#8884d8"
               minPointSize={5}
@@ -496,7 +496,7 @@ const ConversionFunnelChart = ({
               cursor="pointer"
             >
               <LabelList
-                dataKey="value"
+                dataKey=os.environ.get("KEY")
                 position="right"
                 formatter={(value) => value.toLocaleString()}
                 style={{ fill: '#333', fontSize: '12px', fontWeight: 'bold' }}
@@ -709,10 +709,10 @@ const ConversionFunnelChart = ({
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
+                        <XAxis dataKey=os.environ.get("KEY") />
                         <YAxis />
                         <Tooltip />
-                        <Bar dataKey="value" name={selectedStage.name} fill="#8884d8" />
+                        <Bar dataKey=os.environ.get("KEY") name={selectedStage.name} fill="#8884d8" />
                       </BarChart>
                     </ResponsiveContainer>
 
@@ -789,10 +789,10 @@ const ConversionFunnelChart = ({
                             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="segment" />
+                            <XAxis dataKey=os.environ.get("KEY") />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="value" name="Users" fill="#8884d8" />
+                            <Bar dataKey=os.environ.get("KEY") name="Users" fill="#8884d8" />
                           </BarChart>
                         </ResponsiveContainer>
                       </Grid>
@@ -807,10 +807,10 @@ const ConversionFunnelChart = ({
                             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="source" />
+                            <XAxis dataKey=os.environ.get("KEY") />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="value" name="Users" fill="#82ca9d" />
+                            <Bar dataKey=os.environ.get("KEY") name="Users" fill="#82ca9d" />
                           </BarChart>
                         </ResponsiveContainer>
                       </Grid>

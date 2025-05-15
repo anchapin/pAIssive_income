@@ -62,7 +62,7 @@ const ApiUsageLineChart = ({
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey=os.environ.get("KEY") />
           <YAxis label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }} />
           <Tooltip formatter={tooltipFormatter} />
           <Legend />

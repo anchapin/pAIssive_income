@@ -22,14 +22,27 @@ paths:
 
 # Paths to exclude
 paths-ignore:
-  # Build artifacts
+  # Virtual environments and dependencies
+  - '.venv/**'
+  - 'venv/**'
+  - 'env/**'
+  - '.env/**'
+  - '**/virtualenv/**'
+  - '**/site-packages/**'
+  - '**/dist-packages/**'
   - '**/node_modules/**'
   - '**/dist/**'
   - '**/build/**'
-  - '**/.venv/**'
   - '**/vendor/**'
   - '**/external/**'
   - '**/third_party/**'
+  - '**/__pycache__/**'
+  - '**/.pytest_cache/**'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+  - '**/*.pyc'
+  - '**/*.pyo'
+  - '**/*.pyd'
 
   # Test files
   - '**/test/**'
@@ -50,6 +63,7 @@ paths-ignore:
   - '**/.vscode/**'
   - '**/.idea/**'
   - '**/coverage/**'
+  - '**/.git/**'
 
   # Documentation
   - '**/docs/**'
@@ -57,6 +71,10 @@ paths-ignore:
   - '**/*.mdx'
   - '**/*.rst'
   - '**/sphinx/**'
+
+  # Generated files
+  - '**/playwright-report/**'
+  - '**/generated/**'
 
 # Query filters
 queries:
