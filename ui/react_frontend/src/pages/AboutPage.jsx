@@ -22,8 +22,8 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import PeopleIcon from '@mui/icons-material/People';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import WebIcon from '@mui/icons-material/Web';
-// Import the mock AgentUI component for testing
-import { AgentUI } from '../mocks/AgentUI';
+// Import the AgentUI component
+import { AgentUI } from '../components/AgentUI';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
