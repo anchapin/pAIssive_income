@@ -5,12 +5,11 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
-# Install dependencies
+# Install dependencies - only copy package files first for better caching
 COPY package*.json pnpm-lock.yaml* ./
-RUN pnpm install
 
-# Copy source code
-COPY . .
+# Install dependencies without frozen lockfile to handle potential mismatches
+RUN pnpm install
 
 # Set environment variables
 ENV NODE_ENV=development

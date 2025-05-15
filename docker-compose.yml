@@ -53,8 +53,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./ui/react_frontend:/app
-      - /app/node_modules
+      # Mount source code but exclude node_modules
+      - ./ui/react_frontend:/app:cached
+      # Use a named volume for node_modules to avoid host conflicts
+      - frontend-node-modules:/app/node_modules
     environment:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://app:5000
@@ -120,4 +122,6 @@ volumes:
   redis-data:
     driver: local
   postgres-data:
+    driver: local
+  frontend-node-modules:
     driver: local

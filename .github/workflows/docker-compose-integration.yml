@@ -232,6 +232,37 @@ jobs:
             done
           fi
 
+          # Check if @ag-ui-protocol/ag-ui is available as an optional dependency
+          echo "Checking for @ag-ui-protocol/ag-ui package..."
+          if grep -q '"@ag-ui-protocol/ag-ui"' ui/react_frontend/package.json; then
+            echo "@ag-ui-protocol/ag-ui found in package.json"
+
+            # Ensure it's in optionalDependencies, not dependencies
+            if ! grep -q '"optionalDependencies"' ui/react_frontend/package.json; then
+              echo "Adding optionalDependencies section to package.json"
+              # Create a temporary file with jq to modify the JSON properly
+              cat ui/react_frontend/package.json | jq '. + {"optionalDependencies": {"@ag-ui-protocol/ag-ui": "^1.0.0"}}' > ui/react_frontend/package.json.tmp
+              mv ui/react_frontend/package.json.tmp ui/react_frontend/package.json
+            elif ! grep -q '"@ag-ui-protocol/ag-ui"' ui/react_frontend/package.json | grep -q "optionalDependencies"; then
+              echo "Moving @ag-ui-protocol/ag-ui to optionalDependencies"
+              # This is a complex operation that would be better with jq, but we'll use a simple approach
+              # First, remove it from dependencies if it exists there
+              sed -i '/"@ag-ui-protocol\/ag-ui"/d' ui/react_frontend/package.json
+              # Then add it to optionalDependencies
+              sed -i '/"optionalDependencies": {/a \    "@ag-ui-protocol/ag-ui": "^1.0.0"' ui/react_frontend/package.json
+            fi
+          else
+            echo "@ag-ui-protocol/ag-ui not found in package.json, adding as optional dependency"
+            # Add optionalDependencies section if it doesn't exist
+            if ! grep -q '"optionalDependencies"' ui/react_frontend/package.json; then
+              # Add before the last closing brace
+              sed -i '$i\  "optionalDependencies": {\n    "@ag-ui-protocol/ag-ui": "^1.0.0"\n  },' ui/react_frontend/package.json
+            else
+              # Add to existing optionalDependencies
+              sed -i '/"optionalDependencies": {/a \    "@ag-ui-protocol/ag-ui": "^1.0.0",' ui/react_frontend/package.json
+            fi
+          fi
+
           # Verify we have a postgres image
           if ! docker image inspect "$postgres_image" >/dev/null 2>&1; then
             echo "Failed to pull any postgres image. Exiting."
@@ -444,6 +475,38 @@ jobs:
             echo "REACT_APP_AG_UI_ENABLED environment variable is already set in frontend service."
           fi
 
+          # Ensure frontend node_modules volume is properly configured
+          echo "Checking for frontend-node-modules volume..."
+          if ! grep -q "frontend-node-modules:" docker-compose.yml; then
+            echo "Adding frontend-node-modules volume to docker-compose.yml..."
+            # Add the volume to the volumes section
+            sed -i '/volumes:/a \  frontend-node-modules:\n    driver: local' docker-compose.yml
+
+            # Verify the change was made
+            if grep -q "frontend-node-modules:" docker-compose.yml; then
+              echo "Successfully added frontend-node-modules volume."
+            else
+              echo "WARNING: Failed to add frontend-node-modules volume. Manual inspection required."
+            fi
+          else
+            echo "frontend-node-modules volume is already defined in docker-compose.yml."
+          fi
+
+          # Ensure frontend volumes are properly configured
+          echo "Checking frontend volumes configuration..."
+          if grep -q "- /app/node_modules" docker-compose.yml; then
+            echo "Updating frontend volumes configuration..."
+            # Replace anonymous volume with named volume
+            sed -i 's|- /app/node_modules|- frontend-node-modules:/app/node_modules|g' docker-compose.yml
+
+            # Add :cached to the source code mount if not present
+            sed -i 's|- ./ui/react_frontend:/app$|- ./ui/react_frontend:/app:cached|g' docker-compose.yml
+
+            echo "Frontend volumes configuration updated."
+          else
+            echo "Frontend volumes appear to be properly configured."
+          fi
+
           # Final validation after all modifications
           echo "Performing final validation of docker-compose.yml..."
           if $COMPOSE_CMD config; then
@@ -525,11 +588,12 @@ jobs:
           echo "Disk space after starting Docker Compose:"
           df -h
 
-      # Install curl for health checks
-      - name: Install curl
+      # Install required tools for health checks and JSON manipulation
+      - name: Install required tools
         run: |
+          echo "Installing required tools..."
           sudo apt-get update
-          sudo apt-get install -y curl
+          sudo apt-get install -y curl wget jq dos2unix
 
       - name: Check Docker services status
         run: |
