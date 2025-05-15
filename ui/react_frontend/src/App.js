@@ -2,6 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+
+// Import the local AgentUI implementation
+// This ensures we always have a working component even if the external package is not available
 import { AgentUI } from './components/AgentUI';
 
 // Context

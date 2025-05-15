@@ -30,7 +30,9 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          # Install dependencies but ignore optional dependencies to avoid issues with @ag-ui-protocol/ag-ui
+          pnpm install --no-optional
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -63,22 +65,38 @@ jobs:
           # Set environment variable to use the mock API server
           export REACT_APP_API_BASE_URL=http://localhost:8000/api
 
-          # Start React server in background
-          nohup pnpm start -- --port=3000 &
+          # Check if the App.js file exists and show its content for debugging
+          echo "Checking App.js file:"
+          ls -la src/App.js || echo "App.js not found"
+
+          # Check if the local AgentUI component exists
+          echo "Checking local AgentUI component:"
+          ls -la src/components/AgentUI || echo "AgentUI component directory not found"
+
+          # Start React server in background with output redirection for debugging
+          echo "Starting React development server..."
+          nohup pnpm start -- --port=3000 > react-server.log 2>&1 &
 
           # Wait for server to start with a loop that checks if it's up
           echo "Waiting for React server to start..."
-          for i in {1..30}; do
+          for i in {1..45}; do
             if curl --silent --fail http://localhost:3000/; then
               echo "React server is ready."
               break
             fi
-            echo "Waiting for React server to be ready... (Attempt $i/30)"
-            sleep 1
+            echo "Waiting for React server to be ready... (Attempt $i/45)"
+            # Show the last few lines of the log for debugging
+            if [ -f react-server.log ]; then
+              echo "Recent log output:"
+              tail -n 10 react-server.log
+            fi
+            sleep 2
           done
 
           if ! curl --silent --fail http://localhost:3000/; then
-            echo "React server failed to start within 30 seconds."
+            echo "React server failed to start within 90 seconds."
+            echo "Full server log:"
+            cat react-server.log
             exit 1
           fi
 
