@@ -1,5 +1,5 @@
 """
-ADK Demo Main Module.
+ADK Demo Main Module
 
 This module serves as the entry point for the ADK demonstration.
 It sets up the agent communication infrastructure and provides a simple CLI interface.
@@ -40,7 +40,7 @@ from agents import DataGathererAgent, SummarizerAgent
 
 def main() -> None:
     """
-    Orchestrate the ADK demonstration.
+    Main function that orchestrates the ADK demonstration.
 
     Flow:
     1. Sets up communication infrastructure

@@ -3,43 +3,37 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - CI=${CI:-false}
     container_name: paissive-income-app
     restart: unless-stopped
     ports:
       - "5000:5000"
     volumes:
       - ./data:/app/data
-      - ./logs:/app/logs:rw
+      - ./logs:/app/logs
     environment:
       - FLASK_ENV=production
-      - FLASK_APP=run_ui.py
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5433/mydb
       - PATH=/app/.venv/bin:$PATH
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=mydb
       - POSTGRES_HOST=db
-      - LOG_LEVEL=INFO
-      - CI=${CI:-false}
-      - CONTAINER=true
     networks:
       - paissive-network
     healthcheck:
-      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
-      interval: 10s  # Reduced from 20s for faster feedback in CI
-      timeout: 20s   # Reduced from 30s for faster feedback in CI
-      retries: 10    # Reduced from 15 for faster feedback in CI
-      start_period: 60s  # Reduced from 120s for faster feedback in CI
+      test: ["CMD", "/app/docker-healthcheck.sh"]
+      interval: 30s
+      timeout: 60s
+      retries: 10
+      start_period: 180s
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 4G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 1G
     depends_on:
       db:
@@ -50,7 +44,7 @@ services:
     container_name: paissive-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -61,15 +55,10 @@ services:
       - paissive-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
-      interval: 3s   # Reduced from 5s for faster feedback in CI
-      timeout: 3s    # Reduced from 5s for faster feedback in CI
-      retries: 15    # Reduced from 20 for faster feedback in CI
-      start_period: 15s  # Reduced from 30s for faster feedback in CI
-    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
-    deploy:
-      resources:
-        limits:
-          memory: 1G
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   # Uncomment the following section to enable Redis caching
   # redis:
@@ -91,8 +80,6 @@ services:
 networks:
   paissive-network:
     driver: bridge
-    # Removed explicit name to avoid conflicts with pre-created network
-    # The network will be named based on the project directory and service name
 
 volumes:
   redis-data:

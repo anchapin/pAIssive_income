@@ -5,25 +5,19 @@ This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
 
-from __future__ import annotations
-
-from typing import Any, Callable
+from typing import Any
 
 from common_utils import tooling
 
 
 class ArtistAgent:
-    """Agent that selects and uses tools based on user prompts."""
-
-    def __init__(self) -> None:
-        """Initialize the agent with available tools."""
+    def __init__(self):
         # Discover available tools at initialization
-        self.tools: dict[str, Callable[..., Any]] = tooling.list_tools()
+        self.tools = tooling.list_tools()
 
     def decide_tool(self, prompt: str) -> str:
         """
-        Select appropriate tool based on prompt keywords.
-
+        Naive tool selection logic based on prompt keywords.
         Expand this with RL or more sophisticated reasoning as desired.
 
         Args:
@@ -54,7 +48,6 @@ class ArtistAgent:
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
         """
         Extract the relevant expression from the prompt based on the tool.
-
         This is a naive implementation for the calculator tool.
 
         Args:
@@ -71,7 +64,7 @@ class ArtistAgent:
             return prompt
         return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
-    def run(self, prompt: str) -> str:
+    def run(self, prompt: str) -> Any:
         """
         Process a prompt, select a tool, and return the tool's output.
 
@@ -79,20 +72,18 @@ class ArtistAgent:
             prompt (str): The user's input/problem.
 
         Returns:
-            str: The tool's output, or a message if no tool found.
+            Any: The tool's output, or a message if no tool found.
 
         """
         tool_name = self.decide_tool(prompt)
         if tool_name and tool_name in self.tools:
             tool_func = self.tools[tool_name]
             relevant_expression = self.extract_relevant_expression(prompt, tool_name)
-            result = tool_func(relevant_expression)
-            return str(result)  # Ensure we return a string
+            return tool_func(relevant_expression)
         return "No suitable tool found for this prompt."
 
 
-def main() -> None:
-    """Run example usage of ArtistAgent."""
+if __name__ == "__main__":
     import logging
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -100,11 +91,7 @@ def main() -> None:
 
     agent = ArtistAgent()
     # Example usage
-    logger.info("Available tools: %s", list(agent.tools.keys()))
+    logger.info(f"Available tools: {list(agent.tools.keys())}")
     test_prompt = "Calculate 2 + 3 * 4"
-    logger.info("Prompt: %s", test_prompt)
-    logger.info("Agent output: %s", agent.run("2 + 3 * 4"))
-
-
-if __name__ == "__main__":
-    main()
+    logger.info(f"Prompt: {test_prompt}")
+    logger.info(f"Agent output: {agent.run('2 + 3 * 4')}")

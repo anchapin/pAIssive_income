@@ -1,9 +1,7 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
-from __future__ import annotations
-
 # Standard library imports
-from typing import Any
+from typing import Any, Dict, Optional
 
 # Third-party imports
 from flask import Flask
@@ -13,7 +11,6 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 # Local imports
-from .mcp_servers import mcp_servers_api
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -23,7 +20,7 @@ migrate = Migrate()
 FlaskApp = Flask
 
 
-def create_app(test_config: dict[str, Any] | None = None) -> Flask:
+def create_app(test_config: Optional[Dict[str, Any]] = None) -> Any:
     """
     Create and configure the Flask application.
 
@@ -31,7 +28,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
         test_config: Optional configuration dictionary for testing
 
     Returns:
-        Flask: The configured Flask application
+        Any: The configured Flask application
 
     """
     app = FlaskApp(__name__)
@@ -48,8 +45,6 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     # Import models so they're registered with SQLAlchemy
     # Register blueprints
     from api.routes.user_router import user_bp
-
-    from . import models
 
     app.register_blueprint(user_bp)
 

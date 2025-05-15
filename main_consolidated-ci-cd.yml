@@ -126,22 +126,6 @@ jobs:
           # Create mock MCP module for Windows
           python install_mcp_sdk.py
 
-      - name: Create ruff configuration (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # Create ruff configuration file if it doesn't exist
-          if (-not (Test-Path "pyproject.toml") -and -not (Test-Path "ruff.toml")) {
-            Write-Host "Creating minimal ruff.toml configuration..."
-            # Create a simple ruff.toml file with Windows-friendly settings
-            "# Ruff configuration for Windows compatibility" | Out-File -FilePath "ruff.toml" -Encoding utf8
-            "[tool.ruff]" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-            "exclude = ['.git', '.github', '.venv', 'venv', 'node_modules', '__pycache__', 'build', 'dist']" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-            "line-length = 100" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-            "target-version = 'py310'" | Out-File -FilePath "ruff.toml" -Encoding utf8 -Append
-            Write-Host "Created ruff.toml with basic configuration"
-          }
-
       - name: Run linting (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -218,16 +202,16 @@ jobs:
         run: |
           # Create security-reports directory if it doesn't exist
           mkdir -p security-reports
-
+          
           # Create .github/bandit directory if it doesn't exist
           mkdir -p .github/bandit
-
+          
           # Generate Bandit configuration files
           python generate_bandit_config.py ${{ github.run_id }}
-
+          
           # Run safety check
           safety check || true
-
+          
           # Run Bandit with the generated configuration
           platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
           bandit_config_file=".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
@@ -238,7 +222,7 @@ jobs:
             echo "Bandit configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
           fi
-
+          
           # Ensure the SARIF file exists
           if [ ! -f "security-reports/bandit-results.sarif" ]; then
             echo "Bandit did not generate a SARIF file. Creating an empty one."
@@ -262,10 +246,10 @@ jobs:
 }
 EOF
           fi
-
+          
           # Run pip-audit
           pip-audit || true
-
+          
           # Run semgrep
           semgrep scan --config auto || true
 
@@ -276,16 +260,16 @@ EOF
         run: |
           # Create security-reports directory if it doesn't exist
           New-Item -ItemType Directory -Force -Path security-reports
-
+          
           # Create .github/bandit directory if it doesn't exist
           New-Item -ItemType Directory -Force -Path .github/bandit
-
+          
           # Generate Bandit configuration files
           python generate_bandit_config.py ${{ github.run_id }}
-
+          
           # Run safety check
           safety check
-
+          
           # Run Bandit with the generated configuration
           $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
           if (Test-Path $banditConfigFile) {
@@ -295,7 +279,7 @@ EOF
             Write-Host "Bandit configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests"
           }
-
+          
           # Ensure the SARIF file exists
           if (-not (Test-Path "security-reports/bandit-results.sarif")) {
             Write-Host "Bandit did not generate a SARIF file. Creating an empty one."
@@ -320,10 +304,10 @@ EOF
 "@
             Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarif
           }
-
+          
           # Run pip-audit
           pip-audit
-
+          
           # Run semgrep
           semgrep scan --config auto
 

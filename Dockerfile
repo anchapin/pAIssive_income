@@ -1,6 +1,5 @@
-FROM python:3.10-slim-bookworm
+FROM --platform=$BUILDPLATFORM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Accept CI build argument
@@ -12,7 +11,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     FLASK_APP=run_ui.py \
     FLASK_ENV=production \
-    PATH="/root/.cargo/bin:$PATH" \
     CI=$CI
 
 # Install system dependencies
@@ -50,17 +48,23 @@ RUN if [ "$CI" = "true" ]; then \
       cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
     fi
 
-# Install Python dependencies using pip (more reliable in CI)
-RUN python -m venv .venv && \
-    .venv/bin/pip install --upgrade pip && \
-    .venv/bin/pip install -r requirements.txt && \
-    # Verify Flask installation
-    .venv/bin/python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
+# Set up virtual environment and install dependencies
+RUN uv venv /app/.venv \
+    && . /app/.venv/bin/activate \
+    # Clone and install MCP SDK first
+    && git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk \
+    && cd /tmp/mcp-sdk \
+    && uv pip install -e . \
+    && cd /app \
+    && rm -rf /tmp/mcp-sdk \
+    # Then install other requirements
+    && uv pip install --no-cache -r requirements.txt --python /app/.venv/bin/python \
     # Install additional packages that might be needed
-    .venv/bin/pip install psycopg2-binary gunicorn
+    && uv pip install psycopg2-binary gunicorn
 
-# Update PATH to include virtual environment for subsequent commands and runtime
+# Set up PATH and PYTHONPATH
 ENV PATH="/app/.venv/bin:$PATH"
+ENV VIRTUAL_ENV="/app/.venv"
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/logs && \
@@ -78,7 +82,7 @@ RUN mkdir -p /app/logs && \
     touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log && \
     chmod 666 /app/logs/*.log
 
-# Copy project files
+# Copy application code
 COPY --chown=root:appgroup . .
 
 # Copy health check script and wait-for-db script (and fix permissions)
@@ -91,11 +95,16 @@ RUN chmod +x /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh 
 # Verify scripts are executable
 RUN ls -la /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
     # Verify Python can import Flask (using the virtual environment)
-    .venv/bin/python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
+    python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
     # Verify the run_ui.py file exists and is readable
     ls -la /app/run_ui.py && \
     # Verify the init_db.py file exists and is readable
     ls -la /app/init_db.py
+
+# Set default platform values
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 
 # Health check with increased start period and retries
 HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
