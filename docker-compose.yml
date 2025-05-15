@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - CI=${CI:-false}
     container_name: paissive-income-app
     restart: unless-stopped
     ports:
@@ -21,14 +23,15 @@ services:
       - POSTGRES_DB=mydb
       - POSTGRES_HOST=db
       - LOG_LEVEL=INFO
+      - CI=${CI:-false}
     networks:
       - paissive-network
     healthcheck:
       test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
-      interval: 30s
-      timeout: 60s
-      retries: 12
-      start_period: 240s
+      interval: 20s
+      timeout: 30s
+      retries: 15
+      start_period: 120s
     deploy:
       resources:
         limits:
@@ -57,11 +60,15 @@ services:
       - paissive-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 60s
-    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on"]
+      retries: 20
+      start_period: 30s
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 
 networks:
   paissive-network:

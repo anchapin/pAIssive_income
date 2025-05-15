@@ -1,7 +1,7 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, cast
 
 # Third-party imports
 from flask import Flask
@@ -32,6 +32,7 @@ def create_app(
         Flask: The configured Flask application
     """
     app = FlaskApp(__name__)
+    # Load configuration
     app.config.from_object(Config)
 
     # Override config with test config if provided

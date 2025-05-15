@@ -1,14 +1,19 @@
-FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
+FROM python:3.10-slim-bookworm
 
 # Set working directory
 WORKDIR /app
+
+# Accept CI build argument
+ARG CI=false
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     FLASK_APP=run_ui.py \
-    FLASK_ENV=production
+    FLASK_ENV=production \
+    PATH="/root/.cargo/bin:$PATH" \
+    CI=$CI
 
 # Install system dependencies
 RUN apt-get update \
@@ -33,15 +38,22 @@ RUN apt-get update \
 
 # Copy requirements files
 COPY requirements-dev.txt .
+COPY requirements-ci.txt .
 COPY ai_models/requirements.txt ai_models_requirements.txt
 
-# Create a consolidated requirements file
-RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
+# Choose requirements file based on environment
+RUN if [ "$CI" = "true" ]; then \
+      echo "Using minimal requirements for CI environment" && \
+      cp requirements-ci.txt requirements.txt; \
+    else \
+      echo "Using full requirements for non-CI environment" && \
+      cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
+    fi
 
-# Install Python dependencies using uv and create a virtual environment
-RUN uv venv .venv && \
-    # Use the system-wide uv to install packages into the virtual environment
-    uv pip install --no-cache -r requirements.txt --python .venv/bin/python && \
+# Install Python dependencies using pip (more reliable in CI)
+RUN python -m venv .venv && \
+    .venv/bin/pip install --upgrade pip && \
+    .venv/bin/pip install -r requirements.txt && \
     # Verify Flask installation
     .venv/bin/python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
     # Install additional packages that might be needed
@@ -78,8 +90,8 @@ RUN chmod +x /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh 
 
 # Verify scripts are executable
 RUN ls -la /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
-    # Verify Python can import Flask
-    python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
+    # Verify Python can import Flask (using the virtual environment)
+    .venv/bin/python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
     # Verify the run_ui.py file exists and is readable
     ls -la /app/run_ui.py && \
     # Verify the init_db.py file exists and is readable

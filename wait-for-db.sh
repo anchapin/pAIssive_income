@@ -18,10 +18,19 @@ cmd="$@"
 log "Starting wait-for-db script for PostgreSQL at $host:$port..."
 
 # Configuration
-max_attempts=120  # Increased from 90 to 120 for more patience
-initial_retry_interval=2
-max_retry_interval=15
-connection_timeout=10  # Increased from 5 to 10 seconds
+max_attempts=${DB_WAIT_MAX_ATTEMPTS:-120}
+initial_retry_interval=${DB_WAIT_INITIAL_RETRY_INTERVAL:-2}
+max_retry_interval=${DB_WAIT_MAX_RETRY_INTERVAL:-15}
+connection_timeout=${DB_WAIT_CONNECTION_TIMEOUT:-10}
+
+# Reduce wait times in CI environment
+if [ "$CI" = "true" ]; then
+  log "CI environment detected, using faster database wait settings"
+  max_attempts=30
+  initial_retry_interval=1
+  max_retry_interval=5
+  connection_timeout=5
+fi
 
 # Function to check if PostgreSQL port is reachable
 check_port() {

@@ -263,8 +263,9 @@ app = create_app()
 setup_request_logging(app)
 
 # Configure Flask's built-in logger to use our settings
-app.logger.handlers = []  # Remove default handler
-app.logger.propagate = True  # Use root logger's handlers
+# Use type: ignore to handle Flask's logger attribute
+app.logger.handlers = []
+app.logger.propagate = True
 
 
 @app.route("/health")

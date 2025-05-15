@@ -277,7 +277,9 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
           compose-file: "./docker-compose.yml"
-          up-flags: "--detach"
+          up-flags: "--detach --build"
+        env:
+          CI: "true"
 
       # Fallback if the action fails
       - name: Docker Compose fallback
@@ -285,16 +287,23 @@ jobs:
         run: |
           echo "Docker Compose action failed. Trying manual Docker Compose setup..."
 
-          # Try to start services manually
-          echo "Starting services manually with docker compose..."
-          docker compose up -d || docker-compose up -d
+          # Set CI environment variable for Docker Compose
+          export CI=true
+
+          # Try to start services manually with build flag
+          echo "Starting services manually with docker compose and build flag..."
+          docker compose up -d --build || docker-compose up -d --build
 
           # Check if services started
           echo "Checking if services started..."
           if ! docker compose ps || ! docker-compose ps; then
-            echo "ERROR: Failed to start services with docker compose. Trying with build flag..."
-            docker compose up -d --build || docker-compose up -d --build
+            echo "ERROR: Failed to start services with docker compose. Trying with force-recreate flag..."
+            docker compose up -d --build --force-recreate || docker-compose up -d --build --force-recreate
           fi
+
+          # Check for any errors in the build logs
+          echo "Checking build logs for errors:"
+          docker compose logs --tail=100 | grep -i "error" || true
 
           # Final check
           echo "Final service status check:"
