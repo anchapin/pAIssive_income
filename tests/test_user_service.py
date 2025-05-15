@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import Flask
 
 from users.services import UserExistsError, UserService
 
@@ -23,14 +24,36 @@ class MockDB:
     def __init__(self):
         self.session = MagicMock()
 
+    # Add methods needed by the UserService
+    def add(self, obj):
+        pass
 
-# Create patch for flask.models
-patch("flask.models.User", MockUser).start()
-patch("flask.models.db", MockDB()).start()
+    def commit(self):
+        pass
+
+
+# Create patch for app_flask.models
+patch("app_flask.models.User", MockUser).start()
+patch("app_flask.models.db", MockDB()).start()
 
 
 @pytest.fixture
-def user_service():
+def app():
+    """Create a Flask app for testing."""
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    return app
+
+
+@pytest.fixture
+def app_context(app):
+    """Create an application context for testing."""
+    with app.app_context():
+        yield
+
+
+@pytest.fixture
+def user_service(app_context):
     """Create a UserService instance for testing."""
     return UserService(token_secret="test_secret")
 

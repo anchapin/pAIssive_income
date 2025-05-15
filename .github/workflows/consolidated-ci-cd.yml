@@ -86,7 +86,7 @@ jobs:
       - name: Run linting and tests
         run: |
           # Skip mypy temporarily for PR #149 due to unrelated type errors
-          ruff check .
+          ruff check . --exclude ui/react_frontend/node_modules
           # mypy .
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing
 
