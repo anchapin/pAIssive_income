@@ -2,7 +2,7 @@
 
 # Standard library imports
 import logging
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 
 # Third-party imports
 

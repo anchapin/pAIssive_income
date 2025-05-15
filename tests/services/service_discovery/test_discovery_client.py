@@ -15,9 +15,9 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         """Set up test environment."""
         # Create a mock registry
         self.mock_registry = MagicMock()
-        
+
         # Create a client with the mock registry
-        with patch("services.service_discovery.discovery_client.ConsulServiceRegistry", 
+        with patch("services.service_discovery.discovery_client.ConsulServiceRegistry",
                   return_value=self.mock_registry):
             self.client = ServiceDiscoveryClient(
                 service_name="test-service",
@@ -31,13 +31,13 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         with patch("services.service_discovery.discovery_client.ConsulServiceRegistry") as mock_registry_class:
             mock_registry = MagicMock()
             mock_registry_class.return_value = mock_registry
-            
+
             client = ServiceDiscoveryClient(
                 service_name="test-service",
                 port=8000,
                 auto_register=True
             )
-            
+
             # Verify that register_service was called
             mock_registry.register_service.assert_called_once_with(
                 service_name="test-service",
@@ -55,10 +55,10 @@ class TestServiceDiscoveryClient(unittest.TestCase):
             {"id": "service2", "address": "localhost", "port": 8002}
         ]
         self.mock_registry.get_service_instances.return_value = mock_instances
-        
+
         # Call the method
         instances = self.client.discover_service("target-service")
-        
+
         # Verify the result
         self.assertEqual(instances, mock_instances)
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
@@ -67,10 +67,10 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         """Test discover_service method with no instances."""
         # Mock the registry's get_service_instances method to return empty list
         self.mock_registry.get_service_instances.return_value = []
-        
+
         # Call the method
         instances = self.client.discover_service("target-service")
-        
+
         # Verify the result
         self.assertEqual(instances, [])
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
@@ -83,13 +83,13 @@ class TestServiceDiscoveryClient(unittest.TestCase):
             {"id": "service2", "address": "localhost", "port": 8002}
         ]
         self.mock_registry.get_service_instances.return_value = mock_instances
-        
+
         # Mock the load balancer's select_instance method
         self.client.load_balancer.select_instance = MagicMock(return_value=mock_instances[0])
-        
+
         # Call the method
         url = self.client.get_service_url("target-service", "/api/resource")
-        
+
         # Verify the result
         self.assertEqual(url, "http://localhost:8001/api/resource")
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
@@ -99,10 +99,10 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         """Test get_service_url method with no instances."""
         # Mock the registry's get_service_instances method to return empty list
         self.mock_registry.get_service_instances.return_value = []
-        
+
         # Call the method
         url = self.client.get_service_url("target-service", "/api/resource")
-        
+
         # Verify the result
         self.assertIsNone(url)
         self.mock_registry.get_service_instances.assert_called_once_with("target-service")
@@ -117,7 +117,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
             tags=["api", "v1"],
             metadata={"version": "1.0.0"}
         )
-        
+
         # Verify that the registry's register_service method was called
         self.mock_registry.register_service.assert_called_once_with(
             service_name="new-service",
@@ -131,7 +131,7 @@ class TestServiceDiscoveryClient(unittest.TestCase):
         """Test deregister_service method."""
         # Call the method
         self.client.deregister_service("service-id")
-        
+
         # Verify that the registry's deregister_service method was called
         self.mock_registry.deregister_service.assert_called_once_with("service-id")
 

@@ -1,10 +1,10 @@
 """schemas - Module for common_utils/validation.schemas."""
 
 # Standard library imports
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 # Third-party imports
-from pydantic import BaseModel, Field, conint
+from pydantic import BaseModel, conint
 
 # Local imports
 

@@ -21,7 +21,7 @@ class TestMain:
         # Re-import the module to trigger the logging setup
         import importlib
         importlib.reload(main)
-        
+
         # Verify that logging.basicConfig was called with the correct arguments
         mock_logging_basicConfig.assert_called_once_with(
             level=logging.INFO, format="%(levelname)s: %(message)s"

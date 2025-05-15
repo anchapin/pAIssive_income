@@ -2,7 +2,7 @@
 
 # Standard library imports
 import abc
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any
 
 # Third-party imports
 

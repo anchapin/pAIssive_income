@@ -60,15 +60,15 @@ class TestConfigLoader:
             "debug": True,
             "max_connections": 50
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             json.dump(valid_config, temp_file)
             temp_path = temp_file.name
-        
+
         try:
             # Load the config
             config = load_config(temp_path)
-            
+
             # Verify the config was loaded correctly
             assert isinstance(config, ExampleConfigModel)
             assert config.db_url == valid_config["db_url"]
@@ -84,7 +84,7 @@ class TestConfigLoader:
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             temp_file.write("This is not valid JSON")
             temp_path = temp_file.name
-        
+
         try:
             # Attempt to load the config
             with pytest.raises(json.JSONDecodeError):
@@ -101,11 +101,11 @@ class TestConfigLoader:
             "debug": True,
             "max_connections": 50
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             json.dump(invalid_config, temp_file)
             temp_path = temp_file.name
-        
+
         try:
             # Attempt to load the config
             with pytest.raises(ValidationError):
@@ -121,26 +121,26 @@ class TestConfigLoader:
         # Create a mock validation error
         mock_error = ValidationError("Validation failed")
         mock_error.details = {"field": "error message"}
-        
+
         # Configure the mock to raise the validation error
         mock_validate_input.side_effect = mock_error
-        
+
         # Create a temporary config file
         valid_config = {
             "db_url": "postgresql://user:password@localhost:5432/db",
             "debug": True,
             "max_connections": 50
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             json.dump(valid_config, temp_file)
             temp_path = temp_file.name
-        
+
         try:
             # Attempt to load the config
             with pytest.raises(ValidationError):
                 load_config(temp_path)
-            
+
             # Verify that the error was logged
             mock_logger.exception.assert_called_once_with(
                 "Config validation failed: %s", mock_error.details

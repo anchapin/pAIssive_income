@@ -44,9 +44,9 @@ else:
     )
 
 __all__ = [
-    'BaseModelAdapter',
-    'OllamaAdapter',
-    'LMStudioAdapter',
-    'OpenAICompatibleAdapter',
     'AdapterFactory',
+    'BaseModelAdapter',
+    'LMStudioAdapter',
+    'OllamaAdapter',
+    'OpenAICompatibleAdapter',
 ]

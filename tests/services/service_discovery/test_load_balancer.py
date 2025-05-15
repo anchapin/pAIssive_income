@@ -64,19 +64,19 @@ class TestLoadBalancer(unittest.TestCase):
     def test_select_instance_with_round_robin_strategy(self):
         """Test select_instance with round robin strategy."""
         load_balancer = LoadBalancer(strategy="round_robin")
-        
+
         # First call should return the first instance
         instance = load_balancer.select_instance(self.instances)
         self.assertEqual(instance, self.instances[0])
-        
+
         # Second call should return the second instance
         instance = load_balancer.select_instance(self.instances)
         self.assertEqual(instance, self.instances[1])
-        
+
         # Third call should return the third instance
         instance = load_balancer.select_instance(self.instances)
         self.assertEqual(instance, self.instances[2])
-        
+
         # Fourth call should wrap around to the first instance
         instance = load_balancer.select_instance(self.instances)
         self.assertEqual(instance, self.instances[0])
@@ -84,7 +84,7 @@ class TestLoadBalancer(unittest.TestCase):
     def test_select_instance_with_random_strategy(self):
         """Test select_instance with random strategy."""
         load_balancer = LoadBalancer(strategy="random")
-        
+
         # Mock the random.choice function to return a specific instance
         with patch("random.choice", return_value=self.instances[1]):
             instance = load_balancer.select_instance(self.instances)
@@ -97,12 +97,12 @@ class TestLoadBalancer(unittest.TestCase):
             if instance["id"] == "service2":
                 return 10
             return 1
-        
+
         # Create a weighted random strategy with the weight function
         strategy = WeightedRandomStrategy(weight_function)
         load_balancer = LoadBalancer()
         load_balancer.strategy = strategy
-        
+
         # Mock the random.choices function to return a specific instance
         with patch("random.choices", return_value=[self.instances[1]]):
             instance = load_balancer.select_instance(self.instances)
@@ -116,9 +116,9 @@ class TestLoadBalancer(unittest.TestCase):
             {"id": "service2", "address": "localhost", "port": 8002, "connections": 2},
             {"id": "service3", "address": "localhost", "port": 8003, "connections": 8},
         ]
-        
+
         load_balancer = LoadBalancer(strategy="least_connections")
-        
+
         # The instance with the least connections should be selected
         instance = load_balancer.select_instance(instances_with_connections)
         self.assertEqual(instance, instances_with_connections[1])
@@ -141,15 +141,15 @@ class TestRoundRobinStrategy(unittest.TestCase):
         # First call should return the first instance
         instance = self.strategy.select_instance(self.instances)
         self.assertEqual(instance, self.instances[0])
-        
+
         # Second call should return the second instance
         instance = self.strategy.select_instance(self.instances)
         self.assertEqual(instance, self.instances[1])
-        
+
         # Third call should return the third instance
         instance = self.strategy.select_instance(self.instances)
         self.assertEqual(instance, self.instances[2])
-        
+
         # Fourth call should wrap around to the first instance
         instance = self.strategy.select_instance(self.instances)
         self.assertEqual(instance, self.instances[0])

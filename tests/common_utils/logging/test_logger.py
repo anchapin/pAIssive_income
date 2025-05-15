@@ -39,7 +39,7 @@ class TestLogger:
         mock_get_logger.return_value = mock_logger
 
         setup_logger("test_setup_logger")
-        
+
         mock_get_logger.assert_called_once_with("test_setup_logger")
         mock_logger.setLevel.assert_called_once_with(logging.INFO)
         assert mock_logger.addHandler.called
@@ -51,7 +51,7 @@ class TestLogger:
         mock_get_logger.return_value = mock_logger
 
         setup_logger("test_setup_logger_custom", level=logging.DEBUG)
-        
+
         mock_get_logger.assert_called_once_with("test_setup_logger_custom")
         mock_logger.setLevel.assert_called_once_with(logging.DEBUG)
         assert mock_logger.addHandler.called
@@ -64,7 +64,7 @@ class TestLogger:
 
         custom_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         setup_logger("test_setup_logger_format", format_str=custom_format)
-        
+
         mock_get_logger.assert_called_once_with("test_setup_logger_format")
         mock_logger.setLevel.assert_called_once_with(logging.INFO)
         assert mock_logger.addHandler.called
@@ -77,7 +77,7 @@ class TestLogger:
 
         mock_handler = MagicMock()
         setup_logger("test_setup_logger_handlers", handlers=[mock_handler])
-        
+
         mock_get_logger.assert_called_once_with("test_setup_logger_handlers")
         mock_logger.setLevel.assert_called_once_with(logging.INFO)
         mock_logger.addHandler.assert_called_once_with(mock_handler)

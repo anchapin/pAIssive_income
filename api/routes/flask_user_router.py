@@ -1,9 +1,8 @@
 """flask_user_router - User API endpoints using Flask."""
 
 import logging
-from typing import Dict, Any, Optional, List, Tuple, Union
 
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request
 
 from app_flask.models import User
 from app_flask import db
@@ -35,7 +34,7 @@ def get_users():
             for user in users
         ]
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         logger.exception("Error getting users")
         return jsonify({"error": "An error occurred while getting users"}), 500
 
@@ -55,7 +54,7 @@ def get_user(user_id: str):
             "is_active": user.is_active == "true"
         }
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error getting user {user_id}")
         return jsonify({"error": "An error occurred while getting the user"}), 500
 
@@ -82,7 +81,7 @@ def create_user():
         try:
             user_data = user_service.create_user(username, email, password)
             return jsonify(user_data), 201
-        except RuntimeError as e:
+        except RuntimeError:
             # Handle unexpected server errors with 500 status code
             logger.exception("Server error creating user")
             return jsonify({"error": "An error occurred while creating the user"}), 500
@@ -90,7 +89,7 @@ def create_user():
             # Handle validation errors with 400 status code
             logger.exception("Error creating user")
             return jsonify({"error": str(e)}), 400
-    except Exception as e:
+    except Exception:
         logger.exception("Server error creating user")
         return jsonify({"error": "An error occurred while creating the user"}), 500
 
@@ -122,7 +121,7 @@ def authenticate_user():
         token = user_service.generate_token(user_data)
 
         return jsonify({"token": token, "user": user_data}), 200
-    except Exception as e:
+    except Exception:
         logger.exception("Error authenticating user")
         return jsonify({"error": "An error occurred while authenticating the user"}), 500
 
@@ -159,7 +158,7 @@ def update_user(user_id: str):
             "is_active": user.is_active == "true"
         }
         return jsonify(result), 200
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error updating user {user_id}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while updating the user"}), 500
@@ -177,7 +176,7 @@ def delete_user(user_id: str):
         db.session.commit()
 
         return jsonify({"message": f"User with ID {user_id} deleted successfully"}), 200
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error deleting user {user_id}")
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the user"}), 500

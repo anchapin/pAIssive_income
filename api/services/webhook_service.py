@@ -163,15 +163,15 @@ class WebhookService:
                 f"Webhook delivery to {webhook['url']} completed with status {response.status_code}"
             )
 
-            # Return success if status code is 2xx
+            # Check if status code is 2xx
             http_ok_min = 200
             http_ok_max = 300
             is_success = http_ok_min <= response.status_code < http_ok_max
-            if True:  # This is a workaround for the TRY300 linting error
-                return is_success
         except Exception:
             logger.exception("Webhook delivery failed")
             return False
+
+        return is_success
 
     def process_event(self, event_type: str, event_data: Dict[str, Any]) -> int:
         """Process an event and deliver to all matching webhooks.

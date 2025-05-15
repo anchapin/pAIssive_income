@@ -33,11 +33,11 @@ class TestCli(unittest.TestCase):
         # Create a temporary directory for tests
         self.temp_dir = tempfile.TemporaryDirectory()
         self.test_dir = self.temp_dir.name
-        
+
         # Save original values
         self.original_admin_token_dir = ADMIN_TOKEN_DIR
         self.original_admin_token_file = ADMIN_TOKEN_FILE
-        
+
         # Patch environment variables
         self.env_patcher = patch.dict(os.environ, {})
         self.mock_env = self.env_patcher.start()
@@ -52,12 +52,12 @@ class TestCli(unittest.TestCase):
         @require_auth
         def test_function():
             return "Success"
-        
+
         # Test with failed authentication
         with patch("common_utils.secrets.cli._check_auth", return_value=False):
             with self.assertRaises(PermissionError):
                 test_function()
-        
+
         # Test with successful authentication
         with patch("common_utils.secrets.cli._check_auth", return_value=True):
             self.assertEqual(test_function(), "Success")
@@ -98,7 +98,7 @@ class TestCli(unittest.TestCase):
     def test_check_rate_limit_with_lockout(self):
         """Test _check_rate_limit with lockout."""
         import time
-        
+
         # Set up lockout
         with patch("common_utils.secrets.cli.lockout_times", {"test_operation": time.time()}), \
              patch("time.time", return_value=time.time()):
@@ -121,16 +121,16 @@ class TestCli(unittest.TestCase):
         """Test _validate_secret_value with invalid secrets."""
         # Too short
         self.assertFalse(_validate_secret_value("Short1!"))
-        
+
         # Missing uppercase
         self.assertFalse(_validate_secret_value("validsecret123!"))
-        
+
         # Missing lowercase
         self.assertFalse(_validate_secret_value("VALIDSECRET123!"))
-        
+
         # Missing digit
         self.assertFalse(_validate_secret_value("ValidSecret!"))
-        
+
         # Missing special character
         self.assertFalse(_validate_secret_value("ValidSecret123"))
 
@@ -141,7 +141,7 @@ class TestCli(unittest.TestCase):
             args = parse_args()
             self.assertEqual(args.command, "get")
             self.assertEqual(args.key, "test_key")
-        
+
         # Test with set command
         with patch("sys.argv", ["secrets_cli.py", "set", "test_key"]):
             args = parse_args()
@@ -153,7 +153,7 @@ class TestCli(unittest.TestCase):
         # Test with valid secret
         with patch("getpass.getpass", return_value="ValidSecret123!"):
             self.assertEqual(get_secret_value("test_key"), "ValidSecret123!")
-        
+
         # Test with invalid secret
         with patch("getpass.getpass", return_value="invalid"):
             self.assertIsNone(get_secret_value("test_key"))
@@ -166,7 +166,7 @@ class TestCli(unittest.TestCase):
         args = MagicMock()
         args.key = "test_key"
         args.backend = "env"
-        
+
         # Test with existing secret
         mock_get_secret.return_value = "secret_value"
         with patch("sys.exit") as mock_exit, \
@@ -185,7 +185,7 @@ class TestCli(unittest.TestCase):
         args = MagicMock()
         args.key = "test_key"
         args.backend = "env"
-        
+
         # Test with valid secret
         mock_get_secret_value.return_value = "ValidSecret123!"
         mock_set_secret.return_value = True
@@ -204,7 +204,7 @@ class TestCli(unittest.TestCase):
         args = MagicMock()
         args.key = "test_key"
         args.backend = "env"
-        
+
         # Test with successful deletion
         mock_delete_secret.return_value = True
         with patch("sys.exit") as mock_exit, \

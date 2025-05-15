@@ -12,9 +12,9 @@ from .openai_compatible_adapter import OpenAICompatibleAdapter
 from .adapter_factory import AdapterFactory
 
 __all__ = [
-    'BaseModelAdapter',
-    'OllamaAdapter',
-    'LMStudioAdapter',
-    'OpenAICompatibleAdapter',
     'AdapterFactory',
+    'BaseModelAdapter',
+    'LMStudioAdapter',
+    'OllamaAdapter',
+    'OpenAICompatibleAdapter',
 ]

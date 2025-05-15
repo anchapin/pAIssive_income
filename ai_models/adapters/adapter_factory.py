@@ -2,7 +2,7 @@
 
 # Standard library imports
 import logging
-from typing import Dict, Any, Optional, Type
+from typing import Optional, Type
 
 # Third-party imports
 
@@ -54,10 +54,10 @@ class AdapterFactory:
         try:
             adapter = adapter_class(**kwargs)
             logger.info(f"Created adapter of type: {adapter_type}")
-            return adapter
-        except Exception as e:
-            logger.exception(f"Error creating adapter of type {adapter_type}: {e}")
+        except Exception:
+            logger.exception(f"Error creating adapter of type {adapter_type}")
             return None
+        return adapter
 
     @classmethod
     def get_available_adapter_types(cls) -> list[str]:

@@ -1,13 +1,10 @@
 """ollama_adapter - Module for ai_models/adapters.ollama_adapter."""
 
 # Standard library imports
-import os
-import json
 import logging
-import time
 import asyncio
 import aiohttp
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Any
 
 # Third-party imports
 

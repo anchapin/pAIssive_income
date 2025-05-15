@@ -17,7 +17,7 @@ def cleanup_egg_info() -> None:
             shutil.rmtree(egg_info)
             count += 1
         except OSError as e:
-            logging.error(f"Error removing {egg_info}: {e}")
+            logging.exception(f"Error removing {egg_info}: {e}")
 
     if count > 0:
         logging.info(f"Removed {count} .egg-info directories.")

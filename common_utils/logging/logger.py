@@ -2,9 +2,8 @@
 
 # Standard library imports
 import logging
-import os
 import sys
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 # Third-party imports
 

@@ -105,13 +105,13 @@ class UserModel(db.Model):
         if "id" in data:
             user.id = data["id"]
 
-        if "created_at" in data and data["created_at"]:
+        if data.get("created_at"):
             if isinstance(data["created_at"], str):
                 user.created_at = datetime.fromisoformat(data["created_at"])
             else:
                 user.created_at = data["created_at"]
 
-        if "last_login" in data and data["last_login"]:
+        if data.get("last_login"):
             if isinstance(data["last_login"], str):
                 user.last_login = datetime.fromisoformat(data["last_login"])
             else:

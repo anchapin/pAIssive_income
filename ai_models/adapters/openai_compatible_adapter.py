@@ -2,10 +2,9 @@
 
 # Standard library imports
 import logging
-import json
 import asyncio
 import aiohttp
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Union
 
 # Third-party imports
 
@@ -85,7 +84,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             "top_p": kwargs.get("top_p", 1.0),
             "n": kwargs.get("n", 1),
             "stream": kwargs.get("stream", False),
-            "stop": kwargs.get("stop", None),
+            "stop": kwargs.get("stop"),
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
             "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
         }
@@ -122,7 +121,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             "top_p": kwargs.get("top_p", 1.0),
             "n": kwargs.get("n", 1),
             "stream": kwargs.get("stream", False),
-            "stop": kwargs.get("stop", None),
+            "stop": kwargs.get("stop"),
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
             "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
         }

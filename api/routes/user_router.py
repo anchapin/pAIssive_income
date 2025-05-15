@@ -1,10 +1,9 @@
 """user_router - User API endpoints using FastAPI."""
 
 import logging
-import os
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, HTTPException, Path, status
 from pydantic import BaseModel, EmailStr, Field
 
 # Set up logger
@@ -156,7 +155,7 @@ async def create_user_endpoint(user: UserCreate):
     """Create a new user."""
     try:
         return create_user(user.model_dump())
-    except Exception as e:
+    except Exception:
         logger.exception("Error creating user")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

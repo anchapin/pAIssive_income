@@ -267,7 +267,7 @@ class TestSecretConfig:
         mock_file.assert_called_with("config.json", "w", encoding="utf-8")
         mock_json_dump.assert_called_once_with({"app": {"name": "test"}}, mock_file(), indent=2)
 
-    @patch("builtins.open", side_effect=IOError("Test error"))
+    @patch("builtins.open", side_effect=OSError("Test error"))
     @patch("os.path.exists", return_value=True)
     def test_save_config_with_error(self, mock_exists, mock_file):
         """Test saving the configuration with an error."""

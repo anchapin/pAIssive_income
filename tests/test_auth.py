@@ -17,13 +17,13 @@ class TestAuthFunctions(unittest.TestCase):
         # Test with a valid credential
         credential = "password123"
         hashed = hash_credential(credential)
-        
+
         # Verify the result is a string
         self.assertIsInstance(hashed, str)
-        
+
         # Verify the hash is not the original credential
         self.assertNotEqual(hashed, credential)
-        
+
         # Verify the hash can be verified with bcrypt
         self.assertTrue(
             bcrypt.checkpw(
@@ -36,17 +36,17 @@ class TestAuthFunctions(unittest.TestCase):
         """Test hashing an empty credential raises an error."""
         with self.assertRaises(ValueError) as context:
             hash_credential("")
-        
+
         self.assertEqual(
             str(context.exception),
             "Authentication credential cannot be empty"
         )
-        
+
     def test_hash_credential_none(self):
         """Test hashing a None credential raises an error."""
         with self.assertRaises(ValueError) as context:
             hash_credential(None)
-        
+
         self.assertEqual(
             str(context.exception),
             "Authentication credential cannot be empty"
@@ -60,7 +60,7 @@ class TestAuthFunctions(unittest.TestCase):
             plain_credential.encode('utf-8'),
             bcrypt.gensalt()
         ).decode('utf-8')
-        
+
         # Verify the credential
         result = verify_credential(plain_credential, hashed_credential)
         self.assertTrue(result)
@@ -74,7 +74,7 @@ class TestAuthFunctions(unittest.TestCase):
             plain_credential.encode('utf-8'),
             bcrypt.gensalt()
         ).decode('utf-8')
-        
+
         # Verify with wrong credential
         result = verify_credential(wrong_credential, hashed_credential)
         self.assertFalse(result)
@@ -82,10 +82,10 @@ class TestAuthFunctions(unittest.TestCase):
     def test_verify_credential_empty_plain(self):
         """Test verifying with an empty plain credential."""
         hashed_credential = bcrypt.hashpw(
-            "password123".encode('utf-8'),
+            b"password123",
             bcrypt.gensalt()
         ).decode('utf-8')
-        
+
         result = verify_credential("", hashed_credential)
         self.assertFalse(result)
 
@@ -97,10 +97,10 @@ class TestAuthFunctions(unittest.TestCase):
     def test_verify_credential_none_plain(self):
         """Test verifying with a None plain credential."""
         hashed_credential = bcrypt.hashpw(
-            "password123".encode('utf-8'),
+            b"password123",
             bcrypt.gensalt()
         ).decode('utf-8')
-        
+
         result = verify_credential(None, hashed_credential)
         self.assertFalse(result)
 
@@ -116,7 +116,7 @@ class TestAuthFunctions(unittest.TestCase):
             plain_credential.encode('utf-8'),
             bcrypt.gensalt()
         )  # Keep as bytes
-        
+
         # Verify the credential
         result = verify_credential(plain_credential, hashed_credential)
         self.assertTrue(result)
@@ -132,20 +132,20 @@ class TestAuthFunctions(unittest.TestCase):
         """Test handling of unexpected exceptions during verification."""
         with patch('bcrypt.checkpw') as mock_checkpw, patch('users.auth.logger') as mock_logger:
             mock_checkpw.side_effect = Exception("Unexpected error")
-            
+
             result = verify_credential("password123", "hashed_password")
-            
+
             self.assertFalse(result)
             mock_logger.exception.assert_called_once()
 
     def test_hash_auth_alias(self):
         """Test hash_auth alias function."""
         credential = "password123"
-        
+
         # Hash using both functions
         hashed1 = hash_credential(credential)
         hashed2 = hash_auth(credential)
-        
+
         # Verify both can be verified with the original credential
         self.assertTrue(
             bcrypt.checkpw(
@@ -167,11 +167,11 @@ class TestAuthFunctions(unittest.TestCase):
             plain_credential.encode('utf-8'),
             bcrypt.gensalt()
         ).decode('utf-8')
-        
+
         # Verify using both functions
         result1 = verify_credential(plain_credential, hashed_credential)
         result2 = verify_auth(plain_credential, hashed_credential)
-        
+
         self.assertTrue(result1)
         self.assertTrue(result2)
 
