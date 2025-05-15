@@ -138,8 +138,8 @@ def list_available_agent_backends() -> List[Dict[str, Any]]:
     mcp_servers = load_mcp_server_configs()
 
     # Add type field to each server
-    for s in mcp_servers:
-        s["type"] = "mcp"
+    for server in mcp_servers:
+        server["type"] = "mcp"
 
     return mcp_servers
 

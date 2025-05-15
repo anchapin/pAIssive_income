@@ -1,4 +1,3 @@
-import os
 import json
 import tempfile
 import shutil
@@ -7,7 +6,7 @@ from pathlib import Path
 import pytest
 from flask import Flask
 
-from app_flask.mcp_servers import mcp_servers_api, MCP_SETTINGS_FILE, MCP_SERVERS_KEY
+from app_flask.mcp_servers import mcp_servers_api, MCP_SETTINGS_FILE
 
 
 @pytest.fixture
