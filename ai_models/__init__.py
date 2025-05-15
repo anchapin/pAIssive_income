@@ -10,10 +10,17 @@ try:
     # Try to import aiohttp
     import aiohttp
     AIOHTTP_AVAILABLE = True
-except ImportError:
+    logging.info(f"aiohttp version {aiohttp.__version__} is available")
+except ImportError as e:
     # If aiohttp is not available, use mock implementations
     AIOHTTP_AVAILABLE = False
-    logging.warning("aiohttp not available, using mock implementations")
+    logging.warning(f"aiohttp not available: {e}. Using mock implementations")
+    # Import mock_aiohttp as aiohttp
+    try:
+        from . import mock_aiohttp as aiohttp
+        logging.info(f"Using mock aiohttp version {aiohttp.__version__}")
+    except ImportError as e2:
+        logging.error(f"Failed to import mock_aiohttp: {e2}")
 
 # Local imports
 

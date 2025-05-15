@@ -44,8 +44,12 @@ def _safe_import(module_name: str, class_name: str) -> Optional[Any]:
             # Get the class from the module
             return getattr(module, class_name, None)
         else:
+            import logging
+            logging.warning(f"Module ai_models.adapters.{module_name} not found")
             return None
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError) as e:
+        import logging
+        logging.warning(f"Error importing {class_name} from {module_name}: {e}")
         return None
 
 # Import adapters safely

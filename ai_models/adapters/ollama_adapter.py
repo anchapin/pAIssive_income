@@ -3,10 +3,26 @@
 # Standard library imports
 import logging
 import asyncio
-import aiohttp
 from typing import Dict, List, Any
 
 # Third-party imports
+try:
+    import aiohttp
+except ImportError:
+    # If aiohttp is not available, try to use our mock implementation
+    try:
+        from .. import mock_aiohttp as aiohttp
+        logging.info("Using mock aiohttp in ollama_adapter")
+    except ImportError as e:
+        logging.error(f"Failed to import mock_aiohttp: {e}")
+        # Create a minimal mock to prevent import errors
+        class aiohttp:
+            class ClientSession:
+                def __init__(self, *args, **kwargs):
+                    pass
+            class ClientTimeout:
+                def __init__(self, *args, **kwargs):
+                    pass
 
 # Local imports
 from .base_adapter import BaseModelAdapter
