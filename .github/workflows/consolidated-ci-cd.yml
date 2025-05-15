@@ -71,6 +71,8 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          # Verify uv is installed and in PATH
+          which uv || echo "uv not found in PATH"
 
       - name: Install uv (Windows)
         if: runner.os == 'Windows'
@@ -82,28 +84,65 @@ jobs:
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
-          uv pip install --upgrade pip
-          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
-          # Install MCP SDK from GitHub
-          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk
-          cd /tmp/mcp-sdk
-          uv pip install -e .
-          cd $GITHUB_WORKSPACE
+          # Ensure pip is up to date
+          python -m pip install --upgrade pip
+
+          # Install uv if not already available
+          which uv || python -m pip install uv
+
+          # Install testing tools
+          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+
+          # Install requirements
+          if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+
+          # Install MCP SDK from GitHub with error handling
+          echo "Cloning MCP SDK repository..."
+          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk || echo "Failed to clone MCP SDK repository"
+
+          if [ -d "/tmp/mcp-sdk" ]; then
+            echo "Installing MCP SDK..."
+            cd /tmp/mcp-sdk
+            python -m pip install -e . || echo "Failed to install MCP SDK"
+            cd $GITHUB_WORKSPACE
+          else
+            echo "Skipping MCP SDK installation as repository clone failed"
+          fi
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
-          uv pip install --upgrade pip
-          uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
-          if (Test-Path requirements-dev.txt) { uv pip install -r requirements-dev.txt }
-          if (Test-Path requirements.txt) { uv pip install -r requirements.txt }
-          # Install MCP SDK from GitHub
-          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git $env:TEMP\mcp-sdk
-          cd $env:TEMP\mcp-sdk
-          uv pip install -e .
-          cd $env:GITHUB_WORKSPACE
+          # Ensure pip is up to date
+          python -m pip install --upgrade pip
+
+          # Install testing tools
+          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+
+          # Install requirements
+          if (Test-Path requirements-dev.txt) { python -m pip install -r requirements-dev.txt }
+          if (Test-Path requirements.txt) { python -m pip install -r requirements.txt }
+
+          # Install MCP SDK from GitHub with error handling
+          Write-Host "Cloning MCP SDK repository..."
+          try {
+            git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git $env:TEMP\mcp-sdk
+          } catch {
+            Write-Host "Failed to clone MCP SDK repository: $_"
+          }
+
+          if (Test-Path $env:TEMP\mcp-sdk) {
+            Write-Host "Installing MCP SDK..."
+            cd $env:TEMP\mcp-sdk
+            try {
+              python -m pip install -e .
+            } catch {
+              Write-Host "Failed to install MCP SDK: $_"
+            }
+            cd $env:GITHUB_WORKSPACE
+          } else {
+            Write-Host "Skipping MCP SDK installation as repository clone failed"
+          }
         shell: pwsh
 
       - name: Run linting and tests
