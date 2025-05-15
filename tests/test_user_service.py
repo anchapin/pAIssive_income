@@ -19,14 +19,32 @@ class MockUser:
         return MagicMock()
 
 
-class MockDB:
+# Create a mock for Flask app context
+class MockAppContext:
     def __init__(self):
-        self.session = MagicMock()
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
 
 
 # Create patch for flask.models
 patch("users.models.User", MockUser).start()
-patch("users.models.db", MockDB()).start()
+
+# Import the db from users.models to ensure we're patching the correct object
+from users.models import db
+
+# Patch the session attribute of the db object
+patch.object(db, "session", MagicMock()).start()
+
+# Mock Flask app context
+patch("flask.current_app._get_current_object", MagicMock()).start()
+patch("flask.has_app_context", MagicMock(return_value=True)).start()
+patch("flask._app_ctx_stack.top", MagicMock()).start()
+patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext())).start()
 
 
 @pytest.fixture
@@ -47,7 +65,7 @@ def test_create_user(user_service):
     )
 
     # Set up the mocks
-    with patch.object(MockUser, "query") as mock_query, patch.object(MockDB, "session"):
+    with patch.object(MockUser, "query") as mock_query:
         # Mock the query to check if user exists
         mock_filter = MagicMock()
         mock_filter.first.return_value = None
