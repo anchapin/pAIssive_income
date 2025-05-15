@@ -97,18 +97,9 @@ jobs:
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
 
-          # Install MCP SDK from GitHub with error handling
-          echo "Cloning MCP SDK repository..."
-          git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk || echo "Failed to clone MCP SDK repository"
-
-          if [ -d "/tmp/mcp-sdk" ]; then
-            echo "Installing MCP SDK..."
-            cd /tmp/mcp-sdk
-            python -m pip install -e . || echo "Failed to install MCP SDK"
-            cd $GITHUB_WORKSPACE
-          else
-            echo "Skipping MCP SDK installation as repository clone failed"
-          fi
+          # Install MCP SDK using the installation script
+          echo "Installing MCP SDK using installation script..."
+          python install_mcp_sdk.py
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
@@ -123,26 +114,9 @@ jobs:
           if (Test-Path requirements-dev.txt) { python -m pip install -r requirements-dev.txt }
           if (Test-Path requirements.txt) { python -m pip install -r requirements.txt }
 
-          # Install MCP SDK from GitHub with error handling
-          Write-Host "Cloning MCP SDK repository..."
-          try {
-            git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git $env:TEMP\mcp-sdk
-          } catch {
-            Write-Host "Failed to clone MCP SDK repository: $_"
-          }
-
-          if (Test-Path $env:TEMP\mcp-sdk) {
-            Write-Host "Installing MCP SDK..."
-            cd $env:TEMP\mcp-sdk
-            try {
-              python -m pip install -e .
-            } catch {
-              Write-Host "Failed to install MCP SDK: $_"
-            }
-            cd $env:GITHUB_WORKSPACE
-          } else {
-            Write-Host "Skipping MCP SDK installation as repository clone failed"
-          }
+          # Install MCP SDK using the installation script
+          Write-Host "Installing MCP SDK using installation script..."
+          python install_mcp_sdk.py
         shell: pwsh
 
       - name: Run linting and tests

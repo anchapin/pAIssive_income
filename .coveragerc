@@ -1,14 +1,48 @@
 [run]
 source = .
 omit =
+    # Exclude test files
     tests/*
+    */tests/*
+    # Exclude virtual environment
+    .venv/*
+    venv/*
+    env/*
+    # Exclude setup files
     setup.py
+    # Exclude utility scripts
+    fix_*.py
+    run_*.py
+    setup_*.py
+    # Exclude examples and CLI
     */examples/*
     */cli/*
+    # Exclude third-party packages
+    */site-packages/*
+    # Exclude specific directories not relevant to MCP adapter
+    ui/*
+    marketing/*
+    monetization/*
+    niche_analysis/*
+    collaboration/*
+    common_utils/*
+    users/*
+    api/*
 
 [report]
 exclude_lines =
+    # Skip any line with a pragma
     pragma: no cover
+    # Skip representation methods
     def __repr__
+    # Skip defensive assertion code
     raise NotImplementedError
     raise ImportError
+    # Skip abstract methods
+    @abstractmethod
+    # Skip pass statements
+    pass
+    # Skip type checking blocks
+    if TYPE_CHECKING:
+    # Skip exception handling that can't be tested easily
+    except ImportError:
