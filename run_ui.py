@@ -263,9 +263,9 @@ app = create_app()
 setup_request_logging(app)
 
 # Configure Flask's built-in logger to use our settings
-# Use type: ignore to handle Flask's logger attribute
-app.logger.handlers = []
-app.logger.propagate = True
+if hasattr(app, "logger"):
+    app.logger.handlers = []
+    app.logger.propagate = True
 
 
 @app.route("/health")
@@ -288,16 +288,17 @@ if __name__ == "__main__":
     port = int(os.environ.get("FLASK_PORT", "5000"))
 
     # Log startup information with extra context
-    app.logger.info(
-        "Starting Flask application",
-        extra={
-            "host": host,
-            "port": port,
-            "environment": os.environ.get("FLASK_ENV", "development"),
-            "python_version": sys.version,
-            "debug_mode": app.debug,
-        },
-    )
+    if hasattr(app, "logger"):
+        app.logger.info(
+            "Starting Flask application",
+            extra={
+                "host": host,
+                "port": port,
+                "environment": os.environ.get("FLASK_ENV", "development"),
+                "python_version": sys.version,
+                "debug_mode": app.debug if hasattr(app, "debug") else False,
+            },
+        )
 
     # Run the application
     app.run(host=host, port=port)

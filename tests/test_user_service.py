@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from users.models import db
 from users.services import UserExistsError, UserService
 
 
@@ -33,9 +34,6 @@ class MockAppContext:
 
 # Create patch for flask.models
 patch("users.models.User", MockUser).start()
-
-# Import the db from users.models to ensure we're patching the correct object
-from users.models import db
 
 # Patch the session attribute of the db object
 patch.object(db, "session", MagicMock()).start()

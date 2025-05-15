@@ -11,7 +11,8 @@
 class MockDB:
     """Mock database session for testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the MockDB instance."""
         self.session = None
 
 

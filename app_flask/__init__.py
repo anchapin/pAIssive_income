@@ -1,7 +1,7 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
-from typing import Any, Callable, Dict, Optional, TypeVar, Union, cast
+from typing import Any, Dict, Optional, TypeVar, Union, cast
 
 # Third-party imports
 from flask import Flask
@@ -18,6 +18,8 @@ migrate = Migrate()
 
 # Define FlaskApp as an alias for the actual Flask class with proper typing
 FlaskApp = Flask
+# Type alias for Flask config
+FlaskConfig = Any
 
 
 def create_app(
