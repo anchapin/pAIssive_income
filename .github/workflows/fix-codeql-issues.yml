@@ -33,6 +33,8 @@ permissions:
   # Required for all workflows
   contents: write
   pull-requests: write
+  # Required for pushing changes
+  actions: write
 
 jobs:
   fix-codeql-issues:
@@ -45,6 +47,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full git history for better analysis
+          ref: ${{ github.head_ref || github.ref_name }}  # Checkout the PR branch or the pushed branch
 
       # Set up Python
       - name: Set up Python
@@ -166,11 +169,11 @@ jobs:
           def remove_venv_dirs(root_dir: str) -> List[str]:
               """Remove virtual environment directories."""
               removed_dirs = []
-              
+
               for dirpath, dirnames, _ in os.walk(root_dir, topdown=True):
                   # Skip excluded directories
                   dirnames[:] = [d for d in dirnames if d not in DIRS_TO_EXCLUDE]
-                  
+
                   for dirname in dirnames[:]:  # Create a copy to avoid modifying during iteration
                       if dirname in VENV_DIRS:
                           venv_path = os.path.join(dirpath, dirname)
@@ -181,7 +184,7 @@ jobs:
                               dirnames.remove(dirname)  # Remove from list to avoid descending into it
                           except Exception as e:
                               logger.error(f"Error removing {venv_path}: {e}")
-              
+
               return removed_dirs
 
           def main() -> None:
@@ -191,9 +194,9 @@ jobs:
                   root_dir = sys.argv[1]
               else:
                   root_dir = "."
-              
+
               logger.info(f"Scanning directory: {root_dir}")
-              
+
               # Remove virtual environment directories
               removed_dirs = remove_venv_dirs(root_dir)
               logger.info(f"Removed {len(removed_dirs)} virtual environment directories")
@@ -220,5 +223,22 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .codeqlignore
           git add .gitignore
-          git commit -m "Fix CodeQL issues" || echo "No changes to commit"
-          git push
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            # Get the current branch name
+            BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+
+            if [ -z "$BRANCH_NAME" ]; then
+              echo "Warning: In detached HEAD state. Using github.head_ref or github.ref_name."
+              BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+            fi
+
+            echo "Committing and pushing changes to branch: $BRANCH_NAME"
+            git commit -m "Fix CodeQL issues"
+
+            # Push changes to the appropriate branch
+            git push origin HEAD:$BRANCH_NAME
+          fi
