@@ -77,7 +77,7 @@ jobs:
         shell: bash
         run: |
           # Run tests with retry mechanism
-          npx playwright test tests/e2e/agent_ui_fixed.spec.ts || npx playwright test tests/e2e/agent_ui_fixed.spec.ts --retries=2
+          npx playwright test tests/e2e/agent_ui_fixed.spec.ts tests/e2e/agent_ui_final.spec.ts || npx playwright test tests/e2e/agent_ui_fixed.spec.ts tests/e2e/agent_ui_final.spec.ts --retries=2
 
       - name: Create and verify playwright-report directory
         if: always()
