@@ -3,9 +3,18 @@ import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-// Import the local AgentUI implementation
+// Try to import the external AgentUI package first, then fall back to local implementation
 // This ensures we always have a working component even if the external package is not available
-import { AgentUI } from './components/AgentUI';
+let AgentUI;
+try {
+  // Try to import from the external package
+  AgentUI = require('@ag-ui-protocol/ag-ui').AgentUI;
+  console.log('Using external @ag-ui-protocol/ag-ui package');
+} catch (error) {
+  // Fall back to local implementation
+  AgentUI = require('./components/AgentUI').AgentUI;
+  console.log('Using local AgentUI implementation');
+}
 
 // Context
 import { AppProvider, useAppContext } from './context/AppContext';

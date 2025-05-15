@@ -22,8 +22,17 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import PeopleIcon from '@mui/icons-material/People';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import WebIcon from '@mui/icons-material/Web';
-// Import the AgentUI component
-import { AgentUI } from '../components/AgentUI';
+// Try to import the external AgentUI package first, then fall back to local implementation
+let AgentUI;
+try {
+  // Try to import from the external package
+  AgentUI = require('@ag-ui-protocol/ag-ui').AgentUI;
+  console.log('Using external @ag-ui-protocol/ag-ui package in AboutPage');
+} catch (error) {
+  // Fall back to local implementation
+  AgentUI = require('../components/AgentUI').AgentUI;
+  console.log('Using local AgentUI implementation in AboutPage');
+}
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

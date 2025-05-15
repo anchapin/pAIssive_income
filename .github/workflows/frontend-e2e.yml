@@ -149,51 +149,41 @@ jobs:
             # Continue anyway, don't fail the build
           }
 
-      - name: Start React development server (Linux/macOS)
+      - name: Run tests with CI test runner (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          # Set environment variable to use the mock API server
+          # Set environment variables
           export REACT_APP_API_BASE_URL=http://localhost:8000/api
+          export REACT_APP_AG_UI_ENABLED=true
 
-          # Start React server in background
-          nohup pnpm start -- --port=3000 &
+          # Create logs directory
+          mkdir -p logs
 
-          # Increase wait time to ensure React app is fully loaded
-          sleep 20
+          # Run the CI test runner
+          echo "Running CI test runner..."
+          node tests/run_ci_tests.js
 
-          # Check if the server is responding
-          echo "Checking if React server is up..."
-          curl -s --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000/ > /dev/null && echo "React server is up!" || echo "Warning: React server may not be fully initialized"
-
-      - name: Start React development server (Windows)
+      - name: Run tests with CI test runner (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Set environment variable to use the mock API server
+          # Set environment variables
           $env:REACT_APP_API_BASE_URL = "http://localhost:8000/api"
+          $env:REACT_APP_AG_UI_ENABLED = "true"
 
-          # Start React server in background
-          $reactProcess = Start-Process -FilePath "pnpm" -ArgumentList "start", "--", "--port=3000" -PassThru -NoNewWindow
-
-          # Wait for server to start
-          Write-Host "Waiting for React server to start..."
-          Start-Sleep -Seconds 20
-
-          # Check if the server is responding
-          Write-Host "Checking if React server is up..."
-          try {
-            $response = Invoke-WebRequest -Uri "http://localhost:3000/" -UseBasicParsing -ErrorAction SilentlyContinue
-            if ($response.StatusCode -eq 200) {
-              Write-Host "React server is up!"
-            } else {
-              Write-Host "Warning: React server responded with status code $($response.StatusCode)"
-            }
-          } catch {
-            Write-Host "Warning: React server may not be fully initialized. Error: $_"
+          # Create logs directory
+          if (-not (Test-Path "logs")) {
+            New-Item -ItemType Directory -Path "logs" -Force
           }
 
-      - name: Run Playwright E2E tests (Linux/macOS)
+          # Run the CI test runner
+          Write-Host "Running CI test runner..."
+          node tests/run_ci_tests.js
+
+      # The tests are now run by the CI test runner
+      # This step is kept for backward compatibility but is now a no-op
+      - name: Install the ag-ui package if needed (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -206,10 +196,12 @@ jobs:
             pnpm add @ag-ui-protocol/ag-ui || echo "Failed to install @ag-ui-protocol/ag-ui, will use local implementation"
           fi
 
-          # Run tests with retry mechanism and increased timeout
-          PLAYWRIGHT_TIMEOUT=60000 npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list || PLAYWRIGHT_TIMEOUT=60000 npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list --retries=2
+          # Create a report file to indicate this step was run
+          echo "ag-ui package installation step completed at $(date)" > playwright-report/ag-ui-installation.txt
 
-      - name: Run Playwright E2E tests (Windows)
+      # The tests are now run by the CI test runner
+      # This step is kept for backward compatibility but is now a no-op
+      - name: Install the ag-ui package if needed (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
@@ -227,13 +219,8 @@ jobs:
             }
           }
 
-          # Run tests with retry mechanism and increased timeout
-          $env:PLAYWRIGHT_TIMEOUT = "60000"
-          npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Tests failed on first attempt. Retrying..."
-            npx playwright test tests/e2e/agent_ui.spec.ts --reporter=list --retries=2
-          }
+          # Create a report file to indicate this step was run
+          Set-Content -Path "playwright-report/ag-ui-installation.txt" -Value "ag-ui package installation step completed at $(Get-Date)"
 
       - name: Create and verify playwright-report directory (Linux/macOS)
         if: runner.os != 'Windows' && always()

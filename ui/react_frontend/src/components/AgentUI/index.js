@@ -11,32 +11,63 @@ import React from 'react';
  * @param {Function} props.onAction - Action handler function
  * @returns {JSX.Element} AgentUI component
  */
-export const AgentUI = ({ agent, theme, onAction }) => {
+export const AgentUI = ({ agent = {}, theme = {}, onAction = () => {} }) => {
+  // Create a default agent object if none is provided
+  const safeAgent = {
+    id: agent?.id || 1,
+    name: agent?.name || 'Agent',
+    description: agent?.description || 'No description available'
+  };
+
+  // Create a default theme object if none is provided
+  const safeTheme = {
+    darkMode: theme?.darkMode || false,
+    primaryColor: theme?.primaryColor || '#007bff',
+    secondaryColor: theme?.secondaryColor || '#f5f5f5',
+    fontFamily: theme?.fontFamily || 'Arial, sans-serif',
+    borderRadius: theme?.borderRadius || '4px'
+  };
+
+  // Safe action handler
+  const handleAction = (actionType) => {
+    try {
+      onAction({
+        type: actionType,
+        agentId: safeAgent.id,
+        payload: {}
+      });
+    } catch (error) {
+      console.error(`Error handling ${actionType} action:`, error);
+    }
+  };
+
   return (
     <div
       className="agent-ui-component"
+      data-testid="agent-ui-component"
       style={{
-        backgroundColor: theme?.darkMode ? '#1e1e1e' : '#ffffff',
-        color: theme?.darkMode ? '#ffffff' : '#000000',
-        fontFamily: theme?.fontFamily || 'Arial, sans-serif',
+        backgroundColor: safeTheme.darkMode ? '#1e1e1e' : '#ffffff',
+        color: safeTheme.darkMode ? '#ffffff' : '#000000',
+        fontFamily: safeTheme.fontFamily,
         padding: '1rem',
-        borderRadius: theme?.borderRadius || '4px',
-        border: `1px solid ${theme?.primaryColor || '#007bff'}`,
+        borderRadius: safeTheme.borderRadius,
+        border: `1px solid ${safeTheme.primaryColor}`,
       }}
     >
-      <h3 style={{ color: theme?.primaryColor || '#007bff' }}>
-        {agent?.name || 'Agent'}
+      <h3 style={{ color: safeTheme.primaryColor }}>
+        {safeAgent.name}
       </h3>
 
-      <div className="agent-description">
-        {agent?.description || 'No description available'}
+      <div className="agent-description" data-testid="agent-description">
+        {safeAgent.description}
       </div>
 
       <div className="agent-actions" style={{ marginTop: '1rem' }}>
         <button
-          onClick={() => onAction?.({ type: 'HELP', payload: {} })}
+          data-testid="help-button"
+          onClick={() => handleAction('HELP')}
           style={{
-            backgroundColor: theme?.primaryColor || '#007bff',
+            backgroundColor: safeTheme.primaryColor,
             color: '#ffffff',
             border: 'none',
             padding: '0.5rem 1rem',
@@ -49,11 +80,12 @@ export const AgentUI = ({ agent, theme, onAction }) => {
         </button>
 
         <button
-          onClick={() => onAction?.({ type: 'START', payload: {} })}
+          data-testid="start-button"
+          onClick={() => handleAction('START')}
           style={{
-            backgroundColor: theme?.secondaryColor || '#f5f5f5',
+            backgroundColor: safeTheme.secondaryColor,
             color: '#000000',
-            border: `1px solid ${theme?.primaryColor || '#007bff'}`,
+            border: `1px solid ${safeTheme.primaryColor}`,
             padding: '0.5rem 1rem',
             borderRadius: '4px',
             cursor: 'pointer',

@@ -3,6 +3,7 @@ name: Docker Compose Integration
 on:
   pull_request:
     branches: [main, master]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   docker-compose-integration:
@@ -34,141 +35,99 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Docker Compose
-        run: |
-          echo "Installing Docker Compose with robust error handling..."
-
-          # Function to check if a command exists
-          command_exists() {
-            command -v "$1" >/dev/null 2>&1
-          }
-
-          # Function to install Docker Compose plugin
-          install_docker_compose_plugin() {
-            echo "Installing Docker Compose plugin..."
-            sudo apt-get update
-            sudo apt-get install -y docker-compose-plugin
-
-            # Verify installation
-            if command_exists "docker compose"; then
-              echo "✅ Docker Compose plugin installed successfully"
-              docker compose version
-              return 0
-            else
-              echo "❌ Failed to install Docker Compose plugin"
-              return 1
-            fi
-          }
-
-          # Function to install standalone Docker Compose
-          install_docker_compose_standalone() {
-            echo "Installing standalone Docker Compose..."
-
-            # Get latest release version
-            COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
-            echo "Latest Docker Compose version: $COMPOSE_VERSION"
-
-            # Download and install
-            sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-
-            # Create symbolic link
-            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
-
-            # Verify installation
-            if command_exists "docker-compose"; then
-              echo "✅ Standalone Docker Compose installed successfully"
-              docker-compose --version
-              return 0
-            else
-              echo "❌ Failed to install standalone Docker Compose"
-              return 1
-            fi
-          }
-
-          # Function to install Docker Compose using apt
-          install_docker_compose_apt() {
-            echo "Installing Docker Compose using apt..."
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
-
-            # Verify installation
-            if command_exists "docker-compose"; then
-              echo "✅ Docker Compose installed successfully using apt"
-              docker-compose --version
-              return 0
-            else
-              echo "❌ Failed to install Docker Compose using apt"
-              return 1
-            fi
-          }
-
-          # Check if Docker is installed
-          if ! command_exists "docker"; then
-            echo "❌ Docker is not installed. Please install Docker first."
-            exit 1
-          fi
-
-          # Check if Docker Compose plugin is already installed
-          if command_exists "docker compose"; then
-            echo "✅ Docker Compose plugin is already installed"
-            docker compose version
-          else
-            echo "Docker Compose plugin is not installed. Attempting to install..."
-            install_docker_compose_plugin
-          fi
-
-          # Check if standalone Docker Compose is already installed
-          if command_exists "docker-compose"; then
-            echo "✅ Standalone Docker Compose is already installed"
-            docker-compose --version
-          else
-            echo "Standalone Docker Compose is not installed. Attempting to install..."
-
-            # Try apt installation first
-            if ! install_docker_compose_apt; then
-              # If apt installation fails, try direct download
-              if ! install_docker_compose_standalone; then
-                echo "❌ All installation methods failed. Please install Docker Compose manually."
-                exit 1
-              fi
-            fi
-          fi
-
-          # Final verification
-          echo "Verifying Docker Compose installations..."
-
-          # Check plugin version
-          if command_exists "docker compose"; then
-            echo "Docker Compose plugin version:"
-            docker compose version
-          else
-            echo "⚠️ Docker Compose plugin is not available"
-          fi
-
-          # Check standalone version
-          if command_exists "docker-compose"; then
-            echo "Standalone Docker Compose version:"
-            docker-compose --version
-          else
-            echo "⚠️ Standalone Docker Compose is not available"
-          fi
-
-          # Ensure at least one version is installed
-          if command_exists "docker compose" || command_exists "docker-compose"; then
-            echo "✅ Docker Compose installation completed successfully"
-          else
-            echo "❌ Docker Compose installation failed"
-            exit 1
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      # Use Docker's official GitHub Action for Docker Compose setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          version: latest
+
+      - name: Install Buildx as default builder
+        run: docker buildx install
+
+      # Verify Docker Compose installation
+      - name: Verify Docker Compose installation
+        run: |
+          echo "Checking Docker Compose installation..."
+          if docker compose version; then
+            echo "✅ Docker Compose plugin is available"
+          elif docker-compose --version; then
+            echo "✅ Standalone Docker Compose is available"
+          else
+            echo "⚠️ Docker Compose not found. Installing Docker Compose plugin..."
+            sudo apt-get update
+            sudo apt-get install -y docker-compose-plugin
+
+            if docker compose version; then
+              echo "✅ Docker Compose plugin installed successfully"
+            else
+              echo "⚠️ Failed to install Docker Compose plugin. Installing standalone Docker Compose..."
+              COMPOSE_VERSION="v2.20.2"
+              sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+              sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+              if docker-compose --version; then
+                echo "✅ Standalone Docker Compose installed successfully"
+              else
+                echo "❌ All Docker Compose installation attempts failed"
+                exit 1
+              fi
+            fi
+          fi
+
+      # Check Docker daemon status before network creation
+      - name: Verify Docker setup
+        run: |
+          echo "Checking Docker daemon status..."
+          if ! docker info >/dev/null 2>&1; then
+            echo "ERROR: Docker daemon is not responding. Attempting to restart..."
+            sudo systemctl restart docker || true
+            sleep 10
+            if ! docker info >/dev/null 2>&1; then
+              echo "CRITICAL: Docker daemon failed to restart."
+              exit 1
+            fi
+          fi
+          echo "Docker is running."
+
+      # Create Docker network
+      - name: Create Docker network
+        run: |
+          echo "Creating Docker network 'paissive-network'..."
+          docker network create paissive-network || echo "Network 'paissive-network' already exists."
+          docker network inspect paissive-network
+
+      # Debug Docker networks
+      - name: Debug Docker networks
+        run: |
+          echo "Inspecting all Docker networks..."
+          docker network ls
+          echo "Inspecting 'paissive-network'..."
+          docker network inspect paissive-network || echo "Network 'paissive-network' does not exist."
+
+      # Check if Docker Hub secrets are set
+      - name: Check Docker Hub secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "::warning::DOCKERHUB_USERNAME and/or DOCKERHUB_TOKEN secrets are not set. Docker Hub login will be skipped, which may lead to rate limiting."
+            echo "dockerhub_secrets_set=false" >> $GITHUB_OUTPUT
+          else
+            echo "dockerhub_secrets_set=true" >> $GITHUB_OUTPUT
+          fi
+
+      # Log in to Docker Hub to avoid rate limits
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        if: steps.check-secrets.outputs.dockerhub_secrets_set == 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Install Buildx as default builder
         run: docker buildx install
@@ -203,26 +162,13 @@ jobs:
           echo "Inspecting 'paissive-network'..."
           docker network inspect paissive-network || echo "Network 'paissive-network' does not exist."
 
-      # Check if Docker Hub secrets are set
-      - name: Check Docker Hub secrets
-        id: check-secrets
-        run: |
-          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            echo "::warning::DOCKERHUB_USERNAME and/or DOCKERHUB_TOKEN secrets are not set. Docker Hub login will be skipped, which may lead to rate limiting."
-            echo "dockerhub_secrets_set=false" >> $GITHUB_OUTPUT
-          else
-            echo "dockerhub_secrets_set=true" >> $GITHUB_OUTPUT
-          fi
+# This section is now handled earlier in the workflow
 
-      # Log in to Docker Hub to avoid rate limits
-      # This step will only run if DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets are set
-      # Set these secrets in your repository settings to avoid Docker Hub rate limits
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        if: steps.check-secrets.outputs.dockerhub_secrets_set == 'true'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Build and start services with Docker Compose
+      - name: Build and start services
+        run: |
+          # Try both docker compose and docker-compose commands for compatibility
+          docker compose up --build -d || docker-compose up --build -d
 
       # Check disk space before pulling images
       - name: Check disk space before pulling images

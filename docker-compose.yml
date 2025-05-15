@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -10,6 +12,8 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./docker-healthcheck.sh:/usr/local/bin/docker-healthcheck.sh
+      - ./wait-for-db.sh:/usr/local/bin/wait-for-db.sh
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
@@ -88,6 +92,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    command: ["postgres", "-c", "max_connections=200", "-c", "shared_buffers=256MB"]
 
   # Uncomment the following section to enable Redis caching
   # redis:
@@ -109,6 +114,7 @@ services:
 networks:
   paissive-network:
     driver: bridge
+    name: paissive-network
 
 volumes:
   redis-data:
