@@ -2,18 +2,31 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm with specific version for better compatibility
+RUN npm install -g pnpm@8.15.4
 
 # Install dependencies - only copy package files first for better caching
 COPY package*.json pnpm-lock.yaml* ./
 
-# Install dependencies without frozen lockfile to handle potential mismatches
-RUN pnpm install
+# Make sure the ag-ui mock package is properly configured
+RUN echo "Checking package.json for ag-ui configuration..." && \
+    if ! grep -q '"optionalDependencies"' package.json; then \
+      echo "Adding optionalDependencies section to package.json"; \
+      sed -i '$i\  "optionalDependencies": {\n    "@ag-ui-protocol/ag-ui": "^1.0.0"\n  },' package.json; \
+    fi && \
+    if ! grep -q '"pnpm"' package.json; then \
+      echo "Adding pnpm overrides section to package.json"; \
+      sed -i '$i\  "pnpm": {\n    "overrides": {\n      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"\n    }\n  },' package.json; \
+    fi
+
+# Install dependencies with specific flags for CI environment
+RUN echo "Installing dependencies with pnpm..." && \
+    pnpm install --no-frozen-lockfile --prefer-offline
 
 # Set environment variables
 ENV NODE_ENV=development
 ENV PORT=3000
+ENV REACT_APP_AG_UI_ENABLED=true
 
 # Expose port
 EXPOSE 3000
@@ -21,16 +34,39 @@ EXPOSE 3000
 # Install additional dependencies for the mock API server
 RUN pnpm add express cors
 
-# Create a startup script
+# Create a startup script with better error handling
 RUN echo '#!/bin/sh\n\
+set -e\n\
+\n\
+# Print environment for debugging\n\
+echo "Environment variables:"\n\
+echo "NODE_ENV=$NODE_ENV"\n\
+echo "PORT=$PORT"\n\
+echo "REACT_APP_AG_UI_ENABLED=$REACT_APP_AG_UI_ENABLED"\n\
+echo "MOCK_API_ENABLED=$MOCK_API_ENABLED"\n\
+\n\
+# Check if node_modules exists\n\
+if [ ! -d "node_modules" ]; then\n\
+  echo "Warning: node_modules directory not found, running pnpm install..."\n\
+  pnpm install --no-frozen-lockfile\n\
+fi\n\
+\n\
+# Start mock API server if enabled\n\
 if [ "$MOCK_API_ENABLED" = "true" ]; then\n\
   echo "Starting mock API server on port $MOCK_API_PORT..."\n\
-  node tests/mock_api_server.js &\n\
+  if [ -f "tests/mock_api_server.js" ]; then\n\
+    node tests/mock_api_server.js &\n\
+  else\n\
+    echo "Warning: mock_api_server.js not found!"\n\
+  fi\n\
 fi\n\
 \n\
 echo "Starting React development server..."\n\
-pnpm start\n\
+exec pnpm start\n\
 ' > /app/start.sh && chmod +x /app/start.sh
+
+# Copy the rest of the application code
+COPY . .
 
 # Start development server with mock API server if enabled
 CMD ["/app/start.sh"]
