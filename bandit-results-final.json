@@ -1,6 +1,6 @@
 {
   "errors": [],
-  "generated_at": "2025-05-15T19:23:39Z",
+  "generated_at": "2025-05-15T19:26:13Z",
   "metrics": {
     ".\\ai_models/adapters/adapter_factory.py": {
       "CONFIDENCE.HIGH": 0,
@@ -63,83 +63,36 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 132,
+      "loc": 133,
       "nosec": 0,
       "skipped_tests": 2
     },
     ".\\run_mcp_tests.py": {
-      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 48,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "_totals": {
-      "CONFIDENCE.HIGH": 2,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 617,
+      "loc": 70,
       "nosec": 0,
       "skipped_tests": 2
+    },
+    "_totals": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 640,
+      "nosec": 0,
+      "skipped_tests": 4
     }
   },
-  "results": [
-    {
-      "code": "8 import sys\n9 import subprocess\n10 import logging\n",
-      "col_offset": 0,
-      "end_col_offset": 17,
-      "filename": ".\\run_mcp_tests.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 9,
-      "line_range": [
-        9
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.3/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "42     try:\n43         result = subprocess.run(\n44             cmd,\n45             env=env,\n46             check=False,\n47             capture_output=True,\n48             text=True,\n49         )\n50         \n",
-      "col_offset": 17,
-      "end_col_offset": 9,
-      "filename": ".\\run_mcp_tests.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 43,
-      "line_range": [
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    }
-  ]
+  "results": []
 }

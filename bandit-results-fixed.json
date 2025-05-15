@@ -1,8 +1,8 @@
 {
   "errors": [],
-  "generated_at": "2025-05-15T19:07:28Z",
+  "generated_at": "2025-05-15T19:24:20Z",
   "metrics": {
-    ".\\ai_models/adapters/mcp_adapter.py": {
+    ".\\run_mcp_tests.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
@@ -11,9 +11,9 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 102,
+      "loc": 69,
       "nosec": 0,
-      "skipped_tests": 0
+      "skipped_tests": 2
     },
     "_totals": {
       "CONFIDENCE.HIGH": 0,
@@ -24,9 +24,9 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 102,
+      "loc": 69,
       "nosec": 0,
-      "skipped_tests": 0
+      "skipped_tests": 2
     }
   },
   "results": []

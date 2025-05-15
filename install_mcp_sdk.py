@@ -50,7 +50,7 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> Tuple[int, str
             cwd=cwd,
             capture_output=True,
             text=True,
-            shell=False,  # Explicitly set shell=False for security
+            shell=False, check=False,  # Explicitly set shell=False for security
         )
         return result.returncode, result.stdout.strip(), result.stderr.strip()
     except Exception as e:
@@ -172,9 +172,11 @@ def main() -> int:
     """
     # First, try to import the module to see if it's already installed
     try:
-        import modelcontextprotocol
-        logger.info("MCP SDK is already installed")
-        return 0
+        # Use importlib.util.find_spec to check if the module is installed
+        import importlib.util
+        if importlib.util.find_spec("modelcontextprotocol") is not None:
+            logger.info("MCP SDK is already installed")
+            return 0
     except ImportError:
         pass
 
