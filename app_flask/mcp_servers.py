@@ -4,6 +4,8 @@ import json
 import logging
 import threading
 import re
+import os
+import stat
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 
@@ -17,12 +19,23 @@ MCP_SERVERS_KEY = "mcp_servers"
 # Constants
 MIN_PORT = 1
 MAX_PORT = 65535
+MAX_FILE_SIZE = 1024 * 1024  # 1MB max file size for settings file
+MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Thread safety
 _LOCK = threading.Lock()
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Custom exceptions
+class InvalidDataTypeError(TypeError):
+    """Raised when data is not of the expected type."""
+
+    def __init__(self, data_name: str, expected_type: str):
+        self.message = f"{data_name} must be a {expected_type}"
+        super().__init__(self.message)
+
 
 # Create blueprint
 mcp_servers_api = Blueprint("mcp_servers_api", __name__, url_prefix="/api/mcp_servers")
@@ -54,9 +67,20 @@ def load_settings() -> Dict[str, Any]:
         return {MCP_SERVERS_KEY: []}
 
     try:
+        # Check file size before reading to prevent DoS
+        file_size = MCP_SETTINGS_FILE.stat().st_size
+        if file_size > MAX_FILE_SIZE:
+            logger.error(
+                "Settings file '%s' exceeds maximum allowed size (%d bytes)",
+                MCP_SETTINGS_FILE,
+                MAX_FILE_SIZE,
+            )
+            return {MCP_SERVERS_KEY: []}
+
         with open(MCP_SETTINGS_FILE, encoding="utf-8") as f:
             try:
-                data = json.load(f)
+                # Parse with a maximum depth to prevent stack overflow attacks
+                data = json.load(f, parse_constant=lambda _: None, parse_int=int, parse_float=float)
             except json.JSONDecodeError:
                 logger.exception(
                     "Failed to decode JSON from settings file '%s'", MCP_SETTINGS_FILE
@@ -66,8 +90,17 @@ def load_settings() -> Dict[str, Any]:
         logger.exception("Error reading settings file '%s'", MCP_SETTINGS_FILE)
         data = {}
 
+    # Validate the structure of the data
+    if not isinstance(data, dict):
+        logger.error("Settings file does not contain a valid JSON object")
+        data = {}
+
     if MCP_SERVERS_KEY not in data:
         data[MCP_SERVERS_KEY] = []
+    elif not isinstance(data[MCP_SERVERS_KEY], list):
+        logger.error("MCP servers entry is not a list, resetting to empty list")
+        data[MCP_SERVERS_KEY] = []
+
     return data
 
 
@@ -76,15 +109,48 @@ def save_settings(data: Dict[str, Any]) -> None:
 
     Args:
         data: The settings data to save.
+
+    Raises:
+        OSError: If there's an error writing to the file
+        PermissionError: If there's a permission error
     """
     try:
         # Ensure parent directory exists
         MCP_SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(MCP_SETTINGS_FILE, "w", encoding="utf-8") as f:
+        # Validate data structure before saving
+        if not isinstance(data, dict):
+            raise InvalidDataTypeError("Data", "dictionary")
+
+        if MCP_SERVERS_KEY not in data:
+            data[MCP_SERVERS_KEY] = []
+        elif not isinstance(data[MCP_SERVERS_KEY], list):
+            raise InvalidDataTypeError(MCP_SERVERS_KEY, "list")
+
+        # Create a temporary file first, then rename it to the target file
+        # This ensures atomic writes and prevents corruption if the process is interrupted
+        temp_file = MCP_SETTINGS_FILE.with_suffix('.tmp')
+
+        with open(temp_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())  # Ensure data is written to disk
+
+        # Set secure permissions (owner read/write only)
+        os.chmod(temp_file, stat.S_IRUSR | stat.S_IWUSR)
+
+        # Rename the temporary file to the target file (atomic operation)
+        temp_file.replace(MCP_SETTINGS_FILE)
+
     except (OSError, PermissionError):
         logger.exception("Error writing settings file '%s'", MCP_SETTINGS_FILE)
+        # Clean up temporary file if it exists
+        if 'temp_file' in locals() and temp_file.exists():
+            try:
+                temp_file.unlink()
+            except Exception as cleanup_error:
+                # Log the error but continue with the main exception
+                logger.warning("Failed to clean up temporary file: %s", cleanup_error)
         raise
 
 
