@@ -59,6 +59,13 @@ PATTERNS: dict[str, Pattern] = {
         ),
         re.IGNORECASE,
     ),
+    # Added patterns to detect log injection attempts
+    "log_injection_newlines": re.compile(r'[\r\n]+'),
+    "log_injection_control_chars": re.compile(r'[\x00-\x1F\x7F]'),
+    "password_pattern": re.compile(r'(password)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "api_key_pattern": re.compile(r'(api[_-]?key)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "token_pattern": re.compile(r'(token)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    "secret_pattern": re.compile(r'(secret)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
 }
 
 
@@ -101,6 +108,44 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
+def prevent_log_injection(data: Any) -> Any:
+    """Prevent log injection by removing newlines and control characters.
+
+    Args:
+    ----
+        data: The data to sanitize. Can be a string, dict, list, or other types
+
+    Returns:
+    -------
+        Any: The sanitized data with potential log injection patterns removed.
+        Returns the same type as the input data.
+    """
+    if data is None:
+        return None
+
+    if isinstance(data, str):
+        # Replace newlines with a safe representation
+        data = PATTERNS["log_injection_newlines"].sub(" [FILTERED] ", data)
+        # Replace control characters with a safe representation
+        data = PATTERNS["log_injection_control_chars"].sub(" [FILTERED] ", data)
+        return data
+
+    elif isinstance(data, dict):
+        # Recursively sanitize values in dictionary
+        dict_result: dict[str, Any] = {}
+        for k, v in data.items():
+            dict_result[k] = prevent_log_injection(v)
+        return dict_result
+
+    elif isinstance(data, list):
+        # Recursively sanitize values in list
+        list_result: list[Any] = [prevent_log_injection(item) for item in data]
+        return list_result
+
+    # For any other type, return as is
+    return data
+
+
 def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4) -> Any:
     """Mask sensitive data in logs to prevent logging of sensitive information.
 
@@ -122,9 +167,15 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
     if data is None:
         return None
 
+    # First prevent log injection
+    data = prevent_log_injection(data)
+
     if isinstance(data, str):
         # Check if the string matches any of our sensitive patterns
         for _, pattern in PATTERNS.items():
+            # Skip the log injection patterns as they're handled separately
+            if pattern.pattern in (r'[\r\n]+', r'[\x00-\x1F\x7F]'):
+                continue
             data = _mask_pattern(data, pattern, mask_char, visible_chars)
         return data
 

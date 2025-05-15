@@ -601,10 +601,12 @@ def handle_audit(args: argparse.Namespace) -> None:
         )
 
         try:
+            # Fix for CodeQL "Wrong name for an argument in a call" issue
+            # Changed output_format to format which is the correct parameter name
             auditor.audit(
                 directory=args.directory,
                 output_file=args.output,
-                output_format="text" if not args.json else "json"
+                format="text" if not args.json else "json"
             )
             logger.info("Audit completed successfully")
         except Exception as e:

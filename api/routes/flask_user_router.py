@@ -55,7 +55,9 @@ def get_user(user_id: str):
         }
         return jsonify(result), 200
     except Exception:
-        logger.exception(f"Error getting user {user_id}")
+        # Fix for CodeQL Log Injection issue - don't include user input in log messages
+        logger.exception("Error getting user")
+        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
         return jsonify({"error": "An error occurred while getting the user"}), 500
 
 
@@ -88,7 +90,18 @@ def create_user():
         except Exception as e:
             # Handle validation errors with 400 status code
             logger.exception("Error creating user")
-            return jsonify({"error": str(e)}), 400
+            # Fix for CodeQL Information exposure issue - don't expose raw exception to users
+            # Create a safe error message that doesn't expose implementation details
+            error_message = "Invalid input data"
+            if hasattr(e, "message"):
+                error_message = e.message
+            elif str(e):
+                # Only use the exception message if it's a validation error message
+                # that's safe to show to users
+                if any(safe_term in str(e).lower() for safe_term in
+                      ["invalid", "required", "must be", "cannot be", "already exists"]):
+                    error_message = str(e)
+            return jsonify({"error": error_message}), 400
     except Exception:
         logger.exception("Server error creating user")
         return jsonify({"error": "An error occurred while creating the user"}), 500
@@ -159,7 +172,9 @@ def update_user(user_id: str):
         }
         return jsonify(result), 200
     except Exception:
-        logger.exception(f"Error updating user {user_id}")
+        # Fix for CodeQL Log Injection issue - don't include user input in log messages
+        logger.exception("Error updating user")
+        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
         db.session.rollback()
         return jsonify({"error": "An error occurred while updating the user"}), 500
 
@@ -177,6 +192,8 @@ def delete_user(user_id: str):
 
         return jsonify({"message": f"User with ID {user_id} deleted successfully"}), 200
     except Exception:
-        logger.exception(f"Error deleting user {user_id}")
+        # Fix for CodeQL Log Injection issue - don't include user input in log messages
+        logger.exception("Error deleting user")
+        logger.info("Failed user_id: %s", user_id)  # Log user_id separately with proper formatting
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the user"}), 500

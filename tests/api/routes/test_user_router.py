@@ -121,6 +121,32 @@ class TestUserRouter:
         assert data == mock_user
         mock_create_user.assert_called_once_with(user_data)
 
+    @patch("api.routes.user_router.create_user")
+    @patch("api.routes.user_router.logger")
+    def test_create_user_error(self, mock_logger, mock_create_user, client):
+        """Test POST /users endpoint with server error."""
+        # Mock the create_user function to raise an exception
+        mock_create_user.side_effect = Exception("Database error")
+
+        # User data to send
+        user_data = {
+            "username": "newuser",
+            "email": "newuser@example.com",
+            "password": "Password123!"
+        }
+
+        # Send request
+        response = client.post("/users", json=user_data)
+
+        # Verify response
+        assert response.status_code == 500
+        data = response.json()
+        assert "detail" in data
+        assert "error occurred" in data["detail"].lower()
+
+        # Verify logger was called
+        mock_logger.exception.assert_called_once_with("Error creating user")
+
     @patch("api.routes.user_router.update_user")
     def test_update_user(self, mock_update_user, client):
         """Test PUT /users/{user_id} endpoint."""
@@ -201,3 +227,17 @@ class TestUserRouter:
         assert "detail" in data
         assert "not found" in data["detail"].lower()
         mock_delete_user.assert_called_once_with(999)
+
+    def test_invalid_user_id(self, client):
+        """Test endpoints with invalid user ID."""
+        # Test GET with invalid ID
+        response = client.get("/users/invalid")
+        assert response.status_code == 422
+
+        # Test PUT with invalid ID
+        response = client.put("/users/invalid", json={"username": "test"})
+        assert response.status_code == 422
+
+        # Test DELETE with invalid ID
+        response = client.delete("/users/invalid")
+        assert response.status_code == 422

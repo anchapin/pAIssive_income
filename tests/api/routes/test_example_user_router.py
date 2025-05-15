@@ -173,3 +173,49 @@ class TestCreateUserEndpoint:
             "An unexpected error occurred",
             exc_info=True
         )
+
+    @pytest.mark.asyncio
+    async def test_create_user_empty_payload(self, test_client):
+        """Test handling of empty payload."""
+        # Send request with empty JSON
+        response = test_client.post(
+            "/api/v1/example_users/",
+            json={}
+        )
+
+        # Verify response
+        assert response.status_code == 422  # Unprocessable Entity
+        data = response.json()
+        assert "detail" in data
+        assert "errors" in data["detail"]
+
+    @pytest.mark.asyncio
+    async def test_create_user_invalid_types(self, test_client):
+        """Test handling of invalid data types."""
+        # Send request with invalid data types
+        response = test_client.post(
+            "/api/v1/example_users/",
+            json={
+                "username": "testuser",
+                "email": "test@example.com",
+                "age": "thirty"  # String instead of int
+            }
+        )
+
+        # Verify response
+        assert response.status_code == 422  # Unprocessable Entity
+        data = response.json()
+        assert "detail" in data
+
+    @pytest.mark.asyncio
+    async def test_create_user_json_decode_error(self, test_client):
+        """Test handling of JSON decode error."""
+        # Send request with invalid JSON
+        response = test_client.post(
+            "/api/v1/example_users/",
+            headers={"Content-Type": "application/json"},
+            content="not valid json"
+        )
+
+        # Verify response
+        assert response.status_code == 500  # Internal Server Error

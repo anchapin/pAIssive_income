@@ -166,36 +166,9 @@ class SecretsManager:
             logger.exception(f"Error creating backend instance for {backend_type.name}")
             return None
 
-    def _sanitize_secrets_dict(self, secrets: dict[str, Any]) -> dict[str, Any]:
-        """Sanitize a dictionary of secrets by masking sensitive values.
-
-        Args:
-            secrets: The dictionary of secrets to sanitize
-
-        Returns:
-            dict[str, Any]: The sanitized dictionary
-        """
-        # Create a copy to avoid modifying the original
-        sanitized = {}
-
-        # Define sensitive key patterns
-        sensitive_patterns = [
-            "password", "api_key", "token", "secret", "credential"
-        ]
-
-        # Mask sensitive values
-        for key, value in secrets.items():
-            # Check if the key contains any sensitive pattern
-            is_sensitive = False
-            for pattern in sensitive_patterns:
-                if pattern in key.lower():
-                    is_sensitive = True
-                    break
-
-            # Mask sensitive values, keep others as is
-            sanitized[key] = "********" if is_sensitive else value
-
-        return sanitized
+    # This method is now removed as it's duplicated at line 705
+    # Fix for CodeQL "Variable defined multiple times" issue
+    # The implementation at line 705 is more comprehensive and should be used instead
 
     def _get_env_secret(self, key: str) -> Optional[str]:
         """Get a secret from environment variables.

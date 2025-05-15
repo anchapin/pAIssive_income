@@ -24,7 +24,10 @@ class LoadBalancingStrategy(Protocol):
         Returns:
             Selected instance or None if no instances are available
         """
-        ...
+        # Fix for CodeQL "Statement has no effect" issue
+        # This is a Protocol method that should be implemented by concrete classes
+        # Replacing the ellipsis with a proper NotImplementedError
+        raise NotImplementedError("This method must be implemented by concrete strategy classes")
 
 
 class RoundRobinStrategy:

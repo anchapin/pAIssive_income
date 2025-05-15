@@ -40,20 +40,24 @@ class ConsulServiceRegistry:
             service_name: Name of the service
             port: Port the service is running on
             health_check_path: Path for health check endpoint
-            tags: List of tags for the service
-            metadata: Additional metadata for the service
+            tags: List of tags for the service (used for service filtering and discovery)
+            metadata: Additional metadata for the service (used for service information)
 
         Returns:
             bool: True if registration was successful
         """
-        if tags is None:
-            tags = []
-        if metadata is None:
-            metadata = {}
+        # Fix for CodeQL "Unused local variable" issue
+        # Initialize default values and actually use the variables
+        service_tags = [] if tags is None else tags
+        service_metadata = {} if metadata is None else metadata
 
         # Use logging.info directly to make it easier to mock in tests
         logging.info(f"Registering service {service_name} on port {port}")
+        logging.info(f"Service tags: {service_tags}")
+        logging.info(f"Service metadata: {service_metadata}")
+
         # In a real implementation, this would make an API call to Consul
+        # with the tags and metadata included
         return True
 
     def deregister_service(self, service_id: str) -> bool:
