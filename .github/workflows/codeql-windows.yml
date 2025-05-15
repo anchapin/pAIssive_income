@@ -61,7 +61,7 @@ jobs:
   analyze-javascript:
     name: Analyze JavaScript/TypeScript
     runs-on: windows-latest
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 120  # Increased timeout for larger codebases
 
     steps:
       - name: Checkout repository
@@ -158,7 +158,7 @@ jobs:
   analyze-python:
     name: Analyze Python
     runs-on: windows-latest
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 120  # Increased timeout for larger codebases
 
     steps:
       - name: Checkout repository

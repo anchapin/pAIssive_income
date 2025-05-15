@@ -61,7 +61,7 @@ jobs:
   analyze-javascript:
     name: Analyze JavaScript/TypeScript
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 120  # Increased timeout for larger codebases
     strategy:
       fail-fast: false
       matrix:
@@ -254,7 +254,7 @@ jobs:
   analyze-python:
     name: Analyze Python
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    timeout-minutes: 120  # Increased timeout for larger codebases
     strategy:
       fail-fast: false
       matrix:
