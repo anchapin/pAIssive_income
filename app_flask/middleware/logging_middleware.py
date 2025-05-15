@@ -4,7 +4,6 @@ import logging
 import time
 import traceback
 import uuid
-from logging import ERROR, INFO
 from typing import Any, Dict, Tuple, Union, cast
 
 from flask.app import Flask
@@ -131,7 +130,7 @@ def setup_request_logging(app: Flask) -> None:
         structured_log(
             "request.completed",
             f"Completed {request.method} {request.path} in {duration_ms}ms",
-            level=logging_getattr(logging, log_level.upper(), INFO),
+            level=logging_getattr(logging, log_level.upper(), logging.INFO),
             extra=log_data,
         )
 
@@ -174,7 +173,7 @@ def setup_request_logging(app: Flask) -> None:
         structured_log(
             "request.error",
             f"Unhandled exception in {request.method} {request.path}",
-            level=ERROR,
+            level=logging.ERROR,
             extra=error_data,
         )
 

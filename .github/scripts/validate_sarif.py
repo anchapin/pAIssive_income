@@ -52,7 +52,7 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
         # Check if file exists
         if not os.path.isfile(file_path):
             logging.warning(
-                f"SARIF file {file_path} not found. Creating empty SARIF file."
+                "SARIF file %s not found. Creating empty SARIF file.", file_path
             )
             create_empty_sarif(file_path, tool_name)
             return True
@@ -63,7 +63,7 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
                 data = json.load(f)
             except json.JSONDecodeError:
                 logging.warning(
-                    f"Invalid SARIF file {file_path}. Creating valid empty SARIF file."
+                    "Invalid SARIF file %s. Creating valid empty SARIF file.", file_path
                 )
                 create_empty_sarif(file_path, tool_name)
                 return True
@@ -73,14 +73,14 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
             return True  # The validation function handles creating a new file if needed
         else:
             # If we got here, the file is valid
-            logging.info(f"SARIF file {file_path} is valid.")
+            logging.info("SARIF file %s is valid.", file_path)
             return True
     except Exception:
-        logging.exception(f"Error validating SARIF file {file_path}")
+        logging.exception("Error validating SARIF file %s", file_path)
         try:
             create_empty_sarif(file_path, tool_name)
         except Exception:
-            logging.exception(f"Error creating empty SARIF file {file_path}")
+            logging.exception("Error creating empty SARIF file %s", file_path)
             return False
         else:
             return True
@@ -100,7 +100,8 @@ def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> boo
     # Check if version property exists
     if "version" not in data:
         logging.warning(
-            f"SARIF file {file_path} missing version property. Creating valid empty SARIF file."
+            "SARIF file %s missing version property. Creating valid empty SARIF file.",
+            file_path,
         )
         create_empty_sarif(file_path, tool_name)
         return False
@@ -108,7 +109,8 @@ def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> boo
     # Check if runs property exists
     if "runs" not in data:
         logging.warning(
-            f"SARIF file {file_path} missing runs property. Creating valid empty SARIF file."
+            "SARIF file %s missing runs property. Creating valid empty SARIF file.",
+            file_path,
         )
         create_empty_sarif(file_path, tool_name)
         return False
@@ -116,7 +118,8 @@ def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> boo
     # Check if runs is a list
     if not isinstance(data["runs"], list):
         logging.warning(
-            f"SARIF file {file_path} has invalid runs property. Creating valid empty SARIF file."
+            "SARIF file %s has invalid runs property. Creating valid empty SARIF file.",
+            file_path,
         )
         create_empty_sarif(file_path, tool_name)
         return False
@@ -124,7 +127,8 @@ def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> boo
     # Check if runs has at least one element
     if not data["runs"]:
         logging.warning(
-            f"SARIF file {file_path} has empty runs property. Creating valid empty SARIF file."
+            "SARIF file %s has empty runs property. Creating valid empty SARIF file.",
+            file_path,
         )
         create_empty_sarif(file_path, tool_name)
         return False
@@ -132,7 +136,8 @@ def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> boo
     # Check if tool property exists in first run
     if "tool" not in data["runs"][0]:
         logging.warning(
-            f"SARIF file {file_path} missing tool property. Creating valid empty SARIF file."
+            "SARIF file %s missing tool property. Creating valid empty SARIF file.",
+            file_path,
         )
         create_empty_sarif(file_path, tool_name)
         return False
@@ -159,7 +164,7 @@ def create_empty_sarif(file_path: str, tool_name: str) -> None:
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(sarif, f, indent=2)
 
-    logging.info(f"Created valid empty SARIF file {file_path}.")
+    logging.info("Created valid empty SARIF file %s.", file_path)
 
 
 def main() -> int:

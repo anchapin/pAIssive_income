@@ -18,10 +18,10 @@ cmd="$@"
 log "Starting wait-for-db script for PostgreSQL at $host:$port..."
 
 # Configuration
-max_attempts=90  # Increased from 60 to 90 for more patience
+max_attempts=120  # Increased from 90 to 120 for more patience
 initial_retry_interval=2
 max_retry_interval=15
-connection_timeout=5
+connection_timeout=10  # Increased from 5 to 10 seconds
 
 # Function to check if PostgreSQL port is reachable
 check_port() {
@@ -43,6 +43,8 @@ check_postgres() {
     return 0
   else
     log "❌ PostgreSQL connection failed"
+    # Print the error message for better diagnostics
+    PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q' 2>&1 || true
     return 1
   fi
 }
@@ -58,6 +60,10 @@ get_postgres_diagnostics() {
   # Check if port is open
   check_port
 
+  # Check DNS resolution
+  log "Checking DNS resolution for host $host:"
+  getent hosts "$host" || log "❌ Could not resolve host $host"
+
   # Try to get PostgreSQL version
   log "Trying to get PostgreSQL version:"
   PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version();" -w -t $connection_timeout 2>/dev/null || log "❌ Could not get PostgreSQL version"
@@ -66,9 +72,13 @@ get_postgres_diagnostics() {
   log "Trying to list databases:"
   PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\l" -w -t $connection_timeout 2>/dev/null || log "❌ Could not list databases"
 
+  # Check network connectivity
+  log "Checking network connectivity:"
+  ip addr show || log "❌ Could not show network interfaces"
+
   # Check PostgreSQL logs if available
   log "Checking PostgreSQL logs if available:"
-  docker logs paissive-postgres 2>/dev/null || log "❌ Could not access PostgreSQL logs"
+  docker logs paissive-postgres 2>/dev/null || log "❌ Could not access PostgreSQL logs (this is normal in container context)"
 }
 
 # Wait for the database to be ready with exponential backoff
@@ -117,6 +127,22 @@ else
   log "✅ Successfully connected to PostgreSQL after $attempt attempts"
 fi
 
+# Create necessary directories with proper permissions
+log "Creating required directories..."
+mkdir -p /app/logs
+mkdir -p /app/data
+chmod 777 /app/logs  # Ensure write permissions
+chmod 777 /app/data  # Ensure write permissions
+
+# Set up logging
+log "Setting up logging..."
+touch /app/logs/flask.log
+touch /app/logs/app.log
+touch /app/logs/error.log
+chmod 666 /app/logs/flask.log
+chmod 666 /app/logs/app.log
+chmod 666 /app/logs/error.log
+
 # Initialize the database with better error handling
 log "Initializing database..."
 if python init_db.py; then
@@ -127,16 +153,6 @@ else
   log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
 fi
 
-# Create necessary directories
-log "Creating required directories..."
-mkdir -p /app/logs
-mkdir -p /app/data
-
-# Set up logging
-log "Setting up logging..."
-touch /app/logs/flask.log
-touch /app/logs/app.log
-
 # Print environment information
 log "=== ENVIRONMENT INFORMATION ==="
 log "Python version: $(python --version 2>&1)"
@@ -146,7 +162,8 @@ log "Environment variables:"
 log "  FLASK_ENV: $FLASK_ENV"
 log "  PYTHONPATH: $PYTHONPATH"
 log "  DATABASE_URL: $DATABASE_URL (showing only for diagnostic purposes)"
+log "  PATH: $PATH"
 
-# Execute the command
+# Execute the command with proper error handling
 log "Starting Flask application with command: $cmd"
 exec $cmd

@@ -4,10 +4,7 @@
 from typing import Any, Dict, Optional, Union
 
 # Third-party imports
-from flask.app import Flask
-from flask.config import Config as FlaskConfig
-from flask.globals import _app_ctx_stack, _request_ctx_stack, g
-from flask.typing import ConfigUpdateArg
+from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.local import LocalProxy
@@ -24,7 +21,7 @@ FlaskApp = Flask
 
 
 def create_app(
-    test_config: Optional[Union[dict[str, Any], ConfigUpdateArg]] = None,
+    test_config: Optional[dict[str, Any]] = None,
 ) -> Flask:
     """Create and configure the Flask application.
 

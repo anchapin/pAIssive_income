@@ -10,8 +10,6 @@ import sys
 import threading
 import time
 from datetime import datetime
-from logging import LogRecord
-from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 from typing import Any, Dict, List, TypeVar
 
@@ -83,7 +81,7 @@ class ContextFilter(logging.Filter):
         except Exception:
             return {}
 
-    def filter(self, record: LogRecord) -> bool:
+    def filter(self, record: logging.LogRecord) -> bool:
         """Add extra fields to log record."""
         # Add process and memory information to logs
         import time
@@ -218,8 +216,10 @@ def setup_logging() -> None:
 
         # Set up handlers and queue
         handlers, log_queue = setup_handlers()
-        queue_handler = QueueHandler(log_queue)
-        queue_listener = QueueListener(log_queue, *handlers, respect_handler_level=True)
+        queue_handler = logging.handlers.QueueHandler(log_queue)
+        queue_listener = logging.handlers.QueueListener(
+            log_queue, *handlers, respect_handler_level=True
+        )
 
         # Configure root logger
         root_logger = setup_root_logger(Config.LOG_LEVEL)

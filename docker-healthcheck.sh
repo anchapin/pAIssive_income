@@ -3,10 +3,10 @@
 
 # Set variables
 HEALTH_ENDPOINT="http://localhost:5000/health"
-MAX_RETRIES=8
+MAX_RETRIES=12  # Increased from 8 to 12 for more patience
 INITIAL_RETRY_INTERVAL=5
 MAX_RETRY_INTERVAL=30
-CURL_TIMEOUT=15
+CURL_TIMEOUT=20  # Increased from 15 to 20 seconds
 
 # Log with timestamp
 log() {
@@ -23,6 +23,9 @@ check_process() {
     return 0
   else
     log "❌ Process '$process_pattern' is NOT running"
+    # Try to find similar processes
+    log "Checking for similar processes:"
+    ps aux | grep -i python || true
     return 1
   fi
 }
@@ -36,6 +39,9 @@ check_port() {
     return 0
   else
     log "❌ Port $port is NOT listening"
+    # Show all listening ports for diagnostics
+    log "All listening ports:"
+    netstat -tulpn 2>/dev/null || ss -tulpn 2>/dev/null || true
     return 1
   fi
 }
@@ -60,6 +66,10 @@ check_database() {
     # Check if we can reach the database host
     log "Checking if database host is reachable:"
     ping -c 1 db &>/dev/null && log "✅ Database host is reachable" || log "❌ Database host is NOT reachable"
+
+    # Check DNS resolution
+    log "Checking DNS resolution for database host:"
+    getent hosts db || log "❌ Could not resolve database host"
 
     return 1
   fi
@@ -93,6 +103,63 @@ check_memory() {
   return 0
 }
 
+# Check file permissions
+check_permissions() {
+  log "Checking file permissions..."
+
+  # Check logs directory
+  if [ -d "/app/logs" ]; then
+    log "Logs directory permissions:"
+    ls -la /app/logs || true
+
+    # Check if we can write to the logs directory
+    if touch /app/logs/test_write_permission 2>/dev/null; then
+      log "✅ Can write to logs directory"
+      rm /app/logs/test_write_permission
+    else
+      log "❌ Cannot write to logs directory"
+    fi
+  else
+    log "❌ Logs directory does not exist"
+  fi
+
+  # Check data directory
+  if [ -d "/app/data" ]; then
+    log "Data directory permissions:"
+    ls -la /app/data || true
+  else
+    log "❌ Data directory does not exist"
+  fi
+
+  return 0
+}
+
+# Check environment variables
+check_environment() {
+  log "Checking environment variables..."
+
+  # Check essential environment variables
+  if [ -z "$FLASK_ENV" ]; then
+    log "⚠️ FLASK_ENV is not set"
+  else
+    log "✅ FLASK_ENV is set to: $FLASK_ENV"
+  fi
+
+  if [ -z "$DATABASE_URL" ]; then
+    log "⚠️ DATABASE_URL is not set"
+  else
+    log "✅ DATABASE_URL is set (value hidden for security)"
+  fi
+
+  if [ -z "$POSTGRES_USER" ] || [ -z "$POSTGRES_PASSWORD" ] || [ -z "$POSTGRES_DB" ]; then
+    log "⚠️ One or more PostgreSQL environment variables are not set"
+  else
+    log "✅ PostgreSQL environment variables are set"
+  fi
+
+  return 0
+}
+
 # Comprehensive health check with exponential backoff
 check_health() {
   log "Starting health check with $MAX_RETRIES retries"
@@ -101,6 +168,8 @@ check_health() {
   log "=== SYSTEM CHECKS ==="
   check_disk_space
   check_memory
+  check_permissions
+  check_environment
 
   # Process checks
   log "=== PROCESS CHECKS ==="
@@ -154,6 +223,17 @@ check_health() {
         fi
       fi
 
+      # Method 3: Try with Python if available
+      if command -v python &> /dev/null; then
+        log "Trying with Python..."
+        if python -c "import urllib.request; print(urllib.request.urlopen('$HEALTH_ENDPOINT').read().decode())" 2>/dev/null; then
+          log "✅ Health check successful with Python!"
+          return 0
+        else
+          log "❌ Health check failed with Python as well"
+        fi
+      fi
+
       # Collect diagnostic information on failure
       if [ $i -eq $MAX_RETRIES ] || [ $((i % 3)) -eq 0 ]; then
         log "=== DIAGNOSTIC INFORMATION ==="
@@ -172,6 +252,12 @@ check_health() {
         if [ -f "/app/logs/flask.log" ]; then
           log "Last 20 lines of Flask logs:"
           tail -20 /app/logs/flask.log || true
+        fi
+
+        # Check error logs if available
+        if [ -f "/app/logs/error.log" ]; then
+          log "Last 20 lines of error logs:"
+          tail -20 /app/logs/error.log || true
         fi
 
         # Check system logs
