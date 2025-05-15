@@ -181,7 +181,7 @@ test.describe('Simple Tests', () => {
     console.log('Running AgentUI component test');
     try {
       // Check if the AgentUI component file exists
-      const agentUIPath = path.join(process.cwd(), 'src', 'components', 'AgentUI', 'index.js');
+      const agentUIPath = path.join(process.cwd(), 'src', 'components', 'AgentUI.js');
       const exists = fs.existsSync(agentUIPath);
       console.log(`AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}`);
 
@@ -192,6 +192,21 @@ test.describe('Simple Tests', () => {
         `AgentUI component ${exists ? 'exists' : 'does not exist'} at ${agentUIPath}\n` +
         `Test run at ${new Date().toISOString()}`
       );
+
+      // If the file exists, try to read its content
+      if (exists) {
+        try {
+          const content = fs.readFileSync(agentUIPath, 'utf8');
+          const contentPreview = content.substring(0, 500) + (content.length > 500 ? '...' : '');
+          createReport('agent-ui-content.txt',
+            `AgentUI component content preview:\n${contentPreview}\n` +
+            `Total length: ${content.length} characters\n` +
+            `Test run at ${new Date().toISOString()}`
+          );
+        } catch (readError) {
+          console.error(`Error reading AgentUI component: ${readError}`);
+        }
+      }
     } catch (error) {
       console.error(`Error in AgentUI test: ${error}`);
       createReport('agent-ui-test-error.txt',

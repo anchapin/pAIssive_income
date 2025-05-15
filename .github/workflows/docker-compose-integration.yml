@@ -131,46 +131,33 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install Buildx as default builder
-        run: docker buildx install
-
-      # Check Docker daemon status before network creation
-      - name: Verify Docker setup
-        run: |
-          echo "Checking Docker daemon status..."
-          if ! docker info >/dev/null 2>&1; then
-            echo "ERROR: Docker daemon is not responding. Attempting to restart..."
-            sudo systemctl restart docker || true
-            sleep 10
-            if ! docker info >/dev/null 2>&1; then
-              echo "CRITICAL: Docker daemon failed to restart."
-              exit 1
-            fi
-          fi
-          echo "Docker is running."
-
-      # Create Docker network with simple approach
-      - name: Create Docker network
-        run: |
-          echo "Creating Docker network 'paissive-network'..."
-          docker network create paissive-network || echo "Network 'paissive-network' already exists."
-          docker network inspect paissive-network
-
-      # Debug Docker networks
-      - name: Debug Docker networks
-        run: |
-          echo "Inspecting all Docker networks..."
-          docker network ls
-          echo "Inspecting 'paissive-network'..."
-          docker network inspect paissive-network || echo "Network 'paissive-network' does not exist."
-
-# This section is now handled earlier in the workflow
+# This section was removed to eliminate duplicate steps
 
       # Build and start services with Docker Compose
       - name: Build and start services
         run: |
           # Try both docker compose and docker-compose commands for compatibility
-          docker compose up --build -d || docker-compose up --build -d
+          echo "Building and starting services with Docker Compose..."
+
+          # First try with docker compose plugin
+          if command -v docker compose >/dev/null 2>&1; then
+            echo "Using docker compose plugin..."
+            docker compose up --build -d || {
+              echo "Failed with docker compose plugin, trying standalone docker-compose..."
+              docker-compose up --build -d
+            }
+          else
+            echo "Using standalone docker-compose..."
+            docker-compose up --build -d
+          fi
+
+          # Check if services started
+          echo "Checking if services started..."
+          docker ps
+
+          # Show logs for debugging
+          echo "Docker Compose logs:"
+          docker compose logs || docker-compose logs
 
       # Check disk space before pulling images
       - name: Check disk space before pulling images
