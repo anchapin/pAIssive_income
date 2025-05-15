@@ -19,6 +19,8 @@ from ai_models.mock_adapters import (
     MockOllamaAdapter,
     MockLMStudioAdapter,
     MockOpenAICompatibleAdapter,
+    MockTensorRTAdapter,
+    MockMCPAdapter,
     MockAdapterFactory,
 )
 
@@ -151,6 +153,67 @@ class TestMockOpenAICompatibleAdapter:
         mock_logger.info.assert_any_call("Initialized MockOpenAICompatibleAdapter with base_url=http://test-url/v1")
 
 
+class TestMockTensorRTAdapter:
+    """Tests for the MockTensorRTAdapter class."""
+
+    def setup_method(self):
+        """Reset the mock logger before each test."""
+        mock_logger.reset_mock()
+
+    def test_initialization(self):
+        """Test that the adapter initializes correctly."""
+        adapter = MockTensorRTAdapter(base_url="http://test-url:8000", timeout=30)
+
+        assert adapter.base_url == "http://test-url:8000"
+        assert adapter.timeout == 30
+        assert adapter._session is None
+        mock_logger.info.assert_any_call("Initialized MockTensorRTAdapter with base_url=http://test-url:8000")
+
+
+class TestMockMCPAdapter:
+    """Tests for the MockMCPAdapter class."""
+
+    def setup_method(self):
+        """Reset the mock logger before each test."""
+        mock_logger.reset_mock()
+
+    def test_initialization(self):
+        """Test that the adapter initializes correctly."""
+        adapter = MockMCPAdapter(host="test-host", port=9000, timeout=30)
+
+        assert adapter.host == "test-host"
+        assert adapter.port == 9000
+        assert adapter.timeout == 30
+        assert adapter._client is None
+        mock_logger.info.assert_any_call("Initialized MockMCPAdapter with host=test-host, port=9000")
+
+    @pytest.mark.asyncio
+    async def test_connect(self):
+        """Test that connect returns True."""
+        mock_logger.reset_mock()
+
+        adapter = MockMCPAdapter(host="test-host", port=9000)
+        result = await adapter.connect()
+
+        assert result is True
+        mock_logger.info.assert_called_with("Connecting to mock MCP server at test-host:9000")
+
+    @pytest.mark.asyncio
+    async def test_send_message(self):
+        """Test that send_message returns the expected mock response."""
+        mock_logger.reset_mock()
+
+        adapter = MockMCPAdapter()
+        message = "Hello, world! This is a test message."
+        response = await adapter.send_message(message)
+
+        assert response["status"] == "success"
+        assert "Mock MCP response for: Hello, world! This" in response["response"]
+        # Use assert_called_with with a partial match to avoid exact string matching issues
+        assert mock_logger.info.call_args is not None
+        assert "Sending message to mock MCP server: Hello, world!" in mock_logger.info.call_args[0][0]
+
+
 class TestMockAdapterFactory:
     """Tests for the MockAdapterFactory class."""
 
@@ -174,13 +237,41 @@ class TestMockAdapterFactory:
         """Test that create_adapter returns an instance of the specified adapter type."""
         mock_logger.reset_mock()
 
-        # Create the adapter
-        adapter = MockAdapterFactory.create_adapter("ollama", base_url="http://test-url:11434")
-
-        # Verify the adapter was created
-        assert isinstance(adapter, MockOllamaAdapter)
-        assert adapter.base_url == "http://test-url:11434"
+        # Test creating Ollama adapter
+        ollama_adapter = MockAdapterFactory.create_adapter("ollama", base_url="http://test-url:11434")
+        assert isinstance(ollama_adapter, MockOllamaAdapter)
+        assert ollama_adapter.base_url == "http://test-url:11434"
         mock_logger.info.assert_any_call("Created adapter of type: ollama")
+
+        # Test creating LMStudio adapter
+        mock_logger.reset_mock()
+        lmstudio_adapter = MockAdapterFactory.create_adapter("lmstudio", base_url="http://test-url:1234/v1")
+        assert isinstance(lmstudio_adapter, MockLMStudioAdapter)
+        assert lmstudio_adapter.base_url == "http://test-url:1234/v1"
+        mock_logger.info.assert_any_call("Created adapter of type: lmstudio")
+
+        # Test creating OpenAI compatible adapter
+        mock_logger.reset_mock()
+        openai_adapter = MockAdapterFactory.create_adapter("openai", base_url="http://test-url/v1", api_key="test-key")
+        assert isinstance(openai_adapter, MockOpenAICompatibleAdapter)
+        assert openai_adapter.base_url == "http://test-url/v1"
+        assert openai_adapter.api_key == "test-key"
+        mock_logger.info.assert_any_call("Created adapter of type: openai")
+
+        # Test creating TensorRT adapter
+        mock_logger.reset_mock()
+        tensorrt_adapter = MockAdapterFactory.create_adapter("tensorrt", base_url="http://test-url:8000")
+        assert isinstance(tensorrt_adapter, MockTensorRTAdapter)
+        assert tensorrt_adapter.base_url == "http://test-url:8000"
+        mock_logger.info.assert_any_call("Created adapter of type: tensorrt")
+
+        # Test creating MCP adapter
+        mock_logger.reset_mock()
+        mcp_adapter = MockAdapterFactory.create_adapter("mcp", host="test-host", port=9000)
+        assert isinstance(mcp_adapter, MockMCPAdapter)
+        assert mcp_adapter.host == "test-host"
+        assert mcp_adapter.port == 9000
+        mock_logger.info.assert_any_call("Created adapter of type: mcp")
 
     def test_create_adapter_unknown_type(self):
         """Test that create_adapter returns None for unknown adapter types."""
@@ -219,6 +310,8 @@ class TestMockAdapterFactory:
         assert "ollama" in adapter_types
         assert "lmstudio" in adapter_types
         assert "openai" in adapter_types
+        assert "tensorrt" in adapter_types
+        assert "mcp" in adapter_types
 
         # Verify that the logger was called with the expected messages
         mock_logger.info.assert_any_call("Getting available adapter types")

@@ -28,10 +28,17 @@ AdapterFactory: Optional[Any] = None
 AdapterError: Optional[Type[Exception]] = None
 ModelContextProtocolError: Optional[Type[Exception]] = None
 
+# Always import exceptions first to ensure they're available
+try:
+    from .adapters.exceptions import AdapterError, ModelContextProtocolError
+except ImportError:
+    logging.warning("Failed to import adapter exceptions")
+    AdapterError = type("AdapterError", (Exception,), {})
+    ModelContextProtocolError = type("ModelContextProtocolError", (AdapterError,), {})
+
 # Check if aiohttp is available before importing adapters
 if AIOHTTP_AVAILABLE:
-    # Use contextlib.suppress instead of try-except-pass
-    with contextlib.suppress(ImportError):
+    try:
         # Import adapters
         from .adapters import (
             BaseModelAdapter,
@@ -41,21 +48,35 @@ if AIOHTTP_AVAILABLE:
             TensorRTAdapter,
             MCPAdapter,
             AdapterFactory,
-            AdapterError,
-            ModelContextProtocolError,
         )
+        logging.info("Successfully imported real adapters")
+    except ImportError as e:
+        logging.warning(f"Failed to import real adapters: {e}. Falling back to mock adapters.")
+        AIOHTTP_AVAILABLE = False  # Force fallback to mock adapters
 else:
-    # Log warning about using mock implementations
-    logging.warning("Using mock adapters due to missing aiohttp")
-    # Import mock adapters
-    with contextlib.suppress(ImportError):
+    logging.warning("aiohttp not available, using mock adapters")
+
+# If aiohttp is not available or imports failed, use mock adapters
+if not AIOHTTP_AVAILABLE:
+    try:
+        # Import mock adapters
         from .mock_adapters import (
             MockBaseModelAdapter as BaseModelAdapter,
             MockOllamaAdapter as OllamaAdapter,
             MockLMStudioAdapter as LMStudioAdapter,
             MockOpenAICompatibleAdapter as OpenAICompatibleAdapter,
+            MockTensorRTAdapter as TensorRTAdapter,
+            MockMCPAdapter as MCPAdapter,
             MockAdapterFactory as AdapterFactory,
         )
+        logging.info("Successfully imported mock adapters")
+    except ImportError as e:
+        logging.error(f"Failed to import mock adapters: {e}")
+        # Create minimal mock implementations if all else fails
+        if "BaseModelAdapter" not in locals() or BaseModelAdapter is None:
+            BaseModelAdapter = type("BaseModelAdapter", (), {"__init__": lambda self, **kwargs: None})
+        if "AdapterFactory" not in locals() or AdapterFactory is None:
+            AdapterFactory = type("AdapterFactory", (), {"create_adapter": staticmethod(lambda *args, **kwargs: None)})
 
 # Version information
 from .version import __version__

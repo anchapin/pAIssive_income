@@ -56,10 +56,17 @@ jobs:
           source .venv/bin/activate
 
           # Install dependencies with uv
-          uv pip install pytest pytest-cov pytest-xdist pytest-asyncio || {
+          uv pip install pytest pytest-cov pytest-xdist pytest-asyncio aiohttp>=3.9.0 || {
             echo "Failed to install test dependencies with uv pip. Installing uv in the virtual environment..."
             python -m pip install --upgrade uv
-            uv pip install pytest pytest-cov pytest-xdist pytest-asyncio
+            uv pip install pytest pytest-cov pytest-xdist pytest-asyncio aiohttp>=3.9.0
+          }
+
+          # Verify aiohttp is installed
+          python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')" || {
+            echo "aiohttp not found, installing directly..."
+            pip install aiohttp>=3.9.0
+            python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')"
           }
 
           if [ -f requirements-dev.txt ]; then

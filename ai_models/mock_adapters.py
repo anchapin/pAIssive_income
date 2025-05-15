@@ -137,6 +137,66 @@ class MockOpenAICompatibleAdapter(MockBaseModelAdapter):
         logger.info(f"Initialized MockOpenAICompatibleAdapter with base_url={base_url}")
 
 
+class MockTensorRTAdapter(MockBaseModelAdapter):
+    """Mock implementation of TensorRTAdapter for testing."""
+
+    def __init__(self, base_url: str = "http://localhost:8000", timeout: int = 60):
+        """Initialize the mock TensorRT adapter.
+
+        Args:
+            base_url: The base URL of the TensorRT API server
+            timeout: Request timeout in seconds
+        """
+        super().__init__()
+        self.base_url = base_url
+        self.timeout = timeout
+        self._session = None
+        logger.info(f"Initialized MockTensorRTAdapter with base_url={base_url}")
+
+
+class MockMCPAdapter(MockBaseModelAdapter):
+    """Mock implementation of MCPAdapter for testing."""
+
+    def __init__(self, host: str = "localhost", port: int = 9000, timeout: int = 60):
+        """Initialize the mock MCP adapter.
+
+        Args:
+            host: The hostname of the MCP server
+            port: The port of the MCP server
+            timeout: Request timeout in seconds
+        """
+        super().__init__()
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+        self._client = None
+        logger.info(f"Initialized MockMCPAdapter with host={host}, port={port}")
+
+    async def connect(self) -> bool:
+        """Connect to the MCP server.
+
+        Returns:
+            True if connection was successful, False otherwise
+        """
+        logger.info(f"Connecting to mock MCP server at {self.host}:{self.port}")
+        return True
+
+    async def send_message(self, message: str) -> Dict[str, Any]:
+        """Send a message to the MCP server.
+
+        Args:
+            message: The message to send
+
+        Returns:
+            Response dictionary from the server
+        """
+        logger.info(f"Sending message to mock MCP server: {message[:50]}...")
+        return {
+            "response": f"Mock MCP response for: {message[:20]}...",
+            "status": "success"
+        }
+
+
 class MockAdapterFactory:
     """Mock factory class for creating model adapters."""
 
@@ -145,6 +205,8 @@ class MockAdapterFactory:
         "ollama": MockOllamaAdapter,
         "lmstudio": MockLMStudioAdapter,
         "openai": MockOpenAICompatibleAdapter,
+        "tensorrt": MockTensorRTAdapter,
+        "mcp": MockMCPAdapter,
     }
 
     @classmethod

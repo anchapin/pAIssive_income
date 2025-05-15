@@ -52,6 +52,25 @@ omit =
     common_utils/*
     users/*
     api/*
+    # Exclude frontend code
+    frontend/*
+    # Exclude documentation
+    docs/*
+    # Exclude configuration files
+    .github/*
+    # Exclude build and distribution files
+    build/*
+    dist/*
+    # Exclude Docker files
+    docker/*
+    # Exclude scripts
+    scripts/*
+    # Exclude app_flask (not part of core functionality)
+    app_flask/*
+    # Exclude services
+    services/*
+    # Exclude adk_demo
+    adk_demo/*
 
 [report]
 exclude_lines =

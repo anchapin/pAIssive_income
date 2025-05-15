@@ -26,7 +26,9 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-        pip install pytest pytest-cov
+        pip install pytest pytest-cov pytest-asyncio aiohttp>=3.9.0
+        # Verify aiohttp is installed
+        python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')"
 
     - name: Run tests with coverage
       run: |
