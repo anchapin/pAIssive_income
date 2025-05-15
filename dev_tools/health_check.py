@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def run(cmd: str, desc: str) -> None:
-    """Run a shell command and print result.
+    """Run a command and print result.
 
     Args:
         cmd (str): The command to run.
@@ -35,7 +35,9 @@ def run(cmd: str, desc: str) -> None:
 
     """
     logging.info(f"\n==> {desc}")
-    res = subprocess.run(cmd, shell=True, check=False)
+    # Convert string command to list for security (avoid shell=True)
+    cmd_list = cmd.split()
+    res = subprocess.run(cmd_list, shell=False, check=False)
     if res.returncode != 0:
         logging.error(f"FAILED: {desc}")
         sys.exit(1)

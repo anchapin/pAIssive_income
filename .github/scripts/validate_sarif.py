@@ -79,10 +79,11 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
         logging.exception(f"Error validating SARIF file {file_path}")
         try:
             create_empty_sarif(file_path, tool_name)
-            return True
         except Exception:
             logging.exception(f"Error creating empty SARIF file {file_path}")
             return False
+        else:
+            return True
 
 
 def _validate_sarif_structure(data: dict, file_path: str, tool_name: str) -> bool:

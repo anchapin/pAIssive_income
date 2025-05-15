@@ -16,7 +16,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 def run(cmd: Union[str, list[str]], description: str) -> None:
     logging.info(f"Running: {description} ...")
-    result = subprocess.run(cmd, shell=isinstance(cmd, str), check=False)
+    # Convert string commands to list for security (avoid shell=True)
+    cmd_list = cmd if isinstance(cmd, list) else cmd.split()
+    result = subprocess.run(cmd_list, shell=False, check=False)
     if result.returncode != 0:
         logging.error(f"❌ {description} failed.")
         sys.exit(result.returncode)

@@ -16,7 +16,7 @@ Configuration:
 - Total wait time: 50 seconds (MAX_RETRIES * TIMEOUT)
 
 Message Flow:
-1. User → DataGatherer: 
+1. User → DataGatherer:
    - Type: 'gather'
    - Payload: {'query': str}
 
@@ -37,17 +37,18 @@ Error Handling:
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 
-def main():
+
+def main() -> None:
     """
     Main function that orchestrates the ADK demonstration.
-    
+
     Flow:
     1. Sets up communication infrastructure
     2. Initializes and starts agents
     3. Handles user input
     4. Manages message flow with retry mechanism
     5. Performs cleanup
-    
+
     Configuration:
     - MAX_RETRIES: 10 attempts for message reception
     - Timeout: 5.0 seconds per attempt
@@ -71,7 +72,8 @@ def main():
     user_name = "user"
     query = input("Enter your research query: ").strip()
     if not query:
-        print("No query entered. Exiting.")
+        # Using logging would be better in production code
+        print("No query entered. Exiting.")  # noqa: T201
         return
 
     # Send initial message to DataGathererAgent
@@ -80,25 +82,28 @@ def main():
             sender=user_name,
             receiver="gatherer",
             type="gather",
-            payload={"query": query}
+            payload={"query": query},
         )
     )
 
     # Wait for summary result (with retry limit)
-    MAX_RETRIES = 10
+    max_retries = 10
     retries = 0
-    while retries < MAX_RETRIES:
+    while retries < max_retries:
         msg = communicator.receive(receiver=user_name, timeout=5.0)
         if msg and msg.type == "summary_result":
-            print(f"\nSummary: {msg.payload['summary']}")
+            # Using logging would be better in production code
+            print(f"\nSummary: {msg.payload['summary']}")  # noqa: T201
             break
         retries += 1
     else:
-        print("\nFailed to receive summary message after multiple attempts. Exiting.")
+        # Using logging would be better in production code
+        print("\nFailed to receive summary message after multiple attempts. Exiting.")  # noqa: T201
 
     # Clean up
     gatherer.stop()
     summarizer.stop()
+
 
 if __name__ == "__main__":
     main()

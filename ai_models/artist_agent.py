@@ -8,6 +8,7 @@ This is a scaffold for further expansion.
 from typing import Any
 from common_utils import tooling
 
+
 class ArtistAgent:
     def __init__(self):
         # Discover available tools at initialization
@@ -24,7 +25,20 @@ class ArtistAgent:
         Returns:
             str: Name of the tool to use.
         """
-        if any(k in prompt.lower() for k in ["calculate", "add", "subtract", "multiply", "divide", "+", "-", "*", "/"]):
+        if any(
+            k in prompt.lower()
+            for k in [
+                "calculate",
+                "add",
+                "subtract",
+                "multiply",
+                "divide",
+                "+",
+                "-",
+                "*",
+                "/",
+            ]
+        ):
             return "calculator"
         # Add more heuristics for other tools here
         return ""
@@ -45,7 +59,7 @@ class ArtistAgent:
             # Naive extraction: assume the entire prompt is the expression
             # This should be improved for more complex prompts
             return prompt
-        return prompt # Default to returning the whole prompt if extraction logic is not defined
+        return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
     def run(self, prompt: str) -> Any:
         """
@@ -67,9 +81,14 @@ class ArtistAgent:
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger = logging.getLogger(__name__)
+
     agent = ArtistAgent()
     # Example usage
-    print("Available tools:", list(agent.tools.keys()))
+    logger.info(f"Available tools: {list(agent.tools.keys())}")
     test_prompt = "Calculate 2 + 3 * 4"
-    print(f"Prompt: {test_prompt}")
-    print("Agent output:", agent.run("2 + 3 * 4"))
+    logger.info(f"Prompt: {test_prompt}")
+    logger.info(f"Agent output: {agent.run('2 + 3 * 4')}")

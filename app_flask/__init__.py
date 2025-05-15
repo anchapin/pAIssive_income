@@ -4,11 +4,12 @@
 from typing import Any, Dict, Optional
 
 # Third-party imports
-from flask import Flask, current_app, g
-from flask_migrate import Migrate
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 # Local imports
+from .mcp_servers import mcp_servers_api
 from config import Config
 
 # Initialize extensions
