@@ -1,7 +1,5 @@
-import os
-
 def fix_dockerfile():
-    dockerfile_content = """FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim 
+    dockerfile_content = """FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
 
 WORKDIR /app
 
@@ -37,7 +35,7 @@ RUN git clone https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sd
     rm -rf /tmp/mcp-sdk
 
 # Install project dependencies
-RUN uv pip install --no-cache -r requirements.txt --python .venv/bin/python 
+RUN uv pip install --no-cache -r requirements.txt --python .venv/bin/python
 
 # Copy entire project
 COPY . .
@@ -53,9 +51,10 @@ ENV PYTHONPATH=/app
 
 CMD ["python", "-m", "tests"]
 """
-    
+
     with open("Dockerfile", "w") as f:
         f.write(dockerfile_content)
+
 
 if __name__ == "__main__":
     fix_dockerfile()
