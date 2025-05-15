@@ -26,7 +26,7 @@ class DataGathererSkill(Skill):
     In a real application, this would interact with databases, APIs, etc.
     """
 
-    def run(self, query):
+    def run(self, query: str) -> str:
         """
         Simulates data collection process.
 
@@ -49,12 +49,12 @@ class DataGathererAgent(Agent):
         Sends: 'summarize' with payload {'data': str, 'original_sender': str}
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__(name)
         self.memory = SimpleMemory()
         self.add_skill("gather", DataGathererSkill())
 
-    def on_message(self, message: Message):
+    def on_message(self, message: Message) -> None:
         if message.type == "gather":
             data = self.skills["gather"].run(message.payload["query"])
             # Send gathered data to SummarizerAgent
@@ -74,7 +74,7 @@ class SummarizerSkill(Skill):
     In a real application, this might use an LLM or other summarization technique.
     """
 
-    def run(self, data):
+    def run(self, data: str) -> str:
         """
         Simulates text summarization.
 
@@ -84,9 +84,13 @@ class SummarizerSkill(Skill):
         Returns:
             str: Shortened version of the input text
         """
-        # Define a constant for the maximum length
-        max_length = 75
-        return data[:max_length] + "..." if len(data) > max_length else data
+        # Define a constant for the maximum summary length
+        max_summary_length = 75
+        return (
+            data[:max_summary_length] + "..."
+            if len(data) > max_summary_length
+            else data
+        )
 
 
 class SummarizerAgent(Agent):
@@ -99,12 +103,12 @@ class SummarizerAgent(Agent):
         Sends: 'summary_result' with payload {'summary': str}
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__(name)
         self.memory = SimpleMemory()
         self.add_skill("summarize", SummarizerSkill())
 
-    def on_message(self, message: Message):
+    def on_message(self, message: Message) -> None:
         if message.type == "summarize":
             summary = self.skills["summarize"].run(message.payload["data"])
             # Return summary to original requester (user)

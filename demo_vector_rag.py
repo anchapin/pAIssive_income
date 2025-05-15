@@ -2,7 +2,7 @@
 Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB
 
 Steps:
- 1. pip install chromadb sentence-transformers
+ 1. uv pip install chromadb sentence-transformers
  2. python demo_vector_rag.py
 
 This script embeds example texts, stores them in a local vector DB,
@@ -11,11 +11,16 @@ then retrieves the most relevant context for a query.
 
 import chromadb
 from chromadb.config import Settings
+import logging
 from sentence_transformers import SentenceTransformer
 import logging
 
 # Configure logging instead of print statements
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 # 1. Initialize ChromaDB client (local, in-memory for demo)
 client = chromadb.Client(
@@ -44,26 +49,27 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 collection = client.get_or_create_collection("demo_rag")
 
 
-# 5. Define function to embed and insert documents
-def embed_and_insert_documents(docs, embedder, collection):
-    """Embed and insert documents into the collection.
+# 5. Embed and add documents
+def embed_and_insert_documents(docs, embedder_model, collection):
+    """
+    Embed documents and insert them into the collection.
 
     Args:
         docs: List of document dictionaries with 'id' and 'content' keys
-        embedder: SentenceTransformer model for embedding
-        collection: ChromaDB collection
+        embedder_model: SentenceTransformer model for embedding
+        collection: ChromaDB collection to insert into
     """
     ids = [doc["id"] for doc in docs]
     contents = [doc["content"] for doc in docs]
-    embeddings = embedder.encode(contents).tolist()
+    embeddings = embedder_model.encode(contents).tolist()
 
     collection.add(ids=ids, documents=contents, embeddings=embeddings)
 
 
-# Embed and add documents
+# Call the function to embed and insert documents
 embed_and_insert_documents(documents, embedder, collection)
 
-logging.info("Documents stored in ChromaDB.")
+logger.info("Documents stored in ChromaDB.")
 
 # 6. Demo query
 query = "What city is the Eiffel Tower located in?"
@@ -71,10 +77,10 @@ query = "What city is the Eiffel Tower located in?"
 query_embedding = embedder.encode(query).tolist()
 results = collection.query(query_embeddings=[query_embedding], n_results=2)
 
-logging.info(f"Query: {query}")
-logging.info("Top results:")
+logger.info(f"\nQuery: {query}\n")
+logger.info("Top results:")
 for doc, dist in zip(results["documents"][0], results["distances"][0]):
-    logging.info(f"- {doc} (distance: {dist:.4f})")
+    logger.info(f"- {doc} (distance: {dist:.4f})")
 
 """
 Expected output:

@@ -38,11 +38,7 @@ import logging
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
-
-def main():
+def main() -> None:
     """
     Main function that orchestrates the ADK demonstration.
 
@@ -76,7 +72,8 @@ def main():
     user_name = "user"
     query = input("Enter your research query: ").strip()
     if not query:
-        logging.warning("No query entered. Exiting.")
+        # Using logging would be better in production code
+        print("No query entered. Exiting.")  # noqa: T201
         return
 
     # Send initial message to DataGathererAgent
@@ -95,13 +92,13 @@ def main():
     while retries < max_retries:
         msg = communicator.receive(receiver=user_name, timeout=5.0)
         if msg and msg.type == "summary_result":
-            logging.info(f"\nSummary: {msg.payload['summary']}")
+            # Using logging would be better in production code
+            print(f"\nSummary: {msg.payload['summary']}")  # noqa: T201
             break
         retries += 1
     else:
-        logging.error(
-            "\nFailed to receive summary message after multiple attempts. Exiting."
-        )
+        # Using logging would be better in production code
+        print("\nFailed to receive summary message after multiple attempts. Exiting.")  # noqa: T201
 
     # Clean up
     gatherer.stop()

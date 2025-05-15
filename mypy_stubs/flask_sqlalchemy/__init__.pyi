@@ -1,4 +1,4 @@
-from typing import Any, TypeVar
+from typing import (Any, TypeVar)
 
 T = TypeVar("T")
 _T = TypeVar("_T")
@@ -18,7 +18,6 @@ class BaseQuery:
 # Define Model class
 class ModelBase:
     """Base model class for SQLAlchemy models."""
-
     query_class: type[BaseQuery]
     query: BaseQuery  # This is a class property, not a method
     __tablename__: str
@@ -29,7 +28,6 @@ class ModelBase:
 # Define SQLAlchemy class
 class SQLAlchemy:
     """SQLAlchemy extension for Flask."""
-
     Model: type[ModelBase]  # This is a class attribute, not an instance
     Column: Any
     String: Any

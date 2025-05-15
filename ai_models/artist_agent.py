@@ -83,11 +83,12 @@ class ArtistAgent:
 if __name__ == "__main__":
     import logging
 
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger = logging.getLogger(__name__)
 
     agent = ArtistAgent()
     # Example usage
-    logging.info(f"Available tools: {list(agent.tools.keys())}")
+    logger.info(f"Available tools: {list(agent.tools.keys())}")
     test_prompt = "Calculate 2 + 3 * 4"
-    logging.info(f"Prompt: {test_prompt}")
-    logging.info(f"Agent output: {agent.run('2 + 3 * 4')}")
+    logger.info(f"Prompt: {test_prompt}")
+    logger.info(f"Agent output: {agent.run('2 + 3 * 4')}")
