@@ -31,7 +31,8 @@ if (-not $serverReady) {
 
 # Start the React app in the background
 Write-Host "Starting React app..."
-$reactProcess = Start-Process -FilePath "pnpm" -ArgumentList "start", "--", "--port=3000" -PassThru -NoNewWindow
+# Use npm directly instead of pnpm to avoid path issues
+$reactProcess = Start-Process -FilePath "npm" -ArgumentList "run", "start", "--", "--port=3000" -PassThru -NoNewWindow
 
 # Wait for the React app to start
 Write-Host "Waiting for React app to start..."

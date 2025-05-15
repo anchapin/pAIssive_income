@@ -3,7 +3,8 @@ import React from 'react';
 
 /**
  * AgentUI component - local implementation to replace the external dependency
- * 
+ * This is used when the @ag-ui-protocol/ag-ui package is not available
+ *
  * @param {Object} props - Component props
  * @param {Object} props.agent - Agent data
  * @param {Object} props.theme - Theme configuration
@@ -12,7 +13,7 @@ import React from 'react';
  */
 export const AgentUI = ({ agent, theme, onAction }) => {
   return (
-    <div 
+    <div
       className="agent-ui-component"
       style={{
         backgroundColor: theme?.darkMode ? '#1e1e1e' : '#ffffff',
@@ -26,11 +27,11 @@ export const AgentUI = ({ agent, theme, onAction }) => {
       <h3 style={{ color: theme?.primaryColor || '#007bff' }}>
         {agent?.name || 'Agent'}
       </h3>
-      
+
       <div className="agent-description">
         {agent?.description || 'No description available'}
       </div>
-      
+
       <div className="agent-actions" style={{ marginTop: '1rem' }}>
         <button
           onClick={() => onAction?.({ type: 'HELP', payload: {} })}
@@ -46,7 +47,7 @@ export const AgentUI = ({ agent, theme, onAction }) => {
         >
           Help
         </button>
-        
+
         <button
           onClick={() => onAction?.({ type: 'START', payload: {} })}
           style={{
@@ -64,3 +65,6 @@ export const AgentUI = ({ agent, theme, onAction }) => {
     </div>
   );
 };
+
+// Also export as default for compatibility
+export default AgentUI;
