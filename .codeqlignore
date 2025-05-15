@@ -1,60 +1,60 @@
-# Configuration files
-# Documentation
-# Generated files
-# Specific directories that might contain third-party code
-# Test files
 # Virtual environments and dependencies
-**/*.md
-**/*.mdx
-**/*.pyc
-**/*.pyd
-**/*.pyo
-**/*.rst
-**/*.sarif
-**/*.sarif.json
-**/*.spec.js
-**/*.spec.jsx
-**/*.spec.ts
-**/*.spec.tsx
-**/*.test.js
-**/*.test.jsx
-**/*.test.ts
-**/*.test.tsx
-**/.env/**
-**/.git/**
-**/.github/**
-**/.idea/**
-**/.mypy_cache/**
-**/.pytest_cache/**
-**/.ruff_cache/**
-**/.venv/**
-**/.vscode/**
-**/__mocks__/**
-**/__pycache__/**
-**/__tests__/**
-**/build/**
-**/coverage/**
-**/dist-packages/**
-**/dist/**
-**/docs/**
-**/env/**
-**/external/**
-**/generated/**
-**/node_modules/**
-**/playwright-report/**
-**/sarif-results/**
+.venv/**
+venv/**
+env/**
+.env/**
+**/virtualenv/**
 **/site-packages/**
-**/sphinx/**
+**/dist-packages/**
+**/node_modules/**
+**/dist/**
+**/build/**
+**/vendor/**
+**/external/**
+**/third_party/**
+**/__pycache__/**
+**/.pytest_cache/**
+**/.mypy_cache/**
+**/.ruff_cache/**
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Test files
 **/test/**
 **/tests/**
-**/third_party/**
-**/vendor/**
-**/venv/**
-**/virtualenv/**
-.env/**
-.venv/**
-env/**
-sdk/javascript/node_modules/**
+**/__tests__/**
+**/__mocks__/**
+**/*.test.js
+**/*.test.ts
+**/*.test.jsx
+**/*.test.tsx
+**/*.spec.js
+**/*.spec.ts
+**/*.spec.jsx
+**/*.spec.tsx
+
+# Configuration files
+**/.github/**
+**/.vscode/**
+**/.idea/**
+**/coverage/**
+**/.git/**
+
+# Documentation
+**/docs/**
+**/*.md
+**/*.mdx
+**/*.rst
+**/sphinx/**
+
+# Generated files
+**/playwright-report/**
+**/generated/**
+**/sarif-results/**
+**/*.sarif
+**/*.sarif.json
+
+# Specific directories that might contain third-party code
 ui/react_frontend/node_modules/**
-venv/**
-virtualenv/**
+sdk/javascript/node_modules/**
