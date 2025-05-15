@@ -1,0 +1,64 @@
+version: '3.8'
+
+# This override file is specifically for CI environments
+services:
+  app:
+    # Reduce resource requirements for CI
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    # Adjust healthcheck for CI
+    healthcheck:
+      interval: 15s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+    # Add CI-specific environment variables
+    environment:
+      - FLASK_ENV=testing
+      - TESTING=true
+      - LOG_LEVEL=DEBUG
+
+  frontend:
+    # Use a simpler build for CI
+    build:
+      context: ./ui/react_frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - CI=true
+    # Adjust healthcheck for CI
+    healthcheck:
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # Add CI-specific environment variables
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - SKIP_PREFLIGHT_CHECK=true
+      - REACT_APP_TESTING=true
+
+  db:
+    # Use a smaller configuration for CI
+    command: [
+      "postgres", 
+      "-c", "max_connections=50", 
+      "-c", "shared_buffers=128MB",
+      "-c", "fsync=off",
+      "-c", "synchronous_commit=off",
+      "-c", "full_page_writes=off"
+    ]
+    # Adjust healthcheck for CI
+    healthcheck:
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    # Reduce memory usage for CI
+    shm_size: 128mb
