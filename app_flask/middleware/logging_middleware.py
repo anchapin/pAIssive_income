@@ -4,15 +4,18 @@ import logging
 import time
 import traceback
 import uuid
-from typing import Any, Dict, TypedDict, cast
+from logging import ERROR, INFO
+from typing import Any, Dict, Tuple, Union, cast
 
-from flask import Flask, Response, current_app, g, request
+from flask.app import Flask
+from flask.globals import current_app, g, request
+from flask.wrappers import Response
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..utils.logging_utils import sanitize_log_data, structured_log
 
-# Use consistent logging import
-INFO = logging.INFO
-ERROR = logging.ERROR
+# Type hint for Flask app logger
+FlaskLogger = logging.Logger
 
 
 def logging_getattr(module: Any, name: str, default: Any = None) -> Any:
@@ -20,7 +23,7 @@ def logging_getattr(module: Any, name: str, default: Any = None) -> Any:
     return getattr(module, name, default)
 
 
-class FlaskConfig(TypedDict, total=False):
+class FlaskConfig(Dict[str, Any]):
     """Type definition for Flask config used in logging middleware."""
 
     LOG_REQUEST_ID_HEADER: str
@@ -141,7 +144,9 @@ def setup_request_logging(app: Flask) -> None:
         return response
 
     @app.errorhandler(Exception)
-    def log_exception(error: Exception) -> tuple[Response, int]:
+    def log_exception(
+        error: Exception,
+    ) -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
         """Log unhandled exceptions.
 
         Args:

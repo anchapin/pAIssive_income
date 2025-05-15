@@ -10,13 +10,25 @@ import sys
 import threading
 import time
 from datetime import datetime
+from logging import LogRecord
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypeVar
+
+from flask.globals import current_app
+from werkzeug.local import LocalProxy
 
 from app_flask import create_app
 from app_flask.middleware.logging_middleware import setup_request_logging
 from config import Config
+
+# Type variable for generic typing
+T = TypeVar("T")
+
+# Type hint for Flask app logger
+FlaskLogger = logging.Logger
+
+logger = LocalProxy[logging.Logger](lambda: current_app.logger)
 
 
 class CompressedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
@@ -71,7 +83,7 @@ class ContextFilter(logging.Filter):
         except Exception:
             return {}
 
-    def filter(self, record: logging.LogRecord) -> bool:
+    def filter(self, record: LogRecord) -> bool:
         """Add extra fields to log record."""
         # Add process and memory information to logs
         import time

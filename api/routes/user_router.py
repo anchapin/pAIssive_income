@@ -2,8 +2,13 @@
 
 import logging
 import os
+from typing import Tuple, Union
 
-from flask import Blueprint, Response, jsonify, request
+from flask.blueprints import Blueprint
+from flask.globals import request
+from flask.helpers import jsonify
+from flask.wrappers import Response
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from users.services import AuthenticationError, UserExistsError, UserService
 
@@ -18,7 +23,7 @@ user_service = UserService(token_secret=TOKEN_SECRET)
 
 
 @user_bp.route("/", methods=["POST"])
-def create_user() -> tuple[Response, int]:
+def create_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
     """Create a new user.
 
     Returns:
@@ -44,7 +49,7 @@ def create_user() -> tuple[Response, int]:
 
 
 @user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> tuple[Response, int]:
+def authenticate_user() -> Union[Tuple[Response, int], Tuple[WerkzeugResponse, int]]:
     """Authenticate a user.
 
     Returns:

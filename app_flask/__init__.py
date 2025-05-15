@@ -1,12 +1,16 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
-from typing import Any
+from typing import Any, Dict, Optional, Union
 
 # Third-party imports
-from flask import Flask, current_app, g
+from flask.app import Flask
+from flask.config import Config as FlaskConfig
+from flask.globals import _app_ctx_stack, _request_ctx_stack, g
+from flask.typing import ConfigUpdateArg
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.local import LocalProxy
 
 # Local imports
 from config import Config
@@ -15,11 +19,13 @@ from config import Config
 db = SQLAlchemy()
 migrate = Migrate()
 
-# Define FlaskApp as an alias for the actual Flask class
+# Define FlaskApp as an alias for the actual Flask class with proper typing
 FlaskApp = Flask
 
 
-def create_app(test_config: dict[str, Any] | None = None) -> Flask:
+def create_app(
+    test_config: Optional[Union[dict[str, Any], ConfigUpdateArg]] = None,
+) -> Flask:
     """Create and configure the Flask application.
 
     Args:

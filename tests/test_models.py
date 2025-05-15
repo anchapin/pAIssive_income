@@ -1,9 +1,11 @@
 """test_models - Test module for database models."""
 
-from typing import Generator
+from typing import Any, Generator
 
 import pytest
-from flask import Flask
+from flask import Flask as _Flask  # Import Flask type for type checking
+from flask.app import Flask  # Import actual Flask class
+from flask.config import Config as FlaskConfig
 from flask.testing import FlaskClient
 
 from app_flask import db

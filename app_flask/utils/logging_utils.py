@@ -6,10 +6,20 @@ import re
 import time
 from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
-from flask import current_app, g
+from flask.globals import current_app, g
+from werkzeug.local import LocalProxy
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])
+
+# Type hint for Flask app logger
+app_logger = LocalProxy(lambda: current_app.logger)
+
+# Type hint for Flask app logger
+FlaskLogger = logging.Logger
+
+# Constants
+FIRST_PRINTABLE_ASCII = 32  # ASCII value for space character (first printable)
 
 # Patterns for sensitive data
 SENSITIVE_PATTERNS = [
@@ -23,7 +33,7 @@ SENSITIVE_PATTERNS = [
 
 
 def sanitize_log_data(data: Any) -> Any:
-    """Remove sensitive information from log data.
+    """Remove sensitive information and prevent log injection from log data.
 
     Args:
         data: Data to sanitize
@@ -32,10 +42,23 @@ def sanitize_log_data(data: Any) -> Any:
         Sanitized data
     """
     if isinstance(data, str):
-        # Apply all patterns
-        result = data
+        # First remove any potential log injection characters
+        result = data.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+
+        # Remove any ANSI escape sequences
+        result = re.sub(r"\x1b\[[0-9;]*[mGKH]", "", result)
+
+        # Remove any control characters
+        result = "".join(
+            char
+            for char in result
+            if ord(char) >= FIRST_PRINTABLE_ASCII or char in " \t"
+        )
+
+        # Apply sensitive data patterns
         for pattern, replacement in SENSITIVE_PATTERNS:
             result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
+
         return result
     elif isinstance(data, dict):
         # Recursively sanitize dictionary values
