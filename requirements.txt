@@ -12,7 +12,7 @@ pyjwt>=2.6.0
 bcrypt>=4.0.0
 pyperclip>=1.8.2  # For secure clipboard operations
 cryptography>=41.0.0  # For encryption of sensitive files
-crewai>=0.120.0  # AI agent orchestration framework
+crewai>=0.11.2  # AI agent orchestration framework
 
 # MCP integration
 modelcontextprotocol>=0.1.0  # Required for MCP server integration
