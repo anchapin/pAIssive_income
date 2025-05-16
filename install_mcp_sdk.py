@@ -77,6 +77,21 @@ def create_mock_mcp_sdk() -> bool:
         # Create __init__.py
         with open(os.path.join(temp_dir, "modelcontextprotocol", "__init__.py"), "w") as f:
             f.write("""
+# Mock MCP SDK for testing
+__version__ = "0.1.0"
+
+class MCPError(Exception):
+    \"\"\"Base class for MCP errors.\"\"\"
+    pass
+
+class ConnectionError(MCPError):
+    \"\"\"Error raised when connection fails.\"\"\"
+    pass
+
+class MessageError(MCPError):
+    \"\"\"Error raised when message sending fails.\"\"\"
+    pass
+
 class Client:
     def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint

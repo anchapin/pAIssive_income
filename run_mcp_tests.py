@@ -75,8 +75,19 @@ def _ensure_mcp_module() -> None:
         if importlib.util.find_spec("modelcontextprotocol") is None:
             logger.warning("modelcontextprotocol module not found, creating mock implementation")
             create_mock_mcp_module()
+        else:
+            logger.info("modelcontextprotocol module found")
     except ImportError as e:
         logger.warning(f"Error checking for modelcontextprotocol module: {e}")
+        create_mock_mcp_module()
+
+    # Double-check that the module is now importable
+    try:
+        import modelcontextprotocol
+        logger.info(f"Successfully imported modelcontextprotocol: {modelcontextprotocol}")
+    except ImportError as e:
+        logger.warning(f"Still unable to import modelcontextprotocol after ensuring module: {e}")
+        # Try one more time to create the mock module
         create_mock_mcp_module()
 
 
@@ -146,6 +157,9 @@ def create_mock_mcp_module() -> None:
 
         # Create a mock module
         mock_module = ModuleType("modelcontextprotocol")
+        mock_module.__file__ = "<mock>"
+        mock_module.__path__ = []
+        mock_module.__package__ = "modelcontextprotocol"
 
         # Add a Client class to the module
         class MockClient:
@@ -165,12 +179,37 @@ def create_mock_mcp_module() -> None:
         # Add the Client class to the module
         mock_module.Client = MockClient
 
+        # Add version information
+        mock_module.__version__ = "0.1.0"
+
+        # Add error classes that might be expected
+        class MCPError(Exception):
+            """Base class for MCP errors."""
+            pass
+
+        class ConnectionError(MCPError):
+            """Error raised when connection fails."""
+            pass
+
+        class MessageError(MCPError):
+            """Error raised when message sending fails."""
+            pass
+
+        # Add error classes to the module
+        mock_module.MCPError = MCPError
+        mock_module.ConnectionError = ConnectionError
+        mock_module.MessageError = MessageError
+
         # Add the module to sys.modules
         sys.modules["modelcontextprotocol"] = mock_module
 
         logger.info("Created mock modelcontextprotocol module")
-    except Exception:
-        logger.exception("Failed to create mock modelcontextprotocol module")
+
+        # Verify the module is importable
+        import modelcontextprotocol
+        logger.info(f"Verified mock module is importable: {modelcontextprotocol}")
+    except Exception as e:
+        logger.exception(f"Failed to create mock modelcontextprotocol module: {e}")
 
 
 def diagnose_mcp_import_issues() -> None:

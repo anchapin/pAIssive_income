@@ -419,9 +419,105 @@ class SecureLogger:
         msg = mask_sensitive_data(msg)
         self.logger.critical(msg, *args, **kwargs)
 
+    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:
+        """Log a message with the specified level and with sensitive information masked.
+
+        Args:
+            level: The logging level
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+        """
+        msg = mask_sensitive_data(msg)
+        self.logger.log(level, msg, *args, **kwargs)
+
+    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        """Log an exception message with sensitive information masked.
+
+        Args:
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+        """
+        msg = mask_sensitive_data(msg)
+        self.logger.exception(msg, *args, **kwargs)
+
+    def set_level(self, level: int) -> None:
+        """Set the logging level for this logger.
+
+        Args:
+            level: The logging level to set
+        """
+        self.logger.setLevel(level)
+
+    def is_enabled_for(self, level: int) -> bool:
+        """Check if this logger is enabled for the specified level.
+
+        Args:
+            level: The logging level to check
+
+        Returns:
+            bool: True if this logger is enabled for the specified level
+        """
+        return self.logger.isEnabledFor(level)
+
+    def get_effective_level(self) -> int:
+        """Get the effective level for this logger.
+
+        Returns:
+            int: The effective level for this logger
+        """
+        return self.logger.getEffectiveLevel()
+
+    def get_child(self, suffix: str) -> 'SecureLogger':
+        """Get a child logger with the specified suffix.
+
+        Args:
+            suffix: The suffix to add to the logger name
+
+        Returns:
+            SecureLogger: A child logger with the specified suffix
+        """
+        child_logger = SecureLogger(f"{self.logger.name}.{suffix}")
+        child_logger.logger = self.logger.getChild(suffix)
+        return child_logger
+
+    def add_handler(self, handler: logging.Handler) -> None:
+        """Add a handler to this logger.
+
+        Args:
+            handler: The handler to add
+        """
+        self.logger.addHandler(handler)
+
+    def remove_handler(self, handler: logging.Handler) -> None:
+        """Remove a handler from this logger.
+
+        Args:
+            handler: The handler to remove
+        """
+        self.logger.removeHandler(handler)
+
+    def call_handlers(self, record: logging.LogRecord) -> None:
+        """Call the handlers for the specified record.
+
+        Args:
+            record: The log record to handle
+        """
+        self.logger.callHandlers(record)
+
     # Standard aliases
     warn = warning
     fatal = critical
+
+    # Standard logging compatibility aliases
+    setLevel = set_level  # noqa: N815
+    isEnabledFor = is_enabled_for  # noqa: N815
+    getEffectiveLevel = get_effective_level  # noqa: N815
+    getChild = get_child  # noqa: N815
+    addHandler = add_handler  # noqa: N815
+    removeHandler = remove_handler  # noqa: N815
+    callHandlers = call_handlers  # noqa: N815
 
 
 def get_secure_logger(name: str) -> SecureLogger:
