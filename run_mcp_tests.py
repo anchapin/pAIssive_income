@@ -58,7 +58,7 @@ def _prepare_test_command() -> List[str]:
         "not test_mcp_server",
         "--confcutdir=tests/ai_models/adapters",
         "--noconftest",
-        "--no-cov",  # Disable coverage to avoid issues with the coverage report
+        # Remove the --no-cov flag to allow coverage from pytest.ini to be used
     ]
 
     # Use absolute path for the executable when possible
