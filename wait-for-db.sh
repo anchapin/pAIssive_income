@@ -1,5 +1,5 @@
 #!/bin/bash
-# Enhanced wait-for-db.sh - Wait for PostgreSQL database to be ready with robust error handling
+# Simplified wait-for-db.sh for CI environments
 
 # Enable error handling but don't exit immediately on error
 set +e
@@ -15,13 +15,13 @@ port="$2"
 shift 2
 cmd="$@"
 
-log "Starting wait-for-db script for PostgreSQL at $host:$port..."
+log "Starting wait-for-db script for PostgreSQL at $host:$port (CI-optimized)..."
 
-# Configuration
-max_attempts=90  # Increased from 60 to 90 for more patience
-initial_retry_interval=2
-max_retry_interval=15
-connection_timeout=5
+# Configuration - reduced for CI environments
+max_attempts=30
+initial_retry_interval=1
+max_retry_interval=5
+connection_timeout=3
 
 # Function to check if PostgreSQL port is reachable
 check_port() {
@@ -47,9 +47,9 @@ check_postgres() {
   fi
 }
 
-# Function to get detailed PostgreSQL diagnostics
+# Function to get simplified PostgreSQL diagnostics for CI
 get_postgres_diagnostics() {
-  log "=== POSTGRESQL DIAGNOSTICS ==="
+  log "=== POSTGRESQL DIAGNOSTICS (CI) ==="
 
   # Check if host is reachable via ping
   log "Checking if host is reachable via ping:"
@@ -58,17 +58,9 @@ get_postgres_diagnostics() {
   # Check if port is open
   check_port
 
-  # Try to get PostgreSQL version
-  log "Trying to get PostgreSQL version:"
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version();" -w -t $connection_timeout 2>/dev/null || log "❌ Could not get PostgreSQL version"
-
-  # Check if we can list databases
-  log "Trying to list databases:"
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\l" -w -t $connection_timeout 2>/dev/null || log "❌ Could not list databases"
-
-  # Check PostgreSQL logs if available
-  log "Checking PostgreSQL logs if available:"
-  docker logs paissive-postgres 2>/dev/null || log "❌ Could not access PostgreSQL logs"
+  # Try a simple connection test
+  log "Trying simple connection test:"
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 1;" -w -t $connection_timeout 2>/dev/null || log "❌ Could not connect to PostgreSQL"
 }
 
 # Wait for the database to be ready with exponential backoff
@@ -112,30 +104,18 @@ done
 # Check if we exceeded max attempts
 if [ $attempt -gt $max_attempts ]; then
   log "⚠️ WARNING: Failed to connect to PostgreSQL after $max_attempts attempts"
-  log "Will continue anyway - the Flask app will handle database connection errors gracefully"
+  log "Will continue anyway for CI environment"
 else
   log "✅ Successfully connected to PostgreSQL after $attempt attempts"
 fi
 
-# Initialize the database with better error handling
-log "Initializing database..."
-if python init_db.py; then
-  log "✅ Database initialization successful"
-else
-  db_init_exit_code=$?
-  log "⚠️ WARNING: Database initialization failed with exit code $db_init_exit_code"
-  log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
-fi
+# Initialize the database with simplified error handling for CI
+log "Initializing database (CI mode)..."
+python init_db.py || log "⚠️ Database initialization failed, continuing anyway for CI"
 
 # Initialize the agent database
-log "Initializing agent database..."
-if python init_agent_db.py; then
-  log "✅ Agent database initialization successful"
-else
-  agent_db_init_exit_code=$?
-  log "⚠️ WARNING: Agent database initialization failed with exit code $agent_db_init_exit_code"
-  log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
-fi
+log "Initializing agent database (CI mode)..."
+python init_agent_db.py || log "⚠️ Agent database initialization failed, continuing anyway for CI"
 
 # Create necessary directories
 log "Creating required directories..."
@@ -147,15 +127,11 @@ log "Setting up logging..."
 touch /app/logs/flask.log
 touch /app/logs/app.log
 
-# Print environment information
-log "=== ENVIRONMENT INFORMATION ==="
+# Print minimal environment information for CI
+log "=== CI ENVIRONMENT INFORMATION ==="
 log "Python version: $(python --version 2>&1)"
-log "Flask version: $(pip show flask 2>/dev/null | grep Version || echo 'Flask not installed')"
-log "PostgreSQL client version: $(psql --version 2>&1 || echo 'psql not installed')"
-log "Environment variables:"
-log "  FLASK_ENV: $FLASK_ENV"
-log "  PYTHONPATH: $PYTHONPATH"
-log "  DATABASE_URL: $DATABASE_URL (showing only for diagnostic purposes)"
+log "CI: $CI"
+log "GITHUB_ACTIONS: $GITHUB_ACTIONS"
 
 # Execute the command
 log "Starting Flask application with command: $cmd"

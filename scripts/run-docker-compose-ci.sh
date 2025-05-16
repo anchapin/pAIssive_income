@@ -1,10 +1,16 @@
 #!/bin/bash
-# Script to run Docker Compose in CI environment
+# Script to run Docker Compose in GitHub Actions CI environment
 
 # Enable error handling but don't exit immediately on error
 set +e
 # Enable command tracing for better debugging
 set -x
+
+# Set CI-specific variables
+export CI=true
+export GITHUB_ACTIONS=true
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
 
 # Log with timestamp
 log() {

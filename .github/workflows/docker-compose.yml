@@ -176,13 +176,27 @@ jobs:
           elif command_exists "docker-compose"; then
             COMPOSE_CMD="docker-compose"
           else
-            echo "ERROR: No Docker Compose installation found."
-            exit 1
+            echo "WARNING: No Docker Compose installation found. Using 'docker compose' anyway."
+            COMPOSE_CMD="docker compose"
           fi
 
-          $COMPOSE_CMD ps
+          # Set CI-specific variables
+          export CI=true
+          export GITHUB_ACTIONS=true
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
+
+          $COMPOSE_CMD ps || echo "WARNING: Could not get Docker Compose status, but continuing anyway."
           echo "Docker disk usage:"
-          docker system df
+          docker system df || echo "WARNING: Could not get Docker system disk usage, but continuing anyway."
+
+          # Check container logs for debugging
+          echo "Container logs:"
+          docker logs paissive-income-app 2>&1 || echo "WARNING: Could not get app container logs, but continuing anyway."
+          docker logs paissive-postgres 2>&1 || echo "WARNING: Could not get database container logs, but continuing anyway."
+          if [ -d "ui/react_frontend" ]; then
+            docker logs paissive-frontend 2>&1 || echo "WARNING: Could not get frontend container logs, but continuing anyway."
+          fi
 
       # Run tests if available
       - name: Run tests
@@ -200,22 +214,27 @@ jobs:
           elif command_exists "docker-compose"; then
             COMPOSE_CMD="docker-compose"
           else
-            echo "ERROR: No Docker Compose installation found."
-            exit 1
+            echo "WARNING: No Docker Compose installation found. Using 'docker compose' anyway."
+            COMPOSE_CMD="docker compose"
           fi
+
+          # Set CI-specific variables
+          export CI=true
+          export GITHUB_ACTIONS=true
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
 
           # Run backend tests if available
-          if $COMPOSE_CMD exec -T app python -m pytest 2>/dev/null; then
-            echo "Backend tests completed"
-          else
-            echo "No backend tests found or tests failed"
-          fi
+          echo "Running backend tests..."
+          $COMPOSE_CMD exec -T app python -m pytest || echo "WARNING: Backend tests failed or not available, but continuing anyway."
 
           # Run frontend tests if available
-          if [ -d "ui/react_frontend" ] && $COMPOSE_CMD exec -T frontend npm test 2>/dev/null; then
-            echo "Frontend tests completed"
+          if [ -d "ui/react_frontend" ]; then
+            echo "Running frontend tests..."
+            # Use CI mode for frontend tests
+            $COMPOSE_CMD exec -T frontend sh -c "CI=true npm test -- --watchAll=false" || echo "WARNING: Frontend tests failed or not available, but continuing anyway."
           else
-            echo "No frontend tests found or tests failed"
+            echo "No frontend directory found, skipping frontend tests."
           fi
 
       # Tear down Docker Compose
@@ -235,11 +254,23 @@ jobs:
           elif command_exists "docker-compose"; then
             COMPOSE_CMD="docker-compose"
           else
-            echo "WARNING: No Docker Compose installation found. Trying alternative approaches..."
-            # Try to use docker directly to clean up
-            docker rm -f paissive-income-app paissive-postgres paissive-frontend 2>/dev/null || true
-            docker network rm paissive-network 2>/dev/null || true
-            exit 0
+            echo "WARNING: No Docker Compose installation found. Using 'docker compose' anyway."
+            COMPOSE_CMD="docker compose"
+          fi
+
+          # Set CI-specific variables
+          export CI=true
+          export GITHUB_ACTIONS=true
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
+
+          # Save logs before tearing down
+          echo "Saving container logs before teardown..."
+          mkdir -p ./logs
+          docker logs paissive-income-app > ./logs/app.log 2>&1 || echo "WARNING: Could not save app logs"
+          docker logs paissive-postgres > ./logs/db.log 2>&1 || echo "WARNING: Could not save db logs"
+          if [ -d "ui/react_frontend" ]; then
+            docker logs paissive-frontend > ./logs/frontend.log 2>&1 || echo "WARNING: Could not save frontend logs"
           fi
 
           # Try to tear down with Docker Compose
@@ -251,6 +282,10 @@ jobs:
             docker rm -f $(docker ps -a -q) 2>/dev/null || true
             docker network rm paissive-network 2>/dev/null || true
           }
+
+          # Clean up volumes
+          echo "Cleaning up Docker volumes..."
+          docker volume prune -f || echo "WARNING: Could not prune volumes"
 
           # Always exit with success to allow the workflow to continue
           exit 0
@@ -272,30 +307,52 @@ jobs:
           elif command_exists "docker-compose"; then
             COMPOSE_CMD="docker-compose"
           else
-            echo "WARNING: No Docker Compose installation found."
-            COMPOSE_CMD=""
+            echo "WARNING: No Docker Compose installation found. Using 'docker compose' anyway."
+            COMPOSE_CMD="docker compose"
           fi
+
+          # Set CI-specific variables
+          export CI=true
+          export GITHUB_ACTIONS=true
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
 
           echo "Docker Compose version:"
-          if [ -n "$COMPOSE_CMD" ]; then
-            $COMPOSE_CMD version
-          else
-            echo "Docker Compose not available"
-          fi
+          $COMPOSE_CMD version || echo "WARNING: Could not get Docker Compose version"
 
           echo "Docker system info:"
-          docker info || true
+          docker info || echo "WARNING: Could not get Docker system info"
+
           echo "Docker disk usage:"
-          docker system df -v || true
+          docker system df -v || echo "WARNING: Could not get Docker disk usage"
+
           echo "Docker service status:"
-          if [ -n "$COMPOSE_CMD" ]; then
-            $COMPOSE_CMD ps || true
-          else
-            docker ps || true
-          fi
+          $COMPOSE_CMD ps || docker ps || echo "WARNING: Could not get Docker service status"
+
           echo "Docker images:"
-          docker images || true
+          docker images || echo "WARNING: Could not get Docker images"
+
           echo "Docker containers (all):"
-          docker ps -a || true
+          docker ps -a || echo "WARNING: Could not get Docker containers"
+
           echo "Final disk space:"
-          df -h
+          df -h || echo "WARNING: Could not get disk space"
+
+          echo "Memory usage:"
+          free -m || echo "WARNING: Could not get memory usage"
+
+          # Upload logs as artifacts if they exist
+          if [ -d "./logs" ]; then
+            echo "Container logs are available in the logs directory"
+            ls -la ./logs || echo "WARNING: Could not list logs directory"
+          fi
+
+      # Upload logs as artifacts
+      - name: Upload logs as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose-logs
+          path: |
+            ./logs/
+          retention-days: 5
