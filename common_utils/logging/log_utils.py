@@ -46,6 +46,11 @@ def sanitize_user_input(value: Any) -> Any:
         value = ''.join(ch for ch in value if ch.isprintable())
         # Escape percent signs to prevent format string issues
         value = value.replace('%', '%%')
+        # Escape other potentially harmful characters
+        value = value.replace('[', '\\[').replace(']', '\\]')
+        value = value.replace('{', '\\{').replace('}', '\\}')
+        # Remove any remaining non-printable characters
+        value = ''.join(ch for ch in value if ord(ch) >= 32)
     return prevent_log_injection(value)
 
 
@@ -76,9 +81,11 @@ def log_user_input_safely(
     # Handle the message based on whether it contains format specifiers
     if "%s" in message:
         # Use existing format specifiers with sanitized input
+        # Pass sanitized input as a parameter to the logger to prevent log injection
         logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        # Create a format string that separates message and input
+        # Use a format string with placeholders to ensure proper formatting
+        # This ensures that the message and input are properly separated
         logger.log(level, "%s %s", message, sanitized_input, *args, **kwargs)
 
 
@@ -171,9 +178,11 @@ def log_user_id_safely(
     # Handle the message based on whether it contains format specifiers
     if "%s" in message:
         # Use existing format specifiers with sanitized ID
+        # Pass sanitized ID as a parameter to the logger to prevent log injection
         logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        # Create a format string that separates message and ID
+        # Use a format string with placeholders to ensure proper formatting
+        # This ensures that the message and ID are properly separated
         logger.log(level, "%s %s", message, sanitized_id, *args, **kwargs)
 
 
