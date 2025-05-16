@@ -56,9 +56,9 @@ def _prepare_test_command() -> List[str]:
         "tests/test_mcp_top_level_import.py",
         "-k",
         "not test_mcp_server",
-        "--confcutdir=tests/ai_models/adapters",
-        "-p",
-        "no:cov",  # Disable the coverage plugin entirely
+        # Use the custom pytest.ini file we created
+        "-c",
+        "tests/ai_models/adapters/pytest.ini",
     ]
 
     # Use absolute path for the executable when possible
