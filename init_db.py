@@ -5,7 +5,8 @@ import logging
 import string
 import sys
 from secrets import randbelow
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app_flask import create_app, db
 from app_flask.models import Agent, Team, User
@@ -39,10 +40,12 @@ def generate_secure_password(length: int = 16) -> str:
 
 
 def init_db() -> bool:
-    """Initialize the database with required tables and initial data.
+    """
+    Initialize the database with required tables and initial data.
 
     Returns:
         bool: True if initialization was successful, False otherwise
+
     """
     app = create_app()
     success = False
@@ -69,10 +72,12 @@ def init_db() -> bool:
 
 
 def _initialize_database_data() -> bool:
-    """Initialize database with initial data.
+    """
+    Initialize database with initial data.
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     try:
         # Generate a random password
@@ -144,13 +149,15 @@ def _initialize_database_data() -> bool:
 
 
 def _verify_initialization(agents) -> bool:
-    """Verify that database initialization was successful.
+    """
+    Verify that database initialization was successful.
 
     Args:
         agents: List of agents that should have been created
 
     Returns:
         bool: True if verification passed, False otherwise
+
     """
     try:
         agent_count = db.session.query(Agent).count()

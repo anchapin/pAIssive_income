@@ -76,8 +76,14 @@ def main() -> None:
 
     # Define specific run IDs that need to be handled (from error messages)
     specific_run_ids = [
-        "14974236301", "14976101411", "14977094424", "14977626158",
-        "14978521232", "14987452007", "15055489437", "15056259666"
+        "14974236301",
+        "14976101411",
+        "14977094424",
+        "14977626158",
+        "14978521232",
+        "14987452007",
+        "15055489437",
+        "15056259666",
     ]
 
     # Always include the current run ID
@@ -87,8 +93,12 @@ def main() -> None:
     # Generate configuration files for each platform and run ID
     for platform in ["Windows", "Linux", "macOS"]:
         for current_run_id in specific_run_ids:
-            config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=current_run_id)
-            config_file = bandit_dir / f"bandit-config-{platform.lower()}-{current_run_id}.yaml"
+            config_content = CONFIG_TEMPLATE.format(
+                platform=platform, run_id=current_run_id
+            )
+            config_file = (
+                bandit_dir / f"bandit-config-{platform.lower()}-{current_run_id}.yaml"
+            )
 
             with config_file.open("w") as f:
                 f.write(config_content)

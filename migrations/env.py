@@ -26,10 +26,7 @@ logger = logging.getLogger("alembic.env")
 
 # Get database URL from environment or use default
 db_url = os.environ.get("DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb")
-config.set_main_option(
-    "sqlalchemy.url",
-    db_url
-)
+config.set_main_option("sqlalchemy.url", db_url)
 target_metadata = None  # We're not using model metadata for these migrations
 
 # Additional configuration options can be set here if needed

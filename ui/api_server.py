@@ -78,15 +78,14 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
     def _get_db_connection(self):
         """Establish a PostgreSQL connection using DATABASE_URL env var."""
-
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
-            raise DatabaseConfigError()
+            raise DatabaseConfigError
         try:
             return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
         except psycopg2.Error as e:
             # Wrap DB-specific error in our custom exception
-            raise DatabaseError() from e
+            raise DatabaseError from e
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
@@ -107,12 +106,14 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                             self._send_response(200, agent)
                         else:
                             # If no agent found in database, return a default agent
-                            logger.warning("No agent found in database, returning default agent")
+                            logger.warning(
+                                "No agent found in database, returning default agent"
+                            )
                             default_agent = {
                                 "id": 1,
                                 "name": "Default Agent",
                                 "description": "This is a default agent for testing",
-                                "avatar_url": "https://example.com/avatar.png"
+                                "avatar_url": "https://example.com/avatar.png",
                             }
                             self._send_response(200, default_agent)
                 except (DatabaseError, psycopg2.Error):
@@ -123,7 +124,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         "id": 1,
                         "name": "Default Agent",
                         "description": "This is a default agent for testing",
-                        "avatar_url": "https://example.com/avatar.png"
+                        "avatar_url": "https://example.com/avatar.png",
                     }
                     self._send_response(200, default_agent)
             else:
@@ -164,7 +165,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         table_exists = cursor.fetchone()["exists"]
 
                         if not table_exists:
-                            logger.warning("agent_action table does not exist, creating it")
+                            logger.warning(
+                                "agent_action table does not exist, creating it"
+                            )
                             cursor.execute("""
                                 CREATE TABLE IF NOT EXISTS agent_action (
                                     id SERIAL PRIMARY KEY,
@@ -178,7 +181,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
                         # Extract values from action with defaults
                         agent_id = action.get("agentId") or action.get("agent_id") or 1
-                        action_type = action.get("type") or action.get("action_type") or "UNKNOWN"
+                        action_type = (
+                            action.get("type") or action.get("action_type") or "UNKNOWN"
+                        )
                         payload = action.get("payload") or {}
 
                         cursor.execute(

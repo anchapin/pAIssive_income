@@ -33,11 +33,12 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     Raises:
         ValueError: If tool_name is invalid
         TypeError: If tool_name is not a string
+
     """
     if not isinstance(tool_name, str):
-        raise TypeError()
+        raise TypeError
     if not tool_name or tool_name.isspace():
-        raise ValueError()
+        raise ValueError
 
     # Return the SARIF structure directly - no need for try/except here
     # as the structure is static and won't raise exceptions
@@ -77,11 +78,12 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
         ValueError: If output path is invalid
         OSError: If there are filesystem related errors
         TypeError: If data is invalid
+
     """
     if not output_file:
-        raise ValueError()
+        raise ValueError
     if not isinstance(sarif_data, dict):
-        raise TypeError()
+        raise TypeError
 
     try:
         # Create directory if it doesn't exist
@@ -272,6 +274,7 @@ def convert_file(
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     try:
         # Check if input file exists and has content
