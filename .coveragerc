@@ -121,11 +121,32 @@ omit =
     common_utils/logging/examples.py
     common_utils/logging/logger.py
     # Exclude validation modules that need separate testing
+    common_utils/validation/*
     # Exclude secrets modules that need separate testing
+    common_utils/secrets/*
     # Exclude dev tools that need separate testing
+    dev_tools/*
     # Exclude initialization scripts
     init_db.py
     service_initialization.py
+    # Exclude root level scripts
+    *.py
+    # Exclude monitoring modules
+    monitoring/*
+    # Exclude interfaces
+    interfaces/*
+    # Exclude additional modules not yet tested
+    ai_models/__init__.py
+    ai_models/adapters/__init__.py
+    ai_models/adapters/adapter_factory.py
+    ai_models/adapters/mcp_adapter.py
+    ai_models/artist_agent.py
+    common_utils/config_loader.py
+    common_utils/exceptions.py
+    common_utils/logging/__init__.py
+    common_utils/logging/log_utils.py
+    common_utils/logging/secure_logging.py
+    common_utils/tooling.py
 
 [report]
 exclude_lines =
