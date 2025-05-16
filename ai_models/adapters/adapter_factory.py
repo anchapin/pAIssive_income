@@ -2,7 +2,7 @@
 
 # Standard library imports
 import logging
-from typing import Optional, Type, Any
+from typing import Any
 
 # Third-party imports
 
@@ -35,10 +35,8 @@ class MCPAdapterNotAvailableError(AdapterError):
 # Try to import adapters
 # These will be properly imported from their respective modules
 # If imports fail, they will be None
-try:
-    from .base_adapter import BaseModelAdapter
-except ImportError:
-    BaseModelAdapter = None
+# BaseModelAdapter is not directly used in this file, but we keep the imports
+# for other adapters that are used in the registry
 
 try:
     from .ollama_adapter import OllamaAdapter

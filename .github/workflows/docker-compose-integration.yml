@@ -9,7 +9,7 @@ on:
 jobs:
   integration-test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Initial disk space check
         run: |
@@ -318,6 +318,9 @@ jobs:
           docker system df
 
       - name: Check database health
+        env:
+          CI: "true"
+          GITHUB_ACTIONS: "true"
         run: |
           echo "Checking database health..."
           max_attempts=20  # Increased from 15 to 20 for more patience
@@ -445,6 +448,9 @@ jobs:
           docker system df
 
       - name: Wait for Flask app to be healthy
+        env:
+          CI: "true"
+          GITHUB_ACTIONS: "true"
         run: |
           echo "Waiting for Flask app to be healthy..."
           max_attempts=60  # Increased from 50 to 60 for more patience

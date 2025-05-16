@@ -66,10 +66,14 @@ def log_user_input_safely(
     sanitized_input = sanitize_user_input(user_input)
 
     # Log the message with the sanitized input
+    # Format the message with the sanitized input before passing to logger
+    # This prevents log injection by ensuring the message is fully formatted before logging
+    formatted_message = message % (sanitized_input,) if "%s" in message else message
+
     if isinstance(logger, SecureLogger):
-        logger.log(level, message, sanitized_input, *args, **kwargs)
+        logger.log(level, formatted_message, *args, **kwargs)
     else:
-        logger.log(level, message, sanitized_input, *args, **kwargs)
+        logger.log(level, formatted_message, *args, **kwargs)
 
 
 def log_exception_safely(
@@ -162,10 +166,14 @@ def log_user_id_safely(
     sanitized_id = sanitize_user_input(user_id)
 
     # Log the message with the sanitized ID
+    # Format the message with the sanitized ID before passing to logger
+    # This prevents log injection by ensuring the message is fully formatted before logging
+    formatted_message = message % (sanitized_id,) if "%s" in message else message
+
     if isinstance(logger, SecureLogger):
-        logger.log(level, message, sanitized_id, *args, **kwargs)
+        logger.log(level, formatted_message, *args, **kwargs)
     else:
-        logger.log(level, message, sanitized_id, *args, **kwargs)
+        logger.log(level, formatted_message, *args, **kwargs)
 
 
 # Example usage:

@@ -50,14 +50,16 @@ def health_check() -> Tuple[Dict[str, Any], int]:
     # Check database connection
     try:
         from app_flask import db
+        from sqlalchemy import text
 
-        db.session.execute("SELECT 1")
+        # Use SQLAlchemy text() to properly format the SQL query
+        db.session.execute(text("SELECT 1"))
         db.session.commit()
         logger.info("Health check: Database connection successful")
         health_status["components"]["database"] = "connected"
-    except Exception:
+    except Exception as e:
         # Log without exposing exception details in production
-        logger.warning("Health check: Database connection issue")
+        logger.warning(f"Health check: Database connection issue: {type(e).__name__}")
         # Log detailed exception only in development mode
         if os.environ.get("FLASK_ENV") == "development":
             logger.exception("Detailed database connection error")

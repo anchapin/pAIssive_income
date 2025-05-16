@@ -50,8 +50,8 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "User input: %s"
-        assert args[2] == "test input"
+        # With our new implementation, the message is formatted before being passed to the logger
+        assert "User input: test input" in args[1]
 
     def test_log_user_input_safely_with_secure_logger(self):
         """Test log_user_input_safely with secure logger."""
@@ -60,8 +60,8 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "User input: %s"
-        assert args[2] == "test input"
+        # With our new implementation, the message is formatted before being passed to the logger
+        assert "User input: test input" in args[1]
 
     def test_log_exception_safely_with_regular_logger(self):
         """Test log_exception_safely with regular logger."""
@@ -132,8 +132,8 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "User ID: %s"
-        assert args[2] == "user123"
+        # With our new implementation, the message is formatted before being passed to the logger
+        assert "User ID: user123" in args[1]
 
     def test_log_user_id_safely_with_secure_logger(self):
         """Test log_user_id_safely with secure logger."""
@@ -142,5 +142,5 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "User ID: %s"
-        assert args[2] == "user123"
+        # With our new implementation, the message is formatted before being passed to the logger
+        assert "User ID: user123" in args[1]

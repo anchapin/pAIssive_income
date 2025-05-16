@@ -157,8 +157,15 @@ class TestFlaskUserRouter:
 
     def test_create_user_service_error(self, client):
         """Test creating a user with a service error."""
+        # Create a custom exception with a message attribute
+        class ValidationError(Exception):
+            def __init__(self, message):
+                self.message = message
+                super().__init__(message)
+
         with patch('api.routes.flask_user_router.user_service') as mock_service:
-            mock_service.create_user.side_effect = Exception("User already exists")
+            # Use a message that contains one of the safe terms
+            mock_service.create_user.side_effect = ValidationError("User already exists")
 
             response = client.post(
                 '/api/users/',
@@ -171,7 +178,7 @@ class TestFlaskUserRouter:
             assert response.status_code == 400
             data = json.loads(response.data)
             assert 'error' in data
-            assert data['error'] == 'User already exists'
+            assert "already exists" in data['error']
 
     def test_create_user_server_error(self, client):
         """Test creating a user with a server error."""

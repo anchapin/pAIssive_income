@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 from app_flask.models import User
 from app_flask import db
 from users.services import UserService
-from common_utils.logging.log_utils import log_user_id_safely
+from common_utils.logging.log_utils import log_user_id_safely, sanitize_user_input
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -95,19 +95,23 @@ def create_user():
             # Fix for CodeQL Information exposure issue - don't expose raw exception to users
             # Create a safe error message that doesn't expose implementation details
             error_message = "Invalid input data"
-            if hasattr(e, "message"):
-                # Only use the exception's message attribute if it exists
-                error_message = e.message
-            elif str(e):
-                # Only use the exception message if it's a validation error message
-                # that's safe to show to users - use a whitelist approach
+
+            # sanitize_user_input is imported at the top of the file
+
+            if hasattr(e, "message") and isinstance(e.message, str):
+                # Only use the exception's message attribute if it exists and is a string
+                # Use a whitelist approach for safe error messages
                 safe_terms = ["invalid", "required", "must be", "cannot be", "already exists"]
-                if any(safe_term in str(e).lower() for safe_term in safe_terms):
-                    # Still sanitize the message to avoid any potential injection
-                    from common_utils.logging.log_utils import sanitize_user_input
-                    error_message = sanitize_user_input(str(e))
+                if any(safe_term in e.message.lower() for safe_term in safe_terms):
+                    error_message = sanitize_user_input(e.message)
+
             # Log the actual exception for debugging but return sanitized message to user
-            logger.debug("Validation error details", extra={"error": str(e)})
+            # Use extra parameter to avoid including the exception in the log message
+            logger.debug("Validation error details", extra={"error_type": type(e).__name__})
+            # Log the actual error separately with proper sanitization
+            sanitized_error = sanitize_user_input(str(e))
+            logger.debug("Error details: %s", sanitized_error)
+
             return jsonify({"error": error_message}), 400
     except Exception:
         logger.exception("Server error creating user")

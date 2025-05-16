@@ -79,7 +79,6 @@ class MockBaseModelAdapter:
     async def close(self):
         """Close any resources."""
         logger.info("Closing mock adapter resources")
-        pass
 
 
 class MockOllamaAdapter(MockBaseModelAdapter):
