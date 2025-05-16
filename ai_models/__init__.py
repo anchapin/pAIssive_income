@@ -53,9 +53,17 @@ if AIOHTTP_AVAILABLE:
             OpenAICompatibleAdapter,
             LMStudioAdapter,
             TensorRTAdapter,
-            MCPAdapter,
             AdapterFactory,
         )
+        
+        # Import MCPAdapter separately to handle possible import errors
+        try:
+            from .adapters.mcp_adapter import MCPAdapter
+            logging.info("Successfully imported MCPAdapter")
+        except ImportError as e:
+            logging.warning(f"Failed to import MCPAdapter: {e}")
+            MCPAdapter = None
+            
         logging.info("Successfully imported real adapters")
     except ImportError as e:
         logging.warning(f"Failed to import real adapters: {e}. Falling back to mock adapters.")
