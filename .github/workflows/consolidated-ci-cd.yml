@@ -333,26 +333,8 @@ jobs:
               echo "Using empty-sarif.json from root directory"
               cp empty-sarif.json security-reports/bandit-results.sarif
             else
-              # Create the empty SARIF file directly
-              cat > security-reports/bandit-results.sarif << 'EOF'
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-EOF
+              # Create the empty SARIF file directly using a simple echo command
+              echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
             fi
           fi
 
@@ -397,7 +379,7 @@ EOF
               Write-Host "Using empty-sarif.json from root directory"
               Copy-Item -Path "empty-sarif.json" -Destination "security-reports/bandit-results.sarif"
             } else {
-              # Create the empty SARIF file directly
+              # Create the empty SARIF file directly using a simple echo command
               $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
               Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarifContent
             }
