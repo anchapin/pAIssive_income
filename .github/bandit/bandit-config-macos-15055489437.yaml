@@ -1,5 +1,5 @@
-# Bandit Configuration for Windows (Run ID: 15053076509)
-# This configuration is used by GitHub Advanced Security for Bandit scanning on Windows
+# Bandit Configuration for macOS (Run ID: 15055489437)
+# This configuration is used by GitHub Advanced Security for Bandit scanning on macOS
 
 # Exclude directories from security scans
 exclude_dirs:
@@ -25,7 +25,7 @@ skips:
 output_format: sarif
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results-15053076509.sarif
+output_file: security-reports/bandit-results-15055489437.sarif
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
