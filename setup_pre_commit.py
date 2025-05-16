@@ -27,12 +27,13 @@ def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:
 
     """
     try:
+        # Always use shell=False for security
         result = subprocess.run(
             command,
             capture_output=True,
             text=True,
             check=check,
-            shell=sys.platform == "win32",  # Use shell=True on Windows for .bat/.cmd
+            shell=False,
         )
         # Ensure types are consistent for return
         result_code = result.returncode

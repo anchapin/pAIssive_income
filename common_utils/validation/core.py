@@ -23,7 +23,7 @@ class ValidationError(Exception):
             details (Any, optional): Additional error details. Defaults to None.
 
         """
-        self.message = "Input validation failed"
+        self.message = "Input validation failed."
         self.details = details
         super().__init__(self.message)
 

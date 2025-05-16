@@ -27,7 +27,17 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     Returns:
         Dict containing a valid empty SARIF structure
 
+    Raises:
+        ValueError: If tool_name is invalid
+        TypeError: If tool_name is not a string
     """
+    if not isinstance(tool_name, str):
+        raise TypeError()
+    if not tool_name or tool_name.isspace():
+        raise ValueError()
+
+    # Return the SARIF structure directly - no need for try/except here
+    # as the structure is static and won't raise exceptions
     return {
         "version": "2.1.0",
         "$schema": (
@@ -59,15 +69,30 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
     Returns:
         bool: True if successful, False otherwise
 
+    Raises:
+        ValueError: If output path is invalid
+        OSError: If there are filesystem related errors
+        TypeError: If data is invalid
     """
+    if not output_file:
+        raise ValueError()
+    if not isinstance(sarif_data, dict):
+        raise TypeError()
+
     try:
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
 
         with open(output_file, "w") as f:
             json.dump(sarif_data, f, indent=2)
-    except Exception:
-        logging.exception("Error saving SARIF file")
+    except OSError:
+        logging.exception("Filesystem error")
+        return False
+    except TypeError:
+        logging.exception("Invalid data type in SARIF")
+        return False
+    except json.JSONEncodeError:
+        logging.exception("JSON encoding error")
         return False
     else:
         return True
@@ -228,21 +253,19 @@ def convert_file(
     """Convert a JSON file to SARIF format.
 
     Args:
-        input_file: Path to input JSON file
-        output_file: Path to output SARIF file
+        input_file: Path to the input JSON file
+        output_file: Path to save the SARIF file
         tool_name: Name of the tool that produced the results
         tool_url: URL with information about the tool
-        result_mapping: Mapping from tool-specific fields to SARIF fields
+        result_mapping: Optional mapping of JSON keys to SARIF fields
 
     Returns:
         bool: True if successful, False otherwise
-
     """
     try:
-        # Check if input file exists and has content
+        # If input file doesn't exist or is empty, create an empty SARIF file
         if not os.path.exists(input_file) or os.path.getsize(input_file) == 0:
-            logging.warning(f"Input file [{input_file}] is empty or does not exist")
-            logging.info(f"Creating an empty SARIF file at {output_file}")
+            logging.info(f"Creating empty SARIF file for {input_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)
 
@@ -251,7 +274,7 @@ def convert_file(
             with open(input_file) as f:
                 json_data = json.load(f)
         except json.JSONDecodeError:
-            logging.exception(f"Error parsing JSON from {input_file}")
+            logging.exception("Error parsing input file")
             logging.info(f"Creating an empty SARIF file at {output_file}")
             empty_sarif = create_empty_sarif(tool_name, tool_url)
             return save_sarif_file(empty_sarif, output_file)

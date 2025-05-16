@@ -19,8 +19,8 @@ if %ERRORLEVEL% NEQ 0 (
     echo Failed to create virtual environment with venv.
     echo Trying with virtualenv...
 
-    :: Try using virtualenv as a fallback
-    python -m pip install virtualenv
+    :: Try using virtualenv as a fallback    python -m pip install uv
+    python -m uv pip install virtualenv
     python -m virtualenv .venv_new
     if %ERRORLEVEL% NEQ 0 (
         echo All attempts to create a virtual environment failed.
@@ -36,10 +36,10 @@ if %ERRORLEVEL% NEQ 0 (
 :: Install dependencies
 echo Installing dependencies...
 call .venv_new\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade uv
+python -m uv pip install -r requirements.txt
 if exist requirements-dev.txt (
-    python -m pip install -r requirements-dev.txt
+    python -m uv pip install -r requirements-dev.txt
 )
 call deactivate
 

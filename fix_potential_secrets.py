@@ -144,7 +144,7 @@ def is_example_code(content: str, line: str) -> bool:
     """
     # Check if line is in a code block in markdown
     if "```" in content:
-        code_blocks = re.findall(r"```.*?```", content, re.DOTALL)
+        code_blocks = re.findall(r"^```.*?```$", content, re.DOTALL)
         if any(line in block for block in code_blocks):
             return True
 
