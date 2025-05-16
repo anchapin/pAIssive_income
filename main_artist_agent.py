@@ -5,19 +5,26 @@ This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
 
-from typing import Any
-
 from common_utils import tooling
 
 
 class ArtistAgent:
-    def __init__(self):
+    """
+    Agent that selects and uses tools based on user prompts.
+
+    This agent implements a simple tool selection mechanism and can
+    extract relevant parts of the prompt to pass to the selected tool.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the ArtistAgent with available tools."""
         # Discover available tools at initialization
         self.tools = tooling.list_tools()
 
     def decide_tool(self, prompt: str) -> str:
         """
-        Naive tool selection logic based on prompt keywords.
+        Select appropriate tool based on prompt keywords.
+
         Expand this with RL or more sophisticated reasoning as desired.
 
         Args:
@@ -48,6 +55,7 @@ class ArtistAgent:
     def extract_relevant_expression(self, prompt: str, tool_name: str) -> str:
         """
         Extract the relevant expression from the prompt based on the tool.
+
         This is a naive implementation for the calculator tool.
 
         Args:
@@ -64,7 +72,7 @@ class ArtistAgent:
             return prompt
         return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
-    def run(self, prompt: str) -> Any:
+    def run(self, prompt: str) -> str:
         """
         Process a prompt, select a tool, and return the tool's output.
 
@@ -72,14 +80,15 @@ class ArtistAgent:
             prompt (str): The user's input/problem.
 
         Returns:
-            Any: The tool's output, or a message if no tool found.
+            str: The tool's output, or a message if no tool found.
 
         """
         tool_name = self.decide_tool(prompt)
         if tool_name and tool_name in self.tools:
             tool_func = self.tools[tool_name]
             relevant_expression = self.extract_relevant_expression(prompt, tool_name)
-            return tool_func(relevant_expression)
+            result = tool_func(relevant_expression)
+            return str(result) if result is not None else "Tool execution completed."
         return "No suitable tool found for this prompt."
 
 
@@ -91,7 +100,7 @@ if __name__ == "__main__":
 
     agent = ArtistAgent()
     # Example usage
-    logger.info(f"Available tools: {list(agent.tools.keys())}")
+    logger.info("Available tools: %s", list(agent.tools.keys()))
     test_prompt = "Calculate 2 + 3 * 4"
-    logger.info(f"Prompt: {test_prompt}")
-    logger.info(f"Agent output: {agent.run('2 + 3 * 4')}")
+    logger.info("Prompt: %s", test_prompt)
+    logger.info("Agent output: %s", agent.run("2 + 3 * 4"))

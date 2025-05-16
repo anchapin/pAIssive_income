@@ -93,9 +93,9 @@ def install_pyyaml() -> bool:
 
     methods = [
         # Using full path when available or trusted executables
-        lambda: subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"])  # noqa: S603 - Using full path when available
+        lambda: subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"])
         == 0,
-        lambda: subprocess.check_call(  # noqa: S603 - Using sys.executable
+        lambda: subprocess.check_call(
             [
                 sys.executable,
                 "-m",
@@ -106,8 +106,8 @@ def install_pyyaml() -> bool:
             ]
         )
         == 0
-        and subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"]) == 0,  # noqa: S603 - Using full path when available
-        lambda: subprocess.check_call(  # noqa: S603 - Using sys.executable
+        and subprocess.check_call([uv_path or "uv", "pip", "install", "pyyaml"]) == 0,
+        lambda: subprocess.check_call(
             [
                 sys.executable,
                 "-m",
@@ -117,7 +117,7 @@ def install_pyyaml() -> bool:
             ]
         )
         == 0,
-        lambda: subprocess.check_call([pip_path or "pip", "install", "pyyaml"]) == 0,  # noqa: S603 - Using full path when available
+        lambda: subprocess.check_call([pip_path or "pip", "install", "pyyaml"]) == 0,
     ]
 
     # Try each method in sequence
@@ -156,10 +156,37 @@ def get_yaml_module() -> object:
 yaml = get_yaml_module()
 
 
+def _validate_command(cmd: list[str]) -> tuple[bool, tuple[int, str, str]]:
+    """
+    Validate a command for security and format.
+
+    Args:
+        cmd: Command to validate
+
+    Returns:
+        Tuple of (is_valid, error_response)
+        If is_valid is True, error_response is empty
+        If is_valid is False, error_response contains error details
+
+    """
+    # Validate command to ensure it's a list of strings
+    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
+        logger.error("Invalid command format: command must be a list of strings")
+        return False, (1, "", "Invalid command format")
+
+    # Check for common command injection patterns in the first argument
+    if cmd and any(char in cmd[0] for char in [";", "&", "|", ">", "<", "$(", "`"]):
+        logger.error("Potential command injection detected in: %s", cmd[0])
+        return False, (1, "", "Potential command injection detected")
+
+    return True, (0, "", "")
+
+
 def run_command(
     cmd: list[str], cwd: str | None = None, env: dict[str, str] | None = None
 ) -> tuple[int, str, str]:
-    """Run a command and return the exit code, stdout, and stderr.
+    """
+    Run a command and return the exit code, stdout, and stderr.
 
     Args:
         cmd: Command to run as a list of strings
@@ -168,40 +195,57 @@ def run_command(
 
     Returns:
         Tuple of (exit_code, stdout, stderr)
-    """
-    # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
-    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
-        logger.error("Invalid command format: command must be a list of strings")
-        return 1, "", "Invalid command format"
 
-    # Check for common command injection patterns in the first argument (the executable)
-    if cmd and (';' in cmd[0] or '&' in cmd[0] or '|' in cmd[0] or
-               '>' in cmd[0] or '<' in cmd[0] or '$(' in cmd[0] or
-               '`' in cmd[0]):
-        logger.error(f"Potential command injection detected in: {cmd[0]}")
-        return 1, "", "Potential command injection detected"
+    """
+    # Validate command format and security
+    is_valid, error_response = _validate_command(cmd)
+    if not is_valid:
+        return error_response
 
     executable_path_str = cmd[0]  # Keep original for error messages if needed
 
-    # Resolve command using shutil.which if it's a bare command name.
-    # This helps find .cmd, .bat files on Windows correctly from PATH.
-    if not Path(executable_path_str).is_absolute() and Path(executable_path_str).parent == Path():
+    # Resolve command using shutil.which if it's a bare command name
+    if (
+        not Path(executable_path_str).is_absolute()
+        and Path(executable_path_str).parent == Path()
+    ):
         resolved_executable = shutil.which(executable_path_str)
         if resolved_executable:
             cmd_to_run = [resolved_executable] + cmd[1:]
         else:
-            # If shutil.which doesn't find it, it's unlikely to be found by subprocess.run directly.
+            # If shutil.which doesn't find it, it's unlikely to be found by subprocess.run directly
             logger.debug(
-                f"shutil.which could not find '{executable_path_str}' "
-                f"in PATH: {os.environ.get('PATH')}"
+                "shutil.which could not find '%s' in PATH: %s",
+                executable_path_str,
+                os.environ.get("PATH"),
             )
-            return 1, "", f"Command '{executable_path_str}' not found in PATH."
+            return (1, "", f"Command '{executable_path_str}' not found in PATH.")
     else:
         cmd_to_run = list(cmd)  # Ensure it's a mutable list copy
 
+    # Define allowed commands for security
+    allowed_commands = {
+        "python",
+        "pip",
+        "uv",
+        "npm",
+        "npx",
+        "pre_commit",
+        "virtualenv",
+        "git",
+        "node",
+        "pnpm",
+    }
+
+    # Validate first command component is in allowed list
+    if cmd_to_run[0] not in allowed_commands:
+        logger.error("Security: Command '%s' not in allowed list", cmd_to_run[0])
+        return (1, "", f"Security: Command '{cmd_to_run[0]}' not in allowed list")
+
     try:
-        # nosec comment below tells Bandit to ignore this line since we've added proper validation
-        process = subprocess.run(  # nosec B603
+        # We've added proper validation above to prevent command injection
+        # ruff: noqa: S603
+        process = subprocess.run(
             cmd_to_run,
             cwd=cwd,
             env=env,
@@ -212,10 +256,10 @@ def run_command(
     except FileNotFoundError:
         message = f"Command not found: {executable_path_str}"
         logger.exception(message)
-        return 1, "", message
+        return (1, "", message)
     except Exception as e:
         logger.exception("Error executing command")
-        return 1, "", str(e)
+        return (1, "", str(e))
     else:
         return process.returncode, process.stdout, process.stderr
 
@@ -254,7 +298,7 @@ def create_virtual_environment() -> bool:
         logger.exception("Failed to create virtual environment using venv")
         # Try virtualenv as last resort
         try:
-            subprocess.check_call(  # noqa: S603 - Using sys.executable
+            subprocess.check_call(
                 [
                     sys.executable,
                     "-m",
@@ -263,7 +307,7 @@ def create_virtual_environment() -> bool:
                     "virtualenv",
                 ]
             )
-            subprocess.check_call([sys.executable, "-m", "virtualenv", str(venv_path)])  # noqa: S603 - Using sys.executable
+            subprocess.check_call([sys.executable, "-m", "virtualenv", str(venv_path)])
             message = f"Created virtual environment at {venv_path} using virtualenv"
             logger.info(message)
         except (subprocess.SubprocessError, OSError):

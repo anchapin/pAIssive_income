@@ -12,7 +12,6 @@ then retrieves the most relevant context for a query.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 import chromadb
 from chromadb.config import Settings
@@ -52,7 +51,9 @@ collection = client.get_or_create_collection("demo_rag")
 
 # 5. Embed and add documents
 def embed_and_insert_documents(
-    docs: list[dict], embedder_model: SentenceTransformer, collection: Any
+    docs: list[dict],
+    embedder_model: SentenceTransformer,
+    collection: chromadb.Collection,
 ) -> None:
     """
     Embed documents and insert them into the collection.
@@ -61,6 +62,7 @@ def embed_and_insert_documents(
         docs: List of document dictionaries with 'id' and 'content' keys
         embedder_model: SentenceTransformer model for embedding
         collection: ChromaDB collection to insert into
+
     """
     ids = [doc["id"] for doc in docs]
     contents = [doc["content"] for doc in docs]

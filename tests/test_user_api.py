@@ -1,6 +1,6 @@
 """Test the user API endpoints with the ORM/database."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 # Import constants
 from tests.constants import HTTP_CREATED, HTTP_OK
@@ -8,10 +8,9 @@ from tests.constants import HTTP_CREATED, HTTP_OK
 # The app and client fixtures are imported from conftest.py
 
 
-
 def test_create_and_authenticate_user(client):
     # Mock the user service to avoid database interactions
-    with patch('api.routes.user_router.user_service') as mock_service:
+    with patch("api.routes.user_router.user_service") as mock_service:
         # Set up the mock for create_user
         mock_service.create_user.return_value = {
             "id": 1,

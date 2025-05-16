@@ -1,5 +1,5 @@
 """
-CrewAI Multi-Agent Orchestration
+CrewAI Multi-Agent Orchestration.
 
 This module defines example CrewAI agents and teams for collaborative AI workflows.
 Adapt and extend these scaffolds to fit your use-case.
@@ -56,7 +56,9 @@ if __name__ == "__main__":
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     reporting_team.run()
-    logging.info("CrewAI reporting workflow completed.")
+    # Create a module-level logger instead of using root logger
+    logger = logging.getLogger(__name__)
+    logger.info("CrewAI reporting workflow completed.")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.

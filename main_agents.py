@@ -1,5 +1,5 @@
 """
-ADK Demo Agents Module
+ADK Demo Agents Module.
 
 This module defines the agents and skills used in the ADK demonstration.
 It showcases basic agent communication patterns and skill implementation.
@@ -23,12 +23,13 @@ from adk.skill import Skill
 class DataGathererSkill(Skill):
     """
     Simulates data gathering functionality.
+
     In a real application, this would interact with databases, APIs, etc.
     """
 
     def run(self, query: str) -> str:
         """
-        Simulates data collection process.
+        Simulate data collection process.
 
         Args:
             query (str): The search query to gather data for
@@ -43,6 +44,7 @@ class DataGathererSkill(Skill):
 class DataGathererAgent(Agent):
     """
     Agent responsible for handling data gathering requests.
+
     Uses SimpleMemory for state management and implements a data gathering skill.
 
     Message Types:
@@ -51,11 +53,25 @@ class DataGathererAgent(Agent):
     """
 
     def __init__(self, name: str) -> None:
+        """
+        Initialize the DataGathererAgent.
+
+        Args:
+            name (str): The name of the agent
+
+        """
         super().__init__(name)
         self.memory = SimpleMemory()
         self.add_skill("gather", DataGathererSkill())
 
     def on_message(self, message: Message) -> None:
+        """
+        Process incoming messages.
+
+        Args:
+            message (Message): The message to process
+
+        """
         if message.type == "gather":
             data = self.skills["gather"].run(message.payload["query"])
             # Send gathered data to SummarizerAgent
@@ -72,12 +88,13 @@ class DataGathererAgent(Agent):
 class SummarizerSkill(Skill):
     """
     Simulates data summarization functionality.
+
     In a real application, this might use an LLM or other summarization technique.
     """
 
     def run(self, data: str) -> str:
         """
-        Simulates text summarization.
+        Summarize text by truncating to a maximum length.
 
         Args:
             data (str): The text to summarize
@@ -98,6 +115,7 @@ class SummarizerSkill(Skill):
 class SummarizerAgent(Agent):
     """
     Agent responsible for summarizing gathered data.
+
     Uses SimpleMemory for state management and implements a summarization skill.
 
     Message Types:
@@ -106,11 +124,25 @@ class SummarizerAgent(Agent):
     """
 
     def __init__(self, name: str) -> None:
+        """
+        Initialize the SummarizerAgent.
+
+        Args:
+            name (str): The name of the agent
+
+        """
         super().__init__(name)
         self.memory = SimpleMemory()
         self.add_skill("summarize", SummarizerSkill())
 
     def on_message(self, message: Message) -> None:
+        """
+        Process incoming messages.
+
+        Args:
+            message (Message): The message to process
+
+        """
         if message.type == "summarize":
             summary = self.skills["summarize"].run(message.payload["data"])
             # Return summary to original requester (user)

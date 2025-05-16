@@ -1,7 +1,9 @@
 """models - Module for users.models."""
 
 # Standard library imports
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import Any
 
 # Third-party imports
 from sqlalchemy import Column, DateTime, Integer, String
@@ -16,7 +18,7 @@ Base = declarative_base()
 db = sessionmaker()()
 
 
-class User(Base):  # type: ignore
+class User(Base):  # type: ignore[misc, valid-type]
     """User model for database."""
 
     __tablename__ = "users"
@@ -28,11 +30,13 @@ class User(Base):  # type: ignore
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert user model to dictionary.
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert user model to dictionary.
 
         Returns:
-            Dict[str, Any]: User data as dictionary
+            dict[str, Any]: User data as dictionary
+
         """
         return {
             "id": self.id,

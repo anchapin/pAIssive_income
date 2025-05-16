@@ -93,8 +93,6 @@ def validate_sarif_file(file_path: str, tool_name: str) -> bool:
             return False
         else:
             return True
-
-        return True
     else:
         return True
 

@@ -18,13 +18,17 @@ Requires tools: ruff, mypy, bandit, uv (with pip audit functionality),
 sphinx-build (optional).
 """
 
+from __future__ import annotations
+
 import logging
-import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def run(cmd: str, desc: str) -> None:
@@ -36,15 +40,29 @@ def run(cmd: str, desc: str) -> None:
         desc (str): Description of the command.
 
     """
-    logging.info(f"\n==> {desc}")
+    logger.info("\n==> %s", desc)
     # Convert string command to list for security (avoid shell=True)
     cmd_list = cmd.split()
-    res = subprocess.run(cmd_list, shell=False, check=False)
+
+    # Validate command for security - only allow specific commands
+    allowed_commands = {"ruff", "mypy", "bandit", "uv", "sphinx-build"}
+
+    if cmd_list[0] not in allowed_commands:
+        logger.error("Security: Command '%s' not in allowed list", cmd_list[0])
+        sys.exit(1)
+
+    # Use a list of validated commands for security
+    # Command has been validated against allowed_commands list
+    res = subprocess.run(  # noqa: S603
+        cmd_list, shell=False, check=False, capture_output=True, text=True
+    )
     if res.returncode != 0:
-        logging.error(f"FAILED: {desc}")
+        logger.error("FAILED: %s", desc)
+        if res.stderr:
+            logger.error("Error output: %s", res.stderr)
         sys.exit(1)
     else:
-        logging.info(f"PASSED: {desc}")
+        logger.info("PASSED: %s", desc)
 
 
 def check_gitignore(_path: str) -> bool:
@@ -67,7 +85,7 @@ def lint() -> None:
         run("ruff check .", "Ruff linting")
         run("ruff format --check .", "Ruff formatting check")
     else:
-        logging.warning("ruff not found, skipping linting and formatting checks.")
+        logger.warning("ruff not found, skipping linting and formatting checks.")
 
 
 def type_check() -> None:
@@ -75,7 +93,7 @@ def type_check() -> None:
     if shutil.which("mypy"):
         run("mypy .", "Mypy static type checking")
     else:
-        logging.warning("mypy not found, skipping type checks.")
+        logger.warning("mypy not found, skipping type checks.")
 
 
 def security() -> None:
@@ -83,7 +101,7 @@ def security() -> None:
     if shutil.which("bandit"):
         run("bandit -r . -x tests", "Bandit security scan")
     else:
-        logging.warning("bandit not found, skipping security checks.")
+        logger.warning("bandit not found, skipping security checks.")
 
 
 def deps() -> None:
@@ -91,23 +109,23 @@ def deps() -> None:
     if shutil.which("uv"):
         run("uv pip audit", "Python dependency audit")
     else:
-        logging.warning("uv not found, skipping dependency audit.")
+        logger.warning("uv not found, skipping dependency audit.")
 
 
 def docs() -> None:
     """Build Sphinx documentation, if present."""
-    if os.path.isdir("docs_source") and shutil.which("sphinx-build"):
+    if Path("docs_source").is_dir() and shutil.which("sphinx-build"):
         run(
             "sphinx-build docs_source docs/_build",
             "Sphinx documentation build",
         )
     else:
-        logging.warning("Sphinx not configured or not found, skipping docs build.")
+        logger.warning("Sphinx not configured or not found, skipping docs build.")
 
 
 def usage() -> None:
     """Print usage instructions."""
-    logging.info(__doc__)
+    logger.info(__doc__)
 
 
 def main() -> None:

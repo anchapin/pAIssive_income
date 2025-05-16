@@ -3,19 +3,26 @@ default_language_version:
     python: python3
 
 # Optimized exclude patterns
-exclude: &exclude_patterns
-  (?x)^(
-    \.venv/|
-    venv/|
-    \.git/|
-    node_modules/|
+exclude:
+  (?x)(
+    ^\.venv/.*|
+    ^venv/.*|
+    ^env/.*|
+    \.venv/.*|
+    venv/.*|
+    env/.*|
+    \.git/.*|
+    node_modules/.*|
     .*__pycache__/.*|
     .*\.pytest_cache/.*|
     .*\.mypy_cache/.*|
     .*\.ruff_cache/.*|
-    build/|
-    dist/
-  )$
+    build/.*|
+    dist/.*|
+    .*\.egg-info/.*|
+    ui/react_frontend/node_modules/.*|
+    sdk/javascript/node_modules/.*
+  )
 
 default_stages: [pre-commit]
 fail_fast: false
@@ -76,7 +83,9 @@ repos:
           "--disable-error-code=name-defined",
           "--disable-error-code=unused-ignore",
           "--exclude=.github/scripts",
-          "--exclude=scripts/__init__.py"
+          "--exclude=scripts/__init__.py",
+          "--exclude=.venv",
+          "--namespace-packages"
         ]
 
   # Optimized local hooks for incremental checks

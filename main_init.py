@@ -1,7 +1,9 @@
 """__init__.py - Custom Flask app initialization with SQLAlchemy."""
 
 # Standard library imports
-from typing import Any, Dict, Optional
+from __future__ import annotations
+
+from typing import Any, Optional
 
 # Third-party imports
 from flask import Flask
@@ -20,7 +22,7 @@ migrate = Migrate()
 FlaskApp = Flask
 
 
-def create_app(test_config: Optional[Dict[str, Any]] = None) -> Any:
+def create_app(test_config: Optional[dict[str, Any]] = None) -> Flask:
     """
     Create and configure the Flask application.
 
@@ -28,7 +30,7 @@ def create_app(test_config: Optional[Dict[str, Any]] = None) -> Any:
         test_config: Optional configuration dictionary for testing
 
     Returns:
-        Any: The configured Flask application
+        Flask: The configured Flask application
 
     """
     app = FlaskApp(__name__)
