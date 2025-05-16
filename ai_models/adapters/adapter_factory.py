@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 # Third-party imports
 
@@ -119,10 +119,12 @@ class UnsupportedServerTypeError(AdapterError):
         super().__init__(message)
 
 
+# Import MCP adapter if available
 try:
     from .mcp_adapter import MCPAdapter
 except ImportError:
-    MCPAdapter = None
+    # Define a placeholder for MCPAdapter when not available
+    MCPAdapter = cast("Any", None)
 
 
 def get_adapter(

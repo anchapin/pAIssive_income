@@ -71,7 +71,7 @@ def app_context(app):
 
 
 @pytest.fixture
-def user_service(app_context):
+def user_service():
     """Create a UserService instance for testing."""
     return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
 

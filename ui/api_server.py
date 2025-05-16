@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 # Third-party imports
 import psycopg2
+import psycopg2.extensions
 from psycopg2.extras import RealDictCursor
 
 # Configure logging
@@ -30,14 +31,22 @@ logger = logging.getLogger(__name__)
 class DatabaseError(RuntimeError):
     """Base exception class for database-related errors."""
 
-    def __init__(self, message="Database error occurred"):
+    def __init__(self, message: str = "Database error occurred") -> None:
+        """
+        Initialize the database error with a message.
+
+        Args:
+            message: Error message
+
+        """
         super().__init__(message)
 
 
 class DatabaseConfigError(DatabaseError):
     """Raised when database configuration is missing or invalid."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the database configuration error with a default message."""
         super().__init__("DATABASE_URL environment variable not set")
 
 
@@ -76,8 +85,18 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
-    def _get_db_connection(self):
-        """Establish a PostgreSQL connection using DATABASE_URL env var."""
+    def _get_db_connection(self) -> psycopg2.extensions.connection:
+        """
+        Establish a PostgreSQL connection using DATABASE_URL env var.
+
+        Returns:
+            A PostgreSQL database connection
+
+        Raises:
+            DatabaseConfigError: If DATABASE_URL is not set
+            DatabaseError: If connection fails
+
+        """
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
             raise DatabaseConfigError

@@ -152,12 +152,24 @@ class MCPAdapter:
         if not self.client:
             self.connect()
 
+        # Define a function outside the try block to handle client errors
+        def _handle_client_error() -> None:
+            # Create an exception to pass to MCPCommunicationError
+            client_error = ValueError("Client is not initialized")
+            raise MCPCommunicationError(client_error)
+
+        result = "Error: Client is unexpectedly None"  # Default value
         try:
-            return self.client.send_message(message)
+            if self.client is None:
+                _handle_client_error()
+            # Ensure client is not None before calling send_message
+            if self.client is not None:
+                result = self.client.send_message(message)
         except Exception as e:
             self.client = None  # Reset client on error
             logger.exception("Error communicating with MCP server")
             raise MCPCommunicationError(e) from e
+        return result
 
     def close(self) -> None:
         """Close the connection to the MCP server."""

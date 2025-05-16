@@ -63,29 +63,25 @@ repos:
         files: \.py$
 
   # Type checking (run after formatting/linting)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+  - repo: local
     hooks:
       - id: mypy
         name: Type check with MyPy
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-setuptools
+        entry: python -m mypy
+        language: system
+        types: [python]
+        require_serial: true
+        exclude: |
+          (?x)(
+            ^scripts/__init__.py$|
+            ^.github/scripts/__init__.py$
+          )
         args: [
-          "--ignore-missing-imports",
           "--install-types",
           "--non-interactive",
-          "--explicit-package-bases",
-          "--config-file=mypy.ini",
-          "--cache-dir=.mypy_cache",
           "--disable-error-code=attr-defined",
           "--disable-error-code=name-defined",
-          "--disable-error-code=unused-ignore",
-          "--exclude=.github/scripts",
-          "--exclude=scripts/__init__.py",
-          "--exclude=.venv",
-          "--namespace-packages"
+          "--disable-error-code=unused-ignore"
         ]
 
   # Optimized local hooks for incremental checks

@@ -3,6 +3,7 @@
 import ast
 import logging
 import sys
+from pathlib import Path
 
 # Set up logging
 logging.basicConfig(
@@ -16,27 +17,35 @@ MIN_ARGS = 2
 
 
 def check_syntax(file_path: str) -> bool:
-    """Check the syntax of a Python file.
+    """
+    Check the syntax of a Python file.
 
     Args:
         file_path: Path to the Python file to check.
 
     Returns:
         True if the file has valid syntax, False otherwise.
+
     """
     try:
-        with open(file_path, encoding="utf-8") as file:
+        with Path(file_path).open(encoding="utf-8") as file:
             source = file.read()
 
         # Parse the source code
         ast.parse(source)
     except SyntaxError as e:
         # Custom formatting for syntax errors
+        # Handle potential None values safely
+        lineno = e.lineno if e.lineno is not None else 0
+        offset = e.offset if e.offset is not None else 0
+        text = e.text.strip() if e.text is not None else ""
+        msg = e.msg if e.msg is not None else "Unknown syntax error"
+
         error_msg = (
-            f"❌ Syntax error in {file_path} at line {e.lineno}, column {e.offset}:\n"
-            f"   {e.text.strip()}\n"
-            f"   {' ' * (e.offset - 1)}^\n"
-            f"   {e.msg}"
+            f"❌ Syntax error in {file_path} at line {lineno}, column {offset}:\n"
+            f"   {text}\n"
+            f"   {' ' * (offset - 1)}^\n"
+            f"   {msg}"
         )
         # ruff: noqa: TRY400
         logger.error(error_msg)

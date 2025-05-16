@@ -573,7 +573,11 @@ def generate_text_report(results: dict[str, list[tuple[str, int, str, str]]]) ->
 
         for pattern_name, line_number, line, _ in secrets:
             masked_line = mask_sensitive_data(line)
+            if not isinstance(masked_line, str):
+                masked_line = str(masked_line)
             masked_line = mask_sensitive_data(masked_line, visible_chars=2)
+            if not isinstance(masked_line, str):
+                masked_line = str(masked_line)
             lines.append(f"  Line {line_number}: {pattern_name}")
             lines.append(f"    {masked_line.strip()}")
             lines.append("")
@@ -681,7 +685,8 @@ def generate_report(
 
             # Remove any remaining sensitive patterns
             for pattern in PATTERNS.values():
-                secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
+                if isinstance(secure_output, str):
+                    secure_output = pattern.sub(r"\1[REDACTED]", secure_output)
 
             # Encrypt and save the report
             salt, encrypted_content = encrypt_report_content(str(secure_output))

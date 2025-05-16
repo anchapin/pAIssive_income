@@ -204,13 +204,8 @@ async def run_checks(files: set[Path]) -> list[CheckResult]:
         python_executable,
         "-m",
         "mypy",
-        "--ignore-missing-imports",
         "--install-types",
         "--non-interactive",
-        "--explicit-package-bases",
-        "--config-file=mypy.ini",
-        "--exclude=.github/scripts",
-        "--exclude=scripts/__init__.py",
     ]
 
     # Add special flags for problematic files

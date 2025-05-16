@@ -4,9 +4,9 @@ import pytest
 
 # Check if crewai is installed
 try:
-    import crewai
+    import importlib.util
 
-    CREWAI_AVAILABLE = True
+    CREWAI_AVAILABLE = importlib.util.find_spec("crewai") is not None
 except ImportError:
     CREWAI_AVAILABLE = False
 

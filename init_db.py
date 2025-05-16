@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """init_db.py - Initialize the database with tables and initial data."""
 
+from __future__ import annotations
+
 import logging
 import string
 import sys
 from secrets import randbelow
+from typing import Any
 
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -148,7 +151,7 @@ def _initialize_database_data() -> bool:
         return False
 
 
-def _verify_initialization(agents) -> bool:
+def _verify_initialization(agents: list[Any]) -> bool:
     """
     Verify that database initialization was successful.
 
@@ -163,7 +166,7 @@ def _verify_initialization(agents) -> bool:
         agent_count = db.session.query(Agent).count()
         if agent_count != len(agents):
             logger.warning(
-                f"Agent count mismatch: expected {len(agents)}, found {agent_count}"
+                "Agent count mismatch: expected %d, found %d", len(agents), agent_count
             )
             return False
     except SQLAlchemyError:
