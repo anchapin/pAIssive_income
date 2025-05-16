@@ -12,7 +12,7 @@ pyjwt>=2.6.0
 bcrypt>=4.0.0
 pyperclip>=1.8.2  # For secure clipboard operations
 cryptography>=41.0.0  # For encryption of sensitive files
-crewai>=0.120.0  # AI agent orchestration framework
+crewai>=0.11.0,<0.120.0  # AI agent orchestration framework
 
 # MCP integration
 modelcontextprotocol>=0.1.0  # Required for MCP server integration
@@ -38,6 +38,15 @@ tqdm>=4.65.0
 python-dateutil>=2.8.2
 jinja2>=3.0.0
 prometheus_client>=0.16.0
+
+# OpenTelemetry dependencies (pinned to avoid conflicts)
+opentelemetry-api>=1.30.0,<1.32.0
+opentelemetry-sdk>=1.30.0,<1.32.0
+opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.32.0
+opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.32.0
+opentelemetry-semantic-conventions>=0.51b0,<0.54b0
+wrapt>=1.14.0,<1.16.0
+backoff>=1.10.0,<2.0.0
 
 # Visualization and analytics
 matplotlib>=3.5.0

@@ -29,7 +29,15 @@ dependencies = [
     "redis>=4.5.0",
     "flask>=2.0.1",
     "httpx>=0.24.0",
-    "crewai>=0.11.0",  # AI agent orchestration framework
+    "crewai>=0.11.0,<0.120.0",  # AI agent orchestration framework
+    # OpenTelemetry dependencies (pinned to avoid conflicts)
+    "opentelemetry-api>=1.30.0,<1.32.0",
+    "opentelemetry-sdk>=1.30.0,<1.32.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.32.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.32.0",
+    "opentelemetry-semantic-conventions>=0.51b0,<0.54b0",
+    "wrapt>=1.14.0,<1.16.0",
+    "backoff>=1.10.0,<2.0.0",
     # Add other dependencies as needed
 ]
 
