@@ -124,6 +124,12 @@ def main() -> None:
         f.write(empty_sarif)
     logging.info(f"Generated empty SARIF file: {standard_sarif_file}")
 
+    # Create a copy of the empty SARIF file in the root directory
+    root_sarif_file = "empty-sarif.json"
+    with open(root_sarif_file, "w") as f:
+        f.write(empty_sarif)
+    logging.info(f"Generated empty SARIF file in root directory: {root_sarif_file}")
+
 
 if __name__ == "__main__":
     main()
