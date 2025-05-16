@@ -90,7 +90,17 @@ else
 fi
 
 # Run the Python script with all arguments
-"$PYTHON_CMD" enhanced_setup_dev_environment.py "$@"
+# Check if ALLOW_COMMANDS is already set in the environment
+if [ -z "${ALLOW_COMMANDS}" ]; then
+    # If not set, check if --ci-mode is in the arguments and set ALLOW_COMMANDS=true
+    if [[ "$*" == *"--ci-mode"* ]]; then
+        log "$INFO" "CI mode detected, setting ALLOW_COMMANDS=true to bypass security checks"
+        export ALLOW_COMMANDS=true
+    fi
+fi
+
+# Run the Python script with all arguments and the ALLOW_COMMANDS environment variable
+ALLOW_COMMANDS=${ALLOW_COMMANDS:-false} "$PYTHON_CMD" enhanced_setup_dev_environment.py "$@"
 PYTHON_EXIT_CODE=$?
 
 # Check the exit code of the Python script

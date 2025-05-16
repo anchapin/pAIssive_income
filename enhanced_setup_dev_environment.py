@@ -240,8 +240,14 @@ def run_command(
     # Extract the basename of the command for security check
     cmd_basename = Path(cmd_to_run[0]).name
 
+    # Check if ALLOW_COMMANDS environment variable is set to bypass security checks
+    if os.environ.get("ALLOW_COMMANDS", "").lower() == "true":
+        logger.warning(
+            "Security check bypassed for command '%s' due to ALLOW_COMMANDS=true",
+            cmd_to_run[0],
+        )
     # Validate command basename is in allowed list
-    if cmd_basename not in allowed_commands:
+    elif cmd_basename not in allowed_commands:
         logger.error(
             "Security: Command '%s' (basename: %s) not in allowed list",
             cmd_to_run[0],
