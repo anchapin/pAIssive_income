@@ -74,8 +74,8 @@ def log_user_input_safely(
     if "%s" in message:
         logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        # If no format specifier, use a format string with the message and input
-        logger.log(level, "%s %s", message, sanitized_input, *args, **kwargs)
+        # If no format specifier, combine the message and input directly
+        logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
 
 
 def log_exception_safely(
@@ -169,8 +169,8 @@ def log_user_id_safely(
     if "%s" in message:
         logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        # If no format specifier, use a format string with the message and ID
-        logger.log(level, "%s %s", message, sanitized_id, *args, **kwargs)
+        # If no format specifier, combine the message and ID directly
+        logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
 
 
 # Example usage:
