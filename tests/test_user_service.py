@@ -1,5 +1,6 @@
 """test_user_service - Test module for user service."""
 
+import os
 import unittest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
@@ -67,6 +68,10 @@ class TestUserService(unittest.TestCase):
         self.test_user.password_hash = self.hashed_password
         self.test_user.last_login = None
 
+    # Add methods needed by the UserService
+    def add(self, obj):
+        pass
+
         # Create patch for app_flask
         patch("users.services.UserModel", MockUser).start()
 
@@ -81,6 +86,27 @@ class TestUserService(unittest.TestCase):
         """Test initializing with empty token secret."""
         with pytest.raises(AuthenticationError, match="Token secret is required"):
             UserService(token_secret="")
+
+
+@pytest.fixture
+def app():
+    """Create a Flask app for testing."""
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    return app
+
+
+@pytest.fixture
+def app_context(app):
+    """Create an application context for testing."""
+    with app.app_context():
+        yield
+
+
+@pytest.fixture
+def user_service(app_context):
+    """Create a UserService instance for testing."""
+    return UserService(token_secret="test_secret")
 
     @pytest.mark.unit
     def test_token_secret_property(self):
@@ -506,6 +532,112 @@ class TestUserService(unittest.TestCase):
                 self.token_secret,
                 algorithms=["HS256"]
             )
+
+
+def test_create_user_existing_username(user_service):
+    """Test creating a user with an existing username."""
+    # Create a mock existing user
+    existing_user = MockUser(username="testuser", email="existing@example.com")
+
+    # Set up the mocks
+    with patch.object(MockUser, "query") as mock_query:
+        # Set up the mock to simulate existing user
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = existing_user
+        mock_query.return_value.filter.return_value = mock_filter
+
+        # Call the method and expect an exception
+        with pytest.raises(UserExistsError) as excinfo:
+            user_service.create_user(
+                username="testuser",
+                email="test@example.com",
+                auth_credential="test_credential",  # Use a hardcoded value instead of environment variable
+            )
+
+        assert "Username already exists" in str(excinfo.value)
+
+
+def test_authenticate_user_success(user_service):
+    """Test authenticating a user successfully."""
+    # Create a mock user
+    user = MockUser(
+        id=1,
+        username="testuser",
+        email="test@example.com",
+        password_hash="hashed_password",
+    )
+
+    # Set up the mocks
+    with patch.object(MockUser, "query") as mock_query, patch(
+        "users.auth.verify_credential"
+    ) as mock_verify:
+        # Set up the mocks
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = user
+        mock_query.return_value.filter.return_value = mock_filter
+        mock_verify.return_value = True
+
+        # Call the method
+        success, result = user_service.authenticate_user(
+            username_or_email="testuser", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
+        )
+
+        # Assertions
+        assert success is True
+        assert result["username"] == "testuser"
+        assert result["email"] == "test@example.com"
+        assert "id" in result
+        assert "password_hash" not in result
+
+
+def test_authenticate_user_failure(user_service):
+    """Test authenticating a user with invalid credentials."""
+    # Create a mock user
+    user = MockUser(
+        id=1,
+        username="testuser",
+        email="test@example.com",
+        password_hash="hashed_password",
+    )
+
+    # Set up the mocks
+    with patch.object(MockUser, "query") as mock_query, patch(
+        "users.auth.verify_credential"
+    ) as mock_verify:
+        # Set up the mocks
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = user
+        mock_query.return_value.filter.return_value = mock_filter
+        mock_verify.return_value = False
+
+        # Call the method
+        success, result = user_service.authenticate_user(
+            username_or_email="testuser", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
+        )
+
+        # Assertions
+        assert success is False
+        assert result is None
+
+
+def test_authenticate_user_not_found(user_service):
+    """Test authenticating a non-existent user."""
+    # Set up the mocks
+    with patch.object(MockUser, "query") as mock_query:
+        # Set up the mock to return None (user not found)
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = None
+        mock_query.return_value.filter.return_value = mock_filter
+
+        # Call the method
+        success, result = user_service.authenticate_user(
+            username_or_email="nonexistent", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
+        )
+
+        # Assertions
+        assert success is False
+        assert result is None
+
 
 if __name__ == "__main__":
     pytest.main(["-v"])

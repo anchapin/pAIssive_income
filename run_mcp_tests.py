@@ -10,38 +10,40 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import logging
 import shutil
 import platform
-from typing import List, Dict, Any
+from typing import List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
-def run_mcp_tests() -> int:
-    """Run MCP adapter tests without loading the main conftest.py.
+def _setup_environment() -> dict:
+    """Set up the environment for running MCP tests.
 
     Returns:
-        int: The return code from the test run (0 for success, non-zero for failure)
+        dict: The environment variables for the test run
     """
-    logger.info("Running MCP adapter tests...")
-    logger.info(f"Platform: {platform.system()}")
-    logger.info(f"Python version: {sys.version}")
-
     # Set environment variables to avoid loading the main conftest.py
     env = os.environ.copy()
     env["PYTHONPATH"] = os.path.abspath(".")
 
     # Add additional environment variables for Windows
     if platform.system() == "Windows":
-        # Ensure we have a clean PYTHONPATH that doesn't include any conflicting paths
-        env["PYTHONPATH"] = os.path.abspath(".")
         # Add a flag to indicate we're running in CI
         env["MCP_TESTS_CI"] = "1"
         # Log the environment for debugging
         logger.info(f"PYTHONPATH: {env['PYTHONPATH']}")
 
+    return env
+
+
+def _prepare_test_command() -> List[str]:
+    """Prepare the test command for running MCP tests.
+
+    Returns:
+        List[str]: The test command as a list of strings
+    """
     # Define the test command with fixed arguments
-    # These are hardcoded and not user-provided, so they're safe
     cmd = [
         sys.executable,
         "-m",
@@ -59,40 +61,64 @@ def run_mcp_tests() -> int:
         "--no-cov",  # Disable coverage to avoid issues with the coverage report
     ]
 
+    # Use absolute path for the executable when possible
+    if shutil.which(sys.executable):
+        cmd[0] = shutil.which(sys.executable)
+
+    return cmd
+
+
+def _ensure_mcp_module() -> None:
+    """Ensure the modelcontextprotocol module is importable."""
+    try:
+        import importlib.util
+        if importlib.util.find_spec("modelcontextprotocol") is None:
+            logger.warning("modelcontextprotocol module not found, creating mock implementation")
+            create_mock_mcp_module()
+    except ImportError as e:
+        logger.warning(f"Error checking for modelcontextprotocol module: {e}")
+        create_mock_mcp_module()
+
+
+def run_mcp_tests() -> int:
+    """Run MCP adapter tests without loading the main conftest.py.
+
+    Returns:
+        int: The return code from the test run (0 for success, non-zero for failure)
+    """
+    logger.info("Running MCP adapter tests...")
+    logger.info(f"Platform: {platform.system()}")
+    logger.info(f"Python version: {sys.version}")
+
+    # Set up the environment
+    env = _setup_environment()
+
+    # Prepare the test command
+    cmd = _prepare_test_command()
+
     # Validate the command to ensure it's safe to execute
     if not _validate_command(cmd):
         logger.error("Invalid command detected")
         return 1
 
     try:
-        # Use absolute path for the executable when possible
-        if shutil.which(sys.executable):
-            cmd[0] = shutil.which(sys.executable)
-
         # Log the command for debugging
         logger.info(f"Running command: {' '.join(cmd)}")
 
-        # First, ensure the modelcontextprotocol module is importable
-        try:
-            import importlib.util
-            if importlib.util.find_spec("modelcontextprotocol") is None:
-                logger.warning("modelcontextprotocol module not found, creating mock implementation")
-                create_mock_mcp_module()
-        except ImportError as e:
-            logger.warning(f"Error checking for modelcontextprotocol module: {e}")
-            create_mock_mcp_module()
+        # Ensure the modelcontextprotocol module is importable
+        _ensure_mcp_module()
 
-        # nosec comment below tells Bandit to ignore this line since we've added proper validation
-        result = subprocess.run(  # nosec B603
+        # Run the tests
+        result = subprocess.run(
             cmd,
             env=env,
             check=False,
             capture_output=True,
             text=True,
-            shell=False,  # Explicitly set shell=False for security
+            shell=False,
         )
 
-        # Log the output instead of using print
+        # Log the output
         if result.stdout:
             logger.info(result.stdout)
         if result.stderr:
@@ -102,13 +128,12 @@ def run_mcp_tests() -> int:
         if result.returncode != 0:
             logger.warning("Tests failed, attempting to diagnose the issue...")
             diagnose_mcp_import_issues()
-    except Exception as e:
-        # Include basic exception info for better diagnostics
-        logger.exception(f"Error running tests: {type(e).__name__}: {e}")
+    except Exception:
+        # Log the exception
+        logger.exception("Error running tests")
         return 1
     else:
         # This will only execute if no exception is raised
-        # Ensure we return an int, not Any
         return 0 if result.returncode == 0 else 1
 
 
@@ -144,8 +169,8 @@ def create_mock_mcp_module() -> None:
         sys.modules["modelcontextprotocol"] = mock_module
 
         logger.info("Created mock modelcontextprotocol module")
-    except Exception as e:
-        logger.error(f"Failed to create mock modelcontextprotocol module: {e}")
+    except Exception:
+        logger.exception("Failed to create mock modelcontextprotocol module")
 
 
 def diagnose_mcp_import_issues() -> None:
@@ -176,8 +201,8 @@ def diagnose_mcp_import_issues() -> None:
             logger.info(f"MCP adapter file exists at {adapter_path}")
         else:
             logger.info(f"MCP adapter file does NOT exist at {adapter_path}")
-    except Exception as e:
-        logger.error(f"Error during diagnosis: {e}")
+    except Exception:
+        logger.exception("Error during diagnosis")
 
 
 def _validate_command(command: List[str]) -> bool:

@@ -84,7 +84,7 @@ const OpportunityBarChart = ({
           <YAxis domain={[0, 1]} label={{ value: getAxisLabel(), angle: -90, position: 'insideLeft' }} />
           <Tooltip formatter={formatTooltip} />
           <Legend />
-          <Bar dataKey="value" name={getAxisLabel()}>
+          <Bar dataKey={dataKey} name={getAxisLabel()}>
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}

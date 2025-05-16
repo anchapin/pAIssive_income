@@ -1,7 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+
+// Try to import the external AgentUI package first, then fall back to local implementation
+// This ensures we always have a working component even if the external package is not available
+let AgentUI;
+try {
+  // Check if we should use the mock implementation based on environment variable
+  if (process.env.REACT_APP_AG_UI_ENABLED === 'false') {
+    throw new Error('AgentUI disabled by environment variable');
+  }
+
+  // Try to import from the external package
+  AgentUI = require('@ag-ui-protocol/ag-ui').AgentUI;
+  console.log('Using external @ag-ui-protocol/ag-ui package');
+} catch (error) {
+  console.log('Failed to load external @ag-ui-protocol/ag-ui package:', error.message);
+
+  // Fall back to local implementation
+  try {
+    AgentUI = require('./components/AgentUI').AgentUI;
+    console.log('Using local AgentUI implementation');
+  } catch (fallbackError) {
+    console.error('Failed to load local AgentUI implementation:', fallbackError.message);
+
+    // Create a simple placeholder component as a last resort
+    AgentUI = (props) => {
+      console.warn('Using placeholder AgentUI component');
+      return (
+        <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
+          <h3>Agent UI Placeholder</h3>
+          <p>The AgentUI component could not be loaded.</p>
+          <p>Agent ID: {props.agent?.id || 'N/A'}</p>
+          <p>Agent Name: {props.agent?.name || 'N/A'}</p>
+          <button onClick={() => props.onAction?.({ type: 'HELP', agentId: props.agent?.id })}>
+            Help
+          </button>
+        </div>
+      );
+    };
+  }
+}
 
 // Context
 import { AppProvider, useAppContext } from './context/AppContext';
@@ -36,6 +76,44 @@ function AppWithProviders() {
 // App content with theme based on context
 function AppContent() {
   const { darkMode } = useAppContext();
+  const [agent, setAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch agent info from backend
+  useEffect(() => {
+    async function fetchAgent() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/agent');
+        if (!response.ok) throw new Error('Failed to fetch agent data');
+        const data = await response.json();
+        setAgent(data);
+      } catch (err) {
+        setError(err.message || 'An error occurred');
+        console.error('Error fetching agent data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgent();
+  }, []);
+
+  // Handle actions from ag-ui and send to backend
+  const onAction = useCallback(async (action) => {
+    try {
+      const response = await fetch('/api/agent/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      });
+      if (!response.ok) throw new Error('Failed to submit action');
+      // Optionally, refetch agent data or update UI here
+    } catch (err) {
+      console.error('Error sending action:', err);
+    }
+  }, []);
 
   // Create a theme instance based on dark mode preference
   const theme = createTheme({
@@ -69,6 +147,15 @@ function AppContent() {
     },
   });
 
+  // AgentUI theme configuration
+  const agentTheme = {
+    primaryColor: theme.palette.primary.main,
+    secondaryColor: theme.palette.secondary.main,
+    fontFamily: theme.typography.fontFamily,
+    borderRadius: "8px",
+    darkMode: darkMode,
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -82,7 +169,23 @@ function AppContent() {
           <Route path="/marketing" element={<MarketingPage />} />
           <Route path="/user-engagement" element={<UserEngagementPage />} />
           <Route path="/api-analytics" element={<ApiAnalyticsPage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about" element={
+            <div>
+              <AboutPage />
+              {agent && !loading && !error && (
+                <div className="agent-ui-container" style={{ marginTop: '2rem' }}>
+                  <h2>Agent UI Integration</h2>
+                  <AgentUI
+                    agent={agent}
+                    theme={agentTheme}
+                    onAction={onAction}
+                  />
+                </div>
+              )}
+              {loading && <div>Loading agent...</div>}
+              {error && <div>Error loading agent: {error}</div>}
+            </div>
+          } />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>

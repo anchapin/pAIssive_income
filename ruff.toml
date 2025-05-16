@@ -13,6 +13,7 @@ extend-exclude = [
     ".venv",
     "venv",
     "node_modules",
+    "ui/react_frontend/node_modules",  # Explicitly exclude node_modules in React frontend
     "__pycache__",
     "*.pyc",
     "*.pyo",
@@ -23,7 +24,8 @@ extend-exclude = [
     "dist",
     "*.egg-info",
     "docs/source/conf.py",
-    "old/"
+    "old/",
+    "ui/react_frontend/"  # Exclude React frontend code (uses ESLint/TypeScript)
 ]
 
 # Comprehensive rule selection replacing Flake8

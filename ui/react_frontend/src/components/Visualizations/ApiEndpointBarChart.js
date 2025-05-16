@@ -67,7 +67,7 @@ const ApiEndpointBarChart = ({
           <XAxis type="number" />
           <YAxis
             type="category"
-            dataKey="endpoint"
+            dataKey=os.environ.get("KEY")
             width={80}
             label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }}
           />

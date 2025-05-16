@@ -138,7 +138,7 @@ const RevenueAreaChart = ({
           {showMonthly && (
             <Area
               type="monotone"
-              dataKey="total_revenue"
+              dataKey="monthlyRevenue"
               name="Monthly Revenue"
               stroke="#8884d8"
               fill="#8884d8"
@@ -150,7 +150,7 @@ const RevenueAreaChart = ({
           {showCumulative && (
             <Area
               type="monotone"
-              dataKey="cumulative_revenue"
+              dataKey="cumulativeRevenue"
               name="Cumulative Revenue"
               stroke="#82ca9d"
               fill="#82ca9d"

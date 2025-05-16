@@ -1,7 +1,7 @@
 from typing import (Any, Type, TypeVar)
 
-T = TypeVar('T')
-_T = TypeVar('_T')
+T = TypeVar("T")
+_T = TypeVar("_T")
 
 # Define BaseQuery class to avoid name conflicts
 class BaseQuery:

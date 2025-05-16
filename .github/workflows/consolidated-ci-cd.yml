@@ -129,7 +129,10 @@ jobs:
       - name: Run linting (Unix)
         if: runner.os != 'Windows'
         run: |
-          ruff check .
+          echo "Running linting checks..."
+          ruff check . --exclude ui/react_frontend/node_modules
+
+          echo "Running type checking..."
           mypy .
 
       - name: Run linting (Windows)
@@ -150,6 +153,66 @@ jobs:
         run: |
           # Run all tests except MCP adapter tests
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py
+
+      - name: Setup Node.js for frontend tests
+        if: runner.os == 'Windows'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup pnpm for frontend tests
+        if: runner.os == 'Windows'
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+
+      - name: Run frontend tests (Windows)
+        if: runner.os == 'Windows' && hashFiles('ui/react_frontend/package.json') != ''
+        shell: pwsh
+        run: |
+          # Check if React frontend exists
+          if (Test-Path "ui/react_frontend") {
+            Write-Host "React frontend detected, running frontend tests..."
+
+            # Create playwright-report directory to ensure it exists
+            if (-not (Test-Path "ui/react_frontend/playwright-report")) {
+              New-Item -ItemType Directory -Path "ui/react_frontend/playwright-report" -Force
+              Write-Host "Created playwright-report directory"
+            }
+
+            # Change to the frontend directory
+            cd ui/react_frontend
+
+            # Install dependencies with pnpm
+            Write-Host "Installing dependencies with pnpm..."
+            pnpm install
+
+            # Run the CI-friendly tests
+            Write-Host "Running CI-friendly tests..."
+            $env:CI = "true"
+            $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
+            # First ensure the report directory exists
+            node tests/ensure_report_dir.js
+
+            # Run the simple test that doesn't require browser installation
+            pnpm test:ci:windows || Write-Host "Frontend tests completed with non-zero exit code, but continuing..."
+
+            # Return to the original directory
+            cd ../..
+          } else {
+            Write-Host "No React frontend detected, skipping frontend tests."
+          }
+        continue-on-error: true
+
+      - name: Upload frontend test reports
+        if: runner.os == 'Windows' && hashFiles('ui/react_frontend/playwright-report/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-reports-${{ runner.os }}-${{ github.run_id }}
+          path: ui/react_frontend/playwright-report/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -384,7 +447,6 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:

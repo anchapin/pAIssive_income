@@ -1,13 +1,21 @@
 """user_router - User API endpoints using FastAPI."""
 
+import os
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, HTTPException, Path, status
 from pydantic import BaseModel, EmailStr, Field
+from flask import Blueprint, jsonify, request
 
-# Set up logger
-logger = logging.getLogger(__name__)
+from common_utils.logging import get_logger
+from users.services import AuthenticationError, UserExistsError, UserService
+
+# Set up secure logger that masks sensitive info
+logger = get_logger(__name__)
+
+# Example: provide your secret through environment variable in production
+TOKEN_SECRET = os.environ.get("USER_TOKEN_SECRET", "super-secret")
 
 # Create router
 router = APIRouter(prefix="/users", tags=["users"])

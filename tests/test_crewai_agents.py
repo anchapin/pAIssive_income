@@ -29,6 +29,13 @@ class MockCrew:
 # Mock the crewai import
 pytest.importorskip("crewai", reason="CrewAI tests skipped - package not installed")
 
+# Check if crewai is installed
+try:
+    import crewai
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+
 
 def test_crewai_import_and_agent():
     """Test basic Agent functionality."""
