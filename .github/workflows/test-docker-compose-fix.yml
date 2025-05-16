@@ -13,7 +13,7 @@ on:
 jobs:
   test-docker-compose-fix:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "Checking service status..."
           docker ps
-          
+
           # Check if database is running
           if docker ps | grep -q paissive-postgres; then
             echo "✅ Database container is running"
@@ -63,7 +63,7 @@ jobs:
             echo "❌ Database container is not running"
             exit 1
           fi
-          
+
           # Check if app is running
           if docker ps | grep -q paissive-income-app; then
             echo "✅ App container is running"
@@ -71,7 +71,7 @@ jobs:
             echo "❌ App container is not running"
             exit 1
           fi
-          
+
           # Check if frontend is running (if it exists)
           if [ -d "ui/react_frontend" ]; then
             if docker ps | grep -q paissive-frontend; then
@@ -119,17 +119,17 @@ jobs:
         run: |
           echo "Collecting logs..."
           mkdir -p logs
-          
+
           # Collect Docker logs
           docker logs paissive-postgres > logs/postgres.log 2>&1 || true
           docker logs paissive-income-app > logs/app.log 2>&1 || true
           if [ -d "ui/react_frontend" ]; then
             docker logs paissive-frontend > logs/frontend.log 2>&1 || true
           fi
-          
+
           # Collect Docker Compose logs
           docker compose logs > logs/docker-compose.log 2>&1 || true
-          
+
           # Collect system information
           df -h > logs/disk-space.log
           docker system df -v > logs/docker-disk-usage.log
@@ -140,7 +140,9 @@ jobs:
 
       - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-compose-logs
           path: logs/
+          if-no-files-found: warn
+          retention-days: 7
