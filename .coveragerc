@@ -4,6 +4,8 @@ omit =
     # Exclude test files
     tests/*
     */tests/*
+    # Exclude problematic test files
+    test_run_ui.py
     # Exclude virtual environment
     .venv/*
     venv/*
