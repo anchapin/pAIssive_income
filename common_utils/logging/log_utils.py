@@ -65,15 +65,19 @@ def log_user_input_safely(
     # Sanitize the user input
     sanitized_input = sanitize_user_input(user_input)
 
-    # Log the message with the sanitized input
-    # Format the message with the sanitized input before passing to logger
-    # This prevents log injection by ensuring the message is fully formatted before logging
-    formatted_message = message % (sanitized_input,) if "%s" in message else message
-
-    if isinstance(logger, SecureLogger):
-        logger.log(level, formatted_message, *args, **kwargs)
+    # Instead of formatting the message directly, pass the sanitized input as an argument
+    # This prevents log injection by letting the logger handle the formatting safely
+    if "%s" in message:
+        if isinstance(logger, SecureLogger):
+            logger.log(level, message, sanitized_input, *args, **kwargs)
+        else:
+            logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        logger.log(level, formatted_message, *args, **kwargs)
+        # If no format specifier, log the message and input separately
+        if isinstance(logger, SecureLogger):
+            logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
+        else:
+            logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
 
 
 def log_exception_safely(
@@ -165,15 +169,19 @@ def log_user_id_safely(
     # Sanitize the user ID
     sanitized_id = sanitize_user_input(user_id)
 
-    # Log the message with the sanitized ID
-    # Format the message with the sanitized ID before passing to logger
-    # This prevents log injection by ensuring the message is fully formatted before logging
-    formatted_message = message % (sanitized_id,) if "%s" in message else message
-
-    if isinstance(logger, SecureLogger):
-        logger.log(level, formatted_message, *args, **kwargs)
+    # Instead of formatting the message directly, pass the sanitized ID as an argument
+    # This prevents log injection by letting the logger handle the formatting safely
+    if "%s" in message:
+        if isinstance(logger, SecureLogger):
+            logger.log(level, message, sanitized_id, *args, **kwargs)
+        else:
+            logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        logger.log(level, formatted_message, *args, **kwargs)
+        # If no format specifier, log the message and ID separately
+        if isinstance(logger, SecureLogger):
+            logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
+        else:
+            logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
 
 
 # Example usage:

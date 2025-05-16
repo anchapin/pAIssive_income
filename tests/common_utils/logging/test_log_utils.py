@@ -50,8 +50,9 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        # With our new implementation, the message is formatted before being passed to the logger
-        assert "User input: test input" in args[1]
+        # With our new implementation, the message and sanitized input are passed separately
+        assert args[1] == "User input: %s"
+        assert args[2] == "test input"
 
     def test_log_user_input_safely_with_secure_logger(self):
         """Test log_user_input_safely with secure logger."""
@@ -60,8 +61,9 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        # With our new implementation, the message is formatted before being passed to the logger
-        assert "User input: test input" in args[1]
+        # With our new implementation, the message and sanitized input are passed separately
+        assert args[1] == "User input: %s"
+        assert args[2] == "test input"
 
     def test_log_exception_safely_with_regular_logger(self):
         """Test log_exception_safely with regular logger."""
@@ -132,8 +134,9 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        # With our new implementation, the message is formatted before being passed to the logger
-        assert "User ID: user123" in args[1]
+        # With our new implementation, the message and sanitized ID are passed separately
+        assert args[1] == "User ID: %s"
+        assert args[2] == "user123"
 
     def test_log_user_id_safely_with_secure_logger(self):
         """Test log_user_id_safely with secure logger."""
@@ -142,5 +145,26 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        # With our new implementation, the message is formatted before being passed to the logger
-        assert "User ID: user123" in args[1]
+        # With our new implementation, the message and sanitized ID are passed separately
+        assert args[1] == "User ID: %s"
+        assert args[2] == "user123"
+
+    def test_log_user_input_safely_without_format_specifier(self):
+        """Test log_user_input_safely without format specifier in message."""
+        mock_logger = MagicMock(spec=logging.Logger)
+        log_user_input_safely(mock_logger, logging.INFO, "User input", "test input")
+        mock_logger.log.assert_called_once()
+        args, kwargs = mock_logger.log.call_args
+        assert args[0] == logging.INFO
+        # With our new implementation, the message and input are combined
+        assert args[1] == "User input test input"
+        
+    def test_log_user_id_safely_without_format_specifier(self):
+        """Test log_user_id_safely without format specifier in message."""
+        mock_logger = MagicMock(spec=logging.Logger)
+        log_user_id_safely(mock_logger, logging.INFO, "User ID", "user123")
+        mock_logger.log.assert_called_once()
+        args, kwargs = mock_logger.log.call_args
+        assert args[0] == logging.INFO
+        # With our new implementation, the message and ID are combined
+        assert args[1] == "User ID user123"
