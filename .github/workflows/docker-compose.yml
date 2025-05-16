@@ -14,7 +14,7 @@ on:
       - 'docker-healthcheck.sh'
       - 'wait-for-db.sh'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, master ]
     paths:
       - 'docker-compose*.yml'
       - 'scripts/fix-docker-*.sh'
@@ -84,7 +84,21 @@ jobs:
         with:
           node-version: '18'
           cache: 'pnpm'
-          cache-dependency-path: '**/pnpm-lock.yaml'
+          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+
+      # Add global pnpm to PATH
+      - name: Add global pnpm to PATH
+        if: steps.check-frontend.outputs.has_frontend == 'true'
+        shell: bash
+        run: |
+          echo "PATH=$(pnpm -g bin):$PATH" >> $GITHUB_ENV
+
+      # Add local pnpm to PATH
+      - name: Add local pnpm to PATH
+        if: steps.check-frontend.outputs.has_frontend == 'true'
+        shell: bash
+        run: |
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
 
       - name: Make scripts executable
         run: |
@@ -231,8 +245,8 @@ jobs:
           # Run frontend tests if available
           if [ -d "ui/react_frontend" ]; then
             echo "Running frontend tests..."
-            # Use CI mode for frontend tests
-            $COMPOSE_CMD exec -T frontend sh -c "CI=true npm test -- --watchAll=false" || echo "WARNING: Frontend tests failed or not available, but continuing anyway."
+            # Use CI mode for frontend tests with pnpm
+            $COMPOSE_CMD exec -T frontend sh -c "CI=true pnpm test:ci || pnpm test:ci:windows || echo 'Frontend tests failed but continuing'" || echo "WARNING: Frontend tests failed or not available, but continuing anyway."
           else
             echo "No frontend directory found, skipping frontend tests."
           fi

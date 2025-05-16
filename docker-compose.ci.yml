@@ -43,12 +43,15 @@ services:
       - CI=true
       - SKIP_PREFLIGHT_CHECK=true
       - REACT_APP_TESTING=true
+      - NPM_CONFIG_LEGACY_PEER_DEPS=true
+      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+      - REACT_APP_AG_UI_ENABLED=true
 
   db:
     # Use a smaller configuration for CI
     command: [
-      "postgres", 
-      "-c", "max_connections=50", 
+      "postgres",
+      "-c", "max_connections=50",
       "-c", "shared_buffers=128MB",
       "-c", "fsync=off",
       "-c", "synchronous_commit=off",

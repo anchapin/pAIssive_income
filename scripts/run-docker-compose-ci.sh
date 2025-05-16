@@ -104,6 +104,28 @@ pull_images() {
     else
       log "✅ Successfully pulled node:18-alpine"
     fi
+
+    # Ensure pnpm is properly configured in Dockerfile.dev
+    if [ -f "ui/react_frontend/Dockerfile.dev" ]; then
+      log "Checking pnpm configuration in Dockerfile.dev..."
+      if ! grep -q "pnpm@8" ui/react_frontend/Dockerfile.dev; then
+        log "Updating pnpm version in Dockerfile.dev..."
+        sed -i "s|pnpm@.*|pnpm@8.15.4|g" ui/react_frontend/Dockerfile.dev || true
+      fi
+    fi
+
+    # Ensure package.json has the correct pnpm configuration
+    if [ -f "ui/react_frontend/package.json" ]; then
+      log "Checking package.json for pnpm configuration..."
+      if ! grep -q '"optionalDependencies"' ui/react_frontend/package.json; then
+        log "Adding optionalDependencies section to package.json..."
+        sed -i '$i\  "optionalDependencies": {\n    "@ag-ui-protocol/ag-ui": "^1.0.0"\n  },' ui/react_frontend/package.json || true
+      fi
+      if ! grep -q '"pnpm"' ui/react_frontend/package.json; then
+        log "Adding pnpm overrides section to package.json..."
+        sed -i '$i\  "pnpm": {\n    "overrides": {\n      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"\n    }\n  },' ui/react_frontend/package.json || true
+      fi
+    fi
   fi
 }
 

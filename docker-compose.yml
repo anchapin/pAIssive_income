@@ -76,6 +76,9 @@ services:
       - CI=true
       - SKIP_PREFLIGHT_CHECK=true
       - GITHUB_ACTIONS=true
+      # Add pnpm-specific environment variables
+      - NPM_CONFIG_LEGACY_PEER_DEPS=true
+      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
     networks:
       - paissive-network
     healthcheck:
