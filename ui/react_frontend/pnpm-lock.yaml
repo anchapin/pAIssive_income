@@ -14617,6 +14617,10 @@ snapshots:
     dependencies:
       webpack: 5.99.8
 
+  style-to-object@0.4.4:
+    dependencies:
+      inline-style-parser: 0.1.1
+
   stylehacks@5.1.1(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.5
