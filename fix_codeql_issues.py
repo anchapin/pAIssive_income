@@ -13,7 +13,6 @@ import os
 import re
 import sys
 import logging
-from typing import Dict, List, Tuple, Set, Optional, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -78,11 +77,7 @@ def should_scan_file(file_path: str) -> bool:
 
     # Check if the file is in a directory we want to exclude
     parts = file_path.split(os.path.sep)
-    for part in parts:
-        if part in DIRS_TO_EXCLUDE:
-            return False
-
-    return True
+    return all(part not in DIRS_TO_EXCLUDE for part in parts)
 
 
 def fix_hardcoded_credentials(line: str) -> str:
@@ -97,19 +92,19 @@ def fix_hardcoded_credentials(line: str) -> str:
     # Replace hardcoded credentials with environment variables
     pattern = PATTERNS["hardcoded_credentials"]
     matches = pattern.findall(line)
-    
+
     if not matches:
         return line
-    
+
     fixed_line = line
     for match in matches:
         credential_type, credential_value = match
-        
+
         # Skip test credentials
-        if any(test_word in credential_value.lower() for test_word in 
+        if any(test_word in credential_value.lower() for test_word in
                ["test", "example", "sample", "dummy", "mock"]):
             continue
-            
+
         # Replace with environment variable reference
         env_var_name = f"{credential_type.upper()}"
         replacement = f'{credential_type}=os.environ.get("{env_var_name}")'
@@ -117,7 +112,7 @@ def fix_hardcoded_credentials(line: str) -> str:
         fixed_line = fixed_line.replace(f"{credential_type}='{credential_value}'", replacement)
         fixed_line = fixed_line.replace(f'{credential_type}:"{credential_value}"', f'{credential_type}:os.environ.get("{env_var_name}")')
         fixed_line = fixed_line.replace(f"{credential_type}:'{credential_value}'", f"{credential_type}:os.environ.get('{env_var_name}')")
-    
+
     return fixed_line
 
 
@@ -133,10 +128,10 @@ def fix_clear_text_logging(line: str) -> str:
     # Replace sensitive information in logging with masked values
     pattern = PATTERNS["clear_text_logging"]
     match = pattern.search(line)
-    
+
     if not match:
         return line
-    
+
     # Add masking for sensitive information
     fixed_line = line
     for sensitive_word in ["password", "token", "secret", "key", "credential"]:
@@ -144,19 +139,19 @@ def fix_clear_text_logging(line: str) -> str:
             # Replace with masked version in f-strings
             fixed_line = re.sub(
                 rf'f["\'].*?({sensitive_word})\s*=\s*([^{{}}"\']+).*?["\']',
-                rf'f"\1=***MASKED***"',
+                r'f"\1=***MASKED***"',
                 fixed_line,
                 flags=re.IGNORECASE,
             )
-            
+
             # Replace with masked version in regular strings
             fixed_line = re.sub(
                 rf'["\'].*?({sensitive_word})\s*=\s*.*?["\']',
-                rf'"\1=***MASKED***"',
+                r'"\1=***MASKED***"',
                 fixed_line,
                 flags=re.IGNORECASE,
             )
-    
+
     return fixed_line
 
 
@@ -172,10 +167,10 @@ def fix_clear_text_storage(line: str) -> str:
     # Replace sensitive information in storage with masked values
     pattern = PATTERNS["clear_text_storage"]
     match = pattern.search(line)
-    
+
     if not match:
         return line
-    
+
     # Add masking for sensitive information
     fixed_line = line
     for sensitive_word in ["password", "token", "secret", "key", "credential"]:
@@ -183,11 +178,11 @@ def fix_clear_text_storage(line: str) -> str:
             # Add masking before storage
             fixed_line = re.sub(
                 rf'({sensitive_word})\s*=\s*([^;,)]+)',
-                rf'\1 = "***MASKED***" if \2 else None  # Masked for security',
+                r'\1 = "***MASKED***" if \2 else None  # Masked for security',
                 fixed_line,
                 flags=re.IGNORECASE,
             )
-    
+
     return fixed_line
 
 
@@ -203,27 +198,27 @@ def fix_insecure_regex(line: str) -> str:
     # Add anchors to regular expressions
     pattern = PATTERNS["insecure_regex"]
     match = pattern.search(line)
-    
+
     if not match:
         return line
-    
+
     # Add anchors to regex patterns
     fixed_line = line
     matches = pattern.findall(line)
     for match in matches:
         re_function, regex_pattern = match[0], match[2]
-        
+
         # Skip if it's already using a variable or has anchors
         if not regex_pattern or "^" in regex_pattern or "$" in regex_pattern:
             continue
-            
+
         # Add anchors to the pattern
         anchored_pattern = f"^{regex_pattern}$"
         fixed_line = fixed_line.replace(f'{re_function}(r"{regex_pattern}"', f'{re_function}(r"{anchored_pattern}"')
         fixed_line = fixed_line.replace(f"{re_function}(r'{regex_pattern}'", f"{re_function}(r'{anchored_pattern}'")
         fixed_line = fixed_line.replace(f'{re_function}("{regex_pattern}"', f'{re_function}("^{regex_pattern}$"')
         fixed_line = fixed_line.replace(f"{re_function}('{regex_pattern}'", f"{re_function}('^{regex_pattern}$'")
-    
+
     return fixed_line
 
 
@@ -237,66 +232,63 @@ def fix_file(file_path: str) -> bool:
         bool: True if the file was modified, False otherwise
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
-        
+
         modified = False
         fixed_lines = []
-        
+
         for line in lines:
             fixed_line = line
-            
+
             # Apply fixes
             fixed_line = fix_hardcoded_credentials(fixed_line)
             fixed_line = fix_clear_text_logging(fixed_line)
             fixed_line = fix_clear_text_storage(fixed_line)
             fixed_line = fix_insecure_regex(fixed_line)
-            
+
             fixed_lines.append(fixed_line)
             if fixed_line != line:
                 modified = True
-        
+
         if modified:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(fixed_lines)
             logger.info(f"Fixed security issues in {file_path}")
-        
-        return modified
-    
-    except Exception as e:
-        logger.error(f"Error processing {file_path}: {e}")
+            return modified
+    except Exception:
+        logger.exception(f"Error processing {file_path}")
         return False
+
+    return modified
 
 
 def main() -> None:
     """Main function."""
     # Get the directory to scan
-    if len(sys.argv) > 1:
-        root_dir = sys.argv[1]
-    else:
-        root_dir = "."
-    
+    root_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+
     logger.info(f"Scanning directory: {root_dir}")
-    
+
     # Track statistics
     stats = {
         "files_scanned": 0,
         "files_modified": 0,
     }
-    
+
     # Walk through the directory
     for dirpath, dirnames, filenames in os.walk(root_dir):
         # Skip excluded directories
         dirnames[:] = [d for d in dirnames if d not in DIRS_TO_EXCLUDE]
-        
+
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
-            
+
             if should_scan_file(file_path):
                 stats["files_scanned"] += 1
                 if fix_file(file_path):
                     stats["files_modified"] += 1
-    
+
     # Print statistics
     logger.info(f"Scanned {stats['files_scanned']} files")
     logger.info(f"Modified {stats['files_modified']} files")

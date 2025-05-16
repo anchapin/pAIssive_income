@@ -111,7 +111,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                                 "avatar_url": "https://example.com/avatar.png"
                             }
                             self._send_response(200, default_agent)
-                except (DatabaseError, psycopg2.Error) as e:
+                except (DatabaseError, psycopg2.Error):
                     logger.exception("Error fetching agent data")
                     # Return a default agent even if there's a database error
                     logger.warning("Database error, returning default agent")
@@ -194,7 +194,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         self._send_response(
                             200, {"status": "success", "action_id": action_id}
                         )
-                except (DatabaseError, psycopg2.Error) as e:
+                except (DatabaseError, psycopg2.Error):
                     logger.exception("Error saving agent action")
                     # Return success even if there's a database error to avoid breaking the UI
                     logger.warning("Database error, returning mock success response")

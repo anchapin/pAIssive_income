@@ -34,7 +34,6 @@ Error Handling:
 - Graceful cleanup on failure
 """
 
-import logging
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 

@@ -34,7 +34,7 @@ def upgrade():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
-    
+
     # Copy data from plural to singular if the plural tables exist
     op.execute("""
     DO $$
