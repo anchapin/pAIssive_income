@@ -158,7 +158,6 @@ class TestLogUtils:
         assert args[0] == logging.INFO
         # With our new implementation, the message and input are combined
         assert args[1] == "User input test input"
-
     def test_log_user_id_safely_without_format_specifier(self):
         """Test log_user_id_safely without format specifier in message."""
         mock_logger = MagicMock(spec=logging.Logger)
