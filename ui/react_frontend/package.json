@@ -6,35 +6,57 @@
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "node-notifier": "^8.0.2",
-    "postcss": "^8.5.3",
+    "nth-check": "2.1.1",
+    "postcss": "^8.4.31",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.6.0",
     "react-router-dom": "^6.30.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "typescript": "^5.8.3"
+  },
+  "optionalDependencies": {
+    "@ag-ui-protocol/ag-ui": "^1.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"
+    }
   },
   "devDependencies": {
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
     "@babel/plugin-transform-optional-chaining": "^7.27.1",
     "@jest/reporters": "^29.7.0",
     "@playwright/test": "^1.52.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^4.4.1",
+    "@vitest/ui": "^1.6.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
+    "express": "^5.1.0",
     "react-app-rewired": "^2.2.1",
     "resolve-url-loader": "^5.0.0",
     "tough-cookie": "^4.1.4",
-    "vitest": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0"
+    "vitest": "^1.6.0"
   },
   "overrides": {
-    "nth-check": "^2.0.1",
+    "nth-check": "^2.1.1",
     "svgo": {
       "css-select": {
-        "nth-check": "^2.0.1"
+        "nth-check": "^2.1.1"
       }
     },
-    "postcss": "^8.5.3"
+    "postcss": "^8.4.31",
+    "resolve-url-loader": {
+      "postcss": "^8.4.31"
+    },
+    "css-loader": {
+      "postcss": "^8.4.31"
+    }
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -42,7 +64,18 @@
     "test": "react-app-rewired test",
     "test:unit": "vitest run",
     "test:unit:ui": "vitest --ui",
-    "eject": "react-scripts eject"
+    "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts",
+    "test:e2e:with-servers": "node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
+    "test:mock-api": "node tests/run_mock_api_test.js",
+    "test:ci": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json",
+    "test:ci:windows": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --skip-browser-install",
+    "test:simple": "npx playwright test tests/e2e/simple_test.spec.ts",
+    "test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",
+    "ensure:report-dir": "node tests/ensure_report_dir.js",
+    "start:mock-api": "node tests/mock_api_server.js",
+    "start:fallback": "node tests/fallback_server.js",
+    "eject": "react-scripts eject",
+    "preinstall": "npx only-allow pnpm"
   },
   "eslintConfig": {
     "extends": [

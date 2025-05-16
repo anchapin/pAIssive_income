@@ -2,6 +2,13 @@
 
 import pytest
 
+# Check if crewai is installed
+try:
+    import crewai
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+
 
 def test_crewai_import_and_agent():
     try:
