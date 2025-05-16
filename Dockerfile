@@ -52,5 +52,5 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 
-# Command to run the application
-CMD ["python", "run_ui.py"]
+# Run the application with wait-for-db script and initialize agent database
+CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 && python init_agent_db.py && python run_ui.py"]

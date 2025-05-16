@@ -2,6 +2,8 @@
 
 This project is configured for fast test runs. Here are some tips:
 
+> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).
+
 ## 1. Install Dev Dependencies (including pytest-xdist)
 
 To enable parallel test execution and all developer/testing features, install the dev dependencies using [uv](https://github.com/astral-sh/uv):
@@ -47,6 +49,20 @@ pytest --durations=10
 ## 5. Only Collect Tests from `tests/`
 
 Test collection is limited to the `tests/` directory for speed.
+
+## Docker Compose Integration
+
+**Start PostgreSQL database, application, and frontend with Docker Compose:**
+```bash
+# Using Docker Compose plugin
+docker compose up --build
+
+# Or using standalone Docker Compose
+docker-compose up --build
+```
+This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
+
+For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
 
 ## 6. Mock External Calls for Speed
 

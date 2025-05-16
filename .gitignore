@@ -1,156 +1,138 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
 #  Usually these files are written by a python packager
-*.manifest
-*.spec
-
+# Added by Claude Task Master
+# Byte-compiled / optimized / DLL files
+# C extensions
+# CodeQL
+# Distribution / packaging
+# Django stuff:
+# Environments
+# Flask stuff:
+# IDE specific files
+# IPython
 # Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
+# Jupyter Notebook
+# Logs
+# Node.js
+# OS specific
+# Playwright reports
+# Project specific
+# PyBuilder
+# PyInstaller
+# Pyre type checker
+# Rope project settings
+# SageMath parsed files
+# Scrapy stuff:
+# Sphinx documentation
+# Spyder project settings
+# Task files
 # Translations
+# Unit test / coverage reports
+# celery beat schedule file
+# mkdocs documentation
+# mypy
+# pyenv
+*$py.class
+**/.env/
+**/.venv/
+**/dist-packages/
+**/env/
+**/node_modules/
+**/site-packages/
+**/venv/
+**/virtualenv/
+*.cover
+*.egg
+*.egg-info/
+*.log
+*.manifest
 *.mo
 *.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
+*.py[cod]
 *.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-*venv*/
+*.sarif
+*.sarif.json
+*.so
+*.spec
+*.swo
+*.swp
 *env*/
-
-# Spyder project settings
+*venv*/
+.DS_Store
+.Python
+.aider*
+.cache
+.coverage
+.coverage.*
+.dmypy.json
+.eggs/
+.env
+.env/
+.hypothesis/
+.idea/
+.installed.cfg
+.ipynb_checkpoints
+.mypy_cache/
+.nox/
+.npm
+.pnpm-debug.log
+.pnpm-store/
+.pyre/
+.pytest_cache/
+.python-version
+.ropeproject
+.scrapy
 .spyderproject
 .spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# IDE specific files
-.idea/
+.tox/
+.venv
+.venv/
 .vscode/
-*.swp
-*.swo
-
-# Project specific
-project_plan.json
-example_project_plan.json
-
-# OS specific
-.DS_Store
+.webassets-cache
+.yarn
+/site
+ENV/
+MANIFEST
 Thumbs.db
-node_modules
-.aider*
-
-# Playwright reports
-ui/react_frontend/playwright-report/
-
-# Added by Claude Task Master
-# Logs
-logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+__pycache__/
+build/
+celerybeat-schedule
+coverage.xml
+db.sqlite3
 dev-debug.log
-# Dependency directories
+develop-eggs/
+dist/
+dmypy.json
+docs/_build/
+downloads/
+eggs/
+env.bak/
+env/
+example_project_plan.json
+htmlcov/
+instance/
+ipython_config.py
+lib/
+lib64/
+local_settings.py
+logs
 node_modules/
-# Environment variables
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-# Task files
+nosetests.xml
+npm-debug.log
+parts/
+pip-delete-this-directory.txt
+pip-log.txt
+profile_default/
+project_plan.json
+sarif-results/
+sdist/
+target/
 tasks.json
-tasks/ 
+tasks/
+ui/react_frontend/playwright-report/
+var/
+venv.bak/
+venv/
+virtualenv/
+wheels/
+yarn-debug.log
+yarn-error.log

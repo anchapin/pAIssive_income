@@ -1,0 +1,189 @@
+name: Frontend E2E Tests (Fixed)
+
+on:
+  pull_request:
+    paths:
+      - "ui/react_frontend/**"
+      - ".github/workflows/frontend-e2e-fixed.yml"
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test on'
+        required: false
+        default: 'ubuntu'
+        type: choice
+        options:
+          - ubuntu
+          - windows
+          - both
+
+jobs:
+  e2e:
+    runs-on: ${{ (github.event.inputs.platform == 'both' || github.event.inputs.platform == '') && 'ubuntu-latest' || format('{0}-latest', github.event.inputs.platform) }}
+
+    defaults:
+      run:
+        working-directory: ui/react_frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js and pnpm directly in this job
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          else
+            pip install uv
+          fi
+        env:
+          RUNNER_OS: ${{ runner.os }}
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            ~/.uv
+            ${{ runner.os == 'Windows' && '%LOCALAPPDATA%\uv' || '' }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Create virtual environment (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd ../..
+          # Create virtual environment with uv, fallback to Python's venv module
+          echo "Creating virtual environment..."
+          uv venv .venv || {
+            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv || {
+              echo "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify virtual environment was created
+          if [ ! -d ".venv" ]; then
+            echo "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          fi
+
+          echo "Virtual environment created successfully at $(pwd)/.venv"
+
+          # Always ensure pip is installed in the virtual environment
+          echo "Ensuring pip is installed in the virtual environment..."
+          curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          .venv/bin/python get-pip.py || {
+            echo "Failed to bootstrap pip with get-pip.py. Trying alternative method..."
+            .venv/bin/python -m ensurepip || {
+              echo "Failed to bootstrap pip with ensurepip. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify pip installation
+          if [ ! -f ".venv/bin/pip" ] || ! .venv/bin/python -m pip --version &>/dev/null; then
+            echo "pip still not available after installation attempts. Exiting..."
+            exit 1
+          fi
+
+          echo "pip successfully installed in virtual environment."
+
+          # Upgrade pip first to ensure we have the latest version
+          .venv/bin/python -m pip install --upgrade pip || {
+            echo "Failed to upgrade pip. Continuing anyway..."
+          }
+
+          # Install setuptools and wheel with pip first
+          .venv/bin/python -m pip install --upgrade setuptools wheel || {
+            echo "Failed to install setuptools and wheel with pip. Continuing anyway..."
+          }
+
+          # List installed packages for debugging
+          echo "Installed packages in virtual environment:"
+          .venv/bin/python -m pip list
+
+          cd ui/react_frontend
+
+      - name: Create virtual environment (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd ../..
+          # Create virtual environment with uv, fallback to Python's venv module
+          Write-Host "Creating virtual environment..."
+          uv venv .venv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
+            python -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Failed to create virtual environment with Python's venv module. Exiting..."
+              exit 1
+            }
+          }
+
+          # Verify virtual environment was created
+          if (-not (Test-Path ".venv")) {
+            Write-Host "Virtual environment directory .venv not found after creation attempt. Exiting..."
+            exit 1
+          }
+
+          Write-Host "Virtual environment created successfully at $(Get-Location)\.venv"
+
+          cd ui/react_frontend
+
+      # Ensure the playwright-report directory exists
+      - name: Ensure playwright-report directory exists
+        run: node tests/ensure_report_dir.js
+
+      # Run the CI-friendly tests
+      - name: Run tests with CI test runner (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          # Run the CI-friendly tests
+          pnpm test:ci
+
+      - name: Run tests with CI test runner (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Run the CI-friendly tests
+          pnpm test:ci:windows
+
+      # Upload test report
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ runner.os }}-${{ github.run_id }}
+          path: ui/react_frontend/playwright-report/
+          if-no-files-found: warn
+          retention-days: 30

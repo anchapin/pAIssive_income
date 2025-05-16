@@ -85,10 +85,10 @@ def validate_sarif_file(file_path: str) -> bool:
                     logging.error("Missing 'results' field")
                     is_valid = False
     except json.JSONDecodeError:
-        logging.exception(f"Invalid JSON in {file_path}")
+        logging.exception("Invalid JSON file")
         is_valid = False
     except Exception:
-        logging.exception(f"Failed to validate {file_path}")
+        logging.exception("Failed to validate SARIF file")
         is_valid = False
     if is_valid:
         logging.info(f"\u2705 SARIF file {file_path} is valid")
