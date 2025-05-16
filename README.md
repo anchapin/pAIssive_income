@@ -20,19 +20,77 @@ pytest -n auto
 ```
 By default, `-n auto` uses all available CPU cores. You can override with e.g. `pytest -n 4` to use 4 workers.
 
-## 3. Profile Slow Tests
+## 3. Skip Slow Tests During Development
 
-Find the slowest tests:
+Tests that take a long time to run are marked with `@pytest.mark.slow`. You can skip these tests during development to speed up your test runs:
+
+```sh
+pytest -m "not slow"
+```
+
+To run only the slow tests:
+
+```sh
+pytest -m "slow"
+```
+
+See `tests/examples/test_slow_test_example.py` for examples of how to mark slow tests.
+
+## 4. Profile Slow Tests
+
+Find the slowest tests to identify candidates for optimization or marking as slow:
 
 ```sh
 pytest --durations=10
 ```
 
-## 4. Only Collect Tests from `tests/`
+## 5. Only Collect Tests from `tests/`
 
 Test collection is limited to the `tests/` directory for speed.
 
-## 5. Mock External Calls for Speed
+## 6. Mock External Calls for Speed
 
-If possible, mock out network/database/API calls in your tests to keep them fast and reliable.
+Mock out network/database/API calls in your tests to keep them fast and reliable. This avoids actual external calls during testing, which can significantly speed up your test suite.
+
+Example:
+```python
+@patch("requests.get")
+def test_api_call(mock_get):
+    # Configure the mock
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"data": "test"}
+    mock_get.return_value = mock_response
+
+    # Test your function that uses requests.get
+    result = my_function()
+    assert result == expected_result
+```
+
+See `tests/examples/test_mocking_example.py` for more detailed examples of mocking.
+
+## 7. Using Test Markers Effectively
+
+The project uses various pytest markers to categorize tests:
+
+- `@pytest.mark.unit`: Unit tests for individual components
+- `@pytest.mark.integration`: Tests for interactions between components
+- `@pytest.mark.slow`: Tests that take more than 1 second to run
+- `@pytest.mark.api`: Tests related to API functionality
+- `@pytest.mark.webhook`: Tests related to webhook functionality
+- `@pytest.mark.security`: Tests related to security features
+- `@pytest.mark.model`: Tests related to AI model functionality
+- `@pytest.mark.performance`: Performance-sensitive tests
+
+Run tests with specific markers:
+
+```sh
+# Run only unit tests
+pytest -m unit
+
+# Run tests that are both API-related and slow
+pytest -m "api and slow"
+
+# Run API tests that are not slow
+pytest -m "api and not slow"
+```
 
