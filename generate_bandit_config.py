@@ -71,6 +71,12 @@ def main() -> None:
     # Create security-reports directory if it doesn't exist
     os.makedirs("security-reports", exist_ok=True)
 
+    # Ensure the empty-sarif.json file exists in the root directory
+    if not os.path.exists("empty-sarif.json"):
+        logging.info("Creating empty-sarif.json in root directory")
+        with open("empty-sarif.json", "w") as f:
+            f.write("""{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}""")
+
     # Define specific run IDs that need to be handled (from error messages)
     specific_run_ids = [
         "14974236301", "14976101411", "14977094424", "14977626158",
@@ -124,11 +130,14 @@ def main() -> None:
         f.write(empty_sarif)
     logging.info(f"Generated empty SARIF file: {standard_sarif_file}")
 
-    # Create a copy of the empty SARIF file in the root directory
+    # Create a copy of the empty SARIF file in the root directory if it doesn't exist
     root_sarif_file = "empty-sarif.json"
-    with open(root_sarif_file, "w") as f:
-        f.write(empty_sarif)
-    logging.info(f"Generated empty SARIF file in root directory: {root_sarif_file}")
+    if not os.path.exists(root_sarif_file):
+        with open(root_sarif_file, "w") as f:
+            f.write(empty_sarif)
+        logging.info(f"Generated empty SARIF file in root directory: {root_sarif_file}")
+    else:
+        logging.info(f"Empty SARIF file already exists in root directory: {root_sarif_file}")
 
 
 if __name__ == "__main__":
