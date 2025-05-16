@@ -30,7 +30,8 @@ def sanitize_user_input(value: Any) -> Any:
     """Sanitize user input for logging to prevent log injection.
 
     This function should be used whenever logging user input to prevent
-    log injection attacks.
+    log injection attacks. It removes newline characters and other potentially
+    harmful characters in addition to using `prevent_log_injection`.
 
     Args:
         value: The value to sanitize
@@ -38,6 +39,9 @@ def sanitize_user_input(value: Any) -> Any:
     Returns:
         Any: The sanitized value
     """
+    if isinstance(value, str):
+        # Remove newline characters and other potentially harmful characters
+        value = value.replace('\n', '').replace('\r', '')
     return prevent_log_injection(value)
 
 
@@ -68,16 +72,10 @@ def log_user_input_safely(
     # Instead of formatting the message directly, pass the sanitized input as an argument
     # This prevents log injection by letting the logger handle the formatting safely
     if "%s" in message:
-        if isinstance(logger, SecureLogger):
-            logger.log(level, message, sanitized_input, *args, **kwargs)
-        else:
-            logger.log(level, message, sanitized_input, *args, **kwargs)
+        logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        # If no format specifier, log the message and input separately
-        if isinstance(logger, SecureLogger):
-            logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
-        else:
-            logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
+        # If no format specifier, use a format string with the message and input
+        logger.log(level, "%s %s", message, sanitized_input, *args, **kwargs)
 
 
 def log_exception_safely(
@@ -98,10 +96,7 @@ def log_exception_safely(
         **kwargs: Additional keyword arguments to pass to the logger
     """
     # Log the exception
-    if isinstance(logger, SecureLogger):
-        logger.exception(message, *args, **kwargs)
-    else:
-        logger.exception(message, *args, **kwargs)
+    logger.exception(message, *args, **kwargs)
 
 
 def configure_secure_logging(
@@ -172,16 +167,10 @@ def log_user_id_safely(
     # Instead of formatting the message directly, pass the sanitized ID as an argument
     # This prevents log injection by letting the logger handle the formatting safely
     if "%s" in message:
-        if isinstance(logger, SecureLogger):
-            logger.log(level, message, sanitized_id, *args, **kwargs)
-        else:
-            logger.log(level, message, sanitized_id, *args, **kwargs)
+        logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        # If no format specifier, log the message and ID separately
-        if isinstance(logger, SecureLogger):
-            logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
-        else:
-            logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
+        # If no format specifier, use a format string with the message and ID
+        logger.log(level, "%s %s", message, sanitized_id, *args, **kwargs)
 
 
 # Example usage:

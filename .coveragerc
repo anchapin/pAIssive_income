@@ -73,6 +73,10 @@ omit =
     # Exclude mock implementations and testing utilities
     ai_models/mock_aiohttp.py
     ai_models/agent_integration.py
+    ai_models/mock_adapters.py
+    ai_models/adapters/mock_*.py
+    ai_models/adapters/test_*.py
+    ai_models/adapters/testing_*.py
     # Exclude files that are primarily for external integrations
     ai_models/adapters/tensorrt_adapter.py
     # Exclude model types that aren't being tested yet
