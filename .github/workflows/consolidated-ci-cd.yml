@@ -82,6 +82,9 @@ jobs:
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
+          # Create a virtual environment first
+          uv venv .venv
+          source .venv/bin/activate
           uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
           if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
@@ -89,13 +92,27 @@ jobs:
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
+          # Create a virtual environment first
+          uv venv .venv
+          .\.venv\Scripts\Activate.ps1
           uv pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
           if (Test-Path requirements-dev.txt) { uv pip install -r requirements-dev.txt }
           if (Test-Path requirements.txt) { uv pip install -r requirements.txt }
         shell: pwsh
 
-      - name: Run linting and tests
+      - name: Run linting and tests (Unix)
+        if: runner.os != 'Windows'
         run: |
+          source .venv/bin/activate
+          ruff check .
+          mypy .
+          pytest -v --cov=. --cov-report=xml --cov-report=term-missing
+
+      - name: Run linting and tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\Activate.ps1
           ruff check .
           mypy .
           pytest -v --cov=. --cov-report=xml --cov-report=term-missing
@@ -158,18 +175,25 @@ jobs:
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
         run: |
+          # Create a virtual environment first
+          uv venv .venv
+          source .venv/bin/activate
           uv pip install safety bandit semgrep pip-audit
 
       - name: Install security tools (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # Create a virtual environment first
+          uv venv .venv
+          .\.venv\Scripts\Activate.ps1
           uv pip install safety bandit semgrep pip-audit
 
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
         run: |
+          source .venv/bin/activate
           safety check || true
           bandit -r . -f sarif -o security-reports/bandit-results.sarif || true
           pip-audit || true
@@ -180,6 +204,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
+          .\.venv\Scripts\Activate.ps1
           safety check
           bandit -r . -f sarif -o security-reports/bandit-results.sarif
           pip-audit
