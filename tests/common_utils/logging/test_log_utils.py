@@ -47,8 +47,8 @@ class TestLogUtils:
         sanitized = sanitize_user_input("test%sinjection")
         assert "test" in sanitized
         assert "injection" in sanitized
-        assert "%s" not in sanitized
-        assert "%%" in sanitized  # Percent signs should be escaped
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in sanitized  # Percent signs should be escaped
 
         # Test with None input
         # The implementation might return None or "None" depending on the implementation
@@ -71,8 +71,8 @@ class TestLogUtils:
         assert "\r" not in sanitized
         assert "\x00" not in sanitized
         assert "\x01" not in sanitized
-        assert "%s" not in sanitized
-        assert "%%" in sanitized
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in sanitized
 
     def test_log_user_input_safely_with_regular_logger(self):
         """Test log_user_input_safely with regular logger."""
@@ -95,9 +95,9 @@ class TestLogUtils:
         assert args[1] == "User input: %s"
         # Verify that the input was sanitized
         assert "\n" not in args[2]
-        assert "%s" not in args[2]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[2]  # % should be escaped
         assert " " in args[2]  # Newline should be replaced with space
-        assert "%%" in args[2]  # % should be escaped
 
     def test_log_user_input_safely_with_secure_logger(self):
         """Test log_user_input_safely with secure logger."""
@@ -120,9 +120,9 @@ class TestLogUtils:
         assert args[1] == "User input: %s"
         # Verify that the input was sanitized
         assert "\n" not in args[2]
-        assert "%s" not in args[2]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[2]  # % should be escaped
         assert " " in args[2]  # Newline should be replaced with space
-        assert "%%" in args[2]  # % should be escaped
 
     def test_log_exception_safely_with_regular_logger(self):
         """Test log_exception_safely with regular logger."""
@@ -207,9 +207,9 @@ class TestLogUtils:
         assert args[1] == "User ID: %s"
         # Verify that the ID was sanitized
         assert "\n" not in args[2]
-        assert "%s" not in args[2]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[2]  # % should be escaped
         assert " " in args[2]  # Newline should be replaced with space
-        assert "%%" in args[2]  # % should be escaped
 
     def test_log_user_id_safely_with_secure_logger(self):
         """Test log_user_id_safely with secure logger."""
@@ -232,9 +232,9 @@ class TestLogUtils:
         assert args[1] == "User ID: %s"
         # Verify that the ID was sanitized
         assert "\n" not in args[2]
-        assert "%s" not in args[2]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[2]  # % should be escaped
         assert " " in args[2]  # Newline should be replaced with space
-        assert "%%" in args[2]  # % should be escaped
 
     def test_log_user_input_safely_without_format_specifier(self):
         """Test log_user_input_safely without format specifier in message."""
@@ -259,9 +259,9 @@ class TestLogUtils:
         assert args[2] == "User input"
         # Verify that the input was sanitized
         assert "\n" not in args[3]
-        assert "%s" not in args[3]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[3]  # % should be escaped
         assert " " in args[3]  # Newline should be replaced with space
-        assert "%%" in args[3]  # % should be escaped
 
     def test_log_user_input_safely_with_secure_logger_without_format_specifier(self):
         """Test log_user_input_safely with secure logger without format specifier."""
@@ -297,9 +297,9 @@ class TestLogUtils:
         assert args[2] == "User ID"
         # Verify that the ID was sanitized
         assert "\n" not in args[3]
-        assert "%s" not in args[3]
+        # The function replaces % with %%, so %s becomes %%s
+        assert "%%s" in args[3]  # % should be escaped
         assert " " in args[3]  # Newline should be replaced with space
-        assert "%%" in args[3]  # % should be escaped
 
     def test_log_user_id_safely_with_secure_logger_without_format_specifier(self):
         """Test log_user_id_safely with secure logger without format specifier."""
