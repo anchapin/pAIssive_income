@@ -227,24 +227,24 @@ jobs:
           if [ ! -f "security-reports/bandit-results.sarif" ]; then
             echo "Bandit did not generate a SARIF file. Creating an empty one."
             cat > security-reports/bandit-results.sarif << 'EOF'
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-EOF
+            {
+              "version": "2.1.0",
+              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+              "runs": [
+                {
+                  "tool": {
+                    "driver": {
+                      "name": "Bandit",
+                      "informationUri": "https://github.com/PyCQA/bandit",
+                      "version": "1.7.5",
+                      "rules": []
+                    }
+                  },
+                  "results": []
+                }
+              ]
+            }
+            EOF
           fi
 
           # Run pip-audit
@@ -284,24 +284,24 @@ EOF
           if (-not (Test-Path "security-reports/bandit-results.sarif")) {
             Write-Host "Bandit did not generate a SARIF file. Creating an empty one."
             $emptySarif = @"
-{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}
-"@
+            {
+              "version": "2.1.0",
+              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+              "runs": [
+                {
+                  "tool": {
+                    "driver": {
+                      "name": "Bandit",
+                      "informationUri": "https://github.com/PyCQA/bandit",
+                      "version": "1.7.5",
+                      "rules": []
+                    }
+                  },
+                  "results": []
+                }
+              ]
+            }
+            "@
             Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarif
           }
 
