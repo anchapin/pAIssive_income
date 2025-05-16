@@ -30,8 +30,8 @@ def sanitize_user_input(value: Any) -> Any:
     """Sanitize user input for logging to prevent log injection.
 
     This function should be used whenever logging user input to prevent
-    log injection attacks. It removes newline characters and other potentially
-    harmful characters in addition to using `prevent_log_injection`.
+    log injection attacks. It replaces newline characters with spaces and removes
+    other potentially harmful characters in addition to using `prevent_log_injection`.
 
     Args:
         value: The value to sanitize
@@ -40,12 +40,12 @@ def sanitize_user_input(value: Any) -> Any:
         Any: The sanitized value
     """
     if isinstance(value, str):
-        # Remove newline characters and other potentially harmful characters
+        # Replace newline characters with spaces
         value = value.replace('\n', ' ').replace('\r', ' ')
         # Remove other control characters
         value = ''.join(ch for ch in value if ch.isprintable())
-        # Additional sanitization for log injection prevention
-        value = value.replace('%', '%%')  # Escape percent signs to prevent format string issues
+        # Escape percent signs to prevent format string issues
+        value = value.replace('%', '%%')
     return prevent_log_injection(value)
 
 
@@ -73,14 +73,12 @@ def log_user_input_safely(
     # Sanitize the user input
     sanitized_input = sanitize_user_input(user_input)
 
-    # Instead of formatting the message directly, pass the sanitized input as an argument
-    # This prevents log injection by letting the logger handle the formatting safely
+    # Handle the message based on whether it contains format specifiers
     if "%s" in message:
-        # If there are format specifiers, use them with the sanitized input
+        # Use existing format specifiers with sanitized input
         logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        # If no format specifier, create a format string that separates message and input
-        # This ensures proper formatting without string concatenation
+        # Create a format string that separates message and input
         logger.log(level, "%s %s", message, sanitized_input, *args, **kwargs)
 
 
@@ -170,14 +168,12 @@ def log_user_id_safely(
     # Sanitize the user ID
     sanitized_id = sanitize_user_input(user_id)
 
-    # Instead of formatting the message directly, pass the sanitized ID as an argument
-    # This prevents log injection by letting the logger handle the formatting safely
+    # Handle the message based on whether it contains format specifiers
     if "%s" in message:
-        # If there are format specifiers, use them with the sanitized ID
+        # Use existing format specifiers with sanitized ID
         logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        # If no format specifier, create a format string that separates message and ID
-        # This ensures proper formatting without string concatenation
+        # Create a format string that separates message and ID
         logger.log(level, "%s %s", message, sanitized_id, *args, **kwargs)
 
 
