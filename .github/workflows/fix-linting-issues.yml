@@ -107,8 +107,12 @@ jobs:
             uv pip install -r requirements.txt
           fi
 
-          # Install the package in development mode
-          uv pip install -e .
+          # Install the package in development mode if setup files exist
+          if [ -f "setup.py" ] || [ -f "pyproject.toml" ]; then
+            uv pip install -e .
+          else
+            echo "No setup.py or pyproject.toml found, skipping package installation"
+          fi
 
       - name: Check if fix_linting_issues.py exists
         id: check-script
