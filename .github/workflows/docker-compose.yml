@@ -71,6 +71,13 @@ jobs:
             echo "has_frontend=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install pnpm
+        if: steps.check-frontend.outputs.has_frontend == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
+
       - name: Set up Node.js
         if: steps.check-frontend.outputs.has_frontend == 'true'
         uses: actions/setup-node@v4
@@ -78,13 +85,6 @@ jobs:
           node-version: '18'
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
-
-      - name: Install pnpm
-        if: steps.check-frontend.outputs.has_frontend == 'true'
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
-          run_install: false
 
       - name: Make scripts executable
         run: |
