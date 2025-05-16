@@ -1,6 +1,6 @@
 crewai>=0.120.0
 modelcontextprotocol>=0.1.0  # Required for MCP server integration
-mcp-use>=0.1.0  # Required for MCP server integration
+# mcp-use requires Python 3.11+
 python-multipart>=0.0.6
 fastapi>=0.95.0
 uvicorn>=0.22.0
