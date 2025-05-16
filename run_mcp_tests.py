@@ -121,14 +121,17 @@ def run_mcp_tests() -> int:
 
         # Ensure we can import MCPAdapter from ai_models
         try:
-            import sys
+            # Import for reloading modules
             from importlib import reload
+            
+            # Import and reload the modules in the correct order
             from ai_models.adapters import mcp_adapter
             reload(mcp_adapter)
             
-            # Import ai_models to ensure it's reloaded with the proper modules
-            import ai_models
+            import ai_models.adapters
             reload(ai_models.adapters)
+            
+            import ai_models
             reload(ai_models)
             
             logger.info("Reloaded ai_models modules to ensure MCPAdapter is available")
