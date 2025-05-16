@@ -39,6 +39,8 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
 18. [Glossary](glossary.md)
 19. [Contributing](contributing.md)
 20. [Documentation Guide](documentation-guide.md)
+21. [Dependency Updates](dependency-updates/README.md)
+    - [PostCSS 8.4.32](dependency-updates/postcss-8.4.32.md)
 
 ## About the Framework
 
