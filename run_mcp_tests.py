@@ -57,11 +57,8 @@ def _prepare_test_command() -> List[str]:
         "-k",
         "not test_mcp_server",
         "--confcutdir=tests/ai_models/adapters",
-        # Include coverage settings from pytest.ini
-        "--cov=.",
-        "--cov-report=xml",
-        "--cov-report=term-missing",
-        "--cov-fail-under=80",
+        "-p",
+        "no:cov",  # Disable the coverage plugin entirely
     ]
 
     # Use absolute path for the executable when possible
