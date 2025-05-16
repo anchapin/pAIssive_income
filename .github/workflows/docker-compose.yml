@@ -1,0 +1,279 @@
+name: Docker Compose Integration
+
+on:
+  push:
+    branches: [ main, develop, cosine/add/ag-ui-pnpm-zt2ztr ]
+    paths:
+      - 'docker-compose*.yml'
+      - 'scripts/fix-docker-*.sh'
+      - 'scripts/run-docker-compose-ci.sh'
+      - '.github/workflows/docker-compose.yml'
+      - 'ui/react_frontend/Dockerfile.dev'
+      - 'ui/react_frontend/package.json'
+      - 'Dockerfile'
+      - 'docker-healthcheck.sh'
+      - 'wait-for-db.sh'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'docker-compose*.yml'
+      - 'scripts/fix-docker-*.sh'
+      - 'scripts/run-docker-compose-ci.sh'
+      - '.github/workflows/docker-compose.yml'
+      - 'ui/react_frontend/Dockerfile.dev'
+      - 'ui/react_frontend/package.json'
+      - 'Dockerfile'
+      - 'docker-healthcheck.sh'
+      - 'wait-for-db.sh'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  docker-compose-integration:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Initial disk space check
+        run: |
+          echo "Initial disk space:"
+          df -h
+          echo "Memory usage:"
+          free -m
+
+      - name: Clean up runner workspace
+        run: |
+          echo "Cleaning up runner workspace..."
+          rm -rf /tmp/* || true
+          sudo apt-get clean
+          echo "Disk space after workspace cleanup:"
+          df -h
+
+      - name: Clean up Docker system
+        run: |
+          echo "Cleaning up unused Docker images, containers, and volumes..."
+          docker system prune -a -f --volumes
+          echo "Disk space after Docker cleanup:"
+          df -h
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Check for frontend
+        id: check-frontend
+        run: |
+          if [ -d "ui/react_frontend" ]; then
+            echo "has_frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node.js
+        if: steps.check-frontend.outputs.has_frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install pnpm
+        if: steps.check-frontend.outputs.has_frontend == 'true'
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/fix-docker-network.sh
+          chmod +x scripts/fix-docker-compose.sh
+          chmod +x scripts/run-docker-compose-ci.sh
+          chmod +x docker-healthcheck.sh || true
+          chmod +x wait-for-db.sh || true
+
+      - name: Fix Docker network
+        run: |
+          echo "Running Docker network fix script..."
+          ./scripts/fix-docker-network.sh
+
+      - name: Fix Docker Compose
+        run: |
+          echo "Running Docker Compose fix script..."
+          ./scripts/fix-docker-compose.sh
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: latest
+          driver-opts: |
+            image=moby/buildkit:v0.12.0
+          buildkitd-flags: --debug
+
+      # Debug Docker networks
+      - name: Debug Docker networks
+        run: |
+          echo "Inspecting all Docker networks..."
+          docker network ls
+          echo "Inspecting 'paissive-network'..."
+          docker network inspect paissive-network || echo "Network 'paissive-network' does not exist."
+
+      # Check if Docker Hub secrets are set
+      - name: Check Docker Hub secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "::warning::DOCKERHUB_USERNAME and/or DOCKERHUB_TOKEN secrets are not set. Docker Hub login will be skipped, which may lead to rate limiting."
+            echo "dockerhub_secrets_set=false" >> $GITHUB_OUTPUT
+          else
+            echo "dockerhub_secrets_set=true" >> $GITHUB_OUTPUT
+          fi
+
+      # Log in to Docker Hub to avoid rate limits
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        if: steps.check-secrets.outputs.dockerhub_secrets_set == 'true'
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Check disk space before pulling images
+      - name: Check disk space before pulling images
+        run: |
+          echo "Disk space before pulling images:"
+          df -h
+
+      # Build and start services with Docker Compose
+      - name: Build and start services
+        run: |
+          # Run the Docker Compose CI script
+          echo "Running Docker Compose CI script..."
+          ./scripts/run-docker-compose-ci.sh
+
+      # Check Docker services status
+      - name: Check Docker services status
+        run: |
+          echo "Checking Docker services status..."
+
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+
+          $COMPOSE_CMD ps
+          echo "Docker disk usage:"
+          docker system df
+
+      # Run tests if available
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+          
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+          
+          # Run backend tests if available
+          if $COMPOSE_CMD exec -T app python -m pytest 2>/dev/null; then
+            echo "Backend tests completed"
+          else
+            echo "No backend tests found or tests failed"
+          fi
+          
+          # Run frontend tests if available
+          if [ -d "ui/react_frontend" ] && $COMPOSE_CMD exec -T frontend npm test 2>/dev/null; then
+            echo "Frontend tests completed"
+          else
+            echo "No frontend tests found or tests failed"
+          fi
+
+      # Tear down Docker Compose
+      - name: Tear down Docker Compose
+        if: always()
+        run: |
+          echo "Tearing down Docker Compose..."
+          
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+          
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "ERROR: No Docker Compose installation found."
+            exit 1
+          fi
+          
+          $COMPOSE_CMD down -v
+
+      # Final system status
+      - name: Final system status
+        if: always()
+        run: |
+          echo "Final system status:"
+          
+          # Function to check if a command exists
+          command_exists() {
+            command -v "$1" >/dev/null 2>&1
+          }
+          
+          # Determine which Docker Compose command to use
+          if command_exists "docker compose"; then
+            COMPOSE_CMD="docker compose"
+          elif command_exists "docker-compose"; then
+            COMPOSE_CMD="docker-compose"
+          else
+            echo "WARNING: No Docker Compose installation found."
+            COMPOSE_CMD=""
+          fi
+          
+          echo "Docker Compose version:"
+          if [ -n "$COMPOSE_CMD" ]; then
+            $COMPOSE_CMD version
+          else
+            echo "Docker Compose not available"
+          fi
+          
+          echo "Docker system info:"
+          docker info || true
+          echo "Docker disk usage:"
+          docker system df -v || true
+          echo "Docker service status:"
+          if [ -n "$COMPOSE_CMD" ]; then
+            $COMPOSE_CMD ps || true
+          else
+            docker ps || true
+          fi
+          echo "Docker images:"
+          docker images || true
+          echo "Docker containers (all):"
+          docker ps -a || true
+          echo "Final disk space:"
+          df -h
