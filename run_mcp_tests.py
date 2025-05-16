@@ -119,6 +119,22 @@ def run_mcp_tests() -> int:
         # Ensure the modelcontextprotocol module is importable
         _ensure_mcp_module()
 
+        # Ensure we can import MCPAdapter from ai_models
+        try:
+            import sys
+            from importlib import reload
+            from ai_models.adapters import mcp_adapter
+            reload(mcp_adapter)
+            
+            # Import ai_models to ensure it's reloaded with the proper modules
+            import ai_models
+            reload(ai_models.adapters)
+            reload(ai_models)
+            
+            logger.info("Reloaded ai_models modules to ensure MCPAdapter is available")
+        except Exception as e:
+            logger.error(f"Error ensuring MCPAdapter is importable: {e}")
+
         # Run the tests
         result = subprocess.run(
             cmd,
