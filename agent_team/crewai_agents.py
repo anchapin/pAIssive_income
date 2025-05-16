@@ -7,7 +7,35 @@ Adapt and extend these scaffolds to fit your use-case.
 - Docs: https://docs.crewai.com/
 """
 
-from crewai import Agent, Task, Crew
+# Check if crewai is installed
+try:
+    from crewai import Agent, Task, Crew
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    # Define placeholder classes for type hints
+    class Agent:
+        def __init__(self, role="", goal="", backstory=""):
+            self.role = role
+            self.goal = goal
+            self.backstory = backstory
+
+    class Task:
+        def __init__(self, description="", agent=None):
+            self.description = description
+            self.agent = agent
+
+    class Crew:
+        def __init__(self, agents=None, tasks=None):
+            self.agents = agents or []
+            self.tasks = tasks or []
+
+        def run(self):
+            raise ImportError("CrewAI is not installed. Install with: pip install '.[agents]'")
+
+    # Print a warning
+    import warnings
+    warnings.warn("CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'")
 
 # Example: Define agent roles
 data_gatherer = Agent(
@@ -54,9 +82,15 @@ if __name__ == "__main__":
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    # Example: Run the workflow (for demonstration; adapt as needed)
-    reporting_team.run()
-    logging.info("CrewAI reporting workflow completed.")
+    if not CREWAI_AVAILABLE:
+        logging.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+    else:
+        # Example: Run the workflow (for demonstration; adapt as needed)
+        try:
+            reporting_team.run()
+            logging.info("CrewAI reporting workflow completed.")
+        except Exception as e:
+            logging.error(f"Error running CrewAI workflow: {e}")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.
