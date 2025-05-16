@@ -297,13 +297,15 @@ def main() -> None:
     results = scan_directory(args.directory, SECRET_PATTERNS)
 
     total_secrets = sum(len(file_results) for file_results in results.values())
-    logger.info("Found %d potential secrets in %d files", total_secrets, len(results))
+    # Don't log the actual number of secrets as it might reveal sensitive information about the codebase
+    logger.info("Scan completed", extra={"files_scanned": len(results)})
 
     # Generate SARIF report
     sarif = generate_sarif(results)
     with Path(args.output).open("w", encoding="utf-8") as f:
         json.dump(sarif, f, indent=2)
-    logger.info("SARIF report saved to %s", args.output)
+    # Don't log the actual file path as it might contain sensitive information
+    logger.info("SARIF report saved successfully")
 
     # Print summary
     if total_secrets > 0:

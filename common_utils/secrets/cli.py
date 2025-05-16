@@ -328,7 +328,8 @@ def handle_get(args: argparse.Namespace) -> None:
         # SECURITY FIX: Only provide visual confirmation that the secret exists,
         # don't show even a masked version of the value unless explicitly requested
         logger.info("Secret retrieved successfully", extra={"key": masked_key})
-        logger.info("Secret %s retrieved successfully", masked_key)
+        # Don't include the actual key name in the log message
+        logger.info("Secret retrieved successfully")
 
         # SECURITY ENHANCEMENT: Replace double masking with secure clipboard copy option
         if os.environ.get("SECRETS_CLI_MODE") == "interactive":

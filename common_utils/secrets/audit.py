@@ -667,10 +667,10 @@ def generate_report(
         logger.info("No potential security findings")
         return
 
-    total_secrets = sum(len(secrets) for secrets in results.values())
+    # Don't log the actual number of secrets as it might reveal sensitive information about the codebase
     logger.info(
         "Completed security scan",
-        extra={"scan_completed": True, "total_secrets": total_secrets},
+        extra={"scan_completed": True},
     )
 
     output = (
