@@ -50,7 +50,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install dependencies (Unix)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           python -m pip install --upgrade pip
@@ -62,17 +63,51 @@ jobs:
             python -m pip install -r requirements-py311.txt
           fi
 
-      - name: Install MCP SDK
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install -r requirements.txt
+          python -m pip install email-validator
+          # Install Python version-specific dependencies
+          if (Test-Path requirements-py311.txt) {
+            python -m pip install -r requirements-py311.txt
+          }
+
+      - name: Install MCP SDK (Unix)
+        if: runner.os != 'Windows'
         run: |
           python install_mcp_sdk.py
 
-      - name: Run MCP adapter tests
+      - name: Install MCP SDK (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python install_mcp_sdk.py
+
+      - name: Run MCP adapter tests (Unix)
+        if: runner.os != 'Windows'
         run: |
           python run_mcp_tests.py
 
-      - name: Run MCP adapter tests with coverage
+      - name: Run MCP adapter tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          python -m pytest -v --cov=ai_models.adapters.mcp_adapter --cov=ai_models.adapters.exceptions --cov-report=xml --cov-report=term tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py --no-header --no-summary -k "not test_mcp_server" --confcutdir=tests/ai_models/adapters --noconftest --cov-fail-under=60
+          python run_mcp_tests.py
+
+      - name: Run MCP adapter tests with coverage (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          python -m pytest -v --cov=ai_models.adapters.mcp_adapter --cov=ai_models.adapters.exceptions --cov-report=xml --cov-report=term tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py --no-header --no-summary -k "not test_mcp_server" --confcutdir=tests/ai_models/adapters --noconftest --cov-fail-under=80
+
+      - name: Run MCP adapter tests with coverage (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pytest -v --cov=ai_models.adapters.mcp_adapter --cov=ai_models.adapters.exceptions --cov-report=xml --cov-report=term tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py --no-header --no-summary -k "not test_mcp_server" --confcutdir=tests/ai_models/adapters --noconftest --cov-fail-under=80
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
