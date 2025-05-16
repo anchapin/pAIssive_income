@@ -30,7 +30,17 @@ def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:
     Returns:
         Dict containing a valid empty SARIF structure
 
+    Raises:
+        ValueError: If tool_name is invalid
+        TypeError: If tool_name is not a string
     """
+    if not isinstance(tool_name, str):
+        raise TypeError()
+    if not tool_name or tool_name.isspace():
+        raise ValueError()
+
+    # Return the SARIF structure directly - no need for try/except here
+    # as the structure is static and won't raise exceptions
     return {
         "version": "2.1.0",
         "$schema": (
@@ -63,7 +73,16 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
     Returns:
         bool: True if successful, False otherwise
 
+    Raises:
+        ValueError: If output path is invalid
+        OSError: If there are filesystem related errors
+        TypeError: If data is invalid
     """
+    if not output_file:
+        raise ValueError()
+    if not isinstance(sarif_data, dict):
+        raise TypeError()
+
     try:
         # Create directory if it doesn't exist
         output_path = Path(output_file)
@@ -71,6 +90,15 @@ def save_sarif_file(sarif_data: dict[str, Any], output_file: str) -> bool:
 
         with output_path.open("w") as f:
             json.dump(sarif_data, f, indent=2)
+    except OSError:
+        logger.exception("Filesystem error")
+        return False
+    except TypeError:
+        logger.exception("Invalid data type in SARIF")
+        return False
+    except json.JSONDecodeError:
+        logger.exception("JSON encoding error")
+        return False
     except Exception:
         logger.exception("Error saving SARIF file")
         return False
@@ -236,15 +264,14 @@ def convert_file(
     Convert a JSON file to SARIF format.
 
     Args:
-        input_file: Path to input JSON file
-        output_file: Path to output SARIF file
+        input_file: Path to the input JSON file
+        output_file: Path to save the SARIF file
         tool_name: Name of the tool that produced the results
         tool_url: URL with information about the tool
-        result_mapping: Mapping from tool-specific fields to SARIF fields
+        result_mapping: Optional mapping of JSON keys to SARIF fields
 
     Returns:
         bool: True if successful, False otherwise
-
     """
     try:
         # Check if input file exists and has content

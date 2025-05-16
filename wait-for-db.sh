@@ -1,5 +1,5 @@
 #!/bin/bash
-# Enhanced wait-for-db.sh - Wait for PostgreSQL database to be ready with robust error handling
+# Simplified wait-for-db.sh for CI environments
 
 # Enable error handling but don't exit immediately on error
 set +e
@@ -15,22 +15,13 @@ port="$2"
 shift 2
 cmd="$@"
 
-log "Starting wait-for-db script for PostgreSQL at $host:$port..."
+log "Starting wait-for-db script for PostgreSQL at $host:$port (CI-optimized)..."
 
-# Configuration
-max_attempts=${DB_WAIT_MAX_ATTEMPTS:-120}
-initial_retry_interval=${DB_WAIT_INITIAL_RETRY_INTERVAL:-2}
-max_retry_interval=${DB_WAIT_MAX_RETRY_INTERVAL:-15}
-connection_timeout=${DB_WAIT_CONNECTION_TIMEOUT:-10}
-
-# Reduce wait times in CI environment
-if [ "$CI" = "true" ]; then
-  log "CI environment detected, using faster database wait settings"
-  max_attempts=30
-  initial_retry_interval=1
-  max_retry_interval=5
-  connection_timeout=5
-fi
+# Configuration - reduced for CI environments
+max_attempts=30
+initial_retry_interval=1
+max_retry_interval=5
+connection_timeout=3
 
 # Function to check if PostgreSQL port is reachable
 check_port() {
@@ -52,15 +43,13 @@ check_postgres() {
     return 0
   else
     log "❌ PostgreSQL connection failed"
-    # Print the error message for better diagnostics
-    PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q' 2>&1 || true
     return 1
   fi
 }
 
-# Function to get detailed PostgreSQL diagnostics
+# Function to get simplified PostgreSQL diagnostics for CI
 get_postgres_diagnostics() {
-  log "=== POSTGRESQL DIAGNOSTICS ==="
+  log "=== POSTGRESQL DIAGNOSTICS (CI) ==="
 
   # Check if host is reachable via ping
   log "Checking if host is reachable via ping:"
@@ -69,25 +58,9 @@ get_postgres_diagnostics() {
   # Check if port is open
   check_port
 
-  # Check DNS resolution
-  log "Checking DNS resolution for host $host:"
-  getent hosts "$host" || log "❌ Could not resolve host $host"
-
-  # Try to get PostgreSQL version
-  log "Trying to get PostgreSQL version:"
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version();" -w -t $connection_timeout 2>/dev/null || log "❌ Could not get PostgreSQL version"
-
-  # Check if we can list databases
-  log "Trying to list databases:"
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\l" -w -t $connection_timeout 2>/dev/null || log "❌ Could not list databases"
-
-  # Check network connectivity
-  log "Checking network connectivity:"
-  ip addr show || log "❌ Could not show network interfaces"
-
-  # Check PostgreSQL logs if available
-  log "Checking PostgreSQL logs if available:"
-  docker logs paissive-postgres 2>/dev/null || log "❌ Could not access PostgreSQL logs (this is normal in container context)"
+  # Try a simple connection test
+  log "Trying simple connection test:"
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 1;" -w -t $connection_timeout 2>/dev/null || log "❌ Could not connect to PostgreSQL"
 }
 
 # Wait for the database to be ready with exponential backoff
@@ -131,48 +104,35 @@ done
 # Check if we exceeded max attempts
 if [ $attempt -gt $max_attempts ]; then
   log "⚠️ WARNING: Failed to connect to PostgreSQL after $max_attempts attempts"
-  log "Will continue anyway - the Flask app will handle database connection errors gracefully"
+  log "Will continue anyway for CI environment"
 else
   log "✅ Successfully connected to PostgreSQL after $attempt attempts"
 fi
 
-# Create necessary directories with proper permissions
+# Initialize the database with simplified error handling for CI
+log "Initializing database (CI mode)..."
+python init_db.py || log "⚠️ Database initialization failed, continuing anyway for CI"
+
+# Initialize the agent database
+log "Initializing agent database (CI mode)..."
+python init_agent_db.py || log "⚠️ Agent database initialization failed, continuing anyway for CI"
+
+# Create necessary directories
 log "Creating required directories..."
 mkdir -p /app/logs
 mkdir -p /app/data
-chmod 777 /app/logs  # Ensure write permissions
-chmod 777 /app/data  # Ensure write permissions
 
 # Set up logging
 log "Setting up logging..."
 touch /app/logs/flask.log
 touch /app/logs/app.log
-touch /app/logs/error.log
-chmod 666 /app/logs/flask.log
-chmod 666 /app/logs/app.log
-chmod 666 /app/logs/error.log
 
-# Initialize the database with better error handling
-log "Initializing database..."
-if python init_db.py; then
-  log "✅ Database initialization successful"
-else
-  db_init_exit_code=$?
-  log "⚠️ WARNING: Database initialization failed with exit code $db_init_exit_code"
-  log "Will continue anyway - the Flask app will handle database initialization errors gracefully"
-fi
-
-# Print environment information
-log "=== ENVIRONMENT INFORMATION ==="
+# Print minimal environment information for CI
+log "=== CI ENVIRONMENT INFORMATION ==="
 log "Python version: $(python --version 2>&1)"
-log "Flask version: $(pip show flask 2>/dev/null | grep Version || echo 'Flask not installed')"
-log "PostgreSQL client version: $(psql --version 2>&1 || echo 'psql not installed')"
-log "Environment variables:"
-log "  FLASK_ENV: $FLASK_ENV"
-log "  PYTHONPATH: $PYTHONPATH"
-log "  DATABASE_URL: $DATABASE_URL (showing only for diagnostic purposes)"
-log "  PATH: $PATH"
+log "CI: $CI"
+log "GITHUB_ACTIONS: $GITHUB_ACTIONS"
 
-# Execute the command with proper error handling
+# Execute the command
 log "Starting Flask application with command: $cmd"
 exec $cmd

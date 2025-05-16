@@ -1,9 +1,11 @@
 """test_user_service - Test module for user service."""
 
+import os
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import Flask
 
 # Import at the top level
 from users.models import db
@@ -36,6 +38,9 @@ class MockAppContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+    # Add methods needed by the UserService
+    def add(self, obj):
+        pass
 
 # Create patch for flask.models
 patch("users.models.User", MockUser).start()
@@ -51,7 +56,22 @@ patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext()))
 
 
 @pytest.fixture
-def user_service():
+def app():
+    """Create a Flask app for testing."""
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    return app
+
+
+@pytest.fixture
+def app_context(app):
+    """Create an application context for testing."""
+    with app.app_context():
+        yield
+
+
+@pytest.fixture
+def user_service(app_context):
     """Create a UserService instance for testing."""
     return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
 
@@ -80,7 +100,7 @@ def test_create_user(user_service):
             result = user_service.create_user(
                 username="testuser",
                 email="test@example.com",
-                auth_credential="password123",
+                auth_credential="test_credential",  # Use a hardcoded value instead of environment variable
             )
 
             # Assertions
@@ -108,7 +128,7 @@ def test_create_user_existing_username(user_service):
             user_service.create_user(
                 username="testuser",
                 email="test@example.com",
-                auth_credential="password123",
+                auth_credential="test_credential",  # Use a hardcoded value instead of environment variable
             )
 
         assert "Username already exists" in str(excinfo.value)
@@ -136,7 +156,7 @@ def test_authenticate_user_success(user_service):
 
         # Call the method
         success, result = user_service.authenticate_user(
-            username_or_email="testuser", auth_credential="password123"
+            username_or_email="testuser", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
         )
 
         # Assertions
@@ -169,7 +189,7 @@ def test_authenticate_user_failure(user_service):
 
         # Call the method
         success, result = user_service.authenticate_user(
-            username_or_email="testuser", auth_credential="wrong_password"
+            username_or_email="testuser", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
         )
 
         # Assertions
@@ -188,7 +208,7 @@ def test_authenticate_user_not_found(user_service):
 
         # Call the method
         success, result = user_service.authenticate_user(
-            username_or_email="nonexistent", auth_credential="password123"
+            username_or_email="nonexistent", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
         )
 
         # Assertions

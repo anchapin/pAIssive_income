@@ -37,30 +37,32 @@ test.describe.skip('Niche Analysis Workflow', () => {
     await page.waitForLoadState('load', { timeout: 10000 });
 
     // Then wait for the element with increased timeout
-    try {
-      await expect(page.getByText(/niche analysis/i)).toBeVisible({ timeout: 30000 });
-      console.log('Niche Analysis text is visible!');
-    } catch (error) {
-      console.error('Failed to find Niche Analysis text:', error);
-      // Take a screenshot for debugging
-      await page.screenshot({ path: 'debug-niche-analysis-not-found.png', fullPage: true });
-      throw error;
-    }
+    // Wait for the niche analysis text to be visible
+    const nicheAnalysisText = page.getByText(/niche analysis/i);
+    await nicheAnalysisText.waitFor({ timeout: 30000 });
+    await expect(nicheAnalysisText).toBeVisible();
+    console.log('Niche Analysis text is visible!');
 
     // Take a screenshot if the element is found for debugging
     await page.screenshot({ path: 'niche-analysis-found.png', fullPage: true });
 
     // Click "Start Niche Analysis" (example: adjust selector as needed)
-    await page.getByRole('button', { name: /start niche analysis/i }).click();
+    const startButton = page.getByRole('button', { name: /start niche analysis/i });
+    await startButton.click();
 
     // Wait for analysis to complete (replace with actual UI logic)
-    await expect(page.getByText(/analysis complete|project plan/i, { exact: false })).toBeVisible();
+    const analysisCompleteText = page.getByText(/analysis complete|project plan/i, { exact: false });
+    await analysisCompleteText.waitFor({ timeout: 30000 });
+    await expect(analysisCompleteText).toBeVisible();
 
     // Optionally: expand project plan details
-    await page.getByRole('button', { name: /view project plan/i }).click();
+    const viewPlanButton = page.getByRole('button', { name: /view project plan/i });
+    await viewPlanButton.click();
 
     // Check that project plan is displayed (adjust selector as needed)
-    await expect(page.getByText(/niche|solution|monetization|marketing/i)).toBeVisible();
+    const projectPlanText = page.getByText(/niche|solution|monetization|marketing/i);
+    await projectPlanText.waitFor({ timeout: 10000 });
+    await expect(projectPlanText).toBeVisible();
 
     // Optionally: take a screenshot for visual regression
     await page.screenshot({ path: 'niche-analysis-result.png', fullPage: true });

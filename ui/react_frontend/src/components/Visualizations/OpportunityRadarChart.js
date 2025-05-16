@@ -113,7 +113,7 @@ const OpportunityRadarChart = ({ data, title = "Opportunity Factor Analysis", he
         ) : (
           <RadarChart outerRadius={90} data={chartData}>
             <PolarGrid />
-            <PolarAngleAxis dataKey="name" />
+            <PolarAngleAxis dataKey="subject" />
             <PolarRadiusAxis angle={30} domain={[0, 1.0]} />
             {["marketSize", "growthRate", "competition", "problemSeverity", "solutionFeasibility", "monetizationPotential"].map(
               (dataKey, index) => (

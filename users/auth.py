@@ -77,7 +77,7 @@ def verify_credential(plain_credential: str, hashed_credential: bytes | str) -> 
         try:
             hashed_credential = hashed_credential.encode("utf-8")
         except (UnicodeEncodeError, AttributeError):
-            logger.exception("Invalid hashed credential format")
+            logger.error("Invalid hashed credential format")
             return False
 
     # Verify the credential
@@ -90,7 +90,7 @@ def verify_credential(plain_credential: str, hashed_credential: bytes | str) -> 
         return bool(result)
     except Exception as e:
         # Use a generic error message without details
-        logger.exception(
+        logger.error(
             "Authentication verification error", extra={"error_type": type(e).__name__}
         )
         return False

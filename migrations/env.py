@@ -24,13 +24,13 @@ config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
-# Get metadata from Flask-SQLAlchemy models
-# This enables Alembic to detect model changes automatically
+# Get database URL from environment or use default
+db_url = os.environ.get("DATABASE_URL", "postgresql://myuser:mypassword@db:5432/mydb")
 config.set_main_option(
     "sqlalchemy.url",
-    str(current_app.extensions["migrate"].db.get_engine().url).replace("%", "%%"),
+    db_url
 )
-target_metadata = current_app.extensions["migrate"].db.metadata
+target_metadata = None  # We're not using model metadata for these migrations
 
 # Additional configuration options can be set here if needed
 
@@ -82,16 +82,17 @@ def run_migrations_online() -> None:
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
-                logger.info("No changes in schema detected.")
+            logger.info("No changes in schema detected.")
 
-    connectable = current_app.extensions["migrate"].db.get_engine()
+    from sqlalchemy import create_engine
 
-    with connectable.connect() as connection:
+    engine = create_engine(config.get_main_option("sqlalchemy.url"))
+
+    with engine.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            **current_app.extensions["migrate"].configure_args,
         )
 
         with context.begin_transaction():

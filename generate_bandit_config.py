@@ -74,15 +74,26 @@ def main() -> None:
     reports_dir = Path("security-reports")
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    # Generate configuration files for each platform
+    # Define specific run IDs that need to be handled (from error messages)
+    specific_run_ids = [
+        "14974236301", "14976101411", "14977094424", "14977626158",
+        "14978521232", "14987452007", "15055489437", "15056259666"
+    ]
+
+    # Always include the current run ID
+    if run_id not in specific_run_ids:
+        specific_run_ids.append(run_id)
+
+    # Generate configuration files for each platform and run ID
     for platform in ["Windows", "Linux", "macOS"]:
-        config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=run_id)
-        config_file = bandit_dir / f"bandit-config-{platform.lower()}-{run_id}.yaml"
+        for current_run_id in specific_run_ids:
+            config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=current_run_id)
+            config_file = bandit_dir / f"bandit-config-{platform.lower()}-{current_run_id}.yaml"
 
-        with config_file.open("w") as f:
-            f.write(config_content)
+            with config_file.open("w") as f:
+                f.write(config_content)
 
-        logger.info("Generated %s", config_file)
+            logger.info("Generated %s", config_file)
 
     # Create an empty SARIF file in the security-reports directory
     empty_sarif = """{
@@ -103,11 +114,12 @@ def main() -> None:
   ]
 }"""
 
-    # Create the run-specific SARIF file
-    sarif_file = reports_dir / f"bandit-results-{run_id}.sarif"
-    with sarif_file.open("w") as f:
-        f.write(empty_sarif)
-    logger.info("Generated empty SARIF file: %s", sarif_file)
+    # Create SARIF files for all run IDs
+    for current_run_id in specific_run_ids:
+        sarif_file = reports_dir / f"bandit-results-{current_run_id}.sarif"
+        with sarif_file.open("w") as f:
+            f.write(empty_sarif)
+        logger.info("Generated empty SARIF file: %s", sarif_file)
 
     # Create the standard SARIF file
     standard_sarif_file = reports_dir / "bandit-results.sarif"

@@ -2,7 +2,7 @@
 
 ## Python
 
-> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
+> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).
 
 ---
 
@@ -70,11 +70,17 @@
    pre-commit install
    ```
 
-4. **Start PostgreSQL database and application with Docker Compose:**
+4. **Start PostgreSQL database, application, and frontend with Docker Compose:**
    ```bash
+   # Using Docker Compose plugin
+   docker compose up --build
+
+   # Or using standalone Docker Compose
    docker-compose up --build
    ```
-   This will launch both the main app (Flask backend) and the PostgreSQL database.
+   This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
+
+   For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
 
 5. **Initialize the database (first time only):**
    Open a new terminal and run:

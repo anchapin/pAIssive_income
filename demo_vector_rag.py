@@ -17,6 +17,9 @@ import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
+# Configure logging instead of print statements
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)

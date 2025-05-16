@@ -14,6 +14,7 @@ import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
+from typing import List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -55,7 +56,6 @@ def _prepare_test_command() -> list[str]:
 
     """
     # Define the test command with fixed arguments
-    # These are hardcoded and not user-provided, so they're safe
     cmd = [
         sys.executable,
         "-m",
@@ -101,7 +101,6 @@ def run_mcp_tests() -> int:
 
     Returns:
         int: The return code from the test run (0 for success, non-zero for failure)
-
     """
     logger.info("Running MCP adapter tests...")
     logger.info("Platform: %s", platform.system())
@@ -134,10 +133,10 @@ def run_mcp_tests() -> int:
             check=False,
             capture_output=True,
             text=True,
-            shell=False,  # Explicitly set shell=False for security
+            shell=False,
         )
 
-        # Log the output instead of using print
+        # Log the output
         if result.stdout:
             logger.info(result.stdout)
         if result.stderr:
@@ -153,7 +152,6 @@ def run_mcp_tests() -> int:
         return 1
     else:
         # This will only execute if no exception is raised
-        # Ensure we return an int, not Any
         return 0 if result.returncode == 0 else 1
 
 

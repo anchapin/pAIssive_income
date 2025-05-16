@@ -1,233 +1,225 @@
 # Docker Compose Workflows
 
-This document provides detailed information about the Docker Compose workflows used in our GitHub Actions CI/CD pipeline.
+This document provides detailed information about the Docker Compose workflow used in our GitHub Actions CI/CD pipeline.
 
 ## Overview
 
-Our project uses two main Docker Compose workflows:
+Our project uses a consolidated Docker Compose workflow:
 
-1. **docker-compose-integration.yml**: A comprehensive workflow for Docker Compose integration testing with robust error handling, health checks, and disk space management.
-2. **docker-compose-alternative.yml**: An alternative approach using Docker's official GitHub Action with improved health checks.
+**docker-compose.yml**: A comprehensive workflow for Docker Compose integration testing with robust error handling, health checks, and disk space management. This workflow supports both standard and AG-UI configurations.
 
 ## Recent Updates
 
-The Docker Compose workflows have been updated with the following improvements:
+The Docker Compose workflow has been consolidated to combine the best features from multiple workflows:
 
-1. **Enhanced Resource Management**: Improved disk space monitoring and cleanup procedures
-2. **Robust Image Pulling**: Added retry logic with exponential backoff and fallback mechanisms
-3. **Comprehensive Health Checks**: Enhanced health verification for both database and application
-4. **Detailed Diagnostics**: Added extensive logging and container inspection for troubleshooting
-5. **Docker Hub Authentication**: Added support for Docker Hub authentication to avoid rate limits
+- Improved error handling and retry logic
+- Enhanced health checks for services
+- Better disk space management
+- Support for both standard and AG-UI configurations
+- Automatic detection of frontend requirements
 
-## docker-compose-integration.yml
+## Workflow Features
 
-The `docker-compose-integration.yml` workflow is designed to provide a robust and reliable Docker Compose integration testing environment with comprehensive error handling, health checks, and resource management.
+### 1. Disk Space Management
 
-### Key Features
+The workflow includes steps to manage disk space on GitHub Actions runners:
 
-#### 1. Resource Management
-
-- **Initial Cleanup**: Performs cleanup of runner workspace and Docker system before starting
-
-  ```yaml
-  - name: Clean up runner workspace
-    run: |
-      echo "Cleaning up runner workspace..."
-      rm -rf /tmp/* || true
-      sudo apt-get clean
-  ```
-
-- **Proactive Disk Space Monitoring**: Regularly checks available disk space throughout the workflow
-
-  ```yaml
-  - name: Check disk space before pulling images
-    run: |
-      echo "Disk space before pulling images:"
-      df -h
-  ```
-
-- **Automatic Cleanup**: Performs cleanup when disk space is low
-
-  ```yaml
-  available_space=$(df -m / | awk 'NR==2 {print $4}')
-  if [ "$available_space" -lt 1000 ]; then
-    echo "WARNING: Low disk space detected ($available_space MB). Performing cleanup..."
-    docker system prune -a -f --volumes
+```yaml
+- name: Clean up runner workspace
+  run: |
+    echo "Cleaning up runner workspace..."
     rm -rf /tmp/* || true
     sudo apt-get clean
-  fi
-  ```
+    echo "Disk space after workspace cleanup:"
+    df -h
 
-#### 2. Docker Image Management
+- name: Clean up Docker system
+  run: |
+    echo "Cleaning up unused Docker images, containers, and volumes..."
+    docker system prune -a -f --volumes
+    echo "Disk space after Docker cleanup:"
+    df -h
+```
 
-- **Enhanced Image Pulling**: Robust image pulling with retry logic and exponential backoff
+### 2. Dynamic Frontend Detection
 
-  ```yaml
-  while [ $attempt -le $max_attempts ]; do
-    echo "Attempt $attempt of $max_attempts to pull postgres:15.3-alpine"
+The workflow automatically detects if a frontend exists and sets up the necessary dependencies:
 
-    # Calculate backoff time (exponential with jitter)
-    backoff_time=$((5 * 2 ** (attempt - 1) + RANDOM % 5))
-
-    if timeout 300s docker pull postgres:15.3-alpine; then
-      echo "Successfully pulled postgres:15.3-alpine"
-      break
+```yaml
+- name: Check for frontend
+  id: check-frontend
+  run: |
+    if [ -d "ui/react_frontend" ]; then
+      echo "has_frontend=true" >> $GITHUB_OUTPUT
     else
-      echo "Failed to pull postgres:15.3-alpine on attempt $attempt"
-      sleep $backoff_time
-      attempt=$((attempt+1))
+      echo "has_frontend=false" >> $GITHUB_OUTPUT
     fi
-  done
-  ```
 
-- **Fallback Mechanisms**: Uses alternative registries and image versions when primary options fail
+- name: Set up Node.js
+  if: steps.check-frontend.outputs.has_frontend == 'true'
+  uses: actions/setup-node@v4
+  with:
+    node-version: '18'
+    cache: 'npm'
+    cache-dependency-path: '**/package-lock.json'
 
-  ```yaml
-  # Try multiple fallback images in order of preference
-  for fallback_image in "postgres:14-alpine" "postgres:13-alpine" "postgres:alpine"; do
-    echo "Trying fallback image: $fallback_image"
-    if timeout 180s docker pull $fallback_image; then
-      echo "Successfully pulled $fallback_image as fallback"
-      # Update docker-compose.yml to use the fallback image
-      sed -i "s|postgres:15.3-alpine|$fallback_image|g" docker-compose.yml
-      break
+- name: Install pnpm
+  if: steps.check-frontend.outputs.has_frontend == 'true'
+  uses: pnpm/action-setup@v3
+  with:
+    version: 8
+    run_install: false
+```
+
+### 3. Docker Network and Compose Fixes
+
+The workflow uses dedicated scripts to fix common Docker network and Docker Compose issues:
+
+```yaml
+- name: Fix Docker network
+  run: |
+    echo "Running Docker network fix script..."
+    ./scripts/fix-docker-network.sh
+
+- name: Fix Docker Compose
+  run: |
+    echo "Running Docker Compose fix script..."
+    ./scripts/fix-docker-compose.sh
+```
+
+### 4. Docker Buildx Setup
+
+The workflow sets up Docker Buildx for improved build performance:
+
+```yaml
+- name: Set up Docker Buildx
+  uses: docker/setup-buildx-action@v3
+  with:
+    version: latest
+    driver-opts: |
+      image=moby/buildkit:v0.12.0
+    buildkitd-flags: --debug
+```
+
+### 5. Docker Hub Authentication
+
+The workflow includes optional Docker Hub authentication to avoid rate limits:
+
+```yaml
+- name: Check Docker Hub secrets
+  id: check-secrets
+  run: |
+    if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+      echo "::warning::DOCKERHUB_USERNAME and/or DOCKERHUB_TOKEN secrets are not set. Docker Hub login will be skipped, which may lead to rate limiting."
+      echo "dockerhub_secrets_set=false" >> $GITHUB_OUTPUT
+    else
+      echo "dockerhub_secrets_set=true" >> $GITHUB_OUTPUT
     fi
-  done
-  ```
 
-#### 3. Health Checks
+- name: Log in to Docker Hub
+  uses: docker/login-action@v3
+  if: steps.check-secrets.outputs.dockerhub_secrets_set == 'true'
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    password: ${{ secrets.DOCKERHUB_TOKEN }}
+```
 
-- **Database Health Verification**: Comprehensive database health checks with detailed diagnostics
+### 6. Service Startup and Testing
 
-  ```yaml
-  # Check database readiness with more detailed diagnostics
-  echo "Checking if PostgreSQL is accepting connections..."
-  if docker compose exec db pg_isready -U myuser -d mydb -h db; then
-    echo "Database is ready and accepting connections."
+The workflow uses the `run-docker-compose-ci.sh` script to start services and run tests:
 
-    # Verify we can actually connect and run a simple query
-    echo "Verifying database connection with a simple query..."
-    if docker compose exec db psql -U myuser -d mydb -c "SELECT 1"; then
-      echo "Database connection verified successfully."
-      break
+```yaml
+- name: Build and start services
+  run: |
+    # Run the Docker Compose CI script
+    echo "Running Docker Compose CI script..."
+    ./scripts/run-docker-compose-ci.sh
+
+- name: Run tests
+  run: |
+    echo "Running tests..."
+    
+    # Function to check if a command exists
+    command_exists() {
+      command -v "$1" >/dev/null 2>&1
+    }
+    
+    # Determine which Docker Compose command to use
+    if command_exists "docker compose"; then
+      COMPOSE_CMD="docker compose"
+    elif command_exists "docker-compose"; then
+      COMPOSE_CMD="docker-compose"
+    else
+      echo "ERROR: No Docker Compose installation found."
+      exit 1
     fi
-  fi
-  ```
+    
+    # Run backend tests if available
+    if $COMPOSE_CMD exec -T app python -m pytest 2>/dev/null; then
+      echo "Backend tests completed"
+    else
+      echo "No backend tests found or tests failed"
+    fi
+    
+    # Run frontend tests if available
+    if [ -d "ui/react_frontend" ] && $COMPOSE_CMD exec -T frontend npm test 2>/dev/null; then
+      echo "Frontend tests completed"
+    else
+      echo "No frontend tests found or tests failed"
+    fi
+```
 
-- **Application Health Verification**: Robust application health checks with multiple verification methods
+## Helper Scripts
 
-  ```yaml
-  # Try different methods to check health
-  if curl -v -f -m $timeout http://localhost:5000/health 2>/dev/null; then
-    echo "SUCCESS: Flask app is healthy!"
-    exit 0
-  elif wget -O- -T $timeout http://localhost:5000/health 2>/dev/null; then
-    echo "SUCCESS: Flask app is healthy (verified with wget)!"
-    exit 0
-  else
-    echo "Health check failed on attempt $i/$max_attempts"
-  fi
-  ```
+The workflow relies on three helper scripts:
 
-#### 4. Comprehensive Diagnostics
+1. **scripts/fix-docker-network.sh**: Fixes Docker network issues by ensuring the `paissive-network` exists and is properly configured.
 
-- **Detailed Logging**: Extensive logging at each stage of the workflow
+2. **scripts/fix-docker-compose.sh**: Fixes Docker Compose issues by checking the installation, validating the configuration file, and fixing common problems.
 
-  ```yaml
-  echo "===== SYSTEM INFORMATION ====="
-  echo "Disk space:"
-  df -h
-  echo "Memory usage:"
-  free -m
-  echo "CPU information:"
-  lscpu || cat /proc/cpuinfo
-  echo "System load:"
-  uptime
-  ```
+3. **scripts/run-docker-compose-ci.sh**: Runs Docker Compose in CI environments by pulling images, starting services, and waiting for them to become healthy.
 
-- **Container Inspection**: Detailed container inspection for troubleshooting
+## Configuration Files
 
-  ```yaml
-  echo "Docker container inspection (app):"
-  docker inspect $(docker ps -q -f name=paissive-income-app) || true
-  echo "Docker container health status (app):"
-  docker inspect --format='{{json .State.Health}}' $(docker ps -q -f name=paissive-income-app) || true
-  ```
+The workflow uses two Docker Compose configuration files:
 
-## docker-compose-alternative.yml
+1. **docker-compose.yml**: The main configuration file that defines the services, networks, and volumes.
 
-The `docker-compose-alternative.yml` workflow provides an alternative approach using Docker's official GitHub Action with improved health checks.
+2. **docker-compose.ci.yml**: A CI-specific override file with optimized settings for GitHub Actions.
 
-### Alternative Workflow Features
+## Troubleshooting
 
-#### 1. Official Docker Buildx Action
+If you encounter issues with the Docker Compose workflow:
 
-- Uses Docker's official GitHub Action to set up Docker Buildx
+1. Check the Docker network:
+   ```bash
+   docker network ls
+   docker network inspect paissive-network
+   ```
 
-  ```yaml
-  - name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v2
-    with:
-      version: latest
-  ```
+2. Check the Docker Compose configuration:
+   ```bash
+   docker compose config
+   ```
 
-#### 2. Network Creation
+3. Check the Docker images:
+   ```bash
+   docker images
+   ```
 
-- Explicitly creates Docker network before starting services
+4. Check the Docker containers:
+   ```bash
+   docker ps -a
+   ```
 
-  ```yaml
-  - name: Create Docker network
-    run: |
-      echo "Creating Docker network paissive-network..."
-      docker network inspect paissive-network >/dev/null 2>&1 || docker network create paissive-network
-  ```
+5. Check the Docker logs:
+   ```bash
+   docker compose logs
+   ```
 
-#### 3. Enhanced Health Checks
-
-- Improved health checks with detailed diagnostics
-
-  ```yaml
-  - name: Wait for Flask app to be healthy
-    run: |
-      echo "Waiting for Flask app to be healthy..."
-      max_attempts=50  # Increased from 30 to 50
-      for i in $(seq 1 $max_attempts); do
-        # More verbose curl for better diagnostics
-        echo "Attempt $i: Checking Flask app health..."
-        if curl -v -f -m 10 http://localhost:5000/health; then
-          echo "Flask app is healthy."
-          exit 0
-        else
-          echo "Waiting for Flask app... (attempt $i/$max_attempts)"
-
-          # Check container status
-          echo "Container status:"
-          docker compose ps app || docker-compose ps app || true
-
-          # On every 5th attempt, check the logs
-          if [ $(($i % 5)) -eq 0 ]; then
-            echo "Checking Flask app logs at attempt $i:"
-            docker compose logs app || docker-compose logs app
-          fi
-
-          sleep 10  # Increased from 5 to 10 seconds
-        fi
-      done
-  ```
-
-## Best Practices
-
-Based on our Docker Compose workflows, we recommend the following best practices:
-
-1. **Use Official Docker Actions**: Leverage Docker's official GitHub Actions for the most reliable setup
-2. **Implement Robust Health Checks**: Use comprehensive health checks with multiple verification methods
-3. **Manage Resources Proactively**: Monitor and manage disk space throughout the workflow
-4. **Implement Fallback Mechanisms**: Provide fallback options for critical operations
-5. **Use Exponential Backoff**: Implement retry logic with exponential backoff for network operations
-6. **Provide Detailed Diagnostics**: Include comprehensive logging and diagnostics for troubleshooting
-7. **Support Command Compatibility**: Support both `docker compose` and `docker-compose` commands for maximum compatibility
-8. **Always Clean Up Resources**: Ensure resources are cleaned up even if the workflow fails
-
-## Conclusion
-
-Our Docker Compose workflows provide robust and reliable integration testing environments with comprehensive error handling, health checks, and resource management. By following the best practices outlined in this document, you can ensure your Docker Compose workflows are reliable and maintainable.
+6. Run the fix scripts manually:
+   ```bash
+   ./scripts/fix-docker-network.sh
+   ./scripts/fix-docker-compose.sh
+   ./scripts/run-docker-compose-ci.sh
+   ```

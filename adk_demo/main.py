@@ -37,7 +37,6 @@ Error Handling:
 from adk.communication import AgentCommunicator, Message
 from agents import DataGathererAgent, SummarizerAgent
 
-
 def main() -> None:
     """
     Orchestrate the ADK demonstration.
