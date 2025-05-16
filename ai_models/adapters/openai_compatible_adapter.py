@@ -172,7 +172,7 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
         """Close the aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
-            self._session = None
+        self._session = None
 
     def __del__(self):
         """Ensure the session is closed when the adapter is garbage collected."""

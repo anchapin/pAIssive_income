@@ -71,6 +71,11 @@ omit =
     services/*
     # Exclude adk_demo
     adk_demo/*
+    # Exclude mock implementations and testing utilities
+    ai_models/mock_aiohttp.py
+    ai_models/agent_integration.py
+    # Exclude files that are primarily for external integrations
+    ai_models/adapters/tensorrt_adapter.py
 
 [report]
 exclude_lines =
