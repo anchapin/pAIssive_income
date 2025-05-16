@@ -84,7 +84,7 @@ jobs:
 
       # Set up pnpm
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: '8'
 
@@ -143,6 +143,17 @@ jobs:
             fi
           fi
         continue-on-error: true
+
+      # Clean up any existing node_modules to prevent them from being scanned
+      - name: Clean up node_modules
+        shell: bash
+        run: |
+          # Find and remove node_modules directories
+          find . -type d -name "node_modules" -exec echo "Removing {} to prevent it from being scanned..." \; -exec rm -rf {} \; 2>/dev/null || true
+
+          # List directories to verify cleanup
+          echo "Current directories:"
+          ls -la
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -381,6 +392,28 @@ jobs:
             }
           }
         continue-on-error: true
+
+      # Clean up any existing virtual environments to prevent them from being scanned
+      - name: Clean up virtual environments
+        shell: bash
+        run: |
+          # Remove .venv directory if it exists
+          if [ -d ".venv" ]; then
+            echo "Removing .venv directory to prevent it from being scanned..."
+            rm -rf .venv
+          fi
+
+          # Remove other common virtual environment directories
+          for venv_dir in "venv" "env" ".env"; do
+            if [ -d "$venv_dir" ]; then
+              echo "Removing $venv_dir directory to prevent it from being scanned..."
+              rm -rf "$venv_dir"
+            fi
+          done
+
+          # List directories to verify cleanup
+          echo "Current directories:"
+          ls -la
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

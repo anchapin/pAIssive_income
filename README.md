@@ -2,7 +2,7 @@
 
 ## Python
 
-> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, and contribution information.
+> **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).
 
 ---
 
@@ -70,11 +70,17 @@
    pre-commit install
    ```
 
-4. **Start PostgreSQL database and application with Docker Compose:**
+4. **Start PostgreSQL database, application, and frontend with Docker Compose:**
    ```bash
+   # Using Docker Compose plugin
+   docker compose up --build
+
+   # Or using standalone Docker Compose
    docker-compose up --build
    ```
-   This will launch both the main app (Flask backend) and the PostgreSQL database.
+   This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
+
+   For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
 
 5. **Initialize the database (first time only):**
    Open a new terminal and run:
@@ -509,6 +515,61 @@ The project includes comprehensive API documentation that can be built from sour
    cd docs_source
    ```
 
+---
+
+## MCP Server Integration
+
+This project supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) for connecting AI agents to a wide range of external tool and data servers.
+
+### What is MCP?
+
+MCP is an open protocol for secure, extensible communication between AI agents and a wide ecosystem of servers providing data, tools, and capabilities. MCP lets you supercharge your agents by connecting them to hundreds of community and official servers (e.g., GitHub, databases, web search, automation, etc.).
+
+### Adding MCP Servers
+
+You can add, list, and remove MCP servers using the REST API:
+
+- **List all MCP servers:**
+  ```
+  GET /api/mcp_servers
+  ```
+- **Add an MCP server:**
+  ```
+  POST /api/mcp_servers
+  Content-Type: application/json
+  {
+    "name": "my-github-server",
+    "host": "localhost",
+    "port": 1337,
+    "description": "GitHub integration server"
+  }
+  ```
+- **Remove an MCP server:**
+  ```
+  DELETE /api/mcp_servers/<name>
+  ```
+
+Server configurations are stored in `cline_mcp_settings.json` and are loaded dynamically for agent use.
+
+### Example and Recommended Servers
+
+An extensive list of official, third-party, and community MCP servers can be found here:
+- [https://github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)
+
+You can deploy your own server or connect to one of the many public options.
+
+### Requirements
+
+- Python 3.8+
+- The [`mcp-use`](https://pypi.org/project/mcp-use/) Python library (already included in requirements)
+- (Optional) See [modelcontextprotocol.io](https://modelcontextprotocol.io/) for protocol and SDK docs
+
+### Usage
+
+Agents can enumerate and use MCP servers as tools or resources via the agent runtime. See the codebase and [docs/](docs/) for integration details.
+
+---
+
 ### Documentation Updates Policy
 
 This project enforces a policy that documentation must be updated whenever code changes are made. A GitHub Actions workflow automatically checks that documentation files are updated when non-documentation files are changed in pull requests.
@@ -520,6 +581,12 @@ Documentation files are defined as:
 
 When submitting a pull request that changes code or configuration, be sure to update the relevant documentation to reflect those changes.
 
+For specific documentation on configuration files and environment setup, see:
+
+- [Environment Variables](docs/environment_variables.md) - Documentation of all environment variables used in the project
+- [Cursor Integration](docs/cursor_integration.md) - Details about the Cursor AI integration and configuration
+- [.gitignore Configuration](docs/gitignore_configuration.md) - Information about the .gitignore file and excluded patterns
+
 ### UI Documentation
 
 For information about the React frontend components and UI features, see:
@@ -527,3 +594,38 @@ For information about the React frontend components and UI features, see:
 - [UI Components Guide](docs/ui_components_guide.md) - Detailed documentation of React components, styling, and accessibility features
 - [UI Accessibility Guide](docs/ui_accessibility_guide.md) - Comprehensive guide to accessibility features and best practices
 - [React Frontend Updates](docs/react_frontend_updates.md) - Details of recent updates to React components
+
+---
+
+## Demo: Vector RAG
+
+The `demo_vector_rag.py` script demonstrates a basic Vector Database + RAG (Retrieval-Augmented Generation) implementation using ChromaDB and Sentence Transformers.
+
+### Prerequisites
+
+1.  Install the required libraries:
+
+    ```bash
+    pip install chromadb sentence-transformers
+    ```
+
+### Usage
+
+1.  Run the script:
+
+    ```bash
+    python demo_vector_rag.py
+    ```
+
+### Explanation
+
+This script performs the following steps:
+
+1.  Initializes a ChromaDB client (local, in-memory for demo).
+2.  Prepares demo data (texts with metadata).
+3.  Loads an embedding model (Sentence Transformers).
+4.  Creates/gets a collection in ChromaDB.
+5.  Embeds and adds documents to the collection.
+6.  Performs a query and retrieves the most relevant context.
+
+Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge. This script embeds example texts, stores them in a local vector DB, then retrieves the most relevant context for a query.

@@ -13,11 +13,12 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 def run_command(command: list[str]) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr."""
     try:
+        # Always use shell=False for security
         result = subprocess.run(
             command,
             capture_output=True,
             text=True,
-            shell=sys.platform == "win32",
+            shell=False,
             check=False,
         )
         # Use a separate variable to avoid TRY300 issue

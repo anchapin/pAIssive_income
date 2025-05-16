@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paissive-income-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
+      - PATH=/app/.venv/bin:$PATH
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydb
+      - POSTGRES_HOST=db
+    networks:
+      - paissive-network
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
+      interval: 30s
+      timeout: 60s
+      retries: 10
+      start_period: 180s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15.3-alpine
+    container_name: paissive-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydb
+    networks:
+      - paissive-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+networks:
+  paissive-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local

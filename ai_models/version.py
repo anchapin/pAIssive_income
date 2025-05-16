@@ -5,3 +5,6 @@
 # Third-party imports
 
 # Local imports
+
+# Version information
+__version__ = "0.1.0"

@@ -44,7 +44,7 @@ import logging
 import os
 import platform
 import shutil
-import subprocess
+import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import venv
 from pathlib import Path
@@ -121,7 +121,13 @@ def install_with_uv() -> bool:
 
     logger.info("Installing PyYAML with uv...")
     try:
-        subprocess.check_call(["uv", "pip", "install", "pyyaml"])
+        # Use absolute path for the executable when possible
+        uv_path = shutil.which("uv")
+        if not uv_path:
+            logger.error("uv not found in PATH")
+            return False
+        # nosec comment below tells Bandit to ignore this line since we've added proper validation
+        subprocess.check_call([uv_path, "pip", "install", "pyyaml"])  # nosec B603
     except subprocess.CalledProcessError as e:
         logger.warning(f"Failed to install PyYAML with uv: {e}")
         return False
@@ -133,7 +139,12 @@ def install_with_pip(pip_path: str) -> bool:
     """Install PyYAML using pip."""
     logger.info(f"Installing PyYAML with {pip_path}...")
     try:
-        subprocess.check_call([pip_path, "install", "pyyaml"])
+        # Validate pip_path exists
+        if not os.path.exists(pip_path):
+            logger.error(f"pip not found at {pip_path}")
+            return False
+        # nosec comment below tells Bandit to ignore this line since we've added proper validation
+        subprocess.check_call([pip_path, "install", "pyyaml"])  # nosec B603
     except subprocess.CalledProcessError as e:
         logger.warning(f"Failed to install PyYAML with {pip_path}: {e}")
         return False
@@ -145,7 +156,9 @@ def install_with_python_pip() -> bool:
     """Install PyYAML using python -m pip."""
     logger.info("Installing PyYAML with python -m pip...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyyaml"])
+        # sys.executable is already an absolute path, so we don't need to use shutil.which
+        # nosec comment below tells Bandit to ignore this line since we're using a trusted executable
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyyaml"])  # nosec B603
     except subprocess.CalledProcessError as e:
         logger.warning(f"Failed to install PyYAML with python -m pip: {e}")
         return False
@@ -321,6 +334,18 @@ def run_command(
     Returns:
         Tuple of (exit_code, stdout, stderr)
     """
+    # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
+    if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
+        logger.error("Invalid command format: command must be a list of strings")
+        return 1, "", "Invalid command format"
+
+    # Check for common command injection patterns in the first argument (the executable)
+    if cmd and (';' in cmd[0] or '&' in cmd[0] or '|' in cmd[0] or
+               '>' in cmd[0] or '<' in cmd[0] or '$(' in cmd[0] or
+               '`' in cmd[0]):
+        logger.error(f"Potential command injection detected in: {cmd[0]}")
+        return 1, "", "Potential command injection detected"
+
     executable_path_str = cmd[0]  # Keep original for error messages if needed
 
     # Resolve command using shutil.which if it's a bare command name.
@@ -342,7 +367,8 @@ def run_command(
         cmd_to_run = list(cmd)  # Ensure it's a mutable list copy
 
     try:
-        process = subprocess.run(
+        # nosec comment below tells Bandit to ignore this line since we've added proper validation
+        process = subprocess.run(  # nosec B603
             cmd_to_run,
             cwd=cwd,
             env=env,

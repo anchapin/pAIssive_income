@@ -410,7 +410,7 @@ const UserGrowthLineChart = ({
           {showTotal && (
             <Line
               type="monotone"
-              dataKey="total_users"
+              dataKey="totalUsers"
               name="Total Users"
               stroke="#8884d8"
               activeDot={{ r: 8 }}
@@ -421,7 +421,7 @@ const UserGrowthLineChart = ({
           {showFree && (
             <Line
               type="monotone"
-              dataKey="free_users"
+              dataKey="freeUsers"
               name="Free Users"
               stroke="#82ca9d"
               strokeWidth={2}
@@ -431,7 +431,7 @@ const UserGrowthLineChart = ({
           {showPaid && (
             <Line
               type="monotone"
-              dataKey="paid_users"
+              dataKey="paidUsers"
               name="Paid Users"
               stroke="#ff8042"
               strokeWidth={2}

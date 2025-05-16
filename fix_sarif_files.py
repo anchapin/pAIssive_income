@@ -121,7 +121,6 @@ def fix_sarif_file(file_path: str) -> bool:
 
     Returns:
         bool: True if the file was fixed, False otherwise
-
     """
     try:
         # Read the file
@@ -129,7 +128,7 @@ def fix_sarif_file(file_path: str) -> bool:
             try:
                 data = json.load(f)
             except json.JSONDecodeError:
-                logging.exception(f"Invalid JSON in {file_path}")
+                logging.exception("Invalid JSON file")
                 return create_empty_sarif_file(file_path)
 
         # Fix the SARIF file
@@ -144,11 +143,11 @@ def fix_sarif_file(file_path: str) -> bool:
             logging.info(f"Fixed SARIF file: {file_path}")
             return True
         else:
-            logging.info(f"No issues found in {file_path}")
+            logging.info("No issues found in file")
             return True
 
     except Exception:
-        logging.exception(f"Failed to fix {file_path}")
+        logging.exception("Failed to fix SARIF file")
         return create_empty_sarif_file(file_path)
 
 
@@ -160,8 +159,11 @@ def create_empty_sarif_file(file_path: str) -> bool:
 
     Returns:
         bool: True if successful, False otherwise
-
     """
+    if not file_path:
+        logging.error("Invalid file path")
+        return False
+
     try:
         data = {
             "version": "2.1.0",
@@ -183,13 +185,22 @@ def create_empty_sarif_file(file_path: str) -> bool:
             ],
         }
 
+        os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
+
         with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
-    except Exception:
-        logging.exception(f"Failed to create empty SARIF file {file_path}")
+
+    except OSError:
+        logging.exception("Filesystem error while creating SARIF file")
+        return False
+    except TypeError:
+        logging.exception("Invalid data type in SARIF structure")
+        return False
+    except json.JSONEncodeError:
+        logging.exception("Error encoding SARIF data")
         return False
     else:
-        logging.info(f"Created empty SARIF file: {file_path}")
+        logging.info("Created empty SARIF file")
         return True
 
 

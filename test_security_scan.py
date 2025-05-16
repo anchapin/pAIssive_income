@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_command(command: str, cwd: Optional[str] = None) -> tuple:
-    """Run a shell command and return stdout, stderr, and return code.
+    """Run a command and return stdout, stderr, and return code.
 
     Args:
         command: Command to run
@@ -29,9 +29,11 @@ def run_command(command: str, cwd: Optional[str] = None) -> tuple:
 
     """
     try:
+        # Convert string command to list for security (avoid shell=True)
+        cmd_list = command.split()
         process = subprocess.Popen(
-            command,
-            shell=True,
+            cmd_list,
+            shell=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             cwd=cwd,
