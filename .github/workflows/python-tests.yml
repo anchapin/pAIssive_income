@@ -32,7 +32,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
         # Install Python version-specific dependencies
-        if [ "${{ matrix.python-version }}" = "3.11" ] && [ -f requirements-py311.txt ]; then
+        if [[ "${{ matrix.python-version }}" == "3.11" || "${{ matrix.python-version }}" == "3.12" ]] && [ -f requirements-py311.txt ]; then
           pip install -r requirements-py311.txt
         fi
         pip install pytest pytest-cov pytest-asyncio
