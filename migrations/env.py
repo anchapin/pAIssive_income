@@ -1,6 +1,5 @@
 # type: ignore
 import logging
-import os
 from logging.config import fileConfig
 from typing import Any, List
 
