@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Generate Bandit configuration files for specific run IDs."""
 
-import os
-import sys
 import logging
+import sys
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+logger = logging.getLogger(__name__)
 
 # Define the base configuration template
 CONFIG_TEMPLATE = """# Bandit Configuration for {platform} (Run ID: {run_id})
@@ -66,20 +67,22 @@ def main() -> None:
     run_id = sys.argv[1] if len(sys.argv) > 1 else "15053076509"  # Default run ID
 
     # Create the .github/bandit directory if it doesn't exist
-    os.makedirs(".github/bandit", exist_ok=True)
+    bandit_dir = Path(".github/bandit")
+    bandit_dir.mkdir(parents=True, exist_ok=True)
 
     # Create security-reports directory if it doesn't exist
-    os.makedirs("security-reports", exist_ok=True)
+    reports_dir = Path("security-reports")
+    reports_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate configuration files for each platform
     for platform in ["Windows", "Linux", "macOS"]:
         config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=run_id)
-        config_file = f".github/bandit/bandit-config-{platform.lower()}-{run_id}.yaml"
+        config_file = bandit_dir / f"bandit-config-{platform.lower()}-{run_id}.yaml"
 
-        with open(config_file, "w") as f:
+        with config_file.open("w") as f:
             f.write(config_content)
 
-        logging.info(f"Generated {config_file}")
+        logger.info("Generated %s", config_file)
 
     # Create an empty SARIF file in the security-reports directory
     empty_sarif = """{
@@ -101,16 +104,16 @@ def main() -> None:
 }"""
 
     # Create the run-specific SARIF file
-    sarif_file = f"security-reports/bandit-results-{run_id}.sarif"
-    with open(sarif_file, "w") as f:
+    sarif_file = reports_dir / f"bandit-results-{run_id}.sarif"
+    with sarif_file.open("w") as f:
         f.write(empty_sarif)
-    logging.info(f"Generated empty SARIF file: {sarif_file}")
+    logger.info("Generated empty SARIF file: %s", sarif_file)
 
     # Create the standard SARIF file
-    standard_sarif_file = "security-reports/bandit-results.sarif"
-    with open(standard_sarif_file, "w") as f:
+    standard_sarif_file = reports_dir / "bandit-results.sarif"
+    with standard_sarif_file.open("w") as f:
         f.write(empty_sarif)
-    logging.info(f"Generated empty SARIF file: {standard_sarif_file}")
+    logger.info("Generated empty SARIF file: %s", standard_sarif_file)
 
 
 if __name__ == "__main__":
