@@ -30,7 +30,7 @@ on:
 jobs:
   docker-compose-integration:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Initial disk space check
         run: |
@@ -76,8 +76,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
 
       - name: Install pnpm
         if: steps.check-frontend.outputs.has_frontend == 'true'
@@ -180,12 +180,12 @@ jobs:
       - name: Run tests
         run: |
           echo "Running tests..."
-          
+
           # Function to check if a command exists
           command_exists() {
             command -v "$1" >/dev/null 2>&1
           }
-          
+
           # Determine which Docker Compose command to use
           if command_exists "docker compose"; then
             COMPOSE_CMD="docker compose"
@@ -195,14 +195,14 @@ jobs:
             echo "ERROR: No Docker Compose installation found."
             exit 1
           fi
-          
+
           # Run backend tests if available
           if $COMPOSE_CMD exec -T app python -m pytest 2>/dev/null; then
             echo "Backend tests completed"
           else
             echo "No backend tests found or tests failed"
           fi
-          
+
           # Run frontend tests if available
           if [ -d "ui/react_frontend" ] && $COMPOSE_CMD exec -T frontend npm test 2>/dev/null; then
             echo "Frontend tests completed"
@@ -215,12 +215,12 @@ jobs:
         if: always()
         run: |
           echo "Tearing down Docker Compose..."
-          
+
           # Function to check if a command exists
           command_exists() {
             command -v "$1" >/dev/null 2>&1
           }
-          
+
           # Determine which Docker Compose command to use
           if command_exists "docker compose"; then
             COMPOSE_CMD="docker compose"
@@ -230,7 +230,7 @@ jobs:
             echo "ERROR: No Docker Compose installation found."
             exit 1
           fi
-          
+
           $COMPOSE_CMD down -v
 
       # Final system status
@@ -238,12 +238,12 @@ jobs:
         if: always()
         run: |
           echo "Final system status:"
-          
+
           # Function to check if a command exists
           command_exists() {
             command -v "$1" >/dev/null 2>&1
           }
-          
+
           # Determine which Docker Compose command to use
           if command_exists "docker compose"; then
             COMPOSE_CMD="docker compose"
@@ -253,14 +253,14 @@ jobs:
             echo "WARNING: No Docker Compose installation found."
             COMPOSE_CMD=""
           fi
-          
+
           echo "Docker Compose version:"
           if [ -n "$COMPOSE_CMD" ]; then
             $COMPOSE_CMD version
           else
             echo "Docker Compose not available"
           fi
-          
+
           echo "Docker system info:"
           docker info || true
           echo "Docker disk usage:"
