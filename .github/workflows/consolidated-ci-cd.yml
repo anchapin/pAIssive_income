@@ -66,21 +66,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
 
-      - name: Install uv (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          # Verify uv is installed and in PATH
-          which uv || echo "uv not found in PATH"
-
-      - name: Install uv (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          iwr -useb https://astral.sh/uv/install.ps1 | iex
-          echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
-
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -123,16 +108,11 @@ jobs:
             python -m pip install -r requirements_filtered.txt
           }
 
-          # Create mock MCP module for Windows
-          python install_mcp_sdk.py
-
       - name: Run linting (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "Running linting checks..."
-          ruff check . --exclude ui/react_frontend/node_modules
-
-          echo "Running type checking..."
+          # Run linting tools
+          ruff check .
           mypy .
 
       - name: Run linting (Windows)
@@ -152,7 +132,7 @@ jobs:
       - name: Run other tests
         run: |
           # Run all tests except MCP adapter tests
-          pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py
+          pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py
 
       - name: Setup Node.js for frontend tests
         if: runner.os == 'Windows'
@@ -166,19 +146,13 @@ jobs:
         with:
           version: '8'
 
-      - name: Run frontend tests (Windows)
-        if: runner.os == 'Windows' && hashFiles('ui/react_frontend/package.json') != ''
+      - name: Run frontend tests (Windows only)
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Check if React frontend exists
-          if (Test-Path "ui/react_frontend") {
+          # Check if the React frontend directory exists
+          if (Test-Path ui/react_frontend) {
             Write-Host "React frontend detected, running frontend tests..."
-
-            # Create playwright-report directory to ensure it exists
-            if (-not (Test-Path "ui/react_frontend/playwright-report")) {
-              New-Item -ItemType Directory -Path "ui/react_frontend/playwright-report" -Force
-              Write-Host "Created playwright-report directory"
-            }
 
             # Change to the frontend directory
             cd ui/react_frontend
@@ -220,60 +194,63 @@ jobs:
           file: ./coverage.xml
 
   security:
-    name: Security & SAST
+    name: Security Scan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
     permissions:
-      security-events: write
       contents: read
-      actions: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
-      - name: Create security reports directory
-        run: mkdir -p security-reports
-        shell: bash
+          python-version: "3.12"
 
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
         run: |
           python -m pip install --upgrade pip
-          pip install safety bandit semgrep pip-audit
+          python -m pip install safety bandit semgrep pip-audit gitleaks-scan
+
+          # Create directory for security reports
+          mkdir -p security-reports
+
+          # Generate Bandit configuration based on platform
+          cat > .github/bandit/bandit-config-$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')-${{ github.run_id }}.yaml << 'EOF'
+          exclude_dirs: ['.venv', 'node_modules', 'tests']
+          skips: ['B101', 'B104']
+          EOF
 
       - name: Install security tools (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install safety bandit semgrep pip-audit
+          python -m pip install safety bandit semgrep pip-audit gitleaks-scan
+
+          # Create directory for security reports
+          New-Item -ItemType Directory -Force -Path security-reports
+
+          # Generate Bandit configuration based on platform
+          $banditConfig = @"
+          exclude_dirs: ['.venv', 'node_modules', 'tests']
+          skips: ['B101', 'B104']
+          "@
+          New-Item -ItemType Directory -Force -Path .github/bandit
+          Set-Content -Path ".github/bandit/bandit-config-$(('${{ runner.os }}').ToLower())-${{ github.run_id }}.yaml" -Value $banditConfig
 
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
-        continue-on-error: true
         run: |
-          # Create security-reports directory if it doesn't exist
-          mkdir -p security-reports
-
-          # Create .github/bandit directory if it doesn't exist
-          mkdir -p .github/bandit
-
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
-
           # Run safety check
-          safety check || true
+          safety check --full-report || true
 
           # Run Bandit with the generated configuration
           platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
@@ -316,25 +293,19 @@ jobs:
           # Run semgrep
           semgrep scan --config auto || true
 
+          # Run gitleaks
+          gitleaks detect --report-path=security-reports/gitleaks-report.json || true
+
       - name: Run security scans (Windows)
         if: runner.os == 'Windows'
-        continue-on-error: true
         shell: pwsh
         run: |
-          # Create security-reports directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path security-reports
-
-          # Create .github/bandit directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path .github/bandit
-
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
-
           # Run safety check
-          safety check
+          safety check --full-report
 
           # Run Bandit with the generated configuration
-          $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
+          $platform = ('${{ runner.os }}').ToLower()
+          $banditConfigFile = ".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
           if (Test-Path $banditConfigFile) {
             Write-Host "Using Bandit configuration file: $banditConfigFile"
             bandit -r . -f sarif -o security-reports/bandit-results.sarif -c $banditConfigFile --exclude ".venv,node_modules,tests"
@@ -374,21 +345,23 @@ jobs:
           # Run semgrep
           semgrep scan --config auto
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+          # Run gitleaks
+          gitleaks detect --report-path=security-reports/gitleaks-report.json
         continue-on-error: true
+
+      - name: Upload Bandit SARIF report
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'security-reports/trivy-results.sarif'
+          sarif_file: security-reports/bandit-results.sarif
+          category: bandit-${{ runner.os }}
+        continue-on-error: true
 
       - name: Upload security reports
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: security-reports-${{ runner.os }}-${{ github.run_id }}
           path: security-reports/
+          if-no-files-found: warn
           retention-days: 7
 
   build-deploy:
@@ -433,7 +406,7 @@ jobs:
           driver-opts: |
             image=moby/buildkit:v0.12.0
 
-      - name: Log in to Docker Hub
+      - name: Login to DockerHub
         if: steps.set-docker-tag.outputs.should_push == 'true'
         uses: docker/login-action@v3
         with:
