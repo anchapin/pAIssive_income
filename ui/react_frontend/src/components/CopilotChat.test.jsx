@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import '@testing-library/jest-dom';
 import CopilotChatDemo from "./CopilotChat";
 
 // Mock CopilotKitProvider and CopilotChat if packages are not installed yet
