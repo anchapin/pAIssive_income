@@ -289,7 +289,32 @@ jobs:
           # Create empty SARIF file if it doesn't exist
           if [ ! -f "security-reports/bandit-results.sarif" ]; then
             echo "Bandit did not generate a SARIF file. Creating an empty one."
-            cp empty-sarif.json security-reports/bandit-results.sarif
+            # Check if empty-sarif.json exists in the root directory
+            if [ -f "empty-sarif.json" ]; then
+              echo "Using empty-sarif.json from root directory"
+              cp empty-sarif.json security-reports/bandit-results.sarif
+            else
+              # Create the empty SARIF file directly
+              cat > security-reports/bandit-results.sarif << 'EOF'
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Bandit",
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
+          "rules": []
+        }
+      },
+      "results": []
+    }
+  ]
+}
+EOF
+            fi
           fi
 
           # Run pip-audit
@@ -328,7 +353,15 @@ jobs:
           # Ensure the SARIF file exists
           if (-not (Test-Path "security-reports/bandit-results.sarif")) {
             Write-Host "Bandit did not generate a SARIF file. Creating an empty one."
-            Copy-Item -Path "empty-sarif.json" -Destination "security-reports/bandit-results.sarif"
+            # Check if empty-sarif.json exists in the root directory
+            if (Test-Path "empty-sarif.json") {
+              Write-Host "Using empty-sarif.json from root directory"
+              Copy-Item -Path "empty-sarif.json" -Destination "security-reports/bandit-results.sarif"
+            } else {
+              # Create the empty SARIF file directly
+              $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
+              Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarifContent
+            }
           }
 
           # Run pip-audit
