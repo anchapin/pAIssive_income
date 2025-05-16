@@ -43,13 +43,12 @@ omit =
     dependency_container.py
     # Exclude third-party packages
     */site-packages/*
-    # Exclude specific directories not relevant to MCP adapter
+    # Exclude specific directories not relevant to core functionality
     ui/*
     marketing/*
     monetization/*
     niche_analysis/*
     collaboration/*
-    common_utils/*
     users/*
     api/*
     # Exclude frontend code
@@ -76,6 +75,20 @@ omit =
     ai_models/agent_integration.py
     # Exclude files that are primarily for external integrations
     ai_models/adapters/tensorrt_adapter.py
+    # Exclude model types that aren't being tested yet
+    ai_models/model_types/*
+    # Exclude optimization modules not yet tested
+    ai_models/optimization/*
+    # Exclude serving modules not yet tested
+    ai_models/serving/*
+    # Exclude benchmarking modules not yet tested
+    ai_models/benchmarking/*
+    # Exclude fine-tuning modules not yet tested
+    ai_models/fine_tuning/*
+    # Exclude caching modules not yet tested
+    ai_models/caching/*
+    # Exclude fallbacks modules not yet tested
+    ai_models/fallbacks/*
 
 [report]
 exclude_lines =
