@@ -18,7 +18,7 @@ services:
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://myuser:mypassword@db:5433/mydb
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
       - PATH=/app/.venv/bin:$PATH
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
@@ -46,7 +46,8 @@ services:
           cpus: '0.25'
           memory: 512M
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -89,14 +90,15 @@ services:
       retries: 3
       start_period: 30s
     depends_on:
-      - app
+      app:
+        condition: service_healthy
 
   db:
     image: postgres:15.3-alpine
     container_name: paissive-postgres
     restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -106,12 +108,12 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      # Use a simpler health check for CI environments
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb || exit 0"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 30s
+      # Use a more robust health check for CI environments
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb -h localhost || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     # Use a smaller configuration for CI
     command: [
       "postgres",
