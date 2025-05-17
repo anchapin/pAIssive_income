@@ -170,6 +170,10 @@ This project uses [Dependabot](https://docs.github.com/en/code-security/dependab
 - For major upgrades, review changelogs for breaking changes.
 
 For more details, see `.github/dependabot.yml`.
+
+> **Tip for maintainers:**  
+> Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules, ignored dependencies, PR limits) to ensure it fits the project's evolving needs.
+
 ---
 
 ## Docker Compose Integration
