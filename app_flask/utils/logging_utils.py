@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import functools
+import logging
 import re
 import time
-import logging
-from logging import getLogger
+from logging import INFO, Logger, getLogger
 from typing import Any, Callable, TypeVar, cast
 
 from flask.globals import current_app, g
@@ -19,7 +19,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 app_logger = LocalProxy(lambda: current_app.logger)
 
 # Type hint for Flask app logger
-FlaskLogger = logging.Logger
+FlaskLogger = Logger
 
 # Constants
 FIRST_PRINTABLE_ASCII = 32  # ASCII value for space character (first printable)
@@ -74,7 +74,7 @@ def sanitize_log_data(data: object) -> object:
     return data
 
 
-def log_execution_time(logger: logging.Logger | None = None) -> Callable[[F], F]:
+def log_execution_time(logger: Logger | None = None) -> Callable[[F], F]:
     """
     Log function execution time.
 
@@ -114,7 +114,7 @@ def log_execution_time(logger: logging.Logger | None = None) -> Callable[[F], F]
 def structured_log(
     event: str,
     message: str,
-    level: int | str = logging.INFO,
+    level: int | str = INFO,
     extra: dict[str, object] | None = None,
 ) -> None:
     """
@@ -147,9 +147,9 @@ def structured_log(
             log_data.update(sanitized_extra)
 
     # Set log level with explicit typing
-    numeric_level: int = logging.INFO
+    numeric_level: int = INFO
     if isinstance(level, str):
-        numeric_level = getattr(logging, level.upper(), logging.INFO)
+        numeric_level = getattr(getLogger(), level.upper(), INFO)
     elif isinstance(level, int):
         numeric_level = level
 

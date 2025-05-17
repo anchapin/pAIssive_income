@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import time
 import traceback
 import uuid
-import logging
-from logging import getLogger
-
-# Import for type checking only
+from logging import Logger, getLogger
 from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
@@ -21,7 +19,7 @@ from flask.globals import current_app, g, request
 from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 
 # Type hint for Flask app logger
-FlaskLogger = logging.Logger
+FlaskLogger = Logger
 
 
 def logging_getattr(module: object, name: str, default: object = None) -> object:
@@ -64,7 +62,7 @@ def get_request_context() -> dict[str, Any]:
             context["user_agent"] = request.user_agent.string
     except (AttributeError, RuntimeError):
         # Handle case where request context is not available
-        logger = logging.getLogger(__name__)
+        logger = getLogger(__name__)
         logger.debug("Failed to get request context", exc_info=True)
     return context
 
@@ -173,8 +171,12 @@ def _setup_after_request(app: Flask) -> None:
             "response_headers": sanitize_log_data(dict(response.headers)),
         }
 
+        # Import logging module for constants
+        import logging as logging_module
+
         log_level_value = cast(
-            "int", logging_getattr(logging, log_level.upper(), logging.INFO)
+            "int",
+            logging_getattr(logging_module, log_level.upper(), logging_module.INFO),
         )
         structured_log(
             "request.completed",

@@ -1,11 +1,10 @@
 from typing import Any, TypeVar
 
+# Use a properly named TypeVar
 T = TypeVar("T")
-_T = TypeVar("_T")
 
 # Define BaseQuery class to avoid name conflicts
 class BaseQuery:
-    """Base query class to avoid name conflicts."""
     def all(self) -> list[Any]: ...
     def first(self) -> Any | None: ...
     def filter_by(self, **kwargs: Any) -> BaseQuery: ...
@@ -17,7 +16,6 @@ class BaseQuery:
 
 # Define Model class
 class ModelBase:
-    """Base model class for SQLAlchemy models."""
     query_class: type[BaseQuery]
     query: BaseQuery  # This is a class property, not a method
     __tablename__: str
@@ -27,7 +25,6 @@ class ModelBase:
 
 # Define SQLAlchemy class
 class SQLAlchemy:
-    """SQLAlchemy extension for Flask."""
     Model: type[ModelBase]  # This is a class attribute, not an instance
     Column: Any
     String: Any

@@ -72,6 +72,8 @@ max-complexity = 10
 # Ignore subprocess security warnings in pre-commit scripts
 "run_pre_commit.py" = ["S603"]
 "run_pre_commit_on_all_files.py" = ["S603"]
+# Ignore type annotation issues in mypy stubs
+"mypy_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
 
 [format]
 # Use double quotes for strings

@@ -7,8 +7,10 @@ Adapt and extend these scaffolds to fit your use-case.
 - Docs: https://docs.crewai.com/
 """
 
+from __future__ import annotations
+
 # Check if crewai is installed
-from typing import Optional
+from typing import Any
 
 try:
     from crewai import Agent, Crew, Task
@@ -22,12 +24,14 @@ except ImportError:
         """Placeholder for Agent class when crewai is not installed."""
 
         def __init__(self, role: str = "", goal: str = "", backstory: str = "") -> None:
-            """Initialize Agent placeholder.
+            """
+            Initialize Agent placeholder.
 
             Args:
                 role: The role of the agent
                 goal: The goal of the agent
                 backstory: The backstory of the agent
+
             """
             self.role = role
             self.goal = goal
@@ -36,12 +40,16 @@ except ImportError:
     class TaskPlaceholder:
         """Placeholder for Task class when crewai is not installed."""
 
-        def __init__(self, description: str = "", agent: "AgentPlaceholder" = None) -> None:
-            """Initialize Task placeholder.
+        def __init__(
+            self, description: str = "", agent: AgentPlaceholder = None
+        ) -> None:
+            """
+            Initialize Task placeholder.
 
             Args:
                 description: The task description
                 agent: The agent assigned to the task
+
             """
             self.description = description
             self.agent = agent
@@ -49,21 +57,27 @@ except ImportError:
     class CrewPlaceholder:
         """Placeholder for Crew class when crewai is not installed."""
 
-        def __init__(self, agents: Optional[list] = None, tasks: Optional[list] = None) -> None:
-            """Initialize Crew placeholder.
+        def __init__(
+            self, agents: list[Any] | None = None, tasks: list[Any] | None = None
+        ) -> None:
+            """
+            Initialize Crew placeholder.
 
             Args:
                 agents: List of agents
                 tasks: List of tasks
+
             """
             self.agents = agents or []
             self.tasks = tasks or []
 
         def run(self) -> None:
-            """Run the crew workflow.
+            """
+            Run the crew workflow.
 
             Raises:
                 ImportError: When crewai is not installed
+
             """
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
@@ -78,7 +92,7 @@ except ImportError:
 
     warnings.warn(
         "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
-        stacklevel=2
+        stacklevel=2,
     )
 
 # Example: Define agent roles
