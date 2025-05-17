@@ -83,8 +83,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+          # Disable cache to avoid post-action cleanup issues
+          # cache: 'pnpm'
+          # cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
 
       # Add global pnpm to PATH
       - name: Add global pnpm to PATH
