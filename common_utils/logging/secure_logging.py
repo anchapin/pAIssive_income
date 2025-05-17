@@ -375,7 +375,7 @@ class SecureLogger:
 
     callHandlers = call_handlers  # noqa: N815
 
-    def handle(self, record: logging.LogRecord) -> None:
+    def handle(self, record: logging.LogRecord) -> bool:
         """
         Call the handlers for the specified record.
 
@@ -383,10 +383,10 @@ class SecureLogger:
             record: The log record to handle
 
         Returns:
-            None: This method doesn't return a value
+            bool: True if the record was handled successfully
 
         """
-        self.logger.handle(record)
+        return self.logger.handle(record)
 
     def make_record(
         self,

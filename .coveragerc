@@ -149,8 +149,6 @@ omit =
     common_utils/config_loader.py
     common_utils/exceptions.py
     common_utils/logging/__init__.py
-    common_utils/logging/log_utils.py
-    common_utils/logging/secure_logging.py
     common_utils/tooling.py
 
 [report]
