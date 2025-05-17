@@ -33,6 +33,11 @@ COMMAND_MAP = {
     "microservices": "scripts/run/run_microservices.py",
     "local_tests": "scripts/run/run_local_tests.py",
     "mcp_tests": "scripts/run/run_mcp_tests.py",
+    # Setup/onboarding commands
+    "setup_dev": "scripts/setup/setup_dev_environment.py",
+    "enhanced_setup_dev": "scripts/setup/enhanced_setup_dev_environment.py",
+    "install_mcp_sdk": "scripts/setup/install_mcp_sdk.py",
+    "pre_commit": "scripts/setup/setup_pre_commit.py",  # Or use install_pre_commit.py if preferred
 }
 
 
@@ -68,6 +73,12 @@ def main():
     subparsers.add_parser("lint", help="Run linting")
     subparsers.add_parser("format", help="Run code formatter")
 
+    # Onboarding/setup
+    subparsers.add_parser("setup-dev", help="Run the developer environment setup script")
+    subparsers.add_parser("enhanced-setup-dev", help="Run the enhanced setup script")
+    subparsers.add_parser("install-mcp-sdk", help="Install the MCP SDK")
+    subparsers.add_parser("pre-commit", help="Install and configure pre-commit hooks")
+
     # Security/Scan
     scan_parser = subparsers.add_parser("scan", help="Run security/code quality scans")
     scan_parser.add_argument("--type", choices=["bandit", "security", "codeql"], required=True,
@@ -93,10 +104,17 @@ def main():
         run_script(COMMAND_MAP["lint"], extra)
     elif args.command == "format":
         run_script(COMMAND_MAP["format"], extra)
+    elif args.command == "setup-dev":
+        run_script(COMMAND_MAP["setup_dev"], extra)
+    elif args.command == "enhanced-setup-dev":
+        run_script(COMMAND_MAP["enhanced_setup_dev"], extra)
+    elif args.command == "install-mcp-sdk":
+        run_script(COMMAND_MAP["install_mcp_sdk"], extra)
+    elif args.command == "pre-commit":
+        run_script(COMMAND_MAP["pre_commit"], extra)
     elif args.command == "scan":
         scan_type = getattr(args, "type", None)
         if scan_type == "bandit":
-            # PowerShell script (use shell=True for cross-platform compatibility)
             run_script(COMMAND_MAP["scan_bandit"], extra, shell=True)
         elif scan_type == "security":
             run_script(COMMAND_MAP["scan_security"], extra)
