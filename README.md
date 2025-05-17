@@ -57,6 +57,41 @@ pytest --durations=10
 
 Test collection is limited to the `tests/` directory for speed.
 
+---
+
+## JavaScript Testing and Coverage
+
+This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
+
+### How to Run JavaScript Tests
+
+Install dependencies (if not already done):
+
+```sh
+pnpm install
+```
+
+Run JavaScript tests and check coverage:
+
+```sh
+pnpm test
+```
+
+- If code coverage falls below 80%, the test run will fail.
+- Coverage reports will be printed to the console and an HTML report will be generated in the `coverage/` directory (if running locally).
+
+To generate a detailed lcov report:
+
+```sh
+pnpm coverage
+```
+
+**Coverage thresholds for statements, branches, functions, and lines are all set to 80%.**
+
+You can find example JS source and tests in the `src/` directory.
+
+---
+
 ## Docker Compose Integration
 
 **Start PostgreSQL database, application, and frontend with Docker Compose:**
