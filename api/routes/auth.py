@@ -1,8 +1,7 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import secrets
-import time
 import bcrypt
 import smtplib
 from email.mime.text import MIMEText

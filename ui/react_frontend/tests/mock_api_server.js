@@ -42,10 +42,16 @@ function createReport(filename, content) {
   }
 }
 
-// Logger function with enhanced reporting
+// Logger function with enhanced reporting and sanitization
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}\n`;
+
+  // Sanitize the message to prevent log injection
+  const sanitizedMessage = typeof message === 'string'
+    ? message.replace(/[\r\n]/g, ' ')
+    : String(message).replace(/[\r\n]/g, ' ');
+
+  const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${sanitizedMessage}\n`;
 
   // Log to console with appropriate method
   if (level === 'error') {
@@ -67,7 +73,7 @@ function log(message, level = 'info') {
   if (level === 'error' || level === 'warn') {
     try {
       const reportFilename = `mock-api-${level}-${Date.now()}.txt`;
-      createReport(reportFilename, `${timestamp}: ${message}`);
+      createReport(reportFilename, `${timestamp}: ${sanitizedMessage}`);
     } catch (reportError) {
       console.error(`Failed to create report for ${level} message: ${reportError}`);
     }
@@ -108,7 +114,8 @@ app.get('/api/agent', (req, res) => {
 
 app.post('/api/agent/action', (req, res) => {
   const action = req.body;
-  log(`Received action: ${JSON.stringify(action)}`);
+  // Safely log the action by using a separate parameter instead of string interpolation
+  log('Received action: ' + JSON.stringify(action).replace(/[\r\n]/g, ' '));
   res.json({
     status: 'success',
     action_id: 123,
@@ -130,7 +137,9 @@ app.get('/api/status', (req, res) => {
 
 // Catch-all route for any other API endpoints
 app.all('/api/*', (req, res) => {
-  log(`Unhandled API request: ${req.method} ${req.url}`);
+  // Safely log the unhandled request with sanitized URL
+  const sanitizedUrl = req.url.replace(/[\r\n]/g, '');
+  log(`Unhandled API request: ${req.method} ${sanitizedUrl}`);
   res.json({
     status: 'warning',
     message: 'Endpoint not implemented in mock server',
@@ -142,23 +151,31 @@ app.all('/api/*', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  log(`Error processing ${req.method} ${req.url}: ${err.message}`);
+  // Sanitize error message and URL
+  const sanitizedUrl = req.url.replace(/[\r\n]/g, '');
+  const sanitizedErrorMsg = err.message.replace(/[\r\n]/g, ' ');
+  log(`Error processing ${req.method} ${sanitizedUrl}: ${sanitizedErrorMsg}`);
   console.error(err.stack);
   res.status(500).json({
     error: 'Internal Server Error',
-    message: err.message,
+    message: sanitizedErrorMsg,
     timestamp: new Date().toISOString()
   });
 });
 
 // Process error handling
 process.on('uncaughtException', (err) => {
-  log(`Uncaught Exception: ${err.message}`);
+  // Sanitize error message
+  const sanitizedErrorMsg = err.message.replace(/[\r\n]/g, ' ');
+  log(`Uncaught Exception: ${sanitizedErrorMsg}`);
   console.error(err.stack);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  log(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
+  // Sanitize reason
+  const sanitizedReason = String(reason).replace(/[\r\n]/g, ' ');
+  const sanitizedPromise = String(promise).replace(/[\r\n]/g, ' ');
+  log(`Unhandled Rejection at: ${sanitizedPromise}, reason: ${sanitizedReason}`);
 });
 
 // Add a route to check if the server is running

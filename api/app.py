@@ -1,5 +1,6 @@
 """app - Module for api.app."""
 
+import os
 from flask import Flask
 
 # Import and register the password reset/auth blueprint
@@ -14,4 +15,6 @@ def create_app():
 # For local dev/testing: `python -m api.app` will launch the app
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    # Only enable debug mode in development environment, never in production
+    debug_mode = os.environ.get("FLASK_ENV") == "development"
+    app.run(debug=debug_mode)

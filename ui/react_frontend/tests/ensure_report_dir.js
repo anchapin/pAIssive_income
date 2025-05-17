@@ -87,6 +87,13 @@ safelyCreateDirectory(htmlDir);
 const resultsDir = path.join(process.cwd(), 'test-results');
 safelyCreateDirectory(resultsDir);
 
+// Ensure the logs directory exists
+const logsDir = path.join(process.cwd(), 'logs');
+safelyCreateDirectory(logsDir);
+
+// Create a dummy log file to ensure the directory is not empty
+safelyWriteFile(path.join(logsDir, 'mock-api-server.log'), `Log file created at ${new Date().toISOString()}\nThis file was created to ensure the logs directory is not empty.\n`);
+
 // Create an HTML report file to ensure the directory is not empty
 const htmlContent = `<!DOCTYPE html>
 <html>
