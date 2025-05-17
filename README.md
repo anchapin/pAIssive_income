@@ -1,7 +1,16 @@
 # pAIssive Income
 
+Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
+
 [![Build Status](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/your-org/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/your-org/pAIssive_income?branch=main)
+
+## Features
+
+- **AI Agent Team**: Utilize a team of AI agents to generate niche software and AI bots
+- **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
+- **CopilotKit Integration**: Add AI copilot features to the React frontend
+- **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
 
@@ -9,7 +18,7 @@
 
 ## 🚀 Quick Start
 
-- **Getting Started:**  
+- **Getting Started:**
   See [docs/00_introduction/02_getting_started.md](docs/00_introduction/02_getting_started.md) for installation and setup instructions.
 
 ---
@@ -40,15 +49,15 @@ For a full directory map, see [docs/00_introduction/03_project_structure.md](doc
 
 ## 🤝 Contributing
 
-See [Development Workflow](docs/02_developer_guide/01_development_workflow.md) for contribution guidelines and coding standards.  
+See [Development Workflow](docs/02_developer_guide/01_development_workflow.md) for contribution guidelines and coding standards.
 Module-specific deep dives are in [docs/02_developer_guide/06_module_deep_dives/](docs/02_developer_guide/06_module_deep_dives/).
 
 ---
 
 ## 🔒 Security
 
-Security policy, reporting, and compliance:  
-[docs/04_security_and_compliance/01_security_overview.md](docs/04_security_and_compliance/01_security_overview.md)  
+Security policy, reporting, and compliance:
+[docs/04_security_and_compliance/01_security_overview.md](docs/04_security_and_compliance/01_security_overview.md)
 Historical fixes and audit notes: [docs/09_archive_and_notes/security_fixes_summaries.md](docs/09_archive_and_notes/security_fixes_summaries.md)
 
 ---
@@ -64,6 +73,49 @@ For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
 
 ---
+
+> **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.
+> This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
+
+For more details on the Docker Compose integration and Compose Bake, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+
+## CrewAI + CopilotKit Integration
+
+This project includes integration with CrewAI and CopilotKit to enable powerful multi-agent AI features in the React frontend.
+
+### Features
+
+- **Agentic Chat**: Chat with AI copilots and call frontend tools
+- **Human-in-the-Loop**: Collaborate with the AI, plan tasks, and decide actions interactively
+- **Agentic/Generative UI**: Assign long-running tasks to agents and see real-time progress
+
+### Usage
+
+To use the CrewAI + CopilotKit integration:
+
+1. Install the required dependencies:
+   ```bash
+   # Backend (CrewAI)
+   pip install '.[agents]'
+
+   # Frontend (CopilotKit)
+   cd ui/react_frontend
+   npm install
+   ```
+
+2. Start the application:
+   ```bash
+   # Using Docker Compose
+   docker compose up --build
+
+   # Or manually
+   python app.py
+   ```
+
+For more details on the CrewAI + CopilotKit integration, see:
+- [docs/CrewAI_CopilotKit_Integration.md](docs/CrewAI_CopilotKit_Integration.md) - Main integration guide
+- [ui/react_frontend/CopilotKit_CrewAI.md](ui/react_frontend/CopilotKit_CrewAI.md) - Frontend implementation details
+- [docs/examples/CrewAI_CopilotKit_Advanced_Examples.md](docs/examples/CrewAI_CopilotKit_Advanced_Examples.md) - Advanced usage examples
 
 ## 🚀 Getting Started
 

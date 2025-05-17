@@ -2,6 +2,16 @@ FROM --platform=$BUILDPLATFORM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS 
 
 WORKDIR /app
 
+# Accept CI build argument
+ARG CI=false
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    FLASK_APP=run_ui.py \
+    FLASK_ENV=production \
+    CI=$CI
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -13,13 +23,29 @@ RUN apt-get update \
        postgresql-client \
        libffi-dev \
        python3-dev \
+       docker-compose \
+       net-tools \
+       netcat-openbsd \
+       procps \
+       dnsutils \
+       iputils-ping \
+       wget \
     && apt-get clean \
     && rm -rf /lib/apt/lists/*
 
 # Copy requirements files
 COPY requirements-dev.txt .
+COPY requirements-ci.txt .
 COPY ai_models/requirements.txt ai_models_requirements.txt
-RUN cat requirements-dev.txt ai_models_requirements.txt > requirements.txt
+
+# Choose requirements file based on environment
+RUN if [ "$CI" = "true" ]; then \
+      echo "Using minimal requirements for CI environment" && \
+      cp requirements-ci.txt requirements.txt; \
+    else \
+      echo "Using full requirements for non-CI environment" && \
+      cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
+    fi
 
 # Set up virtual environment and install dependencies
 RUN uv venv /app/.venv \
@@ -31,26 +57,55 @@ RUN uv venv /app/.venv \
     && cd /app \
     && rm -rf /tmp/mcp-sdk \
     # Then install other requirements
-    && uv pip install --no-cache -r requirements.txt --python /app/.venv/bin/python
-
-# Copy application code
-COPY . .
+    && uv pip install --no-cache -r requirements.txt --python /app/.venv/bin/python \
+    # Install additional packages that might be needed
+    && uv pip install psycopg2-binary gunicorn
 
 # Set up PATH and PYTHONPATH
-ENV PYTHONPATH="/app"
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Set virtual environment activation
 ENV VIRTUAL_ENV="/app/.venv"
 
-# Health check script
-COPY docker-healthcheck.sh /app/docker-healthcheck.sh
-RUN chmod +x /app/docker-healthcheck.sh
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/logs /app/data && \
+    # Add a non-root user (using Debian commands)
+    groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser && \
+    # Set ownership, permissions, and create log files in one step
+    chown -R root:appgroup /app/logs /app/data && \
+    chmod 2777 /app/logs /app/data && \
+    touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log && \
+    chmod 666 /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log
+
+# Copy application code
+COPY --chown=root:appgroup . .
+
+# Copy health check script and wait-for-db script (and fix permissions)
+COPY docker-healthcheck.sh /usr/local/bin/
+COPY wait-for-db.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
+    sed -i 's/\r$//' /usr/local/bin/docker-healthcheck.sh && \
+    sed -i 's/\r$//' /usr/local/bin/wait-for-db.sh
+
+# Verify scripts are executable
+RUN ls -la /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
+    # Verify Python can import Flask (using the virtual environment)
+    python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
+    # Verify the run_ui.py file exists and is readable
+    ls -la /app/run_ui.py && \
+    # Verify the init_db.py file exists and is readable
+    ls -la /app/init_db.py
 
 # Set default platform values
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 
-# Run the application with wait-for-db script and initialize agent database
-CMD ["/bin/bash", "-c", "/usr/local/bin/wait-for-db.sh db 5432 && python init_agent_db.py && python run_ui.py"]
+# Health check with increased start period and retries
+HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
+  CMD ["/usr/local/bin/docker-healthcheck.sh"]
+
+# Switch to non-root user for security
+USER appuser
+
+# Command to run the application
+CMD ["python", "run_ui.py"]

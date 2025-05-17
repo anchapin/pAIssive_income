@@ -1,4 +1,5 @@
-"""Examples of how to use the secure logging utilities.
+"""
+Examples of how to use the secure logging utilities.
 
 This module provides examples of how to use the secure logging utilities
 to prevent sensitive information from being logged in clear text.
@@ -6,8 +7,7 @@ to prevent sensitive information from being logged in clear text.
 
 import logging
 
-from common_utils.logging.secure_logging import get_secure_logger
-from common_utils.logging.secure_logging import mask_sensitive_data
+from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 
 # Create a default logger instance
 logger = get_secure_logger("examples")
@@ -24,12 +24,13 @@ def example_secure_logger() -> None:
     logger = get_secure_logger("example")
 
     # Log messages with sensitive information
-    demo_access_token = "EXAMPLE_ACCESS_TOKEN_NOT_REAL_VALUE"
-    demo_auth_material = "EXAMPLE_PLACEHOLDER_NOT_A_REAL_VALUE"
+    # Using placeholder values for demonstration only
+    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105
+    demo_auth_material = "DEMO_AUTH_PLACEHOLDER"
 
     # These will be automatically masked
-    logger.info(f"Using access token: {demo_access_token}")
-    logger.info(f"Authentication material: {demo_auth_material}")
+    logger.info("Using access token: %s", demo_access_token)
+    logger.info("Authentication material: %s", demo_auth_material)
 
     # You can also log dictionaries with sensitive information
     user_data = {
@@ -42,7 +43,7 @@ def example_secure_logger() -> None:
         },
     }
 
-    logger.info(f"User data: {user_data}")
+    logger.info("User data: %s", user_data)
 
 
 def example_mask_sensitive_data() -> None:
@@ -50,12 +51,12 @@ def example_mask_sensitive_data() -> None:
     # Standard logger
     logger = logging.getLogger("standard_logger")
 
-    # Sensitive data - not using actual patterns
-    demo_access_token = "EXAMPLE_ACCESS_TOKEN_FOR_DEMONSTRATION_ONLY"
+    # Sensitive data - using placeholder for demonstration
+    demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105
 
     # Manually mask sensitive data
     masked_message = mask_sensitive_data(f"Using access token: {demo_access_token}")
-    logger.info(masked_message)
+    logger.info("%s", masked_message)
 
     # Mask sensitive data in a dictionary
     config = {
@@ -65,7 +66,7 @@ def example_mask_sensitive_data() -> None:
     }
 
     masked_config = mask_sensitive_data(config)
-    logger.info(f"Configuration: {masked_config}")
+    logger.info("Configuration: %s", masked_config)
 
 
 if __name__ == "__main__":

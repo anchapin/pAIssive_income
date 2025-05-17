@@ -1,17 +1,19 @@
-"""Configuration loader using centralized validation.
+"""
+Configuration loader using centralized validation.
 
 All configuration schemas/loads must comply with:
 docs/input_validation_and_error_handling_standards.md
 """
 
-import json
+from __future__ import annotations
 
-from pydantic import BaseModel
-from pydantic import Field
+import json
+from pathlib import Path
+
+from pydantic import BaseModel, Field
 
 from common_utils.logging import get_logger
-from common_utils.validation.core import ValidationError
-from common_utils.validation.core import validate_input
+from common_utils.validation.core import ValidationError, validate_input
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -27,7 +29,7 @@ class ExampleConfigModel(BaseModel):
 
 def load_config(config_path: str) -> ExampleConfigModel:
     """Load and validate configuration file using centralized validation."""
-    with open(config_path) as f:
+    with Path(config_path).open() as f:
         data = json.load(f)
     try:
         config = validate_input(ExampleConfigModel, data)

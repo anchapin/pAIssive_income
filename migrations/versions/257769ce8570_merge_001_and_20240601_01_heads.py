@@ -1,4 +1,5 @@
-"""merge 001 and 20240601_01 heads
+"""
+Merge 001 and 20240601_01 heads.
 
 Revision ID: 257769ce8570
 Revises: 20240601_01, 001
@@ -13,9 +14,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
-    pass
+def upgrade() -> None:
+    """Merge migration branches."""
 
 
-def downgrade():
-    pass
+def downgrade() -> None:
+    """Revert merge migration."""

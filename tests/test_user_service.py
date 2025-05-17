@@ -1,6 +1,5 @@
 """test_user_service - Test module for user service."""
 
-import os
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
@@ -8,7 +7,6 @@ import pytest
 from flask import Flask
 
 # Import at the top level
-from users.auth import hash_credential
 from users.models import db
 from users.services import UserExistsError, UserService
 
@@ -28,6 +26,18 @@ class MockUser:
         return MagicMock()
 
 
+# Create a mock for Flask app context
+class MockAppContext:
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
 class MockDB:
     session = MagicMock()
 
@@ -35,10 +45,18 @@ class MockDB:
     def add(self, obj):
         pass
 
-# Create patch for app_flask
-mock_db = MockDB()
-patch("users.services.UserModel", MockUser).start()
-patch("users.services.db_session", mock_db).start()
+
+# Create patch for flask.models
+patch("users.models.User", MockUser).start()
+
+# Patch the session attribute of the db object
+patch.object(db, "session", MagicMock()).start()
+
+# Mock Flask app context
+patch("flask.current_app._get_current_object", MagicMock()).start()
+patch("flask.has_app_context", MagicMock(return_value=True)).start()
+patch("flask._app_ctx_stack.top", MagicMock()).start()
+patch("flask.current_app.app_context", MagicMock(return_value=MockAppContext())).start()
 
 
 @pytest.fixture
@@ -57,73 +75,78 @@ def app_context(app):
 
 
 @pytest.fixture
-def user_service(app_context):
+def user_service():
     """Create a UserService instance for testing."""
-    return UserService(token_secret="test_secret")
+    return UserService(token_secret="test_secret")  # noqa: S106 - Test data only
 
 
 @patch("users.services.hash_credential", return_value="hashed_credential")
-def test_create_user(mock_hash, user_service):
+def test_create_user(mock_hash):
     """Test creating a user."""
     # Create a mock user instance
     mock_user_instance = MockUser(
         id=1,
         username="testuser",
         email="test@example.com",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(tz=datetime.timezone.utc),
+        updated_at=datetime.now(tz=datetime.timezone.utc),
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch("users.services.db_session") as mock_db:
-        # Skip the existing user check by directly patching the filter method
-        with patch.object(MockUser, "query") as mock_query:
-            # Create a mock filter that returns None for first() to indicate no existing user
-            mock_filter = MagicMock()
-            mock_filter.first.return_value = None
-            mock_query.return_value.filter.return_value = mock_filter
+    with patch("users.services.UserModel", MockUser), patch(
+        "users.services.db_session"
+    ), patch.object(MockUser, "query") as mock_query:
+        # Create a mock filter that returns None for first() to indicate no existing user
+        mock_filter = MagicMock()
+        mock_filter.first.return_value = None
+        mock_query.return_value.filter.return_value = mock_filter
 
-            # Mock the User constructor
-            with patch.object(MockUser, "__new__", return_value=mock_user_instance):
-                # Create a subclass of UserService with overridden methods for testing
-                class TestableUserService(UserService):
-                    def create_user(self, username, email, auth_credential, **kwargs):
-                        # Skip the user existence check
-                        # Hash the credential - use the mocked function from users.services
-                        from users.services import hash_credential as services_hash_credential
-                        hashed_credential = services_hash_credential(auth_credential)
+        # Mock the User constructor
+        with patch.object(MockUser, "__new__", return_value=mock_user_instance):
+            # Create a subclass of UserService with overridden methods for testing
+            class TestableUserService(UserService):
+                def create_user(self, username, email, auth_credential, **kwargs):  # noqa: ARG002
+                    # Skip the user existence check
+                    # Hash the credential - use the mocked function from users.services
+                    from users.services import (
+                        hash_credential as services_hash_credential,
+                    )
 
-                        # Create User model instance
-                        user = mock_user_instance
+                    services_hash_credential(
+                        auth_credential
+                    )  # Call but don't use the result
 
-                        # Return user data without sensitive information
-                        return {
-                            "id": user.id,
-                            "username": user.username,
-                            "email": user.email,
-                            "created_at": str(user.created_at),
-                            "updated_at": str(user.updated_at),
-                        }
+                    # Create User model instance
+                    user = mock_user_instance
 
-                # Replace the user_service with our testable version
-                test_service = TestableUserService(token_secret="test_secret")
+                    # Return user data without sensitive information
+                    return {
+                        "id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                        "created_at": str(user.created_at),
+                        "updated_at": str(user.updated_at),
+                    }
 
-                # Call the method
-                result = test_service.create_user(
-                    username="testuser",
-                    email="test@example.com",
-                    auth_credential="test_credential",
-                )
+            # Replace the user_service with our testable version
+            test_service = TestableUserService(token_secret="test_secret")  # noqa: S106 - Test data only
 
-                # Assertions
-                assert result["username"] == "testuser"
-                assert result["email"] == "test@example.com"
-                assert "id" in result
-                assert "auth_hash" not in result
-                assert "password_hash" not in result
+            # Call the method
+            result = test_service.create_user(
+                username="testuser",
+                email="test@example.com",
+                auth_credential="test_credential",
+            )
 
-                # Verify hash_credential was called
-                mock_hash.assert_called_once_with("test_credential")
+            # Assertions
+            assert result["username"] == "testuser"
+            assert result["email"] == "test@example.com"
+            assert "id" in result
+            assert "auth_hash" not in result
+            assert "password_hash" not in result
+
+            # Verify hash_credential was called
+            mock_hash.assert_called_once_with("test_credential")
 
 
 def test_create_user_existing_username(user_service):
@@ -150,14 +173,14 @@ def test_create_user_existing_username(user_service):
         assert "Email already exists" in str(excinfo.value)
 
 
-def test_authenticate_user_success(user_service):
+def test_authenticate_user_success():
     """Test authenticating a user successfully."""
     # Create a mock user with a fixed password_hash attribute
     user = MockUser(
         id=1,
         username="testuser",
         email="test@example.com",
-        password_hash="hashed_password",
+        password_hash="hashed_password",  # noqa: S106 - Test data only
     )
 
     # Set up the mocks
@@ -174,7 +197,7 @@ def test_authenticate_user_success(user_service):
 
         # Create a subclass of UserService with overridden methods for testing
         class TestableUserService(UserService):
-            def authenticate_user(self, username_or_email, auth_credential):
+            def authenticate_user(self, username_or_email, auth_credential):  # noqa: ARG002
                 # Skip the database query and verification
                 # Return success and user data
                 return True, {
@@ -184,7 +207,7 @@ def test_authenticate_user_success(user_service):
                 }
 
         # Replace the user_service with our testable version
-        test_service = TestableUserService(token_secret="test_secret")
+        test_service = TestableUserService(token_secret="test_secret")  # noqa: S106 - Test data only
 
         # Call the method
         success, result = test_service.authenticate_user(
@@ -206,12 +229,12 @@ def test_authenticate_user_failure(user_service):
         id=1,
         username="testuser",
         email="test@example.com",
-        password_hash="hashed_password",
+        password_hash="hashed_password",  # noqa: S106 - Test data only
     )
 
     # Set up the mocks
     with patch.object(MockUser, "query") as mock_query, patch(
-        "users.auth.verify_credential"
+        "users.services.verify_credential"
     ) as mock_verify:
         # Set up the mocks
         mock_filter = MagicMock()
@@ -221,7 +244,8 @@ def test_authenticate_user_failure(user_service):
 
         # Call the method
         success, result = user_service.authenticate_user(
-            username_or_email="testuser", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
+            username_or_email="testuser",
+            auth_credential="test_credential",  # Use a hardcoded value instead of environment variable
         )
 
         # Assertions
@@ -240,7 +264,8 @@ def test_authenticate_user_not_found(user_service):
 
         # Call the method
         success, result = user_service.authenticate_user(
-            username_or_email="nonexistent", auth_credential="test_credential"  # Use a hardcoded value instead of environment variable
+            username_or_email="nonexistent",
+            auth_credential="test_credential",  # Use a hardcoded value instead of environment variable
         )
 
         # Assertions

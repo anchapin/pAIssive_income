@@ -1,4 +1,5 @@
-"""create agent and agent_action tables
+"""
+Create agent and agent_action tables.
 
 Revision ID: 20240601_01
 Revises:
@@ -15,7 +16,8 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
+    """Create agent and agent_action tables."""
     op.execute("""
     CREATE TABLE IF NOT EXISTS agent (
         id SERIAL PRIMARY KEY,
@@ -36,6 +38,7 @@ def upgrade():
     """)
 
 
-def downgrade():
+def downgrade() -> None:
+    """Drop agent and agent_action tables."""
     op.execute("DROP TABLE IF EXISTS agent_action;")
     op.execute("DROP TABLE IF EXISTS agent;")

@@ -1,16 +1,14 @@
 """Simple dependency injection container for the pAIssive Income project."""
 
+from __future__ import annotations
+
 # Standard library imports
-import logging
-
-from typing import Any
-from typing import Optional
-
 # Third-party imports
-
 # Local imports
+from common_utils.logging import get_logger
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Initialize logger
+logger = get_logger(__name__)
 
 SERVICE_ALREADY_REGISTERED_MSG = "Service with name '{name}' is already registered."
 
@@ -20,10 +18,11 @@ class DependencyContainer:
 
     def __init__(self) -> None:
         """Initialize an empty container for services."""
-        self._services: dict[str, Any] = {}
+        self._services: dict[str, object] = {}
 
-    def register(self, name: str, service: Any) -> None:
-        """Register a service with a given name.
+    def register(self, name: str, service: object) -> None:
+        """
+        Register a service with a given name.
 
         Args:
             name: Name to register the service under
@@ -37,8 +36,9 @@ class DependencyContainer:
             raise ValueError(SERVICE_ALREADY_REGISTERED_MSG.format(name=name))
         self._services[name] = service
 
-    def get(self, name: str) -> Optional[Any]:
-        """Retrieve a registered service by name.
+    def get(self, name: str) -> object | None:
+        """
+        Retrieve a registered service by name.
 
         Args:
             name: The name of the service to retrieve
@@ -50,7 +50,8 @@ class DependencyContainer:
         return self._services.get(name)
 
     def list_services(self) -> list[str]:
-        """List all registered service names.
+        """
+        List all registered service names.
 
         Returns:
             list[str]: Names of all registered services
@@ -63,9 +64,9 @@ def main() -> None:
     """Demo usage of the dependency container."""
     container = DependencyContainer()
     container.register("database", {"url": "sqlite:///:memory:"})
-    logging.info(f"Registered services: {container.list_services()}")
+    logger.info("Registered services: %s", container.list_services())
     db = container.get("database")
-    logging.info(f"Database config: {db}")
+    logger.info("Database config: %s", db)
 
 
 if __name__ == "__main__":

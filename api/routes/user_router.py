@@ -1,11 +1,19 @@
 """user_router - User API endpoints using SQLAlchemy ORM."""
 
+from __future__ import annotations
+
 import os
-from typing import Any, Dict, Tuple
+
+# Type checking imports
+from typing import TYPE_CHECKING, Union
 
 from flask import Blueprint, jsonify, request
 
 from common_utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from flask.wrappers import Response
+    from werkzeug.wrappers import Response as WerkzeugResponse
 from users.services import AuthenticationError, UserExistsError, UserService
 
 # Set up secure logger that masks sensitive info
@@ -20,11 +28,13 @@ user_service = UserService(token_secret=TOKEN_SECRET)
 
 
 @user_bp.route("/", methods=["POST"])
-def create_user() -> Tuple[Dict[str, Any], int]:
-    """Create a new user.
+def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Create a new user.
 
     Returns:
-        Tuple[Dict[str, Any], int]: JSON response with user data or error and HTTP status code
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     try:
         data = request.get_json()
@@ -51,11 +61,13 @@ def create_user() -> Tuple[Dict[str, Any], int]:
 
 
 @user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Tuple[Dict[str, Any], int]:
-    """Authenticate a user.
+def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Authenticate a user.
 
     Returns:
-        Tuple[Dict[str, Any], int]: JSON response with user data or error and HTTP status code
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     try:
         data = request.get_json()
