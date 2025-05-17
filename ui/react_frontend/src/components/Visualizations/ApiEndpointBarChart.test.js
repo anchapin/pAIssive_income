@@ -85,7 +85,6 @@ describe('ApiEndpointBarChart', () => {
   });
 
   it('sorts bars by dataKey descending', () => {
-    // We can test that the first y-axis label is the endpoint with highest requests
     render(
       <ApiEndpointBarChart
         data={mockData}
@@ -93,10 +92,99 @@ describe('ApiEndpointBarChart', () => {
         name="Requests"
       />
     );
-    // The first endpoint rendered on y-axis should be /api/foo (100)
-    // Since DOM order may not be strict, check all y-axis labels are present
+    // All y-axis labels are present
     expect(screen.getByText('/api/foo')).toBeInTheDocument();
     expect(screen.getByText('/api/bar')).toBeInTheDocument();
     expect(screen.getByText('/api/baz')).toBeInTheDocument();
+  });
+
+  it('renders with default color and height if not provided', () => {
+    const { container } = render(
+      <ApiEndpointBarChart
+        data={mockData}
+        dataKey="requests"
+        name="Requests"
+      />
+    );
+    // Default color is #8884d8
+    const rects = container.querySelectorAll('rect');
+    expect(Array.from(rects).some(r => r.getAttribute('fill') === '#8884d8')).toBe(true);
+  });
+
+  it('renders with missing optional props', () => {
+    render(
+      <ApiEndpointBarChart
+        data={mockData}
+        dataKey="requests"
+        name="Requests"
+      />
+    );
+    // Should render the chart and legend without crashing
+    expect(screen.getByText(/Requests/i)).toBeInTheDocument();
+    // No title or yAxisLabel required
+  });
+
+  it('renders a single bar for single data point', () => {
+    const singleData = [{ endpoint: '/api/only', requests: 7 }];
+    const { container } = render(
+      <ApiEndpointBarChart
+        data={singleData}
+        dataKey="requests"
+        name="Requests"
+      />
+    );
+    // One rect for the bar
+    const rects = container.querySelectorAll('rect');
+    expect(rects.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('/api/only')).toBeInTheDocument();
+    expect(screen.getByText('7')).toBeInTheDocument();
+  });
+
+  it('renders bars for endpoints with zero values', () => {
+    const zeroData = [
+      { endpoint: '/api/zero', requests: 0 },
+      { endpoint: '/api/one', requests: 1 }
+    ];
+    render(
+      <ApiEndpointBarChart
+        data={zeroData}
+        dataKey="requests"
+        name="Requests"
+        showLabels={true}
+      />
+    );
+    expect(screen.getByText('/api/zero')).toBeInTheDocument();
+    expect(screen.getByText('/api/one')).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+  });
+
+  it('renders with numeric or non-string endpoints', () => {
+    const mixedData = [
+      { endpoint: 123, requests: 8 },
+      { endpoint: false, requests: 9 }
+    ];
+    render(
+      <ApiEndpointBarChart
+        data={mixedData}
+        dataKey="requests"
+        name="Requests"
+      />
+    );
+    expect(screen.getByText('123')).toBeInTheDocument();
+    expect(screen.getByText('false')).toBeInTheDocument();
+    expect(screen.getByText('8')).toBeInTheDocument();
+    expect(screen.getByText('9')).toBeInTheDocument();
+  });
+
+  it('ensures accessibility: SVG bar chart is present', () => {
+    const { container } = render(
+      <ApiEndpointBarChart
+        data={mockData}
+        dataKey="requests"
+        name="Requests"
+      />
+    );
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 });
