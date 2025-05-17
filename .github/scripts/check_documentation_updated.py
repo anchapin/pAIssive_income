@@ -193,17 +193,21 @@ def is_doc_file(path: str) -> bool:
 
     """
     p = Path(path)
+    # Constants for path parts
+    root_level = 1
+    ui_docs_min_parts = 3  # ui/react_frontend/file.md has at least 3 parts
+
     # Any Markdown file at repo root (e.g., README.md, CopilotKit_CrewAI_Integration.md)
-    if p.suffix.lower() == ".md" and len(p.parts) == 1:
+    if p.suffix.lower() == ".md" and len(p.parts) == root_level:
         return True
     # Any file in docs/ or docs_source/
     # Also consider ui/react_frontend/*.md as documentation
-    if len(p.parts) > 1:
+    if len(p.parts) > root_level:
         if p.parts[0] in {"docs", "docs_source"}:
             return True
         # Consider UI documentation files
         if (
-            len(p.parts) > 2
+            len(p.parts) >= ui_docs_min_parts
             and p.parts[0] == "ui"
             and p.parts[1] == "react_frontend"
             and p.suffix.lower() == ".md"
