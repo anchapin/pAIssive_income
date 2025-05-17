@@ -111,6 +111,10 @@ class LoggerChecker(ast.NodeVisitor):
         self.imports_end_line = 0
         self.docstring_end_line = 0
         self.first_logging_use_line = 0
+        self.logging_basicConfig_used = False
+        self.string_concat_in_logging = False
+        self.string_concat_line = 0
+        self.has_try_except_import = False
 
     def visit_Import(self, node: ast.Import) -> None:
         """Visit an import node.
@@ -151,7 +155,7 @@ class LoggerChecker(ast.NodeVisitor):
             ):
                 self.logger_initialized = True
                 self.logger_name = node.targets[0].id if isinstance(node.targets[0], ast.Name) else None
-                
+
                 # Check if logger is initialized after it's used
                 if self.logging_used_before_init:
                     self.issues.append(
@@ -163,7 +167,7 @@ class LoggerChecker(ast.NodeVisitor):
                             fixable=True
                         )
                     )
-                
+
                 # Check if logger is initialized too late in the file
                 if node.lineno > self.imports_end_line + 5:
                     self.issues.append(
@@ -208,10 +212,10 @@ class LoggerChecker(ast.NodeVisitor):
             self.root_logger_used = True
             if not self.first_logging_use_line:
                 self.first_logging_use_line = node.lineno
-            
+
             if not self.logger_initialized:
                 self.logging_used_before_init = True
-            
+
             self.issues.append(
                 LoggerIssue(
                     self.file_path,
@@ -221,6 +225,94 @@ class LoggerChecker(ast.NodeVisitor):
                     fixable=True
                 )
             )
+
+            # Check for string concatenation in logging calls
+            if node.args and isinstance(node.args[0], ast.BinOp) and isinstance(node.args[0].op, ast.Add):
+                self.string_concat_in_logging = True
+                self.string_concat_line = node.lineno
+                self.issues.append(
+                    LoggerIssue(
+                        self.file_path,
+                        "STRING_CONCAT_IN_LOGGING",
+                        node.lineno,
+                        "Using string concatenation in logging call instead of formatting",
+                        fixable=True
+                    )
+                )
+
+        # Check for logging.basicConfig usage
+        elif (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "logging"
+            and node.func.attr == "basicConfig"
+        ):
+            self.logging_basicConfig_used = True
+
+            # Check if basicConfig is used in the global scope (not in a function)
+            if not any(isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)) for parent in self.get_parents(node)):
+                self.issues.append(
+                    LoggerIssue(
+                        self.file_path,
+                        "GLOBAL_BASICCONFIG",
+                        node.lineno,
+                        "logging.basicConfig should be used in a main guard or function, not in global scope",
+                        fixable=False
+                    )
+                )
+
+        # Check for string concatenation in logger calls
+        elif (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "logger"
+            and node.func.attr in ["debug", "info", "warning", "error", "critical", "exception"]
+            and node.args
+            and isinstance(node.args[0], ast.BinOp)
+            and isinstance(node.args[0].op, ast.Add)
+        ):
+            self.string_concat_in_logging = True
+            self.string_concat_line = node.lineno
+            self.issues.append(
+                LoggerIssue(
+                    self.file_path,
+                    "STRING_CONCAT_IN_LOGGING",
+                    node.lineno,
+                    "Using string concatenation in logging call instead of formatting",
+                    fixable=True
+                )
+            )
+
+        self.generic_visit(node)
+
+    def get_parents(self, node: ast.AST) -> List[ast.AST]:
+        """Get the parent nodes of a node.
+
+        Args:
+            node: The AST node to get parents for
+
+        Returns:
+            List of parent nodes
+        """
+        parents = []
+        for parent in ast.walk(ast.parse(open(self.file_path, "r", encoding="utf-8").read())):
+            for child in ast.iter_child_nodes(parent):
+                if child == node:
+                    parents.append(parent)
+        return parents
+
+    def visit_Try(self, node: ast.Try) -> None:
+        """Visit a try/except node.
+
+        Args:
+            node: The AST node being visited
+        """
+        # Check for try/except blocks around imports
+        for stmt in node.body:
+            if isinstance(stmt, ast.Import) or isinstance(stmt, ast.ImportFrom):
+                self.has_try_except_import = True
+                break
+
         self.generic_visit(node)
 
     def check(self) -> List[LoggerIssue]:
@@ -239,6 +331,38 @@ class LoggerChecker(ast.NodeVisitor):
                     fixable=True
                 )
             )
+
+        # Check if the module has imports but no try/except blocks around them
+        if self.logging_imported and not self.has_try_except_import:
+            # Only suggest try/except for third-party imports
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                if "import " in content and not content.count("import") == content.count("import logging"):
+                    self.issues.append(
+                        LoggerIssue(
+                            self.file_path,
+                            "NO_TRY_EXCEPT_IMPORT",
+                            self.imports_end_line,
+                            "Consider using try/except blocks around third-party imports",
+                            fixable=False
+                        )
+                    )
+
+        # Check if the module has a logger but doesn't use it for exception handling
+        if self.logger_initialized:
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                if "except " in content and "logger.exception" not in content:
+                    self.issues.append(
+                        LoggerIssue(
+                            self.file_path,
+                            "NO_LOGGER_EXCEPTION",
+                            0,
+                            "Module has exception handling but doesn't use logger.exception()",
+                            fixable=False
+                        )
+                    )
+
         return self.issues
 
 
@@ -254,7 +378,7 @@ def check_file(file_path: str) -> List[LoggerIssue]:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         tree = ast.parse(content, filename=file_path)
         checker = LoggerChecker(file_path)
         checker.visit(tree)
@@ -296,9 +420,9 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
-        
+
         fixed = False
-        
+
         # Find the right place to insert logger initialization
         insert_line = 0
         for issue in issues:
@@ -308,25 +432,48 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
                 for i, line in enumerate(lines):
                     if import_pattern.match(line):
                         insert_line = max(insert_line, i + 1)
-                
+
                 # Insert after imports and before other code
                 if insert_line > 0:
                     lines.insert(insert_line, "\n# Configure logging\nlogger = logging.getLogger(__name__)\n\n")
                     fixed = True
                     break
-        
+
         # Replace root logger usage with module logger
         for i, line in enumerate(lines):
             if "logging.debug(" in line or "logging.info(" in line or "logging.warning(" in line or \
                "logging.error(" in line or "logging.critical(" in line or "logging.exception(" in line:
                 lines[i] = line.replace("logging.", "logger.")
                 fixed = True
-        
+
+        # Fix string concatenation in logging calls
+        for issue in issues:
+            if issue.issue_type == "STRING_CONCAT_IN_LOGGING":
+                line_number = issue.line_number - 1  # Convert to 0-based index
+                if line_number < len(lines):
+                    line = lines[line_number]
+
+                    # Simple case: replace "logger.info("text" + var)" with "logger.info(f"text{var}")"
+                    # This is a simple heuristic and won't work for all cases
+                    if '"' in line and " + " in line and "))" in line:
+                        # Extract the string and variable parts
+                        parts = line.split('"')
+                        if len(parts) >= 3:
+                            before_quote = parts[0]
+                            string_content = parts[1]
+                            after_quote = parts[2]
+
+                            if " + " in after_quote and ")" in after_quote:
+                                var_part = after_quote.split(" + ")[1].split(")")[0].strip()
+                                new_line = f'{before_quote}f"{string_content}{{{var_part}}}"))\n'
+                                lines[line_number] = new_line
+                                fixed = True
+
         if fixed:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
             return True
-        
+
         return False
     except Exception as e:
         logger.warning(f"Error fixing {file_path}: {e}")
@@ -356,35 +503,35 @@ def scan_directory(
     """
     issues = []
     fixed_count = 0
-    
+
     for root, dirs, files in os.walk(directory):
         # Skip excluded directories
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
-        
+
         for file in files:
             if not file.endswith(".py"):
                 continue
-            
+
             if file in exclude_files:
                 continue
-            
+
             if any(re.match(pattern, file) for pattern in exclude_patterns):
                 continue
-            
+
             file_path = os.path.join(root, file)
-            
+
             if verbose:
                 logger.info(f"Checking {file_path}")
-            
+
             file_issues = check_file(file_path)
             issues.extend(file_issues)
-            
+
             if fix and any(issue.fixable for issue in file_issues):
                 if fix_file(file_path, file_issues):
                     fixed_count += 1
                     if verbose:
                         logger.info(f"Fixed {file_path}")
-    
+
     return issues, fixed_count
 
 
@@ -398,15 +545,33 @@ def main() -> int:
     parser.add_argument("paths", nargs="*", default=["."], help="Paths to scan (default: current directory)")
     parser.add_argument("--fix", action="store_true", help="Attempt to fix issues automatically")
     parser.add_argument("--verbose", action="store_true", help="Show detailed output")
+    parser.add_argument("--exclude-dir", action="append", help="Additional directories to exclude")
+    parser.add_argument("--exclude-file", action="append", help="Additional files to exclude")
+    parser.add_argument("--exclude-pattern", action="append", help="Additional file patterns to exclude")
+    parser.add_argument("--check-string-concat", action="store_true", help="Check for string concatenation in logging calls")
+    parser.add_argument("--check-try-except", action="store_true", help="Check for try/except blocks around imports")
+    parser.add_argument("--check-exception-logging", action="store_true", help="Check for proper exception logging")
+    parser.add_argument("--check-basicconfig", action="store_true", help="Check for proper basicConfig usage")
+    parser.add_argument("--check-all", action="store_true", help="Enable all checks")
     args = parser.parse_args()
-    
-    exclude_dirs = DEFAULT_EXCLUDE_DIRS
-    exclude_files = DEFAULT_EXCLUDE_FILES
-    exclude_patterns = DEFAULT_EXCLUDE_PATTERNS
-    
+
+    # Set up exclusions
+    exclude_dirs = DEFAULT_EXCLUDE_DIRS.copy()
+    exclude_files = DEFAULT_EXCLUDE_FILES.copy()
+    exclude_patterns = DEFAULT_EXCLUDE_PATTERNS.copy()
+
+    if args.exclude_dir:
+        exclude_dirs.update(args.exclude_dir)
+
+    if args.exclude_file:
+        exclude_files.update(args.exclude_file)
+
+    if args.exclude_pattern:
+        exclude_patterns.extend(args.exclude_pattern)
+
     all_issues = []
     total_fixed = 0
-    
+
     for path in args.paths:
         if os.path.isdir(path):
             issues, fixed_count = scan_directory(
@@ -422,10 +587,10 @@ def main() -> int:
         elif os.path.isfile(path) and path.endswith(".py"):
             if args.verbose:
                 logger.info(f"Checking {path}")
-            
+
             file_issues = check_file(path)
             all_issues.extend(file_issues)
-            
+
             if args.fix and any(issue.fixable for issue in file_issues):
                 if fix_file(path, file_issues):
                     total_fixed += 1
@@ -433,25 +598,25 @@ def main() -> int:
                         logger.info(f"Fixed {path}")
         else:
             logger.warning(f"Skipping {path} (not a Python file or directory)")
-    
+
     # Group issues by file
     issues_by_file: Dict[str, List[LoggerIssue]] = {}
     for issue in all_issues:
         if issue.file_path not in issues_by_file:
             issues_by_file[issue.file_path] = []
         issues_by_file[issue.file_path].append(issue)
-    
+
     # Print issues
     for file_path, file_issues in issues_by_file.items():
         print(f"\n{file_path}:")
         for issue in file_issues:
             print(f"  Line {issue.line_number}: {issue.issue_type}: {issue.message}")
-    
+
     # Print summary
     print(f"\nFound {len(all_issues)} issues in {len(issues_by_file)} files")
     if args.fix:
         print(f"Fixed {total_fixed} files")
-    
+
     return 1 if all_issues else 0
 
 

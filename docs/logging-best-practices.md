@@ -386,3 +386,234 @@ async def fetch_multiple(urls: List[str]) -> List[Dict[str, Any]]:
     logger.info(f"Successfully fetched data from {len(processed_results)}/{len(urls)} URLs")
     return processed_results
 ```
+
+### CLI Application Example
+
+Here's an example of proper logger usage in a command-line application:
+
+```python
+"""cli_app - Command-line application module."""
+
+# Standard library imports
+import logging
+import argparse
+import sys
+from typing import List, Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+def configure_logging(verbose: bool = False) -> None:
+    """Configure logging for the application.
+
+    Args:
+        verbose: Whether to enable verbose (DEBUG) logging
+    """
+    log_level = logging.DEBUG if verbose else logging.INFO
+
+    # Configure root logger
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+        ]
+    )
+
+    # Reduce verbosity of third-party libraries
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    logger.debug("Logging configured with level %s", "DEBUG" if verbose else "INFO")
+
+def process_file(file_path: str) -> bool:
+    """Process a file.
+
+    Args:
+        file_path: Path to the file to process
+
+    Returns:
+        True if processing was successful, False otherwise
+    """
+    logger.info("Processing file: %s", file_path)
+    try:
+        with open(file_path, "r") as f:
+            content = f.read()
+
+        # Process the file content
+        logger.debug("File content length: %d bytes", len(content))
+
+        # Simulate processing
+        result = len(content) > 0
+
+        if result:
+            logger.info("Successfully processed file: %s", file_path)
+        else:
+            logger.warning("File was empty: %s", file_path)
+
+        return result
+    except FileNotFoundError:
+        logger.error("File not found: %s", file_path)
+        return False
+    except Exception as e:
+        logger.exception("Error processing file %s: %s", file_path, e)
+        return False
+
+def main(args: Optional[List[str]] = None) -> int:
+    """Main entry point for the application.
+
+    Args:
+        args: Command-line arguments (defaults to sys.argv[1:])
+
+    Returns:
+        Exit code (0 for success, non-zero for failure)
+    """
+    parser = argparse.ArgumentParser(description="Process files")
+    parser.add_argument("files", nargs="+", help="Files to process")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+
+    parsed_args = parser.parse_args(args)
+
+    # Configure logging based on verbosity
+    configure_logging(parsed_args.verbose)
+
+    logger.info("Starting file processing")
+
+    success_count = 0
+    for file_path in parsed_args.files:
+        if process_file(file_path):
+            success_count += 1
+
+    logger.info("Processed %d/%d files successfully", success_count, len(parsed_args.files))
+
+    return 0 if success_count == len(parsed_args.files) else 1
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+### Web Application Example
+
+Here's an example of proper logger usage in a web application:
+
+```python
+"""web_app - Web application module."""
+
+# Standard library imports
+import logging
+import os
+from typing import Dict, Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Third-party imports
+try:
+    from flask import Flask, request, jsonify
+    logger.debug("Successfully imported Flask")
+except ImportError as e:
+    logger.critical(f"Failed to import Flask: {e}")
+    raise
+
+# Create Flask app
+app = Flask(__name__)
+
+# Configure application-wide logging
+def configure_logging() -> None:
+    """Configure logging for the web application."""
+    log_level_name = os.environ.get("LOG_LEVEL", "INFO").upper()
+    log_level = getattr(logging, log_level_name, logging.INFO)
+
+    # Configure root logger
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    # Reduce verbosity of Flask and Werkzeug
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+    logging.getLogger("flask").setLevel(logging.WARNING)
+
+    logger.info("Web application logging configured with level %s", log_level_name)
+
+# Configure logging before request handling
+configure_logging()
+
+@app.before_request
+def log_request_info() -> None:
+    """Log information about each incoming request."""
+    logger.debug(
+        "Request: %s %s - Headers: %s",
+        request.method,
+        request.path,
+        {k: v for k, v in request.headers.items() if k.lower() not in ("authorization", "cookie")}
+    )
+
+@app.after_request
+def log_response_info(response: Any) -> Any:
+    """Log information about each outgoing response.
+
+    Args:
+        response: The Flask response object
+
+    Returns:
+        The unchanged response object
+    """
+    logger.debug(
+        "Response: %s %s - Status: %d",
+        request.method,
+        request.path,
+        response.status_code
+    )
+    return response
+
+@app.route("/api/data", methods=["GET"])
+def get_data() -> Dict[str, Any]:
+    """API endpoint to get data.
+
+    Returns:
+        JSON response with data
+    """
+    logger.info("Handling request for /api/data")
+    try:
+        # Simulate data retrieval
+        data = {"message": "Hello, world!", "status": "success"}
+        logger.debug("Retrieved data: %s", data)
+        return jsonify(data)
+    except Exception as e:
+        logger.exception("Error retrieving data: %s", e)
+        return jsonify({"error": str(e), "status": "error"}), 500
+
+@app.route("/api/data", methods=["POST"])
+def create_data() -> Dict[str, Any]:
+    """API endpoint to create data.
+
+    Returns:
+        JSON response with result
+    """
+    logger.info("Handling POST request for /api/data")
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        if not data:
+            logger.warning("No JSON data in request")
+            return jsonify({"error": "No JSON data provided", "status": "error"}), 400
+
+        logger.debug("Received data: %s", data)
+
+        # Simulate data processing
+        result = {"id": 123, "status": "created"}
+
+        logger.info("Successfully created data with ID %d", result["id"])
+        return jsonify(result), 201
+    except Exception as e:
+        logger.exception("Error creating data: %s", e)
+        return jsonify({"error": str(e), "status": "error"}), 500
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    logger.info("Starting web application on port %d", port)
+    app.run(host="0.0.0.0", port=port)
+```
