@@ -33,3 +33,4 @@ jobs:
           files: ./coverage/lcov.info
           flags: js
           fail_ci_if_error: true
+          strict: true   # Fail CI if coverage drops vs. base branch

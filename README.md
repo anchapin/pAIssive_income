@@ -2,6 +2,8 @@
 
 [![codecov](https://codecov.io/gh/your-github-username/your-repo-name/branch/main/graph/badge.svg)](https://codecov.io/gh/your-github-username/your-repo-name)
 
+> **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
+
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
 ## Features
