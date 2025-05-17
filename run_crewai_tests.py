@@ -26,14 +26,13 @@ def run_command(command, check=True, shell=False):
             command,
             check=check,
             shell=shell,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        logging.error(f"Command failed with exit code {e.returncode}")
-        logging.error(f"Error output: {e.stderr}")
+        logging.exception(f"Command failed with exit code {e.returncode}")
+        logging.exception(f"Error output: {e.stderr}")
         if check:
             raise
         return None
@@ -87,12 +86,12 @@ def test_crewai_mock():
             logging.info("CrewAI tests completed")
             logging.info(f"Test results:\n{result}")
         except Exception as e:
-            logging.error(f"Error running tests: {e}")
+            logging.exception("Error running tests")
             logging.info("Tests failed, but continuing...")
             # Return success anyway to not block the workflow
             return 0
     except Exception as e:
-        logging.error(f"Unexpected error in CrewAI tests: {e}")
+        logging.exception("Unexpected error in CrewAI tests")
         # Return success anyway to not block the workflow
         return 0
 

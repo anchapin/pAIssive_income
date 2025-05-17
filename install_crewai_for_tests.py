@@ -27,8 +27,7 @@ def run_command(command, check=True, shell=False):
             command,
             check=check,
             shell=shell,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True
         )
         return result.stdout.strip()
@@ -189,21 +188,25 @@ class Crew:
         try:
             # Try to import the module
             sys.path.insert(0, os.getcwd())  # Add current directory to path
-            import mock_crewai
-            logging.info("Mock CrewAI module created successfully")
-            return True
+            # Use importlib to check if module exists without importing it
+            import importlib.util
+            if importlib.util.find_spec("mock_crewai") is not None:
+                logging.info("Mock CrewAI module created successfully")
+                return True
         except ImportError as e:
             logging.warning(f"Failed to import mock_crewai module: {e}, trying fallback...")
             try:
                 # Try to import the fallback module
-                import crewai
-                logging.info("Fallback CrewAI module created successfully")
-                return True
+                # Use importlib to check if module exists without importing it
+                import importlib.util
+                if importlib.util.find_spec("crewai") is not None:
+                    logging.info("Fallback CrewAI module created successfully")
+                    return True
             except ImportError as e2:
-                logging.error(f"Failed to import fallback crewai module: {e2}")
+                logging.exception("Failed to import fallback crewai module")
                 return False
     except Exception as e:
-        logging.error(f"Error creating mock CrewAI module: {e}")
+        logging.exception("Error creating mock CrewAI module")
         return False
 
 def main():

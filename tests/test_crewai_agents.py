@@ -46,7 +46,7 @@ def test_crewai_import_and_agent():
 
         logging.info("CrewAI Agent test passed")
     except ImportError as e:
-        logging.error(f"CrewAI Agent import failed: {e}")
+        logging.exception("CrewAI Agent import failed")
         pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
@@ -80,7 +80,7 @@ def test_crewai_task_and_crew():
 
         logging.info("CrewAI Task and Crew test passed")
     except ImportError as e:
-        logging.error(f"CrewAI Task and Crew import failed: {e}")
+        logging.exception("CrewAI Task and Crew import failed")
         pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
@@ -98,19 +98,22 @@ def test_crewai_mock_fallback():
             except ImportError:
                 # Try the fallback module
                 import crewai
-                Agent = crewai.Agent
+                agent_class = crewai.Agent
                 source = "fallback crewai"
 
         logging.info(f"Using {source} for Agent")
 
         # Create a simple agent
-        agent = Agent(role="Test Agent", goal="Test goal", backstory="Test backstory")
+        if 'agent_class' in locals():
+            agent = agent_class(role="Test Agent", goal="Test goal", backstory="Test backstory")
+        else:
+            agent = Agent(role="Test Agent", goal="Test goal", backstory="Test backstory")
         assert agent.role == "Test Agent"
         assert agent.goal == "Test goal"
         assert agent.backstory == "Test backstory"
 
         logging.info("CrewAI mock fallback test passed")
     except ImportError as e:
-        logging.error(f"All CrewAI import attempts failed: {e}")
+        logging.exception("All CrewAI import attempts failed")
         # This test should never fail, just skip if all imports fail
         pytest.skip("No CrewAI implementation available")

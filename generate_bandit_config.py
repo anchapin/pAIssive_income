@@ -159,7 +159,7 @@ def main() -> None:
 
         logging.info("All Bandit configuration files and SARIF files generated successfully")
     except Exception as e:
-        logging.error(f"Error generating Bandit configuration files: {e}")
+        logging.exception("Error generating Bandit configuration files")
         # Create the minimal required files even if an error occurs
         try:
             os.makedirs("security-reports", exist_ok=True)
@@ -169,7 +169,7 @@ def main() -> None:
                 f.write("""{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}""")
             logging.info("Created minimal required SARIF files after error")
         except Exception as e2:
-            logging.error(f"Failed to create minimal required SARIF files: {e2}")
+            logging.exception("Failed to create minimal required SARIF files")
 
 
 if __name__ == "__main__":
