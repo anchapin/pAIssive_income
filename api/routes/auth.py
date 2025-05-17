@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 import secrets
 import time
 import bcrypt
+import smtplib
+from email.mime.text import MIMEText
+import os
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -13,6 +16,27 @@ RESET_TOKENS = {}  # token: {email, expires_at}
 
 RESET_TOKEN_EXPIRY = 1800  # 30 minutes
 
+def send_email(to_addr, subject, body):
+    # SMTP config from env vars or defaults
+    SMTP_HOST = os.environ.get("SMTP_HOST", "localhost")
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", 1025))
+    SMTP_USER = os.environ.get("SMTP_USER", "")
+    SMTP_PASS = os.environ.get("SMTP_PASS", "")
+    FROM_ADDR = os.environ.get("SMTP_FROM", "no-reply@example.com")
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = FROM_ADDR
+    msg['To'] = to_addr
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            if SMTP_USER and SMTP_PASS:
+                server.starttls()
+                server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(FROM_ADDR, [to_addr], msg.as_string())
+        print(f"[Password Reset] Sent email to {to_addr}")
+    except Exception as e:
+        print(f"[Password Reset] Failed to send email: {e}")
+
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.get_json()
@@ -21,7 +45,7 @@ def forgot_password():
     if not email:
         return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
-    # If user exists, create a token and "send" an email (here: just log)
+    # If user exists, create a token and send an email
     if email in USERS:
         token = secrets.token_urlsafe(32)
         RESET_TOKENS[token] = {
@@ -29,7 +53,11 @@ def forgot_password():
             "expires_at": time.time() + RESET_TOKEN_EXPIRY
         }
         print(f"[Password Reset] Generated reset token for {email}: {token}")
-        # In real app: send email with link containing token
+        # Compose reset link (assuming frontend at localhost:3000)
+        reset_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/reset-password/{token}"
+        subject = "Password Reset Request"
+        body = f"To reset your password, click the following link:\n\n{reset_link}\n\nIf you did not request a password reset, please ignore this email."
+        send_email(email, subject, body)
     # Respond identically in either case
     return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
