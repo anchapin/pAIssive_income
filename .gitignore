@@ -60,6 +60,10 @@ junit/test-results-*.xml
 *-results-*.json
 *-results-*.xml
 secrets.sarif.json
+
+# Editor/tool-specific configs
+.cursor/
+cline_mcp_settings.json
 *.so
 *.spec
 *.swo
