@@ -1,6 +1,8 @@
 # Linting Guide
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting Python code. The `fix_linting_issues.py` script provides a convenient way to automatically fix common linting issues across the codebase.
+This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting Python code.
+
+> **Note:** All code quality utility scripts (including fix_linting_issues.py) have been moved to the `scripts/fix/` directory. Please update all usage examples and CI/CD references to use `scripts/fix/fix_linting_issues.py` instead of the old root path.
 
 ## Using the Linting Script
 
@@ -10,29 +12,29 @@ The `fix_linting_issues.py` script can be run locally or through GitHub Actions.
 
 ```bash
 # Fix all Python files
-python fix_linting_issues.py
+python scripts/fix/fix_linting_issues.py
 
 # Check for issues without fixing them
-python fix_linting_issues.py --check
+python scripts/fix/fix_linting_issues.py --check
 
 # Fix specific files
-python fix_linting_issues.py path/to/file1.py path/to/file2.py
+python scripts/fix/fix_linting_issues.py path/to/file1.py path/to/file2.py
 
 # Enable verbose output
-python fix_linting_issues.py --verbose
+python scripts/fix/fix_linting_issues.py --verbose
 
 # Skip Ruff linter
-python fix_linting_issues.py --no-ruff
+python scripts/fix/fix_linting_issues.py --no-ruff
 
 # Exclude specific patterns
-python fix_linting_issues.py --exclude "tests/" --exclude "legacy/"
+python scripts/fix/fix_linting_issues.py --exclude "tests/" --exclude "legacy/"
 
 # Use a file containing exclude patterns
-python fix_linting_issues.py --exclude-file .lintignore
+python scripts/fix/fix_linting_issues.py --exclude-file .lintignore
 
 # Enable parallel processing
-python fix_linting_issues.py --jobs 4  # Use 4 workers
-python fix_linting_issues.py -j 0      # Use all available CPU cores
+python scripts/fix/fix_linting_issues.py --jobs 4  # Use 4 workers
+python scripts/fix/fix_linting_issues.py -j 0      # Use all available CPU cores
 ```
 
 ### Command-Line Arguments
@@ -46,6 +48,8 @@ python fix_linting_issues.py -j 0      # Use all available CPU cores
 | `--exclude PATTERN` | Patterns to exclude (can be used multiple times). |
 | `--exclude-file FILE` | Path to a file containing patterns to exclude (one per line). |
 | `--jobs N`, `-j N` | Number of parallel jobs to run. Default is 1 (sequential). Use -j 0 to use all available CPU cores. |
+
+*All script references above assume the new path under `scripts/fix/`.*
 
 ### Exclude File Format
 
