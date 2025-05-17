@@ -69,11 +69,16 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
         origin = self.headers.get("Origin", "*")
 
+        # Sanitize origin to prevent HTTP response splitting
+        sanitized_origin = (
+            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
+        )
+
         # If specific origins are defined, check if the request origin is allowed
-        if allowed_origins != "*" and origin != "*":
+        if allowed_origins != "*" and sanitized_origin != "*":
             allowed_origins_list = allowed_origins.split(",")
-            if origin in allowed_origins_list:
-                self.send_header("Access-Control-Allow-Origin", origin)
+            if sanitized_origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", sanitized_origin)
             else:
                 self.send_header("Access-Control-Allow-Origin", "*")
         else:
@@ -249,11 +254,16 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
         origin = self.headers.get("Origin", "*")
 
+        # Sanitize origin to prevent HTTP response splitting
+        sanitized_origin = (
+            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
+        )
+
         # If specific origins are defined, check if the request origin is allowed
-        if allowed_origins != "*" and origin != "*":
+        if allowed_origins != "*" and sanitized_origin != "*":
             allowed_origins_list = allowed_origins.split(",")
-            if origin in allowed_origins_list:
-                self.send_header("Access-Control-Allow-Origin", origin)
+            if sanitized_origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", sanitized_origin)
             else:
                 self.send_header("Access-Control-Allow-Origin", "*")
         else:

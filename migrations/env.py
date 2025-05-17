@@ -5,16 +5,8 @@ from __future__ import annotations
 import logging
 import os
 from logging.config import fileConfig
-from typing import Any
 
 from alembic import context
-
-# Import current_app directly to avoid mypy errors
-try:
-    from flask import current_app
-except ImportError:
-    # This is a fallback for mypy
-    current_app = Any  # type: ignore[assignment]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
