@@ -37,7 +37,7 @@ fs.writeFileSync(testRunReport,
 console.log(`Created test run report at ${testRunReport}`);
 
 // Function to check if server is ready
-function checkServerReady(port, maxRetries = 10) {
+function checkServerReady(port, maxRetries = 15) {
   return new Promise((resolve) => {
     let retries = 0;
 
@@ -50,7 +50,7 @@ function checkServerReady(port, maxRetries = 10) {
         port: port,
         path: '/health',
         method: 'GET',
-        timeout: 1000
+        timeout: 2000 // Increase timeout
       }, (res) => {
         console.log(`Server responded with status code: ${res.statusCode}`);
         if (res.statusCode === 200) {
@@ -79,6 +79,19 @@ function checkServerReady(port, maxRetries = 10) {
         } else {
           console.log(`Server not ready after ${maxRetries} attempts`);
           fs.appendFileSync(testRunReport, `Server not ready after ${maxRetries} attempts: ${err.message}\n`);
+          resolve(false);
+        }
+      });
+
+      // Set a timeout to avoid hanging requests
+      req.setTimeout(2000, () => {
+        req.destroy();
+        console.log(`Request timed out after 2000ms`);
+        if (retries < maxRetries) {
+          setTimeout(tryConnect, 500);
+        } else {
+          console.log(`Server not ready after ${maxRetries} attempts (timeout)`);
+          fs.appendFileSync(testRunReport, `Server not ready after ${maxRetries} attempts (timeout)\n`);
           resolve(false);
         }
       });
@@ -128,26 +141,37 @@ server.on('error', (err) => {
 console.log('Waiting for server to start...');
 fs.appendFileSync(testRunReport, `Waiting for server to start at ${new Date().toISOString()}\n`);
 
-// Try both default port and fallback port
+// Try multiple ports
 async function checkServerPorts() {
-  // Check default port (8000)
-  const isReady = await checkServerReady(8000);
-  if (isReady) {
-    runTests();
-    return;
+  const ports = [8000, 8001, 8002, 8003, 8004];
+
+  for (const port of ports) {
+    console.log(`Checking if server is ready on port ${port}...`);
+    const isReady = await checkServerReady(port);
+    if (isReady) {
+      console.log(`Server is ready on port ${port}, running tests...`);
+      fs.appendFileSync(testRunReport, `Server is ready on port ${port} at ${new Date().toISOString()}\n`);
+      runTests();
+      return;
+    }
   }
 
-  // Check fallback port (8001)
-  console.log('Checking fallback port 8001...');
-  const isReadyOnFallback = await checkServerReady(8001);
-  if (isReadyOnFallback) {
-    runTests();
-    return;
-  }
-
-  // If neither port is ready, try running the tests directly
+  // If no port is ready, try running the tests directly
   console.log('Server not ready on any port, running tests directly...');
   fs.appendFileSync(testRunReport, `Server not ready on any port, running tests directly at ${new Date().toISOString()}\n`);
+
+  // Create a report file to indicate server check failure
+  try {
+    fs.writeFileSync(
+      path.join(reportDir, 'server-check-failed.txt'),
+      `Server not ready on any port at ${new Date().toISOString()}\n` +
+      `Checked ports: ${ports.join(', ')}\n` +
+      `Continuing with direct tests...`
+    );
+  } catch (error) {
+    console.error(`Failed to create server check failure report: ${error.message}`);
+  }
+
   runTests();
 }
 

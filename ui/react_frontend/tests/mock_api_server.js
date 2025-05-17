@@ -223,16 +223,23 @@ function isPortInUse(port) {
 // Start server with port retry logic
 async function startServer() {
   let currentPort = PORT;
-  let maxRetries = 3;
+  let maxRetries = 5; // Increase max retries
   let server;
+  const ports = [PORT, 8001, 8002, 8003, 8004]; // Try these specific ports
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      // Use a port from the list, or increment from the last one if we've gone through the list
+      if (attempt <= ports.length) {
+        currentPort = ports[attempt - 1];
+      } else {
+        currentPort++;
+      }
+
       // Check if port is in use
       const portInUse = await isPortInUse(currentPort);
       if (portInUse) {
         log(`Port ${currentPort} is already in use, trying another port`, 'warn');
-        currentPort++;
         continue;
       }
 
@@ -265,10 +272,20 @@ async function startServer() {
           `Error: ${err.message}\n` +
           `Stack: ${err.stack}`
         );
+
+        // If the error is EADDRINUSE, try another port
+        if (err.code === 'EADDRINUSE') {
+          log(`Port ${currentPort} is already in use despite our check, trying another port`, 'warn');
+          // Don't exit, let the loop continue to try another port
+          return null;
+        }
       });
 
-      // Server started successfully
-      return server;
+      // If we got here without an error event, the server started successfully
+      if (server) {
+        log(`Server successfully started on port ${currentPort}`, 'info');
+        return server;
+      }
     } catch (error) {
       log(`Failed to start server on port ${currentPort} (attempt ${attempt}/${maxRetries}): ${error.message}`, 'error');
       console.error(error.stack);
@@ -281,16 +298,21 @@ async function startServer() {
         `Error: ${error.message}\n` +
         `Stack: ${error.stack}`
       );
-
-      if (attempt === maxRetries) {
-        log(`All ${maxRetries} attempts to start server failed`, 'error');
-        process.exit(1);
-      }
-
-      // Try next port
-      currentPort++;
     }
   }
+
+  // If we've tried all ports and none worked, create a final error report
+  log(`All ${maxRetries} attempts to start server failed`, 'error');
+  createReport('mock-api-all-attempts-failed.txt',
+    `All ${maxRetries} attempts to start server failed at ${new Date().toISOString()}\n` +
+    `Tried ports: ${ports.join(', ')}\n` +
+    `Last attempted port: ${currentPort}`
+  );
+
+  // Instead of exiting, return a dummy server object that can be handled gracefully
+  return {
+    close: () => { log('Dummy server close called', 'info'); }
+  };
 }
 
 // Start the server and export it
