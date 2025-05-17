@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import functools
-import logging
 import re
 import time
+import logging
+from logging import getLogger
 from typing import Any, Callable, TypeVar, cast
 
 from flask.globals import current_app, g
