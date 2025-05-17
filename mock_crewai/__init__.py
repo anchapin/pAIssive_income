@@ -11,8 +11,15 @@ to be installed, which can be useful in CI environments or for users who
 don't need the full CrewAI functionality.
 """
 
+# Define version first
+__version__ = "0.120.0"
+
+# Import in a specific order to avoid circular imports
+# First import crew which doesn't depend on the other modules
+# Then import agent and task
 from .agent import Agent
 from .crew import Crew
 from .task import Task
 
-__version__ = "0.120.0"
+# Define what should be exported
+__all__ = ["Agent", "Crew", "Task", "__version__"]

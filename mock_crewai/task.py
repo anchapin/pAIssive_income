@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, Union
 
 # Only import Agent for type checking to avoid circular imports at runtime
 if TYPE_CHECKING:
@@ -17,7 +17,9 @@ class Task:
     def __init__(
         self,
         description: str = "",
-        agent: Agent | None = None,
+        agent: Optional[
+            Union[Agent, None]
+        ] = None,  # Use string literal for forward reference
         **kwargs: dict[str, Any],
     ) -> None:
         """

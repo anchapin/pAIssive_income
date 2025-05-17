@@ -34,7 +34,9 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task: Task) -> str:
+    def execute_task(
+        self, task: Task
+    ) -> str:  # Use string literal for forward reference
         """
         Execute a task and return a result.
 

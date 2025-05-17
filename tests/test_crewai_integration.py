@@ -120,8 +120,11 @@ def test_crewai_agent_team_with_custom_agents():
 
             # Verify the agents were added
             assert len(agent_team.agents) == 2
-            assert agent_team.agents[0].role == "Researcher"
-            assert agent_team.agents[1].role == "Writer"
+            # Cast to Any to avoid mypy errors with role attribute
+            from typing import Any, cast
+
+            assert cast("Any", agent_team.agents[0]).role == "Researcher"
+            assert cast("Any", agent_team.agents[1]).role == "Writer"
 
             # Test the run method with custom agents
             with patch.object(agent_team, "_create_crew") as mock_create_crew:
