@@ -69,7 +69,10 @@ docker-compose up --build
 ```
 This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
 
-For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+> **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.  
+> This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
+
+For more details on the Docker Compose integration and Compose Bake, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
 
 ## CrewAI + CopilotKit Integration
 
