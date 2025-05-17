@@ -4,7 +4,11 @@ import os
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "postgresql://myuser:mypassword@db:5433/mydb"
-    )
+    # Use a property to ensure the environment variable is checked each time
+    @property
+    def SQLALCHEMY_DATABASE_URI(self):
+        return os.environ.get(
+            "DATABASE_URL", "postgresql://myuser:mypassword@db:5433/mydb"
+        )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False

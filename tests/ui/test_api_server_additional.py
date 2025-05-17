@@ -33,6 +33,9 @@ class TestAPIHandlerAdditional:
         self.handler.end_headers = MagicMock()
         self.handler.address_string = MagicMock(return_value="127.0.0.1")
         self.handler.log_message = MagicMock()
+        # Add headers attribute to fix the test
+        self.handler.headers = MagicMock()
+        self.handler.headers.get = MagicMock(return_value="*")
 
     def test_send_response_with_empty_data(self):
         """Test _send_response method with empty data."""

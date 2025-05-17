@@ -59,7 +59,7 @@ class TestInitDb:
         mock_team.assert_not_called()
         mock_agent.assert_not_called()
         mock_hash.assert_not_called()
-        mock_logging.assert_called_with("Database already contains data")
+        mock_logging.assert_called_with("Database already initialized")
 
     @patch("init_db.create_app")
     @patch("init_db.User")
@@ -97,8 +97,17 @@ class TestInitDb:
         mock_db.session.add.assert_called()
         mock_db.session.add_all.assert_called_once()
         mock_db.session.commit.assert_called_once()
-        # Check for the specific log message
-        mock_logging.assert_any_call("Database initialized with default data")
+        # Check for the expected log messages
+        expected_log_calls = [
+            "Admin user created",
+            "Default team created",
+            "Sample agents created",
+            "Database initialized successfully",
+            "Admin user created with generated password (not logged for security reasons)"
+        ]
+
+        for expected_call in expected_log_calls:
+            mock_logging.assert_any_call(expected_call)
 
     @patch("init_db.create_app")
     @patch("init_db.User")
@@ -145,12 +154,13 @@ class TestInitDb:
         mock_db.session.add_all.assert_called_once()
         mock_db.session.commit.assert_called_once()
 
-        # Check for all the expected log messages
+        # Check for the expected log messages
         expected_log_calls = [
-            "Generated secure admin password - use it to log in",
-            "Generated admin password: generated-password",
-            "Admin password was logged to console",
-            "Database initialized with default data"
+            "Admin user created",
+            "Default team created",
+            "Sample agents created",
+            "Database initialized successfully",
+            "Admin user created with generated password (not logged for security reasons)"
         ]
 
         for expected_call in expected_log_calls:

@@ -14,8 +14,9 @@ class TestConfig(unittest.TestCase):
         """Test that the default database URL is set correctly."""
         # Test with no environment variable set
         with patch.dict(os.environ, {}, clear=True):
+            config = Config()
             self.assertEqual(
-                Config.SQLALCHEMY_DATABASE_URI,
+                config.SQLALCHEMY_DATABASE_URI,
                 "postgresql://myuser:mypassword@db:5433/mydb",
             )
 
@@ -24,10 +25,12 @@ class TestConfig(unittest.TestCase):
         # Test with environment variable set
         test_db_url = "postgresql://testuser:testpass@testhost:5432/testdb"
         with patch.dict(os.environ, {"DATABASE_URL": test_db_url}, clear=True):
-            self.assertEqual(Config.SQLALCHEMY_DATABASE_URI, test_db_url)
+            config = Config()
+            self.assertEqual(config.SQLALCHEMY_DATABASE_URI, test_db_url)
 
     def test_sqlalchemy_track_modifications(self):
         """Test that SQLALCHEMY_TRACK_MODIFICATIONS is set to False."""
+        config = Config()
         self.assertFalse(Config.SQLALCHEMY_TRACK_MODIFICATIONS)
 
 

@@ -138,7 +138,8 @@ class TestUserService(unittest.TestCase):
 
     @patch("users.services.UserModel")
     @patch("users.services.verify_credential")
-    def test_authenticate_user_success(self, mock_verify_credential, mock_user_model):
+    @patch("users.services.db")
+    def test_authenticate_user_success(self, mock_db, mock_verify_credential, mock_user_model):
         """Test authenticate_user with success."""
         # Mock the query to return a user
         mock_user = MagicMock()
@@ -164,6 +165,9 @@ class TestUserService(unittest.TestCase):
 
         # Verify that verify_credential was called
         mock_verify_credential.assert_called_once_with("password123", "hashed_password")
+
+        # Verify that db.session.commit was called
+        mock_db.session.commit.assert_called_once()
 
     @patch("users.services.UserModel")
     def test_authenticate_user_missing_credentials(self, mock_user_model):

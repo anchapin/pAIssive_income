@@ -2,6 +2,7 @@
 """init_db.py - Initialize the database with tables and initial data."""
 
 import logging
+import os
 import string
 import sys
 from secrets import randbelow
@@ -73,8 +74,8 @@ def _initialize_database_data() -> bool:
         bool: True if successful, False otherwise
     """
     try:
-        # Generate a random password
-        password = generate_secure_password()
+        # Use environment variable for password if available, otherwise generate one
+        password = os.environ.get("ADMIN_INITIAL_PASSWORD") or generate_secure_password()
 
         # Create admin user
         admin = User(
