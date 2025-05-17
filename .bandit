@@ -2,27 +2,23 @@
 # Bandit configuration file for GitHub Advanced Security
 
 # Exclude directories from security scans
-exclude_dirs: tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist
+exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist
 
 # Skip specific test IDs
 # B101: Use of assert detected
 # B311: Standard pseudo-random generators are not suitable for security/cryptographic purposes
-skips: B101,B311
-
-# Treat asserts in test files as acceptable
-assert_used:
-  test_codes: B101
+skips = B101,B311
 
 # Set the output format for GitHub Advanced Security
-output_format: sarif
+output_format = sarif
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results.sarif
+output_file = security-reports/bandit-results.sarif
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
-severity: MEDIUM
+severity = MEDIUM
 
 # Set the confidence level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
-confidence: MEDIUM
+confidence = MEDIUM
