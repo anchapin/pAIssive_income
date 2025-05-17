@@ -222,9 +222,12 @@ class CrewAIAgentTeam:
         crew = self._create_crew(**kwargs)
 
         # Use kickoff() instead of run() for newer versions of CrewAI
+        # Pass inputs if provided in kwargs
+        inputs = kwargs.pop('inputs', None)
         if hasattr(crew, 'kickoff'):
-            return crew.kickoff()
+            return crew.kickoff(inputs=inputs)
         else:
+            # For older versions that use run() instead of kickoff()
             return crew.run()
 
 

@@ -105,34 +105,48 @@ class TestAPIServer(unittest.TestCase):
                 # Join the thread with a timeout
                 cls.server_thread.join(timeout=1.0)
 
-                # If the thread is still alive, log a warning
+                # If the thread is still alive, log a warning and try to force it to stop
                 if cls.server_thread.is_alive():
                     print("Warning: Server thread did not terminate cleanly")
+                    # In Python 3.9+, we could use thread_obj.is_alive() here
+                    # For compatibility with older Python versions, we'll just log the warning
             except Exception as e:
                 print(f"Error shutting down server: {e}")
+            finally:
+                # Ensure the server is marked as stopped
+                cls.server_stopped.set()
+                cls.mock_server = None
 
     def test_health_check(self):
         """Test the health check endpoint."""
-        conn = http.client.HTTPConnection("localhost", self.port)
-        conn.request("GET", "/health")
-        response = conn.getresponse()
-        data = json.loads(response.read().decode())
+        conn = None
+        try:
+            conn = http.client.HTTPConnection("localhost", self.port, timeout=5)
+            conn.request("GET", "/health")
+            response = conn.getresponse()
+            data = json.loads(response.read().decode())
 
-        assert response.status == HTTP_OK
-        assert data["status"] == "ok"
-        conn.close()
+            assert response.status == HTTP_OK
+            assert data["status"] == "ok"
+        finally:
+            if conn:
+                conn.close()
 
     def test_not_found(self):
         """Test the 404 error handler."""
-        conn = http.client.HTTPConnection("localhost", self.port)
-        conn.request("GET", "/nonexistent-endpoint")
-        response = conn.getresponse()
-        data = json.loads(response.read().decode())
+        conn = None
+        try:
+            conn = http.client.HTTPConnection("localhost", self.port, timeout=5)
+            conn.request("GET", "/nonexistent-endpoint")
+            response = conn.getresponse()
+            data = json.loads(response.read().decode())
 
-        assert response.status == HTTP_NOT_FOUND
-        assert data["error"] == "Not found"
-        assert data["path"] == "/nonexistent-endpoint"
-        conn.close()
+            assert response.status == HTTP_NOT_FOUND
+            assert data["error"] == "Not found"
+            assert data["path"] == "/nonexistent-endpoint"
+        finally:
+            if conn:
+                conn.close()
 
 
 if __name__ == "__main__":

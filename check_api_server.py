@@ -43,25 +43,15 @@ def check_syntax(file_path: str) -> bool:
         return False
 
     try:
+        # Use a context manager to ensure the file is properly closed
         with Path(file_path).open(encoding="utf-8") as file:
             source = file.read()
 
         # Parse the source code
         ast.parse(source, filename=file_path)
-    except SyntaxError as e:
-        # Custom formatting for syntax errors
-        # Handle potential None values safely
-        lineno = e.lineno if e.lineno is not None else 0
-        offset = e.offset if e.offset is not None else 0
-        text = e.text.strip() if e.text is not None else ""
-        msg = e.msg if e.msg is not None else "Unknown syntax error"
-
-        error_msg = (
-            f"❌ Syntax error in {file_path} at line {lineno}, column {offset}:\n"
-            f"   {text}\n"
-            f"   {' ' * (offset - 1)}^\n"
-            f"   {msg}"
-        )
+    except SyntaxError as error:
+        # Format the syntax error message
+        error_msg = format_syntax_error(file_path, error)
         # ruff: noqa: TRY400
         logger.error(error_msg)
         return False
@@ -83,18 +73,38 @@ def format_syntax_error(file_path: str, error: SyntaxError) -> str:
     Returns:
         A formatted error message.
     """
-    # Handle the case where error.text is None
-    error_text = error.text.strip() if error.text else "<unknown>"
+    # Handle potential None values safely
+    lineno = error.lineno if hasattr(error, 'lineno') and error.lineno is not None else 0
 
-    # Handle the case where error.offset is None
-    pointer = f"   {' ' * (error.offset - 1)}^" if error.offset else "   ^"
+    # Keep the original offset value for the message
+    offset_display = "None" if not hasattr(error, 'offset') or error.offset is None else error.offset
 
-    return (
-        f"❌ Syntax error in {file_path} at line {error.lineno}, column {error.offset}:\n"
-        f"   {error_text}\n"
-        f"{pointer}\n"
-        f"   {error.msg}"
+    # For calculations, use 0 if offset is None
+    offset = 0 if not hasattr(error, 'offset') or error.offset is None else error.offset
+
+    # Handle empty or None text
+    if not hasattr(error, 'text') or error.text is None or error.text.strip() == "":
+        text = "<unknown>"
+    else:
+        text = error.text.strip()
+
+    # Handle None message
+    msg = error.msg if hasattr(error, 'msg') and error.msg is not None else "Unknown syntax error"
+
+    # Create the error message
+    error_msg = (
+        f"❌ Syntax error in {file_path} at line {lineno}, column {offset_display}:\n"
+        f"   {text}\n"
     )
+
+    # Add the pointer only if we have valid text and offset
+    if text != "<unknown>" and offset > 0:
+        error_msg += f"   {' ' * (offset - 1)}^\n"
+
+    # Add the error message
+    error_msg += f"   {msg}"
+
+    return error_msg
 
 
 def check_multiple_files(file_paths: List[str]) -> Tuple[List[str], List[str]]:

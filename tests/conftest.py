@@ -47,8 +47,10 @@ class MockCrewAI:
             self.tasks = tasks or []
             self.kwargs = kwargs
 
-        def kickoff(self, *args, **kwargs):
+        def kickoff(self, inputs=None, *args, **kwargs):
             """Mock kickoff method."""
+            if inputs:
+                return f"Mock crew output with inputs: {inputs}"
             return "Mock crew output"
 
         # Alias for backward compatibility
