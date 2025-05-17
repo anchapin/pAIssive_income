@@ -46,6 +46,14 @@ class Agent:
         """
         return f"Executed task: {task.description}"
 
+    def __str__(self) -> str:
+        """Return a string representation of the agent."""
+        return f"Agent(role='{self.role}', goal='{self.goal}')"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the agent for debugging."""
+        return f"Agent(role='{self.role}', goal='{self.goal}', backstory='{self.backstory}')"
+
 
 class Task:
     """Mock implementation of CrewAI Task class."""
@@ -65,6 +73,16 @@ class Task:
         self.description = description
         self.agent = agent
         self.kwargs = kwargs
+
+    def __str__(self) -> str:
+        """Return a string representation of the task."""
+        agent_role = self.agent.role if self.agent else "None"
+        return f"Task(description='{self.description}', agent='{agent_role}')"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the task for debugging."""
+        agent_role = self.agent.role if self.agent else "None"
+        return f"Task(description='{self.description}', agent='{agent_role}', kwargs={self.kwargs})"
 
 
 class Crew:
@@ -89,15 +107,28 @@ class Crew:
         self.tasks = tasks or []
         self.kwargs = kwargs
 
-    def kickoff(self) -> str:
+    def kickoff(self, inputs=None) -> str:
         """
         Start the crew's execution.
+
+        Args:
+            inputs: Optional inputs for the crew execution
 
         Returns:
             A mock output string
 
         """
+        if inputs:
+            return f"Mock crew output with inputs: {inputs}"
         return "Mock crew output"
 
     # Alias for backward compatibility
     run = kickoff
+
+    def __str__(self) -> str:
+        """Return a string representation of the crew."""
+        return f"Crew(agents={len(self.agents)}, tasks={len(self.tasks)})"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the crew for debugging."""
+        return f"Crew(agents={self.agents}, tasks={self.tasks}, kwargs={self.kwargs})"

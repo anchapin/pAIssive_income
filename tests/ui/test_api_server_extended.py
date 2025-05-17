@@ -148,8 +148,8 @@ class TestRunServer:
 
             # Check that it tried with port 8000 first, then 8001
             assert mock_server.call_count == 2
-            assert mock_server.call_args_list[0][0][0] == ("0.0.0.0", 8000)
-            assert mock_server.call_args_list[1][0][0] == ("0.0.0.0", 8001)
+            assert mock_server.call_args_list[0][0][0] == ("127.0.0.1", 8000)
+            assert mock_server.call_args_list[1][0][0] == ("127.0.0.1", 8001)
 
     def test_run_server_max_retries_exceeded(self):
         """Test run_server with max retries exceeded."""

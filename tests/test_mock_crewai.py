@@ -176,6 +176,14 @@ class TestMockCrewAI:
         assert "Test Agent" in repr(agent)
         assert "Test goal" in repr(agent)
 
+        # Test execute_task with a task that has no description attribute
+        class FakeTask:
+            pass
+
+        fake_task = FakeTask()
+        result = agent.execute_task(fake_task)
+        assert "Unknown task" in result
+
     def test_task_str_repr(self):
         """Test the Task __str__ and __repr__ methods."""
         # Create an agent

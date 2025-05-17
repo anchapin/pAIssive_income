@@ -148,6 +148,20 @@ class TestCrewAIFallback:
         # Verify the result
         assert result == "Mock crew output"
 
+    def test_crew_kickoff_with_inputs(self):
+        """Test the Crew.kickoff method with inputs."""
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[],
+            tasks=[],
+        )
+
+        # Kickoff the crew with inputs
+        result = crew.kickoff(inputs={"test": "value"})
+
+        # Verify the result
+        assert result == "Mock crew output with inputs: {'test': 'value'}"
+
     def test_crew_run(self):
         """Test the Crew.run method."""
         # Create a crew
@@ -161,6 +175,96 @@ class TestCrewAIFallback:
 
         # Verify the result
         assert result == "Mock crew output"
+
+    def test_agent_str_repr(self):
+        """Test the Agent __str__ and __repr__ methods."""
+        # Create an agent
+        agent = crewai.Agent(
+            role="Test Agent",
+            goal="Test goal",
+            backstory="Test backstory",
+        )
+
+        # Test __str__
+        assert "Agent" in str(agent)
+        assert "Test Agent" in str(agent)
+
+        # Test __repr__
+        assert "Agent" in repr(agent)
+        assert "Test Agent" in repr(agent)
+        assert "Test goal" in repr(agent)
+        assert "Test backstory" in repr(agent)
+
+    def test_task_str_repr(self):
+        """Test the Task __str__ and __repr__ methods."""
+        # Create an agent
+        agent = crewai.Agent(
+            role="Test Agent",
+            goal="Test goal",
+            backstory="Test backstory",
+        )
+
+        # Create a task
+        task = crewai.Task(
+            description="Test task",
+            agent=agent,
+            expected_output="Test output",
+        )
+
+        # Test __str__
+        assert "Task" in str(task)
+        assert "Test task" in str(task)
+        assert "Test Agent" in str(task)
+
+        # Test __repr__
+        assert "Task" in repr(task)
+        assert "Test task" in repr(task)
+        assert "Test Agent" in repr(task)
+        assert "expected_output" in repr(task)
+
+    def test_crew_str_repr(self):
+        """Test the Crew __str__ and __repr__ methods."""
+        # Create agents
+        agent1 = crewai.Agent(
+            role="Agent 1",
+            goal="Goal 1",
+            backstory="Backstory 1",
+        )
+        agent2 = crewai.Agent(
+            role="Agent 2",
+            goal="Goal 2",
+            backstory="Backstory 2",
+        )
+
+        # Create tasks
+        task1 = crewai.Task(
+            description="Task 1",
+            agent=agent1,
+        )
+        task2 = crewai.Task(
+            description="Task 2",
+            agent=agent2,
+        )
+
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[agent1, agent2],
+            tasks=[task1, task2],
+            verbose=True,
+        )
+
+        # Test __str__
+        assert "Crew" in str(crew)
+        assert "agents=2" in str(crew)
+        assert "tasks=2" in str(crew)
+
+        # Test __repr__
+        assert "Crew" in repr(crew)
+        assert "Agent 1" in repr(crew)
+        assert "Agent 2" in repr(crew)
+        assert "Task 1" in repr(crew)
+        assert "Task 2" in repr(crew)
+        assert "verbose" in repr(crew)
 
     def test_module_reload(self):
         """Test that the module can be reloaded without errors."""

@@ -90,8 +90,8 @@ if __name__ == "__main__":
 
     def test_check_syntax_permission_error(self):
         """Test check_syntax with a file that cannot be read."""
-        # Mock open to raise a permission error
-        with patch("builtins.open", side_effect=PermissionError("Permission denied")):
+        # Mock Path.open to raise a permission error
+        with patch("pathlib.Path.open", side_effect=PermissionError("Permission denied")):
             with patch("logging.Logger.exception") as mock_exception:
                 result = check_syntax(self.temp_file_path)
 
@@ -334,3 +334,75 @@ if __name__ == "__main__":
             # Clean up the second temporary file
             if os.path.exists(temp_file_path2):
                 os.unlink(temp_file_path2)
+
+    def test_main_with_mixed_files(self):
+        """Test the main function with a mix of valid and invalid files."""
+        # Create a second temporary file
+        temp_file2 = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+        temp_file_path2 = temp_file2.name
+        temp_file2.close()
+
+        try:
+            # Write valid Python code to the first file
+            with open(self.temp_file_path, "w") as f:
+                f.write("""
+def hello_world():
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            # Write invalid Python code to the second file
+            with open(temp_file_path2, "w") as f:
+                f.write("""
+def goodbye_world()
+    print("Goodbye, world!")
+
+if __name__ == "__main__":
+    goodbye_world()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py", self.temp_file_path, temp_file_path2]):
+                # Mock logger.error to avoid cluttering test output
+                with patch("check_api_server.logger.error"):
+                    # Run the main function
+                    result = main()
+
+                    # Verify that the function returns 1 for invalid syntax
+                    assert result == 1
+        finally:
+            # Clean up the second temporary file
+            if os.path.exists(temp_file_path2):
+                os.unlink(temp_file_path2)
+
+    def test_check_syntax_with_other_exception(self):
+        """Test check_syntax with a file that raises an unexpected exception."""
+        # Mock ast.parse to raise a generic exception
+        with patch("ast.parse", side_effect=Exception("Unexpected error")):
+            with patch("logging.Logger.exception") as mock_exception:
+                result = check_syntax(self.temp_file_path)
+
+                # Verify the result
+                assert result is False
+                mock_exception.assert_called_once()
+
+    def test_format_syntax_error_with_empty_text(self):
+        """Test the format_syntax_error function with empty text."""
+        # Create a mock SyntaxError with empty text
+        error = SyntaxError("invalid syntax")
+        error.lineno = 2
+        error.offset = 5
+        error.text = ""
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column 5" in error_msg
+        assert "<unknown>" in error_msg
+        assert "invalid syntax" in error_msg

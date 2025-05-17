@@ -46,3 +46,11 @@ class Agent:
         """
         # Access task.description dynamically to avoid circular import issues
         return f"Executed task: {getattr(task, 'description', 'Unknown task')}"
+
+    def __str__(self) -> str:
+        """Return a string representation of the agent."""
+        return f"Agent(role='{self.role}', goal='{self.goal}')"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the agent for debugging."""
+        return f"Agent(role='{self.role}', goal='{self.goal}', backstory='{self.backstory}')"

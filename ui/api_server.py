@@ -314,7 +314,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                 logger.exception(
                     "Failed to start server after %d attempts", max_retries
                 )
-                return  # Exit the function instead of raising an exception
+                raise OSError(f"Failed to start server after {max_retries} attempts")
 
     # Verify that httpd was successfully initialized
     if httpd is None:

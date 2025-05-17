@@ -4,6 +4,7 @@
 import logging
 import http.client
 import json
+import socket
 import sys
 import threading
 import time
@@ -38,11 +39,16 @@ class TestAPIServer(unittest.TestCase):
         # Create an event to signal when the server has stopped
         cls.server_stopped = threading.Event()
 
+        # Find an available port
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('localhost', 0))
+            cls.port = s.getsockname()[1]
+
         # Define a function to run the server and handle shutdown
         def run_test_server():
             try:
                 # Create the server
-                server_address = ("localhost", 8000)
+                server_address = ("localhost", cls.port)
                 from ui.api_server import ThreadedHTTPServer, APIHandler
                 cls.mock_server = ThreadedHTTPServer(server_address, APIHandler)
 
@@ -54,6 +60,7 @@ class TestAPIServer(unittest.TestCase):
             except OSError as e:
                 # Port might be in use
                 print(f"Could not start server: {e}")
+                cls.server_stopped.set()  # Signal that the server failed to start
             finally:
                 if cls.mock_server:
                     cls.mock_server.server_close()
@@ -66,6 +73,10 @@ class TestAPIServer(unittest.TestCase):
 
         # Wait for the server to start
         time.sleep(1)
+
+        # Check if the server started successfully
+        if cls.server_stopped.is_set() and not cls.mock_server:
+            pytest.skip("Failed to start test server")
 
     @classmethod
     def tearDownClass(cls):
@@ -84,7 +95,7 @@ class TestAPIServer(unittest.TestCase):
 
     def test_health_check(self):
         """Test the health check endpoint."""
-        conn = http.client.HTTPConnection("localhost", 8000)
+        conn = http.client.HTTPConnection("localhost", self.port)
         conn.request("GET", "/health")
         response = conn.getresponse()
         data = json.loads(response.read().decode())
@@ -95,7 +106,7 @@ class TestAPIServer(unittest.TestCase):
 
     def test_not_found(self):
         """Test the 404 error handler."""
-        conn = http.client.HTTPConnection("localhost", 8000)
+        conn = http.client.HTTPConnection("localhost", self.port)
         conn.request("GET", "/nonexistent-endpoint")
         response = conn.getresponse()
         data = json.loads(response.read().decode())
