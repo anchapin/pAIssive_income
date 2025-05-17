@@ -93,9 +93,7 @@ def test_create_user(mock_hash):
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch(
-        "users.services.db_session"
-    ), patch.object(MockUser, "query") as mock_query:
+    with patch("users.services.UserModel", MockUser), patch("users.services.db_session"), patch.object(MockUser, "query") as mock_query:
         # Create a mock filter that returns None for first() to indicate no existing user
         mock_filter = MagicMock()
         mock_filter.first.return_value = None
@@ -105,15 +103,11 @@ def test_create_user(mock_hash):
         with patch.object(MockUser, "__new__", return_value=mock_user_instance):
             # Create a subclass of UserService with overridden methods for testing
             class TestableUserService(UserService):
-                def create_user(self, _username, _email, auth_credential, **_kwargs):
+                def create_user(self, username, email, auth_credential, **kwargs):
                     # Skip the user existence check
                     # Hash the credential - use the mocked function from users.services
-                    from users.services import (
-                        hash_credential as services_hash_credential,
-                    )
-
-                    # Call the hash function to ensure it's used
-                    services_hash_credential(auth_credential)
+                    from users.services import hash_credential as services_hash_credential
+                    services_hash_credential(auth_credential)  # Call but don't use the result
 
                     # Create User model instance
                     user = mock_user_instance
@@ -196,7 +190,7 @@ def test_authenticate_user_success():
 
         # Create a subclass of UserService with overridden methods for testing
         class TestableUserService(UserService):
-            def authenticate_user(self, _username_or_email, _auth_credential):
+            def authenticate_user(self, username_or_email, auth_credential):  # pylint: disable=unused-argument
                 # Skip the database query and verification
                 # Return success and user data
                 return True, {
