@@ -98,6 +98,58 @@ You can find example JS source and tests in the `src/` directory.
 
 ---
 
+## Writing Advanced JavaScript Tests (React Component Example)
+
+For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
+
+**Example: Testing a React Component with Mocha and Enzyme**
+
+First, install additional test utilities:
+
+```sh
+pnpm add --save-dev enzyme enzyme-adapter-react-16 @wojtekmaj/enzyme-adapter-react-17
+```
+
+Example component (`src/Hello.js`):
+
+```jsx
+import React from 'react';
+
+export function Hello({ name }) {
+  return <div>Hello, {name}!</div>;
+}
+```
+
+Example test (`src/Hello.test.js`):
+
+```js
+const React = require('react');
+const { shallow, configure } = require('enzyme');
+const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
+const { Hello } = require('./Hello');
+
+configure({ adapter: new Adapter() });
+
+describe('Hello component', () => {
+  it('renders the correct greeting', () => {
+    const wrapper = shallow(<Hello name="World" />);
+    if (!wrapper.text().includes('Hello, World!')) {
+      throw new Error('Greeting not rendered correctly');
+    }
+  });
+});
+```
+
+> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+
+**Best Practices:**
+- Test both rendering and user events/interactions.
+- Mock API calls and external dependencies.
+- Use coverage reports to identify untested code paths.
+- Place tests next to source files or in a dedicated test directory.
+
+---
+
 ## Docker Compose Integration
 
 **Start PostgreSQL database, application, and frontend with Docker Compose:**
