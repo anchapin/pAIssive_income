@@ -6,7 +6,7 @@ class BaseTool:
 
     def __init__(self, name="", description=""):
         """Initialize a tool.
-        
+
         Args:
             name: The name of the tool
             description: A description of what the tool does
@@ -16,10 +16,10 @@ class BaseTool:
 
     def execute(self, input_text):
         """Execute the tool with the given input.
-        
+
         Args:
             input_text: The input text to process
-            
+
         Returns:
             str: The result of executing the tool
         """
