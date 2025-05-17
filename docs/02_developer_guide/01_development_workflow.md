@@ -67,4 +67,4 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 
 ---
 
-For additional details, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
+For additional details, see the [Project Overview & Getting Started](../00_introduction/01_overview.md).

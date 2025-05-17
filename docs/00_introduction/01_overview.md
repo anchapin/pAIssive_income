@@ -94,4 +94,4 @@ See the [Developer Guide](../02_developer_guide/) for deeper architectural and m
 
 ---
 
-For user instructions, developer workflow, and security/compliance details, see the rest of the [docs/](../) directory.
+For user instructions, developer workflow, and security/compliance details, see the rest of the [../](../) documentation directory.
