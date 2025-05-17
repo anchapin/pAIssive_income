@@ -87,11 +87,11 @@ def configure_logging():
     """Configure logging for the application."""
     log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
     numeric_level = getattr(logging, log_level, None)
-    
+
     if not isinstance(numeric_level, int):
         print(f"Invalid log level: {log_level}")
         numeric_level = logging.INFO
-    
+
     logging.basicConfig(
         level=numeric_level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -164,7 +164,7 @@ import os
 def configure_logging():
     """Configure logging based on environment."""
     env = os.environ.get("ENVIRONMENT", "development").lower()
-    
+
     if env == "production":
         level = logging.WARNING
         log_file = "/var/log/app/app.log"
@@ -174,7 +174,7 @@ def configure_logging():
     else:  # development
         level = logging.DEBUG
         log_file = "dev.log"
-    
+
     logging.basicConfig(
         level=level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -196,7 +196,7 @@ import logging
 
 class JsonFormatter(logging.Formatter):
     """JSON formatter for structured logging."""
-    
+
     def format(self, record):
         log_record = {
             "timestamp": self.formatTime(record, self.datefmt),
@@ -204,20 +204,20 @@ class JsonFormatter(logging.Formatter):
             "level": record.levelname,
             "message": record.getMessage(),
         }
-        
+
         if hasattr(record, "props"):
             log_record.update(record.props)
-        
+
         if record.exc_info:
             log_record["exception"] = self.formatException(record.exc_info)
-        
+
         return json.dumps(log_record)
 
 def configure_structured_logging():
     """Configure structured JSON logging."""
     handler = logging.StreamHandler()
     handler.setFormatter(JsonFormatter())
-    
+
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(handler)
@@ -247,10 +247,10 @@ def configure_rotating_logs():
         maxBytes=10485760,  # 10 MB
         backupCount=5,
     )
-    
+
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
-    
+
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(handler)
@@ -271,12 +271,12 @@ def configure_sentry_logging():
         level=logging.INFO,        # Capture info and above as breadcrumbs
         event_level=logging.ERROR  # Send errors as events
     )
-    
+
     sentry_sdk.init(
         dsn="https://your-sentry-dsn@sentry.io/project",
         integrations=[sentry_logging],
     )
-    
+
     # Configure standard logging
     logging.basicConfig(
         level=logging.INFO,
@@ -297,7 +297,7 @@ import sys
 def configure_logging():
     """Configure logging for the application."""
     log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-    
+
     logging.basicConfig(
         level=getattr(logging, log_level, logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -310,10 +310,10 @@ def configure_logging():
 
 if __name__ == "__main__":
     configure_logging()
-    
+
     logger = logging.getLogger(__name__)
     logger.info("Application started")
-    
+
     # Rest of the application...
 ```
 
@@ -336,5 +336,370 @@ def do_something():
         return result
     except Exception as e:
         logger.exception("Operation failed: %s", e)
+        raise
+```
+
+## Framework-Specific Examples
+
+### Flask Application
+
+```python
+# app.py
+import logging
+import os
+from logging.handlers import RotatingFileHandler
+from flask import Flask, request, g
+
+app = Flask(__name__)
+
+class RequestFormatter(logging.Formatter):
+    """Custom formatter that includes request information."""
+
+    def format(self, record):
+        if hasattr(g, 'request_id'):
+            record.request_id = g.request_id
+        else:
+            record.request_id = 'no-request-id'
+        return super().format(record)
+
+def configure_logging(app):
+    """Configure logging for the Flask application."""
+    # Set up log level based on environment
+    log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    numeric_level = getattr(logging, log_level, None)
+
+    # Create formatter
+    formatter = RequestFormatter(
+        '[%(asctime)s] [%(request_id)s] [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Create file handler
+    file_handler = RotatingFileHandler(
+        'app.log',
+        maxBytes=10485760,  # 10 MB
+        backupCount=10
+    )
+    file_handler.setLevel(numeric_level)
+    file_handler.setFormatter(formatter)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(numeric_level)
+    console_handler.setFormatter(formatter)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(numeric_level)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+
+    # Reduce verbosity of Flask and Werkzeug
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    logging.getLogger('flask').setLevel(logging.WARNING)
+
+    # Log application startup
+    app.logger.info(f"Flask application started with log level: {log_level}")
+
+@app.before_request
+def before_request():
+    """Set up request context for logging."""
+    g.request_id = request.headers.get('X-Request-ID', 'unknown')
+    app.logger.debug(f"Processing request: {request.method} {request.path}")
+
+@app.after_request
+def after_request(response):
+    """Log after request."""
+    app.logger.debug(f"Request completed with status: {response.status_code}")
+    return response
+
+# Configure logging
+configure_logging(app)
+
+@app.route('/')
+def index():
+    app.logger.info("Index page accessed")
+    return "Hello, World!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+### Django Application
+
+```python
+# settings.py
+import os
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'maxBytes': 10485760,  # 10 MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'myapp': {  # Add your app loggers here
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
+
+# views.py
+import logging
+
+# Get a logger for your app
+logger = logging.getLogger('myapp')
+
+def my_view(request):
+    logger.info(f"Processing request from {request.user}")
+    try:
+        # View logic
+        result = process_data(request.POST)
+        logger.info(f"Request processed successfully")
+        return result
+    except Exception as e:
+        logger.exception(f"Error processing request: {e}")
+        raise
+```
+
+### FastAPI Application
+
+```python
+# main.py
+import logging
+import time
+import uuid
+from typing import Callable
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.base import BaseHTTPMiddleware
+from logging.handlers import RotatingFileHandler
+
+# Configure logging
+def configure_logging():
+    """Configure logging for the FastAPI application."""
+    logger = logging.getLogger("app")
+    logger.setLevel(logging.INFO)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    # Create file handler
+    file_handler = RotatingFileHandler(
+        "app.log",
+        maxBytes=10485760,  # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
+
+# Create logger
+logger = configure_logging()
+
+# Create FastAPI app
+app = FastAPI()
+
+# Logging middleware
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Generate unique request ID
+        request_id = str(uuid.uuid4())
+
+        # Add request ID to request state
+        request.state.request_id = request_id
+
+        # Log request
+        logger.info(
+            f"Request {request_id}: {request.method} {request.url.path} "
+            f"from {request.client.host if request.client else 'unknown'}"
+        )
+
+        # Measure request processing time
+        start_time = time.time()
+
+        try:
+            # Process request
+            response = await call_next(request)
+
+            # Calculate processing time
+            process_time = time.time() - start_time
+
+            # Log response
+            logger.info(
+                f"Response {request_id}: {response.status_code} "
+                f"processed in {process_time:.4f} seconds"
+            )
+
+            # Add request ID to response headers
+            response.headers["X-Request-ID"] = request_id
+
+            return response
+        except Exception as e:
+            # Log exception
+            logger.exception(f"Error {request_id}: {str(e)}")
+            raise
+
+# Add middleware
+app.add_middleware(LoggingMiddleware)
+
+@app.get("/")
+async def root():
+    logger.info("Root endpoint accessed")
+    return {"message": "Hello World"}
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int, q: str = None):
+    logger.info(f"Item endpoint accessed with item_id={item_id}, q={q}")
+    return {"item_id": item_id, "q": q}
+```
+
+### Celery Tasks
+
+```python
+# tasks.py
+import logging
+import os
+from celery import Celery, Task
+from celery.signals import setup_logging, task_prerun, task_postrun, task_failure
+
+# Create Celery app
+app = Celery('tasks', broker='redis://localhost:6379/0')
+
+# Configure Celery logging
+@setup_logging.connect
+def configure_logging(loglevel=None, **kwargs):
+    """Configure logging for Celery."""
+    # Create logger
+    logger = logging.getLogger('celery')
+    logger.setLevel(logging.INFO)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Create file handler
+    os.makedirs('logs', exist_ok=True)
+    file_handler = logging.FileHandler('logs/celery.log')
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+# Log task execution
+@task_prerun.connect
+def task_prerun_handler(task_id, task, *args, **kwargs):
+    """Log before task execution."""
+    logger = logging.getLogger('celery')
+    logger.info(f"Task {task.name}[{task_id}] started with args: {args}, kwargs: {kwargs}")
+
+@task_postrun.connect
+def task_postrun_handler(task_id, task, retval, state, *args, **kwargs):
+    """Log after task execution."""
+    logger = logging.getLogger('celery')
+    logger.info(f"Task {task.name}[{task_id}] completed with state: {state}")
+
+@task_failure.connect
+def task_failure_handler(task_id, exception, traceback, einfo, *args, **kwargs):
+    """Log task failure."""
+    logger = logging.getLogger('celery')
+    logger.error(f"Task {task_id} failed: {exception}")
+    logger.debug(f"Traceback: {einfo}")
+
+# Base task class with logging
+class LoggedTask(Task):
+    """Base task class that logs task execution."""
+
+    def __call__(self, *args, **kwargs):
+        logger = logging.getLogger('celery')
+        logger.debug(f"Executing {self.name} with args: {args}, kwargs: {kwargs}")
+        return super().__call__(*args, **kwargs)
+
+# Define tasks
+@app.task(base=LoggedTask)
+def add(x, y):
+    """Add two numbers."""
+    logger = logging.getLogger('celery')
+    logger.info(f"Adding {x} + {y}")
+    return x + y
+
+@app.task(base=LoggedTask)
+def process_data(data):
+    """Process data."""
+    logger = logging.getLogger('celery')
+    logger.info(f"Processing data: {data}")
+    try:
+        # Process data
+        result = len(data)
+        logger.info(f"Data processed successfully, result: {result}")
+        return result
+    except Exception as e:
+        logger.exception(f"Error processing data: {e}")
         raise
 ```

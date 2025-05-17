@@ -95,3 +95,10 @@ repos:
         types: [python]
         pass_filenames: true
         stages: [pre-commit]
+
+      - id: check-logging-in-modified-files
+        name: Check logging in modified files
+        entry: python scripts/check_logging_in_modified_files.py
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
