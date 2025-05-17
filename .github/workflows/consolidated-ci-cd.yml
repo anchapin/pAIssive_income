@@ -150,8 +150,9 @@ jobs:
           # Run MCP adapter tests separately using the custom script
           python run_mcp_tests.py
 
-      - name: Check for CrewAI test script
+      - name: Check for CrewAI test script (Unix)
         id: check_script
+        if: runner.os != 'Windows'
         run: |
           if [ -f "run_crewai_tests.py" ]; then
             echo "script_exists=true" >> $GITHUB_OUTPUT
@@ -159,8 +160,19 @@ jobs:
             echo "script_exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create mock CrewAI test script
-        if: steps.check_script.outputs.script_exists == 'false'
+      - name: Check for CrewAI test script (Windows)
+        id: check_script_windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path "run_crewai_tests.py") {
+            echo "script_exists=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "script_exists=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Create mock CrewAI test script (Unix)
+        if: runner.os != 'Windows' && steps.check_script.outputs.script_exists == 'false'
         run: |
           echo '#!/usr/bin/env python3' > run_crewai_tests.py
           echo '"""Mock CrewAI test script."""' >> run_crewai_tests.py
@@ -169,8 +181,30 @@ jobs:
           echo 'print("CrewAI tests skipped - script not found")' >> run_crewai_tests.py
           echo 'sys.exit(0)' >> run_crewai_tests.py
 
-      - name: Run CrewAI tests
+      - name: Create mock CrewAI test script (Windows)
+        if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
+        shell: pwsh
+        run: |
+          @"
+#!/usr/bin/env python3
+"""Mock CrewAI test script."""
+import sys
+print("Mock CrewAI test script")
+print("CrewAI tests skipped - script not found")
+sys.exit(0)
+"@ | Out-File -FilePath run_crewai_tests.py -Encoding utf8
+
+      - name: Run CrewAI tests (Unix)
+        if: runner.os != 'Windows'
         continue-on-error: true
+        run: |
+          # Run CrewAI tests separately using the custom script
+          python run_crewai_tests.py
+
+      - name: Run CrewAI tests (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
         run: |
           # Run CrewAI tests separately using the custom script
           python run_crewai_tests.py
