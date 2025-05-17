@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import logging
 import time
 import traceback
 import uuid
-from logging import Logger, getLogger
+from logging import ERROR, INFO, Logger, getLogger
 from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
@@ -171,12 +170,10 @@ def _setup_after_request(app: Flask) -> None:
             "response_headers": sanitize_log_data(dict(response.headers)),
         }
 
-        # Import logging module for constants
-        import logging as logging_module
-
+        # Get log level value from log level name
         log_level_value = cast(
             "int",
-            logging_getattr(logging_module, log_level.upper(), logging_module.INFO),
+            logging_getattr(getLogger(), log_level.upper(), INFO),
         )
         structured_log(
             "request.completed",
@@ -237,7 +234,7 @@ def _setup_error_handler(app: Flask) -> None:
         structured_log(
             "request.error",
             f"Unhandled exception in {request.method} {request.path}",
-            level=logging.ERROR,
+            level=ERROR,
             extra=error_data,
         )
 

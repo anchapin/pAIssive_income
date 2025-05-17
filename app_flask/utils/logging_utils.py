@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-import logging
 import re
 import time
 from logging import INFO, Logger, getLogger
