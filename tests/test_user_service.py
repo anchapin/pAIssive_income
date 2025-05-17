@@ -75,9 +75,7 @@ def test_create_user(mock_hash, user_service):
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch("users.services.db_session") as mock_db:
-        # Skip the existing user check by directly patching the filter method
-        with patch.object(MockUser, "query") as mock_query:
+    with patch("users.services.UserModel", MockUser), patch("users.services.db_session"), patch.object(MockUser, "query") as mock_query:
             # Create a mock filter that returns None for first() to indicate no existing user
             mock_filter = MagicMock()
             mock_filter.first.return_value = None
@@ -91,7 +89,7 @@ def test_create_user(mock_hash, user_service):
                         # Skip the user existence check
                         # Hash the credential - use the mocked function from users.services
                         from users.services import hash_credential as services_hash_credential
-                        hashed_credential = services_hash_credential(auth_credential)
+                        services_hash_credential(auth_credential)  # Call but don't use the result
 
                         # Create User model instance
                         user = mock_user_instance
@@ -174,7 +172,7 @@ def test_authenticate_user_success(user_service):
 
         # Create a subclass of UserService with overridden methods for testing
         class TestableUserService(UserService):
-            def authenticate_user(self, username_or_email, auth_credential):
+            def authenticate_user(self, username_or_email, auth_credential):  # pylint: disable=unused-argument
                 # Skip the database query and verification
                 # Return success and user data
                 return True, {

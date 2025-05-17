@@ -104,10 +104,10 @@ def main() -> None:
 
     # Define specific run IDs that need to be handled (from error messages)
     specific_run_ids = [
-        "14974236301", "14976101411", "14977094424", "14977626158", 
+        "14974236301", "14976101411", "14977094424", "14977626158",
         "14978521232", "14987452007", "15055489437", "15056259666"
     ]
-    
+
     # Always include the current run ID
     if run_id not in specific_run_ids:
         specific_run_ids.append(run_id)

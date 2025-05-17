@@ -35,7 +35,10 @@ except ImportError:
 
     # Print a warning
     import warnings
-    warnings.warn("CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'")
+    warnings.warn(
+        "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
+        stacklevel=2
+    )
 
 # Example: Define agent roles
 data_gatherer = Agent(
@@ -90,7 +93,7 @@ if __name__ == "__main__":
             reporting_team.run()
             logging.info("CrewAI reporting workflow completed.")
         except Exception as e:
-            logging.error(f"Error running CrewAI workflow: {e}")
+            logging.exception("Error running CrewAI workflow")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.
