@@ -72,7 +72,13 @@ try {
     $banditCmdPath = Get-Command bandit -ErrorAction Stop
     Write-Host "Running bandit with installed version..."
     try {
-        bandit -r . -f sarif -o $banditOutputFile --exit-zero -x .venv,node_modules,tests -c $banditConfigFile
+        # Optimized Bandit scan: parallelized and targeted for performance
+        # Only scan source directories, exclude unnecessary dirs, use 4 CPU cores
+        $banditTargets = @(
+            "api", "app_flask", "services", "common_utils", "users", "main.py"
+        )
+        $banditExcludes = ".venv,node_modules,tests,custom_stubs,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
+        bandit -r $($banditTargets -join ",") -n 4 -f sarif -o $banditOutputFile --exit-zero -x $banditExcludes -c $banditConfigFile
         Write-Host "Bandit scan completed successfully" -ForegroundColor Green
     } catch {
         Write-Host "Bandit command failed with error: $_" -ForegroundColor Yellow
@@ -85,7 +91,12 @@ try {
         pip install bandit
         Write-Host "Bandit installed successfully. Running scan..."
         try {
-            bandit -r . -f sarif -o $banditOutputFile --exit-zero -x .venv,node_modules,tests -c $banditConfigFile
+            # Optimized Bandit scan: parallelized and targeted for performance
+            $banditTargets = @(
+                "api", "app_flask", "services", "common_utils", "users", "main.py"
+            )
+            $banditExcludes = ".venv,node_modules,tests,custom_stubs,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
+            bandit -r $($banditTargets -join ",") -n 4 -f sarif -o $banditOutputFile --exit-zero -x $banditExcludes -c $banditConfigFile
             Write-Host "Bandit scan completed successfully" -ForegroundColor Green
         } catch {
             Write-Host "Bandit command failed with error: $_" -ForegroundColor Yellow

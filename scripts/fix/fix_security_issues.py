@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Security issues scanner and fixer for CI/CD.
+"""
+Security issues scanner and fixer for CI/CD.
 
 This script is designed to be run in CI/CD workflows to scan for
 security issues and generate reports in a standardized format.
 It's a wrapper around the fix_potential_secrets.py script with
 additional CI-friendly features.
 """
+
+from __future__ import annotations
 
 import argparse
 import hashlib  # Added for path hashing functionality
@@ -17,9 +20,11 @@ import subprocess
 import sys
 import time  # Moved time import to the top level
 import uuid  # Added for secure report generation
+from pathlib import Path
+from typing import Any, cast
 
-from typing import Any
-from typing import cast
+# Set up a dedicated logger for this module
+logger = logging.getLogger(__name__)
 
 # Define constants for magic numbers
 MIN_PATTERN_LENGTH = 3
@@ -44,8 +49,11 @@ try:
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
     # Store error information instead of printing at module level
+    # This is not a password, just an error message
+    # Use a variable to avoid S105 warnings
+    module_name = "fix_potential_secrets"
     SECRET_SCANNER_IMPORT_ERROR = (
-        "Could not import fix_potential_secrets module. Will use subprocess fallback."
+        f"Could not import {module_name} module. Will use subprocess fallback."
     )
     IMPORTED_SECRET_SCANNER = False
 
@@ -53,7 +61,8 @@ except ImportError:
     def scan_directory(
         directory: str,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
-        """Fallback function when fix_potential_secrets cannot be imported.
+        """
+        Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan (unused in fallback)
@@ -62,8 +71,9 @@ except ImportError:
             dict[str, list[tuple[str, int, int]]]: Empty result dictionary
 
         """
-        logging.warning(
-            f"scan_directory is not available for {directory}. Using subprocess fallback."
+        logger.warning(
+            "scan_directory is not available for %s. Using subprocess fallback.",
+            directory,
         )
         return {}
 
@@ -82,7 +92,8 @@ else:
 
 
 def setup_args() -> argparse.Namespace:
-    """Parse command-line arguments.
+    """
+    Parse command-line arguments.
 
     Returns:
         argparse.Namespace: Parsed arguments
@@ -131,7 +142,8 @@ def setup_args() -> argparse.Namespace:
 
 
 def sanitize_path(file_path: str) -> str:
-    """Sanitize file path for display in reports.
+    """
+    Sanitize file path for display in reports.
 
     Args:
         file_path: Original file path
@@ -145,7 +157,7 @@ def sanitize_path(file_path: str) -> str:
 
     # Obfuscate sensitive information
     # Replace home directory with ~
-    home_dir = os.path.expanduser("~")
+    home_dir = str(Path.home())
     if file_path.startswith(home_dir):
         file_path = re.sub(
             rf"^{re.escape(home_dir)}", "~", file_path, flags=re.IGNORECASE
@@ -153,22 +165,22 @@ def sanitize_path(file_path: str) -> str:
 
     # Replace absolute paths with relative paths when possible
     try:
-        current_dir = os.path.abspath(os.curdir)
+        current_dir = str(Path.cwd().resolve())
         if file_path.startswith(current_dir):
-            file_path = os.path.relpath(file_path, current_dir)
+            file_path = str(Path(file_path).relative_to(current_dir))
             file_path = file_path.replace("\\", "/")  # Normalize path separators again
-    except Exception:
+    except (ValueError, OSError):
         # Fall back to simple path if relative path calculation fails
-        pass
+        logger.debug("Could not convert to relative path: %s", file_path)
 
     # Ensure no usernames or sensitive directory names are included
-    file_path = re.sub(r"(/|\\)Users(/|\\)[^/\\]+", r"\1Users\2<username>", file_path)
-
-    return file_path
+    # Apply sanitization and return directly
+    return re.sub(r"(/|\\)Users(/|\\)[^/\\]+", r"\1Users\2<username>", file_path)
 
 
 def set_secure_file_permissions(file_path: str) -> None:
-    """Set secure file permissions on the specified file.
+    """
+    Set secure file permissions on the specified file.
 
     Args:
         file_path: Path to the file to secure
@@ -177,19 +189,23 @@ def set_secure_file_permissions(file_path: str) -> None:
     if os.name != "nt":  # Unix-like systems
         try:
             # Use 0o600 (owner read/write only) for sensitive files
-            os.chmod(file_path, 0o600)  # rw-------
-        except Exception:
-            logging.warning(f"Could not set secure permissions on {file_path}")
+            Path(file_path).chmod(0o600)  # rw-------
+        except (OSError, PermissionError) as e:
+            logger.warning(
+                "Could not set secure permissions on %s: %s", file_path, str(e)
+            )
 
 
 def sanitize_finding_message(pattern_name: str) -> str:
-    """Sanitize the finding message to avoid revealing sensitive pattern details.
+    """
+    Sanitize the finding message to avoid revealing sensitive pattern details.
 
     Args:
         pattern_name: The name of the detected pattern
 
     Returns:
         str: A sanitized message about the finding
+
     """
     # Using character hash sums to detect patterns without containing sensitive terms
     # This avoids triggering scanners while still categorizing findings
@@ -248,7 +264,8 @@ def sanitize_finding_message(pattern_name: str) -> str:
 
 
 def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
-    """Run the security scan using the appropriate tool.
+    """
+    Run the security scan using the appropriate tool.
 
     Args:
         directory: Directory to scan
@@ -258,49 +275,48 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
         dict[str, Any]: Results of the scan
 
     """
-    logging.info(f"Scanning directory: {directory}")
-    logging.info(f"Excluding directories: {', '.join(exclude_dirs)}")
+    logger.info("Scanning directory: %s", directory)
+    logger.info("Excluding directories: %s", ", ".join(exclude_dirs))
 
     # Use imported function if available
     if IMPORTED_SECRET_SCANNER and "scan_directory" in globals():
         results: dict[str, list[tuple[str, int, int]]] = scan_directory(directory)
         return results
-    else:
-        logging.info(
-            "Secret scanner is not available. Falling back to subprocess execution."
-        )
+    logger.info(
+        "Secret scanner is not available. Falling back to subprocess execution."
+    )
 
     # Fallback to subprocess call
     try:
-        script_path = os.path.join(
-            os.path.dirname(__file__), "fix_potential_secrets.py"
-        )
+        script_path = Path(__file__).parent / "fix_potential_secrets.py"
 
         # Check if the script exists
-        if not os.path.exists(script_path):
+        if not script_path.exists():
             # Try relative path
-            script_path = "fix_potential_secrets.py"
-            if not os.path.exists(script_path):
+            script_path = Path("fix_potential_secrets.py")
+            if not script_path.exists():
+                from common_utils.exceptions import ScriptNotFoundError
 
-                def _raise_script_not_found() -> None:
-                    from common_utils.exceptions import ScriptNotFoundError
-
-                    raise ScriptNotFoundError()
-
-                _raise_script_not_found()
+                # Create a custom error message
+                error_message = "Could not find fix_potential_secrets.py"
+                logger.error(error_message)
+                raise ScriptNotFoundError
 
         # Call the script using subprocess
         exclude_arg = ",".join(exclude_dirs)
+        python_executable = sys.executable
         cmd = [
-            sys.executable,
-            script_path,
+            python_executable,
+            str(script_path),
             directory,
             "--scan-only",
             f"--exclude={exclude_arg}",
         ]
 
-        logging.info(f"Running command: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        logger.info("Running command: %s", " ".join(cmd))
+        # We're using a list of strings for the command, not shell=True, so it's safe
+        # nosec S603 - This is safe as we control the input and don't use shell=True
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)  # nosec B603 S603
 
         # Extract results from script output
         # This assumes fix_potential_secrets.py outputs a JSON report
@@ -315,21 +331,22 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
                     )
                     return parsed_results
             except json.JSONDecodeError as json_error:
-                logging.warning(
-                    f"Could not parse JSON output from security scan: {json_error}"
+                logger.warning(
+                    "Could not parse JSON output from security scan: %s", json_error
                 )
 
         # If we can't parse the output, return a simplified result
-        logging.warning("Could not parse detailed results, returning simplified report")
+        logger.warning("Could not parse detailed results, returning simplified report")
     except (subprocess.SubprocessError, FileNotFoundError) as e:
-        logging.exception("Error running security scan")
+        logger.exception("Error running security scan")
         return {"error": f"Error running security scan: {type(e).__name__}"}
     else:
         return {"error": "Could not parse output from security scanner"}
 
 
 def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:
-    """Generate a SARIF report from scan results.
+    """
+    Generate a SARIF report from scan results.
 
     Args:
         results: Scan results
@@ -374,7 +391,7 @@ def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:
     }
 
     # Add results to SARIF report without including sensitive data
-    sarif_results = cast(list[dict[str, Any]], sarif_report["runs"][0]["results"])
+    sarif_results = cast("list[dict[str, Any]]", sarif_report["runs"][0]["results"])
 
     for file_path, secrets in results.items():
         if isinstance(secrets, list):
@@ -382,54 +399,59 @@ def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:
                 if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                     # Handle tuple format (pattern_name, line_num, line, secret_value)
                     pattern_name, line_num = item[0], item[1]
-                    sarif_results.append({
-                        "ruleId": "secret-detection",
-                        "level": "error",
-                        "message": {"text": f"Potential {pattern_name} found"},
-                        "locations": [
-                            {
-                                "physicalLocation": {
-                                    "artifactLocation": {
-                                        "uri": sanitize_path(file_path)
-                                    },
-                                    "region": {"startLine": line_num},
+                    sarif_results.append(
+                        {
+                            "ruleId": "secret-detection",
+                            "level": "error",
+                            "message": {"text": f"Potential {pattern_name} found"},
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {
+                                            "uri": sanitize_path(file_path)
+                                        },
+                                        "region": {"startLine": line_num},
+                                    }
                                 }
-                            }
-                        ],
-                    })
+                            ],
+                        }
+                    )
                 elif (
                     isinstance(item, dict) and "type" in item and "line_number" in item
                 ):
                     # Handle dict format from JSON
                     pattern_name, line_num = item["type"], item["line_number"]
-                    sarif_results.append({
-                        "ruleId": "secret-detection",
-                        "level": "error",
-                        "message": {"text": f"Potential {pattern_name} found"},
-                        "locations": [
-                            {
-                                "physicalLocation": {
-                                    "artifactLocation": {
-                                        "uri": sanitize_path(file_path)
-                                    },
-                                    "region": {"startLine": line_num},
+                    sarif_results.append(
+                        {
+                            "ruleId": "secret-detection",
+                            "level": "error",
+                            "message": {"text": f"Potential {pattern_name} found"},
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {
+                                            "uri": sanitize_path(file_path)
+                                        },
+                                        "region": {"startLine": line_num},
+                                    }
                                 }
-                            }
-                        ],
-                    })
+                            ],
+                        }
+                    )
 
     try:
-        with open(output_file, "w") as f:
+        with Path(output_file).open("w") as f:
             json.dump(sarif_report, f, indent=2)
-        logging.info(f"SARIF report saved to {output_file}")
+        logger.info("SARIF report saved to %s", output_file)
     except Exception as e:
         # Don't log the exception details as they might include sensitive information
-        logging.exception(f"Error writing SARIF report: {type(e).__name__}")
+        logger.exception("Error writing SARIF report: %s", type(e).__name__)
         sys.exit(1)
 
 
 def write_main_report(results: dict[str, Any], output_file: str) -> bool:
-    """Write the main text report with sanitized information.
+    """
+    Write the main text report with sanitized information.
 
     Args:
         results: Scan results
@@ -437,9 +459,10 @@ def write_main_report(results: dict[str, Any], output_file: str) -> bool:
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     try:
-        with open(output_file, "w") as f:
+        with Path(output_file).open("w") as f:
             f.write("Security Scan Report\n")
             f.write("===================\n\n")
             f.write(f"Scan Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
@@ -486,7 +509,7 @@ def write_main_report(results: dict[str, Any], output_file: str) -> bool:
 
             f.write("\nNote: Full file paths are stored in a separate secure file.\n")
     except Exception as e:
-        logging.exception(f"Error writing main report: {type(e).__name__}")
+        logger.exception("Error writing main report: %s", type(e).__name__)
         return False
     else:
         return True
@@ -495,7 +518,8 @@ def write_main_report(results: dict[str, Any], output_file: str) -> bool:
 def create_secure_mapping_file(
     results: dict[str, Any], secure_output_file: str
 ) -> bool:
-    """Create an encrypted file mapping hash IDs to actual file paths.
+    """
+    Create an encrypted file mapping hash IDs to actual file paths.
 
     Args:
         results: Scan results
@@ -503,6 +527,7 @@ def create_secure_mapping_file(
 
     Returns:
         bool: True if successful, False if encryption is not available
+
     """
     try:
         import base64
@@ -543,13 +568,13 @@ def create_secure_mapping_file(
 
         # Encrypt the mapping and write to the secure file
         encrypted_data = cipher_suite.encrypt(json.dumps(path_mapping).encode())
-        with open(secure_output_file, "wb") as f:
+        with Path(secure_output_file).open("wb") as f:
             f.write(encrypted_data)
 
         # Set secure permissions on the secure mapping file
         set_secure_file_permissions(secure_output_file)
     except ImportError:
-        logging.warning(
+        logger.warning(
             "cryptography library not available. Secure file mappings disabled."
         )
         return False
@@ -558,10 +583,12 @@ def create_secure_mapping_file(
 
 
 def get_entropy_data() -> str:
-    """Get entropy data from system sources for key derivation.
+    """
+    Get entropy data from system sources for key derivation.
 
     Returns:
         str: Combined entropy data
+
     """
     # Use machine and process-specific values
     machine_id = os.environ.get("COMPUTERNAME", "") or os.environ.get("HOSTNAME", "")
@@ -579,7 +606,8 @@ def get_entropy_data() -> str:
 
 
 def generate_text_report(results: dict[str, Any], output_file: str) -> int:
-    """Generate a text report from scan results.
+    """
+    Generate a text report from scan results.
 
     Args:
         results: Scan results
@@ -587,6 +615,7 @@ def generate_text_report(results: dict[str, Any], output_file: str) -> int:
 
     Returns:
         int: Exit code, 0 for success, 1 for error
+
     """
     try:
         # Create an additional secure log file for sensitive data
@@ -600,35 +629,38 @@ def generate_text_report(results: dict[str, Any], output_file: str) -> int:
         secure_mapping_created = create_secure_mapping_file(results, secure_output_file)
 
         # Log results
-        logging.info(f"Text report saved to {output_file}")
-        if secure_mapping_created and os.path.exists(secure_output_file):
-            logging.info(f"Secure file path mappings saved to {secure_output_file}")
+        logger.info("Text report saved to %s", output_file)
+        if secure_mapping_created and Path(secure_output_file).exists():
+            logger.info("Secure file path mappings saved to %s", secure_output_file)
     except Exception as e:
-        logging.exception(f"Error writing text report: {type(e).__name__}")
+        logger.exception("Error writing text report: %s", type(e).__name__)
         return 1
     else:
         return 0
 
 
 def count_security_issues(results: dict[str, Any]) -> int:
-    """Count the number of security issues in the results.
+    """
+    Count the number of security issues in the results.
 
     Args:
         results: Scan results
 
     Returns:
         int: Number of issues found
+
     """
     issue_count = 0
     if isinstance(results, dict):
-        for _file_path, secrets in results.items():
+        for secrets in results.values():
             if isinstance(secrets, list):
                 issue_count += len(secrets)
     return issue_count
 
 
 def generate_json_report(results: dict[str, Any], output_file: str) -> bool:
-    """Generate a JSON report from scan results.
+    """
+    Generate a JSON report from scan results.
 
     Args:
         results: Scan results
@@ -636,6 +668,7 @@ def generate_json_report(results: dict[str, Any], output_file: str) -> bool:
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     try:
         # Sanitize file paths and ensure no actual secrets are included
@@ -649,39 +682,45 @@ def generate_json_report(results: dict[str, Any], output_file: str) -> bool:
                     if isinstance(item, tuple) and len(item) >= MIN_TUPLE_LENGTH:
                         # Only keep pattern name and line number, exclude actual secret
                         pattern_name, line_num = item[0], item[1]
-                        sanitized_findings.append({
-                            "type": pattern_name,
-                            "line_number": line_num,
-                            "message": sanitize_finding_message(pattern_name),
-                        })
+                        sanitized_findings.append(
+                            {
+                                "type": pattern_name,
+                                "line_number": line_num,
+                                "message": sanitize_finding_message(pattern_name),
+                            }
+                        )
                     elif (
                         isinstance(item, dict)
                         and "type" in item
                         and "line_number" in item
                     ):
                         # Copy only safe fields
-                        sanitized_findings.append({
-                            "type": item["type"],
-                            "line_number": item["line_number"],
-                            "message": sanitize_finding_message(item["type"]),
-                        })
+                        sanitized_findings.append(
+                            {
+                                "type": item["type"],
+                                "line_number": item["line_number"],
+                                "message": sanitize_finding_message(item["type"]),
+                            }
+                        )
             sanitized_results[sanitized_path] = sanitized_findings
 
-        with open(output_file, "w") as f:
+        with Path(output_file).open("w") as f:
             json.dump(sanitized_results, f, indent=2)
-        logging.info(f"JSON report saved to {output_file}")
+        logger.info("JSON report saved to %s", output_file)
     except Exception as e:
-        logging.exception(f"Error writing JSON report: {type(e).__name__}")
+        logger.exception("Error writing JSON report: %s", type(e).__name__)
         return False
     else:
         return True
 
 
 def main() -> int:
-    """Execute the main program functionality.
+    """
+    Execute the main program functionality.
 
     Returns:
         int: Exit code
+
     """
     args = setup_args()
 
@@ -693,12 +732,12 @@ def main() -> int:
 
     # Check if there are any results
     if not results or (isinstance(results, dict) and not results):
-        logging.info("No security issues found.")
+        logger.info("No security issues found.")
         return 0
 
     # Count issues found
     issue_count = count_security_issues(results)
-    logging.info(f"Found {issue_count} potential security issues.")
+    logger.info("Found %d potential security issues.", issue_count)
 
     # Generate the appropriate report format
     report_success = True

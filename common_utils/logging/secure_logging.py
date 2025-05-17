@@ -1,15 +1,16 @@
-"""Secure logging utilities to prevent sensitive information from being logged.
+"""
+Secure logging utilities to prevent sensitive information from being logged.
 
 This module provides functions to mask sensitive information in logs, such as access
 credentials, authentication materials, and other sensitive data.
 """
 
+from __future__ import annotations
+
 import logging
 import re
-
 from re import Pattern
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [
@@ -63,7 +64,8 @@ PATTERNS: dict[str, Pattern] = {
 
 
 def is_sensitive_key(key: str) -> bool:
-    """Check if a key name contains sensitive information patterns.
+    """
+    Check if a key name contains sensitive information patterns.
 
     Args:
     ----
@@ -101,8 +103,11 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
-def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4) -> Any:
-    """Mask sensitive data in logs to prevent logging of sensitive information.
+def mask_sensitive_data(
+    data: object, mask_char: str = "*", visible_chars: int = 4
+) -> object:
+    """
+    Mask sensitive data in logs to prevent logging of sensitive information.
 
     Applies masking to sensitive information while preserving some visibility
     for debugging purposes.
@@ -124,18 +129,18 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
 
     if isinstance(data, str):
         # Check if the string matches any of our sensitive patterns
-        for _, pattern in PATTERNS.items():
+        for pattern in PATTERNS.values():
             data = _mask_pattern(data, pattern, mask_char, visible_chars)
         return data
 
-    elif isinstance(data, dict):
+    if isinstance(data, dict):
         # Recursively mask values in dictionary
         dict_result: dict[str, Any] = {}
         for k, v in data.items():
             dict_result[k] = _mask_if_sensitive(k, v, mask_char, visible_chars)
         return dict_result  # Explicitly return a Dict[str, Any]
 
-    elif isinstance(data, list):
+    if isinstance(data, list):
         # Recursively mask values in list
         list_result: list[Any] = [
             mask_sensitive_data(item, mask_char, visible_chars) for item in data
@@ -147,9 +152,10 @@ def mask_sensitive_data(data: Any, mask_char: str = "*", visible_chars: int = 4)
 
 
 def _mask_if_sensitive(
-    key: str, value: Any, mask_char: str = "*", visible_chars: int = 4
-) -> Any:
-    """Check if a key is sensitive and mask its value if needed.
+    key: str, value: object, mask_char: str = "*", visible_chars: int = 4
+) -> object:
+    """
+    Check if a key is sensitive and mask its value if needed.
 
     Examines the key for sensitive terms and applies masking if necessary.
 
@@ -177,7 +183,8 @@ def _mask_if_sensitive(
 
 
 def _mask_string(value: str, mask_char: str = "*", visible_chars: int = 4) -> str:
-    """Mask a string, showing only the first and last few characters.
+    """
+    Mask a string, showing only the first and last few characters.
 
     Args:
     ----
@@ -203,7 +210,8 @@ def _mask_string(value: str, mask_char: str = "*", visible_chars: int = 4) -> st
 def _mask_pattern(
     text: str, pattern: Pattern, mask_char: str = "*", visible_chars: int = 4
 ) -> str:
-    """Mask text that matches a specific regex pattern.
+    """
+    Mask text that matches a specific regex pattern.
 
     Args:
     ----
@@ -236,31 +244,104 @@ class SecureLogger:
     """A wrapper around the standard logger that masks sensitive information."""
 
     def __init__(self, name: str) -> None:
-        """Initialize the secure logger.
+        """
+        Initialize the secure logger.
 
         Args:
             name: The name of the logger
+
         """
         self.logger = logging.getLogger(name)
+        self._handlers: list[logging.Handler] = self.logger.handlers
+
+    @property
+    def handlers(self) -> list[logging.Handler]:
+        """Get the handlers for this logger."""
+        return self._handlers
+
+    def set_level(self, level: int) -> None:
+        """Set the logging level of this logger."""
+        self.logger.setLevel(level)
+        self.level: int = self.logger.level
+
+    # Standard logging compatibility aliases
+    setLevel = set_level  # noqa: N815
+
+    def is_enabled_for(self, level: int) -> bool:
+        """Check if this logger is enabled for the specified level."""
+        result: bool = self.logger.isEnabledFor(level)
+        return result
+
+    # Standard logging compatibility aliases
+    isEnabledFor = is_enabled_for  # noqa: N815
+
+    def get_effective_level(self) -> int:
+        """Get the effective level for this logger."""
+        result: int = self.logger.getEffectiveLevel()
+        return result
+
+    # Standard logging compatibility aliases
+    getEffectiveLevel = get_effective_level  # noqa: N815
+
+    def get_child(self, suffix: str) -> SecureLogger:
+        """Get a logger which is a descendant to this logger."""
+        child_logger = self.logger.getChild(suffix)
+        secure_child = SecureLogger(child_logger.name)
+        secure_child.logger = child_logger
+        return secure_child
+
+    # Standard logging compatibility aliases
+    getChild = get_child  # noqa: N815
+
+    def add_handler(self, hdlr: logging.Handler) -> None:
+        """Add the specified handler to this logger."""
+        self.logger.addHandler(hdlr)
+        # Store handlers in a property
+        self._handlers = self.logger.handlers
+
+    # Standard logging compatibility aliases
+    addHandler = add_handler  # noqa: N815
+
+    def remove_handler(self, hdlr: logging.Handler) -> None:
+        """Remove the specified handler from this logger."""
+        self.logger.removeHandler(hdlr)
+        # Update handlers attribute
+        self._handlers = self.logger.handlers
+
+    # Standard logging compatibility aliases
+    removeHandler = remove_handler  # noqa: N815
 
     def has_handlers(self) -> bool:
-        """Check if this logger has any handlers configured.
+        """
+        Check if this logger has any handlers configured.
 
         Returns:
             bool: True if this logger has handlers configured
+
         """
         return self.logger.hasHandlers()
 
-    def handle(self, record: logging.LogRecord) -> bool:
-        """Call the handlers for the specified record.
+    # Standard logging compatibility aliases
+    hasHandlers = has_handlers  # noqa: N815
+
+    def call_handlers(self, record: logging.LogRecord) -> None:
+        """Pass a record to all relevant handlers."""
+        self.logger.callHandlers(record)  # Standard logging compatibility aliases
+
+    callHandlers = call_handlers  # noqa: N815
+
+    def handle(self, record: logging.LogRecord) -> None:
+        """
+        Call the handlers for the specified record.
 
         Args:
             record: The log record to handle
 
         Returns:
-            bool: True if the message was handled
+            None: This method doesn't return a value
+
         """
-        return self.logger.handle(record)
+        self.logger.handle(record)
 
     def make_record(
         self,
@@ -275,7 +356,8 @@ class SecureLogger:
         extra: Optional[dict[str, Any]] = None,
         sinfo: Optional[str] = None,
     ) -> logging.LogRecord:
-        """Make a LogRecord.
+        """
+        Make a LogRecord.
 
         Args:
             name: The logger name
@@ -291,11 +373,14 @@ class SecureLogger:
 
         Returns:
             logging.LogRecord: The created log record
+
         """
         # Apply the sensitive data masking before creating the record
-        msg = mask_sensitive_data(str(msg))
+        masked_msg = mask_sensitive_data(str(msg))
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
         return self.logger.makeRecord(
-            name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
+            name, level, fn, lno, masked_msg, args, exc_info, func, extra, sinfo
         )
 
     # Standard logging compatibility aliases
@@ -313,68 +398,122 @@ class SecureLogger:
     # Standard logging compatibility aliases
     findCaller = find_caller  # noqa: N815
 
-    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        """Log a debug message with sensitive information masked.
+    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log a debug message with sensitive information masked.
 
         Args:
             msg: The message to log
             args: Arguments for message formatting
             kwargs: Keyword arguments for logging configuration
-        """
-        msg = mask_sensitive_data(msg)
-        self.logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        """Log an info message with sensitive information masked.
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.debug(masked_msg, *args, **kwargs)
+
+    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log an info message with sensitive information masked.
 
         Args:
             msg: The message to log
             args: Arguments for message formatting
             kwargs: Keyword arguments for logging configuration
-        """
-        msg = mask_sensitive_data(msg)
-        self.logger.info(msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        """Log a warning message with sensitive information masked.
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.info(masked_msg, *args, **kwargs)
+
+    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log a warning message with sensitive information masked.
 
         Args:
             msg: The message to log
             args: Arguments for message formatting
             kwargs: Keyword arguments for logging configuration
+
         """
-        msg = mask_sensitive_data(msg)
-        self.logger.warning(msg, *args, **kwargs)
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.warning(masked_msg, *args, **kwargs)
 
-    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        """Log an error message with sensitive information masked.
-
-        Args:
-            msg: The message to log
-            args: Arguments for message formatting
-            kwargs: Keyword arguments for logging configuration
-        """
-        msg = mask_sensitive_data(msg)
-        self.logger.error(msg, *args, **kwargs)
-
-    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        """Log a critical message with sensitive information masked.
-
-        Args:
-            msg: The message to log
-            args: Arguments for message formatting
-            kwargs: Keyword arguments for logging configuration
-        """
-        msg = mask_sensitive_data(msg)
-        self.logger.critical(msg, *args, **kwargs)
-
-    # Standard aliases
+    # Alias for warning
     warn = warning
+
+    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log an error message with sensitive information masked.
+
+        Args:
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.error(masked_msg, *args, **kwargs)
+
+    def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log a critical message with sensitive information masked.
+
+        Args:
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.critical(masked_msg, *args, **kwargs)
+
+    # Alias for critical
     fatal = critical
+
+    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log an exception message with sensitive information masked.
+
+        Args:
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.exception(masked_msg, *args, **kwargs)
+
+    def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+        """
+        Log with specified level.
+
+        Args:
+            level: The logging level
+            msg: The message to log
+            args: Arguments for message formatting
+            kwargs: Keyword arguments for logging configuration
+
+        """
+        masked_msg = mask_sensitive_data(msg)
+        if not isinstance(masked_msg, str):
+            masked_msg = str(masked_msg)
+        self.logger.log(level, masked_msg, *args, **kwargs)
 
 
 def get_secure_logger(name: str) -> SecureLogger:
-    """Get a secure logger that masks sensitive information.
+    """
+    Get a secure logger that masks sensitive information.
 
     Args:
     ----

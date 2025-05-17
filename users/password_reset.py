@@ -1,36 +1,36 @@
-"""auth_reset - Module for users.password_reset.
+"""
+auth_reset - Module for users.password_reset.
 
 This module provides functionality for authentication credential reset operations.
 """
 
 # Standard library imports
+from __future__ import annotations
+
 import hashlib
 import secrets
 import string
 import time
-
-from datetime import datetime
-from datetime import timedelta
-from typing import Optional
-from typing import Union
+from datetime import datetime, timedelta
+from typing import TypeAlias
 
 from common_utils.logging import get_logger
 from users.auth import hash_credential
 
 # Type aliases
-ResetResult = tuple[bool, Optional[str]]
-UserDict = dict[str, Union[Optional[str], int]]
+ResetResult: TypeAlias = tuple[bool, str | None]
+UserDict: TypeAlias = dict[str, str | None | int]
 
 
 # Define a proper interface for UserRepository
 class UserRepository:
     """Interface for user repository operations."""
 
-    def find_by_email(self, email: str) -> Optional[UserDict]:
+    def find_by_email(self, email: str) -> UserDict | None:
         """Find a user by email."""
         raise NotImplementedError
 
-    def find_by_reset_token(self, token: str) -> Optional[UserDict]:
+    def find_by_reset_token(self, token: str) -> UserDict | None:
         """Find a user by reset token."""
         raise NotImplementedError
 
@@ -44,7 +44,8 @@ logger = get_logger(__name__)
 
 
 def generate_reset_code(length: int = 32) -> str:
-    """Generate a secure random code for authentication credential reset.
+    """
+    Generate a secure random code for authentication credential reset.
 
     Args:
     ----
@@ -56,8 +57,7 @@ def generate_reset_code(length: int = 32) -> str:
 
     """
     alphabet = string.ascii_letters + string.digits
-    code = "".join(secrets.choice(alphabet) for _ in range(length))
-    return code
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 class PasswordResetService:
@@ -65,10 +65,11 @@ class PasswordResetService:
 
     def __init__(
         self,
-        user_repository: Optional[UserRepository] = None,
-        code_expiry: Optional[int] = None,
-    ):
-        """Initialize the credential reset service.
+        user_repository: UserRepository | None = None,
+        code_expiry: int | None = None,
+    ) -> None:
+        """
+        Initialize the credential reset service.
 
         Args:
         ----
@@ -80,7 +81,8 @@ class PasswordResetService:
         self.code_expiry = code_expiry or 3600  # 1 hour default
 
     def request_reset(self, email: str) -> ResetResult:
-        """Request an authentication credential reset.
+        """
+        Request an authentication credential reset.
 
         Args:
         ----
@@ -96,7 +98,7 @@ class PasswordResetService:
             return False, None
 
         # Find the user
-        user: Optional[UserDict] = self.user_repository.find_by_email(email)
+        user: UserDict | None = self.user_repository.find_by_email(email)
         if not user:
             # Don't reveal whether email exists or not for security
             logger.info(
@@ -110,7 +112,9 @@ class PasswordResetService:
 
         # Generate a secure reset code with high entropy
         reset_code = generate_reset_code(48)  # Use longer code for better security
-        expiry = datetime.utcnow() + timedelta(seconds=self.code_expiry)
+        expiry = datetime.now(tz=datetime.timezone.utc) + timedelta(
+            seconds=self.code_expiry
+        )
 
         # Hash the reset token before storing it
         # This prevents exposure in case of DB breach
@@ -148,7 +152,8 @@ class PasswordResetService:
         return True, masked_code  # Return masked code instead of actual code
 
     def reset_auth_credential(self, reset_code: str, new_credential: str) -> bool:
-        """Reset an authentication credential using a reset code.
+        """
+        Reset an authentication credential using a reset code.
 
         Args:
         ----
@@ -168,7 +173,7 @@ class PasswordResetService:
         hashed_reset_token = hashlib.sha256(reset_code.encode()).hexdigest()
 
         # Find the user with the reset code hash
-        user: Optional[UserDict] = self.user_repository.find_by_reset_token(
+        user: UserDict | None = self.user_repository.find_by_reset_token(
             hashed_reset_token
         )
         if not user:
@@ -185,7 +190,7 @@ class PasswordResetService:
             return False
 
         expiry = datetime.fromisoformat(user["auth_reset_expires"])
-        if expiry < datetime.utcnow():
+        if expiry < datetime.now(tz=datetime.timezone.utc):
             logger.warning(
                 "Expired authentication reset attempt", extra={"user_id": user["id"]}
             )
@@ -203,7 +208,7 @@ class PasswordResetService:
                 "auth_hash": hashed_credential,
                 "auth_reset_token": None,
                 "auth_reset_expires": None,
-                "updated_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.now(tz=datetime.timezone.utc).isoformat(),
             },
         )
 

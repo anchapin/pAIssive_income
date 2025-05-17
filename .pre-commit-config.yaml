@@ -3,19 +3,26 @@ default_language_version:
     python: python3
 
 # Optimized exclude patterns
-exclude: &exclude_patterns
-  (?x)^(
-    \.venv/|
-    venv/|
-    \.git/|
-    node_modules/|
+exclude:
+  (?x)(
+    ^\.venv/.*|
+    ^venv/.*|
+    ^env/.*|
+    \.venv/.*|
+    venv/.*|
+    env/.*|
+    \.git/.*|
+    node_modules/.*|
     .*__pycache__/.*|
     .*\.pytest_cache/.*|
     .*\.mypy_cache/.*|
     .*\.ruff_cache/.*|
-    build/|
-    dist/
-  )$
+    build/.*|
+    dist/.*|
+    .*\.egg-info/.*|
+    ui/react_frontend/node_modules/.*|
+    sdk/javascript/node_modules/.*
+  )
 
 default_stages: [pre-commit]
 fail_fast: false
@@ -56,22 +63,22 @@ repos:
         files: \.py$
 
   # Type checking (run after formatting/linting)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+  - repo: local
     hooks:
       - id: mypy
         name: Type check with MyPy
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-setuptools
+        entry: python -m mypy
+        language: system
+        types: [python]
+        require_serial: true
+        exclude: |
+          (?x)(
+            ^scripts/__init__.py$|
+            ^.github/scripts/__init__.py$
+          )
         args: [
-          "--ignore-missing-imports",
           "--install-types",
           "--non-interactive",
-          "--explicit-package-bases",
-          "--config-file=mypy.ini",
-          "--cache-dir=.mypy_cache",
           "--disable-error-code=attr-defined",
           "--disable-error-code=name-defined",
           "--disable-error-code=unused-ignore"

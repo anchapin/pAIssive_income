@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup Development Environment Script
+Setup Development Environment Script.
 
 This script automates the setup of a development environment for the pAIssive Income project.
 It performs the following tasks:
@@ -21,6 +21,8 @@ Options:
     --ide=<name>       Configure specific IDE (vscode, pycharm, all)
     --help             Show this help message
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -61,7 +63,8 @@ def parse_args() -> argparse.Namespace:
 def run_command(
     cmd: list[str], cwd: Optional[str] = None, env: Optional[dict[str, str]] = None
 ) -> tuple[int, str, str]:
-    """Run a command and return the exit code, stdout, and stderr.
+    """
+    Run a command and return the exit code, stdout, and stderr.
 
     Args:
         cmd: Command to run as a list of strings
@@ -70,6 +73,7 @@ def run_command(
 
     Returns:
         Tuple of (exit_code, stdout, stderr)
+
     """
     # Validate command to ensure it's a list of strings and doesn't contain shell metacharacters
     if not isinstance(cmd, list) or not all(isinstance(arg, str) for arg in cmd):
@@ -77,9 +81,15 @@ def run_command(
         return 1, "", "Invalid command format"
 
     # Check for common command injection patterns in the first argument (the executable)
-    if cmd and (';' in cmd[0] or '&' in cmd[0] or '|' in cmd[0] or
-               '>' in cmd[0] or '<' in cmd[0] or '$(' in cmd[0] or
-               '`' in cmd[0]):
+    if cmd and (
+        ";" in cmd[0]
+        or "&" in cmd[0]
+        or "|" in cmd[0]
+        or ">" in cmd[0]
+        or "<" in cmd[0]
+        or "$(" in cmd[0]
+        or "`" in cmd[0]
+    ):
         print(f"Potential command injection detected in: {cmd[0]}")
         return 1, "", "Potential command injection detected"
 
@@ -97,8 +107,12 @@ def run_command(
             text=True,
             check=False,
         )
-    except Exception as e:
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
         return 1, "", str(e)
+    except OSError as e:
+        return 1, "", f"OS Error: {e!s}"
+    except ValueError as e:
+        return 1, "", f"Value Error: {e!s}"
     else:
         return process.returncode, process.stdout, process.stderr
 
@@ -126,10 +140,12 @@ def check_uv_available() -> bool:
 
 
 def create_virtual_environment() -> bool:
-    """Create a virtual environment using uv.
+    """
+    Create a virtual environment using uv.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Creating virtual environment using uv...")
     venv_path = Path(".venv")
@@ -141,13 +157,15 @@ def create_virtual_environment() -> bool:
 
     # Use the Python interpreter that's running this script for the venv
     python_executable = sys.executable
-    exit_code, stdout, stderr = run_command([
-        "uv",
-        "venv",
-        str(venv_path),
-        "--python",
-        python_executable,
-    ])
+    exit_code, stdout, stderr = run_command(
+        [
+            "uv",
+            "venv",
+            str(venv_path),
+            "--python",
+            python_executable,
+        ]
+    )
     if exit_code != 0:
         print(f"Error creating virtual environment with uv: {stderr}")
         print(f"Stdout: {stdout}")
@@ -166,10 +184,12 @@ def get_venv_python_path() -> str:
 
 
 def install_dependencies() -> bool:
-    """Install dependencies using uv.
+    """
+    Install dependencies using uv.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Installing dependencies using uv...")
     venv_python_path = get_venv_python_path()
@@ -206,10 +226,12 @@ def install_dependencies() -> bool:
 
 
 def setup_pre_commit() -> bool:
-    """Set up pre-commit hooks using uv.
+    """
+    Set up pre-commit hooks using uv.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Setting up pre-commit hooks using uv...")
     venv_python_path = get_venv_python_path()
@@ -246,10 +268,12 @@ def setup_pre_commit() -> bool:
 
 
 def configure_vscode() -> bool:
-    """Configure VS Code.
+    """
+    Configure VS Code.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Configuring VS Code...")
     vscode_dir = Path(".vscode")
@@ -289,10 +313,13 @@ def configure_vscode() -> bool:
     }
 
     try:
-        with open(settings_path, "w") as f:
+        with Path(settings_path).open("w") as f:
             json.dump(settings, f, indent=4)
-    except Exception as e:
-        print(f"Error creating VS Code settings: {e}")
+    except OSError as e:
+        print(f"Error creating VS Code settings (I/O error): {e}")
+        return False
+    except (TypeError, ValueError) as e:
+        print(f"Error creating VS Code settings (data error): {e}")
         return False
     else:
         print(f"Created VS Code settings at {settings_path}")
@@ -300,10 +327,12 @@ def configure_vscode() -> bool:
 
 
 def configure_pycharm() -> bool:
-    """Configure PyCharm.
+    """
+    Configure PyCharm.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Configuring PyCharm...")
     idea_dir = Path(".idea")
@@ -321,10 +350,13 @@ def configure_pycharm() -> bool:
 </project>"""
 
     try:
-        with open(ruff_xml_path, "w") as f:
+        with Path(ruff_xml_path).open("w") as f:
             f.write(ruff_xml_content)
-    except Exception as e:
-        print(f"Error creating PyCharm Ruff configuration: {e}")
+    except OSError as e:
+        print(f"Error creating PyCharm Ruff configuration (I/O error): {e}")
+        return False
+    except (TypeError, ValueError) as e:
+        print(f"Error creating PyCharm Ruff configuration (data error): {e}")
         return False
     else:
         print(f"Created PyCharm Ruff configuration at {ruff_xml_path}")
@@ -332,10 +364,12 @@ def configure_pycharm() -> bool:
 
 
 def create_editorconfig() -> bool:
-    """Create .editorconfig file.
+    """
+    Create .editorconfig file.
 
     Returns:
         True if successful, False otherwise
+
     """
     print("Creating .editorconfig file...")
     editorconfig_path = Path(".editorconfig")
@@ -368,10 +402,13 @@ indent_style = tab
 """
 
     try:
-        with open(editorconfig_path, "w") as f:
+        with Path(editorconfig_path).open("w") as f:
             f.write(editorconfig_content)
-    except Exception as e:
-        print(f"Error creating .editorconfig: {e}")
+    except OSError as e:
+        print(f"Error creating .editorconfig (I/O error): {e}")
+        return False
+    except (TypeError, ValueError) as e:
+        print(f"Error creating .editorconfig (data error): {e}")
         return False
     else:
         print(f"Created .editorconfig at {editorconfig_path}")
@@ -379,13 +416,15 @@ indent_style = tab
 
 
 def configure_ides(ide: str) -> bool:
-    """Configure IDEs.
+    """
+    Configure IDEs.
 
     Args:
         ide: IDE to configure (vscode, pycharm, all)
 
     Returns:
         True if successful, False otherwise
+
     """
     success = True
 
@@ -445,10 +484,12 @@ def print_next_steps() -> None:
 
 
 def main() -> int:
-    """Main function.
+    """
+    Run the setup process.
 
     Returns:
         Exit code (0 for success, 1 for failure)
+
     """
     args = parse_args()
     success = True

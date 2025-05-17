@@ -10,5 +10,6 @@ class ModelContextProtocolError(AdapterError):
 
     MESSAGE = "modelcontextprotocol-python-sdk is not installed. Please install it with `uv pip install modelcontextprotocol-python-sdk`."
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the error with a standard message."""
         super().__init__(self.MESSAGE)

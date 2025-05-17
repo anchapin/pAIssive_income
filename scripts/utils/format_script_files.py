@@ -1,20 +1,26 @@
 """Script to format all Python files in the scripts directory."""
 
+from __future__ import annotations
+
 import logging
-import os
 import subprocess
 import sys
+from pathlib import Path
 
 # Use built-in types for type annotations
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+# Set up a dedicated logger for this module
+logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str]) -> tuple[int, str, str]:
     """Run a command and return the exit code, stdout, and stderr."""
     try:
         # Always use shell=False for security
-        result = subprocess.run(
+        # nosec comment below tells security scanners this is safe as we control the input
+        result = subprocess.run(  # nosec B603 S603
             command,
             capture_output=True,
             text=True,
@@ -25,18 +31,17 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
         result_code = result.returncode
         result_stdout = result.stdout
         result_stderr = result.stderr
-
-        # Return the results
-        if True:  # This ensures the return is not directly in the try block
-            return result_code, result_stdout, result_stderr
     except Exception as e:
-        logging.exception(f"Error running command {' '.join(command)}")
+        logger.exception("Error running command %s", " ".join(command))
         return 1, "", str(e)
+    else:
+        # Return the results
+        return result_code, result_stdout, result_stderr
 
 
 def format_file(file_path: str) -> bool:
     """Format a Python file using Ruff."""
-    logging.info(f"Formatting {file_path}...")
+    logger.info("Formatting %s...", file_path)
 
     # Run Ruff format
     ruff_format_cmd = ["ruff", "format", file_path]
@@ -44,17 +49,17 @@ def format_file(file_path: str) -> bool:
         ruff_format_cmd
     )
     if ruff_format_code != 0:
-        logging.error(f"Ruff format failed on {file_path}: {ruff_format_stderr}")
+        logger.error("Ruff format failed on %s: %s", file_path, ruff_format_stderr)
     else:
-        logging.info(f"Ruff format succeeded on {file_path}")
+        logger.info("Ruff format succeeded on %s", file_path)
 
     # Run Ruff check with fixes
     ruff_check_cmd = ["ruff", "check", "--fix", file_path]
     ruff_check_code, ruff_check_stdout, ruff_check_stderr = run_command(ruff_check_cmd)
     if ruff_check_code != 0:
-        logging.error(f"Ruff check failed on {file_path}: {ruff_check_stderr}")
+        logger.error("Ruff check failed on %s: %s", file_path, ruff_check_stderr)
     else:
-        logging.info(f"Ruff check succeeded on {file_path}")
+        logger.info("Ruff check succeeded on %s", file_path)
 
     return ruff_format_code == 0 and ruff_check_code == 0
 
@@ -91,21 +96,21 @@ def main() -> int:
     failed_files = []
 
     for file_path in script_files:
-        if os.path.exists(file_path):
+        if Path(file_path).exists():
             if format_file(file_path):
                 success_count += 1
             else:
                 failed_files.append(file_path)
         else:
-            logging.warning(f"File not found: {file_path}")
+            logger.warning("File not found: %s", file_path)
             failed_files.append(file_path)
 
-    logging.info(
-        f"\nFormatting complete. {success_count} files formatted successfully."
+    logger.info(
+        "\nFormatting complete. %d files formatted successfully.", success_count
     )
 
     if failed_files:
-        logging.warning(f"Failed to format files: {failed_files}")
+        logger.warning("Failed to format files: %s", failed_files)
         return 1
 
     return 0

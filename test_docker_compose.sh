@@ -1,5 +1,6 @@
 #!/bin/bash
 # Script to test Docker Compose setup locally
+# Set COMPOSE_BAKE=true in your .env to enable advanced Compose Bake features (requires Docker Compose v2.10+)
 
 # Set colors for output
 GREEN='\033[0;32m'

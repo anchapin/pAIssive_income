@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Run linters on all Python files except those in node_modules.
+"""
+Run linters on all Python files except those in node_modules.
 
 This script runs ruff (format and lint) on all Python files in the project,
 excluding files in node_modules and other directories specified in
 .gitignore.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 import sys
-
+from pathlib import Path
 from typing import Optional
 
 # Configure logging
@@ -39,7 +42,8 @@ EXCLUDE_DIRS = {
 def run_command(
     command: list[str], cwd: Optional[str] = None, capture_output: bool = True
 ) -> tuple[int, Optional[str], Optional[str]]:
-    """Run a command and return its output.
+    """
+    Run a command and return its output.
 
     Args:
         command: The command to run as a list of strings
@@ -48,10 +52,12 @@ def run_command(
 
     Returns:
         Tuple of (exit_code, stdout, stderr)
+
     """
-    logger.info(f"Running command: {' '.join(command)}")
+    logger.info("Running command: %s", " ".join(command))
     try:
-        result = subprocess.run(
+        # nosec comment below tells security scanners this is safe as we control the input
+        result = subprocess.run(  # nosec B603 S603
             command,
             cwd=cwd,
             capture_output=capture_output,
@@ -70,10 +76,12 @@ def run_command(
 
 
 def find_python_files() -> list[str]:
-    """Find all Python files in the project, excluding node_modules.
+    """
+    Find all Python files in the project, excluding node_modules.
 
     Returns:
         List of Python file paths
+
     """
     python_files = []
     for root, dirs, files in os.walk("."):
@@ -82,14 +90,15 @@ def find_python_files() -> list[str]:
 
         for file in files:
             if file.endswith(".py"):
-                file_path = os.path.join(root, file)
+                file_path = str(Path(root) / file)
                 python_files.append(file_path)
 
     return python_files
 
 
 def run_ruff_format(files: list[str], check_only: bool = False) -> bool:
-    """Run ruff format on the specified files.
+    """
+    Run ruff format on the specified files.
 
     Args:
         files: List of files to run ruff format on
@@ -97,6 +106,7 @@ def run_ruff_format(files: list[str], check_only: bool = False) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     if not files:
         logger.info("No Python files found to format with ruff")
@@ -109,7 +119,7 @@ def run_ruff_format(files: list[str], check_only: bool = False) -> bool:
 
     exit_code, stdout, stderr = run_command(command)
     if exit_code != 0:
-        logger.error(f"Ruff format failed: {stderr if stderr else stdout}")
+        logger.error("Ruff format failed: %s", stderr if stderr else stdout)
         return False
 
     logger.info("Ruff format succeeded")
@@ -117,7 +127,8 @@ def run_ruff_format(files: list[str], check_only: bool = False) -> bool:
 
 
 def run_ruff(files: list[str], fix: bool = False) -> bool:
-    """Run ruff on the specified files.
+    """
+    Run ruff on the specified files.
 
     Args:
         files: List of files to run ruff on
@@ -125,6 +136,7 @@ def run_ruff(files: list[str], fix: bool = False) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     if not files:
         logger.info("No Python files found to check with ruff")
@@ -137,7 +149,7 @@ def run_ruff(files: list[str], fix: bool = False) -> bool:
 
     exit_code, stdout, stderr = run_command(command)
     if exit_code != 0:
-        logger.error(f"Ruff failed: {stdout}")
+        logger.error("Ruff failed: %s", stdout)
         return False
 
     logger.info("Ruff succeeded")
@@ -145,10 +157,12 @@ def run_ruff(files: list[str], fix: bool = False) -> bool:
 
 
 def main() -> int:
-    """Run linters on all Python files.
+    """
+    Run linters on all Python files.
 
     Returns:
         0 on success, 1 on failure
+
     """
     import argparse
 
@@ -179,7 +193,7 @@ def main() -> int:
 
     # Find all Python files
     python_files = find_python_files()
-    logger.info(f"Found {len(python_files)} Python files")
+    logger.info("Found %d Python files", len(python_files))
 
     success = True
 

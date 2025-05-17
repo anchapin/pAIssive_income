@@ -1,4 +1,5 @@
-"""fix_all_issues_final - Module for fixing code quality issues.
+"""
+fix_all_issues_final - Module for fixing code quality issues.
 
 This script provides a comprehensive solution for fixing various code quality issues,
 including syntax errors, formatting issues, and linting problems. It can be run in
@@ -7,13 +8,13 @@ fix the issues.
 """
 
 # Standard library imports
+from __future__ import annotations
+
 import argparse
 import os
 import subprocess
 import sys
-
-from typing import Callable
-from typing import Optional
+from typing import Callable, Optional
 
 # Local imports
 from common_utils.logging import get_logger
@@ -142,7 +143,8 @@ def _process_directory(
 
 
 def _validate_specific_files(specific_files: list[str]) -> list[str]:
-    """Validate and normalize specific files provided by the user.
+    """
+    Validate and normalize specific files provided by the user.
 
     Args:
         specific_files: List of specific files to process
@@ -154,6 +156,7 @@ def _validate_specific_files(specific_files: list[str]) -> list[str]:
         FileNotPythonError: If a file is not a Python file
         MissingFileError: If a file doesn't exist
         FilePermissionError: If access to a file is denied
+
     """
     normalized_files = []
     for file_path in specific_files:
@@ -178,10 +181,12 @@ def _validate_specific_files(specific_files: list[str]) -> list[str]:
 
 
 def _scan_directories_for_python_files() -> list[str]:
-    """Scan directories recursively to find Python files.
+    """
+    Scan directories recursively to find Python files.
 
     Returns:
         List of Python file paths
+
     """
     # Normalize ignore patterns once for better performance
     ignore_dirs = {
@@ -223,10 +228,12 @@ def _scan_directories_for_python_files() -> list[str]:
 
 
 def _log_file_errors(error_files: list[tuple[str, str]]) -> None:
-    """Log file access errors.
+    """
+    Log file access errors.
 
     Args:
         error_files: List of tuples containing file path and error message
+
     """
     if error_files:
         logger.warning(
@@ -238,7 +245,8 @@ def _log_file_errors(error_files: list[tuple[str, str]]) -> None:
 
 
 def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
-    """Find Python files to process.
+    """
+    Find Python files to process.
 
     Args:
     ----
@@ -263,7 +271,8 @@ def find_python_files(specific_files: Optional[list[str]] = None) -> list[str]:
 
 
 def run_command(command: list[str]) -> tuple[int, str, str]:
-    """Run a command and return the exit code, stdout, and stderr.
+    """
+    Run a command and return the exit code, stdout, and stderr.
 
     Args:
     ----
@@ -280,6 +289,7 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
             try:
                 # Use shutil.which to find commands in PATH safely
                 import shutil
+
                 cmd_path = shutil.which(command[0])
                 if cmd_path is None:
                     logger.warning(f"Command not found: {command[0]}")
@@ -332,7 +342,8 @@ def run_command(command: list[str]) -> tuple[int, str, str]:
 def fix_line_length_issues(
     file_path: str, line_length: int = DEFAULT_LINE_LENGTH
 ) -> bool:
-    """Fix line length issues in a Python file.
+    """
+    Fix line length issues in a Python file.
 
     Args:
     ----
@@ -370,8 +381,7 @@ def fix_line_length_issues(
                 f.writelines(lines)
 
             return True
-        else:
-            return True  # No changes needed
+        return True  # No changes needed
     except Exception as e:
         logger.exception(
             "Error fixing line length issues",
@@ -381,13 +391,15 @@ def fix_line_length_issues(
 
 
 def _check_for_syntax_errors(file_path: str) -> bool:
-    """Check if a file has syntax errors.
+    """
+    Check if a file has syntax errors.
 
     Args:
         file_path: Path to the Python file
 
     Returns:
         True if the file has no syntax errors, False otherwise
+
     """
     try:
         with open(file_path, encoding="utf-8") as f:
@@ -407,13 +419,15 @@ def _check_for_syntax_errors(file_path: str) -> bool:
 
 
 def _remove_duplicate_lines(lines: list[str]) -> tuple[list[str], bool]:
-    """Remove duplicate adjacent lines.
+    """
+    Remove duplicate adjacent lines.
 
     Args:
         lines: List of lines from the file
 
     Returns:
         Tuple of (modified lines, whether modifications were made)
+
     """
     modified = False
     result_lines = lines.copy()
@@ -430,13 +444,15 @@ def _remove_duplicate_lines(lines: list[str]) -> tuple[list[str], bool]:
 
 
 def _fix_missing_colons(lines: list[str]) -> tuple[list[str], bool]:
-    """Fix missing colons in class and function definitions.
+    """
+    Fix missing colons in class and function definitions.
 
     Args:
         lines: List of lines from the file
 
     Returns:
         Tuple of (modified lines, whether modifications were made)
+
     """
     modified = False
     result_lines = lines.copy()
@@ -453,7 +469,8 @@ def _fix_missing_colons(lines: list[str]) -> tuple[list[str], bool]:
 
 
 def _write_modified_file(file_path: str, lines: list[str]) -> bool:
-    """Write modified lines back to the file.
+    """
+    Write modified lines back to the file.
 
     Args:
         file_path: Path to the Python file
@@ -461,6 +478,7 @@ def _write_modified_file(file_path: str, lines: list[str]) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     try:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -475,7 +493,8 @@ def _write_modified_file(file_path: str, lines: list[str]) -> bool:
 
 
 def fix_syntax_errors(file_path: str) -> bool:
-    """Fix common syntax errors in a Python file.
+    """
+    Fix common syntax errors in a Python file.
 
     Args:
     ----
@@ -529,7 +548,8 @@ def fix_syntax_errors(file_path: str) -> bool:
 
 
 def run_ruff_format(file_path: str, check_mode: bool = False) -> bool:
-    """Run Ruff formatter on a Python file.
+    """
+    Run Ruff formatter on a Python file.
 
     Args:
     ----
@@ -551,7 +571,8 @@ def run_ruff_format(file_path: str, check_mode: bool = False) -> bool:
 
 
 def run_ruff(file_path: str, check_mode: bool = False) -> bool:
-    """Run Ruff linter on a Python file.
+    """
+    Run Ruff linter on a Python file.
 
     Args:
     ----
@@ -582,7 +603,8 @@ def run_ruff(file_path: str, check_mode: bool = False) -> bool:
 
 
 def _fix_syntax_issues(file_path: str, args: argparse.Namespace) -> bool:
-    """Fix syntax issues in a Python file.
+    """
+    Fix syntax issues in a Python file.
 
     Args:
         file_path: Path to the Python file
@@ -590,6 +612,7 @@ def _fix_syntax_issues(file_path: str, args: argparse.Namespace) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     if args.format_only:
         return True
@@ -605,7 +628,8 @@ def _fix_syntax_issues(file_path: str, args: argparse.Namespace) -> bool:
 
 
 def _fix_formatting_issues(file_path: str, args: argparse.Namespace) -> bool:
-    """Fix formatting issues in a Python file.
+    """
+    Fix formatting issues in a Python file.
 
     Args:
         file_path: Path to the Python file
@@ -613,6 +637,7 @@ def _fix_formatting_issues(file_path: str, args: argparse.Namespace) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     if args.syntax_only:
         return True
@@ -634,7 +659,8 @@ def _run_single_formatter(
     check_mode: bool,
     verbose: bool,
 ) -> bool:
-    """Run a single formatter on a Python file.
+    """
+    Run a single formatter on a Python file.
 
     Args:
         file_path: Path to the Python file
@@ -645,6 +671,7 @@ def _run_single_formatter(
 
     Returns:
         True if successful, False otherwise
+
     """
     if verbose:
         logger.debug(f"Running {formatter_name} on {file_path}")
@@ -657,7 +684,8 @@ def _run_single_formatter(
 
 
 def _run_external_formatters(file_path: str, args: argparse.Namespace) -> bool:
-    """Run external formatting tools on a Python file.
+    """
+    Run external formatting tools on a Python file.
 
     Args:
         file_path: Path to the Python file
@@ -665,6 +693,7 @@ def _run_external_formatters(file_path: str, args: argparse.Namespace) -> bool:
 
     Returns:
         True if successful, False otherwise
+
     """
     if args.syntax_only:
         return True
@@ -690,7 +719,8 @@ def _run_external_formatters(file_path: str, args: argparse.Namespace) -> bool:
 
 
 def fix_file(file_path: str, args: argparse.Namespace) -> bool:
-    """Fix issues in a Python file.
+    """
+    Fix issues in a Python file.
 
     Args:
     ----
@@ -726,13 +756,15 @@ def _log_environment_info() -> None:
 
 
 def _get_required_tools(args: argparse.Namespace) -> list[str]:
-    """Get the list of required external tools based on arguments.
+    """
+    Get the list of required external tools based on arguments.
 
     Args:
         args: Command-line arguments
 
     Returns:
         List of required tool names
+
     """
     tools_to_check = []
     if not args.syntax_only:
@@ -744,13 +776,15 @@ def _get_required_tools(args: argparse.Namespace) -> list[str]:
 
 
 def _check_tool_availability(tool: str) -> bool:
-    """Check if a tool is available in the PATH.
+    """
+    Check if a tool is available in the PATH.
 
     Args:
         tool: Name of the tool to check
 
     Returns:
         True if the tool is available, False otherwise
+
     """
     try:
         shell = sys.platform == "win32"
@@ -768,22 +802,23 @@ def _check_tool_availability(tool: str) -> bool:
         if result.returncode == 0:
             logger.info(f"Tool {tool} found: {result.stdout.strip()}")
             return True
-        else:
-            logger.warning(f"Tool {tool} not found in PATH")
-            return False
+        logger.warning(f"Tool {tool} not found in PATH")
+        return False
     except (subprocess.SubprocessError, FileNotFoundError):
         logger.exception(f"Tool check failed: {tool}")
         return False
 
 
 def _verify_tool_availability(args: argparse.Namespace) -> list[str]:
-    """Verify that required tools are available.
+    """
+    Verify that required tools are available.
 
     Args:
         args: Command-line arguments
 
     Returns:
         List of missing tools
+
     """
     tools_to_check = _get_required_tools(args)
 
@@ -810,7 +845,8 @@ def _verify_tool_availability(args: argparse.Namespace) -> list[str]:
 def _process_files(
     python_files: list[str], args: argparse.Namespace
 ) -> tuple[int, list[str]]:
-    """Process Python files to fix issues.
+    """
+    Process Python files to fix issues.
 
     Args:
         python_files: List of Python files to process
@@ -818,6 +854,7 @@ def _process_files(
 
     Returns:
         Tuple of (success count, list of failed files)
+
     """
     success_count = 0
     failed_files = []
@@ -850,7 +887,8 @@ def _process_files(
 def _categorize_failures(
     failed_files: list[str], args: argparse.Namespace
 ) -> tuple[list[str], list[str], list[str]]:
-    """Categorize failed files by error type.
+    """
+    Categorize failed files by error type.
 
     Args:
         failed_files: List of files that failed processing
@@ -858,6 +896,7 @@ def _categorize_failures(
 
     Returns:
         Tuple of (syntax error files, format error files, tool error files)
+
     """
     syntax_error_files = []
     format_error_files = []
@@ -878,7 +917,7 @@ def _categorize_failures(
                 format_error_files.append(file_path)
             else:
                 tool_error_files.append(file_path)
-        except Exception:
+        except (OSError, UnicodeDecodeError):
             # If we can't even read the file, count it as a syntax error
             syntax_error_files.append(file_path)
 
@@ -892,7 +931,8 @@ def _log_summary(
     format_error_files: list[str],
     tool_error_files: list[str],
 ) -> None:
-    """Log a summary of the processing results.
+    """
+    Log a summary of the processing results.
 
     Args:
         success_count: Number of successfully processed files
@@ -900,6 +940,7 @@ def _log_summary(
         syntax_error_files: List of files with syntax errors
         format_error_files: List of files with formatting errors
         tool_error_files: List of files with tool errors
+
     """
     logger.info("=" * 50)
     logger.info("SUMMARY")
@@ -940,7 +981,7 @@ def main() -> int:
 
         # Step 2: Parse arguments
         args = parse_arguments()
-        logger.debug(f"Arguments: {args}")
+        logger.debug("Arguments: %s", args)
 
         # Step 3: Find Python files to process
         logger.info("Finding Python files to process...")
@@ -950,7 +991,7 @@ def main() -> int:
             logger.info("No Python files found to process.")
             return 0
 
-        logger.info(f"Processing {len(python_files)} Python files...")
+        logger.info("Processing %d Python files...", len(python_files))
 
         # If specific files were provided, show them
         if args.files:

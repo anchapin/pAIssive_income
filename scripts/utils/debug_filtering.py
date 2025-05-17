@@ -1,13 +1,16 @@
 """Provides log filtering utilities for the pAIssive Income project."""
 
+from __future__ import annotations
+
 # Standard library imports
 import logging
 
-# Use built-in types for type annotations
-
 # Third-party imports
-
 # Local imports
+from common_utils.logging import get_logger
+
+# Initialize logger
+logger = get_logger(__name__)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
@@ -15,7 +18,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 def filter_debug_logs(
     logs: list[tuple[int, str]], level: int = logging.INFO
 ) -> list[str]:
-    """Filter log messages to only include messages at or above the specified level.
+    """
+    Filter log messages to only include messages at or above the specified level.
 
     Args:
         logs (list of tuples): List of (level, message) tuples.
@@ -38,7 +42,7 @@ def main() -> None:
     ]
     filtered = filter_debug_logs(sample_logs, level=logging.WARNING)
     for msg in filtered:
-        logging.info(msg)
+        logger.info(msg)
 
 
 if __name__ == "__main__":

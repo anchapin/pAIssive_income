@@ -1,4 +1,5 @@
-"""run_tests.py - Phased test runner for the pAIssive Income project.
+"""
+run_tests.py - Phased test runner for the pAIssive Income project.
 
 Supports running test phases (fast/unit, integration, slow, all) using pytest markers.
 
@@ -12,6 +13,8 @@ Examples:
     python run_tests.py --phase custom -m 'api or webhook'
 
 """
+
+from __future__ import annotations
 
 import argparse
 import logging
@@ -35,14 +38,18 @@ PHASE_MARKERS = {
     # Add more as needed
 }
 
+# Create a dedicated logger for this module
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def main() -> int:
-    """Parse arguments and run pytest with markers and coverage enforcement.
+    """
+    Parse arguments and run pytest with markers and coverage enforcement.
 
     Returns:
         Exit code from pytest execution.
+
     """
     parser = argparse.ArgumentParser(
         description="Phased test runner for the pAIssive Income project"
@@ -80,7 +87,7 @@ def main() -> int:
 
     if phase == "custom":
         if not args.marker:
-            logging.error(
+            logger.error(
                 "--phase custom requires a marker expression with --marker/-m."
             )
             return 2
@@ -101,19 +108,25 @@ def main() -> int:
     if args.extra_pytest_args:
         pytest_cmd += args.extra_pytest_args
 
-    logging.info(f"Running tests with phase: {phase}")
+    logger.info("Running tests with phase: %s", phase)
     if marker_expr:
-        logging.info(f"Pytest marker expression: {marker_expr}")
+        logger.info("Pytest marker expression: %s", marker_expr)
     if args.with_coverage:
-        logging.info("Coverage reporting enabled (minimum threshold: 90%)")
+        logger.info("Coverage reporting enabled (minimum threshold: 90%)")
     if args.extra_pytest_args:
-        logging.info(f"Extra pytest args: {' '.join(args.extra_pytest_args)}")
+        logger.info("Extra pytest args: %s", " ".join(args.extra_pytest_args))
 
     try:
-        result: subprocess.CompletedProcess = subprocess.run(pytest_cmd, check=False)
+        # Use a list of validated arguments for security
+        result: subprocess.CompletedProcess = subprocess.run(
+            pytest_cmd,
+            check=False,
+            capture_output=False,  # Allow output to be shown directly
+            text=True,
+        )
         return int(result.returncode)
     except KeyboardInterrupt:
-        logging.info("Test run interrupted by user.")
+        logger.info("Test run interrupted by user.")
         return 1
 
 

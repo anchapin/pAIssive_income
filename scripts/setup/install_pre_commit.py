@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 
-"""Install pre-commit hooks for the project.
+"""
+Install pre-commit hooks for the project.
 
 This script installs pre-commit hooks for the project, ensuring that code quality
 checks are run before each commit.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 import sys
-
 from pathlib import Path
 
+# Create a dedicated logger for this module
+logger = logging.getLogger(__name__)
+# Configure the logger
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def run_command(command: list[str], check: bool = True) -> int:
-    """Run a command and return the exit code.
+    """
+    Run a command and return the exit code.
 
     Args:
         command: The command to run as a list of strings.
@@ -27,6 +33,9 @@ def run_command(command: list[str], check: bool = True) -> int:
         The exit code of the command.
 
     """
+    cmd_str = " ".join(command)
+    logger.debug("Running command: %s", cmd_str)
+
     try:
         result = subprocess.run(
             command,
@@ -34,67 +43,84 @@ def run_command(command: list[str], check: bool = True) -> int:
             capture_output=True,
             text=True,
         )
-        logging.info(result.stdout)
+        if result.stdout:
+            logger.info(result.stdout)
         if result.stderr:
-            logging.error(result.stderr)
+            logger.error(result.stderr)
         return int(result.returncode)
     except subprocess.CalledProcessError as e:
-        logging.exception(f"Command failed: {' '.join(command)}")
-        logging.info(e.stdout)
-        logging.exception(e.stderr)
+        logger.exception("Command failed: %s", cmd_str)
+        if e.stdout:
+            logger.info(e.stdout)
+        if e.stderr:
+            logger.exception(e.stderr)
         return int(e.returncode)
-    except Exception:
-        logging.exception(f"Error running command {' '.join(command)}")
+    except (OSError, FileNotFoundError):
+        logger.exception("Error running command %s", cmd_str)
         return 1
 
 
 def check_pre_commit_installed() -> bool:
-    """Check if pre-commit is installed.
+    """
+    Check if pre-commit is installed.
 
     Returns:
         True if pre-commit is installed, False otherwise.
 
     """
     try:
+        # Use a safer approach with full path if possible
+        import shutil
+
+        pre_commit_path = shutil.which("pre-commit")
+        if pre_commit_path:
+            cmd = [pre_commit_path, "--version"]
+        else:
+            cmd = ["pre-commit", "--version"]
+
         result = subprocess.run(
-            ["pre-commit", "--version"],
+            cmd,
             check=False,
             capture_output=True,
             text=True,
         )
         return bool(result.returncode == 0)
-    except Exception:
+    except (FileNotFoundError, OSError):
+        # More specific exception handling
         return False
 
 
 def install_pre_commit() -> bool:
-    """Install pre-commit if it's not already installed.
+    """
+    Install pre-commit if it's not already installed.
 
     Returns:
         True if pre-commit is installed successfully, False otherwise.
 
     """
     if check_pre_commit_installed():
-        logging.info("pre-commit is already installed.")
+        logger.info("pre-commit is already installed.")
         return True
 
-    logging.info("Installing pre-commit...")
+    logger.info("Installing pre-commit...")
     return bool(run_command(["pip", "install", "pre-commit"], check=False) == 0)
 
 
 def install_hooks() -> bool:
-    """Install pre-commit hooks.
+    """
+    Install pre-commit hooks.
 
     Returns:
         True if hooks are installed successfully, False otherwise.
 
     """
-    logging.info("Installing pre-commit hooks...")
+    logger.info("Installing pre-commit hooks...")
     return bool(run_command(["pre-commit", "install"], check=False) == 0)
 
 
 def main() -> int:
-    """Run the main script functionality.
+    """
+    Run the main script functionality.
 
     Returns:
         Exit code.
@@ -108,20 +134,20 @@ def main() -> int:
 
     # Install pre-commit
     if not install_pre_commit():
-        logging.error("Failed to install pre-commit.")
+        logger.error("Failed to install pre-commit.")
         return 1
 
     # Install hooks
     if not install_hooks():
-        logging.error("Failed to install pre-commit hooks.")
+        logger.error("Failed to install pre-commit hooks.")
         return 1
 
-    logging.info("\nPre-commit hooks installed successfully!")
-    logging.info("\nYou can now run pre-commit checks manually with:")
-    logging.info("  pre-commit run --all-files")
-    logging.info("\nOr use the unified script:")
-    logging.info("  python scripts/manage_quality.py pre-commit")
-    logging.info("\nPre-commit hooks will also run automatically before each commit.")
+    logger.info("\nPre-commit hooks installed successfully!")
+    logger.info("\nYou can now run pre-commit checks manually with:")
+    logger.info("  pre-commit run --all-files")
+    logger.info("\nOr use the unified script:")
+    logger.info("  python scripts/manage_quality.py pre-commit")
+    logger.info("\nPre-commit hooks will also run automatically before each commit.")
 
     return 0
 

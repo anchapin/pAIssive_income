@@ -1,0 +1,95 @@
+# Ruff configuration file
+
+# Exclude a variety of commonly ignored directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black
+line-length = 88
+
+# Assume Python 3.8
+target-version = "py38"
+
+[lint]
+# Enable all rules by default
+select = ["ALL"]
+
+# Exclude specific rules
+ignore = [
+    "D203",    # one-blank-line-before-class (conflicts with D211)
+    "D212",    # multi-line-summary-first-line (conflicts with D213)
+    "E501",    # line-too-long (handled by formatter)
+    "UP007",   # Use `X | Y` for type annotations
+    "FBT001",  # Boolean positional arg in function definition
+    "FBT002",  # Boolean default value in function definition
+    "FBT003",  # Boolean positional arg in function call
+    "TD002",   # Missing author in TODO
+    "TD003",   # Missing issue link in TODO
+    "PLR0913", # Too many arguments to function call
+    "COM812",  # Missing trailing comma
+    "ISC001",  # Implicit string concatenation
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10
+max-complexity = 10
+
+[lint.per-file-ignores]
+# Tests can use assert and don't need docstrings, and can use root logger and os.path
+"tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "ANN", "LOG015", "G004", "PTH", "F401", "N806", "PLR2004"]
+# Allow print statements in scripts and ignore subprocess security warnings
+"scripts/**/*.py" = ["T201", "S603"]
+# Ignore import issues in __init__.py files
+"__init__.py" = ["F401", "F403"]
+# Ignore subprocess security warnings in pre-commit scripts
+"run_pre_commit.py" = ["S603"]
+"run_pre_commit_on_all_files.py" = ["S603"]
+"install_crewai_for_tests.py" = ["S603"]
+"run_crewai_tests.py" = ["S603"]
+"scripts/setup/install_pre_commit.py" = ["S603"]
+"scripts/run/run_tests.py" = ["S603"]
+"scripts/fix/fix_all_issues_final.py" = ["S603", "G004", "PTH", "TRY300", "PERF401", "PERF203", "INP001"]
+# Ignore subprocess security warnings in manage.py
+"manage.py" = ["S603", "C901", "PLR0912", "PLR0915"]
+# Ignore type annotation issues in mypy stubs
+"mypy_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+# Use spaces for indentation
+indent-style = "space"
+# Format docstrings
+docstring-code-format = true
+# Set line length for docstring code blocks
+docstring-code-line-length = 88
+# Automatically detect line ending
+line-ending = "auto"

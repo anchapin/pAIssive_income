@@ -2,7 +2,7 @@
 
 ## Issues Identified
 
-The CodeQL security scan identified 7 high severity security vulnerabilities related to clear-text logging and storage of sensitive information:
+The CodeQL security scan identified 9 high severity security vulnerabilities related to clear-text logging and storage of sensitive information:
 
 1. In `common_utils/secrets/audit.py`:
    - Line 285: Logging sensitive information in clear text
@@ -16,7 +16,11 @@ The CodeQL security scan identified 7 high severity security vulnerabilities rel
 3. In `common_utils/secrets/file_backend.py`:
    - Line 53: Logging sensitive information in clear text
 
-4. In `fix_potential_secrets.py`:
+4. In `common_utils/secrets/memory_backend.py`:
+   - Line 78: Logging sensitive information in clear text
+   - Line 130: Logging sensitive information in clear text
+
+5. In `fix_security_code_issues.py`:
    - Line 294: Logging sensitive information in clear text
 
 ## Fixes Applied
@@ -104,7 +108,51 @@ logger.info(f"File backend initialized with directory: {self.secrets_dir}")
 logger.info("File backend initialized successfully")
 ```
 
-### 4. In `fix_potential_secrets.py`:
+### 4. In `common_utils/secrets/memory_backend.py`:
+
+```python
+# Before (get_secret method)
+masked_key = self._mask_key_for_logging(key)
+# Don't log the actual key, use the masked version in extra
+logger.warning(
+    "Memory backend not yet implemented", extra={"masked_key": masked_key}
+)
+
+# After
+# Don't log any information about the key, even masked versions
+# Use generic logging without exposing any sensitive information
+logger.warning("Memory backend not yet implemented", extra={"operation": "get_secret"})
+```
+
+```python
+# Before (set_secret method)
+masked_key = self._mask_key_for_logging(key)
+# Don't log the actual key or value, use the masked version in extra
+logger.warning(
+    "Memory backend not yet implemented", extra={"masked_key": masked_key}
+)
+
+# After
+# Don't log any information about the key or value, even masked versions
+# Use generic logging without exposing any sensitive information
+logger.warning("Memory backend not yet implemented", extra={"operation": "set_secret"})
+```
+
+```python
+# Before (delete_secret method)
+masked_key = self._mask_key_for_logging(key)
+# Don't log the actual key, use the masked version in extra
+logger.warning(
+    "Memory backend not yet implemented", extra={"masked_key": masked_key}
+)
+
+# After
+# Don't log any information about the key, even masked versions
+# Use generic logging without exposing any sensitive information
+logger.warning("Memory backend not yet implemented", extra={"operation": "delete_secret"})
+```
+
+### 5. In `fix_security_code_issues.py`:
 
 ```python
 # Before
@@ -129,5 +177,7 @@ These changes ensure that sensitive information is not logged or stored in clear
 2. Not displaying actual secret values in logs or console output
 3. Removing potentially sensitive information from log messages
 4. Using generic messages instead of including sensitive data
+5. Replacing masked keys with operation identifiers in log extras
+6. Ensuring even masked versions of sensitive data are not logged
 
 These changes should resolve the CodeQL security vulnerabilities identified in the scan.

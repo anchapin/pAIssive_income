@@ -3,13 +3,17 @@
 
 import json
 import logging
-import os
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
+# Set up a dedicated logger for this module
+logger = logging.getLogger(__name__)
+
 
 def create_sarif_file(file_path: str, tool_name: str, tool_url: str) -> None:
-    """Create a SARIF file with the correct structure.
+    """
+    Create a SARIF file with the correct structure.
 
     Args:
         file_path: Path to save the SARIF file
@@ -37,12 +41,12 @@ def create_sarif_file(file_path: str, tool_name: str, tool_url: str) -> None:
         ],
     }
 
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    Path(file_path).parent.mkdir(parents=True, exist_ok=True)
 
-    with open(file_path, "w") as f:
+    with Path(file_path).open("w") as f:
         json.dump(data, f, indent=2)
 
-    logging.info(f"Created SARIF file: {file_path}")
+    logger.info("Created SARIF file: %s", file_path)
 
 
 def main() -> None:

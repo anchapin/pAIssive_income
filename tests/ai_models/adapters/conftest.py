@@ -1,11 +1,13 @@
-"""conftest - Module for tests.ai_models.adapters.conftest.
+"""
+conftest - Module for tests.ai_models.adapters.conftest.
 
 This conftest file is specific to the MCP adapter tests and avoids loading the main conftest.py
 which has dependencies on Flask and other components not needed for these tests.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 @pytest.fixture

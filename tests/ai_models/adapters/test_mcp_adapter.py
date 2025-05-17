@@ -1,11 +1,11 @@
 """Tests for the MCP adapter."""
 
-import pytest
-import re
 from unittest.mock import MagicMock, patch
 
-from ai_models.adapters.mcp_adapter import MCPAdapter
+import pytest
+
 from ai_models.adapters.exceptions import ModelContextProtocolError
+from ai_models.adapters.mcp_adapter import MCPAdapter
 
 
 @pytest.fixture
@@ -22,9 +22,13 @@ class TestMCPAdapter:
 
     def test_init_with_valid_params(self, mock_mcp):  # noqa: ARG002
         """Test initialization with valid parameters."""
-        adapter = MCPAdapter(host="localhost", port=9000)
-        assert adapter.host == "localhost"
-        assert adapter.port == 9000
+        # Define test values
+        test_host = "localhost"
+        test_port = 9000
+
+        adapter = MCPAdapter(host=test_host, port=test_port)
+        assert adapter.host == test_host
+        assert adapter.port == test_port
         assert adapter.client is None
 
     def test_init_with_invalid_host(self, mock_mcp):  # noqa: ARG002

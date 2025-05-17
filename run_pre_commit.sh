@@ -1,16 +1,18 @@
 #!/bin/bash
-# Run pre-commit hooks on all files
+# Script to run pre-commit with proper exclusions for .venv directory
 
-echo "Running pre-commit hooks on all files..."
+echo "Running pre-commit with proper exclusions..."
 
-pre-commit run --all-files
+# Get all Python files excluding .venv directory
+FILES=$(find . -name "*.py" | grep -v ".venv")
 
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "All pre-commit hooks passed successfully!"
-else
-    echo ""
-    echo "Some pre-commit hooks failed. Please fix the issues and try again."
+# Run pre-commit on the files
+pre-commit run --files $FILES
+
+if [ $? -ne 0 ]; then
+    echo "Pre-commit checks failed. Please fix the issues and try again."
+    exit 1
 fi
 
-echo ""
+echo "Pre-commit checks passed successfully."
+exit 0

@@ -1,0 +1,13 @@
+@echo off
+echo Testing the consolidated CI/CD workflow locally...
+
+echo Running linting...
+ruff check .
+
+echo Running type checking...
+mypy .
+
+echo Running tests...
+pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=1
+
+echo All tests completed!

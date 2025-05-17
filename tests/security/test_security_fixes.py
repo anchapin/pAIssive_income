@@ -1,11 +1,9 @@
 """Test script to verify security fixes."""
 
-import os
 import tempfile
 import unittest
-
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -80,7 +78,8 @@ class TestSecurityFixes(unittest.TestCase):
             generate_report(results, output_file=temp_path)
 
             # Read the file content
-            with open(temp_path) as f:
+            temp_path_obj = Path(temp_path)
+            with temp_path_obj.open() as f:
                 content = f.read()
 
             # Ensure no sensitive data in file
@@ -90,8 +89,9 @@ class TestSecurityFixes(unittest.TestCase):
 
         finally:
             # Clean up
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            temp_path_obj = Path(temp_path)
+            if temp_path_obj.exists():
+                temp_path_obj.unlink()
 
     def test_handle_list_no_sensitive_keys(self) -> None:
         """Test that handle_list doesn't print sensitive key names."""

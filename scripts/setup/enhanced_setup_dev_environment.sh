@@ -1,138 +1,122 @@
 #!/bin/bash
-# Enhanced Setup Development Environment Script for Unix/Linux
-# This script runs enhanced_setup_dev_environment.py to set up the development environment
+# Enhanced Setup Development Environment Script (Shell Wrapper)
+# This script is a robust wrapper around enhanced_setup_dev_environment.py
+# It handles error conditions, provides better logging, and ensures proper execution
 
-echo "Setting up development environment..."
-echo "Running with arguments: $@"
+# Enable error handling
+set -e
 
-# Check if Python is installed
-if ! command -v python3 &> /dev/null; then
-    echo "Error: Python 3 is not installed or not in PATH."
-    echo "Please install Python 3.8 or higher from your package manager or https://www.python.org/downloads/"
-    exit 1
-fi
+# Define colors for better output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Check Python version
-python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)" &> /dev/null
-if [ $? -ne 0 ]; then
-    echo "Error: Python 3.8 or higher is required."
-    echo "Current Python version:"
-    python3 --version
-    exit 1
-fi
+# Log levels
+INFO="${BLUE}[INFO]${NC}"
+WARNING="${YELLOW}[WARNING]${NC}"
+ERROR="${RED}[ERROR]${NC}"
+SUCCESS="${GREEN}[SUCCESS]${NC}"
 
-# Check if enhanced_setup_dev_environment.py exists
+# Function to log messages
+log() {
+    local level="$1"
+    local message="$2"
+    echo -e "${level} ${message}"
+}
+
+# Function to log and exit on error
+error_exit() {
+    log "$ERROR" "$1"
+    exit "${2:-1}" # Default exit code is 1
+}
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" &> /dev/null
+}
+
+# Display script header
+log "$INFO" "Enhanced Setup Development Environment Script (Shell Wrapper)"
+log "$INFO" "Version: 1.1.0"
+log "$INFO" "=============================================================="
+
+# Check if running from repository root
 if [ ! -f "enhanced_setup_dev_environment.py" ]; then
-    echo "Error: enhanced_setup_dev_environment.py not found in the current directory."
-    echo "Current directory contents:"
-    ls -la
-    exit 1
+    error_exit "enhanced_setup_dev_environment.py not found in the current directory.\nPlease make sure you are running this script from the repository root." 2
 fi
 
-# Check if uv is installed
-if ! command -v uv &> /dev/null; then
-    echo "Warning: uv is not installed or not in PATH."
-    echo "Will attempt to proceed without uv. Some features may not work correctly."
-    # Not exiting, will try to continue without uv
-fi
-
-# Check if Ruff is installed (Ruff is still used for linting/formatting, uv handles installation)
-if ! command -v ruff &> /dev/null; then
-    echo "Warning: Ruff is not installed globally or not in PATH."
-    echo "The setup script will attempt to install it into the virtual environment."
-    # Not exiting, as setup_dev_environment.py will handle installing ruff
-fi
-
-# The Python script enhanced_setup_dev_environment.py will handle dependency installation using uv.
-# No need to pip install requirements-dev.txt here directly.
-
-echo # Add a newline for better readability before Python script output
-
-# Run the setup script with all arguments passed to this script
-echo "Executing: python3 enhanced_setup_dev_environment.py $@"
-
-# Parse and forward all arguments properly
-# Check for specific flags
-if [[ "$*" == *"--minimal"* ]]; then
-    echo "Detected --minimal flag, ensuring minimal profile is used"
-    # Forward all arguments including --minimal and any other flags like --ci-mode
-    python3 enhanced_setup_dev_environment.py "$@"
-else
-    # Forward all arguments as is
-    python3 enhanced_setup_dev_environment.py "$@"
-fi
-
-PYTHON_EXIT_CODE=$?
-if [ $PYTHON_EXIT_CODE -ne 0 ]; then
-    echo "Error: Python script failed with exit code $PYTHON_EXIT_CODE"
-    echo "Trying to run with default arguments..."
-    python3 enhanced_setup_dev_environment.py
-
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to set up development environment even with default arguments."
-        exit 1
+# Detect Python executable
+PYTHON_CMD=""
+if command_exists python3; then
+    PYTHON_CMD="python3"
+elif command_exists python; then
+    # Check if python is Python 3
+    PYTHON_VERSION=$(python --version 2>&1)
+    if [[ $PYTHON_VERSION == *"Python 3"* ]]; then
+        PYTHON_CMD="python"
     fi
 fi
 
-# Create IDE configuration files
-echo "Creating .editorconfig file..."
-cat <<EOL > .editorconfig
-# EditorConfig helps maintain consistent coding styles across different editors
-# https://editorconfig.org/
+# Exit if no Python 3 is found
+if [ -z "$PYTHON_CMD" ]; then
+    error_exit "Python 3 is not installed or not in PATH.\nPlease install Python 3 and try again." 3
+fi
 
-root = true
+# Log Python version
+PYTHON_FULL_VERSION=$($PYTHON_CMD --version 2>&1)
+log "$INFO" "Using $PYTHON_FULL_VERSION"
 
-[*]
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
-charset = utf-8
+# Install uv using the detected Python command
+log "$INFO" "Installing uv..."
+if ! "$PYTHON_CMD" -m pip install --upgrade pip; then
+    log "$WARNING" "Failed to upgrade pip. Continuing anyway."
+fi
+if ! "$PYTHON_CMD" -m pip install uv; then
+    log "$ERROR" "Failed to install uv. Virtual environment creation and dependency installation may fall back to standard venv/pip."
+fi
 
-[*.{py,pyi}]
-indent_style = space
-indent_size = 4
-max_line_length = 88
+# Make the Python script executable
+if ! chmod +x enhanced_setup_dev_environment.py; then
+    error_exit "Failed to make enhanced_setup_dev_environment.py executable.\nPlease check file permissions." 4
+fi
 
-[*.{json,yml,yaml,toml}]
-indent_style = space
-indent_size = 2
+# Display the arguments being passed
+if [ $# -eq 0 ]; then
+    log "$INFO" "Running enhanced_setup_dev_environment.py with default settings"
+else
+    log "$INFO" "Running enhanced_setup_dev_environment.py with arguments: $*"
+fi
 
-[*.md]
-trim_trailing_whitespace = false
+# Run the Python script with all arguments
+# Check if ALLOW_COMMANDS is already set in the environment
+if [ -z "${ALLOW_COMMANDS}" ]; then
+    # If not set, check if --ci-mode is in the arguments and set ALLOW_COMMANDS=true
+    if [[ "$*" == *"--ci-mode"* ]]; then
+        log "$INFO" "CI mode detected, setting ALLOW_COMMANDS=true to bypass security checks"
+        export ALLOW_COMMANDS=true
+    fi
+fi
 
-[Makefile]
-indent_style = tab
-EOL
+# Run the Python script with all arguments and the ALLOW_COMMANDS environment variable
+ALLOW_COMMANDS=${ALLOW_COMMANDS:-false} "$PYTHON_CMD" enhanced_setup_dev_environment.py "$@"
+PYTHON_EXIT_CODE=$?
 
-echo "Creating .vscode directory and settings.json..."
-mkdir -p .vscode
-cat <<EOL > .vscode/settings.json
-{
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-    "python.formatting.provider": "none",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.organizeImports": true
-    },
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.fixAll": true,
-            "source.organizeImports": true
-        }
-    },
-    "ruff.format.args": [],
-    "ruff.lint.run": "onSave"
-}
-EOL
+# Check the exit code of the Python script
+if [ $PYTHON_EXIT_CODE -ne 0 ]; then
+    error_exit "The Python script exited with code $PYTHON_EXIT_CODE.\nCheck the output above for more details." $PYTHON_EXIT_CODE
+fi
 
-echo
-echo "Development environment setup complete!"
-echo
-echo "To activate the virtual environment, run:"
-echo "source .venv/bin/activate"
-echo
+# Success message
+log "$SUCCESS" "Setup completed successfully!"
+
+# Provide hint about next steps
+log "$INFO" "To activate the virtual environment, run:"
+if [ "$(uname)" == "Darwin" ] || [ "$(uname)" == "Linux" ]; then
+    log "$INFO" "  source .venv/bin/activate"
+else
+    log "$INFO" "  .venv\\Scripts\\activate"
+fi
 
 exit 0

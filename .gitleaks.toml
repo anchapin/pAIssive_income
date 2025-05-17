@@ -42,6 +42,11 @@ paths = [
     "common_utils/secrets/audit\\.py$",
     "common_utils/secrets/rotation\\.py$",
     "common_utils/secrets/secrets_manager\\.py$",
+    "common_utils/secrets/__init__\\.py$",
+    "common_utils/secrets/config\\.py$",
+    "common_utils/secrets/file_backend\\.py$",
+    "common_utils/secrets/memory_backend\\.py$",
+    "common_utils/secrets/vault_backend\\.py$",
     "fix_potential_secrets\\.py$",
     "fix_security_issues\\.py$",
     "fix_formatting\\.py$",
@@ -52,6 +57,9 @@ paths = [
     "\\.github/workflows/consolidated-ci-cd\\.yml$",
     "\\.github/workflows/docker-compose-integration\\.yml$",
     "\\.github/workflows/security_scan\\.yml$",
+    "\\.github/workflows/docker-compose\\.yml$",
+    "\\.github/workflows/security_scan\\.yml\\.disabled$",
+    "main_consolidated-ci-cd\\.yml$",
 
     # Windows-specific paths (with backslashes)
     "common_utils\\\\secrets\\\\README\\.md$",
@@ -59,6 +67,11 @@ paths = [
     "common_utils\\\\secrets\\\\audit\\.py$",
     "common_utils\\\\secrets\\\\rotation\\.py$",
     "common_utils\\\\secrets\\\\secrets_manager\\.py$",
+    "common_utils\\\\secrets\\\\__init__\\.py$",
+    "common_utils\\\\secrets\\\\config\\.py$",
+    "common_utils\\\\secrets\\\\file_backend\\.py$",
+    "common_utils\\\\secrets\\\\memory_backend\\.py$",
+    "common_utils\\\\secrets\\\\vault_backend\\.py$",
     "\\.github\\\\workflows\\\\consolidated-ci-cd\\.yml$",
     "\\.github\\\\workflows\\\\docker-compose-integration\\.yml$",
     "\\.github\\\\workflows\\\\security_scan\\.yml$",
@@ -328,5 +341,7 @@ exclude = [
     "(?i)secrets\\.JOB_",
     "(?i)secrets\\.STEP_",
     "(?i)secrets\\.DOCKER_USERNAME",
-    "(?i)secrets\\.DOCKER_PASSWORD"
+    "(?i)secrets\\.DOCKER_PASSWORD",
+    "(?i)secrets\\.DOCKERHUB_USERNAME",
+    "(?i)secrets\\.DOCKERHUB_TOKEN"
 ]

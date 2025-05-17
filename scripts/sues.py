@@ -7,18 +7,18 @@ import datetime
 # Third-party imports
 # Local imports
 import logging
-import os
 import shutil
 import sys
-
 from pathlib import Path
 
 # Add logging setup at the top
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def cleanup_task(path: str, dry_run: bool) -> None:
-    """Clean up temporary files and directories.
+    """
+    Clean up temporary files and directories.
 
     Args:
         path: Path to clean up
@@ -26,12 +26,13 @@ def cleanup_task(path: str, dry_run: bool) -> None:
 
     """
     if not path:
-        logging.error("No path specified for cleanup task.")
+        logger.error("No path specified for cleanup task.")
         return
 
     path_obj = Path(path)
     if not path_obj.exists():
-        logging.warning(f"Path {path} does not exist.")
+        message = f"Path {path} does not exist."
+        logger.warning(message)
         return
 
     # Define patterns for files to clean up
@@ -42,17 +43,21 @@ def cleanup_task(path: str, dry_run: bool) -> None:
         files = list(path_obj.glob(pattern))
         for file in files:
             if dry_run:
-                logging.info(f"[Dry Run] Would delete: {file}")
+                message = f"[Dry Run] Would delete: {file}"
+                logger.info(message)
             else:
                 try:
-                    os.remove(file)
-                    logging.info(f"Deleted: {file}")
+                    Path(file).unlink()
+                    message = f"Deleted: {file}"
+                    logger.info(message)
                 except Exception:
-                    logging.exception(f"Error deleting {file}")
+                    message = f"Error deleting {file}"
+                    logger.exception(message)
 
 
 def migrate_task(path: str, dry_run: bool) -> None:
-    """Migrate files from one format to another.
+    """
+    Migrate files from one format to another.
 
     Args:
         path: Path to migrate
@@ -60,12 +65,13 @@ def migrate_task(path: str, dry_run: bool) -> None:
 
     """
     if not path:
-        logging.error("No path specified for migration task.")
+        logger.error("No path specified for migration task.")
         return
 
     path_obj = Path(path)
     if not path_obj.exists():
-        logging.warning(f"Path {path} does not exist.")
+        message = f"Path {path} does not exist."
+        logger.warning(message)
         return
 
     # Example migration: rename all .txt files to .md
@@ -73,17 +79,21 @@ def migrate_task(path: str, dry_run: bool) -> None:
     for file in files:
         new_name = file.with_suffix(".md")
         if dry_run:
-            logging.info(f"[Dry Run] Would rename: {file} -> {new_name}")
+            message = f"[Dry Run] Would rename: {file} -> {new_name}"
+            logger.info(message)
         else:
             try:
                 file.rename(new_name)
-                logging.info(f"Renamed: {file} -> {new_name}")
+                message = f"Renamed: {file} -> {new_name}"
+                logger.info(message)
             except Exception:
-                logging.exception(f"Error renaming {file}")
+                message = f"Error renaming {file}"
+                logger.exception(message)
 
 
 def backup_task(path: str, dry_run: bool) -> None:
-    """Create backups of files or directories.
+    """
+    Create backups of files or directories.
 
     Args:
         path: Path to back up
@@ -91,48 +101,56 @@ def backup_task(path: str, dry_run: bool) -> None:
 
     """
     if not path:
-        logging.error("No path specified for backup task.")
+        logger.error("No path specified for backup task.")
         return
 
     path_obj = Path(path)
     if not path_obj.exists():
-        logging.warning(f"Path {path} does not exist.")
+        message = f"Path {path} does not exist."
+        logger.warning(message)
         return
 
     # Create backup directory if it doesn't exist
     backup_dir = Path("backups")
     if not backup_dir.exists():
         if dry_run:
-            logging.info(f"[Dry Run] Would create backup directory: {backup_dir}")
+            message = f"[Dry Run] Would create backup directory: {backup_dir}"
+            logger.info(message)
         else:
             try:
                 backup_dir.mkdir(exist_ok=True)
-                logging.info(f"Created backup directory: {backup_dir}")
+                message = f"Created backup directory: {backup_dir}"
+                logger.info(message)
             except Exception:
-                logging.exception("Error creating backup directory")
+                logger.exception("Error creating backup directory")
                 return
 
     # Create backup filename with timestamp
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+        "%Y%m%d_%H%M%S"
+    )
     backup_name = f"{path_obj.name}_{timestamp}"
     backup_path = backup_dir / backup_name
 
     # Create the backup
     if dry_run:
-        logging.info(f"[Dry Run] Would back up: {path} -> {backup_path}")
+        message = f"[Dry Run] Would back up: {path} -> {backup_path}"
+        logger.info(message)
     else:
         try:
             if path_obj.is_dir():
                 shutil.copytree(path_obj, backup_path)
             else:
                 shutil.copy2(path_obj, backup_path)
-            logging.info(f"Created backup: {path} -> {backup_path}")
+            message = f"Created backup: {path} -> {backup_path}"
+            logger.info(message)
         except Exception:
-            logging.exception("Error creating backup")
+            logger.exception("Error creating backup")
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse command line arguments.
+    """
+    Parse command line arguments.
 
     Returns:
         argparse.Namespace: Parsed command line arguments
@@ -160,14 +178,16 @@ def main() -> None:
     args = parse_args()
 
     if not args.task:
-        logging.error("No task specified. Use --task to specify a task.")
+        logger.error("No task specified. Use --task to specify a task.")
         sys.exit(1)
 
-    logging.info(f"Running task: {args.task}")
+    message = f"Running task: {args.task}"
+    logger.info(message)
 
     # Validate path argument for tasks that require it
     if args.task in ["cleanup", "migrate", "backup"] and not args.path:
-        logging.error(f"The {args.task} task requires a --path argument.")
+        message = f"The {args.task} task requires a --path argument."
+        logger.error(message)
         sys.exit(1)
 
     # Execute the requested task
@@ -178,10 +198,11 @@ def main() -> None:
     elif args.task == "backup":
         backup_task(args.path, args.dry_run)
     else:
-        logging.error(f"Unknown task {args.task}")
+        message = f"Unknown task {args.task}"
+        logger.error(message)
         sys.exit(1)
 
-    logging.info("Task completed successfully.")
+    logger.info("Task completed successfully.")
 
 
 if __name__ == "__main__":

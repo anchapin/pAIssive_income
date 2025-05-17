@@ -1,11 +1,15 @@
 """run_github_actions_locally - Module for running GitHub Actions workflows locally."""
 
+from __future__ import annotations
+
 # Standard library imports
-import os
-import sys
 import argparse
-import subprocess
 import logging
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -15,65 +19,119 @@ logging.basicConfig(
 )
 logger = logging.getLogger("run_github_actions_locally")
 
-def run_linting():
+
+def _run_linting_tool(
+    executable: str, tool_name: str, args: Optional[list[str]] = None
+) -> bool:
+    """
+    Run a linting tool with the given arguments.
+
+    Args:
+        executable: Path to the tool executable
+        tool_name: Name of the tool (for logging)
+        args: Arguments to pass to the tool (defaults to ["."])
+
+    Returns:
+        True if the tool ran successfully, False otherwise
+
+    """
+    if args is None:
+        args = ["."]
+
+    logger.info("Running %s...", tool_name)
+    try:
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run([executable, *args], check=True)  # nosec B603 S603
+        logger.info("%s checks passed", tool_name)
+    except subprocess.CalledProcessError:
+        logger.exception("%s checks failed", tool_name)
+        return False
+    else:
+        return True
+
+
+def run_linting() -> bool:
     """Run linting checks locally."""
     logger.info("Running linting checks...")
 
-    # Check if ruff is installed
-    try:
-        subprocess.run(["ruff", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.info("Installing ruff...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "ruff"], check=True)
-
-    # Run ruff
-    logger.info("Running ruff...")
-    try:
-        subprocess.run(["ruff", "check", "."], check=True)
-        logger.info("Ruff checks passed")
-    except subprocess.CalledProcessError:
-        logger.exception("Ruff checks failed")
+    # Ensure ruff is installed
+    ruff_executable = _ensure_tool_installed("ruff")
+    if not ruff_executable:
         return False
 
-    # Check if mypy is installed
-    try:
-        subprocess.run(["mypy", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.info("Installing mypy...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "mypy"], check=True)
+    # Ensure mypy is installed
+    mypy_executable = _ensure_tool_installed("mypy")
+    if not mypy_executable:
+        return False
 
-    # Run mypy
-    logger.info("Running mypy...")
-    try:
-        subprocess.run(["mypy", "."], check=True)
-        logger.info("Mypy checks passed")
-    except subprocess.CalledProcessError:
-        logger.exception("Mypy checks failed")
+    # Run linting tools
+    if not _run_linting_tool(ruff_executable, "ruff", ["check", "."]):
+        return False
+
+    if not _run_linting_tool(mypy_executable, "mypy"):
         return False
 
     logger.info("All linting checks passed")
     return True
 
-def run_tests(test_path=None):
+
+def _install_pytest_with_plugins() -> Optional[str]:
+    """
+    Install pytest and its plugins.
+
+    Returns:
+        Path to pytest executable or None if installation failed
+
+    """
+    logger.info("Installing pytest and related packages...")
+    try:
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run(  # nosec B603 S603
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "pytest",
+                "pytest-cov",
+                "pytest-xdist",
+                "pytest-asyncio",
+            ],
+            check=True,
+        )
+        pytest_executable = shutil.which("pytest")
+        if not pytest_executable:
+            logger.exception("Failed to install pytest")
+            return None
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.exception("Failed to install pytest")
+        return None
+    else:
+        return pytest_executable
+
+
+def run_tests(test_path: Optional[str] = None) -> bool:
     """Run tests locally."""
     logger.info("Running tests...")
 
     # Check if pytest is installed
-    try:
-        subprocess.run(["pytest", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.info("Installing pytest and related packages...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "pytest", "pytest-cov", "pytest-xdist", "pytest-asyncio"], check=True)
+    pytest_executable = shutil.which("pytest")
+    if not pytest_executable:
+        logger.info("Pytest not found in PATH")
+        pytest_executable = _install_pytest_with_plugins()
+        if not pytest_executable:
+            return False
 
     # Run pytest
-    logger.info(f"Running pytest on {test_path or 'all tests'}...")
-    cmd = ["pytest", "-v"]
+    logger.info("Running pytest on %s...", test_path or "all tests")
+    cmd = [pytest_executable, "-v"]
 
     if test_path:
         cmd.append(test_path)
 
     try:
-        subprocess.run(cmd, check=True)
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run(cmd, check=True)  # nosec B603 S603
     except subprocess.CalledProcessError:
         logger.exception("Tests failed")
         return False
@@ -81,55 +139,146 @@ def run_tests(test_path=None):
     logger.info("Tests passed")
     return True
 
-def run_security_scan(output_dir=None):
-    """Run security scan locally."""
-    logger.info("Running security scan...")
 
-    # Check if safety is installed
+def _ensure_tool_installed(tool_name: str) -> Optional[str]:
+    """
+    Ensure a security tool is installed and return its path.
+
+    Args:
+        tool_name: Name of the tool to install
+
+    Returns:
+        Path to the executable or None if installation failed
+
+    """
+    executable = shutil.which(tool_name)
+    if executable:
+        return executable
+
+    logger.info("%s not found in PATH", tool_name)
+    logger.info("Installing %s...", tool_name)
+
     try:
-        subprocess.run(["safety", "--version"], check=True, capture_output=True)
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run([sys.executable, "-m", "pip", "install", tool_name], check=True)  # nosec B603 S603
+
+        executable = shutil.which(tool_name)
+        if not executable:
+            logger.exception("Failed to install %s", tool_name)
+            return None
     except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.info("Installing safety...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "safety"], check=True)
+        logger.exception("Failed to install %s", tool_name)
+        return None
+    else:
+        return executable
 
-    # Check if bandit is installed
-    try:
-        subprocess.run(["bandit", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.info("Installing bandit...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "bandit"], check=True)
 
-    # Create output directory if specified
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+def _run_safety_check(safety_executable: str, output_dir: Optional[str] = None) -> bool:
+    """
+    Run safety check.
 
-    # Run safety
+    Args:
+        safety_executable: Path to safety executable
+        output_dir: Optional directory for output reports
+
+    Returns:
+        True if check completed, False otherwise
+
+    """
     logger.info("Running safety...")
     try:
-        cmd = ["safety", "check"]
+        cmd = [safety_executable, "check"]
         if output_dir:
-            cmd.extend(["--output", "json", "--output-file", os.path.join(output_dir, "safety-results.json")])
-        subprocess.run(cmd, check=False)
+            output_file = Path(output_dir) / "safety-results.json"
+            cmd.extend(["--output", "json", "--output-file", str(output_file)])
+
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run(cmd, check=False)  # nosec B603 S603
         logger.info("Safety check completed")
     except subprocess.CalledProcessError:
         logger.exception("Safety check failed")
+        return False
+    else:
+        return True
 
-    # Run bandit
+
+def _run_bandit_scan(bandit_executable: str, output_dir: Optional[str] = None) -> bool:
+    """
+    Run bandit scan.
+
+    Args:
+        bandit_executable: Path to bandit executable
+        output_dir: Optional directory for output reports
+
+    Returns:
+        True if scan completed, False otherwise
+
+    """
     logger.info("Running bandit...")
     try:
-        cmd = ["bandit", "-r", ".", "--exclude", ".venv,node_modules,tests"]
+        cmd = [bandit_executable, "-r", ".", "--exclude", ".venv,node_modules,tests"]
         if output_dir:
-            cmd.extend(["-f", "json", "-o", os.path.join(output_dir, "bandit-results.json")])
-        subprocess.run(cmd, check=False)
+            output_file = Path(output_dir) / "bandit-results.json"
+            cmd.extend(["-f", "json", "-o", str(output_file)])
+
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run(cmd, check=False)  # nosec B603 S603
         logger.info("Bandit scan completed")
     except subprocess.CalledProcessError:
         logger.exception("Bandit scan failed")
+        return False
+    else:
+        return True
+
+
+def run_security_scan(output_dir: Optional[str] = None) -> bool:
+    """Run security scan locally."""
+    logger.info("Running security scan...")
+
+    # Ensure tools are installed
+    safety_executable = _ensure_tool_installed("safety")
+    if not safety_executable:
+        return False
+
+    bandit_executable = _ensure_tool_installed("bandit")
+    if not bandit_executable:
+        return False
+
+    # Create output directory if specified
+    if output_dir:
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    # Run security checks
+    safety_result = _run_safety_check(safety_executable, output_dir)
+    bandit_result = _run_bandit_scan(bandit_executable, output_dir)
 
     logger.info("Security scan completed")
-    return True
+    return safety_result and bandit_result
 
-def main():
-    """Main function."""
+
+def run_lint_file(file_path: str) -> int:
+    """Run linting on a specific file."""
+    logger.info("Running linting on file: %s", file_path)
+
+    # Ensure ruff is installed
+    ruff_executable = _ensure_tool_installed("ruff")
+    if not ruff_executable:
+        return 1
+
+    # Run file-specific linting
+    try:
+        # nosec comment below tells security scanners this is safe as we control the input
+        subprocess.run([ruff_executable, "check", file_path], check=True)  # nosec B603 S603
+    except subprocess.CalledProcessError:
+        logger.exception("Linting failed for %s", file_path)
+        return 1
+
+    logger.info("Linting passed for %s", file_path)
+    return 0
+
+
+def main() -> int:
+    """Execute the main workflow for running GitHub Actions locally."""
     parser = argparse.ArgumentParser(description="Run GitHub Actions workflows locally")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
@@ -143,33 +292,24 @@ def main():
 
     # Security command
     security_parser = subparsers.add_parser("security", help="Run security scan")
-    security_parser.add_argument("--output-dir", help="Directory to output security reports")
+    security_parser.add_argument(
+        "--output-dir", help="Directory to output security reports"
+    )
 
     args = parser.parse_args()
+    exit_code = 0
 
     if args.command == "lint":
-        if args.file:
-            logger.info(f"Running linting on file: {args.file}")
-            # Run file-specific linting
-            try:
-                subprocess.run(["ruff", "check", args.file], check=True)
-            except subprocess.CalledProcessError:
-                logger.exception(f"Linting failed for {args.file}")
-                return 1
-
-            logger.info(f"Linting passed for {args.file}")
-            return 0
-        return 0 if run_linting() else 1
-
+        exit_code = run_lint_file(args.file) if args.file else 0 if run_linting() else 1
     elif args.command == "test":
-        return 0 if run_tests(args.path) else 1
-
+        exit_code = 0 if run_tests(args.path) else 1
     elif args.command == "security":
-        return 0 if run_security_scan(args.output_dir) else 1
-
+        exit_code = 0 if run_security_scan(args.output_dir) else 1
     else:
         parser.print_help()
-        return 0
+
+    return exit_code
+
 
 if __name__ == "__main__":
     sys.exit(main())

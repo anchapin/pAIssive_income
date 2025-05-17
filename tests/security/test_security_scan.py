@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Test script for security scanning workflow.
+"""
+Test script for security scanning workflow.
 
 This script simulates the security scanning workflow locally to verify that
 the changes made to the workflow file work as expected.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
-import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -17,8 +20,9 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def run_command(command: str, cwd: Optional[str] = None) -> tuple:
-    """Run a command and return stdout, stderr, and return code.
+def run_command(command: str, cwd: Optional[str] = None) -> tuple[str, str, int]:
+    """
+    Run a shell command and return stdout, stderr, and return code.
 
     Args:
         command: Command to run
@@ -29,36 +33,39 @@ def run_command(command: str, cwd: Optional[str] = None) -> tuple:
 
     """
     try:
-        # Convert string command to list for security (avoid shell=True)
-        cmd_list = command.split()
-        process = subprocess.Popen(
-            cmd_list,
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        # Split the command into args for safer execution
+        args = shlex.split(command)
+
+        # Use subprocess.run instead of Popen for simpler code
+        result = subprocess.run(  # noqa: S603 - Using shlex.split for safe command execution
+            args,
+            shell=False,  # Avoid shell=True for security
+            capture_output=True,  # Use capture_output instead of stdout/stderr=PIPE
             cwd=cwd,
-            universal_newlines=True,
+            text=True,
+            check=False,
         )
-        stdout, stderr = process.communicate()
-        return_code = process.returncode
-    except Exception as e:
-        return "", str(e), 1
-    else:
-        return stdout, stderr, return_code
+        stdout, stderr, returncode = result.stdout, result.stderr, result.returncode
+    except (subprocess.SubprocessError, OSError) as e:
+        stdout, stderr, returncode = "", str(e), 1
+
+    return stdout, stderr, returncode
 
 
 def ensure_directory(directory: str) -> None:
-    """Ensure a directory exists.
+    """
+    Ensure a directory exists.
 
     Args:
         directory: Directory path
 
     """
-    os.makedirs(directory, exist_ok=True)
+    Path(directory).mkdir(parents=True, exist_ok=True)
 
 
 def test_safety_scan() -> bool:
-    """Test the Safety scan functionality.
+    """
+    Test the Safety scan functionality.
 
     Returns:
         bool: True if successful, False otherwise
@@ -68,8 +75,7 @@ def test_safety_scan() -> bool:
     ensure_directory("security-reports")
 
     # Create fallback safety results file
-    with open("security-reports/safety-results.json", "w") as f:
-        f.write("[]")
+    Path("security-reports/safety-results.json").write_text("[]")
 
     # Run safety check
     logger.info("Running safety check...")
@@ -81,21 +87,18 @@ def test_safety_scan() -> bool:
         stdout, stderr, return_code = run_command("safety check --json")
 
     if stdout:
-        with open("security-reports/safety-results.json.tmp", "w") as f:
-            f.write(stdout)
+        tmp_file = Path("security-reports/safety-results.json.tmp")
+        tmp_file.write_text(stdout)
 
         # Validate JSON format
         try:
             json.loads(stdout)
             logger.info("Safety output is valid JSON")
-            os.rename(
-                "security-reports/safety-results.json.tmp",
-                "security-reports/safety-results.json",
-            )
+            tmp_file.rename(Path("security-reports/safety-results.json"))
         except json.JSONDecodeError:
             logger.warning("Safety output is not valid JSON. Using empty results.")
             logger.exception("Invalid JSON content")
-            logger.debug(f"First 100 characters: {stdout[:100]}")  # Replaced f-string
+            logger.debug("First 100 characters: %s", stdout[:100])
     else:
         logger.warning("Safety check produced no output")
         if stderr:
@@ -111,9 +114,7 @@ def test_safety_scan() -> bool:
     )
 
     if return_code != 0:
-        logger.error(
-            f"Error converting Safety results to SARIF: {stderr}"
-        )  # Replaced f-string
+        logger.error("Error converting Safety results to SARIF: %s", stderr)
         return False
 
     logger.info("Safety scan test completed")
@@ -121,7 +122,8 @@ def test_safety_scan() -> bool:
 
 
 def test_bandit_scan() -> bool:
-    """Test the Bandit scan functionality.
+    """
+    Test the Bandit scan functionality.
 
     Returns:
         bool: True if successful, False otherwise
@@ -131,8 +133,7 @@ def test_bandit_scan() -> bool:
     ensure_directory("security-reports")
 
     # Create fallback bandit results file
-    with open("security-reports/bandit-results.json", "w") as f:
-        f.write("[]")
+    Path("security-reports/bandit-results.json").write_text("[]")
 
     # Run bandit scan
     logger.info("Running bandit scan...")
@@ -144,17 +145,14 @@ def test_bandit_scan() -> bool:
         stdout, stderr, return_code = run_command("bandit -r . -f json")
 
     if stdout:
-        with open("security-reports/bandit-results.json.tmp", "w") as f:
-            f.write(stdout)
+        tmp_file = Path("security-reports/bandit-results.json.tmp")
+        tmp_file.write_text(stdout)
 
         # Validate JSON format
         try:
             json.loads(stdout)
             logger.info("Bandit output is valid JSON")
-            os.rename(
-                "security-reports/bandit-results.json.tmp",
-                "security-reports/bandit-results.json",
-            )
+            tmp_file.rename(Path("security-reports/bandit-results.json"))
         except json.JSONDecodeError:
             logger.warning("Bandit output is not valid JSON. Using empty results.")
             logger.warning("Invalid JSON content:")
@@ -174,9 +172,7 @@ def test_bandit_scan() -> bool:
     )
 
     if return_code != 0:
-        logger.error(
-            f"Error converting Bandit results to SARIF: {stderr}"
-        )  # Replaced f-string
+        logger.error("Error converting Bandit results to SARIF: %s", stderr)
         return False
 
     logger.info("Bandit scan test completed")
@@ -184,7 +180,8 @@ def test_bandit_scan() -> bool:
 
 
 def test_sarif_file_handling() -> bool:
-    """Test SARIF file handling functionality.
+    """
+    Test SARIF file handling functionality.
 
     Returns:
         bool: True if successful, False otherwise
@@ -206,33 +203,29 @@ def test_sarif_file_handling() -> bool:
         )
 
         if return_code != 0:
-            logger.error(
-                f"Error creating test SARIF file: {stderr}"
-            )  # Replaced f-string
+            logger.error("Error creating test SARIF file: %s", stderr)
             return False
 
         sarif_files = list(Path("security-reports").glob("*.sarif"))
 
     # Process SARIF files
     for sarif_file in sarif_files:
-        logger.info(f"Processing {sarif_file}...")  # Replaced f-string
+        logger.info("Processing %s...", sarif_file)
 
         # Check file size
-        file_size = os.path.getsize(sarif_file)
-        logger.info(f"File size: {file_size} bytes")  # Replaced f-string
+        file_size = sarif_file.stat().st_size
+        logger.info("File size: %s bytes", file_size)
 
         # Validate SARIF format
         try:
-            with open(sarif_file) as f:
+            with sarif_file.open() as f:
                 json.load(f)
-            logger.info(f"✅ {sarif_file} is valid JSON")  # Replaced f-string
+            logger.info("✅ %s is valid JSON", sarif_file)
         except json.JSONDecodeError:
-            logger.warning(f"❌ {sarif_file} is not valid JSON")  # Replaced f-string
+            logger.warning("❌ %s is not valid JSON", sarif_file)
             logger.info("Creating a valid but empty SARIF file as fallback")
-            stdout, stderr, return_code = run_command(
-                f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
-                # Replaced f-string
-            )
+            cmd = f'python sarif_utils.py "[]" {sarif_file} Test https://example.com'
+            stdout, stderr, return_code = run_command(cmd)
 
             if return_code != 0:
                 logger.exception("Error creating fallback SARIF file")
@@ -241,29 +234,25 @@ def test_sarif_file_handling() -> bool:
         # Create compressed version
         compressed_file_name = f"{sarif_file.name}.gz"
         compressed_path_base = Path("security-reports/compressed")
-        compressed_file = (
-            compressed_path_base / compressed_file_name
-        )  # Replaced f-string
-        stdout, stderr, return_code = run_command(
-            f"gzip -c {sarif_file} > {compressed_file}"  # Replaced f-string
-        )
+        compressed_file = compressed_path_base / compressed_file_name
+
+        # Use a safer approach to create compressed file
+        cmd = f"gzip -c {sarif_file} > {compressed_file}"
+        stdout, stderr, return_code = run_command(cmd)
 
         if return_code != 0:
-            logger.error(
-                f"Error creating compressed version: {stderr}"
-            )  # Replaced f-string
+            logger.error("Error creating compressed version: %s", stderr)
             return False
 
-        logger.info(
-            f"Created compressed version: {compressed_file}"
-        )  # Replaced f-string
+        logger.info("Created compressed version: %s", compressed_file)
 
     logger.info("SARIF file handling test completed")
     return True
 
 
 def main() -> int:
-    """Run security scan tests.
+    """
+    Run security scan tests.
 
     Returns:
         int: Exit code
@@ -297,9 +286,8 @@ def main() -> int:
     if success:
         logger.info("\n✅ All tests completed successfully")
         return 0
-    else:
-        logger.warning("\n❌ Some tests failed")
-        return 1
+    logger.warning("\n❌ Some tests failed")
+    return 1
 
 
 if __name__ == "__main__":

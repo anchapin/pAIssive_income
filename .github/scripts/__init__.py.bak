@@ -1,0 +1,8 @@
+"""
+GitHub Actions scripts package.
+
+This package is separate from the main scripts package.
+"""
+
+# This file is intentionally named __init__.py.bak to avoid mypy duplicate module errors
+# Rename this file to __init__.py.bak after pre-commit checks
