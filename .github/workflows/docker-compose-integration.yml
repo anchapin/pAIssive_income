@@ -357,7 +357,7 @@ jobs:
           GITHUB_ACTIONS: "true"
         run: |
           echo "Checking database health..."
-          max_attempts=20  # Increased from 15 to 20 for more patience
+          max_attempts=30  # Increased from 20 to 30 for more patience
           for i in $(seq 1 $max_attempts); do
             echo "Attempt $i of $max_attempts to check database health"
 
@@ -374,6 +374,13 @@ jobs:
                 rm -rf /tmp/* || true
                 sudo apt-get clean
               fi
+            fi
+
+            # Add a longer sleep between attempts for later retries
+            if [ $i -gt 10 ]; then
+              sleep_time=$((i / 5 + 1))
+              echo "Sleeping for $sleep_time seconds before next attempt..."
+              sleep $sleep_time
             fi
 
             # Check if Docker is running properly
@@ -436,7 +443,21 @@ jobs:
               echo "Verifying database connection with a simple query..."
               if docker compose exec db psql -U myuser -d mydb -c "SELECT 1" || docker-compose exec db psql -U myuser -d mydb -c "SELECT 1"; then
                 echo "Database connection verified successfully."
-                break
+
+                # Double-check with a more complex query to ensure full readiness
+                echo "Running a more complex query to ensure full readiness..."
+                if docker compose exec db psql -U myuser -d mydb -c "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name TEXT); INSERT INTO test_table (name) VALUES ('test'); SELECT * FROM test_table; DROP TABLE test_table;" || docker-compose exec db psql -U myuser -d mydb -c "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name TEXT); INSERT INTO test_table (name) VALUES ('test'); SELECT * FROM test_table; DROP TABLE test_table;"; then
+                  echo "Database is fully operational."
+                  break
+                else
+                  echo "WARNING: Simple query succeeded but complex query failed. Database may not be fully ready."
+                  if [ $i -eq $max_attempts ]; then
+                    echo "WARNING: Database complex query verification failed after $max_attempts attempts."
+                    docker compose logs db || docker-compose logs db
+                    echo "Continuing workflow despite database connection issues..."
+                    break
+                  fi
+                fi
               else
                 echo "WARNING: pg_isready succeeded but psql query failed. This may indicate partial readiness."
                 if [ $i -eq $max_attempts ]; then
