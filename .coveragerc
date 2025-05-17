@@ -130,8 +130,12 @@ omit =
     # Exclude initialization scripts
     init_db.py
     service_initialization.py
-    # Exclude root level scripts
-    *.py
+    # Exclude specific root level scripts
+    run_ui.py
+    app.py
+    wsgi.py
+    config.py
+    manage.py
     # Exclude monitoring modules
     monitoring/*
     # Exclude interfaces
