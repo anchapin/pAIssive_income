@@ -1,5 +1,7 @@
 # pAIssive_income
 
+[![codecov](https://codecov.io/gh/your-github-username/your-repo-name/branch/main/graph/badge.svg)](https://codecov.io/gh/your-github-username/your-repo-name)
+
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
 ## Features
