@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Alert } from '@mui/material';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 
 const ResetPasswordForm = ({ onSuccess }) => {
-  const { token } = useParams();
+  // The token would be used in a real API call: 
+  // const { token } = useParams();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [submitting, setSubmitting] = useState(false);
