@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import time
 import traceback
 import uuid
+import logging
+from logging import getLogger
 
 # Import for type checking only
 from typing import TYPE_CHECKING, Any, Union, cast
