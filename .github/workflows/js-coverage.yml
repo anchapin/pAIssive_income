@@ -10,6 +10,9 @@ on:
 jobs:
   js-coverage:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -32,12 +35,12 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
-          flags: js
+          flags: js, node${{ matrix.node-version }}
           fail_ci_if_error: true
           strict: true   # Fail CI if coverage drops vs. base branch
 
       - name: Upload HTML coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: js-coverage-html-report
+          name: js-coverage-html-report-node${{ matrix.node-version }}
           path: coverage/
