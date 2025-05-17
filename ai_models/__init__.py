@@ -5,22 +5,25 @@ import contextlib
 import logging
 from typing import Any, Optional, Type
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 try:
     # Try to import aiohttp
     import aiohttp
     AIOHTTP_AVAILABLE = True
-    logging.info(f"aiohttp version {aiohttp.__version__} is available")
+    logger.info(f"aiohttp version {aiohttp.__version__} is available")
 except ImportError as e:
     # If aiohttp is not available, use mock implementations
     AIOHTTP_AVAILABLE = False
-    logging.warning(f"aiohttp not available: {e}. Using mock implementations")
+    logger.warning(f"aiohttp not available: {e}. Using mock implementations")
     # Import mock_aiohttp as aiohttp
     try:
         from . import mock_aiohttp as aiohttp
-        logging.info(f"Using mock aiohttp version {aiohttp.__version__}")
+        logger.info(f"Using mock aiohttp version {aiohttp.__version__}")
     except ImportError as e2:
-        logging.error(f"Failed to import mock_aiohttp: {e2}")
+        logger.error(f"Failed to import mock_aiohttp: {e2}")
 
 # Local imports
 
@@ -39,7 +42,7 @@ ModelContextProtocolError: Optional[Type[Exception]] = None
 try:
     from .adapters.exceptions import AdapterError, ModelContextProtocolError
 except ImportError:
-    logging.warning("Failed to import adapter exceptions")
+    logger.warning("Failed to import adapter exceptions")
     AdapterError = type("AdapterError", (Exception,), {})
     ModelContextProtocolError = type("ModelContextProtocolError", (AdapterError,), {})
 
@@ -55,21 +58,21 @@ if AIOHTTP_AVAILABLE:
             TensorRTAdapter,
             AdapterFactory,
         )
-        
+
         # Import MCPAdapter separately to handle possible import errors
         try:
             from .adapters.mcp_adapter import MCPAdapter
-            logging.info("Successfully imported MCPAdapter")
+            logger.info("Successfully imported MCPAdapter")
         except ImportError as e:
-            logging.warning(f"Failed to import MCPAdapter: {e}")
+            logger.warning(f"Failed to import MCPAdapter: {e}")
             MCPAdapter = None
-            
-        logging.info("Successfully imported real adapters")
+
+        logger.info("Successfully imported real adapters")
     except ImportError as e:
-        logging.warning(f"Failed to import real adapters: {e}. Falling back to mock adapters.")
+        logger.warning(f"Failed to import real adapters: {e}. Falling back to mock adapters.")
         AIOHTTP_AVAILABLE = False  # Force fallback to mock adapters
 else:
-    logging.warning("aiohttp not available, using mock adapters")
+    logger.warning("aiohttp not available, using mock adapters")
 
 # If aiohttp is not available or imports failed, use mock adapters
 if not AIOHTTP_AVAILABLE:
@@ -84,9 +87,9 @@ if not AIOHTTP_AVAILABLE:
             MockMCPAdapter as MCPAdapter,
             MockAdapterFactory as AdapterFactory,
         )
-        logging.info("Successfully imported mock adapters")
+        logger.info("Successfully imported mock adapters")
     except ImportError as e:
-        logging.error(f"Failed to import mock adapters: {e}")
+        logger.error(f"Failed to import mock adapters: {e}")
         # Create minimal mock implementations if all else fails
         if "BaseModelAdapter" not in locals() or BaseModelAdapter is None:
             BaseModelAdapter = type("BaseModelAdapter", (), {"__init__": lambda self, **kwargs: None})

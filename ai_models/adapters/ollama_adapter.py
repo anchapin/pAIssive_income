@@ -5,6 +5,9 @@ import logging
 import asyncio
 from typing import Dict, List, Any
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 try:
     import aiohttp
@@ -12,9 +15,9 @@ except ImportError:
     # If aiohttp is not available, try to use our mock implementation
     try:
         from .. import mock_aiohttp as aiohttp
-        logging.info("Using mock aiohttp in ollama_adapter")
+        logger.info("Using mock aiohttp in ollama_adapter")
     except ImportError as e:
-        logging.error(f"Failed to import mock_aiohttp: {e}")
+        logger.error(f"Failed to import mock_aiohttp: {e}")
         # Create a minimal mock to prevent import errors
         class aiohttp:
             class ClientSession:
@@ -26,8 +29,6 @@ except ImportError:
 
 # Local imports
 from .base_adapter import BaseModelAdapter
-
-logger = logging.getLogger(__name__)
 
 class OllamaAdapter(BaseModelAdapter):
     """Adapter for connecting to Ollama, a local API server for running large language models."""

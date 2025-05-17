@@ -5,6 +5,9 @@ import logging
 import urllib.parse
 from typing import Optional
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 try:
     import modelcontextprotocol as mcp
@@ -70,9 +73,6 @@ from .exceptions import ModelContextProtocolError
 # Constants
 MIN_PORT = 1
 MAX_PORT = 65535
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 class HostFormatError(ValueError):
