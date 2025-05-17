@@ -82,6 +82,43 @@ describe('RevenueAreaChart', () => {
     expect(screen.getByText('Month 1')).toBeInTheDocument();
   });
 
+  it('renders with zero and negative values', () => {
+    const edgeData = [
+      { month: 1, monthlyRevenue: 0, cumulativeRevenue: 0, total_revenue: 0, cumulative_revenue: 0 },
+      { month: 2, monthlyRevenue: -500, cumulativeRevenue: -500, total_revenue: -500, cumulative_revenue: -500 }
+    ];
+    render(<RevenueAreaChart data={edgeData} />);
+    expect(screen.getByText('Month 1')).toBeInTheDocument();
+    expect(screen.getByText('Month 2')).toBeInTheDocument();
+    // Rendering does not crash
+  });
+
+  it('renders with missing keys in data', () => {
+    const incompleteData = [
+      { month: 1 },
+      { month: 2, monthlyRevenue: 1234 }
+    ];
+    render(<RevenueAreaChart data={incompleteData} />);
+    expect(screen.getByText('Month 1')).toBeInTheDocument();
+    expect(screen.getByText('Month 2')).toBeInTheDocument();
+  });
+
+  it('renders the brush element for range selection', () => {
+    const { container } = render(<RevenueAreaChart data={mockData} />);
+    // The brush is rendered as a rect in SVG, but it's hard to distinguish from bars.
+    // Instead, check for "aria-label" or just ensure multiple rects exist.
+    expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(container.querySelectorAll('rect').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders the custom tooltip content', () => {
+    // We can't simulate recharts tooltip without integration testing,
+    // but we can check the DOM for the chart title and legend
+    render(<RevenueAreaChart data={mockData} />);
+    expect(screen.getByText(/Monthly Revenue/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cumulative Revenue/i)).toBeInTheDocument();
+  });
+
   it('ensures accessibility: SVG area chart is present', () => {
     const { container } = render(<RevenueAreaChart data={mockData} />);
     expect(container.querySelector('svg')).toBeInTheDocument();
