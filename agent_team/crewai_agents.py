@@ -7,7 +7,79 @@ Adapt and extend these scaffolds to fit your use-case.
 - Docs: https://docs.crewai.com/
 """
 
-from crewai import Agent, Crew, Task
+# Check if crewai is installed
+from typing import Optional
+
+try:
+    from crewai import Agent, Crew, Task
+
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+
+    # Define placeholder classes for type hints
+    class AgentPlaceholder:
+        """Placeholder for Agent class when crewai is not installed."""
+
+        def __init__(self, role: str = "", goal: str = "", backstory: str = "") -> None:
+            """Initialize Agent placeholder.
+
+            Args:
+                role: The role of the agent
+                goal: The goal of the agent
+                backstory: The backstory of the agent
+            """
+            self.role = role
+            self.goal = goal
+            self.backstory = backstory
+
+    class TaskPlaceholder:
+        """Placeholder for Task class when crewai is not installed."""
+
+        def __init__(self, description: str = "", agent: "AgentPlaceholder" = None) -> None:
+            """Initialize Task placeholder.
+
+            Args:
+                description: The task description
+                agent: The agent assigned to the task
+            """
+            self.description = description
+            self.agent = agent
+
+    class CrewPlaceholder:
+        """Placeholder for Crew class when crewai is not installed."""
+
+        def __init__(self, agents: Optional[list] = None, tasks: Optional[list] = None) -> None:
+            """Initialize Crew placeholder.
+
+            Args:
+                agents: List of agents
+                tasks: List of tasks
+            """
+            self.agents = agents or []
+            self.tasks = tasks or []
+
+        def run(self) -> None:
+            """Run the crew workflow.
+
+            Raises:
+                ImportError: When crewai is not installed
+            """
+            error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
+            raise ImportError(error_msg)
+
+    # Use these placeholders instead of the real classes
+    Agent = AgentPlaceholder
+    Task = TaskPlaceholder
+    Crew = CrewPlaceholder
+
+    # Print a warning
+    import warnings
+
+    warnings.warn(
+        "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
+        stacklevel=2
+    )
 
 # Example: Define agent roles
 data_gatherer = Agent(
@@ -57,9 +129,15 @@ if __name__ == "__main__":
     # Create a module logger
     logger = logging.getLogger(__name__)
 
-    # Example: Run the workflow (for demonstration; adapt as needed)
-    reporting_team.run()
-    logger.info("CrewAI reporting workflow completed.")
+    if not CREWAI_AVAILABLE:
+        logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
+    else:
+        # Example: Run the workflow (for demonstration; adapt as needed)
+        try:
+            reporting_team.run()
+            logger.info("CrewAI reporting workflow completed.")
+        except Exception:
+            logger.exception("Error running CrewAI workflow")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.

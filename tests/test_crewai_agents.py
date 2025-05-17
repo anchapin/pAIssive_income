@@ -12,6 +12,9 @@ except ImportError:
 
 
 def test_crewai_import_and_agent():
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
+
     try:
         from crewai import Agent
 
@@ -21,10 +24,13 @@ def test_crewai_import_and_agent():
         assert agent.goal == "Test goal"
         assert agent.backstory == "Test backstory"
     except ImportError:
-        pytest.fail("CrewAI is not installed or cannot be imported.")
+        pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
 def test_crewai_task_and_crew():
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
+
     try:
         from unittest.mock import MagicMock
 
@@ -50,4 +56,4 @@ def test_crewai_task_and_crew():
         assert result == "Mock crew output"
 
     except ImportError:
-        pytest.fail("CrewAI is not installed or cannot be imported.")
+        pytest.skip("CrewAI is not installed or cannot be imported.")
