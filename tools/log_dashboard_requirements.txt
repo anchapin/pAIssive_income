@@ -2,3 +2,4 @@ dash>=2.9.0
 dash-bootstrap-components>=1.4.0
 pandas>=1.5.0
 plotly>=5.13.0
+elasticsearch>=7.17.0
