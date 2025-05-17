@@ -85,11 +85,11 @@ jobs:
           # Create a marker file in the playwright-report directory
           echo "Mock API server setup started at $(date)" > playwright-report/mock-api-setup.txt
 
-          # Test the mock API server with error handling
-          echo "Testing mock API server..."
-          pnpm test:mock-api || {
-            echo "Mock API server test failed, but continuing..."
-            echo "Mock API server test failed at $(date)" > playwright-report/mock-api-test-failed.txt
+          # Test the mock API server with improved error handling
+          echo "Testing mock API server directly..."
+          pnpm test:mock-api:ci || {
+            echo "Mock API server direct test failed, but continuing..."
+            echo "Mock API server direct test failed at $(date)" > playwright-report/mock-api-direct-test-failed.txt
           }
 
           # Start the mock API server with error handling
@@ -99,15 +99,41 @@ jobs:
           echo "Mock API server started with PID: $MOCK_API_PID"
           echo "Mock API server started with PID: $MOCK_API_PID" > playwright-report/mock-api-started.txt
 
-          # Wait for the server to start
+          # Wait for the server to start with better error handling
+          echo "Waiting for mock API server to be ready..."
           SERVER_READY=false
-          for i in {1..30}; do
+          for i in {1..45}; do
             if curl --silent --fail http://localhost:8000/health > /dev/null 2>&1; then
-              echo "Mock API server is ready."
+              echo "Mock API server is ready on port 8000."
               SERVER_READY=true
+              echo "Mock API server is ready at $(date)" > playwright-report/mock-api-ready.txt
+              break
+            elif curl --silent --fail http://localhost:8001/health > /dev/null 2>&1; then
+              echo "Mock API server is ready on port 8001."
+              SERVER_READY=true
+              echo "Mock API server is ready on port 8001 at $(date)" > playwright-report/mock-api-ready-8001.txt
+              # Set environment variable for tests to use the correct port
+              echo "REACT_APP_API_BASE_URL=http://localhost:8001/api" >> $GITHUB_ENV
               break
             fi
-            echo "Waiting for mock API server to be ready... (Attempt $i/30)"
+
+            echo "Waiting for mock API server to be ready... (Attempt $i/45)"
+            # Check if the process is still running
+            if ! ps -p $MOCK_API_PID > /dev/null; then
+              echo "Mock API server process is no longer running!"
+              echo "Mock API server process died at $(date)" > playwright-report/mock-api-died.txt
+              # Show the log file
+              echo "Last 50 lines of mock API server log:"
+              tail -n 50 logs/mock-api-server.log
+              break
+            fi
+
+            # Show recent log output every 5 attempts
+            if [ $((i % 5)) -eq 0 ]; then
+              echo "Recent mock API server log output:"
+              tail -n 20 logs/mock-api-server.log
+            fi
+
             sleep 1
           done
 
@@ -115,9 +141,32 @@ jobs:
           if [ "$SERVER_READY" = true ]; then
             echo "Mock API server is ready at $(date)" > playwright-report/mock-api-ready.txt
           else
-            echo "Mock API server failed to start within 30 seconds at $(date)" > playwright-report/mock-api-failed.txt
-            # Don't exit with error, let the tests try to run anyway
-            echo "Mock API server failed to start within 30 seconds, but continuing..."
+            echo "Mock API server failed to start within 45 seconds at $(date)" > playwright-report/mock-api-failed.txt
+
+            # Try to start it again with direct output
+            echo "Attempting to start mock API server again with direct output..."
+            kill -9 $MOCK_API_PID || true
+            node tests/mock_api_server.js &
+            MOCK_API_PID=$!
+            echo "Second attempt: Mock API server started with PID: $MOCK_API_PID"
+            sleep 10
+
+            # Check if it's running now
+            if curl --silent --fail http://localhost:8000/health > /dev/null 2>&1 || \
+               curl --silent --fail http://localhost:8001/health > /dev/null 2>&1; then
+              echo "Mock API server is now ready after second attempt."
+              echo "Mock API server is ready after second attempt at $(date)" > playwright-report/mock-api-ready-second-attempt.txt
+            else
+              echo "Mock API server failed to start after second attempt."
+              echo "Mock API server failed after second attempt at $(date)" > playwright-report/mock-api-failed-second-attempt.txt
+
+              # Try running the direct test again as a last resort
+              echo "Running direct test of mock API server as a last resort..."
+              pnpm test:mock-api:direct || {
+                echo "Mock API server direct test failed again, continuing with tests anyway..."
+                echo "Mock API server direct test failed again at $(date)" > playwright-report/mock-api-direct-test-failed-again.txt
+              }
+            fi
           fi
 
       - name: Install Express for mock API server (Windows)
@@ -148,13 +197,13 @@ jobs:
           # Create a marker file in the playwright-report directory
           Set-Content -Path "playwright-report/mock-api-setup.txt" -Value "Mock API server setup started at $(Get-Date)"
 
-          # Test the mock API server with error handling
-          Write-Host "Testing mock API server..."
+          # Test the mock API server with improved error handling
+          Write-Host "Testing mock API server directly..."
           try {
-            pnpm test:mock-api
+            pnpm test:mock-api:ci
           } catch {
-            Write-Host "Mock API server test failed, but continuing... $_"
-            Set-Content -Path "playwright-report/mock-api-test-failed.txt" -Value "Mock API server test failed at $(Get-Date)"
+            Write-Host "Mock API server direct test failed, but continuing... $_"
+            Set-Content -Path "playwright-report/mock-api-direct-test-failed.txt" -Value "Mock API server direct test failed at $(Get-Date): $_"
           }
 
           # Start the mock API server with error handling
@@ -163,9 +212,77 @@ jobs:
             $mockApiProcess = Start-Process -FilePath "node" -ArgumentList "tests/mock_api_server.js" -PassThru -NoNewWindow -RedirectStandardOutput "logs/mock-api-server.log" -RedirectStandardError "logs/mock-api-server-error.log"
             Write-Host "Mock API server started with PID: $($mockApiProcess.Id)"
             Set-Content -Path "playwright-report/mock-api-started.txt" -Value "Mock API server started with PID: $($mockApiProcess.Id) at $(Get-Date)"
+
+            # Wait for the server to start with better error handling
+            Write-Host "Waiting for mock API server to be ready..."
+            $serverReady = $false
+            $maxAttempts = 45
+
+            for ($i = 1; $i -le $maxAttempts; $i++) {
+              try {
+                $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -ErrorAction SilentlyContinue
+                if ($response.StatusCode -eq 200) {
+                  Write-Host "Mock API server is ready on port 8000."
+                  $serverReady = $true
+                  Set-Content -Path "playwright-report/mock-api-ready.txt" -Value "Mock API server is ready at $(Get-Date)"
+                  break
+                }
+              } catch {
+                # Try alternate port
+                try {
+                  $altResponse = Invoke-WebRequest -Uri "http://localhost:8001/health" -UseBasicParsing -ErrorAction SilentlyContinue
+                  if ($altResponse.StatusCode -eq 200) {
+                    Write-Host "Mock API server is ready on port 8001."
+                    $serverReady = $true
+                    Set-Content -Path "playwright-report/mock-api-ready-8001.txt" -Value "Mock API server is ready on port 8001 at $(Get-Date)"
+                    # Set environment variable for tests to use the correct port
+                    echo "REACT_APP_API_BASE_URL=http://localhost:8001/api" | Out-File -Append -FilePath $env:GITHUB_ENV
+                    break
+                  }
+                } catch {
+                  # Ignore and continue
+                }
+              }
+
+              Write-Host "Waiting for mock API server to be ready... (Attempt $i/$maxAttempts)"
+
+              # Show log output every 5 attempts
+              if ($i % 5 -eq 0) {
+                Write-Host "Recent mock API server log output:"
+                if (Test-Path "logs/mock-api-server.log") {
+                  Get-Content "logs/mock-api-server.log" -Tail 20
+                }
+              }
+
+              Start-Sleep -Seconds 1
+            }
+
+            # Check if server is ready
+            if (-not $serverReady) {
+              Write-Host "Mock API server failed to start within $maxAttempts seconds."
+              Set-Content -Path "playwright-report/mock-api-failed.txt" -Value "Mock API server failed to start within $maxAttempts seconds at $(Get-Date)"
+
+              # Try running the direct test as a last resort
+              Write-Host "Running direct test of mock API server as a last resort..."
+              try {
+                pnpm test:mock-api:direct
+              } catch {
+                Write-Host "Mock API server direct test failed again, continuing with tests anyway... $_"
+                Set-Content -Path "playwright-report/mock-api-direct-test-failed-again.txt" -Value "Mock API server direct test failed again at $(Get-Date): $_"
+              }
+            }
           } catch {
             Write-Host "Failed to start mock API server: $_"
             Set-Content -Path "playwright-report/mock-api-start-failed.txt" -Value "Failed to start mock API server at $(Get-Date): $_"
+
+            # Try running the direct test as a fallback
+            Write-Host "Running direct test of mock API server as a fallback..."
+            try {
+              pnpm test:mock-api:direct
+            } catch {
+              Write-Host "Mock API server direct test failed as fallback, continuing with tests anyway... $_"
+              Set-Content -Path "playwright-report/mock-api-direct-test-failed-fallback.txt" -Value "Mock API server direct test failed as fallback at $(Get-Date): $_"
+            }
           }
 
           # Wait for the server to start

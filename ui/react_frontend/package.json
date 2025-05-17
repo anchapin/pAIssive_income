@@ -69,6 +69,8 @@
     "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts",
     "test:e2e:with-servers": "node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
+    "test:mock-api:direct": "node tests/mock_api_server.test.js",
+    "test:mock-api:ci": "node tests/ensure_report_dir.js && node tests/mock_api_server.test.js",
     "test:ci": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json",
     "test:ci:windows": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --skip-browser-install",
     "test:simple": "npx playwright test tests/e2e/simple_test.spec.ts",

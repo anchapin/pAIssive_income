@@ -47,9 +47,16 @@ jobs:
           mkdir -p playwright-report
           echo "Created logs and playwright-report directories"
 
-      - name: Start mock API server with improved error handling
+      - name: Test and start mock API server with improved error handling
         shell: bash
         run: |
+          # First, run the direct test of the mock API server
+          echo "Testing mock API server directly..."
+          pnpm test:mock-api:ci || {
+            echo "Mock API server direct test failed, but continuing..."
+            echo "Mock API server direct test failed at $(date)" > playwright-report/mock-api-direct-test-failed.txt
+          }
+
           # Start the mock API server with output redirection
           echo "Starting mock API server..."
           node tests/mock_api_server.js > logs/mock-api-server.log 2>&1 &
@@ -126,7 +133,13 @@ jobs:
             else
               echo "Mock API server failed to start after second attempt."
               echo "Mock API server failed after second attempt at $(date)" > playwright-report/mock-api-failed-second-attempt.txt
-              # Continue anyway, tests will handle the missing server
+
+              # Try running the direct test again as a last resort
+              echo "Running direct test of mock API server as a last resort..."
+              pnpm test:mock-api:direct || {
+                echo "Mock API server direct test failed again, continuing with tests anyway..."
+                echo "Mock API server direct test failed again at $(date)" > playwright-report/mock-api-direct-test-failed-again.txt
+              }
             fi
           fi
 
