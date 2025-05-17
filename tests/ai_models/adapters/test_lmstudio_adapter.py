@@ -386,6 +386,9 @@ async def test_close_session_when_already_closed(mock_aiohttp_session):
         # Verify session close was not called
         mock_session.close.assert_not_called()
 
+        # Verify session is set to None
+        assert adapter._session is None
+
 
 @pytest.mark.asyncio
 async def test_get_session_with_api_key():

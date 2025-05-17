@@ -243,11 +243,9 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        # With our new implementation, the message and input are passed separately
         # With our new implementation, we're using f-strings instead of format strings
         assert "User input" in args[1]
-        assert args[2] == "User input"
-        assert args[3] == "test input"
+        assert "test input" in args[1]
 
     def test_log_user_input_safely_without_format_specifier_and_dangerous_input(self):
         """Test log_user_input_safely without format specifier and with dangerous input."""
