@@ -84,9 +84,9 @@ def log_user_input_safely(
         # Pass sanitized input as a parameter to the logger to prevent log injection
         logger.log(level, message, sanitized_input, *args, **kwargs)
     else:
-        # Use a format string with placeholders to ensure proper formatting
-        # This ensures that the message and input are properly separated
-        logger.log(level, "%s %s", message, sanitized_input, *args, **kwargs)
+        # Use an f-string to combine the message and input
+        # This ensures that the message and input are properly formatted
+        logger.log(level, f"{message} {sanitized_input}", *args, **kwargs)
 
 
 def log_exception_safely(
@@ -181,9 +181,9 @@ def log_user_id_safely(
         # Pass sanitized ID as a parameter to the logger to prevent log injection
         logger.log(level, message, sanitized_id, *args, **kwargs)
     else:
-        # Use a format string with placeholders to ensure proper formatting
-        # This ensures that the message and ID are properly separated
-        logger.log(level, "%s %s", message, sanitized_id, *args, **kwargs)
+        # Use an f-string to combine the message and ID
+        # This ensures that the message and ID are properly formatted
+        logger.log(level, f"{message} {sanitized_id}", *args, **kwargs)
 
 
 # Example usage:

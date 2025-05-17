@@ -244,7 +244,8 @@ class TestLogUtils:
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
         # With our new implementation, the message and input are passed separately
-        assert args[1] == "%s %s"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User input" in args[1]
         assert args[2] == "User input"
         assert args[3] == "test input"
 
@@ -255,13 +256,13 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "%s %s"
-        assert args[2] == "User input"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User input" in args[1]
         # Verify that the input was sanitized
-        assert "\n" not in args[3]
+        assert "\n" not in args[1]
         # The function replaces % with %%, so %s becomes %%s
-        assert "%%s" in args[3]  # % should be escaped
-        assert " " in args[3]  # Newline should be replaced with space
+        assert "%%s" in args[1]  # % should be escaped
+        assert " " in args[1]  # Newline should be replaced with space
 
     def test_log_user_input_safely_with_secure_logger_without_format_specifier(self):
         """Test log_user_input_safely with secure logger without format specifier."""
@@ -270,9 +271,9 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "%s %s"
-        assert args[2] == "User input"
-        assert args[3] == "test input"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User input" in args[1]
+        assert "test input" in args[1]
 
     def test_log_user_id_safely_without_format_specifier(self):
         """Test log_user_id_safely without format specifier in message."""
@@ -282,9 +283,9 @@ class TestLogUtils:
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
         # With our new implementation, the message and ID are passed separately
-        assert args[1] == "%s %s"
-        assert args[2] == "User ID"
-        assert args[3] == "user123"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User ID" in args[1]
+        assert "user123" in args[1]
 
     def test_log_user_id_safely_without_format_specifier_and_dangerous_input(self):
         """Test log_user_id_safely without format specifier and with dangerous input."""
@@ -293,13 +294,13 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "%s %s"
-        assert args[2] == "User ID"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User ID" in args[1]
         # Verify that the ID was sanitized
-        assert "\n" not in args[3]
+        assert "\n" not in args[1]
         # The function replaces % with %%, so %s becomes %%s
-        assert "%%s" in args[3]  # % should be escaped
-        assert " " in args[3]  # Newline should be replaced with space
+        assert "%%s" in args[1]  # % should be escaped
+        assert " " in args[1]  # Newline should be replaced with space
 
     def test_log_user_id_safely_with_secure_logger_without_format_specifier(self):
         """Test log_user_id_safely with secure logger without format specifier."""
@@ -308,6 +309,6 @@ class TestLogUtils:
         mock_logger.log.assert_called_once()
         args, kwargs = mock_logger.log.call_args
         assert args[0] == logging.INFO
-        assert args[1] == "%s %s"
-        assert args[2] == "User ID"
-        assert args[3] == "user123"
+        # With our new implementation, we're using f-strings instead of format strings
+        assert "User ID" in args[1]
+        assert "user123" in args[1]
