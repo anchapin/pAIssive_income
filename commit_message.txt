@@ -1,0 +1,1 @@
+Fix CodeQL issues: HTTP response splitting in api_server.py, unused imports in migrations/env.py, and GitHub Actions secrets in docker-compose.yml

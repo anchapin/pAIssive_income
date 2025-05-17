@@ -3,14 +3,15 @@
 # Standard library imports
 
 # Third-party imports
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Local imports
 from ai_models.adapters.adapter_factory import (
-    get_adapter,
     MCPAdapterNotAvailableError,
     UnsupportedServerTypeError,
+    get_adapter,
 )
 
 
@@ -78,9 +79,11 @@ class TestAdapterFactory:
         mock_instance = MagicMock()
         mock_ollama_adapter.return_value = mock_instance
 
-        adapter = get_adapter("ollama", "localhost", 11434, model="llama2")
+        adapter = get_adapter("ollama", "localhost", 11434, model={"name": "llama2"})
 
-        mock_ollama_adapter.assert_called_once_with("localhost", 11434, model="llama2")
+        mock_ollama_adapter.assert_called_once_with(
+            "localhost", 11434, model={"name": "llama2"}
+        )
         assert adapter == mock_instance
 
     def test_get_adapter_unsupported_type(self):

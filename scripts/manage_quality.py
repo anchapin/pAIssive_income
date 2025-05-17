@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 
-"""Unified Code Quality and Security Management Script.
+"""
+Unified Code Quality and Security Management Script.
 
 This script provides a single entrypoint CLI for running all code quality,
 linting, formatting, and security checks with optimized performance through
 parallel execution and intelligent file handling.
 """
 
+from __future__ import annotations
+
 import argparse
 import asyncio
 import logging
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -37,7 +41,8 @@ class CheckResult:
         stderr: str = "",
         duration: float = 0.0,
     ) -> None:
-        """Initialize the check result.
+        """
+        Initialize the check result.
 
         Args:
             name: Name of the check tool/command
@@ -45,6 +50,7 @@ class CheckResult:
             stdout: Standard output capture (default: "")
             stderr: Standard error capture (default: "")
             duration: Time taken in seconds (default: 0.0)
+
         """
         self.name = name
         self.returncode = returncode
@@ -56,8 +62,10 @@ class CheckResult:
 def get_git_root() -> Path:
     """Get the root directory of the git repository."""
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
+        # Use git executable with full path if possible
+        git_exe = shutil.which("git") or "git"
+        result = subprocess.run(  # noqa: S603 - Using git with proper arguments
+            [git_exe, "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True,
             check=True,
@@ -73,12 +81,14 @@ def get_changed_files(staged_only: bool = True) -> set[Path]:
     """Get the list of changed Python files with improved error handling."""
     try:
         git_root = get_git_root()
-        cmd = ["git", "diff", "--name-only"]
+        # Use git executable with full path if possible
+        git_exe = shutil.which("git") or "git"
+        cmd = [git_exe, "diff", "--name-only"]
 
         if staged_only:
             cmd.append("--staged")
 
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - Using git with proper arguments
             cmd, capture_output=True, text=True, check=True, timeout=10
         )
 
@@ -100,9 +110,8 @@ def get_changed_files(staged_only: bool = True) -> set[Path]:
 
         if processed_files:
             return python_files
-        else:
-            logger.info("No Python files found in changes")
-            return set()
+        logger.info("No Python files found in changes")
+        return set()  # noqa: TRY300
 
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         logger.exception("Git operation failed")
@@ -155,7 +164,7 @@ async def run_command_async(
 
             return CheckResult(
                 name,
-                cast(int, process.returncode) or 0,
+                cast("int", process.returncode) or 0,
                 stdout.decode(),
                 stderr.decode(),
                 duration,
@@ -195,22 +204,21 @@ async def run_checks(files: set[Path]) -> list[CheckResult]:
         python_executable,
         "-m",
         "mypy",
-        "--ignore-missing-imports",
         "--install-types",
         "--non-interactive",
-        "--explicit-package-bases",
-        "--config-file=mypy.ini",
     ]
 
     # Add special flags for problematic files
     problematic_files = {"flask/__init__.py", "flask/models.py", "migrations/env.py"}
 
     if any(str(f).endswith(pf) for f in files for pf in problematic_files):
-        mypy_args.extend([
-            "--disable-error-code=attr-defined",
-            "--disable-error-code=name-defined",
-            "--disable-error-code=unused-ignore",
-        ])
+        mypy_args.extend(
+            [
+                "--disable-error-code=attr-defined",
+                "--disable-error-code=name-defined",
+                "--disable-error-code=unused-ignore",
+            ]
+        )
 
     checks = [
         ("ruff", [python_executable, "-m", "ruff", "check", "--fix"]),
@@ -239,10 +247,12 @@ def print_check_results(results: list[CheckResult]) -> int:
 
 
 async def incremental(files: Optional[list[Path]] = None) -> int:
-    """Run incremental quality checks on changed files or specified files.
+    """
+    Run incremental quality checks on changed files or specified files.
 
     Args:
         files: Optional list of files to check. If not provided, checks staged files.
+
     """
     check_files = set(files) if files else get_changed_files(staged_only=True)
     logger.info(
@@ -285,7 +295,7 @@ async def main_async() -> int:
 
 
 def main() -> None:
-    """Main entry point with proper signal handling."""
+    """Handle signals properly and run the main entry point."""
     try:
         if not is_windows():
             # Set up signal handlers for graceful shutdown on Unix

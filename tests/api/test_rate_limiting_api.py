@@ -1,11 +1,10 @@
 """test_rate_limiting_api - Tests for API rate limiting enforcement and edge cases."""
 
 import time
-
+from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-
 from fastapi.testclient import TestClient
 
 try:
@@ -31,7 +30,7 @@ class TestRateLimitingAPI:
         responses = [client.get(self.ENDPOINT) for _ in range(10)]
         status_codes = [r.status_code for r in responses]
         # At least one request should be rate limited
-        assert 429 in status_codes
+        assert HTTPStatus.TOO_MANY_REQUESTS in status_codes
 
     def test_rate_limit_headers_present(self):
         resp = client.get(self.ENDPOINT)
@@ -46,7 +45,10 @@ class TestRateLimitingAPI:
         for _ in range(10):
             client.get(self.ENDPOINT)
         resp = client.get(self.ENDPOINT)
-        if resp.status_code == 429 and "Retry-After" in resp.headers:
+        if (
+            resp.status_code == HTTPStatus.TOO_MANY_REQUESTS
+            and "Retry-After" in resp.headers
+        ):
             wait_time = int(resp.headers["Retry-After"])
             with patch("time.sleep", return_value=None):
                 time.sleep(min(wait_time, 3))  # Wait up to 3 seconds for test
@@ -56,10 +58,10 @@ class TestRateLimitingAPI:
 
     def test_burst_requests(self):
         # Send rapid burst and check at least some are limited
-        responses = []
-        for _ in range(20):
-            responses.append(client.get(self.ENDPOINT))
-        limited = [r for r in responses if r.status_code == 429]
+        responses = [client.get(self.ENDPOINT) for _ in range(20)]
+        limited = [
+            r for r in responses if r.status_code == HTTPStatus.TOO_MANY_REQUESTS
+        ]
         assert len(limited) > 0
 
     def test_rate_limit_authenticated_vs_unauthenticated(self):

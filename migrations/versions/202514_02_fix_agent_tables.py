@@ -1,4 +1,5 @@
-"""fix agent tables naming
+"""
+Fix agent tables naming.
 
 Revision ID: 20240602_01
 Revises: 20240601_01
@@ -15,7 +16,8 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
+    """Create singular form tables and copy data from plural tables if they exist."""
     # Create the singular form tables that the API server is expecting
     op.execute("""
     CREATE TABLE IF NOT EXISTS agent (
@@ -49,6 +51,7 @@ def upgrade():
     """)
 
 
-def downgrade():
+def downgrade() -> None:
+    """Drop the singular form tables."""
     op.execute("DROP TABLE IF EXISTS agent_action;")
     op.execute("DROP TABLE IF EXISTS agent;")

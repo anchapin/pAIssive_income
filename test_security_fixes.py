@@ -1,11 +1,9 @@
 """Test script to verify security fixes."""
 
-import os
 import tempfile
 import unittest
-
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -45,11 +43,11 @@ class TestSecurityFixes(unittest.TestCase):
             for call_args in mock_logger.info.call_args_list:
                 msg = call_args[0][0]
                 # Ensure no sensitive data in log messages
-                assert "[TEST_PLACEHOLDER]" not in msg
-                assert "access_credential_test" not in msg
+                assert "[TEST_PLACEHOLDER]" not in msg  # noqa: S101 - Test assertion
+                assert "access_credential_test" not in msg  # noqa: S101 - Test assertion
                 # Verify we're logging safely
                 if "found" in msg.lower():
-                    assert "found" in msg.lower()
+                    assert "found" in msg.lower()  # noqa: S101 - Test assertion
 
     def test_generate_report_file_output_no_sensitive_data(self) -> None:
         """Test that generate_report doesn't write sensitive data to file."""
@@ -80,18 +78,20 @@ class TestSecurityFixes(unittest.TestCase):
             generate_report(results, output_file=temp_path)
 
             # Read the file content
-            with open(temp_path) as f:
+            temp_path_obj = Path(temp_path)
+            with temp_path_obj.open() as f:
                 content = f.read()
 
             # Ensure no sensitive data in file
-            assert "[TEST_PLACEHOLDER]" not in content
+            assert "[TEST_PLACEHOLDER]" not in content  # noqa: S101 - Test assertion
             # Check for appropriate masked content
-            assert "potential" in content.lower()
+            assert "potential" in content.lower()  # noqa: S101 - Test assertion
 
         finally:
             # Clean up
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            temp_path_obj = Path(temp_path)
+            if temp_path_obj.exists():
+                temp_path_obj.unlink()
 
     def test_handle_list_no_sensitive_keys(self) -> None:
         """Test that handle_list doesn't print sensitive key names."""
@@ -120,14 +120,14 @@ class TestSecurityFixes(unittest.TestCase):
             for call_args in mock_print.call_args_list:
                 msg = call_args[0][0]
                 # Ensure no key names in output
-                assert "access_item_1" not in msg
-                assert "access_item_2" not in msg
-                assert "access_item_3" not in msg
+                assert "access_item_1" not in msg  # noqa: S101 - Test assertion
+                assert "access_item_2" not in msg  # noqa: S101 - Test assertion
+                assert "access_item_3" not in msg  # noqa: S101 - Test assertion
                 # Check that we're using a safe hash format
                 # Define minimum hash length
                 min_hash_length = 10
                 if msg.startswith("  Secret #"):
-                    assert len(msg) > min_hash_length, (
+                    assert len(msg) > min_hash_length, (  # noqa: S101 - Test assertion
                         f"Secret hash should be longer than {min_hash_length} characters"
                         # Test data - not a real credential
                     )
@@ -156,8 +156,8 @@ class TestSecurityFixes(unittest.TestCase):
         result = run_security_scan("./test_directory", {".git", "venv"})
 
         # Verify we got a result despite the import failing
-        assert result is not None
-        assert isinstance(result, dict)
+        assert result is not None  # noqa: S101 - Test assertion
+        assert isinstance(result, dict)  # noqa: S101 - Test assertion
 
 
 if __name__ == "__main__":
