@@ -9,6 +9,6 @@ docker run --env-file .env -p 8080:8080 ui-service
 
 ## Development
 
-- Entry point: `ui_app.py`
-- Config via environment variables (see `ui_app.py`)
+- Entry point: `app.py`
+- Config via environment variables (see `app.py`)
 - Dependencies: `requirements.txt`
