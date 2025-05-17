@@ -72,9 +72,11 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        # Use a masked key reference to avoid logging sensitive information
+        # Use structured logging to avoid exposing sensitive information
         masked_key = self._mask_key_for_logging(key)
-        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
+        logger.warning(
+            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+        )
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
@@ -97,7 +99,9 @@ class MemoryBackend:
 
         """
         masked_key = self._mask_key_for_logging(key)
-        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
+        logger.warning(
+            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+        )
         # Use value in a no-op to avoid unused argument warning
         if value:
             pass
@@ -122,7 +126,9 @@ class MemoryBackend:
 
         """
         masked_key = self._mask_key_for_logging(key)
-        logger.warning("Memory backend not yet implemented for key: %s", masked_key)
+        logger.warning(
+            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+        )
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
