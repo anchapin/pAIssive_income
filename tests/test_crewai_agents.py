@@ -33,6 +33,8 @@ except ImportError as e:
 @pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
 def test_crewai_import_and_agent():
     """Test that CrewAI Agent can be imported and instantiated."""
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
     try:
         from crewai import Agent
 
@@ -51,6 +53,8 @@ def test_crewai_import_and_agent():
 @pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
 def test_crewai_task_and_crew():
     """Test that CrewAI Task and Crew can be imported and instantiated."""
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
     try:
         from crewai import Agent, Task, Crew
         from unittest.mock import MagicMock

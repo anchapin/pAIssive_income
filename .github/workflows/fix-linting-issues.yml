@@ -103,16 +103,10 @@ jobs:
           if [ -f requirements-dev.txt ]; then
             uv pip install -r requirements-dev.txt
           fi
-          if [ -f requirements.txt ]; then
-            uv pip install -r requirements.txt
-          fi
 
-          # Install the package in development mode if setup files exist
-          if [ -f "setup.py" ] || [ -f "pyproject.toml" ]; then
-            uv pip install -e .
-          else
-            echo "No setup.py or pyproject.toml found, skipping package installation"
-          fi
+          # Install the package in development mode with dev extras only
+          # Avoid installing the agents extra which has dependency conflicts
+          uv pip install -e ".[dev]"
 
       - name: Check if fix_linting_issues.py exists
         id: check-script
