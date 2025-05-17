@@ -133,14 +133,6 @@ def get_adapter(
     """
     Get the adapter for a specified server type.
 
-    # Registry of adapter types
-    _adapter_registry = {}
-
-    @classmethod
-    def _initialize_registry(cls):
-        """Initialize the adapter registry with available adapters."""
-        registry = {}
-
     Raises:
         MCPAdapterNotAvailableError: If MCP adapter is requested but not available
         UnsupportedServerTypeError: If server type is not supported
@@ -163,3 +155,78 @@ def get_adapter(
         # Initialize the MCP adapter with provided configuration
         return MCPAdapter(host, port, **kwargs)
     raise UnsupportedServerTypeError(server_type)
+
+
+class AdapterFactory:
+    """Factory class for creating model adapters."""
+
+    # Registry of adapter types
+    _adapter_registry = {}
+
+    @classmethod
+    def _initialize_registry(cls):
+        """Initialize the adapter registry with available adapters."""
+        registry = {
+            "ollama": OllamaAdapter,
+            "openai": OpenAICompatibleAdapter,
+            "lmstudio": LMStudioAdapter,
+            "tensorrt": TensorRTAdapter,
+        }
+
+        # Add MCP adapter if available
+        if MCPAdapter is not None:
+            registry["mcp"] = MCPAdapter
+
+        cls._adapter_registry = registry
+        return registry
+
+    @classmethod
+    def get_available_adapter_types(cls):
+        """Get a list of available adapter types.
+
+        Returns:
+            List of available adapter type names
+        """
+        if not cls._adapter_registry:
+            cls._initialize_registry()
+
+        logger.info("Getting available adapter types")
+        adapter_types = list(cls._adapter_registry.keys())
+        logger.info(f"Found {len(adapter_types)} available adapter types")
+        return adapter_types
+
+    @classmethod
+    def create_adapter(cls, adapter_type: str, host: str, port: int, **kwargs):
+        """Create an adapter of the specified type.
+
+        Args:
+            adapter_type: The type of adapter to create
+            host: Server hostname or IP address
+            port: Server port number
+            **kwargs: Additional parameters to pass to the adapter constructor
+
+        Returns:
+            An instance of the specified adapter type
+
+        Raises:
+            UnsupportedServerTypeError: If the adapter type is not supported
+            MCPAdapterNotAvailableError: If MCP adapter is requested but not available
+        """
+        # Initialize registry if not already done
+        if not cls._adapter_registry:
+            cls._initialize_registry()
+
+        # Convert adapter_type to lowercase for case-insensitive matching
+        adapter_type = adapter_type.lower()
+
+        # Check if adapter type is supported
+        if adapter_type not in cls._adapter_registry:
+            raise UnsupportedServerTypeError(adapter_type)
+
+        # Special case for MCP adapter
+        if adapter_type == "mcp" and MCPAdapter is None:
+            raise MCPAdapterNotAvailableError
+
+        # Create and return the adapter
+        adapter_class = cls._adapter_registry[adapter_type]
+        return adapter_class(host=host, port=port, **kwargs)

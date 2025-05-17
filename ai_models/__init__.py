@@ -4,6 +4,7 @@ from __future__ import annotations
 
 # Standard library imports
 import contextlib
+import logging
 from typing import Any
 
 # Local imports
@@ -38,11 +39,13 @@ TensorRTAdapter: Any = None
 MCPAdapter: Any = None
 AdapterError: type[Exception] = None  # type: ignore[assignment]
 ModelContextProtocolError: type[Exception] = None  # type: ignore[assignment]
+AdapterFactory: Any = None
 
 # Use contextlib.suppress instead of try-except-pass
 with contextlib.suppress(ImportError):
     # Import adapters
     from .adapters import AdapterError as ImportedAdapterError
+    from .adapters import AdapterFactory as ImportedAdapterFactory
     from .adapters import LMStudioAdapter as ImportedLMStudioAdapter
     from .adapters import MCPAdapter as ImportedMCPAdapter
     from .adapters import ModelContextProtocolError as ImportedModelContextProtocolError
@@ -58,6 +61,7 @@ with contextlib.suppress(ImportError):
     MCPAdapter = ImportedMCPAdapter
     AdapterError = ImportedAdapterError
     ModelContextProtocolError = ImportedModelContextProtocolError
+    AdapterFactory = ImportedAdapterFactory
 
 # Define what should be exported
 __all__ = [

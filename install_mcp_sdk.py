@@ -96,8 +96,7 @@ def create_mock_mcp_sdk() -> bool:
 
         # Create __init__.py
         init_file = mcp_dir / "__init__.py"
-        with init_file.open("w") as f:
-            f.write("""
+        init_content = """
 class Client:
     def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint
@@ -118,8 +117,7 @@ class Client:
         return "Mock response to: " + str(message)
 """
         # Write the content to the file
-        init_path = os.path.join(temp_dir, "modelcontextprotocol", "__init__.py")
-        with open(init_path, "w", encoding="utf-8") as f:
+        with init_file.open("w", encoding="utf-8") as f:
             f.write(init_content)
 
         # Create setup.py
@@ -143,6 +141,12 @@ setup(
             "pip",
             "--version",
         ]
+
+        # Install the mock package
+        exit_code, stdout, stderr = run_command(
+            [sys.executable, "-m", "pip", "install", "-e", "."],
+            cwd=temp_dir,
+        )
 
         if exit_code != 0:
             logger.error("Failed to install mock MCP SDK: %s", stderr)
