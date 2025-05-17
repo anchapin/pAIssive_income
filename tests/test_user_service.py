@@ -7,7 +7,6 @@ import pytest
 from flask import Flask
 
 # Import at the top level
-from users.auth import hash_credential
 from users.models import db
 from users.services import UserExistsError, UserService
 
@@ -37,6 +36,7 @@ class MockAppContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
 
 class MockDB:
     session = MagicMock()
@@ -93,7 +93,9 @@ def test_create_user(mock_hash, user_service):
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch("users.services.db_session") as mock_db:
+    with patch("users.services.UserModel", MockUser), patch(
+        "users.services.db_session"
+    ) as mock_db:
         # Skip the existing user check by directly patching the filter method
         with patch.object(MockUser, "query") as mock_query:
             # Create a mock filter that returns None for first() to indicate no existing user
@@ -108,7 +110,10 @@ def test_create_user(mock_hash, user_service):
                     def create_user(self, username, email, auth_credential, **kwargs):
                         # Skip the user existence check
                         # Hash the credential - use the mocked function from users.services
-                        from users.services import hash_credential as services_hash_credential
+                        from users.services import (
+                            hash_credential as services_hash_credential,
+                        )
+
                         hashed_credential = services_hash_credential(auth_credential)
 
                         # Create User model instance
