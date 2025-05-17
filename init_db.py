@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """init_db.py - Initialize the database with tables and initial data."""
 
+from __future__ import annotations
+
 import logging
 import string
 import sys
 from secrets import randbelow
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from typing import Any
+
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app_flask import create_app, db
 from app_flask.models import Agent, Team, User
@@ -20,13 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 def generate_secure_password(length: int = 16) -> str:
-    """Generate a secure random password.
+    """
+    Generate a secure random password.
 
     Args:
         length: Length of the password to generate
 
     Returns:
         A secure random password string
+
     """
     alphabet = string.ascii_letters + string.digits + string.punctuation
     # Use a more secure method for random selection
@@ -37,10 +43,12 @@ def generate_secure_password(length: int = 16) -> str:
 
 
 def init_db() -> bool:
-    """Initialize the database with required tables and initial data.
+    """
+    Initialize the database with required tables and initial data.
 
     Returns:
         bool: True if initialization was successful, False otherwise
+
     """
     app = create_app()
     success = False
@@ -67,10 +75,12 @@ def init_db() -> bool:
 
 
 def _initialize_database_data() -> bool:
-    """Initialize database with initial data.
+    """
+    Initialize database with initial data.
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     try:
         # Generate a random password
@@ -141,20 +151,22 @@ def _initialize_database_data() -> bool:
         return False
 
 
-def _verify_initialization(agents) -> bool:
-    """Verify that database initialization was successful.
+def _verify_initialization(agents: list[Any]) -> bool:
+    """
+    Verify that database initialization was successful.
 
     Args:
         agents: List of agents that should have been created
 
     Returns:
         bool: True if verification passed, False otherwise
+
     """
     try:
         agent_count = db.session.query(Agent).count()
         if agent_count != len(agents):
             logger.warning(
-                f"Agent count mismatch: expected {len(agents)}, found {agent_count}"
+                "Agent count mismatch: expected %d, found %d", len(agents), agent_count
             )
             return False
     except SQLAlchemyError:

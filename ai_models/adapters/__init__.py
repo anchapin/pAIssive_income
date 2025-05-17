@@ -1,30 +1,30 @@
 """__init__ - Module for ai_models/adapters.__init__."""
 
 # Standard library imports
+from __future__ import annotations
+
 import importlib.util
 import sys
-from typing import Any, Optional, Type
+from typing import Any, Type
 
 # Third-party imports
-
 # Local imports
 # Export the exception classes first (these should always be available)
-from .exceptions import (
-    AdapterError,
-    ModelContextProtocolError,
-)
+from .exceptions import AdapterError, ModelContextProtocolError
 
 # Define adapter classes as optional
 # We'll try to import them, but if they're not available, they'll remain None
-OllamaAdapter: Optional[Any] = None
-OpenAICompatibleAdapter: Optional[Any] = None
-LMStudioAdapter: Optional[Any] = None
-TensorRTAdapter: Optional[Any] = None
-MCPAdapter: Optional[Any] = None
+OllamaAdapter: Any | None = None
+OpenAICompatibleAdapter: Any | None = None
+LMStudioAdapter: Any | None = None
+TensorRTAdapter: Any | None = None
+MCPAdapter: Any | None = None
+
 
 # Helper function to safely import an adapter
-def _safe_import(module_name: str, class_name: str) -> Optional[Any]:
-    """Safely import a class from a module.
+def _safe_import(module_name: str, class_name: str) -> object | None:
+    """
+    Safely import a class from a module.
 
     Args:
         module_name: The name of the module to import from
@@ -32,22 +32,29 @@ def _safe_import(module_name: str, class_name: str) -> Optional[Any]:
 
     Returns:
         The imported class or None if import failed
+
     """
     try:
         # Check if the module can be imported
         if importlib.util.find_spec(f"ai_models.adapters.{module_name}"):
             # Import the module
-            module = importlib.import_module(f".{module_name}", package="ai_models.adapters")
+            module = importlib.import_module(
+                f".{module_name}", package="ai_models.adapters"
+            )
             # Get the class from the module
             return getattr(module, class_name, None)
-        else:
-            return None
     except (ImportError, AttributeError):
-        return None
+        pass
+
+    # Return None if any of the above fails
+    return None
+
 
 # Import adapters safely
 OllamaAdapter = _safe_import("ollama_adapter", "OllamaAdapter")
-OpenAICompatibleAdapter = _safe_import("openai_compatible_adapter", "OpenAICompatibleAdapter")
+OpenAICompatibleAdapter = _safe_import(
+    "openai_compatible_adapter", "OpenAICompatibleAdapter"
+)
 LMStudioAdapter = _safe_import("lmstudio_adapter", "LMStudioAdapter")
 TensorRTAdapter = _safe_import("tensorrt_adapter", "TensorRTAdapter")
 MCPAdapter = _safe_import("mcp_adapter", "MCPAdapter")

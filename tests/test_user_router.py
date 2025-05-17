@@ -5,6 +5,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Import constants
+from tests.constants import (
+    HTTP_BAD_REQUEST,
+    HTTP_CREATED,
+    HTTP_INTERNAL_SERVER_ERROR,
+    HTTP_OK,
+    HTTP_UNAUTHORIZED,
+)
+
 # Import only what's needed for the tests
 from users.services import UserExistsError
 
@@ -63,10 +72,12 @@ class MockResponse:
 
 @pytest.fixture
 def app():
-    """Create a mock Flask app for testing.
+    """
+    Create a mock Flask app for testing.
 
     Returns:
         MockFlask: The mock Flask application
+
     """
     app = MockFlask(__name__)
     app.register_blueprint(user_bp)
@@ -75,13 +86,15 @@ def app():
 
 @pytest.fixture
 def client(app):
-    """Create a test client.
+    """
+    Create a test client.
 
     Args:
         app: Mock Flask application
 
     Returns:
         MockClient: Test client for the mock Flask application
+
     """
     return app.test_client()
 
@@ -108,15 +121,17 @@ def test_create_user_success(client):
     )
 
     # Mock the response data
-    response.status_code = 201
-    response.data = json.dumps({
-        "id": 1,
-        "username": "testuser",
-        "email": "test@example.com",
-    }).encode("utf-8")
+    response.status_code = HTTP_CREATED
+    response.data = json.dumps(
+        {
+            "id": 1,
+            "username": "testuser",
+            "email": "test@example.com",
+        }
+    ).encode("utf-8")
 
     # Assertions
-    assert response.status_code == 201
+    assert response.status_code == HTTP_CREATED
     data = json.loads(response.data)
     assert data["username"] == "testuser"
     assert data["email"] == "test@example.com"
@@ -144,11 +159,11 @@ def test_create_user_already_exists(client):
     )
 
     # Mock the response data
-    response.status_code = 400
+    response.status_code = HTTP_BAD_REQUEST
     response.data = json.dumps({"error": "User already exists"}).encode("utf-8")
 
     # Assertions
-    assert response.status_code == 400
+    assert response.status_code == HTTP_BAD_REQUEST
     data = json.loads(response.data)
     assert "error" in data
     assert data["error"] == "User already exists"
@@ -172,13 +187,13 @@ def test_create_user_server_error(client):
         )
 
         # Mock the response data
-        response.status_code = 500
-        response.data = json.dumps({
-            "error": "An error occurred while creating the user"
-        }).encode("utf-8")
+        response.status_code = HTTP_INTERNAL_SERVER_ERROR
+        response.data = json.dumps(
+            {"error": "An error occurred while creating the user"}
+        ).encode("utf-8")
 
         # Assertions
-        assert response.status_code == 500
+        assert response.status_code == HTTP_INTERNAL_SERVER_ERROR
         data = json.loads(response.data)
         assert "error" in data
         assert data["error"] == "An error occurred while creating the user"
@@ -201,15 +216,17 @@ def test_authenticate_user_success(client):
         )
 
         # Mock the response data
-        response.status_code = 200
-        response.data = json.dumps({
-            "id": 1,
-            "username": "testuser",
-            "email": "test@example.com",
-        }).encode("utf-8")
+        response.status_code = HTTP_OK
+        response.data = json.dumps(
+            {
+                "id": 1,
+                "username": "testuser",
+                "email": "test@example.com",
+            }
+        ).encode("utf-8")
 
         # Assertions
-        assert response.status_code == 200
+        assert response.status_code == HTTP_OK
         data = json.loads(response.data)
         assert data["username"] == "testuser"
         assert data["email"] == "test@example.com"
@@ -233,11 +250,11 @@ def test_authenticate_user_failure(client):
         )
 
         # Mock the response data
-        response.status_code = 401
+        response.status_code = HTTP_UNAUTHORIZED
         response.data = json.dumps({"error": "Invalid credentials"}).encode("utf-8")
 
         # Assertions
-        assert response.status_code == 401
+        assert response.status_code == HTTP_UNAUTHORIZED
         data = json.loads(response.data)
         assert "error" in data
         assert data["error"] == "Invalid credentials"

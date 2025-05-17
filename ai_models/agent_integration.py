@@ -1,12 +1,14 @@
 """Agent integration module for MCP servers."""
 
+from __future__ import annotations
+
 import json
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Optional
 
-from ai_models.adapters.adapter_factory import get_adapter, AdapterError
+from ai_models.adapters.adapter_factory import AdapterError, get_adapter
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,14 +25,16 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 logger = logging.getLogger(__name__)
 
 
-def load_mcp_server_configs() -> List[Dict[str, Any]]:
-    """Load MCP server configurations from the settings JSON file.
+def load_mcp_server_configs() -> list[dict[str, Any]]:
+    """
+    Load MCP server configurations from the settings JSON file.
 
     Returns:
         A list of dicts with at least: name, host, port.
+
     """
     # Initialize empty list for validated servers
-    validated_servers: List[Dict[str, Any]] = []
+    validated_servers: list[dict[str, Any]] = []
 
     # Early return if file doesn't exist
     if not MCP_SETTINGS_FILE.exists():
@@ -46,11 +50,13 @@ def load_mcp_server_configs() -> List[Dict[str, Any]]:
     return validated_servers
 
 
-def _load_settings_file() -> Optional[Dict[str, Any]]:
-    """Load and parse the settings file with security checks.
+def _load_settings_file() -> Optional[dict[str, Any]]:
+    """
+    Load and parse the settings file with security checks.
 
     Returns:
         The parsed data as a dictionary, or None if loading failed
+
     """
     try:
         # Check file size before reading to prevent DoS
@@ -63,15 +69,15 @@ def _load_settings_file() -> Optional[Dict[str, Any]]:
             )
             return None
 
-        with open(MCP_SETTINGS_FILE, encoding="utf-8") as f:
+        with MCP_SETTINGS_FILE.open(encoding="utf-8") as f:
             # Try to parse JSON content with security measures
             try:
                 # Use safe parsing options to prevent attacks
                 data = json.load(
                     f,
                     parse_constant=lambda _: None,  # Prevent code execution via special constants
-                    parse_int=int,                  # Ensure integers are parsed as integers
-                    parse_float=float               # Ensure floats are parsed as floats
+                    parse_int=int,  # Ensure integers are parsed as integers
+                    parse_float=float,  # Ensure floats are parsed as floats
                 )
             except json.JSONDecodeError:
                 logger.exception("Failed to decode JSON from settings file")
@@ -93,14 +99,16 @@ def _load_settings_file() -> Optional[Dict[str, Any]]:
         return None
 
 
-def _process_server_configs(servers: List[Any]) -> List[Dict[str, Any]]:
-    """Process and validate server configurations.
+def _process_server_configs(servers: list[Any]) -> list[dict[str, Any]]:
+    """
+    Process and validate server configurations.
 
     Args:
         servers: List of server configurations to process
 
     Returns:
         List of validated server configurations
+
     """
     validated_servers = []
 
@@ -116,58 +124,62 @@ def _process_server_configs(servers: List[Any]) -> List[Dict[str, Any]]:
                 "name": server["name"],
                 "host": server["host"],
                 "port": server["port"],
-                "description": server.get("description", "")
+                "description": server.get("description", ""),
             }
             validated_servers.append(sanitized_server)
 
     return validated_servers
 
 
-def _validate_server_config(server: Dict[str, Any]) -> bool:
-    """Validate a server configuration.
+def _validate_server_config(server: dict[str, Any]) -> bool:
+    """
+    Validate a server configuration.
 
     Args:
         server: Server configuration dictionary
 
     Returns:
         True if the server configuration is valid, False otherwise
+
     """
     # Check required fields
     if not all(k in server for k in ["name", "host", "port"]):
         logger.warning(
-            f"Skipping invalid server config missing required fields: {server}"
+            "Skipping invalid server config missing required fields: %s", server
         )
         return False
 
     # Validate server name
     if not re.match(r"^[a-zA-Z0-9_-]+$", server["name"]):
-        logger.warning(f"Skipping server with invalid name format: {server['name']}")
+        logger.warning("Skipping server with invalid name format: %s", server["name"])
         return False
 
     # Validate host
     if not re.match(r"^[a-zA-Z0-9_.-]+$", server["host"]):
-        logger.warning(f"Skipping server with invalid host format: {server['host']}")
+        logger.warning("Skipping server with invalid host format: %s", server["host"])
         return False
 
     # Validate port
     try:
         port = int(server["port"])
         if port < MIN_PORT or port > MAX_PORT:
-            logger.warning(f"Skipping server with invalid port range: {port}")
+            logger.warning("Skipping server with invalid port range: %s", port)
             return False
         server["port"] = port
     except (ValueError, TypeError):
-        logger.warning(f"Skipping server with invalid port: {server['port']}")
+        logger.warning("Skipping server with invalid port: %s", server["port"])
         return False
 
     return True
 
 
-def get_mcp_adapters() -> Dict[str, Any]:
-    """Returns a dict mapping MCP server name to its instantiated MCPAdapter.
+def get_mcp_adapters() -> dict[str, Any]:
+    """
+    Get a dict mapping MCP server name to its instantiated MCPAdapter.
 
     Returns:
         A dictionary with server names as keys and MCPAdapter instances as values.
+
     """
     servers = load_mcp_server_configs()
     adapters = {}
@@ -182,20 +194,22 @@ def get_mcp_adapters() -> Dict[str, Any]:
         try:
             adapters[name] = get_adapter("mcp", host, port)
         except AdapterError:
-            logger.exception(f"Adapter error for server '{name}'")
+            logger.exception("Adapter error for server '%s'", name)
             continue
         except Exception:
-            logger.exception(f"Failed to instantiate adapter for server '{name}'")
+            logger.exception("Failed to instantiate adapter for server '%s'", name)
             continue
 
     return adapters
 
 
-def list_available_agent_backends() -> List[Dict[str, Any]]:
-    """List all available agent backends, including MCP servers.
+def list_available_agent_backends() -> list[dict[str, Any]]:
+    """
+    List all available agent backends, including MCP servers.
 
     Returns:
         A list of dicts with keys: name, type, host, port, description.
+
     """
     # Add built-in or statically-configured servers here if needed
     mcp_servers = load_mcp_server_configs()
