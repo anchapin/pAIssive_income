@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Alert } from '@mui/material';
+import { Box, TextField, Button, Typography, Alert, Link as MuiLink } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 // import { useParams } from 'react-router-dom';
 
 const ResetPasswordForm = ({ onSuccess }) => {
@@ -72,9 +73,14 @@ const ResetPasswordForm = ({ onSuccess }) => {
         margin="normal"
         inputProps={{ 'aria-label': 'confirm password' }}
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth disabled={submitting}>
+      <Button type="submit" variant="contained" color="primary" fullWidth disabled={submitting} sx={{ mb: 2 }}>
         {submitting ? 'Resetting...' : 'Reset Password'}
       </Button>
+      <Box sx={{ textAlign: 'right' }}>
+        <MuiLink component={RouterLink} to="/login" underline="hover" tabIndex={0}>
+          Back to login
+        </MuiLink>
+      </Box>
     </Box>
   );
 };
