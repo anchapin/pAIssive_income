@@ -126,7 +126,7 @@ class TestAuthFunctions(unittest.TestCase):
         with patch('users.auth.logger') as mock_logger:
             result = verify_credential("password123", "invalid_hash_format")
             self.assertFalse(result)
-            mock_logger.exception.assert_called_once()
+            mock_logger.error.assert_called_once()
 
     def test_verify_credential_exception(self):
         """Test handling of unexpected exceptions during verification."""
@@ -136,7 +136,7 @@ class TestAuthFunctions(unittest.TestCase):
             result = verify_credential("password123", "hashed_password")
 
             self.assertFalse(result)
-            mock_logger.exception.assert_called_once()
+            mock_logger.error.assert_called_once()
 
     def test_hash_auth_alias(self):
         """Test hash_auth alias function."""

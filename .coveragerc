@@ -51,7 +51,6 @@ omit =
     monetization/*
     niche_analysis/*
     collaboration/*
-    users/*
     api/*
     # Exclude frontend code
     frontend/*

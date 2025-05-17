@@ -168,8 +168,8 @@ class TestVerifyCredential(unittest.TestCase):
 
         # Assert
         assert result is False
-        # Check that logger.exception was called with any arguments
-        assert mock_logger.exception.called
+        # Check that logger.error was called with any arguments
+        assert mock_logger.error.called
 
     def test_verify_credential_attribute_error(self):
         """Test verifying with a hash that raises AttributeError."""
@@ -184,8 +184,8 @@ class TestVerifyCredential(unittest.TestCase):
 
         # Assert
         assert not result
-        # Check that logger.exception was called with any arguments
-        assert mock_logger.exception.called
+        # Check that logger.error was called with any arguments
+        assert mock_logger.error.called
 
     @patch('bcrypt.checkpw')
     def test_verify_credential_exception_handling(self, mock_checkpw):

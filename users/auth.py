@@ -80,8 +80,8 @@ def verify_credential(
             return False
 
     # Verify the credential
-    credential_bytes = plain_credential.encode("utf-8")
     try:
+        credential_bytes = plain_credential.encode("utf-8")
         result = bcrypt.checkpw(credential_bytes, hashed_credential)
         # Don't log the verification result as it could be used
         # to infer valid credentials
