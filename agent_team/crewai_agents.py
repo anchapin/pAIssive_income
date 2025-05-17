@@ -8,7 +8,7 @@ Adapt and extend these scaffolds to fit your use-case.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import Union
 
 # Configure logging
 logging.basicConfig(

@@ -23,7 +23,7 @@ import logging
 import os
 import re
 import sys
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Set, Tuple
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -295,10 +295,12 @@ class LoggerChecker(ast.NodeVisitor):
             List of parent nodes
         """
         parents = []
-        for parent in ast.walk(ast.parse(open(self.file_path, "r", encoding="utf-8").read())):
-            for child in ast.iter_child_nodes(parent):
-                if child == node:
-                    parents.append(parent)
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            file_content = f.read()
+            for parent in ast.walk(ast.parse(file_content)):
+                for child in ast.iter_child_nodes(parent):
+                    if child == node:
+                        parents.append(parent)
         return parents
 
     def visit_Try(self, node: ast.Try) -> None:

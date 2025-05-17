@@ -47,7 +47,7 @@ import os
 import re
 import socket
 from logging.handlers import RotatingFileHandler
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 # Import the secure logging utilities
 from common_utils.logging.secure_logging import get_secure_logger

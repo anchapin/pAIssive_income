@@ -8,7 +8,7 @@ import ast
 import logging
 import os
 import sys
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 # Set up logging
 logging.basicConfig(
