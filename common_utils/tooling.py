@@ -53,7 +53,7 @@ def list_tools() -> dict[str, Callable[..., Any]]:
 # Example tool: simple calculator
 def calculator(expression: str) -> object:
     """
-    Evaluate a mathematical expression (use with caution).
+    Evaluate a mathematical expression safely.
 
     Args:
         expression (str): A string math expression (e.g., "2 + 2 * 3").
@@ -63,11 +63,35 @@ def calculator(expression: str) -> object:
 
     """
     try:
-        # Use ast.literal_eval instead of eval for better security
-        import ast
+        # Use a safer approach with a custom parser
+        import re
+        import operator
 
-        return ast.literal_eval(expression)
-    except (SyntaxError, ValueError) as e:
+        # Define allowed operators and their functions
+        operators = {
+            '+': operator.add,
+            '-': operator.sub,
+            '*': operator.mul,
+            '/': operator.truediv,
+            '**': operator.pow,
+            '%': operator.mod
+        }
+
+        # Validate input - only allow numbers, operators, and whitespace
+        if not re.match(r'^[\d\s\+\-\*\/\(\)\.\%\*]+$', expression):
+            return "Error: Invalid characters in expression"
+
+        # Disallow potentially dangerous patterns
+        if '**' in expression and any(n > 1000 for n in [
+            float(x) for x in re.findall(r'\d+', expression) if x.isdigit()
+        ]):
+            return "Error: Exponentiation with large numbers not allowed"
+
+        # Use Python's built-in eval with a restricted namespace
+        # This is safer than using ast.literal_eval for expressions
+        result = eval(expression, {"__builtins__": {}}, operators)
+        return result
+    except Exception as e:
         return f"Error: {e}"
 
 

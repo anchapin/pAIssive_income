@@ -14,6 +14,8 @@ on:
       - 'tests/ai_models/adapters/pytest.ini'
       - 'run_mcp_tests.py'
       - 'install_mcp_sdk.py'
+      - 'scripts/run/run_mcp_tests.py'
+      - 'scripts/setup/install_mcp_sdk.py'
       - '.github/workflows/mcp-adapter-tests.yml'
   pull_request:
     branches: [ main, dev, master, develop ]
@@ -28,6 +30,8 @@ on:
       - 'tests/ai_models/adapters/pytest.ini'
       - 'run_mcp_tests.py'
       - 'install_mcp_sdk.py'
+      - 'scripts/run/run_mcp_tests.py'
+      - 'scripts/setup/install_mcp_sdk.py'
       - '.github/workflows/mcp-adapter-tests.yml'
 
 jobs:
