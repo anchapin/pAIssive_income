@@ -39,7 +39,12 @@ class MockCrew:
 try:
     import crewai
     CREWAI_AVAILABLE = True
-    logging.info(f"CrewAI is available (version: {crewai.__version__})")
+    # Access version safely
+    try:
+        version = crewai.__version__
+        logging.info(f"CrewAI is available (version: {version})")
+    except AttributeError:
+        logging.info("CrewAI is available (version attribute not found)")
 except ImportError as e:
     CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
@@ -52,6 +57,19 @@ except ImportError as e:
 
     # Try to add the current directory to sys.path
     sys.path.insert(0, os.getcwd())
+
+    # Try to import the mock module
+    try:
+        import mock_crewai as crewai
+        CREWAI_AVAILABLE = True
+        logging.info(f"Using mock_crewai module")
+    except ImportError:
+        try:
+            import crewai
+            CREWAI_AVAILABLE = True
+            logging.info(f"Using fallback crewai module")
+        except ImportError:
+            logging.warning("Could not import any crewai module")
 
 
 @pytest.mark.skipif(not CREWAI_AVAILABLE, reason="CrewAI is not available")
