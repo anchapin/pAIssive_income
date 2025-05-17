@@ -45,11 +45,24 @@ describe('UserGrowthLineChart', () => {
   it('toggles line visibility when checkboxes are clicked', () => {
     render(<UserGrowthLineChart data={mockData} />);
     const totalCheckbox = screen.getByLabelText(/Total Users/i);
+    const freeCheckbox = screen.getByLabelText(/Free Users/i);
+    const paidCheckbox = screen.getByLabelText(/Paid Users/i);
+
     expect(totalCheckbox).toBeChecked();
+    expect(freeCheckbox).toBeChecked();
+    expect(paidCheckbox).toBeChecked();
+
     fireEvent.click(totalCheckbox);
     expect(totalCheckbox).not.toBeChecked();
-    // The legend is always present, but line would not be rendered (visual test)
-    // To fully assert, would need to check the SVG paths per line.
+
+    fireEvent.click(freeCheckbox);
+    expect(freeCheckbox).not.toBeChecked();
+
+    fireEvent.click(paidCheckbox);
+    expect(paidCheckbox).not.toBeChecked();
+
+    // All lines toggled off: legend is still present, but lines are not visually rendered
+    // Would require SVG inspection for visual assertion
   });
 
   it('renders help tip text', () => {
@@ -57,25 +70,23 @@ describe('UserGrowthLineChart', () => {
     expect(screen.getByText(/Tip: Click and drag directly on the chart/i)).toBeInTheDocument();
   });
 
-  it('renders a reference line chip if reference line is added (simulate state)', () => {
-    // Simulate adding a reference line by manipulating state via a wrapper
-    const Wrapper = (props) => {
-      const [show, setShow] = React.useState(true);
-      // Expose a button to simulate reference line presence
-      return (
-        <>
-          <button onClick={() => setShow(false)}>Remove Ref</button>
-          <UserGrowthLineChart
-            {...props}
-            // patch referenceLines prop via mock/hook if needed in real test
-          />
-        </>
-      );
-    };
+  it('renders a single data point', () => {
+    const singleData = [{ month: 1, totalUsers: 50, freeUsers: 30, paidUsers: 20 }];
+    render(<UserGrowthLineChart data={singleData} />);
+    expect(screen.getByText(/User Growth Projections/i)).toBeInTheDocument();
+    expect(screen.getByText('Month 1')).toBeInTheDocument();
+    expect(screen.getByText(/Total Users/i)).toBeInTheDocument();
+  });
+
+  it('renders with missing optional props (no title)', () => {
     render(<UserGrowthLineChart data={mockData} />);
-    // By default, no reference lines
-    expect(screen.queryByText(/Reference Lines:/i)).not.toBeInTheDocument();
-    // Real state manipulation for reference lines would require integration/mount test
+    // Default title is "User Growth Projections"
+    expect(screen.getByText(/User Growth Projections/i)).toBeInTheDocument();
+  });
+
+  it('shows the "Reset Zoom" button', () => {
+    render(<UserGrowthLineChart data={mockData} />);
+    expect(screen.getByRole('button', { name: /reset zoom/i })).toBeInTheDocument();
   });
 
   it('ensures accessibility: SVG line chart present', () => {
