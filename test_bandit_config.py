@@ -17,7 +17,6 @@ def test_bandit_config():
     if not bandit_yaml.exists() and not bandit_ini.exists():
         print("Error: Neither bandit.yaml nor .bandit found")
         return False
-
     # Run bandit with the available configuration
     try:
         print("Running bandit help command...")
@@ -31,7 +30,6 @@ def test_bandit_config():
 
         # Create security-reports directory if it doesn't exist
         os.makedirs("security-reports", exist_ok=True)
-
         # Test with bandit.yaml if it exists
         if bandit_yaml.exists():
             print("Running bandit with bandit.yaml...")
@@ -54,7 +52,6 @@ def test_bandit_config():
                     print("Error output:")
                     print(result.stderr)
                     return False
-
         # Test with .bandit if it exists
         if bandit_ini.exists():
             print("Running bandit with .bandit...")
@@ -77,7 +74,6 @@ def test_bandit_config():
                     print("Error output:")
                     print(result.stderr)
                     return False
-
         return True
     except Exception as e:
         print(f"Error running bandit: {e}")
