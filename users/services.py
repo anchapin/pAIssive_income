@@ -34,12 +34,10 @@ class UserProtocol(Protocol):
         self, username: str, email: str, password_hash: str, **kwargs: object
     ) -> None:
         """Initialize a user model with required attributes."""
-        ...
 
     @classmethod
     def filter(cls, *args: object) -> object:
         """Filter users based on provided criteria."""
-        ...
 
 
 # Define protocol for DB session
@@ -50,11 +48,9 @@ class DBSessionProtocol(Protocol):
 
     def add(self, obj: object) -> None:
         """Add an object to the session."""
-        ...
 
     def commit(self) -> None:
         """Commit the current transaction."""
-        ...
 
 
 # Initialize with None values that will be replaced if imports succeed

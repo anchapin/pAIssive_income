@@ -299,6 +299,8 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
     # Try to create the server, retrying with different ports if needed
     max_retries = 5
+    httpd = None  # Initialize httpd to None to avoid uninitialized variable warning
+
     for retry in range(max_retries):
         try:
             httpd = ThreadedHTTPServer(server_address, APIHandler)
@@ -313,6 +315,11 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
                     "Failed to start server after %d attempts", max_retries
                 )
                 raise
+
+    # Verify that httpd was successfully initialized
+    if httpd is None:
+        logger.error("Failed to initialize HTTP server")
+        return
 
     logger.info("Starting API server on %s:%d", host, port)
     try:

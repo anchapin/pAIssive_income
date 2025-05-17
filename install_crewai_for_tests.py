@@ -51,12 +51,6 @@ def run_command(
             command = command.split()
 
         logger.info("Running command: %s", command)
-        # Security: Ensure we're not using shell=True with untrusted input
-        if shell:
-            logger.warning(
-                "Security: shell=True is not recommended, using shell=False instead"
-            )
-            shell = False
 
         # Run the command with shell=False for security
         # Using a list for command and shell=False is secure

@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
-
-if TYPE_CHECKING:
-    from .agent import Agent
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
@@ -16,7 +13,7 @@ class Task:
     def __init__(
         self,
         description: str = "",
-        agent: Agent | None = None,  # Using string annotation to avoid circular import
+        agent: object = None,  # Using object to avoid circular import
         **kwargs: dict[str, Any],
     ) -> None:
         """

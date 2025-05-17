@@ -218,7 +218,11 @@ def main() -> int:
             logger.info("MCP SDK is already installed")
             return 0
     except ImportError:
-        pass
+        # Pass silently if importlib.util is not available
+        # This is acceptable as we'll attempt installation anyway
+        logger.debug(
+            "ImportError when checking if MCP SDK is installed, continuing with installation"
+        )
 
     # Check if we're running on Windows
     if platform.system() == "Windows":
@@ -227,8 +231,9 @@ def main() -> int:
         os.environ["CI"] = "true"
         os.environ["GITHUB_ACTIONS"] = "true"
 
-        # Create mock MCP SDK
-        success = create_mock_mcp_sdk()
+        # Create mock MCP SDK and log the result
+        mock_created = create_mock_mcp_sdk()
+        logger.info("Mock creation %s", "succeeded" if mock_created else "failed")
 
         # Always return success on Windows to allow tests to continue
         logger.info("Returning success on Windows regardless of mock creation result")

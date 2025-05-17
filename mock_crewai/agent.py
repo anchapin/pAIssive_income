@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from .task import Task
+from typing import Any
 
 
 class Agent:
@@ -34,8 +31,8 @@ class Agent:
         self.kwargs = kwargs
 
     def execute_task(
-        self, task: Task
-    ) -> str:  # Using string annotation to avoid circular import
+        self, task: object
+    ) -> str:  # Using object to avoid circular import
         """
         Execute a task and return a result.
 
@@ -46,4 +43,5 @@ class Agent:
             A string representing the task execution result
 
         """
-        return f"Executed task: {task.description}"
+        # Access task.description dynamically to avoid circular import issues
+        return f"Executed task: {getattr(task, 'description', 'Unknown task')}"
