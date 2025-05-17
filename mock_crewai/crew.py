@@ -27,14 +27,19 @@ class Crew:
         self.tasks = tasks or []
         self.kwargs = kwargs
 
-    def kickoff(self) -> str:
+    def kickoff(self, inputs=None) -> str:
         """
         Execute the crew's tasks and return a result.
+
+        Args:
+            inputs: Optional inputs for the crew execution
 
         Returns:
             A string representing the crew execution result
 
         """
+        if inputs:
+            return f"Mock crew output with inputs: {inputs}"
         return "Mock crew output"
 
     # Alias for backward compatibility
