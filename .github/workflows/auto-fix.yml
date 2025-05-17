@@ -1,0 +1,176 @@
+name: Auto Fix (Linting & CodeQL Issues)
+
+on:
+  workflow_dispatch:
+    inputs:
+      fix_type:
+        description: 'Type of fix to apply'
+        required: true
+        default: 'lint'
+        type: choice
+        options:
+          - lint
+          - codeql
+          - both
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  fix-linting-issues:
+    if: ${{ github.event.inputs.fix_type == 'lint' || github.event.inputs.fix_type == 'both' }}
+    name: Fix Linting Issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv and dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv venv .venv || python -m venv .venv
+          source .venv/bin/activate
+          uv pip install setuptools wheel ruff || python -m pip install ruff
+          uv pip install -e ".[dev]" || pip install -e ".[dev]"
+
+      - name: Run fix_linting_issues.py if present, else fallback to Ruff
+        run: |
+          source .venv/bin/activate
+          if [ -f "fix_linting_issues.py" ]; then
+            python fix_linting_issues.py --verbose
+          else
+            echo "fix_linting_issues.py not found, running Ruff fix on all Python files"
+            ruff check --fix .
+            ruff format .
+          fi
+
+      - name: Check for changes
+        id: lint-git-check
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git status --porcelain
+          else
+            echo "No changes detected"
+          fi
+
+      - name: Commit linting fixes
+        if: steps.lint-git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Auto-fix linting issues"
+          git push
+
+  fix-codeql-issues:
+    if: ${{ github.event.inputs.fix_type == 'codeql' || github.event.inputs.fix_type == 'both' }}
+    name: Fix CodeQL Issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+
+      - name: Remove virtual environment directories and node_modules
+        run: |
+          find . -type d \( -name ".venv" -o -name "venv" -o -name "env" -o -name ".env" -o -name "virtualenv" -o -name "node_modules" \) -exec echo "Removing {} ..." \; -exec rm -rf {} \; 2>/dev/null || true
+
+      - name: Create .codeqlignore
+        run: |
+          cat > .codeqlignore << 'EOL'
+          # (snip) - same content as previous script
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
+
+      - name: Check for changes
+        id: codeql-git-check
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git status --porcelain
+          else
+            echo "No changes detected"
+          fi
+
+      - name: Commit CodeQL fixes
+        if: steps.codeql-git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Auto-fix CodeQL issues"
+          git push

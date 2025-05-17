@@ -16,6 +16,16 @@ on:
           - ubuntu
           - windows
           - both
+      mode:
+        description: 'Test Mode'
+        required: false
+        default: 'default'
+        type: choice
+        options:
+          - default
+          - mock
+          - fixed
+          - ci
 
 jobs:
   e2e:
@@ -28,6 +38,28 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # Mode-specific step for mock mode
+      - name: Setup mock API server dependencies
+        if: ${{ github.event.inputs.mode == 'mock' }}
+        run: |
+          pnpm add -D express@5.1.0 cors@2.8.5 body-parser@2.2.0
+
+      # Mode-specific step for fixed mode (example)
+      - name: Setup fixed E2E environment
+        if: ${{ github.event.inputs.mode == 'fixed' }}
+        run: |
+          echo "Running in FIXED E2E mode"
+          # Add any setup steps unique to fixed mode here
+
+      # Mode-specific step for CI-only
+      - name: Setup CI E2E environment
+        if: ${{ github.event.inputs.mode == 'ci' }}
+        run: |
+          echo "Running in CI E2E mode"
+          # Add any CI-specific setup here
+
+      # Continue with the original E2E steps, using conditional logic as needed for each mode
 
       # Set up Node.js and pnpm directly in this job
       - name: Setup pnpm
