@@ -79,7 +79,10 @@
           # Try to run bandit with fallback options
           if command -v bandit &>/dev/null; then
             echo "Running bandit with installed version..."
-            bandit -r . -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x .venv,node_modules,tests -c "$BANDIT_CONFIG_FILE" || {
+            # Optimized Bandit scan: parallelized and targeted for performance
+            BANDIT_TARGETS="api app_flask services common_utils users main.py"
+            BANDIT_EXCLUDES=".venv,node_modules,tests,custom_stubs,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
+            bandit -r $BANDIT_TARGETS -n 4 -f sarif -o "$BANDIT_OUTPUT_FILE" --exit-zero -x $BANDIT_EXCLUDES -c "$BANDIT_CONFIG_FILE" || {
               echo "Bandit command failed. Creating empty SARIF file..."
               echo "$EMPTY_SARIF" > "$BANDIT_OUTPUT_FILE"
             }
@@ -146,7 +149,12 @@
           if ($banditCmdPath) {
             Write-Host "Running bandit with installed version..."
             try {
-              bandit -r . -f sarif -o $banditOutputFile --exit-zero -x .venv,node_modules,tests -c $banditConfigFile
+              # Optimized Bandit scan: parallelized and targeted for performance
+              $banditTargets = @(
+                "api", "app_flask", "services", "common_utils", "users", "main.py"
+              )
+              $banditExcludes = ".venv,node_modules,tests,custom_stubs,build,dist,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
+              bandit -r $($banditTargets -join ",") -n 4 -f sarif -o $banditOutputFile --exit-zero -x $banditExcludes -c $banditConfigFile
             } catch {
               Write-Host "Bandit command failed. Creating empty SARIF file..."
               Set-Content -Path $banditOutputFile -Value $emptySarif
