@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-# Only import Task for type checking to avoid circular imports at runtime
 if TYPE_CHECKING:
     from .task import Task
 
@@ -34,9 +33,7 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(
-        self, task: Task
-    ) -> str:  # Use string literal for forward reference
+    def execute_task(self, task: Task) -> str:
         """
         Execute a task and return a result.
 

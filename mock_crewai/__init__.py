@@ -14,9 +14,8 @@ don't need the full CrewAI functionality.
 # Define version first
 __version__ = "0.120.0"
 
-# Import in a specific order to avoid circular imports
-# First import crew which doesn't depend on the other modules
-# Then import agent and task
+# Import classes - using string type annotations in the classes themselves
+# to avoid circular imports
 from .agent import Agent
 from .crew import Crew
 from .task import Task
