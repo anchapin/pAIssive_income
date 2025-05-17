@@ -11,7 +11,7 @@ to be installed, which can be useful in CI environments or for users who
 don't need the full CrewAI functionality.
 """
 
-# Define version first
+# Define version first at the module level
 __version__ = "0.120.0"
 
 # Import types first to avoid circular imports

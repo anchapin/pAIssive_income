@@ -184,6 +184,11 @@ class TestMockCrewAI:
         result = agent.execute_task(fake_task)
         assert "Unknown task" in result
 
+        # Test execute_task with context
+        result_with_context = agent.execute_task(fake_task, context={"key": "value"})
+        assert "Unknown task" in result_with_context
+        assert "context" in result_with_context
+
     def test_task_str_repr(self):
         """Test the Task __str__ and __repr__ methods."""
         # Create an agent

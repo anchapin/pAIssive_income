@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+# Define version attribute at the module level
 __version__ = "0.120.0"
 
 
