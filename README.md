@@ -1,6 +1,13 @@
-# Speeding Up Python Tests
+# pAIssive_income
 
-This project is configured for fast test runs. Here are some tips:
+Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
+
+## Features
+
+- **AI Agent Team**: Utilize a team of AI agents to generate niche software and AI bots
+- **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
+- **CopilotKit Integration**: Add AI copilot features to the React frontend
+- **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
 
 > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).
 
@@ -63,6 +70,41 @@ docker-compose up --build
 This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
 
 For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+
+## CrewAI + CopilotKit Integration
+
+This project includes integration with CrewAI and CopilotKit to enable powerful multi-agent AI features in the React frontend.
+
+### Features
+
+- **Agentic Chat**: Chat with AI copilots and call frontend tools
+- **Human-in-the-Loop**: Collaborate with the AI, plan tasks, and decide actions interactively
+- **Agentic/Generative UI**: Assign long-running tasks to agents and see real-time progress
+
+### Usage
+
+To use the CrewAI + CopilotKit integration:
+
+1. Install the required dependencies:
+   ```bash
+   # Backend (CrewAI)
+   pip install '.[agents]'
+
+   # Frontend (CopilotKit)
+   cd ui/react_frontend
+   npm install
+   ```
+
+2. Start the application:
+   ```bash
+   # Using Docker Compose
+   docker compose up --build
+
+   # Or manually
+   python app.py
+   ```
+
+For more details on the CrewAI + CopilotKit integration, see [docs/CrewAI_CopilotKit_Integration.md](docs/CrewAI_CopilotKit_Integration.md).
 
 ## 6. Mock External Calls for Speed
 
