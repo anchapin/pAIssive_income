@@ -304,187 +304,93 @@ test.describe('AgentUI Integration Tests', () => {
     }
   });
 
-  // New test for the About page with AgentUI component
-  test('About page with AgentUI component', async ({ page }) => {
-    try {
-      // Check if the server is running first
-      const serverRunning = await isServerRunning(BASE_URL);
-      if (!serverRunning) {
-        console.warn(`Server at ${BASE_URL} is not running, but will try to navigate anyway`);
-        createReport('about-page-server-warning.txt',
-          `Server at ${BASE_URL} is not running at ${new Date().toISOString()}`);
-      }
+  // Enhanced test for the About page with AgentUI component and more assertions
+  test('About page with AgentUI component renders agent and triggers actions', async ({ page }) => {
+    // Mock agent and action endpoints
+    await page.route('**/api/agent', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          name: 'Test Agent',
+          description: 'This is a test agent for e2e testing'
+        })
+      })
+    );
+    await page.route('**/api/agent/action', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'success',
+          action_id: 123,
+          timestamp: new Date().toISOString()
+        })
+      })
+    );
 
-      // Check if the API server is running
-      const apiServerRunning = await isServerRunning(`${API_URL}/health`);
-      if (!apiServerRunning) {
-        console.warn(`API server at ${API_URL} is not running, will use page route mocking instead`);
-        createReport('about-page-api-warning.txt',
-          `API server at ${API_URL} is not running at ${new Date().toISOString()}`);
-      }
+    // Navigate to About page
+    await page.goto(`${BASE_URL}/about`, { timeout: 30000 });
+    await page.waitForLoadState('load', { timeout: 30000 });
 
-      // Set up API mocking with more robust error handling
-      console.log('Setting up API mocking for About page test...');
+    // Assert Agent name and description are visible
+    const agentName = await page.getByText(/test agent/i, { exact: false });
+    await expect(agentName).toBeVisible();
+    const agentDesc = await page.getByText(/test agent for e2e testing/i, { exact: false });
+    await expect(agentDesc).toBeVisible();
 
-      // Mock the agent endpoint with retry logic
-      let mockSetupSuccess = false;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          await page.route('**/api/agent', route => {
-            console.log('Mocking /api/agent endpoint');
-            return route.fulfill({
-              status: 200,
-              contentType: 'application/json',
-              body: JSON.stringify({
-                id: 1,
-                name: 'Test Agent',
-                description: 'This is a test agent for e2e testing'
-              })
-            });
-          });
-          mockSetupSuccess = true;
-          break;
-        } catch (mockError) {
-          console.warn(`Attempt ${attempt} to set up API mocking failed: ${mockError}`);
-          if (attempt === 3) {
-            console.error('All attempts to set up API mocking failed');
-          } else {
-            await new Promise(r => setTimeout(r, 1000)); // Wait 1 second before retry
-          }
-        }
-      }
+    // Accessibility: Agent card is a region with label
+    const agentRegion = await page.$('[role=region][aria-label*="agent"], [aria-labelledby*="agent"]');
+    expect(agentRegion).not.toBeNull();
 
-      if (!mockSetupSuccess) {
-        console.warn('Proceeding without API mocking');
-        createReport('about-page-mock-warning.txt',
-          `Failed to set up API mocking at ${new Date().toISOString()}`);
-      } else {
-        createReport('about-page-mock-success.txt',
-          `Successfully set up API mocking at ${new Date().toISOString()}`);
-      }
+    // Find and click a primary action button (simulate agent action)
+    const actionButton = await page.getByRole('button', { name: /run|trigger|start|action/i });
+    await expect(actionButton).toBeVisible();
+    await actionButton.focus();
+    await expect(actionButton).toBeFocused();
+    await actionButton.click();
 
-      // Also mock the action endpoint
-      try {
-        await page.route('**/api/agent/action', route => {
-          console.log('Mocking /api/agent/action endpoint');
-          return route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-              status: 'success',
-              action_id: 123,
-              timestamp: new Date().toISOString()
-            })
-          });
-        });
-        console.log('Successfully set up mocking for /api/agent/action');
-      } catch (actionMockError) {
-        console.warn(`Failed to set up action API mocking: ${actionMockError}`);
-      }
+    // Assert API action response yields a user-visible update (toast, result, loader, etc)
+    // Here we look for a success message or updated UI
+    const actionResult = await page.getByText(/success|completed|action received/i, { exact: false, timeout: 10000 });
+    await expect(actionResult).toBeVisible();
 
-      // Try to navigate to the homepage first to ensure the app is loaded
-      console.log('Navigating to homepage first...');
-      try {
-        await page.goto(BASE_URL, { timeout: 30000 });
-        await page.waitForLoadState('load', { timeout: 30000 });
-        console.log('Homepage loaded successfully, now navigating to About page');
-        await takeScreenshot(page, 'homepage-before-about.png');
-      } catch (homeError) {
-        console.warn(`Failed to load homepage before About page: ${homeError}`);
-        createReport('about-page-home-error.txt',
-          `Failed to load homepage before About page at ${new Date().toISOString()}\nError: ${homeError.toString()}`);
-      }
+    // Accessibility: success message is announced as a status or alert
+    const statusEl = await page.$('[role=status], [role=alert]');
+    expect(statusEl).not.toBeNull();
 
-      // Navigate to the About page with increased timeout and retry logic
-      console.log('Navigating to About page...');
-      let navigationSuccess = false;
+    // Simulate error: mock agent endpoint to fail
+    await page.route('**/api/agent', route =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Agent error' })
+      })
+    );
+    // Reload About page to trigger error
+    await page.goto(`${BASE_URL}/about`, { timeout: 30000 });
+    const errorMsg = await page.getByText(/agent error|failed|could not load/i, { exact: false, timeout: 10000 });
+    await expect(errorMsg).toBeVisible();
 
-      // Create a simple HTML file with test info before navigation
-      const preNavReport = `
-        <!DOCTYPE html>
-        <html>
-        <head><title>Pre-Navigation Info</title></head>
-        <body>
-          <h1>About Page Test - Pre-Navigation Info</h1>
-          <p>Test run at: ${new Date().toISOString()}</p>
-          <p>Server running: ${serverRunning ? 'Yes' : 'No'}</p>
-          <p>API server running: ${apiServerRunning ? 'Yes' : 'No'}</p>
-          <p>API mocking setup: ${mockSetupSuccess ? 'Success' : 'Failed'}</p>
-          <p>About to navigate to: ${BASE_URL}/about</p>
-        </body>
-        </html>
-      `;
-      fs.writeFileSync(path.join(reportDir, 'about-page-pre-nav.html'), preNavReport);
+    // Accessibility: error is announced as status or alert
+    const errorStatus = await page.$('[role=status], [role=alert]');
+    expect(errorStatus).not.toBeNull();
 
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          // Try to navigate to the About page
-          await page.goto(`${BASE_URL}/about`, { timeout: 30000 });
-          await page.waitForLoadState('load', { timeout: 30000 });
-          navigationSuccess = true;
-          console.log(`Successfully navigated to About page on attempt ${attempt}`);
-          break;
-        } catch (navError) {
-          console.warn(`Attempt ${attempt} to navigate to About page failed: ${navError}`);
-
-          // Take a screenshot after each failed attempt
-          await takeScreenshot(page, `about-page-attempt-${attempt}-failed.png`);
-
-          if (attempt === 3) {
-            console.error('All attempts to navigate to About page failed');
-          } else {
-            console.log(`Waiting 5 seconds before retry...`);
-            await new Promise(r => setTimeout(r, 5000));
-          }
-        }
-      }
-
-      // Take a screenshot regardless of navigation success
-      await takeScreenshot(page, 'about-page-final.png');
-
-      if (navigationSuccess) {
-        console.log('About page loaded successfully');
-        createReport('about-page-success.txt',
-          `About page loaded successfully at ${new Date().toISOString()}`);
-
-        // Try to find any content on the page
-        const bodyContent = await page.textContent('body');
-        createReport('about-page-content.txt',
-          `Page content length: ${bodyContent?.length || 0}\nFirst 500 chars: ${bodyContent?.substring(0, 500) || 'No content'}`);
-      } else {
-        console.warn('About page navigation failed, but continuing with test');
-        createReport('about-page-warning.txt',
-          `About page navigation failed at ${new Date().toISOString()}, but test will pass`);
-      }
-
-      // Create a final HTML report
-      const htmlReport = `
-        <!DOCTYPE html>
-        <html>
-        <head><title>About Page Test Results</title></head>
-        <body>
-          <h1>About Page Test Results</h1>
-          <p>Test run at: ${new Date().toISOString()}</p>
-          <p>Navigation success: ${navigationSuccess ? 'Yes' : 'No'}</p>
-          <p>Server running: ${serverRunning ? 'Yes' : 'No'}</p>
-          <p>API server running: ${apiServerRunning ? 'Yes' : 'No'}</p>
-          <p>API mocking setup: ${mockSetupSuccess ? 'Success' : 'Failed'}</p>
-          <p>BASE_URL: ${BASE_URL}</p>
-          <p>API_URL: ${API_URL}</p>
-        </body>
-        </html>
-      `;
-      fs.writeFileSync(path.join(reportDir, 'about-page-test-report.html'), htmlReport);
-
-      // Always pass this test
-      expect(true).toBeTruthy();
-    } catch (error) {
-      console.error(`Error in About page test: ${error}`);
-      createReport('about-page-error.txt',
-        `Test failed at ${new Date().toISOString()}\nError: ${error.toString()}`);
-
-      // Still pass the test to avoid CI failures
-      expect(true).toBeTruthy();
+    // Keyboard navigation: Tab to action button and trigger via keyboard
+    await page.goto(`${BASE_URL}/about`, { timeout: 30000 });
+    await page.keyboard.press('Tab'); // Focus first tabbable element
+    // Tab until action button focused
+    let tries = 0;
+    while (tries < 10) {
+      const active = await page.evaluate(() => document.activeElement?.tagName);
+      if (active === 'BUTTON') break;
+      await page.keyboard.press('Tab');
+      tries++;
     }
+    await page.keyboard.press('Space');
+    // Should show action result as before
+    const kbResult = await page.getByText(/success|completed|action received/i, { exact: false, timeout: 10000 });
+    await expect(kbResult).toBeVisible();
   });
 });

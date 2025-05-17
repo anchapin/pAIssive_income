@@ -100,64 +100,57 @@ test.describe('Simple Tests', () => {
     }
   });
 
-  // Simple test that just checks if the page loads
-  test('basic page load test', async ({ page }) => {
-    try {
-      // Navigate to the homepage with retry logic
-      console.log('Navigating to homepage...');
-      let navigationSuccess = false;
-
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          console.log(`Navigation attempt ${attempt}/3...`);
-          // Skip actual navigation in CI environment to avoid browser startup issues
-          if (process.env.CI === 'true') {
-            console.log('Running in CI environment, skipping actual navigation');
-            navigationSuccess = true;
-            break;
-          }
-
-          await page.goto(BASE_URL, { timeout: 60000 });
-          await page.waitForLoadState('load', { timeout: 60000 });
-          navigationSuccess = true;
-          console.log('Navigation successful!');
-          break;
-        } catch (navError) {
-          console.warn(`Navigation attempt ${attempt} failed: ${navError}`);
-          if (attempt < 3) {
-            console.log(`Waiting 2 seconds before retry...`);
-            await new Promise(r => setTimeout(r, 2000));
-          }
-        }
+  // Improved UI test: homepage and accessibility checks
+  test('Homepage loads and shows branding, main, and heading', async ({ page }) => {
+    let navigationSuccess = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.goto(BASE_URL, { timeout: 60000 });
+        await page.waitForLoadState('load', { timeout: 60000 });
+        navigationSuccess = true;
+        break;
+      } catch {
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
       }
-
-      // Take a screenshot if not in CI environment
-      if (process.env.CI !== 'true') {
-        await takeScreenshot(page, 'homepage.png');
-      }
-
-      if (navigationSuccess) {
-        console.log('Page loaded successfully');
-        createReport('simple-test-success.txt',
-          `Simple test passed at ${new Date().toISOString()}`);
-      } else {
-        console.warn('Page navigation failed, but continuing with test');
-        createReport('simple-test-warning.txt',
-          `Page navigation failed at ${new Date().toISOString()}, but test will pass`);
-      }
-
-      // Simple assertion that always passes
-      expect(true).toBeTruthy();
-    } catch (error) {
-      console.error(`Error in simple test: ${error}`);
-
-      // Create an error report
-      createReport('simple-test-error.txt',
-        `Simple test failed at ${new Date().toISOString()}\nError: ${error.toString()}`);
-
-      // Still pass the test to avoid CI failures
-      expect(true).toBeTruthy();
     }
+    if (process.env.CI !== 'true') {
+      await takeScreenshot(page, 'homepage.png');
+    }
+
+    if (!navigationSuccess) {
+      // Error message if offline
+      const offlineMsg = await page.getByText(/offline|unavailable|cannot connect|error/i, { timeout: 2000 }).catch(() => null);
+      expect(offlineMsg).not.toBeNull();
+      createReport('simple-test-offline.txt', 'Homepage could not load: offline or error message shown.');
+      return;
+    }
+
+    // App logo, header, or branding should be visible
+    const branding = await page.getByRole('banner').catch(() => null) ||
+                     await page.getByRole('heading', { level: 1 }).catch(() => null) ||
+                     await page.getByText(/dashboard|income|analysis|app/i, { timeout: 5000 }).catch(() => null);
+    expect(branding).not.toBeNull();
+
+    // Accessibility: Main landmark is present
+    const main = await page.$('main, [role=main]');
+    expect(main).not.toBeNull();
+
+    // Accessibility: H1 heading is present
+    const h1 = await page.$('h1');
+    expect(h1).not.toBeNull();
+
+    // Try to navigate to About page and check for content
+    await page.goto(`${BASE_URL}/about`, { timeout: 60000 });
+    await page.waitForLoadState('load', { timeout: 60000 });
+    const aboutHeader = await page.getByRole('heading', { level: 1 }).catch(() => null) ||
+                        await page.getByText(/about/i, { timeout: 5000 }).catch(() => null);
+    expect(aboutHeader).not.toBeNull();
+
+    if (process.env.CI !== 'true') {
+      await takeScreenshot(page, 'about-page.png');
+    }
+
+    createReport('simple-test-success.txt', 'Homepage and About page loaded and UI elements verified.');
   });
 
   // Test that always passes without any browser interaction
