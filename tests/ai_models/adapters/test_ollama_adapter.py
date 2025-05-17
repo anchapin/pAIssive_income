@@ -140,3 +140,42 @@ async def test_exception_handling(mock_aiohttp_session):
         # Verify exception handling
         assert "error" in result
         assert result["error"] == "Connection error"
+
+
+@pytest.mark.asyncio
+async def test_close_session(mock_aiohttp_session):
+    """Test closing the session."""
+    mock_session, _ = mock_aiohttp_session
+
+    with patch("aiohttp.ClientSession", return_value=mock_session):
+        adapter = OllamaAdapter(base_url="http://test-ollama:11434")
+
+        # Get session to initialize it
+        session = await adapter._get_session()
+        assert session == mock_session
+
+        # Close the session
+        await adapter.close()
+
+        # Verify session is set to None
+        assert adapter._session is None
+
+
+@pytest.mark.asyncio
+async def test_close_session_when_already_closed(mock_aiohttp_session):
+    """Test closing the session when it's already closed."""
+    mock_session, _ = mock_aiohttp_session
+    mock_session.closed = True
+
+    with patch("aiohttp.ClientSession", return_value=mock_session):
+        adapter = OllamaAdapter(base_url="http://test-ollama:11434")
+        adapter._session = mock_session
+
+        # Close the session
+        await adapter.close()
+
+        # Verify session close was not called
+        mock_session.close.assert_not_called()
+
+        # Verify session is set to None
+        assert adapter._session is None
