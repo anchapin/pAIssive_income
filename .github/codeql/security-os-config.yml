@@ -1,0 +1,155 @@
+name: "Unified CodeQL Configuration for All Platforms"
+
+# This configuration file provides a unified configuration for CodeQL analysis
+# across all platforms (Windows, macOS, Linux)
+
+# Specify paths to analyze
+paths:
+  # JavaScript/TypeScript paths
+  - 'ui'
+  - 'sdk/javascript'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.json'
+  - '**/*.html'
+  
+  # Python paths
+  - '**/*.py'
+  - '**/*.pyw'
+  - '**/*.pyi'
+
+# Specify paths to exclude from analysis
+paths-ignore:
+  # Package management
+  - '**/node_modules/**'
+  - '**/package-lock.json'
+  - '**/yarn.lock'
+  - '**/pnpm-lock.yaml'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/env/**'
+  - '**/.env/**'
+  - '**/pip-wheel-metadata/**'
+
+  # Build artifacts
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/out/**'
+  - '**/vendor/**'
+  - '**/.next/**'
+  - '**/__pycache__/**'
+  - '**/*.egg-info/**'
+  - '**/.pytest_cache/**'
+  - '**/.mypy_cache/**'
+  - '**/.ruff_cache/**'
+
+  # Test files
+  - '**/*.test.js'
+  - '**/*.test.jsx'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.jsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+  - '**/__tests__/**'
+  - '**/__mocks__/**'
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/jest.config.js'
+  - '**/jest.setup.js'
+  - '**/cypress/**'
+  - '**/playwright-report/**'
+  - '**/pytest.ini'
+  - '**/conftest.py'
+
+  # Minified files and type definitions
+  - '**/*.min.js'
+  - '**/*.d.ts'
+
+  # Configuration files
+  - '**/.eslintrc.*'
+  - '**/.prettierrc.*'
+  - '**/tsconfig.json'
+  - '**/babel.config.js'
+  - '**/webpack.config.js'
+  - '**/rollup.config.js'
+  - '**/setup.py'
+  - '**/setup.cfg'
+  - '**/pyproject.toml'
+  - '**/.flake8'
+  - '**/.pylintrc'
+  - '**/tox.ini'
+  - '**/.coveragerc'
+
+  # Documentation
+  - '**/*.md'
+  - '**/*.mdx'
+  - '**/*.rst'
+  - '**/docs/**'
+  - '**/sphinx/**'
+
+# Query filters
+queries:
+  # Include the standard security and quality queries
+  - uses: security-and-quality
+
+  # Include additional security queries
+  - uses: security-extended
+
+  # Include language-specific security queries
+  - uses: ./javascript-security-queries.qls
+  - uses: ./python-security-queries.qls
+
+  # Exclude specific queries that might cause false positives
+  - exclude:
+      id: js/unused-local-variable
+      reason: "Not a security concern"
+  - exclude:
+      id: js/trivial-conditional
+      reason: "Not a security concern"
+  - exclude:
+      id: js/incomplete-url-scheme-check
+      reason: "Often produces false positives with framework URLs"
+  - exclude:
+      id: js/useless-assignment-to-local
+      reason: "Not a security concern"
+  - exclude:
+      id: js/unused-parameter
+      reason: "Not a security concern"
+  - exclude:
+      id: py/unused-local-variable
+      reason: "Not a security concern"
+  - exclude:
+      id: py/trivial-conditional
+      reason: "Not a security concern"
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Query suite definitions
+query-filters:
+  - exclude:
+      tags contain: test
+  - exclude:
+      tags contain: maintainability
+      precision below: high
+  - exclude:
+      tags contain: correctness
+      precision below: high
+
+# Trap errors during extraction
+trap-for-errors: true
+
+# Database extraction settings
+database:
+  # Exclude files that are too large to analyze effectively
+  max-file-size-mb: 10
+  # Exclude files with too many lines
+  max-lines-of-code: 25000
+  # Exclude files with too many AST nodes
+  max-ast-nodes: 500000
+  # Extraction timeout per file
+  extraction-timeout: 300
