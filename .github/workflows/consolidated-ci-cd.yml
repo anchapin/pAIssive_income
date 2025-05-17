@@ -329,14 +329,12 @@ jobs:
 
           # Run safety check
           safety check || true
-          # Run Bandit with the generated configuration
-          platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-          bandit_config_file=".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
-          if [ -f "$bandit_config_file" ]; then
-            echo "Using Bandit configuration file: $bandit_config_file"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c "$bandit_config_file" --exclude ".venv,node_modules,tests" || true
+          # Run Bandit with the bandit.yaml configuration
+          if [ -f "bandit.yaml" ]; then
+            echo "Using bandit.yaml configuration file"
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests" || true
           else
-            echo "Bandit configuration file not found. Using default configuration."
+            echo "bandit.yaml configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
           fi
           # Create empty SARIF file if it doesn't exist
@@ -382,14 +380,13 @@ jobs:
           } catch {
             Write-Host "Safety check failed, but continuing: $_"
           }
-          # Run Bandit with the generated configuration
-          $banditConfigFile = ".github/bandit/bandit-config-windows-${{ github.run_id }}.yaml"
+          # Run Bandit with the bandit.yaml configuration
           try {
-            if (Test-Path $banditConfigFile) {
-              Write-Host "Using Bandit configuration file: $banditConfigFile"
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c $banditConfigFile --exclude ".venv,node_modules,tests"
+            if (Test-Path "bandit.yaml") {
+              Write-Host "Using bandit.yaml configuration file"
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests"
             } else {
-              Write-Host "Bandit configuration file not found. Using default configuration."
+              Write-Host "bandit.yaml configuration file not found. Using default configuration."
               bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests"
             }
           } catch {
