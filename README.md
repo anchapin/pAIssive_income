@@ -3,6 +3,8 @@
 [![codecov](https://codecov.io/gh/your-github-username/your-repo-name/branch/main/graph/badge.svg)](https://codecov.io/gh/your-github-username/your-repo-name)
 
 > **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
+>
+> **Pull Requests will receive automated coverage comments from the [Codecov](https://about.codecov.io/) bot when Codecov integration is enabled for your repository.**
 
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
