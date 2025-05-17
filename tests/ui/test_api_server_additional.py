@@ -142,8 +142,19 @@ class TestThreadedHTTPServerAdditional:
         # Create the server
         server = ThreadedHTTPServer(('localhost', port), APIHandler)
 
+        # Create an event to signal when the server has processed the request
+        request_processed = threading.Event()
+
+        # Define a function to run the server and handle shutdown
+        def run_test_server():
+            try:
+                # Handle one request and then exit
+                server.handle_request()
+            finally:
+                request_processed.set()
+
         # Start the server in a separate thread
-        server_thread = threading.Thread(target=server.handle_request)
+        server_thread = threading.Thread(target=run_test_server)
         server_thread.daemon = True
         server_thread.start()
 
@@ -162,6 +173,9 @@ class TestThreadedHTTPServerAdditional:
                 # Verify the response contains the expected status code
                 assert "200 OK" in response
                 assert "Content-Type: application/json" in response
+
+                # Wait for the server to process the request
+                request_processed.wait(timeout=2.0)
         finally:
             # Close the server
             server.server_close()

@@ -27,6 +27,10 @@ class MockCrewAI:
             self.backstory = backstory
             self.kwargs = kwargs
 
+        def execute_task(self, task):
+            """Mock execute_task method."""
+            return f"Executed task: {task.description}"
+
     class Task:
         """Mock Task class."""
         def __init__(self, description=None, agent=None, **kwargs):
@@ -41,9 +45,12 @@ class MockCrewAI:
             self.tasks = tasks or []
             self.kwargs = kwargs
 
-        def run(self, *args, **kwargs):
-            """Mock run method."""
-            return "Mock crew execution result"
+        def kickoff(self, *args, **kwargs):
+            """Mock kickoff method."""
+            return "Mock crew output"
+
+        # Alias for backward compatibility
+        run = kickoff
 
 # Add mock modules to sys.modules
 sys.modules['crewai'] = MagicMock()

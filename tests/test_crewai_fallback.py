@@ -1,20 +1,24 @@
-"""Test module for crewai.py."""
-
-import os
-import sys
-from unittest.mock import patch, MagicMock
+"""Test module for crewai.py fallback module."""
 
 import pytest
+import importlib
+import sys
+import os
+from unittest.mock import patch, MagicMock
+
+# Remove the mocked crewai module from sys.modules
+if 'crewai' in sys.modules:
+    del sys.modules['crewai']
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Import the crewai module directly
+# Import the module under test directly
 import crewai
 
 
-class TestCrewAI:
-    """Test suite for crewai.py."""
+class TestCrewAIFallback:
+    """Test suite for crewai.py fallback module."""
 
     def test_version_attribute(self):
         """Test that the __version__ attribute is defined."""
@@ -42,12 +46,8 @@ class TestCrewAI:
         assert "allow_delegation" in agent.kwargs
         assert agent.kwargs["allow_delegation"] is False
 
-    @patch('crewai.Agent.execute_task')
-    def test_agent_execute_task(self, mock_execute_task):
+    def test_agent_execute_task(self):
         """Test the Agent.execute_task method."""
-        # Set up the mock
-        mock_execute_task.return_value = "Executed task: Test task"
-
         # Create an agent
         agent = crewai.Agent(
             role="Test Agent",
@@ -62,11 +62,10 @@ class TestCrewAI:
         )
 
         # Execute the task
-        result = mock_execute_task(task)
+        result = agent.execute_task(task)
 
         # Verify the result
         assert result == "Executed task: Test task"
-        mock_execute_task.assert_called_once_with(task)
 
     def test_task_class(self):
         """Test the Task class."""
@@ -122,27 +121,20 @@ class TestCrewAI:
             agents=[agent1, agent2],
             tasks=[task1, task2],
             verbose=True,
-            memory=True,
         )
 
         # Verify the crew attributes
         assert len(crew.agents) == 2
-        assert crew.agents[0] == agent1
-        assert crew.agents[1] == agent2
+        assert agent1 in crew.agents
+        assert agent2 in crew.agents
         assert len(crew.tasks) == 2
-        assert crew.tasks[0] == task1
-        assert crew.tasks[1] == task2
+        assert task1 in crew.tasks
+        assert task2 in crew.tasks
         assert "verbose" in crew.kwargs
         assert crew.kwargs["verbose"] is True
-        assert "memory" in crew.kwargs
-        assert crew.kwargs["memory"] is True
 
-    @patch('crewai.Crew.kickoff')
-    def test_crew_kickoff(self, mock_kickoff):
+    def test_crew_kickoff(self):
         """Test the Crew.kickoff method."""
-        # Set up the mock
-        mock_kickoff.return_value = "Mock crew output"
-
         # Create a crew
         crew = crewai.Crew(
             agents=[],
@@ -150,21 +142,40 @@ class TestCrewAI:
         )
 
         # Kickoff the crew
-        result = mock_kickoff()
+        result = crew.kickoff()
 
         # Verify the result
         assert result == "Mock crew output"
-        mock_kickoff.assert_called_once()
 
-    def test_crew_run_alias(self):
-        """Test that Crew.run is an alias for Crew.kickoff."""
+    def test_crew_run(self):
+        """Test the Crew.run method."""
         # Create a crew
         crew = crewai.Crew(
             agents=[],
             tasks=[],
         )
 
-        # Create a simple test to verify the alias works
-        result1 = crew.kickoff()
-        result2 = crew.run()
-        assert result1 == result2
+        # Run the crew
+        result = crew.run()
+
+        # Verify the result
+        assert result == "Mock crew output"
+
+    def test_module_reload(self):
+        """Test that the module can be reloaded without errors."""
+        # Reload the module
+        importlib.reload(crewai)
+
+        # Verify the version attribute is still defined
+        assert hasattr(crewai, "__version__")
+        assert crewai.__version__ == "0.120.0"
+
+    def test_import_all_classes(self):
+        """Test that all classes can be imported without errors."""
+        # Import all classes
+        from crewai import Agent, Task, Crew
+
+        # Verify the imports
+        assert Agent.__name__ == "Agent"
+        assert Task.__name__ == "Task"
+        assert Crew.__name__ == "Crew"

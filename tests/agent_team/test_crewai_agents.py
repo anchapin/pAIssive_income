@@ -305,7 +305,7 @@ class TestCrewAIAgents:
         assert result == "Test Result"
 
     @patch("agent_team.crewai_agents.CREWAI_AVAILABLE", False)
-    @patch("agent_team.crewai_agents.warnings.warn")
+    @patch("warnings.warn")
     def test_crewai_not_available_warning(self, mock_warn):
         """Test that a warning is issued when CrewAI is not available."""
         # Force reload of the module to trigger the warning

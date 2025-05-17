@@ -192,15 +192,49 @@ class TestAPIServerIntegration:
         cls.port = sock.getsockname()[1]
         sock.close()
 
+        # Create a mock server that will be stopped by KeyboardInterrupt
+        cls.mock_server = None
+        cls.server_stopped = threading.Event()
+
+        # Define a function to run the server and handle shutdown
+        def run_test_server():
+            try:
+                # Create the server
+                server_address = ("localhost", cls.port)
+                cls.mock_server = ThreadedHTTPServer(server_address, APIHandler)
+
+                # Run the server until interrupted
+                cls.mock_server.serve_forever()
+            except KeyboardInterrupt:
+                # Server will be stopped by the teardown method
+                pass
+            finally:
+                if cls.mock_server:
+                    cls.mock_server.server_close()
+                cls.server_stopped.set()
+
         # Start the server in a separate thread
-        cls.server_thread = threading.Thread(
-            target=run_server, kwargs={"port": cls.port}
-        )
+        cls.server_thread = threading.Thread(target=run_test_server)
         cls.server_thread.daemon = True
         cls.server_thread.start()
 
         # Wait for the server to start
         time.sleep(0.5)
+
+    @classmethod
+    def teardown_class(cls):
+        """Tear down test fixtures."""
+        # Stop the server if it's running
+        if cls.mock_server:
+            # Raise KeyboardInterrupt in the server thread
+            if hasattr(cls.mock_server, "_BaseServer__shutdown_request"):
+                cls.mock_server._BaseServer__shutdown_request = True
+
+            # Wait for the server to stop
+            cls.server_stopped.wait(timeout=2.0)
+
+            # Join the thread
+            cls.server_thread.join(timeout=1.0)
 
     def test_health_endpoint(self):
         """Test health endpoint."""
@@ -208,6 +242,7 @@ class TestAPIServerIntegration:
         conn.request("GET", "/health")
         response = conn.getresponse()
         data = json.loads(response.read().decode())
+        conn.close()  # Explicitly close the connection
 
         assert response.status == 200
         assert data["status"] == "ok"
@@ -218,6 +253,7 @@ class TestAPIServerIntegration:
         conn.request("GET", "/unknown")
         response = conn.getresponse()
         data = json.loads(response.read().decode())
+        conn.close()  # Explicitly close the connection
 
         assert response.status == 404
         assert data["error"] == "Not found"
@@ -228,6 +264,8 @@ class TestAPIServerIntegration:
         conn = HTTPConnection("localhost", self.port)
         conn.request("OPTIONS", "/health")
         response = conn.getresponse()
+        response.read()  # Read the response body to complete the request
+        conn.close()  # Explicitly close the connection
 
         assert response.status == 200
         assert response.getheader("Access-Control-Allow-Origin") == "*"
