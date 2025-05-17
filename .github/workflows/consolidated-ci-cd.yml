@@ -78,9 +78,12 @@ jobs:
           # Install testing tools
           python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio python-multipart
 
-          # Install requirements
+          # Install requirements-dev.txt first
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
-          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+
+          # Install the package in development mode with dev extras only
+          # Avoid installing the agents extra which has dependency conflicts
+          python -m pip install -e ".[dev]"
 
           # Install MCP SDK using the installation script
           echo "Installing MCP SDK using installation script..."
@@ -96,17 +99,14 @@ jobs:
           # Install testing tools
           python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio python-multipart
 
-          # Install requirements (excluding MCP-related packages)
+          # Install requirements-dev.txt first
           if (Test-Path requirements-dev.txt) {
             python -m pip install -r requirements-dev.txt
           }
 
-          # Install requirements.txt but skip MCP packages
-          if (Test-Path requirements.txt) {
-            $requirements = Get-Content requirements.txt | Where-Object { -not $_.Contains("mcp") -and -not $_.Contains("modelcontextprotocol") }
-            $requirements | Set-Content -Path "requirements_filtered.txt"
-            python -m pip install -r requirements_filtered.txt
-          }
+          # Install the package in development mode with dev extras only
+          # Avoid installing the agents extra which has dependency conflicts
+          python -m pip install -e ".[dev]"
 
       - name: Run linting (Unix)
         if: runner.os != 'Windows'

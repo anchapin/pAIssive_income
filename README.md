@@ -1,196 +1,111 @@
-# Project Environment & Dependency Management
+# Speeding Up Python Tests
 
-## Python
+This project is configured for fast test runs. Here are some tips:
 
 > **Note:** Documentation for this project has been centralized. Please see the [docs/](docs/) directory for additional onboarding, development, deployment, security, contribution information, and UI architecture ([docs/ui-architecture.md](docs/ui-architecture.md)).
 
----
+## 1. Install Dev Dependencies (including pytest-xdist)
 
-## TL;DR Quickstart
+To enable parallel test execution and all developer/testing features, install the dev dependencies using [uv](https://github.com/astral-sh/uv):
 
-> **Tooling Requirement:**
-> - **Python:** Use [`uv`](https://github.com/astral-sh/uv) for all dependency/environment management.
-> - **Node.js:** Use [`pnpm`](https://pnpm.io/) for all JavaScript/TypeScript dependencies and scripts.
-> - Do **NOT** use `pip`, `venv`, `npm`, or `yarn` for development, testing, or CI.
+```sh
+uv pip install -e .[dev]
+```
+This will install `pytest`, `pytest-xdist`, and all plugins required for advanced testing.
 
-1. **Clone the repo and enter it:**
+## 2. Run Tests in Parallel (recommended)
 
-   ```bash
-   git clone https://github.com/anchapin/pAIssive_income.git
-   cd pAIssive_income
-   ```
+We use [pytest-xdist](https://pypi.org/project/pytest-xdist/) to run tests in parallel across all available CPU cores:
 
-2. **Install `uv` (if not already installed):**
-   `uv` is a fast Python package installer and resolver, written in Rust.
+```sh
+pytest -n auto
+```
+By default, `-n auto` uses all available CPU cores. You can override with e.g. `pytest -n 4` to use 4 workers.
 
-   ```bash
-   # Recommended (Linux/macOS/Windows with curl)
-   curl -LsSf https://astral.sh/uv/install.sh | sh
+## 3. Skip Slow Tests During Development
 
-   # If curl is unavailable, you may use pip ONLY for this step:
-   pip install uv
-   ```
+Tests that take a long time to run are marked with `@pytest.mark.slow`. You can skip these tests during development to speed up your test runs:
 
-   Ensure `uv` is in your PATH.
-
-3. **Set up development environment (Python, dependencies, pre-commit hooks, IDE config):**
-   (Requires Python 3.8+ and `uv`)
-
-   ```bash
-   # On Windows
-   enhanced_setup_dev_environment.bat
-
-   # On Unix/Linux
-   ./enhanced_setup_dev_environment.sh
-   # Or, to run the Python script directly:
-   # python enhanced_setup_dev_environment.py
-   ```
-
-   This script uses `uv` to:
-   - Create a virtual environment (`.venv`)
-   - Install dependencies from `requirements.txt` and `requirements-dev.txt`
-   - Install the project in editable mode (`-e .`)
-   - Set up pre-commit hooks (installing `pre-commit` via `uv`)
-   - Configure IDE settings for VS Code and PyCharm
-   - Create .editorconfig for editor-agnostic settings
-
-   For manual setup using `uv`:
-
-   ```bash
-   # Create virtual environment (specify your Python interpreter if needed)
-   uv venv .venv --python python3.12
-   # Activate virtual environment
-   source .venv/bin/activate  # Or: .venv\Scripts\activate (Windows)
-   # Install dependencies
-   uv pip install -r requirements.txt
-   uv pip install -r requirements-dev.txt
-   uv pip install -e .
-   # Install pre-commit and hooks
-   uv pip install pre-commit
-   pre-commit install
-   ```
-
-4. **Start PostgreSQL database, application, and frontend with Docker Compose:**
-   ```bash
-   # Using Docker Compose plugin
-   docker compose up --build
-
-   # Or using standalone Docker Compose
-   docker-compose up --build
-   ```
-   This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
-
-   For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
-
-5. **Initialize the database (first time only):**
-   Open a new terminal and run:
-   ```bash
-   # Activate your virtualenv if not already active
-   flask db upgrade
-   ```
-   This will apply all database migrations and create the necessary tables.
-
-6. **Set up and start the modern web UI (requires Node.js 16.10+ and pnpm):**
-
-   > **Frontend dependencies are managed with [pnpm](https://pnpm.io/).**
-   >
-   > **Install `pnpm` (recommended):**
-   > ```bash
-   > corepack enable
-   > ```
-   > If Corepack is not available, you may bootstrap pnpm with npm (for this step only):
-   > ```bash
-   > npm install -g pnpm
-   > ```
-
-   ```bash
-   cd ui/
-   pnpm install
-   pnpm start
-   ```
-
-   If your browser doesn't open, visit [http://localhost:3000](http://localhost:3000).
-
-7. **Run all tests (unit, integration, frontend):**
-   See the "Running Tests" section below.
-
----
-
-## Database Setup and Migration
-
-This project now uses PostgreSQL as the main database, managed via Docker Compose.
-
-- The backend Flask app is preconfigured to connect to the database using the environment variable `DATABASE_URL`.
-- The default configuration is:
-  ```
-  postgresql://myuser:mypassword@db:5432/mydb
-  ```
-- You can customize these credentials via the `docker-compose.yml` file or by setting your own `DATABASE_URL` environment variable.
-
-### Managing Database Migrations
-
-Database schema migrations are managed with [Flask-Migrate](https://flask-migrate.readthedocs.io/):
-
-1. **Initialize migration support (first time only):**
-   ```bash
-   flask db init
-   ```
-2. **Create a migration after changing models:**
-   ```bash
-   flask db migrate -m "Describe your change"
-   ```
-3. **Apply migrations to the database:**
-   ```bash
-   flask db upgrade
-   ```
-
-### Example Models and Usage
-
-ORM models are provided for **User**, **Team**, and **Agent** entities in `flask/models.py`. You can now persist and query these entities using SQLAlchemy:
-
-```python
-from flask import current_app
-from flask.models import db, User, Team, Agent
-
-# Create a team
-team = Team(name="AI Research", description="Research team for AI agents")
-db.session.add(team)
-db.session.commit()
-
-# Add an agent to the team
-agent = Agent(name="Alice", role="researcher", team=team)
-db.session.add(agent)
-db.session.commit()
-
-# Query teams and agents
-teams = Team.query.all()
-agents = Agent.query.filter_by(team_id=team.id).all()
+```sh
+pytest -m "not slow"
 ```
 
-See [docs/getting-started.md](docs/getting-started.md) for more detailed instructions.
+To run only the slow tests:
 
----
+```sh
+pytest -m "slow"
+```
 
-## Overview
+See `tests/examples/test_slow_test_example.py` for examples of how to mark slow tests.
 
-- **Dependency Locking (Python):**
-  This project uses a `requirements.lock` file to ensure reproducible environments. After updating dependencies, **install both `requirements.txt` and `requirements-dev.txt`** using `uv`, then regenerate the lockfile:
-  ```sh
-  uv pip install -r requirements.txt
-  uv pip install -r requirements-dev.txt
-  # Regenerate lockfile (see scripts/regenerate_venv.py or .sh for details)
-  ```
+## 4. Profile Slow Tests
 
-- **Development dependencies** are managed with `requirements-dev.txt`.
+Find the slowest tests to identify candidates for optimization or marking as slow:
 
-## Node.js
+```sh
+pytest --durations=10
+```
 
-- **Install dependencies**:
-  ```sh
-  pnpm install
-  ```
-- Dependencies are pinned via `pnpm-lock.yaml`.
-- **Security scanning**: `pnpm audit` is run automatically in CI to detect vulnerabilities.
+## 5. Only Collect Tests from `tests/`
+
+Test collection is limited to the `tests/` directory for speed.
+
+## Docker Compose Integration
+
+**Start PostgreSQL database, application, and frontend with Docker Compose:**
+```bash
+# Using Docker Compose plugin
+docker compose up --build
+
+# Or using standalone Docker Compose
+docker-compose up --build
+```
+This will launch the Flask backend, React frontend with ag-ui integration, and PostgreSQL database.
+
+For more details on the Docker Compose integration, see [DOCKER_COMPOSE.md](DOCKER_COMPOSE.md).
+
+## 6. Mock External Calls for Speed
+
+Mock out network/database/API calls in your tests to keep them fast and reliable. This avoids actual external calls during testing, which can significantly speed up your test suite.
+
+Example:
+```python
+@patch("requests.get")
+def test_api_call(mock_get):
+    # Configure the mock
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"data": "test"}
+    mock_get.return_value = mock_response
+
+    # Test your function that uses requests.get
+    result = my_function()
+    assert result == expected_result
+```
+
+See `tests/examples/test_mocking_example.py` for more detailed examples of mocking.
+
+## 7. Using Test Markers Effectively
+
+The project uses various pytest markers to categorize tests:
+
+- `@pytest.mark.unit`: Unit tests for individual components
+- `@pytest.mark.integration`: Tests for interactions between components
+- `@pytest.mark.slow`: Tests that take more than 1 second to run
+- `@pytest.mark.api`: Tests related to API functionality
+- `@pytest.mark.webhook`: Tests related to webhook functionality
+- `@pytest.mark.security`: Tests related to security features
+- `@pytest.mark.model`: Tests related to AI model functionality
+- `@pytest.mark.performance`: Performance-sensitive tests
+
+Run tests with specific markers:
+
+```sh
+# Run only unit tests
+pytest -m unit
+
+# Run tests that are both API-related and slow
+pytest -m "api and slow"
+
 
 ## Automated Dependency Updates
 
@@ -652,3 +567,6 @@ This script performs the following steps:
 6.  Performs a query and retrieves the most relevant context.
 
 Retrieval-Augmented Generation (RAG) enhances LLMs with external knowledge. This script embeds example texts, stores them in a local vector DB, then retrieves the most relevant context for a query.
+# Run API tests that are not slow
+pytest -m "api and not slow"
+```

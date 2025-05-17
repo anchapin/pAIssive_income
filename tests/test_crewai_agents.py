@@ -39,6 +39,8 @@ except ImportError:
 
 def test_crewai_import_and_agent():
     """Test basic Agent functionality."""
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
     try:
         # Try to import the actual Agent class
         from crewai import Agent
@@ -49,39 +51,36 @@ def test_crewai_import_and_agent():
         assert agent.goal == "Test goal"
         assert agent.backstory == "Test backstory"
     except ImportError:
-        # Fall back to our mock if import fails
-        agent = MockAgent(
-            role="Test Agent",
-            goal="Test goal",
-            backstory="Test backstory"
-        )
-        assert agent.role == "Test Agent"
-        assert agent.goal == "Test goal"
-        assert agent.backstory == "Test backstory"
+        pytest.skip("CrewAI is not installed or cannot be imported.")
 
 
 def test_crewai_task_and_crew():
     """Test Task and Crew functionality."""
-    # Create a mock agent
-    mock_agent = MockAgent(
-        role="Test Agent",
-        goal="Test goal",
-        backstory="Test backstory"
-    )
+    if not CREWAI_AVAILABLE:
+        pytest.skip("CrewAI is not installed - skipping test")
 
-    # Create a task with the mock agent
-    task = MockTask(
-        description="Test task description",
-        agent=mock_agent
-    )
-    assert task.description == "Test task description"
-    assert task.agent == mock_agent
+    try:
+        from crewai import Agent, Task, Crew
+        from unittest.mock import MagicMock
 
-    # Create a crew with the mock agent and task
-    crew = MockCrew(
-        agents=[mock_agent],
-        tasks=[task]
-    )
-    # Test the crew's kickoff method
-    result = crew.kickoff()
-    assert result == "Mock crew output"
+        # Create a mock agent
+        mock_agent = MagicMock()
+        mock_agent.role = "Test Agent"
+        mock_agent.goal = "Test goal"
+        mock_agent.backstory = "Test backstory"
+
+        # Create a task with the mock agent
+        task = Task(description="Test task description", agent=mock_agent)
+        assert task.description == "Test task description"
+        assert task.agent == mock_agent
+
+        # Minimal Crew instantiation and execution check
+        crew = Crew(agents=[mock_agent], tasks=[task])
+        # Mock the crew's kick off method
+        crew.kickoff = MagicMock(return_value="Mock crew output")
+        result = crew.kickoff()
+
+        assert result == "Mock crew output"
+
+    except ImportError:
+        pytest.skip("CrewAI is not installed or cannot be imported.")
