@@ -98,6 +98,38 @@ if __name__ == "__main__":
                 assert result is False
                 mock_exception.assert_called_once()
 
+    def test_check_syntax_not_a_file(self):
+        """Test check_syntax with a path that is not a file."""
+        # Create a temporary directory
+        temp_dir = tempfile.mkdtemp()
+        try:
+            # Check the syntax of the directory
+            with patch("logging.Logger.error") as mock_error:
+                result = check_syntax(temp_dir)
+
+                # Verify the result
+                assert result is False
+                mock_error.assert_called_once()
+        finally:
+            # Clean up the temporary directory
+            if os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
+
+    def test_check_syntax_unicode_decode_error(self):
+        """Test check_syntax with a file that cannot be decoded."""
+        # Write binary data to the temporary file
+        with open(self.temp_file_path, "wb") as f:
+            f.write(b"\x80\x81\x82\x83")
+
+        # Mock open to raise a UnicodeDecodeError
+        with patch("builtins.open", side_effect=UnicodeDecodeError("utf-8", b"\x80\x81\x82\x83", 0, 1, "invalid start byte")):
+            with patch("logging.Logger.exception") as mock_exception:
+                result = check_syntax(self.temp_file_path)
+
+                # Verify the result
+                assert result is False
+                mock_exception.assert_called_once()
+
     def test_main_with_valid_args(self):
         """Test the main function with valid arguments."""
         # Write valid Python code to the temporary file
@@ -200,6 +232,25 @@ if __name__ == "__main__":
         assert "test.py" in error_msg
         assert "line 2" in error_msg
         assert "column None" in error_msg
+        assert "<unknown>" in error_msg
+        assert "invalid syntax" in error_msg
+
+    def test_format_syntax_error_with_partial_none_values(self):
+        """Test the format_syntax_error function with some None values."""
+        # Create a mock SyntaxError with some None values
+        error = SyntaxError("invalid syntax")
+        error.lineno = 2
+        error.offset = 5
+        error.text = None
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column 5" in error_msg
         assert "<unknown>" in error_msg
         assert "invalid syntax" in error_msg
 
