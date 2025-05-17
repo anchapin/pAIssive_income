@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 import secrets
 import time
+import bcrypt
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 # In-memory user "database" and reset tokens (for demonstration only)
 USERS = {
-    "e2euser@example.com": {"password": "oldhash", "id": 1}
+    "e2euser@example.com": {"password": bcrypt.hashpw(b"oldpassword", bcrypt.gensalt()).decode(), "id": 1}
 }
 RESET_TOKENS = {}  # token: {email, expires_at}
 
@@ -48,10 +49,11 @@ def reset_password():
     if email not in USERS:
         return jsonify({"message": "User not found."}), 400
 
-    # In real app: hash password and update DB
-    USERS[email]['password'] = f"hash({new_password})"
+    # Hash the new password and update the user record
+    hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    USERS[email]['password'] = hashed
     del RESET_TOKENS[token]
-    print(f"[Password Reset] Password set for {email}")
+    print(f"[Password Reset] Password hash set for {email}")
 
     return jsonify({"message": "Password has been reset."}), 200
 
