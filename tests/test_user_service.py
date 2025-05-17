@@ -93,7 +93,9 @@ def test_create_user(mock_hash):
     )
 
     # Set up the mocks
-    with patch("users.services.UserModel", MockUser), patch("users.services.db_session"), patch.object(MockUser, "query") as mock_query:
+    with patch("users.services.UserModel", MockUser), patch(
+        "users.services.db_session"
+    ), patch.object(MockUser, "query") as mock_query:
         # Create a mock filter that returns None for first() to indicate no existing user
         mock_filter = MagicMock()
         mock_filter.first.return_value = None
@@ -106,8 +108,13 @@ def test_create_user(mock_hash):
                 def create_user(self, username, email, auth_credential, **kwargs):
                     # Skip the user existence check
                     # Hash the credential - use the mocked function from users.services
-                    from users.services import hash_credential as services_hash_credential
-                    services_hash_credential(auth_credential)  # Call but don't use the result
+                    from users.services import (
+                        hash_credential as services_hash_credential,
+                    )
+
+                    services_hash_credential(
+                        auth_credential
+                    )  # Call but don't use the result
 
                     # Create User model instance
                     user = mock_user_instance

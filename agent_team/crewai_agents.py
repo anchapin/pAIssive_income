@@ -92,7 +92,7 @@ except ImportError:
 
     warnings.warn(
         "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
-        stacklevel=2
+        stacklevel=2,
     )
 
 # Example: Define agent roles

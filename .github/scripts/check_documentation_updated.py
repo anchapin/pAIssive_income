@@ -202,7 +202,12 @@ def is_doc_file(path: str) -> bool:
         if p.parts[0] in {"docs", "docs_source"}:
             return True
         # Consider UI documentation files
-        if len(p.parts) > 2 and p.parts[0] == "ui" and p.parts[1] == "react_frontend" and p.suffix.lower() == ".md":
+        if (
+            len(p.parts) > 2
+            and p.parts[0] == "ui"
+            and p.parts[1] == "react_frontend"
+            and p.suffix.lower() == ".md"
+        ):
             return True
     return False
 

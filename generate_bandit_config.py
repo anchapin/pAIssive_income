@@ -109,8 +109,14 @@ def main() -> None:
 
         # Define specific run IDs that need to be handled (from error messages)
         specific_run_ids = [
-            "14974236301", "14976101411", "14977094424", "14977626158",
-            "14978521232", "14987452007", "15055489437", "15056259666"
+            "14974236301",
+            "14976101411",
+            "14977094424",
+            "14977626158",
+            "14978521232",
+            "14987452007",
+            "15055489437",
+            "15056259666",
         ]
 
         # Always include the current run ID
@@ -119,6 +125,7 @@ def main() -> None:
 
         # Add the GitHub run ID from the environment if available
         import os
+
         github_run_id = os.environ.get("GITHUB_RUN_ID")
         if github_run_id and github_run_id not in specific_run_ids:
             specific_run_ids.append(github_run_id)
@@ -127,8 +134,13 @@ def main() -> None:
         # Generate configuration files for each platform and run ID
         for platform in ["Windows", "Linux", "macOS"]:
             for current_run_id in specific_run_ids:
-                config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=current_run_id)
-                config_file = bandit_dir / f"bandit-config-{platform.lower()}-{current_run_id}.yaml"
+                config_content = CONFIG_TEMPLATE.format(
+                    platform=platform, run_id=current_run_id
+                )
+                config_file = (
+                    bandit_dir
+                    / f"bandit-config-{platform.lower()}-{current_run_id}.yaml"
+                )
 
                 with config_file.open("w") as f:
                     f.write(config_content)
@@ -152,7 +164,7 @@ def main() -> None:
         additional_sarif_files = [
             reports_dir / "bandit-results.json",
             reports_dir / "secrets.sarif.json",
-            reports_dir / "trivy-results.sarif"
+            reports_dir / "trivy-results.sarif",
         ]
 
         for sarif_file in additional_sarif_files:
@@ -161,18 +173,24 @@ def main() -> None:
                     f.write(empty_sarif)
                 logging.info(f"Generated additional empty SARIF file: {sarif_file}")
 
-        logging.info("All Bandit configuration files and SARIF files generated successfully")
-    except Exception as e:
+        logging.info(
+            "All Bandit configuration files and SARIF files generated successfully"
+        )
+    except Exception:
         logging.exception("Error generating Bandit configuration files")
         # Create the minimal required files even if an error occurs
         try:
             Path("security-reports").mkdir(parents=True, exist_ok=True)
             with open("security-reports/bandit-results.sarif", "w") as f:
-                f.write("""{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}""")
+                f.write(
+                    """{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}"""
+                )
             with open("empty-sarif.json", "w") as f:
-                f.write("""{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}""")
+                f.write(
+                    """{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}"""
+                )
             logging.info("Created minimal required SARIF files after error")
-        except Exception as e2:
+        except Exception:
             logging.exception("Failed to create minimal required SARIF files")
 
 
