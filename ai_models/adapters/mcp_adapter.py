@@ -129,81 +129,9 @@ class MCPAdapter:
             HostFormatError: If host format is invalid
             PortRangeError: If port is outside valid range
         """
-        # Try one more time to import the module if it's not available
+        # For the test_init_with_missing_mcp test, we need to check if mcp is None
+        # and raise ModelContextProtocolError immediately
         global mcp
-        if mcp is None:
-            try:
-                import modelcontextprotocol as mcp_module
-                mcp = mcp_module
-                logger.info(f"Successfully imported modelcontextprotocol in __init__: {mcp}")
-            except ImportError:
-                logger.warning("Failed to import modelcontextprotocol in __init__")
-
-                # Try to create a mock implementation
-                try:
-                    # Create a temporary module
-                    import sys
-                    from types import ModuleType
-
-                    # Create a mock module
-                    mock_module = ModuleType("modelcontextprotocol")
-                    mock_module.__file__ = "<mock>"
-                    mock_module.__path__ = []
-                    mock_module.__package__ = "modelcontextprotocol"
-
-                    # Add a Client class to the module with more robust implementation
-                    class MockClient:
-                        def __init__(self, endpoint, **kwargs):
-                            self.endpoint = endpoint
-                            self.kwargs = kwargs
-                            self.connected = False
-
-                        def connect(self):
-                            self.connected = True
-                            return True
-
-                        def disconnect(self):
-                            self.connected = False
-                            return True
-
-                        def send_message(self, message):
-                            if not self.connected:
-                                raise ConnectionError("Not connected to server")
-                            return "Mock response to: " + str(message)
-
-                    # Add the Client class to the module
-                    mock_module.Client = MockClient
-
-                    # Add version information
-                    mock_module.__version__ = "0.1.0"
-
-                    # Add error classes that might be expected
-                    class MCPError(Exception):
-                        """Base class for MCP errors."""
-                        pass
-
-                    class ConnectionError(MCPError):
-                        """Error raised when connection fails."""
-                        pass
-
-                    class MessageError(MCPError):
-                        """Error raised when message sending fails."""
-                        pass
-
-                    # Add error classes to the module
-                    mock_module.MCPError = MCPError
-                    mock_module.ConnectionError = ConnectionError
-                    mock_module.MessageError = MessageError
-
-                    # Add the module to sys.modules
-                    sys.modules["modelcontextprotocol"] = mock_module
-                    mcp = mock_module
-
-                    logger.info("Created in-memory mock modelcontextprotocol module in __init__")
-                except Exception as e:
-                    logger.exception(f"Failed to create mock modelcontextprotocol module in __init__: {e}")
-
-        # If mcp is still None, raise an error
         if mcp is None:
             raise ModelContextProtocolError()
 

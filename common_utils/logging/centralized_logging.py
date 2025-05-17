@@ -10,20 +10,20 @@ The service consists of two main components:
 Usage:
     # Server side
     from common_utils.logging.centralized_logging import CentralizedLoggingService
-    
+
     # Create and start the service
     service = CentralizedLoggingService(host="0.0.0.0", port=5000)
     service.start()
-    
+
     # Client side
     from common_utils.logging.centralized_logging import configure_centralized_logging, get_centralized_logger
-    
+
     # Configure centralized logging
     configure_centralized_logging(app_name="my_app", host="logging_server", port=5000)
-    
+
     # Get a logger
     logger = get_centralized_logger(__name__)
-    
+
     # Log messages
     logger.info("This is an info message")
     logger.error("This is an error message")
@@ -66,10 +66,10 @@ class CentralizedLoggingService:
         self.running = False
         self.socket = None
         self.thread = None
-        
+
         # Create the log directory if it doesn't exist
         os.makedirs(log_dir, exist_ok=True)
-        
+
         # Set up logging for the service itself
         self.logger = get_secure_logger("centralized_logging_service")
 
@@ -78,20 +78,20 @@ class CentralizedLoggingService:
         if self.running:
             self.logger.warning("Service is already running")
             return
-        
+
         try:
             # Create a UDP socket
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.socket.bind((self.host, self.port))
-            
+
             # Mark the service as running
             self.running = True
-            
+
             # Start the processing thread
             self.thread = threading.Thread(target=self._process_logs)
             self.thread.daemon = True
             self.thread.start()
-            
+
             self.logger.info(f"Centralized logging service started on {self.host}:{self.port}")
         except Exception as e:
             self.logger.error(f"Failed to start centralized logging service: {e}")
@@ -106,20 +106,20 @@ class CentralizedLoggingService:
         if not self.running:
             self.logger.warning("Service is not running")
             return
-        
+
         # Mark the service as not running
         self.running = False
-        
+
         # Close the socket
         if self.socket:
             self.socket.close()
             self.socket = None
-        
+
         # Wait for the processing thread to finish
         if self.thread:
             self.thread.join(timeout=5.0)
             self.thread = None
-        
+
         self.logger.info("Centralized logging service stopped")
 
     def receive_log(self) -> Dict[str, Any]:
@@ -130,14 +130,19 @@ class CentralizedLoggingService:
         """
         if not self.running or not self.socket:
             raise RuntimeError("Service is not running")
-        
+
         # Receive data from the socket
         data, addr = self.socket.recvfrom(self.buffer_size)
-        
+
         # Parse the JSON data
         try:
             log_entry = json.loads(data.decode("utf-8"))
             self.logger.debug(f"Received log entry from {addr}")
+
+            # Ensure the app field is present
+            if "app" not in log_entry:
+                log_entry["app"] = "unknown"
+
             return log_entry
         except json.JSONDecodeError as e:
             self.logger.error(f"Failed to parse log entry from {addr}: {e}")
@@ -157,10 +162,10 @@ class CentralizedLoggingService:
         """
         # Get the app name from the log entry
         app_name = log_entry.get("app", "unknown")
-        
+
         # Create a log file for the app
         log_file = os.path.join(self.log_dir, f"{app_name}.log")
-        
+
         # Write the log entry to the file
         try:
             with open(log_file, "a") as f:
@@ -169,9 +174,12 @@ class CentralizedLoggingService:
                 level = log_entry.get("level", "INFO")
                 logger_name = log_entry.get("logger", "unknown")
                 message = log_entry.get("message", "")
-                
+
+                # Ensure app_name is included in the log entry
+                log_line = f"{timestamp} - {app_name} - {logger_name} - {level} - {message}\n"
+
                 # Write the formatted log entry
-                f.write(f"{timestamp} - {logger_name} - {level} - {message}\n")
+                f.write(log_line)
         except Exception as e:
             self.logger.error(f"Failed to write log entry to {log_file}: {e}")
 
@@ -181,7 +189,7 @@ class CentralizedLoggingService:
             try:
                 # Receive a log entry
                 log_entry = self.receive_log()
-                
+
                 # Process the log entry
                 self.process_log(log_entry)
             except Exception as e:
@@ -210,7 +218,7 @@ class LoggingClient:
         self.app_name = app_name
         self.host = host
         self.port = port
-        
+
         # Set up logging for the client itself
         self.logger = get_secure_logger("centralized_logging_client")
 
@@ -224,16 +232,16 @@ class LoggingClient:
             # Add the app name to the log entry if not already present
             if "app" not in log_entry:
                 log_entry["app"] = self.app_name
-            
+
             # Convert the log entry to JSON
             data = json.dumps(log_entry).encode("utf-8")
-            
+
             # Create a UDP socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            
+
             # Send the data
             sock.sendto(data, (self.host, self.port))
-            
+
             # Close the socket
             sock.close()
         except Exception as e:
@@ -275,7 +283,7 @@ class RemoteHandler(logging.Handler):
                 "lineno": record.lineno,
                 "funcName": record.funcName,
             }
-            
+
             # Send the log entry
             self.client.send_log(log_entry)
         except Exception:
@@ -301,16 +309,16 @@ def configure_centralized_logging(
         level: The logging level
     """
     global _client
-    
+
     # Create a client
     _client = LoggingClient(app_name=app_name, host=host, port=port)
-    
+
     # Create a handler
     handler = RemoteHandler(client=_client, level=level)
-    
+
     # Add the handler to the root logger
     logging.getLogger().addHandler(handler)
-    
+
     # Set the logging level
     logging.getLogger().setLevel(level)
 
@@ -328,9 +336,9 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
     if _client is None:
         # Fall back to secure logger
         return get_secure_logger(name)
-    
+
     # Get a logger
     logger = logging.getLogger(name)
-    
+
     # Return the logger
     return logger

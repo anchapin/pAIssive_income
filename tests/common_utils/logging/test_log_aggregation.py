@@ -180,6 +180,29 @@ class TestElasticsearchHandler:
             document=log_entry,
         )
 
+    def test_handle_with_error(self):
+        """Test handle method with an error."""
+        # Create a log entry
+        log_entry = {
+            "timestamp": "2023-01-01T12:00:00Z",
+            "level": "INFO",
+            "message": "Test message",
+            "logger": "test_logger",
+            "app": "test_app",
+        }
+
+        # Make the Elasticsearch client raise an exception
+        self.mock_es_client.index.side_effect = Exception("Test error")
+
+        # Handle the log entry - should not raise an exception
+        self.handler.handle(log_entry)
+
+        # Verify that the Elasticsearch client was called
+        self.mock_es_client.index.assert_called_once_with(
+            index="test_logs",
+            document=log_entry,
+        )
+
 
 class TestLogstashHandler:
     """Test suite for LogstashHandler class."""
@@ -224,6 +247,26 @@ class TestLogstashHandler:
         # Decode the sent data and verify it matches the log entry
         decoded_data = json.loads(sent_data.decode("utf-8"))
         assert decoded_data == log_entry
+
+    def test_handle_with_error(self):
+        """Test handle method with an error."""
+        # Create a log entry
+        log_entry = {
+            "timestamp": "2023-01-01T12:00:00Z",
+            "level": "INFO",
+            "message": "Test message",
+            "logger": "test_logger",
+            "app": "test_app",
+        }
+
+        # Make the socket raise an exception
+        self.mock_socket.sendto.side_effect = Exception("Test error")
+
+        # Handle the log entry - should not raise an exception
+        self.handler.handle(log_entry)
+
+        # Verify that the socket was called
+        self.mock_socket.sendto.assert_called_once()
 
 
 class TestFileRotatingHandler:
@@ -280,6 +323,27 @@ class TestFileRotatingHandler:
         assert record.name == "test_logger"
         assert record.levelname == "INFO"
         assert record.msg == "Test message"
+
+    @patch("logging.handlers.RotatingFileHandler.emit")
+    def test_handle_with_error(self, mock_emit):
+        """Test handle method with an error."""
+        # Create a log entry
+        log_entry = {
+            "timestamp": "2023-01-01T12:00:00Z",
+            "level": "INFO",
+            "message": "Test message",
+            "logger": "test_logger",
+            "app": "test_app",
+        }
+
+        # Make emit raise an exception
+        mock_emit.side_effect = Exception("Test error")
+
+        # Handle the log entry - should not raise an exception
+        self.handler.handle(log_entry)
+
+        # Verify that emit was called
+        mock_emit.assert_called_once()
 
 
 class TestAggregateLogsFunctions:
@@ -353,6 +417,114 @@ class TestAggregateLogsFunctions:
 
             # Verify that the handlers were added to the aggregator
             mock_aggregator_instance.add_handler.assert_any_call(mock_es_handler_instance)
+            mock_aggregator_instance.add_handler.assert_any_call(mock_logstash_handler_instance)
+            mock_aggregator_instance.add_handler.assert_any_call(mock_file_handler_instance)
+
+            # Verify that the log directory was aggregated
+            mock_aggregator_instance.aggregate_log_directory.assert_called_once_with(self.temp_dir.name)
+
+    @patch("common_utils.logging.log_aggregation.LogAggregator")
+    @patch("common_utils.logging.log_aggregation.LogstashHandler")
+    @patch("common_utils.logging.log_aggregation.FileRotatingHandler")
+    def test_aggregate_logs_with_elasticsearch_import_error(self, mock_file_handler, mock_logstash_handler, mock_aggregator):
+        """Test aggregate_logs function with an Elasticsearch import error."""
+        # Mock the aggregator and handlers
+        mock_aggregator_instance = MagicMock()
+        mock_aggregator.return_value = mock_aggregator_instance
+
+        mock_logstash_handler_instance = MagicMock()
+        mock_logstash_handler.return_value = mock_logstash_handler_instance
+
+        mock_file_handler_instance = MagicMock()
+        mock_file_handler.return_value = mock_file_handler_instance
+
+        # Mock the import to raise ImportError
+        with patch.dict('sys.modules', {'elasticsearch': None}):
+            with patch('builtins.__import__', side_effect=ImportError("No module named 'elasticsearch'")):
+                # Call the function under test
+                aggregate_logs(
+                    app_name="test_app",
+                    log_dir=self.temp_dir.name,
+                    es_host="elasticsearch",
+                    es_port=9200,
+                    es_index="logs",
+                    logstash_host="logstash",
+                    logstash_port=5000,
+                    output_file="aggregated.log",
+                )
+
+                # Verify that the aggregator was created
+                mock_aggregator.assert_called_once_with(
+                    app_name="test_app",
+                    log_dir=self.temp_dir.name,
+                )
+
+                # Verify that only the Logstash and File handlers were created and added
+                mock_logstash_handler.assert_called_once_with(
+                    host="logstash",
+                    port=5000,
+                )
+                mock_file_handler.assert_called_once_with(
+                    filename="aggregated.log",
+                )
+
+                # Verify that the handlers were added to the aggregator
+                mock_aggregator_instance.add_handler.assert_any_call(mock_logstash_handler_instance)
+                mock_aggregator_instance.add_handler.assert_any_call(mock_file_handler_instance)
+
+                # Verify that the log directory was aggregated
+                mock_aggregator_instance.aggregate_log_directory.assert_called_once_with(self.temp_dir.name)
+
+    @patch("common_utils.logging.log_aggregation.LogAggregator")
+    @patch("common_utils.logging.log_aggregation.ElasticsearchHandler")
+    @patch("common_utils.logging.log_aggregation.LogstashHandler")
+    @patch("common_utils.logging.log_aggregation.FileRotatingHandler")
+    def test_aggregate_logs_with_elasticsearch_error(self, mock_file_handler, mock_logstash_handler, mock_es_handler, mock_aggregator):
+        """Test aggregate_logs function with an Elasticsearch error."""
+        # Mock the aggregator and handlers
+        mock_aggregator_instance = MagicMock()
+        mock_aggregator.return_value = mock_aggregator_instance
+
+        mock_logstash_handler_instance = MagicMock()
+        mock_logstash_handler.return_value = mock_logstash_handler_instance
+
+        mock_file_handler_instance = MagicMock()
+        mock_file_handler.return_value = mock_file_handler_instance
+
+        # Mock the elasticsearch module to raise an exception
+        mock_elasticsearch = MagicMock()
+        mock_elasticsearch.Elasticsearch.side_effect = Exception("Test error")
+
+        # Mock the import
+        with patch.dict('sys.modules', {'elasticsearch': mock_elasticsearch}):
+            # Call the function under test
+            aggregate_logs(
+                app_name="test_app",
+                log_dir=self.temp_dir.name,
+                es_host="elasticsearch",
+                es_port=9200,
+                es_index="logs",
+                logstash_host="logstash",
+                logstash_port=5000,
+                output_file="aggregated.log",
+            )
+
+            # Verify that the aggregator was created
+            mock_aggregator.assert_called_once_with(
+                app_name="test_app",
+                log_dir=self.temp_dir.name,
+            )
+
+            # Verify that only the Logstash and File handlers were created and added
+            mock_logstash_handler.assert_called_once_with(
+                host="logstash",
+                port=5000,
+            )
+            mock_file_handler.assert_called_once_with(
+                filename="aggregated.log",
+            )
+
+            # Verify that the handlers were added to the aggregator
             mock_aggregator_instance.add_handler.assert_any_call(mock_logstash_handler_instance)
             mock_aggregator_instance.add_handler.assert_any_call(mock_file_handler_instance)
 
