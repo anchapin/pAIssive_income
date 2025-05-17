@@ -68,7 +68,7 @@ def _prepare_test_command() -> list[str]:
         "--no-header",
         "--no-summary",
         "tests/ai_models/adapters/test_mcp_adapter.py",
-        "tests/test_mcp_import.py",
+        "tests/ai_models/test_mcp_import.py",  # Updated path
         "tests/test_mcp_top_level_import.py",
         "-k",
         "not test_mcp_server",
