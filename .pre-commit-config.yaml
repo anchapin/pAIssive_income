@@ -94,3 +94,12 @@ repos:
         types: [python]
         pass_filenames: true
         stages: [pre-commit]
+
+      - id: js-tests
+        name: Run JavaScript tests with coverage (pnpm test)
+        entry: pnpm test
+        language: system
+        types: [javascript]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
