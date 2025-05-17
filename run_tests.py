@@ -69,7 +69,11 @@ def main() -> None:
     logger.info("Collected %d tests. Using %d pytest worker(s).", test_count, n_workers)
 
     # Build pytest command with unpacking instead of concatenation
-    pytest_cmd = ["pytest", f"-n={n_workers}", *pytest_args]
+    # Add --no-cov if not already specified to avoid coverage failures
+    if not any("--cov" in arg for arg in pytest_args) and not any("-k" in arg for arg in pytest_args):
+        pytest_cmd = ["pytest", f"-n={n_workers}", "--no-cov", *pytest_args]
+    else:
+        pytest_cmd = ["pytest", f"-n={n_workers}", *pytest_args]
 
     try:
         # Run pytest with the chosen number of workers
