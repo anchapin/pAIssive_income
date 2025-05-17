@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import secrets
 import time
 import bcrypt
@@ -13,6 +15,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+
+# Flask-Limiter instance (for demo; in prod, usually set up in main app)
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+limiter.init_app = getattr(limiter, "init_app", lambda app: None)  # for compatibility if already set up
 
 # In-memory user "database" for demonstration (replace with real user DB)
 USERS = {
@@ -57,6 +63,7 @@ def send_email(to_addr, subject, body):
         print(f"[Password Reset] Failed to send email: {e}")
 
 @auth_bp.route('/forgot-password', methods=['POST'])
+@limiter.limit("5 per minute")
 def forgot_password():
     data = request.get_json()
     email = data.get('email', '').strip().lower()
@@ -83,6 +90,7 @@ def forgot_password():
     return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
 
 @auth_bp.route('/reset-password', methods=['POST'])
+@limiter.limit("5 per minute")
 def reset_password():
     data = request.get_json()
     token = data.get('token')
