@@ -109,6 +109,7 @@ env.bak/
 env/
 example_project_plan.json
 htmlcov/
+coverage/
 instance/
 ipython_config.py
 lib/
