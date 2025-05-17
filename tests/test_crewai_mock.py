@@ -72,7 +72,7 @@ class TestCrewAIMock:
         
         # Verify the string representation
         assert str(agent) == "Agent(role='Test Agent')"
-        assert repr(agent) == "Aegnt(role='Test Agent', goal='Test goal', backstory='Test backstory')"
+        assert repr(agent) == "Agent(role='Test Agent', goal='Test goal', backstory='Test backstory')"
 
     def test_agent_execute_task(self):
         """Test the Agent.execute_task method."""
@@ -160,3 +160,59 @@ class TestCrewAIMock:
         # Verify the string representation
         assert str(task) == "Task(description='Test task')"
         assert repr(task) == "Task(description='Test task', agent=Agent(role='Test Agent'))"
+
+    def test_crew_class(self):
+        """Test the Crew class."""
+        # Create agents
+        agent1 = crewai.Agent(
+            role="Agent 1",
+            goal="Goal 1",
+            backstory="Backstory 1",
+        )
+        agent2 = crewai.Agent(
+            role="Agent 2",
+            goal="Goal 2",
+            backstory="Backstory 2",
+        )
+
+        # Create tasks
+        task1 = crewai.Task(
+            description="Task 1",
+            agent=agent1,
+        )
+        task2 = crewai.Task(
+            description="Task 2",
+            agent=agent2,
+        )
+
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[agent1, agent2],
+            tasks=[task1, task2],
+            verbose=True,
+            memory=True,
+        )
+
+        # Verify the crew attributes
+        assert len(crew.agents) == 2
+        assert crew.agents[0] == agent1
+        assert crew.agents[1] == agent2
+        assert len(crew.tasks) == 2
+        assert crew.tasks[0] == task1
+        assert crew.tasks[1] == task2
+        assert "verbose" in crew.kwargs
+        assert crew.kwargs["verbose"] is True
+        assert "memory" in crew.kwargs
+        assert crew.kwargs["memory"] is True
+        
+    def test_crew_str_representation(self):
+        """Test the string representation of the Crew class."""
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[],
+            tasks=[],
+        )
+        
+        # Verify the string representation
+        assert str(crew) == "Crew(agents=0, tasks=0)"
+        assert repr(crew) == "Crew(agents=[], tasks=[])"
