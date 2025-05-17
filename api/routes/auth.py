@@ -8,6 +8,7 @@ import smtplib
 from email.mime.text import MIMEText
 import os
 from datetime import datetime, timedelta
+import logging
 
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -67,6 +68,10 @@ def send_email(to_addr, subject, body):
 def forgot_password():
     data = request.get_json()
     email = data.get('email', '').strip().lower()
+    remote_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    # Audit log every request
+    logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset requested for {email or '<empty>'} from {remote_ip}")
+
     # Always respond identically for user enumeration protection
     if not email:
         return jsonify({"message": "If the email is registered, a reset link will be sent."}), 200
@@ -80,7 +85,7 @@ def forgot_password():
         session.add(PasswordResetToken(email=email, token=token, expires_at=expires_at))
         session.commit()
         session.close()
-        print(f"[Password Reset] Generated reset token for {email}: {token}")
+        logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset token generated for {email} from {remote_ip} token={token}")
         # Compose reset link (assuming frontend at localhost:3000)
         reset_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/reset-password/{token}"
         subject = "Password Reset Request"
@@ -95,13 +100,16 @@ def reset_password():
     data = request.get_json()
     token = data.get('token')
     new_password = data.get('new_password')
+    remote_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     if not token or not new_password:
+        logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (missing fields) from {remote_ip}")
         return jsonify({"message": "Missing token or new password."}), 400
 
     session = SessionLocal()
     prt = session.query(PasswordResetToken).filter_by(token=token).first()
     if not prt or prt.expires_at < datetime.utcnow():
         session.close()
+        logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (invalid/expired token) from {remote_ip} token={token}")
         return jsonify({"message": "Invalid or expired reset link."}), 400
 
     email = prt.email
@@ -109,6 +117,7 @@ def reset_password():
         session.delete(prt)
         session.commit()
         session.close()
+        logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (user not found) for {email} from {remote_ip} token={token}")
         return jsonify({"message": "User not found."}), 400
 
     # Hash the new password and update the user record
@@ -117,7 +126,7 @@ def reset_password():
     session.delete(prt)
     session.commit()
     session.close()
-    print(f"[Password Reset] Password hash set for {email}")
+    logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset completed for {email} from {remote_ip}")
 
     return jsonify({"message": "Password has been reset."}), 200
 
