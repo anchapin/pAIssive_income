@@ -25,13 +25,13 @@ def test_fast_function():
 @pytest.mark.slow
 def test_slow_function():
     """This is a slow test that can be skipped during regular development.
-    
+
     This test is marked with @pytest.mark.slow, which means it can be skipped
     when running tests with the -m "not slow" option.
     """
     # Simulate a slow operation (e.g., network request, database query)
     time.sleep(2)  # Sleep for 2 seconds to simulate a slow operation
-    
+
     # Actual test logic
     result = complex_calculation()
     assert result == 42
@@ -40,15 +40,15 @@ def test_slow_function():
 @pytest.mark.slow
 def test_another_slow_function():
     """Another example of a slow test.
-    
+
     This test also performs a time-consuming operation and should be skipped
     during regular development.
     """
     # Simulate another slow operation
     time.sleep(1.5)  # Sleep for 1.5 seconds
-    
+
     # Actual test logic
-    result = [i for i in range(1000000)]  # Create a large list
+    result = list(range(1000000))  # Create a large list
     assert len(result) == 1000000
 
 
@@ -58,7 +58,7 @@ def complex_calculation():
     total = 0
     for i in range(1000000):
         total += i
-    
+
     # Return a fixed value for testing purposes
     return 42
 
