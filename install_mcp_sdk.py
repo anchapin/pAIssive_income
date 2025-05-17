@@ -6,8 +6,13 @@ This script is a wrapper around scripts/setup/install_mcp_sdk.py to maintain bac
 with existing workflows that expect install_mcp_sdk.py to be in the root directory.
 """
 
+import logging
 import sys
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 
 def verify_mock_installation() -> bool:

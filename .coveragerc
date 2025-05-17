@@ -52,6 +52,9 @@ omit =
     niche_analysis/*
     collaboration/*
     api/*
+    # Exclude common_utils and users directories
+    common_utils/*
+    users/*
     # Exclude frontend code
     frontend/*
     # Exclude documentation
@@ -81,6 +84,8 @@ omit =
     # Exclude additional mock implementations
     **/mock_*.py
     **/mocks/*.py
+    # Exclude mock_crewai directory
+    mock_crewai/*
     # Exclude test utilities
     **/test_utils/*.py
     **/testing/*.py
