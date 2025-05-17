@@ -111,7 +111,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
                 logger.info(
                     "Could not find merge-base, falling back to direct comparison"
                 )
-                diff_range = "origin/{github_base_ref}...HEAD"
+                diff_range = f"origin/{github_base_ref}...HEAD"
         else:
             # For push events or when PR info is not available
             logger.info("Not a pull request or missing reference info")

@@ -94,7 +94,7 @@ class SummarizerSkill(Skill):
 
     def run(self, data: str) -> str:
         """
-        Simulate text summarization.
+        Summarize text.
 
         Args:
             data (str): The text to summarize

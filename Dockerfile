@@ -66,20 +66,15 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
 # Create necessary directories with proper permissions
-RUN mkdir -p /app/logs && \
-    mkdir -p /app/data && \
+RUN mkdir -p /app/logs /app/data && \
     # Add a non-root user (using Debian commands)
     groupadd --system appgroup && \
     useradd --system --no-create-home --gid appgroup appuser && \
-    # Set ownership and permissions for logs directory to allow writing
-    chown -R root:appgroup /app/logs && \
-    chmod 2777 /app/logs && \
-    # Set ownership and permissions for data directory
-    chown -R root:appgroup /app/data && \
-    chmod 2777 /app/data && \
-    # Create log files with correct permissions
+    # Set ownership, permissions, and create log files in one step
+    chown -R root:appgroup /app/logs /app/data && \
+    chmod 2777 /app/logs /app/data && \
     touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log && \
-    chmod 666 /app/logs/*.log
+    chmod 666 /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log
 
 # Copy application code
 COPY --chown=root:appgroup . .
