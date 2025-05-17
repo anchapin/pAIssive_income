@@ -12,7 +12,7 @@ class Crew:
         self,
         agents: Optional[list[Any]] = None,
         tasks: Optional[list[Any]] = None,
-        **kwargs: dict[str, Any],
+        **kwargs,
     ) -> None:
         """
         Initialize a mock Crew.

@@ -10,7 +10,7 @@ Adapt and extend these scaffolds to fit your use-case.
 from __future__ import annotations
 
 # Check if crewai is installed
-from typing import Any
+from typing import Any, Union
 
 try:
     from crewai import Agent, Crew, Task
@@ -23,7 +23,7 @@ except ImportError:
     class AgentPlaceholder:
         """Placeholder for Agent class when crewai is not installed."""
 
-        def __init__(self, role: str = "", goal: str = "", backstory: str = "") -> None:
+        def __init__(self, role: str = "", goal: str = "", backstory: str = "", **kwargs) -> None:
             """
             Initialize Agent placeholder.
 
@@ -31,6 +31,7 @@ except ImportError:
                 role: The role of the agent
                 goal: The goal of the agent
                 backstory: The backstory of the agent
+                **kwargs: Additional arguments
 
             """
             self.role = role
@@ -42,7 +43,7 @@ except ImportError:
         """Placeholder for Task class when crewai is not installed."""
 
         def __init__(
-            self, description: str = "", agent: AgentPlaceholder = None
+            self, description: str = "", agent: AgentPlaceholder = None, **kwargs
         ) -> None:
             """
             Initialize Task placeholder.
@@ -50,6 +51,7 @@ except ImportError:
             Args:
                 description: The task description
                 agent: The agent assigned to the task
+                **kwargs: Additional arguments
 
             """
             self.description = description
@@ -60,7 +62,7 @@ except ImportError:
         """Placeholder for Crew class when crewai is not installed."""
 
         def __init__(
-            self, agents: list[Any] | None = None, tasks: list[Any] | None = None
+            self, agents: list[Any] | None = None, tasks: list[Any] | None = None, **kwargs
         ) -> None:
             """
             Initialize Crew placeholder.
@@ -68,6 +70,7 @@ except ImportError:
             Args:
                 agents: List of agents
                 tasks: List of tasks
+                **kwargs: Additional arguments
 
             """
             self.agents = agents or []
@@ -85,13 +88,19 @@ except ImportError:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
+        def kickoff(self):
+            """
+            Kickoff the crew workflow.
+
+            Returns:
+                A mock output string
+            """
+            return "Mock crew output"
+
     # Use these placeholders instead of the real classes
     Agent = AgentPlaceholder  # type: ignore[misc, assignment]
     Task = TaskPlaceholder  # type: ignore[misc, assignment]
     Crew = CrewPlaceholder  # type: ignore[misc, assignment]
-
-        def kickoff(self):
-            return "Mock crew output"
 
     # Print a warning
     import warnings
@@ -122,6 +131,7 @@ class CrewAIAgentTeam:
         self.agents = []
         self.tasks = []
         self.agent_map = {}  # Maps agent roles to agent objects
+        self.api_client = None
 
     def add_agent(self, role: str, goal: str, backstory: str, **kwargs) -> Agent:
         """
@@ -200,6 +210,10 @@ class CrewAIAgentTeam:
         Returns:
             The result of the workflow execution.
         """
+        if not CREWAI_AVAILABLE:
+            error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
+            raise ImportError(error_msg)
+
         if not self.agents:
             raise ValueError("No agents added to the team. Add at least one agent.")
         if not self.tasks:
@@ -271,98 +285,6 @@ if __name__ == "__main__":
             logger.info("CrewAI reporting workflow completed.")
         except Exception:
             logger.exception("Error running CrewAI workflow")
-
-
-# CrewAI Agent Team implementation
-class CrewAIAgentTeam:
-    """
-    CrewAI Agent Team implementation for integration with other modules.
-
-    This class provides a higher-level interface for working with CrewAI agents,
-    tasks, and crews. It can be used to create and run agent teams from other
-    parts of the application.
-    """
-
-    def __init__(self, llm_provider: object = None) -> None:
-        """
-        Initialize a CrewAI Agent Team.
-
-        Args:
-            llm_provider: The LLM provider to use for agent interactions
-
-        """
-        self.llm_provider = llm_provider
-        self.agents: list[object] = []
-        self.tasks: list[object] = []
-        self.api_client = None
-
-    def add_agent(self, role: str, goal: str, backstory: str) -> object:
-        """
-        Add an agent to the team.
-
-        Args:
-            role: The role of the agent
-            goal: The goal of the agent
-            backstory: The backstory of the agent
-
-        Returns:
-            The created agent
-
-        """
-        agent = Agent(role=role, goal=goal, backstory=backstory)
-        self.agents.append(agent)
-        return agent
-
-    def add_task(self, description: str, agent: object) -> object:
-        """
-        Add a task to the team.
-
-        Args:
-            description: The task description
-            agent: The agent assigned to the task (role name or Agent instance)
-
-        Returns:
-            The created task
-
-        """
-        # If agent is a string (role name), find the corresponding agent
-        if isinstance(agent, str):
-            agent_obj = next((a for a in self.agents if a.role == agent), None)  # type: ignore[attr-defined]
-            if not agent_obj:
-                error_msg = f"Agent with role '{agent}' not found"
-                raise ValueError(error_msg)
-        else:
-            agent_obj = agent
-
-        task = Task(description=description, agent=agent_obj)  # type: ignore[arg-type]
-        self.tasks.append(task)
-        return task
-
-    def _create_crew(self) -> object:
-        """
-        Create a Crew instance from the current agents and tasks.
-
-        Returns:
-            A Crew instance
-
-        """
-        return Crew(agents=self.agents, tasks=self.tasks)  # type: ignore[arg-type]
-
-    def run(self) -> object:
-        """
-        Run the agent team workflow.
-
-        Returns:
-            The result of the workflow
-
-        """
-        if not CREWAI_AVAILABLE:
-            error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
-            raise ImportError(error_msg)
-
-        # Create and run the crew
-        crew = self._create_crew()
-        return crew.kickoff()  # type: ignore[attr-defined]
 
 
 # Next steps:

@@ -15,7 +15,7 @@ class Task:
         self,
         description: str = "",
         agent: Optional[AgentType] = None,
-        **kwargs: dict[str, object],
+        **kwargs,
     ) -> None:
         """
         Initialize a mock Task.
@@ -34,4 +34,5 @@ class Task:
         return f"Task(description='{self.description}')"
 
     def __repr__(self):
-        return f"Task(description='{self.description}', agent={self.agent})"
+        agent_repr = f"Agent(role='{self.agent.role}')" if self.agent else "None"
+        return f"Task(description='{self.description}', agent={agent_repr})"

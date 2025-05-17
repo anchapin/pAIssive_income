@@ -52,19 +52,28 @@ class TestAPIServer(unittest.TestCase):
                 from ui.api_server import ThreadedHTTPServer, APIHandler
                 cls.mock_server = ThreadedHTTPServer(server_address, APIHandler)
 
+                # Set timeout to ensure serve_forever doesn't block indefinitely
+                cls.mock_server.timeout = 0.5
+
                 # Run the server until interrupted
                 cls.mock_server.serve_forever()
             except KeyboardInterrupt:
                 # Server will be stopped by the teardown method
-                pass
+                print("Server interrupted by keyboard")
             except OSError as e:
                 # Port might be in use
                 print(f"Could not start server: {e}")
                 cls.server_stopped.set()  # Signal that the server failed to start
+            except Exception as e:
+                print(f"Unexpected error in server thread: {e}")
             finally:
+                print("Server thread exiting")
                 if cls.mock_server:
-                    cls.mock_server.server_close()
-                cls.server_stopped.set()
+                    try:
+                        cls.mock_server.server_close()
+                    except Exception as e:
+                        print(f"Error closing server: {e}")
+                cls.server_stopped.set()  # Signal that the server has stopped
 
         # Start the server in a separate thread
         cls.server_thread = threading.Thread(target=run_test_server)
@@ -83,15 +92,24 @@ class TestAPIServer(unittest.TestCase):
         """Stop the server."""
         # Stop the server if it's running
         if cls.mock_server:
-            # Signal the server to shut down
-            if hasattr(cls.mock_server, "_BaseServer__shutdown_request"):
-                cls.mock_server._BaseServer__shutdown_request = True
+            try:
+                # Use the proper method to shut down the server
+                cls.mock_server.shutdown()
 
-            # Wait for the server to stop
-            cls.server_stopped.wait(timeout=2.0)
+                # Close the server socket
+                cls.mock_server.server_close()
 
-            # Join the thread
-            cls.server_thread.join(timeout=1.0)
+                # Wait for the server to stop
+                cls.server_stopped.wait(timeout=2.0)
+
+                # Join the thread with a timeout
+                cls.server_thread.join(timeout=1.0)
+
+                # If the thread is still alive, log a warning
+                if cls.server_thread.is_alive():
+                    print("Warning: Server thread did not terminate cleanly")
+            except Exception as e:
+                print(f"Error shutting down server: {e}")
 
     def test_health_check(self):
         """Test the health check endpoint."""
