@@ -235,3 +235,154 @@ except Exception as e:
     logger.exception(f"Error during risky operation: {e}")
     # Handle the exception or re-raise
 ```
+
+### Adapter Pattern Example
+
+Here's an example of proper logger initialization in an adapter class:
+
+```python
+"""adapter_module - Module for adapters.adapter_module."""
+
+# Standard library imports
+import logging
+import json
+from typing import Dict, Any, Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Third-party imports
+try:
+    import requests
+    logger.debug("Successfully imported requests")
+except ImportError as e:
+    logger.warning(f"Failed to import requests: {e}")
+    requests = None
+
+# Local imports
+from .base_adapter import BaseAdapter
+from .exceptions import AdapterError
+
+class ExternalServiceAdapter(BaseAdapter):
+    """Adapter for connecting to an external service."""
+
+    def __init__(self, base_url: str, api_key: str, timeout: int = 30):
+        """Initialize the adapter.
+
+        Args:
+            base_url: The base URL of the external service
+            api_key: API key for authentication
+            timeout: Request timeout in seconds
+        """
+        self.base_url = base_url
+        self.api_key = api_key
+        self.timeout = timeout
+        logger.info(f"Initialized adapter with base_url={base_url}")
+
+    def send_request(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Send a request to the external service.
+
+        Args:
+            endpoint: API endpoint to call
+            data: Request payload
+
+        Returns:
+            Response data from the service
+
+        Raises:
+            AdapterError: If the request fails
+        """
+        url = f"{self.base_url}/{endpoint}"
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+
+        logger.debug(f"Sending request to {endpoint}")
+        try:
+            response = requests.post(url, json=data, headers=headers, timeout=self.timeout)
+            response.raise_for_status()
+            logger.info(f"Request to {endpoint} successful")
+            return response.json()
+        except requests.RequestException as e:
+            logger.exception(f"Request to {endpoint} failed: {e}")
+            raise AdapterError(f"Failed to communicate with external service: {e}") from e
+```
+
+### Asynchronous Code Example
+
+Here's an example of proper logger usage in asynchronous code:
+
+```python
+"""async_module - Module for async operations."""
+
+# Standard library imports
+import logging
+import asyncio
+from typing import List, Dict, Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Third-party imports
+try:
+    import aiohttp
+    logger.debug("Successfully imported aiohttp")
+except ImportError as e:
+    logger.warning(f"Failed to import aiohttp: {e}")
+    aiohttp = None
+
+async def fetch_data(url: str, timeout: int = 30) -> Dict[str, Any]:
+    """Fetch data from a URL asynchronously.
+
+    Args:
+        url: URL to fetch data from
+        timeout: Request timeout in seconds
+
+    Returns:
+        JSON response data
+
+    Raises:
+        ValueError: If aiohttp is not available
+        aiohttp.ClientError: If the request fails
+    """
+    if aiohttp is None:
+        logger.error("aiohttp is required for fetch_data")
+        raise ValueError("aiohttp is required for fetch_data")
+
+    logger.debug(f"Fetching data from {url}")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=timeout) as response:
+                response.raise_for_status()
+                data = await response.json()
+                logger.info(f"Successfully fetched data from {url}")
+                return data
+    except aiohttp.ClientError as e:
+        logger.exception(f"Error fetching data from {url}: {e}")
+        raise
+    except asyncio.TimeoutError:
+        logger.error(f"Timeout fetching data from {url}")
+        raise aiohttp.ClientError(f"Timeout fetching data from {url}")
+
+async def fetch_multiple(urls: List[str]) -> List[Dict[str, Any]]:
+    """Fetch data from multiple URLs concurrently.
+
+    Args:
+        urls: List of URLs to fetch data from
+
+    Returns:
+        List of JSON response data
+    """
+    logger.info(f"Fetching data from {len(urls)} URLs")
+    tasks = [fetch_data(url) for url in urls]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Process results, handling any exceptions
+    processed_results = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.warning(f"Failed to fetch data from {urls[i]}: {result}")
+        else:
+            processed_results.append(result)
+
+    logger.info(f"Successfully fetched data from {len(processed_results)}/{len(urls)} URLs")
+    return processed_results
+```
