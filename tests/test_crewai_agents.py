@@ -44,7 +44,11 @@ try:
         version = crewai.__version__
         logging.info(f"CrewAI is available (version: {version})")
     except AttributeError:
-        logging.info("CrewAI is available (version attribute not found)")
+        # Add version attribute if missing
+        logging.info("CrewAI is available but version attribute not found, adding default version")
+        crewai.__version__ = "0.120.0"  # Add default version
+        version = crewai.__version__
+        logging.info(f"Added default version: {version}")
 except ImportError as e:
     CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
@@ -62,12 +66,18 @@ except ImportError as e:
     try:
         import mock_crewai as crewai
         CREWAI_AVAILABLE = True
-        logging.info(f"Using mock_crewai module")
+        # Ensure version attribute exists
+        if not hasattr(crewai, "__version__"):
+            crewai.__version__ = "0.120.0"  # Add default version
+        logging.info(f"Using mock_crewai module (version: {crewai.__version__})")
     except ImportError:
         try:
             import crewai
             CREWAI_AVAILABLE = True
-            logging.info(f"Using fallback crewai module")
+            # Ensure version attribute exists
+            if not hasattr(crewai, "__version__"):
+                crewai.__version__ = "0.120.0"  # Add default version
+            logging.info(f"Using fallback crewai module (version: {crewai.__version__})")
         except ImportError:
             logging.warning("Could not import any crewai module")
 

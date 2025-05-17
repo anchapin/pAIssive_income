@@ -21,7 +21,11 @@ try:
         version = crewai.__version__
         logging.info(f"CrewAI is available (version: {version})")
     except AttributeError:
-        logging.info("CrewAI is available (version attribute not found)")
+        # Add version attribute if missing
+        logging.info("CrewAI is available but version attribute not found, adding default version")
+        crewai.__version__ = "0.120.0"  # Add default version
+        version = crewai.__version__
+        logging.info(f"Added default version: {version}")
 except ImportError as e:
     CREWAI_AVAILABLE = False
     logging.warning(f"CrewAI is not available: {e}")
@@ -39,12 +43,18 @@ except ImportError as e:
     try:
         import mock_crewai as crewai
         CREWAI_AVAILABLE = True
-        logging.info(f"Using mock_crewai module")
+        # Ensure version attribute exists
+        if not hasattr(crewai, "__version__"):
+            crewai.__version__ = "0.120.0"  # Add default version
+        logging.info(f"Using mock_crewai module (version: {crewai.__version__})")
     except ImportError:
         try:
             import crewai
             CREWAI_AVAILABLE = True
-            logging.info(f"Using fallback crewai module")
+            # Ensure version attribute exists
+            if not hasattr(crewai, "__version__"):
+                crewai.__version__ = "0.120.0"  # Add default version
+            logging.info(f"Using fallback crewai module (version: {crewai.__version__})")
         except ImportError:
             logging.warning("Could not import any crewai module")
 
@@ -68,6 +78,19 @@ def test_crewai_agent_team_integration():
 
         # Verify the agent team was created successfully
         assert agent_team is not None
+
+        # Add an agent to the team
+        agent = agent_team.add_agent(
+            role="Test Agent",
+            goal="Test the integration",
+            backstory="A test agent for integration testing"
+        )
+
+        # Add a task to the team
+        task = agent_team.add_task(
+            description="Test task for integration",
+            agent=agent
+        )
 
         # Test the run method with a mock workflow
         with patch.object(agent_team, '_create_crew') as mock_create_crew:
@@ -123,16 +146,27 @@ def test_crewai_agent_team_with_custom_agents():
             MockAgent.side_effect = [mock_agent1, mock_agent2]
 
             # Add custom agents to the agent team
-            agent_team.add_agent(
+            researcher = agent_team.add_agent(
                 role="Researcher",
                 goal="Research the topic",
                 backstory="Expert researcher"
             )
 
-            agent_team.add_agent(
+            writer = agent_team.add_agent(
                 role="Writer",
                 goal="Write the report",
                 backstory="Expert writer"
+            )
+
+            # Add tasks for the agents
+            agent_team.add_task(
+                description="Research the topic thoroughly",
+                agent=researcher
+            )
+
+            agent_team.add_task(
+                description="Write a comprehensive report",
+                agent=writer
             )
 
             # Verify the agents were added
@@ -176,6 +210,18 @@ def test_crewai_agent_team_mock_fallback():
 
         # Verify the agent team was created successfully
         assert agent_team is not None
+
+        # Add an agent and task to avoid validation errors
+        agent = agent_team.add_agent(
+            role="Mock Agent",
+            goal="Test the mock fallback",
+            backstory="A test agent for mock fallback"
+        )
+
+        agent_team.add_task(
+            description="Test task for mock fallback",
+            agent=agent
+        )
 
         # Test the run method with a mock workflow
         with patch.object(agent_team, 'run') as mock_run:

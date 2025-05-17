@@ -11,7 +11,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the module under test
-from check_api_server import check_syntax
+from check_api_server import check_syntax, format_syntax_error, check_multiple_files, main
 
 
 class TestCheckAPIServer:
@@ -80,12 +80,12 @@ if __name__ == "__main__":
         non_existent_path = os.path.join(os.path.dirname(self.temp_file_path), "non_existent_file.py")
 
         # Check the syntax
-        with patch("logging.Logger.exception") as mock_exception:
+        with patch("logging.Logger.error") as mock_error:
             result = check_syntax(non_existent_path)
 
             # Verify the result
             assert result is False
-            mock_exception.assert_called_once()
+            mock_error.assert_called_once()
 
     def test_check_syntax_permission_error(self):
         """Test check_syntax with a file that cannot be read."""
@@ -129,25 +129,19 @@ if __name__ == "__main__":
         """Test the main function with invalid arguments."""
         # Mock sys.argv with no arguments
         with patch("sys.argv", ["check_api_server.py"]):
-            # Mock sys.exit
-            with patch("sys.exit") as mock_exit:
-                # Mock logger.error
-                with patch("check_api_server.logger.error") as mock_error:
-                    # Import and run the main function directly
-                    from check_api_server import main
+            # Mock logger.error
+            with patch("check_api_server.logger.error") as mock_error:
+                # Import and run the main function directly
+                from check_api_server import main
 
-                    # This will call sys.exit(1) for invalid arguments
-                    try:
-                        main()
-                    except (SystemExit, IndexError):
-                        # Catch the SystemExit or IndexError that might be raised
-                        pass
+                # Run the main function
+                result = main()
 
-                    # Verify that logger.error was called
-                    mock_error.assert_called_once()
+                # Verify that logger.error was called
+                mock_error.assert_called_once()
 
-                    # Verify that sys.exit was called with exit code 1
-                    mock_exit.assert_called_once_with(1)
+                # Verify that the function returns 1 for invalid arguments
+                assert result == 1
 
     def test_main_with_invalid_syntax(self):
         """Test the main function with a file containing invalid syntax."""
@@ -163,19 +157,128 @@ if __name__ == "__main__":
 
         # Mock sys.argv
         with patch("sys.argv", ["check_api_server.py", self.temp_file_path]):
-            # Mock sys.exit
-            with patch("sys.exit") as mock_exit:
-                # Mock check_syntax to return False (indicating invalid syntax)
-                with patch("check_api_server.check_syntax", return_value=False):
-                    # Import and run the main function directly
-                    from check_api_server import main
+            # Mock check_multiple_files to return a list with one invalid file
+            with patch("check_api_server.check_multiple_files", return_value=([], [self.temp_file_path])):
+                # Import and run the main function directly
+                result = main()
 
-                    # This will call sys.exit(1) for invalid syntax
-                    try:
-                        main()
-                    except SystemExit:
-                        # Catch the SystemExit that might be raised
-                        pass
+                # Verify that the function returns 1 for invalid syntax
+                assert result == 1
 
-                    # Verify that sys.exit was called with exit code 1
-                    mock_exit.assert_called_once_with(1)
+    def test_format_syntax_error(self):
+        """Test the format_syntax_error function."""
+        # Create a mock SyntaxError
+        error = SyntaxError("invalid syntax")
+        error.lineno = 2
+        error.offset = 5
+        error.text = "def hello_world()"
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column 5" in error_msg
+        assert "def hello_world()" in error_msg
+        assert "invalid syntax" in error_msg
+
+    def test_format_syntax_error_with_none_values(self):
+        """Test the format_syntax_error function with None values."""
+        # Create a mock SyntaxError with None values
+        error = SyntaxError("invalid syntax")
+        error.lineno = 2
+        error.offset = None
+        error.text = None
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column None" in error_msg
+        assert "<unknown>" in error_msg
+        assert "invalid syntax" in error_msg
+
+    def test_check_multiple_files(self):
+        """Test the check_multiple_files function."""
+        # Create a second temporary file
+        temp_file2 = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+        temp_file_path2 = temp_file2.name
+        temp_file2.close()
+
+        try:
+            # Write valid Python code to the first file
+            with open(self.temp_file_path, "w") as f:
+                f.write("""
+def hello_world():
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            # Write invalid Python code to the second file
+            with open(temp_file_path2, "w") as f:
+                f.write("""
+def hello_world()
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            # Check both files
+            valid_files, invalid_files = check_multiple_files([self.temp_file_path, temp_file_path2])
+
+            # Verify the result
+            assert len(valid_files) == 1
+            assert len(invalid_files) == 1
+            assert self.temp_file_path in valid_files
+            assert temp_file_path2 in invalid_files
+        finally:
+            # Clean up the second temporary file
+            if os.path.exists(temp_file_path2):
+                os.unlink(temp_file_path2)
+
+    def test_main_with_multiple_files(self):
+        """Test the main function with multiple files."""
+        # Create a second temporary file
+        temp_file2 = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+        temp_file_path2 = temp_file2.name
+        temp_file2.close()
+
+        try:
+            # Write valid Python code to both files
+            with open(self.temp_file_path, "w") as f:
+                f.write("""
+def hello_world():
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            with open(temp_file_path2, "w") as f:
+                f.write("""
+def goodbye_world():
+    print("Goodbye, world!")
+
+if __name__ == "__main__":
+    goodbye_world()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py", self.temp_file_path, temp_file_path2]):
+                # Run the main function
+                result = main()
+
+                # Verify that the function returns 0 for valid syntax
+                assert result == 0
+        finally:
+            # Clean up the second temporary file
+            if os.path.exists(temp_file_path2):
+                os.unlink(temp_file_path2)
