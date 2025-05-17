@@ -325,6 +325,17 @@ We recommend configuring your IDE or editor to use Ruff as the primary formatter
 
 See the [IDE Setup Guide](docs/ide_setup.md) for detailed instructions on configuring your development environment.
 
+### Logging Best Practices
+
+The project follows specific logging best practices to ensure consistent and effective logging throughout the codebase. Key principles include:
+
+- Always initialize loggers at the top of each module
+- Use module-specific loggers with `__name__`
+- Never use the root logger directly
+- Use appropriate logging levels
+
+See [Logging Best Practices](docs/logging-best-practices.md) for detailed guidelines and examples.
+
 ### Common Formatting Issues to Watch For
 
 - Trailing whitespace at the end of lines
