@@ -51,6 +51,15 @@
 *.sage.py
 *.sarif
 *.sarif.json
+
+# Explicit ignore for security/test artifacts
+bandit-results-*.json
+bandit-results-*.txt
+coverage-*.xml
+junit/test-results-*.xml
+*-results-*.json
+*-results-*.xml
+secrets.sarif.json
 *.so
 *.spec
 *.swo
