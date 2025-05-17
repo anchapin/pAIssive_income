@@ -1,4 +1,10 @@
-# Security Fixes for CodeQL Issues
+<!--
+ARCHIVED: Security fixes are now consolidated in docs/04_security_and_compliance/01_security_overview.md and docs/09_archive_and_notes/security_fixes_summaries.md
+-->
+
+# Security Fixes
+
+See [Security Overview](docs/04_security_and_compliance/01_security_overview.md) and [Security Fixes & Case Studies](docs/09_archive_and_notes/security_fixes_summaries.md) for the full, up-to-date record. for CodeQL Issues
 
 ## Issues Identified
 

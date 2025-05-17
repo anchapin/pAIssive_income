@@ -1,5 +1,5 @@
 <!--
-ARCHIVED: This file has been consolidated into docs/04_security_and_compliance/02_scanning_and_tooling.md and docs/09_archive_and_notes/amazon_q_notes.md for historical reference.
+ARCHIVED: This file has been consolidated into docs/04_security_and_compliance/02_scanning_and_tooling.md and docs/09_archive_and_notes/security_fixes_summaries.md for historical reference.
 -->
 
 # Bandit Security Scan Fix

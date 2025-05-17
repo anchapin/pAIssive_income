@@ -1,4 +1,10 @@
+<!--
+ARCHIVED: Security fixes summary is now consolidated in docs/04_security_and_compliance/01_security_overview.md and docs/09_archive_and_notes/security_fixes_summaries.md
+-->
+
 # Security Fixes Summary
+
+See [Security Overview](docs/04_security_and_compliance/01_security_overview.md) and [Security Fixes & Case Studies](docs/09_archive_and_notes/security_fixes_summaries.md) for the authoritative record.
 
 This document summarizes the security fixes applied to address the CodeQL security vulnerabilities related to clear-text logging of sensitive information.
 
