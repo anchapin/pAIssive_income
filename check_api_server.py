@@ -49,7 +49,8 @@ def check_syntax(file_path: str) -> bool:
         return True
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the script."""
     if len(sys.argv) < MIN_ARGS:
         logger.error("Usage: python check_api_server.py <file_path>")
         sys.exit(1)
@@ -57,3 +58,7 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     if not check_syntax(file_path):
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
