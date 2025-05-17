@@ -1,5 +1,6 @@
 """Test module for common_utils.tooling."""
 
+import logging
 import pytest
 from typing import Callable, Dict, Any
 

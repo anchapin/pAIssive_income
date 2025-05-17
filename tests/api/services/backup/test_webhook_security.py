@@ -1,5 +1,6 @@
 """Tests for the webhook security service."""
 
+import logging
 import unittest
 from unittest.mock import MagicMock, patch
 import base64

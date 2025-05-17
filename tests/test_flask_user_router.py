@@ -1,5 +1,6 @@
 """Tests for the Flask user router."""
 
+import logging
 import json
 import pytest
 from unittest.mock import patch, MagicMock

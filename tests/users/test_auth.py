@@ -1,5 +1,6 @@
 """Tests for the users.auth module."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 import bcrypt

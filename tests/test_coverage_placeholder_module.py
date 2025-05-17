@@ -3,6 +3,7 @@ Tests for the coverage_placeholder module.
 This ensures 100% test coverage for the placeholder module.
 """
 
+import logging
 import unittest
 import pytest
 from coverage_placeholder import CoverageHelper, add, subtract, multiply, divide

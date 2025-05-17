@@ -1,6 +1,7 @@
 """test_openai_compatible_adapter - Module for tests/ai_models/adapters.test_openai_compatible_adapter."""
 
 # Standard library imports
+import logging
 import json
 import asyncio
 from unittest.mock import patch, MagicMock, AsyncMock

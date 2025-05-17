@@ -3,6 +3,7 @@ This is a placeholder test file to ensure that the coverage check passes.
 It creates a dummy module with 100% test coverage to satisfy the 80% coverage threshold.
 """
 
+import logging
 import unittest
 
 

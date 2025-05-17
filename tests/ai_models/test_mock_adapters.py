@@ -1,5 +1,6 @@
 """Tests for the mock adapters module."""
 
+import logging
 import pytest
 from unittest.mock import patch, MagicMock
 

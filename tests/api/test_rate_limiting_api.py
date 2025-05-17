@@ -1,5 +1,6 @@
 """test_rate_limiting_api - Tests for API rate limiting enforcement and edge cases."""
 
+import logging
 import time
 from http import HTTPStatus
 from unittest.mock import patch

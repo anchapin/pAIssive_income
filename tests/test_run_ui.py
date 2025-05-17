@@ -1,5 +1,6 @@
 """Tests for the run_ui module."""
 
+import logging
 import os
 import unittest
 from unittest.mock import patch, MagicMock, Mock

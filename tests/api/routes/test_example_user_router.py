@@ -1,6 +1,7 @@
 """test_example_user_router - Module for tests/api/routes.test_example_user_router."""
 
 # Standard library imports
+import logging
 import json
 from unittest.mock import patch, MagicMock, AsyncMock
 

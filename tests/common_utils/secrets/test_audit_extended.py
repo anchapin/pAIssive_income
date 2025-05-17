@@ -1,5 +1,6 @@
 """Extended tests for the audit module."""
 
+import logging
 import os
 import json
 import tempfile

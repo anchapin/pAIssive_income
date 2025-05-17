@@ -1,5 +1,6 @@
 """Additional tests for the API server."""
 
+import logging
 import json
 import os
 import pytest

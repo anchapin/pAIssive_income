@@ -1,5 +1,6 @@
 """Tests for the config module."""
 
+import logging
 import os
 import unittest
 from unittest.mock import patch

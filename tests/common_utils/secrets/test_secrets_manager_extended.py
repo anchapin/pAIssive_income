@@ -1,5 +1,6 @@
 """Extended tests for the secrets_manager module."""
 
+import logging
 import os
 import unittest
 from unittest.mock import patch, MagicMock

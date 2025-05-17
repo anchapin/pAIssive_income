@@ -1,5 +1,6 @@
 """test_user_router - Test module for user router."""
 
+import logging
 import json
 from unittest.mock import MagicMock, patch
 

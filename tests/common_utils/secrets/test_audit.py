@@ -1,5 +1,6 @@
 """Tests for the audit module."""
 
+import logging
 import os
 import re
 import tempfile

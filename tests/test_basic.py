@@ -1,5 +1,6 @@
 """Basic tests to verify that the testing framework works."""
 
+import logging
 import pytest
 
 # Constants for test values

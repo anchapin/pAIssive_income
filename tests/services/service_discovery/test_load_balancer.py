@@ -1,5 +1,6 @@
 """Tests for the load balancer module."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 

@@ -1,5 +1,6 @@
 """Test module for common_utils.validation.schemas."""
 
+import logging
 import pytest
 from pydantic import ValidationError
 

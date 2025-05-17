@@ -1,5 +1,6 @@
 """Test module for tools.log_dashboard."""
 
+import logging
 import datetime
 import os
 import tempfile

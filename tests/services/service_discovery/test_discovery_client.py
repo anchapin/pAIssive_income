@@ -1,5 +1,6 @@
 """Tests for the service discovery client."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 

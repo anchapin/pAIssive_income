@@ -1,5 +1,6 @@
 """test_flask_app - Test module for Flask app."""
 
+import logging
 import json
 import unittest
 from unittest.mock import MagicMock, patch

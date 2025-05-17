@@ -1,6 +1,7 @@
 """test_health_check - Module for tests/dev_tools.test_health_check."""
 
 # Standard library imports
+import logging
 import unittest
 from unittest.mock import patch, MagicMock, call
 import sys

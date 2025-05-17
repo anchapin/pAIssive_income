@@ -1,5 +1,6 @@
 """Test module for crewai.py."""
 
+import logging
 import os
 import sys
 from unittest.mock import patch, MagicMock

@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import List, Tuple
 
 # Set up logging
 logging.basicConfig(

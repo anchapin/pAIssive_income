@@ -1,5 +1,6 @@
 """Tests for the parameter name fix in common_utils/secrets/cli.py."""
 
+import logging
 import os
 import tempfile
 import unittest

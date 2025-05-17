@@ -1,5 +1,6 @@
 """Tests for the file backend module."""
 
+import logging
 import os
 import pytest
 from unittest.mock import patch

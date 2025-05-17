@@ -1,6 +1,7 @@
 """test_models - Module for tests/app_flask.test_models."""
 
 # Standard library imports
+import logging
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 

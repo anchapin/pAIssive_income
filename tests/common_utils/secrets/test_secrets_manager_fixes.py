@@ -1,5 +1,6 @@
 """Tests for the fixes in common_utils/secrets/secrets_manager.py."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 

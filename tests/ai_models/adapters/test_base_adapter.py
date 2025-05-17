@@ -1,6 +1,7 @@
 """test_base_adapter - Module for tests/ai_models/adapters.test_base_adapter."""
 
 # Standard library imports
+import logging
 import pytest
 
 # Third-party imports

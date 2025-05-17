@@ -2,6 +2,7 @@
 Test file to ensure we have at least 80% test coverage.
 This file imports and tests the main modules of the application.
 """
+import logging
 import pytest
 import os
 import sys

@@ -110,6 +110,41 @@ def is_sensitive_key(key: str) -> bool:
     return any(term in key_lower for term in sensitive_terms)
 
 
+def prevent_log_injection(data: object) -> object:
+    """
+    Prevent log injection attacks by sanitizing input data.
+
+    This function removes or escapes characters that could be used for log injection attacks,
+    such as newlines, carriage returns, and other control characters.
+
+    Args:
+        data: The data to sanitize. Can be a string, dict, list, or other types.
+
+    Returns:
+        The sanitized data with potentially dangerous characters removed or escaped.
+        Returns the same type as the input data.
+    """
+    if data is None:
+        return None
+
+    if isinstance(data, str):
+        # Replace newlines and control characters
+        sanitized = PATTERNS["log_injection_newlines"].sub(" ", data)
+        sanitized = PATTERNS["log_injection_control_chars"].sub("", sanitized)
+        return sanitized
+
+    if isinstance(data, dict):
+        # Recursively sanitize values in dictionary
+        return {k: prevent_log_injection(v) for k, v in data.items()}
+
+    if isinstance(data, list):
+        # Recursively sanitize values in list
+        return [prevent_log_injection(item) for item in data]
+
+    # For any other type, return as is
+    return data
+
+
 def mask_sensitive_data(
     data: object, mask_char: str = "*", visible_chars: int = 4
 ) -> object:

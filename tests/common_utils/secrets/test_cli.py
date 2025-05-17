@@ -1,5 +1,6 @@
 """Tests for the cli module."""
 
+import logging
 import os
 import tempfile
 import unittest

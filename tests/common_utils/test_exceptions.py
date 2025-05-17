@@ -1,6 +1,7 @@
 """test_exceptions - Module for tests/common_utils.test_exceptions."""
 
 # Standard library imports
+import logging
 import unittest
 
 # Local imports

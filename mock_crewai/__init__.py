@@ -20,6 +20,7 @@ from .agent import Agent
 from .crew import Crew
 from .task import Task
 from .types import AgentType, CrewType, TaskType
+from . import tools
 
 # Define what should be exported
-__all__ = ["Agent", "Crew", "Task", "__version__"]
+__all__ = ["Agent", "Crew", "Task", "tools", "__version__"]

@@ -1,6 +1,7 @@
 """test_auth - Module for tests/api/utils.test_auth."""
 
 # Standard library imports
+import logging
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timedelta, timezone

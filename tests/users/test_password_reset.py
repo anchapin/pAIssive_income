@@ -1,6 +1,7 @@
 """test_password_reset - Test module for users.password_reset."""
 
 # Standard library imports
+import logging
 import unittest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch

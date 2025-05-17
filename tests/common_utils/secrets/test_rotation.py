@@ -1,5 +1,6 @@
 """Tests for the rotation module."""
 
+import logging
 import datetime
 import json
 import os

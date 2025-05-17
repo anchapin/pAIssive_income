@@ -1,5 +1,6 @@
 """Tests for init_db.py."""
 
+import logging
 import os
 from unittest.mock import patch, MagicMock
 

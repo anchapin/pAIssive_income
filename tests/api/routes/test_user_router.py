@@ -1,5 +1,6 @@
 """Test module for api.routes.user_router."""
 
+import logging
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 

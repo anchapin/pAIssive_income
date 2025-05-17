@@ -1,5 +1,6 @@
 """Tests for the secrets config module."""
 
+import logging
 import os
 import json
 import pytest

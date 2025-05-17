@@ -1,5 +1,6 @@
 """Test module for crewai.py fallback module."""
 
+import logging
 import pytest
 import importlib
 import sys

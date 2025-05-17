@@ -1,5 +1,6 @@
 """test_models - Test module for database models."""
 
+import logging
 from typing import Generator
 
 import pytest

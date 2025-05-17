@@ -1,6 +1,7 @@
 """test_config_loader - Module for tests/common_utils.test_config_loader."""
 
 # Standard library imports
+import logging
 import json
 import os
 import tempfile

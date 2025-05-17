@@ -1,6 +1,7 @@
 """test_config_extended - Extended tests for common_utils/secrets/config.py."""
 
 # Standard library imports
+import logging
 import os
 import json
 import unittest

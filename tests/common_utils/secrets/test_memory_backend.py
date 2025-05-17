@@ -1,5 +1,6 @@
 """Tests for the memory backend module."""
 
+import logging
 import pytest
 from unittest.mock import patch
 

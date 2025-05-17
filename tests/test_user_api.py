@@ -1,5 +1,6 @@
 """Test the user API endpoints with the ORM/database."""
 
+import logging
 from unittest.mock import patch
 
 # Import constants

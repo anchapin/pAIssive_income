@@ -1,5 +1,6 @@
 """Integration tests for the secrets management system."""
 
+import logging
 import os
 import tempfile
 import json

@@ -1,6 +1,7 @@
 """test_cli_extended - Module for tests/common_utils/secrets.test_cli_extended."""
 
 # Standard library imports
+import logging
 import unittest
 from unittest.mock import patch, MagicMock, mock_open, call
 import os

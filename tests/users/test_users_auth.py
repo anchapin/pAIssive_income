@@ -1,6 +1,7 @@
 """test_users_auth - Test module for users.auth."""
 
 # Standard library imports
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 

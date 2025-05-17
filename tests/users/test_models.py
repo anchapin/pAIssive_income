@@ -1,5 +1,6 @@
 """Tests for the users.models module."""
 
+import logging
 import unittest
 from datetime import datetime
 from unittest.mock import patch, MagicMock

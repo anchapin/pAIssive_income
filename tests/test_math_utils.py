@@ -1,5 +1,6 @@
 """Tests for the math_utils module."""
 
+import logging
 import pytest
 
 from utils.math_utils import add, average, divide, multiply, subtract

@@ -1,6 +1,7 @@
 """
 Test file to ensure we have at least 80% test coverage for users.auth module.
 """
+import logging
 import pytest
 import bcrypt
 from unittest.mock import patch, MagicMock

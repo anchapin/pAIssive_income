@@ -1,5 +1,6 @@
 """Integration tests for the secrets CLI module."""
 
+import logging
 import os
 import tempfile
 import unittest

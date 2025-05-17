@@ -1,5 +1,6 @@
 """Test module for mock_crewai module."""
 
+import logging
 import os
 import sys
 import importlib

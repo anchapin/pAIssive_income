@@ -5,16 +5,35 @@ All tests and validation logic must comply with:
 docs/input_validation_and_error_handling_standards.md
 """
 
+import logging
 import json
 from typing import Any, Dict, List, Optional, Union
 
 import pytest
 from pydantic import BaseModel, Field
 
-from common_utils.validation.core import ValidationError, validate_input
+from common_utils.validation.core import ValidationError, validate_input, validation_error_response
+from common_utils.validation.validators import validate_email, validate_url
+from common_utils.validation.decorators import validate_request_body
 
 # Constants
 VALID_AGE = 35
+
+
+class MockRequest:
+    """Mock request class for testing."""
+
+    def __init__(self, json_data):
+        """Initialize with JSON data."""
+        self.json_data = json_data
+
+    async def json(self):
+        """Return the JSON data."""
+        return self.json_data
+
+    async def get_json(self):
+        """Return the JSON data (alternative method name)."""
+        return self.json_data
 
 
 class ExampleInputModel(BaseModel):
@@ -121,7 +140,20 @@ def test_valid_input() -> None:
 
 
 def test_validation_error_response() -> None:
-    """Test that validation_error_response returns the expected error response."""
+    """Test that validation_error_response returns the expected format."""
+    error = ValidationError("Test error message", [{"field": "test", "message": "Test error"}])
+    response = validation_error_response(error)
+
+    assert response["error_code"] == "validation_error"
+    assert response["message"] == "Test error message"
+    assert isinstance(response["errors"], list)
+    assert len(response["errors"]) == 1
+    assert response["errors"][0]["field"] == "test"
+    assert response["errors"][0]["message"] == "Test error"
+
+
+def test_validation_error_response_with_pydantic_errors() -> None:
+    """Test that validation_error_response handles Pydantic validation errors correctly."""
     # Create a ValidationError with multiple errors
     validation_error = ValidationError(
         "Input validation failed.",
@@ -164,14 +196,7 @@ def test_validation_error_response() -> None:
     assert "email" in error_fields
 
 
-class MockRequest:
-    """Mock request class for testing decorators."""
-
-    def __init__(self, json_data: Dict[str, Any]):
-        self._json = json_data
-
-    async def get_json(self) -> Dict[str, Any]:
-        return self._json
+# This MockRequest class is already defined above
 
 
 class TestValidateRequestBodyDecorator:

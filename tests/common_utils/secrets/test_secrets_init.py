@@ -1,5 +1,6 @@
 """Tests for the secrets package __init__ module. Renamed to avoid conflicts."""
 
+import logging
 import os
 import pytest
 from unittest.mock import patch

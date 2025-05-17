@@ -1,5 +1,6 @@
 """Extended test module for ui.api_server."""
 
+import logging
 import json
 import socket
 import threading

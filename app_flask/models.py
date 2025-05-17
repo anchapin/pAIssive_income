@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import uuid
+from typing import TypeVar, Dict, Any, Optional
 
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship, backref
@@ -11,6 +12,7 @@ from sqlalchemy.orm import relationship, backref
 ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]
 
 # Re-export hash_credential for tests
+from users.auth import hash_credential as _hash_credential
 hash_credential = _hash_credential
 
 class User(db.Model):  # type: ignore[name-defined]
@@ -62,8 +64,30 @@ class User(db.Model):  # type: ignore[name-defined]
         """
         return f"<User {self.username}>"
 
-    def to_dict(self, include_profile=False) -> dict:
+    def to_dict(self, include_profile=False) -> Dict[str, Any]:
         """Convert user model to dictionary.
+
+        Args:
+            include_profile: Whether to include profile data
+
+        Returns:
+            Dictionary with user data
+        """
+        result = {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "is_active": self.is_active == "true",
+            "is_admin": self.is_admin == "true",
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_login": self.last_login.isoformat() if self.last_login else None
+        }
+
+        if include_profile and hasattr(self, 'profile') and self.profile:
+            result["profile"] = self.profile.to_dict()
+
+        return result
+
 
 class Team(db.Model):  # type: ignore[name-defined]
     """Team model for grouping AI agents."""
@@ -89,19 +113,7 @@ class Team(db.Model):  # type: ignore[name-defined]
             str: String representation
 
         """
-        result = {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-            "is_active": self.is_active == "true",
-            "is_admin": self.is_admin == "true",
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if hasattr(self, 'updated_at') and self.updated_at else None,
-            "last_login": self.last_login.isoformat() if self.last_login else None
-        }
-
-        if include_profile and hasattr(self, 'profile') and self.profile:
-            result["profile"] = self.profile.to_dict()
+        return f"<Team {self.name}>"
 
 class Agent(db.Model):  # type: ignore[name-defined]
     """Agent model for AI agents that belong to teams."""
@@ -147,77 +159,54 @@ class Agent(db.Model):  # type: ignore[name-defined]
             str: String representation
 
         """
+        return f"<Agent {self.name}>"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert agent model to dictionary.
+
+        Returns:
+            Dictionary with agent data
+        """
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "bio": self.bio,
-            "avatar_url": self.avatar_url,
+            "name": self.name,
+            "role": self.role,
+            "description": self.description,
+            "team_id": self.team_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
 
     @classmethod
-    def from_dict(cls, data: dict, user=None) -> "UserProfile":
-        """Create profile from dictionary.
+    def from_dict(cls, data: Dict[str, Any], team=None) -> "Agent":
+        """Create agent from dictionary.
 
         Args:
-            data: Dictionary with profile data
-            user: User object
+            data: Dictionary with agent data
+            team: Team object
 
         Returns:
-            UserProfile instance
+            Agent instance
         """
-        # Set user_id from user object if provided
-        user_id = data.get("user_id")
-        if user is not None:
-            user_id = user.id
+        # Set team_id from team object if provided
+        team_id = data.get("team_id")
+        if team is not None:
+            team_id = team.id
 
-        profile = cls(
-            user=user,
-            user_id=user_id,
-            first_name=data.get("first_name"),
-            last_name=data.get("last_name"),
-            bio=data.get("bio"),
-            avatar_url=data.get("avatar_url")
+        agent = cls(
+            name=data.get("name"),
+            role=data.get("role"),
+            description=data.get("description"),
+            team_id=team_id,
+            team=team
         )
 
         if "id" in data:
-            profile.id = data["id"]
+            agent.id = data["id"]
 
-        return profile
+        return agent
 
 
-class Team(db.Model):
-    """Team model class."""
-
-    __tablename__ = "teams"
-
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String(100), unique=True, nullable=False)
-    description = Column(String(1000))
-    owner_id = Column(String(36), ForeignKey('users.id'), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    owner = relationship("UserModel")
-    agents = relationship("Agent", back_populates="team", cascade="all, delete-orphan")
-
-    def __init__(self, name: str, owner_id: str = None, description: str = None):
-        """Initialize team model.
-
-        Args:
-            name: Team name
-            owner_id: ID of team owner (User)
-            description: Optional team description
-        """
-        self.name = name
-        self.owner_id = owner_id
-        self.description = description
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-
-    def __repr__(self) -> str:
-        """Get string representation."""
-        return f"<Team {self.name}>"
+# This is a duplicate Team class definition that has been removed
+# The Team class is already defined above

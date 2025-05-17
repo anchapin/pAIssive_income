@@ -1,5 +1,6 @@
 """test_user_api - Tests for User API endpoints, edge cases, and error handling."""
 
+import logging
 import pytest
 from fastapi.testclient import TestClient
 

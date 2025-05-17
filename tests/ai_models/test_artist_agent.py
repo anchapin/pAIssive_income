@@ -1,5 +1,6 @@
 """Tests for the ARTIST-style agent wrapper."""
 
+import logging
 import pytest
 from unittest.mock import patch, MagicMock
 

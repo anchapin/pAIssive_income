@@ -1,5 +1,6 @@
 """test_user_service - Test module for user service."""
 
+import logging
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 

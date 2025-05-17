@@ -1,5 +1,6 @@
 """Test module for check_api_server.py."""
 
+import logging
 import os
 import sys
 import tempfile

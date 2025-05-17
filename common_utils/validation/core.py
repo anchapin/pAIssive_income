@@ -7,7 +7,7 @@ See: docs/input_validation_and_error_handling_standards.md
 
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TypeVar, Dict, List, Any, Optional, Union
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -18,13 +18,13 @@ T = TypeVar("T", bound=BaseModel)
 class ValidationError(Exception):
     """Raised when input validation fails."""
 
-    def __init__(self, details: object = None) -> None:
+    def __init__(self, message: str = "Input validation failed", details: Optional[List[Dict[str, Any]]] = None) -> None:
         """
         Initialize the ValidationError.
 
         Args:
             message (str, optional): Error message. Defaults to "Input validation failed".
-            details (Any, optional): Additional error details. Defaults to None.
+            details (List[Dict[str, Any]], optional): Additional error details. Defaults to None.
         """
         self.message = message
         self.details = details
@@ -59,7 +59,34 @@ def validate_input(model_cls: type[T], data: object) -> T:
         return model_instance
 
 
-def validation_error_response(exc: ValidationError) -> dict[str, object]:
+def format_validation_error(error: PydanticValidationError) -> List[Dict[str, Any]]:
+    """
+    Format a Pydantic validation error into a standardized format.
+
+    Args:
+        error: The PydanticValidationError instance.
+
+    Returns:
+        List of formatted error details.
+    """
+    formatted_errors = []
+
+    for err in error.errors():
+        # Extract field and error message
+        field = ".".join(str(loc) for loc in err.get("loc", []))
+        err_message = err.get("msg", "Invalid value")
+
+        formatted_errors.append({
+            "field": field,
+            "message": err_message,
+            "type": err.get("type", "validation_error")
+        })
+
+    return formatted_errors
+
+
+def validation_error_response(error: Union[PydanticValidationError, ValidationError, Exception],
+                             message: Optional[str] = None) -> Dict[str, Any]:
     """
     Standardized error response for validation errors.
 

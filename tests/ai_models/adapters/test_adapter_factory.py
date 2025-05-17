@@ -1,6 +1,7 @@
 """Tests for the adapter factory."""
 
 # Standard library imports
+import logging
 from unittest.mock import patch, MagicMock
 
 # Third-party imports

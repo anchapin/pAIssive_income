@@ -1,5 +1,6 @@
 """test_auth - Test module for users.auth."""
 
+import logging
 import unittest
 from unittest.mock import MagicMock, patch
 

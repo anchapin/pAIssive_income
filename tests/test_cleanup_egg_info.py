@@ -1,5 +1,6 @@
 """Tests for cleanup_egg_info.py."""
 
+import logging
 import os
 import shutil
 import tempfile

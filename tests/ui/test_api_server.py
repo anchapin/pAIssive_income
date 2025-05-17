@@ -1,6 +1,7 @@
 """test_api_server - Module for tests/ui.test_api_server."""
 
 # Standard library imports
+import logging
 import http.client
 import json
 import sys

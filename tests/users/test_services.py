@@ -1,5 +1,6 @@
 """Tests for the users.services module."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timezone

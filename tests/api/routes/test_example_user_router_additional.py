@@ -1,5 +1,6 @@
 """Additional tests for the example user router."""
 
+import logging
 import json
 from unittest.mock import patch, MagicMock, AsyncMock
 

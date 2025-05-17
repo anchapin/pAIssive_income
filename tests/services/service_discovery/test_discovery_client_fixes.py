@@ -1,5 +1,6 @@
 """Tests for the fixes in services/service_discovery/discovery_client.py."""
 
+import logging
 import unittest
 from unittest.mock import patch, MagicMock, call
 
