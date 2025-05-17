@@ -20,6 +20,11 @@ updates:
     labels:
       - "dependencies"
       - "python"
+    ignore:
+      - dependency-name: "flask"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pytest"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
     directory: "/"
