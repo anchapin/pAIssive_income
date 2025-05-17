@@ -150,6 +150,28 @@ describe('Hello component', () => {
 
 ---
 
+## Dependency Updates (via Dependabot)
+
+This project uses [Dependabot](https://docs.github.com/en/code-security/dependabot) to keep dependencies up-to-date for all major ecosystems:
+
+- **JavaScript/Node (pnpm):** Updates to packages in `package.json`
+- **Python:** Updates to packages in `requirements-ci.txt`, `requirements_filtered.txt`
+- **Docker:** Updates to base images in `Dockerfile`, `main_Dockerfile`, and `ui/react_frontend/Dockerfile.dev`
+- **GitHub Actions:** Updates to workflow actions in `.github/workflows/`
+
+**How it works:**
+- Dependabot will automatically open pull requests for version updates on a weekly schedule.
+- PRs are labeled by ecosystem (e.g., `dependencies`, `javascript`, `python`, `docker`, `github-actions`).
+- Some dependencies (e.g., `react`, `flask`, `pytest`) will not be updated for major releases automatically.
+
+**Maintainer action:**  
+- Review Dependabot PRs promptly.
+- Ensure CI/tests pass before merging.
+- For major upgrades, review changelogs for breaking changes.
+
+For more details, see `.github/dependabot.yml`.
+---
+
 ## Docker Compose Integration
 
 **Start PostgreSQL database, application, and frontend with Docker Compose:**
