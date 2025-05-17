@@ -136,14 +136,14 @@ def main() -> None:
 
     # Create SARIF files for all run IDs
     for current_run_id in specific_run_ids:
-        sarif_file = f"security-reports/bandit-results-{current_run_id}.sarif"
-        with Path(sarif_file).open("w") as f:
+        sarif_file = Path(f"security-reports/bandit-results-{current_run_id}.sarif")
+        with sarif_file.open("w") as f:
             json.dump(EMPTY_SARIF, f, indent=2)
         logger.info("Generated empty SARIF file: %s", sarif_file)
 
     # Create the standard SARIF file
-    standard_sarif_file = "security-reports/bandit-results.sarif"
-    with Path(standard_sarif_file).open("w") as f:
+    standard_sarif_file = Path("security-reports/bandit-results.sarif")
+    with standard_sarif_file.open("w") as f:
         json.dump(EMPTY_SARIF, f, indent=2)
     logger.info("Generated empty SARIF file: %s", standard_sarif_file)
 

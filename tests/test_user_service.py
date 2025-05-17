@@ -233,7 +233,7 @@ def test_authenticate_user_failure(user_service):
 
     # Set up the mocks
     with patch.object(MockUser, "query") as mock_query, patch(
-        "users.auth.verify_credential"
+        "users.services.verify_credential"
     ) as mock_verify:
         # Set up the mocks
         mock_filter = MagicMock()
