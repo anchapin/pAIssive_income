@@ -4,7 +4,7 @@ Run CrewAI-specific tests.
 This script installs CrewAI and runs the tests that require it.
 """
 
-import os
+import os  # Used for file operations
 import sys
 import subprocess
 import logging
