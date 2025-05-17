@@ -14,11 +14,12 @@ don't need the full CrewAI functionality.
 # Define version first
 __version__ = "0.120.0"
 
-# Import classes - using string type annotations in the classes themselves
-# to avoid circular imports
+# Import types first to avoid circular imports
+# Import classes in a specific order to avoid circular imports
 from .agent import Agent
 from .crew import Crew
 from .task import Task
+from .types import AgentType, CrewType, TaskType
 
 # Define what should be exported
 __all__ = ["Agent", "Crew", "Task", "__version__"]

@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .agent import Agent
-
-T = TypeVar("T")
+    from .types import AgentType
 
 
 class Task:
@@ -16,8 +14,8 @@ class Task:
     def __init__(
         self,
         description: str = "",
-        agent: Optional[Union[Agent, None]] = None,
-        **kwargs: dict[str, Any],
+        agent: Optional[AgentType] = None,
+        **kwargs: dict[str, object],
     ) -> None:
         """
         Initialize a mock Task.

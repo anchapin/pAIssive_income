@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .task import Task
+    from .types import TaskType
 
 
 class Agent:
@@ -16,7 +16,7 @@ class Agent:
         role: str = "",
         goal: str = "",
         backstory: str = "",
-        **kwargs: dict[str, Any],
+        **kwargs: dict[str, object],
     ) -> None:
         """
         Initialize a mock Agent.
@@ -33,7 +33,7 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task: Task) -> str:
+    def execute_task(self, task: TaskType) -> str:
         """
         Execute a task and return a result.
 
