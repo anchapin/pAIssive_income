@@ -51,6 +51,9 @@ def list_tools() -> dict[str, Callable[..., Any]]:
 
 
 # Example tool: simple calculator
+# Constants for calculator limits
+MAX_EXPONENT_VALUE = 100  # Maximum allowed value for exponentiation
+
 def calculator(expression: str) -> object:
     """
     Evaluate a mathematical expression safely.
@@ -62,36 +65,41 @@ def calculator(expression: str) -> object:
         The result of the expression.
 
     """
+    # Use a safer approach with a custom parser
+    import operator
+    import re
+    import ast
+
+    # Define allowed operators and their functions
+    operators = {
+        "+": operator.add,
+        "-": operator.sub,
+        "*": operator.mul,
+        "/": operator.truediv,
+        "**": operator.pow,
+        "%": operator.mod,
+    }
+
     try:
-        # Use a safer approach with a custom parser
-        import re
-        import operator
-
-        # Define allowed operators and their functions
-        operators = {
-            '+': operator.add,
-            '-': operator.sub,
-            '*': operator.mul,
-            '/': operator.truediv,
-            '**': operator.pow,
-            '%': operator.mod
-        }
-
         # Validate input - only allow numbers, operators, and whitespace
-        if not re.match(r'^[\d\s\+\-\*\/\(\)\.\%\*]+$', expression):
+        if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%\*]+$", expression):
             return "Error: Invalid characters in expression"
 
         # Disallow potentially dangerous patterns
-        if '**' in expression and any(n > 1000 for n in [
-            float(x) for x in re.findall(r'\d+', expression) if x.isdigit()
-        ]):
-            return "Error: Exponentiation with large numbers not allowed"
+        if "**" in expression and any(
+            n > MAX_EXPONENT_VALUE
+            for n in [float(x) for x in re.findall(r"\d+", expression) if x.isdigit()]
+        ):
+            return f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
 
-        # Use Python's built-in eval with a restricted namespace
-        # This is safer than using ast.literal_eval for expressions
-        result = eval(expression, {"__builtins__": {}}, operators)
-        return result
-    except Exception as e:
+        # Try to use ast.literal_eval for simple expressions
+        try:
+            return ast.literal_eval(expression)
+        except (ValueError, SyntaxError):
+            # For expressions with operators, use a restricted eval
+            # This is still safer than using eval directly
+            return eval(expression, {"__builtins__": None}, operators)
+    except (ValueError, SyntaxError, TypeError, ZeroDivisionError, OverflowError) as e:
         return f"Error: {e}"
 
 
