@@ -188,30 +188,6 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
     return success
 
 
-def generate_configs(run_id: str) -> int:
-    """
-    Generate Bandit configuration files for all platforms with the given run ID.
-
-    Args:
-        run_id: Run ID for the configuration files
-
-    Returns:
-        int: 0 for success, 1 for failure
-
-    """
-    # Set up directories
-    bandit_dir, _, setup_success = setup_directories()
-    if not setup_success:
-        return 1
-
-    # Generate configuration files
-    if generate_config_files(bandit_dir, run_id):
-        logger.info("Bandit configuration files generated successfully")
-        return 0
-    logger.error("Some bandit configuration files could not be generated")
-    return 1
-
-
 def main() -> int:
     """
     Generate Bandit configuration files for all platforms and run IDs.
@@ -233,10 +209,22 @@ def main() -> int:
 
         logger.info("Generating Bandit configuration files for run ID: %s", run_id)
 
-        return generate_configs(run_id)
+        # Set up directories
+        bandit_dir, _, setup_success = setup_directories()
+        if not setup_success:
+            result = 1
+        # Generate configuration files
+        elif generate_config_files(bandit_dir, run_id):
+            logger.info("Bandit configuration files generated successfully")
+            result = 0
+        else:
+            logger.error("Some bandit configuration files could not be generated")
+            result = 1
     except Exception:
         logger.exception("Unexpected error during Bandit configuration generation")
         return 1
+    else:
+        return result
 
 
 if __name__ == "__main__":
