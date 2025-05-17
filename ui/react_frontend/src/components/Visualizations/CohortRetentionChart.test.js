@@ -50,4 +50,51 @@ describe('CohortRetentionChart', () => {
     expect(container.querySelector('table')).toBeInTheDocument();
     expect(container.querySelectorAll('tr').length).toBeGreaterThanOrEqual(3); // header + 2 rows
   });
+
+  it('renders with a single cohort and single period', () => {
+    const singleData = [{ size: 50, retention: [100] }];
+    render(<CohortRetentionChart data={singleData} />);
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(screen.getByText('0%')).toBeInTheDocument();
+  });
+
+  it('renders with missing cohortLabels', () => {
+    render(<CohortRetentionChart data={mockData} />);
+    // Fallbacks to "Cohort 1", "Cohort 2"
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.getByText('Cohort 2')).toBeInTheDocument();
+  });
+
+  it('renders with unusual retention values (edge color logic)', () => {
+    const edgeData = [
+      { size: 10, retention: [100, 80, 60, 40, 20, 10, 0, 5] }
+    ];
+    render(<CohortRetentionChart data={edgeData} />);
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.getByText('10')).toBeInTheDocument();
+    // All retention % values should be present as text
+    [100, 80, 60, 40, 20, 10, 0, 5].forEach(val => {
+      expect(screen.getAllByText(`${val}%`).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('renders with empty cohortLabels array', () => {
+    render(<CohortRetentionChart data={mockData} cohortLabels={[]} />);
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.getByText('Cohort 2')).toBeInTheDocument();
+  });
+
+  it('renders chart with only one period across multiple cohorts', () => {
+    const data = [
+      { size: 11, retention: [100] },
+      { size: 22, retention: [100] },
+    ];
+    render(<CohortRetentionChart data={data} />);
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.getByText('Cohort 2')).toBeInTheDocument();
+    expect(screen.getByText('11')).toBeInTheDocument();
+    expect(screen.getByText('22')).toBeInTheDocument();
+    expect(screen.getAllByText('100%').length).toBeGreaterThanOrEqual(2);
+  });
 });
