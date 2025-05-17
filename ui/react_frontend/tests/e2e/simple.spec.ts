@@ -87,86 +87,46 @@ test.describe('Simple Test', () => {
       `Timestamp: ${new Date().toISOString()}`);
   });
 
-  test('Homepage loads', async ({ page }) => {
-    try {
-      // Check if the server is running first
-      const serverRunning = await isServerRunning(BASE_URL);
-      if (!serverRunning) {
-        console.warn(`Server at ${BASE_URL} is not running, but will try to navigate anyway`);
-        createReport('simple-test-server-warning.txt',
-          `Server at ${BASE_URL} is not running at ${new Date().toISOString()}`);
+  test('Homepage loads and shows main app UI', async ({ page }) => {
+    // Try to navigate to the homepage with retry logic
+    let navigationSuccess = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.goto(BASE_URL, { timeout: 30000 });
+        await page.waitForLoadState('load', { timeout: 30000 });
+        navigationSuccess = true;
+        break;
+      } catch {
+        if (attempt < 3) await new Promise(r => setTimeout(r, 5000));
       }
-
-      // Try to navigate to the homepage with retry logic
-      console.log('Navigating to homepage...');
-      let navigationSuccess = false;
-
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          await page.goto(BASE_URL, { timeout: 30000 });
-          await page.waitForLoadState('load', { timeout: 30000 });
-          navigationSuccess = true;
-          console.log(`Successfully navigated to homepage on attempt ${attempt}`);
-          break;
-        } catch (navError) {
-          console.warn(`Navigation attempt ${attempt} failed: ${navError}`);
-          if (attempt < 3) {
-            console.log(`Waiting 5 seconds before retry...`);
-            await new Promise(r => setTimeout(r, 5000));
-          }
-        }
-      }
-
-      // Take a screenshot regardless of navigation success
-      await takeScreenshot(page, 'simple-test-homepage.png');
-
-      if (navigationSuccess) {
-        console.log('Homepage loaded successfully');
-
-        // Check if the page has any content
-        const bodyContent = await page.textContent('body');
-        console.log(`Body content length: ${bodyContent?.length || 0}`);
-        createReport('simple-test-content.txt',
-          `Page content length: ${bodyContent?.length || 0}\nFirst 500 chars: ${bodyContent?.substring(0, 500) || 'No content'}`);
-      } else {
-        console.warn('All navigation attempts failed, trying to navigate to the static test page');
-
-        // Try to navigate to the static test page
-        try {
-          await page.goto(`${BASE_URL}/test/index.html`, { timeout: 30000 });
-          await page.waitForLoadState('load', { timeout: 30000 });
-          console.log('Static test page loaded successfully');
-          await takeScreenshot(page, 'simple-test-static-page.png');
-        } catch (staticError) {
-          console.error(`Failed to load static test page: ${staticError}`);
-        }
-      }
-
-      // Create a simple HTML report
-      const htmlReport = `
-        <!DOCTYPE html>
-        <html>
-        <head><title>Simple Test Results</title></head>
-        <body>
-          <h1>Simple Test Results</h1>
-          <p>Test run at: ${new Date().toISOString()}</p>
-          <p>Navigation success: ${navigationSuccess ? 'Yes' : 'No'}</p>
-          <p>BASE_URL: ${BASE_URL}</p>
-        </body>
-        </html>
-      `;
-      fs.writeFileSync(path.join(reportDir, 'simple-test-report.html'), htmlReport);
-
-      // Always pass this test
-      expect(true).toBeTruthy();
-    } catch (error) {
-      console.error(`Error in simple test: ${error}`);
-      createReport('simple-test-error.txt',
-        `Test failed at ${new Date().toISOString()}\nError: ${error.toString()}`);
-
-      // Still pass the test to avoid CI failures
-      expect(true).toBeTruthy();
     }
+    await takeScreenshot(page, 'simple-test-homepage.png');
+
+    if (!navigationSuccess) {
+      // Error message if offline
+      const offlineMsg = await page.getByText(/offline|unavailable|cannot connect|error/i, { timeout: 2000 }).catch(() => null);
+      expect(offlineMsg).not.toBeNull();
+      createReport('simple-test-offline.txt', 'Homepage could not load: offline or error message shown.');
+      return;
+    }
+
+    // App logo, header, or branding should be visible
+    const branding = await page.getByRole('banner').catch(() => null) ||
+                     await page.getByRole('heading', { level: 1 }).catch(() => null) ||
+                     await page.getByText(/dashboard|income|analysis|app/i, { timeout: 5000 }).catch(() => null);
+    expect(branding).not.toBeNull();
+
+    // Accessibility: Main landmark is present
+    const main = await page.$('main, [role=main]');
+    expect(main).not.toBeNull();
+
+    // Accessibility: H1 heading is present
+    const h1 = await page.$('h1');
+    expect(h1).not.toBeNull();
+
+    // Take another screenshot after assertions
+    await takeScreenshot(page, 'simple-test-homepage-asserted.png');
+    createReport('simple-test-success.txt', 'Homepage loaded and UI elements verified.');
   });
 
   // Test that always passes without any browser interaction
