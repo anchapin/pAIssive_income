@@ -12,6 +12,13 @@ exclude_dirs:
   - node_modules
   - build
   - dist
+  - docs
+  - docs_source
+  - junit
+  - bin
+  - dev_tools
+  - scripts
+  - tool_templates
 
 # Skip specific test IDs
 skips:

@@ -88,3 +88,17 @@ This document outlines security measures, fixes, and procedures implemented in t
 - Complete codebase security review
 - Update security documentation
 - Review security procedures
+
+---
+
+## Bandit Security Scan Optimization
+
+Bandit security scans are configured for both accuracy and speed:
+
+- **Parallel Processing**: Scans are run with 4 parallel workers (`-n 4`), significantly reducing scan time on multicore machines.
+- **Targeted Scanning**: Only source code directories are scanned (`api/`, `app_flask/`, `services/`, `common_utils/`, `users/`, and `main.py`), avoiding unnecessary files.
+- **Expanded Exclusions**: Large or irrelevant directories are excluded from scans, including:
+  - `tests`, `venv`, `.venv`, `env`, `.env`, `__pycache__`, `custom_stubs`, `node_modules`, `build`, `dist`, `docs`, `docs_source`, `junit`, `bin`, `dev_tools`, `scripts`, `tool_templates`
+- **Configuration Sync**: Both the Bandit configuration and scan scripts use these optimized settings for consistency.
+
+For details or changes, see `run_bandit_scan.ps1` and `bandit.yaml`.
