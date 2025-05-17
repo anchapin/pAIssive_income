@@ -8,7 +8,7 @@ import ast
 import logging
 import os
 import sys
-from typing import List, Tuple
+from pathlib import Path
 
 # Set up logging
 logging.basicConfig(
@@ -23,13 +23,15 @@ DEFAULT_ENCODING = "utf-8"
 
 
 def check_syntax(file_path: str) -> bool:
-    """Check the syntax of a Python file.
+    """
+    Check the syntax of a Python file.
 
     Args:
         file_path: Path to the Python file to check.
 
     Returns:
         True if the file has valid syntax, False otherwise.
+
     """
     if not os.path.exists(file_path):
         logger.error("❌ File not found: %s", file_path)
@@ -40,14 +42,25 @@ def check_syntax(file_path: str) -> bool:
         return False
 
     try:
-        with open(file_path, encoding=DEFAULT_ENCODING) as file:
+        with Path(file_path).open(encoding="utf-8") as file:
             source = file.read()
 
         # Parse the source code
         ast.parse(source, filename=file_path)
     except SyntaxError as e:
         # Custom formatting for syntax errors
-        error_msg = format_syntax_error(file_path, e)
+        # Handle potential None values safely
+        lineno = e.lineno if e.lineno is not None else 0
+        offset = e.offset if e.offset is not None else 0
+        text = e.text.strip() if e.text is not None else ""
+        msg = e.msg if e.msg is not None else "Unknown syntax error"
+
+        error_msg = (
+            f"❌ Syntax error in {file_path} at line {lineno}, column {offset}:\n"
+            f"   {text}\n"
+            f"   {' ' * (offset - 1)}^\n"
+            f"   {msg}"
+        )
         # ruff: noqa: TRY400
         logger.error(error_msg)
         return False

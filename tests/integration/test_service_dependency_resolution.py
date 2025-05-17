@@ -1,4 +1,5 @@
-"""test_service_dependency_resolution - Module for tests/integration.
+"""
+test_service_dependency_resolution - Module for tests/integration.
 
 Tests for service dependency resolution functionality.
 """

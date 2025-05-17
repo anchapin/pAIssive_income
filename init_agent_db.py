@@ -4,6 +4,7 @@
 import logging
 import os
 import sys
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -16,10 +17,12 @@ logger = logging.getLogger(__name__)
 
 
 def init_agent_db() -> bool:
-    """Initialize the agent database with test data.
+    """
+    Initialize the agent database with test data.
 
     Returns:
         bool: True if initialization was successful, False otherwise
+
     """
     # Get database URL from environment variable
     db_url = os.environ.get("DATABASE_URL")
@@ -93,7 +96,7 @@ def init_agent_db() -> bool:
             conn.commit()
             logger.info("Test agent data inserted successfully")
         else:
-            logger.info(f"Agent table already has {agent_count} records")
+            logger.info("Agent table already has %d records", agent_count)
 
         conn.close()
         logger.info("Agent database initialization completed successfully")

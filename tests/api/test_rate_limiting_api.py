@@ -1,6 +1,7 @@
 """test_rate_limiting_api - Tests for API rate limiting enforcement and edge cases."""
 
 import time
+from http import HTTPStatus
 from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
@@ -20,7 +21,7 @@ class TestRateLimitingAPI:
         responses = [mock_client.get(self.ENDPOINT) for _ in range(10)]
         status_codes = [r.status_code for r in responses]
         # At least one request should be rate limited
-        assert 429 in status_codes
+        assert HTTPStatus.TOO_MANY_REQUESTS in status_codes
 
     def test_rate_limit_headers_present(self, mock_client):
         resp = mock_client.get(self.ENDPOINT)
@@ -33,9 +34,12 @@ class TestRateLimitingAPI:
     def test_rate_limit_reset(self, mock_client):
         # Exceed limit, then wait for reset window and try again
         for _ in range(10):
-            mock_client.get(self.ENDPOINT)
-        resp = mock_client.get(self.ENDPOINT)
-        if resp.status_code == 429 and "Retry-After" in resp.headers:
+            client.get(self.ENDPOINT)
+        resp = client.get(self.ENDPOINT)
+        if (
+            resp.status_code == HTTPStatus.TOO_MANY_REQUESTS
+            and "Retry-After" in resp.headers
+        ):
             wait_time = int(resp.headers["Retry-After"])
             # In a real test, we would wait for the reset time
             # For this test, we'll just verify the headers are present
@@ -47,10 +51,10 @@ class TestRateLimitingAPI:
 
     def test_burst_requests(self, mock_client):
         # Send rapid burst and check at least some are limited
-        responses = []
-        for _ in range(20):
-            responses.append(mock_client.get(self.ENDPOINT))
-        limited = [r for r in responses if r.status_code == 429]
+        responses = [client.get(self.ENDPOINT) for _ in range(20)]
+        limited = [
+            r for r in responses if r.status_code == HTTPStatus.TOO_MANY_REQUESTS
+        ]
         assert len(limited) > 0
 
     def test_rate_limit_authenticated_vs_unauthenticated(self, mock_client):

@@ -1,4 +1,5 @@
-"""Tests for common_utils.validation input validation utility.
+"""
+Tests for common_utils.validation input validation utility.
 
 All tests and validation logic must comply with:
 docs/input_validation_and_error_handling_standards.md
@@ -8,15 +9,17 @@ import json
 from typing import Any, Dict, List, Optional, Union
 
 import pytest
-from pydantic import BaseModel, EmailStr, Field, ValidationError as PydanticValidationError
+from pydantic import BaseModel, Field
 
-from common_utils.validation.core import ValidationError, validate_input, validation_error_response
-from common_utils.validation.decorators import validate_request_body
-from common_utils.validation.validators import validate_email, validate_url
+from common_utils.validation.core import ValidationError, validate_input
+
+# Constants
+VALID_AGE = 35
 
 
 class ExampleInputModel(BaseModel):
-    """Example input model for validation testing.
+    """
+    Example input model for validation testing.
 
     This model includes various validation rules to test different validation scenarios.
     """
@@ -89,7 +92,8 @@ class ExampleInputModel(BaseModel):
     ],
 )
 def test_invalid_input_cases(payload: dict, expected_error: str) -> None:
-    """Test that invalid inputs raise ValidationError with the expected message.
+    """
+    Test that invalid inputs raise ValidationError with the expected message.
 
     Args:
         payload: The input data to validate
@@ -105,13 +109,13 @@ def test_valid_input() -> None:
     """Test that valid input is correctly validated and returned as a model instance."""
     payload = {
         "username": "validuser",
-        "age": 35,
+        "age": VALID_AGE,
         "email": "valid@example.com",
         "bio": "Hello world!",
     }
     instance = validate_input(ExampleInputModel, payload)
     assert instance.username == "validuser"
-    assert instance.age == 35
+    assert instance.age == VALID_AGE
     assert instance.email == "valid@example.com"
     assert instance.bio == "Hello world!"
 

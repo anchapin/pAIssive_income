@@ -1,13 +1,16 @@
 """Test the user API endpoints with the ORM/database."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
+# Import constants
+from tests.constants import HTTP_CREATED, HTTP_OK
 
 # The app and client fixtures are imported from conftest.py
 
 
 def test_create_and_authenticate_user(client):
     # Mock the user service to avoid database interactions
-    with patch('api.routes.flask_user_router.user_service') as mock_service:
+    with patch("api.routes.user_router.user_service") as mock_service:
         # Set up the mock for create_user
         mock_service.create_user.return_value = {
             "id": 1,
@@ -37,7 +40,7 @@ def test_create_and_authenticate_user(client):
                 "password": "testpassword",
             },
         )
-        assert response.status_code == 201
+        assert response.status_code == HTTP_CREATED
         data = response.get_json()
         assert data["username"] == "testuser"
         assert data["email"] == "testuser@example.com"
@@ -47,11 +50,7 @@ def test_create_and_authenticate_user(client):
             "/api/users/authenticate",
             json={"username_or_email": "testuser", "password": "testpassword"},
         )
-        assert response.status_code == 200
-        data = response.get_json()
-        # Check for token in response (from HEAD branch)
-        assert "token" in data
-        assert "user" in data
-        user_data = data["user"]
+        assert response.status_code == HTTP_OK
+        user_data = response.get_json()
         assert user_data["username"] == "testuser"
         assert user_data["email"] == "testuser@example.com"

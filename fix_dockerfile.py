@@ -1,4 +1,20 @@
-def fix_dockerfile():
+"""
+Fix Dockerfile to use the uv-based image.
+
+This script creates a Dockerfile that uses the ghcr.io/astral-sh/uv image
+as the base, which includes uv pre-installed.
+"""
+
+from pathlib import Path
+
+
+def fix_dockerfile() -> None:
+    """
+    Create a Dockerfile using the uv-based image.
+
+    The Dockerfile will use ghcr.io/astral-sh/uv:python3.10-bookworm-slim
+    as the base image and set up the project dependencies.
+    """
     dockerfile_content = """FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
 
 WORKDIR /app
@@ -52,7 +68,8 @@ ENV PYTHONPATH=/app
 CMD ["python", "-m", "tests"]
 """
 
-    with open("Dockerfile", "w") as f:
+    dockerfile_path = Path("Dockerfile")
+    with dockerfile_path.open("w") as f:
         f.write(dockerfile_content)
 
 

@@ -3,15 +3,20 @@
 # Standard library imports
 import http.client
 import json
-import os
 import sys
 import threading
 import time
 import unittest
 import pytest
 
+# Constants
+HTTP_OK = 200
+HTTP_NOT_FOUND = 404
+
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.resolve()))
 
 # Local imports - this import must be after sys.path modification
 # flake8: noqa: E402
@@ -83,14 +88,21 @@ class TestAPIServer(unittest.TestCase):
         response = conn.getresponse()
         data = json.loads(response.read().decode())
 
-        assert response.status == 200
+        assert response.status == HTTP_OK
         assert data["status"] == "ok"
         conn.close()
 
     def test_not_found(self):
         """Test the 404 error handler."""
-        # Skip this test as it requires a running server
-        pytest.skip("Skipping test that requires a running server")
+        conn = http.client.HTTPConnection("localhost", 8000)
+        conn.request("GET", "/nonexistent-endpoint")
+        response = conn.getresponse()
+        data = json.loads(response.read().decode())
+
+        assert response.status == HTTP_NOT_FOUND
+        assert data["error"] == "Not found"
+        assert data["path"] == "/nonexistent-endpoint"
+        conn.close()
 
 
 if __name__ == "__main__":

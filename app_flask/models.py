@@ -6,14 +6,15 @@ import uuid
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship, backref
 
-from app_flask import db
-from users.auth import hash_credential as _hash_credential
+# Type alias for db.Model - using Any to avoid mypy errors
+# mypy: disable-error-code="name-defined"
+ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]
 
 # Re-export hash_credential for tests
 hash_credential = _hash_credential
 
-class UserModel(db.Model):
-    """User model class."""
+class User(db.Model):  # type: ignore[name-defined]
+    """User model for authentication and user management."""
 
     __tablename__ = "users"
 
@@ -52,21 +53,41 @@ class UserModel(db.Model):
         self.created_at = datetime.utcnow()
 
     def __repr__(self) -> str:
-        """Get string representation.
+        """
+        Return string representation of User.
 
         Returns:
-            String representation of user
+            str: String representation
+
         """
         return f"<User {self.username}>"
 
     def to_dict(self, include_profile=False) -> dict:
         """Convert user model to dictionary.
 
-        Args:
-            include_profile: Whether to include the user's profile
+class Team(db.Model):  # type: ignore[name-defined]
+    """Team model for grouping AI agents."""
+
+    __tablename__ = "teams"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
+    )
+
+    agents = db.relationship(
+        "Agent", back_populates="team", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self) -> str:
+        """
+        Return string representation of Team.
 
         Returns:
-            Dictionary representation of user
+            str: String representation
+
         """
         result = {
             "id": self.id,
@@ -82,63 +103,8 @@ class UserModel(db.Model):
         if include_profile and hasattr(self, 'profile') and self.profile:
             result["profile"] = self.profile.to_dict()
 
-        return result
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "UserModel":
-        """Create user model from dictionary.
-
-        Args:
-            data: Dictionary with user data
-
-        Returns:
-            UserModel instance
-        """
-        user = cls(
-            username=data.get("username"),
-            email=data.get("email"),
-            password_hash=data.get("password_hash"),
-            is_active=data.get("is_active", True),
-            is_admin=data.get("is_admin", False)
-        )
-
-        if "id" in data:
-            user.id = data["id"]
-
-        if data.get("created_at"):
-            if isinstance(data["created_at"], str):
-                user.created_at = datetime.fromisoformat(data["created_at"])
-            else:
-                user.created_at = data["created_at"]
-
-        if data.get("last_login"):
-            if isinstance(data["last_login"], str):
-                user.last_login = datetime.fromisoformat(data["last_login"])
-            else:
-                user.last_login = data["last_login"]
-
-        return user
-
-    def update_last_login(self) -> None:
-        """Update the last login timestamp to current time.
-
-        Raises:
-            SQLAlchemyError: If there's a database error
-        """
-        from sqlalchemy.exc import SQLAlchemyError
-
-        self.last_login = datetime.utcnow()
-        try:
-            db.session.commit()
-        except SQLAlchemyError:
-            db.session.rollback()
-            raise
-
-# Alias for compatibility
-User = UserModel
-
-class Agent(db.Model):
-    """Agent model class."""
+class Agent(db.Model):  # type: ignore[name-defined]
+    """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"
 
@@ -174,60 +140,12 @@ class Agent(db.Model):
             self.team = team
 
     def __repr__(self) -> str:
-        """Get string representation."""
-        if self.role:
-            return f"<Agent {self.name} ({self.role})>"
-        return f"<Agent {self.name}>"
-
-class UserProfile(db.Model):
-    """User profile model class."""
-
-    __tablename__ = "user_profiles"
-
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey('users.id'), unique=True, nullable=False)
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    bio = Column(String(1000))
-    avatar_url = Column(String(255))
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    user = relationship("UserModel", backref=backref("profile", uselist=False))
-
-    def __init__(self, user=None, user_id=None, first_name=None, last_name=None, bio=None, avatar_url=None):
-        """Initialize user profile model.
-
-        Args:
-            user: User object
-            user_id: ID of user
-            first_name: User's first name
-            last_name: User's last name
-            bio: User's biography
-            avatar_url: URL to user's avatar
         """
-        if user is not None:
-            self.user = user
-            self.user_id = user.id
-        elif user_id is not None:
-            self.user_id = user_id
-
-        self.first_name = first_name
-        self.last_name = last_name
-        self.bio = bio
-        self.avatar_url = avatar_url
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-
-    def __repr__(self) -> str:
-        """Get string representation."""
-        return f"<UserProfile {self.first_name} {self.last_name}>"
-
-    def to_dict(self) -> dict:
-        """Convert profile to dictionary.
+        Return string representation of Agent.
 
         Returns:
-            Dictionary representation of profile
+            str: String representation
+
         """
         return {
             "id": self.id,

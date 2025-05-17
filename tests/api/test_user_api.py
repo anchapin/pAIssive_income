@@ -1,8 +1,6 @@
 """test_user_api - Tests for User API endpoints, edge cases, and error handling."""
 
 import pytest
-from unittest.mock import patch
-
 from fastapi.testclient import TestClient
 
 try:
@@ -15,6 +13,18 @@ except (ImportError, AttributeError):
 
 @pytest.mark.skipif(app is None, reason="Main FastAPI app not found for testing")
 class TestUserAPI:
+    # HTTP status codes
+    HTTP_OK = 200
+    HTTP_CREATED = 201
+    HTTP_NO_CONTENT = 204
+    HTTP_BAD_REQUEST = 400
+    HTTP_UNAUTHORIZED = 401
+    HTTP_FORBIDDEN = 403
+    HTTP_NOT_FOUND = 404
+    HTTP_METHOD_NOT_ALLOWED = 405
+    HTTP_CONFLICT = 409
+    HTTP_UNPROCESSABLE_ENTITY = 422
+
     def test_create_user_success(self):
         # Test data - not real credentials
         response = client.post(
@@ -25,12 +35,12 @@ class TestUserAPI:
                 "password": "test-password-123",  # Test credential only
             },
         )
-        assert response.status_code == 201
+        assert response.status_code == self.HTTP_CREATED
         assert response.json()["username"] == "newuser"
 
     def test_create_user_missing_fields(self):
         response = client.post("/users/", json={"username": "incomplete"})
-        assert response.status_code == 422
+        assert response.status_code == self.HTTP_UNPROCESSABLE_ENTITY
 
     def test_get_user_success(self):
         # Setup: Create user
@@ -45,12 +55,12 @@ class TestUserAPI:
         )
         user_id = post_resp.json().get("id")
         response = client.get(f"/users/{user_id}")
-        assert response.status_code == 200
+        assert response.status_code == self.HTTP_OK
         assert response.json()["username"] == "getme"
 
     def test_get_user_not_found(self):
         response = client.get("/users/999999")
-        assert response.status_code == 404
+        assert response.status_code == self.HTTP_NOT_FOUND
 
     def test_update_user_success(self):
         # Setup: Create user
@@ -72,7 +82,7 @@ class TestUserAPI:
 
     def test_update_user_not_found(self):
         response = client.put("/users/999999", json={"email": "notfound@example.com"})
-        assert response.status_code == 404
+        assert response.status_code == self.HTTP_NOT_FOUND
 
     def test_delete_user_success(self):
         # Setup: Create user
@@ -91,7 +101,7 @@ class TestUserAPI:
 
     def test_delete_user_not_found(self):
         response = client.delete("/users/999999")
-        assert response.status_code == 404
+        assert response.status_code == self.HTTP_NOT_FOUND
 
     def test_authentication_required(self):
         # Try accessing a protected endpoint with no token

@@ -1,4 +1,5 @@
-"""Initial database migration.
+"""
+Initial database migration.
 
 Revision ID: 001
 Revises:
@@ -17,7 +18,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    """Create initial database tables.
+    """
+    Create initial database tables.
 
     Creates users, teams, and agents tables with their relationships.
     """
@@ -72,7 +74,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Remove all tables created in the upgrade.
+    """
+    Remove all tables created in the upgrade.
 
     Drops tables in reverse order of creation to respect foreign key constraints.
     """

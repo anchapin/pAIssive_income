@@ -1,24 +1,26 @@
-"""auth - Module for api/utils.auth.
+"""
+auth - Module for api/utils.auth.
 
 This module provides utility functions for authentication in the API.
 """
 
+from __future__ import annotations
+
 # Standard library imports
 from datetime import datetime, timezone
-from typing import Any
+
+# Local imports
+from typing import TYPE_CHECKING, Any
 
 # Third-party imports
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
-from fastapi.security import APIKeyHeader
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status
+from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from common_utils.logging import get_logger
 
-# Local imports
-from users.services import UserService
+if TYPE_CHECKING:
+    from users.services import UserService
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -46,7 +48,8 @@ async def get_current_user(
     token: str = oauth2_scheme_dependency,
     user_service: UserService = user_service_dependency,
 ) -> dict[str, Any]:
-    """Get the current user from a JWT token.
+    """
+    Get the current user from a JWT token.
 
     Args:
     ----
@@ -90,7 +93,7 @@ async def get_current_user(
 
     user = user_service.user_repository.find_by_id(user_id)
     if not user:
-        logger.warning(f"User not found: {user_id}")
+        logger.warning("User not found: %s", user_id)
         raise credentials_exception
 
     # Return the user data without sensitive authentication information
@@ -108,7 +111,8 @@ current_user_dependency = Depends(get_current_user)
 async def get_current_active_user(
     current_user: dict[str, Any] = current_user_dependency,
 ) -> dict[str, Any]:
-    """Get the current active user.
+    """
+    Get the current active user.
 
     Args:
     ----
@@ -124,7 +128,7 @@ async def get_current_active_user(
 
     """
     if current_user.get("status") == "inactive":
-        logger.warning(f"Inactive user: {current_user.get('id')}")
+        logger.warning("Inactive user: %s", current_user.get("id"))
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Inactive user",
@@ -136,7 +140,8 @@ async def verify_api_key(
     api_key: str = api_key_header_dependency,
     user_service: UserService = user_service_dependency,
 ) -> dict[str, Any]:
-    """Verify an API key.
+    """
+    Verify an API key.
 
     Args:
     ----
@@ -171,7 +176,7 @@ async def verify_api_key(
     # Check if the API key is expired
     if (
         api_key_data.get("expires_at")
-        and api_key_data.get("expires_at") < datetime.now(timezone.utc).isoformat()
+        and api_key_data.get("expires_at") < datetime.now(tz=timezone.utc).isoformat()
     ):
         logger.warning("Expired API key")
         raise HTTPException(

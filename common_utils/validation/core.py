@@ -1,10 +1,13 @@
-"""Core validation utilities for input validation and error handling.
+"""
+Core validation utilities for input validation and error handling.
 
 All usage must comply with the project's standards:
 See: docs/input_validation_and_error_handling_standards.md
 """
 
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from __future__ import annotations
+
+from typing import TypeVar
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -15,8 +18,9 @@ T = TypeVar("T", bound=BaseModel)
 class ValidationError(Exception):
     """Raised when input validation fails."""
 
-    def __init__(self, message: str = "Input validation failed", details: Any = None) -> None:
-        """Initialize the ValidationError.
+    def __init__(self, details: object = None) -> None:
+        """
+        Initialize the ValidationError.
 
         Args:
             message (str, optional): Error message. Defaults to "Input validation failed".
@@ -27,8 +31,9 @@ class ValidationError(Exception):
         super().__init__(self.message)
 
 
-def validate_input(model_cls: type[T], data: Any) -> T:
-    """Validate input data using a Pydantic model.
+def validate_input(model_cls: type[T], data: object) -> T:
+    """
+    Validate input data using a Pydantic model.
 
     Args:
         model_cls: The Pydantic BaseModel subclass.
@@ -42,47 +47,21 @@ def validate_input(model_cls: type[T], data: Any) -> T:
     """
     try:
         model_instance = model_cls.model_validate(data)
-        assert isinstance(model_instance, model_cls)
+        # Verify the instance is of the correct type without using assert
+        if not isinstance(model_instance, model_cls):
+            error_msg = (
+                f"Expected {model_cls.__name__}, got {type(model_instance).__name__}"
+            )
+            raise TypeError(error_msg)
     except PydanticValidationError as exc:
-        # Always use the standard error message for consistency in tests
-        # but include the detailed errors for debugging
-        raise ValidationError("Input validation failed.", exc.errors()) from exc
-    except Exception as exc:
-        # Handle other validation errors
-        raise ValidationError("Input validation failed.", [{"loc": ["unknown"], "msg": str(exc), "type": "unknown_error"}]) from exc
+        raise ValidationError from exc
     else:
         return model_instance
 
 
-def format_validation_error(error: PydanticValidationError) -> List[Dict[str, str]]:
-    """Format a Pydantic ValidationError into a standardized format.
-
-    Args:
-        error: The Pydantic ValidationError instance.
-
-    Returns:
-        List of dictionaries with field, message, and type.
+def validation_error_response(exc: ValidationError) -> dict[str, object]:
     """
-    formatted_errors = []
-    for err in error.errors():
-        field = ".".join(str(loc) for loc in err.get("loc", []))
-        message = err.get("msg", "Invalid value")
-        error_type = err.get("type", "validation_error")
-
-        formatted_errors.append({
-            "field": field,
-            "message": message,
-            "type": error_type
-        })
-
-    return formatted_errors
-
-
-def validation_error_response(
-    error: Union[PydanticValidationError, ValidationError, Exception],
-    message: Optional[str] = None
-) -> Dict[str, Any]:
-    """Standardized error response for validation errors.
+    Standardized error response for validation errors.
 
     Args:
         error: The error instance (PydanticValidationError, ValidationError, or generic Exception).

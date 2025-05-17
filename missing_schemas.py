@@ -1,5 +1,7 @@
 """missing_schemas.py - Utilities for detecting and reporting missing schemas."""
 
+from __future__ import annotations
+
 # Standard library imports
 import logging
 
@@ -8,12 +10,14 @@ import logging
 # Local imports
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def report_missing_schemas(
     schema_names: list[str], available_schemas: list[str]
 ) -> list[str]:
-    """Print a report of which schemas are missing from the available list.
+    """
+    Print a report of which schemas are missing from the available list.
 
     Args:
         schema_names (list): Required schema names.
@@ -25,9 +29,9 @@ def report_missing_schemas(
     """
     missing = [name for name in schema_names if name not in available_schemas]
     if missing:
-        logging.warning(f"Missing schemas: {missing}")
+        logger.warning("Missing schemas: %s", missing)
     else:
-        logging.info("All required schemas are available.")
+        logger.info("All required schemas are available.")
     return missing
 
 

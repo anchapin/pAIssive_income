@@ -1,27 +1,54 @@
-"""Logging utilities module."""
+"""
+Common utilities for secure logging and log management.
 
 import logging
-from logging import Logger
-from typing import Dict, Union
+from typing import cast
 
-class SecureLogger(Logger):
-    """Secure logger with enhanced security features."""
+# Third-party imports
+# Local imports
+from .secure_logging import (
+    SENSITIVE_FIELDS,
+    SecureLogger,
+    get_secure_logger,
+    mask_sensitive_data,
+)
 
-    def __init__(self, name: str):
-        """Initialize secure logger.
-        
-        Args:
-            name: Logger name
-        """
-        super().__init__(name)
-        self._configure()
+__all__ = [
+    "SENSITIVE_FIELDS",
+    "SecureLogger",
+    "get_logger",
+    "get_secure_logger",
+    "mask_sensitive_data",
+]
 
-    def _configure(self):
-        """Configure logger with security settings."""
-        # Set secure logging format
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            '%Y-%m-%d %H:%M:%S'
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger with the given name.
+
+    This is a convenience function that returns a secure logger by default,
+    which automatically masks sensitive information.
+
+    Args:
+    ----
+        name: Name of the logger
+
+    Returns:
+    -------
+        logging.Logger: The secure logger or a standard logger as fallback
+
+    """
+    try:
+        # Return a SecureLogger that masks sensitive information
+        logger = get_secure_logger(name)
+        # Cast to logging.Logger to satisfy type checking
+        return cast("logging.Logger", logger)
+    except (ImportError, AttributeError) as e:
+        # Fall back to standard logger if secure logger is not available
+        setup_logger = logging.getLogger("logging_setup")
+        setup_logger.warning(
+            "Failed to create secure logger, falling back to standard logger: %s",
+            str(e),
         )
 
         # Add console handler

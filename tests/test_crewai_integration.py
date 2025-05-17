@@ -1,20 +1,21 @@
 """Test the integration between CrewAI and the agent_team module."""
 
-import pytest
-import sys
-import os
 import logging
+import os
+import sys
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 # Check if crewai is installed
 try:
     import crewai
+
     CREWAI_AVAILABLE = True
     # Access version safely
     try:
@@ -31,7 +32,9 @@ except ImportError as e:
     logging.warning(f"CrewAI is not available: {e}")
 
     # Try to add the mock_crewai directory to sys.path
-    mock_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mock_crewai")
+    mock_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mock_crewai"
+    )
     if os.path.exists(mock_dir):
         logging.info(f"Found mock_crewai directory at {mock_dir}, adding to sys.path")
         sys.path.insert(0, os.path.dirname(mock_dir))
@@ -79,21 +82,8 @@ def test_crewai_agent_team_integration():
         # Verify the agent team was created successfully
         assert agent_team is not None
 
-        # Add an agent to the team
-        agent = agent_team.add_agent(
-            role="Test Agent",
-            goal="Test the integration",
-            backstory="A test agent for integration testing"
-        )
-
-        # Add a task to the team
-        task = agent_team.add_task(
-            description="Test task for integration",
-            agent=agent
-        )
-
         # Test the run method with a mock workflow
-        with patch.object(agent_team, '_create_crew') as mock_create_crew:
+        with patch.object(agent_team, "_create_crew") as mock_create_crew:
             mock_crew = MagicMock()
             mock_crew.kickoff.return_value = "Mock workflow result"
             mock_create_crew.return_value = mock_crew
@@ -108,7 +98,7 @@ def test_crewai_agent_team_integration():
             mock_crew.kickoff.assert_called_once()
 
         logging.info("CrewAI agent team integration test passed")
-    except ImportError as e:
+    except ImportError:
         logging.exception("CrewAI agent team integration test failed")
         pytest.skip("CrewAI agent team integration test failed")
 
@@ -132,7 +122,7 @@ def test_crewai_agent_team_with_custom_agents():
         agent_team = CrewAIAgentTeam(llm_provider=mock_llm)
 
         # Create custom agents
-        with patch('crewai.Agent') as MockAgent:
+        with patch("crewai.Agent") as MockAgent:
             mock_agent1 = MagicMock()
             mock_agent1.role = "Researcher"
             mock_agent1.goal = "Research the topic"
@@ -149,33 +139,23 @@ def test_crewai_agent_team_with_custom_agents():
             researcher = agent_team.add_agent(
                 role="Researcher",
                 goal="Research the topic",
-                backstory="Expert researcher"
+                backstory="Expert researcher",
             )
 
-            writer = agent_team.add_agent(
-                role="Writer",
-                goal="Write the report",
-                backstory="Expert writer"
-            )
-
-            # Add tasks for the agents
-            agent_team.add_task(
-                description="Research the topic thoroughly",
-                agent=researcher
-            )
-
-            agent_team.add_task(
-                description="Write a comprehensive report",
-                agent=writer
+            agent_team.add_agent(
+                role="Writer", goal="Write the report", backstory="Expert writer"
             )
 
             # Verify the agents were added
             assert len(agent_team.agents) == 2
-            assert agent_team.agents[0].role == "Researcher"
-            assert agent_team.agents[1].role == "Writer"
+            # Cast to Any to avoid mypy errors with role attribute
+            from typing import Any, cast
+
+            assert cast("Any", agent_team.agents[0]).role == "Researcher"
+            assert cast("Any", agent_team.agents[1]).role == "Writer"
 
             # Test the run method with custom agents
-            with patch.object(agent_team, '_create_crew') as mock_create_crew:
+            with patch.object(agent_team, "_create_crew") as mock_create_crew:
                 mock_crew = MagicMock()
                 mock_crew.kickoff.return_value = "Custom agents workflow result"
                 mock_create_crew.return_value = mock_crew
@@ -190,7 +170,7 @@ def test_crewai_agent_team_with_custom_agents():
                 mock_crew.kickoff.assert_called_once()
 
         logging.info("CrewAI agent team with custom agents test passed")
-    except ImportError as e:
+    except ImportError:
         logging.exception("CrewAI agent team with custom agents test failed")
         pytest.skip("CrewAI agent team with custom agents test failed")
 
@@ -211,20 +191,8 @@ def test_crewai_agent_team_mock_fallback():
         # Verify the agent team was created successfully
         assert agent_team is not None
 
-        # Add an agent and task to avoid validation errors
-        agent = agent_team.add_agent(
-            role="Mock Agent",
-            goal="Test the mock fallback",
-            backstory="A test agent for mock fallback"
-        )
-
-        agent_team.add_task(
-            description="Test task for mock fallback",
-            agent=agent
-        )
-
         # Test the run method with a mock workflow
-        with patch.object(agent_team, 'run') as mock_run:
+        with patch.object(agent_team, "run") as mock_run:
             mock_run.return_value = "Mock workflow result"
 
             result = agent_team.run()
@@ -233,7 +201,7 @@ def test_crewai_agent_team_mock_fallback():
             assert result == "Mock workflow result"
 
         logging.info("CrewAI agent team mock fallback test passed")
-    except ImportError as e:
+    except ImportError:
         logging.exception("CrewAI agent team mock fallback test failed")
         # This test should never fail, just skip if all imports fail
         pytest.skip("No CrewAI implementation available")

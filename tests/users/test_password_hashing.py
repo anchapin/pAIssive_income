@@ -9,6 +9,9 @@ import pytest
 # Local imports
 from users.auth import hash_credential, verify_credential
 
+# Constants
+DEFAULT_BCRYPT_ROUNDS = 12
+
 
 @pytest.fixture
 def test_credentials():
@@ -85,8 +88,8 @@ def test_bcrypt_rounds(test_credentials):
     # The format is $2b$XX$ where XX is the number of rounds
     rounds = int(hashed[4:6])
 
-    # Check that the number of rounds is 12 (default in our implementation)
-    assert rounds == 12
+    # Check that the number of rounds matches our default implementation
+    assert rounds == DEFAULT_BCRYPT_ROUNDS
 
 
 def test_different_hashes(test_credentials):

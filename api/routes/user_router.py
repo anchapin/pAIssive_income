@@ -1,14 +1,21 @@
 """user_router - User API endpoints using FastAPI."""
 
+from __future__ import annotations
+
 import os
-import logging
-from typing import Any, Dict, List, Optional, Tuple
+
+# Type checking imports
+from typing import TYPE_CHECKING, Union
 
 from fastapi import APIRouter, HTTPException, Path, status
 from pydantic import BaseModel, EmailStr, Field
 from flask import Blueprint, jsonify, request
 
 from common_utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from flask.wrappers import Response
+    from werkzeug.wrappers import Response as WerkzeugResponse
 from users.services import AuthenticationError, UserExistsError, UserService
 
 # Set up secure logger that masks sensitive info
@@ -21,37 +28,14 @@ TOKEN_SECRET = os.environ.get("USER_TOKEN_SECRET", "super-secret")
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-# Pydantic models for request/response
-class UserCreate(BaseModel):
-    """Schema for user creation."""
-    username: str = Field(..., min_length=3, max_length=50)
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-
-
-class UserUpdate(BaseModel):
-    """Schema for user update."""
-    username: Optional[str] = Field(None, min_length=3, max_length=50)
-    email: Optional[EmailStr] = None
-
-
-class UserResponse(BaseModel):
-    """Schema for user response."""
-    id: int
-    username: str
-    email: str
-    is_active: bool
-
-
-# Mock database functions
-def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
-    """Get a user by ID from the database.
-
-    Args:
-        user_id: The user ID
+@user_bp.route("/", methods=["POST"])
+def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Create a new user.
 
     Returns:
-        User data or None if not found
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     # This is a mock implementation
     if user_id == 999:
@@ -64,11 +48,14 @@ def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
     }
 
 
-def get_users() -> List[Dict[str, Any]]:
-    """Get all users from the database.
+@user_bp.route("/authenticate", methods=["POST"])
+def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
+    """
+    Authenticate a user.
 
     Returns:
-        List of user data
+        tuple[Response, int]: JSON response with user data or error and HTTP status code
+
     """
     # This is a mock implementation
     return [

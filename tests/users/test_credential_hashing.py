@@ -71,8 +71,9 @@ def test_bcrypt_rounds():
     # The format is $2b$XX$ where XX is the number of rounds
     rounds = int(hashed[4:6])
 
-    # Check that the number of rounds is 12 (default in our implementation)
-    assert rounds == 12
+    # Check that the number of rounds matches our default implementation
+    default_rounds = 12  # Default bcrypt rounds in our implementation
+    assert rounds == default_rounds
 
 
 def test_different_hashes():

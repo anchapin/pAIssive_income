@@ -7,7 +7,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from flask import Flask
 
-from app_flask import create_app, db
+# Constants
+TUPLE_LENGTH = 3
+HTTP_OK = 200
+HTTP_NOT_FOUND = 404
+
+# Note: MagicMock and patch are not used in this file but are kept
+# as they might be needed for future test expansions
 
 
 # Create a mock Flask class to avoid import issues
@@ -39,11 +45,10 @@ class MockClient:
     def get(self, path):
         if path in self.app.routes:
             result = self.app.routes[path]()
-            if isinstance(result, tuple) and len(result) == 3:
+            if isinstance(result, tuple) and len(result) == TUPLE_LENGTH:
                 data, status_code, headers = result
-                response = MockResponse(data, status_code, headers)
-                return response
-        return MockResponse('{"error": "Not found"}', 404, {})
+                return MockResponse(data, status_code, headers)
+        return MockResponse('{"error": "Not found"}', HTTP_NOT_FOUND, {})
 
     def post(self, path, json=None):
         if path in self.app.routes:
@@ -63,25 +68,28 @@ class MockResponse:
 
 
 @pytest.fixture
-def mock_app():
-    """Create a mock Flask app for testing.
+def app():
+    """
+    Create a mock Flask app for testing.
 
     Returns:
         MockFlask: The configured mock Flask application
+
     """
-    app = MockFlask(__name__)
-    return app
+    return MockFlask(__name__)
 
 
 @pytest.fixture
-def mock_client(mock_app):
-    """Create a test client.
+def client(app):
+    """
+    Create a test client.
 
     Args:
         mock_app: Mock Flask application
 
     Returns:
         MockClient: Test client for the mock Flask application
+
     """
     return mock_app.test_client()
 
@@ -126,11 +134,15 @@ def test_flask_route(mock_app, mock_client):
     # Add a test route
     @mock_app.route("/test")
     def test_route():
-        return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
+        return (
+            json.dumps({"success": True}),
+            HTTP_OK,
+            {"ContentType": "application/json"},
+        )
 
     # Test the route
-    response = mock_client.get("/test")
-    assert response.status_code == 200
+    response = client.get("/test")
+    assert response.status_code == HTTP_OK
     data = json.loads(response.data)
     assert data["success"] is True
 
