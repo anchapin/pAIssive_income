@@ -63,7 +63,7 @@ def get_changed_files() -> list[str]:  # noqa: C901, PLR0915
     # Get the full path to git executable
     git_exe = get_git_executable()
     github_event_name = os.getenv("GITHUB_EVENT_NAME")
-    github_base_ref = os.getenv("GITHUB_EVENT_NAME")
+    github_base_ref = os.getenv("GITHUB_BASE_REF")
     github_head_ref = os.getenv("GITHUB_HEAD_REF")
     github_sha = os.getenv("GITHUB_SHA")
 
