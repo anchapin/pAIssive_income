@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Protocol, Type, cast
+from typing import Any, Protocol, cast
 
 # Third-party imports
 import jwt
@@ -53,6 +53,9 @@ class DBSessionProtocol(Protocol):
         """Commit the current transaction."""
 
 
+# Initialize logger
+logger = get_logger(__name__)
+
 # Initialize with None values that will be replaced if imports succeed
 UserModel: type[UserProtocol] | None = None
 db_session: DBSessionProtocol | None = None
@@ -60,11 +63,13 @@ db_session: DBSessionProtocol | None = None
 try:
     from app_flask.models import User, db
 
-    UserModel = cast("Type[UserProtocol]", User)
+    UserModel = cast("type[UserProtocol]", User)
     db_session = cast("DBSessionProtocol", db)
 except ImportError:
-    # Keep the imports but don't redefine variables
-    pass
+    # Keep UserModel and db_session as None if import fails
+    logger.debug(
+        "Failed to import User model from app_flask.models, using fallback mechanisms"
+    )
 
 
 class AuthenticationError(ValueError):
@@ -99,9 +104,6 @@ class DatabaseSessionNotAvailableError(ValueError):
 
 
 # Remove redundant import fallback - already handled above
-
-# Initialize logger
-logger = get_logger(__name__)
 
 
 class UserService:

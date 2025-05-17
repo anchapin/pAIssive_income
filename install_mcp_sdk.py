@@ -217,11 +217,12 @@ def main() -> int:
         if importlib.util.find_spec("modelcontextprotocol") is not None:
             logger.info("MCP SDK is already installed")
             return 0
-    except ImportError:
+    except ImportError as e:
         # Pass silently if importlib.util is not available
         # This is acceptable as we'll attempt installation anyway
         logger.debug(
-            "ImportError when checking if MCP SDK is installed, continuing with installation"
+            "ImportError when checking if MCP SDK is installed, continuing with installation: %s",
+            e,
         )
 
     # Check if we're running on Windows
@@ -236,6 +237,7 @@ def main() -> int:
         logger.info("Mock creation %s", "succeeded" if mock_created else "failed")
 
         # Always return success on Windows to allow tests to continue
+        # Even if mock creation failed, we return success to not block CI
         logger.info("Returning success on Windows regardless of mock creation result")
         return 0
 

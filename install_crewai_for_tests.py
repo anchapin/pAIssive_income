@@ -19,33 +19,20 @@ logging.basicConfig(
 )
 
 
-def run_command(
-    command: str | list, check: bool = True, shell: bool = False
-) -> str | None:
+def run_command(command: str | list, check: bool = True) -> str | None:
     """
     Run a command and return its output.
 
     Args:
         command: The command to run, either as a string or list of arguments
         check: Whether to check the return code
-        shell: Whether to run the command in a shell (not recommended for security reasons)
 
     Returns:
         The command output as a string, or None if the command fails and check is False
 
-    Raises:
-        ValueError: If shell=True is used with potentially unsafe commands
-
     """
     logger = logging.getLogger(__name__)
     try:
-        # For security reasons, we'll avoid using shell=True
-        if shell:
-            logger.warning(
-                "Security warning: shell=True is not recommended, using shell=False instead"
-            )
-            shell = False
-
         # Convert string command to list if needed
         if isinstance(command, str):
             command = command.split()
@@ -222,6 +209,12 @@ __version__ = "0.120.0"
         agent_file = mock_dir / "agent.py"
         with agent_file.open("w") as f:
             f.write("""
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .task import Task
+
 class Agent:
     def __init__(self, role="", goal="", backstory="", **kwargs):
         self.role = role
@@ -229,7 +222,7 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task):
+    def execute_task(self, task: "Task") -> str:
         return f"Executed task: {task.description}"
 """)
 
@@ -237,8 +230,14 @@ class Agent:
         task_file = mock_dir / "task.py"
         with task_file.open("w") as f:
             f.write("""
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .agent import Agent
+
 class Task:
-    def __init__(self, description="", agent=None, **kwargs):
+    def __init__(self, description="", agent: "Agent | None" = None, **kwargs):
         self.description = description
         self.agent = agent
         self.kwargs = kwargs
@@ -270,31 +269,39 @@ class Crew:
         with fallback_file.open("w") as f:
             f.write("""
 # Fallback mock CrewAI module
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional, List
+
 __version__ = "0.120.0"
 
+class Task:
+    def __init__(self, description: str = "", agent: Optional["Agent"] = None, **kwargs):
+        self.description = description
+        self.agent = agent
+        self.kwargs = kwargs
+
 class Agent:
-    def __init__(self, role="", goal="", backstory="", **kwargs):
+    def __init__(self, role: str = "", goal: str = "", backstory: str = "", **kwargs):
         self.role = role
         self.goal = goal
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task):
+    def execute_task(self, task: Task) -> str:
         return f"Executed task: {task.description}"
 
-class Task:
-    def __init__(self, description="", agent=None, **kwargs):
-        self.description = description
-        self.agent = agent
-        self.kwargs = kwargs
-
 class Crew:
-    def __init__(self, agents=None, tasks=None, **kwargs):
+    def __init__(
+        self,
+        agents: Optional[List[Agent]] = None,
+        tasks: Optional[List[Task]] = None,
+        **kwargs
+    ):
         self.agents = agents or []
         self.tasks = tasks or []
         self.kwargs = kwargs
 
-    def kickoff(self):
+    def kickoff(self) -> str:
         return "Mock crew output"
 
     # Alias for backward compatibility
