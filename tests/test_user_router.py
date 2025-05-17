@@ -157,7 +157,7 @@ def test_create_user_already_exists(client):
 def test_create_user_server_error(client):
     """Test creating a user with a server error."""
     # Mock the UserService
-    with patch("api.routes.user_router.user_service") as mock_service:
+    with patch("api.routes.flask_user_router.user_service") as mock_service:
         # Set up the mock to raise an exception
         mock_service.create_user.side_effect = Exception("Database error")
 
@@ -187,7 +187,7 @@ def test_create_user_server_error(client):
 def test_authenticate_user_success(client):
     """Test authenticating a user successfully."""
     # Mock the UserService
-    with patch("api.routes.user_router.user_service") as mock_service:
+    with patch("api.routes.flask_user_router.user_service") as mock_service:
         # Set up the mock
         mock_service.authenticate_user.return_value = (
             True,
@@ -222,7 +222,7 @@ def test_authenticate_user_success(client):
 def test_authenticate_user_failure(client):
     """Test authenticating a user with invalid credentials."""
     # Mock the UserService
-    with patch("api.routes.user_router.user_service") as mock_service:
+    with patch("api.routes.flask_user_router.user_service") as mock_service:
         # Set up the mock
         mock_service.authenticate_user.return_value = (False, None)
 

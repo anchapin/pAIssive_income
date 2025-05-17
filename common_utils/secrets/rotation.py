@@ -118,6 +118,15 @@ class SecretRotation:
 
         return due_for_rotation
 
+    def get_due_secrets(self) -> list[str]:
+        """Alias for get_secrets_due_for_rotation for backward compatibility.
+
+        Returns
+        -------
+            List[str]: List of secret keys due for rotation
+        """
+        return self.get_secrets_due_for_rotation()
+
     def rotate_secret(self, key: str, new_value: Optional[str] = None) -> bool:
         """Rotate a secret.
 

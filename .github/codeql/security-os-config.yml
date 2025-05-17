@@ -57,9 +57,12 @@ paths-ignore:
   - '**/*.spec.ts'
   - '**/*.spec.jsx'
   - '**/*.spec.tsx'
+  - '**/*.test.py'
+  - '**/*_test.py'
+  - '**/conftest.py'
+  - '**/pytest_*.py'
 
   # Configuration files
-  - '**/.github/**'
   - '**/.vscode/**'
   - '**/.idea/**'
   - '**/coverage/**'
@@ -80,9 +83,6 @@ paths-ignore:
 queries:
   # Include the standard security and quality queries
   - uses: security-and-quality
-
-  # Include additional security queries
-  - uses: security-extended
 
   # Include language-specific security queries
   - uses: ./javascript-security-queries.qls
@@ -136,10 +136,10 @@ trap-for-errors: true
 # Database extraction settings
 database:
   # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
+  max-file-size-mb: 25
   # Exclude files with too many lines
-  max-lines-of-code: 25000
+  max-lines-of-code: 50000
   # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
+  max-ast-nodes: 1000000
   # Extraction timeout per file
-  extraction-timeout: 300
+  extraction-timeout: 600

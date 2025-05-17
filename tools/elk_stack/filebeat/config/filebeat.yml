@@ -1,0 +1,48 @@
+---
+## Default Filebeat configuration file
+## https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-reference-yml.html
+
+# Filebeat settings
+filebeat.inputs:
+  # Log files input
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*.log
+    fields:
+      source: file
+    fields_under_root: true
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+    
+  # Docker logs input
+  - type: container
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    json.message_key: log
+    json.keys_under_root: true
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+
+# Processors for all inputs
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+# Output configuration
+output.logstash:
+  hosts: ["logstash:5044"]
+  
+# Logging settings
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

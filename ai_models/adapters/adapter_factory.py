@@ -2,55 +2,15 @@
 
 # Standard library imports
 import logging
+from typing import Any
 
 # Third-party imports
 
 # Local imports
-# Import placeholders for adapters
-# These will be properly implemented in their respective files
-class OllamaAdapter:
-    """Adapter for Ollama servers."""
-    def __init__(self, host: str, port: int, **kwargs):
-        self.host = host
-        self.port = port
-        self.kwargs = kwargs
-
-class OpenAICompatibleAdapter:
-    """Adapter for OpenAI compatible servers."""
-    def __init__(self, host: str, port: int, **kwargs):
-        self.host = host
-        self.port = port
-        self.kwargs = kwargs
-
-class LMStudioAdapter:
-    """Adapter for LMStudio servers."""
-    def __init__(self, host: str, port: int, **kwargs):
-        self.host = host
-        self.port = port
-        self.kwargs = kwargs
-
-class TensorRTAdapter:
-    """Adapter for TensorRT servers."""
-    def __init__(self, host: str, port: int, **kwargs):
-        self.host = host
-        self.port = port
-        self.kwargs = kwargs
+from .exceptions import AdapterError
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-
-class AdapterError(Exception):
-    """Base class for adapter-related errors."""
-
-
-class MCPAdapterNotAvailableError(AdapterError):
-    """Raised when MCP adapter is not available."""
-
-    MESSAGE = "MCPAdapter missing. Install mcp-use and ensure the file exists."
-
-    def __init__(self):
-        super().__init__(self.MESSAGE)
 
 
 class UnsupportedServerTypeError(AdapterError):
@@ -63,45 +23,132 @@ class UnsupportedServerTypeError(AdapterError):
         super().__init__(message)
 
 
+class MCPAdapterNotAvailableError(AdapterError):
+    """Raised when MCP adapter is not available."""
+
+    MESSAGE = "MCPAdapter missing. Install mcp-use and ensure the file exists."
+
+    def __init__(self):
+        super().__init__(self.MESSAGE)
+
+
+# Try to import adapters
+# These will be properly imported from their respective modules
+# If imports fail, they will be None
+# BaseModelAdapter is not directly used in this file, but we keep the imports
+# for other adapters that are used in the registry
+
+try:
+    from .ollama_adapter import OllamaAdapter
+except ImportError:
+    OllamaAdapter = None
+
+try:
+    from .lmstudio_adapter import LMStudioAdapter
+except ImportError:
+    LMStudioAdapter = None
+
+try:
+    from .openai_compatible_adapter import OpenAICompatibleAdapter
+except ImportError:
+    OpenAICompatibleAdapter = None
+
+try:
+    from .tensorrt_adapter import TensorRTAdapter
+except ImportError:
+    TensorRTAdapter = None
+
 try:
     from .mcp_adapter import MCPAdapter
 except ImportError:
     MCPAdapter = None
 
 
-def get_adapter(server_type: str, host: str, port: int, **kwargs):
-    """
-    Factory method to obtain the adapter for a specified server type.
+class AdapterFactory:
+    """Factory class for creating model adapters."""
 
-    Args:
-        server_type: Type of server to connect to ('ollama', 'openai', etc.)
-        host: Server hostname or IP address
-        port: Server port number
-        **kwargs: Additional keyword arguments for the adapter
+    # Registry of adapter types
+    _adapter_registry = {}
 
-    Returns:
-        An instance of the appropriate adapter class
+    @classmethod
+    def _initialize_registry(cls):
+        """Initialize the adapter registry with available adapters."""
+        registry = {}
 
-    Raises:
-        MCPAdapterNotAvailableError: If MCP adapter is requested but not available
-        UnsupportedServerTypeError: If server type is not supported
-    """
-    server_type = server_type.lower()
+        if OllamaAdapter is not None:
+            registry["ollama"] = OllamaAdapter
 
-    if server_type == "ollama":
-        return OllamaAdapter(host, port, **kwargs)
-    elif server_type == "openai":
-        return OpenAICompatibleAdapter(host, port, **kwargs)
-    elif server_type == "lmstudio":
-        return LMStudioAdapter(host, port, **kwargs)
-    elif server_type == "tensorrt":
-        return TensorRTAdapter(host, port, **kwargs)
-    elif server_type == "mcp":
-        if MCPAdapter is None:
-            raise MCPAdapterNotAvailableError()
+        if LMStudioAdapter is not None:
+            registry["lmstudio"] = LMStudioAdapter
 
-        # Initialize the MCP adapter with provided configuration
-        adapter = MCPAdapter(host, port, **kwargs)
-        return adapter
-    else:
-        raise UnsupportedServerTypeError(server_type)
+        if OpenAICompatibleAdapter is not None:
+            registry["openai"] = OpenAICompatibleAdapter
+
+        if TensorRTAdapter is not None:
+            registry["tensorrt"] = TensorRTAdapter
+
+        if MCPAdapter is not None:
+            registry["mcp"] = MCPAdapter
+
+        cls._adapter_registry = registry
+
+    @classmethod
+    def register_adapter(cls, name: str, adapter_class: Any) -> None:
+        """Register a new adapter type.
+
+        Args:
+            name: The name of the adapter type
+            adapter_class: The adapter class to register
+        """
+        if not cls._adapter_registry:
+            cls._initialize_registry()
+
+        cls._adapter_registry[name] = adapter_class
+        logger.info(f"Registered adapter type: {name}")
+
+    @classmethod
+    def create_adapter(cls, adapter_type: str, **kwargs) -> Any:
+        """Create an adapter of the specified type.
+
+        Args:
+            adapter_type: The type of adapter to create
+            **kwargs: Additional parameters to pass to the adapter constructor
+
+        Returns:
+            An instance of the specified adapter type
+
+        Raises:
+            MCPAdapterNotAvailableError: If MCP adapter is requested but not available
+            UnsupportedServerTypeError: If server type is not supported
+        """
+        if not cls._adapter_registry:
+            cls._initialize_registry()
+
+        adapter_type = adapter_type.lower()
+        adapter_class = cls._adapter_registry.get(adapter_type)
+
+        if adapter_class is None:
+            if adapter_type == "mcp" and MCPAdapter is None:
+                raise MCPAdapterNotAvailableError()
+            else:
+                raise UnsupportedServerTypeError(adapter_type)
+
+        try:
+            adapter = adapter_class(**kwargs)
+            logger.info(f"Created adapter of type: {adapter_type}")
+            return adapter
+        except Exception as e:
+            logger.exception(f"Error creating adapter of type {adapter_type}: {e}")
+            raise
+
+    @classmethod
+    def get_available_adapter_types(cls) -> list[str]:
+        """Get a list of available adapter types.
+
+        Returns:
+            A list of registered adapter type names
+        """
+        if not cls._adapter_registry:
+            cls._initialize_registry()
+
+        return list(cls._adapter_registry.keys())

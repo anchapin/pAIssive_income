@@ -1,9 +1,14 @@
 """__init__ - Module for ai_models/adapters.__init__."""
 
 # Standard library imports
+import importlib
 import importlib.util
 import sys
+import logging
 from typing import Any, Optional, Type
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Third-party imports
 
@@ -16,11 +21,13 @@ from .exceptions import (
 
 # Define adapter classes as optional
 # We'll try to import them, but if they're not available, they'll remain None
+BaseModelAdapter: Optional[Any] = None
 OllamaAdapter: Optional[Any] = None
 OpenAICompatibleAdapter: Optional[Any] = None
 LMStudioAdapter: Optional[Any] = None
 TensorRTAdapter: Optional[Any] = None
 MCPAdapter: Optional[Any] = None
+AdapterFactory: Optional[Any] = None
 
 # Helper function to safely import an adapter
 def _safe_import(module_name: str, class_name: str) -> Optional[Any]:
@@ -41,13 +48,29 @@ def _safe_import(module_name: str, class_name: str) -> Optional[Any]:
             # Get the class from the module
             return getattr(module, class_name, None)
         else:
+            logger.warning(f"Module ai_models.adapters.{module_name} not found")
             return None
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError) as e:
+        logger.warning(f"Error importing {class_name} from {module_name}: {e}")
         return None
 
 # Import adapters safely
+BaseModelAdapter = _safe_import("base_adapter", "BaseModelAdapter")
 OllamaAdapter = _safe_import("ollama_adapter", "OllamaAdapter")
 OpenAICompatibleAdapter = _safe_import("openai_compatible_adapter", "OpenAICompatibleAdapter")
 LMStudioAdapter = _safe_import("lmstudio_adapter", "LMStudioAdapter")
 TensorRTAdapter = _safe_import("tensorrt_adapter", "TensorRTAdapter")
 MCPAdapter = _safe_import("mcp_adapter", "MCPAdapter")
+AdapterFactory = _safe_import("adapter_factory", "AdapterFactory")
+
+__all__ = [
+    "AdapterError",
+    "AdapterFactory",
+    "BaseModelAdapter",
+    "LMStudioAdapter",
+    "MCPAdapter",
+    "ModelContextProtocolError",
+    "OllamaAdapter",
+    "OpenAICompatibleAdapter",
+    "TensorRTAdapter",
+]

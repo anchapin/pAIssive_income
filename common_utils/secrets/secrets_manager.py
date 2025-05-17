@@ -137,6 +137,39 @@ class SecretsManager:
         # Don't log the actual backend value as it might contain sensitive information
         logger.info("Secrets manager initialized with default backend")
 
+    def _get_backend_instance(self, backend_type: SecretsBackend) -> Optional[Any]:
+        """Get a backend instance based on the backend type.
+
+        Args:
+            backend_type: The backend type to get an instance for
+
+        Returns:
+            Optional[Any]: The backend instance, or None if an error occurred
+        """
+        try:
+            if backend_type == SecretsBackend.ENV:
+                # For ENV backend, just return self as it's handled internally
+                return self
+            elif backend_type == SecretsBackend.FILE:
+                from .file_backend import FileBackend
+                return FileBackend()
+            elif backend_type == SecretsBackend.MEMORY:
+                from .memory_backend import MemoryBackend
+                return MemoryBackend()
+            elif backend_type == SecretsBackend.VAULT:
+                from .vault_backend import VaultBackend
+                return VaultBackend()
+            else:
+                logger.error(f"Unknown backend type: {backend_type.name}")
+                return None
+        except Exception:
+            logger.exception(f"Error creating backend instance for {backend_type.name}")
+            return None
+
+    # This method is now removed as it's duplicated at line 705
+    # Fix for CodeQL "Variable defined multiple times" issue
+    # The implementation at line 705 is more comprehensive and should be used instead
+
     def _get_env_secret(self, key: str) -> Optional[str]:
         """Get a secret from environment variables.
 
@@ -582,7 +615,11 @@ class SecretsManager:
                 # Don't log the actual backend type as it might contain sensitive information
                 logger.error("Unsupported backend type")
                 return {}
-            return self._sanitize_secrets_dict(secrets)
+
+            # Ensure we sanitize the secrets before returning them
+            sanitized_secrets = self._sanitize_secrets_dict(secrets)
+            logger.debug("Sanitized secrets from backend")
+            return sanitized_secrets
 
         except NotImplementedError:
             # Don't log the actual backend type value as it might contain sensitive information
@@ -660,6 +697,7 @@ class SecretsManager:
             return {}
 
         # Import secure logging utility
+        from common_utils.logging.secure_logging import mask_sensitive_data
 
         # Create a sanitized copy
         safe_secrets: dict[str, Union[str, dict[str, Any]]] = {}
@@ -675,7 +713,8 @@ class SecretsManager:
                 # For non-string, non-dict values, convert to string and mask
                 safe_secrets[key] = "********"
 
-        return safe_secrets
+        # Apply additional masking for sensitive keys
+        return mask_sensitive_data(safe_secrets)
 
 
 # Create a singleton instance of the secrets manager

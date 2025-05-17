@@ -1,4 +1,4 @@
-from typing import (Any, TypeVar)
+from typing import (Any, Type, TypeVar)
 
 T = TypeVar("T")
 _T = TypeVar("_T")

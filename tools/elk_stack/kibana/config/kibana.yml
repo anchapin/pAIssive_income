@@ -1,0 +1,22 @@
+---
+## Default Kibana configuration file
+## https://www.elastic.co/guide/en/kibana/current/settings.html
+
+# Server settings
+server.name: kibana
+server.host: "0.0.0.0"
+server.port: 5601
+
+# Elasticsearch settings
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+elasticsearch.username: ""
+elasticsearch.password: ""
+
+# Kibana settings
+kibana.index: ".kibana"
+
+# Monitoring settings
+monitoring.ui.container.elasticsearch.enabled: true
+
+# Logging settings
+logging.root.level: info

@@ -1,0 +1,24 @@
+---
+## Default Logstash configuration file
+## https://www.elastic.co/guide/en/logstash/current/logstash-settings-file.html
+
+# Pipeline settings
+pipeline.workers: 2
+pipeline.batch.size: 125
+pipeline.batch.delay: 50
+
+# Queue settings
+queue.type: memory
+queue.max_bytes: 1024mb
+
+# API settings
+api.enabled: true
+api.http.host: "0.0.0.0"
+api.http.port: 9600
+
+# Monitoring settings
+monitoring.enabled: true
+monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+
+# Log settings
+log.level: info

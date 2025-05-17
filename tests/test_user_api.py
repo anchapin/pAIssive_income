@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 
 def test_create_and_authenticate_user(client):
     # Mock the user service to avoid database interactions
-    with patch('api.routes.user_router.user_service') as mock_service:
+    with patch('api.routes.flask_user_router.user_service') as mock_service:
         # Set up the mock for create_user
         mock_service.create_user.return_value = {
             "id": 1,
@@ -24,6 +24,9 @@ def test_create_and_authenticate_user(client):
                 "email": "testuser@example.com",
             },
         )
+
+        # Set up the mock for generate_token
+        mock_service.generate_token.return_value = "test-token"
 
         # Create a user
         response = client.post(
@@ -45,6 +48,10 @@ def test_create_and_authenticate_user(client):
             json={"username_or_email": "testuser", "password": "testpassword"},
         )
         assert response.status_code == 200
-        user_data = response.get_json()
+        data = response.get_json()
+        # Check for token in response (from HEAD branch)
+        assert "token" in data
+        assert "user" in data
+        user_data = data["user"]
         assert user_data["username"] == "testuser"
         assert user_data["email"] == "testuser@example.com"
