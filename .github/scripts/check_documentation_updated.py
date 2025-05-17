@@ -168,11 +168,18 @@ def is_doc_file(path: str) -> bool:
         True if the file is a documentation file, False otherwise
     """
     p = Path(path)
-    # Any Markdown file at repo root (e.g., README.md)
+    # Any Markdown file at repo root (e.g., README.md, CopilotKit_CrewAI_Integration.md)
     if p.suffix.lower() == ".md" and len(p.parts) == 1:
         return True
     # Any file in docs/ or docs_source/
-    return len(p.parts) > 1 and p.parts[0] in {"docs", "docs_source"}
+    # Also consider ui/react_frontend/*.md as documentation
+    if len(p.parts) > 1:
+        if p.parts[0] in {"docs", "docs_source"}:
+            return True
+        # Consider UI documentation files
+        if len(p.parts) > 2 and p.parts[0] == "ui" and p.parts[1] == "react_frontend" and p.suffix.lower() == ".md":
+            return True
+    return False
 
 
 def main() -> None:

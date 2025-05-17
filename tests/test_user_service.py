@@ -581,6 +581,7 @@ def test_authenticate_user_success(user_service):
         mock_query.return_value.filter.return_value = mock_filter
         mock_verify.return_value = True
 
+
         # Call the method
         success, result = user_service.authenticate_user(
             "testuser", "test_credential"  # Use a hardcoded value instead of environment variable

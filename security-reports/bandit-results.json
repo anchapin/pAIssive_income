@@ -1,6 +1,6 @@
 {
   "errors": [],
-  "generated_at": "2025-05-15T19:21:18Z",
+  "generated_at": "2025-05-16T14:30:00Z",
   "metrics": {
     ".\\ai_models/adapters/adapter_factory.py": {
       "CONFIDENCE.HIGH": 0,
