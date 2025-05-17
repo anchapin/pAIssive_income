@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
 import sys
-import shlex
 
 # Maximum number of workers
 MAX_WORKERS = 12
