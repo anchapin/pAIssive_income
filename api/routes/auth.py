@@ -1,20 +1,39 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 import secrets
 import time
 import bcrypt
 import smtplib
 from email.mime.text import MIMEText
 import os
+from datetime import datetime, timedelta
+
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-# In-memory user "database" and reset tokens (for demonstration only)
+# In-memory user "database" for demonstration (replace with real user DB)
 USERS = {
     "e2euser@example.com": {"password": bcrypt.hashpw(b"oldpassword", bcrypt.gensalt()).decode(), "id": 1}
 }
-RESET_TOKENS = {}  # token: {email, expires_at}
 
 RESET_TOKEN_EXPIRY = 1800  # 30 minutes
+
+# SQLAlchemy setup for tokens (using SQLite for demo)
+Base = declarative_base()
+engine = create_engine(os.environ.get("RESET_TOKEN_DB_URL", "sqlite:///reset_tokens.db"))
+SessionLocal = sessionmaker(bind=engine)
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    id = Column(Integer, primary_key=True)
+    email = Column(String, index=True, nullable=False)
+    token = Column(String, unique=True, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+
+Base.metadata.create_all(bind=engine)
 
 def send_email(to_addr, subject, body):
     # SMTP config from env vars or defaults
@@ -48,10 +67,12 @@ def forgot_password():
     # If user exists, create a token and send an email
     if email in USERS:
         token = secrets.token_urlsafe(32)
-        RESET_TOKENS[token] = {
-            "email": email,
-            "expires_at": time.time() + RESET_TOKEN_EXPIRY
-        }
+        expires_at = datetime.utcnow() + timedelta(seconds=RESET_TOKEN_EXPIRY)
+        # Store token in DB
+        session = SessionLocal()
+        session.add(PasswordResetToken(email=email, token=token, expires_at=expires_at))
+        session.commit()
+        session.close()
         print(f"[Password Reset] Generated reset token for {email}: {token}")
         # Compose reset link (assuming frontend at localhost:3000)
         reset_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/reset-password/{token}"
@@ -69,18 +90,25 @@ def reset_password():
     if not token or not new_password:
         return jsonify({"message": "Missing token or new password."}), 400
 
-    token_info = RESET_TOKENS.get(token)
-    if not token_info or token_info['expires_at'] < time.time():
+    session = SessionLocal()
+    prt = session.query(PasswordResetToken).filter_by(token=token).first()
+    if not prt or prt.expires_at < datetime.utcnow():
+        session.close()
         return jsonify({"message": "Invalid or expired reset link."}), 400
 
-    email = token_info['email']
+    email = prt.email
     if email not in USERS:
+        session.delete(prt)
+        session.commit()
+        session.close()
         return jsonify({"message": "User not found."}), 400
 
     # Hash the new password and update the user record
     hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
     USERS[email]['password'] = hashed
-    del RESET_TOKENS[token]
+    session.delete(prt)
+    session.commit()
+    session.close()
     print(f"[Password Reset] Password hash set for {email}")
 
     return jsonify({"message": "Password has been reset."}), 200
