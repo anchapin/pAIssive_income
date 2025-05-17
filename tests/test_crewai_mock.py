@@ -116,3 +116,47 @@ class TestCrewAIMock:
 
         # Verify the result includes the context
         assert result == f"Executed task: Test task with context: {context}"
+
+    def test_task_class(self):
+        """Test the Task class."""
+        # Create an agent
+        agent = crewai.Agent(
+            role="Test Agent",
+            goal="Test goal",
+            backstory="Test backstory",
+        )
+
+        # Create a task
+        task = crewai.Task(
+            description="Test task",
+            agent=agent,
+            expected_output="Test output",
+            async_execution=True,
+        )
+
+        # Verify the task attributes
+        assert task.description == "Test task"
+        assert task.agent == agent
+        assert "expected_output" in task.kwargs
+        assert task.kwargs["expected_output"] == "Test output"
+        assert "async_execution" in task.kwargs
+        assert task.kwargs["async_execution"] is True
+        
+    def test_task_str_representation(self):
+        """Test the string representation of the Task class."""
+        # Create an agent
+        agent = crewai.Agent(
+            role="Test Agent",
+            goal="Test goal",
+            backstory="Test backstory",
+        )
+
+        # Create a task
+        task = crewai.Task(
+            description="Test task",
+            agent=agent,
+        )
+        
+        # Verify the string representation
+        assert str(task) == "Task(description='Test task')"
+        assert repr(task) == "Task(description='Test task', agent=Agent(role='Test Agent'))"
