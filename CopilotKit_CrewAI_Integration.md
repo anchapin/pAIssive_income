@@ -38,4 +38,6 @@ To use the CopilotKit + CrewAI integration in your application:
 ## Resources
 
 - [CopilotKit + CrewAI Docs](https://docs.copilotkit.ai/crewai-crews)
-- [Integration Guide](./ui/react_frontend/CopilotKit_CrewAI.md)
+- [Main Integration Guide](./docs/CrewAI_CopilotKit_Integration.md)
+- [Frontend Implementation Guide](./ui/react_frontend/CopilotKit_CrewAI.md)
+- [Advanced Usage Examples](./docs/examples/CrewAI_CopilotKit_Advanced_Examples.md)

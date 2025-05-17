@@ -104,7 +104,10 @@ To use the CrewAI + CopilotKit integration:
    python app.py
    ```
 
-For more details on the CrewAI + CopilotKit integration, see [docs/CrewAI_CopilotKit_Integration.md](docs/CrewAI_CopilotKit_Integration.md).
+For more details on the CrewAI + CopilotKit integration, see:
+- [docs/CrewAI_CopilotKit_Integration.md](docs/CrewAI_CopilotKit_Integration.md) - Main integration guide
+- [ui/react_frontend/CopilotKit_CrewAI.md](ui/react_frontend/CopilotKit_CrewAI.md) - Frontend implementation details
+- [docs/examples/CrewAI_CopilotKit_Advanced_Examples.md](docs/examples/CrewAI_CopilotKit_Advanced_Examples.md) - Advanced usage examples
 
 ## 6. Mock External Calls for Speed
 
