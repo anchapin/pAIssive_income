@@ -1,0 +1,8 @@
+/* Styles for the CopilotChat component */
+.copilot-chat-container {
+  max-width: 480px;
+  margin: 2rem auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 24px;
+}

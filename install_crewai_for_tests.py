@@ -5,7 +5,7 @@ This script handles the installation of CrewAI with the correct dependency const
 to avoid conflicts with other packages.
 """
 
-import os
+import os  # Used for file operations and path handling
 import sys
 import subprocess
 import logging
@@ -193,6 +193,10 @@ class Crew:
             if importlib.util.find_spec("mock_crewai") is not None:
                 logging.info("Mock CrewAI module created successfully")
                 return True
+            else:
+                # If we get here, the module wasn't found
+                logging.warning("mock_crewai module not found in sys.path")
+                return False
         except ImportError as e:
             logging.warning(f"Failed to import mock_crewai module: {e}, trying fallback...")
             try:
@@ -202,6 +206,10 @@ class Crew:
                 if importlib.util.find_spec("crewai") is not None:
                     logging.info("Fallback CrewAI module created successfully")
                     return True
+                else:
+                    # If we get here, the fallback module wasn't found
+                    logging.warning("Fallback crewai module not found in sys.path")
+                    return False
             except ImportError as e2:
                 logging.exception("Failed to import fallback crewai module")
                 return False

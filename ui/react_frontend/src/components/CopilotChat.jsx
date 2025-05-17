@@ -1,6 +1,7 @@
 import React from "react";
 import { CopilotKitProvider } from "@copilotkit/react-core";
 import { CopilotChat } from "@copilotkit/react-ui";
+import "./CopilotChat.styles.css";
 
 /**
  * Minimal CopilotKit + CrewAI Chat Demo
@@ -9,7 +10,7 @@ import { CopilotChat } from "@copilotkit/react-ui";
  */
 const CopilotChatDemo = () => (
   <CopilotKitProvider>
-    <div style={{ maxWidth: 480, margin: "2rem auto", border: "1px solid #ccc", borderRadius: 8, padding: 24 }}>
+    <div className="copilot-chat-container">
       <h2>CopilotKit + CrewAI Chat</h2>
       <CopilotChat
         instructions="You are a helpful project assistant. Answer user questions, brainstorm ideas, and assist with task planning."

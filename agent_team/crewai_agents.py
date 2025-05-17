@@ -31,7 +31,7 @@ except ImportError:
             self.tasks = tasks or []
 
         def run(self):
-            raise ImportError("CrewAI is not installed.")
+            raise ImportError("CrewAI is not installed. Install with: pip install '.[agents]'")
 
     # Print a warning
     import warnings

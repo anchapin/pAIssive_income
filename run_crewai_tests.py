@@ -4,7 +4,7 @@ Run CrewAI-specific tests.
 This script installs CrewAI and runs the tests that require it.
 """
 
-import os  # Used for file operations
+import os  # Used for file operations and path checking
 import sys
 import subprocess
 import logging
@@ -94,6 +94,9 @@ def test_crewai_mock():
         logging.exception("Unexpected error in CrewAI tests")
         # Return success anyway to not block the workflow
         return 0
+
+    # Return success if we reach here
+    return 0
 
 if __name__ == "__main__":
     main()
