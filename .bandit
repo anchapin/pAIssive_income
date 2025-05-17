@@ -1,7 +1,0 @@
-[bandit]
-exclude_dirs = tests,venv,.venv,env,.env,__pycache__,custom_stubs,node_modules,build,dist
-skips = B101,B311
-output_format = sarif
-output_file = security-reports/bandit-results.sarif
-severity = 2
-confidence = 2

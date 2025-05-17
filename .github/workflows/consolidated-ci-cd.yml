@@ -324,15 +324,15 @@ jobs:
             echo "Created empty-sarif.json in root directory"
           fi
 
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
+          # No need to generate Bandit configuration files anymore
+          # Using bandit.yaml directly
 
           # Run safety check
           safety check || true
           # Run Bandit with the bandit.yaml configuration
           if [ -f "bandit.yaml" ]; then
             echo "Using bandit.yaml configuration file"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests" || true
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml || true
           else
             echo "bandit.yaml configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
@@ -371,8 +371,8 @@ jobs:
             Write-Host "Created empty-sarif.json in root directory"
           }
 
-          # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
+          # No need to generate Bandit configuration files anymore
+          # Using bandit.yaml directly
 
           # Run safety check
           try {
@@ -384,7 +384,7 @@ jobs:
           try {
             if (Test-Path "bandit.yaml") {
               Write-Host "Using bandit.yaml configuration file"
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests"
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml
             } else {
               Write-Host "bandit.yaml configuration file not found. Using default configuration."
               bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests"
