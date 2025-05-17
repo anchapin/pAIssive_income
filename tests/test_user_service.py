@@ -105,7 +105,7 @@ def test_create_user(mock_hash):
         with patch.object(MockUser, "__new__", return_value=mock_user_instance):
             # Create a subclass of UserService with overridden methods for testing
             class TestableUserService(UserService):
-                def create_user(self, username, email, auth_credential, **kwargs):
+                def create_user(self, username, email, auth_credential, **kwargs):  # noqa: ARG002
                     # Skip the user existence check
                     # Hash the credential - use the mocked function from users.services
                     from users.services import (
@@ -197,7 +197,7 @@ def test_authenticate_user_success():
 
         # Create a subclass of UserService with overridden methods for testing
         class TestableUserService(UserService):
-            def authenticate_user(self, username_or_email, auth_credential):  # pylint: disable=unused-argument
+            def authenticate_user(self, username_or_email, auth_credential):  # noqa: ARG002
                 # Skip the database query and verification
                 # Return success and user data
                 return True, {

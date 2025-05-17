@@ -72,11 +72,14 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        # Use structured logging to avoid exposing sensitive information
-        masked_key = self._mask_key_for_logging(key)
+        # Don't log any information about the key, even masked versions
+        # Use generic logging without exposing any sensitive information
         logger.warning(
-            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+            "Memory backend not yet implemented", extra={"operation": "get_secret"}
         )
+        # Use key in a no-op to avoid unused argument warning
+        if key:  # This prevents the unused argument warning
+            pass
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
@@ -98,12 +101,14 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        masked_key = self._mask_key_for_logging(key)
+        # Don't log any information about the key or value, even masked versions
+        # Use generic logging without exposing any sensitive information
         logger.warning(
-            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+            "Memory backend not yet implemented", extra={"operation": "set_secret"}
         )
-        # Use value in a no-op to avoid unused argument warning
-        if value:
+        # Use key and value in a no-op to avoid unused argument warning
+        # Don't log the key or value, even in debug logs
+        if key and value:  # This prevents the unused argument warning
             pass
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
@@ -125,10 +130,14 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        masked_key = self._mask_key_for_logging(key)
+        # Don't log any information about the key, even masked versions
+        # Use generic logging without exposing any sensitive information
         logger.warning(
-            "Memory backend not yet implemented", extra={"masked_key": masked_key}
+            "Memory backend not yet implemented", extra={"operation": "delete_secret"}
         )
+        # Use key in a no-op to avoid unused argument warning
+        if key:  # This prevents the unused argument warning
+            pass
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)
 
@@ -145,6 +154,9 @@ class MemoryBackend:
             NotImplementedError: The memory backend is not currently supported
 
         """
-        logger.warning("Memory backend not yet implemented")
+        # Use structured logging without exposing any sensitive information
+        logger.warning(
+            "Memory backend not yet implemented", extra={"operation": "list_secrets"}
+        )
         error_msg = "The memory backend is not currently supported."
         raise NotImplementedError(error_msg)

@@ -77,7 +77,7 @@ def test_crewai_task_and_crew():
         # Minimal Crew instantiation and execution check
         crew = Crew(agents=[mock_agent], tasks=[task])
         # Mock the crew's kick off method
-        crew.kickoff = MagicMock(return_value="Mock crew output")
+        crew.kickoff = MagicMock(return_value="Mock crew output")  # type: ignore[attr-defined, method-assign]
         result = crew.kickoff()
 
         assert result == "Mock crew output"
@@ -98,7 +98,8 @@ def test_crewai_mock_fallback():
             source = "real crewai"
         except ImportError:
             try:
-                from mock_crewai import Agent
+                # Import with a different name to avoid conflicts
+                from mock_crewai import Agent as MockAgent  # type: ignore[import]
 
                 source = "mock_crewai"
             except ImportError:
@@ -113,6 +114,11 @@ def test_crewai_mock_fallback():
         # Create a simple agent
         if "agent_class" in locals():
             agent = agent_class(
+                role="Test Agent", goal="Test goal", backstory="Test backstory"
+            )
+        elif source == "mock_crewai":
+            # Use type ignore to handle the type mismatch between mock and real Agent
+            agent = MockAgent(  # type: ignore[assignment]
                 role="Test Agent", goal="Test goal", backstory="Test backstory"
             )
         else:

@@ -63,8 +63,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 max-complexity = 10
 
 [lint.per-file-ignores]
-# Tests can use assert and don't need docstrings
-"tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "ANN"]
+# Tests can use assert and don't need docstrings, and can use root logger and os.path
+"tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "ANN", "LOG015", "G004", "PTH", "F401", "N806", "PLR2004"]
 # Allow print statements in scripts
 "scripts/**/*.py" = ["T201"]
 # Ignore import issues in __init__.py files
@@ -72,6 +72,8 @@ max-complexity = 10
 # Ignore subprocess security warnings in pre-commit scripts
 "run_pre_commit.py" = ["S603"]
 "run_pre_commit_on_all_files.py" = ["S603"]
+"install_crewai_for_tests.py" = ["S603"]
+"run_crewai_tests.py" = ["S603"]
 # Ignore type annotation issues in mypy stubs
 "mypy_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
 
