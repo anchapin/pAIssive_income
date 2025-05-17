@@ -1,22 +1,22 @@
-"""Example user router demonstrating centralized validation per project standards.
+"""
+Example user router demonstrating centralized validation per project standards.
 
 See: docs/input_validation_and_error_handling_standards.md
 """
 
+from __future__ import annotations
+
 from typing import Any
 
-from fastapi import APIRouter
-from fastapi import HTTPException
-from fastapi import Request
-from fastapi import status
-from pydantic import BaseModel
-from pydantic import EmailStr
-from pydantic import Field
+from fastapi import APIRouter, HTTPException, Request, status
+from pydantic import BaseModel, EmailStr, Field
 
 from common_utils.logging import get_logger
-from common_utils.validation.core import ValidationError
-from common_utils.validation.core import validate_input
-from common_utils.validation.core import validation_error_response
+from common_utils.validation.core import (
+    ValidationError,
+    validate_input,
+    validation_error_response,
+)
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -44,7 +44,7 @@ async def create_user(request: Request) -> dict[str, Any]:
         result: dict[str, Any] = validation_error_response(exc)
         return result
     except Exception as exc:
-        logger.error("An unexpected error occurred", exc_info=True)
+        logger.exception("An unexpected error occurred")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",

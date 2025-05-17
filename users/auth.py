@@ -1,11 +1,12 @@
-"""auth - Module for users.auth.
+"""
+auth - Module for users.auth.
 
 This module provides functions for user authentication, including credential hashing and
 verification.
 """
 
 # Standard library imports
-from typing import Union
+from __future__ import annotations
 
 # Third-party imports
 import bcrypt
@@ -18,7 +19,8 @@ logger = get_logger(__name__)
 
 
 def hash_credential(credential: str) -> str:
-    """Hash an authentication credential using bcrypt.
+    """
+    Hash an authentication credential using bcrypt.
 
     Args:
     ----
@@ -37,7 +39,7 @@ def hash_credential(credential: str) -> str:
             def __init__(self) -> None:
                 super().__init__("Authentication credential cannot be empty")
 
-        raise EmptyCredentialError()
+        raise EmptyCredentialError
 
     # Generate a salt and hash the credential
     credential_bytes = credential.encode("utf-8")
@@ -52,10 +54,9 @@ def hash_credential(credential: str) -> str:
     return result
 
 
-def verify_credential(
-    plain_credential: str, hashed_credential: Union[bytes, str]
-) -> bool:
-    """Verify an authentication credential against a hashed credential.
+def verify_credential(plain_credential: str, hashed_credential: bytes | str) -> bool:
+    """
+    Verify an authentication credential against a hashed credential.
 
     Args:
     ----
@@ -76,7 +77,7 @@ def verify_credential(
         try:
             hashed_credential = hashed_credential.encode("utf-8")
         except (UnicodeEncodeError, AttributeError):
-            logger.error("Invalid hashed credential format")
+            logger.exception("Invalid hashed credential format")
             return False
 
     # Verify the credential
@@ -89,7 +90,7 @@ def verify_credential(
         return bool(result)
     except Exception as e:
         # Use a generic error message without details
-        logger.error(
+        logger.exception(
             "Authentication verification error", extra={"error_type": type(e).__name__}
         )
         return False

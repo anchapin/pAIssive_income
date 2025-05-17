@@ -1,6 +1,9 @@
 # API Service
 
-...
+See the full documentation for API endpoints, authentication, and usage in
+[docs/02_developer_guide/06_module_deep_dives/api_gateway.md](../../docs/02_developer_guide/06_module_deep_dives/api_gateway.md).
+
+This module provides RESTful API endpoints for all core services.
 
 ## Password Reset Endpoints
 
@@ -18,7 +21,7 @@ The API exposes endpoints for password reset as part of the authentication flow:
 
 ### Testing
 
-These endpoints are covered by `tests/test_auth_reset.py` using pytest.  
+These endpoints are covered by `tests/test_auth_reset.py` using pytest.
 To run the tests:
 
 ```sh
@@ -27,5 +30,3 @@ pytest
 ```
 
 Tokens and users are in-memory for demonstration; integrate with your database and email system for production.
-
-...

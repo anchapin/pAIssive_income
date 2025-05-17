@@ -1,6 +1,5 @@
 """Test that MCP adapter can be imported from the top-level package."""
 
-import pytest
 from unittest.mock import patch
 
 

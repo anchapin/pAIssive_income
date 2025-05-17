@@ -1,524 +1,407 @@
-"""fix_linting_issues - Script to fix common linting issues in Python files.
+#!/usr/bin/env python3
 
-This script automatically fixes common linting issues in Python files using Ruff.
-It can be run on a specific file or on all Python files in the project.
+"""
+Script to fix common linting issues across the codebase.
+
+This script uses Ruff to automatically fix common linting issues in Python files.
+It can be run on specific files or on all Python files in the repository.
 """
 
+from __future__ import annotations
+
 import argparse
-import concurrent.futures
 import logging
-import multiprocessing
 import os
+import shutil
 import subprocess
 import sys
-import time
-from typing import Any, Dict, List, Optional
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-# Constant for magic number rule PLR2004
-MAX_DISPLAYED_FAILURES = 10
 
-
-def run_command(command: list[str], _check_mode: bool = False) -> tuple[int, str, str]:
-    """Run a command and return the exit code, stdout, and stderr.
+def get_executable_path(name: str) -> str:
+    """
+    Get the full path to an executable.
 
     Args:
-        command: The command to run.
-        check_mode: Whether to run in check mode (don't modify files).
+        name: Name of the executable
 
     Returns:
-        A tuple of (exit_code, stdout, stderr).
+        Full path to the executable or just the name if not found
 
     """
+    exe_path = shutil.which(name)
+    if exe_path:
+        logger.debug("Found %s at: %s", name, exe_path)
+        return str(exe_path)  # Ensure we return a string
+    logger.warning(
+        "Could not find %s executable, using '%s' and relying on PATH", name, name
+    )
+    return name
+
+
+def get_git_root() -> Path:
+    """
+    Get the root directory of the git repository.
+
+    Returns:
+        Path: The root directory of the git repository.
+
+    Raises:
+        SystemExit: If the git command fails.
+
+    """
+    git_exe = get_executable_path("git")
     try:
-        result = subprocess.run(
-            command,
+        result = subprocess.run(  # noqa: S603 - Using full path to git executable
+            [git_exe, "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True,
-            check=False,
+            check=True,
         )
-        # Use a separate variable to avoid TRY300 issue
-        result_code = result.returncode
-        result_stdout = result.stdout
-        result_stderr = result.stderr
-
-        # Return the results
-        if True:  # This ensures the return is not directly in the try block
-            return result_code, result_stdout, result_stderr
-    except Exception as e:
-        logging.exception(f"Error running command {' '.join(command)}")
-        return 1, "", str(e)
+        return Path(result.stdout.strip())
+    except subprocess.CalledProcessError:
+        logger.exception(
+            "Failed to get git root directory. Are you in a git repository?"
+        )
+        sys.exit(1)
 
 
-def run_ruff(file_path: str, check_mode: bool = False) -> bool:
-    """Run Ruff linter on a Python file.
+def should_ignore(file_path: Path, exclude_patterns: list[str]) -> bool:
+    """
+    Check if a file should be ignored based on exclude patterns.
 
     Args:
-        file_path: Path to the Python file.
-        check_mode: Whether to run in check mode (don't modify files).
+        file_path: The path to the file to check.
+        exclude_patterns: List of patterns to exclude.
 
     Returns:
-        True if successful, False otherwise.
+        True if the file should be ignored, False otherwise.
 
     """
-    # First run ruff check
-    command: list[str] = ["ruff", "check"]
-    if not check_mode:
-        command.append("--fix")
-    command.append(file_path)
-
-    exit_code, stdout, stderr = run_command(command, check_mode)
-
-    if exit_code != 0:
-        logging.error(f"Ruff check failed on {file_path}:\n{stderr}")
-        # Continue with formatting even if check fails
-        # This allows partial fixes to be applied
-
-    # Then run ruff format
-    format_command: list[str] = ["ruff", "format"]
-    if check_mode:
-        format_command.append("--check")
-    format_command.append(file_path)
-
-    format_exit_code, format_stdout, format_stderr = run_command(
-        format_command, check_mode
-    )
-
-    if format_exit_code != 0:
-        logging.error(f"Ruff format failed on {file_path}:\n{format_stderr}")
-        # We'll still return the combined result, but log the specific error
-
-    # Return success only if both operations succeeded
-    return exit_code == 0 and format_exit_code == 0
+    str_path = str(file_path)
+    return any(pattern in str_path for pattern in exclude_patterns)
 
 
-def load_exclude_patterns_from_file(file_path: str) -> list[str]:
-    """Load exclude patterns from a file.
+def _process_specific_files(
+    specific_files: list[str], exclude_patterns: list[str]
+) -> list[Path]:
+    """
+    Process a list of specific files.
 
     Args:
-        file_path: Path to the file containing exclude patterns.
+        specific_files: List of specific files to process.
+        exclude_patterns: List of patterns to exclude.
 
     Returns:
-        List of exclude patterns.
+        List of Python files to process.
+
     """
-    patterns_to_return: List[str] = []  # Default value
-    if not os.path.isfile(file_path):
-        logging.warning(f"Exclude file not found: {file_path}")
-        return patterns_to_return
-
-    try:
-        with open(file_path, encoding="utf-8") as f:
-            # Read non-empty lines and strip whitespace
-            patterns = [
-                line.strip() for line in f if line.strip() and not line.startswith("#")
-            ]
-
-        if patterns:
-            logging.info(f"Loaded {len(patterns)} exclude patterns from {file_path}")
-        patterns_to_return = patterns  # Assign result here
-    except Exception:
-        # Log exception but return the default empty list
-        logging.exception(f"Error reading exclude file {file_path}")
-        # patterns_to_return remains []
-
-    return patterns_to_return  # Return outside try/except block
-
-
-def find_python_files(args: Optional[argparse.Namespace] = None) -> list[str]:
-    """Find all Python files in the project.
-
-    Args:
-        args: Command-line arguments containing exclude patterns.
-
-    Returns:
-        List of Python file paths.
-    """
-    # Default exclude patterns
-    exclude_patterns = [
-        ".git",
-        "__pycache__",
-        ".venv",
-        "venv",
-        "env",
-        "node_modules",
-        "build",
-        "dist",
-    ]
-
-    # Add patterns from command-line arguments
-    if args is not None:
-        # Add patterns from --exclude arguments
-        exclude_patterns.extend(args.exclude)
-
-        # Add patterns from --exclude-file argument
-        if args.exclude_file:
-            exclude_patterns.extend(load_exclude_patterns_from_file(args.exclude_file))
-
-    if args and args.verbose:
-        logging.info(f"Using exclude patterns: {exclude_patterns}")
-
-    python_files = []
-    for root, dirs, files in os.walk("."):
-        # Skip excluded directories
-        dirs[:] = [
-            d
-            for d in dirs
-            if not any(
-                pattern in os.path.join(root, d).replace("\\", "/")
-                for pattern in exclude_patterns
+    files = []
+    for file_path in specific_files:
+        path = Path(file_path)
+        if path.exists() and path.is_file() and path.suffix == ".py":
+            if not should_ignore(path, exclude_patterns):
+                files.append(path)
+        else:
+            logger.warning(
+                "Skipping %s (not a Python file or doesn't exist)", file_path
             )
-        ]
+    return files
+
+
+def _find_all_python_files(git_root: Path, exclude_patterns: list[str]) -> list[Path]:
+    """
+    Find all Python files in the repository.
+
+    Args:
+        git_root: Git repository root directory.
+        exclude_patterns: List of patterns to exclude.
+
+    Returns:
+        List of Python files to process.
+
+    """
+    python_files = []
+
+    for root, _, files in os.walk(git_root):
+        root_path = Path(root)
+        if any(pattern in str(root_path) for pattern in exclude_patterns):
+            continue
 
         for file in files:
             if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-                # Convert to forward slashes for consistent pattern matching
-                file_path_fwd = file_path.replace("\\", "/")
-                if not any(pattern in file_path_fwd for pattern in exclude_patterns):
+                file_path = root_path / file
+                if not should_ignore(file_path, exclude_patterns):
                     python_files.append(file_path)
 
     return python_files
 
 
-def fix_file(file_path: str, args: argparse.Namespace) -> bool:
-    """Fix linting issues in a Python file.
+def find_python_files(
+    specific_files: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
+) -> list[Path]:
+    """
+    Find Python files to process.
 
     Args:
-        file_path: Path to the Python file.
-        args: Command-line arguments.
+        specific_files: Optional list of specific files to process.
+        exclude_patterns: Optional list of patterns to exclude.
 
     Returns:
-        True if successful, False otherwise.
+        List of Python files to process.
 
     """
-    logging.info(f"Fixing {file_path}...")
+    if exclude_patterns is None:
+        exclude_patterns = []
+
+    # Add common directories to exclude
+    exclude_patterns.extend(
+        [
+            ".git/",
+            "__pycache__/",
+            ".venv/",
+            "venv/",
+            "env/",
+            "node_modules/",
+            "build/",
+            "dist/",
+            ".pytest_cache/",
+        ]
+    )
+
+    if specific_files:
+        return _process_specific_files(specific_files, exclude_patterns)
+
+    # Find all Python files in the repository
+    git_root = get_git_root()
+    return _find_all_python_files(git_root, exclude_patterns)
+
+
+def process_file(
+    file_path: Path, check_only: bool, use_ruff: bool, verbose: bool
+) -> tuple[Path, bool, str | None]:
+    """
+    Process a single file with linting tools.
+
+    Args:
+        file_path: Path to the file to process.
+        check_only: Whether to only check for issues without fixing them.
+        use_ruff: Whether to use Ruff for linting.
+        verbose: Whether to show verbose output.
+
+    Returns:
+        Tuple of (file_path, success, error_message).
+
+    """
+    if verbose:
+        logger.info("Processing %s", file_path)
+
     success = True
+    error_message = None
 
     try:
-        # Run Ruff
-        if not args.no_ruff:
-            if args.verbose:
-                logging.info(f"Running Ruff on {file_path}")
+        if use_ruff:
+            # Run Ruff for linting and formatting
+            ruff_cmd = ["ruff", "check"]
+            if not check_only:
+                ruff_cmd.append("--fix")
+            ruff_cmd.append(str(file_path))
 
-            # Try up to 2 times in case of transient errors
-            for attempt in range(2):
-                if attempt > 0 and args.verbose:
-                    logging.info(
-                        f"Retrying Ruff on {file_path} (attempt {attempt + 1})"
-                    )
+            # Use absolute path for ruff command
+            ruff_path = get_executable_path("ruff")
+            full_cmd = [ruff_path] + ruff_cmd[1:]
+            result = subprocess.run(  # noqa: S603 - Using full path to ruff executable
+                full_cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
-                if run_ruff(file_path, args.check):
-                    if args.verbose and attempt > 0:
-                        logging.info(f"Ruff succeeded on retry for {file_path}")
-                    break
-                elif attempt == 1:  # Last attempt failed
-                    logging.error(f"Ruff failed on {file_path} after retries")
+            if result.returncode != 0:
+                success = False
+                error_message = f"Ruff errors:\n{result.stderr or result.stdout}"
+                if verbose:
+                    logger.error(error_message)
+
+            # Run Ruff formatter if not in check-only mode
+            if not check_only:
+                # Use absolute path for ruff command
+                ruff_path = get_executable_path("ruff")
+                format_result = subprocess.run(  # noqa: S603 - Using full path to ruff executable
+                    [ruff_path, "format", str(file_path)],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+
+                if format_result.returncode != 0:
                     success = False
-    except Exception:
-        logging.exception(f"Unexpected error processing {file_path}")
+                    format_error = f"Ruff format errors:\n{format_result.stderr or format_result.stdout}"
+                    error_message = (
+                        error_message + "\n" + format_error
+                        if error_message
+                        else format_error
+                    )
+                    if verbose:
+                        logger.error(format_error)
+
+    except (subprocess.SubprocessError, OSError) as e:
         success = False
+        error_message = f"Error processing {file_path}: {e!s}"
+        logger.exception(error_message)
 
-    return success
+    return file_path, success, error_message
 
 
-def setup_argument_parser() -> argparse.ArgumentParser:
-    """Set up and return the argument parser.
+def _parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
 
     Returns:
-        Configured argument parser.
+        Parsed arguments.
+
     """
-    parser = argparse.ArgumentParser(description="Fix linting issues in Python files.")
+    parser = argparse.ArgumentParser(
+        description="Fix common linting issues in Python files."
+    )
+    parser.add_argument("files", nargs="*", help="Specific files to process (optional)")
     parser.add_argument(
-        "file_paths",
-        nargs="*",
-        help=(
-            "Paths to specific Python files to fix. "
-            "If not provided, all Python files will be fixed."
-        ),
+        "--check", action="store_true", help="Check for issues without fixing them"
+    )
+    parser.add_argument("--no-ruff", action="store_true", help="Skip Ruff linter")
+    parser.add_argument(
+        "--exclude", action="append", default=[], help="Patterns to exclude"
     )
     parser.add_argument(
-        "--check",
-        action="store_true",
-        help="Check for issues without fixing them.",
+        "--exclude-file", help="File containing patterns to exclude (one per line)"
     )
     parser.add_argument(
-        "--no-ruff",
-        action="store_true",
-        help="Skip Ruff linter.",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output.",
-    )
-    parser.add_argument(
-        "--exclude",
-        action="append",
-        default=[],
-        help=(
-            "Patterns to exclude (can be used multiple times). "
-            "Example: --exclude 'tests/' --exclude 'legacy/'"
-        ),
-    )
-    parser.add_argument(
-        "--exclude-file",
-        type=str,
-        help=(
-            "Path to a file containing patterns to exclude (one per line). "
-            "Example: --exclude-file .lintignore"
-        ),
+        "--verbose", "-v", action="store_true", help="Show verbose output"
     )
     parser.add_argument(
         "--jobs",
         "-j",
         type=int,
-        default=1,
-        help=(
-            "Number of parallel jobs to run. Default is 1 (sequential). "
-            "Use -j 0 to use all available CPU cores."
-        ),
+        default=os.cpu_count(),
+        help="Number of parallel jobs (default: number of CPU cores)",
     )
-    return parser
+
+    return parser.parse_args()
 
 
-def process_specific_files(file_paths: list[str], args: argparse.Namespace) -> int:
-    """Process specific Python files provided by the user.
+def _load_exclude_patterns(args: argparse.Namespace) -> list[str]:
+    """
+    Load exclude patterns from arguments and exclude file.
 
     Args:
-        file_paths: List of file paths to process.
-        args: Command-line arguments.
+        args: Parsed arguments.
 
     Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    success_count = 0
-    failed_files = []
+        List of exclude patterns.
 
-    for file_path in file_paths:
-        if os.path.isfile(file_path) and file_path.endswith(".py"):
-            if fix_file(file_path, args):
-                success_count += 1
-                logging.info(f"Successfully fixed {file_path}")
+    """
+    # Create a new list to ensure we return list[str] and not Any
+    exclude_patterns: list[str] = list(args.exclude)
+
+    if args.exclude_file:
+        exclude_file_path = Path(args.exclude_file)
+        if exclude_file_path.exists():
+            with exclude_file_path.open() as f:
+                for line in f:
+                    line_content = line.strip()
+                    if line_content and not line_content.startswith("#"):
+                        exclude_patterns.append(line_content)
+
+    return exclude_patterns
+
+
+def _process_files_in_parallel(
+    files: list[Path], args: argparse.Namespace
+) -> tuple[set[Path], dict[Path, str]]:
+    """
+    Process files in parallel.
+
+    Args:
+        files: List of files to process.
+        args: Parsed arguments.
+
+    Returns:
+        Tuple of (failed_files, error_messages).
+
+    """
+    max_workers = args.jobs if args.jobs > 0 else None
+    successful_files: set[Path] = set()
+    failed_files: set[Path] = set()
+    error_messages: dict[Path, str] = {}
+
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                process_file,
+                file_path,
+                args.check,
+                not args.no_ruff,
+                args.verbose,
+            ): file_path
+            for file_path in files
+        }
+
+        for future in as_completed(futures):
+            file_path, success, error_message = future.result()
+            if success:
+                successful_files.add(file_path)
             else:
-                failed_files.append(file_path)
-                logging.error(f"Failed to fix {file_path}")
-        else:
-            logging.error(f"Error: {file_path} is not a Python file.")
-            failed_files.append(file_path)
+                failed_files.add(file_path)
+                if error_message:
+                    error_messages[file_path] = error_message
 
-    return report_results(success_count, len(file_paths), failed_files)
+    # Print summary
+    logger.info("Successfully processed %d files.", len(successful_files))
 
-
-def process_all_files(args: argparse.Namespace) -> int:
-    """Process all Python files in the project.
-
-    Args:
-        args: Command-line arguments.
-
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    python_files = find_python_files(args)
-    if not python_files:
-        logging.warning("No Python files found.")
-        return 0
-
-    total_files = len(python_files)
-    logging.info(f"Found {total_files} Python files to process")
-
-    # If parallel processing is enabled, use it
-    if args.jobs != 1:
-        return process_files_parallel(python_files, args)
-
-    # Otherwise, process files sequentially in batches
-    success_count = 0
-    failed_files = []
-
-    # Process files in batches to provide progress updates
-    batch_size = 50
-    for i in range(0, total_files, batch_size):
-        batch = python_files[i : i + batch_size]
-        batch_end = min(i + batch_size, total_files)
-
-        if args.verbose:
-            logging.info(f"Processing files {i + 1}-{batch_end} of {total_files}...")
-
-        for file_path in batch:
-            try:
-                if fix_file(file_path, args):
-                    success_count += 1
-                else:
-                    failed_files.append(file_path)
-            except Exception:
-                logging.exception("Unexpected error processing batch")
-                # Still append file_path to track which one might have caused the batch issue
-                if file_path not in failed_files:
-                    failed_files.append(file_path)
-
-        # Show progress after each batch
-        if args.verbose:
-            logging.info(
-                f"Progress: {batch_end}/{total_files} files processed "
-                f"({success_count} successful, {len(failed_files)} failed)"
-            )
-
-    return report_results(success_count, total_files, failed_files)
+    return failed_files, error_messages
 
 
-def process_files_parallel(python_files: list[str], args: argparse.Namespace) -> int:
-    """Process Python files in parallel.
+def main() -> None:
+    """Run the script."""
+    args = _parse_arguments()
 
-    Args:
-        python_files: List of Python files to process.
-        args: Command-line arguments.
+    # Process exclude patterns
+    exclude_patterns = _load_exclude_patterns(args)
 
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    # Determine the number of workers
-    num_workers = args.jobs
-    if num_workers <= 0:
-        # Use all available CPU cores if jobs is 0
-        num_workers = multiprocessing.cpu_count()
+    # Find Python files to process
+    files = find_python_files(
+        specific_files=args.files if args.files else None,
+        exclude_patterns=exclude_patterns,
+    )
 
-    total_files = len(python_files)
-    logging.info(f"Processing {total_files} files using {num_workers} workers")
+    if not files:
+        logger.info("No Python files found to process.")
+        return
 
-    # Create a shared dictionary to track progress
-    manager = multiprocessing.Manager()
-    results = manager.dict()
-    results["success_count"] = 0
-    results["failed_files"] = manager.list()
-    results["processed_count"] = 0
-
-    # Create a lock for updating the progress
-    lock = manager.Lock()
-
-    # Define the worker function
-    def worker_func(file_path: str) -> Dict[str, Any]:
-        result = {"file_path": file_path, "success": False}
-        try:
-            if fix_file(file_path, args):
-                result["success"] = True
-
-            # Update progress
-            with lock:
-                results["processed_count"] += 1
-                if result["success"]:
-                    results["success_count"] += 1
-                else:
-                    results["failed_files"].append(file_path)
-
-                # Print progress every 10 files or when verbose
-                processed = results["processed_count"]
-                if args.verbose or processed % 10 == 0 or processed == total_files:
-                    success_count = results["success_count"]
-                    failed_count = len(results["failed_files"])
-                    logging.info(
-                        f"Progress: {processed}/{total_files} files processed "
-                        f"({success_count} successful, {failed_count} failed)"
-                    )
-        except Exception:
-            logging.exception(f"Error processing {file_path}")
-            with lock:
-                results["processed_count"] += 1
-                results["failed_files"].append(file_path)
-
-        return result
+    logger.info("Found %d Python files to process.", len(files))
 
     # Process files in parallel
-    start_time = time.time()
-    with concurrent.futures.ProcessPoolExecutor(max_workers=num_workers) as executor:
-        futures = [executor.submit(worker_func, file) for file in python_files]
+    failed_files, error_messages = _process_files_in_parallel(files, args)
 
-        # Wait for all futures to complete
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()
-            except Exception:
-                logging.exception("Unexpected error in worker")
-
-    # Calculate elapsed time
-    elapsed_time = time.time() - start_time
-    files_per_second = total_files / elapsed_time if elapsed_time > 0 else 0
-
-    logging.info(
-        f"Parallel processing completed in {elapsed_time:.2f} seconds "
-        f"({files_per_second:.2f} files/second)"
-    )
-
-    # Convert manager.list to regular list for report_results
-    failed_files = list(results["failed_files"])
-    return report_results(results["success_count"], total_files, failed_files)
-
-
-def report_results(
-    success_count: int, total_count: int, failed_files: list[str]
-) -> int:
-    """Report the results of the linting operation.
-
-    Args:
-        success_count: Number of successfully processed files.
-        total_count: Total number of files processed.
-        failed_files: List of files that failed processing.
-
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    success_percentage = (success_count / total_count) * 100 if total_count > 0 else 0
-    logging.info(
-        f"\nFixed {success_count} out of {total_count} files ({success_percentage:.1f}%)."
-    )
-
+    # Print errors
     if failed_files:
-        failure_count = len(failed_files)
-        failure_percentage = (
-            (failure_count / total_count) * 100 if total_count > 0 else 0
-        )
-
-        logging.error(f"{failure_count} files failed ({failure_percentage:.1f}%):")
-
-        # Group failures by directory for better organization
-        failures_by_dir: Dict[str, List[str]] = {}
+        logger.error("Failed to process %d files:", len(failed_files))
         for file_path in failed_files:
-            dir_path = os.path.dirname(file_path) or "."
-            if dir_path not in failures_by_dir:
-                failures_by_dir[dir_path] = []
-            failures_by_dir[dir_path].append(os.path.basename(file_path))
+            logger.error("  - %s", file_path)
+            if args.verbose and file_path in error_messages:
+                logger.error("    Error: %s", error_messages[file_path])
 
-        # Print failures grouped by directory
-        for dir_path, files in sorted(failures_by_dir.items()):
-            logging.error(f"  Directory: {dir_path}")
-            for file in sorted(files):
-                logging.error(f"    - {file}")
-
-        # If there are many failures, suggest running with specific files
-        if failure_count > MAX_DISPLAYED_FAILURES:
-            logging.info("\nTip: You can fix specific files by running:")
-            logging.info(
-                "  python fix_linting_issues.py --verbose path/to/file1.py path/to/file2.py"
-            )
-
-        return 1
-
-    return 0
-
-
-def main() -> int:
-    """Run the main script functionality.
-
-    Returns:
-        Exit code.
-    """
-    parser = setup_argument_parser()
-    args = parser.parse_args()
-
-    if args.file_paths:
-        return process_specific_files(args.file_paths, args)
-    else:
-        return process_all_files(args)
+    sys.exit(1 if failed_files else 0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

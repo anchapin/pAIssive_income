@@ -6,10 +6,10 @@ from . import db
 
 # Type alias for db.Model - using Any to avoid mypy errors
 # mypy: disable-error-code="name-defined"
-ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore
+ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]
 
 
-class User(db.Model):  # type: ignore
+class User(db.Model):  # type: ignore[name-defined]
     """User model for authentication and user management."""
 
     __tablename__ = "users"
@@ -19,15 +19,17 @@ class User(db.Model):  # type: ignore
     password_hash = db.Column(db.String(128), nullable=False)
 
     def __repr__(self) -> str:
-        """Return string representation of User.
+        """
+        Return string representation of User.
 
         Returns:
             str: String representation
+
         """
         return f"<User {self.username}>"
 
 
-class Team(db.Model):  # type: ignore
+class Team(db.Model):  # type: ignore[name-defined]
     """Team model for grouping AI agents."""
 
     __tablename__ = "teams"
@@ -44,15 +46,17 @@ class Team(db.Model):  # type: ignore
     )
 
     def __repr__(self) -> str:
-        """Return string representation of Team.
+        """
+        Return string representation of Team.
 
         Returns:
             str: String representation
+
         """
         return f"<Team {self.name}>"
 
 
-class Agent(db.Model):  # type: ignore
+class Agent(db.Model):  # type: ignore[name-defined]
     """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"
@@ -69,9 +73,11 @@ class Agent(db.Model):  # type: ignore
     team = db.relationship("Team", back_populates="agents")
 
     def __repr__(self) -> str:
-        """Return string representation of Agent.
+        """
+        Return string representation of Agent.
 
         Returns:
             str: String representation
+
         """
         return f"<Agent {self.name} ({self.role})>"

@@ -1,22 +1,20 @@
-version: '3.8'
-
-# This docker-compose file is optimized for GitHub Actions CI/CD
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - CI=${CI:-false}
     container_name: paissive-income-app
     restart: unless-stopped
     ports:
       - "5000:5000"
     volumes:
       - ./data:/app/data
-      - ./logs:/app/logs
-      - ./docker-healthcheck.sh:/usr/local/bin/docker-healthcheck.sh
-      - ./wait-for-db.sh:/usr/local/bin/wait-for-db.sh
+      - ./logs:/app/logs:rw
     environment:
       - FLASK_ENV=production
+      - FLASK_APP=run_ui.py
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://myuser:mypassword@db:5433/mydb
       - PATH=/app/.venv/bin:$PATH
@@ -24,72 +22,28 @@ services:
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=mydb
       - POSTGRES_HOST=db
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://frontend:3000
-      # Add CI-specific environment variables
-      - CI=true
-      - GITHUB_ACTIONS=true
+      - LOG_LEVEL=INFO
+      - CI=${CI:-false}
+      - CONTAINER=true
     networks:
       - paissive-network
     healthcheck:
-      # Use a simpler health check for CI environments
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/health || exit 0"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
+      interval: 10s  # Reduced from 20s for faster feedback in CI
+      timeout: 20s   # Reduced from 30s for faster feedback in CI
+      retries: 10    # Reduced from 15 for faster feedback in CI
+      start_period: 60s  # Reduced from 120s for faster feedback in CI
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 2G
+          cpus: "2"
+          memory: 4G
         reservations:
-          cpus: '0.25'
-          memory: 512M
+          cpus: "0.5"
+          memory: 1G
     depends_on:
-      - db
-
-  frontend:
-    build:
-      context: ./ui/react_frontend
-      dockerfile: Dockerfile.dev
-      args:
-        - CI=true
-    container_name: paissive-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      # Mount source code but exclude node_modules
-      - ./ui/react_frontend:/app:cached
-      # Use a named volume for node_modules to avoid host conflicts
-      - frontend-node-modules:/app/node_modules
-    environment:
-      - NODE_ENV=development
-      - REACT_APP_API_URL=http://app:5000
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_AG_UI_ENABLED=true
-      # Add mock API server environment variables
-      - PORT=3000
-      - MOCK_API_ENABLED=true
-      - MOCK_API_PORT=8000
-      # Add CI-specific environment variables
-      - CI=true
-      - SKIP_PREFLIGHT_CHECK=true
-      - GITHUB_ACTIONS=true
-      # Add pnpm-specific environment variables
-      - NPM_CONFIG_LEGACY_PEER_DEPS=true
-      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-    networks:
-      - paissive-network
-    healthcheck:
-      # Use a simpler health check for CI environments
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000 || exit 0"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      - app
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:15.3-alpine
@@ -106,24 +60,16 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      # Use a simpler health check for CI environments
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb || exit 0"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 30s
-    # Use a smaller configuration for CI
-    command: [
-      "postgres",
-      "-c", "max_connections=50",
-      "-c", "shared_buffers=128MB",
-      "-c", "fsync=off",
-      "-c", "synchronous_commit=off",
-      "-c", "full_page_writes=off"
-    ]
-    # Add these options for better CI compatibility
-    stop_grace_period: 10s
-    shm_size: 128mb
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 3s   # Reduced from 5s for faster feedback in CI
+      timeout: 3s    # Reduced from 5s for faster feedback in CI
+      retries: 15    # Reduced from 20 for faster feedback in CI
+      start_period: 15s  # Reduced from 30s for faster feedback in CI
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 
   # Uncomment the following section to enable Redis caching
   # redis:
@@ -145,18 +91,11 @@ services:
 networks:
   paissive-network:
     driver: bridge
-    name: paissive-network
-    # Add these options for better CI compatibility
-    attachable: true
-    # Simplified network configuration for GitHub Actions
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
-      com.docker.network.driver.mtu: "1450"
+    # Removed explicit name to avoid conflicts with pre-created network
+    # The network will be named based on the project directory and service name
 
 volumes:
   redis-data:
     driver: local
   postgres-data:
-    driver: local
-  frontend-node-modules:
     driver: local
