@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate CI/CD dashboard visualizations from workflow metrics.
+"""
+Generate CI/CD dashboard visualizations from workflow metrics.
 
 This script processes workflow metrics data and generates HTML dashboard with
 visualizations to track CI/CD performance metrics including:
@@ -9,18 +10,18 @@ visualizations to track CI/CD performance metrics including:
 - Per-branch performance
 """
 
+from __future__ import annotations
+
 # Standard library imports
 import argparse
 import json
 import logging
-import os
-
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
-import matplotlib.pyplot as plt
-
 # Third-party imports
+import matplotlib.pyplot as plt
 import pandas as pd
 
 # Constants
@@ -40,10 +41,12 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+logger = logging.getLogger(__name__)
 
 
 def load_metrics(input_file: str) -> list[dict[str, Any]]:
-    """Load workflow metrics from JSON file(s).
+    """
+    Load workflow metrics from JSON file(s).
 
     Args:
         input_file (str): Path to input JSON file or directory
@@ -54,37 +57,39 @@ def load_metrics(input_file: str) -> list[dict[str, Any]]:
     """
     metrics_data = []
 
-    if os.path.isdir(input_file):
+    input_path = Path(input_file)
+    if input_path.is_dir():
         # Load multiple files from directory
-        for filename in os.listdir(input_file):
-            if filename.endswith(".json"):
+        for file_path in input_path.iterdir():
+            if file_path.suffix.lower() == ".json":
                 try:
-                    with open(os.path.join(input_file, filename)) as f:
+                    with file_path.open() as f:
                         metrics = json.load(f)
                         if isinstance(metrics, list):
                             metrics_data.extend(metrics)
                         else:
                             metrics_data.append(metrics)
                 except (OSError, json.JSONDecodeError) as e:
-                    logging.warning(f"Error loading {filename}: {e}")
+                    logger.warning("Error loading %s: %s", file_path.name, e)
     else:
         # Load single file
         try:
-            with open(input_file) as f:
+            with input_path.open() as f:
                 metrics = json.load(f)
                 if isinstance(metrics, list):
                     metrics_data.extend(metrics)
                 else:
                     metrics_data.append(metrics)
         except (OSError, json.JSONDecodeError) as e:
-            logging.warning(f"Error loading {input_file}: {e}")
+            logger.warning("Error loading %s: %s", input_file, e)
             return []
 
     return metrics_data
 
 
 def process_metrics(metrics_data: list[dict[str, Any]]) -> pd.DataFrame:
-    """Process raw metrics into pandas DataFrame.
+    """
+    Process raw metrics into pandas DataFrame.
 
     Args:
         metrics_data (list): List of workflow metrics records
@@ -94,30 +99,33 @@ def process_metrics(metrics_data: list[dict[str, Any]]) -> pd.DataFrame:
 
     """
     if not metrics_data:
-        logging.warning("No metrics data to process")
+        logger.warning("No metrics data to process")
         return pd.DataFrame()
 
     # Convert to DataFrame
-    df = pd.DataFrame(metrics_data)
+    metrics_df = pd.DataFrame(metrics_data)
 
     # Convert timestamps to datetime
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-        df["date"] = df["timestamp"].dt.date
+    if "timestamp" in metrics_df.columns:
+        metrics_df["timestamp"] = pd.to_datetime(metrics_df["timestamp"])
+        metrics_df["date"] = metrics_df["timestamp"].dt.date
 
     # Ensure duration is numeric
-    if "duration" in df.columns:
-        df["duration"] = pd.to_numeric(df["duration"], errors="coerce").fillna(0)
+    if "duration" in metrics_df.columns:
+        metrics_df["duration"] = pd.to_numeric(
+            metrics_df["duration"], errors="coerce"
+        ).fillna(0)
 
     # Add derived columns
-    if "status" in df.columns:
-        df["is_success"] = df["status"] == "success"
+    if "status" in metrics_df.columns:
+        metrics_df["is_success"] = metrics_df["status"] == "success"
 
-    return df
+    return metrics_df
 
 
 def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
-    """Generate success rate chart.
+    """
+    Generate success rate chart.
 
     Args:
         df (pandas.DataFrame): Processed metrics data
@@ -125,13 +133,15 @@ def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
 
     """
     if df.empty or "status" not in df.columns:
-        logging.warning("No status data available for success rate chart")
+        logger.warning("No status data available for success rate chart")
         return
 
     plt.figure(figsize=(10, 6))
 
     # Group by workflow and count statuses
-    workflow_status = df.groupby(["workflow", "status"]).size().unstack(fill_value=0)
+    workflow_status = pd.pivot_table(
+        df, index="workflow", columns="status", aggfunc="size", fill_value=0
+    )
 
     # Calculate success rate
     workflow_status["total"] = workflow_status.sum(axis=1)
@@ -155,12 +165,14 @@ def generate_success_rate_chart(df: pd.DataFrame, output_dir: str) -> None:
         ax.text(i, v + 1, f"{v:.1f}%", ha="center")
 
     # Save chart
-    plt.savefig(os.path.join(output_dir, "success_rate_chart.png"))
+    output_path = Path(output_dir) / "success_rate_chart.png"
+    plt.savefig(output_path)
     plt.close()
 
 
 def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
-    """Generate workflow duration chart.
+    """
+    Generate workflow duration chart.
 
     Args:
         df (pandas.DataFrame): Processed metrics data
@@ -168,7 +180,7 @@ def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
 
     """
     if df.empty or "duration" not in df.columns:
-        logging.warning("No duration data available for duration chart")
+        logger.warning("No duration data available for duration chart")
         return
 
     plt.figure(figsize=(10, 6))
@@ -197,12 +209,14 @@ def generate_duration_chart(df: pd.DataFrame, output_dir: str) -> None:
         ax.text(i, v + 0.1, f"{v:.1f}", ha="center")
 
     # Save chart
-    plt.savefig(os.path.join(output_dir, "duration_chart.png"))
+    output_path = Path(output_dir) / "duration_chart.png"
+    plt.savefig(output_path)
     plt.close()
 
 
 def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
-    """Generate workflow trend chart showing success/failure over time.
+    """
+    Generate workflow trend chart showing success/failure over time.
 
     Args:
         df (pandas.DataFrame): Processed metrics data
@@ -210,13 +224,15 @@ def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
 
     """
     if df.empty or "date" not in df.columns:
-        logging.warning("No date data available for trend chart")
+        logger.warning("No date data available for trend chart")
         return
 
     plt.figure(figsize=(12, 6))
 
     # Group by date and status
-    daily_status = df.groupby(["date", "status"]).size().unstack(fill_value=0)
+    daily_status = pd.pivot_table(
+        df, index="date", columns="status", aggfunc="size", fill_value=0
+    )
 
     # Fill missing statuses
     for status in ["success", "failure", "cancelled", "skipped"]:
@@ -240,12 +256,14 @@ def generate_trend_chart(df: pd.DataFrame, output_dir: str) -> None:
     plt.legend(title="Status")
 
     # Save chart
-    plt.savefig(os.path.join(output_dir, "trend_chart.png"))
+    output_path = Path(output_dir) / "trend_chart.png"
+    plt.savefig(output_path)
     plt.close()
 
 
 def generate_branch_performance_chart(df: pd.DataFrame, output_dir: str) -> None:
-    """Generate branch performance chart.
+    """
+    Generate branch performance chart.
 
     Args:
         df (pandas.DataFrame): Processed metrics data
@@ -253,7 +271,7 @@ def generate_branch_performance_chart(df: pd.DataFrame, output_dir: str) -> None
 
     """
     if df.empty or "branch" not in df.columns:
-        logging.warning("No branch data available for branch performance chart")
+        logger.warning("No branch data available for branch performance chart")
         return
 
     plt.figure(figsize=(10, 6))
@@ -285,19 +303,21 @@ def generate_branch_performance_chart(df: pd.DataFrame, output_dir: str) -> None
         ax.text(i, v + 1, f"{v:.1f}%", ha="center")
 
     # Save chart
-    plt.savefig(os.path.join(output_dir, "branch_chart.png"))
+    output_path = Path(output_dir) / "branch_chart.png"
+    plt.savefig(output_path)
     plt.close()
 
 
 def generate_html_dashboard(output_dir: str) -> None:
-    """Generate HTML dashboard from charts.
+    """
+    Generate HTML dashboard from charts.
 
     Args:
         output_dir (str): Output directory for dashboard
 
     """
     # Format the timestamp separately to keep line length under limit
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     dashboard_html = f"""
     <!DOCTYPE html>
@@ -414,10 +434,11 @@ def generate_html_dashboard(output_dir: str) -> None:
     </html>
     """
 
-    with open(os.path.join(output_dir, "index.html"), "w") as f:
+    output_path = Path(output_dir) / "index.html"
+    with output_path.open("w") as f:
         f.write(dashboard_html)
 
-    logging.info(f"Dashboard generated: {os.path.join(output_dir, 'index.html')}")
+    logger.info("Dashboard generated: %s", output_path)
 
 
 def main() -> int:
@@ -435,26 +456,27 @@ def main() -> int:
     args = parser.parse_args()
 
     # Create output directory if it doesn't exist
-    os.makedirs(args.output_dir, exist_ok=True)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load and process metrics
     metrics_data = load_metrics(args.input)
-    df = process_metrics(metrics_data)
+    metrics_df = process_metrics(metrics_data)
 
-    if df.empty:
-        logging.warning("No metrics data available to generate dashboard")
+    if metrics_df.empty:
+        logger.warning("No metrics data available to generate dashboard")
         return 1
 
     # Generate charts
-    generate_success_rate_chart(df, args.output_dir)
-    generate_duration_chart(df, args.output_dir)
-    generate_trend_chart(df, args.output_dir)
-    generate_branch_performance_chart(df, args.output_dir)
+    generate_success_rate_chart(metrics_df, args.output_dir)
+    generate_duration_chart(metrics_df, args.output_dir)
+    generate_trend_chart(metrics_df, args.output_dir)
+    generate_branch_performance_chart(metrics_df, args.output_dir)
 
     # Generate HTML dashboard
     generate_html_dashboard(args.output_dir)
 
-    logging.info(f"CI/CD dashboard generated successfully in {args.output_dir}")
+    logger.info("CI/CD dashboard generated successfully in %s", args.output_dir)
     return 0
 
 

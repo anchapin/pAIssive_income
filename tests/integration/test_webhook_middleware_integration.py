@@ -1,4 +1,5 @@
-"""test_webhook_middleware_integration - Module for tests/integration.
+"""
+test_webhook_middleware_integration - Module for tests/integration.
 
 Tests for webhook middleware integration functionality.
 """

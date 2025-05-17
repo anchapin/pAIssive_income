@@ -1,4 +1,5 @@
-"""test_mocking_example - Example of mocking external dependencies in tests.
+"""
+Test mocking example - Example of mocking external dependencies in tests.
 
 This module demonstrates how to use mocking to replace external dependencies
 in tests, which can significantly speed up test execution by avoiding actual
@@ -11,54 +12,56 @@ Mocking is especially useful for:
 4. Speeding up tests by replacing slow operations with fast mocks
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-import requests
 import time
+from unittest.mock import MagicMock, patch
+
+import pytest
+import requests
 
 
 # Example function that makes an external API call
 def fetch_user_data(user_id):
-    """Fetch user data from an external API.
+    """
+    Fetch user data from an external API.
 
     Args:
         user_id: The ID of the user to fetch
 
     Returns:
         dict: User data
+
     """
     # This would normally make a real API request
-    response = requests.get(f"https://api.example.com/users/{user_id}")
+    response = requests.get(f"https://api.example.com/users/{user_id}", timeout=10)
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response.json()
 
 
 # Example function that uses a database
 def get_user_from_database(user_id):
-    """Get user data from a database.
+    """
+    Get user data from a database.
 
     Args:
         user_id: The ID of the user to fetch
 
     Returns:
         dict: User data
+
     """
     # This would normally query a real database
     # Simulate a slow database query
     time.sleep(2)
 
     # Return dummy data for this example
-    return {
-        "id": user_id,
-        "name": "John Doe",
-        "email": "john.doe@example.com"
-    }
+    return {"id": user_id, "name": "John Doe", "email": "john.doe@example.com"}
 
 
 # Example test that mocks an HTTP request
 @patch("requests.get")
 def test_fetch_user_data_with_mock(mock_get):
-    """Test fetch_user_data using a mock for requests.get.
+    """
+    Test fetch_user_data using a mock for requests.get.
 
     This test demonstrates how to mock an HTTP request to avoid making
     actual network calls during testing.
@@ -81,11 +84,13 @@ def test_fetch_user_data_with_mock(mock_get):
 
 # Example test that uses monkeypatch (an alternative to patch)
 def test_fetch_user_data_with_monkeypatch(monkeypatch):
-    """Test fetch_user_data using monkeypatch.
+    """
+    Test fetch_user_data using monkeypatch.
 
     This test demonstrates how to use pytest's monkeypatch fixture to
     replace functions or attributes during testing.
     """
+
     # Create a mock response
     class MockResponse:
         def __init__(self, json_data):
@@ -98,7 +103,7 @@ def test_fetch_user_data_with_monkeypatch(monkeypatch):
             pass
 
     # Define a replacement for requests.get
-    def mock_get(url):
+    def mock_get(_url):
         return MockResponse({"id": 456, "name": "Jane Smith"})
 
     # Apply the monkeypatch
@@ -113,7 +118,8 @@ def test_fetch_user_data_with_monkeypatch(monkeypatch):
 
 # Example test that mocks a slow database operation
 def test_database_operation_with_mock():
-    """Test a database operation using a mock.
+    """
+    Test a database operation using a mock.
 
     This test demonstrates how to mock a slow database operation to
     speed up test execution.
@@ -127,7 +133,7 @@ def test_database_operation_with_mock():
         get_user_from_database_mock.return_value = {
             "id": 789,
             "name": "Alice Johnson",
-            "email": "alice@example.com"
+            "email": "alice@example.com",
         }
 
         # Replace the original function with our mock
@@ -136,9 +142,13 @@ def test_database_operation_with_mock():
         # Call the function that would normally access the database
         result = get_user_from_database(789)
 
+        # Define expected values as constants
+        expected_id = 789
+        expected_name = "Alice Johnson"
+
         # Verify the result
-        assert result["id"] == 789
-        assert result["name"] == "Alice Johnson"
+        assert result["id"] == expected_id
+        assert result["name"] == expected_name
 
         # Verify that the mock was called with the expected arguments
         get_user_from_database_mock.assert_called_once_with(789)

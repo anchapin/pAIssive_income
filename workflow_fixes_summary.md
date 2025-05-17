@@ -38,7 +38,7 @@ Created a new script `fix_security_issues.py` that:
 - Focuses on the three files where issues were found:
   - `common_utils/secrets/audit.py`
   - `common_utils/secrets/cli.py`
-  - `fix_potential_secrets.py`
+  - `fix_potential_security_issues.py`
 - Applies specific fixes for each issue:
   - Replaces clear-text logging with secure alternatives
   - Uses the `mask_sensitive_data` function to mask sensitive information

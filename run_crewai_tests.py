@@ -1,61 +1,86 @@
 #!/usr/bin/env python3
 """
 Run CrewAI-specific tests.
+
 This script installs CrewAI and runs the tests that require it.
 """
 
-import os  # Used for file operations and path checking
-import sys
-import subprocess
+from __future__ import annotations
+
 import logging
+import subprocess
+import sys
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def run_command(command, check=True, shell=False):
-    """Run a command and return its output."""
+
+def run_command(command: str | list, check: bool = True) -> str | None:
+    """
+    Run a command and return its output.
+
+    Args:
+        command: The command to run, either as a string or list of arguments
+        check: Whether to check the return code
+
+    Returns:
+        The command output as a string, or None if the command fails and check is False
+
+    """
+    logger = logging.getLogger(__name__)
     try:
-        if isinstance(command, str) and not shell:
+        # Convert string command to list if needed
+        if isinstance(command, str):
             command = command.split()
 
-        logging.info(f"Running command: {command}")
+        logger.info("Running command: %s", command)
+
+        # Run the command with shell=False for security
+        # Using a list for command and shell=False is secure
         result = subprocess.run(
-            command,
-            check=check,
-            shell=shell,
-            capture_output=True,
-            text=True
+            command, check=check, shell=False, capture_output=True, text=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        logging.exception(f"Command failed with exit code {e.returncode}")
-        logging.exception(f"Error output: {e.stderr}")
+        logger.exception("Command failed with exit code %d", e.returncode)
+        logger.exception("Error output: %s", e.stderr)
         if check:
             raise
         return None
 
-def main():
-    """Main function."""
-    logging.info("Starting CrewAI tests...")
+
+def main() -> int:
+    """
+    Run the CrewAI tests.
+
+    Returns:
+        int: Exit code (0 for success)
+
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Starting CrewAI tests...")
 
     try:
         # First, install CrewAI
-        logging.info("Installing CrewAI...")
-        install_output = run_command([sys.executable, "install_crewai_for_tests.py"], check=False)
-        logging.info(f"Installation output: {install_output}")
+        logger.info("Installing CrewAI...")
+        install_output = run_command(
+            [sys.executable, "install_crewai_for_tests.py"], check=False
+        )
+        logger.info("Installation output: %s", install_output)
 
         # Check if the test file exists
         test_file = "tests/test_crewai_agents.py"
-        if not os.path.exists(test_file):
-            logging.error(f"Test file {test_file} does not exist!")
-            logging.info("Creating a minimal test file...")
+        test_file_path = Path.cwd() / test_file
+        if not test_file_path.exists():
+            logger.error("Test file %s does not exist!", test_file)
+            logger.info("Creating a minimal test file...")
 
             # Create a minimal test file
-            os.makedirs(os.path.dirname(test_file), exist_ok=True)
-            with open(test_file, "w") as f:
+            test_file_path.parent.mkdir(parents=True, exist_ok=True)
+            with test_file_path.open("w") as f:
                 f.write("""
 \"\"\"Test scaffold for CrewAI agent integration.\"\"\"
 
@@ -74,29 +99,29 @@ def test_crewai_mock():
         # If import fails, the test passes anyway (we're just testing the mock)
         pytest.skip("CrewAI not available, skipping test")
 """)
-            logging.info(f"Created minimal test file at {test_file}")
+            logger.info("Created minimal test file at %s", test_file_path)
 
         # Run the CrewAI-specific tests
-        logging.info("Running CrewAI tests...")
+        logger.info("Running CrewAI tests...")
         try:
             result = run_command(
-                [sys.executable, "-m", "pytest", test_file, "-v"],
-                check=False
+                [sys.executable, "-m", "pytest", test_file, "-v"], check=False
             )
-            logging.info("CrewAI tests completed")
-            logging.info(f"Test results:\n{result}")
-        except Exception as e:
-            logging.exception("Error running tests")
-            logging.info("Tests failed, but continuing...")
+            logger.info("CrewAI tests completed")
+            logger.info("Test results:\n%s", result)
+        except Exception:
+            logger.exception("Error running tests")
+            logger.info("Tests failed, but continuing...")
             # Return success anyway to not block the workflow
             return 0
-    except Exception as e:
-        logging.exception("Unexpected error in CrewAI tests")
+    except Exception:
+        logger.exception("Unexpected error in CrewAI tests")
         # Return success anyway to not block the workflow
         return 0
 
     # Return success if we reach here
     return 0
+
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,13 @@
-"""api_server - Module for ui.api_server.
+"""
+api_server - Module for ui.api_server.
 
 This module provides a simple HTTP server for the UI module.
 It includes a health check endpoint for monitoring.
 """
 
 # Standard library imports
+from __future__ import annotations
+
 import http.server
 import json
 import logging
@@ -15,6 +18,7 @@ from urllib.parse import urlparse
 
 # Third-party imports
 import psycopg2
+import psycopg2.extensions
 from psycopg2.extras import RealDictCursor
 
 # Configure logging
@@ -27,14 +31,22 @@ logger = logging.getLogger(__name__)
 class DatabaseError(RuntimeError):
     """Base exception class for database-related errors."""
 
-    def __init__(self, message="Database error occurred"):
+    def __init__(self, message: str = "Database error occurred") -> None:
+        """
+        Initialize the database error with a message.
+
+        Args:
+            message: Error message
+
+        """
         super().__init__(message)
 
 
 class DatabaseConfigError(DatabaseError):
     """Raised when database configuration is missing or invalid."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the database configuration error with a default message."""
         super().__init__("DATABASE_URL environment variable not set")
 
 
@@ -42,7 +54,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
     """HTTP request handler for the API server."""
 
     def _send_response(self, status_code: int, data: dict[str, Any]) -> None:
-        """Send a JSON response.
+        """
+        Send a JSON response.
 
         Args:
             status_code (int): The HTTP status code.
@@ -56,11 +69,16 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
         origin = self.headers.get("Origin", "*")
 
+        # Sanitize origin to prevent HTTP response splitting
+        sanitized_origin = (
+            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
+        )
+
         # If specific origins are defined, check if the request origin is allowed
-        if allowed_origins != "*" and origin != "*":
+        if allowed_origins != "*" and sanitized_origin != "*":
             allowed_origins_list = allowed_origins.split(",")
-            if origin in allowed_origins_list:
-                self.send_header("Access-Control-Allow-Origin", origin)
+            if sanitized_origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", sanitized_origin)
             else:
                 self.send_header("Access-Control-Allow-Origin", "*")
         else:
@@ -72,17 +90,26 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
-    def _get_db_connection(self):
-        """Establish a PostgreSQL connection using DATABASE_URL env var."""
+    def _get_db_connection(self) -> psycopg2.extensions.connection:
+        """
+        Establish a PostgreSQL connection using DATABASE_URL env var.
 
+        Returns:
+            A PostgreSQL database connection
+
+        Raises:
+            DatabaseConfigError: If DATABASE_URL is not set
+            DatabaseError: If connection fails
+
+        """
         db_url = os.environ.get("DATABASE_URL")
         if not db_url:
-            raise DatabaseConfigError()
+            raise DatabaseConfigError
         try:
             return psycopg2.connect(db_url, cursor_factory=RealDictCursor)
         except psycopg2.Error as e:
             # Wrap DB-specific error in our custom exception
-            raise DatabaseError() from e
+            raise DatabaseError from e
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests."""
@@ -103,12 +130,14 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                             self._send_response(200, agent)
                         else:
                             # If no agent found in database, return a default agent
-                            logger.warning("No agent found in database, returning default agent")
+                            logger.warning(
+                                "No agent found in database, returning default agent"
+                            )
                             default_agent = {
                                 "id": 1,
                                 "name": "Default Agent",
                                 "description": "This is a default agent for testing",
-                                "avatar_url": "https://example.com/avatar.png"
+                                "avatar_url": "https://example.com/avatar.png",
                             }
                             self._send_response(200, default_agent)
                 except (DatabaseError, psycopg2.Error):
@@ -119,11 +148,11 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         "id": 1,
                         "name": "Default Agent",
                         "description": "This is a default agent for testing",
-                        "avatar_url": "https://example.com/avatar.png"
+                        "avatar_url": "https://example.com/avatar.png",
                     }
                     self._send_response(200, default_agent)
             else:
-                logger.warning(f"404 error: {path}")
+                logger.warning("404 error: %s", path)
                 self._send_response(404, {"error": "Not found", "path": path})
         except Exception:
             logger.exception("Error handling request")
@@ -160,7 +189,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                         table_exists = cursor.fetchone()["exists"]
 
                         if not table_exists:
-                            logger.warning("agent_action table does not exist, creating it")
+                            logger.warning(
+                                "agent_action table does not exist, creating it"
+                            )
                             cursor.execute("""
                                 CREATE TABLE IF NOT EXISTS agent_action (
                                     id SERIAL PRIMARY KEY,
@@ -174,7 +205,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
                         # Extract values from action with defaults
                         agent_id = action.get("agentId") or action.get("agent_id") or 1
-                        action_type = action.get("type") or action.get("action_type") or "UNKNOWN"
+                        action_type = (
+                            action.get("type") or action.get("action_type") or "UNKNOWN"
+                        )
                         payload = action.get("payload") or {}
 
                         cursor.execute(
@@ -221,11 +254,16 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
         origin = self.headers.get("Origin", "*")
 
+        # Sanitize origin to prevent HTTP response splitting
+        sanitized_origin = (
+            origin.replace("\r", "").replace("\n", "") if origin != "*" else "*"
+        )
+
         # If specific origins are defined, check if the request origin is allowed
-        if allowed_origins != "*" and origin != "*":
+        if allowed_origins != "*" and sanitized_origin != "*":
             allowed_origins_list = allowed_origins.split(",")
-            if origin in allowed_origins_list:
-                self.send_header("Access-Control-Allow-Origin", origin)
+            if sanitized_origin in allowed_origins_list:
+                self.send_header("Access-Control-Allow-Origin", sanitized_origin)
             else:
                 self.send_header("Access-Control-Allow-Origin", "*")
         else:
@@ -236,9 +274,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Credentials", "true")
         self.end_headers()
 
-    def log_message(self, format: str, *args: tuple) -> None:
+    def log_message(self, format_str: str, *args: tuple) -> None:
         """Log messages to the logger instead of stderr."""
-        logger.info(f"{self.address_string()} - {format % args}")
+        logger.info("%s - %s", self.address_string(), format_str % args)
 
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -248,11 +286,12 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
 
 
-def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
-    """Run the API server.
+def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """
+    Run the API server.
 
     Args:
-        host (str, optional): The host to bind to. Defaults to '0.0.0.0'.
+        host (str, optional): The host to bind to. Defaults to '127.0.0.1'.
         port (int, optional): The port to bind to. Defaults to 8000.
 
     """
@@ -260,22 +299,29 @@ def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
 
     # Try to create the server, retrying with different ports if needed
     max_retries = 5
+    httpd = None  # Initialize httpd to None to avoid uninitialized variable warning
+
     for retry in range(max_retries):
         try:
             httpd = ThreadedHTTPServer(server_address, APIHandler)
             break
         except OSError:
             if retry < max_retries - 1:
-                logger.warning(f"Port {port} is in use, trying port {port + 1}")
+                logger.warning("Port %d is in use, trying port %d", port, port + 1)
                 port += 1
                 server_address = (host, port)
             else:
                 logger.exception(
                     "Failed to start server after %d attempts", max_retries
                 )
-                raise
+                return  # Exit the function instead of raising an exception
 
-    logger.info(f"Starting API server on {host}:{port}")
+    # Verify that httpd was successfully initialized
+    if httpd is None:
+        logger.error("Failed to initialize HTTP server")
+        return
+
+    logger.info("Starting API server on %s:%d", host, port)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -292,7 +338,7 @@ if __name__ == "__main__":
         port = int(port_str)
     except ValueError:
         logger.warning(
-            f"Invalid PORT environment variable: {port_str}, using default 8000"
+            "Invalid PORT environment variable: %s, using default 8000", port_str
         )
         port = 8000
 

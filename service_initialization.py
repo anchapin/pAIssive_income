@@ -1,18 +1,24 @@
 """Service initialization utilities for the pAIssive Income project."""
 
+from __future__ import annotations
+
 # Standard library imports
 import logging
 
 # Third-party imports
-
 # Local imports
+from common_utils.logging import get_logger
+
+# Initialize logger
+logger = get_logger(__name__)
 
 
 class Service:
     """A simple mock service class."""
 
     def __init__(self, name: str) -> None:
-        """Initialize a service with the given name.
+        """
+        Initialize a service with the given name.
 
         Args:
             name: The name of the service
@@ -22,16 +28,18 @@ class Service:
         self.initialized = False
 
     def initialize(self) -> None:
-        """Initialize the service and log the initialization.
+        """
+        Initialize the service and log the initialization.
 
         Sets the initialized flag to True and logs a message.
         """
         self.initialized = True
-        logging.info(f"Service '{self.name}' initialized.")
+        logger.info("Service '%s' initialized.", self.name)
 
 
 def initialize_services(service_names: list[str]) -> list[Service]:
-    """Initialize a list of services by name.
+    """
+    Initialize a list of services by name.
 
     Args:
         service_names: List of service names to initialize

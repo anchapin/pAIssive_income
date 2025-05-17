@@ -1,5 +1,5 @@
 """
-Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB
+Demo: Vector Database + RAG (Retrieval-Augmented Generation) using ChromaDB.
 
 Steps:
  1. uv pip install chromadb sentence-transformers
@@ -9,9 +9,12 @@ This script embeds example texts, stores them in a local vector DB,
 then retrieves the most relevant context for a query.
 """
 
+from __future__ import annotations
+
+import logging
+
 import chromadb
 from chromadb.config import Settings
-import logging
 from sentence_transformers import SentenceTransformer
 
 # Configure logging instead of print statements
@@ -44,12 +47,17 @@ documents = [
 # 3. Load embedding model (Sentence Transformers)
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
+
 # 4. Create/get collection
 collection = client.get_or_create_collection("demo_rag")
 
 
 # 5. Embed and add documents
-def embed_and_insert_documents(docs, embedder_model, collection):
+def embed_and_insert_documents(
+    docs: list[dict],
+    embedder_model: SentenceTransformer,
+    collection: chromadb.Collection,
+) -> None:
     """
     Embed documents and insert them into the collection.
 
@@ -57,6 +65,7 @@ def embed_and_insert_documents(docs, embedder_model, collection):
         docs: List of document dictionaries with 'id' and 'content' keys
         embedder_model: SentenceTransformer model for embedding
         collection: ChromaDB collection to insert into
+
     """
     ids = [doc["id"] for doc in docs]
     contents = [doc["content"] for doc in docs]
@@ -76,10 +85,10 @@ query = "What city is the Eiffel Tower located in?"
 query_embedding = embedder.encode(query).tolist()
 results = collection.query(query_embeddings=[query_embedding], n_results=2)
 
-logger.info(f"\nQuery: {query}\n")
+logger.info("\nQuery: %s\n", query)
 logger.info("Top results:")
 for doc, dist in zip(results["documents"][0], results["distances"][0]):
-    logger.info(f"- {doc} (distance: {dist:.4f})")
+    logger.info("- %s (distance: %.4f)", doc, dist)
 
 """
 Expected output:
