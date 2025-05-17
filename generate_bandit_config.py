@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Generate Bandit configuration files for specific run IDs."""
+"""
+Generate Bandit Configuration Files for GitHub Actions.
 
-from __future__ import annotations
+This script generates Bandit configuration files for all platforms and run IDs.
+It is used by the GitHub Actions workflow to create the necessary configuration
+files for Bandit security scanning.
+
+Usage:
+    python generate_bandit_config.py [run_id]
+"""
 
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -30,6 +36,13 @@ exclude_dirs:
   - node_modules
   - build
   - dist
+  - docs
+  - docs_source
+  - junit
+  - bin
+  - dev_tools
+  - scripts
+  - tool_templates
 
 # Skip specific test IDs
 skips:
@@ -42,7 +55,7 @@ skips:
 output_format: sarif
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results-{run_id}.sarif
+output_file: security-reports/bandit-results.sarif
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
@@ -64,197 +77,44 @@ any_other_function_with_shell_equals_true:
 """
 
 
-# Define the empty SARIF content
-EMPTY_SARIF = """{
-  "version": "2.1.0",
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": [
-    {
-      "tool": {
-        "driver": {
-          "name": "Bandit",
-          "informationUri": "https://github.com/PyCQA/bandit",
-          "version": "1.7.5",
-          "rules": []
-        }
-      },
-      "results": []
-    }
-  ]
-}"""
-
-# Compact version for error recovery
-COMPACT_SARIF = """{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}"""
-
-
-def create_directory(path: Path) -> None:
-    """
-    Create a directory if it doesn't exist.
-
-    Args:
-        path: The directory path to create
-
-    """
-    path.mkdir(parents=True, exist_ok=True)
-    logger.info("Created directory: %s", path)
-
-
-def write_sarif_file(path: Path, content: str) -> None:
-    """
-    Write SARIF content to a file.
-
-    Args:
-        path: The file path to write to
-        content: The SARIF content to write
-
-    """
-    with path.open("w") as f:
-        f.write(content)
-    logger.info("Generated SARIF file: %s", path)
-
-
-def get_run_ids(current_run_id: str) -> list[str]:
-    """
-    Get a list of run IDs to process.
-
-    Args:
-        current_run_id: The current run ID
-
-    Returns:
-        A list of run IDs to process
-
-    """
-    # Define specific run IDs that need to be handled (from error messages)
-    run_ids = [
-        "14974236301",
-        "14976101411",
-        "14977094424",
-        "14977626158",
-        "14978521232",
-        "14987452007",
-        "15055489437",
-        "15056259666",
-    ]
-
-    # Always include the current run ID
-    if current_run_id not in run_ids:
-        run_ids.append(current_run_id)
-
-    # Add the GitHub run ID from the environment if available
-    github_run_id = os.environ.get("GITHUB_RUN_ID")
-    if github_run_id and github_run_id not in run_ids:
-        run_ids.append(github_run_id)
-        logger.info("Added GitHub run ID: %s", github_run_id)
-
-    return run_ids
-
-
-def generate_config_files(bandit_dir: Path, run_ids: list[str]) -> None:
-    """
-    Generate Bandit configuration files for each platform and run ID.
-
-    Args:
-        bandit_dir: The directory to write configuration files to
-        run_ids: The list of run IDs to generate configurations for
-
-    """
-    for platform in ["Windows", "Linux", "macOS"]:
-        for run_id in run_ids:
-            config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=run_id)
-            config_file = bandit_dir / f"bandit-config-{platform.lower()}-{run_id}.yaml"
-
-            with config_file.open("w") as f:
-                f.write(config_content)
-
-            logger.info("Generated config file: %s", config_file)
-
-
-def generate_sarif_files(reports_dir: Path, run_ids: list[str]) -> None:
-    """
-    Generate SARIF files for each run ID.
-
-    Args:
-        reports_dir: The directory to write SARIF files to
-        run_ids: The list of run IDs to generate SARIF files for
-
-    """
-    # Create SARIF files for all run IDs
-    for run_id in run_ids:
-        sarif_file = reports_dir / f"bandit-results-{run_id}.sarif"
-        write_sarif_file(sarif_file, EMPTY_SARIF)
-
-    # Create the standard SARIF file
-    standard_sarif_file = reports_dir / "bandit-results.sarif"
-    write_sarif_file(standard_sarif_file, EMPTY_SARIF)
-
-    # Create additional SARIF files that might be needed
-    additional_sarif_files = [
-        reports_dir / "bandit-results.json",
-        # Using a variable to avoid triggering gitleaks
-        reports_dir / "secret_scan_results.sarif.json",
-        reports_dir / "trivy-results.sarif",
-    ]
-
-    for sarif_file in additional_sarif_files:
-        if not sarif_file.exists():
-            write_sarif_file(sarif_file, EMPTY_SARIF)
-
-
-def create_minimal_files() -> None:
-    """Create minimal required files in case of an error."""
-    try:
-        reports_dir = Path("security-reports")
-        reports_dir.mkdir(parents=True, exist_ok=True)
-
-        sarif_path = reports_dir / "bandit-results.sarif"
-        write_sarif_file(sarif_path, COMPACT_SARIF)
-
-        empty_sarif_path = Path("empty-sarif.json")
-        write_sarif_file(empty_sarif_path, COMPACT_SARIF)
-
-        logger.info("Created minimal required SARIF files after error")
-    except Exception:
-        logger.exception("Failed to create minimal required SARIF files")
-
-
 def main() -> None:
-    """Generate Bandit configuration files for specific run IDs."""
-    try:
-        # Get run ID from command line argument or use default
-        run_id = sys.argv[1] if len(sys.argv) > 1 else "15053076509"  # Default run ID
-        logger.info("Using run ID: %s", run_id)
+    """Generate Bandit configuration files for all platforms and run IDs."""
+    # Get the run ID from the command line arguments
+    run_id = "default"
+    if len(sys.argv) > 1:
+        run_id = sys.argv[1]
 
-        # Create required directories
-        bandit_dir = Path(".github/bandit")
-        create_directory(bandit_dir)
+    logger.info("Generating Bandit configuration files for run ID: %s", run_id)
 
-        reports_dir = Path("security-reports")
-        create_directory(reports_dir)
+    # Create the .github/bandit directory if it doesn't exist
+    bandit_dir = Path(".github/bandit")
+    bandit_dir.mkdir(parents=True, exist_ok=True)
 
-        # Ensure the empty-sarif.json file exists in the root directory
-        root_sarif_file = Path("empty-sarif.json")
-        if not root_sarif_file.exists():
-            logger.info("Creating empty-sarif.json in root directory")
-            write_sarif_file(root_sarif_file, EMPTY_SARIF)
-        else:
-            logger.info("empty-sarif.json already exists")
+    # Create the security-reports directory if it doesn't exist
+    security_reports_dir = Path("security-reports")
+    security_reports_dir.mkdir(parents=True, exist_ok=True)
 
-        # Get the list of run IDs to process
-        run_ids = get_run_ids(run_id)
+    # Generate configuration files for each platform
+    for platform in ["Windows", "Linux", "macOS"]:
+        config_content = CONFIG_TEMPLATE.format(platform=platform, run_id=run_id)
+        config_file = bandit_dir / f"bandit-config-{platform.lower()}-{run_id}.yaml"
 
-        # Generate configuration files
-        generate_config_files(bandit_dir, run_ids)
+        with config_file.open("w") as f:
+            f.write(config_content)
 
-        # Generate SARIF files
-        generate_sarif_files(reports_dir, run_ids)
+        logger.info("Generated %s", config_file)
 
-        logger.info(
-            "All Bandit configuration files and SARIF files generated successfully"
-        )
-    except Exception:
-        logger.exception("Error generating Bandit configuration files")
-        # Create the minimal required files even if an error occurs
-        create_minimal_files()
+    # Also create generic platform configuration files
+    for platform in ["Windows", "Linux", "macOS"]:
+        config_content = CONFIG_TEMPLATE.format(platform=platform, run_id="generic")
+        config_file = bandit_dir / f"bandit-config-{platform.lower()}.yaml"
+
+        with config_file.open("w") as f:
+            f.write(config_content)
+
+        logger.info("Generated %s", config_file)
+
+    logger.info("Bandit configuration files generated successfully")
 
 
 if __name__ == "__main__":

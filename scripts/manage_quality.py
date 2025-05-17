@@ -64,7 +64,7 @@ def get_git_root() -> Path:
     try:
         # Use git executable with full path if possible
         git_exe = shutil.which("git") or "git"
-        result = subprocess.run(  # noqa: S603 - Using git with proper arguments
+        result = subprocess.run(
             [git_exe, "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True,
@@ -88,7 +88,7 @@ def get_changed_files(staged_only: bool = True) -> set[Path]:
         if staged_only:
             cmd.append("--staged")
 
-        result = subprocess.run(  # noqa: S603 - Using git with proper arguments
+        result = subprocess.run(
             cmd, capture_output=True, text=True, check=True, timeout=10
         )
 

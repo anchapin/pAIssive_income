@@ -1,15 +1,15 @@
 .. _overview:
 
 Overview
-=======
+========
 
 About pAIssive_income
--------------------
+--------------------
 
 pAIssive_income is a comprehensive toolkit for finding, developing, monetizing, and marketing AI-powered passive income opportunities. It helps entrepreneurs and developers identify promising niches for AI applications, create effective solutions, develop optimal monetization strategies, and execute marketing plans.
 
 System Architecture
------------------
+------------------
 
 pAIssive_income is organized into several core modules that work together:
 
@@ -20,10 +20,10 @@ pAIssive_income is organized into several core modules that work together:
 *Note: Architecture diagram will be generated during the documentation build process*
 
 Core Modules
-----------
+------------
 
 Niche Analysis
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 The Niche Analysis module helps identify promising niches for AI applications. It performs market research, analyzes competition, identifies problems in the niche, and calculates opportunity scores to help you focus on the most promising areas.
 
@@ -38,7 +38,7 @@ Agent Team
 The Agent Team module manages specialized AI agents that work together to solve complex tasks. Each agent has a specific role and expertise, and the team orchestrates their collaboration to achieve goals.
 
 Monetization
-~~~~~~~~~~
+~~~~~~~~~~~
 
 The Monetization module helps develop optimal pricing and subscription strategies. It handles billing calculations, payment processing, subscription management, and revenue projections.
 
@@ -53,7 +53,7 @@ UI
 The UI module provides interfaces for interacting with the system, including web-based dashboards, command-line tools, and API endpoints.
 
 Common Utils
-~~~~~~~~~~
+~~~~~~~~~~~
 
 The Common Utils module provides shared utility functions used across the project, including date handling, file operations, JSON processing, and string manipulation.
 
@@ -63,7 +63,7 @@ Interfaces
 The Interfaces module defines abstract interfaces used for dependency injection, making the system modular and testable.
 
 Workflow
--------
+--------
 
 A typical workflow with pAIssive_income follows these steps:
 
@@ -75,7 +75,7 @@ A typical workflow with pAIssive_income follows these steps:
 6. **Optimization**: Continuously monitor and improve performance
 
 Design Principles
----------------
+----------------
 
 pAIssive_income follows these core design principles:
 

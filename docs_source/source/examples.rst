@@ -1,16 +1,16 @@
 .. _examples:
 
 Examples
-=======
+========
 
 This section provides practical examples for using pAIssive_income in various scenarios.
 
 Niche Analysis Workflow
----------------------
+----------------------
 
 This example demonstrates how to use the Niche Analysis module to identify promising niches:
 
-.. code-block: python
+.. code-block:: python
 
     from pAIssive_income.niche_analysis import OpportunityAnalyzer, MarketResearch
 
@@ -53,11 +53,11 @@ This example demonstrates how to use the Niche Analysis module to identify promi
     print(f"Key problems: {', '.join(sorted_results[0]['problems'])}")
 
 Solution Development Workflow
----------------------------
+----------------------------
 
 This example shows how to generate solution ideas for a specific niche:
 
-.. code-block: python
+.. code-block:: python
 
     from pAIssive_income.niche_analysis import ProblemIdentifier, SolutionGenerator
 
@@ -91,11 +91,11 @@ This example shows how to generate solution ideas for a specific niche:
     print(f"\nBest solution: {best_solution.name}")
 
 Monetization Strategy Workflow
-----------------------------
+-----------------------------
 
 This example demonstrates how to develop monetization strategies:
 
-.. code-block: python
+.. code-block:: python
 
     from pAIssive_income.monetization import BillingCalculator, Calculator
     from decimal import Decimal
@@ -150,11 +150,11 @@ This example demonstrates how to develop monetization strategies:
     print(f"Month 24: ${projections[23].total_revenue}")
 
 Marketing Campaign Workflow
--------------------------
+--------------------------
 
 This example shows how to create marketing strategies and content:
 
-.. code-block: python
+.. code-block:: python
 
     from pAIssive_income.marketing import StrategyGenerator, ContentGenerator, UserPersonas
 
@@ -211,11 +211,11 @@ This example shows how to create marketing strategies and content:
         print(f"Call to action: {content.call_to_action}")
 
 End-to-End Example
----------------
+----------------
 
 This example demonstrates an end-to-end workflow from niche analysis to marketing:
 
-.. code-block: python
+.. code-block:: python
 
     from pAIssive_income import niche_analysis, ai_models, monetization, marketing
 
