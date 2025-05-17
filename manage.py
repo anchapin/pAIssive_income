@@ -79,6 +79,11 @@ def main():
     subparsers.add_parser("install-mcp-sdk", help="Install the MCP SDK")
     subparsers.add_parser("pre-commit", help="Install and configure pre-commit hooks")
 
+    # Database management
+    subparsers.add_parser("db-init", help="Initialize the main database")
+    subparsers.add_parser("db-init-agent", help="Initialize the agent database")
+    subparsers.add_parser("db-migrate", help="Run database migrations")
+
     # Security/Scan
     scan_parser = subparsers.add_parser("scan", help="Run security/code quality scans")
     scan_parser.add_argument("--type", choices=["bandit", "security", "codeql"], required=True,
@@ -122,6 +127,12 @@ def main():
             run_script(COMMAND_MAP["scan_codeql"], extra)
         else:
             parser.error("Unknown scan type")
+    elif args.command == "db-init":
+        run_script("scripts/db/init_db.py", extra)
+    elif args.command == "db-init-agent":
+        run_script("scripts/db/init_agent_db.py", extra)
+    elif args.command == "db-migrate":
+        run_script("scripts/db/run_migrations.py", extra)
     else:
         parser.print_help()
         sys.exit(1)
