@@ -173,7 +173,7 @@ def _setup_after_request(app: Flask) -> None:
         # Get log level value from log level name
         log_level_value = cast(
             "int",
-            logging_getattr(getLogger(), log_level.upper(), INFO),
+            getattr(getLogger(), log_level.upper(), INFO),
         )
         structured_log(
             "request.completed",
