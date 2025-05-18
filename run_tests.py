@@ -149,7 +149,7 @@ def ensure_security_reports_dir() -> None:
 
     This is needed for bandit and other security tools to write their reports.
     """
-    reports_dir = pathlib.Path("security-reports")
+    reports_dir = Path("security-reports")
     if not reports_dir.exists():
         try:
             reports_dir.mkdir(parents=True, exist_ok=True)
@@ -232,7 +232,7 @@ def main() -> None:
         except subprocess.SubprocessError:
             logger.exception("Error running pytest")
             sys.exit(1)
-    except Exception as e:
+    except Exception:
         logger.exception("Error in run_tests.py. Falling back to direct pytest execution")
 
         # Fall back to direct pytest execution
@@ -246,7 +246,7 @@ def main() -> None:
                 text=True
             ).returncode
             sys.exit(result)
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to run pytest directly")
             sys.exit(1)
 
