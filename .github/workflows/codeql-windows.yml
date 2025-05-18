@@ -1,0 +1,289 @@
+name: "CodeQL Analysis (Windows)"
+
+# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Windows
+# It's a specialized version of the main CodeQL workflow for Windows-specific analysis
+
+on:
+  push:
+    branches: [ main, dev, master, develop ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+  pull_request:
+    branches: [ main, dev, master, develop ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.rst'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.svg'
+      - '**/*.ico'
+      - '.gitignore'
+      - 'docs/**'
+      - 'LICENSE'
+      - 'SECURITY.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
+  workflow_dispatch:  # Allow manual triggering
+
+# Limit concurrent runs to conserve resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Required for all workflows
+  security-events: write
+  # Only needed for workflows in private repositories
+  actions: read
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: windows-latest
+    timeout-minutes: 90  # Increased timeout for larger codebases
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript', 'python' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-${{ matrix.language }}-windows-${{ github.sha }}
+          restore-keys: |
+            codeql-${{ matrix.language }}-windows-
+
+      # Set up Node.js for JavaScript/TypeScript analysis
+      - name: Set up Node.js
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # Set up pnpm
+      - name: Setup pnpm
+        if: matrix.language == 'javascript-typescript'
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+
+      # Add pnpm to PATH (Windows)
+      - name: Add pnpm to PATH
+        if: matrix.language == 'javascript-typescript'
+        shell: pwsh
+        run: |
+          $pnpmPath = (& pnpm bin)
+          $env:PATH = "$pnpmPath;$env:PATH"
+          echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Current PATH: $env:PATH"
+          if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+            Write-Host "Error: pnpm is not in PATH."
+            exit 1
+          }
+
+      # Set up Python for Python analysis
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Ensure tar is available on Windows
+      - name: Ensure tar is available
+        shell: pwsh
+        run: |
+          # Check if tar is available
+          if (-not (Get-Command tar -ErrorAction SilentlyContinue)) {
+            Write-Host "tar not found in PATH. Installing tar via Chocolatey..."
+            # Install Chocolatey if not already installed
+            if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+              iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            }
+            # Install tar
+            choco install -y tar
+            # Refresh PATH
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          } else {
+            Write-Host "tar is already available in PATH"
+          }
+          # Verify tar is now available
+          tar --version
+
+      # Install dependencies for JavaScript/TypeScript
+      - name: Install Node.js dependencies
+        if: matrix.language == 'javascript-typescript'
+        shell: pwsh
+        run: |
+          # Function to install dependencies with fallback
+          function Install-Deps {
+            param (
+              [string]$Directory = ""
+            )
+            
+            $originalDir = Get-Location
+            
+            if ($Directory -ne "") {
+              Set-Location $Directory
+            }
+            
+            Write-Host "Installing dependencies in $(Get-Location)..."
+            
+            # Try with pnpm first (preferred)
+            if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+              Write-Host "Using pnpm to install dependencies..."
+              try {
+                pnpm install
+              } catch {
+                Write-Host "pnpm install failed, trying with npm..."
+                try {
+                  npm install
+                } catch {
+                  Write-Host "Both pnpm and npm installation failed in $(Get-Location)"
+                  Set-Location $originalDir
+                  return $false
+                }
+              }
+            } else {
+              # Fallback to npm if pnpm is not available
+              Write-Host "pnpm not found, using npm to install dependencies..."
+              try {
+                npm install
+              } catch {
+                Write-Host "npm installation failed in $(Get-Location)"
+                Set-Location $originalDir
+                return $false
+              }
+            }
+            
+            if ($Directory -ne "") {
+              Set-Location $originalDir
+            }
+            
+            return $true
+          }
+          
+          # Install dependencies in root directory if package.json exists
+          if (Test-Path "package.json") {
+            Write-Host "Found package.json in root directory"
+            Install-Deps
+          }
+          
+          # Install dependencies in ui/react_frontend if package.json exists
+          if (Test-Path "ui/react_frontend/package.json") {
+            Write-Host "Found package.json in ui/react_frontend"
+            Install-Deps -Directory "ui/react_frontend"
+          }
+          
+          # Install dependencies in sdk/javascript if package.json exists
+          if (Test-Path "sdk/javascript/package.json") {
+            Write-Host "Found package.json in sdk/javascript"
+            Install-Deps -Directory "sdk/javascript"
+          }
+        continue-on-error: true
+
+      # Install dependencies for Python
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade uv
+          if (Test-Path "requirements.txt") {
+            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          } elseif (Test-Path "requirements-dev.txt") {
+            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements-dev.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
+          } else {
+            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          }
+
+          # Install package in development mode if setup.py exists
+          if (Test-Path "setup.py") {
+            Write-Host "Installing package in development mode using 'uv pip'..."
+            try {
+              python -m uv pip install -e .
+            } catch {
+              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
+          }
+        continue-on-error: true
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-config.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space
+        shell: pwsh
+        run: Get-Volume
+
+      # Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: true
+          output: sarif-results/${{ matrix.language }}-windows.sarif
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.language }}-windows-sarif
+          path: sarif-results/${{ matrix.language }}-windows.sarif
+          retention-days: 7
