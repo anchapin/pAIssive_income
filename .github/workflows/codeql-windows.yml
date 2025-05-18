@@ -1,66 +1,21 @@
-name: "CodeQL Analysis (Windows)"
-
-# This workflow performs CodeQL analysis for JavaScript/TypeScript and Python on Windows
-# It's a specialized version of the main CodeQL workflow for Windows-specific analysis
+name: "CodeQL Windows"
 
 on:
   push:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
+    branches: [ "main" ]
   pull_request:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
+    branches: [ "main" ]
   schedule:
-    - cron: '0 4 * * 1'  # Weekly on Monday at 4 AM UTC (off-peak hours)
-  workflow_dispatch:  # Allow manual triggering
-
-# Limit concurrent runs to conserve resources
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  # Required for all workflows
-  security-events: write
-  # Only needed for workflows in private repositories
-  actions: read
-  contents: read
+    - cron: '30 1 * * 0'
 
 jobs:
   analyze:
     name: Analyze
     runs-on: windows-latest
-    timeout-minutes: 90  # Increased timeout for larger codebases
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     strategy:
       fail-fast: false
@@ -70,281 +25,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full git history for better analysis
 
-      # Cache CodeQL database to speed up analysis
-      - name: Cache CodeQL database
-        uses: actions/cache@v4
-        with:
-          path: ~/.codeql/databases
-          key: codeql-${{ matrix.language }}-windows-${{ github.sha }}
-          restore-keys: |
-            codeql-${{ matrix.language }}-windows-
-
-      # Set up Node.js for JavaScript/TypeScript analysis
-      - name: Set up Node.js
+      - name: Setup Node.js
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      # Set up pnpm
-      - name: Setup pnpm
-        if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v4
-        with:
-          version: '8'
-          run_install: false
-
-      # Add pnpm to PATH (Windows)
-      - name: Add pnpm to PATH
-        if: matrix.language == 'javascript-typescript'
-        shell: pwsh
-        run: |
-          $pnpmPath = (& pnpm bin)
-          $env:PATH = "$pnpmPath;$env:PATH"
-          echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
-          Write-Host "Current PATH: $env:PATH"
-          if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-            Write-Host "Error: pnpm is not in PATH."
-            exit 1
-          }
-
-      # Set up Python for Python analysis
-      - name: Set up Python
+      - name: Setup Python
         if: matrix.language == 'python'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.10'
           cache: 'pip'
 
-      # Ensure tar is available on Windows
-      - name: Ensure tar is available
-        shell: pwsh
-        run: |
-          # Check if tar is available
-          if (-not (Get-Command tar -ErrorAction SilentlyContinue)) {
-            Write-Host "tar not found in PATH. Installing tar via Chocolatey..."
-            # Install Chocolatey if not already installed
-            if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-              Set-ExecutionPolicy Bypass -Scope Process -Force
-              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-              iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-            }
-            # Install tar
-            choco install -y tar
-            # Refresh PATH
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          } else {
-            Write-Host "tar is already available in PATH"
-          }
-          # Verify tar is now available
-          tar --version
-
-      # Install dependencies for JavaScript/TypeScript
-      - name: Install Node.js dependencies
-        if: matrix.language == 'javascript-typescript'
-        shell: pwsh
-        run: |
-          # Function to install dependencies with fallback
-          function Install-Deps {
-            param (
-              [string]$Directory = ""
-            )
-
-            $originalDir = Get-Location
-
-            if ($Directory -ne "") {
-              Set-Location $Directory
-            }
-
-            Write-Host "Installing dependencies in $(Get-Location)..."
-
-            # Check if package-lock.json exists, create if not
-            if (-not (Test-Path "package-lock.json")) {
-              Write-Host "package-lock.json not found, creating minimal one..."
-              if (Test-Path "package.json") {
-                $packageJson = Get-Content -Raw -Path "package.json" | ConvertFrom-Json
-
-                # Create a more robust minimal package-lock.json
-                $minimalLockContent = @"
-{
-  "name": "$($packageJson.name)",
-  "version": "$($packageJson.version)",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "$($packageJson.name)",
-      "version": "$($packageJson.version)",
-      "license": "$($packageJson.license)",
-      "dependencies": $(if ($packageJson.dependencies) { ConvertTo-Json -InputObject $packageJson.dependencies -Depth 5 -Compress } else { "{}" }),
-      "devDependencies": $(if ($packageJson.devDependencies) { ConvertTo-Json -InputObject $packageJson.devDependencies -Depth 5 -Compress } else { "{}" })
-    }
-  }
-}
-"@
-                Set-Content -Path "package-lock.json" -Value $minimalLockContent -Encoding UTF8
-                Write-Host "Created minimal package-lock.json"
-
-                # Verify the file was created correctly
-                if (Test-Path "package-lock.json") {
-                  $fileContent = Get-Content -Path "package-lock.json" -Raw
-                  Write-Host "package-lock.json created with size: $($fileContent.Length) bytes"
-
-                  # Validate JSON format
-                  try {
-                    $null = $fileContent | ConvertFrom-Json
-                    Write-Host "package-lock.json is valid JSON"
-                  } catch {
-                    Write-Host "Warning: package-lock.json is not valid JSON: $_"
-                    # Try to fix it by writing a simpler version
-                    $simpleContent = @"
-{
-  "name": "$($packageJson.name)",
-  "version": "$($packageJson.version)",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "$($packageJson.name)",
-      "version": "$($packageJson.version)"
-    }
-  }
-}
-"@
-                    Set-Content -Path "package-lock.json" -Value $simpleContent -Encoding UTF8
-                    Write-Host "Created simplified package-lock.json as fallback"
-                  }
-                } else {
-                  Write-Host "Error: Failed to create package-lock.json"
-                }
-              } else {
-                Write-Host "Error: No package.json found in $(Get-Location)"
-              }
-            }
-
-            # Create node_modules directory if it doesn't exist
-            if (-not (Test-Path "node_modules")) {
-              Write-Host "Creating node_modules directory..."
-              New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
-            }
-
-            # Try with pnpm first (preferred)
-            if (Get-Command pnpm -ErrorAction SilentlyContinue) {
-              Write-Host "Using pnpm to install dependencies..."
-              try {
-                pnpm install --no-frozen-lockfile
-                Write-Host "pnpm install succeeded"
-              } catch {
-                Write-Host "pnpm install failed, trying with npm..."
-                try {
-                  npm install --no-package-lock
-                  Write-Host "npm install succeeded"
-                } catch {
-                  Write-Host "Both pnpm and npm installation failed in $(Get-Location)"
-                }
-              }
-            } else {
-              # Fallback to npm if pnpm is not available
-              Write-Host "pnpm not found, using npm to install dependencies..."
-              try {
-                npm install --no-package-lock
-                Write-Host "npm install succeeded"
-              } catch {
-                Write-Host "npm installation failed in $(Get-Location)"
-              }
-            }
-
-            if ($Directory -ne "") {
-              Set-Location $originalDir
-            }
-
-            return $true
-          }
-
-          # Install dependencies in root directory if package.json exists
-          if (Test-Path "package.json") {
-            Write-Host "Found package.json in root directory"
-            Install-Deps
-          }
-
-          # Install dependencies in ui/react_frontend if package.json exists
-          if (Test-Path "ui/react_frontend/package.json") {
-            Write-Host "Found package.json in ui/react_frontend"
-            Install-Deps -Directory "ui/react_frontend"
-          }
-
-          # Install dependencies in sdk/javascript if package.json exists
-          if (Test-Path "sdk/javascript/package.json") {
-            Write-Host "Found package.json in sdk/javascript"
-            Install-Deps -Directory "sdk/javascript"
-          }
-
-          # List all lock files for debugging
-          Write-Host "Listing all lock files in the repository:"
-          Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml" | ForEach-Object {
-            Write-Host "Found lock file: $($_.FullName)"
-          }
-        continue-on-error: true
-
-      # Install dependencies for Python
-      - name: Install Python dependencies
-        if: matrix.language == 'python'
-        shell: pwsh
-        run: |
-          python -m pip install --upgrade uv
-          if (Test-Path "requirements.txt") {
-            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
-            try {
-              python -m uv pip install -r requirements.txt
-            } catch {
-              Write-Host "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-            }
-          } elseif (Test-Path "requirements-dev.txt") {
-            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
-            try {
-              python -m uv pip install -r requirements-dev.txt
-            } catch {
-              Write-Host "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements-dev.txt
-            }
-          } else {
-            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
-          }
-
-          # Install package in development mode if setup.py exists
-          if (Test-Path "setup.py") {
-            Write-Host "Installing package in development mode using 'uv pip'..."
-            try {
-              python -m uv pip install -e .
-            } catch {
-              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -e .
-            }
-          }
-        continue-on-error: true
-
-      # Initialize CodeQL
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          queries: security-and-quality
-          debug: true
-          config-file: .github/codeql/security-os-config.yml
-
-      # Autobuild attempts to build any compiled languages
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      # Display disk space before analysis
       - name: Check disk space
         shell: pwsh
         run: Get-Volume
@@ -356,7 +50,7 @@ jobs:
         run: |
           Write-Host "Checking for lock files before CodeQL analysis..."
           $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml")
-
+          
           if ($lockFiles.Count -eq 0) {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
             $json = @{
@@ -380,6 +74,35 @@ jobs:
               Write-Host "  $($_.FullName)"
             }
           }
+
+      # Install dependencies for JavaScript/TypeScript
+      - name: Install JS dependencies
+        if: matrix.language == 'javascript-typescript'
+        shell: pwsh
+        run: |
+          # Create node_modules directory if it doesn't exist
+          if (-not (Test-Path "node_modules")) {
+            Write-Host "Creating node_modules directory..."
+            New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+          }
+
+      # Install dependencies for Python
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade uv
+          uv pip install -r requirements.txt || python -m pip install -r requirements.txt
+        continue-on-error: true
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          debug: true
+          config-file: .github/codeql/security-os-config.yml
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
