@@ -10,7 +10,9 @@ This script counts the number of tests to be run and sets the appropriate number
 from __future__ import annotations
 
 import logging
+import os
 import os.path  # Used for os.path.normpath and os.sep
+import platform
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
@@ -161,6 +163,8 @@ def ensure_security_reports_dir() -> None:
     Ensure the security-reports directory exists.
 
     This is needed for bandit and other security tools to write their reports.
+    Returns silently if the directory already exists or was created successfully.
+    Logs a warning if the directory could not be created but continues execution.
     """
     reports_dir = Path("security-reports")
     if not reports_dir.exists():
@@ -169,6 +173,26 @@ def ensure_security_reports_dir() -> None:
             logger.info("Created security-reports directory")
         except (PermissionError, OSError) as e:
             logger.warning("Failed to create security-reports directory: %s", e)
+            # Try to create the directory in a temp location as fallback
+            try:
+                import tempfile
+                temp_dir = Path(tempfile.gettempdir()) / "security-reports"
+                temp_dir.mkdir(parents=True, exist_ok=True)
+                logger.info("Created security-reports directory in temp location: %s", temp_dir)
+                # Create a symlink or junction to the temp directory
+                if platform.system() == "Windows":
+                    # Use directory junction on Windows
+                    subprocess.run(  # nosec B603 # noqa: S603
+                        ["cmd", "/c", f"mklink /J security-reports {temp_dir}"],
+                        check=False,
+                        shell=False,
+                        capture_output=True
+                    )
+                else:
+                    # Use symlink on Unix
+                    os.symlink(temp_dir, "security-reports")
+            except Exception as e2:
+                logger.warning("Failed to create security-reports directory in temp location: %s", e2)
 
 
 def check_venv_exists() -> bool:
