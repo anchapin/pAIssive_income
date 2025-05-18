@@ -234,6 +234,21 @@ def test_crewai_copilotkit_api_integration():
         # Set the API client
         agent_team.api_client = mock_api_client
 
+        # Add agents from the mock API response
+        for agent_data in mock_api_response["agents"]:
+            agent_team.add_agent(
+                role=agent_data["role"],
+                goal=agent_data["goal"],
+                backstory=agent_data["backstory"],
+            )
+
+        # Add tasks from the mock API response
+        for task_data in mock_api_response["tasks"]:
+            agent_team.add_task(
+                description=task_data["description"],
+                agent=task_data["agent"],
+            )
+
         # Test the run method with the API client
         with patch.object(agent_team, "_create_crew") as mock_create_crew:
             mock_crew = MagicMock()

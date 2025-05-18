@@ -82,6 +82,30 @@ def test_crewai_agent_team_integration():
         # Verify the agent team was created successfully
         assert agent_team is not None
 
+        # Add agents and tasks to the team
+        agent_team.add_agent(
+            role="Researcher",
+            goal="Research the topic",
+            backstory="Expert researcher",
+        )
+
+        agent_team.add_agent(
+            role="Writer",
+            goal="Write the report",
+            backstory="Expert writer",
+        )
+
+        # Add tasks for the agents
+        agent_team.add_task(
+            description="Research the topic",
+            agent="Researcher",
+        )
+
+        agent_team.add_task(
+            description="Write the report",
+            agent="Writer",
+        )
+
         # Test the run method with a mock workflow
         with patch.object(agent_team, "_create_crew") as mock_create_crew:
             mock_crew = MagicMock()
@@ -153,6 +177,17 @@ def test_crewai_agent_team_with_custom_agents():
 
             assert cast("Any", agent_team.agents[0]).role == "Researcher"
             assert cast("Any", agent_team.agents[1]).role == "Writer"
+
+            # Add tasks for the agents
+            agent_team.add_task(
+                description="Research the topic",
+                agent="Researcher",
+            )
+
+            agent_team.add_task(
+                description="Write the report",
+                agent="Writer",
+            )
 
             # Test the run method with custom agents
             with patch.object(agent_team, "_create_crew") as mock_create_crew:

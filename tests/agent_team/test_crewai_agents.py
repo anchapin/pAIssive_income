@@ -304,17 +304,29 @@ class TestCrewAIAgents:
         mock_crew.run.assert_called_once()
         assert result == "Test Result"
 
-    @patch("agent_team.crewai_agents.CREWAI_AVAILABLE", False)
-    @patch("warnings.warn")
-    def test_crewai_not_available_warning(self, mock_warn):
+    def test_crewai_not_available_warning(self):
         """Test that a warning is issued when CrewAI is not available."""
-        # Force reload of the module to trigger the warning
-        import importlib
-        import agent_team.crewai_agents
-        importlib.reload(agent_team.crewai_agents)
+        # Save the original import
+        import sys
+        original_import = __import__
 
-        # Verify the warning was issued
-        mock_warn.assert_called_once_with(
-            "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
-            stacklevel=2
-        )
+        # Mock the import to simulate CrewAI not being available
+        def mock_import(name, *args, **kwargs):
+            if name == 'crewai':
+                raise ImportError("No module named 'crewai'")
+            return original_import(name, *args, **kwargs)
+
+        # Apply the mock import
+        with patch('builtins.__import__', side_effect=mock_import):
+            with patch('warnings.warn') as mock_warn:
+                # Force reload of the module to trigger the warning
+                import importlib
+                if 'agent_team.crewai_agents' in sys.modules:
+                    del sys.modules['agent_team.crewai_agents']
+                import agent_team.crewai_agents
+
+                # Verify the warning was issued
+                mock_warn.assert_called_once_with(
+                    "CrewAI is not installed. This module will not function properly. Install with: pip install '.[agents]'",
+                    stacklevel=2
+                )

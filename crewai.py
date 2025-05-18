@@ -34,17 +34,20 @@ class Agent:
         self.backstory = backstory
         self.kwargs = kwargs
 
-    def execute_task(self, task: Task) -> str:
+    def execute_task(self, task: Task, context=None) -> str:
         """
         Execute a task.
 
         Args:
             task: The task to execute
+            context: Optional context for the task execution
 
         Returns:
             A string indicating the task was executed
 
         """
+        if context:
+            return f"Executed task: {task.description} with context: {context}"
         return f"Executed task: {task.description}"
 
     def __str__(self) -> str:
