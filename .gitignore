@@ -53,7 +53,8 @@
 *.sarif.json
 bandit-output.json
 bandit-results.json
-!security-reports/bandit-results.json
+security-reports/*.json
+security-reports/*.sarif
 security-reports/test-results*.txt
 security-reports/test-results-ini.txt
 *.so
