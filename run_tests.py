@@ -195,6 +195,22 @@ def main() -> None:
         logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
         logger.info("Continuing anyway, but consider running in a virtual environment.")
 
+    # Ensure pytest-xdist is installed
+    try:
+        # nosec B603 - subprocess call is used with shell=False and validated arguments
+        # ruff: noqa: S603
+        subprocess.run(  # nosec B603
+            [sys.executable, "-m", "pip", "install", "pytest-xdist"],
+            check=False,
+            capture_output=True,
+            shell=False,  # Explicitly set shell=False for security
+            env=get_sanitized_env(),
+            timeout=300  # Set a timeout of 5 minutes
+        )
+        logger.info("Ensured pytest-xdist is installed")
+    except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+        logger.warning("Failed to install pytest-xdist. Will run tests without parallelization.")
+
     # Ensure security-reports directory exists
     ensure_security_reports_dir()
 
@@ -212,11 +228,35 @@ def main() -> None:
     # Run pytest with the calculated number of workers
     # nosec B603 - subprocess call is used with shell=False and validated arguments
     try:
+        # Check if pytest-xdist is available
+        try:
+            # ruff: noqa: S603
+            xdist_check = subprocess.run(  # nosec B603
+                [sys.executable, "-c", "import pytest_xdist"],
+                check=False,
+                capture_output=True,
+                shell=False,  # Explicitly set shell=False for security
+                env=get_sanitized_env(),
+                timeout=30  # Short timeout for import check
+            )
+            xdist_available = xdist_check.returncode == 0
+        except (subprocess.SubprocessError, subprocess.TimeoutExpired):
+            xdist_available = False
+            logger.warning("Failed to check for pytest-xdist. Will run tests without parallelization.")
+
         # Add --no-cov if not already specified to avoid coverage failures
         if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
-            pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", "--no-cov"] + validated_args
+            if xdist_available and num_workers > 1:
+                pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", "--no-cov"] + validated_args
+            else:
+                pytest_cmd = [sys.executable, "-m", "pytest", "--no-cov"] + validated_args
         else:
-            pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}"] + validated_args
+            if xdist_available and num_workers > 1:
+                pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}"] + validated_args
+            else:
+                pytest_cmd = [sys.executable, "-m", "pytest"] + validated_args
+
+        logger.info("Running pytest with command: %s", " ".join(pytest_cmd))
 
         # ruff: noqa: S603
         result = subprocess.run(  # nosec B603

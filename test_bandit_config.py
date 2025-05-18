@@ -43,6 +43,8 @@ def ensure_security_reports_dir() -> None:
 def test_bandit_config() -> bool:  # noqa: C901, PLR0912, PLR0915
     """Test the Bandit configuration files."""
     logger.info("Testing Bandit configuration...")
+    # Ensure security-reports directory exists first
+    ensure_security_reports_dir()
 
     # Check if at least one of bandit.yaml or .bandit exists
     bandit_yaml = Path("bandit.yaml")
