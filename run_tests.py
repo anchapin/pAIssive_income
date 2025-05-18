@@ -13,6 +13,7 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 import shlex
 from typing import List, Sequence, Dict, Optional
+import pathlib
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -141,6 +142,21 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
         return 1
 
 
+def ensure_security_reports_dir() -> None:
+    """
+    Ensure the security-reports directory exists.
+
+    This is needed for bandit and other security tools to write their reports.
+    """
+    reports_dir = pathlib.Path("security-reports")
+    if not reports_dir.exists():
+        try:
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            logger.info("Created security-reports directory")
+        except Exception as e:
+            logger.warning(f"Failed to create security-reports directory: {e}")
+
+
 def main() -> None:
     """Run pytest with optimized worker count based on test count."""
     # Forward all command-line arguments to pytest except the script name
@@ -148,6 +164,9 @@ def main() -> None:
 
     # Validate arguments for security
     validated_args = validate_args(pytest_args)
+
+    # Ensure security-reports directory exists
+    ensure_security_reports_dir()
 
     # Get number of tests that would be run
     test_count = get_test_count(validated_args)

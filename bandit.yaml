@@ -26,18 +26,14 @@ skips:
   - B101
   # B311: Standard pseudo-random generators are not suitable for security/cryptographic purposes
   - B311
-  # B404: Consider possible security implications associated with the subprocess module
-  # We handle this with proper security controls in run_tests.py
-  - B404
-  # B603: subprocess call - check for execution of untrusted input
-  # We handle this with proper security controls in run_tests.py
-  - B603
+  # Note: We don't skip B404 and B603 globally anymore
+  # Instead, we use nosec comments in the code where subprocess is used safely
 
 # Set the output format for GitHub Advanced Security
-output_format: sarif
+output_format: json
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results.sarif
+output_file: security-reports/bandit-results.json
 
 # Set the severity level for GitHub Advanced Security
 # Options: low, medium, high

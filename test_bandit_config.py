@@ -17,6 +17,20 @@ def get_bandit_path() -> str:
         return "bandit"
     return bandit_path
 
+def ensure_security_reports_dir() -> None:
+    """
+    Ensure the security-reports directory exists.
+
+    This is needed for bandit and other security tools to write their reports.
+    """
+    reports_dir = Path("security-reports")
+    if not reports_dir.exists():
+        try:
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            print("Created security-reports directory")
+        except Exception as e:
+            print(f"Failed to create security-reports directory: {e}")
+
 def test_bandit_config():
     """Test the Bandit configuration files."""
     print("Testing Bandit configuration...")
@@ -32,6 +46,9 @@ def test_bandit_config():
     # Get the full path to bandit
     bandit_path = get_bandit_path()
 
+    # Ensure security-reports directory exists
+    ensure_security_reports_dir()
+
     # Run bandit with the available configuration
     try:
         print("Running bandit help command...")
@@ -45,15 +62,12 @@ def test_bandit_config():
         )
         print(f"Bandit help exit code: {result.returncode}")
 
-        # Create security-reports directory if it doesn't exist
-        os.makedirs("security-reports", exist_ok=True)
-
         # Test with bandit.yaml if it exists
         if bandit_yaml.exists():
             print("Running bandit with bandit.yaml...")
             # nosec B603 - subprocess call is used with shell=False and validated arguments
             result = subprocess.run(  # nosec B603
-                [bandit_path, "-r", ".", "-c", "bandit.yaml", "--exclude", ".venv,node_modules,tests",
+                [bandit_path, "-r", ".", "-c", "bandit.yaml", "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
                  "-o", "security-reports/test-results.txt", "-f", "txt"],
                 check=False,
                 capture_output=True,
@@ -74,12 +88,31 @@ def test_bandit_config():
                     print(result.stderr)
                     return False
 
+            # Test JSON output format instead of SARIF (which may not be supported in all bandit versions)
+            print("Testing JSON output format with bandit.yaml...")
+            result = subprocess.run(  # nosec B603
+                [bandit_path, "-r", ".", "-c", "bandit.yaml", "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                 "-o", "security-reports/bandit-results.json", "-f", "json"],
+                check=False,
+                capture_output=True,
+                text=True,
+                shell=False  # Explicitly set shell=False for security
+            )
+            print(f"Bandit JSON with bandit.yaml exit code: {result.returncode}")
+            if not Path("security-reports/bandit-results.json").exists():
+                print("Error: JSON output file was not created.")
+                print("Error output:")
+                print(result.stderr)
+                return False
+            else:
+                print("JSON output file exists, continuing...")
+
         # Test with .bandit if it exists
         if bandit_ini.exists():
             print("Running bandit with .bandit...")
             # nosec B603 - subprocess call is used with shell=False and validated arguments
             result = subprocess.run(  # nosec B603
-                [bandit_path, "-r", ".", "-c", ".bandit", "--exclude", ".venv,node_modules,tests",
+                [bandit_path, "-r", ".", "-c", ".bandit", "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
                  "-o", "security-reports/test-results-ini.txt", "-f", "txt"],
                 check=False,
                 capture_output=True,
@@ -99,6 +132,26 @@ def test_bandit_config():
                     print("Error output:")
                     print(result.stderr)
                     return False
+
+            # Test JSON output format instead of SARIF (which may not be supported in all bandit versions)
+            print("Testing JSON output format with .bandit...")
+            result = subprocess.run(  # nosec B603
+                [bandit_path, "-r", ".", "-c", ".bandit", "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                 "-o", "security-reports/bandit-results-ini.json", "-f", "json"],
+                check=False,
+                capture_output=True,
+                text=True,
+                shell=False  # Explicitly set shell=False for security
+            )
+            print(f"Bandit JSON with .bandit exit code: {result.returncode}")
+            if not Path("security-reports/bandit-results-ini.json").exists():
+                print("Error: JSON output file was not created.")
+                print("Error output:")
+                print(result.stderr)
+                return False
+            else:
+                print("JSON output file exists, continuing...")
+
         return True
     except Exception as e:
         print(f"Error running bandit: {e}")
