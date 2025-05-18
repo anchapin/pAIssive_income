@@ -59,25 +59,89 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a very simple package-lock.json with minimal content
-            # Use a direct string to avoid any JSON formatting issues
-            $directJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
-            Set-Content -Path "package-lock.json" -Value $directJson -Encoding UTF8
-
-            if (Test-Path "package-lock.json") {
-              $fileInfo = Get-Item "package-lock.json"
-              Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
-              Get-Content -Path "package-lock.json"
-            } else {
-              Write-Host "Failed to create package-lock.json, trying empty object..."
-              Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
+            # Method 1: Direct string approach (most reliable)
+            try {
+              $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+              Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8 -ErrorAction Stop
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
-                Write-Host "package-lock.json created with empty object ($($fileInfo.Length) bytes)"
+                Write-Host "Method 1: package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                Get-Content -Path "package-lock.json"
               } else {
-                Write-Host "CRITICAL ERROR: All methods to create package-lock.json failed"
+                throw "File not created"
               }
+            } catch {
+              Write-Host "Method 1 failed: $_"
+
+              # Method 2: PowerShell object conversion
+              try {
+                Write-Host "Trying Method 2: PowerShell object conversion..."
+                $jsonObject = @{
+                  name = "paissive-income"
+                  version = "1.0.0"
+                  lockfileVersion = 3
+                }
+                $jsonContent = ConvertTo-Json -InputObject $jsonObject -Depth 1 -Compress
+                Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8 -ErrorAction Stop
+
+                if (Test-Path "package-lock.json") {
+                  $fileInfo = Get-Item "package-lock.json"
+                  Write-Host "Method 2: package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                  Get-Content -Path "package-lock.json"
+                } else {
+                  throw "File not created"
+                }
+              } catch {
+                Write-Host "Method 2 failed: $_"
+
+                # Method 3: Absolute minimal JSON
+                try {
+                  Write-Host "Trying Method 3: Absolute minimal JSON..."
+                  Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8 -ErrorAction Stop
+
+                  if (Test-Path "package-lock.json") {
+                    $fileInfo = Get-Item "package-lock.json"
+                    Write-Host "Method 3: package-lock.json created with empty object ($($fileInfo.Length) bytes)"
+                  } else {
+                    throw "File not created"
+                  }
+                } catch {
+                  Write-Host "Method 3 failed: $_"
+                  Write-Host "CRITICAL ERROR: All methods to create package-lock.json failed"
+
+                  # Create the directory structure to ensure we can write to the path
+                  try {
+                    Write-Host "Ensuring directory exists and is writable..."
+                    $currentDir = Get-Location
+                    Write-Host "Current directory: $currentDir"
+                    $permissions = Get-Acl -Path $currentDir
+                    Write-Host "Directory permissions: $($permissions.AccessToString)"
+
+                    # Last resort - try writing to temp directory and copying
+                    $tempFile = [System.IO.Path]::GetTempFileName()
+                    Set-Content -Path $tempFile -Value "{}" -Encoding UTF8
+                    Copy-Item -Path $tempFile -Destination "package-lock.json" -Force
+                    Remove-Item -Path $tempFile -Force
+
+                    if (Test-Path "package-lock.json") {
+                      Write-Host "Last resort method succeeded!"
+                    } else {
+                      Write-Host "Last resort method failed. Cannot create package-lock.json."
+                    }
+                  } catch {
+                    Write-Host "Last resort failed: $_"
+                  }
+                }
+              }
+            }
+
+            # Verify the file was created
+            if (Test-Path "package-lock.json") {
+              Write-Host "Verification: package-lock.json exists and contains:"
+              Get-Content -Path "package-lock.json"
+            } else {
+              Write-Host "Verification FAILED: package-lock.json does not exist after all attempts"
             }
           }
 
@@ -127,13 +191,44 @@ jobs:
             Write-Host "package-lock.json not found!"
           }
 
-      # Initialize CodeQL
+      # Initialize CodeQL with simplified configuration
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
+          # Removed config-file parameter to avoid path resolution issues
+
+      # Verify CodeQL configuration files
+      - name: Verify CodeQL configuration files
+        shell: pwsh
+        run: |
+          Write-Host "Checking CodeQL configuration files..."
+
+          # Check security-os-config.yml
+          if (Test-Path ".github/codeql/security-os-config.yml") {
+            Write-Host "security-os-config.yml exists"
+            Get-Content -Path ".github/codeql/security-os-config.yml" -First 5
+          } else {
+            Write-Host "security-os-config.yml not found!"
+          }
+
+          # Check JavaScript security queries
+          if (Test-Path ".github/codeql/javascript-security-queries.qls") {
+            Write-Host "javascript-security-queries.qls exists"
+            Get-Content -Path ".github/codeql/javascript-security-queries.qls" -First 5
+          } else {
+            Write-Host "javascript-security-queries.qls not found!"
+          }
+
+          # Check Python security queries
+          if (Test-Path ".github/codeql/python-security-queries.qls") {
+            Write-Host "python-security-queries.qls exists"
+            Get-Content -Path ".github/codeql/python-security-queries.qls" -First 5
+          } else {
+            Write-Host "python-security-queries.qls not found!"
+          }
 
       # Verify CodeQL database creation
       - name: Verify CodeQL database

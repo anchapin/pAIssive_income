@@ -75,8 +75,8 @@ queries:
   # Include additional security queries
   - uses: security-extended
 
-  # Include Python-specific security queries
-  - uses: ./python-security-queries.qls
+  # Use standard security queries instead of custom ones to avoid Windows path issues
+  - uses: security
 
   # Exclude specific queries that might cause false positives
   - exclude:
