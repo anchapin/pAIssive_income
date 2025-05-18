@@ -150,6 +150,17 @@ ui/react_frontend/videos/
 ui/react_frontend/report/
 ui/react_frontend/reports/
 ui/react_frontend/test-artifacts/
+ui/react_frontend/enhanced-mock-path-to-regexp-marker.txt
+ui/react_frontend/enhanced-mock-path-to-regexp-success.txt
+ui/react_frontend/require-patched-marker.txt
+ui/react_frontend/ci-mode-active.txt
+ui/react_frontend/ci-path-to-regexp-status.txt
+test-results/
+enhanced-mock-path-to-regexp-marker.txt
+enhanced-mock-path-to-regexp-success.txt
+require-patched-marker.txt
+ci-mode-active.txt
+ci-path-to-regexp-status.txt
 var/
 venv.bak/
 venv/
