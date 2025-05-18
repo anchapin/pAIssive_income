@@ -82,30 +82,38 @@ jobs:
           restore-keys: |
             codeql-${{ matrix.language }}-ubuntu-
 
+      # Set up pnpm first
+      - name: Setup pnpm
+        if: matrix.language == 'javascript-typescript'
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
+          run_install: false
+
       # Set up Node.js for JavaScript/TypeScript analysis
       - name: Set up Node.js
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-
-      # Set up pnpm
-      - name: Setup pnpm
-        if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v4
-        with:
-          version: '8'
+          # Disable cache to avoid potential issues with pnpm
+          # cache: 'pnpm'
 
       # Add pnpm to PATH
       - name: Add pnpm to PATH
         if: matrix.language == 'javascript-typescript'
         shell: bash
         run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          # Add both global and local pnpm to PATH
+          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
+          # Verify pnpm is in PATH
           echo "Current PATH: $PATH"
-          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+          which pnpm || {
+            echo "pnpm not found in PATH. Installing globally with npm..."
+            npm install -g pnpm
+            echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
+            which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
+          }
 
       # Set up Python for Python analysis
       - name: Set up Python
@@ -138,17 +146,26 @@ jobs:
                 echo "pnpm install failed, trying with npm..."
                 npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
-                  cd "$original_dir"
+                  if [ -n "$dir" ]; then
+                    cd "$original_dir"
+                  fi
                   return 1
                 }
               }
             else
               # Fallback to npm if pnpm is not available
-              echo "pnpm not found, using npm to install dependencies..."
-              npm install || {
-                echo "npm installation failed in $(pwd)"
-                cd "$original_dir"
-                return 1
+              echo "pnpm not found, installing globally..."
+              npm install -g pnpm
+              echo "Using newly installed pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  if [ -n "$dir" ]; then
+                    cd "$original_dir"
+                  fi
+                  return 1
+                }
               }
             fi
 
