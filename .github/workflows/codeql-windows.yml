@@ -71,18 +71,10 @@ jobs:
             $jsonContent = ConvertTo-Json -Depth 10 $json
             Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
             Write-Host "Created minimal package-lock.json file"
-
-            # Verify the file was created
-            if (Test-Path "package-lock.json") {
-              Write-Host "Successfully created package-lock.json"
-              Get-Item "package-lock.json" | Format-List Name, Length, LastWriteTime
-            } else {
-              Write-Host "Failed to create package-lock.json"
-            }
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
-            $lockFiles | ForEach-Object {
-              Write-Host "  $($_.FullName)"
+            foreach ($file in $lockFiles) {
+              Write-Host "  $($file.FullName)"
             }
           }
 
