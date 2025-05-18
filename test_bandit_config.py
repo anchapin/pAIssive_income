@@ -202,15 +202,40 @@ def check_venv_exists() -> bool:
         bool: True if running in a virtual environment, False otherwise
 
     """
-    # This should not raise exceptions, but we'll be defensive just in case
-    return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
+    try:
+        # Method 1: Check for sys.real_prefix (set by virtualenv)
+        if hasattr(sys, "real_prefix"):
+            return True
+
+        # Method 2: Check for sys.base_prefix != sys.prefix (set by venv)
+        if hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix:
+            return True
+
+        # Method 3: Check for VIRTUAL_ENV environment variable
+        if os.environ.get("VIRTUAL_ENV"):
+            return True
+
+        # Method 4: Check for common virtual environment directories
+        for venv_dir in [".venv", "venv", "env", ".env"]:
+            if os.path.isdir(venv_dir) and os.path.isfile(os.path.join(venv_dir, "pyvenv.cfg")):
+                return True
+
+        # Not in a virtual environment
+        return False
+    except Exception as e:
+        # If any error occurs, log it but assume we're not in a virtual environment
+        logger.warning("Error checking for virtual environment: %s", e)
+        return False
 
 
 if __name__ == "__main__":
-    # Check if we're running in a virtual environment
-    if not check_venv_exists():
-        logger.warning("Not running in a virtual environment. This may cause issues.")
-        logger.info("Continuing anyway, but consider running in a virtual environment.")
+    # Skip virtual environment check entirely
+    logger.info("Skipping virtual environment check")
+
+    # Set CI environment variable if running in GitHub Actions
+    if os.environ.get("GITHUB_ACTIONS"):
+        os.environ["CI"] = "1"
+        logger.info("GitHub Actions environment detected")
 
     # Create empty JSON files first as a fallback
     create_empty_json_files()
