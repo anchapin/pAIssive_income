@@ -1,3 +1,4 @@
+# --- Builder Stage ---
 FROM --platform=$BUILDPLATFORM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
 WORKDIR /app
@@ -12,7 +13,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=run_ui.py \
     FLASK_ENV=production \
     CI=$CI
-# Install system dependencies
+
+# System dependencies (build only)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        build-essential \
@@ -23,7 +25,6 @@ RUN apt-get update \
        postgresql-client \
        libffi-dev \
        python3-dev \
-       docker-compose \
        net-tools \
        netcat-openbsd \
        procps \
@@ -38,74 +39,81 @@ COPY requirements-dev.txt .
 COPY requirements-ci.txt .
 COPY ai_models/requirements.txt ai_models_requirements.txt
 
-# Choose requirements file based on environment
+# Select requirements file based on environment
 RUN if [ "$CI" = "true" ]; then \
-      echo "Using minimal requirements for CI environment" && \
       cp requirements-ci.txt requirements.txt; \
     else \
-      echo "Using full requirements for non-CI environment" && \
       cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
     fi
 
 # Set up virtual environment and install dependencies
 RUN uv venv /app/.venv \
     && . /app/.venv/bin/activate \
-    # Clone and install MCP SDK first
     && git clone --depth 1 https://github.com/modelcontextprotocol/python-sdk.git /tmp/mcp-sdk \
     && cd /tmp/mcp-sdk \
     && uv pip install -e . \
     && cd /app \
     && rm -rf /tmp/mcp-sdk \
-    # Then install other requirements
     && uv pip install --no-cache -r requirements.txt --python /app/.venv/bin/python \
-    # Install additional packages that might be needed
     && uv pip install psycopg2-binary gunicorn
 
-# Set up PATH and PYTHONPATH
-ENV PATH="/app/.venv/bin:$PATH"
-ENV VIRTUAL_ENV="/app/.venv"
+# Copy application code (permissions are not preserved into distroless)
+COPY . .
 
-# Create necessary directories with proper permissions
+# Prepare runtime directories and log files
 RUN mkdir -p /app/logs /app/data && \
-    # Add a non-root user (using Debian commands)
-    groupadd --system appgroup && \
-    useradd --system --no-create-home --gid appgroup appuser && \
-    # Set ownership, permissions, and create log files in one step
-    chown -R root:appgroup /app/logs /app/data && \
-    chmod 2777 /app/logs /app/data && \
-    touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log && \
-    chmod 666 /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log
+    touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log
 
-# Copy application code
-COPY --chown=root:appgroup . .
+# Ensure scripts are executable and have unix line endings
+RUN chmod +x /app/docker-healthcheck.sh /app/wait-for-db.sh && \
+    sed -i 's/\r$//' /app/docker-healthcheck.sh && \
+    sed -i 's/\r$//' /app/wait-for-db.sh
 
-# Copy health check script and wait-for-db script (and fix permissions)
-COPY docker-healthcheck.sh /usr/local/bin/
-COPY wait-for-db.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
-    sed -i 's/\r$//' /usr/local/bin/docker-healthcheck.sh && \
-    sed -i 's/\r$//' /usr/local/bin/wait-for-db.sh
+# --- Runtime Stage: Distroless Python ---
+FROM gcr.io/distroless/python3-debian11 AS runtime
 
-# Verify scripts are executable
-RUN ls -la /usr/local/bin/docker-healthcheck.sh /usr/local/bin/wait-for-db.sh && \
-    # Verify Python can import Flask (using the virtual environment)
-    python -c "import flask; print(f'Flask version: {flask.__version__}')" && \
-    # Verify the run_ui.py file exists and is readable
-    ls -la /app/run_ui.py && \
-    # Verify the init_db.py file exists and is readable
-    ls -la /app/init_db.py
+WORKDIR /app
 
-# Set default platform values
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
+# Copy virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
 
-# Health check with increased start period and retries
+# Copy only production application code and assets.
+# DO NOT copy the entire /app to avoid including dev artefacts, .git, or test files.
+# Adjust this list as needed for your project structure.
+COPY --from=builder /app/api /app/api
+COPY --from=builder /app/ai_models /app/ai_models
+COPY --from=builder /app/niche_analysis /app/niche_analysis
+COPY --from=builder /app/monetization /app/monetization
+COPY --from=builder /app/marketing /app/marketing
+COPY --from=builder /app/users /app/users
+COPY --from=builder /app/common_utils /app/common_utils
+COPY --from=builder /app/run_ui.py /app/run_ui.py
+COPY --from=builder /app/init_db.py /app/init_db.py
+COPY --from=builder /app/main.py /app/main.py
+COPY --from=builder /app/docker-healthcheck.sh /app/docker-healthcheck.sh
+COPY --from=builder /app/wait-for-db.sh /app/wait-for-db.sh
+
+# If you need additional files (e.g., config, static assets), add them above.
+# Ensure .dockerignore excludes dev/test files, .git, and other artefacts.
+
+# Environment variables (runtime)
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    FLASK_APP=run_ui.py \
+    FLASK_ENV=production \
+    PATH="/app/.venv/bin:$PATH" \
+    VIRTUAL_ENV="/app/.venv"
+
+# Health check (distroless does not include shell, use python)
 HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
-  CMD ["/usr/local/bin/docker-healthcheck.sh"]
+  CMD ["/app/.venv/bin/python", "/app/docker-healthcheck.sh"]
 
-# Switch to non-root user for security
-USER appuser
+# Expose port (if needed, e.g., 5000 for Flask)
+EXPOSE 5000
 
-# Command to run the application
-CMD ["python", "run_ui.py"]
+# Use a non-root user (distroless default is non-root user)
+# If you want to specify UID/GID, add: USER 65532
+
+# Entrypoint (ensure this uses the venv python)
+CMD ["/app/.venv/bin/python", "/app/run_ui.py"]
