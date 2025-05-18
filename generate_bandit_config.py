@@ -16,7 +16,7 @@ import os
 import sys
 from pathlib import Path
 
-# Configure logging
+# Configure logging with timestamp
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
