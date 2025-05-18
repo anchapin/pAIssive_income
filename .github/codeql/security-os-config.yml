@@ -100,10 +100,6 @@ queries:
   # Include additional security queries
   - uses: security-extended
 
-  # Include language-specific security queries
-  - uses: ./javascript-security-queries.qls
-  - uses: ./python-security-queries.qls
-
   # Exclude specific queries that might cause false positives
   - exclude:
       id: js/unused-local-variable
