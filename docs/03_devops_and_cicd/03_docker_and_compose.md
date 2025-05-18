@@ -34,6 +34,15 @@ docker compose build
 docker compose up
 ```
 
+#### ⚠️ Best Practice: Keep the Runtime Image Slim
+
+- **Do NOT copy the entire build context into the runtime image.**  
+  Instead, copy only application code, dependencies, and config needed to run the app.
+- Use a strict `.dockerignore` to exclude:
+  - `.git`, test directories, docs, dev scripts, local configs, and any secrets.
+  - Dev requirements files (`requirements-dev.txt`, etc.)
+- The sample Dockerfile may use `COPY --from=builder /app /app` for clarity, but you should refine this to include only what is strictly necessary (e.g., `/app/api`, `/app/ai_models`, `/app/.venv`, etc.), and update `.dockerignore` accordingly.
+
 ### Troubleshooting
 
 - If you see errors like `sh: not found` or `/bin/sh: no such file or directory`, make sure:
