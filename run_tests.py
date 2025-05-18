@@ -14,7 +14,7 @@ import os.path  # Used for os.path.normpath and os.sep
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
-from typing import Dict, List, Sequence
+from typing import Sequence
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -29,7 +29,7 @@ MAX_WORKERS = 12
 THRESHOLD = 2 * MAX_WORKERS
 
 
-def get_sanitized_env() -> Dict[str, str]:
+def get_sanitized_env() -> dict[str, str]:
     """
     Create a sanitized copy of the environment variables.
 
@@ -37,7 +37,7 @@ def get_sanitized_env() -> Dict[str, str]:
     for command injection or other security issues.
 
     Returns:
-        Dict[str, str]: Sanitized environment variables
+        dict[str, str]: Sanitized environment variables
 
     """
     # Create a copy of the current environment
@@ -52,7 +52,7 @@ def get_sanitized_env() -> Dict[str, str]:
     return safe_env
 
 
-def validate_args(args: Sequence[str]) -> List[str]:
+def validate_args(args: Sequence[str]) -> list[str]:
     """
     Validate command line arguments to ensure they are safe.
 
@@ -60,7 +60,7 @@ def validate_args(args: Sequence[str]) -> List[str]:
         args: Command line arguments to validate
 
     Returns:
-        List[str]: Validated arguments
+        list[str]: Validated arguments
 
     """
     # Only allow known pytest arguments and paths
@@ -80,7 +80,8 @@ def validate_args(args: Sequence[str]) -> List[str]:
             # For paths or other arguments, ensure they don't contain shell metacharacters
             # Additional check for path traversal attempts
             normalized_path = os.path.normpath(arg)
-            if not normalized_path.startswith("..") and ".." not in normalized_path.split(os.sep):
+            path_obj = Path(normalized_path)
+            if not normalized_path.startswith("..") and ".." not in path_obj.parts:
                 validated_args.append(arg)
             else:
                 logger.warning("Skipping path with directory traversal: %s", arg)
@@ -134,13 +135,14 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
             test_count = 1
 
         logger.debug("Collected %d tests", test_count)
-        return test_count
     except subprocess.TimeoutExpired:
         logger.warning("Test collection timed out after 5 minutes. Falling back to single worker.")
         return 1
     except subprocess.CalledProcessError:
         logger.warning("Error collecting tests. Falling back to single worker.")
         return 1
+    else:
+        return test_count
 
 
 def ensure_security_reports_dir() -> None:
@@ -154,7 +156,7 @@ def ensure_security_reports_dir() -> None:
         try:
             reports_dir.mkdir(parents=True, exist_ok=True)
             logger.info("Created security-reports directory")
-        except Exception as e:
+        except (PermissionError, OSError) as e:
             logger.warning("Failed to create security-reports directory: %s", e)
 
 
@@ -166,11 +168,8 @@ def check_venv_exists() -> bool:
         bool: True if running in a virtual environment, False otherwise
 
     """
-    try:
-        return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
-    except Exception:
-        # If there's any error checking for virtual environment, assume we're not in one
-        return False
+    # This should not raise exceptions, but we'll be defensive just in case
+    return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
 
 
 def main() -> None:
@@ -185,12 +184,8 @@ def main() -> None:
     ensure_security_reports_dir()
 
     # Check if we're running in a virtual environment
-    try:
-        if not check_venv_exists():
-            logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
-            logger.info("Continuing anyway, but consider running in a virtual environment.")
-    except Exception as e:
-        logger.warning("Error checking for virtual environment: %s", e)
+    if not check_venv_exists():
+        logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
         logger.info("Continuing anyway, but consider running in a virtual environment.")
 
     try:
