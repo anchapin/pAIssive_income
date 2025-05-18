@@ -1,35 +1,36 @@
 # Bandit Configuration Template
 # This configuration is used by GitHub Advanced Security for Bandit scanning
+# This is a template file that can be copied and customized for specific runs
 
 # Exclude directories from security scans
 exclude_dirs:
   # Test directories
   - tests
-
+  
   # Virtual environments
   - venv
   - .venv
   - env
   - .env
-
+  
   # Cache directories
   - __pycache__
   - .pytest_cache
   - .mypy_cache
   - .ruff_cache
-
+  
   # Custom stubs and dependencies
   - custom_stubs
   - node_modules
-
+  
   # Build artifacts
   - build
   - dist
-
+  
   # Documentation
   - docs
   - docs_source
-
+  
   # Tools and utilities
   - junit
   - bin
@@ -48,7 +49,8 @@ skips:
 output_format: sarif
 
 # Output file for GitHub Advanced Security
-output_file: security-reports/bandit-results.sarif
+# The {test_run_id} placeholder will be replaced with a unique ID for each run
+output_file: security-reports/bandit-results-{test_run_id}.sarif
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
