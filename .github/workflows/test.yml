@@ -101,7 +101,7 @@ jobs:
           source .venv/bin/activate
 
           # Run tests with pytest
-          # Use the coverage threshold from pytest.ini
+          # Use the coverage threshold of 80%
           pytest ${{ inputs.test-path }} \
             -n auto \
             -v \
@@ -109,6 +109,7 @@ jobs:
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
+            --cov-fail-under=80 \
             --junitxml=junit/test-results.xml
 
       - name: Upload test results
