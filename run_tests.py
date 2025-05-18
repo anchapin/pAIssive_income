@@ -12,7 +12,7 @@ import os
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import shlex
-from typing import List, Sequence
+from typing import List, Sequence, Dict, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -25,6 +25,28 @@ logger = logging.getLogger(__name__)
 MAX_WORKERS = 12
 # Threshold: if test count > threshold, use MAX_WORKERS, else use 1
 THRESHOLD = 2 * MAX_WORKERS
+
+
+def get_sanitized_env() -> Dict[str, str]:
+    """
+    Create a sanitized copy of the environment variables.
+
+    Removes potentially dangerous environment variables that could be used
+    for command injection or other security issues.
+
+    Returns:
+        Dict[str, str]: Sanitized environment variables
+    """
+    # Create a copy of the current environment
+    safe_env = os.environ.copy()
+
+    # Remove potentially dangerous environment variables
+    dangerous_prefixes = ['PYTEST_', 'PYTHON_', 'PATH_', 'LD_', 'DYLD_']
+    for key in list(safe_env.keys()):
+        if any(key.startswith(prefix) for prefix in dangerous_prefixes):
+            safe_env.pop(key, None)
+
+    return safe_env
 
 
 def validate_args(args: Sequence[str]) -> List[str]:
@@ -85,13 +107,17 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
         # Capture output of pytest collection
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # ruff: noqa: S603
+        # Get a sanitized environment
+        safe_env = get_sanitized_env()
+
         output = subprocess.check_output(  # nosec B603
             cmd,
             stderr=subprocess.DEVNULL,
             text=True,  # Use text instead of universal_newlines for newer Python
             shell=False,  # Explicitly set shell=False for security
             cwd=os.getcwd(),  # Explicitly set working directory
-            timeout=300  # Set a timeout of 5 minutes for test collection
+            timeout=300,  # Set a timeout of 5 minutes for test collection
+            env=safe_env  # Use sanitized environment
         )
         # Count the number of collected tests by looking for lines that contain
         # a path followed by "::" which indicates a test
@@ -142,11 +168,15 @@ def main() -> None:
         # Run pytest with the chosen number of workers
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # ruff: noqa: S603
+
+        # Get a sanitized environment
+        safe_env = get_sanitized_env()
+
         result = subprocess.run(  # nosec B603
             pytest_cmd,
             check=False,
             shell=False,  # Explicitly set shell=False for security
-            env=None,  # Use current environment, don't allow environment injection
+            env=safe_env,  # Use sanitized environment
             cwd=os.getcwd(),  # Explicitly set working directory
             timeout=3600,  # Set a timeout of 1 hour to prevent hanging
             text=True  # Use text mode for better error handling
