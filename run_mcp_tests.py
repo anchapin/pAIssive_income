@@ -84,7 +84,9 @@ def _get_test_script_path() -> tuple[Path, bool]:
     # Check if the script exists
     if not script_path.exists():
         # Try alternative path with backslashes for Windows
-        script_path = Path(__file__).parent / "scripts\\run\\run_mcp_tests.py"
+        script_path = Path(__file__).parent.joinpath(
+            "scripts", "run", "run_mcp_tests.py"
+        )
         if not script_path.exists():
             logger.error("Script not found at %s", script_path)
             return script_path, False
@@ -94,8 +96,8 @@ def _get_test_script_path() -> tuple[Path, bool]:
     abs_script_path = script_path.resolve()
 
     # Try both forward slash and backslash paths for Windows compatibility
-    expected_dir1 = (Path(__file__).parent / "scripts" / "run").resolve()
-    expected_dir2 = (Path(__file__).parent / "scripts\\run").resolve()
+    expected_dir1 = Path(__file__).parent.joinpath("scripts", "run").resolve()
+    expected_dir2 = Path(__file__).parent.joinpath("scripts", "run").resolve()
 
     logger.info("Absolute script path: %s", abs_script_path)
     logger.info("Expected directory 1: %s", expected_dir1)
