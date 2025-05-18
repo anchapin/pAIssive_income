@@ -263,9 +263,9 @@ jobs:
             echo "Creating mock path-to-regexp implementation..."
             $COMPOSE_CMD exec -T frontend sh -c "mkdir -p node_modules/path-to-regexp && echo 'module.exports = function() { return /.*/ }; module.exports.parse = function() { return [] }; module.exports.compile = function() { return function() { return \"\"; } }; module.exports.tokensToRegexp = function() { return /.*/ }; module.exports.tokensToFunction = function() { return function() { return \"\"; } };' > node_modules/path-to-regexp/index.js && echo '{\"name\":\"path-to-regexp\",\"version\":\"0.0.0\",\"main\":\"index.js\"}' > node_modules/path-to-regexp/package.json"
 
-            # Try to run the enhanced mock path-to-regexp script
-            echo "Running enhanced mock path-to-regexp script..."
-            $COMPOSE_CMD exec -T frontend sh -c "node tests/enhanced_mock_path_to_regexp.js || node tests/mock_path_to_regexp.js || echo 'Using fallback mock implementation'"
+            # Try to run the enhanced mock path-to-regexp script with improved conditional execution
+            echo "Running enhanced mock path-to-regexp script with improved conditional execution..."
+            $COMPOSE_CMD exec -T frontend sh -c "if [ -f tests/enhanced_mock_path_to_regexp.js ]; then node tests/enhanced_mock_path_to_regexp.js || echo 'Enhanced mock script failed, falling back...'; fi && if [ -f tests/mock_path_to_regexp.js ]; then node tests/mock_path_to_regexp.js || echo 'Mock script failed, using fallback implementation'; else echo 'Mock script not found, using fallback implementation'; fi"
 
             # Verify our mock implementation works
             echo "Verifying mock implementation..."
