@@ -7,6 +7,7 @@
 
 # Use standard security queries from CodeQL
 # Using standard query suites to avoid Windows path issues
-- uses: security
-- uses: security-and-quality
+# Order matters - most specific first
 - uses: security-extended
+- uses: security-and-quality
+- uses: security

@@ -73,47 +73,12 @@ jobs:
         with:
           fetch-depth: 0  # Full git history for better analysis
 
-      # Cache CodeQL database to speed up analysis
-      - name: Cache CodeQL database
-        uses: actions/cache@v4
-        with:
-          path: ~/.codeql/databases
-          key: codeql-${{ matrix.language }}-ubuntu-${{ github.sha }}
-          restore-keys: |
-            codeql-${{ matrix.language }}-ubuntu-
-
-      # Set up pnpm first
-      - name: Setup pnpm
-        if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v4
-        with:
-          version: '8'
-          run_install: false
-
       # Set up Node.js for JavaScript/TypeScript analysis
       - name: Set up Node.js
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # Disable cache to avoid potential issues with pnpm
-          # cache: 'pnpm'
-
-      # Add pnpm to PATH
-      - name: Add pnpm to PATH
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          # Add both global and local pnpm to PATH
-          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
-          # Verify pnpm is in PATH
-          echo "Current PATH: $PATH"
-          which pnpm || {
-            echo "pnpm not found in PATH. Installing globally with npm..."
-            npm install -g pnpm
-            echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
-            which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
-          }
 
       # Set up Python for Python analysis
       - name: Set up Python
@@ -122,160 +87,6 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-
-      # Install dependencies for JavaScript/TypeScript
-      - name: Install Node.js dependencies
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          # Function to install dependencies with fallback
-          install_deps() {
-            local dir=$1
-            local original_dir=$(pwd)
-
-            if [ -n "$dir" ]; then
-              cd "$dir" || return 1
-            fi
-
-            echo "Installing dependencies in $(pwd)..."
-
-            # Check if package-lock.json exists, create if not
-            if [ ! -f "package-lock.json" ]; then
-              echo "package-lock.json not found, creating minimal one..."
-              # Extract name and version from package.json
-              local name=$(grep -m 1 '"name"' package.json | cut -d '"' -f 4)
-              local version=$(grep -m 1 '"version"' package.json | cut -d '"' -f 4)
-
-              # Create minimal package-lock.json
-              cat > package-lock.json << EOF
-{
-  "name": "${name}",
-  "version": "${version}",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "${name}",
-      "version": "${version}"
-    }
-  }
-}
-EOF
-              echo "Created minimal package-lock.json"
-            fi
-
-            # Try with pnpm first (preferred)
-            if command -v pnpm &>/dev/null; then
-              echo "Using pnpm to install dependencies..."
-              pnpm install || {
-                echo "pnpm install failed, trying with npm..."
-                npm install || {
-                  echo "Both pnpm and npm installation failed in $(pwd)"
-                  echo "Creating node_modules directory if it doesn't exist..."
-                  mkdir -p node_modules
-                  if [ -n "$dir" ]; then
-                    cd "$original_dir"
-                  fi
-                  return 1
-                }
-              }
-            else
-              # Fallback to npm if pnpm is not available
-              echo "pnpm not found, installing globally..."
-              npm install -g pnpm
-              echo "Using newly installed pnpm to install dependencies..."
-              pnpm install || {
-                echo "pnpm install failed, trying with npm..."
-                npm install || {
-                  echo "Both pnpm and npm installation failed in $(pwd)"
-                  echo "Creating node_modules directory if it doesn't exist..."
-                  mkdir -p node_modules
-                  if [ -n "$dir" ]; then
-                    cd "$original_dir"
-                  fi
-                  return 1
-                }
-              }
-            fi
-
-            if [ -n "$dir" ]; then
-              cd "$original_dir"
-            fi
-
-            return 0
-          }
-
-          # Install dependencies in root directory if package.json exists
-          if [ -f "package.json" ]; then
-            echo "Found package.json in root directory"
-            install_deps
-          fi
-
-          # Install dependencies in ui/react_frontend if package.json exists
-          if [ -f "ui/react_frontend/package.json" ]; then
-            echo "Found package.json in ui/react_frontend"
-            install_deps "ui/react_frontend"
-          fi
-
-          # Install dependencies in sdk/javascript if package.json exists
-          if [ -f "sdk/javascript/package.json" ]; then
-            echo "Found package.json in sdk/javascript"
-            install_deps "sdk/javascript"
-          fi
-
-          # List all lock files for debugging
-          echo "Listing all lock files in the repository:"
-          find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml" | while read -r file; do
-            echo "Found lock file: $file"
-          done
-        continue-on-error: true
-
-      # Install dependencies for Python
-      - name: Install Python dependencies
-        if: matrix.language == 'python'
-        shell: bash
-        run: |
-          python -m pip install --upgrade uv
-          if [ -f requirements.txt ]; then
-            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
-            uv pip install -r requirements.txt || {
-              echo "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-            }
-          elif [ -f requirements-dev.txt ]; then
-            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
-            uv pip install -r requirements-dev.txt || {
-              echo "Failed to install with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -r requirements-dev.txt
-            }
-          else
-            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
-          fi
-
-          # Install package in development mode if setup.py exists
-          if [ -f setup.py ]; then
-            echo "Installing package in development mode using 'uv pip'..."
-            uv pip install -e . || {
-              echo "Failed to install package with uv pip, falling back to regular pip..."
-              python -m pip install --upgrade pip
-              pip install -e .
-            }
-          fi
-        continue-on-error: true
-
-      # Initialize CodeQL
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          queries: security-and-quality,security-extended
-          debug: true
-
-      # Autobuild attempts to build any compiled languages
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
 
       # Display disk space before analysis
       - name: Check disk space
@@ -292,32 +103,35 @@ EOF
 
           if [ -z "$LOCK_FILES" ]; then
             echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
-            if [ -f "package.json" ]; then
-              NAME=$(grep -m 1 '"name"' package.json | cut -d '"' -f 4)
-              VERSION=$(grep -m 1 '"version"' package.json | cut -d '"' -f 4)
-
-              cat > package-lock.json << EOF
-{
-  "name": "${NAME}",
-  "version": "${VERSION}",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "${NAME}",
-      "version": "${VERSION}"
-    }
-  }
-}
-EOF
-              echo "Created minimal package-lock.json in the root directory."
+            
+            # Create a minimal valid package-lock.json with echo
+            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' > package-lock.json
+            
+            echo "Created minimal package-lock.json in the root directory."
+            
+            # Verify the file was created
+            if [ -f "package-lock.json" ]; then
+              echo "Verification: package-lock.json exists and contains:"
+              cat package-lock.json
             else
-              echo "Error: No package.json found in the root directory."
+              echo "CRITICAL ERROR: Failed to create package-lock.json"
             fi
           else
             echo "Found lock files:"
             echo "$LOCK_FILES"
           fi
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          debug: true
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

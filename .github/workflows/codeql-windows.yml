@@ -59,89 +59,48 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Method 1: Direct string approach (most reliable)
+            # Create a simple valid package-lock.json file
             try {
-              $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
-              Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8 -ErrorAction Stop
+              # Create a minimal valid package-lock.json
+              $minimalJson = @{
+                name = "paissive-income"
+                version = "1.0.0"
+                lockfileVersion = 3
+              } | ConvertTo-Json -Compress
+
+              Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
-                Write-Host "Method 1: package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
                 Get-Content -Path "package-lock.json"
               } else {
-                throw "File not created"
+                throw "Failed to create package-lock.json"
               }
             } catch {
-              Write-Host "Method 1 failed: $_"
+              Write-Host "Error creating package-lock.json: $_"
 
-              # Method 2: PowerShell object conversion
+              # Fallback to simplest possible JSON
               try {
-                Write-Host "Trying Method 2: PowerShell object conversion..."
-                $jsonObject = @{
-                  name = "paissive-income"
-                  version = "1.0.0"
-                  lockfileVersion = 3
-                }
-                $jsonContent = ConvertTo-Json -InputObject $jsonObject -Depth 1 -Compress
-                Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8 -ErrorAction Stop
+                Write-Host "Trying fallback method with minimal JSON..."
+                Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
 
                 if (Test-Path "package-lock.json") {
-                  $fileInfo = Get-Item "package-lock.json"
-                  Write-Host "Method 2: package-lock.json created successfully ($($fileInfo.Length) bytes)"
-                  Get-Content -Path "package-lock.json"
+                  Write-Host "Created minimal package-lock.json with empty object"
                 } else {
-                  throw "File not created"
+                  Write-Host "Failed to create package-lock.json with fallback method"
                 }
               } catch {
-                Write-Host "Method 2 failed: $_"
-
-                # Method 3: Absolute minimal JSON
-                try {
-                  Write-Host "Trying Method 3: Absolute minimal JSON..."
-                  Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8 -ErrorAction Stop
-
-                  if (Test-Path "package-lock.json") {
-                    $fileInfo = Get-Item "package-lock.json"
-                    Write-Host "Method 3: package-lock.json created with empty object ($($fileInfo.Length) bytes)"
-                  } else {
-                    throw "File not created"
-                  }
-                } catch {
-                  Write-Host "Method 3 failed: $_"
-                  Write-Host "CRITICAL ERROR: All methods to create package-lock.json failed"
-
-                  # Create the directory structure to ensure we can write to the path
-                  try {
-                    Write-Host "Ensuring directory exists and is writable..."
-                    $currentDir = Get-Location
-                    Write-Host "Current directory: $currentDir"
-                    $permissions = Get-Acl -Path $currentDir
-                    Write-Host "Directory permissions: $($permissions.AccessToString)"
-
-                    # Last resort - try writing to temp directory and copying
-                    $tempFile = [System.IO.Path]::GetTempFileName()
-                    Set-Content -Path $tempFile -Value "{}" -Encoding UTF8
-                    Copy-Item -Path $tempFile -Destination "package-lock.json" -Force
-                    Remove-Item -Path $tempFile -Force
-
-                    if (Test-Path "package-lock.json") {
-                      Write-Host "Last resort method succeeded!"
-                    } else {
-                      Write-Host "Last resort method failed. Cannot create package-lock.json."
-                    }
-                  } catch {
-                    Write-Host "Last resort failed: $_"
-                  }
-                }
+                Write-Host "Fallback method failed: $_"
               }
             }
 
-            # Verify the file was created
+            # Final verification
             if (Test-Path "package-lock.json") {
               Write-Host "Verification: package-lock.json exists and contains:"
               Get-Content -Path "package-lock.json"
             } else {
-              Write-Host "Verification FAILED: package-lock.json does not exist after all attempts"
+              Write-Host "CRITICAL ERROR: Failed to create package-lock.json after all attempts"
             }
           }
 
@@ -198,48 +157,41 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
-          # Removed config-file parameter to avoid path resolution issues
 
-      # Verify CodeQL configuration files
-      - name: Verify CodeQL configuration files
+      # Verify environment before CodeQL analysis
+      - name: Verify environment
         shell: pwsh
         run: |
-          Write-Host "Checking CodeQL configuration files..."
+          Write-Host "Verifying environment before CodeQL analysis..."
 
-          # Check security-os-config.yml
-          if (Test-Path ".github/codeql/security-os-config.yml") {
-            Write-Host "security-os-config.yml exists"
-            Get-Content -Path ".github/codeql/security-os-config.yml" -First 5
+          # Check for package-lock.json
+          if (Test-Path "package-lock.json") {
+            $fileInfo = Get-Item "package-lock.json"
+            Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
           } else {
-            Write-Host "security-os-config.yml not found!"
+            Write-Host "WARNING: package-lock.json not found!"
           }
 
-          # Check JavaScript security queries
-          if (Test-Path ".github/codeql/javascript-security-queries.qls") {
-            Write-Host "javascript-security-queries.qls exists"
-            Get-Content -Path ".github/codeql/javascript-security-queries.qls" -First 5
+          # Check for node_modules directory
+          if (Test-Path "node_modules") {
+            Write-Host "node_modules directory exists"
           } else {
-            Write-Host "javascript-security-queries.qls not found!"
+            Write-Host "WARNING: node_modules directory not found!"
           }
 
-          # Check Python security queries
-          if (Test-Path ".github/codeql/python-security-queries.qls") {
-            Write-Host "python-security-queries.qls exists"
-            Get-Content -Path ".github/codeql/python-security-queries.qls" -First 5
-          } else {
-            Write-Host "python-security-queries.qls not found!"
-          }
+          # Check for CodeQL configuration files
+          $configFiles = @(
+            ".github/codeql/security-os-config.yml",
+            ".github/codeql/javascript-security-queries.qls",
+            ".github/codeql/python-security-queries.qls"
+          )
 
-      # Verify CodeQL database creation
-      - name: Verify CodeQL database
-        shell: pwsh
-        run: |
-          Write-Host "Checking for CodeQL database..."
-          if (Test-Path "$env:RUNNER_TEMP/codeql_databases") {
-            Write-Host "CodeQL databases directory exists:"
-            Get-ChildItem -Path "$env:RUNNER_TEMP/codeql_databases" -Recurse | Select-Object -First 10 | Format-Table FullName, Length
-          } else {
-            Write-Host "CodeQL databases directory not found!"
+          foreach ($file in $configFiles) {
+            if (Test-Path $file) {
+              Write-Host "$file exists"
+            } else {
+              Write-Host "NOTE: $file not found, but this is OK as we're using standard queries"
+            }
           }
 
       # Perform CodeQL Analysis

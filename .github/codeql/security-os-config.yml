@@ -96,9 +96,10 @@ paths-ignore:
 # Query filters
 queries:
   # Use standard security queries to avoid Windows path issues
-  - uses: security
-  - uses: security-and-quality
+  # Order matters - most specific first
   - uses: security-extended
+  - uses: security-and-quality
+  - uses: security
 
 # Disable noisy alerts
 disable-default-queries: false
