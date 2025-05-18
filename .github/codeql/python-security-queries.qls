@@ -7,4 +7,7 @@
 - queries: security
 
 # Use standard security queries
-- uses: security
+- uses: security-and-quality
+
+# Include additional security queries
+- uses: security-extended
