@@ -59,79 +59,56 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Define the minimal valid JSON content
-            $minimalJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+            # Define a simple valid JSON content
+            $minimalJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
 
-            # Method 1: System.IO.File
+            # Create the file using multiple methods in sequence until one works
+            $filePath = Join-Path -Path $PWD -ChildPath "package-lock.json"
+            $fileCreated = $false
+
+            # Try all methods in sequence
             try {
-              Write-Host "Attempting to create package-lock.json using System.IO.File..."
-              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $minimalJson)
-
-              if (Test-Path "package-lock.json") {
-                $fileInfo = Get-Item "package-lock.json"
-                Write-Host "package-lock.json created successfully using System.IO.File ($($fileInfo.Length) bytes)"
-                Get-Content -Path "package-lock.json"
-              } else {
-                throw "Failed to create package-lock.json using System.IO.File"
-              }
+              Write-Host "Attempting to create package-lock.json using Set-Content..."
+              Set-Content -Path $filePath -Value $minimalJson -Force
+              $fileCreated = $true
+              Write-Host "package-lock.json created successfully"
             } catch {
-              Write-Host "Error creating package-lock.json with System.IO.File: $_"
+              Write-Host "Error creating package-lock.json with Set-Content: $_"
 
-              # Method 2: Out-File
               try {
-                Write-Host "Trying fallback method with Out-File..."
-                $minimalJson | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
-
-                if (Test-Path "package-lock.json") {
-                  $fileInfo = Get-Item "package-lock.json"
-                  Write-Host "Created package-lock.json with Out-File method ($($fileInfo.Length) bytes)"
-                  Get-Content -Path "package-lock.json"
-                } else {
-                  throw "Failed to create package-lock.json with Out-File"
-                }
+                Write-Host "Trying fallback with Out-File..."
+                $minimalJson | Out-File -FilePath $filePath -Force
+                $fileCreated = $true
+                Write-Host "package-lock.json created with Out-File method"
               } catch {
                 Write-Host "Error with Out-File method: $_"
 
-                # Method 3: Set-Content
                 try {
-                  Write-Host "Trying final fallback with Set-Content..."
-                  Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8 -Force
-
-                  if (Test-Path "package-lock.json") {
-                    $fileInfo = Get-Item "package-lock.json"
-                    Write-Host "Created package-lock.json with Set-Content method ($($fileInfo.Length) bytes)"
-                    Get-Content -Path "package-lock.json"
-                  } else {
-                    Write-Host "All methods failed to create package-lock.json"
-                  }
+                  Write-Host "Trying fallback with CMD..."
+                  cmd /c "echo $minimalJson > package-lock.json"
+                  $fileCreated = $true
+                  Write-Host "package-lock.json created with CMD method"
                 } catch {
-                  Write-Host "All methods failed to create package-lock.json: $_"
-
-                  # Last resort - echo to file
-                  try {
-                    Write-Host "Attempting last resort method - echo to file..."
-                    cmd /c "echo {\"name\":\"paissive-income\",\"version\":\"1.0.0\",\"lockfileVersion\":3} > package-lock.json"
-
-                    if (Test-Path "package-lock.json") {
-                      $fileInfo = Get-Item "package-lock.json"
-                      Write-Host "Created package-lock.json with echo method ($($fileInfo.Length) bytes)"
-                    } else {
-                      Write-Host "All file creation methods failed completely"
-                    }
-                  } catch {
-                    Write-Host "Echo method also failed: $_"
-                  }
+                  Write-Host "All file creation methods failed: $_"
                 }
               }
             }
 
-            # Add to .gitignore if it exists
-            if (Test-Path ".gitignore") {
-              $gitignore = Get-Content -Path ".gitignore" -Raw
-              if (-not ($gitignore -match "package-lock\.json")) {
-                Write-Host "Adding package-lock.json to .gitignore..."
-                Add-Content -Path ".gitignore" -Value "`n# Generated during CodeQL analysis`npackage-lock.json" -Force
+            # Verify the file was created
+            if (Test-Path $filePath) {
+              $fileInfo = Get-Item $filePath
+              Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
+
+              # Add to .gitignore if it exists
+              if (Test-Path ".gitignore") {
+                $gitignore = Get-Content -Path ".gitignore" -Raw
+                if (-not ($gitignore -match "package-lock\.json")) {
+                  Write-Host "Adding package-lock.json to .gitignore..."
+                  Add-Content -Path ".gitignore" -Value "`n# Generated during CodeQL analysis`npackage-lock.json" -Force
+                }
               }
+            } else {
+              Write-Host "CRITICAL ERROR: Failed to create package-lock.json with any method"
             }
           }
 
