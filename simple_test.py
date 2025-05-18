@@ -1,3 +1,9 @@
-def test_simple():
+"""Simple test module to verify pytest functionality."""
+
+EXPECTED_SUM = 2
+
+
+def test_simple() -> None:
     """A simple test to verify that pytest works."""
-    assert 1 + 1 == 2
+    # nosec B101 - This is a test file, assert is expected
+    assert 1 + 1 == EXPECTED_SUM  # nosec

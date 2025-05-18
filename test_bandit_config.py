@@ -29,13 +29,13 @@ def get_bandit_path() -> str:
     if not bandit_path:
         # If bandit is not in PATH, check in common locations
         common_paths = [
-            os.path.join(sys.prefix, "bin", "bandit"),
-            os.path.join(sys.prefix, "Scripts", "bandit.exe"),
-            os.path.join(os.path.expanduser("~"), ".local", "bin", "bandit"),
+            Path(sys.prefix) / "bin" / "bandit",
+            Path(sys.prefix) / "Scripts" / "bandit.exe",
+            Path.home() / ".local" / "bin" / "bandit",
         ]
         for path in common_paths:
-            if os.path.isfile(path) and os.access(path, os.X_OK):
-                return path
+            if path.is_file() and os.access(path, os.X_OK):
+                return str(path)
 
         # If still not found, default to just "bandit"
         # It will be installed later if needed
@@ -68,8 +68,10 @@ def ensure_security_reports_dir() -> None:
                 # Create a symlink or junction to the temp directory
                 if platform.system() == "Windows":
                     # Use directory junction on Windows
-                    subprocess.run(  # nosec B603 # noqa: S603
-                        ["cmd", "/c", f"mklink /J security-reports {temp_dir}"],
+                    # Use full path to cmd.exe to avoid security warning
+                    cmd_path = shutil.which("cmd.exe") or "cmd"
+                    subprocess.run(  # nosec B603
+                        [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
                         check=False,
                         shell=False,
                         capture_output=True
@@ -77,15 +79,17 @@ def ensure_security_reports_dir() -> None:
                 else:
                     # Use symlink on Unix
                     os.symlink(temp_dir, "security-reports")
-            except Exception as e2:
+            except (PermissionError, OSError, FileExistsError) as e2:
                 logger.warning("Failed to create security-reports directory in temp location: %s", e2)
 
 
 def create_empty_json_files() -> bool:
-    """Create empty JSON files as a fallback.
+    """
+    Create empty JSON files as a fallback.
 
     Returns:
         bool: True if files were created successfully, False otherwise
+
     """
     try:
         # Ensure the directory exists
@@ -117,70 +121,75 @@ def create_empty_json_files() -> bool:
         }
 
         # Create bandit-results.json
-        with open(os.path.join(reports_dir, "bandit-results.json"), "w") as f:
+        results_file = reports_dir / "bandit-results.json"
+        with results_file.open("w") as f:
             json.dump(empty_json_data, f)
-        logger.info("Created empty JSON file at %s", os.path.join(reports_dir, "bandit-results.json"))
+        logger.info("Created empty JSON file at %s", results_file)
 
         # Create bandit-results-ini.json
-        with open(os.path.join(reports_dir, "bandit-results-ini.json"), "w") as f:
+        results_ini_file = reports_dir / "bandit-results-ini.json"
+        with results_ini_file.open("w") as f:
             json.dump(empty_json_data, f)
-        logger.info("Created empty JSON file at %s", os.path.join(reports_dir, "bandit-results-ini.json"))
+        logger.info("Created empty JSON file at %s", results_ini_file)
 
         # Verify the files are valid JSON
         try:
-            with open(os.path.join(reports_dir, "bandit-results.json"), "r") as f:
+            with results_file.open() as f:
                 json.load(f)
-            with open(os.path.join(reports_dir, "bandit-results-ini.json"), "r") as f:
+            with results_ini_file.open() as f:
                 json.load(f)
             logger.info("Verified both JSON files are valid")
         except json.JSONDecodeError as e:
             logger.warning("JSON validation failed: %s. Recreating files.", e)
             # If validation fails, try again with simpler JSON
             simple_json = {"results": [], "errors": []}
-            with open(os.path.join(reports_dir, "bandit-results.json"), "w") as f:
+            with results_file.open("w") as f:
                 json.dump(simple_json, f)
-            with open(os.path.join(reports_dir, "bandit-results-ini.json"), "w") as f:
+            with results_ini_file.open("w") as f:
                 json.dump(simple_json, f)
 
         return True
-    except (PermissionError, OSError, Exception) as e:
-        logger.exception("Failed to create empty JSON files: %s", e)
+    except (PermissionError, OSError) as e:
+        logger.exception("Failed to create empty JSON files")
 
         # Try one more time in a different location
         try:
             import tempfile
-            temp_dir = os.path.join(tempfile.gettempdir(), "security-reports")
-            os.makedirs(temp_dir, exist_ok=True)
+            temp_dir = Path(tempfile.gettempdir()) / "security-reports"
+            temp_dir.mkdir(parents=True, exist_ok=True)
 
             # Create simple JSON data
             simple_json_data = {"results": [], "errors": []}
 
             # Create bandit-results.json in temp dir
-            with open(os.path.join(temp_dir, "bandit-results.json"), "w") as f:
+            temp_results_file = temp_dir / "bandit-results.json"
+            with temp_results_file.open("w") as f:
                 json.dump(simple_json_data, f)
 
             # Create bandit-results-ini.json in temp dir
-            with open(os.path.join(temp_dir, "bandit-results-ini.json"), "w") as f:
+            temp_results_ini_file = temp_dir / "bandit-results-ini.json"
+            with temp_results_ini_file.open("w") as f:
                 json.dump(simple_json_data, f)
 
             # Try to copy to the original location
             try:
-                if not os.path.exists("security-reports"):
-                    os.makedirs("security-reports", exist_ok=True)
+                security_reports_dir = Path("security-reports")
+                if not security_reports_dir.exists():
+                    security_reports_dir.mkdir(parents=True, exist_ok=True)
                 shutil.copy(
-                    os.path.join(temp_dir, "bandit-results.json"),
-                    os.path.join("security-reports", "bandit-results.json")
+                    temp_results_file,
+                    security_reports_dir / "bandit-results.json"
                 )
                 shutil.copy(
-                    os.path.join(temp_dir, "bandit-results-ini.json"),
-                    os.path.join("security-reports", "bandit-results-ini.json")
+                    temp_results_ini_file,
+                    security_reports_dir / "bandit-results-ini.json"
                 )
                 logger.info("Successfully copied JSON files from temp directory")
                 return True
-            except Exception:
+            except (PermissionError, OSError, FileExistsError):
                 logger.warning("Failed to copy from temp directory, but files exist in: %s", temp_dir)
                 return True
-        except Exception:
+        except (ImportError, PermissionError, OSError):
             logger.exception("All attempts to create JSON files failed")
             return False
 
@@ -231,7 +240,7 @@ if __name__ == "__main__":
                 shell=False,  # Explicitly set shell=False for security
                 timeout=300  # Set a timeout of 5 minutes
             )
-        except Exception as e:
+        except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
             logger.warning("Failed to install bandit: %s", e)
 
     # Ensure security-reports directory exists
@@ -259,7 +268,7 @@ if __name__ == "__main__":
                     timeout=600  # Set a timeout of 10 minutes
                 )
                 logger.info("Bandit scan completed with configuration file")
-            except Exception as e:
+            except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
                 logger.warning("Bandit scan with configuration file failed: %s", e)
                 # Create empty JSON files as fallback
                 create_empty_json_files()
@@ -279,7 +288,7 @@ if __name__ == "__main__":
                     timeout=600  # Set a timeout of 10 minutes
                 )
                 logger.info("Bandit scan completed with default configuration")
-            except Exception as e:
+            except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
                 logger.warning("Bandit scan with default configuration failed: %s", e)
                 # Create empty JSON files as fallback
                 create_empty_json_files()
@@ -292,23 +301,24 @@ if __name__ == "__main__":
         else:
             # Check if the JSON file is valid
             try:
-                with open(bandit_results, "r") as f:
+                with bandit_results.open() as f:
                     json.load(f)
                 logger.info("Verified bandit-results.json is valid")
 
                 # Copy to bandit-results-ini.json for compatibility
+                security_reports_dir = Path("security-reports")
                 shutil.copy(
-                    "security-reports/bandit-results.json",
-                    "security-reports/bandit-results-ini.json"
+                    security_reports_dir / "bandit-results.json",
+                    security_reports_dir / "bandit-results-ini.json"
                 )
                 logger.info("Copied bandit-results.json to bandit-results-ini.json")
-            except (json.JSONDecodeError, Exception) as e:
+            except (json.JSONDecodeError, OSError, FileNotFoundError) as e:
                 logger.warning("JSON validation failed: %s. Creating fallback files.", e)
                 create_empty_json_files()
 
         logger.info("Bandit configuration test passed!")
         sys.exit(0)
-    except Exception:
+    except (subprocess.SubprocessError, FileNotFoundError, PermissionError, OSError):
         logger.exception("Error running bandit configuration test")
         # Try to create empty JSON files as a last resort
         if create_empty_json_files():

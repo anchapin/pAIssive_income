@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Test if Python is working correctly."""
 
-import sys
 import os
+import sys
+from pathlib import Path
 
 def main():
     """Print Python environment information."""

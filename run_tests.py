@@ -13,6 +13,7 @@ import logging
 import os
 import os.path  # Used for os.path.normpath and os.sep
 import platform
+import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
@@ -46,8 +47,7 @@ def get_sanitized_env() -> dict[str, str]:
 
     # Remove potentially dangerous environment variables
     for var in ["LD_PRELOAD", "LD_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH"]:
-        if var in env:
-            del env[var]
+        env.pop(var, None)
 
     return env
 
@@ -87,7 +87,7 @@ def validate_args(args: Sequence[str]) -> list[str]:
             continue
 
         # Skip arguments that look like they're trying to execute arbitrary code
-        if arg.startswith("--exec") or arg.startswith("--shell"):
+        if arg.startswith(("--exec", "--shell")):
             logger.warning("Skipping suspicious argument: %s", arg)
             continue
 
@@ -123,7 +123,7 @@ def count_tests(validated_args: list[str]) -> int:
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         # ruff: noqa: S603
         result = subprocess.run(  # nosec B603
-            [sys.executable, "-m", "pytest", "--collect-only"] + validated_args,
+            [sys.executable, "-m", "pytest", "--collect-only", *validated_args],
             check=False,
             capture_output=True,
             text=True,
@@ -182,8 +182,10 @@ def ensure_security_reports_dir() -> None:
                 # Create a symlink or junction to the temp directory
                 if platform.system() == "Windows":
                     # Use directory junction on Windows
-                    subprocess.run(  # nosec B603 # noqa: S603
-                        ["cmd", "/c", f"mklink /J security-reports {temp_dir}"],
+                    # Use full path to cmd.exe to avoid security warning
+                    cmd_path = shutil.which("cmd.exe") or "cmd"
+                    subprocess.run(  # nosec B603
+                        [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
                         check=False,
                         shell=False,
                         capture_output=True
@@ -191,7 +193,7 @@ def ensure_security_reports_dir() -> None:
                 else:
                     # Use symlink on Unix
                     os.symlink(temp_dir, "security-reports")
-            except Exception as e2:
+            except (PermissionError, OSError, FileExistsError) as e2:
                 logger.warning("Failed to create security-reports directory in temp location: %s", e2)
 
 
@@ -209,7 +211,7 @@ def check_venv_exists() -> bool:
 
 def main() -> None:
     """
-    Main entry point for the script.
+    Run the test suite with optimized worker count.
 
     Validates command line arguments, counts tests, and runs pytest with the
     appropriate number of workers.
@@ -271,14 +273,13 @@ def main() -> None:
         # Add --no-cov if not already specified to avoid coverage failures
         if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
             if xdist_available and num_workers > 1:
-                pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", "--no-cov"] + validated_args
+                pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", "--no-cov", *validated_args]
             else:
-                pytest_cmd = [sys.executable, "-m", "pytest", "--no-cov"] + validated_args
+                pytest_cmd = [sys.executable, "-m", "pytest", "--no-cov", *validated_args]
+        elif xdist_available and num_workers > 1:
+            pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", *validated_args]
         else:
-            if xdist_available and num_workers > 1:
-                pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}"] + validated_args
-            else:
-                pytest_cmd = [sys.executable, "-m", "pytest"] + validated_args
+            pytest_cmd = [sys.executable, "-m", "pytest", *validated_args]
 
         logger.info("Running pytest with command: %s", " ".join(pytest_cmd))
 
