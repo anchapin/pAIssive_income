@@ -48,11 +48,9 @@ class Agent:
             A string representing the task execution result
 
         """
-        # Access task.description dynamically to avoid circular import issues
-        task_desc = getattr(task, 'description', 'Unknown task')
         if context:
-            return f"Executed task: {task_desc} with context: {context}"
-        return f"Executed task: {task_desc}"
+            return f"Executed task: {task.description} with context: {context}"
+        return f"Executed task: {task.description}"
 
     def __str__(self) -> str:
         """Return a string representation of the agent."""
