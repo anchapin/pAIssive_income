@@ -28,10 +28,10 @@ skips:
   - B311
   # B404: Consider possible security implications associated with the subprocess module
   # We handle this with proper security controls in run_tests.py
-  # - B404
+  - B404
   # B603: subprocess call - check for execution of untrusted input
   # We handle this with proper security controls in run_tests.py
-  # - B603
+  - B603
 
 # Set the output format for GitHub Advanced Security
 output_format: sarif
