@@ -17,6 +17,9 @@ from typing import List, Sequence
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
+# Set to DEBUG for more verbose output
+# logging.getLogger().setLevel(logging.DEBUG)
+
 # Maximum number of workers
 MAX_WORKERS = 12
 # Threshold: if test count > threshold, use MAX_WORKERS, else use 1
@@ -69,7 +72,7 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
     """
     # Create a safe command with validated arguments
     validated_args = validate_args(pytest_args)
-    cmd = ["pytest", "--collect-only", "-q"] + validated_args
+    cmd = ["pytest", "--collect-only", "-v"] + validated_args
 
     try:
         # Capture output of pytest collection
@@ -81,10 +84,20 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
             text=True,  # Use text instead of universal_newlines for newer Python
             shell=False  # Explicitly set shell=False for security
         )
-        # Each test is one line in the output
-        # Filter out empty lines and lines starting with '<' (pytest's summary lines)
-        test_lines = [line for line in output.splitlines() if line.strip() and not line.startswith("<")]
-        return len(test_lines)
+        # Count the number of collected tests by looking for lines that contain
+        # a path followed by "::" which indicates a test
+        test_count = 0
+        for line in output.splitlines():
+            if "::" in line and not line.strip().startswith("<") and "PASSED" not in line and "FAILED" not in line:
+                test_count += 1
+
+        # If we somehow didn't find any tests but pytest is going to run tests,
+        # default to at least 1 test
+        if test_count == 0 and any(arg.endswith('.py') for arg in validated_args):
+            test_count = 1
+
+        logger.debug(f"Collected {test_count} tests")
+        return test_count
     except subprocess.CalledProcessError:
         logger.warning("Error collecting tests. Falling back to single worker.")
         return 1
