@@ -6,14 +6,47 @@
 # Distribution / packaging
 # Django stuff:
 # Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+.python-version
+pyvenv.cfg
+pip-selfcheck.json
 # Flask stuff:
 # IDE specific files
 # IPython
 # Installer logs
 # Jupyter Notebook
 # Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+*.tmp
+*.bak
+*.swp
+*~
+temp/
+tmp/
 # Node.js
 # OS specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+._*
+.Spotlight-V100
+.Trashes
 # Playwright reports
 # Project specific
 # PyBuilder
@@ -27,6 +60,19 @@
 # Task files
 # Translations
 # Unit test / coverage reports
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+nosetests.xml
+coverage/
+.tox/
+.nox/
+.cache
+.pytest_cache/
 # celery beat schedule file
 # mkdocs documentation
 # mypy
@@ -63,11 +109,31 @@ junit/test-results-*.xml
 *-results-*.json
 *-results-*.xml
 secrets.sarif.json
--la security-reports
+security-reports/
+security-reports/*
+empty-sarif.json
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # Editor/tool-specific configs
 .cursor/
 cline_mcp_settings.json
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sublime-workspace
+*.sublime-project
 *.so
 *.spec
 *.swo
