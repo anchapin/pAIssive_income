@@ -105,6 +105,19 @@ pathToRegexp.compile = function compile(path) {
 };
 
 /**
+ * Match a path against a regexp
+ * @param {string} path - The path to match
+ * @returns {Object|null} - The match result or null if no match
+ */
+pathToRegexp.match = function match(path) {
+  console.log('Mock path-to-regexp.match called with path:', path);
+  return function(pathname) {
+    console.log('Mock path-to-regexp.match function called with pathname:', pathname);
+    return { path: pathname, params: {} };
+  };
+};
+
+/**
  * Convert an array of tokens to a regexp
  * @param {Array} tokens - The tokens to convert
  * @param {Array} [keys] - Array to populate with keys
@@ -209,6 +222,7 @@ This package is automatically installed by the CI workflow.
 module.exports = function() { return /.*/ };
 module.exports.parse = function() { return [] };
 module.exports.compile = function() { return function() { return ''; } };
+module.exports.match = function() { return function(pathname) { return { path: pathname, params: {} }; } };
 module.exports.tokensToRegexp = function() { return /.*/ };
 module.exports.tokensToFunction = function() { return function() { return ''; } };
 `;
@@ -253,6 +267,14 @@ function monkeyPatchRequire() {
         mockPathToRegexp.compile = function(path) {
           console.log(`Mock path-to-regexp.compile called with: ${path}`);
           return function() { return ''; };
+        };
+
+        mockPathToRegexp.match = function(path) {
+          console.log(`Mock path-to-regexp.match called with: ${path}`);
+          return function(pathname) {
+            console.log(`Mock path-to-regexp.match function called with pathname: ${pathname}`);
+            return { path: pathname, params: {} };
+          };
         };
 
         mockPathToRegexp.tokensToRegexp = function(tokens, keys, options) {
@@ -392,6 +414,7 @@ try {
     const ultraSimpleMock = `module.exports = function() { return /.*/ };
 module.exports.parse = function() { return [] };
 module.exports.compile = function() { return function() { return ''; } };
+module.exports.match = function() { return function(pathname) { return { path: pathname, params: {} }; } };
 module.exports.tokensToRegexp = function() { return /.*/ };
 module.exports.tokensToFunction = function() { return function() { return ''; } };`;
 
