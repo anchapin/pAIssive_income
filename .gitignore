@@ -51,6 +51,7 @@
 *.sage.py
 *.sarif
 *.sarif.json
+*coverage_helper.coveragerc
 
 # Explicit ignore for security/test artifacts
 bandit-results-*.json
