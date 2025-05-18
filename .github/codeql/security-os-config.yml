@@ -98,6 +98,9 @@ queries:
   # Include the standard security and quality queries
   - uses: security-and-quality
 
+  # Include additional security queries
+  - uses: security-extended
+
 # Disable noisy alerts
 disable-default-queries: false
 

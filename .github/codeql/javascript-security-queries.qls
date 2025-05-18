@@ -4,7 +4,7 @@
 # It focuses on high-impact security vulnerabilities
 
 - description: JavaScript Security Queries
-- queries: security
 
 # Use standard security queries from CodeQL
-- uses: security
+- uses: security-and-quality
+- uses: security-extended
