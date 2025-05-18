@@ -1,0 +1,34 @@
+{# 
+  Sample Tailwind UI Template
+  --------------------------------
+  This template demonstrates Tailwind CSS usage in this project.
+  You can copy/paste these patterns into your own templates.
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tailwind Example</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.output.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+        <h1 class="text-3xl font-bold text-blue-600 mb-4">Tailwind CSS Example</h1>
+        <p class="text-gray-700 mb-6">
+            This page is styled using <span class="font-semibold">Tailwind utility classes</span>.
+            Try editing this template to see changes instantly!
+        </p>
+        <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition">
+            Example Button
+        </button>
+        <div class="mt-6">
+            <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded text-sm font-mono">
+                Responsive, utility-first, and easy to customize!
+            </span>
+        </div>
+    </div>
+    <footer class="mt-10 text-gray-500 text-xs">
+        &copy; {{ now.year if now else 2023 }} Tailwind UI Example.
+    </footer>
+</body>
+</html>
