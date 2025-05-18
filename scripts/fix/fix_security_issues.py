@@ -48,12 +48,11 @@ try:
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
-    # Store error information instead of printing at module level
+    # Store error information in a log message instead of a global variable
     # This is not a password, just an error message
-    # Use a variable to avoid S105 warnings
     module_name = "fix_potential_secrets"
-    SECRET_SCANNER_IMPORT_ERROR = (
-        f"Could not import {module_name} module. Will use subprocess fallback."
+    logger.warning(
+        "Could not import %s module. Will use subprocess fallback.", module_name
     )
     IMPORTED_SECRET_SCANNER = False
 
@@ -78,17 +77,9 @@ except ImportError:
         return {}
 
 
-# Check if other critical dependencies are available
-try:
-    # json is already imported at the module level
-    # subprocess is already imported at the module level
-    pass
-except ImportError as e:
-    # Store the error message to be displayed in main() instead of at module level
-    IMPORT_ERROR = str(e)
-    IMPORTED_DEPENDENCIES = False
-else:
-    IMPORTED_DEPENDENCIES = True
+# All critical dependencies are imported at the module level
+# json and subprocess are already imported at the module level
+IMPORTED_DEPENDENCIES = True
 
 
 def setup_args() -> argparse.Namespace:

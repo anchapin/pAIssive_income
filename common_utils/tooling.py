@@ -83,7 +83,7 @@ def calculator(expression: str) -> object:  # noqa: C901
 
     try:
         # Validate input - only allow numbers, operators, and whitespace
-        if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%\*]+$", expression):
+        if not re.match(r"^[\d\s\+\-\*\/\(\)\.\%]+$", expression):
             return "Error: Invalid characters in expression"
 
         # Disallow potentially dangerous patterns
