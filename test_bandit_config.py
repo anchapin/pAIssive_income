@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """Test script to verify Bandit configuration."""
 
+from __future__ import annotations
+
+import logging
 import os
+import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
-import shutil
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 # Find the full path to the bandit executable
 def get_bandit_path() -> str:
@@ -27,20 +34,20 @@ def ensure_security_reports_dir() -> None:
     if not reports_dir.exists():
         try:
             reports_dir.mkdir(parents=True, exist_ok=True)
-            print("Created security-reports directory")
+            logger.info("Created security-reports directory")
         except Exception as e:
-            print(f"Failed to create security-reports directory: {e}")
+            logger.warning("Failed to create security-reports directory: %s", e)
 
 def test_bandit_config():
     """Test the Bandit configuration files."""
-    print("Testing Bandit configuration...")
+    logger.info("Testing Bandit configuration...")
 
     # Check if at least one of bandit.yaml or .bandit exists
     bandit_yaml = Path("bandit.yaml")
     bandit_ini = Path(".bandit")
 
     if not bandit_yaml.exists() and not bandit_ini.exists():
-        print("Error: Neither bandit.yaml nor .bandit found")
+        logger.warning("Error: Neither bandit.yaml nor .bandit found")
         # Create a minimal bandit.yaml file as a fallback
         try:
             with open("bandit.yaml", "w") as f:
@@ -57,19 +64,19 @@ output_file: security-reports/bandit-results.json
 severity_level: MEDIUM
 confidence_level: MEDIUM
 """)
-            print("Created minimal bandit.yaml file as fallback")
+            logger.info("Created minimal bandit.yaml file as fallback")
             bandit_yaml = Path("bandit.yaml")
         except Exception as e:
-            print(f"Failed to create minimal bandit.yaml: {e}")
+            logger.warning("Failed to create minimal bandit.yaml: %s", e)
             # Create empty JSON file as ultimate fallback
             ensure_security_reports_dir()
             try:
-                with open("security-reports/bandit-results.json", "w") as f:
+                with Path("security-reports/bandit-results.json").open("w") as f:
                     f.write('{"results": [], "errors": []}')
-                print("Created empty JSON results file as fallback")
+                logger.info("Created empty JSON results file as fallback")
                 return True  # Return success to allow workflow to continue
             except Exception as e2:
-                print(f"Failed to create empty JSON file: {e2}")
+                logger.error("Failed to create empty JSON file: %s", e2)
                 return False
 
     # Get the full path to bandit
@@ -80,7 +87,7 @@ confidence_level: MEDIUM
 
     # Run bandit with the available configuration
     try:
-        print("Running bandit help command...")
+        logger.info("Running bandit help command...")
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         result = subprocess.run(  # nosec B603
             [bandit_path, "--help"],
@@ -89,12 +96,12 @@ confidence_level: MEDIUM
             text=True,
             shell=False  # Explicitly set shell=False for security
         )
-        print(f"Bandit help exit code: {result.returncode}")
+        logger.info("Bandit help exit code: %d", result.returncode)
 
         # Create a simple test file to scan
         test_file_path = Path("test_bandit_sample.py")
         try:
-            with open(test_file_path, "w") as f:
+            with test_file_path.open("w") as f:
                 f.write("""#!/usr/bin/env python3
 \"\"\"Sample file for bandit testing.\"\"\"
 
@@ -102,14 +109,14 @@ def test_function():
     \"\"\"A simple test function.\"\"\"
     return "Hello, World!"
 """)
-            print(f"Created test file at {test_file_path}")
+            logger.info("Created test file at %s", test_file_path)
         except Exception as e:
-            print(f"Warning: Failed to create test file: {e}")
+            logger.warning("Warning: Failed to create test file: %s", e)
             # Continue anyway, we'll scan the existing codebase
 
         # Test with bandit.yaml if it exists
         if bandit_yaml.exists():
-            print("Running bandit with bandit.yaml...")
+            logger.info("Running bandit with bandit.yaml...")
             # nosec B603 - subprocess call is used with shell=False and validated arguments
             try:
                 result = subprocess.run(  # nosec B603
@@ -121,25 +128,25 @@ def test_function():
                     shell=False,  # Explicitly set shell=False for security
                     timeout=300  # Set a timeout of 5 minutes
                 )
-                print(f"Bandit with bandit.yaml exit code: {result.returncode}")
+                logger.info("Bandit with bandit.yaml exit code: %d", result.returncode)
 
                 # Check if output file was created
                 if not Path("security-reports/bandit-results.json").exists():
-                    print("Warning: JSON output file was not created. Creating empty file.")
-                    with open("security-reports/bandit-results.json", "w") as f:
+                    logger.warning("JSON output file was not created. Creating empty file.")
+                    with Path("security-reports/bandit-results.json").open("w") as f:
                         f.write('{"results": [], "errors": []}')
                 else:
-                    print("JSON output file exists, continuing...")
+                    logger.info("JSON output file exists, continuing...")
             except Exception as e:
-                print(f"Error running bandit with bandit.yaml: {e}")
+                logger.error("Error running bandit with bandit.yaml: %s", e)
                 # Create empty JSON file as fallback
-                with open("security-reports/bandit-results.json", "w") as f:
+                with Path("security-reports/bandit-results.json").open("w") as f:
                     f.write('{"results": [], "errors": []}')
-                print("Created empty JSON results file as fallback")
+                logger.info("Created empty JSON results file as fallback")
 
         # Test with .bandit if it exists
         if bandit_ini.exists():
-            print("Running bandit with .bandit...")
+            logger.info("Running bandit with .bandit...")
             # nosec B603 - subprocess call is used with shell=False and validated arguments
             try:
                 result = subprocess.run(  # nosec B603
@@ -178,24 +185,24 @@ def test_function():
         # Ensure we have at least one output file
         if Path("security-reports/bandit-results.json").exists() or Path("security-reports/bandit-results-ini.json").exists():
             return True
-        else:
-            # Create empty JSON file as final fallback
-            with open("security-reports/bandit-results.json", "w") as f:
-                f.write('{"results": [], "errors": []}')
-            print("Created empty JSON results file as final fallback")
-            return True
+
+        # Create empty JSON file as final fallback
+        with Path("security-reports/bandit-results.json").open("w") as f:
+            f.write('{"results": [], "errors": []}')
+        logger.info("Created empty JSON results file as final fallback")
+        return True
     except Exception as e:
         print(f"Error running bandit: {e}")
         # Create empty JSON file as ultimate fallback
         ensure_security_reports_dir()
         try:
-            with open("security-reports/bandit-results.json", "w") as f:
+            with Path("security-reports/bandit-results.json").open("w") as f:
                 f.write('{"results": [], "errors": []}')
-            print("Created empty JSON results file as ultimate fallback")
-            return True  # Return success to allow workflow to continue
+            logger.info("Created empty JSON results file as ultimate fallback")
         except Exception as e2:
-            print(f"Failed to create empty JSON file: {e2}")
+            logger.error("Failed to create empty JSON file: %s", e2)
             return False
+        return True  # Return success to allow workflow to continue
 
 def check_venv_exists() -> bool:
     """
@@ -203,8 +210,9 @@ def check_venv_exists() -> bool:
 
     Returns:
         bool: True if running in a virtual environment, False otherwise
+
     """
-    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+    return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
 
 if __name__ == "__main__":
     # Check if we're running in a virtual environment

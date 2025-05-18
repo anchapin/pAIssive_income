@@ -7,20 +7,22 @@ This script counts the number of tests to be run and sets the appropriate number
 - Otherwise, it defaults to a single worker to reduce overhead for small test runs
 """
 
+from __future__ import annotations
+
 import logging
 import os
+import pathlib
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
-import shlex
-from typing import List, Sequence, Dict, Optional
-import pathlib
+from pathlib import Path
+from typing import Dict, List, Sequence
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 # Set to DEBUG for more verbose output
-# logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 
 # Maximum number of workers
 MAX_WORKERS = 12
@@ -37,12 +39,13 @@ def get_sanitized_env() -> Dict[str, str]:
 
     Returns:
         Dict[str, str]: Sanitized environment variables
+
     """
     # Create a copy of the current environment
     safe_env = os.environ.copy()
 
     # Remove potentially dangerous environment variables
-    dangerous_prefixes = ['PYTEST_', 'PYTHON_', 'PATH_', 'LD_', 'DYLD_']
+    dangerous_prefixes = ["PYTEST_", "PYTHON_", "PATH_", "LD_", "DYLD_"]
     for key in list(safe_env.keys()):
         if any(key.startswith(prefix) for prefix in dangerous_prefixes):
             safe_env.pop(key, None)
@@ -59,33 +62,33 @@ def validate_args(args: Sequence[str]) -> List[str]:
 
     Returns:
         List[str]: Validated arguments
+
     """
     # Only allow known pytest arguments and paths
     validated_args = []
     for arg in args:
         # Sanitize any potentially dangerous arguments
-        if arg.startswith('--'):
+        if arg.startswith("--"):
             # Allow pytest options, but validate they don't contain shell metacharacters
-            if not any(c in arg.split('=')[1] if '=' in arg else '' for c in ';&|`$(){}[]<>'):
+            if not any(c in arg.split("=")[1] if "=" in arg else "" for c in ";&|`$(){}[]<>"):
                 validated_args.append(arg)
             else:
-                logger.warning(f"Skipping potentially unsafe argument: {arg}")
-        elif arg.startswith('-'):
+                logger.warning("Skipping potentially unsafe argument: %s", arg)
+        elif arg.startswith("-"):
             # Allow pytest short options
             validated_args.append(arg)
-        else:
+        elif not any(c in arg for c in ";&|`$(){}[]<>"):
             # For paths or other arguments, use shlex.quote for safety
             # but since we're not using shell=True, we just need to ensure
             # they don't contain shell metacharacters
-            if not any(c in arg for c in ';&|`$(){}[]<>'):
-                # Additional check for path traversal attempts
-                normalized_path = os.path.normpath(arg)
-                if not normalized_path.startswith('..') and '..' not in normalized_path.split(os.sep):
-                    validated_args.append(arg)
-                else:
-                    logger.warning(f"Skipping path with directory traversal: {arg}")
+            # Additional check for path traversal attempts
+            normalized_path = os.path.normpath(arg)
+            if not normalized_path.startswith("..") and ".." not in normalized_path.split(os.sep):
+                validated_args.append(arg)
             else:
-                logger.warning(f"Skipping potentially unsafe argument: {arg}")
+                logger.warning("Skipping path with directory traversal: %s", arg)
+        else:
+            logger.warning("Skipping potentially unsafe argument: %s", arg)
 
     return validated_args
 
@@ -99,10 +102,11 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
 
     Returns:
         int: Number of tests that would be run
+
     """
     # Create a safe command with validated arguments
     validated_args = validate_args(pytest_args)
-    cmd = ["pytest", "--collect-only", "-v"] + validated_args
+    cmd = ["pytest", "--collect-only", "-v", *validated_args]
 
     try:
         # Capture output of pytest collection
@@ -116,7 +120,7 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
             stderr=subprocess.DEVNULL,
             text=True,  # Use text instead of universal_newlines for newer Python
             shell=False,  # Explicitly set shell=False for security
-            cwd=os.getcwd(),  # Explicitly set working directory
+            cwd=Path.cwd(),  # Explicitly set working directory
             timeout=300,  # Set a timeout of 5 minutes for test collection
             env=safe_env  # Use sanitized environment
         )
@@ -129,10 +133,10 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
 
         # If we somehow didn't find any tests but pytest is going to run tests,
         # default to at least 1 test
-        if test_count == 0 and any(arg.endswith('.py') for arg in validated_args):
+        if test_count == 0 and any(arg.endswith(".py") for arg in validated_args):
             test_count = 1
 
-        logger.debug(f"Collected {test_count} tests")
+        logger.debug("Collected %d tests", test_count)
         return test_count
     except subprocess.TimeoutExpired:
         logger.warning("Test collection timed out after 5 minutes. Falling back to single worker.")
@@ -154,7 +158,7 @@ def ensure_security_reports_dir() -> None:
             reports_dir.mkdir(parents=True, exist_ok=True)
             logger.info("Created security-reports directory")
         except Exception as e:
-            logger.warning(f"Failed to create security-reports directory: {e}")
+            logger.warning("Failed to create security-reports directory: %s", e)
 
 
 def check_venv_exists() -> bool:
@@ -163,8 +167,9 @@ def check_venv_exists() -> bool:
 
     Returns:
         bool: True if running in a virtual environment, False otherwise
+
     """
-    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+    return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
 
 def main() -> None:
     """Run pytest with optimized worker count based on test count."""
@@ -194,9 +199,9 @@ def main() -> None:
         # Build pytest command with unpacking instead of concatenation
         # Add --no-cov if not already specified to avoid coverage failures
         if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
-            pytest_cmd = ["pytest", f"-n={n_workers}", "--no-cov"] + validated_args
+            pytest_cmd = ["pytest", f"-n={n_workers}", "--no-cov", *validated_args]
         else:
-            pytest_cmd = ["pytest", f"-n={n_workers}"] + validated_args
+            pytest_cmd = ["pytest", f"-n={n_workers}", *validated_args]
 
         try:
             # Run pytest with the chosen number of workers
@@ -211,34 +216,33 @@ def main() -> None:
                 check=False,
                 shell=False,  # Explicitly set shell=False for security
                 env=safe_env,  # Use sanitized environment
-                cwd=os.getcwd(),  # Explicitly set working directory
+                cwd=Path.cwd(),  # Explicitly set working directory
                 timeout=3600,  # Set a timeout of 1 hour to prevent hanging
                 text=True  # Use text mode for better error handling
             ).returncode
             sys.exit(result)
         except subprocess.TimeoutExpired:
-            logger.error("Pytest execution timed out after 1 hour")
+            logger.exception("Pytest execution timed out after 1 hour")
             sys.exit(2)
         except subprocess.SubprocessError:
             logger.exception("Error running pytest")
             sys.exit(1)
     except Exception as e:
-        logger.error(f"Error in run_tests.py: {e}")
-        logger.error("Falling back to direct pytest execution")
+        logger.exception("Error in run_tests.py. Falling back to direct pytest execution")
 
         # Fall back to direct pytest execution
         try:
             result = subprocess.run(  # nosec B603
-                ["pytest"] + validated_args,
+                ["pytest", *validated_args],
                 check=False,
                 shell=False,
-                cwd=os.getcwd(),
+                cwd=Path.cwd(),
                 timeout=3600,
                 text=True
             ).returncode
             sys.exit(result)
         except Exception as e:
-            logger.error(f"Failed to run pytest directly: {e}")
+            logger.exception("Failed to run pytest directly")
             sys.exit(1)
 
 
