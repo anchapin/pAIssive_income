@@ -212,12 +212,20 @@ def check_venv_exists() -> bool:
         bool: True if running in a virtual environment, False otherwise
 
     """
-    return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
+    try:
+        return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
+    except Exception:
+        # If there's any error checking for virtual environment, assume we're not in one
+        return False
 
 if __name__ == "__main__":
     # Check if we're running in a virtual environment
-    if not check_venv_exists():
-        logger.warning("Not running in a virtual environment. This may cause issues.")
+    try:
+        if not check_venv_exists():
+            logger.warning("Not running in a virtual environment. This may cause issues.")
+            logger.info("Continuing anyway, but consider running in a virtual environment.")
+    except Exception as e:
+        logger.warning("Error checking for virtual environment: %s", e)
         logger.info("Continuing anyway, but consider running in a virtual environment.")
 
     # Install bandit if not already installed
