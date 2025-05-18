@@ -327,7 +327,16 @@ sys.exit(0)
           fi
 
           # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
+          if [ -f "generate_bandit_config.py" ]; then
+            python generate_bandit_config.py ${{ github.run_id }}
+          else
+            echo "generate_bandit_config.py not found, creating empty bandit config files"
+            mkdir -p .github/bandit
+            mkdir -p security-reports
+            platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
+            echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}.yaml"
+            echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
+          fi
 
           # Run safety check
           safety check || true
@@ -376,7 +385,16 @@ sys.exit(0)
           }
 
           # Generate Bandit configuration files
-          python generate_bandit_config.py ${{ github.run_id }}
+          if (Test-Path "generate_bandit_config.py") {
+            python generate_bandit_config.py ${{ github.run_id }}
+          } else {
+            Write-Host "generate_bandit_config.py not found, creating empty bandit config files"
+            New-Item -ItemType Directory -Force -Path .github/bandit
+            New-Item -ItemType Directory -Force -Path security-reports
+            $platform = "windows"
+            Set-Content -Path ".github/bandit/bandit-config-${platform}.yaml" -Value "# Empty Bandit config"
+            Set-Content -Path ".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml" -Value "# Empty Bandit config"
+          }
 
           # Run safety check
           try {
