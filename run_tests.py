@@ -237,8 +237,10 @@ def main() -> None:
 
         # Fall back to direct pytest execution
         try:
+            # Use sys.executable to get the full path to the Python interpreter
+            # This fixes the B607 (start_process_with_partial_path) issue
             result = subprocess.run(  # nosec B603
-                ["pytest", *validated_args],
+                [sys.executable, "-m", "pytest", *validated_args],
                 check=False,
                 shell=False,
                 cwd=Path.cwd(),
