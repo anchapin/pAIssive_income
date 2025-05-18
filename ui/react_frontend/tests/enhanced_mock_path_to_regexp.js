@@ -216,8 +216,8 @@ function pathToRegexp(path, keys, options) {
     }
 
     return new RegExp('.*');
-  } catch (e) {
-    console.error('[path-to-regexp] Error in mock implementation:', e);
+  } catch (error) {
+    console.error('[path-to-regexp] Error in mock implementation:', error);
     return new RegExp('.*');
   }
 }
@@ -258,8 +258,8 @@ pathToRegexp.parse = function parse(str) {
     }
 
     return tokens;
-  } catch (e) {
-    console.error('[path-to-regexp] Error in mock parse implementation:', e);
+  } catch (error) {
+    console.error('[path-to-regexp] Error in mock parse implementation:', error);
     return [];
   }
 };
@@ -287,8 +287,8 @@ pathToRegexp.compile = function compile(str) {
           return result;
         }
         return str || '';
-      } catch (e) {
-        console.error('[path-to-regexp] Error in mock compile implementation:', e);
+      } catch (error) {
+        console.error('[path-to-regexp] Error in mock compile implementation:', error);
         return str || '';
       }
     };
