@@ -129,6 +129,11 @@ target/
 tasks.json
 tasks/
 ui/react_frontend/playwright-report/
+ui/react_frontend/test-results/
+ui/react_frontend/coverage/
+ui/react_frontend/test-failure-*.png
+ui/react_frontend/run-tests-ci.js
+ui/react_frontend/playwright.config.ci.js
 var/
 venv.bak/
 venv/
