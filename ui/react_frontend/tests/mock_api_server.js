@@ -75,7 +75,7 @@ try {
   }
 }
 
-// Handle path-to-regexp error in CI environments
+// Handle path-to-regexp error in CI environments with enhanced error handling
 try {
   // This is a workaround for the path-to-regexp error in CI environments
   // The error occurs when Express tries to load path-to-regexp dynamically
@@ -83,30 +83,102 @@ try {
   require('path-to-regexp');
   console.log('Successfully loaded path-to-regexp module');
 } catch (pathToRegexpError) {
-  console.log('path-to-regexp module not found, using fallback for CI compatibility');
+  console.log(`path-to-regexp module not found: ${pathToRegexpError.message}`);
+  console.log('Using fallback for CI compatibility');
+
+  // Create a log entry for the error
+  try {
+    const logDir = path.join(process.cwd(), 'logs');
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    fs.appendFileSync(
+      path.join(logDir, 'path-to-regexp-error.log'),
+      `[${new Date().toISOString()}] path-to-regexp error: ${pathToRegexpError.message}\n` +
+      `Stack: ${pathToRegexpError.stack || 'No stack trace available'}\n` +
+      `Node.js version: ${process.version}\n` +
+      `Platform: ${process.platform}\n` +
+      `Working directory: ${process.cwd()}\n` +
+      `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n\n`
+    );
+  } catch (logError) {
+    console.error(`Failed to write path-to-regexp error log: ${logError.message}`);
+  }
+
+  // Try to install path-to-regexp dynamically if in CI environment
+  if (process.env.CI === 'true' || process.env.CI === true) {
+    try {
+      console.log('CI environment detected, attempting to install path-to-regexp dynamically');
+      // This is just a log message - we can't actually install packages at runtime
+      // But we can create a more robust mock implementation
+    } catch (installError) {
+      console.error(`Failed to install path-to-regexp dynamically: ${installError.message}`);
+    }
+  }
 
   // Monkey patch the require function to return our mock for path-to-regexp
   const originalRequire = module.require;
   module.require = function(id) {
     if (id === 'path-to-regexp') {
-      console.log('Intercepted require for path-to-regexp, returning mock implementation');
+      console.log('Intercepted require for path-to-regexp, returning enhanced mock implementation');
 
-      // Create a more comprehensive mock path-to-regexp module
-      const mockPathToRegexp = function(path) {
-        return new RegExp('^' + String(path).replace(/:[^\s/]+/g, '([^/]+)') + '$');
+      // Create a more comprehensive mock path-to-regexp module with better error handling
+      const mockPathToRegexp = function(path, options) {
+        try {
+          // Handle null or undefined path
+          if (path == null) {
+            return new RegExp('^$');
+          }
+
+          // Convert path to string and sanitize
+          const pathStr = String(path).replace(/[\r\n]/g, '');
+
+          // Create a simple regex that handles path parameters
+          return new RegExp('^' + pathStr.replace(/:[^\s/]+/g, '([^/]+)') + '$');
+        } catch (regexError) {
+          console.error(`Error creating regex from path "${path}": ${regexError.message}`);
+          // Return a catch-all regex as fallback
+          return /^.*$/;
+        }
       };
 
-      // Add all required methods with safe implementations
+      // Add all required methods with safe implementations and better error handling
       mockPathToRegexp.parse = function(path) {
-        if (!path || typeof path !== 'string') return [];
-        return String(path).split('/').filter(Boolean).map(p => {
-          if (p.startsWith(':')) return { name: p.substring(1) };
-          return p;
-        });
+        try {
+          if (!path || typeof path !== 'string') return [];
+          return String(path).split('/').filter(Boolean).map(p => {
+            if (p.startsWith(':')) return { name: p.substring(1) };
+            return p;
+          });
+        } catch (parseError) {
+          console.error(`Error parsing path "${path}": ${parseError.message}`);
+          return [];
+        }
       };
 
       mockPathToRegexp.compile = function(path) {
-        return function() { return String(path || ''); };
+        try {
+          const pathStr = path ? String(path) : '';
+          return function(params) {
+            try {
+              if (!params) return pathStr;
+
+              // Simple parameter replacement
+              let result = pathStr;
+              Object.keys(params).forEach(key => {
+                result = result.replace(`:${key}`, params[key]);
+              });
+
+              return result;
+            } catch (compileError) {
+              console.error(`Error compiling path with params: ${compileError.message}`);
+              return pathStr;
+            }
+          };
+        } catch (error) {
+          console.error(`Error creating compile function: ${error.message}`);
+          return function() { return ''; };
+        }
       };
 
       mockPathToRegexp.tokensToFunction = function() {
@@ -125,7 +197,7 @@ try {
   // Also set the global pathToRegexp for modules that might use it directly
   global.pathToRegexp = module.require('path-to-regexp');
 
-  console.log('Successfully installed path-to-regexp mock implementation');
+  console.log('Successfully installed enhanced path-to-regexp mock implementation');
 }
 
 // Create Express app

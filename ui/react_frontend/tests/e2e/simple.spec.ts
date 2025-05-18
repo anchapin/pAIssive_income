@@ -383,20 +383,46 @@ test.describe('Simple Test', () => {
       if (!navigationSuccess) {
         console.log('Navigation failed after all retry attempts');
 
-        // Try to detect error message on the page
+        // Try to detect error message on the page with improved error handling
         try {
-          // Error message if offline
-          const offlineMsg = await page.getByText(/offline|unavailable|cannot connect|error/i, { timeout: 2000 }).catch(() => null);
-          if (offlineMsg) {
-            console.log('Offline or error message detected on page');
+          // Error message if offline - use locator count instead of catch for better error handling
+          const offlineLocator = page.getByText(/offline|unavailable|cannot connect|error/i);
+          const offlineCount = await offlineLocator.count();
+
+          if (offlineCount > 0) {
+            console.log(`Offline or error message detected on page (count: ${offlineCount})`);
             createReport('simple-test-offline.txt',
               `Homepage could not load: offline or error message shown.\n` +
               `Timestamp: ${new Date().toISOString()}\n` +
-              `Last error: ${navigationError?.message || 'Unknown error'}\n`
+              `Last error: ${navigationError?.message || 'Unknown error'}\n` +
+              `Offline message count: ${offlineCount}\n`
             );
+
+            // Try to get the text of the first offline message
+            try {
+              const firstOfflineMsg = await offlineLocator.first();
+              const msgText = await firstOfflineMsg.textContent();
+              console.log(`Offline message text: ${msgText}`);
+
+              // Append the message text to the report
+              createReport('simple-test-offline-message.txt',
+                `Offline message text: ${msgText || 'No text content'}\n` +
+                `Timestamp: ${new Date().toISOString()}\n`
+              );
+            } catch (textError) {
+              console.error(`Error getting offline message text: ${textError.message}`);
+            }
           }
         } catch (detectionError) {
           console.error(`Error detecting offline message: ${detectionError.message}`);
+
+          // Create a detailed error report
+          createReport('simple-test-offline-detection-error.txt',
+            `Error detecting offline message at ${new Date().toISOString()}\n` +
+            `Error: ${detectionError.message}\n` +
+            `Stack: ${detectionError.stack || 'No stack trace available'}\n` +
+            `Last navigation error: ${navigationError?.message || 'Unknown error'}\n`
+          );
         }
 
         // In non-CI environment, fail the test

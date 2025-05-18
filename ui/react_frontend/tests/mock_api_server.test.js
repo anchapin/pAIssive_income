@@ -161,65 +161,97 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
             true // Append mode
           );
 
-          // Extract hostname and port from URL with better error handling
+          // Extract hostname and port from URL with enhanced error handling
           let hostname = 'localhost';
           let port = 8000;
           let path = '/health';
 
           try {
-            // More robust URL parsing
-            if (url.includes('://')) {
+            // More robust URL parsing with additional safeguards
+            if (!url || typeof url !== 'string') {
+              throw new Error('URL is null, undefined, or not a string');
+            }
+
+            // Sanitize URL to prevent parsing errors
+            const sanitizedUrl = url.trim().replace(/[\r\n\t]/g, '');
+
+            if (sanitizedUrl.includes('://')) {
               // Handle URLs with protocol
-              const parts = url.split('://');
-              const rest = parts[1];
+              const parts = sanitizedUrl.split('://');
+              if (parts.length < 2) {
+                throw new Error('Invalid URL format after protocol split');
+              }
+
+              const rest = parts[1] || '';
 
               if (rest.includes('/')) {
                 // Handle URLs with path
                 const hostAndPath = rest.split('/', 1);
-                const hostPart = hostAndPath[0];
+                const hostPart = hostAndPath[0] || '';
 
                 if (hostPart.includes(':')) {
                   // Handle URLs with port
                   const hostAndPort = hostPart.split(':');
-                  hostname = hostAndPort[0];
-                  port = parseInt(hostAndPort[1], 10) || 8000;
+                  hostname = hostAndPort[0] || 'localhost';
+                  port = parseInt(hostAndPort[1], 10);
+                  if (isNaN(port)) port = 8000;
                 } else {
-                  hostname = hostPart;
+                  hostname = hostPart || 'localhost';
                 }
 
-                // Extract path
-                path = '/' + rest.substring(hostPart.length + 1);
+                // Extract path with safety check
+                if (hostPart.length < rest.length) {
+                  path = '/' + rest.substring(hostPart.length + 1);
+                } else {
+                  path = '/health';
+                }
               } else {
                 // Handle URLs without path
                 if (rest.includes(':')) {
                   // Handle URLs with port
                   const hostAndPort = rest.split(':');
-                  hostname = hostAndPort[0];
-                  port = parseInt(hostAndPort[1], 10) || 8000;
+                  hostname = hostAndPort[0] || 'localhost';
+                  port = parseInt(hostAndPort[1], 10);
+                  if (isNaN(port)) port = 8000;
                 } else {
-                  hostname = rest;
+                  hostname = rest || 'localhost';
                 }
                 path = '/health';
               }
-            } else if (url.includes(':')) {
+            } else if (sanitizedUrl.includes(':')) {
               // Handle URLs without protocol but with port
-              const parts = url.split(':');
-              hostname = parts[0];
+              const parts = sanitizedUrl.split(':');
+              hostname = parts[0] || 'localhost';
 
-              if (parts[1].includes('/')) {
+              if (parts.length > 1 && parts[1].includes('/')) {
                 // Handle URLs with path
                 const portAndPath = parts[1].split('/', 1);
-                port = parseInt(portAndPath[0], 10) || 8000;
-                path = '/' + parts[1].substring(portAndPath[0].length + 1);
+                port = parseInt(portAndPath[0], 10);
+                if (isNaN(port)) port = 8000;
+
+                // Extract path with safety check
+                if (portAndPath[0].length < parts[1].length) {
+                  path = '/' + parts[1].substring(portAndPath[0].length + 1);
+                } else {
+                  path = '/health';
+                }
+              } else if (parts.length > 1) {
+                port = parseInt(parts[1], 10);
+                if (isNaN(port)) port = 8000;
+                path = '/health';
               } else {
-                port = parseInt(parts[1], 10) || 8000;
                 path = '/health';
               }
             } else {
               // Handle simple hostname
-              hostname = url;
+              hostname = sanitizedUrl || 'localhost';
               path = '/health';
             }
+
+            // Validate the parsed values
+            if (!hostname) hostname = 'localhost';
+            if (!port || isNaN(port) || port < 1 || port > 65535) port = 8000;
+            if (!path || !path.startsWith('/')) path = '/health';
 
             // Ensure path starts with /
             if (!path.startsWith('/')) {

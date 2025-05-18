@@ -45,7 +45,7 @@ console.log(`- CI environment: ${process.env.CI ? 'Yes' : 'No'}`);
 console.log(`- Hostname: ${os.hostname()}`);
 console.log(`- Memory: ${JSON.stringify(process.memoryUsage())}`);
 
-// Enhanced function to safely create directory with better error handling for CI
+// Enhanced function to safely create directory with improved error handling for CI
 function safelyCreateDirectory(dirPath) {
   try {
     // Normalize path to handle both forward and backward slashes
@@ -55,18 +55,37 @@ function safelyCreateDirectory(dirPath) {
       // Create directory with recursive option to create parent directories if needed
       fs.mkdirSync(normalizedPath, { recursive: true });
       console.log(`Created directory at ${normalizedPath}`);
+
+      // Verify the directory was actually created
+      if (!fs.existsSync(normalizedPath)) {
+        throw new Error(`Directory was not created despite no errors: ${normalizedPath}`);
+      }
+
       return true;
     } else {
       console.log(`Directory already exists at ${normalizedPath}`);
 
-      // Ensure the directory is writable
+      // Ensure the directory is writable with enhanced error handling
       try {
-        const testFile = path.join(normalizedPath, '.write-test');
+        const testFile = path.join(normalizedPath, `.write-test-${Date.now()}`);
         fs.writeFileSync(testFile, 'test');
         fs.unlinkSync(testFile);
         console.log(`Verified directory ${normalizedPath} is writable`);
       } catch (writeError) {
         console.warn(`Directory ${normalizedPath} exists but may not be writable: ${writeError.message}`);
+
+        // In CI environment, try to fix permissions
+        if (process.env.CI === 'true' || process.env.CI === true) {
+          console.log(`CI environment detected, attempting to fix permissions for ${normalizedPath}`);
+          try {
+            // This won't work in all environments but might help in some CI setups
+            // where the process has permission to change file modes
+            fs.chmodSync(normalizedPath, 0o777);
+            console.log(`Changed permissions for ${normalizedPath}`);
+          } catch (chmodError) {
+            console.warn(`Failed to change permissions: ${chmodError.message}`);
+          }
+        }
       }
 
       return true;
@@ -77,16 +96,45 @@ function safelyCreateDirectory(dirPath) {
     // Try with absolute path as fallback
     try {
       const absolutePath = path.resolve(dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-        return true;
+      if (absolutePath !== dirPath) {
+        console.log(`Trying with absolute path: ${absolutePath}`);
+
+        if (!fs.existsSync(absolutePath)) {
+          fs.mkdirSync(absolutePath, { recursive: true });
+          console.log(`Created directory at absolute path: ${absolutePath}`);
+          return true;
+        } else {
+          console.log(`Directory already exists at absolute path: ${absolutePath}`);
+          return true;
+        }
       } else {
-        console.log(`Directory already exists at absolute path: ${absolutePath}`);
-        return true;
+        console.log(`Original path was already absolute, trying alternative approach`);
       }
     } catch (fallbackError) {
       console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
+
+      // Try alternative approach if recursive option is not supported
+      try {
+        console.log(`Trying manual recursive directory creation for ${dirPath}`);
+        const mkdirp = (dirPath) => {
+          const parts = dirPath.split(path.sep);
+          let currentPath = '';
+
+          for (const part of parts) {
+            currentPath = currentPath ? path.join(currentPath, part) : part;
+            if (!fs.existsSync(currentPath)) {
+              fs.mkdirSync(currentPath);
+              console.log(`Created directory segment: ${currentPath}`);
+            }
+          }
+        };
+
+        mkdirp(dirPath);
+        console.log(`Created directory using manual recursive method: ${dirPath}`);
+        return true;
+      } catch (manualError) {
+        console.error(`Manual recursive directory creation also failed: ${manualError.message}`);
+      }
 
       // For CI environments, create a report about the directory creation failure
       if (process.env.CI === 'true' || process.env.CI === true) {
@@ -106,6 +154,21 @@ function safelyCreateDirectory(dirPath) {
             `CI: ${process.env.CI ? 'Yes' : 'No'}`
           );
           console.log(`Created error report at ${errorReport}`);
+
+          // Try to create the directory in the temp location as a last resort
+          const tempTargetDir = path.join(tempDir, path.basename(dirPath));
+          fs.mkdirSync(tempTargetDir, { recursive: true });
+          console.log(`Created fallback directory in temp location: ${tempTargetDir}`);
+
+          // Create a symbolic link if possible (won't work in all environments)
+          try {
+            if (!fs.existsSync(dirPath)) {
+              fs.symlinkSync(tempTargetDir, dirPath, 'dir');
+              console.log(`Created symbolic link from ${tempTargetDir} to ${dirPath}`);
+            }
+          } catch (symlinkError) {
+            console.warn(`Could not create symbolic link: ${symlinkError.message}`);
+          }
         } catch (reportError) {
           console.error(`Failed to create error report: ${reportError.message}`);
         }

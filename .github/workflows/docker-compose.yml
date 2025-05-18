@@ -253,14 +253,22 @@ jobs:
           if [ -d "ui/react_frontend" ]; then
             echo "Running frontend tests..."
             # Use CI mode for frontend tests with pnpm
-            # Try multiple test scripts in order of preference
-            $COMPOSE_CMD exec -T frontend sh -c "CI=true pnpm test:ci:new || pnpm test:ci || pnpm test:ci:windows || pnpm test:mock-api:ci || echo 'Frontend tests failed but continuing'" || echo "WARNING: Frontend tests failed or not available, but continuing anyway."
-
-            # Create test report directories if they don't exist
-            $COMPOSE_CMD exec -T frontend sh -c "mkdir -p playwright-report test-results coverage logs || true"
+            # Ensure report directories exist first
+            $COMPOSE_CMD exec -T frontend sh -c "node tests/ensure_report_dir.js || mkdir -p playwright-report test-results coverage logs || true"
 
             # Ensure permissions are correct
             $COMPOSE_CMD exec -T frontend sh -c "chmod -R 777 playwright-report test-results coverage logs || true"
+
+            # Install path-to-regexp explicitly to avoid CI issues
+            $COMPOSE_CMD exec -T frontend sh -c "npm install path-to-regexp@latest --save-dev || true"
+
+            # Try multiple test scripts in order of preference with enhanced logging
+            $COMPOSE_CMD exec -T frontend sh -c "CI=true VERBOSE_LOGGING=true pnpm test:ci:new || pnpm test:ci || pnpm test:ci:windows || pnpm test:mock-api:ci || echo 'Frontend tests failed but continuing'" || echo "WARNING: Frontend tests failed or not available, but continuing anyway."
+
+            # Collect logs for debugging
+            echo "Collecting test logs for debugging..."
+            $COMPOSE_CMD exec -T frontend sh -c "find playwright-report -type f -name '*.txt' -exec cat {} \; > logs/all-test-reports.log 2>/dev/null || true"
+            $COMPOSE_CMD exec -T frontend sh -c "find logs -type f -name '*.log' -exec cat {} \; > logs/all-logs-combined.log 2>/dev/null || true"
           else
             echo "No frontend directory found, skipping frontend tests."
           fi
