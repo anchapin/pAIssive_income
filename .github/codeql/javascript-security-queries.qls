@@ -8,7 +8,5 @@
 
 # Use standard security queries from CodeQL
 # Using standard query suites to avoid Windows path issues
-# Order matters - most specific first
-- uses: security
+# Only use the security-and-quality suite to avoid conflicts
 - uses: security-and-quality
-- uses: security-extended

@@ -95,13 +95,8 @@ paths-ignore:
 
 # Query filters
 queries:
-  # Use standard security queries to avoid Windows path issues
-  # Order matters - most specific first
-  - uses: security
+  # Use only the standard security-and-quality query suite to avoid conflicts
   - uses: security-and-quality
-  - uses: security-extended
-
-  # No custom query paths to avoid Windows path issues
 
 # Disable noisy alerts
 disable-default-queries: false

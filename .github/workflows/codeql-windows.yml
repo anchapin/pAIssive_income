@@ -43,7 +43,7 @@ jobs:
         shell: pwsh
         run: Get-Volume
 
-      # Create a simple package-lock.json if none exists
+      # Create a simple package-lock.json if none exists - simplified approach
       - name: Create package-lock.json if needed
         if: matrix.language == 'javascript-typescript'
         shell: pwsh
@@ -59,17 +59,13 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple JSON object
-            $packageLock = @{
-              name = "paissive-income"
-              version = "1.0.0"
-              lockfileVersion = 3
-            }
-
-            # Convert to JSON and write to file
+            # Use the most reliable method - direct string output
             try {
-              $jsonContent = ConvertTo-Json -InputObject $packageLock -Depth 1
-              Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
+              # Simple one-line JSON string to avoid any formatting issues
+              $jsonString = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+
+              # Write directly to file
+              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $jsonString)
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
@@ -79,19 +75,35 @@ jobs:
                 throw "Failed to create package-lock.json"
               }
             } catch {
-              Write-Host "Error creating package-lock.json: $_"
+              Write-Host "Error creating package-lock.json with System.IO: $_"
 
-              # Fallback method - direct string
+              # Fallback method 1 - Out-File
               try {
-                Write-Host "Trying fallback method with direct string..."
+                Write-Host "Trying fallback method with Out-File..."
                 '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
 
                 if (Test-Path "package-lock.json") {
-                  Write-Host "Created package-lock.json with fallback method"
+                  Write-Host "Created package-lock.json with Out-File method"
                   Get-Content -Path "package-lock.json"
+                } else {
+                  throw "Failed to create package-lock.json with Out-File"
                 }
               } catch {
-                Write-Host "All methods failed to create package-lock.json: $_"
+                Write-Host "Error with Out-File method: $_"
+
+                # Fallback method 2 - Set-Content
+                try {
+                  Write-Host "Trying final fallback with Set-Content..."
+                  Set-Content -Path "package-lock.json" -Value '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' -Encoding UTF8 -Force
+
+                  if (Test-Path "package-lock.json") {
+                    Write-Host "Created package-lock.json with Set-Content method"
+                  } else {
+                    Write-Host "All methods failed to create package-lock.json"
+                  }
+                } catch {
+                  Write-Host "All methods failed to create package-lock.json: $_"
+                }
               }
             }
           }
@@ -142,38 +154,77 @@ jobs:
             Write-Host "package-lock.json not found!"
           }
 
-      # Initialize CodeQL with simplified configuration
+      # Initialize CodeQL with simplified configuration - no custom config file
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
-          # No custom config file to avoid Windows path issues
 
-      # Verify environment before CodeQL analysis
+      # Verify environment before CodeQL analysis - enhanced version
       - name: Verify environment
         shell: pwsh
         run: |
           Write-Host "Verifying environment before CodeQL analysis..."
 
           # Final check for package-lock.json - create it if it still doesn't exist
-          if (-not (Test-Path "package-lock.json")) {
+          if (-not (Test-Path "package-lock.json") -and "${{ matrix.language }}" -eq 'javascript-typescript') {
             Write-Host "WARNING: package-lock.json still not found! Creating it as a last resort..."
-            # Use the most reliable method to create a minimal package-lock.json
+
+            # Use the most direct and reliable method
             try {
-              '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
-            } catch {
-              Write-Host "Error creating package-lock.json: $_"
+              # Create the simplest valid package-lock.json
+              $minimalJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+
+              # Try multiple methods to ensure file creation
+              # Method 1: System.IO
+              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $minimalJson)
+              Write-Host "Created package-lock.json using System.IO"
+            }
+            catch {
+              Write-Host "Error with System.IO method: $_"
+
+              # Method 2: Out-File
+              try {
+                $minimalJson | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
+                Write-Host "Created package-lock.json using Out-File"
+              }
+              catch {
+                Write-Host "Error with Out-File method: $_"
+
+                # Method 3: Set-Content
+                try {
+                  Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8 -Force
+                  Write-Host "Created package-lock.json using Set-Content"
+                }
+                catch {
+                  Write-Host "All file creation methods failed: $_"
+                }
+              }
             }
           }
 
-          # Check for package-lock.json
+          # Verify package-lock.json
           if (Test-Path "package-lock.json") {
             $fileInfo = Get-Item "package-lock.json"
             Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
-            Write-Host "Content: $(Get-Content -Path "package-lock.json" -Raw)"
-          } else {
+            $content = Get-Content -Path "package-lock.json" -Raw
+            Write-Host "Content: $content"
+
+            # Verify JSON is valid
+            try {
+              $null = ConvertFrom-Json -InputObject $content
+              Write-Host "package-lock.json contains valid JSON"
+            }
+            catch {
+              Write-Host "WARNING: package-lock.json contains invalid JSON: $_"
+              # Fix it with a guaranteed valid JSON
+              Set-Content -Path "package-lock.json" -Value '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' -Encoding UTF8 -Force
+              Write-Host "Replaced with valid JSON"
+            }
+          }
+          else {
             Write-Host "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
           }
 
@@ -181,6 +232,15 @@ jobs:
           if (-not (Test-Path "node_modules")) {
             Write-Host "Creating node_modules directory..."
             New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+          }
+
+          # Ensure .gitignore contains package-lock.json
+          if (Test-Path ".gitignore") {
+            $gitignore = Get-Content -Path ".gitignore" -Raw
+            if (-not ($gitignore -match "package-lock\.json")) {
+              Write-Host "Adding package-lock.json to .gitignore..."
+              Add-Content -Path ".gitignore" -Value "`n# Generated during CodeQL analysis`npackage-lock.json" -Force
+            }
           }
 
           Write-Host "Environment verification complete. Using standard CodeQL queries."
