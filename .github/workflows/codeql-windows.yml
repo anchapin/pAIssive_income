@@ -54,8 +54,8 @@ jobs:
           if ($lockFiles.Count -eq 0) {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple JSON object
-            $packageJson = @{
+            # Create a simple JSON object with minimal required fields
+            $json = @{
               name = "paissive-income"
               version = "1.0.0"
               lockfileVersion = 3
@@ -69,13 +69,12 @@ jobs:
             }
 
             # Convert to JSON with proper formatting
-            $jsonContent = ConvertTo-Json -InputObject $packageJson -Depth 10
+            $jsonContent = ConvertTo-Json -Depth 10 $json
 
-            # Write to file with UTF-8 encoding without BOM
-            [System.IO.File]::WriteAllText("package-lock.json", $jsonContent, [System.Text.Encoding]::UTF8)
+            # Write to file
+            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
-            Write-Host "Created minimal package-lock.json file with content:"
-            Get-Content -Path "package-lock.json" | ForEach-Object { Write-Host "  $_" }
+            Write-Host "Created minimal package-lock.json file"
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
             $lockFiles | ForEach-Object {
@@ -102,6 +101,29 @@ jobs:
           python -m pip install --upgrade uv
           uv pip install -r requirements.txt || python -m pip install -r requirements.txt
         continue-on-error: true
+
+      # Display environment information for debugging
+      - name: Display environment information
+        shell: pwsh
+        run: |
+          Write-Host "Current directory: $(Get-Location)"
+          Write-Host "Directory contents:"
+          Get-ChildItem -Path . | Format-Table Name, LastWriteTime, Length
+
+          Write-Host "CodeQL configuration directory:"
+          if (Test-Path ".github/codeql") {
+            Get-ChildItem -Path ".github/codeql" | Format-Table Name, LastWriteTime, Length
+          } else {
+            Write-Host "CodeQL configuration directory not found!"
+          }
+
+          Write-Host "CodeQL configuration file:"
+          if (Test-Path ".github/codeql/security-os-config.yml") {
+            Get-Content -Path ".github/codeql/security-os-config.yml" | Select-Object -First 20
+            Write-Host "... (truncated)"
+          } else {
+            Write-Host "CodeQL configuration file not found!"
+          }
 
       # Initialize CodeQL
       - name: Initialize CodeQL

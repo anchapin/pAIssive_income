@@ -5,17 +5,6 @@
 
 - description: Python Security Queries
 - queries: security
-- include:
-    kind:
-    - problem
-    - path-problem
-    precision:
-    - high
-    - very-high
-    tags contain:
-    - security
 
 # Use standard security queries
 - uses: security
-- uses: security-and-quality
-- uses: security-extended

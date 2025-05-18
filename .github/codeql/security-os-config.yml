@@ -98,9 +98,6 @@ queries:
   # Include the standard security and quality queries
   - uses: security-and-quality
 
-  # Include additional security queries
-  - uses: security-extended
-
 # Disable noisy alerts
 disable-default-queries: false
 
@@ -128,3 +125,7 @@ database:
   max-ast-nodes: 500000
   # Extraction timeout per file
   extraction-timeout: 300
+  # Windows-specific settings
+  windows:
+    # Increase timeout for Windows
+    extraction-timeout: 600

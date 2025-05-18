@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -88,13 +89,17 @@ def setup_directories() -> tuple[Path, Path, bool]:
 
     """
     try:
+        # Handle Windows path separators
+        bandit_dir_str = BANDIT_DIR.replace("/", os.sep)
+        security_reports_dir_str = SECURITY_REPORTS_DIR.replace("/", os.sep)
+
         # Create Bandit directory
-        bandit_dir = Path(BANDIT_DIR)
+        bandit_dir = Path(bandit_dir_str)
         bandit_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created Bandit directory: %s", bandit_dir)
 
         # Create security reports directory
-        security_reports_dir = Path(SECURITY_REPORTS_DIR)
+        security_reports_dir = Path(security_reports_dir_str)
         security_reports_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security reports directory: %s", security_reports_dir)
     except Exception:
@@ -171,8 +176,6 @@ def main() -> int:
         int: 0 for success, 1 for failure
 
     """
-    exit_code = 1
-
     try:
         # Log environment information for debugging
         logger.info("Current working directory: %s", Path.cwd())
@@ -193,20 +196,21 @@ def main() -> int:
 
         # Set up directories
         bandit_dir, _, setup_success = setup_directories()
-        if setup_success:
-            # Generate configuration files
-            success = generate_config_files(bandit_dir, run_id)
-            if success:
-                logger.info("Bandit configuration files generated successfully")
-                exit_code = 0
-            else:
-                logger.error("Some bandit configuration files could not be generated")
-        else:
+        if not setup_success:
             logger.error("Failed to set up directories")
+            return 1
+
+        # Generate configuration files
+        if not generate_config_files(bandit_dir, run_id):
+            logger.error("Some bandit configuration files could not be generated")
+            return 1
+
+        logger.info("Bandit configuration files generated successfully")
     except Exception:
         logger.exception("Unexpected error during Bandit configuration generation")
-
-    return exit_code
+        return 1
+    else:
+        return 0
 
 
 if __name__ == "__main__":
