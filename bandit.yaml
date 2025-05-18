@@ -36,12 +36,12 @@ output_format: json
 output_file: security-reports/bandit-results.json
 
 # Set the severity level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-severity: LOW
+# Options: 1 (LOW), 2 (MEDIUM), 3 (HIGH)
+severity: 1
 
 # Set the confidence level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-confidence: LOW
+# Options: 1 (LOW), 2 (MEDIUM), 3 (HIGH)
+confidence: 1
 
 # Per-test configurations
 any_other_function_with_shell_equals_true:

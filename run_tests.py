@@ -121,8 +121,8 @@ def count_tests(validated_args: list[str]) -> int:
     try:
         # Run pytest with --collect-only to get the list of tests
         # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # ruff: noqa: S603
-        result = subprocess.run(  # nosec B603
+        # nosec S603 - This is a safe subprocess call with no user input
+        result = subprocess.run(  # nosec B603 # noqa: S603
             [sys.executable, "-m", "pytest", "--collect-only", *validated_args],
             check=False,
             capture_output=True,
@@ -184,7 +184,9 @@ def ensure_security_reports_dir() -> None:
                     # Use directory junction on Windows
                     # Use full path to cmd.exe to avoid security warning
                     cmd_path = shutil.which("cmd.exe") or "cmd"
-                    subprocess.run(  # nosec B603
+                    # nosec B603 - subprocess call is used with shell=False and validated arguments
+                    # nosec S603 - This is a safe subprocess call with no user input
+                    subprocess.run(  # nosec B603 # noqa: S603
                         [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
                         check=False,
                         shell=False,
@@ -224,8 +226,8 @@ def main() -> None:
     # Ensure pytest-xdist is installed
     try:
         # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # ruff: noqa: S603
-        subprocess.run(  # nosec B603
+        # nosec S603 - This is a safe subprocess call with no user input
+        subprocess.run(  # nosec B603 # noqa: S603
             [sys.executable, "-m", "pip", "install", "pytest-xdist"],
             check=False,
             capture_output=True,
@@ -256,8 +258,9 @@ def main() -> None:
     try:
         # Check if pytest-xdist is available
         try:
-            # ruff: noqa: S603
-            xdist_check = subprocess.run(  # nosec B603
+            # nosec B603 - subprocess call is used with shell=False and validated arguments
+            # nosec S603 - This is a safe subprocess call with no user input
+            xdist_check = subprocess.run(  # nosec B603 # noqa: S603
                 [sys.executable, "-c", "import pytest_xdist"],
                 check=False,
                 capture_output=True,
@@ -283,8 +286,9 @@ def main() -> None:
 
         logger.info("Running pytest with command: %s", " ".join(pytest_cmd))
 
-        # ruff: noqa: S603
-        result = subprocess.run(  # nosec B603
+        # nosec B603 - subprocess call is used with shell=False and validated arguments
+        # nosec S603 - This is a safe subprocess call with no user input
+        result = subprocess.run(  # nosec B603 # noqa: S603
             pytest_cmd,
             check=False,
             shell=False,  # Explicitly set shell=False for security
