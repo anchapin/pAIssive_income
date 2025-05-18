@@ -55,6 +55,8 @@
 # Explicit ignore for security/test artifacts
 bandit-results-*.json
 bandit-results-*.txt
+bandit-results.json.tmp
+*.json.tmp
 coverage-*.xml
 junit/test-results-*.xml
 *-results-*.json

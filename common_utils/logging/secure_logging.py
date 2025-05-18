@@ -296,6 +296,7 @@ class SecureLogger:
             name: The name of the logger
 
         """
+        self.name = name  # Store the name attribute
         self.logger = logging.getLogger(name)
         self._handlers: list[logging.Handler] = self.logger.handlers
 
@@ -456,6 +457,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.debug(masked_msg, *args, **kwargs)
 
     def info(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -471,6 +477,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.info(masked_msg, *args, **kwargs)
 
     def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -486,6 +497,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.warning(masked_msg, *args, **kwargs)
 
     # Alias for warning
@@ -504,6 +520,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.error(masked_msg, *args, **kwargs)
 
     def critical(self, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -519,6 +540,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.critical(masked_msg, *args, **kwargs)
 
     # Alias for critical
@@ -537,6 +563,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.exception(masked_msg, *args, **kwargs)
 
     def log(self, level: int, msg: str, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
@@ -553,6 +584,11 @@ class SecureLogger:
         masked_msg = mask_sensitive_data(msg)
         if not isinstance(masked_msg, str):
             masked_msg = str(masked_msg)
+
+        # Add [SECURE] prefix if secure_context is True
+        if kwargs.get('secure_context', False):
+            masked_msg = f"[SECURE] {masked_msg}"
+
         self.logger.log(level, masked_msg, *args, **kwargs)
 
 

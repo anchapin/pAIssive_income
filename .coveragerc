@@ -52,8 +52,7 @@ omit =
     niche_analysis/*
     collaboration/*
     api/*
-    # Exclude common_utils and users directories
-    common_utils/*
+    # Exclude users directory
     users/*
     # Exclude frontend code
     frontend/*
@@ -123,9 +122,7 @@ omit =
     ai_models/adapters/lmstudio_adapter.py
     ai_models/adapters/ollama_adapter.py
     ai_models/adapters/openai_compatible_adapter.py
-    # Exclude logging modules that need separate testing
-    common_utils/logging/examples.py
-    common_utils/logging/logger.py
+    # Include logging modules for testing
     # Exclude validation modules that need separate testing
     common_utils/validation/*
     # Exclude secrets modules that need separate testing
@@ -153,7 +150,6 @@ omit =
     ai_models/artist_agent.py
     common_utils/config_loader.py
     common_utils/exceptions.py
-    common_utils/logging/__init__.py
     common_utils/tooling.py
 
 [report]

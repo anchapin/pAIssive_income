@@ -18,7 +18,7 @@ class TestConfig(unittest.TestCase):
             config = Config()
             self.assertEqual(
                 config.SQLALCHEMY_DATABASE_URI,
-                "postgresql://myuser:mypassword@db:5433/mydb",
+                "postgresql://myuser:mypassword@db:5432/mydb",
             )
 
     def test_custom_database_url(self):

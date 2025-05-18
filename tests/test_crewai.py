@@ -11,7 +11,18 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import the crewai module directly
-import crewai
+import sys
+import importlib.util
+import os
+
+# Get the absolute path to the crewai.py file
+crewai_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "crewai.py"))
+
+# Import the module using importlib.util
+spec = importlib.util.spec_from_file_location("crewai", crewai_path)
+crewai = importlib.util.module_from_spec(spec)
+sys.modules["crewai"] = crewai
+spec.loader.exec_module(crewai)
 
 
 class TestCrewAI:
@@ -19,13 +30,37 @@ class TestCrewAI:
 
     def test_version_attribute(self):
         """Test that the __version__ attribute is defined."""
-        # Set the version attribute if it doesn't exist
-        if not hasattr(crewai, "__version__"):
-            crewai.__version__ = "0.120.0"
-
         assert hasattr(crewai, "__version__")
         assert isinstance(crewai.__version__, str)
         assert crewai.__version__ == "0.120.0"
+
+    def test_version_attribute_format(self):
+        """Test that the __version__ attribute has the correct format."""
+        import re
+        # Check that the version follows semantic versioning (MAJOR.MINOR.PATCH)
+        version_pattern = re.compile(r'^\d+\.\d+\.\d+$')
+        assert version_pattern.match(crewai.__version__) is not None
+
+    def test_version_attribute_is_module_level(self):
+        """Test that the __version__ attribute is defined at the module level."""
+        # Get all attributes of the module
+        module_attrs = dir(crewai)
+
+        # Check that __version__ is in the module attributes
+        assert "__version__" in module_attrs
+
+        # Check that the attribute is accessible directly from the module
+        assert crewai.__version__ == "0.120.0"
+
+    def test_version_attribute_is_string(self):
+        """Test that the __version__ attribute is a string."""
+        assert isinstance(crewai.__version__, str)
+
+        # Check that the version is not empty
+        assert crewai.__version__ != ""
+
+        # Check that the version is not just whitespace
+        assert crewai.__version__.strip() == crewai.__version__
 
     def test_agent_class(self):
         """Test the Agent class."""
@@ -46,6 +81,19 @@ class TestCrewAI:
         assert agent.kwargs["verbose"] is True
         assert "allow_delegation" in agent.kwargs
         assert agent.kwargs["allow_delegation"] is False
+
+        # Test string representation
+        agent_str = str(agent)
+        assert "Agent" in agent_str
+        assert "Test Agent" in agent_str
+        assert "Test goal" in agent_str
+
+        # Test repr representation
+        agent_repr = repr(agent)
+        assert "Agent" in agent_repr
+        assert "Test Agent" in agent_repr
+        assert "Test goal" in agent_repr
+        assert "Test backstory" in agent_repr
 
     @patch('crewai.Agent.execute_task')
     def test_agent_execute_task(self, mock_execute_task):

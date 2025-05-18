@@ -28,23 +28,25 @@ class TestExamples:
         assert mock_logger.info.call_count == 3
 
         # Check that the first call contains the access token
-        first_call_args = mock_logger.info.call_args_list[0][0][0]
-        assert "Using access token:" in first_call_args
-        assert "EXAMPLE_ACCESS_TOKEN_NOT_REAL_VALUE" in first_call_args
+        first_call_args = mock_logger.info.call_args_list[0][0]
+        assert "Using access token: %s" == first_call_args[0]
+        assert "DEMO_TOKEN_PLACEHOLDER" == first_call_args[1]
 
         # Check that the second call contains the auth material
-        second_call_args = mock_logger.info.call_args_list[1][0][0]
-        assert "Authentication material:" in second_call_args
-        assert "EXAMPLE_PLACEHOLDER_NOT_A_REAL_VALUE" in second_call_args
+        second_call_args = mock_logger.info.call_args_list[1][0]
+        assert "Authentication material: %s" == second_call_args[0]
+        assert "DEMO_AUTH_PLACEHOLDER" == second_call_args[1]
 
         # Check that the third call contains the user data
-        third_call_args = mock_logger.info.call_args_list[2][0][0]
-        assert "User data:" in third_call_args
-        assert "john_doe" in third_call_args
-        assert "john@example.com" in third_call_args
-        assert "EXAMPLE_PLACEHOLDER_NOT_A_REAL_VALUE" in third_call_args
-        assert "EXAMPLE_ACCESS_TOKEN_NOT_REAL_VALUE" in third_call_args
-        assert "EXAMPLE_AUTH_PLACEHOLDER_NOT_REAL" in third_call_args
+        third_call_args = mock_logger.info.call_args_list[2][0]
+        assert "User data: %s" == third_call_args[0]
+        # Check that the user_data dictionary is passed as expected
+        user_data = third_call_args[1]
+        assert "john_doe" == user_data["username"]
+        assert "john@example.com" == user_data["email"]
+        assert "DEMO_AUTH_PLACEHOLDER" == user_data["auth_material"]
+        assert "DEMO_TOKEN_PLACEHOLDER" == user_data["secure_data"]["service_1"]
+        assert "EXAMPLE_AUTH_PLACEHOLDER_NOT_REAL" == user_data["secure_data"]["service_2"]
 
     @patch("common_utils.logging.examples.mask_sensitive_data")
     @patch("common_utils.logging.examples.logging.getLogger")
@@ -69,20 +71,20 @@ class TestExamples:
         # Check that the first call contains the access token
         first_call_args = mock_mask_sensitive_data.call_args_list[0][0][0]
         assert "Using access token:" in first_call_args
-        assert "EXAMPLE_ACCESS_TOKEN_FOR_DEMONSTRATION_ONLY" in first_call_args
+        assert "DEMO_TOKEN_PLACEHOLDER" in first_call_args
 
         # Check that the second call contains the config dictionary
         second_call_args = mock_mask_sensitive_data.call_args_list[1][0][0]
         assert isinstance(second_call_args, dict)
         assert "access_token" in second_call_args
-        assert second_call_args["access_token"] == "EXAMPLE_ACCESS_TOKEN_FOR_DEMONSTRATION_ONLY"
+        assert second_call_args["access_token"] == "DEMO_TOKEN_PLACEHOLDER"
         assert "endpoint" in second_call_args
         assert "timeout" in second_call_args
 
         # Verify that the logger's info method was called with the masked values
         assert mock_logger.info.call_count == 2
-        mock_logger.info.assert_any_call("MASKED: Using access token: EXAMPLE_ACCESS_TOKEN_FOR_DEMONSTRATION_ONLY")
-        mock_logger.info.assert_any_call("Configuration: {'masked': True}")
+        mock_logger.info.assert_any_call("%s", "MASKED: Using access token: DEMO_TOKEN_PLACEHOLDER")
+        mock_logger.info.assert_any_call("Configuration: %s", {"masked": True})
 
     @patch("common_utils.logging.examples.logging.basicConfig")
     def test_module_logging_setup(self, mock_logging_basicConfig):

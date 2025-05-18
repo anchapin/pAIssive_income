@@ -16,6 +16,7 @@ from common_utils.logging.secure_logging import (
     get_secure_logger,
     is_sensitive_key,
     mask_sensitive_data,
+    prevent_log_injection,
 )
 
 
@@ -192,6 +193,85 @@ class TestSecureLogging:
         """Test mask_sensitive_data with None input."""
         assert mask_sensitive_data(None) is None
 
+    def test_prevent_log_injection_with_string(self):
+        """Test prevent_log_injection with string input."""
+        # Test with newlines
+        text = "Line 1\nLine 2\rLine 3\r\nLine 4"
+        result = prevent_log_injection(text)
+        assert "\n" not in result
+        assert "\r" not in result
+        assert "Line 1 Line 2 Line 3 Line 4" == result
+
+        # Test with control characters
+        text = "Hello\x00World\x1FTest"
+        result = prevent_log_injection(text)
+        assert "\x00" not in result
+        assert "\x1F" not in result
+        assert "HelloWorldTest" == result
+
+    def test_prevent_log_injection_with_dict(self):
+        """Test prevent_log_injection with dictionary input."""
+        data = {
+            "normal": "value",
+            "injection": "Line 1\nLine 2\rLine 3",
+            "nested": {
+                "normal": "value",
+                "injection": "Hello\x00World\x1FTest"
+            }
+        }
+        result = prevent_log_injection(data)
+
+        # Check that the structure is preserved
+        assert isinstance(result, dict)
+        assert "normal" in result
+        assert "injection" in result
+        assert "nested" in result
+        assert isinstance(result["nested"], dict)
+
+        # Check that injections are sanitized
+        assert "\n" not in result["injection"]
+        assert "\r" not in result["injection"]
+        assert "\x00" not in result["nested"]["injection"]
+        assert "\x1F" not in result["nested"]["injection"]
+
+    def test_prevent_log_injection_with_list(self):
+        """Test prevent_log_injection with list input."""
+        data = [
+            "normal value",
+            "Line 1\nLine 2\rLine 3",
+            ["nested", "Hello\x00World\x1FTest"],
+            {"key": "Line 1\nLine 2"}
+        ]
+        result = prevent_log_injection(data)
+
+        # Check that the structure is preserved
+        assert isinstance(result, list)
+        assert len(result) == 4
+        assert isinstance(result[2], list)
+        assert isinstance(result[3], dict)
+
+        # Check that injections are sanitized
+        assert "\n" not in result[1]
+        assert "\r" not in result[1]
+        assert "\x00" not in result[2][1]
+        assert "\x1F" not in result[2][1]
+        assert "\n" not in result[3]["key"]
+
+    def test_prevent_log_injection_with_none(self):
+        """Test prevent_log_injection with None input."""
+        assert prevent_log_injection(None) is None
+
+    def test_prevent_log_injection_with_other_types(self):
+        """Test prevent_log_injection with other types."""
+        # Test with integer
+        assert prevent_log_injection(123) == 123
+
+        # Test with boolean
+        assert prevent_log_injection(True) is True
+
+        # Test with float
+        assert prevent_log_injection(123.45) == 123.45
+
     def test_get_secure_logger(self):
         """Test get_secure_logger function."""
         logger = get_secure_logger("test_secure_logger")
@@ -215,6 +295,22 @@ class TestSecureLogging:
         mock_logger.debug.assert_called_once_with("masked_message")
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_debug_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.debug method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.debug("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.debug.assert_called_once_with("[SECURE] masked_message", secure_context=True)
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_info(self, mock_mask_sensitive_data):
         """Test SecureLogger.info method."""
         # Setup
@@ -229,6 +325,22 @@ class TestSecureLogging:
         # Assertions
         mock_mask_sensitive_data.assert_called_once_with("sensitive message")
         mock_logger.info.assert_called_once_with("masked_message")
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_info_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.info method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.info("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.info.assert_called_once_with("[SECURE] masked_message", secure_context=True)
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_warning(self, mock_mask_sensitive_data):
@@ -247,6 +359,22 @@ class TestSecureLogging:
         mock_logger.warning.assert_called_once_with("masked_message")
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_warning_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.warning method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.warning("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.warning.assert_called_once_with("[SECURE] masked_message", secure_context=True)
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_error(self, mock_mask_sensitive_data):
         """Test SecureLogger.error method."""
         # Setup
@@ -261,6 +389,22 @@ class TestSecureLogging:
         # Assertions
         mock_mask_sensitive_data.assert_called_once_with("sensitive message")
         mock_logger.error.assert_called_once_with("masked_message")
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_error_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.error method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.error("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.error.assert_called_once_with("[SECURE] masked_message", secure_context=True)
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_critical(self, mock_mask_sensitive_data):
@@ -279,6 +423,22 @@ class TestSecureLogging:
         mock_logger.critical.assert_called_once_with("masked_message")
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_critical_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.critical method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.critical("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.critical.assert_called_once_with("[SECURE] masked_message", secure_context=True)
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_exception(self, mock_mask_sensitive_data):
         """Test SecureLogger.exception method."""
         # Setup
@@ -295,6 +455,22 @@ class TestSecureLogging:
         mock_logger.exception.assert_called_once_with("masked_message")
 
     @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_exception_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.exception method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.exception("sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.exception.assert_called_once_with("[SECURE] masked_message", secure_context=True)
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
     def test_secure_logger_log(self, mock_mask_sensitive_data):
         """Test SecureLogger.log method."""
         # Setup
@@ -309,6 +485,22 @@ class TestSecureLogging:
         # Assertions
         mock_mask_sensitive_data.assert_called_once_with("sensitive message")
         mock_logger.log.assert_called_once_with(logging.INFO, "masked_message")
+
+    @patch("common_utils.logging.secure_logging.mask_sensitive_data")
+    def test_secure_logger_log_with_secure_context(self, mock_mask_sensitive_data):
+        """Test SecureLogger.log method with secure_context."""
+        # Setup
+        mock_mask_sensitive_data.return_value = "masked_message"
+        mock_logger = MagicMock()
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Call the method with secure_context=True
+        secure_logger.log(logging.INFO, "sensitive message", secure_context=True)
+
+        # Assertions
+        mock_mask_sensitive_data.assert_called_once_with("sensitive message")
+        mock_logger.log.assert_called_once_with(logging.INFO, "[SECURE] masked_message", secure_context=True)
 
     def test_secure_logger_set_level(self):
         """Test SecureLogger.set_level method."""
