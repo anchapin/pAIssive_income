@@ -11,7 +11,7 @@ import logging
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import shlex
-from typing import Sequence, List
+from typing import List, Sequence
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")

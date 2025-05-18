@@ -40,12 +40,12 @@ output_format: sarif
 output_file: security-reports/bandit-results.sarif
 
 # Set the severity level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-severity: MEDIUM
+# Options: low, medium, high
+severity_level: medium
 
 # Set the confidence level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-confidence: MEDIUM
+# Options: low, medium, high
+confidence_level: medium
 
 # Per-test configurations
 any_other_function_with_shell_equals_true:

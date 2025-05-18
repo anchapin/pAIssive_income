@@ -15,7 +15,12 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2025-05-18T02:05:00Z"
+          "endTimeUtc": "2025-05-18T03:00:00Z",
+          "toolExecutionNotifications": [],
+          "properties": {
+            "bandit_version": "1.7.5",
+            "python_version": "3.12.4"
+          }
         }
       ]
     }
