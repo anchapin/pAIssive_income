@@ -10,7 +10,7 @@ This script counts the number of tests to be run and sets the appropriate number
 from __future__ import annotations
 
 import logging
-import os
+import os.path  # Used for os.path.normpath and os.sep
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
