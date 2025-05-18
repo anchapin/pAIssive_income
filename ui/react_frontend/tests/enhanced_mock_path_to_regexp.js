@@ -4,6 +4,7 @@
  * This script creates a more robust mock implementation of the path-to-regexp module
  * to avoid dependency issues in CI environments. It includes additional error handling
  * and compatibility features.
+ * Added sanitization to prevent log injection vulnerabilities.
  *
  * Usage:
  * - Run this script directly: node tests/enhanced_mock_path_to_regexp.js
@@ -31,17 +32,51 @@ try {
   // Continue anyway, we'll handle logging failures gracefully
 }
 
+/**
+ * Sanitizes a value for safe logging to prevent log injection attacks.
+ *
+ * @param {any} value - The value to sanitize
+ * @returns {string} - A sanitized string representation of the value
+ */
+function sanitizeForLog(value) {
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+
+  if (typeof value === 'string') {
+    // Replace newlines, carriage returns and other control characters
+    return value
+      .replace(/[\n\r\t\v\f\b]/g, ' ')
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+      .replace(/[^\x20-\x7E]/g, '?');
+  }
+
+  if (typeof value === 'object') {
+    try {
+      // For objects, we sanitize the JSON string representation
+      const stringified = JSON.stringify(value);
+      return sanitizeForLog(stringified);
+    } catch (error) {
+      return '[Object sanitization failed]';
+    }
+  }
+
+  // For other types (number, boolean), convert to string
+  return String(value);
+}
+
 // Helper function for logging with timestamps and levels
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   const prefix = `[${timestamp}] [${level.toUpperCase()}] [enhanced-mock-path-to-regexp]`;
+  const sanitizedMessage = sanitizeForLog(message);
 
   if (level === 'info' && !verboseLogging) {
     // Still write to log file but don't output to console unless verbose
     try {
       fs.appendFileSync(
         path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
-        `${prefix} ${message}\n`
+        `${prefix} ${sanitizedMessage}\n`
       );
     } catch (error) {
       // Silent failure for log file writes
@@ -51,16 +86,16 @@ function log(message, level = 'info') {
 
   // Output to console for errors, warnings, or when verbose logging is enabled
   if (level === 'error' || level === 'warn') {
-    console[level](`${prefix} ${message}`);
+    console[level](`${prefix} ${sanitizedMessage}`);
   } else if (verboseLogging || level === 'important') {
-    console.log(`${prefix} ${message}`);
+    console.log(`${prefix} ${sanitizedMessage}`);
   }
 
   // Also write to log file
   try {
     fs.appendFileSync(
       path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
-      `${prefix} ${message}\n`
+      `${prefix} ${sanitizedMessage}\n`
     );
   } catch (error) {
     // Silent failure for log file writes
@@ -171,7 +206,41 @@ function createEnhancedMockImplementation() {
  * Ultra-robust mock implementation of path-to-regexp for CI compatibility
  * Created at ${new Date().toISOString()}
  * For Docker and CI environments
+ * With sanitization to prevent log injection vulnerabilities
  */
+
+/**
+ * Sanitizes a value for safe logging to prevent log injection attacks.
+ *
+ * @param {any} value - The value to sanitize
+ * @returns {string} - A sanitized string representation of the value
+ */
+function sanitizeForLog(value) {
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+
+  if (typeof value === 'string') {
+    // Replace newlines, carriage returns and other control characters
+    return value
+      .replace(/[\n\r\t\v\f\b]/g, ' ')
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+      .replace(/[^\x20-\x7E]/g, '?');
+  }
+
+  if (typeof value === 'object') {
+    try {
+      // For objects, we sanitize the JSON string representation
+      const stringified = JSON.stringify(value);
+      return sanitizeForLog(stringified);
+    } catch (error) {
+      return '[Object sanitization failed]';
+    }
+  }
+
+  // For other types (number, boolean), convert to string
+  return String(value);
+}
 
 /**
  * Convert path to regexp
@@ -183,7 +252,7 @@ function createEnhancedMockImplementation() {
 function pathToRegexp(path, keys, options) {
   try {
     if (process.env.VERBOSE_LOGGING === 'true') {
-      console.log('[path-to-regexp] Mock called with path:', path);
+      console.log('[path-to-regexp] Mock called with path:', sanitizeForLog(path));
     }
 
     // Handle different input types
@@ -210,14 +279,14 @@ function pathToRegexp(path, keys, options) {
           });
         });
       } catch (keysError) {
-        console.error('[path-to-regexp] Error processing keys:', keysError);
+        console.error('[path-to-regexp] Error processing keys:', sanitizeForLog(keysError));
         // Continue despite error
       }
     }
 
     return new RegExp('.*');
   } catch (error) {
-    console.error('[path-to-regexp] Error in mock implementation:', error);
+    console.error('[path-to-regexp] Error in mock implementation:', sanitizeForLog(error));
     return new RegExp('.*');
   }
 }
@@ -233,7 +302,7 @@ pathToRegexp.pathToRegexp = pathToRegexp;
 pathToRegexp.parse = function parse(str) {
   try {
     if (process.env.VERBOSE_LOGGING === 'true') {
-      console.log('[path-to-regexp] Mock parse called with:', str);
+      console.log('[path-to-regexp] Mock parse called with:', sanitizeForLog(str));
     }
 
     const tokens = [];
@@ -259,7 +328,7 @@ pathToRegexp.parse = function parse(str) {
 
     return tokens;
   } catch (error) {
-    console.error('[path-to-regexp] Error in mock parse implementation:', error);
+    console.error('[path-to-regexp] Error in mock parse implementation:', sanitizeForLog(error));
     return [];
   }
 };
@@ -272,7 +341,7 @@ pathToRegexp.parse = function parse(str) {
 pathToRegexp.compile = function compile(str) {
   try {
     if (process.env.VERBOSE_LOGGING === 'true') {
-      console.log('[path-to-regexp] Mock compile called with:', str);
+      console.log('[path-to-regexp] Mock compile called with:', sanitizeForLog(str));
     }
 
     return function(params) {
@@ -288,12 +357,12 @@ pathToRegexp.compile = function compile(str) {
         }
         return str || '';
       } catch (error) {
-        console.error('[path-to-regexp] Error in mock compile implementation:', error);
+        console.error('[path-to-regexp] Error in mock compile implementation:', sanitizeForLog(error));
         return str || '';
       }
     };
   } catch (e) {
-    console.error('[path-to-regexp] Error creating compile function:', e);
+    console.error('[path-to-regexp] Error creating compile function:', sanitizeForLog(e));
     return function() { return ''; };
   }
 };
@@ -306,13 +375,13 @@ pathToRegexp.compile = function compile(str) {
 pathToRegexp.match = function match(path) {
   try {
     if (process.env.VERBOSE_LOGGING === 'true') {
-      console.log('[path-to-regexp] Mock match called with:', path);
+      console.log('[path-to-regexp] Mock match called with:', sanitizeForLog(path));
     }
 
     return function(pathname) {
       try {
         if (process.env.VERBOSE_LOGGING === 'true') {
-          console.log('[path-to-regexp] Mock match function called with pathname:', pathname);
+          console.log('[path-to-regexp] Mock match function called with pathname:', sanitizeForLog(pathname));
         }
 
         // Extract parameter values from the pathname if possible
@@ -344,7 +413,7 @@ pathToRegexp.match = function match(path) {
           isExact: isExact
         };
       } catch (e) {
-        console.error('[path-to-regexp] Error in mock match function:', e);
+        console.error('[path-to-regexp] Error in mock match function:', sanitizeForLog(e));
         return {
           path: pathname,
           params: {},
@@ -354,7 +423,7 @@ pathToRegexp.match = function match(path) {
       }
     };
   } catch (e) {
-    console.error('[path-to-regexp] Error creating match function:', e);
+    console.error('[path-to-regexp] Error creating match function:', sanitizeForLog(e));
     return function() {
       return {
         path: '',
@@ -396,7 +465,7 @@ pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
 
     return new RegExp('.*');
   } catch (e) {
-    console.error('[path-to-regexp] Error in mock tokensToRegexp implementation:', e);
+    console.error('[path-to-regexp] Error in mock tokensToRegexp implementation:', sanitizeForLog(e));
     return new RegExp('.*');
   }
 };
@@ -430,12 +499,12 @@ pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
         }
         return '';
       } catch (e) {
-        console.error('[path-to-regexp] Error in mock tokensToFunction function:', e);
+        console.error('[path-to-regexp] Error in mock tokensToFunction function:', sanitizeForLog(e));
         return '';
       }
     };
   } catch (e) {
-    console.error('[path-to-regexp] Error creating tokensToFunction function:', e);
+    console.error('[path-to-regexp] Error creating tokensToFunction function:', sanitizeForLog(e));
     return function() { return ''; };
   }
 };
@@ -512,7 +581,7 @@ This package is automatically installed by the CI workflow.
       mockDir = location;
       break; // Exit the loop if successful
     } catch (error) {
-      log(`Failed to create mock at ${location}: ${error.message}`, 'warn');
+      log(`Failed to create mock at ${location}: ${sanitizeForLog(error.message)}`, 'warn');
       // Continue to the next location
     }
   }
@@ -533,7 +602,7 @@ This package is automatically installed by the CI workflow.
           // Return an in-memory mock implementation
           const mockPathToRegexp = function(path, keys, options) {
             if (process.env.VERBOSE_LOGGING === 'true') {
-              console.log('[path-to-regexp] In-memory mock called with path:', path);
+              console.log('[path-to-regexp] In-memory mock called with path:', sanitizeForLog(path));
             }
 
             // If keys is provided, populate it with parameter names
@@ -571,7 +640,7 @@ This package is automatically installed by the CI workflow.
       log('Successfully monkey patched require', 'important');
       mockCreated = true;
     } catch (patchError) {
-      log(`Failed to monkey patch require: ${patchError.message}`, 'error');
+      log(`Failed to monkey patch require: ${sanitizeForLog(patchError.message)}`, 'error');
     }
   }
 
@@ -594,7 +663,7 @@ function enhancedMonkeyPatchRequire() {
         function pathToRegexp(path, keys, options) {
           try {
             if (verboseLogging) {
-              log(`Mock pathToRegexp called with path: ${path}`, 'info');
+              log(`Mock pathToRegexp called with path: ${sanitizeForLog(path)}`, 'info');
             }
 
             // Handle different input types
@@ -621,14 +690,14 @@ function enhancedMonkeyPatchRequire() {
                   });
                 });
               } catch (keysError) {
-                log(`Error processing keys: ${keysError.message}`, 'warn');
+                log(`Error processing keys: ${sanitizeForLog(keysError.message)}`, 'warn');
                 // Continue despite error
               }
             }
 
             return new RegExp('.*');
           } catch (e) {
-            log(`Error in mock implementation: ${e.message}`, 'error');
+            log(`Error in mock implementation: ${sanitizeForLog(e.message)}`, 'error');
             return new RegExp('.*');
           }
         }
@@ -639,7 +708,7 @@ function enhancedMonkeyPatchRequire() {
         pathToRegexp.parse = function parse(str) {
           try {
             if (verboseLogging) {
-              log(`Mock parse called with path: ${str}`, 'info');
+              log(`Mock parse called with path: ${sanitizeForLog(str)}`, 'info');
             }
 
             const tokens = [];
@@ -665,7 +734,7 @@ function enhancedMonkeyPatchRequire() {
 
             return tokens;
           } catch (e) {
-            log(`Error in mock parse implementation: ${e.message}`, 'error');
+            log(`Error in mock parse implementation: ${sanitizeForLog(e.message)}`, 'error');
             return [];
           }
         };
@@ -673,7 +742,7 @@ function enhancedMonkeyPatchRequire() {
         pathToRegexp.compile = function compile(str) {
           try {
             if (verboseLogging) {
-              log(`Mock compile called with path: ${str}`, 'info');
+              log(`Mock compile called with path: ${sanitizeForLog(str)}`, 'info');
             }
 
             return function(params) {
@@ -689,12 +758,12 @@ function enhancedMonkeyPatchRequire() {
                 }
                 return str || '';
               } catch (e) {
-                log(`Error in mock compile implementation: ${e.message}`, 'error');
+                log(`Error in mock compile implementation: ${sanitizeForLog(e.message)}`, 'error');
                 return str || '';
               }
             };
           } catch (e) {
-            log(`Error creating compile function: ${e.message}`, 'error');
+            log(`Error creating compile function: ${sanitizeForLog(e.message)}`, 'error');
             return function() { return ''; };
           }
         };
@@ -702,13 +771,13 @@ function enhancedMonkeyPatchRequire() {
         pathToRegexp.match = function match(path) {
           try {
             if (verboseLogging) {
-              log(`Mock match called with path: ${path}`, 'info');
+              log(`Mock match called with path: ${sanitizeForLog(path)}`, 'info');
             }
 
             return function(pathname) {
               try {
                 if (verboseLogging) {
-                  log(`Mock match function called with pathname: ${pathname}`, 'info');
+                  log(`Mock match function called with pathname: ${sanitizeForLog(pathname)}`, 'info');
                 }
 
                 // Extract parameter values from the pathname if possible
@@ -740,7 +809,7 @@ function enhancedMonkeyPatchRequire() {
                   isExact: isExact
                 };
               } catch (e) {
-                log(`Error in mock match function: ${e.message}`, 'error');
+                log(`Error in mock match function: ${sanitizeForLog(e.message)}`, 'error');
                 return {
                   path: pathname,
                   params: {},
@@ -750,7 +819,7 @@ function enhancedMonkeyPatchRequire() {
               }
             };
           } catch (e) {
-            log(`Error creating match function: ${e.message}`, 'error');
+            log(`Error creating match function: ${sanitizeForLog(e.message)}`, 'error');
             return function() {
               return {
                 path: '',
@@ -785,7 +854,7 @@ function enhancedMonkeyPatchRequire() {
 
             return new RegExp('.*');
           } catch (e) {
-            log(`Error in mock tokensToRegexp implementation: ${e.message}`, 'error');
+            log(`Error in mock tokensToRegexp implementation: ${sanitizeForLog(e.message)}`, 'error');
             return new RegExp('.*');
           }
         };
@@ -814,12 +883,12 @@ function enhancedMonkeyPatchRequire() {
                 }
                 return '';
               } catch (e) {
-                log(`Error in mock tokensToFunction function: ${e.message}`, 'error');
+                log(`Error in mock tokensToFunction function: ${sanitizeForLog(e.message)}`, 'error');
                 return '';
               }
             };
           } catch (e) {
-            log(`Error creating tokensToFunction function: ${e.message}`, 'error');
+            log(`Error creating tokensToFunction function: ${sanitizeForLog(e.message)}`, 'error');
             return function() { return ''; };
           }
         };
@@ -865,12 +934,12 @@ function enhancedMonkeyPatchRequire() {
         `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n`
       );
     } catch (markerError) {
-      log(`Failed to create require patched marker file: ${markerError.message}`, 'warn');
+      log(`Failed to create require patched marker file: ${sanitizeForLog(markerError.message)}`, 'warn');
     }
 
     return true;
   } catch (patchError) {
-    log(`Failed to patch require: ${patchError.message}`, 'error');
+    log(`Failed to patch require: ${sanitizeForLog(patchError.message)}`, 'error');
     return false;
   }
 }
@@ -890,7 +959,7 @@ try {
   );
   log('Logged implementation results', 'info');
 } catch (logError) {
-  log(`Failed to log implementation results: ${logError.message}`, 'warn');
+  log(`Failed to log implementation results: ${sanitizeForLog(logError.message)}`, 'warn');
 }
 
 // Create a success marker file for CI environments
@@ -929,7 +998,7 @@ if (isCI || isDockerEnvironment) {
         log(`Created success marker file in ${dir}`, 'info');
         markerCreated = true;
       } catch (markerError) {
-        log(`Failed to create success marker in ${dir}: ${markerError.message}`, 'warn');
+        log(`Failed to create success marker in ${dir}: ${sanitizeForLog(markerError.message)}`, 'warn');
       }
     }
 
@@ -937,7 +1006,7 @@ if (isCI || isDockerEnvironment) {
       log('Failed to create any success marker files', 'warn');
     }
   } catch (markerError) {
-    log(`Failed to create success marker files: ${markerError.message}`, 'warn');
+    log(`Failed to create success marker files: ${sanitizeForLog(markerError.message)}`, 'warn');
   }
 }
 
@@ -949,27 +1018,27 @@ try {
 
   // Test the mock implementation
   const regex = pathToRegexp('/test/:id');
-  log(`Mock regex created: ${regex}`, 'info');
+  log(`Mock regex created: ${sanitizeForLog(regex)}`, 'info');
 
   // Test with keys
   const keys = [];
   const regexWithKeys = pathToRegexp('/users/:userId/posts/:postId', keys);
-  log(`Mock regex with keys created: ${regexWithKeys}`, 'info');
-  log(`Keys: ${JSON.stringify(keys)}`, 'info');
+  log(`Mock regex with keys created: ${sanitizeForLog(regexWithKeys)}`, 'info');
+  log(`Keys: ${sanitizeForLog(JSON.stringify(keys))}`, 'info');
 
   // Test the parse method
   const tokens = pathToRegexp.parse('/users/:userId/posts/:postId');
-  log(`Parse result: ${JSON.stringify(tokens)}`, 'info');
+  log(`Parse result: ${sanitizeForLog(JSON.stringify(tokens))}`, 'info');
 
   // Test the compile method
   const toPath = pathToRegexp.compile('/users/:userId/posts/:postId');
   const path = toPath({ userId: '123', postId: '456' });
-  log(`Compile result: ${path}`, 'info');
+  log(`Compile result: ${sanitizeForLog(path)}`, 'info');
 
   // Test the match method
   const matchFn = pathToRegexp.match('/users/:userId/posts/:postId');
   const matchResult = matchFn('/users/123/posts/456');
-  log(`Match result: ${JSON.stringify(matchResult)}`, 'info');
+  log(`Match result: ${sanitizeForLog(JSON.stringify(matchResult))}`, 'info');
 
   verificationSuccess = true;
   log('Mock implementation verification successful', 'important');
@@ -981,7 +1050,7 @@ try {
       `Timestamp: ${new Date().toISOString()}\n`
     );
   } catch (logError) {
-    log(`Failed to log verification success: ${logError.message}`, 'warn');
+    log(`Failed to log verification success: ${sanitizeForLog(logError.message)}`, 'warn');
   }
 } catch (error) {
   log(`Failed to load or verify path-to-regexp: ${error.message}`, 'error');

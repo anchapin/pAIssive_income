@@ -8,6 +8,7 @@
  * Added more comprehensive mock implementation with all required functions.
  * Improved directory creation and file writing for CI environments.
  * Added additional fallback mechanisms for GitHub Actions workflow.
+ * Added sanitization to prevent log injection vulnerabilities.
  *
  * Usage:
  * - Run this script directly: node tests/mock_path_to_regexp.js
@@ -20,13 +21,68 @@ const path = require('path');
 // Check if we're in a CI environment
 const isCI = process.env.CI === 'true' || process.env.CI === true;
 
-console.log(`Mock path-to-regexp script running (CI: ${isCI ? 'Yes' : 'No'})`);
+/**
+ * Sanitizes a value for safe logging to prevent log injection attacks.
+ *
+ * @param {any} value - The value to sanitize
+ * @returns {string} - A sanitized string representation of the value
+ */
+function sanitizeForLog(value) {
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+
+  if (typeof value === 'string') {
+    // Replace newlines, carriage returns and other control characters
+    return value
+      .replace(/[\n\r\t\v\f\b]/g, ' ')
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+      .replace(/[^\x20-\x7E]/g, '?');
+  }
+
+  if (typeof value === 'object') {
+    try {
+      // For objects, we sanitize the JSON string representation
+      const stringified = JSON.stringify(value);
+      return sanitizeForLog(stringified);
+    } catch (error) {
+      return '[Object sanitization failed]';
+    }
+  }
+
+  // For other types (number, boolean), convert to string
+  return String(value);
+}
+
+/**
+ * Safely logs a message with sanitized values
+ *
+ * @param {string} message - The message template
+ * @param {any} value - The value to sanitize and include in the log
+ * @returns {void}
+ */
+function safeLog(message, value) {
+  console.log(message, sanitizeForLog(value));
+}
+
+/**
+ * Safely logs an error with sanitized values
+ *
+ * @param {string} message - The message template
+ * @param {any} value - The value to sanitize and include in the log
+ * @returns {void}
+ */
+function safeErrorLog(message, value) {
+  console.error(message, sanitizeForLog(value));
+}
+
+safeLog(`Mock path-to-regexp script running (CI: ${isCI ? 'Yes' : 'No'})`, '');
 
 // Create logs directory if it doesn't exist
 const logDir = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
-  console.log(`Created logs directory at ${logDir}`);
+  safeLog(`Created logs directory at ${logDir}`, '');
 }
 
 // Log the execution of this script
@@ -49,21 +105,21 @@ function createMockImplementation() {
     const nodeModulesDir = path.join(process.cwd(), 'node_modules');
     if (!fs.existsSync(nodeModulesDir)) {
       fs.mkdirSync(nodeModulesDir, { recursive: true });
-      console.log(`Created node_modules directory at ${nodeModulesDir}`);
+      safeLog(`Created node_modules directory at ${nodeModulesDir}`, '');
     }
 
     // Then create the path-to-regexp directory
     if (!fs.existsSync(mockDir)) {
       fs.mkdirSync(mockDir, { recursive: true });
-      console.log(`Created mock directory at ${mockDir}`);
+      safeLog(`Created mock directory at ${mockDir}`, '');
 
       // In CI environment, try to fix permissions
       if (isCI) {
         try {
           fs.chmodSync(mockDir, 0o777);
-          console.log(`Set permissions for ${mockDir}`);
+          safeLog(`Set permissions for ${mockDir}`, '');
         } catch (chmodError) {
-          console.warn(`Failed to set permissions: ${chmodError.message}`);
+          safeErrorLog(`Failed to set permissions:`, chmodError.message);
         }
       }
     }
@@ -236,7 +292,7 @@ module.exports = pathToRegexp;`;
 
     // Write the mock implementation to disk
     fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
-    console.log(`Created mock implementation at ${path.join(mockDir, 'index.js')}`);
+    safeLog(`Created mock implementation at ${path.join(mockDir, 'index.js')}`, '');
 
     // Create a package.json file with more details
     const packageJson = {
@@ -257,7 +313,7 @@ module.exports = pathToRegexp;`;
       path.join(mockDir, 'package.json'),
       JSON.stringify(packageJson, null, 2)
     );
-    console.log(`Created mock package.json at ${path.join(mockDir, 'package.json')}`);
+    safeLog(`Created mock package.json at ${path.join(mockDir, 'package.json')}`, '');
 
     // Create a README.md file to explain the mock implementation
     const readme = `# Mock path-to-regexp
@@ -278,7 +334,7 @@ This package is automatically installed by the CI workflow.
 `;
 
     fs.writeFileSync(path.join(mockDir, 'README.md'), readme);
-    console.log(`Created README.md at ${path.join(mockDir, 'README.md')}`);
+    safeLog(`Created README.md at ${path.join(mockDir, 'README.md')}`, '');
 
     // Create a marker file to indicate we've created a mock implementation
     const logsDir = path.join(process.cwd(), 'logs');
@@ -299,14 +355,14 @@ This package is automatically installed by the CI workflow.
 
     return true;
   } catch (error) {
-    console.error(`Error creating mock implementation: ${error.message}`);
+    safeErrorLog(`Error creating mock implementation:`, error.message);
 
     // Try with absolute paths as a fallback
     try {
       const absoluteMockDir = path.resolve(process.cwd(), 'node_modules', 'path-to-regexp');
       if (!fs.existsSync(absoluteMockDir)) {
         fs.mkdirSync(absoluteMockDir, { recursive: true });
-        console.log(`Created mock directory at absolute path: ${absoluteMockDir}`);
+        safeLog(`Created mock directory at absolute path: ${absoluteMockDir}`, '');
       }
 
       // Create a simple but more comprehensive mock implementation
@@ -534,10 +590,10 @@ module.exports = pathToRegexp;
         JSON.stringify({ name: 'path-to-regexp', version: '0.0.0', main: 'index.js' }, null, 2)
       );
 
-      console.log(`Created fallback mock implementation at ${absoluteMockDir}`);
+      safeLog(`Created fallback mock implementation at ${absoluteMockDir}`, '');
       return true;
     } catch (fallbackError) {
-      console.error(`Fallback also failed: ${fallbackError.message}`);
+      safeErrorLog(`Fallback also failed:`, fallbackError.message);
       return false;
     }
   }
@@ -551,11 +607,11 @@ function monkeyPatchRequire() {
 
     Module.prototype.require = function(id) {
       if (id === 'path-to-regexp') {
-        console.log('Intercepted require for path-to-regexp');
+        safeLog('Intercepted require for path-to-regexp', '');
 
         // Return a more comprehensive mock implementation
         const mockPathToRegexp = function(path, keys, options) {
-          console.log(`Mock path-to-regexp called with: ${path}`);
+          safeLog(`Mock path-to-regexp called with:`, path);
 
           // If keys is provided, populate it with parameter names
           if (Array.isArray(keys) && typeof path === 'string') {
@@ -579,7 +635,7 @@ function monkeyPatchRequire() {
 
         // Add all necessary methods to the mock implementation
         mockPathToRegexp.parse = function(path) {
-          console.log(`Mock path-to-regexp.parse called with: ${path}`);
+          safeLog(`Mock path-to-regexp.parse called with:`, path);
           // Return a more detailed parse result for better compatibility
           if (typeof path === 'string') {
             const tokens = [];
@@ -603,9 +659,9 @@ function monkeyPatchRequire() {
         };
 
         mockPathToRegexp.compile = function(path) {
-          console.log(`Mock path-to-regexp.compile called with: ${path}`);
+          safeLog(`Mock path-to-regexp.compile called with:`, path);
           return function(params) {
-            console.log(`Mock path-to-regexp.compile function called with params:`, params);
+            safeLog(`Mock path-to-regexp.compile function called with params:`, params);
             // Try to replace parameters in the path
             if (typeof path === 'string' && params) {
               let result = path;
@@ -619,9 +675,9 @@ function monkeyPatchRequire() {
         };
 
         mockPathToRegexp.match = function(path) {
-          console.log(`Mock path-to-regexp.match called with: ${path}`);
+          safeLog(`Mock path-to-regexp.match called with:`, path);
           return function(pathname) {
-            console.log(`Mock path-to-regexp.match function called with pathname: ${pathname}`);
+            safeLog(`Mock path-to-regexp.match function called with pathname:`, pathname);
 
             // Extract parameter values from the pathname if possible
             const params = {};
@@ -644,7 +700,7 @@ function monkeyPatchRequire() {
         };
 
         mockPathToRegexp.tokensToRegexp = function(tokens, keys, options) {
-          console.log('Mock path-to-regexp.tokensToRegexp called');
+          safeLog('Mock path-to-regexp.tokensToRegexp called', '');
           // If keys is provided, populate it with parameter names from tokens
           if (Array.isArray(keys) && Array.isArray(tokens)) {
             tokens.forEach(token => {
@@ -663,9 +719,9 @@ function monkeyPatchRequire() {
         };
 
         mockPathToRegexp.tokensToFunction = function(tokens, options) {
-          console.log('Mock path-to-regexp.tokensToFunction called');
+          safeLog('Mock path-to-regexp.tokensToFunction called', '');
           return function(params) {
-            console.log('Mock path-to-regexp.tokensToFunction function called with params:', params);
+            safeLog('Mock path-to-regexp.tokensToFunction function called with params:', params);
             return '';
           };
         };
@@ -678,7 +734,7 @@ function monkeyPatchRequire() {
       return originalRequire.call(this, id);
     };
 
-    console.log('Successfully patched require to handle path-to-regexp');
+    safeLog('Successfully patched require to handle path-to-regexp', '');
 
     // Create a marker file to indicate we've patched require
     const logsDir = path.join(process.cwd(), 'logs');
@@ -698,7 +754,7 @@ function monkeyPatchRequire() {
 
     return true;
   } catch (patchError) {
-    console.warn(`Failed to patch require: ${patchError.message}`);
+    safeErrorLog(`Failed to patch require:`, patchError.message);
     return false;
   }
 }
@@ -740,35 +796,35 @@ try {
       `Working directory: ${process.cwd()}\n`
     );
 
-    console.log('Created CI success marker file');
+    safeLog('Created CI success marker file', '');
   }
 
   const pathToRegexp = require('path-to-regexp');
-  console.log('Successfully loaded path-to-regexp (mock implementation)');
+  safeLog('Successfully loaded path-to-regexp (mock implementation)', '');
 
   // Test the mock implementation with better error handling
   try {
     const regex = pathToRegexp('/test/:id');
-    console.log('Mock regex created:', regex);
+    safeLog('Mock regex created:', regex);
   } catch (regexError) {
-    console.warn(`Error testing regex creation: ${regexError.message}`);
+    safeErrorLog(`Error testing regex creation:`, regexError.message);
   }
 
   // Test the parse method with better error handling
   try {
     const tokens = pathToRegexp.parse('/test/:id');
-    console.log('Mock parse result:', tokens);
+    safeLog('Mock parse result:', tokens);
   } catch (parseError) {
-    console.warn(`Error testing parse method: ${parseError.message}`);
+    safeErrorLog(`Error testing parse method:`, parseError.message);
   }
 
   // Test the compile method with better error handling
   try {
     const toPath = pathToRegexp.compile('/test/:id');
     const pathResult = toPath({ id: '123' });
-    console.log('Mock compile result:', pathResult);
+    safeLog('Mock compile result:', pathResult);
   } catch (compileError) {
-    console.warn(`Error testing compile method: ${compileError.message}`);
+    safeErrorLog(`Error testing compile method:`, compileError.message);
   }
 
   verificationSuccess = true;
@@ -779,7 +835,7 @@ try {
     `All methods tested successfully\n`
   );
 } catch (error) {
-  console.error(`Failed to load or test path-to-regexp: ${error.message}`);
+  safeErrorLog(`Failed to load or test path-to-regexp:`, error.message);
 
   fs.appendFileSync(
     path.join(logDir, 'mock-path-to-regexp.log'),
@@ -789,7 +845,7 @@ try {
 
   // Try to fix the issue automatically
   try {
-    console.log('Attempting to fix the issue automatically...');
+    safeLog('Attempting to fix the issue automatically...', '');
 
     // Create a very simple mock implementation directly in node_modules
     const simpleMockDir = path.join(process.cwd(), 'node_modules', 'path-to-regexp');
@@ -920,14 +976,14 @@ module.exports = pathToRegexp;`;
       JSON.stringify({ name: 'path-to-regexp', version: '0.0.0', main: 'index.js' }, null, 2)
     );
 
-    console.log('Created ultra-simple mock implementation as a last resort');
+    safeLog('Created ultra-simple mock implementation as a last resort', '');
 
     fs.appendFileSync(
       path.join(logDir, 'mock-path-to-regexp.log'),
       `Created ultra-simple mock implementation as a last resort\n`
     );
   } catch (fixError) {
-    console.error(`Failed to fix the issue: ${fixError.message}`);
+    safeErrorLog(`Failed to fix the issue:`, fixError.message);
 
     fs.appendFileSync(
       path.join(logDir, 'mock-path-to-regexp.log'),
@@ -969,10 +1025,10 @@ if (isCI) {
           markerContent
         );
 
-        console.log(`Created CI marker file in ${dir}`);
+        safeLog(`Created CI marker file in ${dir}`, '');
         markerCreated = true;
       } catch (dirError) {
-        console.warn(`Failed to create marker in ${dir}: ${dirError.message}`);
+        safeErrorLog(`Failed to create marker in ${dir}:`, dirError.message);
       }
     }
 
@@ -980,9 +1036,9 @@ if (isCI) {
     if (!markerCreated) {
       try {
         fs.writeFileSync('path-to-regexp-ci-marker.txt', markerContent);
-        console.log('Created CI marker file in current directory');
+        safeLog('Created CI marker file in current directory', '');
       } catch (lastError) {
-        console.error(`Failed to create any marker files: ${lastError.message}`);
+        safeErrorLog(`Failed to create any marker files:`, lastError.message);
       }
     }
 
@@ -1004,12 +1060,12 @@ if (isCI) {
 </testsuites>`
       );
 
-      console.log('Created dummy test result file');
+      safeLog('Created dummy test result file', '');
     } catch (testResultError) {
-      console.warn(`Failed to create test result file: ${testResultError.message}`);
+      safeErrorLog(`Failed to create test result file:`, testResultError.message);
     }
   } catch (markerError) {
-    console.error(`Failed to create CI marker files: ${markerError.message}`);
+    safeErrorLog(`Failed to create CI marker files:`, markerError.message);
   }
 }
 
