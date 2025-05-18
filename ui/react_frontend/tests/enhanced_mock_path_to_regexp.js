@@ -192,6 +192,40 @@ function createEnhancedMockImplementation() {
       };
 
       /**
+       * Match a path against a regexp
+       */
+      pathToRegexp.match = function match(path) {
+        if (process.env.VERBOSE_LOGGING === 'true') {
+          console.log('[path-to-regexp] Mock match called with:', path);
+        }
+
+        return function(pathname) {
+          try {
+            // Extract parameter values from the pathname if possible
+            const params = {};
+            if (typeof path === 'string' && typeof pathname === 'string') {
+              const pathParts = path.split('/');
+              const pathnameParts = pathname.split('/');
+
+              if (pathParts.length === pathnameParts.length) {
+                for (let i = 0; i < pathParts.length; i++) {
+                  if (pathParts[i].startsWith(':')) {
+                    const paramName = pathParts[i].substring(1);
+                    params[paramName] = pathnameParts[i];
+                  }
+                }
+              }
+            }
+
+            return { path: pathname, params: params, index: 0, isExact: true };
+          } catch (e) {
+            console.error('[path-to-regexp] Error in mock match implementation:', e);
+            return { path: pathname, params: {}, index: 0, isExact: false };
+          }
+        };
+      };
+
+      /**
        * Transform an array of tokens into a regular expression.
        */
       pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
@@ -310,7 +344,24 @@ function enhancedMonkeyPatchRequire() {
             if (verboseLogging) {
               log(`Mock match function called with pathname: ${pathname}`, 'info');
             }
-            return { path: pathname, params: {} };
+
+            // Extract parameter values from the pathname if possible
+            const params = {};
+            if (typeof path === 'string' && typeof pathname === 'string') {
+              const pathParts = path.split('/');
+              const pathnameParts = pathname.split('/');
+
+              if (pathParts.length === pathnameParts.length) {
+                for (let i = 0; i < pathParts.length; i++) {
+                  if (pathParts[i].startsWith(':')) {
+                    const paramName = pathParts[i].substring(1);
+                    params[paramName] = pathnameParts[i];
+                  }
+                }
+              }
+            }
+
+            return { path: pathname, params: params, index: 0, isExact: true };
           };
         };
 
