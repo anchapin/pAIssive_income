@@ -14,51 +14,39 @@
  * Updated to handle path-to-regexp dependency issues in GitHub Actions.
  */
 
-// Try to install path-to-regexp if it's not already installed
+// Skip path-to-regexp entirely for better CI compatibility
 let pathToRegexpAvailable = false;
+console.log('Skipping path-to-regexp dependency entirely for better CI compatibility');
+
+// Create a marker file to indicate we're avoiding path-to-regexp
 try {
-  require('path-to-regexp');
-  console.log('path-to-regexp is already installed');
-  pathToRegexpAvailable = true;
-} catch (e) {
-  console.log('path-to-regexp is not installed, attempting to install it...');
-  try {
-    // Use child_process.execSync to install path-to-regexp
-    const { execSync } = require('child_process');
+  const fs = require('fs');
+  const path = require('path');
 
-    // Try multiple package managers in order of preference
-    try {
-      console.log('Trying to install with pnpm...');
-      execSync('pnpm install path-to-regexp --no-save', { stdio: 'inherit' });
-      console.log('Successfully installed path-to-regexp with pnpm');
-      pathToRegexpAvailable = true;
-    } catch (pnpmError) {
-      console.warn(`Failed to install with pnpm: ${pnpmError.message}`);
+  // Import these modules early to ensure they're available
+  const os = require('os');
 
-      try {
-        console.log('Trying to install with npm...');
-        execSync('npm install path-to-regexp --no-save', { stdio: 'inherit' });
-        console.log('Successfully installed path-to-regexp with npm');
-        pathToRegexpAvailable = true;
-      } catch (npmError) {
-        console.warn(`Failed to install with npm: ${npmError.message}`);
-
-        try {
-          console.log('Trying to install with yarn...');
-          execSync('yarn add path-to-regexp --no-lockfile', { stdio: 'inherit' });
-          console.log('Successfully installed path-to-regexp with yarn');
-          pathToRegexpAvailable = true;
-        } catch (yarnError) {
-          console.warn(`Failed to install with yarn: ${yarnError.message}`);
-          console.log('Continuing without path-to-regexp, using fallback URL parsing');
-        }
-      }
-    }
-  } catch (installError) {
-    console.warn(`Failed to install path-to-regexp: ${installError.message}`);
-    console.log('Continuing without path-to-regexp, using fallback URL parsing');
+  const logDir = path.join(process.cwd(), 'logs');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
   }
+
+  fs.writeFileSync(
+    path.join(logDir, 'ci-path-to-regexp-avoided.txt'),
+    `Path-to-regexp dependency avoided at ${new Date().toISOString()}\n` +
+    `This file indicates that we're completely avoiding the path-to-regexp dependency.\n` +
+    `Node.js: ${process.version}\n` +
+    `Platform: ${process.platform}\n` +
+    `Working directory: ${process.cwd()}\n` +
+    `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
+  );
+
+  console.log('Created path-to-regexp avoidance marker file');
+} catch (error) {
+  console.warn(`Failed to create path-to-regexp avoidance marker file: ${error.message}`);
 }
+
+// fs, path, and os modules are already imported above
 
 // Create a marker file to indicate whether path-to-regexp is available
 try {
@@ -78,10 +66,6 @@ try {
 } catch (error) {
   console.warn(`Failed to create path-to-regexp status file: ${error.message}`);
 }
-
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 // Special handling for GitHub Actions environment
 if (process.env.CI === 'true' || process.env.CI === true) {

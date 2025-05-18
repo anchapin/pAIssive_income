@@ -76,34 +76,35 @@ function runTests() {
   return new Promise((resolve, reject) => {
     log('Running frontend tests in CI mode...');
 
-    // First, ensure path-to-regexp is installed for CI compatibility
-    log('Ensuring path-to-regexp is installed...');
+    // Skip path-to-regexp installation in CI mode
+    log('Skipping path-to-regexp installation in CI mode for better compatibility');
+
+    // Create a marker file to indicate we're avoiding path-to-regexp
     try {
-      const installProcess = spawn(
-        process.platform === 'win32' ? 'npm.cmd' : 'npm',
-        ['install', 'path-to-regexp', '--no-save'],
-        {
-          cwd: config.frontendRoot,
-          shell: true,
-          stdio: 'inherit'
-        }
+      const fs = require('fs');
+      const path = require('path');
+      const markerDir = path.join(config.frontendRoot, 'logs');
+      if (!fs.existsSync(markerDir)) {
+        fs.mkdirSync(markerDir, { recursive: true });
+      }
+
+      fs.writeFileSync(
+        path.join(markerDir, 'path-to-regexp-avoided-ci.txt'),
+        `Path-to-regexp dependency avoided at ${new Date().toISOString()}\n` +
+        `This file indicates that we're completely avoiding the path-to-regexp dependency in CI.\n` +
+        `Node.js: ${process.version}\n` +
+        `Platform: ${process.platform}\n` +
+        `Working directory: ${process.cwd()}\n` +
+        `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
       );
 
-      installProcess.on('close', (code) => {
-        if (code !== 0) {
-          log(`path-to-regexp installation failed with code ${code}, but continuing...`, 'warn');
-        } else {
-          log('path-to-regexp installed successfully');
-        }
-
-        // Continue with report directory setup
-        setupReportDirectories(resolve, reject);
-      });
+      log('Created path-to-regexp avoidance marker file');
     } catch (error) {
-      log(`Error installing path-to-regexp: ${error.message}, but continuing...`, 'warn');
-      // Continue with report directory setup anyway
-      setupReportDirectories(resolve, reject);
+      log(`Failed to create path-to-regexp avoidance marker file: ${error.message}`, 'warn');
     }
+
+    // Continue with report directory setup
+    setupReportDirectories(resolve, reject);
   });
 }
 

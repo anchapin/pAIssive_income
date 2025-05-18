@@ -18,49 +18,24 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Try to install path-to-regexp if it's not already installed
+// Skip path-to-regexp entirely in CI environments
 let pathToRegexpAvailable = false;
-try {
-  require('path-to-regexp');
-  console.log('path-to-regexp is already installed');
-  pathToRegexpAvailable = true;
-} catch (e) {
-  console.log('path-to-regexp is not installed, attempting to install it...');
+
+// Check if we're in a CI environment
+const isCI = process.env.CI === 'true' || process.env.CI === true;
+
+if (isCI) {
+  console.log('CI environment detected, skipping path-to-regexp dependency entirely');
+  pathToRegexpAvailable = false;
+} else {
+  // Only try to use path-to-regexp in non-CI environments
   try {
-    // Use child_process.execSync to install path-to-regexp
-    const { execSync } = require('child_process');
-
-    // Try multiple package managers in order of preference
-    try {
-      console.log('Trying to install with pnpm...');
-      execSync('pnpm install path-to-regexp --no-save', { stdio: 'inherit' });
-      console.log('Successfully installed path-to-regexp with pnpm');
-      pathToRegexpAvailable = true;
-    } catch (pnpmError) {
-      console.warn(`Failed to install with pnpm: ${pnpmError.message}`);
-
-      try {
-        console.log('Trying to install with npm...');
-        execSync('npm install path-to-regexp --no-save', { stdio: 'inherit' });
-        console.log('Successfully installed path-to-regexp with npm');
-        pathToRegexpAvailable = true;
-      } catch (npmError) {
-        console.warn(`Failed to install with npm: ${npmError.message}`);
-
-        try {
-          console.log('Trying to install with yarn...');
-          execSync('yarn add path-to-regexp --no-lockfile', { stdio: 'inherit' });
-          console.log('Successfully installed path-to-regexp with yarn');
-          pathToRegexpAvailable = true;
-        } catch (yarnError) {
-          console.warn(`Failed to install with yarn: ${yarnError.message}`);
-          console.log('Continuing without path-to-regexp, using fallback URL parsing');
-        }
-      }
-    }
-  } catch (installError) {
-    console.warn(`Failed to install path-to-regexp: ${installError.message}`);
-    console.log('Continuing without path-to-regexp, using fallback URL parsing');
+    require('path-to-regexp');
+    console.log('path-to-regexp is already installed');
+    pathToRegexpAvailable = true;
+  } catch (e) {
+    console.log('path-to-regexp is not installed, but skipping installation for better compatibility');
+    pathToRegexpAvailable = false;
   }
 }
 
