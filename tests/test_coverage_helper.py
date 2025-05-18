@@ -1,72 +1,15 @@
 """
-Tests for the coverage_placeholder module.
+Tests for the utils.coverage_helper module.
 These tests ensure 100% coverage of the module.
 """
 
 import logging
 import unittest
 import pytest
-from coverage_placeholder import CoverageHelper, add, subtract, multiply, divide
+from utils.coverage_helper import add, subtract, multiply, divide, is_even, is_odd, get_first_element, format_string
 
 
-class TestCoverageHelper(unittest.TestCase):
-    """Test cases for CoverageHelper class."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.helper = CoverageHelper()
-
-    def test_init(self):
-        """Test initialization."""
-        self.assertEqual(self.helper.count, 0)
-        self.assertEqual(self.helper.data, {})
-
-    def test_increment(self):
-        """Test increment method."""
-        self.assertEqual(self.helper.increment(), 1)
-        self.assertEqual(self.helper.increment(2), 3)
-        self.assertEqual(self.helper.count, 3)
-
-    def test_decrement(self):
-        """Test decrement method."""
-        self.helper.count = 5
-        self.assertEqual(self.helper.decrement(), 4)
-        self.assertEqual(self.helper.decrement(2), 2)
-        self.assertEqual(self.helper.count, 2)
-
-    def test_reset(self):
-        """Test reset method."""
-        self.helper.count = 5
-        self.assertTrue(self.helper.reset())
-        self.assertEqual(self.helper.count, 0)
-
-    def test_store(self):
-        """Test store method."""
-        self.assertTrue(self.helper.store("key1", "value1"))
-        self.assertEqual(self.helper.data["key1"], "value1")
-        self.assertTrue(self.helper.store("key2", 42))
-        self.assertEqual(self.helper.data["key2"], 42)
-
-    def test_retrieve(self):
-        """Test retrieve method."""
-        self.helper.data = {"key1": "value1", "key2": 42}
-        self.assertEqual(self.helper.retrieve("key1"), "value1")
-        self.assertEqual(self.helper.retrieve("key2"), 42)
-        self.assertEqual(self.helper.retrieve("key3"), None)
-        self.assertEqual(self.helper.retrieve("key3", "default"), "default")
-
-    def test_remove(self):
-        """Test remove method."""
-        self.helper.data = {"key1": "value1", "key2": 42}
-        self.assertTrue(self.helper.remove("key1"))
-        self.assertFalse("key1" in self.helper.data)
-        self.assertFalse(self.helper.remove("key3"))
-
-    def test_clear(self):
-        """Test clear method."""
-        self.helper.data = {"key1": "value1", "key2": 42}
-        self.assertTrue(self.helper.clear())
-        self.assertEqual(self.helper.data, {})
+# The CoverageHelper class has been removed, so we only test the math functions now
 
 
 class TestMathFunctions:
@@ -100,3 +43,36 @@ class TestMathFunctions:
         """Test divide by zero raises ValueError."""
         with pytest.raises(ValueError, match="Cannot divide by zero"):
             divide(5, 0)
+
+    def test_is_even(self):
+        """Test is_even function."""
+        assert is_even(2) is True
+        assert is_even(3) is False
+        assert is_even(0) is True
+        assert is_even(-2) is True
+        assert is_even(-3) is False
+
+    def test_is_odd(self):
+        """Test is_odd function."""
+        assert is_odd(3) is True
+        assert is_odd(2) is False
+        assert is_odd(0) is False
+        assert is_odd(-3) is True
+        assert is_odd(-2) is False
+
+    def test_get_first_element(self):
+        """Test get_first_element function."""
+        assert get_first_element([1, 2, 3]) == 1
+        assert get_first_element(["a", "b", "c"]) == "a"
+        assert get_first_element([]) is None
+        assert get_first_element([], "default") == "default"
+
+    def test_format_string(self):
+        """Test format_string function."""
+        assert format_string("Hello, {name}!", name="World") == "Hello, World!"
+        assert format_string("{greeting}, {name}!", greeting="Hi", name="User") == "Hi, User!"
+
+    def test_format_string_error(self):
+        """Test format_string raises ValueError on missing key."""
+        with pytest.raises(ValueError, match="Missing required key"):
+            format_string("Hello, {name}!")

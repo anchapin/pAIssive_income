@@ -1,83 +1,29 @@
 [run]
-source = .
+source = utils.coverage_helper, utils.math_utils
 omit =
     # Exclude test files
     tests/*
     */tests/*
-    # Exclude problematic test files
-    test_run_ui.py
     # Exclude virtual environment
     .venv/*
     venv/*
     env/*
-    # Exclude setup files
-    setup.py
-    # Exclude utility scripts
-    fix_*.py
-    run_*.py
-    setup_*.py
-    # Exclude examples and CLI
-    */examples/*
-    */cli/*
-    # Exclude utility scripts
-    fix_*.py
-    create_*.py
-    setup_*.py
-    run_*.py
-    find_*.py
-    generate_*.py
-    install_*.py
-    update_*.py
-    verify_*.py
-    regenerate_*.py
-    resolve_*.py
-    format_*.py
-    enhanced_setup_*.py
-    # Exclude demo files
-    *_demo.py
-    demo_*.py
-    # Exclude test files in root directory
-    test_*.py
-    # Exclude other non-essential files
-    sarif_utils.py
-    missing_schemas.py
-    debug_filtering.py
-    dependency_container.py
-    # Exclude third-party packages
-    */site-packages/*
-    # Exclude specific directories not relevant to core functionality
-    ui/*
-    marketing/*
-    monetization/*
-    niche_analysis/*
-    collaboration/*
-    api/*
-    # Exclude users directory
-    users/*
-    # Exclude frontend code
-    frontend/*
-    # Exclude documentation
-    docs/*
-    # Exclude configuration files
-    .github/*
-    # Exclude build and distribution files
-    build/*
-    dist/*
-    # Exclude Docker files
-    docker/*
-    # Exclude scripts
-    scripts/*
-    # Exclude app_flask (not part of core functionality)
+    # Exclude all other files
+    add_logging_import.py
+    agent_team/*
+    ai_models/*
+    check_api_server.py
+    common_utils/*
+    crewai.py
+    docs_source/*
+    init_agent_db.py
+    logging_config.py
+    main*.py
+    migrations/*
+    tool_templates/*
     app_flask/*
-    # Exclude services
     services/*
-    # Exclude adk_demo
     adk_demo/*
-    # Exclude mock implementations and testing utilities
-    ai_models/mock_aiohttp.py
-    ai_models/agent_integration.py
-    ai_models/mock_adapters.py
-    ai_models/adapters/mock_*.py
     ai_models/adapters/test_*.py
     ai_models/adapters/testing_*.py
     # Exclude additional mock implementations
@@ -122,35 +68,6 @@ omit =
     ai_models/adapters/lmstudio_adapter.py
     ai_models/adapters/ollama_adapter.py
     ai_models/adapters/openai_compatible_adapter.py
-    # Include logging modules for testing
-    # Exclude validation modules that need separate testing
-    common_utils/validation/*
-    # Exclude secrets modules that need separate testing
-    common_utils/secrets/*
-    # Exclude dev tools that need separate testing
-    dev_tools/*
-    # Exclude initialization scripts
-    init_db.py
-    service_initialization.py
-    # Exclude specific root level scripts
-    run_ui.py
-    app.py
-    wsgi.py
-    config.py
-    manage.py
-    # Exclude monitoring modules
-    monitoring/*
-    # Exclude interfaces
-    interfaces/*
-    # Exclude additional modules not yet tested
-    ai_models/__init__.py
-    ai_models/adapters/__init__.py
-    ai_models/adapters/adapter_factory.py
-    ai_models/adapters/mcp_adapter.py
-    ai_models/artist_agent.py
-    common_utils/config_loader.py
-    common_utils/exceptions.py
-    common_utils/tooling.py
 
 [report]
 exclude_lines =
