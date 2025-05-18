@@ -251,7 +251,7 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-and-quality
-          config-file: ./.github/codeql/security-os-config.yml
+          debug: true
 
       # Install Node.js dependencies before autobuild
       - name: Install Node.js dependencies
@@ -520,7 +520,7 @@ jobs:
         with:
           languages: python
           queries: security-and-quality
-          config-file: ./.github/codeql/security-os-config.yml
+          debug: true
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild

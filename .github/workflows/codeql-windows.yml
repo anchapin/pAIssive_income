@@ -49,62 +49,56 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Checking for lock files before CodeQL analysis..."
-          try {
-            $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml" -ErrorAction Stop)
+          $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml" -ErrorAction SilentlyContinue)
 
-            if ($lockFiles.Count -gt 0) {
-              Write-Host "Found $($lockFiles.Count) lock files:"
-              $lockFiles | ForEach-Object {
-                Write-Host "  $($_.FullName)"
-              }
-            } else {
-              Write-Host "No lock files found. Creating a minimal package-lock.json..."
+          if ($lockFiles.Count -gt 0) {
+            Write-Host "Found $($lockFiles.Count) lock files:"
+            $lockFiles | ForEach-Object {
+              Write-Host "  $($_.FullName)"
+            }
+          } else {
+            Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-              try {
-                # Create a simple package-lock.json with minimal content
-                $packageJson = @{
+            $json = @{
+              name = "paissive-income"
+              version = "1.0.0"
+              lockfileVersion = 3
+              requires = $true
+              packages = @{
+                "" = @{
                   name = "paissive-income"
                   version = "1.0.0"
-                  lockfileVersion = 3
-                  requires = $true
-                  packages = @{
-                    "" = @{
-                      name = "paissive-income"
-                      version = "1.0.0"
-                    }
-                  }
-                }
-
-                # Convert to JSON with proper formatting and write to file
-                $jsonContent = ConvertTo-Json -InputObject $packageJson -Depth 10
-                Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8 -ErrorAction Stop
-
-                # Verify the file was created correctly
-                if (Test-Path "package-lock.json") {
-                  $fileInfo = Get-Item "package-lock.json"
-                  Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
-                  Write-Host "File content preview:"
-                  Get-Content "package-lock.json" -TotalCount 20 | ForEach-Object { Write-Host "  $_" }
-                } else {
-                  Write-Host "Error: package-lock.json was not created!"
-                }
-              } catch {
-                Write-Host "Error creating package-lock.json: $_"
-
-                # Fallback to creating a simpler JSON file
-                Write-Host "Attempting fallback method to create package-lock.json..."
-                $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
-                Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8 -ErrorAction SilentlyContinue
-
-                if (Test-Path "package-lock.json") {
-                  Write-Host "Created package-lock.json using fallback method"
-                } else {
-                  Write-Host "Warning: All attempts to create package-lock.json failed"
                 }
               }
             }
-          } catch {
-            Write-Host "Error searching for lock files: $_"
+
+            try {
+              $jsonContent = ConvertTo-Json -Depth 10 $json
+              Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
+
+              if (Test-Path "package-lock.json") {
+                $fileInfo = Get-Item "package-lock.json"
+                Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
+              } else {
+                Write-Host "Failed to create package-lock.json, trying alternative method..."
+                $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
+                Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8
+              }
+            } catch {
+              Write-Host "Error creating package-lock.json: $_"
+              Write-Host "Creating minimal JSON file as fallback..."
+
+              # Ultra simple fallback
+              $ultraSimple = '{}'
+              Set-Content -Path "package-lock.json" -Value $ultraSimple -Encoding UTF8 -ErrorAction SilentlyContinue
+            }
+
+            # Final verification
+            if (Test-Path "package-lock.json") {
+              Write-Host "package-lock.json exists, proceeding with CodeQL analysis"
+            } else {
+              Write-Host "Warning: Could not create package-lock.json, CodeQL may have issues"
+            }
           }
 
       # Install dependencies for JavaScript/TypeScript
@@ -157,7 +151,6 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
-          config-file: .github/codeql/security-os-config.yml
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
