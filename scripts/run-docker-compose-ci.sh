@@ -199,8 +199,8 @@ start_services() {
     sleep 10
 
     if [ -d "ui/react_frontend" ]; then
-      log "Starting frontend service..."
-      $compose_cmd up -d frontend
+      log "Starting mock-api service..."
+      $compose_cmd up -d mock-api
       sleep 10
     fi
 
@@ -246,23 +246,21 @@ wait_for_services() {
         if docker exec paissive-income-app wget -q --spider http://localhost:5000/health >/dev/null 2>&1; then
           log "✅ App is ready"
 
-          # Check if frontend is ready (if it exists)
+          # Check if mock-api is ready (if it exists)
           if [ -d "ui/react_frontend" ]; then
-            # Try multiple ways to check if frontend is ready
-            if docker exec paissive-frontend wget -q --spider http://localhost:3000 >/dev/null 2>&1; then
-              log "✅ Frontend is ready (wget check)"
-            elif docker exec paissive-frontend curl -s -f http://localhost:3000 >/dev/null 2>&1; then
-              log "✅ Frontend is ready (curl check)"
-            elif docker exec paissive-frontend sh -c "ls -la /app/node_modules/.bin/react-scripts" >/dev/null 2>&1; then
-              log "✅ Frontend dependencies are installed, assuming it's ready"
+            # Try multiple ways to check if mock-api is ready
+            if docker exec paissive-mock-api wget -q --spider http://localhost:8000/health >/dev/null 2>&1; then
+              log "✅ Mock API is ready (wget check)"
+            elif docker exec paissive-mock-api curl -s -f http://localhost:8000/health >/dev/null 2>&1; then
+              log "✅ Mock API is ready (curl check)"
             else
-              log "⚠️ Frontend is not ready yet, but continuing anyway"
+              log "⚠️ Mock API is not ready yet, but continuing anyway"
 
               # In CI environment, create necessary directories for test artifacts
               if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
-                log "Creating test artifact directories in frontend container..."
-                docker exec paissive-frontend sh -c "mkdir -p playwright-report test-results coverage logs || true" || true
-                docker exec paissive-frontend sh -c "chmod -R 777 playwright-report test-results coverage logs || true" || true
+                log "Creating test artifact directories in mock-api container..."
+                docker exec paissive-mock-api sh -c "mkdir -p playwright-report test-results coverage logs || true" || true
+                docker exec paissive-mock-api sh -c "chmod -R 777 playwright-report test-results coverage logs || true" || true
               fi
             fi
           fi
@@ -287,8 +285,8 @@ wait_for_services() {
       docker logs paissive-income-app --tail 20 || true
 
       if [ -d "ui/react_frontend" ]; then
-        log "Frontend container logs:"
-        docker logs paissive-frontend --tail 20 || true
+        log "Mock API container logs:"
+        docker logs paissive-mock-api --tail 20 || true
       fi
     fi
 
@@ -310,8 +308,8 @@ wait_for_services() {
   docker logs paissive-income-app --tail 50 || true
 
   if [ -d "ui/react_frontend" ]; then
-    log "Frontend container logs:"
-    docker logs paissive-frontend --tail 50 || true
+    log "Mock API container logs:"
+    docker logs paissive-mock-api --tail 50 || true
   fi
 
   # Return success even if services are not fully healthy to allow the workflow to continue

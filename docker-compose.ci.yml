@@ -24,28 +24,48 @@ services:
       - TESTING=true
       - LOG_LEVEL=DEBUG
 
-  frontend:
-    # Use a simpler build for CI
-    build:
-      context: ./ui/react_frontend
-      dockerfile: Dockerfile.dev
-      args:
-        - CI=true
+  # Note: The frontend service is commented out because it's not defined in the main docker-compose.yml
+  # Uncomment this section if you add a frontend service to the main docker-compose.yml
+  # frontend:
+  #   # Use a simpler build for CI
+  #   build:
+  #     context: ./ui/react_frontend
+  #     dockerfile: Dockerfile.dev
+  #     args:
+  #       - CI=true
+  #   # Adjust healthcheck for CI
+  #   healthcheck:
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   # Add CI-specific environment variables
+  #   environment:
+  #     - NODE_ENV=test
+  #     - CI=true
+  #     - SKIP_PREFLIGHT_CHECK=true
+  #     - REACT_APP_TESTING=true
+  #     - NPM_CONFIG_LEGACY_PEER_DEPS=true
+  #     - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+  #     - REACT_APP_AG_UI_ENABLED=true
+
+  # Mock API service configuration for CI
+  mock-api:
     # Adjust healthcheck for CI
     healthcheck:
-      interval: 15s
-      timeout: 10s
+      interval: 3s
+      timeout: 3s
       retries: 3
-      start_period: 30s
+      start_period: 3s
     # Add CI-specific environment variables
     environment:
-      - NODE_ENV=test
       - CI=true
-      - SKIP_PREFLIGHT_CHECK=true
-      - REACT_APP_TESTING=true
-      - NPM_CONFIG_LEGACY_PEER_DEPS=true
-      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-      - REACT_APP_AG_UI_ENABLED=true
+      - USE_MOCK_API=true
+      - NODE_ENV=test
+      - PORT=8000
+      - MOCK_API_VERBOSE=true
+      - SKIP_PATH_TO_REGEXP=true
+      - PATH_TO_REGEXP_MOCK=true
 
   db:
     # Use a smaller configuration for CI
