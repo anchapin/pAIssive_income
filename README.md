@@ -176,6 +176,8 @@ For more details, see `.github/dependabot.yml`.
 
 ---
 
+For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
+
 ## Docker Compose Integration
 
 **Start PostgreSQL database, application, and frontend with Docker Compose:**
