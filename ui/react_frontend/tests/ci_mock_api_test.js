@@ -35,7 +35,14 @@ try {
       requirePatched: false,
       isCI: process.env.CI === 'true' || process.env.CI === true,
       skipPathToRegexp: true,
-      verboseLogging: process.env.VERBOSE_LOGGING === 'true'
+      verboseLogging: process.env.VERBOSE_LOGGING === 'true',
+      match: function(path) {
+        console.log('Fallback mock path-to-regexp.match called with path:', path);
+        return function(pathname) {
+          console.log('Fallback mock path-to-regexp.match function called with pathname:', pathname);
+          return { path: pathname, params: {} };
+        };
+      }
     };
   }
 }
@@ -135,8 +142,16 @@ if (process.env.CI === 'true' || process.env.CI === true) {
     module.require = function(id) {
       if (id === 'path-to-regexp') {
         console.log('Intercepted require for path-to-regexp in CI environment');
-        // Return a simple mock implementation
-        return function() { return /.*/ };
+        // Return a simple mock implementation with match function
+        const mockImpl = function() { return /.*/ };
+        mockImpl.match = function(path) {
+          console.log('CI environment mock path-to-regexp.match called with path:', path);
+          return function(pathname) {
+            console.log('CI environment mock path-to-regexp.match function called with pathname:', pathname);
+            return { path: pathname, params: {} };
+          };
+        };
+        return mockImpl;
       }
       return originalRequire.apply(this, arguments);
     };
