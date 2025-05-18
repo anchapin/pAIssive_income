@@ -157,6 +157,15 @@ def ensure_security_reports_dir() -> None:
             logger.warning(f"Failed to create security-reports directory: {e}")
 
 
+def check_venv_exists() -> bool:
+    """
+    Check if we're running in a virtual environment.
+
+    Returns:
+        bool: True if running in a virtual environment, False otherwise
+    """
+    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+
 def main() -> None:
     """Run pytest with optimized worker count based on test count."""
     # Forward all command-line arguments to pytest except the script name
@@ -168,45 +177,69 @@ def main() -> None:
     # Ensure security-reports directory exists
     ensure_security_reports_dir()
 
-    # Get number of tests that would be run
-    test_count = get_test_count(validated_args)
-
-    # Use ternary operator for cleaner code
-    n_workers = MAX_WORKERS if test_count > THRESHOLD else 1
-
-    logger.info("Collected %d tests. Using %d pytest worker(s).", test_count, n_workers)
-
-    # Build pytest command with unpacking instead of concatenation
-    # Add --no-cov if not already specified to avoid coverage failures
-    if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
-        pytest_cmd = ["pytest", f"-n={n_workers}", "--no-cov"] + validated_args
-    else:
-        pytest_cmd = ["pytest", f"-n={n_workers}"] + validated_args
+    # Check if we're running in a virtual environment
+    if not check_venv_exists():
+        logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
+        logger.info("Continuing anyway, but consider running in a virtual environment.")
 
     try:
-        # Run pytest with the chosen number of workers
-        # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # ruff: noqa: S603
+        # Get number of tests that would be run
+        test_count = get_test_count(validated_args)
 
-        # Get a sanitized environment
-        safe_env = get_sanitized_env()
+        # Use ternary operator for cleaner code
+        n_workers = MAX_WORKERS if test_count > THRESHOLD else 1
 
-        result = subprocess.run(  # nosec B603
-            pytest_cmd,
-            check=False,
-            shell=False,  # Explicitly set shell=False for security
-            env=safe_env,  # Use sanitized environment
-            cwd=os.getcwd(),  # Explicitly set working directory
-            timeout=3600,  # Set a timeout of 1 hour to prevent hanging
-            text=True  # Use text mode for better error handling
-        ).returncode
-        sys.exit(result)
-    except subprocess.TimeoutExpired:
-        logger.error("Pytest execution timed out after 1 hour")
-        sys.exit(2)
-    except subprocess.SubprocessError:
-        logger.exception("Error running pytest")
-        sys.exit(1)
+        logger.info("Collected %d tests. Using %d pytest worker(s).", test_count, n_workers)
+
+        # Build pytest command with unpacking instead of concatenation
+        # Add --no-cov if not already specified to avoid coverage failures
+        if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
+            pytest_cmd = ["pytest", f"-n={n_workers}", "--no-cov"] + validated_args
+        else:
+            pytest_cmd = ["pytest", f"-n={n_workers}"] + validated_args
+
+        try:
+            # Run pytest with the chosen number of workers
+            # nosec B603 - subprocess call is used with shell=False and validated arguments
+            # ruff: noqa: S603
+
+            # Get a sanitized environment
+            safe_env = get_sanitized_env()
+
+            result = subprocess.run(  # nosec B603
+                pytest_cmd,
+                check=False,
+                shell=False,  # Explicitly set shell=False for security
+                env=safe_env,  # Use sanitized environment
+                cwd=os.getcwd(),  # Explicitly set working directory
+                timeout=3600,  # Set a timeout of 1 hour to prevent hanging
+                text=True  # Use text mode for better error handling
+            ).returncode
+            sys.exit(result)
+        except subprocess.TimeoutExpired:
+            logger.error("Pytest execution timed out after 1 hour")
+            sys.exit(2)
+        except subprocess.SubprocessError:
+            logger.exception("Error running pytest")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error in run_tests.py: {e}")
+        logger.error("Falling back to direct pytest execution")
+
+        # Fall back to direct pytest execution
+        try:
+            result = subprocess.run(  # nosec B603
+                ["pytest"] + validated_args,
+                check=False,
+                shell=False,
+                cwd=os.getcwd(),
+                timeout=3600,
+                text=True
+            ).returncode
+            sys.exit(result)
+        except Exception as e:
+            logger.error(f"Failed to run pytest directly: {e}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

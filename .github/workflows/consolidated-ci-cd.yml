@@ -282,31 +282,25 @@ jobs:
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
         run: |
-          # Create a virtual environment using 'uv'
-          # 'uv' is used here instead of the standard 'venv' module because it provides faster environment creation and dependency resolution
-          # Ensure 'uv' is installed and available in the environment
-          if ! command -v uv &> /dev/null; then
-            echo "'uv' is not installed or not in PATH. Please ensure it is installed before running this workflow." >&2
-            exit 1
-          fi
-          uv venv .venv
-          source .venv/bin/activate
-          uv pip install safety bandit semgrep pip-audit
+          # Install security tools directly without creating a virtual environment
+          # This avoids issues with virtual environment creation in the CI environment
+          python -m pip install --upgrade pip
+          python -m pip install safety bandit semgrep pip-audit
+
+          # Create security-reports directory if it doesn't exist
+          mkdir -p security-reports
 
       - name: Install security tools (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Create a virtual environment using 'uv'
-          # 'uv' is used here instead of the standard 'venv' module because it provides faster environment creation and dependency resolution
-          # Ensure 'uv' is installed and available in the environment
-          if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-            Write-Error "'uv' is not installed or not in PATH. Please ensure it is installed before running this workflow."
-            exit 1
-          }
-          uv venv .venv
-          .\.venv\Scripts\Activate.ps1
-          uv pip install safety bandit semgrep pip-audit
+          # Install security tools directly without creating a virtual environment
+          # This avoids issues with virtual environment creation in the CI environment
+          python -m pip install --upgrade pip
+          python -m pip install safety bandit semgrep pip-audit
+
+          # Create security-reports directory if it doesn't exist
+          New-Item -ItemType Directory -Force -Path security-reports
 
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
