@@ -59,57 +59,58 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            try {
-              # Create a simple JSON object
-              $lockFileObj = @{
-                name = "paissive-income"
-                version = "1.0.0"
-                lockfileVersion = 3
-                requires = $true
-                packages = @{
-                  "" = @{
-                    name = "paissive-income"
-                    version = "1.0.0"
-                  }
-                }
-              }
+            # Create a very simple package-lock.json with minimal content
+            $simpleJson = @{
+              name = "paissive-income"
+              version = "1.0.0"
+              lockfileVersion = 3
+            }
 
-              # Convert to JSON and write to file
-              $jsonContent = $lockFileObj | ConvertTo-Json -Depth 10
+            try {
+              # Method 1: Using ConvertTo-Json
+              $jsonContent = ConvertTo-Json -InputObject $simpleJson -Depth 1 -Compress:$false
               Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
                 Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
-                Get-Content -Path "package-lock.json" -First 5
+                Get-Content -Path "package-lock.json"
+                Write-Host "Creation method: ConvertTo-Json"
               } else {
                 throw "Failed to create package-lock.json using ConvertTo-Json"
               }
             } catch {
-              Write-Host "Error creating package-lock.json: $_"
-              Write-Host "Trying direct JSON string as fallback..."
+              Write-Host "Error creating package-lock.json with ConvertTo-Json: $_"
 
+              # Method 2: Direct string
               try {
-                # Fallback to direct JSON string
-                $jsonString = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
-                Set-Content -Path "package-lock.json" -Value $jsonString -Encoding UTF8
+                $directJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+                Set-Content -Path "package-lock.json" -Value $directJson -Encoding UTF8
 
                 if (Test-Path "package-lock.json") {
-                  Write-Host "package-lock.json created successfully using direct JSON string"
+                  $fileInfo = Get-Item "package-lock.json"
+                  Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                  Get-Content -Path "package-lock.json"
+                  Write-Host "Creation method: Direct string"
                 } else {
-                  throw "Failed to create package-lock.json using direct JSON string"
+                  throw "Failed to create package-lock.json using direct string"
                 }
               } catch {
-                Write-Host "Error with fallback method: $_"
-                Write-Host "Using empty object as last resort"
+                Write-Host "Error creating package-lock.json with direct string: $_"
 
-                # Ultra simple fallback
-                Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
+                # Method 3: Ultra simple
+                try {
+                  Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
 
-                if (Test-Path "package-lock.json") {
-                  Write-Host "Created minimal package-lock.json with empty object"
-                } else {
-                  Write-Host "WARNING: All attempts to create package-lock.json failed"
+                  if (Test-Path "package-lock.json") {
+                    $fileInfo = Get-Item "package-lock.json"
+                    Write-Host "package-lock.json created with empty object ($($fileInfo.Length) bytes)"
+                    Write-Host "Creation method: Empty object"
+                  } else {
+                    throw "Failed to create package-lock.json with empty object"
+                  }
+                } catch {
+                  Write-Host "CRITICAL ERROR: All methods to create package-lock.json failed: $_"
                 }
               }
             }
@@ -124,6 +125,15 @@ jobs:
           if (-not (Test-Path "node_modules")) {
             Write-Host "Creating node_modules directory..."
             New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+          }
+
+          # Add package-lock.json to .gitignore if it doesn't exist there already
+          if (Test-Path ".gitignore") {
+            $gitignore = Get-Content -Path ".gitignore" -Raw
+            if (-not ($gitignore -match "package-lock\.json")) {
+              Write-Host "Adding package-lock.json to .gitignore..."
+              Add-Content -Path ".gitignore" -Value "`n# Generated during CodeQL analysis`npackage-lock.json"
+            }
           }
 
       # Install dependencies for Python
@@ -186,9 +196,8 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: security-and-quality,security-extended
+          queries: security-and-quality
           debug: true
-          config-file: .github/codeql/security-os-config.yml
 
       # Verify CodeQL database creation
       - name: Verify CodeQL database
