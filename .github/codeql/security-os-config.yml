@@ -95,7 +95,8 @@ paths-ignore:
 
 # Query filters
 queries:
-  # Use only the standard security-and-quality query suite to avoid conflicts
+  # Use only the standard security-and-quality query suite to avoid conflicts and Windows path issues
+  # This provides a comprehensive set of security and quality checks in a single suite
   - uses: security-and-quality
 
 # Disable noisy alerts

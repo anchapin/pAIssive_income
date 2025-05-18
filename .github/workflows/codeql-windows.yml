@@ -59,31 +59,32 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Use the most reliable method - direct string output
-            try {
-              # Simple one-line JSON string to avoid any formatting issues
-              $jsonString = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+            # Define the minimal valid JSON content
+            $minimalJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
 
-              # Write directly to file
-              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $jsonString)
+            # Method 1: System.IO.File
+            try {
+              Write-Host "Attempting to create package-lock.json using System.IO.File..."
+              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $minimalJson)
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
-                Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                Write-Host "package-lock.json created successfully using System.IO.File ($($fileInfo.Length) bytes)"
                 Get-Content -Path "package-lock.json"
               } else {
-                throw "Failed to create package-lock.json"
+                throw "Failed to create package-lock.json using System.IO.File"
               }
             } catch {
-              Write-Host "Error creating package-lock.json with System.IO: $_"
+              Write-Host "Error creating package-lock.json with System.IO.File: $_"
 
-              # Fallback method 1 - Out-File
+              # Method 2: Out-File
               try {
                 Write-Host "Trying fallback method with Out-File..."
-                '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
+                $minimalJson | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
 
                 if (Test-Path "package-lock.json") {
-                  Write-Host "Created package-lock.json with Out-File method"
+                  $fileInfo = Get-Item "package-lock.json"
+                  Write-Host "Created package-lock.json with Out-File method ($($fileInfo.Length) bytes)"
                   Get-Content -Path "package-lock.json"
                 } else {
                   throw "Failed to create package-lock.json with Out-File"
@@ -91,19 +92,45 @@ jobs:
               } catch {
                 Write-Host "Error with Out-File method: $_"
 
-                # Fallback method 2 - Set-Content
+                # Method 3: Set-Content
                 try {
                   Write-Host "Trying final fallback with Set-Content..."
-                  Set-Content -Path "package-lock.json" -Value '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' -Encoding UTF8 -Force
+                  Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8 -Force
 
                   if (Test-Path "package-lock.json") {
-                    Write-Host "Created package-lock.json with Set-Content method"
+                    $fileInfo = Get-Item "package-lock.json"
+                    Write-Host "Created package-lock.json with Set-Content method ($($fileInfo.Length) bytes)"
+                    Get-Content -Path "package-lock.json"
                   } else {
                     Write-Host "All methods failed to create package-lock.json"
                   }
                 } catch {
                   Write-Host "All methods failed to create package-lock.json: $_"
+
+                  # Last resort - echo to file
+                  try {
+                    Write-Host "Attempting last resort method - echo to file..."
+                    cmd /c "echo {\"name\":\"paissive-income\",\"version\":\"1.0.0\",\"lockfileVersion\":3} > package-lock.json"
+
+                    if (Test-Path "package-lock.json") {
+                      $fileInfo = Get-Item "package-lock.json"
+                      Write-Host "Created package-lock.json with echo method ($($fileInfo.Length) bytes)"
+                    } else {
+                      Write-Host "All file creation methods failed completely"
+                    }
+                  } catch {
+                    Write-Host "Echo method also failed: $_"
+                  }
                 }
+              }
+            }
+
+            # Add to .gitignore if it exists
+            if (Test-Path ".gitignore") {
+              $gitignore = Get-Content -Path ".gitignore" -Raw
+              if (-not ($gitignore -match "package-lock\.json")) {
+                Write-Host "Adding package-lock.json to .gitignore..."
+                Add-Content -Path ".gitignore" -Value "`n# Generated during CodeQL analysis`npackage-lock.json" -Force
               }
             }
           }
@@ -160,7 +187,12 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-          debug: true
+          debug: true # Enable debug mode for more detailed logs
+
+      # Autobuild attempts to build any compiled languages with enhanced error handling
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+        continue-on-error: true # Continue even if autobuild fails
 
       # Verify environment before CodeQL analysis - enhanced version
       - name: Verify environment
@@ -168,70 +200,123 @@ jobs:
         run: |
           Write-Host "Verifying environment before CodeQL analysis..."
 
-          # Final check for package-lock.json - create it if it still doesn't exist
-          if (-not (Test-Path "package-lock.json") -and "${{ matrix.language }}" -eq 'javascript-typescript') {
-            Write-Host "WARNING: package-lock.json still not found! Creating it as a last resort..."
+          # Create sarif-results directory if it doesn't exist
+          if (-not (Test-Path "sarif-results")) {
+            Write-Host "Creating sarif-results directory..."
+            New-Item -ItemType Directory -Force -Path "sarif-results" | Out-Null
+          }
 
-            # Use the most direct and reliable method
-            try {
-              # Create the simplest valid package-lock.json
+          # JavaScript/TypeScript specific checks
+          if ("${{ matrix.language }}" -eq 'javascript-typescript') {
+            # Final check for package-lock.json - create it if it still doesn't exist
+            if (-not (Test-Path "package-lock.json")) {
+              Write-Host "WARNING: package-lock.json still not found! Creating it as a last resort..."
+
+              # Define the minimal valid JSON content
               $minimalJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
 
-              # Try multiple methods to ensure file creation
-              # Method 1: System.IO
-              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $minimalJson)
-              Write-Host "Created package-lock.json using System.IO"
-            }
-            catch {
-              Write-Host "Error with System.IO method: $_"
+              # Try all methods in sequence until one works
+              $methods = @(
+                @{
+                  Name = "System.IO.File";
+                  Action = { [System.IO.File]::WriteAllText("$PWD\package-lock.json", $minimalJson) }
+                },
+                @{
+                  Name = "Out-File";
+                  Action = { $minimalJson | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force }
+                },
+                @{
+                  Name = "Set-Content";
+                  Action = { Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8 -Force }
+                },
+                @{
+                  Name = "Echo Command";
+                  Action = { cmd /c "echo {\"name\":\"paissive-income\",\"version\":\"1.0.0\",\"lockfileVersion\":3} > package-lock.json" }
+                }
+              )
 
-              # Method 2: Out-File
+              $success = $false
+              foreach ($method in $methods) {
+                if (-not $success) {
+                  try {
+                    Write-Host "Trying to create package-lock.json using $($method.Name)..."
+                    & $method.Action
+
+                    if (Test-Path "package-lock.json") {
+                      $fileInfo = Get-Item "package-lock.json"
+                      Write-Host "Successfully created package-lock.json using $($method.Name) ($($fileInfo.Length) bytes)"
+                      $success = $true
+                    }
+                  } catch {
+                    Write-Host "Error with $($method.Name) method: $_"
+                  }
+                }
+              }
+
+              if (-not $success) {
+                Write-Host "CRITICAL ERROR: All methods to create package-lock.json failed!"
+              }
+            }
+
+            # Verify package-lock.json
+            if (Test-Path "package-lock.json") {
+              $fileInfo = Get-Item "package-lock.json"
+              Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
+
+              # Read content safely
               try {
-                $minimalJson | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
-                Write-Host "Created package-lock.json using Out-File"
-              }
-              catch {
-                Write-Host "Error with Out-File method: $_"
+                $content = Get-Content -Path "package-lock.json" -Raw -ErrorAction Stop
+                Write-Host "Content: $content"
 
-                # Method 3: Set-Content
+                # Verify JSON is valid
                 try {
-                  Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8 -Force
-                  Write-Host "Created package-lock.json using Set-Content"
+                  $null = ConvertFrom-Json -InputObject $content -ErrorAction Stop
+                  Write-Host "package-lock.json contains valid JSON"
+                } catch {
+                  Write-Host "WARNING: package-lock.json contains invalid JSON: $_"
+                  # Fix it with a guaranteed valid JSON
+                  $validJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+                  Set-Content -Path "package-lock.json" -Value $validJson -Encoding UTF8 -Force
+                  Write-Host "Replaced with valid JSON"
                 }
-                catch {
-                  Write-Host "All file creation methods failed: $_"
-                }
+              } catch {
+                Write-Host "Error reading package-lock.json: $_"
+                # Create a new file with valid content
+                $validJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+                Set-Content -Path "package-lock.json" -Value $validJson -Encoding UTF8 -Force
+                Write-Host "Created new package-lock.json with valid JSON"
               }
+            } else {
+              Write-Host "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
+            }
+
+            # Check for node_modules directory
+            if (-not (Test-Path "node_modules")) {
+              Write-Host "Creating node_modules directory..."
+              New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
             }
           }
 
-          # Verify package-lock.json
-          if (Test-Path "package-lock.json") {
-            $fileInfo = Get-Item "package-lock.json"
-            Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
-            $content = Get-Content -Path "package-lock.json" -Raw
-            Write-Host "Content: $content"
+          # Python specific checks
+          if ("${{ matrix.language }}" -eq 'python') {
+            # Verify Python environment
+            Write-Host "Verifying Python environment..."
 
-            # Verify JSON is valid
+            # Check Python version
             try {
-              $null = ConvertFrom-Json -InputObject $content
-              Write-Host "package-lock.json contains valid JSON"
+              $pythonVersion = python --version
+              Write-Host "Python version: $pythonVersion"
+            } catch {
+              Write-Host "Error checking Python version: $_"
             }
-            catch {
-              Write-Host "WARNING: package-lock.json contains invalid JSON: $_"
-              # Fix it with a guaranteed valid JSON
-              Set-Content -Path "package-lock.json" -Value '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' -Encoding UTF8 -Force
-              Write-Host "Replaced with valid JSON"
-            }
-          }
-          else {
-            Write-Host "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
-          }
 
-          # Check for node_modules directory
-          if (-not (Test-Path "node_modules")) {
-            Write-Host "Creating node_modules directory..."
-            New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+            # Check pip
+            try {
+              $pipVersion = pip --version
+              Write-Host "Pip version: $pipVersion"
+            } catch {
+              Write-Host "Error checking pip version: $_"
+            }
           }
 
           # Ensure .gitignore contains package-lock.json
@@ -243,20 +328,29 @@ jobs:
             }
           }
 
+          # List all directories in the current path
+          Write-Host "Current directory structure:"
+          Get-ChildItem -Path . -Directory | ForEach-Object {
+            Write-Host "  $($_.Name)"
+          }
+
           Write-Host "Environment verification complete. Using standard CodeQL queries."
 
-      # Perform CodeQL Analysis
+      # Perform CodeQL Analysis with enhanced error handling
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
           upload: true
           output: sarif-results/${{ matrix.language }}-windows.sarif
+        continue-on-error: false # Fail the workflow if CodeQL analysis fails
 
-      # Upload SARIF results as an artifact
+      # Upload SARIF results as an artifact (with fallback for failures)
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
+        if: always() # Always attempt to upload artifacts even if previous steps fail
         with:
           name: ${{ matrix.language }}-windows-sarif
           path: sarif-results/${{ matrix.language }}-windows.sarif
           retention-days: 7
+          if-no-files-found: warn # Warn but don't fail if no files are found
