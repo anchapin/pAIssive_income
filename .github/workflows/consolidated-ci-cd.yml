@@ -31,6 +31,11 @@ on:
     - cron: '0 0 * * 0'  # Weekly, for regular security scans
   workflow_dispatch:
 
+# Limit concurrent runs to conserve resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -197,14 +202,15 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          @"
+          $content = @"
 #!/usr/bin/env python3
 """Mock CrewAI test script."""
 import sys
 print("Mock CrewAI test script")
 print("CrewAI tests skipped - script not found")
 sys.exit(0)
-"@ | Out-File -FilePath run_crewai_tests.py -Encoding utf8
+"@
+          Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
@@ -451,6 +457,7 @@ sys.exit(0)
           format: 'sarif'
           output: 'security-reports/trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
+          timeout: '10m'
 
       - name: Upload security reports
         uses: actions/upload-artifact@v4
