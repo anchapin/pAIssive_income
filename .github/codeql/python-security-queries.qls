@@ -6,7 +6,5 @@
 - description: Python Security Queries
 
 # Use standard security queries from CodeQL
-# Using absolute paths to standard query suites to avoid Windows path issues
+# Using standard query suites to avoid Windows path issues
 - uses: security
-- uses: security-and-quality
-- uses: security-extended

@@ -60,22 +60,8 @@ jobs:
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
             try {
-              # Create a simple PowerShell object
-              $json = @{
-                name = "paissive-income"
-                version = "1.0.0"
-                lockfileVersion = 3
-                requires = $true
-                packages = @{
-                  "" = @{
-                    name = "paissive-income"
-                    version = "1.0.0"
-                  }
-                }
-              }
-
-              # Convert to JSON with proper formatting
-              $jsonContent = ConvertTo-Json -Depth 10 $json
+              # Create a very simple JSON string that's guaranteed to be valid
+              $jsonContent = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
               Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
