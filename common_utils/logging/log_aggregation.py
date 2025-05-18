@@ -361,6 +361,11 @@ class FileRotatingHandler:
             logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         )
 
+    def close(self) -> None:
+        """Close the file handler."""
+        if hasattr(self, 'handler') and self.handler:
+            self.handler.close()
+
     def handle(self, log_entry: Dict[str, Any]) -> None:
         """Handle a log entry by writing it to the log file.
 

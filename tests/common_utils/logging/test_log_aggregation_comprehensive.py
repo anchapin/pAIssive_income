@@ -61,13 +61,13 @@ class TestLogAggregationFunctions:
         assert log_entries[0]["timestamp"] == "2023-01-01T12:00:00"
         assert log_entries[0]["level"] == "INFO"
         assert log_entries[0]["message"] == "Test message 1"
-        assert log_entries[0]["n"] == "test_module"
+        assert log_entries[0]["name"] == "test_module"
 
         # Check the last entry
         assert log_entries[3]["timestamp"] == "2023-01-01T12:03:00"
         assert log_entries[3]["level"] == "INFO"
-        assert log_entries[3]["message"] == "Test message 4\n    Continuation of previous message"
-        assert log_entries[3]["n"] == "test_module"
+        assert log_entries[3]["message"] == "Test message 4\nContinuation of previous message"
+        assert log_entries[3]["name"] == "test_module"
 
     def test_parse_log_file_error(self):
         """Test parsing a log file with an error."""
