@@ -9,8 +9,3 @@
 - uses: security
 - uses: security-and-quality
 - uses: security-extended
-
-# Include Python-specific security queries
-- include:
-    kind: problem
-    tags contain: security

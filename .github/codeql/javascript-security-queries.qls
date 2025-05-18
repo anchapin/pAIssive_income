@@ -9,8 +9,3 @@
 - uses: security
 - uses: security-and-quality
 - uses: security-extended
-
-# Include JavaScript-specific security queries
-- include:
-    kind: problem
-    tags contain: security

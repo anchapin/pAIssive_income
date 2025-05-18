@@ -59,13 +59,14 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            $json = @{
+            # Create a simple JSON object
+            $json = [ordered]@{
               name = "paissive-income"
               version = "1.0.0"
               lockfileVersion = 3
               requires = $true
-              packages = @{
-                "" = @{
+              packages = [ordered]@{
+                "" = [ordered]@{
                   name = "paissive-income"
                   version = "1.0.0"
                 }
@@ -73,31 +74,30 @@ jobs:
             }
 
             try {
-              $jsonContent = ConvertTo-Json -Depth 10 $json
+              # Convert to JSON with proper formatting
+              $jsonContent = ConvertTo-Json -InputObject $json -Depth 10
               Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
                 Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                Get-Content -Path "package-lock.json" -First 10
               } else {
-                Write-Host "Failed to create package-lock.json, trying alternative method..."
-                $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
-                Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8
+                throw "File was not created properly"
               }
             } catch {
               Write-Host "Error creating package-lock.json: $_"
-              Write-Host "Creating minimal JSON file as fallback..."
+              Write-Host "Using ultra-simple JSON as fallback..."
 
-              # Ultra simple fallback
+              # Ultra simple fallback that's guaranteed to be valid JSON
               $ultraSimple = '{}'
               Set-Content -Path "package-lock.json" -Value $ultraSimple -Encoding UTF8 -ErrorAction SilentlyContinue
-            }
 
-            # Final verification
-            if (Test-Path "package-lock.json") {
-              Write-Host "package-lock.json exists, proceeding with CodeQL analysis"
-            } else {
-              Write-Host "Warning: Could not create package-lock.json, CodeQL may have issues"
+              if (Test-Path "package-lock.json") {
+                Write-Host "Created minimal package-lock.json with empty object"
+              } else {
+                Write-Host "WARNING: All attempts to create package-lock.json failed"
+              }
             }
           }
 
@@ -151,6 +151,7 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
+          config-file: .github/codeql/security-os-config.yml
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

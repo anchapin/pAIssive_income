@@ -14,6 +14,8 @@ from __future__ import annotations
 import logging
 import os
 import sys
+
+# Path is used throughout the script, so we keep this import
 from pathlib import Path
 
 # Configure logging with timestamp
