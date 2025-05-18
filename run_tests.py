@@ -8,6 +8,7 @@ This script counts the number of tests to be run and sets the appropriate number
 """
 
 import logging
+import os
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 import shlex
@@ -40,11 +41,12 @@ def validate_args(args: Sequence[str]) -> List[str]:
     validated_args = []
     for arg in args:
         # Sanitize any potentially dangerous arguments
-        # This is a simple validation - in a real-world scenario,
-        # you might want more sophisticated validation
         if arg.startswith('--'):
-            # Allow pytest options
-            validated_args.append(arg)
+            # Allow pytest options, but validate they don't contain shell metacharacters
+            if not any(c in arg.split('=')[1] if '=' in arg else '' for c in ';&|`$(){}[]<>'):
+                validated_args.append(arg)
+            else:
+                logger.warning(f"Skipping potentially unsafe argument: {arg}")
         elif arg.startswith('-'):
             # Allow pytest short options
             validated_args.append(arg)
@@ -53,7 +55,12 @@ def validate_args(args: Sequence[str]) -> List[str]:
             # but since we're not using shell=True, we just need to ensure
             # they don't contain shell metacharacters
             if not any(c in arg for c in ';&|`$(){}[]<>'):
-                validated_args.append(arg)
+                # Additional check for path traversal attempts
+                normalized_path = os.path.normpath(arg)
+                if not normalized_path.startswith('..') and '..' not in normalized_path.split(os.sep):
+                    validated_args.append(arg)
+                else:
+                    logger.warning(f"Skipping path with directory traversal: {arg}")
             else:
                 logger.warning(f"Skipping potentially unsafe argument: {arg}")
 
@@ -82,7 +89,9 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
             cmd,
             stderr=subprocess.DEVNULL,
             text=True,  # Use text instead of universal_newlines for newer Python
-            shell=False  # Explicitly set shell=False for security
+            shell=False,  # Explicitly set shell=False for security
+            cwd=os.getcwd(),  # Explicitly set working directory
+            timeout=300  # Set a timeout of 5 minutes for test collection
         )
         # Count the number of collected tests by looking for lines that contain
         # a path followed by "::" which indicates a test
@@ -98,6 +107,9 @@ def get_test_count(pytest_args: Sequence[str]) -> int:
 
         logger.debug(f"Collected {test_count} tests")
         return test_count
+    except subprocess.TimeoutExpired:
+        logger.warning("Test collection timed out after 5 minutes. Falling back to single worker.")
+        return 1
     except subprocess.CalledProcessError:
         logger.warning("Error collecting tests. Falling back to single worker.")
         return 1
@@ -134,9 +146,15 @@ def main() -> None:
             pytest_cmd,
             check=False,
             shell=False,  # Explicitly set shell=False for security
-            env=None  # Use current environment, don't allow environment injection
+            env=None,  # Use current environment, don't allow environment injection
+            cwd=os.getcwd(),  # Explicitly set working directory
+            timeout=3600,  # Set a timeout of 1 hour to prevent hanging
+            text=True  # Use text mode for better error handling
         ).returncode
         sys.exit(result)
+    except subprocess.TimeoutExpired:
+        logger.error("Pytest execution timed out after 1 hour")
+        sys.exit(2)
     except subprocess.SubprocessError:
         logger.exception("Error running pytest")
         sys.exit(1)

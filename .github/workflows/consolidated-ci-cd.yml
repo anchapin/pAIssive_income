@@ -332,7 +332,8 @@ jobs:
           # Run Bandit with the bandit.yaml configuration
           if [ -f "bandit.yaml" ]; then
             echo "Using bandit.yaml configuration file"
-            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml || true
+            # Add --exclude flag to ensure directories are properly excluded
+            bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" || true
           else
             echo "bandit.yaml configuration file not found. Using default configuration."
             bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests" || true
@@ -384,7 +385,8 @@ jobs:
           try {
             if (Test-Path "bandit.yaml") {
               Write-Host "Using bandit.yaml configuration file"
-              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml
+              # Add --exclude flag to ensure directories are properly excluded
+              bandit -r . -f sarif -o security-reports/bandit-results.sarif -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
             } else {
               Write-Host "bandit.yaml configuration file not found. Using default configuration."
               bandit -r . -f sarif -o security-reports/bandit-results.sarif --exclude ".venv,node_modules,tests"
