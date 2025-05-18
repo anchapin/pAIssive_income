@@ -3,6 +3,5 @@
 @tailwind components;
 @tailwind utilities;
 
-/* You can import your existing style.css here if you want to merge custom styles:
+/* Import legacy/custom styles: */
 @import './style.css';
-*/
