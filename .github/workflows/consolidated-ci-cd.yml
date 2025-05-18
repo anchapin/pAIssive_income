@@ -484,7 +484,11 @@ sys.exit(0)
 
           # Run the enhanced mock path-to-regexp script if available
           echo "Running enhanced_mock_path_to_regexp.js if available..."
-          node tests/enhanced_mock_path_to_regexp.js || true
+          if [ -f "tests/enhanced_mock_path_to_regexp.js" ]; then
+            node tests/enhanced_mock_path_to_regexp.js || true
+          else
+            echo "enhanced_mock_path_to_regexp.js not found, skipping..."
+          fi
 
           # Create a more robust mock implementation of path-to-regexp with improved error handling
           echo "Creating robust mock path-to-regexp implementation"
@@ -904,7 +908,11 @@ EOL
 
           # Run the enhanced mock path-to-regexp script if available
           echo "Running enhanced_mock_path_to_regexp.js if available..."
-          node tests/enhanced_mock_path_to_regexp.js || true
+          if [ -f "tests/enhanced_mock_path_to_regexp.js" ]; then
+            node tests/enhanced_mock_path_to_regexp.js || true
+          else
+            echo "enhanced_mock_path_to_regexp.js not found, skipping..."
+          fi
 
           echo "Playwright test artifacts created successfully"
 

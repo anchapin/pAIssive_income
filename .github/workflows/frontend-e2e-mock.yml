@@ -53,7 +53,11 @@ jobs:
 
           # Run the enhanced mock path-to-regexp script if available
           echo "Running enhanced_mock_path_to_regexp.js if available..."
-          node tests/enhanced_mock_path_to_regexp.js || true
+          if [ -f "tests/enhanced_mock_path_to_regexp.js" ]; then
+            node tests/enhanced_mock_path_to_regexp.js || true
+          else
+            echo "enhanced_mock_path_to_regexp.js not found, skipping..."
+          fi
 
           # Create a more comprehensive mock implementation with improved error handling
           cat > node_modules/path-to-regexp/index.js << 'EOL'
@@ -948,8 +952,13 @@ EOL
           fi
 
           # Run the mock path-to-regexp script one last time to ensure it's still available
-          echo "Running mock_path_to_regexp.js one last time to ensure path-to-regexp is still available..."
+          echo "Running mock path-to-regexp scripts one last time to ensure path-to-regexp is still available..."
           node tests/mock_path_to_regexp.js || echo "Failed to run mock_path_to_regexp.js"
+
+          # Run the enhanced mock path-to-regexp script if available
+          if [ -f "tests/enhanced_mock_path_to_regexp.js" ]; then
+            node tests/enhanced_mock_path_to_regexp.js || echo "Failed to run enhanced_mock_path_to_regexp.js"
+          fi
 
           # Check for running processes
           echo "Running processes:" >> playwright-report/diagnostics.txt
