@@ -228,151 +228,54 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
     const isCIEnvironment = process.env.CI === 'true';
 
     try {
-      // Handle URL parsing more robustly
+      // Handle URL parsing more securely
       let opts;
 
       // Check if URL is already a URL object
       if (url instanceof URL) {
         opts = url;
       } else {
+        // Validate URL is a string
+        if (typeof url !== 'string') {
+          throw new Error('URL must be a string');
+        }
+
+        // Sanitize URL to prevent parsing errors - only allow safe characters
+        const sanitizedUrl = url.trim().replace(/[^\w\s\-\.:\/]/g, '');
+
         // Make sure URL has a protocol
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = 'http://' + url;
+        let urlWithProtocol = sanitizedUrl;
+        if (!sanitizedUrl.startsWith('http://') && !sanitizedUrl.startsWith('https://')) {
+          urlWithProtocol = 'http://' + sanitizedUrl;
         }
 
         // Try to create a URL object with better error handling
         try {
-          opts = new URL(url);
+          opts = new URL(urlWithProtocol);
         } catch (innerError) {
-          // If that fails, try to parse it manually with improved error handling
-          console.error(`Error creating URL object for ${url}: ${innerError.message}`);
+          // If URL parsing fails, log the error and use safe defaults
+          console.error(`Error creating URL object: ${innerError.message}`);
 
           // Log the error details for debugging
           safelyWriteFile(
             path.join(logsDir, 'url-parsing-errors.log'),
             `Error creating URL object at ${new Date().toISOString()}\n` +
-            `URL: ${url}\n` +
+            `URL: ${sanitizedUrl}\n` +
             `Error: ${innerError.message}\n` +
             `Stack: ${innerError.stack}\n\n`,
             true // Append mode
           );
 
-          // Extract hostname and port from URL with enhanced error handling
-          let hostname = 'localhost';
-          let port = 8000;
-          let path = '/health';
-
-          try {
-            // More robust URL parsing with additional safeguards
-            if (!url || typeof url !== 'string') {
-              throw new Error('URL is null, undefined, or not a string');
-            }
-
-            // Sanitize URL to prevent parsing errors
-            const sanitizedUrl = url.trim().replace(/[\r\n\t]/g, '');
-
-            if (sanitizedUrl.includes('://')) {
-              // Handle URLs with protocol
-              const parts = sanitizedUrl.split('://');
-              if (parts.length < 2) {
-                throw new Error('Invalid URL format after protocol split');
-              }
-
-              const rest = parts[1] || '';
-
-              if (rest.includes('/')) {
-                // Handle URLs with path
-                const hostAndPath = rest.split('/', 1);
-                const hostPart = hostAndPath[0] || '';
-
-                if (hostPart.includes(':')) {
-                  // Handle URLs with port
-                  const hostAndPort = hostPart.split(':');
-                  hostname = hostAndPort[0] || 'localhost';
-                  port = parseInt(hostAndPort[1], 10);
-                  if (isNaN(port)) port = 8000;
-                } else {
-                  hostname = hostPart || 'localhost';
-                }
-
-                // Extract path with safety check
-                if (hostPart.length < rest.length) {
-                  path = '/' + rest.substring(hostPart.length + 1);
-                } else {
-                  path = '/health';
-                }
-              } else {
-                // Handle URLs without path
-                if (rest.includes(':')) {
-                  // Handle URLs with port
-                  const hostAndPort = rest.split(':');
-                  hostname = hostAndPort[0] || 'localhost';
-                  port = parseInt(hostAndPort[1], 10);
-                  if (isNaN(port)) port = 8000;
-                } else {
-                  hostname = rest || 'localhost';
-                }
-                path = '/health';
-              }
-            } else if (sanitizedUrl.includes(':')) {
-              // Handle URLs without protocol but with port
-              const parts = sanitizedUrl.split(':');
-              hostname = parts[0] || 'localhost';
-
-              if (parts.length > 1 && parts[1].includes('/')) {
-                // Handle URLs with path
-                const portAndPath = parts[1].split('/', 1);
-                port = parseInt(portAndPath[0], 10);
-                if (isNaN(port)) port = 8000;
-
-                // Extract path with safety check
-                if (portAndPath[0].length < parts[1].length) {
-                  path = '/' + parts[1].substring(portAndPath[0].length + 1);
-                } else {
-                  path = '/health';
-                }
-              } else if (parts.length > 1) {
-                port = parseInt(parts[1], 10);
-                if (isNaN(port)) port = 8000;
-                path = '/health';
-              } else {
-                path = '/health';
-              }
-            } else {
-              // Handle simple hostname
-              hostname = sanitizedUrl || 'localhost';
-              path = '/health';
-            }
-
-            // Validate the parsed values
-            if (!hostname) hostname = 'localhost';
-            if (!port || isNaN(port) || port < 1 || port > 65535) port = 8000;
-            if (!path || !path.startsWith('/')) path = '/health';
-
-            // Ensure path starts with /
-            if (!path.startsWith('/')) {
-              path = '/' + path;
-            }
-
-            // Log successful manual parsing
-            console.log(`Successfully manually parsed URL ${url} to:`, { hostname, port, path });
-          } catch (parsingError) {
-            console.error(`Manual URL parsing failed: ${parsingError.message}, using defaults`);
-            // Keep default values set above
-          }
-
-          // Create options manually
+          // Use safe defaults instead of manual parsing
           options = {
             method,
-            hostname,
-            port,
-            path,
+            hostname: 'localhost',
+            port: 8000,
+            path: '/health',
             headers,
           };
 
-          console.log(`Manually parsed URL ${url} to options:`, options);
-
-          // Don't throw an error here, just continue with the manual options
+          console.log(`Using safe default options:`, options);
           return;
         }
       }
@@ -637,105 +540,62 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
   let protocol, hostname, pathname;
 
   try {
+    // Validate URL is a string
+    if (typeof url !== 'string') {
+      throw new Error('URL must be a string');
+    }
+
+    // Sanitize URL to prevent parsing errors - only allow safe characters
+    const sanitizedUrl = url.trim().replace(/[^\w\s\-\.:\/]/g, '');
+
     // Make sure URL has a protocol
-    let urlToCheck = url;
-    if (!urlToCheck.startsWith('http://') && !urlToCheck.startsWith('https://')) {
-      urlToCheck = 'http://' + urlToCheck;
+    let urlWithProtocol = sanitizedUrl;
+    if (!sanitizedUrl.startsWith('http://') && !sanitizedUrl.startsWith('https://')) {
+      urlWithProtocol = 'http://' + sanitizedUrl;
     }
 
     try {
-      const urlObj = new URL(urlToCheck);
+      // Use the built-in URL parser which is safer
+      const urlObj = new URL(urlWithProtocol);
       protocol = urlObj.protocol;
       hostname = urlObj.hostname;
-      pathname = urlObj.pathname;
+      pathname = urlObj.pathname || '/health';
+
+      // Ensure pathname is not empty
+      if (pathname === '/') {
+        pathname = '/health';
+      }
 
       // Log successful URL parsing
       safelyWriteFile(
         path.join(logsDir, 'server-readiness-checks.log'),
-        `Successfully parsed URL: ${urlToCheck}\n` +
+        `Successfully parsed URL: ${urlWithProtocol}\n` +
         `Protocol: ${protocol}\n` +
         `Hostname: ${hostname}\n` +
         `Pathname: ${pathname}\n`,
         true // Append mode
       );
     } catch (innerError) {
-      // If URL object creation fails, try manual parsing with improved error handling
-      console.error(`Error creating URL object for ${urlToCheck}: ${innerError.message}`);
+      // If URL parsing fails, log the error and use safe defaults
+      console.error(`Error creating URL object: ${innerError.message}`);
 
-      // Use a more robust manual parsing approach
-      try {
-        // Default values in case parsing fails
-        hostname = 'localhost';
-        protocol = 'http:';
-        pathname = '/health';
+      // Set safe default values
+      protocol = 'http:';
+      hostname = 'localhost';
+      pathname = '/health';
 
-        // Try to extract parts from the URL string
-        if (urlToCheck.includes('://')) {
-          const parts = urlToCheck.split('://');
-          protocol = parts[0] + ':';
-          const rest = parts[1];
-
-          if (rest.includes('/')) {
-            const hostAndPath = rest.split('/', 2);
-            const hostPart = hostAndPath[0];
-
-            if (hostPart.includes(':')) {
-              const hostAndPort = hostPart.split(':');
-              hostname = hostAndPort[0];
-            } else {
-              hostname = hostPart;
-            }
-
-            pathname = '/' + rest.substring(hostPart.length + 1);
-          } else {
-            hostname = rest;
-            pathname = '/health';
-          }
-        } else if (urlToCheck.includes(':')) {
-          // Handle case like "localhost:8000"
-          const parts = urlToCheck.split(':');
-          hostname = parts[0];
-
-          if (parts[1].includes('/')) {
-            const portAndPath = parts[1].split('/', 2);
-            pathname = '/' + portAndPath[1];
-          } else {
-            pathname = '/health';
-          }
-        } else {
-          // Simple hostname only
-          hostname = urlToCheck;
-          pathname = '/health';
-        }
-
-        // Ensure pathname starts with /
-        if (!pathname.startsWith('/')) {
-          pathname = '/' + pathname;
-        }
-
-        // If pathname is empty, use /health
-        if (pathname === '/') {
-          pathname = '/health';
-        }
-      } catch (parsingError) {
-        console.error(`Manual URL parsing failed: ${parsingError.message}, using default values`);
-        // Set default values
-        protocol = 'http:';
-        hostname = 'localhost';
-        pathname = '/health';
-      }
-
-      console.log(`Manually parsed URL ${urlToCheck} to:`, { protocol, hostname, pathname });
-
-      // Log manual parsing
+      // Log the error and default values
       safelyWriteFile(
         path.join(logsDir, 'server-readiness-checks.log'),
-        `Manually parsed URL: ${urlToCheck}\n` +
+        `Error parsing URL: ${urlWithProtocol}\n` +
+        `Error: ${innerError.message}\n` +
+        `Using default values:\n` +
         `Protocol: ${protocol}\n` +
         `Hostname: ${hostname}\n` +
         `Pathname: ${pathname}\n`,
         true // Append mode
       );
+      console.log(`Using default URL values:`, { protocol, hostname, pathname });
     }
   } catch (urlError) {
     // Handle URL parsing error
@@ -778,8 +638,7 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
 
     // Try each port in sequence
     for (const port of ports) {
-      // Construct URL manually to avoid path-to-regexp issues
-      // Use a safer URL construction approach with better error handling
+      // Construct URL using the built-in URL API
       let currentUrl;
       try {
         // Ensure all parts are defined and properly formatted
@@ -787,22 +646,12 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
         const safeHostname = hostname || 'localhost';
         const safePath = pathname || '/health';
 
-        // Make sure protocol ends with :
-        const formattedProtocol = safeProtocol.endsWith(':') ? safeProtocol : safeProtocol + ':';
+        // Use URL constructor for safer URL creation
+        const urlObj = new URL(`${safeProtocol}//${safeHostname}`);
+        urlObj.port = port;
+        urlObj.pathname = safePath.startsWith('/') ? safePath : '/' + safePath;
 
-        // Make sure path starts with /
-        const formattedPath = safePath.startsWith('/') ? safePath : '/' + safePath;
-
-        // Construct the URL safely
-        currentUrl = `${formattedProtocol}//${safeHostname}:${port}${formattedPath}`;
-
-        // Validate the constructed URL
-        try {
-          // This is just a validation check, we still use the manually constructed URL
-          new URL(currentUrl);
-        } catch (validationError) {
-          console.warn(`Constructed URL ${currentUrl} is not valid: ${validationError.message}, but continuing anyway`);
-        }
+        currentUrl = urlObj.toString();
       } catch (urlConstructionError) {
         console.error(`Error constructing URL: ${urlConstructionError.message}, using fallback URL`);
         currentUrl = `http://localhost:${port}/health`;

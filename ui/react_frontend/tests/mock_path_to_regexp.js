@@ -90,7 +90,8 @@ function pathToRegexp(path, keys, options) {
 
   // If keys is provided, populate it with parameter names
   if (Array.isArray(keys) && typeof path === 'string') {
-    const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || [];
+    // Use a safer regex with a limited repetition to prevent ReDoS
+    const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
     paramNames.forEach((param, index) => {
       keys.push({
         name: param.substring(1),
@@ -311,118 +312,218 @@ This package is automatically installed by the CI workflow.
       // Create a simple but more comprehensive mock implementation
       const simpleMock = `
 /**
- * Mock implementation of path-to-regexp for CI compatibility (fallback version)
+ * Ultra-robust mock implementation of path-to-regexp for CI compatibility (fallback version)
  * Created at ${new Date().toISOString()}
+ * This is the last resort fallback implementation with maximum compatibility.
  */
 function pathToRegexp(path, keys, options) {
-  // If keys is provided, populate it with parameter names
-  if (Array.isArray(keys) && typeof path === 'string') {
-    const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || [];
-    paramNames.forEach((param, index) => {
-      keys.push({
-        name: param.substring(1),
-        prefix: '/',
-        suffix: '',
-        modifier: '',
-        pattern: '[^/]+'
-      });
-    });
-  }
-  return /.*/;
-}
+  console.log('[path-to-regexp] Mock called with path:', path);
 
-// Add the main function as a property of itself
-pathToRegexp.pathToRegexp = pathToRegexp;
-
-// Parse function
-pathToRegexp.parse = function(path) {
-  // Return a more detailed parse result for better compatibility
-  if (typeof path === 'string') {
-    const tokens = [];
-    const parts = path.split('/');
-    parts.forEach(part => {
-      if (part.startsWith(':')) {
-        tokens.push({
-          name: part.substring(1),
+  try {
+    // If keys is provided, populate it with parameter names
+    if (Array.isArray(keys) && typeof path === 'string') {
+      // Use a safer regex with a limited repetition to prevent ReDoS
+      const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
+      paramNames.forEach((param, index) => {
+        keys.push({
+          name: param.substring(1),
           prefix: '/',
           suffix: '',
-          pattern: '[^/]+',
-          modifier: ''
+          modifier: '',
+          pattern: '[^/]+'
         });
-      } else if (part) {
-        tokens.push(part);
-      }
-    });
-    return tokens;
+      });
+    }
+
+    // Return a regex that matches anything for maximum compatibility
+    return /.*/;
+  } catch (error) {
+    console.error('[path-to-regexp] Error in mock implementation:', error);
+    return /.*/;
   }
-  return [];
+}
+
+// Add the main function as a property of itself (some libraries expect this)
+pathToRegexp.pathToRegexp = pathToRegexp;
+
+// Parse function with improved error handling
+pathToRegexp.parse = function(path) {
+  console.log('[path-to-regexp] Mock parse called with path:', path);
+
+  try {
+    // Return a more detailed parse result for better compatibility
+    if (typeof path === 'string') {
+      const tokens = [];
+      const parts = path.split('/').filter(Boolean);
+
+      parts.forEach(part => {
+        if (part.startsWith(':')) {
+          tokens.push({
+            name: part.substring(1),
+            prefix: '/',
+            suffix: '',
+            pattern: '[^/]+',
+            modifier: ''
+          });
+        } else if (part) {
+          tokens.push(part);
+        }
+      });
+
+      return tokens;
+    }
+    return [];
+  } catch (error) {
+    console.error('[path-to-regexp] Error in mock parse implementation:', error);
+    return [];
+  }
 };
 
-// Compile function
+// Compile function with improved error handling
 pathToRegexp.compile = function(path) {
+  console.log('[path-to-regexp] Mock compile called with path:', path);
+
   return function(params) {
-    // Try to replace parameters in the path
-    if (typeof path === 'string' && params) {
-      let result = path;
-      Object.keys(params).forEach(key => {
-        result = result.replace(':' + key, params[key]);
-      });
-      return result;
+    try {
+      console.log('[path-to-regexp] Mock compile function called with params:', params);
+
+      // Try to replace parameters in the path
+      if (typeof path === 'string' && params) {
+        let result = path;
+        Object.keys(params).forEach(key => {
+          // Use a safer string replacement approach instead of regex
+          result = result.split(':' + key).join(params[key]);
+        });
+        return result;
+      }
+      return path || '';
+    } catch (error) {
+      console.error('[path-to-regexp] Error in mock compile function:', error);
+      return path || '';
     }
-    return '';
   };
 };
 
-// Match function
+// Match function with improved error handling
 pathToRegexp.match = function(path) {
-  return function(pathname) {
-    // Extract parameter values from the pathname if possible
-    const params = {};
-    if (typeof path === 'string' && typeof pathname === 'string') {
-      const pathParts = path.split('/');
-      const pathnameParts = pathname.split('/');
+  console.log('[path-to-regexp] Mock match called with path:', path);
 
-      if (pathParts.length === pathnameParts.length) {
-        for (let i = 0; i < pathParts.length; i++) {
+  return function(pathname) {
+    try {
+      console.log('[path-to-regexp] Mock match function called with pathname:', pathname);
+
+      // Extract parameter values from the pathname if possible
+      const params = {};
+      let isExact = false;
+
+      if (typeof path === 'string' && typeof pathname === 'string') {
+        const pathParts = path.split('/').filter(Boolean);
+        const pathnameParts = pathname.split('/').filter(Boolean);
+
+        // Check if the path matches exactly (same number of parts)
+        isExact = pathParts.length === pathnameParts.length;
+
+        // Extract parameters even if the path doesn't match exactly
+        const minLength = Math.min(pathParts.length, pathnameParts.length);
+
+        for (let i = 0; i < minLength; i++) {
           if (pathParts[i].startsWith(':')) {
             const paramName = pathParts[i].substring(1);
             params[paramName] = pathnameParts[i];
           }
         }
       }
+
+      return {
+        path: pathname,
+        params: params,
+        index: 0,
+        isExact: isExact
+      };
+    } catch (error) {
+      console.error('[path-to-regexp] Error in mock match function:', error);
+      return { path: pathname, params: {}, index: 0, isExact: false };
     }
-    return { path: pathname, params: params, index: 0, isExact: true };
   };
 };
 
-// tokensToRegexp function
+// tokensToRegexp function with improved error handling
 pathToRegexp.tokensToRegexp = function(tokens, keys, options) {
-  // If keys is provided, populate it with parameter names from tokens
-  if (Array.isArray(keys) && Array.isArray(tokens)) {
-    tokens.forEach(token => {
-      if (typeof token === 'object' && token.name) {
-        keys.push({
-          name: token.name,
-          prefix: token.prefix || '/',
-          suffix: token.suffix || '',
-          modifier: token.modifier || '',
-          pattern: token.pattern || '[^/]+'
-        });
-      }
-    });
+  console.log('[path-to-regexp] Mock tokensToRegexp called');
+
+  try {
+    // If keys is provided, populate it with parameter names from tokens
+    if (Array.isArray(keys) && Array.isArray(tokens)) {
+      tokens.forEach(token => {
+        if (typeof token === 'object' && token.name) {
+          keys.push({
+            name: token.name,
+            prefix: token.prefix || '/',
+            suffix: token.suffix || '',
+            modifier: token.modifier || '',
+            pattern: token.pattern || '[^/]+'
+          });
+        }
+      });
+    }
+
+    return /.*/;
+  } catch (error) {
+    console.error('[path-to-regexp] Error in mock tokensToRegexp implementation:', error);
+    return /.*/;
   }
-  return /.*/;
 };
 
-// tokensToFunction function
+// tokensToFunction function with improved error handling
 pathToRegexp.tokensToFunction = function(tokens) {
+  console.log('[path-to-regexp] Mock tokensToFunction called');
+
   return function(params) {
-    return '';
+    try {
+      console.log('[path-to-regexp] Mock tokensToFunction function called with params:', params);
+
+      // Try to generate a path from tokens and params
+      if (Array.isArray(tokens) && params) {
+        let result = '';
+
+        tokens.forEach(token => {
+          if (typeof token === 'string') {
+            result += token;
+          } else if (typeof token === 'object' && token.name && params[token.name]) {
+            result += params[token.name];
+          }
+        });
+
+        return result;
+      }
+
+      return '';
+    } catch (error) {
+      console.error('[path-to-regexp] Error in mock tokensToFunction function:', error);
+      return '';
+    }
   };
 };
 
 // Add regexp property for compatibility with some libraries
 pathToRegexp.regexp = /.*/;
+
+// Add decode/encode functions for compatibility with some libraries
+pathToRegexp.decode = function(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    return value;
+  }
+};
+
+pathToRegexp.encode = function(value) {
+  try {
+    return encodeURIComponent(value);
+  } catch (error) {
+    return value;
+  }
+};
 
 module.exports = pathToRegexp;
 `;
