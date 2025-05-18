@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 import os
-import pathlib
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
@@ -78,9 +77,7 @@ def validate_args(args: Sequence[str]) -> List[str]:
             # Allow pytest short options
             validated_args.append(arg)
         elif not any(c in arg for c in ";&|`$(){}[]<>"):
-            # For paths or other arguments, use shlex.quote for safety
-            # but since we're not using shell=True, we just need to ensure
-            # they don't contain shell metacharacters
+            # For paths or other arguments, ensure they don't contain shell metacharacters
             # Additional check for path traversal attempts
             normalized_path = os.path.normpath(arg)
             if not normalized_path.startswith("..") and ".." not in normalized_path.split(os.sep):

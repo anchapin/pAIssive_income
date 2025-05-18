@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
