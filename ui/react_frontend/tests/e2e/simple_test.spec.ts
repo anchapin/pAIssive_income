@@ -119,16 +119,41 @@ test.describe('Simple Tests', () => {
 
     if (!navigationSuccess) {
       // Error message if offline
-      const offlineMsg = await page.getByText(/offline|unavailable|cannot connect|error/i, { timeout: 2000 }).catch(() => null);
+      let offlineMsg = null;
+      try {
+        offlineMsg = await page.getByText(/offline|unavailable|cannot connect|error/i, { timeout: 2000 });
+      } catch (error) {
+        // Ignore error, offlineMsg will remain null
+      }
       expect(offlineMsg).not.toBeNull();
       createReport('simple-test-offline.txt', 'Homepage could not load: offline or error message shown.');
       return;
     }
 
     // App logo, header, or branding should be visible
-    const branding = await page.getByRole('banner').catch(() => null) ||
-                     await page.getByRole('heading', { level: 1 }).catch(() => null) ||
-                     await page.getByText(/dashboard|income|analysis|app/i, { timeout: 5000 }).catch(() => null);
+    let branding = null;
+    try {
+      branding = await page.getByRole('banner');
+    } catch (error) {
+      // Continue to next attempt
+    }
+
+    if (!branding) {
+      try {
+        branding = await page.getByRole('heading', { level: 1 });
+      } catch (error) {
+        // Continue to next attempt
+      }
+    }
+
+    if (!branding) {
+      try {
+        branding = await page.getByText(/dashboard|income|analysis|app/i, { timeout: 5000 });
+      } catch (error) {
+        // Continue to final check
+      }
+    }
+
     expect(branding).not.toBeNull();
 
     // Accessibility: Main landmark is present
@@ -142,8 +167,22 @@ test.describe('Simple Tests', () => {
     // Try to navigate to About page and check for content
     await page.goto(`${BASE_URL}/about`, { timeout: 60000 });
     await page.waitForLoadState('load', { timeout: 60000 });
-    const aboutHeader = await page.getByRole('heading', { level: 1 }).catch(() => null) ||
-                        await page.getByText(/about/i, { timeout: 5000 }).catch(() => null);
+
+    let aboutHeader = null;
+    try {
+      aboutHeader = await page.getByRole('heading', { level: 1 });
+    } catch (error) {
+      // Continue to next attempt
+    }
+
+    if (!aboutHeader) {
+      try {
+        aboutHeader = await page.getByText(/about/i, { timeout: 5000 });
+      } catch (error) {
+        // Continue to final check
+      }
+    }
+
     expect(aboutHeader).not.toBeNull();
 
     if (process.env.CI !== 'true') {

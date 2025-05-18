@@ -6,6 +6,7 @@
  *
  * Enhanced with better error handling and logging for CI environments.
  * Improved for GitHub Actions compatibility.
+ * Fixed path-to-regexp error for better CI compatibility.
  */
 
 const express = require('express');
