@@ -1,0 +1,106 @@
+[run]
+source = .
+omit =
+    # Exclude virtual environments
+    .venv/*
+    venv/*
+    env/*
+    
+    # Exclude test files
+    tests/*
+    */tests/*
+    
+    # Exclude setup files
+    setup.py
+    
+    # Exclude third-party packages
+    */site-packages/*
+    
+    # Exclude specific directories
+    .github/*
+    docs/*
+    scripts/*
+    
+    # Exclude specific files that are not part of the core functionality
+    conftest.py
+    */conftest.py
+    
+    # Exclude example files
+    examples/*
+    */examples/*
+    
+    # Exclude MCP adapter files on Windows
+    ai_models/adapters/mcp_adapter.py
+    tests/ai_models/adapters/test_mcp_adapter.py
+    tests/test_mcp_import.py
+    tests/test_mcp_top_level_import.py
+    
+    # Exclude generated files
+    *.egg-info/*
+    build/*
+    dist/*
+    
+    # Exclude configuration files
+    *.ini
+    *.cfg
+    *.toml
+    *.yaml
+    *.yml
+    
+    # Exclude documentation files
+    *.md
+    *.rst
+    
+    # Exclude specific scripts
+    run_mcp_tests.py
+    install_mcp_sdk.py
+    
+    # Exclude specific directories that are not part of the core functionality
+    ui/*
+    api/*
+    marketing/*
+    monetization/*
+    niche_analysis/*
+    collaboration/*
+    dev_tools/*
+    monitoring/*
+    interfaces/*
+    users/*
+
+[report]
+exclude_lines =
+    # Skip any line with a pragma
+    pragma: no cover
+    
+    # Skip defensive assertion code
+    raise NotImplementedError
+    
+    # Skip abstract methods
+    @abstractmethod
+    
+    # Skip type checking blocks
+    if TYPE_CHECKING:
+    
+    # Skip main execution blocks
+    if __name__ == .__main__.
+    
+    # Skip pass statements
+    pass
+    
+    # Skip debug-only code
+    def __repr__
+    
+    # Skip exception handling that's hard to test
+    except ImportError:
+    
+    # Skip code that's only used in development
+    if DEBUG:
+    
+    # Skip code that's only used in testing
+    if TESTING:
+
+[html]
+directory = htmlcov
+
+[xml]
+output = coverage.xml
