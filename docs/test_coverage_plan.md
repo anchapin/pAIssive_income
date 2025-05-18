@@ -2,16 +2,16 @@
 
 ## Current Status
 
-The project currently has a test coverage below the required 80% threshold. To allow the PR to pass, we have temporarily set the coverage threshold to 0% in both:
+The project currently has a test coverage below the required 80% threshold. We have maintained the 80% coverage threshold in both:
 - `pytest.ini`
 - `.github/workflows/consolidated-ci-cd.yml`
 
-This document outlines the plan to improve test coverage and restore the 80% threshold.
+This document outlines the plan to improve test coverage to meet the 80% threshold.
 
 ## Goals
 
 1. Achieve at least 80% test coverage across the codebase
-2. Restore the `--cov-fail-under=80` parameter in both configuration files
+2. Maintain the `--cov-fail-under=80` parameter in both configuration files
 3. Ensure all critical functionality has comprehensive test coverage
 
 ## Approach
@@ -31,8 +31,8 @@ This document outlines the plan to improve test coverage and restore the 80% thr
 ### Phase 3: Verification
 
 - Run tests with coverage reports to track progress
-- Gradually increase the coverage threshold in `pytest.ini` and GitHub Actions workflow
-- Restore the 80% threshold once coverage is sufficient
+- Maintain the 80% coverage threshold in `pytest.ini` and GitHub Actions workflow
+- Ensure all tests pass with the required coverage threshold
 
 ## Prioritized Modules
 
@@ -63,23 +63,23 @@ The following modules have been identified as needing additional test coverage:
 
 1. **Short-term (1-2 weeks)**
    - Add tests for core functionality modules
-   - Increase coverage threshold to 40%
+   - Focus on reaching at least 40% coverage
 
 2. **Medium-term (3-4 weeks)**
    - Add tests for API and integration modules
-   - Increase coverage threshold to 60%
+   - Focus on reaching at least 60% coverage
 
 3. **Long-term (5-6 weeks)**
    - Add tests for utilities, helpers, and development tools
-   - Restore coverage threshold to 80%
+   - Ensure coverage meets the required 80% threshold
 
 ## Tracking Progress
 
 Progress will be tracked by:
 1. Regular coverage reports
 2. Updates to this document
-3. Incremental increases to the coverage threshold
+3. Monitoring progress towards the 80% coverage threshold
 
 ## Conclusion
 
-This temporary reduction in the coverage threshold is a pragmatic approach to allow the PR to pass while we work on improving test coverage. The long-term goal remains to achieve and maintain at least 80% test coverage across the codebase.
+Maintaining the 80% coverage threshold in our configuration files reinforces our commitment to high-quality code with comprehensive test coverage. The plan outlined in this document provides a roadmap for achieving and maintaining at least 80% test coverage across the codebase.
