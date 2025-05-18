@@ -16,7 +16,7 @@ The Dockerfile for this project uses a **multi-stage build** and a **distroless*
 ### Important Notes
 
 - **No /bin/sh or shell!**  
-  All healthchecks, entrypoints, and scripts must use the Python interpreter (`/usr/local/bin/python` or your venv’s Python). Bash scripts will not work unless explicitly supported.
+  All healthchecks, entrypoints, and scripts must use the Python interpreter (`/app/.venv/bin/python` or your venv’s Python). Bash scripts will not work unless explicitly supported.
 - **Scripts:**  
   - Make sure any scripts (like `docker-healthcheck.sh`, `wait-for-db.sh`) are executable and use UNIX line endings.
   - Prefer Python scripts for container healthchecks and orchestration.
