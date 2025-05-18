@@ -62,6 +62,7 @@ junit/test-results-*.xml
 *-results-*.json
 *-results-*.xml
 secrets.sarif.json
+-la security-reports
 
 # Editor/tool-specific configs
 .cursor/
