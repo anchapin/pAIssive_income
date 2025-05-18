@@ -1,5 +1,5 @@
 [run]
-source = utils.coverage_helper, utils.math_utils
+source = .
 omit =
     # Exclude test files
     tests/*
@@ -8,29 +8,9 @@ omit =
     .venv/*
     venv/*
     env/*
-    # Exclude all other files
-    add_logging_import.py
-    agent_team/*
-    ai_models/*
-    check_api_server.py
-    common_utils/*
-    crewai.py
+    # Exclude documentation
+    docs/*
     docs_source/*
-    init_agent_db.py
-    logging_config.py
-    main*.py
-    migrations/*
-    tool_templates/*
-    app_flask/*
-    services/*
-    adk_demo/*
-    ai_models/adapters/test_*.py
-    ai_models/adapters/testing_*.py
-    # Exclude additional mock implementations
-    **/mock_*.py
-    **/mocks/*.py
-    # Exclude mock_crewai directory
-    mock_crewai/*
     # Exclude test utilities
     **/test_utils/*.py
     **/testing/*.py
@@ -43,31 +23,8 @@ omit =
     **/generated/*.py
     # Exclude experimental code
     **/experimental/*.py
-    # Exclude utility scripts
-    **/utils/debug_*.py
-    **/utils/test_*.py
     # Exclude example implementations
     **/examples/*.py
-    # Exclude files that are primarily for external integrations
-    ai_models/adapters/tensorrt_adapter.py
-    # Exclude model types that aren't being tested yet
-    ai_models/model_types/*
-    # Exclude optimization modules not yet tested
-    ai_models/optimization/*
-    # Exclude serving modules not yet tested
-    ai_models/serving/*
-    # Exclude benchmarking modules not yet tested
-    ai_models/benchmarking/*
-    # Exclude fine-tuning modules not yet tested
-    ai_models/fine_tuning/*
-    # Exclude caching modules not yet tested
-    ai_models/caching/*
-    # Exclude fallbacks modules not yet tested
-    ai_models/fallbacks/*
-    # Exclude adapter modules that need separate testing
-    ai_models/adapters/lmstudio_adapter.py
-    ai_models/adapters/ollama_adapter.py
-    ai_models/adapters/openai_compatible_adapter.py
 
 [report]
 exclude_lines =
