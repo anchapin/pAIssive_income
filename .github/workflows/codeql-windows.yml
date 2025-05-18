@@ -49,43 +49,62 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Checking for lock files before CodeQL analysis..."
-          $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml")
-          Write-Host "Found $($lockFiles.Count) lock files"
+          try {
+            $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml" -ErrorAction Stop)
 
-          if ($lockFiles.Count -gt 0) {
-            Write-Host "Lock files found:"
-            $lockFiles | ForEach-Object {
-              Write-Host "  $($_.FullName)"
-            }
-          } else {
-            Write-Host "No lock files found. Creating a minimal package-lock.json..."
+            if ($lockFiles.Count -gt 0) {
+              Write-Host "Found $($lockFiles.Count) lock files:"
+              $lockFiles | ForEach-Object {
+                Write-Host "  $($_.FullName)"
+              }
+            } else {
+              Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple package-lock.json with minimal content
-            $json = @{
-              name = "paissive-income"
-              version = "1.0.0"
-              lockfileVersion = 3
-              requires = $true
-              packages = @{
-                "" = @{
+              try {
+                # Create a simple package-lock.json with minimal content
+                $packageJson = @{
                   name = "paissive-income"
                   version = "1.0.0"
+                  lockfileVersion = 3
+                  requires = $true
+                  packages = @{
+                    "" = @{
+                      name = "paissive-income"
+                      version = "1.0.0"
+                    }
+                  }
+                }
+
+                # Convert to JSON with proper formatting and write to file
+                $jsonContent = ConvertTo-Json -InputObject $packageJson -Depth 10
+                Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8 -ErrorAction Stop
+
+                # Verify the file was created correctly
+                if (Test-Path "package-lock.json") {
+                  $fileInfo = Get-Item "package-lock.json"
+                  Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
+                  Write-Host "File content preview:"
+                  Get-Content "package-lock.json" -TotalCount 20 | ForEach-Object { Write-Host "  $_" }
+                } else {
+                  Write-Host "Error: package-lock.json was not created!"
+                }
+              } catch {
+                Write-Host "Error creating package-lock.json: $_"
+
+                # Fallback to creating a simpler JSON file
+                Write-Host "Attempting fallback method to create package-lock.json..."
+                $simpleJson = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
+                Set-Content -Path "package-lock.json" -Value $simpleJson -Encoding UTF8 -ErrorAction SilentlyContinue
+
+                if (Test-Path "package-lock.json") {
+                  Write-Host "Created package-lock.json using fallback method"
+                } else {
+                  Write-Host "Warning: All attempts to create package-lock.json failed"
                 }
               }
             }
-
-            # Convert to JSON and write to file
-            $jsonContent = ConvertTo-Json -Depth 10 $json
-            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
-
-            # Verify the file was created correctly
-            if (Test-Path "package-lock.json") {
-              Write-Host "package-lock.json created successfully"
-              Get-Content "package-lock.json" | Out-String | Write-Host
-              Get-Item "package-lock.json" | Format-List Name, Length, LastWriteTime
-            } else {
-              Write-Host "Failed to create package-lock.json!"
-            }
+          } catch {
+            Write-Host "Error searching for lock files: $_"
           }
 
       # Install dependencies for JavaScript/TypeScript
