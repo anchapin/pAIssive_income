@@ -52,21 +52,18 @@ jobs:
           fetch-depth: 0
 
       # Setup Node.js and pnpm for Tailwind CSS build (Unix only)
-      - name: Set up Node.js (Unix)
-        if: runner.os != 'Windows'
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm (Unix)
-        if: runner.os != 'Windows'
+      - name: Install pnpm
         run: |
           corepack enable
           corepack prepare pnpm@8.14.0 --activate
 
-      - name: Install Node.js dependencies and build Tailwind CSS (Unix)
-        if: runner.os != 'Windows'
+      - name: Install Node.js dependencies and build Tailwind CSS
         run: |
           pnpm install
           pnpm tailwind:build
