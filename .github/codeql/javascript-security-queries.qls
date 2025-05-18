@@ -6,8 +6,8 @@
 - description: JavaScript Security Queries
 - queries: security
 
-# Use standard security queries from the security directory
-- uses: security/codeql-suites/javascript-security-and-quality.qls
+# Use standard security queries
+- uses: security-and-quality
 
 # Include additional security queries
-- uses: security/codeql-suites/javascript-security-extended.qls
+- uses: security-extended

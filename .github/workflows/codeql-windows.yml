@@ -68,9 +68,18 @@ jobs:
               }
             }
 
+            # Convert to JSON and write to file
             $jsonContent = ConvertTo-Json -Depth 10 $json
             Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
             Write-Host "Created minimal package-lock.json file"
+
+            # Verify the file was created correctly
+            if (Test-Path "package-lock.json") {
+              Write-Host "package-lock.json created successfully"
+              Get-Item "package-lock.json" | Format-List Name, Length, LastWriteTime
+            } else {
+              Write-Host "Failed to create package-lock.json!"
+            }
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
             foreach ($file in $lockFiles) {

@@ -101,12 +101,6 @@ queries:
   # Include additional security queries
   - uses: security-extended
 
-  # Include JavaScript-specific security queries
-  - uses: ./javascript-security-queries.qls
-
-  # Include Python-specific security queries
-  - uses: ./python-security-queries.qls
-
 # Disable noisy alerts
 disable-default-queries: false
 
