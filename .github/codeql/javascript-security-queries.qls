@@ -6,5 +6,6 @@
 - description: JavaScript Security Queries
 
 # Use standard security queries from CodeQL
-# Using standard query suites to avoid Windows path issues
-- uses: security
+# Using absolute paths for standard query suites to avoid Windows path issues
+- uses: security-and-quality
+- uses: security-extended
