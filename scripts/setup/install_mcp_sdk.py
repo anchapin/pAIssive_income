@@ -75,29 +75,25 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
         return 1, "", str(e)
 
 
-def create_mock_mcp_sdk() -> bool:
+def _create_package_files(temp_dir: str) -> tuple[Path, Path]:
     """
-    Create a mock MCP SDK package when the real one can't be installed.
+    Create the package files for the mock MCP SDK.
 
-    This ensures tests can run even if the GitHub repository is unavailable.
+    Args:
+        temp_dir: Path to the temporary directory
 
     Returns:
-        True if mock creation was successful, False otherwise
+        tuple: (mcp_dir, setup_file) paths
 
     """
-    logger.info("Creating mock MCP SDK package...")
+    # Create a minimal package structure
+    mcp_dir = Path(temp_dir) / "modelcontextprotocol"
+    mcp_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create a temporary directory
-    temp_dir = tempfile.mkdtemp()
-    try:
-        # Create a minimal package structure
-        mcp_dir = Path(temp_dir) / "modelcontextprotocol"
-        mcp_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create __init__.py
-        init_file = mcp_dir / "__init__.py"
-        with init_file.open("w") as f:
-            f.write("""
+    # Create __init__.py
+    init_file = mcp_dir / "__init__.py"
+    with init_file.open("w") as f:
+        f.write("""
 class Client:
     def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint
@@ -113,10 +109,10 @@ class Client:
         return f"Mock response to: {message}"
 """)
 
-        # Create setup.py
-        setup_file = Path(temp_dir) / "setup.py"
-        with setup_file.open("w") as f:
-            f.write("""
+    # Create setup.py
+    setup_file = Path(temp_dir) / "setup.py"
+    with setup_file.open("w") as f:
+        f.write("""
 from setuptools import setup, find_packages
 
 setup(
@@ -127,102 +123,176 @@ setup(
 )
 """)
 
-        # Try multiple installation methods
-        methods = [
-            # First try with uv pip
-            {
-                "command": [sys.executable, "-m", "uv", "pip", "install", "-e", "."],
-                "description": "uv pip install"
-            },
-            # Then try with regular pip
-            {
-                "command": [sys.executable, "-m", "pip", "install", "-e", "."],
-                "description": "pip install"
-            },
-            # Finally try with pip directly
-            {
-                "command": ["pip", "install", "-e", "."],
-                "description": "direct pip install"
-            }
-        ]
+    return mcp_dir, setup_file
 
-        success = False
-        for method in methods:
-            logger.info("Trying to install mock MCP SDK with %s...", method["description"])
-            exit_code, stdout, stderr = run_command(
-                method["command"],
-                cwd=temp_dir,
+
+def _try_installation_methods(temp_dir: str) -> bool:
+    """
+    Try multiple installation methods for the mock MCP SDK.
+
+    Args:
+        temp_dir: Path to the temporary directory
+
+    Returns:
+        bool: True if installation was successful, False otherwise
+
+    """
+    import sys
+
+    # Try multiple installation methods
+    methods = [
+        # First try with uv pip
+        {
+            "command": [sys.executable, "-m", "uv", "pip", "install", "-e", "."],
+            "description": "uv pip install",
+        },
+        # Then try with regular pip
+        {
+            "command": [sys.executable, "-m", "pip", "install", "-e", "."],
+            "description": "pip install",
+        },
+        # Finally try with pip directly
+        {
+            "command": ["pip", "install", "-e", "."],
+            "description": "direct pip install",
+        },
+    ]
+
+    for method in methods:
+        logger.info("Trying to install mock MCP SDK with %s...", method["description"])
+        exit_code, stdout, stderr = run_command(
+            list(method["command"]),  # Convert to list to satisfy type checker
+            cwd=temp_dir,
+        )
+
+        if exit_code == 0:
+            logger.info(
+                "Mock MCP SDK installed successfully with %s", method["description"]
             )
+            return True
+        logger.warning(
+            "Failed to install mock MCP SDK with %s: %s",
+            method["description"],
+            stderr,
+        )
 
-            if exit_code == 0:
-                logger.info("Mock MCP SDK installed successfully with %s", method["description"])
-                success = True
-                break
-            else:
-                logger.warning("Failed to install mock MCP SDK with %s: %s", method["description"], stderr)
+    return False
 
+
+def _create_in_memory_module() -> bool:
+    """
+    Create an in-memory mock module as a last resort.
+
+    Returns:
+        bool: True if creation was successful, False otherwise
+
+    """
+    try:
+        import sys
+        from types import ModuleType
+
+        # Create a mock module
+        mock_module = ModuleType("modelcontextprotocol")
+
+        # Add a Client class to the module
+        class MockClient:
+            def __init__(self, endpoint: str, **kwargs: dict) -> None:
+                self.endpoint = endpoint
+                self.kwargs = kwargs
+
+            def connect(self) -> None:
+                pass
+
+            def disconnect(self) -> None:
+                pass
+
+            def send_message(self, message: str) -> str:
+                return f"Mock response to: {message}"
+
+        # Add the Client class to the module
+        # Use type ignore to suppress mypy error about adding attribute to ModuleType
+        mock_module.Client = MockClient  # type: ignore[attr-defined]
+
+        # Add the module to sys.modules
+        sys.modules["modelcontextprotocol"] = mock_module
+
+        logger.info("Successfully created in-memory mock module")
+    except Exception:
+        logger.exception("Failed to create in-memory mock module")
+        return False
+    else:
+        return True
+
+
+def _verify_module_importability() -> bool:
+    """
+    Verify that the module is importable and has the expected attributes.
+
+    Returns:
+        bool: True if the module is importable and has the expected attributes
+
+    """
+    try:
+        import importlib.util
+
+        if importlib.util.find_spec("modelcontextprotocol") is not None:
+            logger.info("Verified modelcontextprotocol module is now importable")
+            # Try to actually import it
+            try:
+                import modelcontextprotocol
+
+                logger.info("Successfully imported modelcontextprotocol module")
+                if hasattr(modelcontextprotocol, "Client"):
+                    logger.info("Verified modelcontextprotocol.Client exists")
+                    return True
+                logger.warning("modelcontextprotocol.Client does not exist")
+            except ImportError as e:
+                logger.warning("Failed to import modelcontextprotocol module: %s", e)
+        else:
+            logger.warning("modelcontextprotocol module is still not importable")
+    except Exception:
+        logger.exception("Error verifying module importability")
+
+    return False
+
+
+def create_mock_mcp_sdk() -> bool:
+    """
+    Create a mock MCP SDK package when the real one can't be installed.
+
+    This ensures tests can run even if the GitHub repository is unavailable.
+
+    Returns:
+        True if mock creation was successful, False otherwise
+
+    """
+    # Import sys here to ensure it's available for all methods in this function
+
+    logger.info("Creating mock MCP SDK package...")
+
+    # Create a temporary directory
+    temp_dir = tempfile.mkdtemp()
+    try:
+        # Create the package files
+        _create_package_files(temp_dir)
+
+        # Try installation methods
+        success = _try_installation_methods(temp_dir)
+
+        # If installation failed, try in-memory module
         if not success:
             logger.error("All installation methods failed for mock MCP SDK")
-
-            # As a last resort, try to create an in-memory module
             logger.info("Attempting to create in-memory module as last resort")
-            try:
-                import sys
-                from types import ModuleType
-
-                # Create a mock module
-                mock_module = ModuleType("modelcontextprotocol")
-
-                # Add a Client class to the module
-                class MockClient:
-                    def __init__(self, endpoint, **kwargs):
-                        self.endpoint = endpoint
-                        self.kwargs = kwargs
-
-                    def connect(self):
-                        pass
-
-                    def disconnect(self):
-                        pass
-
-                    def send_message(self, message):
-                        return f"Mock response to: {message}"
-
-                # Add the Client class to the module
-                mock_module.Client = MockClient
-
-                # Add the module to sys.modules
-                sys.modules["modelcontextprotocol"] = mock_module
-
-                logger.info("Successfully created in-memory mock module")
-                success = True
-            except Exception as e:
-                logger.exception("Failed to create in-memory mock module: %s", e)
+            success = _create_in_memory_module()
 
         # Verify the module is now importable
-        try:
-            import importlib.util
-            if importlib.util.find_spec("modelcontextprotocol") is not None:
-                logger.info("Verified modelcontextprotocol module is now importable")
-                # Try to actually import it
-                try:
-                    import modelcontextprotocol
-                    logger.info("Successfully imported modelcontextprotocol module")
-                    if hasattr(modelcontextprotocol, "Client"):
-                        logger.info("Verified modelcontextprotocol.Client exists")
-                    else:
-                        logger.warning("modelcontextprotocol.Client does not exist")
-                except ImportError as e:
-                    logger.warning("Failed to import modelcontextprotocol module: %s", e)
-            else:
-                logger.warning("modelcontextprotocol module is still not importable")
-        except Exception as e:
-            logger.exception("Error verifying module importability: %s", e)
-
-        return success
-    except Exception as e:
-        logger.exception("Unexpected error creating mock MCP SDK: %s", e)
+        if success:
+            success = _verify_module_importability()
+    except Exception:
+        logger.exception("Unexpected error creating mock MCP SDK")
         return False
+    else:
+        return success
     finally:
         # Don't remove the temp directory as it contains the installed package
         # This is intentional to ensure the package remains available
@@ -280,15 +350,14 @@ def install_mcp_sdk() -> bool:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
-def main() -> int:
+def _setup_environment() -> bool:
     """
-    Execute the main installation process.
+    Set up the environment for MCP SDK installation.
 
     Returns:
-        Exit code (0 for success, 1 for failure)
+        bool: True if running in CI environment, False otherwise
 
     """
-    # Log platform information for debugging
     import platform
 
     logger.info("Platform: %s", platform.system())
@@ -304,30 +373,45 @@ def main() -> int:
     os.environ["GITHUB_ACTIONS"] = "true"
     os.environ["MCP_TESTS_CI"] = "1"
 
-    # First, try to import the module to see if it's already installed
+    return in_ci
+
+
+def _check_existing_installation() -> bool:
+    """
+    Check if the MCP SDK is already installed.
+
+    Returns:
+        bool: True if the SDK is already installed and working, False otherwise
+
+    """
     try:
         # Use importlib.util.find_spec to check if the module is installed
         import importlib.util
 
-        if importlib.util.find_spec("modelcontextprotocol") is not None:
-            logger.info("MCP SDK is already installed")
-
-            # Verify the module can actually be imported and has the expected attributes
-            try:
-                import modelcontextprotocol
-                logger.info("Successfully imported modelcontextprotocol module")
-
-                if hasattr(modelcontextprotocol, "Client"):
-                    logger.info("Verified modelcontextprotocol.Client exists")
-                    return 0
-                else:
-                    logger.warning("modelcontextprotocol module exists but Client class is missing")
-                    # Continue with installation to get a proper module
-            except ImportError as e:
-                logger.warning("Module exists but import failed: %s", e)
-                # Continue with installation
-        else:
+        if importlib.util.find_spec("modelcontextprotocol") is None:
             logger.info("MCP SDK is not installed")
+            return False
+
+        logger.info("MCP SDK is already installed")
+
+        # Verify the module can actually be imported and has the expected attributes
+        try:
+            import modelcontextprotocol
+
+            logger.info("Successfully imported modelcontextprotocol module")
+
+            if hasattr(modelcontextprotocol, "Client"):
+                logger.info("Verified modelcontextprotocol.Client exists")
+                return True
+
+            logger.warning(
+                "modelcontextprotocol module exists but Client class is missing"
+            )
+        except ImportError as e:
+            logger.warning("Module exists but import failed: %s", e)
+            return False
+        else:
+            return False
     except ImportError as e:
         # Pass silently if importlib.util is not available
         # This is acceptable as we'll attempt installation anyway
@@ -335,19 +419,95 @@ def main() -> int:
             "ImportError when checking if MCP SDK is installed, continuing with installation: %s",
             e,
         )
+        return False
 
-    # Check if we're running on Windows
-    if platform.system() == "Windows":
-        logger.info("Running on Windows, using mock MCP SDK for compatibility")
 
-        # Create mock MCP SDK and log the result
-        mock_created = create_mock_mcp_sdk()
-        logger.info("Mock creation %s", "succeeded" if mock_created else "failed")
+def _handle_windows_platform() -> int:
+    """
+    Handle installation on Windows platform.
 
-        # Always return success on Windows to allow tests to continue
-        # Even if mock creation failed, we return success to not block CI
-        logger.info("Returning success on Windows regardless of mock creation result")
+    Returns:
+        int: Exit code (always 0 on Windows)
+
+    """
+    import platform
+
+    if platform.system() != "Windows":
+        return -1  # Not Windows
+
+    logger.info("Running on Windows, using mock MCP SDK for compatibility")
+
+    # Create mock MCP SDK and log the result
+    mock_created = create_mock_mcp_sdk()
+    logger.info("Mock creation %s", "succeeded" if mock_created else "failed")
+
+    # Always return success on Windows to allow tests to continue
+    # Even if mock creation failed, we return success to not block CI
+    logger.info("Returning success on Windows regardless of mock creation result")
+    return 0
+
+
+def _verify_final_installation(in_ci: bool) -> bool:
+    """
+    Verify that the module is properly installed.
+
+    Args:
+        in_ci: Whether we're running in a CI environment
+
+    Returns:
+        bool: True if the installation is successful or we're in CI, False otherwise
+
+    """
+    try:
+        import importlib.util
+
+        if importlib.util.find_spec("modelcontextprotocol") is not None:
+            logger.info("Verified modelcontextprotocol module is now importable")
+            # Try to actually import it
+            try:
+                import modelcontextprotocol
+
+                logger.info("Successfully imported modelcontextprotocol module")
+                if hasattr(modelcontextprotocol, "Client"):
+                    logger.info("Verified modelcontextprotocol.Client exists")
+                    return True
+                logger.warning("modelcontextprotocol.Client does not exist")
+                # In CI, we'll still return success
+            except ImportError as e:
+                logger.warning("Failed to import modelcontextprotocol module: %s", e)
+                # In CI, we'll still return success
+                return in_ci
+            else:
+                return in_ci
+        else:
+            logger.warning("modelcontextprotocol module is still not importable")
+            # In CI, we'll still return success
+            return in_ci
+    except Exception:
+        logger.exception("Error verifying module importability")
+        # In CI, we'll still return success
+        return in_ci
+
+
+def main() -> int:
+    """
+    Execute the main installation process.
+
+    Returns:
+        Exit code (0 for success, 1 for failure)
+
+    """
+    # Set up environment and check if we're in CI
+    in_ci = _setup_environment()
+
+    # Check if the SDK is already installed
+    if _check_existing_installation():
         return 0
+
+    # Handle Windows platform
+    windows_result = _handle_windows_platform()
+    if windows_result >= 0:
+        return windows_result
 
     # If not installed and not on Windows, try to install it
     success = install_mcp_sdk()
@@ -359,41 +519,13 @@ def main() -> int:
 
     # In CI environments, always return success to allow the workflow to continue
     if in_ci:
-        logger.info("Running in CI environment, returning success regardless of installation result")
+        logger.info(
+            "Running in CI environment, returning success regardless of installation result"
+        )
         return 0
 
     # Verify the module is now importable
-    try:
-        import importlib.util
-        if importlib.util.find_spec("modelcontextprotocol") is not None:
-            logger.info("Verified modelcontextprotocol module is now importable")
-            # Try to actually import it
-            try:
-                import modelcontextprotocol
-                logger.info("Successfully imported modelcontextprotocol module")
-                if hasattr(modelcontextprotocol, "Client"):
-                    logger.info("Verified modelcontextprotocol.Client exists")
-                    success = True
-                else:
-                    logger.warning("modelcontextprotocol.Client does not exist")
-                    # In CI, we'll still return success
-                    if in_ci:
-                        success = True
-            except ImportError as e:
-                logger.warning("Failed to import modelcontextprotocol module: %s", e)
-                # In CI, we'll still return success
-                if in_ci:
-                    success = True
-        else:
-            logger.warning("modelcontextprotocol module is still not importable")
-            # In CI, we'll still return success
-            if in_ci:
-                success = True
-    except Exception as e:
-        logger.exception("Error verifying module importability: %s", e)
-        # In CI, we'll still return success
-        if in_ci:
-            success = True
+    success = _verify_final_installation(in_ci)
 
     return 0 if success else 1
 
