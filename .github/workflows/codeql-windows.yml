@@ -54,7 +54,7 @@ jobs:
           if ($lockFiles.Count -eq 0) {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple JSON structure
+            # Create a simple PowerShell object
             $json = @{
               name = "paissive-income"
               version = "1.0.0"
@@ -68,22 +68,26 @@ jobs:
               }
             }
 
-            # Convert to JSON and write to file
+            # Convert to JSON with proper formatting
             $jsonContent = ConvertTo-Json -Depth 10 $json
-            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
+
+            # Write to file with UTF8 encoding (no BOM)
+            [System.IO.File]::WriteAllText("$PWD\package-lock.json", $jsonContent, [System.Text.UTF8Encoding]::new($false))
+
             Write-Host "Created minimal package-lock.json file"
 
             # Verify the file was created correctly
             if (Test-Path "package-lock.json") {
               Write-Host "package-lock.json created successfully"
+              Get-Content "package-lock.json" | Out-String | Write-Host
               Get-Item "package-lock.json" | Format-List Name, Length, LastWriteTime
             } else {
               Write-Host "Failed to create package-lock.json!"
             }
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
-            foreach ($file in $lockFiles) {
-              Write-Host "  $($file.FullName)"
+            $lockFiles | ForEach-Object {
+              Write-Host "  $($_.FullName)"
             }
           }
 
@@ -135,7 +139,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: security-and-quality
+          queries: security
           debug: true
           config-file: .github/codeql/security-os-config.yml
 

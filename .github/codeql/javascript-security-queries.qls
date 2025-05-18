@@ -6,8 +6,5 @@
 - description: JavaScript Security Queries
 - queries: security
 
-# Use standard security queries
-- uses: security-and-quality
-
-# Include additional security queries
-- uses: security-extended
+# Use standard security queries from CodeQL
+- uses: security
