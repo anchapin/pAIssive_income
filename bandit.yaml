@@ -28,10 +28,10 @@ skips:
   - B311
 
 # Set the output format for GitHub Advanced Security
-output_format: sarif
+output_format: json
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results.sarif
+output_file: security-reports/bandit-results.json
 
 # Set the severity level for GitHub Advanced Security
 # Options: LOW, MEDIUM, HIGH
