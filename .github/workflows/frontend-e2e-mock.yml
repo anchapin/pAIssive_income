@@ -64,6 +64,14 @@ jobs:
             return function() { return ''; };
           };
 
+          pathToRegexp.match = function match(path) {
+            console.log('Mock path-to-regexp.match called with path:', path);
+            return function(pathname) {
+              console.log('Mock path-to-regexp.match function called with pathname:', pathname);
+              return { path: pathname, params: {} };
+            };
+          };
+
           pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
             console.log('Mock path-to-regexp.tokensToRegexp called');
             return /.*/;
@@ -126,6 +134,14 @@ jobs:
             pathToRegexp.compile = function compile(path) {
               console.log('Mock path-to-regexp.compile called with path:', path);
               return function() { return ''; };
+            };
+
+            pathToRegexp.match = function match(path) {
+              console.log('Mock path-to-regexp.match called with path:', path);
+              return function(pathname) {
+                console.log('Mock path-to-regexp.match function called with pathname:', pathname);
+                return { path: pathname, params: {} };
+              };
             };
 
             pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
