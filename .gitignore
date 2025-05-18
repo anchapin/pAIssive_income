@@ -59,6 +59,8 @@ bandit-results-ini.json
 !security-reports/bandit-results-ini.json
 test-bandit-*.json
 test_bandit_sample.py
+run_tests_bandit.json
+security-reports/bandit-results-*.sarif
 *.so
 *.spec
 *.swo
