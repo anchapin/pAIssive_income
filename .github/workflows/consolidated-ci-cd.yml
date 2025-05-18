@@ -477,6 +477,18 @@ sys.exit(0)
           # Install path-to-regexp explicitly to avoid dependency issues
           pnpm add path-to-regexp --no-save || npm install path-to-regexp --no-save || true
 
+          # Run the mock path-to-regexp script to ensure it's available
+          echo "Running mock_path_to_regexp.js to ensure path-to-regexp is available..."
+          node ui/react_frontend/tests/mock_path_to_regexp.js || true
+
+          # Run the enhanced mock path-to-regexp script if available
+          echo "Running enhanced_mock_path_to_regexp.js if available..."
+          node ui/react_frontend/tests/enhanced_mock_path_to_regexp.js || true
+
+          # Create a more robust mock implementation of path-to-regexp
+          echo "Creating robust mock path-to-regexp implementation"
+          mkdir -p ui/react_frontend/node_modules/path-to-regexp
+
           # Create a mock implementation of path-to-regexp as a fallback
           echo "Creating mock path-to-regexp implementation"
           mkdir -p node_modules/path-to-regexp

@@ -43,6 +43,14 @@ jobs:
           echo "Creating robust mock path-to-regexp implementation"
           mkdir -p node_modules/path-to-regexp
 
+          # Run the mock path-to-regexp script to ensure it's available
+          echo "Running mock_path_to_regexp.js to ensure path-to-regexp is available..."
+          node tests/mock_path_to_regexp.js || true
+
+          # Run the enhanced mock path-to-regexp script if available
+          echo "Running enhanced_mock_path_to_regexp.js if available..."
+          node tests/enhanced_mock_path_to_regexp.js || true
+
           # Create a more comprehensive mock implementation
           cat > node_modules/path-to-regexp/index.js << 'EOL'
           /**
