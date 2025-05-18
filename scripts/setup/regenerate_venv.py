@@ -247,7 +247,6 @@ def _perform_venv_creation_steps(
 
     """
     operation_successful = True
-    current_venv_path = venv_dir_path  # Start with original, update if temp is used
 
     # Step 1: Remove existing venv
     op_success, venv_to_use_after_removal = remove_existing_venv(venv_dir_path)
@@ -281,10 +280,13 @@ def _perform_venv_creation_steps(
                 )
                 operation_successful = False
 
+    # Initialize variables that will be used across steps
+    python_in_venv: str = ""
+    lockfile: str = "requirements.lock"
+
     # Step 3: Compile requirements
     if operation_successful:
-        python_in_venv: str = get_venv_python(current_venv_path)
-        lockfile: str = "requirements.lock"
+        python_in_venv = get_venv_python(current_venv_path)
         logger.info("Generating/updating %s using uv pip compile...", lockfile)
         compile_command_base = ["uv", "pip", "compile"]
         output_args = ["-o", lockfile]
@@ -297,9 +299,7 @@ def _perform_venv_creation_steps(
 
     # Step 4: Sync environment
     if operation_successful:
-        # python_in_venv and lockfile are already defined in Step 3 and in scope.
-        # Re-getting python_in_venv is fine if current_venv_path could change, but it doesn't between step 3 and 4.
-        # For clarity, ensure they are used from the Step 3 definition.
+        # python_in_venv and lockfile are already defined above and in scope.
         logger.info("Syncing environment to %s with uv pip sync...", lockfile)
         sync_command = ["uv", "pip", "sync", lockfile, "--python", python_in_venv]
         if run_command(sync_command) is None:

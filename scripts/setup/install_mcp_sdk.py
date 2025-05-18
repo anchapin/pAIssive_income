@@ -515,7 +515,7 @@ def main() -> int:
     # If installation failed, fall back to mock implementation
     if not success:
         logger.warning("Failed to install MCP SDK, falling back to mock implementation")
-        success = create_mock_mcp_sdk()
+        create_mock_mcp_sdk()
 
     # In CI environments, always return success to allow the workflow to continue
     if in_ci:

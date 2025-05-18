@@ -11,7 +11,6 @@ Usage:
 
 import os
 import sys
-from pathlib import Path
 
 # Constants
 BANDIT_DIR = ".github/bandit"

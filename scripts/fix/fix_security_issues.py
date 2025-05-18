@@ -271,7 +271,7 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
 
     # Use imported function if available
     if IMPORTED_SECRET_SCANNER and "scan_directory" in globals():
-        results: dict[str, list[tuple[str, int, int]]] = scan_directory(directory)
+        results: dict[str, list[tuple[str, int, int]]] = scan_directory(directory, exclude_dirs)
         return results
     logger.info(
         "Secret scanner is not available. Falling back to subprocess execution."

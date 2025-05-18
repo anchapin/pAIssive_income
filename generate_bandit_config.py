@@ -15,7 +15,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -98,7 +98,7 @@ def setup_directories() -> Tuple[Path, Path, bool]:
         security_reports_dir = Path(SECURITY_REPORTS_DIR)
         security_reports_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security reports directory: %s", security_reports_dir)
-        
+
         return bandit_dir, security_reports_dir, True
     except Exception:
         logger.exception("Failed to set up directories")
@@ -138,7 +138,7 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
         bool: True if all files were generated successfully, False otherwise
     """
     success = True
-    
+
     try:
         for platform in PLATFORMS:
             # Generate platform-specific configuration file
@@ -152,7 +152,7 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
             if not write_config_file(config_path_with_run_id, BANDIT_CONFIG_TEMPLATE):
                 success = False
                 continue
-        
+
         return success
     except Exception:
         logger.exception("Failed to generate configuration files")
@@ -167,7 +167,7 @@ def main() -> int:
         int: 0 for success, 1 for failure
     """
     exit_code = 1
-    
+
     try:
         # Log environment information for debugging
         logger.info("Current working directory: %s", Path.cwd())
@@ -200,7 +200,7 @@ def main() -> int:
             logger.error("Failed to set up directories")
     except Exception:
         logger.exception("Unexpected error during Bandit configuration generation")
-    
+
     return exit_code
 
 
