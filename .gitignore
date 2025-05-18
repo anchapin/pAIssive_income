@@ -53,10 +53,8 @@
 *.sarif.json
 bandit-output.json
 bandit-results.json
-security-reports/*.json
-security-reports/*.sarif
-security-reports/test-results*.txt
-security-reports/test-results-ini.txt
+test-bandit-results.json
+!security-reports/bandit-results.json
 *.so
 *.spec
 *.swo
@@ -130,6 +128,8 @@ pip-log.txt
 profile_default/
 project_plan.json
 sarif-results/
+security-reports/
+!security-reports/.gitkeep
 sdist/
 target/
 tasks.json
