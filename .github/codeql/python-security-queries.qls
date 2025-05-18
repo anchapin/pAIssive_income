@@ -4,7 +4,7 @@
 # It focuses on high-impact security vulnerabilities
 
 - description: Python Security Queries
-- queries: .
+- queries: security
 - include:
     kind:
     - problem
