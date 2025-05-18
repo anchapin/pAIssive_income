@@ -27,8 +27,32 @@ try {
   try {
     // Use child_process.execSync to install path-to-regexp
     const { execSync } = require('child_process');
-    execSync('npm install path-to-regexp --no-save', { stdio: 'inherit' });
-    console.log('Successfully installed path-to-regexp');
+
+    // Try multiple package managers in order of preference
+    try {
+      console.log('Trying to install with pnpm...');
+      execSync('pnpm install path-to-regexp --no-save', { stdio: 'inherit' });
+      console.log('Successfully installed path-to-regexp with pnpm');
+    } catch (pnpmError) {
+      console.warn(`Failed to install with pnpm: ${pnpmError.message}`);
+
+      try {
+        console.log('Trying to install with npm...');
+        execSync('npm install path-to-regexp --no-save', { stdio: 'inherit' });
+        console.log('Successfully installed path-to-regexp with npm');
+      } catch (npmError) {
+        console.warn(`Failed to install with npm: ${npmError.message}`);
+
+        try {
+          console.log('Trying to install with yarn...');
+          execSync('yarn add path-to-regexp --no-lockfile', { stdio: 'inherit' });
+          console.log('Successfully installed path-to-regexp with yarn');
+        } catch (yarnError) {
+          console.warn(`Failed to install with yarn: ${yarnError.message}`);
+          console.log('Continuing without path-to-regexp, using fallback URL parsing');
+        }
+      }
+    }
   } catch (installError) {
     console.warn(`Failed to install path-to-regexp: ${installError.message}`);
     console.log('Continuing without path-to-regexp, using fallback URL parsing');
