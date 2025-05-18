@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
-    from .types import TaskType
+    from .types import TaskVar, AgentType
 
 
 class Agent:
@@ -16,6 +16,7 @@ class Agent:
         role: str = "",
         goal: str = "",
         backstory: str = "",
+        agent_type: Optional[Any] = None,
         **kwargs,
     ) -> None:
         """
@@ -25,15 +26,17 @@ class Agent:
             role: The role of the agent
             goal: The goal of the agent
             backstory: The backstory of the agent
+            agent_type: The type of agent (from AgentType enum)
             kwargs: Additional keyword arguments
 
         """
         self.role = role
         self.goal = goal
         self.backstory = backstory
+        self.agent_type = agent_type
         self.kwargs = kwargs
 
-    def execute_task(self, task: TaskType, context=None) -> str:
+    def execute_task(self, task: 'TaskVar', context=None) -> str:
         """
         Execute a task and return a result.
 

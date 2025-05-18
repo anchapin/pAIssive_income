@@ -406,3 +406,53 @@ if __name__ == "__main__":
         assert "column 5" in error_msg
         assert "<unknown>" in error_msg
         assert "invalid syntax" in error_msg
+
+    def test_format_syntax_error_without_msg(self):
+        """Test the format_syntax_error function without an error message."""
+        # Create a mock SyntaxError without a message
+        error = SyntaxError()
+        error.lineno = 2
+        error.offset = 5
+        error.text = "def hello_world()"
+        error.filename = "test.py"
+        error.msg = None
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column 5" in error_msg
+        assert "def hello_world()" in error_msg
+        assert "Unknown syntax error" in error_msg
+
+    def test_format_syntax_error_without_lineno(self):
+        """Test the format_syntax_error function without a line number."""
+        # Create a mock SyntaxError without a line number
+        error = SyntaxError("invalid syntax")
+        # Don't set lineno
+        error.offset = 5
+        error.text = "def hello_world()"
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 0" in error_msg
+        assert "column 5" in error_msg
+        assert "def hello_world()" in error_msg
+        assert "invalid syntax" in error_msg
+
+    def test_check_syntax_with_file_read_error(self):
+        """Test check_syntax with a file that raises an error when read."""
+        # Mock Path.open to raise a FileNotFoundError
+        with patch("pathlib.Path.open", side_effect=FileNotFoundError("File not found")):
+            with patch("logging.Logger.exception") as mock_exception:
+                result = check_syntax(self.temp_file_path)
+
+                # Verify the result
+                assert result is False
+                mock_exception.assert_called_once()

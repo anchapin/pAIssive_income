@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, List
+
+if TYPE_CHECKING:
+    from .types import AgentVar, TaskVar, CrewType
 
 
 class Crew:
@@ -10,8 +13,9 @@ class Crew:
 
     def __init__(
         self,
-        agents: Optional[list[Any]] = None,
-        tasks: Optional[list[Any]] = None,
+        agents: Optional[List['AgentVar']] = None,
+        tasks: Optional[List['TaskVar']] = None,
+        crew_type: Optional[Any] = None,
         **kwargs,
     ) -> None:
         """
@@ -20,11 +24,13 @@ class Crew:
         Args:
             agents: List of agents in the crew
             tasks: List of tasks for the crew
+            crew_type: The type of crew (from CrewType enum)
             kwargs: Additional keyword arguments
 
         """
         self.agents = agents or []
         self.tasks = tasks or []
+        self.crew_type = crew_type
         self.kwargs = kwargs
 
     def kickoff(self, inputs=None) -> str:

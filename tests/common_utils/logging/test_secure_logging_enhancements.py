@@ -164,6 +164,166 @@ class TestSecureLoggingEnhancements(unittest.TestCase):
         assert "secret123" not in log_output  # Full password is not visible
         assert "\n" not in log_output or " [FILTERED] " in log_output  # Either newlines are removed or replaced
 
+    def test_secure_logger_debug_method(self):
+        """Test SecureLogger.debug method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log a debug message with sensitive data
+        test_message = "password=secret123"
+        secure_logger.debug(test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.debug.assert_called_once()
+        args, _ = mock_logger.debug.call_args
+        assert "password=secr" in args[0]
+        assert "*" in args[0]  # Some masking is applied
+        assert "secret123" not in args[0]  # Full password is not visible
+
+    def test_secure_logger_warning_method(self):
+        """Test SecureLogger.warning method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log a warning message with sensitive data
+        test_message = "password=secret123"
+        secure_logger.warning(test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.warning.assert_called_once()
+        args, _ = mock_logger.warning.call_args
+        assert "password=secr" in args[0]
+        assert "*" in args[0]  # Some masking is applied
+        assert "secret123" not in args[0]  # Full password is not visible
+
+    def test_secure_logger_error_method(self):
+        """Test SecureLogger.error method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log an error message with sensitive data
+        test_message = "password=secret123"
+        secure_logger.error(test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.error.assert_called_once()
+        args, _ = mock_logger.error.call_args
+        assert "password=secr" in args[0]
+        assert "*" in args[0]  # Some masking is applied
+        assert "secret123" not in args[0]  # Full password is not visible
+
+    def test_secure_logger_critical_method(self):
+        """Test SecureLogger.critical method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log a critical message with sensitive data
+        test_message = "password=secret123"
+        secure_logger.critical(test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.critical.assert_called_once()
+        args, _ = mock_logger.critical.call_args
+        assert "password=secr" in args[0]
+        assert "*" in args[0]  # Some masking is applied
+        assert "secret123" not in args[0]  # Full password is not visible
+
+    def test_secure_logger_exception_method(self):
+        """Test SecureLogger.exception method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log an exception message with sensitive data
+        test_message = "password=secret123"
+        try:
+            raise ValueError("Test exception")
+        except ValueError:
+            secure_logger.exception(test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.exception.assert_called_once()
+        args, _ = mock_logger.exception.call_args
+        assert "password=secr" in args[0]
+        assert "*" in args[0]  # Some masking is applied
+        assert "secret123" not in args[0]  # Full password is not visible
+
+    def test_secure_logger_log_method(self):
+        """Test SecureLogger.log method."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log a message with sensitive data using the log method
+        test_message = "password=secret123"
+        secure_logger.log(logging.INFO, test_message)
+
+        # Check that the mock logger was called with the masked message
+        mock_logger.log.assert_called_once()
+        args, _ = mock_logger.log.call_args
+        assert args[0] == logging.INFO
+        assert "password=secr" in args[1]
+        assert "*" in args[1]  # Some masking is applied
+        assert "secret123" not in args[1]  # Full password is not visible
+
+    def test_secure_logger_warn_alias(self):
+        """Test that SecureLogger.warn is an alias for warning."""
+        # Create a SecureLogger
+        secure_logger = SecureLogger("test_logger")
+
+        # Check that warn is an alias for warning
+        assert secure_logger.warn == secure_logger.warning
+
+    def test_secure_logger_fatal_alias(self):
+        """Test that SecureLogger.fatal is an alias for critical."""
+        # Create a SecureLogger
+        secure_logger = SecureLogger("test_logger")
+
+        # Check that fatal is an alias for critical
+        assert secure_logger.fatal == secure_logger.critical
+
+    def test_secure_logger_with_secure_context(self):
+        """Test SecureLogger with secure_context parameter."""
+        # Create a mock logger
+        mock_logger = MagicMock()
+
+        # Create a SecureLogger with the mock logger
+        secure_logger = SecureLogger("test_logger")
+        secure_logger.logger = mock_logger
+
+        # Log a message with secure_context=True
+        test_message = "This is a secure message"
+        secure_logger.info(test_message, secure_context=True)
+
+        # Check that the mock logger was called with the message prefixed with [SECURE]
+        mock_logger.info.assert_called_once()
+        args, kwargs = mock_logger.info.call_args
+        assert "[SECURE]" in args[0]
+        assert test_message in args[0]
+        assert kwargs.get('secure_context') is True
+
 
 if __name__ == "__main__":
     unittest.main()

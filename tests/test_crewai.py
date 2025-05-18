@@ -221,3 +221,92 @@ class TestCrewAI:
         result1 = crew.kickoff()
         result2 = crew.run()
         assert result1 == result2
+
+    def test_crew_kickoff_with_inputs(self):
+        """Test the Crew.kickoff method with inputs."""
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[],
+            tasks=[],
+        )
+
+        # Define inputs
+        inputs = {"key": "value"}
+
+        # Kickoff the crew with inputs
+        result = crew.kickoff(inputs=inputs)
+
+        # Verify the result
+        assert result == f"Mock crew output with inputs: {inputs}"
+
+    def test_crew_run_with_inputs(self):
+        """Test the Crew.run method with inputs."""
+        # Create a crew
+        crew = crewai.Crew(
+            agents=[],
+            tasks=[],
+        )
+
+        # Define inputs
+        inputs = {"key": "value"}
+
+        # Run the crew with inputs
+        result = crew.run(inputs=inputs)
+
+        # Verify the result
+        assert result == f"Mock crew output with inputs: {inputs}"
+
+    def test_agent_execute_task_with_context(self):
+        """Test the Agent.execute_task method with context."""
+        # Create an agent
+        agent = crewai.Agent(
+            role="Test Agent",
+            goal="Test goal",
+            backstory="Test backstory",
+        )
+
+        # Create a task
+        task = crewai.Task(
+            description="Test task",
+            agent=agent,
+        )
+
+        # Define context
+        context = {"key": "value"}
+
+        # Execute the task with context
+        result = agent.execute_task(task, context=context)
+
+        # Verify the result
+        assert result == f"Executed task: Test task with context: {context}"
+
+    def test_agent_with_empty_values(self):
+        """Test the Agent class with empty values."""
+        # Create an agent with empty values
+        agent = crewai.Agent()
+
+        # Verify the agent attributes
+        assert agent.role == ""
+        assert agent.goal == ""
+        assert agent.backstory == ""
+        assert agent.kwargs == {}
+
+    def test_task_with_empty_values(self):
+        """Test the Task class with empty values."""
+        # Create a task with empty values
+        task = crewai.Task()
+
+        # Verify the task attributes
+        assert task.description == ""
+        assert task.agent is None
+        assert task.kwargs == {}
+
+    def test_crew_with_empty_values(self):
+        """Test the Crew class with empty values."""
+        # Create a crew with empty values
+        crew = crewai.Crew()
+
+        # Verify the crew attributes
+        assert crew.agents == []
+        assert crew.tasks == []
+        assert crew.kwargs == {}

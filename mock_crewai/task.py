@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
-    from .types import AgentType
+    from .types import AgentVar, TaskType
 
 
 class Task:
@@ -14,7 +14,8 @@ class Task:
     def __init__(
         self,
         description: str = "",
-        agent: Optional[AgentType] = None,
+        agent: Optional['AgentVar'] = None,
+        task_type: Optional[Any] = None,
         **kwargs,
     ) -> None:
         """
@@ -23,11 +24,13 @@ class Task:
         Args:
             description: The description of the task
             agent: The agent assigned to the task
+            task_type: The type of task (from TaskType enum)
             kwargs: Additional keyword arguments
 
         """
         self.description = description
         self.agent = agent
+        self.task_type = task_type
         self.kwargs = kwargs
 
     def __str__(self):
