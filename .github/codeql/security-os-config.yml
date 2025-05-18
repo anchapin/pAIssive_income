@@ -2,6 +2,7 @@ name: "Unified CodeQL Configuration for All Platforms"
 
 # This configuration file provides a unified configuration for CodeQL analysis
 # across all platforms (Windows, macOS, Linux)
+# Updated for better Windows compatibility
 
 # Specify paths to analyze
 paths:
@@ -99,29 +100,6 @@ queries:
 
   # Include additional security queries
   - uses: security-extended
-
-  # Exclude specific queries that might cause false positives
-  - exclude:
-      id: js/unused-local-variable
-      reason: "Not a security concern"
-  - exclude:
-      id: js/trivial-conditional
-      reason: "Not a security concern"
-  - exclude:
-      id: js/incomplete-url-scheme-check
-      reason: "Often produces false positives with framework URLs"
-  - exclude:
-      id: js/useless-assignment-to-local
-      reason: "Not a security concern"
-  - exclude:
-      id: js/unused-parameter
-      reason: "Not a security concern"
-  - exclude:
-      id: py/unused-local-variable
-      reason: "Not a security concern"
-  - exclude:
-      id: py/trivial-conditional
-      reason: "Not a security concern"
 
 # Disable noisy alerts
 disable-default-queries: false

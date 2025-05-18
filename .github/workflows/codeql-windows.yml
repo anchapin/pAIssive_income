@@ -50,10 +50,12 @@ jobs:
         run: |
           Write-Host "Checking for lock files before CodeQL analysis..."
           $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml")
-          
+
           if ($lockFiles.Count -eq 0) {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
-            $json = @{
+
+            # Create a simple JSON object
+            $packageJson = @{
               name = "paissive-income"
               version = "1.0.0"
               lockfileVersion = 3
@@ -65,9 +67,15 @@ jobs:
                 }
               }
             }
-            $jsonContent = ConvertTo-Json -Depth 10 $json
-            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
-            Write-Host "Created minimal package-lock.json file"
+
+            # Convert to JSON with proper formatting
+            $jsonContent = ConvertTo-Json -InputObject $packageJson -Depth 10
+
+            # Write to file with UTF-8 encoding without BOM
+            [System.IO.File]::WriteAllText("package-lock.json", $jsonContent, [System.Text.Encoding]::UTF8)
+
+            Write-Host "Created minimal package-lock.json file with content:"
+            Get-Content -Path "package-lock.json" | ForEach-Object { Write-Host "  $_" }
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
             $lockFiles | ForEach-Object {
