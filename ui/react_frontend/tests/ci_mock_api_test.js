@@ -14,55 +14,50 @@
  * Updated to handle path-to-regexp dependency issues in GitHub Actions.
  */
 
-// Skip path-to-regexp entirely for better CI compatibility
-let pathToRegexpAvailable = false;
-console.log('Skipping path-to-regexp dependency entirely for better CI compatibility');
-
-// Create a marker file to indicate we're avoiding path-to-regexp
+// Import the mock path-to-regexp helper
+let mockPathToRegexp;
 try {
-  const fs = require('fs');
-  const path = require('path');
-
-  // Import these modules early to ensure they're available
-  const os = require('os');
-
-  const logDir = path.join(process.cwd(), 'logs');
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
-  }
-
-  fs.writeFileSync(
-    path.join(logDir, 'ci-path-to-regexp-avoided.txt'),
-    `Path-to-regexp dependency avoided at ${new Date().toISOString()}\n` +
-    `This file indicates that we're completely avoiding the path-to-regexp dependency.\n` +
-    `Node.js: ${process.version}\n` +
-    `Platform: ${process.platform}\n` +
-    `Working directory: ${process.cwd()}\n` +
-    `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
-  );
-
-  console.log('Created path-to-regexp avoidance marker file');
-} catch (error) {
-  console.warn(`Failed to create path-to-regexp avoidance marker file: ${error.message}`);
+  mockPathToRegexp = require('./mock_path_to_regexp');
+  console.log('Successfully imported mock_path_to_regexp helper');
+} catch (importError) {
+  console.warn(`Failed to import mock_path_to_regexp helper: ${importError.message}`);
+  // Create a fallback implementation
+  mockPathToRegexp = {
+    mockCreated: false,
+    requirePatched: false,
+    isCI: process.env.CI === 'true' || process.env.CI === true
+  };
 }
 
-// fs, path, and os modules are already imported above
+// Use the mock implementation status
+const pathToRegexpAvailable = mockPathToRegexp.mockCreated || mockPathToRegexp.requirePatched;
+console.log(`Path-to-regexp availability: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}`);
 
-// Create a marker file to indicate whether path-to-regexp is available
+// Import core modules
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+// Create a marker file to indicate we're using the mock implementation
 try {
   const logDir = path.join(process.cwd(), 'logs');
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
   }
+
   fs.writeFileSync(
     path.join(logDir, 'ci-path-to-regexp-status.txt'),
     `Path-to-regexp status at ${new Date().toISOString()}\n` +
-    `Available: ${pathToRegexpAvailable ? 'Yes' : 'No'}\n` +
+    `Available: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}\n` +
+    `Mock created: ${mockPathToRegexp.mockCreated ? 'Yes' : 'No'}\n` +
+    `Require patched: ${mockPathToRegexp.requirePatched ? 'Yes' : 'No'}\n` +
     `Node.js: ${process.version}\n` +
     `Platform: ${process.platform}\n` +
     `Working directory: ${process.cwd()}\n` +
-    `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
+    `CI environment: ${mockPathToRegexp.isCI ? 'Yes' : 'No'}\n`
   );
+
+  console.log('Created path-to-regexp status file');
 } catch (error) {
   console.warn(`Failed to create path-to-regexp status file: ${error.message}`);
 }
