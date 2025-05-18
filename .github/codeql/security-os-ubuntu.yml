@@ -1,0 +1,51 @@
+name: "CodeQL Configuration for Ubuntu"
+
+# This configuration file customizes the CodeQL analysis for Ubuntu
+# It inherits settings from the unified configuration and adds Ubuntu-specific settings
+
+# Inherit from the unified configuration
+extends: security-os-config.yml
+
+# Ubuntu-specific settings
+os: ubuntu-latest
+
+# Additional Ubuntu-specific paths to exclude
+paths-ignore:
+  # Linux specific files
+  - '**/lost+found/**'
+  - '**/proc/**'
+  - '**/sys/**'
+  - '**/var/tmp/**'
+  - '**/tmp/**'
+  - '**/.bash_history'
+  - '**/.bashrc'
+  - '**/.profile'
+  - '**/.ssh/**'
+  - '**/core.*'
+  - '**/*.so'
+  - '**/*.o'
+
+# Query filters
+queries:
+  # Include the standard security and quality queries
+  - uses: security-and-quality
+
+  # Include additional security queries
+  - uses: security-extended
+
+  # Use standard security queries
+  - uses: security
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Query suite definitions
+query-filters:
+  - exclude:
+      tags contain: test
+  - exclude:
+      tags contain: maintainability
+      precision below: high
+
+# Trap errors during extraction
+trap-for-errors: true

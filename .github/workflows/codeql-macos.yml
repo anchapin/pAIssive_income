@@ -295,6 +295,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          config-file: .github/codeql/security-os-macos.yml
           debug: true
 
       # Autobuild attempts to build any compiled languages

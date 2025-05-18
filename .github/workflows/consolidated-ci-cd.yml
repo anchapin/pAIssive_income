@@ -467,6 +467,33 @@ sys.exit(0)
           path: security-reports/
           retention-days: 7
 
+      # Skip CodeQL in this workflow as it's handled by dedicated workflows
+      - name: Skip CodeQL (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path ".github/scripts/skip-codeql.ps1") {
+            & .github/scripts/skip-codeql.ps1
+          } else {
+            Write-Host "CodeQL analysis is now performed by dedicated workflows for each OS."
+            Write-Host "- .github/workflows/codeql-ubuntu.yml for Ubuntu"
+            Write-Host "- .github/workflows/codeql-windows.yml for Windows"
+            Write-Host "- .github/workflows/codeql-macos.yml for macOS"
+          }
+
+      - name: Skip CodeQL (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ -f ".github/scripts/skip-codeql.sh" ]; then
+            bash .github/scripts/skip-codeql.sh
+          else
+            echo "CodeQL analysis is now performed by dedicated workflows for each OS."
+            echo "- .github/workflows/codeql-ubuntu.yml for Ubuntu"
+            echo "- .github/workflows/codeql-windows.yml for Windows"
+            echo "- .github/workflows/codeql-macos.yml for macOS"
+          fi
+
   build-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest

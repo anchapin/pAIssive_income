@@ -158,12 +158,13 @@ jobs:
             Write-Host "package-lock.json not found!"
           }
 
-      # Initialize CodeQL with simplified configuration - no custom config file
+      # Initialize CodeQL with Windows-specific configuration
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          config-file: .github/codeql/security-os-windows.yml
           debug: true # Enable debug mode for more detailed logs
 
       # Autobuild attempts to build any compiled languages with enhanced error handling
