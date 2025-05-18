@@ -456,3 +456,111 @@ if __name__ == "__main__":
                 # Verify the result
                 assert result is False
                 mock_exception.assert_called_once()
+
+    def test_main_with_valid_files_verbose_output(self):
+        """Test the main function with valid files and verify verbose output."""
+        # Create a second temporary file
+        temp_file2 = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+        temp_file_path2 = temp_file2.name
+        temp_file2.close()
+
+        try:
+            # Write valid Python code to both files
+            with open(self.temp_file_path, "w") as f:
+                f.write("""
+def hello_world():
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            with open(temp_file_path2, "w") as f:
+                f.write("""
+def goodbye_world():
+    print("Goodbye, world!")
+
+if __name__ == "__main__":
+    goodbye_world()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py", self.temp_file_path, temp_file_path2]):
+                # Mock logger.info to capture output
+                with patch("check_api_server.logger.info") as mock_info:
+                    # Run the main function
+                    result = main()
+
+                    # Verify that the function returns 0 for valid syntax
+                    assert result == 0
+
+                    # Verify that logger.info was called with the summary message
+                    mock_info.assert_any_call("✅ All %d file(s) have valid syntax.", 2)
+        finally:
+            # Clean up the second temporary file
+            if os.path.exists(temp_file_path2):
+                os.unlink(temp_file_path2)
+
+    def test_main_with_invalid_files_verbose_output(self):
+        """Test the main function with invalid files and verify verbose output."""
+        # Create a second temporary file
+        temp_file2 = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+        temp_file_path2 = temp_file2.name
+        temp_file2.close()
+
+        try:
+            # Write invalid Python code to both files
+            with open(self.temp_file_path, "w") as f:
+                f.write("""
+def hello_world()
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+            with open(temp_file_path2, "w") as f:
+                f.write("""
+def goodbye_world()
+    print("Goodbye, world!")
+
+if __name__ == "__main__":
+    goodbye_world()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py", self.temp_file_path, temp_file_path2]):
+                # Mock logger.error to capture output
+                with patch("check_api_server.logger.error") as mock_error:
+                    # Run the main function
+                    result = main()
+
+                    # Verify that the function returns 1 for invalid syntax
+                    assert result == 1
+
+                    # Verify that logger.error was called with the summary message
+                    mock_error.assert_any_call("❌ %d file(s) have syntax errors:", 2)
+        finally:
+            # Clean up the second temporary file
+            if os.path.exists(temp_file_path2):
+                os.unlink(temp_file_path2)
+
+    def test_format_syntax_error_with_pointer(self):
+        """Test the format_syntax_error function with a pointer to the error."""
+        # Create a mock SyntaxError with text and offset for pointer
+        error = SyntaxError("invalid syntax")
+        error.lineno = 2
+        error.offset = 10
+        error.text = "def hello_world()"
+        error.filename = "test.py"
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "line 2" in error_msg
+        assert "column 10" in error_msg
+        assert "def hello_world()" in error_msg
+        assert "^" in error_msg  # Check for the pointer
+        assert "invalid syntax" in error_msg

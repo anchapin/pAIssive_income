@@ -10,14 +10,14 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Protocol, cast
+from typing import Any, Dict, Optional, Protocol, Tuple, cast
 
 import jwt
 from sqlalchemy.exc import SQLAlchemyError
 
 from app_flask import db
 from app_flask.models import UserModel
-from users.auth import verify_credential
+from users.auth import hash_credential, verify_credential
 from common_utils.logging import get_logger
 
 
@@ -251,74 +251,44 @@ class UserService:
             (model.username == username_or_email) | (model.email == username_or_email)
         ).first()
 
-        if existing_user:
-            if existing_user.username == username:
-                raise UserExistsError(UserExistsError.USERNAME_EXISTS)
-            raise UserExistsError(UserExistsError.EMAIL_EXISTS)
-
-        # Create user
-        new_user = UserModel(
-            username=username,
-            email=email,
-            password=password
-        )
-
-        # Update last login time if field exists
-        if hasattr(user, "last_login"):
-            user.last_login = datetime.now(tz=timezone.utc)
-
-            # Check if db_session is available
-            if db_session is None:
-                raise DatabaseSessionNotAvailableError
-
-            # Use db_session directly since we've checked it's not None
-            db = db_session
-            db.session.commit()
-        except SQLAlchemyError as e:
-            logger.exception("Database error creating user")
-            db.session.rollback()
-            raise DatabaseSessionNotAvailableError() from e
-
-        return {
-            "id": new_user.id,
-            "username": new_user.username,
-            "email": new_user.email
-        }
-
-    def authenticate_user(self, username: str, password: str) -> Tuple[bool, Optional[Dict]]:
-        """Authenticate a user with username and password.
-
-        Args:
-            username: Username of the user
-            password: Password to verify
-
-        Returns:
-            Tuple of (success, user_data)
-            success: True if authentication successful
-            user_data: Dict of user data if successful, None otherwise
-        """
-        if not username or not password:
-            return False, None
-
-        user = UserModel.query.filter_by(username=username).first()
         if not user:
             return False, None
 
-        if not verify_credential(password, user.password_hash):
+        # Verify the credential
+        if not verify_credential(auth_credential, user.password_hash):
             return False, None
 
         try:
-            user.last_login = datetime.now(timezone.utc)
-            db.session.commit()
-        except Exception:
-            logger.exception("Error updating last login")
+            # Update last login time if field exists
+            if hasattr(user, "last_login"):
+                user.last_login = datetime.now(tz=timezone.utc)
+
+                # Check if db_session is available
+                if db_session is None:
+                    raise DatabaseSessionNotAvailableError
+
+                # Use db_session directly since we've checked it's not None
+                db = db_session
+                db.session.commit()
+        except SQLAlchemyError as e:
+            logger.exception("Database error updating last login")
+            if 'db' in locals():
+                db.session.rollback()
             return False, None
+
+        # Return user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
 
         return True, {
             "id": user.id,
             "username": user.username,
-            "email": user.email
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
         }
+
+# This method has been replaced by the authenticate_user method above
 
     def generate_token(self, user_id: str, **additional_claims: object) -> str:
         """
@@ -332,7 +302,7 @@ class UserService:
             JWT token string
         """
         now = datetime.now(tz=timezone.utc)
-        expiry = now + timedelta(seconds=self.token_expiry)
+        expiry = now + timedelta(seconds=self.__token_expiry)
 
         # Sanitize additional claims to prevent sensitive data leakage
         safe_claims = {}
@@ -392,18 +362,18 @@ class UserService:
         Verify a JWT token.
 
         Args:
-            token: JWT token string
+            auth_token: JWT token string
 
         Returns:
             Tuple[bool, Optional[Dict[str, Any]]]: (success, payload)
 
         """
-        if not token:
+        if not auth_token:
             return False, None
 
         try:
             payload = jwt.decode(
-                token,
+                auth_token,
                 self.__token_secret,
                 algorithms=["HS256"]
             )
