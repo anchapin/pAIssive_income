@@ -60,6 +60,7 @@ junit/test-results-*.xml
 *-results-*.json
 *-results-*.xml
 secrets.sarif.json
+create_bandit_files.sh
 
 # Editor/tool-specific configs
 .cursor/
