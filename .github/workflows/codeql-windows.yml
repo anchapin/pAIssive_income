@@ -59,12 +59,13 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple valid package-lock.json file using a direct string
-            # This avoids PowerShell object conversion issues
-            $jsonContent = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
+            # Create an extremely simple package-lock.json file
+            # Using the most minimal valid JSON possible to avoid any formatting issues
+            $jsonContent = '{}'
 
             try {
-              Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
+              # Write the content to the file
+              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $jsonContent, [System.Text.Encoding]::UTF8)
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
@@ -76,18 +77,26 @@ jobs:
             } catch {
               Write-Host "Error creating package-lock.json: $_"
 
-              # Fallback to simplest possible JSON
+              # Fallback method using Out-File
               try {
-                Write-Host "Trying fallback method with minimal JSON..."
-                Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
+                Write-Host "Trying fallback method with Out-File..."
+                "{}" | Out-File -FilePath "package-lock.json" -Encoding utf8
 
                 if (Test-Path "package-lock.json") {
-                  Write-Host "Created minimal package-lock.json with empty object"
+                  Write-Host "Created package-lock.json with Out-File method"
                 } else {
-                  Write-Host "Failed to create package-lock.json with fallback method"
+                  Write-Host "Failed to create package-lock.json with Out-File method"
                 }
               } catch {
                 Write-Host "Fallback method failed: $_"
+
+                # Last resort fallback
+                try {
+                  Write-Host "Trying last resort method..."
+                  Add-Content -Path "package-lock.json" -Value "{}" -Force
+                } catch {
+                  Write-Host "Last resort method failed: $_"
+                }
               }
             }
 
@@ -153,7 +162,6 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
-          # No custom config file to avoid Windows path issues
 
       # Verify environment before CodeQL analysis
       - name: Verify environment
@@ -161,38 +169,36 @@ jobs:
         run: |
           Write-Host "Verifying environment before CodeQL analysis..."
 
+          # Final check for package-lock.json - create it if it still doesn't exist
+          if (-not (Test-Path "package-lock.json")) {
+            Write-Host "WARNING: package-lock.json still not found! Creating it as a last resort..."
+            # Use the most reliable method to create a minimal package-lock.json
+            try {
+              '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
+            } catch {
+              Write-Host "Error creating package-lock.json: $_"
+            }
+          }
+
           # Check for package-lock.json
           if (Test-Path "package-lock.json") {
             $fileInfo = Get-Item "package-lock.json"
             Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
             Write-Host "Content: $(Get-Content -Path "package-lock.json" -Raw)"
           } else {
-            Write-Host "WARNING: package-lock.json not found!"
+            Write-Host "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
           }
 
           # Check for node_modules directory
           if (Test-Path "node_modules") {
             Write-Host "node_modules directory exists"
           } else {
-            Write-Host "WARNING: node_modules directory not found!"
+            Write-Host "WARNING: node_modules directory not found, creating it..."
+            New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
           }
 
           # Check for CodeQL configuration files
-          $configFiles = @(
-            ".github/codeql/security-os-config.yml",
-            ".github/codeql/javascript-security-queries.qls",
-            ".github/codeql/python-security-queries.qls"
-          )
-
-          foreach ($file in $configFiles) {
-            if (Test-Path $file) {
-              Write-Host "$file exists"
-              Write-Host "First 5 lines of $file:"
-              Get-Content -Path $file -TotalCount 5 | ForEach-Object { Write-Host "  $_" }
-            } else {
-              Write-Host "NOTE: $file not found, but this is OK as we're using standard queries"
-            }
-          }
+          Write-Host "Checking for CodeQL configuration files (using standard queries)..."
 
           # List all files in .github/codeql directory
           Write-Host "All files in .github/codeql directory:"
@@ -201,7 +207,7 @@ jobs:
               Write-Host "  $($_.FullName)"
             }
           } else {
-            Write-Host "  .github/codeql directory not found"
+            Write-Host "  .github/codeql directory not found, but this is OK as we're using standard queries"
           }
 
       # Perform CodeQL Analysis
