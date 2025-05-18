@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 # Find the full path to the bandit executable
+
 def get_bandit_path() -> str:
     """Get the full path to the bandit executable."""
     bandit_path = shutil.which("bandit")
@@ -22,6 +23,7 @@ def get_bandit_path() -> str:
         # It will be installed later if needed
         return "bandit"
     return bandit_path
+
 
 def ensure_security_reports_dir() -> None:
     """
@@ -36,6 +38,7 @@ def ensure_security_reports_dir() -> None:
             logger.info("Created security-reports directory")
         except Exception as e:
             logger.warning("Failed to create security-reports directory: %s", e)
+
 
 def test_bandit_config():
     """Test the Bandit configuration files."""
@@ -203,6 +206,7 @@ def test_function():
             return False
         return True  # Return success to allow workflow to continue
 
+
 def check_venv_exists() -> bool:
     """
     Check if we're running in a virtual environment.
@@ -216,6 +220,7 @@ def check_venv_exists() -> bool:
     except Exception:
         # If there's any error checking for virtual environment, assume we're not in one
         return False
+
 
 if __name__ == "__main__":
     # Check if we're running in a virtual environment
