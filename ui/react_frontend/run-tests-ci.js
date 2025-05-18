@@ -76,12 +76,59 @@ function runTests() {
   return new Promise((resolve, reject) => {
     log('Running frontend tests in CI mode...');
 
-    // Use the mock path-to-regexp helper
-    log('Using mock path-to-regexp helper for better CI compatibility');
+    // Use the enhanced mock path-to-regexp helper
+    log('Using enhanced mock path-to-regexp helper for better CI compatibility');
 
-    // Try to use the mock path-to-regexp helper
+    // Try to use the enhanced mock path-to-regexp helper first, then fall back to the regular one
     try {
-      const mockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'mock_path_to_regexp.js');
+      const enhancedMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'enhanced_mock_path_to_regexp.js');
+      const regularMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'mock_path_to_regexp.js');
+
+      // Check if the enhanced version exists
+      if (fs.existsSync(enhancedMockPathToRegexpPath)) {
+        log(`Found enhanced mock path-to-regexp helper at ${enhancedMockPathToRegexpPath}`);
+
+        // Run the enhanced mock path-to-regexp helper
+        const enhancedMockProcess = spawn('node', [enhancedMockPathToRegexpPath], {
+          cwd: config.frontendRoot,
+          shell: true,
+          stdio: 'inherit'
+        });
+
+        enhancedMockProcess.on('close', (code) => {
+          if (code === 0) {
+            log('Successfully ran enhanced mock path-to-regexp helper');
+          } else {
+            log(`Enhanced mock path-to-regexp helper exited with code ${code}, falling back to regular version`, 'warn');
+
+            // Fall back to the regular mock path-to-regexp helper
+            if (fs.existsSync(regularMockPathToRegexpPath)) {
+              log(`Falling back to regular mock path-to-regexp helper at ${regularMockPathToRegexpPath}`);
+
+              const regularMockProcess = spawn('node', [regularMockPathToRegexpPath], {
+                cwd: config.frontendRoot,
+                shell: true,
+                stdio: 'inherit'
+              });
+
+              regularMockProcess.on('close', (regularCode) => {
+                if (regularCode === 0) {
+                  log('Successfully ran regular mock path-to-regexp helper as fallback');
+                } else {
+                  log(`Regular mock path-to-regexp helper exited with code ${regularCode}`, 'warn');
+                }
+              });
+            }
+          }
+        });
+
+        // Continue with the rest of the function
+        return;
+      }
+
+      // If enhanced version doesn't exist, try the regular one
+      log(`Enhanced mock path-to-regexp helper not found, trying regular version at ${regularMockPathToRegexpPath}`);
+      const mockPathToRegexpPath = regularMockPathToRegexpPath;
       log(`Attempting to load mock path-to-regexp helper from ${mockPathToRegexpPath}`);
 
       // Check if the file exists

@@ -14,19 +14,30 @@
  * Updated to handle path-to-regexp dependency issues in GitHub Actions.
  */
 
-// Import the mock path-to-regexp helper
+// Import the enhanced mock path-to-regexp helper first, then fall back to the regular one
 let mockPathToRegexp;
 try {
-  mockPathToRegexp = require('./mock_path_to_regexp');
-  console.log('Successfully imported mock_path_to_regexp helper');
-} catch (importError) {
-  console.warn(`Failed to import mock_path_to_regexp helper: ${importError.message}`);
-  // Create a fallback implementation
-  mockPathToRegexp = {
-    mockCreated: false,
-    requirePatched: false,
-    isCI: process.env.CI === 'true' || process.env.CI === true
-  };
+  // Try to import the enhanced helper first
+  mockPathToRegexp = require('./enhanced_mock_path_to_regexp');
+  console.log('Successfully imported enhanced_mock_path_to_regexp helper');
+} catch (enhancedImportError) {
+  console.warn(`Failed to import enhanced_mock_path_to_regexp helper: ${enhancedImportError.message}`);
+
+  // Fall back to the regular helper
+  try {
+    mockPathToRegexp = require('./mock_path_to_regexp');
+    console.log('Successfully imported mock_path_to_regexp helper as fallback');
+  } catch (importError) {
+    console.warn(`Failed to import mock_path_to_regexp helper: ${importError.message}`);
+    // Create a fallback implementation
+    mockPathToRegexp = {
+      mockCreated: false,
+      requirePatched: false,
+      isCI: process.env.CI === 'true' || process.env.CI === true,
+      skipPathToRegexp: true,
+      verboseLogging: process.env.VERBOSE_LOGGING === 'true'
+    };
+  }
 }
 
 // Use the mock implementation status
