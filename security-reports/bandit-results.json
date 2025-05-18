@@ -1,8 +1,8 @@
 {
   "errors": [],
-  "generated_at": "2025-05-16T14:30:00Z",
+  "generated_at": "2025-05-18T00:22:54Z",
   "metrics": {
-    ".\\ai_models/adapters/adapter_factory.py": {
+    ".\\run_tests.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
@@ -11,48 +11,9 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 74,
+      "loc": 81,
       "nosec": 0,
-      "skipped_tests": 0
-    },
-    ".\\ai_models/adapters/mcp_adapter.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 102,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    ".\\ai_models/agent_integration.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 104,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    ".\\app_flask/mcp_servers.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 157,
-      "nosec": 0,
-      "skipped_tests": 0
+      "skipped_tests": 3
     },
     "_totals": {
       "CONFIDENCE.HIGH": 0,
@@ -63,9 +24,9 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 437,
+      "loc": 81,
       "nosec": 0,
-      "skipped_tests": 0
+      "skipped_tests": 3
     }
   },
   "results": []
