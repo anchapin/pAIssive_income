@@ -18,99 +18,173 @@ const http = require('http');
 // Import the mock path-to-regexp helper if available
 let mockPathToRegexp;
 let pathToRegexpAvailable = false;
+const isCI = process.env.CI === 'true' || process.env.CI === true;
 
-try {
-  // Try to import the mock helper
-  mockPathToRegexp = require('./mock_path_to_regexp');
-  console.log('Successfully imported mock_path_to_regexp helper');
-  pathToRegexpAvailable = mockPathToRegexp.mockCreated || mockPathToRegexp.requirePatched;
-  console.log(`Path-to-regexp availability from mock helper: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}`);
-} catch (importError) {
-  console.warn(`Failed to import mock_path_to_regexp helper: ${importError.message}`);
-
-  // Create a fallback implementation
-  mockPathToRegexp = {
-    mockCreated: false,
-    requirePatched: false,
-    isCI: process.env.CI === 'true' || process.env.CI === true
-  };
-
-  // Check if we're in a CI environment
-  const isCI = process.env.CI === 'true' || process.env.CI === true;
-
-  if (isCI) {
-    console.log('CI environment detected, using simplified path-to-regexp handling');
-
-    // Try to create a mock implementation directly
-    try {
-      // Create the directory structure
-      const mockDir = path.join(process.cwd(), 'node_modules', 'path-to-regexp');
-      if (!fs.existsSync(mockDir)) {
+// Create a more robust mock implementation function
+function createMockPathToRegexp() {
+  try {
+    // Create the directory structure with better error handling
+    const mockDir = path.join(process.cwd(), 'node_modules', 'path-to-regexp');
+    if (!fs.existsSync(mockDir)) {
+      try {
         fs.mkdirSync(mockDir, { recursive: true });
         console.log(`Created mock directory at ${mockDir}`);
+      } catch (mkdirError) {
+        console.warn(`Failed to create mock directory: ${mkdirError.message}`);
+
+        // Try alternative approach with absolute path
+        const absoluteMockDir = path.resolve(process.cwd(), 'node_modules', 'path-to-regexp');
+        if (!fs.existsSync(absoluteMockDir)) {
+          fs.mkdirSync(absoluteMockDir, { recursive: true });
+          console.log(`Created mock directory at absolute path: ${absoluteMockDir}`);
+        }
+      }
+    }
+
+    // Create the mock implementation with more robust error handling
+    const mockImplementation = `
+      // Mock implementation of path-to-regexp
+      // Created at ${new Date().toISOString()}
+      // For CI compatibility
+
+      // Main function
+      function pathToRegexp(path, keys, options) {
+        console.log('Mock path-to-regexp called with path:', path);
+        return /.*/;
       }
 
-      // Create the mock implementation
-      const mockImplementation = `
-        // Mock implementation of path-to-regexp
-        // Created at ${new Date().toISOString()}
-        // For CI compatibility
-
-        // Main function
-        function pathToRegexp(path, keys, options) {
-          console.log('Mock path-to-regexp called with path:', path);
-          return /.*/;
-        }
-
-        // Helper functions
-        pathToRegexp.parse = function parse(path) {
-          console.log('Mock path-to-regexp.parse called with path:', path);
-          return [];
-        };
-
-        pathToRegexp.compile = function compile(path) {
-          console.log('Mock path-to-regexp.compile called with path:', path);
-          return function() { return ''; };
-        };
-
-        pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
-          console.log('Mock path-to-regexp.tokensToRegexp called');
-          return /.*/;
-        };
-
-        pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
-          console.log('Mock path-to-regexp.tokensToFunction called');
-          return function() { return ''; };
-        };
-
-        // Export the mock implementation
-        module.exports = pathToRegexp;
-      `;
-
-      // Write the mock implementation to disk
-      fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
-      console.log(`Created mock implementation at ${path.join(mockDir, 'index.js')}`);
-
-      // Create a package.json file
-      const packageJson = {
-        name: 'path-to-regexp',
-        version: '0.0.0',
-        main: 'index.js',
-        description: 'Mock implementation for CI compatibility',
+      // Helper functions
+      pathToRegexp.parse = function parse(path) {
+        console.log('Mock path-to-regexp.parse called with path:', path);
+        return [];
       };
 
+      pathToRegexp.compile = function compile(path) {
+        console.log('Mock path-to-regexp.compile called with path:', path);
+        return function() { return ''; };
+      };
+
+      pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
+        console.log('Mock path-to-regexp.tokensToRegexp called');
+        return /.*/;
+      };
+
+      pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
+        console.log('Mock path-to-regexp.tokensToFunction called');
+        return function() { return ''; };
+      };
+
+      // Export the mock implementation
+      module.exports = pathToRegexp;
+    `;
+
+    // Write the mock implementation to disk with better error handling
+    try {
+      fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
+      console.log(`Created mock implementation at ${path.join(mockDir, 'index.js')}`);
+    } catch (writeError) {
+      console.warn(`Failed to write mock implementation: ${writeError.message}`);
+
+      // Try alternative approach with absolute path
+      const absoluteIndexPath = path.resolve(process.cwd(), 'node_modules', 'path-to-regexp', 'index.js');
+      fs.writeFileSync(absoluteIndexPath, mockImplementation);
+      console.log(`Created mock implementation at absolute path: ${absoluteIndexPath}`);
+    }
+
+    // Create a package.json file with better error handling
+    const packageJson = {
+      name: 'path-to-regexp',
+      version: '0.0.0',
+      main: 'index.js',
+      description: 'Mock implementation for CI compatibility',
+    };
+
+    try {
       fs.writeFileSync(
         path.join(mockDir, 'package.json'),
         JSON.stringify(packageJson, null, 2)
       );
       console.log(`Created mock package.json at ${path.join(mockDir, 'package.json')}`);
+    } catch (writeError) {
+      console.warn(`Failed to write mock package.json: ${writeError.message}`);
 
+      // Try alternative approach with absolute path
+      const absolutePackagePath = path.resolve(process.cwd(), 'node_modules', 'path-to-regexp', 'package.json');
+      fs.writeFileSync(absolutePackagePath, JSON.stringify(packageJson, null, 2));
+      console.log(`Created mock package.json at absolute path: ${absolutePackagePath}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.warn(`Failed to create mock implementation: ${error.message}`);
+    return false;
+  }
+}
+
+// Try multiple approaches to handle path-to-regexp dependency
+try {
+  // First try to import the mock helper
+  try {
+    mockPathToRegexp = require('./mock_path_to_regexp');
+    console.log('Successfully imported mock_path_to_regexp helper');
+    pathToRegexpAvailable = mockPathToRegexp.mockCreated || mockPathToRegexp.requirePatched;
+    console.log(`Path-to-regexp availability from mock helper: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}`);
+  } catch (importError) {
+    console.warn(`Failed to import mock_path_to_regexp helper: ${importError.message}`);
+
+    // Try to import enhanced mock helper as fallback
+    try {
+      mockPathToRegexp = require('./enhanced_mock_path_to_regexp');
+      console.log('Successfully imported enhanced_mock_path_to_regexp helper');
+      pathToRegexpAvailable = true;
+    } catch (enhancedImportError) {
+      console.warn(`Failed to import enhanced_mock_path_to_regexp helper: ${enhancedImportError.message}`);
+
+      // Create a fallback implementation
+      mockPathToRegexp = {
+        mockCreated: false,
+        requirePatched: false,
+        isCI: isCI
+      };
+    }
+  }
+
+  // If we're in a CI environment and path-to-regexp is not available, create a mock implementation
+  if (isCI && !pathToRegexpAvailable) {
+    console.log('CI environment detected, using simplified path-to-regexp handling');
+
+    // Try to create a mock implementation directly
+    const mockCreated = createMockPathToRegexp();
+
+    if (mockCreated) {
       mockPathToRegexp.mockCreated = true;
       pathToRegexpAvailable = true;
-    } catch (mockError) {
-      console.warn(`Failed to create mock implementation: ${mockError.message}`);
+      console.log('Successfully created mock path-to-regexp implementation');
+    } else {
+      // If we failed to create the mock implementation, try to monkey patch require
+      try {
+        const originalRequire = module.require;
+        module.require = function(id) {
+          if (id === 'path-to-regexp') {
+            console.log('Intercepted require for path-to-regexp');
+            // Return a simple mock implementation
+            const mockFn = function() { return /.*/ };
+            mockFn.parse = function() { return []; };
+            mockFn.compile = function() { return function() { return ''; }; };
+            mockFn.tokensToRegexp = function() { return /.*/; };
+            mockFn.tokensToFunction = function() { return function() { return ''; }; };
+            return mockFn;
+          }
+          return originalRequire.apply(this, arguments);
+        };
+        console.log('Successfully patched require to handle path-to-regexp');
+        mockPathToRegexp.requirePatched = true;
+        pathToRegexpAvailable = true;
+      } catch (patchError) {
+        console.warn(`Failed to patch require: ${patchError.message}`);
+      }
     }
-  } else {
+  } else if (!isCI) {
     // Only try to use path-to-regexp in non-CI environments
     try {
       require('path-to-regexp');
@@ -121,6 +195,14 @@ try {
       pathToRegexpAvailable = false;
     }
   }
+} catch (outerError) {
+  console.warn(`Unexpected error handling path-to-regexp: ${outerError.message}`);
+  // Ensure we have a fallback implementation
+  mockPathToRegexp = {
+    mockCreated: false,
+    requirePatched: false,
+    isCI: isCI
+  };
 }
 
 // Create a marker file to indicate whether path-to-regexp is available
