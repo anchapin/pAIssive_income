@@ -1,6 +1,6 @@
 # pAIssive_income
 
-[![codecov](https://codecov.io/gh/your-github-username/your-repo-name/branch/main/graph/badge.svg)](https://codecov.io/gh/your-github-username/your-repo-name)
+[![codecov](https://codecov.io/gh/anchapin/pAIssive_income/branch/main/graph/badge.svg)](https://codecov.io/gh/anchapin/pAIssive_income)
 
 > **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
 >
