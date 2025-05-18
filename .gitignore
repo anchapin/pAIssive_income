@@ -50,6 +50,7 @@
 *.py[cod]
 *.sage.py
 *.sarif
+!security-reports/*.sarif
 *.sarif.json
 bandit-output.json
 bandit-results.json
