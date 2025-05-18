@@ -1,10 +1,10 @@
 /**
  * Enhanced Mock path-to-regexp module for CI compatibility
- * 
+ *
  * This script creates a more robust mock implementation of the path-to-regexp module
  * to avoid dependency issues in CI environments. It includes additional error handling
  * and compatibility features.
- * 
+ *
  * Usage:
  * - Run this script directly: node tests/enhanced_mock_path_to_regexp.js
  * - Or require it in your tests: require('./tests/enhanced_mock_path_to_regexp.js')
@@ -15,37 +15,62 @@ const path = require('path');
 const os = require('os');
 
 // Check if we're in a CI environment
-const isCI = process.env.CI === 'true' || process.env.CI === true || process.env.GITHUB_ACTIONS === 'true';
+const isCI = process.env.CI === 'true' || process.env.CI === true;
 const skipPathToRegexp = process.env.SKIP_PATH_TO_REGEXP === 'true';
 const verboseLogging = process.env.VERBOSE_LOGGING === 'true';
 
-// Log function with optional verbose mode
+// Create logs directory if it doesn't exist
+const logDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+// Helper function for logging with timestamps and levels
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   const prefix = `[${timestamp}] [${level.toUpperCase()}] [enhanced-mock-path-to-regexp]`;
-  
+
   if (level === 'info' && !verboseLogging) {
-    return; // Skip non-critical info logs unless verbose logging is enabled
+    // Still write to log file but don't output to console unless verbose
+    try {
+      fs.appendFileSync(
+        path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
+        `${prefix} ${message}\n`
+      );
+    } catch (error) {
+      console.error(`Failed to write to log file: ${error.message}`);
+    }
+    return;
   }
-  
+
+  // Output to console for errors, warnings, or when verbose logging is enabled
   if (level === 'error' || level === 'warn') {
     console[level](`${prefix} ${message}`);
   } else {
     console.log(`${prefix} ${message}`);
   }
+
+  // Also write to log file
+  try {
+    fs.appendFileSync(
+      path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
+      `${prefix} ${message}\n`
+    );
+  } catch (error) {
+    console.error(`Failed to write to log file: ${error.message}`);
+  }
 }
+
+
+
+
 
 log(`Enhanced mock path-to-regexp script running (CI: ${isCI ? 'Yes' : 'No'})`, 'info');
 log(`Platform: ${os.platform()}, Node.js: ${process.version}`, 'info');
 log(`Skip path-to-regexp: ${skipPathToRegexp ? 'Yes' : 'No'}`, 'info');
 log(`Verbose logging: ${verboseLogging ? 'Yes' : 'No'}`, 'info');
 
-// Create logs directory if it doesn't exist
-const logDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
-  log(`Created logs directory at ${logDir}`, 'info');
-}
+
 
 // Log the execution of this script
 fs.writeFileSync(
@@ -75,7 +100,7 @@ function createEnhancedMockImplementation() {
       // Enhanced Mock implementation of path-to-regexp
       // Created at ${new Date().toISOString()}
       // For CI compatibility
-      
+
       /**
        * Convert path to regexp
        */
@@ -83,16 +108,16 @@ function createEnhancedMockImplementation() {
         if (process.env.VERBOSE_LOGGING === 'true') {
           console.log('[path-to-regexp] Mock called with path:', path);
         }
-        
+
         // Handle different input types
         if (path instanceof RegExp) {
           return path;
         }
-        
+
         if (Array.isArray(path)) {
           return new RegExp('.*');
         }
-        
+
         try {
           // If keys is provided, populate it with parameter names
           if (Array.isArray(keys)) {
@@ -108,14 +133,14 @@ function createEnhancedMockImplementation() {
               });
             });
           }
-          
+
           return new RegExp('.*');
         } catch (e) {
           console.error('[path-to-regexp] Error in mock implementation:', e);
           return new RegExp('.*');
         }
       }
-      
+
       /**
        * Parse a string for the raw tokens.
        */
@@ -123,23 +148,23 @@ function createEnhancedMockImplementation() {
         if (process.env.VERBOSE_LOGGING === 'true') {
           console.log('[path-to-regexp] Mock parse called with:', str);
         }
-        
+
         try {
           const tokens = [];
           let key = 0;
           let index = 0;
           let path = '';
-          
+
           // Very simple tokenizer that just returns the path as a single token
           tokens.push(str);
-          
+
           return tokens;
         } catch (e) {
           console.error('[path-to-regexp] Error in mock parse implementation:', e);
           return [];
         }
       };
-      
+
       /**
        * Compile a string to a template function for the path.
        */
@@ -147,7 +172,7 @@ function createEnhancedMockImplementation() {
         if (process.env.VERBOSE_LOGGING === 'true') {
           console.log('[path-to-regexp] Mock compile called with:', str);
         }
-        
+
         return function(params) {
           try {
             // Simple implementation that replaces :param with the value from params
@@ -165,7 +190,7 @@ function createEnhancedMockImplementation() {
           }
         };
       };
-      
+
       /**
        * Transform an array of tokens into a regular expression.
        */
@@ -173,7 +198,7 @@ function createEnhancedMockImplementation() {
         if (process.env.VERBOSE_LOGGING === 'true') {
           console.log('[path-to-regexp] Mock tokensToRegexp called');
         }
-        
+
         try {
           // If keys is provided, populate it with parameter names
           if (Array.isArray(keys) && Array.isArray(tokens)) {
@@ -189,14 +214,14 @@ function createEnhancedMockImplementation() {
               }
             });
           }
-          
+
           return new RegExp('.*');
         } catch (e) {
           console.error('[path-to-regexp] Error in mock tokensToRegexp implementation:', e);
           return new RegExp('.*');
         }
       };
-      
+
       /**
        * Transform an array of tokens into a function that can be used to match paths.
        */
@@ -204,7 +229,7 @@ function createEnhancedMockImplementation() {
         if (process.env.VERBOSE_LOGGING === 'true') {
           console.log('[path-to-regexp] Mock tokensToFunction called');
         }
-        
+
         return function(params) {
           try {
             // Simple implementation that just returns an empty string
@@ -215,7 +240,7 @@ function createEnhancedMockImplementation() {
           }
         };
       };
-      
+
       // Export the mock implementation
       module.exports = pathToRegexp;
     `;
@@ -250,11 +275,11 @@ function enhancedMonkeyPatchRequire() {
   try {
     const Module = require('module');
     const originalRequire = Module.prototype.require;
-    
+
     Module.prototype.require = function(id) {
       if (id === 'path-to-regexp') {
         log('Intercepted require for path-to-regexp', 'info');
-        
+
         // Return a more robust mock implementation
         function pathToRegexp(path, keys, options) {
           if (verboseLogging) {
@@ -262,40 +287,52 @@ function enhancedMonkeyPatchRequire() {
           }
           return new RegExp('.*');
         }
-        
+
         pathToRegexp.parse = function parse(path) {
           if (verboseLogging) {
             log(`Mock parse called with path: ${path}`, 'info');
           }
           return [];
         };
-        
+
         pathToRegexp.compile = function compile(path) {
           if (verboseLogging) {
             log(`Mock compile called with path: ${path}`, 'info');
           }
           return function() { return ''; };
         };
-        
+
+        pathToRegexp.match = function match(path) {
+          if (verboseLogging) {
+            log(`Mock match called with path: ${path}`, 'info');
+          }
+          return function(pathname) {
+            if (verboseLogging) {
+              log(`Mock match function called with pathname: ${pathname}`, 'info');
+            }
+            return { path: pathname, params: {} };
+          };
+        };
+
         pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
           if (verboseLogging) {
             log('Mock tokensToRegexp called', 'info');
           }
           return new RegExp('.*');
         };
-        
+
         pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
           if (verboseLogging) {
             log('Mock tokensToFunction called', 'info');
           }
           return function() { return ''; };
         };
-        
+
         return pathToRegexp;
       }
       return originalRequire.call(this, id);
     };
-    
+
     log('Successfully patched require to handle path-to-regexp with enhanced implementation', 'info');
     return true;
   } catch (patchError) {
@@ -319,24 +356,24 @@ fs.appendFileSync(
 try {
   const pathToRegexp = require('path-to-regexp');
   log('Successfully loaded path-to-regexp (enhanced mock implementation)', 'info');
-  
+
   // Test the mock implementation
   const regex = pathToRegexp('/test/:id');
   log(`Mock regex created: ${regex}`, 'info');
-  
+
   // Test with keys
   const keys = [];
   const regexWithKeys = pathToRegexp('/users/:userId/posts/:postId', keys);
   log(`Mock regex with keys created: ${regexWithKeys}`, 'info');
   log(`Keys: ${JSON.stringify(keys)}`, 'info');
-  
+
   fs.appendFileSync(
     path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
     `Enhanced mock implementation verification: Success\n`
   );
 } catch (error) {
   log(`Failed to load path-to-regexp: ${error.message}`, 'error');
-  
+
   fs.appendFileSync(
     path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
     `Enhanced mock implementation verification: Failed - ${error.message}\n`

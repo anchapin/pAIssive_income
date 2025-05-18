@@ -107,13 +107,30 @@ pathToRegexp.compile = function compile(path) {
 /**
  * Match a path against a regexp
  * @param {string} path - The path to match
- * @returns {Object|null} - The match result or null if no match
+ * @returns {Function} - A function that matches a pathname against the path
  */
 pathToRegexp.match = function match(path) {
   console.log('Mock path-to-regexp.match called with path:', path);
   return function(pathname) {
     console.log('Mock path-to-regexp.match function called with pathname:', pathname);
-    return { path: pathname, params: {} };
+
+    // Extract parameter values from the pathname if possible
+    const params = {};
+    if (typeof path === 'string' && typeof pathname === 'string') {
+      const pathParts = path.split('/');
+      const pathnameParts = pathname.split('/');
+
+      if (pathParts.length === pathnameParts.length) {
+        for (let i = 0; i < pathParts.length; i++) {
+          if (pathParts[i].startsWith(':')) {
+            const paramName = pathParts[i].substring(1);
+            params[paramName] = pathnameParts[i];
+          }
+        }
+      }
+    }
+
+    return { path: pathname, params: params };
   };
 };
 
@@ -273,7 +290,24 @@ function monkeyPatchRequire() {
           console.log(`Mock path-to-regexp.match called with: ${path}`);
           return function(pathname) {
             console.log(`Mock path-to-regexp.match function called with pathname: ${pathname}`);
-            return { path: pathname, params: {} };
+
+            // Extract parameter values from the pathname if possible
+            const params = {};
+            if (typeof path === 'string' && typeof pathname === 'string') {
+              const pathParts = path.split('/');
+              const pathnameParts = pathname.split('/');
+
+              if (pathParts.length === pathnameParts.length) {
+                for (let i = 0; i < pathParts.length; i++) {
+                  if (pathParts[i].startsWith(':')) {
+                    const paramName = pathParts[i].substring(1);
+                    params[paramName] = pathnameParts[i];
+                  }
+                }
+              }
+            }
+
+            return { path: pathname, params: params };
           };
         };
 
@@ -411,10 +445,44 @@ try {
       fs.mkdirSync(simpleMockDir, { recursive: true });
     }
 
-    const ultraSimpleMock = `module.exports = function() { return /.*/ };
+    const ultraSimpleMock = `module.exports = function(path, keys) {
+  // If keys is provided, populate it with parameter names
+  if (Array.isArray(keys) && typeof path === 'string') {
+    const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || [];
+    paramNames.forEach((param) => {
+      keys.push({
+        name: param.substring(1),
+        prefix: '/',
+        suffix: '',
+        modifier: '',
+        pattern: '[^/]+'
+      });
+    });
+  }
+  return /.*/
+};
 module.exports.parse = function() { return [] };
 module.exports.compile = function() { return function() { return ''; } };
-module.exports.match = function() { return function(pathname) { return { path: pathname, params: {} }; } };
+module.exports.match = function(path) {
+  return function(pathname) {
+    // Extract parameter values from the pathname if possible
+    const params = {};
+    if (typeof path === 'string' && typeof pathname === 'string') {
+      const pathParts = path.split('/');
+      const pathnameParts = pathname.split('/');
+
+      if (pathParts.length === pathnameParts.length) {
+        for (let i = 0; i < pathParts.length; i++) {
+          if (pathParts[i].startsWith(':')) {
+            const paramName = pathParts[i].substring(1);
+            params[paramName] = pathnameParts[i];
+          }
+        }
+      }
+    }
+    return { path: pathname, params: params };
+  };
+};
 module.exports.tokensToRegexp = function() { return /.*/ };
 module.exports.tokensToFunction = function() { return function() { return ''; } };`;
 

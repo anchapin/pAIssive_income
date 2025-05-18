@@ -40,7 +40,23 @@ try {
         console.log('Fallback mock path-to-regexp.match called with path:', path);
         return function(pathname) {
           console.log('Fallback mock path-to-regexp.match function called with pathname:', pathname);
-          return { path: pathname, params: {} };
+          // Return a more robust match result with params
+          const params = {};
+          // Extract parameter values from the pathname if possible
+          if (typeof path === 'string' && typeof pathname === 'string') {
+            const pathParts = path.split('/');
+            const pathnameParts = pathname.split('/');
+
+            if (pathParts.length === pathnameParts.length) {
+              for (let i = 0; i < pathParts.length; i++) {
+                if (pathParts[i].startsWith(':')) {
+                  const paramName = pathParts[i].substring(1);
+                  params[paramName] = pathnameParts[i];
+                }
+              }
+            }
+          }
+          return { path: pathname, params: params };
         };
       }
     };
@@ -142,14 +158,70 @@ if (process.env.CI === 'true' || process.env.CI === true) {
     module.require = function(id) {
       if (id === 'path-to-regexp') {
         console.log('Intercepted require for path-to-regexp in CI environment');
-        // Return a simple mock implementation with match function
-        const mockImpl = function() { return /.*/ };
+        // Return a more robust mock implementation with match function
+        const mockImpl = function(path, keys, options) {
+          console.log('CI environment mock path-to-regexp called with path:', path);
+
+          // If keys is provided, populate it with parameter names
+          if (Array.isArray(keys) && typeof path === 'string') {
+            const paramNames = path.match(/:[a-zA-Z0-9_]+/g) || [];
+            paramNames.forEach((param, index) => {
+              keys.push({
+                name: param.substring(1),
+                prefix: '/',
+                suffix: '',
+                modifier: '',
+                pattern: '[^/]+'
+              });
+            });
+          }
+
+          return /.*/;
+        };
+
+        mockImpl.parse = function(path) {
+          console.log('CI environment mock path-to-regexp.parse called with path:', path);
+          return [];
+        };
+
+        mockImpl.compile = function(path) {
+          console.log('CI environment mock path-to-regexp.compile called with path:', path);
+          return function() { return ''; };
+        };
+
         mockImpl.match = function(path) {
           console.log('CI environment mock path-to-regexp.match called with path:', path);
           return function(pathname) {
             console.log('CI environment mock path-to-regexp.match function called with pathname:', pathname);
-            return { path: pathname, params: {} };
+
+            // Extract parameter values from the pathname if possible
+            const params = {};
+            if (typeof path === 'string' && typeof pathname === 'string') {
+              const pathParts = path.split('/');
+              const pathnameParts = pathname.split('/');
+
+              if (pathParts.length === pathnameParts.length) {
+                for (let i = 0; i < pathParts.length; i++) {
+                  if (pathParts[i].startsWith(':')) {
+                    const paramName = pathParts[i].substring(1);
+                    params[paramName] = pathnameParts[i];
+                  }
+                }
+              }
+            }
+
+            return { path: pathname, params: params };
           };
+        };
+
+        mockImpl.tokensToRegexp = function(tokens, keys, options) {
+          console.log('CI environment mock path-to-regexp.tokensToRegexp called');
+          return /.*/;
+        };
+
+        mockImpl.tokensToFunction = function(tokens) {
+          console.log('CI environment mock path-to-regexp.tokensToFunction called');
+          return function() { return ''; };
         };
         return mockImpl;
       }
