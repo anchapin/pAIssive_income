@@ -136,3 +136,6 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+
+# Ignore generated Tailwind CSS build artifact
+ui/static/css/tailwind.output.css
