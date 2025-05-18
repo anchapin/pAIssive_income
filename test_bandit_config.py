@@ -158,29 +158,29 @@ def test_function():
                     shell=False,  # Explicitly set shell=False for security
                     timeout=300  # Set a timeout of 5 minutes
                 )
-                print(f"Bandit with .bandit exit code: {result.returncode}")
+                logger.info("Bandit with .bandit exit code: %d", result.returncode)
 
                 # Check if output file was created
                 if not Path("security-reports/bandit-results-ini.json").exists():
-                    print("Warning: JSON output file was not created for .bandit. Creating empty file.")
-                    with open("security-reports/bandit-results-ini.json", "w") as f:
+                    logger.warning("JSON output file was not created for .bandit. Creating empty file.")
+                    with Path("security-reports/bandit-results-ini.json").open("w") as f:
                         f.write('{"results": [], "errors": []}')
                 else:
-                    print("JSON output file exists for .bandit, continuing...")
+                    logger.info("JSON output file exists for .bandit, continuing...")
             except Exception as e:
-                print(f"Error running bandit with .bandit: {e}")
+                logger.error("Error running bandit with .bandit: %s", e)
                 # Create empty JSON file as fallback
-                with open("security-reports/bandit-results-ini.json", "w") as f:
+                with Path("security-reports/bandit-results-ini.json").open("w") as f:
                     f.write('{"results": [], "errors": []}')
-                print("Created empty JSON results file as fallback for .bandit")
+                logger.info("Created empty JSON results file as fallback for .bandit")
 
         # Clean up test file if it was created
         if test_file_path.exists():
             try:
                 test_file_path.unlink()
-                print(f"Removed test file {test_file_path}")
+                logger.info("Removed test file %s", test_file_path)
             except Exception as e:
-                print(f"Warning: Failed to remove test file: {e}")
+                logger.warning("Failed to remove test file: %s", e)
 
         # Ensure we have at least one output file
         if Path("security-reports/bandit-results.json").exists() or Path("security-reports/bandit-results-ini.json").exists():
@@ -192,7 +192,7 @@ def test_function():
         logger.info("Created empty JSON results file as final fallback")
         return True
     except Exception as e:
-        print(f"Error running bandit: {e}")
+        logger.error("Error running bandit: %s", e)
         # Create empty JSON file as ultimate fallback
         ensure_security_reports_dir()
         try:
@@ -217,8 +217,8 @@ def check_venv_exists() -> bool:
 if __name__ == "__main__":
     # Check if we're running in a virtual environment
     if not check_venv_exists():
-        print("Warning: Not running in a virtual environment. This may cause issues.")
-        print("Continuing anyway, but consider running in a virtual environment.")
+        logger.warning("Not running in a virtual environment. This may cause issues.")
+        logger.info("Continuing anyway, but consider running in a virtual environment.")
 
     # Install bandit if not already installed
     bandit_path = get_bandit_path()
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             shell=False  # Explicitly set shell=False for security
         )
     except FileNotFoundError:
-        print("Installing bandit...")
+        logger.info("Installing bandit...")
         # nosec B603 - subprocess call is used with shell=False and validated arguments
         subprocess.run(  # nosec B603
             [sys.executable, "-m", "pip", "install", "bandit"],
@@ -245,13 +245,13 @@ if __name__ == "__main__":
     try:
         success = test_bandit_config()
         if success:
-            print("Bandit configuration test passed!")
+            logger.info("Bandit configuration test passed!")
             sys.exit(0)
         else:
-            print("Bandit configuration test failed!")
+            logger.error("Bandit configuration test failed!")
             sys.exit(1)
     except Exception as e:
-        print(f"Error running bandit configuration test: {e}")
+        logger.error("Error running bandit configuration test: %s", e)
         # Create an empty JSON file as a fallback
         try:
             reports_dir = Path("security-reports")
@@ -259,10 +259,10 @@ if __name__ == "__main__":
                 reports_dir.mkdir(parents=True, exist_ok=True)
 
             empty_json_path = reports_dir / "bandit-results.json"
-            with open(empty_json_path, "w") as f:
+            with empty_json_path.open("w") as f:
                 f.write('{"results": [], "errors": []}')
-            print(f"Created empty JSON file at {empty_json_path}")
+            logger.info("Created empty JSON file at %s", empty_json_path)
             sys.exit(0)  # Exit with success to allow the workflow to continue
         except Exception as e2:
-            print(f"Failed to create empty JSON file: {e2}")
+            logger.error("Failed to create empty JSON file: %s", e2)
             sys.exit(1)
