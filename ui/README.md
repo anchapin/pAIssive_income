@@ -1,64 +1,51 @@
-# pAIssive Income Framework UI
+# UI Setup & Tailwind CSS Integration
 
-This directory contains the web interface for the pAIssive Income Framework, allowing users to interact with the framework's components through a user-friendly interface.
+## Tailwind CSS
 
-## Overview
+This project uses [Tailwind CSS](https://tailwindcss.com/) for modern utility-first styling.
 
-The UI module provides a web-based interface for:
+### How to Build Tailwind CSS
 
-1. **Niche Analysis**: Identify profitable niches with high demand and low competition
-2. **Solution Development**: Design and develop AI-powered solutions for specific niches
-3. **Monetization Strategy**: Create effective monetization strategies with subscription models
-4. **Marketing Campaign**: Develop targeted marketing campaigns to reach ideal customers
+1. **Install Node dependencies (using pnpm):**
 
-## Directory Structure
+   ```
+   pnpm install
+   ```
 
-- `__init__.py`: Main module initialization and Flask application setup
-- `app.py`: Entry point for running the web interface
-- `routes.py`: URL routes and request handlers
-- `services/`: Service classes for interacting with the framework components
-- `templates/`: HTML templates for the web interface
-- `static/`: Static files (CSS, JavaScript, images)
-- `data/`: Data storage for the UI (JSON files)
+2. **Build Tailwind CSS once:**
 
-## Services
+   ```
+   pnpm tailwind:build
+   ```
 
-The UI module includes the following services:
+   This will generate `ui/static/css/tailwind.output.css`.
 
-1. **AgentTeamService**: Interacts with the Agent Team module
-2. **NicheAnalysisService**: Interacts with the Niche Analysis module
-3. **DeveloperService**: Interacts with the Developer Agent module
-4. **MonetizationService**: Interacts with the Monetization Agent module
-5. **MarketingService**: Interacts with the Marketing Agent module
+3. **Or watch for changes during development:**
 
-## Usage
+   ```
+   pnpm tailwind:watch
+   ```
 
-To run the web interface:
+### How to Use Tailwind CSS in Templates
 
-```bash
-python ui/app.py
-```
+- In your HTML/Jinja templates in `ui/templates/`, include the generated CSS:
 
-Then open a web browser and navigate to `http://localhost:5000`.
+  ```html
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.output.css') }}">
+  ```
 
-## Dependencies
+- You can use Tailwind utility classes directly in your templates.
 
-- Flask: Web framework
-- Bootstrap: CSS framework (loaded from CDN)
-- Font Awesome: Icon library (loaded from CDN)
-- jQuery: JavaScript library (loaded from CDN)
-- Chart.js (optional): For data visualization (loaded from CDN when needed)
-- DataTables (optional): For enhanced tables (loaded from CDN when needed)
+- The original `style.css` remains available for custom or legacy styles.
 
-## Development
+### Customizing Tailwind
 
-To extend the UI:
+- Edit `ui/static/css/tailwind.css` to add custom CSS or import additional Tailwind plugins.
+- Edit `tailwind.config.js` to configure content sources, themes, or plugins.
 
-1. Add new routes in `routes.py`
-2. Create new templates in the `templates/` directory
-3. Add new services in the `services/` directory
-4. Add new static files in the `static/` directory
+### Notes
 
-## License
+- Do **not** commit `tailwind.output.css` if your `.gitignore` is set up to ignore built assets.
+- If you add new templates or JS files, make sure their paths are included in `tailwind.config.js` under `content`.
 
-[MIT License](../LICENSE)
+---
