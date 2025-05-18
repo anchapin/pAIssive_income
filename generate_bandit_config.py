@@ -12,7 +12,6 @@ Usage:
 from __future__ import annotations
 
 import logging
-import os
 import sys
 from pathlib import Path
 from typing import Tuple
@@ -87,6 +86,7 @@ def setup_directories() -> Tuple[Path, Path, bool]:
     Returns:
         Tuple[Path, Path, bool]: Bandit directory path, security reports directory path,
                                 and success flag
+
     """
     try:
         # Create Bandit directory
@@ -115,6 +115,7 @@ def write_config_file(config_path: Path, content: str) -> bool:
 
     Returns:
         bool: True if the file was written successfully, False otherwise
+
     """
     try:
         with config_path.open("w") as f:
@@ -136,6 +137,7 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
 
     Returns:
         bool: True if all files were generated successfully, False otherwise
+
     """
     success = True
 
@@ -148,7 +150,9 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
                 continue
 
             # Generate platform-specific configuration file with run ID
-            config_path_with_run_id = bandit_dir / f"bandit-config-{platform}-{run_id}.yaml"
+            config_path_with_run_id = (
+                bandit_dir / f"bandit-config-{platform}-{run_id}.yaml"
+            )
             if not write_config_file(config_path_with_run_id, BANDIT_CONFIG_TEMPLATE):
                 success = False
                 continue
@@ -165,6 +169,7 @@ def main() -> int:
 
     Returns:
         int: 0 for success, 1 for failure
+
     """
     exit_code = 1
 
@@ -182,7 +187,7 @@ def main() -> int:
             if run_id == "test_run_id":
                 logger.info("Using test run ID")
             # Sanitize run_id to avoid potential issues
-            run_id = ''.join(c for c in run_id if c.isalnum() or c in '_-')
+            run_id = "".join(c for c in run_id if c.isalnum() or c in "_-")
 
         logger.info("Generating Bandit configuration files for run ID: %s", run_id)
 
