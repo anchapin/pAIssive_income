@@ -55,6 +55,7 @@ bandit-output.json
 bandit-results.json
 !security-reports/bandit-results.json
 security-reports/test-results*.txt
+security-reports/test-results-ini.txt
 *.so
 *.spec
 *.swo
