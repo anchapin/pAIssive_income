@@ -172,6 +172,7 @@ def check_venv_exists() -> bool:
         # If there's any error checking for virtual environment, assume we're not in one
         return False
 
+
 def main() -> None:
     """Run pytest with optimized worker count based on test count."""
     # Forward all command-line arguments to pytest except the script name
