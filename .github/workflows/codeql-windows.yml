@@ -59,11 +59,8 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Check if package.json exists
-            if (Test-Path "package.json") {
-              Write-Host "Found package.json, creating compatible package-lock.json..."
-
-              # Create a minimal package-lock.json object
+            try {
+              # Create a simple JSON object
               $lockFileObj = @{
                 name = "paissive-income"
                 version = "1.0.0"
@@ -84,27 +81,37 @@ jobs:
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
                 Write-Host "package-lock.json created successfully ($($fileInfo.Length) bytes)"
-                Get-Content -Path "package-lock.json" -First 10
+                Get-Content -Path "package-lock.json" -First 5
               } else {
-                Write-Host "Failed to create package-lock.json using ConvertTo-Json, trying direct JSON string..."
+                throw "Failed to create package-lock.json using ConvertTo-Json"
+              }
+            } catch {
+              Write-Host "Error creating package-lock.json: $_"
+              Write-Host "Trying direct JSON string as fallback..."
+
+              try {
                 # Fallback to direct JSON string
                 $jsonString = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
                 Set-Content -Path "package-lock.json" -Value $jsonString -Encoding UTF8
-              }
-            } else {
-              Write-Host "No package.json found, creating minimal package-lock.json..."
-              # Create a very simple JSON string
-              $jsonString = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
-              Set-Content -Path "package-lock.json" -Value $jsonString -Encoding UTF8
-            }
 
-            # Verify the file was created
-            if (Test-Path "package-lock.json") {
-              Write-Host "package-lock.json created successfully"
-            } else {
-              Write-Host "WARNING: Failed to create package-lock.json, using empty object as last resort"
-              # Ultra simple fallback
-              Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
+                if (Test-Path "package-lock.json") {
+                  Write-Host "package-lock.json created successfully using direct JSON string"
+                } else {
+                  throw "Failed to create package-lock.json using direct JSON string"
+                }
+              } catch {
+                Write-Host "Error with fallback method: $_"
+                Write-Host "Using empty object as last resort"
+
+                # Ultra simple fallback
+                Set-Content -Path "package-lock.json" -Value "{}" -Encoding UTF8
+
+                if (Test-Path "package-lock.json") {
+                  Write-Host "Created minimal package-lock.json with empty object"
+                } else {
+                  Write-Host "WARNING: All attempts to create package-lock.json failed"
+                }
+              }
             }
           }
 
@@ -151,6 +158,29 @@ jobs:
             Write-Host "CodeQL configuration file not found!"
           }
 
+          Write-Host "JavaScript security queries file:"
+          if (Test-Path ".github/codeql/javascript-security-queries.qls") {
+            Get-Content -Path ".github/codeql/javascript-security-queries.qls"
+          } else {
+            Write-Host "JavaScript security queries file not found!"
+          }
+
+          Write-Host "Python security queries file:"
+          if (Test-Path ".github/codeql/python-security-queries.qls") {
+            Get-Content -Path ".github/codeql/python-security-queries.qls"
+          } else {
+            Write-Host "Python security queries file not found!"
+          }
+
+          Write-Host "Checking for package-lock.json:"
+          if (Test-Path "package-lock.json") {
+            $fileInfo = Get-Item "package-lock.json"
+            Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
+            Get-Content -Path "package-lock.json" -First 5
+          } else {
+            Write-Host "package-lock.json not found!"
+          }
+
       # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -159,6 +189,18 @@ jobs:
           queries: security-and-quality,security-extended
           debug: true
           config-file: .github/codeql/security-os-config.yml
+
+      # Verify CodeQL database creation
+      - name: Verify CodeQL database
+        shell: pwsh
+        run: |
+          Write-Host "Checking for CodeQL database..."
+          if (Test-Path "$env:RUNNER_TEMP/codeql_databases") {
+            Write-Host "CodeQL databases directory exists:"
+            Get-ChildItem -Path "$env:RUNNER_TEMP/codeql_databases" -Recurse | Select-Object -First 10 | Format-Table FullName, Length
+          } else {
+            Write-Host "CodeQL databases directory not found!"
+          }
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

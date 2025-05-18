@@ -97,6 +97,7 @@ paths-ignore:
 queries:
   # Use standard security queries to avoid Windows path issues
   - uses: security-and-quality
+  - uses: security-extended
 
 # Disable noisy alerts
 disable-default-queries: false
