@@ -128,88 +128,15 @@ jobs:
           sdk/javascript/node_modules/**
           EOL
 
-      # Create fix_codeql_issues.py script
-      - name: Create fix_codeql_issues.py script
+      # Make fix-codeql-issues.sh script executable
+      - name: Make fix-codeql-issues.sh script executable
         run: |
-          cat > fix_codeql_issues.py << 'EOL'
-          #!/usr/bin/env python3
-          """
-          Script to fix CodeQL issues in the codebase.
-          """
-          import os
-          import re
-          import sys
-          import logging
-          import shutil
-          from typing import Dict, List, Tuple, Set, Optional, Any
+          chmod +x scripts/fix-codeql-issues.sh
 
-          # Configure logging
-          logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-          logger = logging.getLogger(__name__)
-
-          # Directories to remove
-          VENV_DIRS = {
-              ".venv",
-              "venv",
-              "env",
-              ".env",
-              "virtualenv",
-          }
-
-          # Directories to exclude from scanning
-          DIRS_TO_EXCLUDE = {
-              ".git",
-              ".github",
-              "node_modules",
-              "__pycache__",
-              "dist",
-              "build",
-          }
-
-          def remove_venv_dirs(root_dir: str) -> List[str]:
-              """Remove virtual environment directories."""
-              removed_dirs = []
-
-              for dirpath, dirnames, _ in os.walk(root_dir, topdown=True):
-                  # Skip excluded directories
-                  dirnames[:] = [d for d in dirnames if d not in DIRS_TO_EXCLUDE]
-
-                  for dirname in dirnames[:]:  # Create a copy to avoid modifying during iteration
-                      if dirname in VENV_DIRS:
-                          venv_path = os.path.join(dirpath, dirname)
-                          logger.info(f"Removing virtual environment directory: {venv_path}")
-                          try:
-                              shutil.rmtree(venv_path)
-                              removed_dirs.append(venv_path)
-                              dirnames.remove(dirname)  # Remove from list to avoid descending into it
-                          except Exception as e:
-                              logger.error(f"Error removing {venv_path}: {e}")
-
-              return removed_dirs
-
-          def main() -> None:
-              """Main function."""
-              # Get the directory to scan
-              if len(sys.argv) > 1:
-                  root_dir = sys.argv[1]
-              else:
-                  root_dir = "."
-
-              logger.info(f"Scanning directory: {root_dir}")
-
-              # Remove virtual environment directories
-              removed_dirs = remove_venv_dirs(root_dir)
-              logger.info(f"Removed {len(removed_dirs)} virtual environment directories")
-
-          if __name__ == "__main__":
-              main()
-          EOL
-          chmod +x fix_codeql_issues.py
-
-      # Run fix_codeql_issues.py script
-      - name: Run fix_codeql_issues.py script
+      # Run fix-codeql-issues.sh script
+      - name: Run fix-codeql-issues.sh script
         run: |
-          python fix_codeql_issues.py
+          ./scripts/fix-codeql-issues.sh
 
       # Clean up node_modules directories
       - name: Clean up node_modules directories

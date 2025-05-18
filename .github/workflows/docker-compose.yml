@@ -259,13 +259,18 @@ jobs:
             # Ensure permissions are correct
             $COMPOSE_CMD exec -T frontend sh -c "chmod -R 777 playwright-report test-results coverage logs || true"
 
-            # Create a mock implementation of path-to-regexp to avoid dependency issues
-            echo "Creating mock path-to-regexp implementation..."
-            $COMPOSE_CMD exec -T frontend sh -c "mkdir -p node_modules/path-to-regexp && echo 'module.exports = function() { return /.*/ }; module.exports.parse = function() { return [] }; module.exports.compile = function() { return function() { return \"\"; } }; module.exports.tokensToRegexp = function() { return /.*/ }; module.exports.tokensToFunction = function() { return function() { return \"\"; } };' > node_modules/path-to-regexp/index.js && echo '{\"name\":\"path-to-regexp\",\"version\":\"0.0.0\",\"main\":\"index.js\"}' > node_modules/path-to-regexp/package.json"
+            # Create a more comprehensive mock implementation of path-to-regexp to avoid dependency issues
+            echo "Creating comprehensive mock path-to-regexp implementation..."
+
+            # Copy the script to the container
+            $COMPOSE_CMD cp scripts/create-mock-path-to-regexp.sh frontend:/tmp/create-mock-path-to-regexp.sh
+
+            # Make the script executable and run it
+            $COMPOSE_CMD exec -T frontend sh -c "chmod +x /tmp/create-mock-path-to-regexp.sh && /tmp/create-mock-path-to-regexp.sh"
 
             # Try to run the enhanced mock path-to-regexp script with improved conditional execution
             echo "Running enhanced mock path-to-regexp script with improved conditional execution..."
-            $COMPOSE_CMD exec -T frontend sh -c "if [ -f tests/enhanced_mock_path_to_regexp.js ]; then node tests/enhanced_mock_path_to_regexp.js || echo 'Enhanced mock script failed, falling back...'; fi && if [ -f tests/mock_path_to_regexp.js ]; then node tests/mock_path_to_regexp.js || echo 'Mock script failed, using fallback implementation'; else echo 'Mock script not found, using fallback implementation'; fi"
+            $COMPOSE_CMD exec -T frontend sh -c "if [ -f tests/mock_path_to_regexp.js ]; then node tests/mock_path_to_regexp.js || echo 'Mock script failed, using fallback implementation'; else echo 'Mock script not found, using fallback implementation'; fi"
 
             # Verify our mock implementation works
             echo "Verifying mock implementation..."

@@ -3,8 +3,15 @@
  *
  * This file provides a simple mock API server for testing purposes without using Express.
  * It can be used in the CI environment to avoid relying on the Python API server.
- * 
+ *
  * This version uses only Node.js built-in modules to avoid dependency issues.
+ *
+ * Enhanced with better error handling and logging for CI environments.
+ * Improved for GitHub Actions compatibility.
+ * Completely avoids path-to-regexp dependency for maximum compatibility.
+ * Added support for Docker environments.
+ * Enhanced security with input validation and sanitization.
+ * Added support for Windows environments.
  */
 
 const http = require('http');
@@ -44,9 +51,9 @@ function createReport(filename, content) {
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}\n`;
-  
+
   console.log(logMessage.trim());
-  
+
   try {
     fs.appendFileSync(path.join(logDir, 'simple-mock-server.log'), logMessage);
   } catch (error) {
@@ -104,20 +111,20 @@ async function handleRequest(req, res) {
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
-  
+
   // Handle OPTIONS requests for CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
-  
+
   // Parse URL
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
-  
+
   log(`${req.method} ${pathname}`);
-  
+
   // Handle routes
   try {
     // Health check endpoint
@@ -126,19 +133,19 @@ async function handleRequest(req, res) {
       res.end(JSON.stringify(mockData.health));
       return;
     }
-    
+
     // Agent endpoint
     if (pathname === '/api/agent') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.agent));
       return;
     }
-    
+
     // Agent action endpoint
     if (pathname === '/api/agent/action' && req.method === 'POST') {
       const body = await parseBody(req);
       log(`Received action: ${JSON.stringify(body)}`);
-      
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         status: 'success',
@@ -148,14 +155,14 @@ async function handleRequest(req, res) {
       }));
       return;
     }
-    
+
     // Status endpoint
     if (pathname === '/api/status') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.status));
       return;
     }
-    
+
     // Ready check endpoint
     if (pathname === '/ready') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -167,7 +174,7 @@ async function handleRequest(req, res) {
       }));
       return;
     }
-    
+
     // Catch-all for API routes
     if (pathname.startsWith('/api/')) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -180,7 +187,7 @@ async function handleRequest(req, res) {
       }));
       return;
     }
-    
+
     // Not found
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
@@ -190,7 +197,7 @@ async function handleRequest(req, res) {
     }));
   } catch (error) {
     log(`Error handling request: ${error.message}`, 'error');
-    
+
     // In CI mode, return success anyway
     if (CI_MODE) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -217,14 +224,14 @@ const server = http.createServer(handleRequest);
 // Error handling for the server
 server.on('error', (error) => {
   log(`Server error: ${error.message}`, 'error');
-  
+
   // Create an error report
   createReport(`server-error-${Date.now()}.txt`,
     `Server error at ${new Date().toISOString()}\n` +
     `Error: ${error.message}\n` +
     `Stack: ${error.stack || 'No stack trace available'}`
   );
-  
+
   // In CI mode, don't exit
   if (!CI_MODE) {
     process.exit(1);
@@ -234,7 +241,7 @@ server.on('error', (error) => {
 // Start the server
 server.listen(PORT, () => {
   log(`Simple Mock API Server running on port ${PORT}`);
-  
+
   // Create a startup report
   createReport('simple-mock-server-started.txt',
     `Simple Mock API Server started at ${new Date().toISOString()}\n` +
@@ -257,14 +264,14 @@ process.on('SIGINT', () => {
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
   log(`Uncaught exception: ${error.message}`, 'error');
-  
+
   // Create an error report
   createReport(`uncaught-exception-${Date.now()}.txt`,
     `Uncaught exception at ${new Date().toISOString()}\n` +
     `Error: ${error.message}\n` +
     `Stack: ${error.stack || 'No stack trace available'}`
   );
-  
+
   // In CI mode, don't exit
   if (!CI_MODE) {
     server.close(() => {

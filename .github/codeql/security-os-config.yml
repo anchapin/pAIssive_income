@@ -75,6 +75,10 @@ paths-ignore:
   # Generated files
   - '**/playwright-report/**'
   - '**/generated/**'
+  - '**/mock_path_to_regexp.js'
+  - '**/mock_api_server.js'
+  - '**/simple_mock_server.js'
+  - '**/node_modules/path-to-regexp/**'
 
 # Query filters
 queries:

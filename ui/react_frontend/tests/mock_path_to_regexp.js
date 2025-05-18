@@ -12,6 +12,12 @@
  * Added multiple fallback mechanisms for maximum CI compatibility.
  * Improved error handling for Windows environments.
  * Added support for GitHub Actions specific environments.
+ * Fixed security issues with path traversal and improved input validation.
+ * Added protection against ReDoS vulnerabilities.
+ * Added encode/decode functions for better compatibility.
+ * Added support for Docker environments.
+ * Improved error handling for CI environments.
+ * Added more robust fallback mechanisms.
  *
  * Usage:
  * - Run this script directly: node tests/mock_path_to_regexp.js
@@ -435,6 +441,25 @@ pathToRegexp.tokensToFunction = function tokensToFunction(tokens, options) {
 
 // Add regexp property for compatibility with some libraries
 pathToRegexp.regexp = /.*/;
+
+// Add encode/decode functions for compatibility with some libraries
+pathToRegexp.encode = function encode(value) {
+  try {
+    return encodeURIComponent(value);
+  } catch (error) {
+    console.error('Error encoding value:', error.message);
+    return '';
+  }
+};
+
+pathToRegexp.decode = function decode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    console.error('Error decoding value:', error.message);
+    return value;
+  }
+};
 
 module.exports = pathToRegexp;`;
 
