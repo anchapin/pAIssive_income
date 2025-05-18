@@ -131,49 +131,98 @@ function makeRequest({ url, method = 'GET', data = null, headers = {} }) {
     let options;
 
     try {
-      const opts = new URL(url);
+      // Handle URL parsing more robustly
+      let opts;
+
+      // Check if URL is already a URL object
+      if (url instanceof URL) {
+        opts = url;
+      } else {
+        // Make sure URL has a protocol
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = 'http://' + url;
+        }
+
+        // Try to create a URL object
+        try {
+          opts = new URL(url);
+        } catch (innerError) {
+          // If that fails, try to parse it manually
+          console.error(`Error creating URL object for ${url}: ${innerError.message}`);
+
+          // Extract hostname and port from URL
+          const urlParts = url.split('/');
+          const hostPart = urlParts[2] || 'localhost:8000';
+          const hostPortParts = hostPart.split(':');
+          const hostname = hostPortParts[0] || 'localhost';
+          const port = parseInt(hostPortParts[1], 10) || 8000;
+
+          // Extract path from URL
+          const pathParts = urlParts.slice(3);
+          const path = '/' + pathParts.join('/');
+
+          // Create options manually
+          options = {
+            method,
+            hostname,
+            port,
+            path,
+            headers,
+          };
+
+          console.log(`Manually parsed URL ${url} to options:`, options);
+          throw new Error('Manual parsing used');
+        }
+      }
+
+      // Create options from URL object
       options = {
         method,
         hostname: opts.hostname,
-        port: opts.port,
+        port: opts.port || (opts.protocol === 'https:' ? 443 : 80),
         path: opts.pathname + (opts.search || ''),
         headers,
       };
 
       console.log(`Successfully parsed URL: ${url}`);
     } catch (urlError) {
-      console.error(`Error parsing URL ${url}: ${urlError.message}`);
-
-      // Log URL parsing error
-      safelyWriteFile(
-        path.join(logsDir, 'request-errors.log'),
-        `Error parsing URL ${url}: ${urlError.message}\n`,
-        true // Append mode
-      );
-
-      // For CI environments, use default values
-      if (process.env.CI === 'true') {
-        console.log('CI environment detected. Using default values for URL.');
-
-        // Extract port from URL if possible
-        let port = 8000;
-        const portMatch = url.match(/:(\d+)/);
-        if (portMatch && portMatch[1]) {
-          port = parseInt(portMatch[1], 10);
-        }
-
-        options = {
-          method,
-          hostname: 'localhost',
-          port: port,
-          path: '/health',
-          headers,
-        };
-
-        console.log(`Using default options: ${JSON.stringify(options)}`);
+      // If we already have options from manual parsing, continue
+      if (options) {
+        console.log(`Using manually parsed options for ${url}`);
       } else {
-        // In non-CI environment, reject the promise
-        return reject(new Error(`Invalid URL: ${url} - ${urlError.message}`));
+        console.error(`Error parsing URL ${url}: ${urlError.message}`);
+
+        // Log URL parsing error
+        safelyWriteFile(
+          path.join(logsDir, 'request-errors.log'),
+          `Error parsing URL ${url}: ${urlError.message}\n`,
+          true // Append mode
+        );
+
+        // For CI environments, use default values
+        if (process.env.CI === 'true') {
+          console.log('CI environment detected. Using default values for URL.');
+
+          // Extract port from URL if possible
+          let port = 8000;
+          const portMatch = url.match(/:(\d+)/);
+          if (portMatch && portMatch[1]) {
+            port = parseInt(portMatch[1], 10);
+          }
+
+          options = {
+            method,
+            hostname: 'localhost',
+            port: port,
+            path: '/health',
+            headers,
+          };
+
+          console.log(`Using default options: ${JSON.stringify(options)}`);
+        } else {
+          // In non-CI environment, reject the promise
+          return reject(new Error(`Invalid URL: ${url} - ${urlError.message}`));
+        }
       }
     }
 
@@ -245,20 +294,58 @@ async function waitForServerReady({ url, timeout = 30000, retryInterval = 500 })
   let protocol, hostname, pathname;
 
   try {
-    const urlObj = new URL(url);
-    protocol = urlObj.protocol;
-    hostname = urlObj.hostname;
-    pathname = urlObj.pathname;
+    // Make sure URL has a protocol
+    let urlToCheck = url;
+    if (!urlToCheck.startsWith('http://') && !urlToCheck.startsWith('https://')) {
+      urlToCheck = 'http://' + urlToCheck;
+    }
 
-    // Log successful URL parsing
-    safelyWriteFile(
-      path.join(logsDir, 'server-readiness-checks.log'),
-      `Successfully parsed URL: ${url}\n` +
-      `Protocol: ${protocol}\n` +
-      `Hostname: ${hostname}\n` +
-      `Pathname: ${pathname}\n`,
-      true // Append mode
-    );
+    try {
+      const urlObj = new URL(urlToCheck);
+      protocol = urlObj.protocol;
+      hostname = urlObj.hostname;
+      pathname = urlObj.pathname;
+
+      // Log successful URL parsing
+      safelyWriteFile(
+        path.join(logsDir, 'server-readiness-checks.log'),
+        `Successfully parsed URL: ${urlToCheck}\n` +
+        `Protocol: ${protocol}\n` +
+        `Hostname: ${hostname}\n` +
+        `Pathname: ${pathname}\n`,
+        true // Append mode
+      );
+    } catch (innerError) {
+      // If URL object creation fails, try manual parsing
+      console.error(`Error creating URL object for ${urlToCheck}: ${innerError.message}`);
+
+      // Try to parse manually
+      const urlParts = urlToCheck.split('/');
+      const hostPart = urlParts[2] || 'localhost:8000';
+      const hostPortParts = hostPart.split(':');
+      hostname = hostPortParts[0] || 'localhost';
+
+      // Extract protocol
+      protocol = urlParts[0] || 'http:';
+      if (!protocol.endsWith(':')) protocol += ':';
+
+      // Extract path
+      const pathParts = urlParts.slice(3);
+      pathname = '/' + pathParts.join('/');
+      if (pathname === '/') pathname = '/health';
+
+      console.log(`Manually parsed URL ${urlToCheck} to:`, { protocol, hostname, pathname });
+
+      // Log manual parsing
+      safelyWriteFile(
+        path.join(logsDir, 'server-readiness-checks.log'),
+        `Manually parsed URL: ${urlToCheck}\n` +
+        `Protocol: ${protocol}\n` +
+        `Hostname: ${hostname}\n` +
+        `Pathname: ${pathname}\n`,
+        true // Append mode
+      );
+    }
   } catch (urlError) {
     // Handle URL parsing error
     console.error(`Error parsing URL ${url}: ${urlError.message}`);
