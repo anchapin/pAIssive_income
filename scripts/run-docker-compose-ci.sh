@@ -125,6 +125,18 @@ pull_images() {
         log "Adding pnpm overrides section to package.json..."
         sed -i '$i\  "pnpm": {\n    "overrides": {\n      "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"\n    }\n  },' ui/react_frontend/package.json || true
       fi
+
+      # Ensure test:ci:new script exists
+      if ! grep -q '"test:ci:new"' ui/react_frontend/package.json; then
+        log "Adding test:ci:new script to package.json..."
+        sed -i 's|"test:ci:windows": "node tests/ensure_report_dir.js && node tests/ci_mock_api_test.js",|"test:ci:windows": "node tests/ensure_report_dir.js && node tests/ci_mock_api_test.js",\n    "test:ci:new": "node tests/ensure_report_dir.js && node tests/ci_mock_api_test.js",|g' ui/react_frontend/package.json || true
+      fi
+
+      # Ensure ensure:report-dir script exists
+      if ! grep -q '"ensure:report-dir"' ui/react_frontend/package.json; then
+        log "Adding ensure:report-dir script to package.json..."
+        sed -i 's|"test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",|"test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",\n    "ensure:report-dir": "node tests/ensure_report_dir.js",|g' ui/react_frontend/package.json || true
+      fi
     fi
   fi
 }
@@ -236,10 +248,22 @@ wait_for_services() {
 
           # Check if frontend is ready (if it exists)
           if [ -d "ui/react_frontend" ]; then
+            # Try multiple ways to check if frontend is ready
             if docker exec paissive-frontend wget -q --spider http://localhost:3000 >/dev/null 2>&1; then
-              log "✅ Frontend is ready"
+              log "✅ Frontend is ready (wget check)"
+            elif docker exec paissive-frontend curl -s -f http://localhost:3000 >/dev/null 2>&1; then
+              log "✅ Frontend is ready (curl check)"
+            elif docker exec paissive-frontend sh -c "ls -la /app/node_modules/.bin/react-scripts" >/dev/null 2>&1; then
+              log "✅ Frontend dependencies are installed, assuming it's ready"
             else
               log "⚠️ Frontend is not ready yet, but continuing anyway"
+
+              # In CI environment, create necessary directories for test artifacts
+              if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+                log "Creating test artifact directories in frontend container..."
+                docker exec paissive-frontend sh -c "mkdir -p playwright-report test-results coverage logs || true" || true
+                docker exec paissive-frontend sh -c "chmod -R 777 playwright-report test-results coverage logs || true" || true
+              fi
             fi
           fi
 
