@@ -54,7 +54,7 @@
 bandit-output.json
 bandit-results.json
 test-bandit-results.json
-!security-reports/bandit-results.json
+
 *.so
 *.spec
 *.swo
@@ -130,6 +130,8 @@ project_plan.json
 sarif-results/
 security-reports/
 !security-reports/.gitkeep
+!security-reports/bandit-results.json
+!security-reports/bandit-results-ini.json
 sdist/
 target/
 tasks.json

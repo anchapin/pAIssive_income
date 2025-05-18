@@ -50,7 +50,7 @@ def test_bandit_config():
         logger.warning("Error: Neither bandit.yaml nor .bandit found")
         # Create a minimal bandit.yaml file as a fallback
         try:
-            with open("bandit.yaml", "w") as f:
+            with Path("bandit.yaml").open("w") as f:
                 f.write("""# Minimal Bandit YAML configuration
 exclude_dirs:
   - tests
