@@ -84,7 +84,23 @@ EMPTY_SARIF = """{
 }"""
 
 # Compact version for error recovery
-COMPACT_SARIF = """{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}"""
+COMPACT_SARIF = """{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Bandit",
+          "informationUri": "https://github.com/PyCQA/bandit",
+          "version": "1.7.5",
+          "rules": []
+        }
+      },
+      "results": []
+    }
+  ]
+}"""
 
 
 def create_directory(path: Path) -> None:
@@ -108,8 +124,23 @@ def write_sarif_file(path: Path, content: str) -> None:
         content: The SARIF content to write
 
     """
-    with path.open("w") as f:
-        f.write(content)
+    # If the file has a .json extension, use json.dump for proper formatting
+    if path.suffix == '.json':
+        import json
+        try:
+            # Parse the content as JSON
+            json_content = json.loads(content)
+            # Write with proper indentation
+            with path.open("w") as f:
+                json.dump(json_content, f, indent=2)
+        except json.JSONDecodeError:
+            # Fallback to direct write if parsing fails
+            with path.open("w") as f:
+                f.write(content)
+    else:
+        # For non-JSON files, write directly
+        with path.open("w") as f:
+            f.write(content)
     logger.info("Generated SARIF file: %s", path)
 
 

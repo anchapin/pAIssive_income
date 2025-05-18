@@ -76,7 +76,28 @@ confidence: LOW
             ensure_security_reports_dir()
             try:
                 with Path("security-reports/bandit-results.json").open("w") as f:
-                    f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                    import json
+                    empty_results = {
+                        "errors": [],
+                        "generated_at": "2025-05-18T14:00:00Z",
+                        "metrics": {
+                            "_totals": {
+                                "CONFIDENCE.HIGH": 0,
+                                "CONFIDENCE.LOW": 0,
+                                "CONFIDENCE.MEDIUM": 0,
+                                "CONFIDENCE.UNDEFINED": 0,
+                                "SEVERITY.HIGH": 0,
+                                "SEVERITY.LOW": 0,
+                                "SEVERITY.MEDIUM": 0,
+                                "SEVERITY.UNDEFINED": 0,
+                                "loc": 0,
+                                "nosec": 0,
+                                "skipped_tests": 0
+                            }
+                        },
+                        "results": []
+                    }
+                    json.dump(empty_results, f, indent=2)
                 logger.info("Created empty JSON results file as fallback")
             except (PermissionError, OSError):
                 logger.exception("Failed to create empty JSON file")
@@ -146,7 +167,28 @@ def test_function():
                     logger.warning("JSON output file was not created. Creating empty file.")
                     ensure_security_reports_dir()
                     with Path("security-reports/bandit-results.json").open("w") as f:
-                        f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                        import json
+                        empty_results = {
+                            "errors": [],
+                            "generated_at": "2025-05-18T14:00:00Z",
+                            "metrics": {
+                                "_totals": {
+                                    "CONFIDENCE.HIGH": 0,
+                                    "CONFIDENCE.LOW": 0,
+                                    "CONFIDENCE.MEDIUM": 0,
+                                    "CONFIDENCE.UNDEFINED": 0,
+                                    "SEVERITY.HIGH": 0,
+                                    "SEVERITY.LOW": 0,
+                                    "SEVERITY.MEDIUM": 0,
+                                    "SEVERITY.UNDEFINED": 0,
+                                    "loc": 0,
+                                    "nosec": 0,
+                                    "skipped_tests": 0
+                                }
+                            },
+                            "results": []
+                        }
+                        json.dump(empty_results, f, indent=2)
                 else:
                     # Verify the JSON file is valid
                     try:
@@ -157,13 +199,55 @@ def test_function():
                     except (json.JSONDecodeError, OSError):
                         logger.warning("Invalid JSON file detected. Creating valid empty file.")
                         with Path("security-reports/bandit-results.json").open("w") as f:
-                            f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                            import json
+                            empty_results = {
+                                "errors": [],
+                                "generated_at": "2025-05-18T14:00:00Z",
+                                "metrics": {
+                                    "_totals": {
+                                        "CONFIDENCE.HIGH": 0,
+                                        "CONFIDENCE.LOW": 0,
+                                        "CONFIDENCE.MEDIUM": 0,
+                                        "CONFIDENCE.UNDEFINED": 0,
+                                        "SEVERITY.HIGH": 0,
+                                        "SEVERITY.LOW": 0,
+                                        "SEVERITY.MEDIUM": 0,
+                                        "SEVERITY.UNDEFINED": 0,
+                                        "loc": 0,
+                                        "nosec": 0,
+                                        "skipped_tests": 0
+                                    }
+                                },
+                                "results": []
+                            }
+                            json.dump(empty_results, f, indent=2)
             except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError):
                 logger.exception("Error running bandit with bandit.yaml")
                 # Create empty JSON file as fallback
                 ensure_security_reports_dir()
                 with Path("security-reports/bandit-results.json").open("w") as f:
-                    f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                    import json
+                    empty_results = {
+                        "errors": [],
+                        "generated_at": "2025-05-18T14:00:00Z",
+                        "metrics": {
+                            "_totals": {
+                                "CONFIDENCE.HIGH": 0,
+                                "CONFIDENCE.LOW": 0,
+                                "CONFIDENCE.MEDIUM": 0,
+                                "CONFIDENCE.UNDEFINED": 0,
+                                "SEVERITY.HIGH": 0,
+                                "SEVERITY.LOW": 0,
+                                "SEVERITY.MEDIUM": 0,
+                                "SEVERITY.UNDEFINED": 0,
+                                "loc": 0,
+                                "nosec": 0,
+                                "skipped_tests": 0
+                            }
+                        },
+                        "results": []
+                    }
+                    json.dump(empty_results, f, indent=2)
                 logger.info("Created empty JSON results file as fallback")
 
         # Test with .bandit if it exists
@@ -190,7 +274,28 @@ def test_function():
                     logger.warning("JSON output file was not created for .bandit. Creating empty file.")
                     ensure_security_reports_dir()
                     with Path("security-reports/bandit-results-ini.json").open("w") as f:
-                        f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                        import json
+                        empty_results = {
+                            "errors": [],
+                            "generated_at": "2025-05-18T14:00:00Z",
+                            "metrics": {
+                                "_totals": {
+                                    "CONFIDENCE.HIGH": 0,
+                                    "CONFIDENCE.LOW": 0,
+                                    "CONFIDENCE.MEDIUM": 0,
+                                    "CONFIDENCE.UNDEFINED": 0,
+                                    "SEVERITY.HIGH": 0,
+                                    "SEVERITY.LOW": 0,
+                                    "SEVERITY.MEDIUM": 0,
+                                    "SEVERITY.UNDEFINED": 0,
+                                    "loc": 0,
+                                    "nosec": 0,
+                                    "skipped_tests": 0
+                                }
+                            },
+                            "results": []
+                        }
+                        json.dump(empty_results, f, indent=2)
                 else:
                     # Verify the JSON file is valid
                     try:
@@ -201,13 +306,55 @@ def test_function():
                     except (json.JSONDecodeError, OSError):
                         logger.warning("Invalid JSON file detected for .bandit. Creating valid empty file.")
                         with Path("security-reports/bandit-results-ini.json").open("w") as f:
-                            f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                            import json
+                            empty_results = {
+                                "errors": [],
+                                "generated_at": "2025-05-18T14:00:00Z",
+                                "metrics": {
+                                    "_totals": {
+                                        "CONFIDENCE.HIGH": 0,
+                                        "CONFIDENCE.LOW": 0,
+                                        "CONFIDENCE.MEDIUM": 0,
+                                        "CONFIDENCE.UNDEFINED": 0,
+                                        "SEVERITY.HIGH": 0,
+                                        "SEVERITY.LOW": 0,
+                                        "SEVERITY.MEDIUM": 0,
+                                        "SEVERITY.UNDEFINED": 0,
+                                        "loc": 0,
+                                        "nosec": 0,
+                                        "skipped_tests": 0
+                                    }
+                                },
+                                "results": []
+                            }
+                            json.dump(empty_results, f, indent=2)
             except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError):
                 logger.exception("Error running bandit with .bandit")
                 # Create empty JSON file as fallback
                 ensure_security_reports_dir()
                 with Path("security-reports/bandit-results-ini.json").open("w") as f:
-                    f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                    import json
+                    empty_results = {
+                        "errors": [],
+                        "generated_at": "2025-05-18T14:00:00Z",
+                        "metrics": {
+                            "_totals": {
+                                "CONFIDENCE.HIGH": 0,
+                                "CONFIDENCE.LOW": 0,
+                                "CONFIDENCE.MEDIUM": 0,
+                                "CONFIDENCE.UNDEFINED": 0,
+                                "SEVERITY.HIGH": 0,
+                                "SEVERITY.LOW": 0,
+                                "SEVERITY.MEDIUM": 0,
+                                "SEVERITY.UNDEFINED": 0,
+                                "loc": 0,
+                                "nosec": 0,
+                                "skipped_tests": 0
+                            }
+                        },
+                        "results": []
+                    }
+                    json.dump(empty_results, f, indent=2)
                 logger.info("Created empty JSON results file as fallback for .bandit")
 
         # Clean up test file if it was created
@@ -233,7 +380,28 @@ def test_function():
                     except (json.JSONDecodeError, OSError):
                         logger.warning("Invalid bandit-results.json file detected. Creating valid empty file.")
                         with Path("security-reports/bandit-results.json").open("w") as f:
-                            f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                            import json
+                            empty_results = {
+                                "errors": [],
+                                "generated_at": "2025-05-18T14:00:00Z",
+                                "metrics": {
+                                    "_totals": {
+                                        "CONFIDENCE.HIGH": 0,
+                                        "CONFIDENCE.LOW": 0,
+                                        "CONFIDENCE.MEDIUM": 0,
+                                        "CONFIDENCE.UNDEFINED": 0,
+                                        "SEVERITY.HIGH": 0,
+                                        "SEVERITY.LOW": 0,
+                                        "SEVERITY.MEDIUM": 0,
+                                        "SEVERITY.UNDEFINED": 0,
+                                        "loc": 0,
+                                        "nosec": 0,
+                                        "skipped_tests": 0
+                                    }
+                                },
+                                "results": []
+                            }
+                            json.dump(empty_results, f, indent=2)
                         valid_files += 1
 
                 if Path("security-reports/bandit-results-ini.json").exists():
@@ -244,7 +412,28 @@ def test_function():
                     except (json.JSONDecodeError, OSError):
                         logger.warning("Invalid bandit-results-ini.json file detected. Creating valid empty file.")
                         with Path("security-reports/bandit-results-ini.json").open("w") as f:
-                            f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                            import json
+                            empty_results = {
+                                "errors": [],
+                                "generated_at": "2025-05-18T14:00:00Z",
+                                "metrics": {
+                                    "_totals": {
+                                        "CONFIDENCE.HIGH": 0,
+                                        "CONFIDENCE.LOW": 0,
+                                        "CONFIDENCE.MEDIUM": 0,
+                                        "CONFIDENCE.UNDEFINED": 0,
+                                        "SEVERITY.HIGH": 0,
+                                        "SEVERITY.LOW": 0,
+                                        "SEVERITY.MEDIUM": 0,
+                                        "SEVERITY.UNDEFINED": 0,
+                                        "loc": 0,
+                                        "nosec": 0,
+                                        "skipped_tests": 0
+                                    }
+                                },
+                                "results": []
+                            }
+                            json.dump(empty_results, f, indent=2)
                         valid_files += 1
 
                 if valid_files > 0:
@@ -255,7 +444,28 @@ def test_function():
         # Create empty JSON file as final fallback
         ensure_security_reports_dir()
         with Path("security-reports/bandit-results.json").open("w") as f:
-            f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+            import json
+            empty_results = {
+                "errors": [],
+                "generated_at": "2025-05-18T14:00:00Z",
+                "metrics": {
+                    "_totals": {
+                        "CONFIDENCE.HIGH": 0,
+                        "CONFIDENCE.LOW": 0,
+                        "CONFIDENCE.MEDIUM": 0,
+                        "CONFIDENCE.UNDEFINED": 0,
+                        "SEVERITY.HIGH": 0,
+                        "SEVERITY.LOW": 0,
+                        "SEVERITY.MEDIUM": 0,
+                        "SEVERITY.UNDEFINED": 0,
+                        "loc": 0,
+                        "nosec": 0,
+                        "skipped_tests": 0
+                    }
+                },
+                "results": []
+            }
+            json.dump(empty_results, f, indent=2)
         logger.info("Created empty JSON results file as final fallback")
     except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError):
         logger.exception("Error running bandit")
@@ -264,10 +474,52 @@ def test_function():
         try:
             # Create both JSON files to ensure we have valid output
             with Path("security-reports/bandit-results.json").open("w") as f:
-                f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                import json
+                empty_results = {
+                    "errors": [],
+                    "generated_at": "2025-05-18T14:00:00Z",
+                    "metrics": {
+                        "_totals": {
+                            "CONFIDENCE.HIGH": 0,
+                            "CONFIDENCE.LOW": 0,
+                            "CONFIDENCE.MEDIUM": 0,
+                            "CONFIDENCE.UNDEFINED": 0,
+                            "SEVERITY.HIGH": 0,
+                            "SEVERITY.LOW": 0,
+                            "SEVERITY.MEDIUM": 0,
+                            "SEVERITY.UNDEFINED": 0,
+                            "loc": 0,
+                            "nosec": 0,
+                            "skipped_tests": 0
+                        }
+                    },
+                    "results": []
+                }
+                json.dump(empty_results, f, indent=2)
 
             with Path("security-reports/bandit-results-ini.json").open("w") as f:
-                f.write('{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}')
+                import json
+                empty_results = {
+                    "errors": [],
+                    "generated_at": "2025-05-18T14:00:00Z",
+                    "metrics": {
+                        "_totals": {
+                            "CONFIDENCE.HIGH": 0,
+                            "CONFIDENCE.LOW": 0,
+                            "CONFIDENCE.MEDIUM": 0,
+                            "CONFIDENCE.UNDEFINED": 0,
+                            "SEVERITY.HIGH": 0,
+                            "SEVERITY.LOW": 0,
+                            "SEVERITY.MEDIUM": 0,
+                            "SEVERITY.UNDEFINED": 0,
+                            "loc": 0,
+                            "nosec": 0,
+                            "skipped_tests": 0
+                        }
+                    },
+                    "results": []
+                }
+                json.dump(empty_results, f, indent=2)
 
             logger.info("Created empty JSON results files as ultimate fallback")
         except (PermissionError, OSError):
@@ -340,16 +592,36 @@ if __name__ == "__main__":
                 reports_dir.mkdir(parents=True, exist_ok=True)
 
             # Create both JSON files to ensure we have valid output
-            empty_json_content = '{"errors": [], "generated_at": "2025-05-18T14:00:00Z", "metrics": {"_totals": {"CONFIDENCE.HIGH": 0, "CONFIDENCE.LOW": 0, "CONFIDENCE.MEDIUM": 0, "CONFIDENCE.UNDEFINED": 0, "SEVERITY.HIGH": 0, "SEVERITY.LOW": 0, "SEVERITY.MEDIUM": 0, "SEVERITY.UNDEFINED": 0, "loc": 0, "nosec": 0, "skipped_tests": 0}}, "results": []}'
+            import json
+            empty_results = {
+                "errors": [],
+                "generated_at": "2025-05-18T14:00:00Z",
+                "metrics": {
+                    "_totals": {
+                        "CONFIDENCE.HIGH": 0,
+                        "CONFIDENCE.LOW": 0,
+                        "CONFIDENCE.MEDIUM": 0,
+                        "CONFIDENCE.UNDEFINED": 0,
+                        "SEVERITY.HIGH": 0,
+                        "SEVERITY.LOW": 0,
+                        "SEVERITY.MEDIUM": 0,
+                        "SEVERITY.UNDEFINED": 0,
+                        "loc": 0,
+                        "nosec": 0,
+                        "skipped_tests": 0
+                    }
+                },
+                "results": []
+            }
 
             # Create bandit-results.json
             with (reports_dir / "bandit-results.json").open("w") as f:
-                f.write(empty_json_content)
+                json.dump(empty_results, f, indent=2)
             logger.info("Created empty JSON file at %s", reports_dir / "bandit-results.json")
 
             # Create bandit-results-ini.json
             with (reports_dir / "bandit-results-ini.json").open("w") as f:
-                f.write(empty_json_content)
+                json.dump(empty_results, f, indent=2)
             logger.info("Created empty JSON file at %s", reports_dir / "bandit-results-ini.json")
 
             sys.exit(0)  # Exit with success to allow the workflow to continue

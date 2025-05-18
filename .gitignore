@@ -49,8 +49,11 @@
 *.pot
 *.py[cod]
 *.sage.py
+# Exclude SARIF files except in security-reports directory
 *.sarif
 *.sarif.json
+!security-reports/*.sarif
+!security-reports/*.json
 *.so
 *.spec
 *.swo
@@ -123,7 +126,9 @@ pip-delete-this-directory.txt
 pip-log.txt
 profile_default/
 project_plan.json
+# Exclude sarif-results directory but keep security-reports
 sarif-results/
+!security-reports/
 sdist/
 target/
 tasks.json
