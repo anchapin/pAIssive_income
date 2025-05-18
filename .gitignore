@@ -54,6 +54,8 @@
 *.sarif.json
 !security-reports/*.sarif
 !security-reports/*.json
+!security-reports/bandit-results.json
+!security-reports/bandit-results-ini.json
 *.so
 *.spec
 *.swo

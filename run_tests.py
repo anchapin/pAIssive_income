@@ -10,7 +10,9 @@ This script counts the number of tests to be run and sets the appropriate number
 from __future__ import annotations
 
 import logging
+import os
 import os.path  # Used for os.path.normpath and os.sep
+import platform
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
 from pathlib import Path
@@ -156,19 +158,45 @@ def count_tests(validated_args: list[str]) -> int:
         return test_count
 
 
-def ensure_security_reports_dir() -> None:
+def ensure_security_reports_dir() -> Path:
     """
     Ensure the security-reports directory exists.
 
-    This is needed for bandit and other security tools to write their reports.
+    This function tries multiple approaches to create the directory:
+    1. Try to create in the current directory
+    2. If that fails, try to create in a temporary directory
+    3. Return the path to the directory that was successfully created
+
+    Returns:
+        Path: The path to the security-reports directory
     """
+    # First try the standard location
     reports_dir = Path("security-reports")
     if not reports_dir.exists():
         try:
             reports_dir.mkdir(parents=True, exist_ok=True)
-            logger.info("Created security-reports directory")
+            logger.info("Created security-reports directory at %s", reports_dir.absolute())
+            return reports_dir
         except (PermissionError, OSError) as e:
             logger.warning("Failed to create security-reports directory: %s", e)
+
+            # Try creating in a temporary directory as fallback
+            try:
+                import tempfile
+                temp_dir = Path(tempfile.mkdtemp())
+                reports_dir = temp_dir / "security-reports"
+                reports_dir.mkdir(parents=True, exist_ok=True)
+                logger.info("Created security-reports directory in temporary location: %s", reports_dir.absolute())
+                return reports_dir
+            except (PermissionError, OSError) as e:
+                logger.error("Failed to create security-reports directory in temporary location: %s", e)
+                # Last resort - use the current directory
+                reports_dir = Path(".")
+                logger.warning("Using current directory as fallback for security reports")
+                return reports_dir
+    else:
+        logger.info("Security-reports directory already exists at %s", reports_dir.absolute())
+        return reports_dir
 
 
 def check_venv_exists() -> bool:
@@ -212,7 +240,16 @@ def main() -> None:
         logger.warning("Failed to install pytest-xdist. Will run tests without parallelization.")
 
     # Ensure security-reports directory exists
-    ensure_security_reports_dir()
+    reports_dir = ensure_security_reports_dir()
+
+    # Run security reports validation
+    try:
+        import test_security_reports
+        test_security_reports.ensure_valid_security_reports()
+    except ImportError:
+        logger.warning("test_security_reports.py not found, skipping security reports validation")
+    except Exception as e:
+        logger.warning("Error validating security reports: %s", e)
 
     # Validate command line arguments
     validated_args = validate_args(sys.argv[1:])
