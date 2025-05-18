@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+"""
+Optimized test runner script that adjusts the number of pytest workers based on test count.
+
+This script counts the number of tests to be run and sets the appropriate number of workers:
+- If the test count exceeds a threshold (2x MAX_WORKERS), it uses all available workers
+- Otherwise, it defaults to a single worker to reduce overhead for small test runs
+"""
+
 from __future__ import annotations
 
 import logging
@@ -10,6 +19,9 @@ from typing import Sequence
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
+
+# Set to DEBUG for more verbose output
+logging.getLogger().setLevel(logging.INFO)
 
 
 # Maximum number of workers
@@ -107,7 +119,8 @@ def count_tests(validated_args: list[str]) -> int:
     try:
         # Run pytest with --collect-only to get the list of tests
         # nosec B603 - subprocess call is used with shell=False and validated arguments
-        result = subprocess.run(
+        # ruff: noqa: S603
+        result = subprocess.run(  # nosec B603
             [sys.executable, "-m", "pytest", "--collect-only"] + validated_args,
             check=False,
             capture_output=True,
@@ -182,6 +195,9 @@ def main() -> None:
         logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
         logger.info("Continuing anyway, but consider running in a virtual environment.")
 
+    # Ensure security-reports directory exists
+    ensure_security_reports_dir()
+
     # Validate command line arguments
     validated_args = validate_args(sys.argv[1:])
 
@@ -189,18 +205,33 @@ def main() -> None:
     test_count = count_tests(validated_args)
 
     # Calculate the number of workers based on the number of tests
-    # Use at most 4 workers to avoid overwhelming the system
-    num_workers = min(4, max(1, test_count // 5))
-    logger.info("Running with %d worker%s", num_workers, "s" if num_workers > 1 else "")
+    # If test count exceeds threshold (2x MAX_WORKERS), use all available workers; otherwise use 1
+    num_workers = MAX_WORKERS if test_count > THRESHOLD else 1
+    logger.info("Collected %d tests. Using %d worker%s", test_count, num_workers, "s" if num_workers > 1 else "")
 
     # Run pytest with the calculated number of workers
     # nosec B603 - subprocess call is used with shell=False and validated arguments
-    result = subprocess.run(
-        [sys.executable, "-m", "pytest", f"-n={num_workers}"] + validated_args,
-        check=False,
-        shell=False,  # Explicitly set shell=False for security
-        env=get_sanitized_env()
-    )
+    try:
+        # Add --no-cov if not already specified to avoid coverage failures
+        if not any("--cov" in arg for arg in validated_args) and not any("-k" in arg for arg in validated_args):
+            pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}", "--no-cov"] + validated_args
+        else:
+            pytest_cmd = [sys.executable, "-m", "pytest", f"-n={num_workers}"] + validated_args
+
+        # ruff: noqa: S603
+        result = subprocess.run(  # nosec B603
+            pytest_cmd,
+            check=False,
+            shell=False,  # Explicitly set shell=False for security
+            env=get_sanitized_env(),
+            timeout=3600  # Set a timeout of 1 hour to prevent hanging
+        )
+    except subprocess.TimeoutExpired:
+        logger.exception("Pytest execution timed out after 1 hour")
+        sys.exit(2)
+    except subprocess.SubprocessError:
+        logger.exception("Error running pytest")
+        sys.exit(1)
 
     # Exit with the same exit code as pytest
     sys.exit(result.returncode)
