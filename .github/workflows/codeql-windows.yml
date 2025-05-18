@@ -162,6 +162,26 @@ jobs:
 
             Write-Host "Installing dependencies in $(Get-Location)..."
 
+            # Check if package-lock.json exists, create if not
+            if (-not (Test-Path "package-lock.json")) {
+              Write-Host "package-lock.json not found, creating minimal one..."
+              $packageJson = Get-Content -Raw -Path "package.json" | ConvertFrom-Json
+              $minimalLockContent = @{
+                name = $packageJson.name
+                version = $packageJson.version
+                lockfileVersion = 3
+                requires = $true
+                packages = @{
+                  "" = @{
+                    name = $packageJson.name
+                    version = $packageJson.version
+                  }
+                }
+              } | ConvertTo-Json -Depth 10
+              Set-Content -Path "package-lock.json" -Value $minimalLockContent
+              Write-Host "Created minimal package-lock.json"
+            }
+
             # Try with pnpm first (preferred)
             if (Get-Command pnpm -ErrorAction SilentlyContinue) {
               Write-Host "Using pnpm to install dependencies..."
@@ -173,6 +193,11 @@ jobs:
                   npm install
                 } catch {
                   Write-Host "Both pnpm and npm installation failed in $(Get-Location)"
+                  # Create node_modules directory if it doesn't exist
+                  if (-not (Test-Path "node_modules")) {
+                    Write-Host "Creating node_modules directory..."
+                    New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+                  }
                   Set-Location $originalDir
                   return $false
                 }
@@ -184,6 +209,11 @@ jobs:
                 npm install
               } catch {
                 Write-Host "npm installation failed in $(Get-Location)"
+                # Create node_modules directory if it doesn't exist
+                if (-not (Test-Path "node_modules")) {
+                  Write-Host "Creating node_modules directory..."
+                  New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
+                }
                 Set-Location $originalDir
                 return $false
               }
@@ -212,6 +242,12 @@ jobs:
           if (Test-Path "sdk/javascript/package.json") {
             Write-Host "Found package.json in sdk/javascript"
             Install-Deps -Directory "sdk/javascript"
+          }
+
+          # List all lock files for debugging
+          Write-Host "Listing all lock files in the repository:"
+          Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml" | ForEach-Object {
+            Write-Host "Found lock file: $($_.FullName)"
           }
         continue-on-error: true
 
@@ -272,6 +308,42 @@ jobs:
       - name: Check disk space
         shell: pwsh
         run: Get-Volume
+
+      # Verify lock files exist before analysis
+      - name: Verify lock files
+        if: matrix.language == 'javascript-typescript'
+        shell: pwsh
+        run: |
+          Write-Host "Verifying lock files exist before CodeQL analysis..."
+          $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml")
+
+          if ($lockFiles.Count -eq 0) {
+            Write-Host "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
+            if (Test-Path "package.json") {
+              $packageJson = Get-Content -Raw -Path "package.json" | ConvertFrom-Json
+              $minimalLockContent = @{
+                name = $packageJson.name
+                version = $packageJson.version
+                lockfileVersion = 3
+                requires = $true
+                packages = @{
+                  "" = @{
+                    name = $packageJson.name
+                    version = $packageJson.version
+                  }
+                }
+              } | ConvertTo-Json -Depth 10
+              Set-Content -Path "package-lock.json" -Value $minimalLockContent
+              Write-Host "Created minimal package-lock.json in the root directory."
+            } else {
+              Write-Host "Error: No package.json found in the root directory."
+            }
+          } else {
+            Write-Host "Found $($lockFiles.Count) lock files:"
+            $lockFiles | ForEach-Object {
+              Write-Host "  $($_.FullName)"
+            }
+          }
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

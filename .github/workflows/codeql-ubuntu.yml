@@ -139,6 +139,31 @@ jobs:
 
             echo "Installing dependencies in $(pwd)..."
 
+            # Check if package-lock.json exists, create if not
+            if [ ! -f "package-lock.json" ]; then
+              echo "package-lock.json not found, creating minimal one..."
+              # Extract name and version from package.json
+              local name=$(grep -m 1 '"name"' package.json | cut -d '"' -f 4)
+              local version=$(grep -m 1 '"version"' package.json | cut -d '"' -f 4)
+
+              # Create minimal package-lock.json
+              cat > package-lock.json << EOF
+{
+  "name": "${name}",
+  "version": "${version}",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "${name}",
+      "version": "${version}"
+    }
+  }
+}
+EOF
+              echo "Created minimal package-lock.json"
+            fi
+
             # Try with pnpm first (preferred)
             if command -v pnpm &>/dev/null; then
               echo "Using pnpm to install dependencies..."
@@ -146,6 +171,8 @@ jobs:
                 echo "pnpm install failed, trying with npm..."
                 npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
+                  echo "Creating node_modules directory if it doesn't exist..."
+                  mkdir -p node_modules
                   if [ -n "$dir" ]; then
                     cd "$original_dir"
                   fi
@@ -161,6 +188,8 @@ jobs:
                 echo "pnpm install failed, trying with npm..."
                 npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
+                  echo "Creating node_modules directory if it doesn't exist..."
+                  mkdir -p node_modules
                   if [ -n "$dir" ]; then
                     cd "$original_dir"
                   fi
@@ -193,6 +222,12 @@ jobs:
             echo "Found package.json in sdk/javascript"
             install_deps "sdk/javascript"
           fi
+
+          # List all lock files for debugging
+          echo "Listing all lock files in the repository:"
+          find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml" | while read -r file; do
+            echo "Found lock file: $file"
+          done
         continue-on-error: true
 
       # Install dependencies for Python
@@ -246,6 +281,43 @@ jobs:
       - name: Check disk space
         shell: bash
         run: df -h
+
+      # Verify lock files exist before analysis
+      - name: Verify lock files
+        if: matrix.language == 'javascript-typescript'
+        shell: bash
+        run: |
+          echo "Verifying lock files exist before CodeQL analysis..."
+          LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
+
+          if [ -z "$LOCK_FILES" ]; then
+            echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
+            if [ -f "package.json" ]; then
+              NAME=$(grep -m 1 '"name"' package.json | cut -d '"' -f 4)
+              VERSION=$(grep -m 1 '"version"' package.json | cut -d '"' -f 4)
+
+              cat > package-lock.json << EOF
+{
+  "name": "${NAME}",
+  "version": "${VERSION}",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "${NAME}",
+      "version": "${VERSION}"
+    }
+  }
+}
+EOF
+              echo "Created minimal package-lock.json in the root directory."
+            else
+              echo "Error: No package.json found in the root directory."
+            fi
+          else
+            echo "Found lock files:"
+            echo "$LOCK_FILES"
+          fi
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

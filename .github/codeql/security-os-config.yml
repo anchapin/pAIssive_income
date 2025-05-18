@@ -14,7 +14,7 @@ paths:
   - '**/*.tsx'
   - '**/*.json'
   - '**/*.html'
-  
+
   # Python paths
   - '**/*.py'
   - '**/*.pyw'
@@ -24,9 +24,10 @@ paths:
 paths-ignore:
   # Package management
   - '**/node_modules/**'
-  - '**/package-lock.json'
-  - '**/yarn.lock'
-  - '**/pnpm-lock.yaml'
+  # Don't ignore lock files for CodeQL analysis
+  # - '**/package-lock.json'
+  # - '**/yarn.lock'
+  # - '**/pnpm-lock.yaml'
   - '**/.venv/**'
   - '**/venv/**'
   - '**/env/**'
