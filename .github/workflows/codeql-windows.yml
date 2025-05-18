@@ -337,6 +337,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          debug: true
           config-file: .github/codeql/security-os-config.yml
 
       # Autobuild attempts to build any compiled languages
@@ -348,93 +349,31 @@ jobs:
         shell: pwsh
         run: Get-Volume
 
-      # Verify lock files exist before analysis
-      - name: Verify lock files
+      # Create a simple package-lock.json if none exists
+      - name: Create package-lock.json if needed
         if: matrix.language == 'javascript-typescript'
         shell: pwsh
         run: |
-          Write-Host "Verifying lock files exist before CodeQL analysis..."
+          Write-Host "Checking for lock files before CodeQL analysis..."
           $lockFiles = @(Get-ChildItem -Path . -Recurse -Include "package-lock.json","yarn.lock","pnpm-lock.yaml")
 
           if ($lockFiles.Count -eq 0) {
-            Write-Host "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
-            if (Test-Path "package.json") {
-              $packageJson = Get-Content -Raw -Path "package.json" | ConvertFrom-Json
-
-              # Create a more robust minimal package-lock.json
-              $minimalLockContent = @"
-{
-  "name": "$($packageJson.name)",
-  "version": "$($packageJson.version)",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "$($packageJson.name)",
-      "version": "$($packageJson.version)",
-      "license": "$($packageJson.license)",
-      "dependencies": {
-        "@mui/icons-material": "^7.1.0",
-        "@mui/material": "^7.1.0",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
-        "react-router-dom": "^7.5.3",
-        "recharts": "^2.12.0"
-      },
-      "devDependencies": {
-        "@babel/core": "^7.27.1",
-        "@babel/preset-env": "^7.26.9",
-        "@babel/preset-react": "^7.26.3",
-        "babel-loader": "^10.0.0",
-        "css-loader": "^7.1.2",
-        "html-webpack-plugin": "^5.6.3",
-        "style-loader": "^4.0.0",
-        "webpack": "^5.99.8",
-        "webpack-cli": "^6.0.1",
-        "webpack-dev-server": "^5.2.1"
-      }
-    }
-  }
-}
-"@
-              Set-Content -Path "package-lock.json" -Value $minimalLockContent -Encoding UTF8
-              Write-Host "Created minimal package-lock.json in the root directory."
-
-              # Verify the file was created correctly
-              if (Test-Path "package-lock.json") {
-                $fileContent = Get-Content -Path "package-lock.json" -Raw
-                Write-Host "package-lock.json created with size: $($fileContent.Length) bytes"
-
-                # Validate JSON format
-                try {
-                  $null = $fileContent | ConvertFrom-Json
-                  Write-Host "package-lock.json is valid JSON"
-                } catch {
-                  Write-Host "Warning: package-lock.json is not valid JSON: $_"
-                  # Try to fix it by writing a simpler version
-                  $simpleContent = @"
-{
-  "name": "$($packageJson.name)",
-  "version": "$($packageJson.version)",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "$($packageJson.name)",
-      "version": "$($packageJson.version)"
-    }
-  }
-}
-"@
-                  Set-Content -Path "package-lock.json" -Value $simpleContent -Encoding UTF8
-                  Write-Host "Created simplified package-lock.json as fallback"
+            Write-Host "No lock files found. Creating a minimal package-lock.json..."
+            $json = @{
+              name = "paissive-income"
+              version = "1.0.0"
+              lockfileVersion = 3
+              requires = $true
+              packages = @{
+                "" = @{
+                  name = "paissive-income"
+                  version = "1.0.0"
                 }
-              } else {
-                Write-Host "Error: Failed to create package-lock.json"
               }
-            } else {
-              Write-Host "Error: No package.json found in the root directory."
             }
+            $jsonContent = ConvertTo-Json -Depth 10 $json
+            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
+            Write-Host "Created minimal package-lock.json file"
           } else {
             Write-Host "Found $($lockFiles.Count) lock files:"
             $lockFiles | ForEach-Object {
