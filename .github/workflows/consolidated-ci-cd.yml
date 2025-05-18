@@ -403,7 +403,6 @@ sys.exit(0)
           } catch {
             Write-Host "Bandit scan failed, but continuing: $_"
           }
-          }
 
           # Ensure the SARIF file exists
           if (-not (Test-Path "security-reports/bandit-results.sarif")) {
