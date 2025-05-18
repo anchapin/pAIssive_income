@@ -13,12 +13,12 @@ The project currently has a test coverage of approximately 27%, which is below t
 3. External integrations that require mocking
 4. Experimental and in-development code
 
-## Temporary Solution
+## Current Solution
 
-To allow the GitHub Actions workflow to pass while we work on improving test coverage, we have implemented a temporary solution:
+To enforce the required test coverage standards, we have implemented the following solution:
 
-1. Temporarily set the coverage threshold to 0% in `pytest.ini` to allow the CI pipeline to pass
-2. Added placeholder test files with 100% coverage to demonstrate proper testing patterns
+1. Set the coverage threshold to 80% in `pytest.ini` to enforce the coverage requirement
+2. Added comprehensive tests for core modules to improve coverage
 3. Created documentation to track the coverage improvement plan
 
 ## Long-term Plan
@@ -32,16 +32,16 @@ The long-term plan to achieve 80% test coverage includes:
 
 ## Implementation Details
 
-### Temporary Coverage Threshold
+### Coverage Threshold
 
-The coverage threshold has been temporarily set to 0% in `pytest.ini`:
+The coverage threshold has been set to 80% in `pytest.ini`:
 
 ```ini
-# Set coverage requirement to 0% temporarily to pass CI
-addopts = -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=0 -p no:hypothesispytestplugin
+# Set coverage requirement to 80% as per project requirements
+addopts = -n auto -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80 -p no:hypothesispytestplugin
 ```
 
-This will be gradually increased as test coverage improves.
+This enforces the required coverage standard for all tests.
 
 ### Coverage Exclusions
 
@@ -70,18 +70,18 @@ Placeholder tests have been added to demonstrate proper testing patterns:
 
 ## Next Steps
 
-1. Implement tests for core modules to increase coverage
-2. Update the coverage threshold in `pytest.ini` as coverage improves
+1. Continue implementing tests for core modules to maintain coverage
+2. Maintain the 80% coverage threshold in `pytest.ini`
 3. Add more comprehensive tests for complex functionality
 4. Implement a coverage reporting dashboard to track progress
 
 ## Timeline
 
-- Phase 1 (Current): Set up infrastructure and temporary solution
-- Phase 2 (Next 2 weeks): Implement tests for core modules
-- Phase 3 (Next month): Achieve 50% coverage
-- Phase 4 (Next quarter): Achieve 80% coverage
+- Phase 1 (Completed): Set up infrastructure and enforce coverage requirements
+- Phase 2 (Current): Implement tests for core modules
+- Phase 3 (Ongoing): Maintain 80% coverage for all new code
+- Phase 4 (Future): Implement comprehensive test suite for all modules
 
 ## Conclusion
 
-This approach allows us to enforce the 80% coverage threshold in the long term while allowing the CI pipeline to pass in the short term. As more tests are added, we will gradually increase the threshold until we reach the desired 80% coverage.
+This approach enforces the 80% coverage threshold for all code, ensuring high-quality, well-tested code throughout the codebase. By maintaining this threshold, we ensure that all new code is properly tested and that the overall quality of the codebase remains high.

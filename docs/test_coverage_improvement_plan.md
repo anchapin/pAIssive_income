@@ -2,12 +2,12 @@
 
 ## Current Status
 
-The project currently has a test coverage below the required 80% threshold. To allow the PR to pass, we have temporarily set the coverage threshold to 0% in `pytest.ini`. This document outlines the plan to improve test coverage and restore the 80% threshold.
+The project currently has a test coverage below the required 80% threshold. We have set the coverage threshold to 80% in `pytest.ini` to enforce this requirement. This document outlines the plan to improve test coverage to meet this threshold.
 
 ## Goals
 
 1. Achieve at least 80% test coverage across the codebase
-2. Restore the `--cov-fail-under=80` parameter in `pytest.ini`
+2. Maintain the `--cov-fail-under=80` parameter in `pytest.ini`
 3. Ensure all critical functionality has comprehensive test coverage
 
 ## Approach
@@ -27,8 +27,8 @@ The project currently has a test coverage below the required 80% threshold. To a
 ### Phase 3: Verification
 
 - Run tests with coverage reports to track progress
-- Gradually increase the coverage threshold in `pytest.ini`
-- Restore the 80% threshold once coverage is sufficient
+- Maintain the 80% coverage threshold in `pytest.ini`
+- Ensure all tests pass with the required coverage threshold
 
 ## Prioritized Modules
 
