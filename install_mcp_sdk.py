@@ -45,17 +45,28 @@ def _get_script_path() -> tuple[Path, bool]:
 
     # Check if the script exists
     if not script_path.exists():
-        logger.error("Script not found at %s", script_path)
-        return script_path, False
+        # Try alternative path with backslashes for Windows
+        script_path = Path(__file__).parent / "scripts\\setup\\install_mcp_sdk.py"
+        if not script_path.exists():
+            logger.error("Script not found at %s", script_path)
+            return script_path, False
 
     # Validate script_path to ensure it's not from untrusted input
     # Convert to absolute path and ensure it's within the expected directory
     abs_script_path = script_path.resolve()
-    expected_dir = (Path(__file__).parent / "scripts" / "setup").resolve()
-    logger.info("Absolute script path: %s", abs_script_path)
-    logger.info("Expected directory: %s", expected_dir)
 
-    if not str(abs_script_path).startswith(str(expected_dir)):
+    # Try both forward slash and backslash paths for Windows compatibility
+    expected_dir1 = (Path(__file__).parent / "scripts" / "setup").resolve()
+    expected_dir2 = (Path(__file__).parent / "scripts\\setup").resolve()
+
+    logger.info("Absolute script path: %s", abs_script_path)
+    logger.info("Expected directory 1: %s", expected_dir1)
+    logger.info("Expected directory 2: %s", expected_dir2)
+
+    if not (
+        str(abs_script_path).startswith(str(expected_dir1))
+        or str(abs_script_path).startswith(str(expected_dir2))
+    ):
         logger.error("Invalid script path: not in expected directory")
         return script_path, False
 

@@ -68,7 +68,7 @@ def _prepare_test_command() -> list[str]:
         "--no-header",
         "--no-summary",
         "tests/ai_models/adapters/test_mcp_adapter.py",
-        "tests/ai_models/test_mcp_import.py",  # Updated path
+        "tests/ai_models/test_mcp_import.py",
         "tests/test_mcp_top_level_import.py",
         "-k",
         "not test_mcp_server",
@@ -76,6 +76,17 @@ def _prepare_test_command() -> list[str]:
         "--noconftest",
         "--no-cov",  # Disable coverage to avoid issues with the coverage report
     ]
+
+    # Check if the test files exist, and if not, try alternative paths
+    for i, path in enumerate(cmd):
+        if path.startswith("tests/") and not Path(path).exists():
+            # Try alternative paths
+            alt_path = path.replace("tests/", "tests\\")
+            if Path(alt_path).exists():
+                cmd[i] = alt_path
+                logger.info("Using alternative path: %s", alt_path)
+            else:
+                logger.warning("Test file not found at %s or %s", path, alt_path)
 
     # Use absolute path for the executable when possible
     if shutil.which(sys.executable):
