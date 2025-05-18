@@ -54,7 +54,7 @@ class TestMathUtils:
 
     def test_divide_by_zero(self):
         """Test that divide raises ZeroDivisionError when dividing by zero."""
-        with pytest.raises(ZeroDivisionError):
+        with pytest.raises(ZeroDivisionError, match="Cannot divide by zero"):
             divide(5, 0)
 
     def test_average(self):
