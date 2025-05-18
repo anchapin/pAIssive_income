@@ -54,11 +54,23 @@ jobs:
           if ($lockFiles.Count -eq 0) {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create minimal package-lock.json content
-            $content = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}'
+            # Create minimal package-lock.json using PowerShell objects
+            $json = @{
+              name = "paissive-income"
+              version = "1.0.0"
+              lockfileVersion = 3
+              requires = $true
+              packages = @{
+                "" = @{
+                  name = "paissive-income"
+                  version = "1.0.0"
+                }
+              }
+            }
 
-            # Write to file
-            Set-Content -Path "package-lock.json" -Value $content -Encoding UTF8
+            # Convert to JSON and write to file
+            $jsonContent = ConvertTo-Json -Depth 10 $json
+            Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
             Write-Host "Created minimal package-lock.json file"
 

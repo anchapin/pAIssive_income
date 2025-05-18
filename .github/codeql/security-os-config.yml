@@ -95,6 +95,9 @@ paths-ignore:
 
 # Query filters
 queries:
+  # Include the standard security queries
+  - uses: security
+
   # Include the standard security and quality queries
   - uses: security-and-quality
 
