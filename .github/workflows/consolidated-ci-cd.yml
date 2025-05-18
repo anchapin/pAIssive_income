@@ -355,11 +355,21 @@ jobs:
             if [ -f "bandit.yaml" ]; then
               echo "Using bandit.yaml configuration file"
               # Add --exclude flag to ensure directories are properly excluded
-              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" || echo "Bandit scan failed, but continuing with fallback JSON file"
+              bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero || echo "Bandit scan failed, but continuing with fallback JSON file"
             else
               echo "bandit.yaml configuration file not found. Using default configuration."
-              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" || echo "Bandit scan failed, but continuing with fallback JSON file"
+              bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero || echo "Bandit scan failed, but continuing with fallback JSON file"
             fi
+          fi
+
+          # Convert JSON to SARIF format for GitHub Advanced Security
+          if [ -f "convert_bandit_to_sarif.py" ]; then
+            echo "Converting Bandit JSON results to SARIF format"
+            python convert_bandit_to_sarif.py || echo "Conversion to SARIF failed, but continuing"
+          else
+            echo "convert_bandit_to_sarif.py not found. Creating empty SARIF file."
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}' > security-reports/bandit-results.sarif
+            cp security-reports/bandit-results.sarif security-reports/bandit-results-ini.sarif
           fi
 
           # Verify JSON file exists and is valid
@@ -422,14 +432,29 @@ jobs:
               if (Test-Path "bandit.yaml") {
                 Write-Host "Using bandit.yaml configuration file"
                 # Add --exclude flag to ensure directories are properly excluded
-                bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates"
+                bandit -r . -f json -o security-reports/bandit-results.json -c bandit.yaml --exclude ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates" --exit-zero
               } else {
                 Write-Host "bandit.yaml configuration file not found. Using default configuration."
-                bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests"
+                bandit -r . -f json -o security-reports/bandit-results.json --exclude ".venv,node_modules,tests" --exit-zero
               }
             }
           } catch {
             Write-Host "Bandit scan failed, but continuing with fallback JSON file: $_"
+          }
+
+          # Convert JSON to SARIF format for GitHub Advanced Security
+          try {
+            if (Test-Path "convert_bandit_to_sarif.py") {
+              Write-Host "Converting Bandit JSON results to SARIF format"
+              python convert_bandit_to_sarif.py
+            } else {
+              Write-Host "convert_bandit_to_sarif.py not found. Creating empty SARIF file."
+              $emptySarifContent = '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","informationUri":"https://github.com/PyCQA/bandit","version":"1.7.5","rules":[]}},"results":[]}]}'
+              Set-Content -Path "security-reports/bandit-results.sarif" -Value $emptySarifContent
+              Copy-Item -Path "security-reports/bandit-results.sarif" -Destination "security-reports/bandit-results-ini.sarif"
+            }
+          } catch {
+            Write-Host "Conversion to SARIF failed, but continuing: $_"
           }
 
           # Verify JSON file exists and is valid

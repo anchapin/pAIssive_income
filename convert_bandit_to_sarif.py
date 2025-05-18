@@ -8,7 +8,13 @@ for GitHub Advanced Security.
 
 import json
 import os
+import shutil
+import logging
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 
 def convert_to_sarif(json_file, sarif_file):
@@ -41,27 +47,39 @@ def convert_to_sarif(json_file, sarif_file):
     # Check if the JSON file exists and has content
     json_path = Path(json_file)
     if not json_path.exists() or json_path.stat().st_size == 0:
-        print(f"JSON file {json_file} does not exist or is empty. Creating empty SARIF file.")
-        with open(sarif_file, 'w') as f:
-            json.dump(sarif, f)
-        return
+        logger.info(f"JSON file {json_file} does not exist or is empty. Creating empty SARIF file.")
+        try:
+            with open(sarif_file, 'w') as f:
+                json.dump(sarif, f)
+            return
+        except (OSError, PermissionError) as e:
+            logger.error(f"Failed to create SARIF file: {e}")
+            return
 
     # Read the Bandit JSON output
     try:
         with open(json_file, 'r') as f:
             bandit_data = json.load(f)
     except (json.JSONDecodeError, OSError) as e:
-        print(f"Error reading JSON file: {e}. Creating empty SARIF file.")
-        with open(sarif_file, 'w') as f:
-            json.dump(sarif, f)
-        return
+        logger.error(f"Error reading JSON file: {e}. Creating empty SARIF file.")
+        try:
+            with open(sarif_file, 'w') as f:
+                json.dump(sarif, f)
+            return
+        except (OSError, PermissionError) as e:
+            logger.error(f"Failed to create SARIF file: {e}")
+            return
 
     # Check if there are any results
     if not bandit_data.get('results'):
-        print("No results found in Bandit output. Creating empty SARIF file.")
-        with open(sarif_file, 'w') as f:
-            json.dump(sarif, f)
-        return
+        logger.info("No results found in Bandit output. Creating empty SARIF file.")
+        try:
+            with open(sarif_file, 'w') as f:
+                json.dump(sarif, f)
+            return
+        except (OSError, PermissionError) as e:
+            logger.error(f"Failed to create SARIF file: {e}")
+            return
 
     # Convert Bandit results to SARIF format
     rules = {}
@@ -69,7 +87,7 @@ def convert_to_sarif(json_file, sarif_file):
 
     for result in bandit_data.get('results', []):
         rule_id = f"B{result.get('test_id', '000')}"
-        
+
         # Add rule if not already added
         if rule_id not in rules:
             rules[rule_id] = {
@@ -85,7 +103,7 @@ def convert_to_sarif(json_file, sarif_file):
                     "tags": ["security", "python"]
                 }
             }
-        
+
         # Add result
         results.append({
             "ruleId": rule_id,
@@ -113,19 +131,41 @@ def convert_to_sarif(json_file, sarif_file):
     sarif['runs'][0]['results'] = results
 
     # Write SARIF file
-    with open(sarif_file, 'w') as f:
-        json.dump(sarif, f)
+    try:
+        with open(sarif_file, 'w') as f:
+            json.dump(sarif, f)
+        logger.info(f"Successfully converted {json_file} to {sarif_file}")
+    except (OSError, PermissionError) as e:
+        logger.error(f"Failed to write SARIF file: {e}")
 
-    print(f"Successfully converted {json_file} to {sarif_file}")
+
+def ensure_security_reports_dir() -> None:
+    """
+    Ensure the security-reports directory exists.
+
+    Creates the directory if it doesn't exist and logs the result.
+    """
+    reports_dir = Path("security-reports")
+    if not reports_dir.exists():
+        try:
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            logger.info("Created security-reports directory")
+        except (PermissionError, OSError) as e:
+            logger.error(f"Failed to create security-reports directory: {e}")
+            # Try to create in a temp location as fallback
+            try:
+                import tempfile
+                temp_dir = Path(tempfile.gettempdir()) / "security-reports"
+                temp_dir.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created security-reports directory in temp location: {temp_dir}")
+            except (PermissionError, OSError) as e:
+                logger.error(f"Failed to create security-reports directory in temp location: {e}")
 
 
 def main():
     """Main function."""
     # Ensure security-reports directory exists
-    reports_dir = Path("security-reports")
-    if not reports_dir.exists():
-        reports_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created security-reports directory")
+    ensure_security_reports_dir()
 
     # Convert Bandit JSON to SARIF
     json_file = "security-reports/bandit-results.json"
@@ -134,13 +174,17 @@ def main():
 
     # Also create bandit-results-ini.sarif for compatibility
     ini_sarif_file = "security-reports/bandit-results-ini.sarif"
-    if os.path.exists(sarif_file):
-        shutil.copy(sarif_file, ini_sarif_file)
-        print(f"Copied {sarif_file} to {ini_sarif_file}")
-    else:
+    try:
+        if os.path.exists(sarif_file):
+            shutil.copy(sarif_file, ini_sarif_file)
+            logger.info(f"Copied {sarif_file} to {ini_sarif_file}")
+        else:
+            convert_to_sarif(json_file, ini_sarif_file)
+    except (OSError, PermissionError) as e:
+        logger.error(f"Failed to create ini SARIF file: {e}")
+        # Try to convert directly as fallback
         convert_to_sarif(json_file, ini_sarif_file)
 
 
 if __name__ == "__main__":
-    import shutil
     main()
