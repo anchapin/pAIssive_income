@@ -2,6 +2,7 @@
 
 # This query suite contains Python-specific security queries
 # It focuses on high-impact security vulnerabilities
+# Updated for better Windows compatibility
 
 - description: Python Security Queries
 

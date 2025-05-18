@@ -59,13 +59,17 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create an extremely simple package-lock.json file
-            # Using the most minimal valid JSON possible to avoid any formatting issues
-            $jsonContent = '{}'
+            # Create a simple JSON object
+            $packageLock = @{
+              name = "paissive-income"
+              version = "1.0.0"
+              lockfileVersion = 3
+            }
 
+            # Convert to JSON and write to file
             try {
-              # Write the content to the file
-              [System.IO.File]::WriteAllText("$PWD\package-lock.json", $jsonContent, [System.Text.Encoding]::UTF8)
+              $jsonContent = ConvertTo-Json -InputObject $packageLock -Depth 1
+              Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
@@ -77,35 +81,18 @@ jobs:
             } catch {
               Write-Host "Error creating package-lock.json: $_"
 
-              # Fallback method using Out-File
+              # Fallback method - direct string
               try {
-                Write-Host "Trying fallback method with Out-File..."
-                "{}" | Out-File -FilePath "package-lock.json" -Encoding utf8
+                Write-Host "Trying fallback method with direct string..."
+                '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}' | Out-File -FilePath "package-lock.json" -Encoding utf8 -Force
 
                 if (Test-Path "package-lock.json") {
-                  Write-Host "Created package-lock.json with Out-File method"
-                } else {
-                  Write-Host "Failed to create package-lock.json with Out-File method"
+                  Write-Host "Created package-lock.json with fallback method"
+                  Get-Content -Path "package-lock.json"
                 }
               } catch {
-                Write-Host "Fallback method failed: $_"
-
-                # Last resort fallback
-                try {
-                  Write-Host "Trying last resort method..."
-                  Add-Content -Path "package-lock.json" -Value "{}" -Force
-                } catch {
-                  Write-Host "Last resort method failed: $_"
-                }
+                Write-Host "All methods failed to create package-lock.json: $_"
               }
-            }
-
-            # Final verification
-            if (Test-Path "package-lock.json") {
-              Write-Host "Verification: package-lock.json exists and contains:"
-              Get-Content -Path "package-lock.json"
-            } else {
-              Write-Host "CRITICAL ERROR: Failed to create package-lock.json after all attempts"
             }
           }
 
@@ -162,6 +149,7 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
+          # No custom config file to avoid Windows path issues
 
       # Verify environment before CodeQL analysis
       - name: Verify environment
@@ -190,25 +178,12 @@ jobs:
           }
 
           # Check for node_modules directory
-          if (Test-Path "node_modules") {
-            Write-Host "node_modules directory exists"
-          } else {
-            Write-Host "WARNING: node_modules directory not found, creating it..."
+          if (-not (Test-Path "node_modules")) {
+            Write-Host "Creating node_modules directory..."
             New-Item -ItemType Directory -Force -Path "node_modules" | Out-Null
           }
 
-          # Check for CodeQL configuration files
-          Write-Host "Checking for CodeQL configuration files (using standard queries)..."
-
-          # List all files in .github/codeql directory
-          Write-Host "All files in .github/codeql directory:"
-          if (Test-Path ".github/codeql") {
-            Get-ChildItem -Path ".github/codeql" -Recurse | ForEach-Object {
-              Write-Host "  $($_.FullName)"
-            }
-          } else {
-            Write-Host "  .github/codeql directory not found, but this is OK as we're using standard queries"
-          }
+          Write-Host "Environment verification complete. Using standard CodeQL queries."
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis

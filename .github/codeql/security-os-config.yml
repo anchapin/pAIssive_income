@@ -101,6 +101,8 @@ queries:
   - uses: security-and-quality
   - uses: security-extended
 
+  # No custom query paths to avoid Windows path issues
+
 # Disable noisy alerts
 disable-default-queries: false
 
