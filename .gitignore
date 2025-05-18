@@ -150,3 +150,5 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+package-lock.json
+sdk/javascript/package-lock.json
