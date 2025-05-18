@@ -51,6 +51,9 @@
 *.sage.py
 *.sarif
 *.sarif.json
+bandit-output.json
+bandit-results.json
+!security-reports/bandit-results.json
 *.so
 *.spec
 *.swo
