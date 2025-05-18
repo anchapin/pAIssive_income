@@ -11,6 +11,7 @@ import pytest
 
 # Local imports
 from ai_models.adapters.adapter_factory import (
+    AdapterFactory,
     MCPAdapterNotAvailableError,
     UnsupportedServerTypeError,
     get_adapter,
@@ -139,7 +140,9 @@ class TestAdapterFactory:
     def test_create_adapter_mcp_not_available(self):
         """Test creating an MCP adapter when not available."""
         # Setup
-        AdapterFactory._adapter_registry = {}
+        # We need to manually add 'mcp' to the registry but with None as the value
+        # to simulate the case where MCP is in the registry but not available
+        AdapterFactory._adapter_registry = {"mcp": None}
 
         # Execute and verify
         with pytest.raises(MCPAdapterNotAvailableError) as excinfo:
