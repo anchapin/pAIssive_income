@@ -17,6 +17,25 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Handle path-to-regexp error in CI environments
+try {
+  // This is a workaround for the path-to-regexp error in CI environments
+  // The error occurs when Express tries to load path-to-regexp dynamically
+  // By pre-loading it here, we avoid the dynamic loading error
+  require('path-to-regexp');
+  console.log('Successfully loaded path-to-regexp module');
+} catch (pathToRegexpError) {
+  console.log('path-to-regexp module not found, using fallback for CI compatibility');
+  // Create a mock path-to-regexp module in case it's not available
+  // This prevents errors in CI environments where the module might not be installed
+  global.pathToRegexp = {
+    parse: (path) => path.split('/').filter(Boolean),
+    compile: (path) => (params) => path,
+    tokensToFunction: () => (params) => '',
+    tokensToRegExp: () => /^.*$/,
+  };
+}
+
 // Log environment information
 console.log('Environment information:');
 console.log(`- Platform: ${process.platform}`);

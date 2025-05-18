@@ -409,11 +409,27 @@ test.describe('Simple Test', () => {
       // App logo, header, or branding should be visible
       let brandingFound = false;
       try {
-        const branding = await page.getByRole('banner').catch(() => null) ||
-                        await page.getByRole('heading', { level: 1 }).catch(() => null) ||
-                        await page.getByText(/dashboard|income|analysis|app/i, { timeout: 5000 }).catch(() => null);
-        brandingFound = branding !== null;
-        console.log(`Branding element found: ${brandingFound}`);
+        // Use locator count instead of catch for better error handling
+        const bannerLocator = page.getByRole('banner');
+        const headingLocator = page.getByRole('heading', { level: 1 });
+        const textLocator = page.getByText(/dashboard|income|analysis|app/i);
+
+        // Check if any of the locators exist
+        const bannerCount = await bannerLocator.count();
+        const headingCount = await headingLocator.count();
+        const textCount = await textLocator.count();
+
+        brandingFound = bannerCount > 0 || headingCount > 0 || textCount > 0;
+        console.log(`Branding element found: ${brandingFound} (banner: ${bannerCount}, heading: ${headingCount}, text: ${textCount})`);
+
+        // Create a detailed report about what was found
+        createReport('branding-detection-details.txt',
+          `Branding detection at ${new Date().toISOString()}\n` +
+          `Banner elements found: ${bannerCount}\n` +
+          `H1 heading elements found: ${headingCount}\n` +
+          `Text matches found: ${textCount}\n` +
+          `Overall branding found: ${brandingFound}\n`
+        );
       } catch (brandingError) {
         console.error(`Error finding branding: ${brandingError.message}`);
         createReport('branding-detection-error.txt',
@@ -426,9 +442,18 @@ test.describe('Simple Test', () => {
       // Accessibility: Main landmark is present
       let mainFound = false;
       try {
-        const main = await page.$('main, [role=main]');
-        mainFound = main !== null;
-        console.log(`Main landmark found: ${mainFound}`);
+        // Use locator count instead of $ for better error handling
+        const mainLocator = page.locator('main, [role=main]');
+        const mainCount = await mainLocator.count();
+        mainFound = mainCount > 0;
+        console.log(`Main landmark found: ${mainFound} (count: ${mainCount})`);
+
+        // Create a detailed report about what was found
+        createReport('main-landmark-detection-details.txt',
+          `Main landmark detection at ${new Date().toISOString()}\n` +
+          `Main elements found: ${mainCount}\n` +
+          `Overall main found: ${mainFound}\n`
+        );
       } catch (mainError) {
         console.error(`Error finding main landmark: ${mainError.message}`);
         createReport('main-landmark-detection-error.txt',
@@ -441,9 +466,18 @@ test.describe('Simple Test', () => {
       // Accessibility: H1 heading is present
       let h1Found = false;
       try {
-        const h1 = await page.$('h1');
-        h1Found = h1 !== null;
-        console.log(`H1 heading found: ${h1Found}`);
+        // Use locator count instead of $ for better error handling
+        const h1Locator = page.locator('h1');
+        const h1Count = await h1Locator.count();
+        h1Found = h1Count > 0;
+        console.log(`H1 heading found: ${h1Found} (count: ${h1Count})`);
+
+        // Create a detailed report about what was found
+        createReport('h1-detection-details.txt',
+          `H1 heading detection at ${new Date().toISOString()}\n` +
+          `H1 elements found: ${h1Count}\n` +
+          `Overall H1 found: ${h1Found}\n`
+        );
       } catch (h1Error) {
         console.error(`Error finding H1 heading: ${h1Error.message}`);
         createReport('h1-detection-error.txt',

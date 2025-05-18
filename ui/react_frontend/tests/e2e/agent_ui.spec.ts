@@ -14,32 +14,43 @@ if (!fs.existsSync(reportDir)) {
   console.log(`Created playwright-report directory at ${reportDir}`);
 }
 
-// Check if a server is running at the given URL
+// Check if a server is running at the given URL with improved error handling
 function isServerRunning(url, timeout = 5000) {
   return new Promise((resolve) => {
-    const parsedUrl = new URL(url);
-    const options = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
-      path: parsedUrl.pathname || '/',
-      method: 'HEAD',
-      timeout: timeout
-    };
+    try {
+      const parsedUrl = new URL(url);
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+        path: parsedUrl.pathname || '/',
+        method: 'HEAD',
+        timeout: timeout
+      };
 
-    const req = http.request(options, (res) => {
-      resolve(res.statusCode < 500); // Consider any non-500 response as "running"
-    });
+      // Log the request details for debugging
+      console.log(`Checking server at ${parsedUrl.hostname}:${options.port}${options.path}`);
 
-    req.on('error', () => {
-      resolve(false);
-    });
+      const req = http.request(options, (res) => {
+        console.log(`Server response: ${res.statusCode} ${res.statusMessage}`);
+        resolve(res.statusCode < 500); // Consider any non-500 response as "running"
+      });
 
-    req.on('timeout', () => {
-      req.destroy();
-      resolve(false);
-    });
+      req.on('error', (error) => {
+        console.log(`Server check error: ${error.message}`);
+        resolve(false);
+      });
 
-    req.end();
+      req.on('timeout', () => {
+        console.log(`Server check timed out after ${timeout}ms`);
+        req.destroy();
+        resolve(false);
+      });
+
+      req.end();
+    } catch (error) {
+      console.error(`Error in isServerRunning: ${error.message}`);
+      resolve(false); // Always resolve, never reject
+    }
   });
 }
 
@@ -64,34 +75,75 @@ async function takeScreenshot(page: any, filename: string) {
 }
 
 test.describe('AgentUI Integration Tests', () => {
-  // Run setup before all tests
+  // Run setup before all tests with improved error handling for CI environments
   test.beforeAll(async () => {
     // Check if servers are running and create status reports
     console.log('Checking server availability...');
 
-    // Check React app server
-    const reactServerRunning = await isServerRunning(BASE_URL);
-    console.log(`React server at ${BASE_URL} is ${reactServerRunning ? 'running' : 'not running'}`);
-    createReport('react-server-status.txt',
-      `React server at ${BASE_URL} is ${reactServerRunning ? 'running' : 'not running'}\nTimestamp: ${new Date().toISOString()}`);
+    try {
+      // Create a detailed environment report first
+      const envReport = {
+        timestamp: new Date().toISOString(),
+        node_env: process.env.NODE_ENV || 'not set',
+        react_app_api_base_url: process.env.REACT_APP_API_BASE_URL || 'not set',
+        react_app_base_url: process.env.REACT_APP_BASE_URL || 'not set',
+        ci: process.env.CI || 'not set',
+        base_url: BASE_URL,
+        api_url: API_URL,
+        platform: process.platform,
+        node_version: process.version,
+        cwd: process.cwd()
+      };
 
-    // Check API server
-    const apiServerRunning = await isServerRunning(`${API_URL}/health`);
-    console.log(`API server at ${API_URL} is ${apiServerRunning ? 'running' : 'not running'}`);
-    createReport('api-server-status.txt',
-      `API server at ${API_URL} is ${apiServerRunning ? 'running' : 'not running'}\nTimestamp: ${new Date().toISOString()}`);
+      console.log('Environment information:', JSON.stringify(envReport, null, 2));
+      createReport('environment-info.json', JSON.stringify(envReport, null, 2));
+      createReport('environment-info.txt',
+        Object.entries(envReport).map(([key, value]) => `${key}: ${value}`).join('\n'));
 
-    // Log environment information
-    console.log('Environment information:');
-    console.log(`- NODE_ENV: ${process.env.NODE_ENV}`);
-    console.log(`- REACT_APP_API_BASE_URL: ${process.env.REACT_APP_API_BASE_URL}`);
-    console.log(`- REACT_APP_BASE_URL: ${process.env.REACT_APP_BASE_URL}`);
+      // Check React app server with retry logic
+      let reactServerRunning = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Checking React server (attempt ${attempt}/3)...`);
+        reactServerRunning = await isServerRunning(BASE_URL, 10000); // Longer timeout
+        if (reactServerRunning) break;
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000)); // Wait before retry
+      }
 
-    createReport('environment-info.txt',
-      `NODE_ENV: ${process.env.NODE_ENV || 'not set'}\n` +
-      `REACT_APP_API_BASE_URL: ${process.env.REACT_APP_API_BASE_URL || 'not set'}\n` +
-      `REACT_APP_BASE_URL: ${process.env.REACT_APP_BASE_URL || 'not set'}\n` +
-      `Timestamp: ${new Date().toISOString()}`);
+      console.log(`React server at ${BASE_URL} is ${reactServerRunning ? 'running' : 'not running'}`);
+      createReport('react-server-status.txt',
+        `React server at ${BASE_URL} is ${reactServerRunning ? 'running' : 'not running'}\n` +
+        `Timestamp: ${new Date().toISOString()}\n` +
+        `CI environment: ${process.env.CI ? 'Yes' : 'No'}`);
+
+      // Check API server with retry logic
+      let apiServerRunning = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Checking API server (attempt ${attempt}/3)...`);
+        apiServerRunning = await isServerRunning(`${API_URL}/health`, 10000); // Longer timeout
+        if (apiServerRunning) break;
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000)); // Wait before retry
+      }
+
+      console.log(`API server at ${API_URL} is ${apiServerRunning ? 'running' : 'not running'}`);
+      createReport('api-server-status.txt',
+        `API server at ${API_URL} is ${apiServerRunning ? 'running' : 'not running'}\n` +
+        `Timestamp: ${new Date().toISOString()}\n` +
+        `CI environment: ${process.env.CI ? 'Yes' : 'No'}`);
+
+      // In CI environment, create a special marker file to indicate setup completed
+      if (process.env.CI === 'true' || process.env.CI === true) {
+        createReport('ci-setup-complete.txt',
+          `CI setup completed at ${new Date().toISOString()}\n` +
+          `React server: ${reactServerRunning ? 'running' : 'not running'}\n` +
+          `API server: ${apiServerRunning ? 'running' : 'not running'}`);
+      }
+    } catch (error) {
+      console.error(`Error in beforeAll hook: ${error.message}`);
+      createReport('beforeAll-error.txt',
+        `Error in beforeAll hook at ${new Date().toISOString()}\n` +
+        `Error: ${error.toString()}\n` +
+        `Stack: ${error.stack || 'No stack trace available'}`);
+    }
   });
 
   // Add a hook to capture screenshots on test failure

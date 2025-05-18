@@ -25,6 +25,7 @@ services:
       - LOG_LEVEL=INFO
       - CI=${CI:-false}
       - CONTAINER=true
+      - USE_MOCK_API=${USE_MOCK_API:-false}
     networks:
       - paissive-network
     healthcheck:
@@ -44,6 +45,69 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mock-api:
+        condition: service_started
+
+  # Mock API server for testing in CI environments
+  mock-api:
+    image: node:18-alpine
+    container_name: paissive-mock-api
+    restart: unless-stopped
+    working_dir: /app
+    command: >
+      sh -c "
+        if [ \"$${CI:-false}\" = \"true\" ] || [ \"$${USE_MOCK_API:-false}\" = \"true\" ]; then
+          echo 'Starting mock API server for CI or testing...' &&
+          mkdir -p /app/logs &&
+          cd /app/ui/react_frontend/tests &&
+          node ensure_report_dir.js &&
+
+          # Try the simple mock server first (more reliable)
+          echo 'Starting simple mock server...' &&
+          node simple_mock_server.js &
+          SIMPLE_PID=$! &&
+          sleep 5 &&
+
+          # Check if the server is running
+          if wget -q --spider http://localhost:8000/health; then
+            echo 'Simple mock server started successfully' &&
+            wait $SIMPLE_PID
+          else
+            echo 'Simple mock server failed to start, trying original mock server...' &&
+            # Kill the simple server if it's running but not responding
+            kill $SIMPLE_PID || true &&
+
+            # Try the original mock server as fallback
+            export CI=true &&
+            node mock_api_server.js
+          fi
+        else
+          echo 'Mock API server disabled. Set CI=true or USE_MOCK_API=true to enable.' &&
+          tail -f /dev/null
+        fi
+      "
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./logs:/app/logs:rw
+      - ./ui/react_frontend/tests:/app/ui/react_frontend/tests:rw
+      - ./playwright-report:/app/playwright-report:rw
+      - ./test-results:/app/test-results:rw
+    environment:
+      - CI=${CI:-false}
+      - USE_MOCK_API=${USE_MOCK_API:-false}
+      - NODE_ENV=test
+      - PORT=8000
+      - MOCK_API_VERBOSE=true
+    networks:
+      - paissive-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   db:
     image: postgres:15.3-alpine
