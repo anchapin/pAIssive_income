@@ -7,6 +7,9 @@ from typing import TypeVar, Dict, Any, Optional
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship, backref
 
+# Import db from app_flask
+from app_flask import db
+
 # Type alias for db.Model - using Any to avoid mypy errors
 # mypy: disable-error-code="name-defined"
 ModelType = TypeVar("ModelType", bound="db.Model")  # type: ignore[name-defined]

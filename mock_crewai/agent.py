@@ -48,9 +48,12 @@ class Agent:
             A string representing the task execution result
 
         """
+        # Handle case when task doesn't have a description attribute
+        task_description = getattr(task, 'description', 'Unknown task')
+
         if context:
-            return f"Executed task: {task.description} with context: {context}"
-        return f"Executed task: {task.description}"
+            return f"Executed task: {task_description} with context: {context}"
+        return f"Executed task: {task_description}"
 
     def __str__(self) -> str:
         """Return a string representation of the agent."""
