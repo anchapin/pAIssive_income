@@ -74,9 +74,27 @@ FROM gcr.io/distroless/python3-debian11 AS runtime
 
 WORKDIR /app
 
-# Copy virtual environment and app code from builder
+# Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
-COPY --from=builder /app /app
+
+# Copy only production application code and assets.
+# DO NOT copy the entire /app to avoid including dev artefacts, .git, or test files.
+# Adjust this list as needed for your project structure.
+COPY --from=builder /app/api /app/api
+COPY --from=builder /app/ai_models /app/ai_models
+COPY --from=builder /app/niche_analysis /app/niche_analysis
+COPY --from=builder /app/monetization /app/monetization
+COPY --from=builder /app/marketing /app/marketing
+COPY --from=builder /app/users /app/users
+COPY --from=builder /app/common_utils /app/common_utils
+COPY --from=builder /app/run_ui.py /app/run_ui.py
+COPY --from=builder /app/init_db.py /app/init_db.py
+COPY --from=builder /app/main.py /app/main.py
+COPY --from=builder /app/docker-healthcheck.sh /app/docker-healthcheck.sh
+COPY --from=builder /app/wait-for-db.sh /app/wait-for-db.sh
+
+# If you need additional files (e.g., config, static assets), add them above.
+# Ensure .dockerignore excludes dev/test files, .git, and other artefacts.
 
 # Environment variables (runtime)
 ENV PYTHONDONTWRITEBYTECODE=1 \
