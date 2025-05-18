@@ -32,7 +32,7 @@ def is_even(number):
 
 def is_odd(number):
     """Check if a number is odd."""
-    return number % 2 != 0
+    return number % 2 == 1
 
 
 def get_first_element(items, default=None):

@@ -406,3 +406,148 @@ if __name__ == "__main__":
         assert "column 5" in error_msg
         assert "<unknown>" in error_msg
         assert "invalid syntax" in error_msg
+
+    def test_format_syntax_error_with_no_attributes(self):
+        """Test the format_syntax_error function with a SyntaxError that has no attributes."""
+        # Create a basic SyntaxError without the usual attributes
+        error = SyntaxError("invalid syntax")
+
+        # Format the error
+        error_msg = format_syntax_error("test.py", error)
+
+        # Verify the result
+        assert "test.py" in error_msg
+        assert "invalid syntax" in error_msg
+        assert "line" not in error_msg
+        assert "column" not in error_msg
+
+    def test_check_syntax_with_indentation_error(self):
+        """Test check_syntax with a file containing an IndentationError."""
+        # Write Python code with an indentation error to the temporary file
+        with open(self.temp_file_path, "w") as f:
+            f.write("""
+def hello_world():
+print("Hello, world!")  # Missing indentation
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+        # Check the syntax
+        with patch("logging.Logger.error") as mock_error:
+            result = check_syntax(self.temp_file_path)
+
+            # Verify the result
+            assert result is False
+            mock_error.assert_called_once()
+
+    def test_check_syntax_with_tab_error(self):
+        """Test check_syntax with a file containing a TabError."""
+        # Write Python code with a mix of tabs and spaces to the temporary file
+        with open(self.temp_file_path, "w") as f:
+            f.write("""
+def hello_world():
+    print("Hello, world!")  # Indented with spaces
+	print("Goodbye, world!")  # Indented with a tab
+
+if __name__ == "__main__":
+    hello_world()
+""")
+
+        # Check the syntax
+        with patch("logging.Logger.error") as mock_error:
+            result = check_syntax(self.temp_file_path)
+
+            # Verify the result
+            assert result is False
+            mock_error.assert_called_once()
+
+    def test_check_multiple_files_empty_list(self):
+        """Test the check_multiple_files function with an empty list."""
+        # Check an empty list of files
+        valid_files, invalid_files = check_multiple_files([])
+
+        # Verify the result
+        assert len(valid_files) == 0
+        assert len(invalid_files) == 0
+
+    def test_main_with_all_valid_files(self):
+        """Test the main function with all valid files."""
+        # Create multiple temporary files with valid Python code
+        temp_files = []
+        temp_file_paths = []
+
+        try:
+            # Create 3 temporary files
+            for i in range(3):
+                temp_file = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+                temp_files.append(temp_file)
+                temp_file_paths.append(temp_file.name)
+                temp_file.close()
+
+                # Write valid Python code to each file
+                with open(temp_file_paths[i], "w") as f:
+                    f.write(f"""
+def function_{i}():
+    print("Function {i}")
+
+if __name__ == "__main__":
+    function_{i}()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py"] + temp_file_paths):
+                # Mock logger.info to capture the output
+                with patch("check_api_server.logger.info") as mock_info:
+                    # Run the main function
+                    result = main()
+
+                    # Verify the result
+                    assert result == 0
+
+                    # Verify that logger.info was called with a message about all files being valid
+                    mock_info.assert_any_call("✅ All %d file(s) have valid syntax.", 3)
+        finally:
+            # Clean up the temporary files
+            for path in temp_file_paths:
+                if os.path.exists(path):
+                    os.unlink(path)
+
+    def test_main_with_all_invalid_files(self):
+        """Test the main function with all invalid files."""
+        # Create multiple temporary files with invalid Python code
+        temp_files = []
+        temp_file_paths = []
+
+        try:
+            # Create 3 temporary files
+            for i in range(3):
+                temp_file = tempfile.NamedTemporaryFile(suffix=".py", delete=False)
+                temp_files.append(temp_file)
+                temp_file_paths.append(temp_file.name)
+                temp_file.close()
+
+                # Write invalid Python code to each file
+                with open(temp_file_paths[i], "w") as f:
+                    f.write(f"""
+def function_{i}()
+    print("Function {i}")
+
+if __name__ == "__main__":
+    function_{i}()
+""")
+
+            # Mock sys.argv
+            with patch("sys.argv", ["check_api_server.py"] + temp_file_paths):
+                # Mock logger.error to avoid cluttering test output
+                with patch("check_api_server.logger.error"):
+                    # Run the main function
+                    result = main()
+
+                    # Verify the result
+                    assert result == 1
+        finally:
+            # Clean up the temporary files
+            for path in temp_file_paths:
+                if os.path.exists(path):
+                    os.unlink(path)

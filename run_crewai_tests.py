@@ -85,6 +85,15 @@ def main() -> int:
 \"\"\"Test scaffold for CrewAI agent integration.\"\"\"
 
 import pytest
+import logging
+import os
+import sys
+import importlib
+from unittest.mock import patch, MagicMock
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 def test_crewai_mock():
     \"\"\"Test that the mock CrewAI module works.\"\"\"
@@ -97,6 +106,57 @@ def test_crewai_mock():
         assert agent.role == "Test Agent"
     except ImportError:
         # If import fails, the test passes anyway (we're just testing the mock)
+        pytest.skip("CrewAI not available, skipping test")
+
+def test_crewai_version_attribute():
+    \"\"\"Test that the __version__ attribute is defined.\"\"\"
+    try:
+        import crewai
+        assert hasattr(crewai, "__version__")
+        assert isinstance(crewai.__version__, str)
+        assert crewai.__version__ == "0.120.0"
+    except ImportError:
+        pytest.skip("CrewAI not available, skipping test")
+
+def test_crewai_agent_execute_task():
+    \"\"\"Test the Agent.execute_task method.\"\"\"
+    try:
+        from crewai import Agent, Task
+        # Create an agent
+        agent = Agent(role="Test Agent", goal="Test goal", backstory="Test backstory")
+        # Create a task
+        task = Task(description="Test task", agent=agent)
+        # Execute the task
+        result = agent.execute_task(task)
+        assert "Executed task: Test task" in result
+    except ImportError:
+        pytest.skip("CrewAI not available, skipping test")
+
+def test_crewai_crew_kickoff():
+    \"\"\"Test the Crew.kickoff method.\"\"\"
+    try:
+        from crewai import Agent, Task, Crew
+        # Create a crew
+        crew = Crew(agents=[], tasks=[])
+        # Test kickoff
+        result = crew.kickoff()
+        assert "Mock crew output" in result
+        # Test kickoff with inputs
+        inputs = {"key": "value"}
+        result = crew.kickoff(inputs)
+        assert "inputs" in result
+    except ImportError:
+        pytest.skip("CrewAI not available, skipping test")
+
+def test_crewai_crew_run_alias():
+    \"\"\"Test that Crew.run is an alias for Crew.kickoff.\"\"\"
+    try:
+        from crewai import Crew
+        # Create a crew
+        crew = Crew(agents=[], tasks=[])
+        # Test that run is an alias for kickoff
+        assert crew.run == crew.kickoff
+    except ImportError:
         pytest.skip("CrewAI not available, skipping test")
 """)
             logger.info("Created minimal test file at %s", test_file_path)
