@@ -95,13 +95,10 @@ paths-ignore:
 
 # Query filters
 queries:
-  # Include the standard security queries
-  - uses: security
-
-  # Include the standard security and quality queries
+  # Use standard security queries
   - uses: security-and-quality
 
-  # Include additional security queries
+  # Include additional security queries for more comprehensive analysis
   - uses: security-extended
 
 # Disable noisy alerts
