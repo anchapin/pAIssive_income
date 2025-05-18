@@ -76,169 +76,225 @@ function runTests() {
   return new Promise((resolve, reject) => {
     log('Running frontend tests in CI mode...');
 
-    // Use the enhanced mock path-to-regexp helper
-    log('Using enhanced mock path-to-regexp helper for better CI compatibility');
+    // Check if the enhanced CI test runner exists
+    const enhancedCITestRunnerPath = path.join(config.frontendRoot, 'tests', 'run_ci_tests_enhanced.js');
 
-    // Try to use the enhanced mock path-to-regexp helper first, then fall back to the regular one
-    try {
-      const enhancedMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'enhanced_mock_path_to_regexp.js');
-      const regularMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'mock_path_to_regexp.js');
+    if (fs.existsSync(enhancedCITestRunnerPath)) {
+      log(`Found enhanced CI test runner at ${enhancedCITestRunnerPath}`);
 
-      // Check if the enhanced version exists
-      if (fs.existsSync(enhancedMockPathToRegexpPath)) {
-        log(`Found enhanced mock path-to-regexp helper at ${enhancedMockPathToRegexpPath}`);
-
-        // Run the enhanced mock path-to-regexp helper
-        const enhancedMockProcess = spawn('node', [enhancedMockPathToRegexpPath], {
-          cwd: config.frontendRoot,
-          shell: true,
-          stdio: 'inherit'
-        });
-
-        enhancedMockProcess.on('close', (code) => {
-          if (code === 0) {
-            log('Successfully ran enhanced mock path-to-regexp helper');
-          } else {
-            log(`Enhanced mock path-to-regexp helper exited with code ${code}, falling back to regular version`, 'warn');
-
-            // Fall back to the regular mock path-to-regexp helper
-            if (fs.existsSync(regularMockPathToRegexpPath)) {
-              log(`Falling back to regular mock path-to-regexp helper at ${regularMockPathToRegexpPath}`);
-
-              const regularMockProcess = spawn('node', [regularMockPathToRegexpPath], {
-                cwd: config.frontendRoot,
-                shell: true,
-                stdio: 'inherit'
-              });
-
-              regularMockProcess.on('close', (regularCode) => {
-                if (regularCode === 0) {
-                  log('Successfully ran regular mock path-to-regexp helper as fallback');
-                } else {
-                  log(`Regular mock path-to-regexp helper exited with code ${regularCode}`, 'warn');
-                }
-              });
-            }
-          }
-        });
-
-        // Continue with the rest of the function
-        return;
-      }
-
-      // If enhanced version doesn't exist, try the regular one
-      log(`Enhanced mock path-to-regexp helper not found, trying regular version at ${regularMockPathToRegexpPath}`);
-      const mockPathToRegexpPath = regularMockPathToRegexpPath;
-      log(`Attempting to load mock path-to-regexp helper from ${mockPathToRegexpPath}`);
-
-      // Check if the file exists
-      if (fs.existsSync(mockPathToRegexpPath)) {
-        log('Mock path-to-regexp helper file exists, loading it');
-
-        // Run the mock path-to-regexp helper
-        const mockProcess = spawn('node', [mockPathToRegexpPath], {
-          cwd: config.frontendRoot,
-          shell: true,
-          stdio: 'inherit'
-        });
-
-        mockProcess.on('close', (code) => {
-          if (code === 0) {
-            log('Successfully ran mock path-to-regexp helper');
-          } else {
-            log(`Mock path-to-regexp helper exited with code ${code}`, 'warn');
-          }
-        });
-      } else {
-        log('Mock path-to-regexp helper file does not exist, creating it', 'warn');
-
-        // Create the mock path-to-regexp helper file
-        const mockDir = path.join(config.frontendRoot, 'node_modules', 'path-to-regexp');
-        if (!fs.existsSync(mockDir)) {
-          fs.mkdirSync(mockDir, { recursive: true });
-          log(`Created mock directory at ${mockDir}`);
+      // Run the enhanced CI test runner
+      log('Running enhanced CI test runner for maximum compatibility...');
+      const enhancedRunnerProcess = spawn('node', [enhancedCITestRunnerPath], {
+        cwd: config.frontendRoot,
+        shell: true,
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          CI: 'true',
+          VERBOSE_LOGGING: 'true'
         }
+      });
 
-        // Create the mock implementation
-        const mockImplementation = `
-          // Mock implementation of path-to-regexp
-          // Created at ${new Date().toISOString()}
-          // For CI compatibility
+      enhancedRunnerProcess.on('close', (code) => {
+        if (code === 0) {
+          log('Enhanced CI test runner completed successfully');
 
-          // Main function
-          function pathToRegexp(path, keys, options) {
-            console.log('Mock path-to-regexp called with path:', path);
-            return /.*/;
+          // Create a marker file to indicate success
+          try {
+            fs.writeFileSync(
+              path.join(config.reportDir, 'enhanced-ci-runner-success.txt'),
+              `Enhanced CI test runner completed successfully at ${new Date().toISOString()}\n` +
+              `Node.js: ${process.version}\n` +
+              `Platform: ${process.platform}\n` +
+              `Working directory: ${process.cwd()}\n` +
+              `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
+            );
+          } catch (markerError) {
+            log(`Failed to create enhanced CI runner marker file: ${markerError.message}`, 'warn');
           }
 
-          // Helper functions
-          pathToRegexp.parse = function parse(path) {
-            console.log('Mock path-to-regexp.parse called with path:', path);
-            return [];
-          };
+          // Continue with the regular test process as a backup
+          log('Continuing with regular test process as a backup...');
+          setupReportDirectories(resolve, reject);
+        } else {
+          log(`Enhanced CI test runner exited with code ${code}, falling back to regular process`, 'warn');
 
-          pathToRegexp.compile = function compile(path) {
-            console.log('Mock path-to-regexp.compile called with path:', path);
-            return function() { return ''; };
-          };
+          // Fall back to the regular process
+          runRegularProcess(resolve, reject);
+        }
+      });
+    } else {
+      log(`Enhanced CI test runner not found at ${enhancedCITestRunnerPath}, using regular process`, 'warn');
 
-          pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
-            console.log('Mock path-to-regexp.tokensToRegexp called');
-            return /.*/;
-          };
+      // Fall back to the regular process
+      runRegularProcess(resolve, reject);
+    }
+  });
+}
 
-          pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
-            console.log('Mock path-to-regexp.tokensToFunction called');
-            return function() { return ''; };
-          };
+// Regular process for running tests (fallback if enhanced runner fails)
+function runRegularProcess(resolve, reject) {
+  log('Using enhanced mock path-to-regexp helper for better CI compatibility');
 
-          // Export the mock implementation
-          module.exports = pathToRegexp;
-        `;
+  // Try to use the enhanced mock path-to-regexp helper first, then fall back to the regular one
+  try {
+    const enhancedMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'enhanced_mock_path_to_regexp.js');
+    const regularMockPathToRegexpPath = path.join(config.frontendRoot, 'tests', 'mock_path_to_regexp.js');
 
-        // Write the mock implementation to disk
-        fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
-        log(`Created mock implementation at ${path.join(mockDir, 'index.js')}`);
+    // Check if the enhanced version exists
+    if (fs.existsSync(enhancedMockPathToRegexpPath)) {
+      log(`Found enhanced mock path-to-regexp helper at ${enhancedMockPathToRegexpPath}`);
 
-        // Create a package.json file
-        const packageJson = {
-          name: 'path-to-regexp',
-          version: '0.0.0',
-          main: 'index.js',
-          description: 'Mock implementation for CI compatibility',
-        };
+      // Run the enhanced mock path-to-regexp helper
+      const enhancedMockProcess = spawn('node', [enhancedMockPathToRegexpPath], {
+        cwd: config.frontendRoot,
+        shell: true,
+        stdio: 'inherit'
+      });
 
-        fs.writeFileSync(
-          path.join(mockDir, 'package.json'),
-          JSON.stringify(packageJson, null, 2)
-        );
-        log(`Created mock package.json at ${path.join(mockDir, 'package.json')}`);
-      }
+      enhancedMockProcess.on('close', (code) => {
+        if (code === 0) {
+          log('Successfully ran enhanced mock path-to-regexp helper');
+        } else {
+          log(`Enhanced mock path-to-regexp helper exited with code ${code}, falling back to regular version`, 'warn');
 
-      // Create a marker file to indicate we're using the mock path-to-regexp
-      const markerDir = path.join(config.frontendRoot, 'logs');
-      if (!fs.existsSync(markerDir)) {
-        fs.mkdirSync(markerDir, { recursive: true });
-      }
+          // Fall back to the regular mock path-to-regexp helper
+          if (fs.existsSync(regularMockPathToRegexpPath)) {
+            log(`Falling back to regular mock path-to-regexp helper at ${regularMockPathToRegexpPath}`);
 
-      fs.writeFileSync(
-        path.join(markerDir, 'path-to-regexp-mocked-ci.txt'),
-        `Path-to-regexp dependency mocked at ${new Date().toISOString()}\n` +
-        `This file indicates that we're using a mock implementation of the path-to-regexp dependency in CI.\n` +
-        `Node.js: ${process.version}\n` +
-        `Platform: ${process.platform}\n` +
-        `Working directory: ${process.cwd()}\n` +
-        `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
-      );
+            const regularMockProcess = spawn('node', [regularMockPathToRegexpPath], {
+              cwd: config.frontendRoot,
+              shell: true,
+              stdio: 'inherit'
+            });
 
-      log('Created path-to-regexp mock marker file');
-    } catch (error) {
-      log(`Failed to set up mock path-to-regexp: ${error.message}`, 'warn');
+            regularMockProcess.on('close', (regularCode) => {
+              if (regularCode === 0) {
+                log('Successfully ran regular mock path-to-regexp helper as fallback');
+              } else {
+                log(`Regular mock path-to-regexp helper exited with code ${regularCode}`, 'warn');
+              }
+            });
+          }
+        }
+      });
+
+      // Continue with the rest of the function
+      return;
     }
 
-    // Continue with report directory setup
-    setupReportDirectories(resolve, reject);
-  });
+    // If enhanced version doesn't exist, try the regular one
+    log(`Enhanced mock path-to-regexp helper not found, trying regular version at ${regularMockPathToRegexpPath}`);
+    const mockPathToRegexpPath = regularMockPathToRegexpPath;
+    log(`Attempting to load mock path-to-regexp helper from ${mockPathToRegexpPath}`);
+
+    // Check if the file exists
+    if (fs.existsSync(mockPathToRegexpPath)) {
+      log('Mock path-to-regexp helper file exists, loading it');
+
+      // Run the mock path-to-regexp helper
+      const mockProcess = spawn('node', [mockPathToRegexpPath], {
+        cwd: config.frontendRoot,
+        shell: true,
+        stdio: 'inherit'
+      });
+
+      mockProcess.on('close', (code) => {
+        if (code === 0) {
+          log('Successfully ran mock path-to-regexp helper');
+        } else {
+          log(`Mock path-to-regexp helper exited with code ${code}`, 'warn');
+        }
+      });
+    } else {
+      log('Mock path-to-regexp helper file does not exist, creating it', 'warn');
+
+      // Create the mock path-to-regexp helper file
+      const mockDir = path.join(config.frontendRoot, 'node_modules', 'path-to-regexp');
+      if (!fs.existsSync(mockDir)) {
+        fs.mkdirSync(mockDir, { recursive: true });
+        log(`Created mock directory at ${mockDir}`);
+      }
+
+      // Create the mock implementation
+      const mockImplementation = `
+        // Mock implementation of path-to-regexp
+        // Created at ${new Date().toISOString()}
+        // For CI compatibility
+
+        // Main function
+        function pathToRegexp(path, keys, options) {
+          console.log('Mock path-to-regexp called with path:', path);
+          return /.*/;
+        }
+
+        // Helper functions
+        pathToRegexp.parse = function parse(path) {
+          console.log('Mock path-to-regexp.parse called with path:', path);
+          return [];
+        };
+
+        pathToRegexp.compile = function compile(path) {
+          console.log('Mock path-to-regexp.compile called with path:', path);
+          return function() { return ''; };
+        };
+
+        pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
+          console.log('Mock path-to-regexp.tokensToRegexp called');
+          return /.*/;
+        };
+
+        pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
+          console.log('Mock path-to-regexp.tokensToFunction called');
+          return function() { return ''; };
+        };
+
+        // Export the mock implementation
+        module.exports = pathToRegexp;
+      `;
+
+      // Write the mock implementation to disk
+      fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
+      log(`Created mock implementation at ${path.join(mockDir, 'index.js')}`);
+
+      // Create a package.json file
+      const packageJson = {
+        name: 'path-to-regexp',
+        version: '0.0.0',
+        main: 'index.js',
+        description: 'Mock implementation for CI compatibility',
+      };
+
+      fs.writeFileSync(
+        path.join(mockDir, 'package.json'),
+        JSON.stringify(packageJson, null, 2)
+      );
+      log(`Created mock package.json at ${path.join(mockDir, 'package.json')}`);
+    }
+
+    // Create a marker file to indicate we're using the mock path-to-regexp
+    const markerDir = path.join(config.frontendRoot, 'logs');
+    if (!fs.existsSync(markerDir)) {
+      fs.mkdirSync(markerDir, { recursive: true });
+    }
+
+    fs.writeFileSync(
+      path.join(markerDir, 'path-to-regexp-mocked-ci.txt'),
+      `Path-to-regexp dependency mocked at ${new Date().toISOString()}\n` +
+      `This file indicates that we're using a mock implementation of the path-to-regexp dependency in CI.\n` +
+      `Node.js: ${process.version}\n` +
+      `Platform: ${process.platform}\n` +
+      `Working directory: ${process.cwd()}\n` +
+      `CI environment: ${process.env.CI ? 'Yes' : 'No'}\n`
+    );
+
+    log('Created path-to-regexp mock marker file');
+  } catch (error) {
+    log(`Failed to set up mock path-to-regexp: ${error.message}`, 'warn');
+  }
+
+  // Continue with report directory setup
+  setupReportDirectories(resolve, reject);
 }
 
 // Set up report directories

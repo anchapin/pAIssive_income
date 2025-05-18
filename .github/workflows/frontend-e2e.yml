@@ -507,37 +507,51 @@ jobs:
             }
           }
 
-      - name: Run tests with CI test runner (Linux/macOS)
+      - name: Run tests with Enhanced CI test runner (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           # Set environment variables
           export REACT_APP_API_BASE_URL=http://localhost:8000/api
           export REACT_APP_AG_UI_ENABLED=true
+          export CI=true
+          export VERBOSE_LOGGING=true
 
           # Create logs directory
           mkdir -p logs
 
-          # Run the CI test runner
-          echo "Running CI test runner..."
-          node tests/run_ci_tests.js
+          # Check if the enhanced CI test runner exists
+          if [ -f "tests/run_ci_tests_enhanced.js" ]; then
+            echo "Running Enhanced CI test runner..."
+            node tests/run_ci_tests_enhanced.js
+          else
+            echo "Enhanced CI test runner not found, falling back to regular runner..."
+            node tests/run_ci_tests.js
+          fi
 
-      - name: Run tests with CI test runner (Windows)
+      - name: Run tests with Enhanced CI test runner (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           # Set environment variables
           $env:REACT_APP_API_BASE_URL = "http://localhost:8000/api"
           $env:REACT_APP_AG_UI_ENABLED = "true"
+          $env:CI = "true"
+          $env:VERBOSE_LOGGING = "true"
 
           # Create logs directory
           if (-not (Test-Path "logs")) {
             New-Item -ItemType Directory -Path "logs" -Force
           }
 
-          # Run the CI test runner
-          Write-Host "Running CI test runner..."
-          node tests/run_ci_tests.js
+          # Check if the enhanced CI test runner exists
+          if (Test-Path "tests/run_ci_tests_enhanced.js") {
+            Write-Host "Running Enhanced CI test runner..."
+            node tests/run_ci_tests_enhanced.js
+          } else {
+            Write-Host "Enhanced CI test runner not found, falling back to regular runner..."
+            node tests/run_ci_tests.js
+          }
 
       # The tests are now run by the CI test runner
       # This step is kept for backward compatibility but is now a no-op

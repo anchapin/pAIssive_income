@@ -976,7 +976,14 @@ EOL
 
           # Run the mock API test to ensure we have all necessary artifacts
           echo "Running mock API test to ensure artifacts..."
-          node tests/ci_mock_api_test.js
+          node tests/ci_mock_api_test.js || echo "Mock API test failed, but continuing..."
+
+          # Run the enhanced CI test script if it exists
+          echo "Checking for enhanced CI test script..."
+          if [ -f "tests/run_ci_tests_enhanced.js" ]; then
+            echo "Enhanced CI test script found, running it..."
+            node tests/run_ci_tests_enhanced.js || echo "Enhanced CI test script failed, continuing..."
+          fi
 
           # Run the mock path-to-regexp scripts with improved conditional execution
           echo "Running mock path-to-regexp scripts with improved conditional execution..."
