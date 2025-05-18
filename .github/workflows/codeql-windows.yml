@@ -59,16 +59,12 @@ jobs:
           } else {
             Write-Host "No lock files found. Creating a minimal package-lock.json..."
 
-            # Create a simple valid package-lock.json file
-            try {
-              # Create a minimal valid package-lock.json
-              $minimalJson = @{
-                name = "paissive-income"
-                version = "1.0.0"
-                lockfileVersion = 3
-              } | ConvertTo-Json -Compress
+            # Create a simple valid package-lock.json file using a direct string
+            # This avoids PowerShell object conversion issues
+            $jsonContent = '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3}'
 
-              Set-Content -Path "package-lock.json" -Value $minimalJson -Encoding UTF8
+            try {
+              Set-Content -Path "package-lock.json" -Value $jsonContent -Encoding UTF8
 
               if (Test-Path "package-lock.json") {
                 $fileInfo = Get-Item "package-lock.json"
@@ -157,6 +153,7 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-and-quality
           debug: true
+          # No custom config file to avoid Windows path issues
 
       # Verify environment before CodeQL analysis
       - name: Verify environment
@@ -168,6 +165,7 @@ jobs:
           if (Test-Path "package-lock.json") {
             $fileInfo = Get-Item "package-lock.json"
             Write-Host "package-lock.json exists: $($fileInfo.Length) bytes"
+            Write-Host "Content: $(Get-Content -Path "package-lock.json" -Raw)"
           } else {
             Write-Host "WARNING: package-lock.json not found!"
           }
@@ -189,9 +187,21 @@ jobs:
           foreach ($file in $configFiles) {
             if (Test-Path $file) {
               Write-Host "$file exists"
+              Write-Host "First 5 lines of $file:"
+              Get-Content -Path $file -TotalCount 5 | ForEach-Object { Write-Host "  $_" }
             } else {
               Write-Host "NOTE: $file not found, but this is OK as we're using standard queries"
             }
+          }
+
+          # List all files in .github/codeql directory
+          Write-Host "All files in .github/codeql directory:"
+          if (Test-Path ".github/codeql") {
+            Get-ChildItem -Path ".github/codeql" -Recurse | ForEach-Object {
+              Write-Host "  $($_.FullName)"
+            }
+          } else {
+            Write-Host "  .github/codeql directory not found"
           }
 
       # Perform CodeQL Analysis
