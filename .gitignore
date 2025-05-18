@@ -132,7 +132,7 @@ ui/react_frontend/playwright-report/
 ui/react_frontend/test-results/
 ui/react_frontend/coverage/
 ui/react_frontend/test-failure-*.png
-ui/react_frontend/run-tests-ci.js
+# ui/react_frontend/run-tests-ci.js - Needed for CI workflow
 ui/react_frontend/playwright.config.ci.js
 ui/react_frontend/logs/
 ui/react_frontend/.playwright/

@@ -37,8 +37,14 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Install Express for mock API server
-        run: pnpm add -D express cors body-parser
+      - name: Install Express and dependencies for mock API server
+        run: |
+          # Install required dependencies including path-to-regexp
+          pnpm add -D express cors body-parser path-to-regexp
+
+          # Verify path-to-regexp installation
+          echo "Verifying path-to-regexp installation..."
+          node -e "try { require('path-to-regexp'); console.log('path-to-regexp is installed correctly'); } catch(e) { console.error('path-to-regexp is not installed correctly:', e.message); process.exit(1); }"
 
       - name: Create logs and report directories
         shell: bash

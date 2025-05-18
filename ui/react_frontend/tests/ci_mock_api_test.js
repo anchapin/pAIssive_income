@@ -10,7 +10,26 @@
  * Added more robust error handling for CI environments.
  * Completely removed path-to-regexp dependency for maximum compatibility.
  * Added additional fallback mechanisms for GitHub Actions workflow.
+ *
+ * Updated to handle path-to-regexp dependency issues in GitHub Actions.
  */
+
+// Try to install path-to-regexp if it's not already installed
+try {
+  require('path-to-regexp');
+  console.log('path-to-regexp is already installed');
+} catch (e) {
+  console.log('path-to-regexp is not installed, attempting to install it...');
+  try {
+    // Use child_process.execSync to install path-to-regexp
+    const { execSync } = require('child_process');
+    execSync('npm install path-to-regexp --no-save', { stdio: 'inherit' });
+    console.log('Successfully installed path-to-regexp');
+  } catch (installError) {
+    console.warn(`Failed to install path-to-regexp: ${installError.message}`);
+    console.log('Continuing without path-to-regexp, using fallback URL parsing');
+  }
+}
 
 const fs = require('fs');
 const path = require('path');
