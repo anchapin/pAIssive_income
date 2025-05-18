@@ -14,7 +14,6 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -79,7 +78,7 @@ shell_injection:
 """
 
 
-def setup_directories() -> Tuple[Path, Path, bool]:
+def setup_directories() -> tuple[Path, Path, bool]:
     """
     Set up directories for Bandit configuration files.
 
@@ -98,11 +97,11 @@ def setup_directories() -> Tuple[Path, Path, bool]:
         security_reports_dir = Path(SECURITY_REPORTS_DIR)
         security_reports_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security reports directory: %s", security_reports_dir)
-
-        return bandit_dir, security_reports_dir, True
     except Exception:
         logger.exception("Failed to set up directories")
         return Path(BANDIT_DIR), Path(SECURITY_REPORTS_DIR), False
+    else:
+        return bandit_dir, security_reports_dir, True
 
 
 def write_config_file(config_path: Path, content: str) -> bool:
@@ -121,10 +120,11 @@ def write_config_file(config_path: Path, content: str) -> bool:
         with config_path.open("w") as f:
             f.write(content)
         logger.info("Generated configuration file: %s", config_path)
-        return True
     except Exception:
         logger.exception("Failed to write configuration file: %s", config_path)
         return False
+    else:
+        return True
 
 
 def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
@@ -156,11 +156,11 @@ def generate_config_files(bandit_dir: Path, run_id: str) -> bool:
             if not write_config_file(config_path_with_run_id, BANDIT_CONFIG_TEMPLATE):
                 success = False
                 continue
-
-        return success
     except Exception:
         logger.exception("Failed to generate configuration files")
         return False
+    else:
+        return success
 
 
 def main() -> int:

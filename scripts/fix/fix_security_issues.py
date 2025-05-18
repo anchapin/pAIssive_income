@@ -59,12 +59,15 @@ except ImportError:
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
+        exclude_dirs: set[str]  # noqa: ARG001
+        | None = None,  # Match the signature of the imported function
     ) -> dict[str, list[tuple[str, int, int]]]:
         """
         Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan (unused in fallback)
+            exclude_dirs: Directories to exclude from scanning (unused in fallback)
 
         Returns:
             dict[str, list[tuple[str, int, int]]]: Empty result dictionary

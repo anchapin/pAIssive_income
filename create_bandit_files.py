@@ -9,8 +9,8 @@ Usage:
     python create_bandit_files.py
 """
 
-import os
 import sys
+from pathlib import Path
 
 # Constants
 BANDIT_DIR = ".github/bandit"
@@ -88,40 +88,32 @@ EMPTY_SARIF_CONTENT = """{
 }"""
 
 
-def main():
+def main() -> int:
     """Create Bandit configuration files."""
     # Create directories
-    os.makedirs(BANDIT_DIR, exist_ok=True)
-    os.makedirs(SECURITY_REPORTS_DIR, exist_ok=True)
-    print(f"Created directories: {BANDIT_DIR}, {SECURITY_REPORTS_DIR}")
+    Path(BANDIT_DIR).mkdir(parents=True, exist_ok=True)
+    Path(SECURITY_REPORTS_DIR).mkdir(parents=True, exist_ok=True)
 
     # Create template file
-    template_path = f"{BANDIT_DIR}/bandit-config-template.yaml"
-    with open(template_path, "w") as f:
-        f.write(BANDIT_CONFIG_TEMPLATE)
-    print(f"Created template file: {template_path}")
+    template_path = Path(BANDIT_DIR) / "bandit-config-template.yaml"
+    template_path.write_text(BANDIT_CONFIG_TEMPLATE)
 
     # Create platform-specific files
     for platform in PLATFORMS:
         # Regular config
-        config_path = f"{BANDIT_DIR}/bandit-config-{platform}.yaml"
-        with open(config_path, "w") as f:
-            f.write(BANDIT_CONFIG_TEMPLATE)
-        print(f"Created configuration file: {config_path}")
+        config_path = Path(BANDIT_DIR) / f"bandit-config-{platform}.yaml"
+        config_path.write_text(BANDIT_CONFIG_TEMPLATE)
 
         # Test run ID config
-        test_run_id_path = f"{BANDIT_DIR}/bandit-config-{platform}-test_run_id.yaml"
-        with open(test_run_id_path, "w") as f:
-            f.write(BANDIT_CONFIG_TEMPLATE)
-        print(f"Created test run ID configuration file: {test_run_id_path}")
+        test_run_id_path = (
+            Path(BANDIT_DIR) / f"bandit-config-{platform}-test_run_id.yaml"
+        )
+        test_run_id_path.write_text(BANDIT_CONFIG_TEMPLATE)
 
     # Create empty SARIF file
-    empty_sarif_path = "empty-sarif.json"
-    with open(empty_sarif_path, "w") as f:
-        f.write(EMPTY_SARIF_CONTENT)
-    print(f"Created empty SARIF file: {empty_sarif_path}")
+    empty_sarif_path = Path("empty-sarif.json")
+    empty_sarif_path.write_text(EMPTY_SARIF_CONTENT)
 
-    print("Successfully created all Bandit configuration files")
     return 0
 
 

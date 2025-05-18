@@ -87,14 +87,16 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: '8'
+          run_install: false
 
       # Add pnpm to PATH (Linux/macOS)
       - name: Add pnpm to PATH (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          export PATH=$(pnpm bin):$PATH
-          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          # Add both global and local pnpm to PATH
+          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
+          # Verify pnpm is in PATH
           echo "Current PATH: $PATH"
           which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
 
@@ -103,13 +105,43 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $pnpmPath = (& pnpm bin)
-          $env:PATH = "$pnpmPath;$env:PATH"
-          echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # Get global pnpm path
+          $pnpmGlobalPath = (& {
+            try { & pnpm -g bin } catch { $null }
+          })
+
+          # Get local pnpm path
+          $pnpmLocalPath = (& {
+            try { & pnpm bin } catch { $null }
+          })
+
+          # Add both to PATH
+          $pnpmPaths = @($pnpmGlobalPath, $pnpmLocalPath) | Where-Object { $_ }
+          if ($pnpmPaths) {
+            $pnpmPathsStr = $pnpmPaths -join ";"
+            $env:PATH = "$pnpmPathsStr;$env:PATH"
+            echo "PATH=$pnpmPathsStr;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
+          # Add npm global bin to PATH as fallback
+          $npmPath = (& {
+            try { & npm bin -g } catch { $null }
+          })
+          if ($npmPath) {
+            $env:PATH = "$npmPath;$env:PATH"
+            echo "PATH=$npmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
+          # Verify pnpm is in PATH
           Write-Host "Current PATH: $env:PATH"
           if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-            Write-Host "Error: pnpm is not in PATH."
-            exit 1
+            Write-Host "pnpm not found in PATH. Installing globally with npm..."
+            npm install -g pnpm
+            $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::Process)
+            if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+              Write-Host "Error: pnpm is still not in PATH after npm install."
+              exit 1
+            }
           }
 
       # Set up Node.js for better JavaScript/TypeScript analysis
@@ -117,30 +149,89 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+          # Disable cache to avoid potential issues with pnpm
+          # cache: 'pnpm'
 
-      # Verify pnpm installation
-      - name: Check pnpm version
+      # Verify Node.js and pnpm installation
+      - name: Verify Node.js and pnpm installation
         shell: bash
-        run: pnpm --version
+        run: |
+          echo "Node.js version:"
+          node --version
+          echo "npm version:"
+          npm --version
+          echo "pnpm version:"
+          pnpm --version || npm install -g pnpm && pnpm --version
 
       # Install dependencies if package.json exists
       - name: Install dependencies
         shell: bash
         run: |
+          # Function to install dependencies with fallback
+          install_deps() {
+            local dir=$1
+            local original_dir=$(pwd)
+
+            if [ -n "$dir" ]; then
+              cd "$dir" || return 1
+            fi
+
+            echo "Installing dependencies in $(pwd)..."
+
+            # Try with pnpm first (preferred)
+            if command -v pnpm &>/dev/null; then
+              echo "Using pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  if [ -n "$dir" ]; then
+                    cd "$original_dir"
+                  fi
+                  return 1
+                }
+              }
+            else
+              # Fallback to npm if pnpm is not available
+              echo "pnpm not found, using npm to install dependencies..."
+              npm install || {
+                echo "npm installation failed in $(pwd)"
+                if [ -n "$dir" ]; then
+                  cd "$original_dir"
+                fi
+                return 1
+              }
+            fi
+
+            if [ -n "$dir" ]; then
+              cd "$original_dir"
+            fi
+
+            return 0
+          }
+
           # Check for package.json in the root directory
           if [ -f package.json ]; then
-            echo "Installing dependencies with pnpm in root directory..."
-            pnpm install
+            echo "Found package.json in root directory"
+            install_deps
           else
             echo "No package.json found in root directory, checking ui/react_frontend..."
-            # Check for package.json in ui/react_frontend
-            if [ -f ui/react_frontend/package.json ]; then
-              echo "Installing dependencies with pnpm in ui/react_frontend..."
-              cd ui/react_frontend && pnpm install
-            else
-              echo "No package.json found in ui/react_frontend, skipping dependency installation."
-            fi
+          fi
+
+          # Check for package.json in ui/react_frontend
+          if [ -f ui/react_frontend/package.json ]; then
+            echo "Found package.json in ui/react_frontend"
+            install_deps "ui/react_frontend"
+          else
+            echo "No package.json found in ui/react_frontend"
+          fi
+
+          # Check for package.json in sdk/javascript
+          if [ -f sdk/javascript/package.json ]; then
+            echo "Found package.json in sdk/javascript"
+            install_deps "sdk/javascript"
+          else
+            echo "No package.json found in sdk/javascript"
           fi
         continue-on-error: true
 
@@ -184,17 +275,26 @@ jobs:
                 echo "pnpm install failed, trying with npm..."
                 npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
-                  cd "$original_dir"
+                  if [ -n "$dir" ]; then
+                    cd "$original_dir"
+                  fi
                   return 1
                 }
               }
             else
               # Fallback to npm if pnpm is not available
-              echo "pnpm not found, using npm to install dependencies..."
-              npm install || {
-                echo "npm installation failed in $(pwd)"
-                cd "$original_dir"
-                return 1
+              echo "pnpm not found, installing globally..."
+              npm install -g pnpm
+              echo "Using newly installed pnpm to install dependencies..."
+              pnpm install || {
+                echo "pnpm install failed, trying with npm..."
+                npm install || {
+                  echo "Both pnpm and npm installation failed in $(pwd)"
+                  if [ -n "$dir" ]; then
+                    cd "$original_dir"
+                  fi
+                  return 1
+                }
               }
             fi
 

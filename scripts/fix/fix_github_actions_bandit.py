@@ -30,15 +30,17 @@ def ensure_directory_exists(directory_path: str) -> bool:
 
     Returns:
         bool: True if the directory exists or was created, False otherwise
+
     """
     try:
         path = Path(directory_path)
         path.mkdir(parents=True, exist_ok=True)
         logger.info("Directory exists or was created: %s", directory_path)
-        return True
     except OSError:
         logger.exception("Failed to create directory %s", directory_path)
         return False
+    else:
+        return True
 
 
 def copy_template_file(source_path: str, dest_path: str) -> bool:
@@ -51,16 +53,18 @@ def copy_template_file(source_path: str, dest_path: str) -> bool:
 
     Returns:
         bool: True if the file was copied successfully, False otherwise
+
     """
     try:
         shutil.copy2(source_path, dest_path)
         logger.info("Copied template file from %s to %s", source_path, dest_path)
-        return True
     except OSError:
         logger.exception(
             "Failed to copy template file from %s to %s", source_path, dest_path
         )
         return False
+    else:
+        return True
 
 
 def create_empty_sarif_file(file_path: str) -> bool:
@@ -72,6 +76,7 @@ def create_empty_sarif_file(file_path: str) -> bool:
 
     Returns:
         bool: True if the file was created successfully, False otherwise
+
     """
     try:
         empty_sarif_content = """{
@@ -95,10 +100,11 @@ def create_empty_sarif_file(file_path: str) -> bool:
         with path.open("w") as f:
             f.write(empty_sarif_content)
         logger.info("Created empty SARIF file at %s", file_path)
-        return True
     except OSError:
         logger.exception("Failed to create empty SARIF file at %s", file_path)
         return False
+    else:
+        return True
 
 
 def setup_directories() -> bool:
@@ -107,6 +113,7 @@ def setup_directories() -> bool:
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     directories = [
         ".github/bandit",
@@ -125,6 +132,7 @@ def setup_empty_sarif() -> bool:
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     empty_sarif_path = "empty-sarif.json"
     empty_sarif_file = Path(empty_sarif_path)
@@ -143,6 +151,7 @@ def create_platform_configs(template_path: str) -> bool:
 
     Returns:
         bool: True if successful, False otherwise
+
     """
     template_file = Path(template_path)
     if not template_file.exists():
@@ -172,9 +181,10 @@ def main() -> int:
 
     Returns:
         int: 0 for success, 1 for failure
+
     """
     exit_code = 1
-    
+
     try:
         # Set up directories
         if setup_directories():
@@ -183,7 +193,9 @@ def main() -> int:
                 # Create bandit configuration files for all platforms
                 template_path = ".github/bandit/bandit-config-template.yaml"
                 if create_platform_configs(template_path):
-                    logger.info("Successfully fixed GitHub Actions Bandit configuration issues")
+                    logger.info(
+                        "Successfully fixed GitHub Actions Bandit configuration issues"
+                    )
                     exit_code = 0
                 else:
                     logger.error("Failed to create platform configurations")
@@ -193,7 +205,7 @@ def main() -> int:
             logger.error("Failed to set up directories")
     except Exception:
         logger.exception("Unexpected error during Bandit configuration fix")
-    
+
     return exit_code
 
 
