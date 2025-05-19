@@ -11,6 +11,8 @@ This document provides specific recommendations for implementing the ARTIST (Age
 The current `ArtistAgent` class should be extended to incorporate ARTIST's key components:
 
 ```python
+from typing import Any, Callable, Dict, List, Tuple
+
 class EnhancedArtistAgent:
     """Agent that implements ARTIST framework principles."""
 
@@ -20,54 +22,54 @@ class EnhancedArtistAgent:
         self.model_provider = model_provider  # LLM provider
         self.learning_rate = learning_rate
         self.reasoning_history = []  # Store reasoning paths for learning
-        
-    def reason(self, prompt: str) -> dict:
+
+    def reason(self, prompt: str) -> dict[str, Any]:
         """
         Generate reasoning steps, potentially including tool queries.
-        
+
         Returns:
-            dict: Contains reasoning steps, tool queries, and final answer
+            dict[str, Any]: Contains reasoning steps, tool queries, and final answer
         """
         # Implementation would use the model_provider to generate reasoning
         pass
-        
-    def decide_tool_use(self, reasoning_step: str) -> tuple:
+
+    def decide_tool_use(self, reasoning_step: str) -> tuple[bool, str, str]:
         """
         Decide whether to use a tool and which one.
-        
+
         Returns:
-            tuple: (use_tool, tool_name, tool_query)
+            tuple[bool, str, str]: (use_tool, tool_name, tool_query)
         """
         pass
-        
+
     def execute_tool(self, tool_name: str, tool_query: str) -> str:
         """Execute a tool and return its output."""
         if tool_name in self.tools:
             tool_func = self.tools[tool_name]
             return str(tool_func(tool_query))
         return f"Error: Tool '{tool_name}' not found"
-        
+
     def update_policy(self, prompt: str, reasoning_path: dict, reward: float):
         """Update the agent's policy based on reward signal."""
         # Implementation would depend on the RL approach used
         pass
-        
+
     def run(self, prompt: str) -> str:
         """
         Process a prompt using ARTIST methodology.
-        
+
         Args:
             prompt (str): The user's input/problem.
-            
+
         Returns:
             str: The final answer after reasoning and tool use.
         """
         reasoning_path = self.reason(prompt)
-        
+
         # Process reasoning steps, potentially using tools
         for step in reasoning_path["steps"]:
             use_tool, tool_name, tool_query = self.decide_tool_use(step["content"])
-            
+
             if use_tool:
                 tool_output = self.execute_tool(tool_name, tool_query)
                 # Add tool output to reasoning path
@@ -76,13 +78,13 @@ class EnhancedArtistAgent:
                     "query": tool_query,
                     "output": tool_output
                 }
-        
+
         # Store reasoning path for learning
         self.reasoning_history.append({
             "prompt": prompt,
             "reasoning_path": reasoning_path
         })
-        
+
         return reasoning_path["answer"]
 ```
 
@@ -93,11 +95,11 @@ Implement a new module for the reinforcement learning component of ARTIST:
 ```python
 class ArtistRLTrainer:
     """Implements ARTIST's reinforcement learning approach."""
-    
+
     def __init__(self, agent, reward_function, learning_rate=0.01):
         """
         Initialize the RL trainer.
-        
+
         Args:
             agent: The EnhancedArtistAgent to train
             reward_function: Function that evaluates reasoning paths
@@ -106,63 +108,63 @@ class ArtistRLTrainer:
         self.agent = agent
         self.reward_function = reward_function
         self.learning_rate = learning_rate
-        
+
     def train_on_dataset(self, dataset, epochs=1):
         """
         Train the agent on a dataset of problems.
-        
+
         Args:
             dataset: List of problem prompts with ground truth answers
             epochs: Number of training epochs
         """
         for epoch in range(epochs):
             total_reward = 0
-            
+
             for item in dataset:
                 prompt = item["prompt"]
                 ground_truth = item["answer"]
-                
+
                 # Generate reasoning path
                 reasoning_path = self.agent.reason(prompt)
-                
+
                 # Calculate reward
                 reward = self.reward_function(reasoning_path, ground_truth)
                 total_reward += reward
-                
+
                 # Update policy
                 self.agent.update_policy(prompt, reasoning_path, reward)
-                
+
             avg_reward = total_reward / len(dataset)
             print(f"Epoch {epoch+1}/{epochs}, Average Reward: {avg_reward}")
-            
+
     def evaluate(self, test_dataset):
         """
         Evaluate the agent on a test dataset.
-        
+
         Args:
             test_dataset: List of problem prompts with ground truth answers
-            
+
         Returns:
             dict: Evaluation metrics
         """
         correct = 0
         total_reward = 0
-        
+
         for item in test_dataset:
             prompt = item["prompt"]
             ground_truth = item["answer"]
-            
+
             # Generate reasoning path
             reasoning_path = self.agent.reason(prompt)
-            
+
             # Calculate reward
             reward = self.reward_function(reasoning_path, ground_truth)
             total_reward += reward
-            
+
             # Check correctness
             if reasoning_path["answer"] == ground_truth:
                 correct += 1
-                
+
         return {
             "accuracy": correct / len(test_dataset),
             "average_reward": total_reward / len(test_dataset)
@@ -177,42 +179,42 @@ Implement composite reward functions as described in the ARTIST paper:
 def mathematical_problem_reward(reasoning_path, ground_truth):
     """
     Calculate reward for mathematical problem solving.
-    
+
     Args:
         reasoning_path: The agent's reasoning path
         ground_truth: The correct answer
-        
+
     Returns:
         float: Reward value
     """
     # Base reward for correct answer
     correctness_reward = 1.0 if reasoning_path["answer"] == ground_truth else 0.0
-    
+
     # Reward for proper tool use
     tool_use_reward = 0.0
     tool_use_count = 0
-    
+
     for step in reasoning_path["steps"]:
         if "tool_use" in step:
             tool_use_count += 1
             # Check if tool was used appropriately
             if is_tool_use_appropriate(step["content"], step["tool_use"]):
                 tool_use_reward += 0.2
-    
+
     # Penalize excessive tool use
     if tool_use_count > 5:
         tool_use_reward -= 0.1 * (tool_use_count - 5)
-    
+
     # Reward for reasoning quality
     reasoning_reward = assess_reasoning_quality(reasoning_path["steps"])
-    
+
     # Combine rewards
     total_reward = (
         0.6 * correctness_reward +
         0.2 * tool_use_reward +
         0.2 * reasoning_reward
     )
-    
+
     return total_reward
 ```
 
@@ -226,7 +228,7 @@ Enhance the existing tool registry in `common_utils/tooling.py`:
 def register_tool_with_metadata(name: str, func: Callable[..., Any], metadata: dict) -> None:
     """
     Register a callable tool with metadata.
-    
+
     Args:
         name (str): Name of the tool.
         func (Callable): Function implementing the tool.
@@ -244,10 +246,10 @@ def register_tool_with_metadata(name: str, func: Callable[..., Any], metadata: d
 def get_tool_metadata(name: str) -> dict:
     """
     Get metadata for a registered tool.
-    
+
     Args:
         name (str): Name of the tool.
-        
+
     Returns:
         dict: Tool metadata
     """
@@ -266,10 +268,10 @@ from sympy import symbols, solve, sympify, SympifyError
 def equation_solver(query: str) -> str:
     """
     Solve algebraic equations.
-    
+
     Args:
         query (str): Equation to solve, e.g., "x^2 - 5*x + 6 = 0"
-        
+
     Returns:
         str: Solution to the equation
     """
@@ -280,15 +282,15 @@ def equation_solver(query: str) -> str:
             equation = f"({left}) - ({right})"
         else:
             equation = query
-            
+
         # Define symbol and solve
         x = symbols('x')
         expr = sympify(equation)
         solutions = solve(expr, x)
-        
+
         if not solutions:
             return "No solutions found"
-        
+
         return f"Solutions: {', '.join(str(sol) for sol in solutions)}"
     except SympifyError:
         return "Error: Could not parse the equation"

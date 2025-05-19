@@ -8,7 +8,7 @@ This document identifies potential pilot use cases for implementing the ARTIST (
 
 Our codebase already contains a basic implementation of an agent system with tool integration:
 
-1. **ArtistAgent Class**: Found in `ai_models/artist_agent.py` and `main_artist_agent.py`, this provides a scaffold for agentic tool use.
+1. **ArtistAgent Class**: Found in `ai_models/artist_agent.py` and `ai_models/main_artist_agent.py`, this provides a scaffold for agentic tool use.
 2. **Tool Registry**: The `common_utils/tooling.py` module implements a registry system for tools.
 3. **Agent Team**: Various agent implementations exist in the `agent_team` directory.
 
@@ -90,7 +90,7 @@ researcher_agent.analyze_market_opportunity("AI-powered fitness coaching apps")
 **Example Use Case**:
 ```python
 # Enhanced ARTIST implementation for content generation
-marketing_agent.create_content("Benefits of AI-powered fitness coaching", 
+marketing_agent.create_content("Benefits of AI-powered fitness coaching",
                               content_type="blog_post",
                               target_audience="fitness enthusiasts")
 # Agent would:
@@ -119,7 +119,7 @@ marketing_agent.create_content("Benefits of AI-powered fitness coaching",
 **Example Use Case**:
 ```python
 # Enhanced ARTIST implementation for feedback analysis
-feedback_agent.analyze_feedback(customer_feedback_data, 
+feedback_agent.analyze_feedback(customer_feedback_data,
                                product_id="fitness-coach-pro")
 # Agent would:
 # 1. Assess feedback volume and characteristics
