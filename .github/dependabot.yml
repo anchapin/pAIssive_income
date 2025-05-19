@@ -1,31 +1,54 @@
 version: 2
 updates:
-  # Enable version updates for npm
   - package-ecosystem: "npm"
-    directory: "/" # Looks for package.json in the root directory
+    directory: "/" # Location of package.json for pnpm
     schedule:
       interval: "weekly"
-
-  # Enable version updates for pip
-  - package-ecosystem: "pip"
-    directory: "/" # Looks for requirements.txt or pyproject.toml in the root directory
-    schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "all"
-    # Also update requirements.lock
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "javascript"
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
 
-  # Enable version updates for Docker
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    ignore:
+      - dependency-name: "flask"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pytest"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "docker"
-    directory: "/" # Looks for Dockerfile in the root directory
+    directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
 
-  # Enable version updates for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/" # Looks for workflow files in .github/workflows
+  - package-ecosystem: "docker"
+    directory: "ui/react_frontend/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+
+  - package-ecosystem: "github-actions"
+    directory: "/" # Root directory for GitHub Actions workflows
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
