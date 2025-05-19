@@ -88,6 +88,22 @@ const resultsDir = path.join(process.cwd(), 'test-results');
 safelyCreateDirectory(resultsDir);
 
 // Create an HTML report file to ensure the directory is not empty
+// Use a function to safely encode values for HTML
+function escapeHtml(unsafe) {
+  return unsafe
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Create HTML with safely encoded values
+const platform = escapeHtml(process.platform);
+const nodeVersion = escapeHtml(process.version);
+const timestamp = escapeHtml(new Date().toISOString());
+
 const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
@@ -101,9 +117,9 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body>
   <h1>CI Test Results</h1>
-  <div class="info">Platform: ${process.platform}</div>
-  <div class="info">Node version: ${process.version}</div>
-  <div class="timestamp">Test run at: ${new Date().toISOString()}</div>
+  <div class="info">Platform: ${platform}</div>
+  <div class="info">Node version: ${nodeVersion}</div>
+  <div class="timestamp">Test run at: ${timestamp}</div>
   <p>This file was created to ensure the playwright-report directory is not empty.</p>
 </body>
 </html>`;
@@ -111,12 +127,15 @@ const htmlContent = `<!DOCTYPE html>
 safelyWriteFile(path.join(htmlDir, 'index.html'), htmlContent);
 
 // Create a simple index.html in the root report directory
+// Use the same escapeHtml function to safely encode the timestamp
+const rootTimestamp = escapeHtml(new Date().toISOString());
+
 safelyWriteFile(path.join(reportDir, 'index.html'), `<!DOCTYPE html>
 <html>
 <head><title>Test Results</title></head>
 <body>
   <h1>Test Results</h1>
-  <p>Test run at: ${new Date().toISOString()}</p>
+  <p>Test run at: ${rootTimestamp}</p>
   <p><a href="./html/index.html">View detailed report</a></p>
 </body>
 </html>`);
@@ -135,14 +154,27 @@ const junitXml = `<?xml version="1.0" encoding="UTF-8"?>
 safelyWriteFile(path.join(reportDir, 'junit-results.xml'), junitXml);
 
 // Create a summary file
+// For text files, we don't need HTML escaping, but we should still sanitize the values
+// to prevent potential command injection or other issues
+function sanitizeForTextFile(value) {
+  return String(value).replace(/[\r\n]/g, ' ');
+}
+
+const summaryDate = sanitizeForTextFile(new Date().toISOString());
+const summaryPlatform = sanitizeForTextFile(process.platform);
+const summaryNodeVersion = sanitizeForTextFile(process.version);
+const summaryHostname = sanitizeForTextFile(os.hostname());
+const summaryWorkingDir = sanitizeForTextFile(process.cwd());
+const summaryCI = sanitizeForTextFile(process.env.CI ? 'Yes' : 'No');
+
 const summaryContent = `Test run summary
 -------------------
-Date: ${new Date().toISOString()}
-Platform: ${process.platform}
-Node version: ${process.version}
-Hostname: ${os.hostname()}
-Working directory: ${process.cwd()}
-CI environment: ${process.env.CI ? 'Yes' : 'No'}
+Date: ${summaryDate}
+Platform: ${summaryPlatform}
+Node version: ${summaryNodeVersion}
+Hostname: ${summaryHostname}
+Working directory: ${summaryWorkingDir}
+CI environment: ${summaryCI}
 -------------------
 All tests passed successfully.
 `;

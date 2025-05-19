@@ -22,6 +22,8 @@ We've added platform-specific CodeQL workflows to enhance security analysis acro
 - **Robust Dependency Installation**: Uses `uv pip` with fallback to regular `pip`
 - **Caching and Performance Optimization**: Caches CodeQL databases and dependencies
 - **Comprehensive Reporting**: Generates detailed SARIF reports for each language and platform
+- **Lock File Management**: Ensures lock files exist before CodeQL analysis
+- **Platform-Specific Configurations**: Uses dedicated configuration files for each platform
 
 For detailed information, see [CodeQL Workflows](security/codeql_workflows.md).
 

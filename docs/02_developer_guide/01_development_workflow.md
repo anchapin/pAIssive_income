@@ -27,13 +27,13 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 ### Ruff for Python
 
 - Ruff is used for both linting and formatting Python code, configured via `ruff.toml`.
-- Run `python fix_linting_issues.py` to fix linting issues, or use the pre-commit hook.
+- Run `python scripts/fix/fix_linting_issues.py` to fix linting issues, or use the pre-commit hook.
 - Exclude files by adding patterns to `.lintignore`.
 - Parallel processing is supported (`--jobs` flag).
 
 ### Formatting
 
-- Use `python fix_formatting.py` to auto-fix formatting.
+- Use `python scripts/fix/fix_formatting.py` to auto-fix formatting.
 - Do **not** use Black; Ruff is the canonical formatter.
 - Pre-commit hooks (see `.pre-commit-config.yaml`) enforce linting/formatting before each commit.
 
@@ -48,7 +48,7 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 ## Testing Standards
 
 - Minimum 90% line coverage required (enforced in CI).
-- Run `python run_tests.py --with-coverage` before PRs.
+- Run `python scripts/run/run_tests.py --with-coverage` before PRs.
 - All new features/bugfixes must have unit and/or integration tests, covering edge/error cases.
 - Use pytest markers to organize tests (`unit`, `integration`, `slow`, etc.).
 - Place tests in the appropriate `tests/` subdirectory.
@@ -60,7 +60,7 @@ All contributions must use `uv` (for Python) and `pnpm` (for Node.js). Other too
 ## Contribution Checklist
 
 - [ ] Code includes tests covering new/changed logic and edge/error cases.
-- [ ] Ran `python run_tests.py --with-coverage` and coverage is ≥90%.
+- [ ] Ran `python scripts/run/run_tests.py --with-coverage` and coverage is ≥90%.
 - [ ] Code passes all linting and type checks (`ruff`, `mypy`, etc.).
 - [ ] All automated tests pass in CI.
 - [ ] Documentation and docstrings are updated.

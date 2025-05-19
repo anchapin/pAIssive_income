@@ -58,8 +58,12 @@ The workflows generate detailed reports in SARIF format:
 
 The workflows use the following configuration files:
 
-- **.github/codeql/security-os-config.yml**: OS-specific configuration
+- **.github/codeql/security-os-config.yml**: Unified configuration for all platforms
 - **.github/codeql/security-os-macos.yml**: macOS-specific configuration
+- **.github/codeql/security-os-ubuntu.yml**: Ubuntu-specific configuration
+- **.github/codeql/security-os-windows.yml**: Windows-specific configuration
+
+Each platform-specific configuration file extends the unified configuration and adds platform-specific settings.
 
 ### Analysis Options
 
