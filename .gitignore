@@ -166,6 +166,11 @@ yarn-error.log
 ui/static/css/tailwind.output.css
 ui/react_frontend/src/tailwind.output.css
 
+# Ignore mypy stubs
+mypy_stubs/
+mypy_stubs/modelcontextprotocol/
+mypy_stubs/psycopg2/
+
 # Ignore package lock files
 .nyc_output/
 package-lock.json

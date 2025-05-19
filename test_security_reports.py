@@ -27,14 +27,14 @@ def check_security_reports_dir() -> bool:
 
     Returns:
         bool: True if the directory exists, False otherwise
+
     """
     reports_dir = Path("security-reports")
     if reports_dir.exists():
         logger.info("security-reports directory exists")
         return True
-    else:
-        logger.error("security-reports directory does not exist")
-        return False
+    logger.error("security-reports directory does not exist")
+    return False
 
 
 def check_json_files() -> bool:
@@ -43,6 +43,7 @@ def check_json_files() -> bool:
 
     Returns:
         bool: True if both files exist, False otherwise
+
     """
     bandit_results = Path("security-reports/bandit-results.json")
     bandit_results_ini = Path("security-reports/bandit-results-ini.json")
@@ -68,12 +69,13 @@ def validate_json_files() -> bool:
 
     Returns:
         bool: True if both files are valid JSON, False otherwise
+
     """
     bandit_results = Path("security-reports/bandit-results.json")
     bandit_results_ini = Path("security-reports/bandit-results-ini.json")
 
     try:
-        with open(bandit_results, "r") as f:
+        with open(bandit_results) as f:
             json.load(f)
         logger.info("bandit-results.json is valid JSON")
     except (json.JSONDecodeError, Exception) as e:
@@ -81,7 +83,7 @@ def validate_json_files() -> bool:
         return False
 
     try:
-        with open(bandit_results_ini, "r") as f:
+        with open(bandit_results_ini) as f:
             json.load(f)
         logger.info("bandit-results-ini.json is valid JSON")
     except (json.JSONDecodeError, Exception) as e:
@@ -97,6 +99,7 @@ def main() -> int:
 
     Returns:
         int: 0 if all checks pass, 1 otherwise
+
     """
     # Check if the security-reports directory exists
     if not check_security_reports_dir():
@@ -113,11 +116,12 @@ def main() -> int:
         # Try to run the test_bandit_config.py script
         try:
             import subprocess
+
             subprocess.run(
                 [sys.executable, "test_bandit_config.py"],
                 check=False,
                 shell=False,
-                timeout=300
+                timeout=300,
             )
             logger.info("Ran test_bandit_config.py")
         except Exception as e:
@@ -126,7 +130,9 @@ def main() -> int:
 
         # Check again
         if not check_json_files():
-            logger.error("JSON files still do not exist after running test_bandit_config.py")
+            logger.error(
+                "JSON files still do not exist after running test_bandit_config.py"
+            )
             return 1
 
     # Validate the JSON files
