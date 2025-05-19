@@ -57,6 +57,9 @@ paths = [
     "\\.github/workflows/consolidated-ci-cd\\.yml$",
     "\\.github/workflows/docker-compose-integration\\.yml$",
     "\\.github/workflows/security_scan\\.yml$",
+    "\\.github/workflows/docker-compose\\.yml$",
+    "\\.github/workflows/security_scan\\.yml\\.disabled$",
+    "main_consolidated-ci-cd\\.yml$",
 
     # Windows-specific paths (with backslashes)
     "common_utils\\\\secrets\\\\README\\.md$",
@@ -338,5 +341,7 @@ exclude = [
     "(?i)secrets\\.JOB_",
     "(?i)secrets\\.STEP_",
     "(?i)secrets\\.DOCKER_USERNAME",
-    "(?i)secrets\\.DOCKER_PASSWORD"
+    "(?i)secrets\\.DOCKER_PASSWORD",
+    "(?i)secrets\\.DOCKERHUB_USERNAME",
+    "(?i)secrets\\.DOCKERHUB_TOKEN"
 ]

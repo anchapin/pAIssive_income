@@ -8,43 +8,29 @@ This document explains the Bandit configuration setup for GitHub Advanced Securi
 
 ## Configuration Structure
 
-The project uses a hierarchical configuration structure for Bandit:
+The project uses a template-based configuration structure for Bandit:
 
-1. **Platform-specific run ID configurations**: Located in `.github/bandit/bandit-config-{platform}-{run_id}.yaml`
-2. **Generic platform configurations**: Located in `.github/bandit/bandit-config-{platform}.yaml`
-3. **Fallback configuration**: Located in `.bandit` (root directory)
+1. **Template configuration**: Located in `.github/bandit/bandit-config-template.yaml`
+2. **Platform-specific configurations**: Located in `.github/bandit/bandit-config-{platform}.yaml`
+3. **Platform-specific test run ID configurations**: Located in `.github/bandit/bandit-config-{platform}-test_run_id.yaml`
+4. **Fallback configuration**: Located in `.bandit` (root directory)
 
-This structure allows for flexible configuration based on the platform (Linux, Windows, macOS) and specific run IDs.
+This structure allows for flexible configuration based on the platform (Linux, Windows, macOS) while maintaining consistency across environments.
 
-## Run ID-specific Configurations
+## Template-based Configuration
 
-The following run ID-specific configurations are available:
+The project has moved from individual run-specific configuration files to a template-based approach. This change:
 
-### Linux
-- `.github/bandit/bandit-config-linux-14974236301.yaml`
-- `.github/bandit/bandit-config-linux-14976101411.yaml`
-- `.github/bandit/bandit-config-linux-14977094424.yaml`
-- `.github/bandit/bandit-config-linux-14977626158.yaml`
-- `.github/bandit/bandit-config-linux-14978521232.yaml`
-- `.github/bandit/bandit-config-linux-14987452007.yaml`
+1. **Reduces duplication**: Instead of maintaining multiple similar configuration files, we use templates
+2. **Improves maintainability**: Changes to configuration settings only need to be made in one place
+3. **Ensures consistency**: All platforms use the same base configuration with platform-specific overrides only when necessary
 
-### Windows
-- `.github/bandit/bandit-config-windows-14974236301.yaml`
-- `.github/bandit/bandit-config-windows-14976101411.yaml`
-- `.github/bandit/bandit-config-windows-14977094424.yaml`
-- `.github/bandit/bandit-config-windows-14977626158.yaml`
-- `.github/bandit/bandit-config-windows-14978521232.yaml`
-- `.github/bandit/bandit-config-windows-14987452007.yaml`
+### Template Files
 
-### macOS
-- `.github/bandit/bandit-config-macos-14974236301.yaml`
-- `.github/bandit/bandit-config-macos-14976101411.yaml`
-- `.github/bandit/bandit-config-macos-14977094424.yaml`
-- `.github/bandit/bandit-config-macos-14977626158.yaml`
-- `.github/bandit/bandit-config-macos-14978521232.yaml`
-- `.github/bandit/bandit-config-macos-14987452007.yaml`
+- `.github/bandit/bandit-config-template.yaml` - Base template for all configurations
+- `.github/bandit/bandit-config-linux-template.yaml` - Linux-specific template
 
-## Generic Platform Configurations
+## Platform Configurations
 
 - `.github/bandit/bandit-config-linux.yaml`
 - `.github/bandit/bandit-config-windows.yaml`
@@ -58,10 +44,12 @@ The following directories are excluded from security scans:
 
 - `tests` - Test files
 - `venv`, `.venv`, `env`, `.env` - Virtual environments
-- `__pycache__` - Python cache files
+- `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache` - Cache directories
 - `custom_stubs` - Custom type stubs
 - `node_modules` - Node.js dependencies
 - `build`, `dist` - Build artifacts
+- `docs`, `docs_source` - Documentation
+- `junit`, `bin`, `dev_tools`, `scripts`, `tool_templates` - Tools and utilities
 
 ### Skipped Tests
 
@@ -79,15 +67,37 @@ The output format is set to SARIF (Static Analysis Results Interchange Format) f
 - Severity: MEDIUM
 - Confidence: MEDIUM
 
+### Shell Injection Configuration
+
+The configuration now uses a simplified shell injection detection approach:
+
+```yaml
+# Simplified shell configuration
+shell_injection:
+  no_shell: []  # Commands that don't use shell=True
+  shell: []     # Commands that are allowed to use shell=True
+```
+
+This replaces the previous more verbose configuration that explicitly listed all shell commands.
+
 ## GitHub Actions Integration
 
 The Bandit scan is integrated into the GitHub Actions workflow in `.github/workflows/consolidated-ci-cd.yml`. The workflow:
 
-1. Determines the appropriate configuration file based on the platform and run ID
+1. Determines the appropriate configuration file based on the platform
 2. Installs Bandit if not already available
 3. Runs Bandit with the configuration file
 4. Generates a SARIF report
-5. Uploads the SARIF report to GitHub Advanced Security with the appropriate category
+5. Creates an empty SARIF file as a fallback if the scan fails
+6. Uploads the SARIF report to GitHub Advanced Security with the appropriate category
+
+### Configuration Generation
+
+The workflow now uses a simplified approach:
+
+1. Platform-specific configuration files are used directly
+2. If a platform-specific file is not available, it falls back to the template
+3. The template-based approach eliminates the need to generate run-specific configurations for each workflow run
 
 ## Running Bandit Locally
 

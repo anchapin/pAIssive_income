@@ -29,7 +29,7 @@ services:
     networks:
       - paissive-network
     healthcheck:
-      test: ["CMD", "/usr/local/bin/docker-healthcheck.sh"]
+      test: ["CMD", "/app/docker-healthcheck.sh"]
       interval: 10s  # Reduced from 20s for faster feedback in CI
       timeout: 20s   # Reduced from 30s for faster feedback in CI
       retries: 10    # Reduced from 15 for faster feedback in CI

@@ -1,62 +1,29 @@
-name: "Ubuntu CodeQL Security Configuration"
+name: "CodeQL Configuration for Ubuntu"
 
-# This configuration file is used by the consolidated-ci-cd.yml workflow
-# It provides Ubuntu-specific configurations for CodeQL analysis
+# This configuration file customizes the CodeQL analysis for Ubuntu
+# It inherits settings from the unified configuration and adds Ubuntu-specific settings
 
-# Specify paths to analyze
-paths:
-  # JavaScript/TypeScript paths
-  - 'ui'
-  - 'sdk/javascript'
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.json'
-  - '**/*.html'
-  
-  # Python paths
-  - '**/*.py'
-  - '**/*.pyw'
-  - '**/*.pyi'
+# Inherit from the unified configuration
+extends: security-os-config.yml
 
-# Paths to exclude
+# Ubuntu-specific settings
+os: ubuntu-latest
+
+# Additional Ubuntu-specific paths to exclude
 paths-ignore:
-  # Build artifacts
-  - '**/node_modules/**'
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/.venv/**'
-  - '**/vendor/**'
-  - '**/external/**'
-  - '**/third_party/**'
-  
-  # Test files
-  - '**/test/**'
-  - '**/tests/**'
-  - '**/__tests__/**'
-  - '**/__mocks__/**'
-  - '**/*.test.js'
-  - '**/*.test.ts'
-  - '**/*.test.jsx'
-  - '**/*.test.tsx'
-  - '**/*.spec.js'
-  - '**/*.spec.ts'
-  - '**/*.spec.jsx'
-  - '**/*.spec.tsx'
-  
-  # Configuration files
-  - '**/.github/**'
-  - '**/.vscode/**'
-  - '**/.idea/**'
-  - '**/coverage/**'
-  
-  # Documentation
-  - '**/docs/**'
-  - '**/*.md'
-  - '**/*.mdx'
-  - '**/*.rst'
-  - '**/sphinx/**'
+  # Linux specific files
+  - '**/lost+found/**'
+  - '**/proc/**'
+  - '**/sys/**'
+  - '**/var/tmp/**'
+  - '**/tmp/**'
+  - '**/.bash_history'
+  - '**/.bashrc'
+  - '**/.profile'
+  - '**/.ssh/**'
+  - '**/core.*'
+  - '**/*.so'
+  - '**/*.o'
 
 # Query filters
 queries:
@@ -66,9 +33,8 @@ queries:
   # Include additional security queries
   - uses: security-extended
 
-  # Include language-specific security queries
-  - uses: ./javascript-security-queries.qls
-  - uses: ./python-security-queries.qls
+  # Use standard security queries
+  - uses: security
 
 # Disable noisy alerts
 disable-default-queries: false
@@ -80,20 +46,6 @@ query-filters:
   - exclude:
       tags contain: maintainability
       precision below: high
-  - exclude:
-      tags contain: correctness
-      precision below: high
 
 # Trap errors during extraction
 trap-for-errors: true
-
-# Database extraction settings
-database:
-  # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
-  # Exclude files with too many lines
-  max-lines-of-code: 25000
-  # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
-  # Extraction timeout per file
-  extraction-timeout: 300

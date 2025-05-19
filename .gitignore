@@ -56,6 +56,20 @@
 !security-reports/*.json
 !security-reports/bandit-results.json
 !security-reports/bandit-results-ini.json
+
+# Explicit ignore for security/test artifacts
+bandit-results-*.json
+bandit-results-*.txt
+coverage-*.xml
+junit/test-results-*.xml
+*-results-*.json
+*-results-*.xml
+secrets.sarif.json
+create_bandit_files.sh
+
+# Editor/tool-specific configs
+.cursor/
+cline_mcp_settings.json
 *.so
 *.spec
 *.swo
@@ -214,3 +228,5 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+package-lock.json
+sdk/javascript/package-lock.json
