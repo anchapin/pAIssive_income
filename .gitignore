@@ -137,3 +137,5 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+.nyc_output/
+sdk/javascript/package-lock.json
