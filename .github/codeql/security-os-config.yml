@@ -66,6 +66,7 @@ paths-ignore:
   - '**/playwright-report/**'
   - '**/pytest.ini'
   - '**/conftest.py'
+  - '**/test_mem0_integration.py'
 
   # Minified files and type definitions
   - '**/*.min.js'

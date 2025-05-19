@@ -31,16 +31,17 @@ def create_codeql_config(filename, config_name, os_name=None):
             "**/*.spec.js",
             "**/*.test.py",
             "**/*.spec.py",
-            "tests/**"
+            "tests/**",
+            "test_mem0_integration.py"
         ]
     }
-    
+
     if os_name:
         config["os"] = os_name
-    
+
     with open(filename, 'w') as f:
         json.dump(config, f, indent=2)
-    
+
     print(f"Created CodeQL configuration file: {filename}")
 
 def main():
@@ -48,19 +49,19 @@ def main():
     # Ensure the .github/codeql directory exists
     codeql_dir = os.path.join(".github", "codeql")
     ensure_directory(codeql_dir)
-    
+
     # Create the Ubuntu configuration
     ubuntu_config = os.path.join(codeql_dir, "security-os-ubuntu.yml")
     create_codeql_config(ubuntu_config, "CodeQL Configuration for Ubuntu", "ubuntu-latest")
-    
+
     # Create the macOS configuration
     macos_config = os.path.join(codeql_dir, "security-os-macos.yml")
     create_codeql_config(macos_config, "CodeQL Configuration for macOS", "macos-latest")
-    
+
     # Create the unified configuration
     unified_config = os.path.join(codeql_dir, "security-os-config.yml")
     create_codeql_config(unified_config, "Unified CodeQL Configuration")
-    
+
     print("All CodeQL configuration files created successfully.")
 
 if __name__ == "__main__":

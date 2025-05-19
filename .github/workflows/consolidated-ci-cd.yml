@@ -65,8 +65,8 @@ jobs:
 
       - name: Install pnpm
         run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
+          npm install -g pnpm@8.14.0
+          pnpm --version
 
       - name: Install Node.js dependencies and build Tailwind CSS
         run: |
