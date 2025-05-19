@@ -142,8 +142,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         This method:
         1. Retrieves relevant memories before running
-        2. Runs the team workflow
-        3. Stores the results in memory
+        2. Enhances context with memories
+        3. Runs the team workflow
+        4. Stores the results in memory
 
         Returns:
             The result of the workflow
@@ -153,18 +154,24 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             raise ImportError(error_msg)
 
         # Retrieve relevant memories for context enhancement
-        context = self._retrieve_relevant_memories()
-        logger.info(f"Retrieved {len(context)} relevant memories for context enhancement")
+        context_query = f"Information about team with {len(self.agents)} agents and {len(self.tasks)} tasks"
+        memories = self._retrieve_relevant_memories(query=context_query)
+        logger.info(f"Retrieved {len(memories)} relevant memories for context enhancement")
 
         # Log the start of the workflow
-        logger.info(f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks")
-        self._store_memory(f"Starting workflow execution with {len(self.agents)} agents and {len(self.tasks)} tasks")
+        workflow_description = f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks"
+        logger.info(workflow_description)
+        self._store_memory(workflow_description)
 
         # Create and run the crew
         crew = self._create_crew()
 
-        # TODO: Enhance crew with context from memories
-        # This would require modifying the CrewAI implementation
+        # Enhance context with memories if possible
+        # Note: This is a placeholder for future CrewAI integration
+        # Currently, CrewAI doesn't provide a direct way to inject context
+        # into all agents, but we can use this for future extensions
+        enhanced_context = self._enhance_context_with_memories(workflow_description)
+        logger.debug(f"Enhanced context: {enhanced_context[:100]}...")
 
         # Run the workflow
         result = crew.kickoff()  # type: ignore[attr-defined]
@@ -234,6 +241,46 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         except Exception as e:
             logger.error(f"Error retrieving memories: {e}")
             return []
+
+    def _enhance_context_with_memories(self, context: str) -> str:
+        """
+        Enhance a context string with relevant memories.
+
+        This method retrieves relevant memories based on the context
+        and adds them to the context string to provide additional
+        information for the agents.
+
+        Args:
+            context: The original context string
+
+        Returns:
+            The enhanced context with memories included
+        """
+        if self.memory is None:
+            return context
+
+        # Retrieve relevant memories for the context
+        memories = self._retrieve_relevant_memories(query=context)
+
+        if not memories:
+            return context
+
+        # Format memories as a string
+        memory_text = "\n".join([
+            f"- {memory.get('text', memory.get('memory', str(memory)))}"
+            for memory in memories
+        ])
+
+        # Combine memories with original context
+        enhanced_context = f"""
+Relevant memories:
+{memory_text}
+
+Original context:
+{context}
+"""
+
+        return enhanced_context
 
 
 # Example usage

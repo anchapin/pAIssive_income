@@ -245,6 +245,5 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             limit=5,  # Default limit
         )
 
-
 if __name__ == "__main__":
     unittest.main()
