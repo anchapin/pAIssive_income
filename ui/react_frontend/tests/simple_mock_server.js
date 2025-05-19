@@ -30,72 +30,61 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
+// Import the enhanced environment detection module
+const { detectEnvironment } = require('../src/utils/environmentDetection');
+const {
+  detectCIEnvironmentType,
+  setupCIEnvironment,
+  getCIEnvironmentInfo,
+  createCIReport
+} = require('./helpers/ci-environment');
+
+// Import environment-detection helper for additional utilities
+const {
+  safeFileExists,
+  safeReadFile,
+  safelyCreateDirectory,
+  safelyWriteFile
+} = require('./helpers/environment-detection');
+
 // Configuration with enhanced environment detection
 const PORT = process.env.MOCK_API_PORT || process.env.PORT || 8000;
 
-// Enhanced CI environment detection
-const CI_MODE = process.env.CI === 'true' || process.env.CI === true ||
-                process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
-                process.env.TF_BUILD || process.env.JENKINS_URL ||
-                process.env.GITLAB_CI || process.env.CIRCLECI ||
-                !!process.env.BITBUCKET_COMMIT || !!process.env.APPVEYOR ||
-                !!process.env.DRONE || !!process.env.BUDDY ||
-                !!process.env.BUILDKITE || !!process.env.CODEBUILD_BUILD_ID;
+// Get environment information using the enhanced detection module
+const env = detectEnvironment();
 
-// Enhanced CI platform detection
-const GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW || !!process.env.GITHUB_RUN_ID;
-const JENKINS_CI = !!process.env.JENKINS_URL || !!process.env.JENKINS_HOME;
-const GITLAB_CI = !!process.env.GITLAB_CI || (!!process.env.CI_SERVER_NAME && process.env.CI_SERVER_NAME.includes('GitLab'));
-const CIRCLE_CI = !!process.env.CIRCLECI || !!process.env.CIRCLE_BUILD_NUM;
-const TRAVIS_CI = !!process.env.TRAVIS || !!process.env.TRAVIS_JOB_ID;
-const AZURE_PIPELINES = !!process.env.TF_BUILD || !!process.env.AZURE_HTTP_USER_AGENT;
-const TEAMCITY = !!process.env.TEAMCITY_VERSION || !!process.env.TEAMCITY_BUILD_PROPERTIES_FILE;
-const BITBUCKET = !!process.env.BITBUCKET_COMMIT || !!process.env.BITBUCKET_BUILD_NUMBER;
-const APPVEYOR = !!process.env.APPVEYOR || !!process.env.APPVEYOR_BUILD_ID;
-const DRONE_CI = !!process.env.DRONE || !!process.env.DRONE_BUILD_NUMBER;
-const BUDDY_CI = !!process.env.BUDDY || !!process.env.BUDDY_PIPELINE_ID;
-const BUILDKITE = !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID;
-const CODEBUILD = !!process.env.CODEBUILD_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN;
+// Use the enhanced environment detection
+const CI_MODE = env.isCI;
+const GITHUB_ACTIONS = env.isGitHubActions;
+const JENKINS_CI = env.isJenkins;
+const GITLAB_CI = env.isGitLabCI;
+const CIRCLE_CI = env.isCircleCI;
+const TRAVIS_CI = env.isTravis;
+const AZURE_PIPELINES = env.isAzurePipelines;
+const TEAMCITY = env.isTeamCity;
+const BITBUCKET = env.isBitbucket;
+const APPVEYOR = env.isAppVeyor;
+const DRONE_CI = env.isDroneCI;
+const BUDDY_CI = env.isBuddyCI;
+const BUILDKITE = env.isBuildkite;
+const CODEBUILD = env.isCodeBuild;
 
-// Enhanced container environment detection
-const DOCKER_ENV = process.env.DOCKER_ENVIRONMENT === 'true' ||
-                  process.env.DOCKER === 'true' ||
-                  fs.existsSync('/.dockerenv') ||
-                  fs.existsSync('/run/.containerenv') ||
-                  (fs.existsSync('/proc/1/cgroup') &&
-                   fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'));
+// Container environment detection
+const DOCKER_ENV = env.isDocker;
+const KUBERNETES_ENV = env.isKubernetes;
+const DOCKER_COMPOSE = env.isDockerCompose;
+const DOCKER_SWARM = env.isDockerSwarm;
 
-const KUBERNETES_ENV = !!process.env.KUBERNETES_SERVICE_HOST ||
-                      !!process.env.KUBERNETES_PORT ||
-                      fs.existsSync('/var/run/secrets/kubernetes.io');
+// Cloud environment detection
+const AWS_ENV = env.isAWS;
+const AZURE_ENV = env.isAzure;
+const GCP_ENV = env.isGCP;
 
-const DOCKER_COMPOSE = !!process.env.COMPOSE_PROJECT_NAME ||
-                      !!process.env.COMPOSE_FILE ||
-                      !!process.env.COMPOSE_PATH_SEPARATOR;
-
-const DOCKER_SWARM = !!process.env.DOCKER_SWARM ||
-                    !!process.env.SWARM_NODE_ID ||
-                    !!process.env.SWARM_MANAGER;
-
-// Enhanced cloud environment detection
-const AWS_ENV = !!process.env.AWS_REGION ||
-               !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
-               !!process.env.AWS_EXECUTION_ENV;
-
-const AZURE_ENV = !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
-                 !!process.env.WEBSITE_SITE_NAME ||
-                 !!process.env.APPSETTING_WEBSITE_SITE_NAME;
-
-const GCP_ENV = !!process.env.GOOGLE_CLOUD_PROJECT ||
-               !!process.env.GCLOUD_PROJECT ||
-               !!process.env.GCP_PROJECT ||
-               (!!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION);
-
-// Enhanced OS detection
-const WINDOWS_ENV = process.platform === 'win32';
-const MACOS_ENV = process.platform === 'darwin';
-const LINUX_ENV = process.platform === 'linux';
-const WSL_ENV = !!process.env.WSL_DISTRO_NAME || !!process.env.WSLENV;
+// OS detection
+const WINDOWS_ENV = env.isWindows;
+const MACOS_ENV = env.isMacOS;
+const LINUX_ENV = env.isLinux;
+const WSL_ENV = env.isWSL;
 
 // Other configuration
 const VERBOSE_LOGGING = process.env.VERBOSE_LOGGING === 'true' || CI_MODE;
@@ -108,78 +97,155 @@ if (GITHUB_ACTIONS && !process.env.CI) {
   console.log('GitHub Actions detected, forcing CI mode');
 }
 
-// Create a report directory for test artifacts
-const reportDir = path.join(process.cwd(), 'playwright-report');
-if (!fs.existsSync(reportDir)) {
-  fs.mkdirSync(reportDir, { recursive: true });
-  console.log(`Created playwright-report directory at ${reportDir}`);
-}
-
-// Setup logging
-const logDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
-  console.log(`Created logs directory at ${logDir}`);
-}
-
-// Helper function to create a report file
-function createReport(filename, content) {
-  try {
-    fs.writeFileSync(path.join(reportDir, filename), content);
-    console.log(`Created report file: ${filename}`);
-  } catch (error) {
-    console.error(`Failed to create report file ${filename}: ${error}`);
+// Setup CI environment if needed
+let ciSetupResult = { success: false, ciType: 'none' };
+if (CI_MODE) {
+  ciSetupResult = setupCIEnvironment();
+  if (ciSetupResult.success) {
+    console.log(`CI environment setup complete for ${ciSetupResult.ciType}`);
+  } else {
+    console.warn(`CI environment setup failed: ${ciSetupResult.error}`);
   }
 }
 
-// Enhanced logger function with better formatting and level support
+// Create directories using the enhanced helper functions
+const reportDir = path.join(process.cwd(), 'playwright-report');
+safelyCreateDirectory(reportDir);
+console.log(`Created/verified playwright-report directory at ${reportDir}`);
+
+// Setup logging with enhanced helper
+const logDir = path.join(process.cwd(), 'logs');
+safelyCreateDirectory(logDir);
+console.log(`Created/verified logs directory at ${logDir}`);
+
+// Create CI-specific directories if in CI mode
+if (CI_MODE) {
+  const ciReportDir = path.join(process.cwd(), 'ci-reports');
+  safelyCreateDirectory(ciReportDir);
+  console.log(`Created/verified ci-reports directory at ${ciReportDir}`);
+
+  // Create CI-specific subdirectory
+  const ciTypeDir = path.join(ciReportDir, ciSetupResult.ciType || 'generic');
+  safelyCreateDirectory(ciTypeDir);
+  console.log(`Created/verified CI-specific directory at ${ciTypeDir}`);
+}
+
+// Enhanced helper function to create a report file with better error handling
+function createReport(filename, content) {
+  try {
+    // Try to write to the report directory
+    const filePath = path.join(reportDir, filename);
+    const success = safelyWriteFile(filePath, content);
+
+    if (success) {
+      console.log(`Created report file: ${filename}`);
+
+      // If in CI mode, also create a copy in the CI-specific directory
+      if (CI_MODE) {
+        const ciType = ciSetupResult.ciType || 'generic';
+        const ciReportDir = path.join(process.cwd(), 'ci-reports', ciType);
+        const ciFilePath = path.join(ciReportDir, filename);
+
+        safelyWriteFile(ciFilePath, content);
+        console.log(`Created CI-specific report file at: ${ciFilePath}`);
+      }
+
+      return true;
+    } else {
+      console.error(`Failed to create report file ${filename}`);
+
+      // Try alternative locations
+      const altLocations = [
+        path.join(process.cwd(), filename),
+        path.join(logDir, filename)
+      ];
+
+      for (const altPath of altLocations) {
+        if (safelyWriteFile(altPath, content)) {
+          console.log(`Created report file at alternative location: ${altPath}`);
+          return true;
+        }
+      }
+
+      return false;
+    }
+  } catch (error) {
+    console.error(`Failed to create report file ${filename}: ${error}`);
+    return false;
+  }
+}
+
+// Enhanced logger function with better formatting, level support, and environment-specific handling
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   const prefix = `[${timestamp}] [simple-mock-server] [${level.toUpperCase()}]`;
   const logMessage = `${prefix} ${message}\n`;
 
+  // Get environment information for enhanced logging
+  const ciType = ciSetupResult.ciType || 'none';
+  const envInfo = `[${env.platform}]${CI_MODE ? `[CI:${ciType}]` : ''}${DOCKER_ENV ? '[Docker]' : ''}`;
+  const enhancedLogMessage = `${prefix} ${envInfo} ${message}\n`;
+
   // Console output with appropriate log level
   switch (level) {
     case 'error':
-      console.error(logMessage.trim());
+      console.error(enhancedLogMessage.trim());
       break;
     case 'warn':
-      console.warn(logMessage.trim());
+      console.warn(enhancedLogMessage.trim());
       break;
     case 'debug':
       if (VERBOSE_LOGGING) {
-        console.log(logMessage.trim());
+        console.log(enhancedLogMessage.trim());
       }
       break;
     case 'important':
-      console.log(`\n${logMessage.trim()}\n`);
+      console.log(`\n${enhancedLogMessage.trim()}\n`);
       break;
     default:
-      console.log(logMessage.trim());
+      console.log(enhancedLogMessage.trim());
   }
 
-  // Write to log file with error handling
-  try {
-    fs.appendFileSync(path.join(logDir, 'simple-mock-server.log'), logMessage);
+  // Write to log file with enhanced error handling using the helper functions
+  const mainLogPath = path.join(logDir, 'simple-mock-server.log');
+  const success = safelyWriteFile(mainLogPath, enhancedLogMessage, { append: true });
 
-    // For important or error logs, also write to a separate file for easier debugging
-    if (level === 'error' || level === 'important') {
-      const specialLogFile = level === 'error' ? 'error.log' : 'important.log';
-      fs.appendFileSync(path.join(logDir, specialLogFile), logMessage);
+  if (!success) {
+    console.error(`Failed to write to main log file: ${mainLogPath}`);
+  }
+
+  // For important or error logs, also write to a separate file for easier debugging
+  if (level === 'error' || level === 'important') {
+    const specialLogFile = level === 'error' ? 'error.log' : 'important.log';
+    const specialLogPath = path.join(logDir, specialLogFile);
+    safelyWriteFile(specialLogPath, enhancedLogMessage, { append: true });
+
+    // In CI mode, also write to CI-specific log files
+    if (CI_MODE) {
+      const ciLogDir = path.join(process.cwd(), 'ci-reports', ciType);
+      safelyCreateDirectory(ciLogDir);
+      const ciLogPath = path.join(ciLogDir, specialLogFile);
+      safelyWriteFile(ciLogPath, enhancedLogMessage, { append: true });
     }
-  } catch (error) {
-    console.error(`Failed to write to log file: ${error}`);
+  }
 
-    // Try writing to a fallback location
-    try {
-      const fallbackDir = path.join(process.cwd(), 'logs-fallback');
-      if (!fs.existsSync(fallbackDir)) {
-        fs.mkdirSync(fallbackDir, { recursive: true });
-      }
-      fs.appendFileSync(path.join(fallbackDir, 'simple-mock-server.log'), logMessage);
-    } catch (fallbackError) {
-      // At this point, we can't do much more
-      console.error(`Failed to write to fallback log file: ${fallbackError}`);
+  // Create environment-specific logs
+  if (level === 'error' || level === 'important') {
+    // Create an environment report for debugging
+    const envReport = createCIReport(null, {
+      includeEnvVars: false,
+      includeSystemInfo: true,
+      formatJson: true
+    });
+
+    // Write the environment report to a file
+    const envReportPath = path.join(logDir, `env-report-${Date.now()}.json`);
+    safelyWriteFile(envReportPath, envReport);
+
+    // In CI mode, also write to CI-specific environment report
+    if (CI_MODE) {
+      const ciEnvReportPath = path.join(process.cwd(), 'ci-reports', ciType, `env-report-${Date.now()}.json`);
+      safelyWriteFile(ciEnvReportPath, envReport);
     }
   }
 }
@@ -202,63 +268,23 @@ const mockData = {
     timestamp: new Date().toISOString()
   },
   environment: {
-    // Operating System
-    platform: process.platform,
-    isWindows: WINDOWS_ENV,
-    isMacOS: MACOS_ENV,
-    isLinux: LINUX_ENV,
-    isWSL: WSL_ENV,
-    wslDistro: process.env.WSL_DISTRO_NAME || null,
+    // Use the enhanced environment detection module
+    ...env,
 
-    // Node Environment
-    nodeVersion: process.version,
-    architecture: process.arch,
-    isDevelopment: process.env.NODE_ENV === 'development',
-    isProduction: process.env.NODE_ENV === 'production',
-    isTest: process.env.NODE_ENV === 'test' || !process.env.NODE_ENV,
+    // Add additional information
+    ciType: detectCIEnvironmentType(),
+    ciInfo: getCIEnvironmentInfo(),
 
-    // CI Environment
-    isCI: CI_MODE,
-    isGitHubActions: GITHUB_ACTIONS,
-    isJenkins: JENKINS_CI,
-    isGitLabCI: GITLAB_CI,
-    isCircleCI: CIRCLE_CI,
-    isTravis: TRAVIS_CI,
-    isAzurePipelines: AZURE_PIPELINES,
-    isTeamCity: TEAMCITY,
-    isBitbucket: BITBUCKET,
-    isAppVeyor: APPVEYOR,
-    isDrone: DRONE_CI,
-    isBuddy: BUDDY_CI,
-    isBuildkite: BUILDKITE,
-    isCodeBuild: CODEBUILD,
+    // Update timestamp
+    timestamp: new Date().toISOString(),
 
-    // Container Environment
-    isDocker: DOCKER_ENV,
-    isKubernetes: KUBERNETES_ENV,
-    isDockerCompose: DOCKER_COMPOSE,
-    isDockerSwarm: DOCKER_SWARM,
-
-    // Cloud Environment
-    isAWS: AWS_ENV,
-    isAzure: AZURE_ENV,
-    isGCP: GCP_ENV,
-    isCloudEnvironment: AWS_ENV || AZURE_ENV || GCP_ENV,
-
-    // System Info
-    osType: process.platform === 'win32' ? 'Windows' :
-            process.platform === 'darwin' ? 'macOS' :
-            process.platform === 'linux' ? 'Linux' : process.platform,
-    osRelease: process.release ? process.release.name + ' ' + process.release.lts : null,
-    memory: process.memoryUsage ? {
-      total: process.memoryUsage().heapTotal,
-      used: process.memoryUsage().heapUsed,
-      external: process.memoryUsage().external,
-      rss: process.memoryUsage().rss
-    } : null,
-
-    // Timestamp
-    timestamp: new Date().toISOString()
+    // Add server-specific information
+    server: {
+      name: 'Simple Mock API Server',
+      version: '2.0.0',
+      port: PORT,
+      startTime: new Date().toISOString()
+    }
   },
 
   // Environment-specific data
@@ -434,87 +460,296 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // CI environment endpoints
+    // Enhanced CI environment endpoints with better detection
     if (pathname === '/api/environment/ci') {
+      // Update CI information with the latest detection
+      const ciType = detectCIEnvironmentType();
+      const ciInfo = getCIEnvironmentInfo();
+
+      // Update the mock data
+      mockData.ci.type = ciType;
+      mockData.ci.info = ciInfo;
+      mockData.ci.timestamp = new Date().toISOString();
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.ci));
       return;
     }
 
-    if (pathname === '/api/environment/ci/github' && GITHUB_ACTIONS) {
+    // CI-specific endpoints with enhanced detection
+    if (pathname === '/api/environment/ci/github' && env.isGitHubActions) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.ci.github));
+      res.end(JSON.stringify({
+        ...mockData.ci.github,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        ciSetupResult: ciSetupResult.ciType === 'github' ? ciSetupResult : null
+      }));
       return;
     }
 
-    if (pathname === '/api/environment/ci/jenkins' && JENKINS_CI) {
+    if (pathname === '/api/environment/ci/jenkins' && env.isJenkins) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.ci.jenkins));
+      res.end(JSON.stringify({
+        ...mockData.ci.jenkins,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        ciSetupResult: ciSetupResult.ciType === 'jenkins' ? ciSetupResult : null
+      }));
       return;
     }
 
-    if (pathname === '/api/environment/ci/gitlab' && GITLAB_CI) {
+    if (pathname === '/api/environment/ci/gitlab' && env.isGitLabCI) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.ci.gitlab));
+      res.end(JSON.stringify({
+        ...mockData.ci.gitlab,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        ciSetupResult: ciSetupResult.ciType === 'gitlab' ? ciSetupResult : null
+      }));
       return;
     }
 
-    // Container environment endpoints
+    // New endpoint for CI setup
+    if (pathname === '/api/environment/ci/setup') {
+      // Force CI setup
+      const setupResult = setupCIEnvironment({
+        forceCI: true,
+        forceCIType: parsedUrl.query.type || null
+      });
+
+      // Update the ciSetupResult
+      ciSetupResult = setupResult;
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: setupResult.success,
+        ciType: setupResult.ciType,
+        timestamp: new Date().toISOString(),
+        details: setupResult
+      }));
+      return;
+    }
+
+    // New endpoint for CI report
+    if (pathname === '/api/environment/ci/report') {
+      // Generate a CI report
+      const reportOptions = {
+        includeEnvVars: parsedUrl.query.env === 'true',
+        includeSystemInfo: parsedUrl.query.system !== 'false',
+        formatJson: parsedUrl.query.format === 'json'
+      };
+
+      const report = createCIReport(null, reportOptions);
+
+      // If JSON format was requested, parse it back to an object
+      const responseData = reportOptions.formatJson ? JSON.parse(report) : { report };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(responseData));
+      return;
+    }
+
+    // Enhanced container environment endpoints
     if (pathname === '/api/environment/container') {
+      // Update container information with the latest detection
+      mockData.container.timestamp = new Date().toISOString();
+      mockData.container.detected = {
+        isDocker: env.isDocker,
+        isKubernetes: env.isKubernetes,
+        isDockerCompose: env.isDockerCompose,
+        isDockerSwarm: env.isDockerSwarm,
+        isContainerized: env.isContainerized
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.container));
       return;
     }
 
-    if (pathname === '/api/environment/container/docker' && DOCKER_ENV) {
+    if (pathname === '/api/environment/container/docker' && env.isDocker) {
+      // Enhanced Docker environment information
+      const dockerInfo = {
+        ...mockData.container.docker,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        dockerEnv: process.env.DOCKER_ENVIRONMENT || 'false',
+        dockerVar: process.env.DOCKER || 'false',
+        dockerfiles: safeFileExists('/.dockerenv') || safeFileExists('/run/.containerenv'),
+        cgroup: safeFileExists('/proc/1/cgroup') ? safeReadFile('/proc/1/cgroup')?.includes('docker') : false
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.container.docker));
+      res.end(JSON.stringify(dockerInfo));
       return;
     }
 
-    if (pathname === '/api/environment/container/kubernetes' && KUBERNETES_ENV) {
+    if (pathname === '/api/environment/container/kubernetes' && env.isKubernetes) {
+      // Enhanced Kubernetes environment information
+      const k8sInfo = {
+        ...mockData.container.kubernetes,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        serviceHost: process.env.KUBERNETES_SERVICE_HOST || 'not set',
+        port: process.env.KUBERNETES_PORT || 'not set',
+        secrets: safeFileExists('/var/run/secrets/kubernetes.io')
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.container.kubernetes));
+      res.end(JSON.stringify(k8sInfo));
       return;
     }
 
-    // Cloud environment endpoints
+    // New endpoint for Docker Compose
+    if (pathname === '/api/environment/container/compose' && env.isDockerCompose) {
+      const composeInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        projectName: process.env.COMPOSE_PROJECT_NAME || 'not set',
+        composeFile: process.env.COMPOSE_FILE || 'not set',
+        pathSeparator: process.env.COMPOSE_PATH_SEPARATOR || 'not set'
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(composeInfo));
+      return;
+    }
+
+    // New endpoint for Docker Swarm
+    if (pathname === '/api/environment/container/swarm' && env.isDockerSwarm) {
+      const swarmInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        swarm: process.env.DOCKER_SWARM || 'not set',
+        nodeId: process.env.SWARM_NODE_ID || 'not set',
+        manager: process.env.SWARM_MANAGER || 'not set'
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(swarmInfo));
+      return;
+    }
+
+    // Enhanced cloud environment endpoints
     if (pathname === '/api/environment/cloud') {
+      // Update cloud information with the latest detection
+      mockData.cloud.timestamp = new Date().toISOString();
+      mockData.cloud.detected = {
+        isAWS: env.isAWS,
+        isAzure: env.isAzure,
+        isGCP: env.isGCP,
+        isCloudEnvironment: env.isCloudEnvironment
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.cloud));
       return;
     }
 
-    if (pathname === '/api/environment/cloud/aws' && AWS_ENV) {
+    if (pathname === '/api/environment/cloud/aws' && env.isAWS) {
+      // Enhanced AWS environment information
+      const awsInfo = {
+        ...mockData.cloud.aws,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        region: process.env.AWS_REGION || 'not set',
+        lambdaFunction: process.env.AWS_LAMBDA_FUNCTION_NAME || 'not set',
+        executionEnv: process.env.AWS_EXECUTION_ENV || 'not set',
+        isLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.cloud.aws));
+      res.end(JSON.stringify(awsInfo));
       return;
     }
 
-    if (pathname === '/api/environment/cloud/azure' && AZURE_ENV) {
+    if (pathname === '/api/environment/cloud/azure' && env.isAzure) {
+      // Enhanced Azure environment information
+      const azureInfo = {
+        ...mockData.cloud.azure,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        functions: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'not set',
+        website: process.env.WEBSITE_SITE_NAME || 'not set',
+        appSetting: process.env.APPSETTING_WEBSITE_SITE_NAME || 'not set',
+        isFunctions: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.cloud.azure));
+      res.end(JSON.stringify(azureInfo));
       return;
     }
 
-    if (pathname === '/api/environment/cloud/gcp' && GCP_ENV) {
+    if (pathname === '/api/environment/cloud/gcp' && env.isGCP) {
+      // Enhanced GCP environment information
+      const gcpInfo = {
+        ...mockData.cloud.gcp,
+        detected: true,
+        timestamp: new Date().toISOString(),
+        project: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || 'not set',
+        function: process.env.FUNCTION_NAME || 'not set',
+        region: process.env.FUNCTION_REGION || 'not set',
+        isCloudFunctions: !!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION
+      };
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(mockData.cloud.gcp));
+      res.end(JSON.stringify(gcpInfo));
       return;
     }
 
-    // OS-specific endpoints
+    // New endpoint for serverless environments
+    if (pathname === '/api/environment/serverless') {
+      const serverlessInfo = {
+        detected: env.isLambda || env.isAzureFunctions || env.isCloudFunctions || env.isServerless,
+        timestamp: new Date().toISOString(),
+        isLambda: env.isLambda,
+        isAzureFunctions: env.isAzureFunctions,
+        isCloudFunctions: env.isCloudFunctions,
+        isServerless: env.isServerless,
+        provider: env.isLambda ? 'aws' : (env.isAzureFunctions ? 'azure' : (env.isCloudFunctions ? 'gcp' : 'unknown'))
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(serverlessInfo));
+      return;
+    }
+
+    // Enhanced OS-specific endpoints
     if (pathname === '/api/environment/os') {
+      // Get the latest OS information
       const osInfo = {
-        platform: process.platform,
-        isWindows: WINDOWS_ENV,
-        isMacOS: MACOS_ENV,
-        isLinux: LINUX_ENV,
-        isWSL: WSL_ENV,
+        platform: env.platform,
+        isWindows: env.isWindows,
+        isMacOS: env.isMacOS,
+        isLinux: env.isLinux,
+        isWSL: env.isWSL,
         wslDistro: process.env.WSL_DISTRO_NAME || null,
-        osType: mockData.environment.osType,
-        osRelease: mockData.environment.osRelease,
-        architecture: process.arch
+        osType: env.osType,
+        osRelease: env.osRelease,
+        architecture: env.architecture,
+        timestamp: new Date().toISOString(),
+
+        // Add more detailed system information
+        hostname: env.hostname,
+        username: env.username,
+        memory: {
+          total: env.memory.total,
+          free: env.memory.free,
+          totalFormatted: `${Math.round(env.memory.total / (1024 * 1024 * 1024))} GB`,
+          freeFormatted: `${Math.round(env.memory.free / (1024 * 1024 * 1024))} GB`
+        },
+        cpus: env.cpus.length,
+        cpuInfo: env.cpus.map(cpu => ({
+          model: cpu.model,
+          speed: cpu.speed
+        })),
+
+        // Add path information
+        paths: {
+          tmpDir: env.tmpDir,
+          homeDir: env.homeDir,
+          workingDir: env.workingDir
+        }
       };
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -522,14 +757,152 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // Ready check endpoint
+    // New endpoint for Windows-specific information
+    if (pathname === '/api/environment/os/windows' && env.isWindows) {
+      const windowsInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        platform: 'win32',
+        osType: env.osType,
+        osRelease: env.osRelease,
+        architecture: env.architecture,
+        pathSeparator: '\\',
+        environment: {
+          USERPROFILE: process.env.USERPROFILE || 'not set',
+          APPDATA: process.env.APPDATA || 'not set',
+          LOCALAPPDATA: process.env.LOCALAPPDATA || 'not set',
+          TEMP: process.env.TEMP || 'not set',
+          SYSTEMROOT: process.env.SYSTEMROOT || 'not set'
+        }
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(windowsInfo));
+      return;
+    }
+
+    // New endpoint for macOS-specific information
+    if (pathname === '/api/environment/os/macos' && env.isMacOS) {
+      const macosInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        platform: 'darwin',
+        osType: env.osType,
+        osRelease: env.osRelease,
+        architecture: env.architecture,
+        pathSeparator: '/',
+        environment: {
+          HOME: process.env.HOME || 'not set',
+          TMPDIR: process.env.TMPDIR || 'not set',
+          SHELL: process.env.SHELL || 'not set',
+          USER: process.env.USER || 'not set'
+        }
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(macosInfo));
+      return;
+    }
+
+    // New endpoint for Linux-specific information
+    if (pathname === '/api/environment/os/linux' && env.isLinux) {
+      const linuxInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        platform: 'linux',
+        osType: env.osType,
+        osRelease: env.osRelease,
+        architecture: env.architecture,
+        pathSeparator: '/',
+        isWSL: env.isWSL,
+        wslDistro: process.env.WSL_DISTRO_NAME || null,
+        environment: {
+          HOME: process.env.HOME || 'not set',
+          TMPDIR: process.env.TMPDIR || 'not set',
+          SHELL: process.env.SHELL || 'not set',
+          USER: process.env.USER || 'not set'
+        },
+        procVersion: safeFileExists('/proc/version') ? safeReadFile('/proc/version') : null
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(linuxInfo));
+      return;
+    }
+
+    // New endpoint for WSL-specific information
+    if (pathname === '/api/environment/os/wsl' && env.isWSL) {
+      const wslInfo = {
+        detected: true,
+        timestamp: new Date().toISOString(),
+        platform: 'linux',
+        osType: env.osType,
+        osRelease: env.osRelease,
+        architecture: env.architecture,
+        pathSeparator: '/',
+        wslDistro: process.env.WSL_DISTRO_NAME || null,
+        wslEnv: process.env.WSLENV || null,
+        environment: {
+          HOME: process.env.HOME || 'not set',
+          TMPDIR: process.env.TMPDIR || 'not set',
+          SHELL: process.env.SHELL || 'not set',
+          USER: process.env.USER || 'not set'
+        },
+        procVersion: safeFileExists('/proc/version') ? safeReadFile('/proc/version') : null
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(wslInfo));
+      return;
+    }
+
+    // Enhanced ready check endpoint with environment information
     if (pathname === '/ready') {
+      // Get the latest environment information
+      const latestEnv = detectEnvironment();
+      const ciType = detectCIEnvironmentType();
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         status: 'ready',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        memory: process.memoryUsage()
+        memory: process.memoryUsage(),
+
+        // Add environment information
+        environment: {
+          platform: latestEnv.platform,
+          isCI: latestEnv.isCI,
+          ciType: ciType,
+          isDocker: latestEnv.isDocker,
+          isKubernetes: latestEnv.isKubernetes,
+          isContainerized: latestEnv.isContainerized
+        },
+
+        // Add server information
+        server: {
+          port: PORT,
+          startTime: mockData.environment.server.startTime,
+          nodeVersion: process.version,
+          verboseLogging: VERBOSE_LOGGING
+        }
+      }));
+      return;
+    }
+
+    // New health check endpoint
+    if (pathname === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: {
+          rss: `${Math.round(process.memoryUsage().rss / (1024 * 1024))} MB`,
+          heapTotal: `${Math.round(process.memoryUsage().heapTotal / (1024 * 1024))} MB`,
+          heapUsed: `${Math.round(process.memoryUsage().heapUsed / (1024 * 1024))} MB`,
+          external: `${Math.round(process.memoryUsage().external / (1024 * 1024))} MB`
+        }
       }));
       return;
     }
@@ -557,25 +930,129 @@ async function handleRequest(req, res) {
   } catch (error) {
     log(`Error handling request: ${error.message}`, 'error');
 
-    // Create an error report for debugging
+    // Create a comprehensive error report using the enhanced environment detection
     try {
-      createReport(`request-error-${Date.now()}.txt`,
-        `Request error at ${new Date().toISOString()}\n` +
-        `Method: ${req.method}\n` +
-        `Path: ${pathname}\n` +
-        `Error: ${error.message}\n` +
-        `Stack: ${error.stack || 'No stack trace available'}\n` +
-        `CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
-        `Docker Environment: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
-        `Node.js version: ${process.version}\n` +
-        `Platform: ${process.platform}`
-      );
+      // Get the latest environment information
+      const latestEnv = detectEnvironment();
+      const ciType = detectCIEnvironmentType();
+      const ciInfo = getCIEnvironmentInfo();
+
+      // Create a detailed error report in JSON format for better debugging
+      const errorReport = {
+        error: {
+          message: error.message,
+          stack: error.stack || 'No stack trace available',
+          name: error.name,
+          code: error.code
+        },
+        request: {
+          method: req.method,
+          path: pathname,
+          query: parsedUrl.query,
+          headers: req.headers,
+          timestamp: new Date().toISOString()
+        },
+        environment: {
+          os: {
+            platform: latestEnv.platform,
+            isWindows: latestEnv.isWindows,
+            isMacOS: latestEnv.isMacOS,
+            isLinux: latestEnv.isLinux,
+            isWSL: latestEnv.isWSL,
+            osType: latestEnv.osType,
+            osRelease: latestEnv.osRelease
+          },
+          ci: {
+            isCI: latestEnv.isCI,
+            ciType: ciType,
+            isGitHubActions: latestEnv.isGitHubActions,
+            isJenkins: latestEnv.isJenkins,
+            isGitLabCI: latestEnv.isGitLabCI,
+            isCircleCI: latestEnv.isCircleCI,
+            isTravis: latestEnv.isTravis,
+            isAzurePipelines: latestEnv.isAzurePipelines,
+            isTeamCity: latestEnv.isTeamCity,
+            isBitbucket: latestEnv.isBitbucket,
+            isAppVeyor: latestEnv.isAppVeyor,
+            isDroneCI: latestEnv.isDroneCI,
+            isBuddyCI: latestEnv.isBuddyCI,
+            isBuildkite: latestEnv.isBuildkite,
+            isCodeBuild: latestEnv.isCodeBuild
+          },
+          container: {
+            isDocker: latestEnv.isDocker,
+            isKubernetes: latestEnv.isKubernetes,
+            isDockerCompose: latestEnv.isDockerCompose,
+            isDockerSwarm: latestEnv.isDockerSwarm,
+            isContainerized: latestEnv.isContainerized
+          },
+          cloud: {
+            isAWS: latestEnv.isAWS,
+            isAzure: latestEnv.isAzure,
+            isGCP: latestEnv.isGCP,
+            isCloudEnvironment: latestEnv.isCloudEnvironment
+          },
+          node: {
+            version: latestEnv.nodeVersion,
+            architecture: latestEnv.architecture
+          },
+          server: {
+            port: PORT,
+            uptime: process.uptime(),
+            memory: process.memoryUsage(),
+            startTime: mockData.environment.server.startTime
+          }
+        }
+      };
+
+      // Create the error report file
+      const errorReportJson = JSON.stringify(errorReport, null, 2);
+      createReport(`request-error-${Date.now()}.json`, errorReportJson);
+
+      // Also create a text version for easier reading
+      const textReport = `Request Error Report
+====================
+Timestamp: ${new Date().toISOString()}
+Method: ${req.method}
+Path: ${pathname}
+Error: ${error.message}
+Stack: ${error.stack || 'No stack trace available'}
+
+Environment:
+- Platform: ${latestEnv.platform}
+- CI: ${latestEnv.isCI ? 'Yes' : 'No'}
+- CI Type: ${ciType}
+- Docker: ${latestEnv.isDocker ? 'Yes' : 'No'}
+- Kubernetes: ${latestEnv.isKubernetes ? 'Yes' : 'No'}
+- Node.js: ${latestEnv.nodeVersion}
+`;
+      createReport(`request-error-${Date.now()}.txt`, textReport);
+
+      // In CI mode, also create a CI-specific error report
+      if (latestEnv.isCI) {
+        const ciReportDir = path.join(process.cwd(), 'ci-reports', ciType);
+        safelyCreateDirectory(ciReportDir);
+        const ciErrorReportPath = path.join(ciReportDir, `error-${Date.now()}.json`);
+        safelyWriteFile(ciErrorReportPath, errorReportJson);
+      }
     } catch (reportError) {
       log(`Failed to create error report: ${reportError.message}`, 'error');
+
+      // Try a simpler error report as fallback
+      try {
+        const simpleReport = `Error: ${error.message}\nPath: ${pathname}\nTime: ${new Date().toISOString()}`;
+        fs.writeFileSync(path.join(process.cwd(), `simple-error-${Date.now()}.txt`), simpleReport);
+      } catch (fallbackError) {
+        log(`Failed to create simple error report: ${fallbackError.message}`, 'error');
+      }
     }
 
-    // In CI mode, return success anyway with detailed information
+    // In CI mode, return success anyway with detailed information from enhanced environment detection
     if (CI_MODE) {
+      // Get the latest environment information
+      const latestEnv = detectEnvironment();
+      const ciType = detectCIEnvironmentType();
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         status: 'success',
@@ -585,20 +1062,67 @@ async function handleRequest(req, res) {
         method: req.method,
         timestamp: new Date().toISOString(),
         environment: {
-          ci: CI_MODE,
-          docker: DOCKER_ENV,
-          node: process.version,
-          platform: process.platform
+          ci: {
+            isCI: latestEnv.isCI,
+            ciType: ciType,
+            isGitHubActions: latestEnv.isGitHubActions,
+            isJenkins: latestEnv.isJenkins,
+            isGitLabCI: latestEnv.isGitLabCI,
+            isCircleCI: latestEnv.isCircleCI,
+            isTravis: latestEnv.isTravis,
+            isAzurePipelines: latestEnv.isAzurePipelines,
+            isTeamCity: latestEnv.isTeamCity,
+            isBitbucket: latestEnv.isBitbucket,
+            isAppVeyor: latestEnv.isAppVeyor
+          },
+          container: {
+            isDocker: latestEnv.isDocker,
+            isKubernetes: latestEnv.isKubernetes,
+            isDockerCompose: latestEnv.isDockerCompose,
+            isDockerSwarm: latestEnv.isDockerSwarm,
+            isContainerized: latestEnv.isContainerized
+          },
+          os: {
+            platform: latestEnv.platform,
+            isWindows: latestEnv.isWindows,
+            isMacOS: latestEnv.isMacOS,
+            isLinux: latestEnv.isLinux,
+            isWSL: latestEnv.isWSL,
+            osType: latestEnv.osType,
+            osRelease: latestEnv.osRelease
+          },
+          node: {
+            version: latestEnv.nodeVersion,
+            architecture: latestEnv.architecture
+          }
+        },
+        recovery: {
+          message: 'Error was handled gracefully in CI mode',
+          timestamp: new Date().toISOString(),
+          errorReportCreated: true
         }
       }));
     } else {
+      // In non-CI mode, return a proper error response with helpful information
+      const latestEnv = detectEnvironment();
+
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         error: 'Internal Server Error',
         message: error.message,
         path: pathname,
         method: req.method,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        environment: {
+          platform: latestEnv.platform,
+          isDocker: latestEnv.isDocker,
+          isCI: latestEnv.isCI,
+          nodeVersion: latestEnv.nodeVersion
+        },
+        help: {
+          message: 'For more information, check the error reports in the logs directory',
+          reportCreated: true
+        }
       }));
     }
   }
@@ -693,20 +1217,46 @@ try {
     server.listen(PORT, () => {
       log(`Simple Mock API Server running on port ${PORT}`, 'important');
 
-      // Create a startup report with more detailed information
+      // Create a startup report with more detailed information using enhanced environment detection
+      const ciType = detectCIEnvironmentType();
+      const ciInfo = getCIEnvironmentInfo();
+
       createReport('simple-mock-server-started.txt',
         `Simple Mock API Server started at ${new Date().toISOString()}\n` +
         `Port: ${PORT}\n` +
+        `Environment Detection:\n` +
+        `------------------\n` +
         `CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
-        `GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
-        `Docker Environment: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
+        `CI Type: ${ciType}\n` +
+        `GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}\n` +
+        `Jenkins: ${env.isJenkins ? 'Yes' : 'No'}\n` +
+        `GitLab CI: ${env.isGitLabCI ? 'Yes' : 'No'}\n` +
+        `CircleCI: ${env.isCircleCI ? 'Yes' : 'No'}\n` +
+        `Travis CI: ${env.isTravis ? 'Yes' : 'No'}\n` +
+        `Azure Pipelines: ${env.isAzurePipelines ? 'Yes' : 'No'}\n` +
+        `\nContainer Environment:\n` +
+        `------------------\n` +
+        `Docker: ${env.isDocker ? 'Yes' : 'No'}\n` +
+        `Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}\n` +
+        `Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}\n` +
+        `Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}\n` +
+        `\nOperating System:\n` +
+        `------------------\n` +
+        `Platform: ${env.platform}\n` +
+        `Windows: ${env.isWindows ? 'Yes' : 'No'}\n` +
+        `macOS: ${env.isMacOS ? 'Yes' : 'No'}\n` +
+        `Linux: ${env.isLinux ? 'Yes' : 'No'}\n` +
+        `WSL: ${env.isWSL ? 'Yes' : 'No'}\n` +
+        `\nServer Configuration:\n` +
+        `------------------\n` +
         `Verbose Logging: ${VERBOSE_LOGGING ? 'Yes' : 'No'}\n` +
         `Skip Path-to-Regexp: ${SKIP_PATH_TO_REGEXP ? 'Yes' : 'No'}\n` +
         `Node.js version: ${process.version}\n` +
-        `Platform: ${process.platform}\n` +
         `Architecture: ${process.arch}\n` +
         `Working Directory: ${process.cwd()}\n` +
-        `Environment Variables: ${JSON.stringify({
+        `\nEnvironment Variables:\n` +
+        `------------------\n` +
+        `${JSON.stringify({
           CI: process.env.CI,
           GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
           GITHUB_WORKFLOW: process.env.GITHUB_WORKFLOW,

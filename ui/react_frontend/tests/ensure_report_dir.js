@@ -118,14 +118,74 @@ try {
   }
 }
 
-// Enhanced environment detection with better compatibility
-const isCI = process.env.CI === 'true' || process.env.CI === true ||
-             process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
-const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true' ||
-                           (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
-const isWindows = process.platform === 'win32';
-const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
+// Import enhanced environment detection modules
+let environmentDetection;
+let ciEnvironment;
+let dockerEnvironment;
+
+try {
+  environmentDetection = require('./helpers/environment-detection');
+  ciEnvironment = require('./helpers/ci-environment');
+  dockerEnvironment = require('./helpers/docker-environment');
+  console.log('Successfully imported environment detection modules');
+} catch (importError) {
+  console.warn(`Failed to import environment detection modules: ${importError.message}`);
+
+  // Create fallback environment detection
+  environmentDetection = {
+    detectEnvironment: function() {
+      return {
+        isCI: process.env.CI === 'true' || process.env.CI === true ||
+              process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
+        isGitHubActions: process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
+        isDocker: process.env.DOCKER_ENVIRONMENT === 'true' ||
+                 (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true'),
+        isWindows: process.platform === 'win32',
+        platform: process.platform,
+        nodeVersion: process.version,
+        architecture: process.arch,
+        osType: os.type(),
+        osRelease: os.release(),
+        workingDir: process.cwd(),
+        hostname: os.hostname(),
+        verboseLogging: process.env.VERBOSE_LOGGING === 'true' ||
+                       (process.env.CI === 'true' || process.env.CI === true)
+      };
+    },
+    safelyCreateDirectory: safelyCreateDirectory,
+    safelyWriteFile: safelyWriteFile
+  };
+
+  ciEnvironment = {
+    detectCIEnvironmentType: function() {
+      if (process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW) {
+        return 'github';
+      } else if (process.env.CI === 'true' || process.env.CI === true) {
+        return 'generic';
+      }
+      return 'none';
+    },
+    setupCIEnvironment: function() {
+      return { success: true, ciType: this.detectCIEnvironmentType() };
+    }
+  };
+
+  dockerEnvironment = {
+    setupDockerEnvironment: function() {
+      const isDocker = process.env.DOCKER_ENVIRONMENT === 'true' ||
+                      (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
+      return { success: true, isDocker };
+    }
+  };
+}
+
+// Use enhanced environment detection
+const env = environmentDetection.detectEnvironment();
+const isCI = env.isCI;
+const isGitHubActions = env.isGitHubActions;
+const isDockerEnvironment = env.isDocker;
+const isWindows = env.isWindows;
+const verboseLogging = env.verboseLogging;
 
 // Set environment variables for enhanced compatibility
 if (isGitHubActions && process.env.CI !== 'true') {
@@ -133,48 +193,180 @@ if (isGitHubActions && process.env.CI !== 'true') {
   process.env.CI = 'true';
 }
 
-// Log environment information early
-console.log(`Ensure Report Dir - Environment Information:
-- Node.js: ${process.version}
-- Platform: ${process.platform}
-- Architecture: ${process.arch}
-- Working Directory: ${process.cwd()}
-- CI: ${isCI ? 'Yes' : 'No'}
-- GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}
-- Docker: ${isDockerEnvironment ? 'Yes' : 'No'}
-- Windows: ${isWindows ? 'Yes' : 'No'}
-- Verbose logging: ${verboseLogging ? 'Yes' : 'No'}
+// Log environment information early with enhanced details
+console.log(`Ensure Report Dir - Enhanced Environment Information:
+- Node.js: ${env.nodeVersion}
+- Platform: ${env.platform}
+- Architecture: ${env.architecture}
+- OS: ${env.osType} ${env.osRelease}
+- Working Directory: ${env.workingDir}
+- Hostname: ${env.hostname || 'unknown'}
+- CI: ${env.isCI ? 'Yes' : 'No'}
+- CI Type: ${ciEnvironment.detectCIEnvironmentType()}
+- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}
+- Docker: ${env.isDocker ? 'Yes' : 'No'}
+- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
+- Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
+- Windows: ${env.isWindows ? 'Yes' : 'No'}
+- WSL: ${env.isWSL ? 'Yes' : 'No'}
+- Cloud Environment: ${env.isCloudEnvironment ? 'Yes' : 'No'}
+- Verbose logging: ${env.verboseLogging ? 'Yes' : 'No'}
 `);
 
-// Create a marker file to indicate whether path-to-regexp is available
+// Create a marker file to indicate whether path-to-regexp is available with enhanced environment info
 try {
   const logDir = path.join(process.cwd(), 'logs');
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
-  }
-  fs.writeFileSync(
+  environmentDetection.safelyCreateDirectory(logDir);
+
+  const statusContent = `Path-to-regexp status at ${new Date().toISOString()}
+Available: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}
+Mock created: ${mockPathToRegexp.mockCreated ? 'Yes' : 'No'}
+Require patched: ${mockPathToRegexp.requirePatched ? 'Yes' : 'No'}
+
+Environment Information:
+- Node.js: ${env.nodeVersion}
+- Platform: ${env.platform}
+- Architecture: ${env.architecture}
+- OS: ${env.osType} ${env.osRelease}
+- Working Directory: ${env.workingDir}
+- Hostname: ${env.hostname || 'unknown'}
+
+CI Environment:
+- CI: ${env.isCI ? 'Yes' : 'No'}
+- CI Type: ${ciEnvironment.detectCIEnvironmentType()}
+- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}
+
+Container Environment:
+- Docker: ${env.isDocker ? 'Yes' : 'No'}
+- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
+- Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
+- Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}
+
+OS Environment:
+- Windows: ${env.isWindows ? 'Yes' : 'No'}
+- WSL: ${env.isWSL ? 'Yes' : 'No'}
+- macOS: ${env.isMacOS ? 'Yes' : 'No'}
+- Linux: ${env.isLinux ? 'Yes' : 'No'}
+
+Cloud Environment:
+- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}
+- AWS: ${env.isAWS ? 'Yes' : 'No'}
+- Azure: ${env.isAzure ? 'Yes' : 'No'}
+- GCP: ${env.isGCP ? 'Yes' : 'No'}
+`;
+
+  environmentDetection.safelyWriteFile(
     path.join(logDir, 'ensure-dir-path-to-regexp-status.txt'),
-    `Path-to-regexp status at ${new Date().toISOString()}\n` +
-    `Available: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}\n` +
-    `Mock created: ${mockPathToRegexp.mockCreated ? 'Yes' : 'No'}\n` +
-    `Require patched: ${mockPathToRegexp.requirePatched ? 'Yes' : 'No'}\n` +
-    `Node.js: ${process.version}\n` +
-    `Platform: ${process.platform}\n` +
-    `Working directory: ${process.cwd()}\n` +
-    `CI environment: ${isCI ? 'Yes' : 'No'}\n`
+    statusContent
+  );
+
+  // Also create a JSON version for easier parsing
+  const statusJson = {
+    timestamp: new Date().toISOString(),
+    pathToRegexp: {
+      available: pathToRegexpAvailable,
+      mockCreated: mockPathToRegexp.mockCreated,
+      requirePatched: mockPathToRegexp.requirePatched
+    },
+    environment: {
+      nodeVersion: env.nodeVersion,
+      platform: env.platform,
+      architecture: env.architecture,
+      osType: env.osType,
+      osRelease: env.osRelease,
+      workingDirectory: env.workingDir,
+      hostname: env.hostname || 'unknown'
+    },
+    ci: {
+      isCI: env.isCI,
+      ciType: ciEnvironment.detectCIEnvironmentType(),
+      isGitHubActions: env.isGitHubActions
+    },
+    container: {
+      isDocker: env.isDocker,
+      isKubernetes: env.isKubernetes,
+      isDockerCompose: env.isDockerCompose,
+      isDockerSwarm: env.isDockerSwarm
+    },
+    os: {
+      isWindows: env.isWindows,
+      isWSL: env.isWSL,
+      isMacOS: env.isMacOS,
+      isLinux: env.isLinux
+    },
+    cloud: {
+      isCloudEnvironment: env.isCloudEnvironment,
+      isAWS: env.isAWS,
+      isAzure: env.isAzure,
+      isGCP: env.isGCP
+    }
+  };
+
+  environmentDetection.safelyWriteFile(
+    path.join(logDir, 'ensure-dir-path-to-regexp-status.json'),
+    JSON.stringify(statusJson, null, 2)
   );
 } catch (error) {
   console.warn(`Failed to create path-to-regexp status file: ${error.message}`);
 }
 
-// Log environment information
-console.log('Environment information:');
-console.log(`- Platform: ${process.platform}`);
-console.log(`- Node version: ${process.version}`);
-console.log(`- Working directory: ${process.cwd()}`);
-console.log(`- CI environment: ${process.env.CI ? 'Yes' : 'No'}`);
-console.log(`- Hostname: ${os.hostname()}`);
-console.log(`- Memory: ${JSON.stringify(process.memoryUsage())}`);
+// Log detailed environment information using the enhanced detection
+console.log('Detailed Environment Information:');
+console.log(`- Platform: ${env.platform}`);
+console.log(`- Node version: ${env.nodeVersion}`);
+console.log(`- Architecture: ${env.architecture}`);
+console.log(`- OS: ${env.osType} ${env.osRelease}`);
+console.log(`- Working directory: ${env.workingDir}`);
+console.log(`- Hostname: ${env.hostname || 'unknown'}`);
+console.log(`- Username: ${env.username || 'unknown'}`);
+console.log(`- CI environment: ${env.isCI ? 'Yes' : 'No'}`);
+console.log(`- CI type: ${ciEnvironment.detectCIEnvironmentType()}`);
+console.log(`- Docker environment: ${env.isDocker ? 'Yes' : 'No'}`);
+console.log(`- Container environment: ${env.isContainerized ? 'Yes' : 'No'}`);
+console.log(`- Memory: ${JSON.stringify({
+  total: env.memory?.total ? `${Math.round(env.memory.total / 1024 / 1024)} MB` : 'unknown',
+  free: env.memory?.free ? `${Math.round(env.memory.free / 1024 / 1024)} MB` : 'unknown',
+  process: process.memoryUsage()
+})}`);
+
+// Create a comprehensive environment report
+try {
+  if (env.isCI) {
+    // Create CI environment report
+    const ciReportPath = path.join(process.cwd(), 'logs', 'ci-environment-report.txt');
+    const ciJsonReportPath = path.join(process.cwd(), 'logs', 'ci-environment-report.json');
+
+    if (typeof ciEnvironment.createCIReport === 'function') {
+      ciEnvironment.createCIReport(ciReportPath);
+      ciEnvironment.createCIReport(ciJsonReportPath, { formatJson: true });
+      console.log(`Created CI environment reports at ${ciReportPath} and ${ciJsonReportPath}`);
+    }
+  }
+
+  if (env.isDocker) {
+    // Create Docker environment report
+    const dockerReportPath = path.join(process.cwd(), 'logs', 'docker-environment-report.txt');
+    const dockerJsonReportPath = path.join(process.cwd(), 'logs', 'docker-environment-report.json');
+
+    if (typeof dockerEnvironment.createDockerReport === 'function') {
+      dockerEnvironment.createDockerReport(dockerReportPath);
+      dockerEnvironment.createDockerReport(dockerJsonReportPath, { formatJson: true });
+      console.log(`Created Docker environment reports at ${dockerReportPath} and ${dockerJsonReportPath}`);
+    }
+  }
+
+  // Create general environment report
+  const envReportPath = path.join(process.cwd(), 'logs', 'environment-report.txt');
+  const envJsonReportPath = path.join(process.cwd(), 'logs', 'environment-report.json');
+
+  if (typeof environmentDetection.createEnvironmentReport === 'function') {
+    environmentDetection.createEnvironmentReport(envReportPath);
+    environmentDetection.createEnvironmentReport(envJsonReportPath, { formatJson: true });
+    console.log(`Created general environment reports at ${envReportPath} and ${envJsonReportPath}`);
+  }
+} catch (reportError) {
+  console.warn(`Failed to create environment reports: ${reportError.message}`);
+}
 
 // Enhanced function to safely create directory with improved error handling for CI
 function safelyCreateDirectory(dirPath) {

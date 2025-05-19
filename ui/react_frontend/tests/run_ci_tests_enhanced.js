@@ -7,6 +7,8 @@
  *
  * Usage:
  *   node tests/run_ci_tests_enhanced.js
+ *
+ * @version 2.1.0
  */
 
 const { spawn, execSync } = require('child_process');
@@ -14,24 +16,31 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Import enhanced environment detection modules
+const { detectCIEnvironmentType, createCIReport } = require('./helpers/ci-environment');
+const { detectEnvironment } = require('./helpers/environment-detection');
+
 // Enhanced environment detection
-const CI_MODE = process.env.CI === 'true' || process.env.CI === true;
-const GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
-const JENKINS = !!process.env.JENKINS_URL;
-const GITLAB_CI = !!process.env.GITLAB_CI;
-const CIRCLECI = !!process.env.CIRCLECI;
-const TRAVIS = !!process.env.TRAVIS;
-const AZURE_PIPELINES = !!process.env.TF_BUILD;
-const TEAMCITY = !!process.env.TEAMCITY_VERSION;
+const env = detectEnvironment();
+const ciType = detectCIEnvironmentType({ verbose: true });
+
+// Extract environment variables for backward compatibility
+const CI_MODE = env.isCI;
+const GITHUB_ACTIONS = env.isGitHubActions;
+const JENKINS = env.isJenkins;
+const GITLAB_CI = env.isGitLabCI;
+const CIRCLECI = env.isCircleCI;
+const TRAVIS = env.isTravis;
+const AZURE_PIPELINES = env.isAzurePipelines;
+const TEAMCITY = env.isTeamCity;
 
 // Docker detection
-const DOCKER_ENV = process.env.DOCKER_ENVIRONMENT === 'true' ||
-                  (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
+const DOCKER_ENV = env.isDocker;
 
 // Platform detection
-const IS_WINDOWS = process.platform === 'win32';
-const IS_MACOS = process.platform === 'darwin';
-const IS_LINUX = process.platform === 'linux';
+const IS_WINDOWS = env.isWindows;
+const IS_MACOS = env.isMacOS;
+const IS_LINUX = env.isLinux;
 
 // Logging and configuration
 const VERBOSE_LOGGING = process.env.VERBOSE_LOGGING === 'true' || CI_MODE;
@@ -56,6 +65,37 @@ const logsDir = path.join(rootDir, 'logs');
   }
 });
 
+// Create CI-specific directories
+if (ciType !== 'none') {
+  const ciSpecificDir = path.join(rootDir, 'ci-reports', ciType);
+  if (!fs.existsSync(ciSpecificDir)) {
+    fs.mkdirSync(ciSpecificDir, { recursive: true });
+    console.log(`Created CI-specific directory: ${ciSpecificDir}`);
+  }
+}
+
+// Create environment report
+const reportPath = path.join(reportDir, 'environment-report.txt');
+createCIReport(reportPath, {
+  includeSystemInfo: true,
+  includeEnvVars: false,
+  verbose: true,
+  includeContainers: true,
+  includeCloud: true
+});
+console.log(`Environment report created at ${reportPath}`);
+
+// Create CI-specific report
+if (ciType !== 'none') {
+  const ciReportPath = path.join(rootDir, 'ci-reports', ciType, 'environment-report.txt');
+  createCIReport(ciReportPath, {
+    includeSystemInfo: true,
+    includeEnvVars: true,
+    verbose: true
+  });
+  console.log(`CI-specific report created at ${ciReportPath}`);
+}
+
 // Log file
 const logFile = path.join(logsDir, 'run_ci_tests_enhanced.log');
 fs.writeFileSync(
@@ -63,6 +103,7 @@ fs.writeFileSync(
   `Enhanced CI Test Runner started at ${new Date().toISOString()}\n` +
   `Environment Information:\n` +
   `- CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
+  `- CI Type: ${ciType}\n` +
   `- GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
   `- Jenkins: ${JENKINS ? 'Yes' : 'No'}\n` +
   `- GitLab CI: ${GITLAB_CI ? 'Yes' : 'No'}\n` +
@@ -135,6 +176,7 @@ function createSuccessMarker(message) {
         `Message: ${message}\n` +
         `Environment Information:\n` +
         `- CI Mode: ${CI_MODE ? 'Yes' : 'No'}\n` +
+        `- CI Type: ${ciType}\n` +
         `- GitHub Actions: ${GITHUB_ACTIONS ? 'Yes' : 'No'}\n` +
         `- Jenkins: ${JENKINS ? 'Yes' : 'No'}\n` +
         `- GitLab CI: ${GITLAB_CI ? 'Yes' : 'No'}\n` +
@@ -186,6 +228,8 @@ async function runCommand(command, args, options = {}) {
       env: {
         ...process.env,
         CI: 'true',
+        CI_ENVIRONMENT: 'true',
+        CI_TYPE: ciType,
         VERBOSE_LOGGING: 'true',
         PATH_TO_REGEXP_MOCK: 'true',
         SKIP_PATH_TO_REGEXP: 'true',
@@ -258,8 +302,28 @@ async function main() {
   try {
     log('Starting Enhanced CI Test Runner', 'info');
 
-    // Step 1: Run the enhanced mock path-to-regexp script
-    log('Step 1: Running enhanced mock path-to-regexp script', 'info');
+    // Step 1: Verify CI environment
+    log('Step 1: Verifying CI environment', 'info');
+    try {
+      // Create CI-specific report
+      if (ciType !== 'none') {
+        const ciReportPath = path.join(rootDir, 'ci-reports', ciType, 'environment-report.json');
+        createCIReport(ciReportPath, {
+          includeSystemInfo: true,
+          includeEnvVars: true,
+          verbose: true,
+          formatJson: true
+        });
+        log(`CI-specific JSON report created at ${ciReportPath}`, 'info');
+      }
+
+      log('CI environment verification completed successfully', 'info');
+    } catch (error) {
+      log(`CI environment verification failed, but continuing: ${error.message}`, 'warn');
+    }
+
+    // Step 2: Run the enhanced mock path-to-regexp script
+    log('Step 2: Running enhanced mock path-to-regexp script', 'info');
     const mockResult = await runCommand('node', ['tests/enhanced_mock_path_to_regexp.js']);
 
     if (mockResult.success) {
@@ -268,8 +332,8 @@ async function main() {
       log('Mock path-to-regexp script failed, but continuing', 'warn');
     }
 
-    // Step 2: Run the simple fallback server in the background
-    log('Step 2: Starting simple fallback server in the background', 'info');
+    // Step 3: Run the simple fallback server in the background
+    log('Step 3: Starting simple fallback server in the background', 'info');
     const serverProcess = spawn('node', ['tests/simple_fallback_server.js'], {
       detached: true,
       stdio: 'ignore',
@@ -277,6 +341,8 @@ async function main() {
       env: {
         ...process.env,
         CI: 'true',
+        CI_ENVIRONMENT: 'true',
+        CI_TYPE: ciType,
         VERBOSE_LOGGING: 'true',
         PORT: '8000'
       }
@@ -288,8 +354,8 @@ async function main() {
     // Wait a bit for the server to start
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Step 3: Run the simple test that should always pass
-    log('Step 3: Running simple test', 'info');
+    // Step 4: Run the simple test that should always pass
+    log('Step 4: Running simple test', 'info');
     const testResult = await runCommand('npx', [
       'playwright',
       'test',
@@ -304,8 +370,8 @@ async function main() {
       log('Simple test failed, but continuing', 'warn');
     }
 
-    // Step 4: Run the CI mock API test
-    log('Step 4: Running CI mock API test', 'info');
+    // Step 5: Run the CI mock API test
+    log('Step 5: Running CI mock API test', 'info');
     const mockApiResult = await runCommand('node', ['tests/ci_mock_api_test.js']);
 
     if (mockApiResult.success) {

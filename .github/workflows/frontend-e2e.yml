@@ -551,16 +551,14 @@ jobs:
           export REACT_APP_AG_UI_ENABLED=true
           export CI=true
           export VERBOSE_LOGGING=true
-
-          # Set environment detection variables
           export GITHUB_ACTIONS=true
-          export DOCKER_ENVIRONMENT=false
-          export KUBERNETES_SERVICE_HOST=""
-          export COMPOSE_PROJECT_NAME=""
-          export DOCKER_SWARM=""
+          export CI_ENVIRONMENT=true
+          export CI_TYPE=github
 
           # Create logs directory
           mkdir -p logs
+          mkdir -p ci-reports/github
+          mkdir -p test-results/github
 
           # Create environment report
           echo "Creating environment report..."
@@ -573,28 +571,26 @@ jobs:
             echo "Test failures detected at $(date)" > logs/test-failures.txt
           }
 
-          cat > playwright-report/environment-report.txt << EOF
-          Environment Report
-          -----------------
-          Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+          # Generate environment report using the enhanced environment detection
+          node -e "const { detectEnvironment } = require('./src/utils/environmentDetection'); const { detectCIEnvironmentType, getCIEnvironmentInfo } = require('./tests/helpers/ci-environment'); const fs = require('fs'); const path = require('path'); const env = detectEnvironment(); const ciType = detectCIEnvironmentType(); const ciInfo = getCIEnvironmentInfo(); const report = 'Environment Report\\n-----------------\\nGenerated at: ' + new Date().toISOString() + '\\n\\nCI Environment:\\n  CI: ' + (env.isCI ? 'true' : 'false') + '\\n  CI Type: ' + ciType + '\\n  GitHub Actions: ' + (env.isGitHubActions ? 'true' : 'false') + '\\n  Jenkins: ' + (env.isJenkins ? 'true' : 'false') + '\\n  GitLab CI: ' + (env.isGitLabCI ? 'true' : 'false') + '\\n  CircleCI: ' + (env.isCircleCI ? 'true' : 'false') + '\\n  Travis CI: ' + (env.isTravis ? 'true' : 'false') + '\\n  Azure Pipelines: ' + (env.isAzurePipelines ? 'true' : 'false') + '\\n  Runner OS: ' + process.platform + '\\n  Node.js: ' + process.version + '\\n\\nContainer Environment:\\n  Docker: ' + (env.isDocker ? 'true' : 'false') + '\\n  Kubernetes: ' + (env.isKubernetes ? 'true' : 'false') + '\\n  Docker Compose: ' + (env.isDockerCompose ? 'true' : 'false') + '\\n  Docker Swarm: ' + (env.isDockerSwarm ? 'true' : 'false') + '\\n\\nOperating System:\\n  Platform: ' + env.platform + '\\n  Windows: ' + (env.isWindows ? 'true' : 'false') + '\\n  macOS: ' + (env.isMacOS ? 'true' : 'false') + '\\n  Linux: ' + (env.isLinux ? 'true' : 'false') + '\\n  WSL: ' + (env.isWSL ? 'true' : 'false') + '\\n\\nConfiguration:\\n  API Base URL: ' + process.env.REACT_APP_API_BASE_URL + '\\n  AG UI Enabled: ' + process.env.REACT_APP_AG_UI_ENABLED + '\\n  Verbose Logging: ' + process.env.VERBOSE_LOGGING; fs.writeFileSync(path.join('playwright-report', 'environment-report.txt'), report); console.log('Environment report created at playwright-report/environment-report.txt');" || {
+            echo "Failed to generate environment report using enhanced detection, falling back to basic report"
+            cat > playwright-report/environment-report.txt << EOF
+Environment Report
+-----------------
+Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
 
-          CI Environment:
-            CI: true
-            GitHub Actions: true
-            Runner OS: $(uname -s)
-            Node.js: $(node --version)
+CI Environment:
+  CI: true
+  GitHub Actions: true
+  Runner OS: $(uname -s)
+  Node.js: $(node --version)
 
-          Container Environment:
-            Docker: false
-            Kubernetes: false
-            Docker Compose: false
-            Docker Swarm: false
-
-          Configuration:
-            API Base URL: $REACT_APP_API_BASE_URL
-            AG UI Enabled: $REACT_APP_AG_UI_ENABLED
-            Verbose Logging: $VERBOSE_LOGGING
-          EOF
+Configuration:
+  API Base URL: $REACT_APP_API_BASE_URL
+  AG UI Enabled: $REACT_APP_AG_UI_ENABLED
+  Verbose Logging: $VERBOSE_LOGGING
+EOF
+          }
 
           echo "Environment report created at playwright-report/environment-report.txt"
 
@@ -619,6 +615,8 @@ jobs:
 
           # Set environment detection variables
           $env:GITHUB_ACTIONS = "true"
+          $env:CI_ENVIRONMENT = "true"
+          $env:CI_TYPE = "github"
           $env:DOCKER_ENVIRONMENT = "false"
           $env:KUBERNETES_SERVICE_HOST = ""
           $env:COMPOSE_PROJECT_NAME = ""
@@ -629,38 +627,64 @@ jobs:
             New-Item -ItemType Directory -Path "logs" -Force
           }
 
+          # Create CI-specific directories
+          if (-not (Test-Path "ci-reports/github")) {
+            New-Item -ItemType Directory -Path "ci-reports/github" -Force
+          }
+
+          if (-not (Test-Path "test-results/github")) {
+            New-Item -ItemType Directory -Path "test-results/github" -Force
+          }
+
           # Create environment report
           Write-Host "Creating environment report..."
           if (-not (Test-Path "playwright-report")) {
             New-Item -ItemType Directory -Path "playwright-report" -Force
           }
 
-          $environmentReport = @"
-          Environment Report
-          -----------------
-          Generated at: $(Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")
+          # Generate environment report using the enhanced environment detection
+          try {
+            # Change to the React frontend directory
+            cd ui/react_frontend
 
-          CI Environment:
-            CI: true
-            GitHub Actions: true
-            Runner OS: Windows
-            PowerShell Version: $($PSVersionTable.PSVersion)
-            Node.js: $(node --version)
+            # Create CI environment report using the enhanced CI environment helper
+            node -e "const { createCIReport } = require('./tests/helpers/ci-environment'); createCIReport('../../playwright-report/environment-report.txt', { includeSystemInfo: true, includeEnvVars: false, verbose: true, includeContainers: true, includeCloud: true });"
 
-          Container Environment:
-            Docker: false
-            Kubernetes: false
-            Docker Compose: false
-            Docker Swarm: false
+            # Create CI-specific report
+            node -e "const { createCIReport } = require('./tests/helpers/ci-environment'); createCIReport('../../ci-reports/github/ci-environment-report.txt', { includeSystemInfo: true, includeEnvVars: true, verbose: true, formatJson: true });"
 
-          Configuration:
-            API Base URL: $($env:REACT_APP_API_BASE_URL)
-            AG UI Enabled: $($env:REACT_APP_AG_UI_ENABLED)
-            Verbose Logging: $($env:VERBOSE_LOGGING)
-          "@
+            # Return to the root directory
+            cd ../..
 
-          Set-Content -Path "playwright-report/environment-report.txt" -Value $environmentReport
-          Write-Host "Environment report created at playwright-report/environment-report.txt"
+            Write-Host "Environment report created using enhanced detection"
+          } catch {
+            Write-Host "Failed to generate environment report using enhanced detection, falling back to basic report: $_"
+            $basicReport = @"
+Environment Report
+-----------------
+Generated at: $(Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")
+
+CI Environment:
+  CI: true
+  CI_ENVIRONMENT: true
+  CI_TYPE: github
+  GitHub Actions: true
+  Runner OS: Windows
+  PowerShell Version: $($PSVersionTable.PSVersion)
+  Node.js: $(node --version)
+
+Configuration:
+  API Base URL: $($env:REACT_APP_API_BASE_URL)
+  AG UI Enabled: $($env:REACT_APP_AG_UI_ENABLED)
+  Verbose Logging: $($env:VERBOSE_LOGGING)
+"@
+            Set-Content -Path "playwright-report/environment-report.txt" -Value $basicReport
+            Set-Content -Path "ci-reports/github/ci-environment-report.txt" -Value $basicReport
+          }
+          Write-Host "Environment report created at playwright-report/environment-report.txt and ci-reports/github/ci-environment-report.txt"
+
+          # Change to the React frontend directory
+          cd ui/react_frontend
 
           # Run the CI test runner with error handling
           Write-Host "Running CI test runner..."
@@ -677,6 +701,9 @@ jobs:
             Write-Host "Tests failed but continuing workflow: $_"
             Set-Content -Path "logs/test-failures.txt" -Value "Test failures detected at $(Get-Date)"
           }
+
+          # Return to the root directory
+          cd ../..
 
       # The tests are now run by the CI test runner
       # This step is kept for backward compatibility but is now a no-op

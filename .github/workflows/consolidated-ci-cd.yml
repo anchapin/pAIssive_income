@@ -136,6 +136,45 @@ jobs:
           echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
+      - name: Set up CI environment (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          # Create CI-specific directories
+          mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
+          echo "Created CI-specific directories"
+
+          # Set CI environment variables
+          echo "CI=true" >> $GITHUB_ENV
+          echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+          echo "CI_PLATFORM=github" >> $GITHUB_ENV
+          echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
+          echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
+          echo "CI_PYTHON_VERSION=$(python --version | cut -d' ' -f2)" >> $GITHUB_ENV
+          echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
+          echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
+          echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+
+          # Generate environment report
+          {
+            echo "=== CI Environment Report ==="
+            echo "Date: $(date)"
+            echo "OS: $(uname -a)"
+            echo "Python: $(python --version)"
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+            echo "pnpm: $(pnpm --version)"
+            echo "Runner OS: ${{ runner.os }}"
+            echo "Workspace: ${{ github.workspace }}"
+            echo "Event: ${{ github.event_name }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Ref: ${{ github.ref }}"
+            echo "SHA: ${{ github.sha }}"
+            echo "=========================="
+          } > ci-reports/environment-report.txt
+
+          # Display environment report
+          cat ci-reports/environment-report.txt
+
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -155,6 +194,16 @@ jobs:
           # Install MCP SDK using the installation script
           echo "Installing MCP SDK using installation script..."
           python install_mcp_sdk.py
+
+          # Install CI environment detection script
+          if [ -f scripts/ci/detect_ci_environment.py ]; then
+            echo "Installing CI environment detection script dependencies..."
+            python -m pip install pyyaml
+
+            # Run the CI environment detection script
+            echo "Running CI environment detection script..."
+            python scripts/ci/detect_ci_environment.py --verbose --create-dirs
+          fi
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
