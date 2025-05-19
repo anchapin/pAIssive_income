@@ -19,7 +19,8 @@
     "test": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:ci": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:parallel": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --parallel --passWithNoTests",
-    "coverage": "nyc report --reporter=text-lcov"
+    "coverage": "nyc report --reporter=text-lcov",
+    "lint": "eslint \"**/*.js\""
   },
   "keywords": [],
   "author": "",
@@ -52,7 +53,8 @@
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1",
     "mocha": "^11.3.0",
-    "nyc": "^17.1.0"
+    "nyc": "^17.1.0",
+    "eslint": "^9.0.0"
   },
   "nyc": {
     "all": true,
