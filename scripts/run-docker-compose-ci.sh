@@ -83,11 +83,33 @@ pull_images() {
   # Pull Node.js image if frontend exists
   if [ -d "ui/react_frontend" ]; then
     log "Pulling Node.js image..."
-    if ! docker pull node:18-alpine; then
-      log "⚠️ Failed to pull node:18-alpine, trying fallback images..."
+    # Get the Node.js version from Dockerfile.dev
+    if [ -f "ui/react_frontend/Dockerfile.dev" ]; then
+      NODE_VERSION=$(grep -o "FROM node:[0-9]*-alpine" ui/react_frontend/Dockerfile.dev | sed 's/FROM node://g')
+      log "Detected Node.js version in Dockerfile.dev: $NODE_VERSION"
 
-      # Try fallback images
-      for fallback_image in "node:16-alpine" "node:14-alpine"; do
+      if [ -z "$NODE_VERSION" ]; then
+        # Default to node:24-alpine if not found
+        NODE_VERSION="24-alpine"
+        log "No Node.js version detected, defaulting to: $NODE_VERSION"
+      fi
+    else
+      # Default to node:24-alpine if Dockerfile.dev doesn't exist
+      NODE_VERSION="24-alpine"
+      log "Dockerfile.dev not found, defaulting to Node.js version: $NODE_VERSION"
+    fi
+
+    # Try to pull the detected Node.js version
+    if ! docker pull "node:$NODE_VERSION"; then
+      log "⚠️ Failed to pull node:$NODE_VERSION, trying fallback images..."
+
+      # Try fallback images in order of preference
+      for fallback_image in "node:24-alpine" "node:20-alpine" "node:18-alpine" "node:16-alpine"; do
+        # Skip if it's the same as the one we already tried
+        if [ "$fallback_image" = "node:$NODE_VERSION" ]; then
+          continue
+        fi
+
         log "Trying fallback image: $fallback_image"
         if docker pull "$fallback_image"; then
           log "✅ Successfully pulled fallback image: $fallback_image"
@@ -95,14 +117,14 @@ pull_images() {
           # Update Dockerfile.dev to use fallback image
           if [ -f "ui/react_frontend/Dockerfile.dev" ]; then
             log "Updating Dockerfile.dev to use fallback image..."
-            sed -i "s|FROM node:18-alpine|FROM $fallback_image|g" ui/react_frontend/Dockerfile.dev
+            sed -i "s|FROM node:[0-9]*-alpine|FROM $fallback_image|g" ui/react_frontend/Dockerfile.dev
           fi
 
           break
         fi
       done
     else
-      log "✅ Successfully pulled node:18-alpine"
+      log "✅ Successfully pulled node:$NODE_VERSION"
     fi
 
     # Ensure pnpm is properly configured in Dockerfile.dev
