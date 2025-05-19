@@ -23,12 +23,62 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for modern utility-fi
    ```sh
    pnpm tailwind:build
    ```
-   This generates `ui/static/css/tailwind.output.css` (including all Tailwind utilities and your legacy styles).
+   This generates `ui/static/css/tailwind.output.css` and `ui/react_frontend/src/tailwind.output.css` (including all Tailwind utilities and your legacy styles).
 
-3. **Or watch for changes during development:**
+3. **Build with custom configuration:**
    ```sh
-   pnpm tailwind:watch
+   pnpm tailwind:build:custom --config ./path/to/config.js --input ./path/to/input.css --output ./path/to/output.css
    ```
+
+4. **Build multiple files in parallel:**
+   ```sh
+   pnpm tailwind:build:parallel
+   ```
+
+5. **Build with a configuration file:**
+   ```sh
+   pnpm tailwind:config
+   ```
+
+6. **Build with custom PostCSS plugins:**
+   ```sh
+   pnpm tailwind:build:postcss
+   ```
+
+7. **Build with webpack integration:**
+   ```sh
+   pnpm tailwind:build:webpack
+   ```
+
+8. **Build with Vite integration:**
+   ```sh
+   pnpm tailwind:build:vite
+   ```
+
+9. **Build multiple input/output pairs:**
+   ```sh
+   pnpm tailwind:build:multi
+   ```
+
+10. **Watch for changes during development (both static and React):**
+    ```sh
+    pnpm tailwind:watch
+    ```
+
+11. **Watch only static CSS:**
+    ```sh
+    pnpm tailwind:watch:static
+    ```
+
+12. **Watch only React frontend CSS:**
+    ```sh
+    pnpm tailwind:watch:react
+    ```
+
+13. **Advanced usage with multiple options:**
+    ```sh
+    node ui/tailwind_utils.js --config-file ./ui/tailwind.config.json --log-level debug --parallel --add-file ./tailwind.config.js ./ui/static/css/tailwind.css ./ui/static/css/tailwind.output.css --add-file ./ui/react_frontend/tailwind.config.js ./ui/react_frontend/src/index.css ./ui/react_frontend/src/tailwind.output.css
+    ```
 
 ---
 
@@ -48,6 +98,11 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for modern utility-fi
 
 - Edit `ui/static/css/tailwind.css` to add custom CSS or enable/disable the `@import './style.css';` line as needed.
 - Edit `tailwind.config.js` to configure content sources, themes, or plugins.
+- Use custom configuration paths with the `tailwind:build:custom` script.
+- For React frontend, use the `tailwind:build:custom` script in the `ui/react_frontend` directory.
+- Create or edit `ui/tailwind.config.json` to customize default settings, logging, error handling, and more.
+- Add custom PostCSS plugins in `ui/postcss.config.js` or through the configuration file.
+- Integrate with webpack or Vite using the appropriate build scripts.
 
 ---
 
@@ -58,9 +113,44 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for modern utility-fi
 
 ---
 
+### Testing with Tailwind
+
+- Run tests with Tailwind CSS build:
+  ```sh
+  pnpm test
+  ```
+
+- Run tests in parallel:
+  ```sh
+  pnpm test:parallel
+  ```
+
+- Run tests with custom configuration:
+  ```sh
+  pnpm test:custom "your custom test command"
+  ```
+
+- For React frontend, use the `run_tests_with_tailwind.js` script with custom options:
+  ```sh
+  cd ui/react_frontend && node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css --parallel
+  ```
+
+---
+
 ### Notes
 
 - `ui/static/css/tailwind.output.css` is **git-ignored** and should not be committed.
 - For further customization, see the [Tailwind CSS documentation](https://tailwindcss.com/docs/installation).
+- For more details on Tailwind CSS integration, see the [Tailwind Integration Documentation](../docs/tailwind-integration.md).
+- For information on the enhanced features, see the [Tailwind Enhanced Features Documentation](../docs/tailwind-enhanced-features.md).
+
+### Advanced Features
+
+- **Configuration File**: Use a JSON configuration file to store default settings.
+- **Error Handling**: Robust error handling with retries and detailed logging.
+- **Multiple Files**: Process multiple input/output file pairs in a single run.
+- **Build Tool Integration**: Integrate with webpack or Vite for advanced build pipelines.
+- **Custom PostCSS Plugins**: Add custom PostCSS plugins for advanced CSS processing.
+- **Parallel Processing**: Build multiple files in parallel for better performance.
 
 ---

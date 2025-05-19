@@ -62,7 +62,75 @@ create_network() {
   fi
 }
 
+<<<<<<< HEAD
+# Function to try pulling an image with fallbacks
+try_pull_image_with_fallbacks() {
+  local primary_image="$1"
+  local fallback_images="$2"
+  local update_file="$3"
+  local search_pattern="$4"
+  local replace_pattern="$5"
+
+  log "Trying to pull image: $primary_image"
+  if ! docker pull "$primary_image"; then
+    log "⚠️ Failed to pull $primary_image, trying fallback images..."
+
+    # Try fallback images
+    for fallback_image in $fallback_images; do
+      # Skip if it's the same as the one we already tried
+      if [ "$fallback_image" = "$primary_image" ]; then
+        continue
+      fi
+
+      log "Trying fallback image: $fallback_image"
+      if docker pull "$fallback_image"; then
+        log "✅ Successfully pulled fallback image: $fallback_image"
+
+        # Update configuration file if provided
+        if [ -n "$update_file" ] && [ -f "$update_file" ]; then
+          log "Updating $update_file to use fallback image..."
+          sed -i "s|$search_pattern|$replace_pattern$fallback_image|g" "$update_file"
+        fi
+
+        echo "$fallback_image"  # Return the successful fallback image
+        return 0
+      fi
+    done
+    return 1  # All fallbacks failed
+  else
+    log "✅ Successfully pulled $primary_image"
+    echo "$primary_image"  # Return the primary image
+    return 0
+  fi
+}
+
+# Function to detect Node.js version from Dockerfile
+detect_node_version() {
+  local dockerfile="$1"
+  local default_version="$2"
+
+  if [ -f "$dockerfile" ]; then
+    local version=$(grep -o "FROM node:[0-9]*-alpine" "$dockerfile" | sed 's/FROM node://g')
+    log "Detected Node.js version in $dockerfile: $version"
+
+    if [ -z "$version" ]; then
+      log "No Node.js version detected, defaulting to: $default_version"
+      echo "$default_version"
+    else
+      echo "$version"
+    fi
+  else
+    log "$dockerfile not found, defaulting to Node.js version: $default_version"
+    echo "$default_version"
+  fi
+}
+
 # Function to pull images in parallel (optimized)
+# TODO: Add automated tests for this function to verify:
+#  - Dynamic Node.js version detection from Dockerfile.dev
+#  - Fallback behavior when primary image pull fails
+#  - Proper handling of missing Dockerfile.dev
+#  - Correct file updates when fallbacks are used
 pull_images() {
   log "Pulling Docker images in parallel..."
 
@@ -118,8 +186,12 @@ pull_images() {
 
   # Pull Node.js image if frontend exists
   if [ -d "ui/react_frontend" ]; then
-    pull_with_fallback "node:18-alpine" "node:16-alpine,node:14-alpine" \
-      "ui/react_frontend/Dockerfile.dev" "FROM node:18-alpine" &
+    # Get the Node.js version from Dockerfile.dev
+    NODE_VERSION=$(detect_node_version "ui/react_frontend/Dockerfile.dev" "24-alpine")
+
+    # Use the detected Node.js version
+    pull_with_fallback "node:$NODE_VERSION" "node:24-alpine,node:20-alpine,node:18-alpine,node:16-alpine" \
+      "ui/react_frontend/Dockerfile.dev" "FROM node:[0-9]*-alpine" &
 
     # Optimize frontend configuration in parallel
     (

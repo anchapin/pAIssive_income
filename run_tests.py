@@ -31,6 +31,8 @@ logging.getLogger().setLevel(logging.INFO)
 MAX_WORKERS = 12
 # Threshold: if test count > threshold, use MAX_WORKERS, else use 1
 THRESHOLD = 2 * MAX_WORKERS
+
+
 def get_sanitized_env() -> dict[str, str]:
     """
     Create a sanitized copy of the environment variables.
@@ -46,7 +48,12 @@ def get_sanitized_env() -> dict[str, str]:
     env = dict(os.environ)
 
     # Remove potentially dangerous environment variables
-    for var in ["LD_PRELOAD", "LD_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH"]:
+    for var in [
+        "LD_PRELOAD",
+        "LD_LIBRARY_PATH",
+        "DYLD_INSERT_LIBRARIES",
+        "DYLD_LIBRARY_PATH",
+    ]:
         env.pop(var, None)
 
     return env
@@ -137,12 +144,14 @@ def count_tests(validated_args: list[str]) -> int:
             text=True,
             shell=False,  # Explicitly set shell=False for security
             env=get_sanitized_env(),
-            timeout=300  # Set a timeout of 5 minutes
+            timeout=300,  # Set a timeout of 5 minutes
         )
 
         # Check if pytest collection was successful
         if result.returncode != 0:
-            logger.warning("Test collection failed with return code %d", result.returncode)
+            logger.warning(
+                "Test collection failed with return code %d", result.returncode
+            )
             if result.stderr:
                 logger.debug("Collection error: %s", result.stderr)
             return default_test_count if has_test_files else 0
@@ -157,7 +166,12 @@ def count_tests(validated_args: list[str]) -> int:
         # a path followed by "::" which indicates a test
         test_count = 0
         for line in output.splitlines():
-            if "::" in line and not line.strip().startswith("<") and "PASSED" not in line and "FAILED" not in line:
+            if (
+                "::" in line
+                and not line.strip().startswith("<")
+                and "PASSED" not in line
+                and "FAILED" not in line
+            ):
                 test_count += 1
 
         # Look for the summary line that says "collected X items"
@@ -178,14 +192,19 @@ def count_tests(validated_args: list[str]) -> int:
         # If we somehow didn't find any tests but pytest is going to run tests,
         # default to at least 1 test
         if test_count == 0 and has_test_files:
-            logger.warning("No tests found in collection output, but test files specified. Using default count.")
+            logger.warning(
+                "No tests found in collection output, but test files specified. Using default count."
+            )
             test_count = default_test_count
 
         logger.info("Collected %d tests", test_count)
         return test_count
 
     except subprocess.TimeoutExpired as e:
-        logger.warning("Test collection timed out after 5 minutes: %s. Falling back to single worker.", e)
+        logger.warning(
+            "Test collection timed out after 5 minutes: %s. Falling back to single worker.",
+            e,
+        )
         return default_test_count if has_test_files else 0
 
     except subprocess.CalledProcessError as e:
@@ -193,7 +212,9 @@ def count_tests(validated_args: list[str]) -> int:
         return default_test_count if has_test_files else 0
 
     except Exception as e:
-        logger.warning("Unexpected error collecting tests: %s. Falling back to single worker.", e)
+        logger.warning(
+            "Unexpected error collecting tests: %s. Falling back to single worker.", e
+        )
         return default_test_count if has_test_files else 0
 
 
@@ -236,23 +257,36 @@ def ensure_security_reports_dir() -> None:
                         # nosec B603 - subprocess call is used with shell=False and validated arguments
                         # nosec B607 - subprocess call is used with a fixed executable path
                         subprocess.run(  # nosec B603 # nosec B607
-                            [cmd_path, "/c", "mklink", "/J", "security-reports", str(alt_reports_dir)],
+                            [
+                                cmd_path,
+                                "/c",
+                                "mklink",
+                                "/J",
+                                "security-reports",
+                                str(alt_reports_dir),
+                            ],
                             check=False,
                             shell=False,
-                            capture_output=True
+                            capture_output=True,
                         )
                 else:
                     # Use symlink on Unix
                     os.symlink(alt_reports_dir, "security-reports")
                 return
             except Exception as symlink_error:
-                logger.warning("Failed to create symlink to alternative directory: %s", symlink_error)
+                logger.warning(
+                    "Failed to create symlink to alternative directory: %s",
+                    symlink_error,
+                )
     except Exception as alt_dir_error:
-        logger.warning("Failed to create alternative security_reports directory: %s", alt_dir_error)
+        logger.warning(
+            "Failed to create alternative security_reports directory: %s", alt_dir_error
+        )
 
     # Second fallback: Try to create in temp directory
     try:
         import tempfile
+
         temp_dir = Path(tempfile.gettempdir()) / "security-reports"
         temp_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Created security-reports directory in temp location: %s", temp_dir)
@@ -266,18 +300,30 @@ def ensure_security_reports_dir() -> None:
                     # nosec B603 - subprocess call is used with shell=False and validated arguments
                     # nosec B607 - subprocess call is used with a fixed executable path
                     subprocess.run(  # nosec B603 # nosec B607
-                        [cmd_path, "/c", "mklink", "/J", "security-reports", str(temp_dir)],
+                        [
+                            cmd_path,
+                            "/c",
+                            "mklink",
+                            "/J",
+                            "security-reports",
+                            str(temp_dir),
+                        ],
                         check=False,
                         shell=False,
-                        capture_output=True
+                        capture_output=True,
                     )
             else:
                 # Use symlink on Unix
                 os.symlink(temp_dir, "security-reports")
         except Exception as symlink_error:
-            logger.warning("Failed to create symlink to temp directory: %s", symlink_error)
+            logger.warning(
+                "Failed to create symlink to temp directory: %s", symlink_error
+            )
     except Exception as temp_dir_error:
-        logger.warning("Failed to create security-reports directory in temp location: %s", temp_dir_error)
+        logger.warning(
+            "Failed to create security-reports directory in temp location: %s",
+            temp_dir_error,
+        )
 
     # Final fallback: Just continue without the directory
     # The security tools should handle this gracefully or we'll catch their exceptions
@@ -306,7 +352,9 @@ def check_venv_exists() -> bool:
 
         # Method 4: Check for common virtual environment directories
         for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(os.path.join(venv_dir, "pyvenv.cfg")):
+            if os.path.isdir(venv_dir) and os.path.isfile(
+                os.path.join(venv_dir, "pyvenv.cfg")
+            ):
                 return True
 
         # Not in a virtual environment
@@ -331,12 +379,18 @@ def main() -> None:
         # Check if we're running in a virtual environment
         in_venv = check_venv_exists()
         if not in_venv:
-            logger.warning("Not running in a virtual environment. This may cause issues with pytest.")
-            logger.info("Continuing anyway, but consider running in a virtual environment.")
+            logger.warning(
+                "Not running in a virtual environment. This may cause issues with pytest."
+            )
+            logger.info(
+                "Continuing anyway, but consider running in a virtual environment."
+            )
 
             # Create a temporary virtual environment if needed for CI environments
             if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
-                logger.info("CI environment detected. Will proceed without virtual environment.")
+                logger.info(
+                    "CI environment detected. Will proceed without virtual environment."
+                )
                 # In CI, we can continue without a virtual environment as dependencies are installed globally
 
     # Ensure pytest-xdist is installed
@@ -351,7 +405,7 @@ def main() -> None:
                 capture_output=True,
                 shell=False,  # Explicitly set shell=False for security
                 env=get_sanitized_env(),
-                timeout=30  # Short timeout for import check
+                timeout=30,  # Short timeout for import check
             )
 
             if check_result.returncode == 0:
@@ -374,7 +428,7 @@ def main() -> None:
                         capture_output=True,
                         shell=False,
                         env=get_sanitized_env(),
-                        timeout=30
+                        timeout=30,
                     )
                     use_uv = uv_check.returncode == 0
                 except (subprocess.SubprocessError, FileNotFoundError):
@@ -386,7 +440,13 @@ def main() -> None:
                     install_cmd = ["uv", "pip", "install", "pytest-xdist"]
                 else:
                     logger.info("Using pip to install pytest-xdist")
-                    install_cmd = [sys.executable, "-m", "pip", "install", "pytest-xdist"]
+                    install_cmd = [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "install",
+                        "pytest-xdist",
+                    ]
 
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec B607 - subprocess call is used with a fixed executable path
@@ -396,19 +456,30 @@ def main() -> None:
                     capture_output=True,
                     shell=False,  # Explicitly set shell=False for security
                     env=get_sanitized_env(),
-                    timeout=300  # Set a timeout of 5 minutes
+                    timeout=300,  # Set a timeout of 5 minutes
                 )
 
                 if install_result.returncode == 0:
                     logger.info("Successfully installed pytest-xdist")
                 else:
-                    logger.warning("Failed to install pytest-xdist. Will run tests without parallelization.")
+                    logger.warning(
+                        "Failed to install pytest-xdist. Will run tests without parallelization."
+                    )
                     if install_result.stderr:
-                        logger.debug("Installation error: %s", install_result.stderr.decode('utf-8', errors='replace'))
+                        logger.debug(
+                            "Installation error: %s",
+                            install_result.stderr.decode("utf-8", errors="replace"),
+                        )
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
-            logger.warning("Error checking for pytest-xdist: %s. Will run tests without parallelization.", e)
+            logger.warning(
+                "Error checking for pytest-xdist: %s. Will run tests without parallelization.",
+                e,
+            )
     except Exception as e:
-        logger.warning("Unexpected error installing pytest-xdist: %s. Will run tests without parallelization.", e)
+        logger.warning(
+            "Unexpected error installing pytest-xdist: %s. Will run tests without parallelization.",
+            e,
+        )
 
     # Ensure security-reports directory exists
     ensure_security_reports_dir()
@@ -422,7 +493,12 @@ def main() -> None:
     # Calculate the number of workers based on the number of tests
     # If test count exceeds threshold (2x MAX_WORKERS), use all available workers; otherwise use 1
     num_workers = MAX_WORKERS if test_count > THRESHOLD else 1
-    logger.info("Collected %d tests. Using %d worker%s", test_count, num_workers, "s" if num_workers > 1 else "")
+    logger.info(
+        "Collected %d tests. Using %d worker%s",
+        test_count,
+        num_workers,
+        "s" if num_workers > 1 else "",
+    )
 
     # Run pytest with the calculated number of workers
     try:
@@ -437,17 +513,25 @@ def main() -> None:
                 capture_output=True,
                 shell=False,  # Explicitly set shell=False for security
                 env=get_sanitized_env(),
-                timeout=30  # Short timeout for import check
+                timeout=30,  # Short timeout for import check
             )
             xdist_available = xdist_check.returncode == 0
             if xdist_available:
                 logger.info("pytest-xdist is available, parallel testing is enabled")
             else:
-                logger.warning("pytest-xdist import check failed, will run tests without parallelization")
+                logger.warning(
+                    "pytest-xdist import check failed, will run tests without parallelization"
+                )
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
-            logger.warning("Failed to check for pytest-xdist: %s. Will run tests without parallelization.", e)
+            logger.warning(
+                "Failed to check for pytest-xdist: %s. Will run tests without parallelization.",
+                e,
+            )
         except Exception as e:
-            logger.warning("Unexpected error checking for pytest-xdist: %s. Will run tests without parallelization.", e)
+            logger.warning(
+                "Unexpected error checking for pytest-xdist: %s. Will run tests without parallelization.",
+                e,
+            )
 
         # Determine pytest command based on available modules and arguments
         pytest_cmd = [sys.executable, "-m", "pytest"]
@@ -480,12 +564,14 @@ def main() -> None:
             check=False,
             shell=False,  # Explicitly set shell=False for security
             env=get_sanitized_env(),
-            timeout=3600  # Set a timeout of 1 hour to prevent hanging
+            timeout=3600,  # Set a timeout of 1 hour to prevent hanging
         )
 
         # Check for common pytest errors
         if result.returncode not in [0, 1, 2, 3, 4, 5]:  # 0=success, 1-5=test failures
-            logger.warning("Pytest exited with unexpected return code: %d", result.returncode)
+            logger.warning(
+                "Pytest exited with unexpected return code: %d", result.returncode
+            )
             if result.stdout:
                 logger.info("Pytest stdout: %s", result.stdout)
             if result.stderr:

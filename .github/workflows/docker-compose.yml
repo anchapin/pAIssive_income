@@ -112,6 +112,29 @@ jobs:
             echo "has_frontend=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install pnpm
+        if: steps.setup.outputs.has_frontend == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
+
+      - name: Set up Node.js
+        if: steps.setup.outputs.has_frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          # Disable cache to avoid post-action cleanup issues
+          # cache: 'pnpm'
+          # cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
+
+      # Add global pnpm to PATH
+      - name: Add global pnpm to PATH
+        if: steps.setup.outputs.has_frontend == 'true'
+        shell: bash
+        run: |
+          echo "PATH=$(pnpm -g bin):$PATH" >> $GITHUB_ENV
+
       - name: Prepare scripts and Docker environment (optimized)
         run: |
           # Create scripts directory if needed and make all scripts executable in one go

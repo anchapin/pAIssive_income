@@ -59,7 +59,7 @@ The workflow automatically detects if a frontend exists and sets up the necessar
   if: steps.check-frontend.outputs.has_frontend == 'true'
   uses: actions/setup-node@v4
   with:
-    node-version: '18'
+    node-version: '24'
     cache: 'npm'
     cache-dependency-path: '**/package-lock.json'
 
@@ -138,12 +138,12 @@ The workflow uses the `run-docker-compose-ci.sh` script to start services and ru
 - name: Run tests
   run: |
     echo "Running tests..."
-    
+
     # Function to check if a command exists
     command_exists() {
       command -v "$1" >/dev/null 2>&1
     }
-    
+
     # Determine which Docker Compose command to use
     if command_exists "docker compose"; then
       COMPOSE_CMD="docker compose"
@@ -153,14 +153,14 @@ The workflow uses the `run-docker-compose-ci.sh` script to start services and ru
       echo "ERROR: No Docker Compose installation found."
       exit 1
     fi
-    
+
     # Run backend tests if available
     if $COMPOSE_CMD exec -T app python -m pytest 2>/dev/null; then
       echo "Backend tests completed"
     else
       echo "No backend tests found or tests failed"
     fi
-    
+
     # Run frontend tests if available
     if [ -d "ui/react_frontend" ] && $COMPOSE_CMD exec -T frontend npm test 2>/dev/null; then
       echo "Frontend tests completed"

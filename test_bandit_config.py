@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Find the full path to the bandit executable
 
+
 def get_bandit_path() -> str:
     """Get the full path to the bandit executable."""
     # On Windows, try both 'bandit' and 'bandit.exe'
@@ -62,25 +63,38 @@ def ensure_security_reports_dir() -> None:
             # Try to create the directory in a temp location as fallback
             try:
                 import tempfile
+
                 temp_dir = Path(tempfile.gettempdir()) / "security-reports"
                 temp_dir.mkdir(parents=True, exist_ok=True)
-                logger.info("Created security-reports directory in temp location: %s", temp_dir)
+                logger.info(
+                    "Created security-reports directory in temp location: %s", temp_dir
+                )
                 # Create a symlink or junction to the temp directory
                 if platform.system() == "Windows":
                     # Use directory junction on Windows
                     # Use full path to cmd.exe to avoid security warning
                     cmd_path = shutil.which("cmd.exe") or "cmd"
                     subprocess.run(  # nosec B603
-                        [cmd_path, "/c", "mklink", "/J", "security-reports", str(temp_dir)],
+                        [
+                            cmd_path,
+                            "/c",
+                            "mklink",
+                            "/J",
+                            "security-reports",
+                            str(temp_dir),
+                        ],
                         check=False,
                         shell=False,
-                        capture_output=True
+                        capture_output=True,
                     )
                 else:
                     # Use symlink on Unix
                     os.symlink(temp_dir, "security-reports")
             except (PermissionError, OSError, FileExistsError) as e2:
-                logger.warning("Failed to create security-reports directory in temp location: %s", e2)
+                logger.warning(
+                    "Failed to create security-reports directory in temp location: %s",
+                    e2,
+                )
 
 
 def create_empty_json_files() -> bool:
@@ -114,10 +128,10 @@ def create_empty_json_files() -> bool:
                     "SEVERITY.UNDEFINED": 0,
                     "loc": 0,
                     "nosec": 0,
-                    "skipped_tests": 0
+                    "skipped_tests": 0,
                 }
             },
-            "results": []
+            "results": [],
         }
 
         # Create bandit-results.json
@@ -149,12 +163,13 @@ def create_empty_json_files() -> bool:
                 json.dump(simple_json, f)
 
         return True
-    except (PermissionError, OSError) as e:
+    except (PermissionError, OSError):
         logger.exception("Failed to create empty JSON files")
 
         # Try one more time in a different location
         try:
             import tempfile
+
             temp_dir = Path(tempfile.gettempdir()) / "security-reports"
             temp_dir.mkdir(parents=True, exist_ok=True)
 
@@ -177,17 +192,19 @@ def create_empty_json_files() -> bool:
                 if not security_reports_dir.exists():
                     security_reports_dir.mkdir(parents=True, exist_ok=True)
                 shutil.copy(
-                    temp_results_file,
-                    security_reports_dir / "bandit-results.json"
+                    temp_results_file, security_reports_dir / "bandit-results.json"
                 )
                 shutil.copy(
                     temp_results_ini_file,
-                    security_reports_dir / "bandit-results-ini.json"
+                    security_reports_dir / "bandit-results-ini.json",
                 )
                 logger.info("Successfully copied JSON files from temp directory")
                 return True
             except (PermissionError, OSError, FileExistsError):
-                logger.warning("Failed to copy from temp directory, but files exist in: %s", temp_dir)
+                logger.warning(
+                    "Failed to copy from temp directory, but files exist in: %s",
+                    temp_dir,
+                )
                 return True
         except (ImportError, PermissionError, OSError):
             logger.exception("All attempts to create JSON files failed")
@@ -217,7 +234,9 @@ def check_venv_exists() -> bool:
 
         # Method 4: Check for common virtual environment directories
         for venv_dir in [".venv", "venv", "env", ".env"]:
-            if os.path.isdir(venv_dir) and os.path.isfile(os.path.join(venv_dir, "pyvenv.cfg")):
+            if os.path.isdir(venv_dir) and os.path.isfile(
+                os.path.join(venv_dir, "pyvenv.cfg")
+            ):
                 return True
 
         # Not in a virtual environment
@@ -251,7 +270,7 @@ if __name__ == "__main__":
             check=False,
             capture_output=True,
             shell=False,  # Explicitly set shell=False for security
-            timeout=30  # Set a timeout to prevent hanging
+            timeout=30,  # Set a timeout to prevent hanging
         )
     except (FileNotFoundError, subprocess.SubprocessError):
         logger.info("Installing bandit...")
@@ -263,7 +282,7 @@ if __name__ == "__main__":
                 [sys.executable, "-m", "pip", "install", "bandit"],
                 check=False,
                 shell=False,  # Explicitly set shell=False for security
-                timeout=300  # Set a timeout of 5 minutes
+                timeout=300,  # Set a timeout of 5 minutes
             )
         except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
             logger.warning("Failed to install bandit: %s", e)
@@ -283,39 +302,62 @@ if __name__ == "__main__":
                 # nosec S603 - This is a safe subprocess call with no user input
                 subprocess.run(  # nosec B603 # noqa: S603
                     [
-                        bandit_path, "-r", ".",
-                        "-f", "json", "-o", "security-reports/bandit-results.json",
-                        "-c", "bandit.yaml",
-                        "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero"  # Always exit with 0 to prevent CI failures
+                        bandit_path,
+                        "-r",
+                        ".",
+                        "-f",
+                        "json",
+                        "-o",
+                        "security-reports/bandit-results.json",
+                        "-c",
+                        "bandit.yaml",
+                        "--exclude",
+                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                        "--exit-zero",  # Always exit with 0 to prevent CI failures
                     ],
                     check=False,
                     shell=False,  # Explicitly set shell=False for security
-                    timeout=600  # Set a timeout of 10 minutes
+                    timeout=600,  # Set a timeout of 10 minutes
                 )
                 logger.info("Bandit scan completed with configuration file")
-            except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
+            except (
+                subprocess.SubprocessError,
+                FileNotFoundError,
+                PermissionError,
+            ) as e:
                 logger.warning("Bandit scan with configuration file failed: %s", e)
                 # Create empty JSON files as fallback
                 create_empty_json_files()
         else:
-            logger.info("No bandit.yaml configuration file found, using default configuration")
+            logger.info(
+                "No bandit.yaml configuration file found, using default configuration"
+            )
             try:
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
                 # nosec S603 - This is a safe subprocess call with no user input
                 subprocess.run(  # nosec B603 # noqa: S603
                     [
-                        bandit_path, "-r", ".",
-                        "-f", "json", "-o", "security-reports/bandit-results.json",
-                        "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-                        "--exit-zero"  # Always exit with 0 to prevent CI failures
+                        bandit_path,
+                        "-r",
+                        ".",
+                        "-f",
+                        "json",
+                        "-o",
+                        "security-reports/bandit-results.json",
+                        "--exclude",
+                        ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+                        "--exit-zero",  # Always exit with 0 to prevent CI failures
                     ],
                     check=False,
                     shell=False,  # Explicitly set shell=False for security
-                    timeout=600  # Set a timeout of 10 minutes
+                    timeout=600,  # Set a timeout of 10 minutes
                 )
                 logger.info("Bandit scan completed with default configuration")
-            except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
+            except (
+                subprocess.SubprocessError,
+                FileNotFoundError,
+                PermissionError,
+            ) as e:
                 logger.warning("Bandit scan with default configuration failed: %s", e)
                 # Create empty JSON files as fallback
                 create_empty_json_files()
@@ -323,7 +365,9 @@ if __name__ == "__main__":
         # Verify the JSON file exists and is valid
         bandit_results = Path("security-reports/bandit-results.json")
         if not bandit_results.exists() or bandit_results.stat().st_size == 0:
-            logger.warning("Bandit did not generate a valid JSON file. Creating fallback.")
+            logger.warning(
+                "Bandit did not generate a valid JSON file. Creating fallback."
+            )
             create_empty_json_files()
         else:
             # Check if the JSON file is valid
@@ -336,11 +380,13 @@ if __name__ == "__main__":
                 security_reports_dir = Path("security-reports")
                 shutil.copy(
                     security_reports_dir / "bandit-results.json",
-                    security_reports_dir / "bandit-results-ini.json"
+                    security_reports_dir / "bandit-results-ini.json",
                 )
                 logger.info("Copied bandit-results.json to bandit-results-ini.json")
             except (json.JSONDecodeError, OSError, FileNotFoundError) as e:
-                logger.warning("JSON validation failed: %s. Creating fallback files.", e)
+                logger.warning(
+                    "JSON validation failed: %s. Creating fallback files.", e
+                )
                 create_empty_json_files()
 
         logger.info("Bandit configuration test passed!")

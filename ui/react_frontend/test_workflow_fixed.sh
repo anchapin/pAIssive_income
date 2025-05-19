@@ -36,15 +36,22 @@ fi
 
 # Run Vitest unit tests
 echo "Running Vitest unit tests..."
+# Ensure tailwind CSS is built before running tests
+echo "Building tailwind CSS..."
+
 # Try to find pnpm in different locations
 if command -v pnpm &> /dev/null; then
+  pnpm tailwind:build
   pnpm run test:unit || echo "Vitest tests failed, but continuing workflow"
 elif [ -f "$(npm bin)/pnpm" ]; then
+  $(npm bin)/pnpm tailwind:build
   $(npm bin)/pnpm run test:unit || echo "Vitest tests failed, but continuing workflow"
 elif [ -f "$HOME/.npm/pnpm/bin/pnpm" ]; then
+  $HOME/.npm/pnpm/bin/pnpm tailwind:build
   $HOME/.npm/pnpm/bin/pnpm run test:unit || echo "Vitest tests failed, but continuing workflow"
 else
   echo "pnpm not found, trying npm instead..."
+  npm run tailwind:build
   npm run test:unit || echo "Vitest tests failed, but continuing workflow"
 fi
 
@@ -63,13 +70,27 @@ export REACT_APP_API_BASE_URL=http://localhost:8000/api
 export REACT_APP_AG_UI_ENABLED=true
 
 # Run the CI-friendly tests
-pnpm test:ci || echo "Playwright tests failed, but continuing workflow"
+# Ensure tailwind CSS is built before running tests
+if command -v pnpm &> /dev/null; then
+  pnpm tailwind:build
+  pnpm test:ci || echo "Playwright tests failed, but continuing workflow"
+elif [ -f "$(npm bin)/pnpm" ]; then
+  $(npm bin)/pnpm tailwind:build
+  $(npm bin)/pnpm test:ci || echo "Playwright tests failed, but continuing workflow"
+elif [ -f "$HOME/.npm/pnpm/bin/pnpm" ]; then
+  $HOME/.npm/pnpm/bin/pnpm tailwind:build
+  $HOME/.npm/pnpm/bin/pnpm test:ci || echo "Playwright tests failed, but continuing workflow"
+else
+  echo "pnpm not found, trying npm instead..."
+  npm run tailwind:build
+  npm run test:ci || echo "Playwright tests failed, but continuing workflow"
+fi
 
 # Create a dummy file if the directory is empty to prevent upload issues
 if [ -z "$(ls -A playwright-report/)" ]; then
   echo "Creating dummy file in empty playwright-report directory"
   echo "Test run completed at $(date)" > playwright-report/test-summary.txt
-  
+
   # Create a minimal HTML report
   mkdir -p playwright-report/html
   echo '<!DOCTYPE html>' > playwright-report/html/index.html
