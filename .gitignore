@@ -67,7 +67,6 @@ $RECYCLE.BIN/
 *$py.class
 pytest.ini.temp
 pytest_temp.ini
-coverage_placeholder.py
 **/.env/
 **/.venv/
 **/dist-packages/
