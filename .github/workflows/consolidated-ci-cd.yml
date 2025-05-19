@@ -22,11 +22,35 @@ name: Consolidated CI/CD
 
 on:
   push:
-    branches: [ main, dev, master, develop ]
+    branches: [ main, dev, master, develop, cosine/improve-frontend-tests-y4hwd5 ]
+    paths:
+      - '**/*.py'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '.github/workflows/**'
+      - '.github/codeql/**'
+      - 'scripts/**'
+      - 'codeql-success.txt'
     tags:
       - 'v*.*.*'
   pull_request:
     branches: [ main, dev, master, develop ]
+    paths:
+      - '**/*.py'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '.github/workflows/**'
+      - '.github/codeql/**'
+      - 'scripts/**'
+      - 'codeql-success.txt'
   schedule:
     - cron: '0 0 * * 0'  # Weekly, for regular security scans
   workflow_dispatch:
