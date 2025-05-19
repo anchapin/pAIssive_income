@@ -31,8 +31,11 @@ jobs:
       - name: Create coverage directory
         run: mkdir -p coverage
 
+      - name: Build Tailwind CSS
+        run: pnpm tailwind:build
+
       - name: Run JS tests and check coverage
-        run: pnpm test
+        run: pnpm test:ci
 
       - name: Generate coverage report
         run: pnpm coverage > ./coverage/lcov.info
