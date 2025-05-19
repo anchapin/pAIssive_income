@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import httpx
 
@@ -32,6 +32,7 @@ class APITool:
 
         Args:
             api_key (Optional[str], optional): API key for authentication. Defaults to None.
+
         """
         self.api_key = api_key
         self.client = httpx.Client(timeout=30.0)
@@ -46,10 +47,11 @@ class APITool:
 
         Returns:
             str: JSON string containing search results.
+
         """
         # This is a mock implementation
         logger.info(f"Searching for products with query: {query}, limit: {limit}")
-        
+
         # Simulate API call
         mock_results = [
             {"id": 1, "name": f"{query} Product 1", "price": 19.99, "rating": 4.5},
@@ -58,7 +60,7 @@ class APITool:
             {"id": 4, "name": f"{query} Product 4", "price": 49.99, "rating": 3.9},
             {"id": 5, "name": f"{query} Product 5", "price": 59.99, "rating": 4.1},
         ]
-        
+
         return json.dumps({"results": mock_results[:limit]})
 
     def get_market_trends(self, category: str) -> str:
@@ -70,10 +72,11 @@ class APITool:
 
         Returns:
             str: JSON string containing market trends.
+
         """
         # This is a mock implementation
         logger.info(f"Getting market trends for category: {category}")
-        
+
         # Simulate API call
         mock_trends = {
             "category": category,
@@ -86,7 +89,7 @@ class APITool:
                 "Subscription services",
             ],
         }
-        
+
         return json.dumps(mock_trends)
 
     def analyze_competitors(self, company_name: str) -> str:
@@ -98,23 +101,40 @@ class APITool:
 
         Returns:
             str: JSON string containing competitor analysis.
+
         """
         # This is a mock implementation
         logger.info(f"Analyzing competitors for company: {company_name}")
-        
+
         # Simulate API call
         mock_analysis = {
             "company": company_name,
             "direct_competitors": [
-                {"name": "Competitor A", "market_share": "15%", "strengths": ["Brand recognition", "Product quality"]},
-                {"name": "Competitor B", "market_share": "12%", "strengths": ["Pricing", "Distribution network"]},
+                {
+                    "name": "Competitor A",
+                    "market_share": "15%",
+                    "strengths": ["Brand recognition", "Product quality"],
+                },
+                {
+                    "name": "Competitor B",
+                    "market_share": "12%",
+                    "strengths": ["Pricing", "Distribution network"],
+                },
             ],
             "indirect_competitors": [
-                {"name": "Competitor C", "market_share": "8%", "strengths": ["Innovation", "Customer service"]},
-                {"name": "Competitor D", "market_share": "5%", "strengths": ["Niche focus", "Online presence"]},
+                {
+                    "name": "Competitor C",
+                    "market_share": "8%",
+                    "strengths": ["Innovation", "Customer service"],
+                },
+                {
+                    "name": "Competitor D",
+                    "market_share": "5%",
+                    "strengths": ["Niche focus", "Online presence"],
+                },
             ],
         }
-        
+
         return json.dumps(mock_analysis)
 
 
@@ -127,17 +147,18 @@ class MultiAPIAgent(ArtistAgent):
 
         Args:
             api_key (Optional[str], optional): API key for authentication. Defaults to None.
+
         """
         super().__init__()
-        
+
         # Create API tool
         api_tool = APITool(api_key)
-        
+
         # Register API tools
         tooling.register_tool("search_products", api_tool.search_products)
         tooling.register_tool("get_market_trends", api_tool.get_market_trends)
         tooling.register_tool("analyze_competitors", api_tool.analyze_competitors)
-        
+
         # Update tools dictionary
         self.tools = tooling.list_tools()
 
@@ -150,18 +171,19 @@ class MultiAPIAgent(ArtistAgent):
 
         Returns:
             str: Name of the tool to use.
+
         """
         prompt_lower = prompt.lower()
-        
+
         if any(k in prompt_lower for k in ["product", "search", "find products"]):
             return "search_products"
-        
+
         if any(k in prompt_lower for k in ["market", "trend", "industry"]):
             return "get_market_trends"
-        
+
         if any(k in prompt_lower for k in ["competitor", "competition", "rival"]):
             return "analyze_competitors"
-        
+
         return ""
 
 
@@ -175,6 +197,7 @@ def run_experiment(prompt: str, api_key: Optional[str] = None) -> str:
 
     Returns:
         str: Result of the experiment.
+
     """
     agent = MultiAPIAgent(api_key)
     return agent.run(prompt)

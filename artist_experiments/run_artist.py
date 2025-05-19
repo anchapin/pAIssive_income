@@ -32,6 +32,7 @@ def health_check() -> dict:
 
     Returns:
         dict: Health status information.
+
     """
     return jsonify({"status": "healthy", "service": "artist-experiments"})
 
@@ -43,6 +44,7 @@ def home() -> dict:
 
     Returns:
         dict: Welcome message.
+
     """
     return jsonify(
         {
@@ -59,6 +61,7 @@ def list_experiments() -> dict:
 
     Returns:
         dict: List of available experiments.
+
     """
     return jsonify(
         {

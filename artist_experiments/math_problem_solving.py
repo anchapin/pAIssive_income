@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
@@ -37,6 +36,7 @@ class MathTool:
 
         Returns:
             str: Solution to the equation.
+
         """
         try:
             # Extract the variable and equation parts
@@ -47,7 +47,7 @@ class MathTool:
                 var = sp.Symbol(var_name)
                 expr = parse_expr(equation)
                 return str(expr)
-            
+
             # Handle equations with equals sign
             if "=" in equation_str:
                 parts = equation_str.split("=")
@@ -55,23 +55,22 @@ class MathTool:
                     left = parse_expr(parts[0])
                     right = parse_expr(parts[1])
                     equation = sp.Eq(left, right)
-                    
+
                     # Extract variables
                     variables = list(equation.free_symbols)
                     if len(variables) == 1:
                         var = variables[0]
                         solution = sp.solve(equation, var)
                         return f"{var} = {solution}"
-                    else:
-                        solution = sp.solve(equation)
-                        return str(solution)
-            
+                    solution = sp.solve(equation)
+                    return str(solution)
+
             # If no equals sign, just evaluate the expression
             expr = parse_expr(equation_str)
             return str(expr.evalf())
         except Exception as e:
             logger.error(f"Error solving equation: {e}")
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     @staticmethod
     def factor_expression(expr_str: str) -> str:
@@ -83,6 +82,7 @@ class MathTool:
 
         Returns:
             str: Factored expression.
+
         """
         try:
             expr = parse_expr(expr_str)
@@ -90,7 +90,7 @@ class MathTool:
             return str(factored)
         except Exception as e:
             logger.error(f"Error factoring expression: {e}")
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
     @staticmethod
     def expand_expression(expr_str: str) -> str:
@@ -102,6 +102,7 @@ class MathTool:
 
         Returns:
             str: Expanded expression.
+
         """
         try:
             expr = parse_expr(expr_str)
@@ -109,7 +110,7 @@ class MathTool:
             return str(expanded)
         except Exception as e:
             logger.error(f"Error expanding expression: {e}")
-            return f"Error: {str(e)}"
+            return f"Error: {e!s}"
 
 
 class EnhancedArtistAgent(ArtistAgent):
@@ -118,13 +119,13 @@ class EnhancedArtistAgent(ArtistAgent):
     def __init__(self) -> None:
         """Initialize the enhanced ARTIST agent."""
         super().__init__()
-        
+
         # Register math tools
         math_tool = MathTool()
         tooling.register_tool("solve_equation", math_tool.solve_equation)
         tooling.register_tool("factor_expression", math_tool.factor_expression)
         tooling.register_tool("expand_expression", math_tool.expand_expression)
-        
+
         # Update tools dictionary
         self.tools = tooling.list_tools()
 
@@ -137,21 +138,25 @@ class EnhancedArtistAgent(ArtistAgent):
 
         Returns:
             str: Name of the tool to use.
+
         """
         prompt_lower = prompt.lower()
-        
+
         if any(k in prompt_lower for k in ["solve", "equation", "=", "find", "value"]):
             return "solve_equation"
-        
+
         if any(k in prompt_lower for k in ["factor", "factorize", "factorization"]):
             return "factor_expression"
-        
+
         if any(k in prompt_lower for k in ["expand", "distribute", "multiply out"]):
             return "expand_expression"
-        
-        if any(k in prompt_lower for k in ["calculate", "compute", "evaluate", "+", "-", "*", "/"]):
+
+        if any(
+            k in prompt_lower
+            for k in ["calculate", "compute", "evaluate", "+", "-", "*", "/"]
+        ):
             return "calculator"
-        
+
         return ""
 
 
@@ -164,6 +169,7 @@ def run_experiment(prompt: str) -> str:
 
     Returns:
         str: Result of the experiment.
+
     """
     agent = EnhancedArtistAgent()
     return agent.run(prompt)
