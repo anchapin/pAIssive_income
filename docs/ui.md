@@ -198,79 +198,39 @@ The `base.html` template provides the base structure for all pages, including:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}pAIssive Income Framework{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    {% block head %}{% endblock %}
-</head>
-<body>
-    <div class="wrapper">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h3>pAIssive Income</h3>
-            </div>
+    # UI Tailwind CSS Integration Guide
 
-            <ul class="list-unstyled components">
-                <li {% if request.path == '/' %}class="active"{% endif %}>
-                    <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
-                </li>
-                <li {% if request.path == '/dashboard' %}class="active"{% endif %}>
-                    <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                </li>
-                <!-- More navigation items -->
-            </ul>
-        </nav>
+## Overview
 
-        <!-- Page Content -->
-        <div id="content">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-info">
-                        <i class="fas fa-align-left"></i>
-                        <span>Toggle Sidebar</span>
-                    </button>
-                </div>
-            </nav>
+The UI now uses [Tailwind CSS](https://tailwindcss.com/) for modern, utility-first styling. Legacy styles from `style.css` are merged into the Tailwind build output for a seamless transition.
 
-            <div class="content-header">
-                <h1>{% block page_title %}{% endblock %}</h1>
-            </div>
+## Key Integration Details
 
-            <div class="content-body">
-                {% block content %}{% endblock %}
-            </div>
-        </div>
-    </div>
+- **Tailwind Installation:**  
+  Tailwind and its dependencies are managed via `pnpm` and configured through `tailwind.config.js` at the project root and in `ui/`.
+- **Build Output:**  
+  Run `pnpm tailwind:build` to generate `ui/static/css/tailwind.output.css`, which includes both Tailwind utilities and your legacy styles from `style.css`.
+- **Template Usage:**  
+  Only `tailwind.output.css` needs to be referenced in your templates:
+  ```html
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.output.css') }}">
+  ```
+- **Legacy CSS Merge:**  
+  The Tailwind input file (`ui/static/css/tailwind.css`) imports `style.css` so custom styles are included in the build.
+- **.gitignore:**  
+  The build output is git-ignored to keep the repository clean.
+- **CI/CD Pipeline:**  
+  The GitHub Actions workflow automatically builds Tailwind CSS before running tests and deployment.
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block scripts %}{% endblock %}
-</body>
-</html>
-```
+## Example
 
-### Page Templates
+See `ui/templates/tailwind_example.html` for a minimal template using Tailwind classes.
 
-The UI module includes templates for different pages:
+## For Contributors
 
-- `index.html`: Home page with an overview of the framework
-- `dashboard.html`: Dashboard with an overview of projects
-- `niche_analysis.html`: Niche analysis page for selecting market segments
-- `niche_results.html`: Page for displaying niche analysis results
-- `developer.html`: Developer page for selecting niches to develop solutions for
-- `solution_results.html`: Page for displaying solution development results
-- `monetization.html`: Monetization page for selecting solutions to create monetization strategies for
-- `monetization_results.html`: Page for displaying monetization strategy results
-- `marketing.html`: Marketing page for selecting solutions to create marketing campaigns for
-- `marketing_results.html`: Page for displaying marketing campaign results
-- `about.html`: About page with information about the framework
-
-## Static Files
-
-The UI module includes static files for styling and interactivity:
-
-### CSS
-
-The `static/css/style.css` file provides styling for the UI:
+- Update `tailwind.config.js` if you add new templates or JS files with Tailwind classes.
+- Edit `ui/static/css/tailwind.css` to add custom CSS or further customize Tailwind.
+- Refer to `ui/README.md` for more detailed onboarding instructions.
 
 ```css
 /* Variables */

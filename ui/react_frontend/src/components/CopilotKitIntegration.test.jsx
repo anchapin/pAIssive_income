@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from "@testing-library/react";
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import CopilotChatDemo from "./CopilotChat";
 
 // Mock CopilotKitProvider and CopilotChat if packages are not installed yet
@@ -27,6 +27,11 @@ vi.mock("@copilotkit/react-ui", () => ({
 }));
 
 describe("CopilotChatDemo Component", () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetAllMocks();
+  });
+
   it("renders without crashing and displays the heading", () => {
     render(<CopilotChatDemo />);
     expect(screen.getByRole("heading", { name: /CopilotKit \+ CrewAI Chat/i })).toBeInTheDocument();
@@ -73,6 +78,11 @@ describe("CopilotChatDemo Component", () => {
 describe("CopilotKit Integration", () => {
   // This test would normally test the actual integration with CopilotKit
   // but since we're mocking the components, we'll just test the basic structure
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetAllMocks();
+  });
+
   it("integrates CopilotKitProvider correctly", () => {
     render(<CopilotChatDemo />);
 
@@ -95,6 +105,11 @@ describe("CopilotKit Integration", () => {
 
 // This test would be used if we had a real implementation with event handlers
 describe("CopilotChat Interaction", () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetAllMocks();
+  });
+
   it("renders the chat interface with input field", async () => {
     render(<CopilotChatDemo />);
 

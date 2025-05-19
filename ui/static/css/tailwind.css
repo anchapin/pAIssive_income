@@ -1,0 +1,7 @@
+/* Tailwind base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import legacy/custom styles: */
+@import './style.css';

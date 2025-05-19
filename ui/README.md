@@ -1,64 +1,66 @@
-# pAIssive Income Framework UI
-
-This directory contains the web interface for the pAIssive Income Framework, allowing users to interact with the framework's components through a user-friendly interface.
+# UI Setup & Tailwind CSS Integration
 
 ## Overview
 
-The UI module provides a web-based interface for:
+The UI module is responsible for managing the user interface of the project. It includes templates, styles, and scripts that define the look and feel of the application. This README focuses on integrating and customizing Tailwind CSS for styling.
 
-1. **Niche Analysis**: Identify profitable niches with high demand and low competition
-2. **Solution Development**: Design and develop AI-powered solutions for specific niches
-3. **Monetization Strategy**: Create effective monetization strategies with subscription models
-4. **Marketing Campaign**: Develop targeted marketing campaigns to reach ideal customers
+For a detailed overview of the UI module's structure and components, see the [UI Module Documentation](../docs/ui-overview.md).
 
-## Directory Structure
+## Tailwind CSS
 
-- `__init__.py`: Main module initialization and Flask application setup
-- `app.py`: Entry point for running the web interface
-- `routes.py`: URL routes and request handlers
-- `services/`: Service classes for interacting with the framework components
-- `templates/`: HTML templates for the web interface
-- `static/`: Static files (CSS, JavaScript, images)
-- `data/`: Data storage for the UI (JSON files)
+This project uses [Tailwind CSS](https://tailwindcss.com/) for modern utility-first styling. **Legacy styles from `style.css` are now automatically merged into Tailwind's build output.**
 
-## Services
+---
 
-The UI module includes the following services:
+### How to Build Tailwind CSS Locally
 
-1. **AgentTeamService**: Interacts with the Agent Team module
-2. **NicheAnalysisService**: Interacts with the Niche Analysis module
-3. **DeveloperService**: Interacts with the Developer Agent module
-4. **MonetizationService**: Interacts with the Monetization Agent module
-5. **MarketingService**: Interacts with the Marketing Agent module
+1. **Install Node dependencies (using pnpm):**
+   ```sh
+   pnpm install
+   ```
 
-## Usage
+2. **Build Tailwind CSS once:**
+   ```sh
+   pnpm tailwind:build
+   ```
+   This generates `ui/static/css/tailwind.output.css` (including all Tailwind utilities and your legacy styles).
 
-To run the web interface:
+3. **Or watch for changes during development:**
+   ```sh
+   pnpm tailwind:watch
+   ```
 
-```bash
-python ui/app.py
-```
+---
 
-Then open a web browser and navigate to `http://localhost:5000`.
+### How Tailwind & Legacy Styles Work
 
-## Dependencies
+- The **Tailwind build output** (`tailwind.output.css`) now contains all Tailwind utility classes **plus** your custom styles from `style.css`.
+- You only need to include `tailwind.output.css` in your templates:
+  ```html
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.output.css') }}">
+  ```
+- Use Tailwind classes and your custom CSS together in your HTML/Jinja templates.
+- **Do not** reference `style.css` directly in templates unless you have a special reason.
 
-- Flask: Web framework
-- Bootstrap: CSS framework (loaded from CDN)
-- Font Awesome: Icon library (loaded from CDN)
-- jQuery: JavaScript library (loaded from CDN)
-- Chart.js (optional): For data visualization (loaded from CDN when needed)
-- DataTables (optional): For enhanced tables (loaded from CDN when needed)
+---
 
-## Development
+### Customizing Tailwind
 
-To extend the UI:
+- Edit `ui/static/css/tailwind.css` to add custom CSS or enable/disable the `@import './style.css';` line as needed.
+- Edit `tailwind.config.js` to configure content sources, themes, or plugins.
 
-1. Add new routes in `routes.py`
-2. Create new templates in the `templates/` directory
-3. Add new services in the `services/` directory
-4. Add new static files in the `static/` directory
+---
 
-## License
+### CI/CD Integration
 
-[MIT License](../LICENSE)
+- The CI pipeline automatically installs dependencies and builds Tailwind CSS before tests and deployment. You do **not** need to commit generated CSS.
+- If you add new templates or JS files, update `tailwind.config.js` to ensure Tailwind scans them for class usage.
+
+---
+
+### Notes
+
+- `ui/static/css/tailwind.output.css` is **git-ignored** and should not be committed.
+- For further customization, see the [Tailwind CSS documentation](https://tailwindcss.com/docs/installation).
+
+---
