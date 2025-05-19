@@ -68,11 +68,7 @@ def _prepare_test_command() -> list[str]:
         "--no-header",
         "--no-summary",
         "tests/ai_models/adapters/test_mcp_adapter.py",
-<<<<<<< HEAD
-        "tests/test_mcp_import.py",
-=======
         "tests/ai_models/test_mcp_import.py",
->>>>>>> origin/main
         "tests/test_mcp_top_level_import.py",
         "-k",
         "not test_mcp_server",
@@ -81,8 +77,6 @@ def _prepare_test_command() -> list[str]:
         "--no-cov",  # Disable coverage to avoid issues with the coverage report
     ]
 
-<<<<<<< HEAD
-=======
     # Check if the test files exist, and if not, try alternative paths
     for i, path in enumerate(cmd):
         if path.startswith("tests/") and not Path(path).exists():
@@ -93,8 +87,6 @@ def _prepare_test_command() -> list[str]:
                 logger.info("Using alternative path: %s", alt_path)
             else:
                 logger.warning("Test file not found at %s or %s", path, alt_path)
-
->>>>>>> origin/main
     # Use absolute path for the executable when possible
     if shutil.which(sys.executable):
         cmd[0] = shutil.which(sys.executable)
@@ -112,8 +104,6 @@ def _ensure_mcp_module_exists() -> None:
                 "modelcontextprotocol module not found, creating mock implementation"
             )
             create_mock_mcp_module()
-<<<<<<< HEAD
-=======
 
             # Verify the module was created successfully
             if importlib.util.find_spec("modelcontextprotocol") is None:
@@ -147,14 +137,11 @@ def _ensure_mcp_module_exists() -> None:
                     logger.exception("Error installing MCP SDK")
             else:
                 logger.info("Successfully created mock modelcontextprotocol module")
->>>>>>> origin/main
     except ImportError as e:
         logger.warning("Error checking for modelcontextprotocol module: %s", e)
         create_mock_mcp_module()
 
 
-<<<<<<< HEAD
-=======
 def _is_ci_environment() -> bool:
     """
     Check if we're running in a CI environment.
@@ -295,9 +282,6 @@ def _handle_test_failure(return_code: int, execution_success: bool) -> int:
         return 1
 
     return 0
-
-
->>>>>>> origin/main
 def run_mcp_tests() -> int:
     """
     Run MCP adapter tests without loading the main conftest.py.
@@ -321,63 +305,6 @@ def run_mcp_tests() -> int:
         logger.error("Invalid command detected")
         return 1
 
-<<<<<<< HEAD
-    try:
-        # Log the command for debugging
-        logger.info("Running command: %s", " ".join(cmd))
-
-        # Ensure the modelcontextprotocol module is importable
-        _ensure_mcp_module_exists()
-
-        # nosec comment below tells Bandit to ignore this line since we've added proper validation
-        # We've validated the command above with _validate_command to ensure it's safe to execute
-        # ruff: noqa: S603
-        result = subprocess.run(  # nosec B603 S603
-            cmd,
-            env=env,
-            check=False,
-            capture_output=True,
-            text=True,
-            shell=False,
-        )
-
-        # Log the output
-        if result.stdout:
-            logger.info(result.stdout)
-        if result.stderr:
-            logger.error(result.stderr)
-
-        # If tests failed, try to diagnose the issue
-        if result.returncode != 0:
-            logger.warning("Tests failed, attempting to diagnose the issue...")
-            diagnose_mcp_import_issues()
-
-            # On Windows, always return success to allow the workflow to continue
-            if platform.system() == "Windows":
-                logger.warning(
-                    "Tests failed on Windows, but returning success to allow workflow to continue"
-                )
-                return 0
-    except Exception:
-        # Include basic exception info for better diagnostics
-        logger.exception("Error running tests")
-
-        # On Windows, always return success to allow the workflow to continue
-        if platform.system() == "Windows":
-            logger.warning(
-                "Exception on Windows, but returning success to allow workflow to continue"
-            )
-            return 0
-        return 1
-    else:
-        # This will only execute if no exception is raised
-        if platform.system() == "Windows" and result.returncode != 0:
-            logger.warning(
-                "Tests failed on Windows, but returning success to allow workflow to continue"
-            )
-            return 0
-        return 0 if result.returncode == 0 else 1
-=======
     # First, ensure the modelcontextprotocol module is importable
     _ensure_mcp_module_exists()
 
@@ -395,7 +322,6 @@ def run_mcp_tests() -> int:
 
     # Handle test failures
     return _handle_test_failure(return_code, execution_success)
->>>>>>> origin/main
 
 
 def create_mock_mcp_module() -> None:
@@ -403,17 +329,11 @@ def create_mock_mcp_module() -> None:
     try:
         # Create a temporary module
         import sys
-<<<<<<< HEAD
-        from types import ModuleType
-
-        # Create a mock module
-=======
         import tempfile
         from pathlib import Path
         from types import ModuleType
 
         # First try to create an in-memory module
->>>>>>> origin/main
         mock_module = ModuleType("modelcontextprotocol")
 
         # Add a Client class to the module
@@ -438,9 +358,6 @@ def create_mock_mcp_module() -> None:
         # Add the module to sys.modules
         sys.modules["modelcontextprotocol"] = mock_module
 
-<<<<<<< HEAD
-        logger.info("Created mock modelcontextprotocol module")
-=======
         logger.info("Created in-memory mock modelcontextprotocol module")
 
         # Also create a physical module as a fallback
@@ -513,14 +430,10 @@ setup(
         finally:
             # Don't remove the temp directory as it contains the installed package
             pass
-
->>>>>>> origin/main
     except Exception:
         logger.exception("Failed to create mock modelcontextprotocol module")
 
 
-<<<<<<< HEAD
-=======
 def _check_sys_modules() -> None:
     """Check if the module is in sys.modules and examine its attributes."""
     import sys
@@ -659,45 +572,12 @@ def _recreate_mock_module() -> None:
             logger.info("Still failed to find modelcontextprotocol after recreation")
     except ImportError as e:
         logger.info("Error checking for modelcontextprotocol after recreation: %s", e)
-
-
->>>>>>> origin/main
 def diagnose_mcp_import_issues() -> None:
     """Diagnose issues with importing the modelcontextprotocol module."""
     try:
         logger.info("Diagnosing MCP import issues...")
 
         # Check if the module is in sys.modules
-<<<<<<< HEAD
-        import sys
-
-        if "modelcontextprotocol" in sys.modules:
-            logger.info("modelcontextprotocol is in sys.modules")
-        else:
-            logger.info("modelcontextprotocol is NOT in sys.modules")
-
-        # Check if the module can be imported
-        try:
-            import modelcontextprotocol
-
-            logger.info(
-                "Successfully imported modelcontextprotocol: %s", modelcontextprotocol
-            )
-        except ImportError as e:
-            logger.info("Failed to import modelcontextprotocol: %s", e)
-
-        # Check Python path
-        logger.info("sys.path: %s", sys.path)
-
-        # Check for the adapter file
-        adapter_path = (
-            Path.cwd().resolve() / "ai_models" / "adapters" / "mcp_adapter.py"
-        )
-        if adapter_path.exists():
-            logger.info("MCP adapter file exists at %s", adapter_path)
-        else:
-            logger.info("MCP adapter file does NOT exist at %s", adapter_path)
-=======
         _check_sys_modules()
 
         # Check if the module can be imported
@@ -714,8 +594,6 @@ def diagnose_mcp_import_issues() -> None:
 
         # Try to create the mock module again
         _recreate_mock_module()
-
->>>>>>> origin/main
     except Exception:
         logger.exception("Error during diagnosis")
 

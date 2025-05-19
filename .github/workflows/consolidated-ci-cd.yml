@@ -234,15 +234,13 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          $content = @'
-#!/usr/bin/env python3
-"""Mock CrewAI test script."""
-import sys
-print("Mock CrewAI test script")
-print("CrewAI tests skipped - script not found")
-sys.exit(0)
-'@
-          Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
+          # Create a simple Python script without using here-string
+          Set-Content -Path run_crewai_tests.py -Value "#!/usr/bin/env python3" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "# Mock CrewAI test script." -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "import sys" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "print('Mock CrewAI test script')" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "print('CrewAI tests skipped - script not found')" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "sys.exit(0)" -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
