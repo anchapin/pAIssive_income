@@ -51,15 +51,22 @@
 *.sage.py
 # Exclude SARIF files except in security-reports directory
 *.sarif
-*.sarif.json
 !security-reports/*.sarif
-!security-reports/*.json
-!security-reports/bandit-results.json
-!security-reports/bandit-results-ini.json
-
+*.sarif.json
 # Explicit ignore for security/test artifacts
+bandit-output.json
+bandit-results.json
+!security-reports/bandit-results.json
+bandit-results-ini.json
+!security-reports/bandit-results-ini.json
 bandit-results-*.json
 bandit-results-*.txt
+test-bandit-*.json
+test_bandit_sample.py
+run_tests_bandit.json
+security-reports/bandit-results-*.sarif
+!security-reports/bandit-results.sarif
+!security-reports/bandit-results-ini.sarif
 coverage-*.xml
 junit/test-results-*.xml
 *-results-*.json

@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Test script to verify security reports are properly created and valid."""
+"""
+Test script to verify that security reports are properly created.
+
+This script checks that:
+1. The security-reports directory exists
+2. The bandit-results.json and bandit-results-ini.json files exist
+3. The JSON files are valid
+"""
 
 from __future__ import annotations
 
@@ -7,7 +14,6 @@ import json
 import logging
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 # Configure logging
@@ -15,152 +21,122 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
-def ensure_security_reports_dir() -> Path:
+def check_security_reports_dir() -> bool:
     """
-    Ensure the security-reports directory exists.
-
-    This function tries multiple approaches to create the directory:
-    1. Try to create in the current directory
-    2. If that fails, try to create in a temporary directory
-    3. Return the path to the directory that was successfully created
+    Check if the security-reports directory exists.
 
     Returns:
-        Path: The path to the security-reports directory
+        bool: True if the directory exists, False otherwise
     """
-    # First try the standard location
     reports_dir = Path("security-reports")
-    if not reports_dir.exists():
-        try:
-            reports_dir.mkdir(parents=True, exist_ok=True)
-            logger.info("Created security-reports directory at %s", reports_dir.absolute())
-            return reports_dir
-        except (PermissionError, OSError) as e:
-            logger.warning("Failed to create security-reports directory: %s", e)
-            
-            # Try creating in a temporary directory as fallback
-            try:
-                temp_dir = Path(tempfile.mkdtemp())
-                reports_dir = temp_dir / "security-reports"
-                reports_dir.mkdir(parents=True, exist_ok=True)
-                logger.info("Created security-reports directory in temporary location: %s", reports_dir.absolute())
-                return reports_dir
-            except (PermissionError, OSError) as e:
-                logger.error("Failed to create security-reports directory in temporary location: %s", e)
-                # Last resort - use the current directory
-                reports_dir = Path(".")
-                logger.warning("Using current directory as fallback for security reports")
-                return reports_dir
+    if reports_dir.exists():
+        logger.info("security-reports directory exists")
+        return True
     else:
-        logger.info("Security-reports directory already exists at %s", reports_dir.absolute())
-        return reports_dir
-
-
-def create_empty_json_report(file_path: Path) -> bool:
-    """
-    Create an empty JSON report file with a valid structure.
-
-    Args:
-        file_path: Path to the file to create
-
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    try:
-        with file_path.open("w") as f:
-            empty_results = {
-                "errors": [],
-                "generated_at": "2025-05-18T14:00:00Z",
-                "metrics": {
-                    "_totals": {
-                        "CONFIDENCE.HIGH": 0,
-                        "CONFIDENCE.LOW": 0,
-                        "CONFIDENCE.MEDIUM": 0,
-                        "CONFIDENCE.UNDEFINED": 0,
-                        "SEVERITY.HIGH": 0,
-                        "SEVERITY.LOW": 0,
-                        "SEVERITY.MEDIUM": 0,
-                        "SEVERITY.UNDEFINED": 0,
-                        "loc": 0,
-                        "nosec": 0,
-                        "skipped_tests": 0
-                    }
-                },
-                "results": []
-            }
-            json.dump(empty_results, f, indent=2)
-        logger.info("Created empty JSON report at %s", file_path)
-        return True
-    except (PermissionError, OSError) as e:
-        logger.error("Failed to create empty JSON report at %s: %s", file_path, e)
+        logger.error("security-reports directory does not exist")
         return False
 
 
-def validate_json_file(file_path: Path) -> bool:
+def check_json_files() -> bool:
     """
-    Validate that a file exists and contains valid JSON.
-
-    Args:
-        file_path: Path to the file to validate
+    Check if the bandit-results.json and bandit-results-ini.json files exist.
 
     Returns:
-        bool: True if the file exists and contains valid JSON, False otherwise
+        bool: True if both files exist, False otherwise
     """
-    if not file_path.exists():
-        logger.warning("File does not exist: %s", file_path)
+    bandit_results = Path("security-reports/bandit-results.json")
+    bandit_results_ini = Path("security-reports/bandit-results-ini.json")
+
+    if bandit_results.exists():
+        logger.info("bandit-results.json exists")
+    else:
+        logger.error("bandit-results.json does not exist")
         return False
-    
+
+    if bandit_results_ini.exists():
+        logger.info("bandit-results-ini.json exists")
+    else:
+        logger.error("bandit-results-ini.json does not exist")
+        return False
+
+    return True
+
+
+def validate_json_files() -> bool:
+    """
+    Validate that the JSON files are valid.
+
+    Returns:
+        bool: True if both files are valid JSON, False otherwise
+    """
+    bandit_results = Path("security-reports/bandit-results.json")
+    bandit_results_ini = Path("security-reports/bandit-results-ini.json")
+
     try:
-        with file_path.open("r") as f:
+        with open(bandit_results, "r") as f:
             json.load(f)
-        logger.info("File contains valid JSON: %s", file_path)
-        return True
-    except json.JSONDecodeError as e:
-        logger.warning("File contains invalid JSON: %s - %s", file_path, e)
-        return False
-    except (PermissionError, OSError) as e:
-        logger.warning("Failed to read file: %s - %s", file_path, e)
+        logger.info("bandit-results.json is valid JSON")
+    except (json.JSONDecodeError, Exception) as e:
+        logger.error("bandit-results.json is not valid JSON: %s", e)
         return False
 
+    try:
+        with open(bandit_results_ini, "r") as f:
+            json.load(f)
+        logger.info("bandit-results-ini.json is valid JSON")
+    except (json.JSONDecodeError, Exception) as e:
+        logger.error("bandit-results-ini.json is not valid JSON: %s", e)
+        return False
 
-def ensure_valid_security_reports() -> bool:
+    return True
+
+
+def main() -> int:
     """
-    Ensure that valid security report files exist.
-
-    This function checks for the existence of security report files and validates them.
-    If they don't exist or are invalid, it creates valid empty files.
+    Main entry point for the script.
 
     Returns:
-        bool: True if all security reports are valid, False otherwise
+        int: 0 if all checks pass, 1 otherwise
     """
-    # Ensure the security-reports directory exists
-    reports_dir = ensure_security_reports_dir()
-    
-    # List of report files to check/create
-    report_files = [
-        reports_dir / "bandit-results.json",
-        reports_dir / "bandit-results-ini.json"
-    ]
-    
-    all_valid = True
-    
-    # Check each report file
-    for file_path in report_files:
-        if not validate_json_file(file_path):
-            # If the file doesn't exist or is invalid, create a valid empty file
-            if not create_empty_json_report(file_path):
-                all_valid = False
-    
-    return all_valid
+    # Check if the security-reports directory exists
+    if not check_security_reports_dir():
+        # Try to create the directory
+        try:
+            os.makedirs("security-reports", exist_ok=True)
+            logger.info("Created security-reports directory")
+        except Exception as e:
+            logger.error("Failed to create security-reports directory: %s", e)
+            return 1
+
+    # Check if the JSON files exist
+    if not check_json_files():
+        # Try to run the test_bandit_config.py script
+        try:
+            import subprocess
+            subprocess.run(
+                [sys.executable, "test_bandit_config.py"],
+                check=False,
+                shell=False,
+                timeout=300
+            )
+            logger.info("Ran test_bandit_config.py")
+        except Exception as e:
+            logger.error("Failed to run test_bandit_config.py: %s", e)
+            return 1
+
+        # Check again
+        if not check_json_files():
+            logger.error("JSON files still do not exist after running test_bandit_config.py")
+            return 1
+
+    # Validate the JSON files
+    if not validate_json_files():
+        logger.error("JSON files are not valid")
+        return 1
+
+    logger.info("All checks passed!")
+    return 0
 
 
 if __name__ == "__main__":
-    try:
-        if ensure_valid_security_reports():
-            logger.info("All security reports are valid!")
-            sys.exit(0)
-        else:
-            logger.error("Failed to ensure valid security reports!")
-            sys.exit(1)
-    except Exception as e:
-        logger.exception("Unexpected error: %s", e)
-        sys.exit(1)
+    sys.exit(main())
