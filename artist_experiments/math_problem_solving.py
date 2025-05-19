@@ -15,6 +15,11 @@ from sympy.parsing.sympy_parser import parse_expr
 from ai_models.artist_agent import ArtistAgent
 from common_utils import tooling
 
+# Constants
+EXPECTED_PARTS = 2
+SINGLE_VARIABLE = 1
+EQUATION_PATTERN = r"([a-zA-Z])\s*=\s*(.*)"
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -40,7 +45,7 @@ class MathTool:
         """
         try:
             # Extract the variable and equation parts
-            match = re.match(r"([a-zA-Z])\s*=\s*(.*)", equation_str)
+            match = re.match(EQUATION_PATTERN, equation_str)
             if match:
                 var_name = match.group(1)
                 equation = match.group(2)
@@ -51,14 +56,14 @@ class MathTool:
             # Handle equations with equals sign
             if "=" in equation_str:
                 parts = equation_str.split("=")
-                if len(parts) == 2:
+                if len(parts) == EXPECTED_PARTS:
                     left = parse_expr(parts[0])
                     right = parse_expr(parts[1])
                     equation = sp.Eq(left, right)
 
                     # Extract variables
                     variables = list(equation.free_symbols)
-                    if len(variables) == 1:
+                    if len(variables) == SINGLE_VARIABLE:
                         var = variables[0]
                         solution = sp.solve(equation, var)
                         return f"{var} = {solution}"
@@ -67,10 +72,11 @@ class MathTool:
 
             # If no equals sign, just evaluate the expression
             expr = parse_expr(equation_str)
-            return str(expr.evalf())
-        except Exception as e:
-            logger.error(f"Error solving equation: {e}")
+        except (ValueError, TypeError, AttributeError, sp.SympifyError) as e:
+            logger.exception("Error solving equation")
             return f"Error: {e!s}"
+        else:
+            return str(expr.evalf())
 
     @staticmethod
     def factor_expression(expr_str: str) -> str:
@@ -87,10 +93,11 @@ class MathTool:
         try:
             expr = parse_expr(expr_str)
             factored = sp.factor(expr)
-            return str(factored)
-        except Exception as e:
-            logger.error(f"Error factoring expression: {e}")
+        except (ValueError, TypeError, AttributeError, sp.SympifyError) as e:
+            logger.exception("Error factoring expression")
             return f"Error: {e!s}"
+        else:
+            return str(factored)
 
     @staticmethod
     def expand_expression(expr_str: str) -> str:
@@ -107,10 +114,11 @@ class MathTool:
         try:
             expr = parse_expr(expr_str)
             expanded = sp.expand(expr)
-            return str(expanded)
-        except Exception as e:
-            logger.error(f"Error expanding expression: {e}")
+        except (ValueError, TypeError, AttributeError, sp.SympifyError) as e:
+            logger.exception("Error expanding expression")
             return f"Error: {e!s}"
+        else:
+            return str(expanded)
 
 
 class EnhancedArtistAgent(ArtistAgent):
@@ -140,21 +148,24 @@ class EnhancedArtistAgent(ArtistAgent):
             str: Name of the tool to use.
 
         """
+        # Use lowercase variable names for local variables
+        solve_keywords = ["solve", "equation", "=", "find", "value"]
+        factor_keywords = ["factor", "factorize", "factorization"]
+        expand_keywords = ["expand", "distribute", "multiply out"]
+        calculate_keywords = ["calculate", "compute", "evaluate", "+", "-", "*", "/"]
+
         prompt_lower = prompt.lower()
 
-        if any(k in prompt_lower for k in ["solve", "equation", "=", "find", "value"]):
+        if any(k in prompt_lower for k in solve_keywords):
             return "solve_equation"
 
-        if any(k in prompt_lower for k in ["factor", "factorize", "factorization"]):
+        if any(k in prompt_lower for k in factor_keywords):
             return "factor_expression"
 
-        if any(k in prompt_lower for k in ["expand", "distribute", "multiply out"]):
+        if any(k in prompt_lower for k in expand_keywords):
             return "expand_expression"
 
-        if any(
-            k in prompt_lower
-            for k in ["calculate", "compute", "evaluate", "+", "-", "*", "/"]
-        ):
+        if any(k in prompt_lower for k in calculate_keywords):
             return "calculator"
 
         return ""

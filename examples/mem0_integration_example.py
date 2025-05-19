@@ -9,24 +9,44 @@ It requires the mem0ai package to be installed:
 Note: This is a demonstration script and not intended for production use.
 """
 
+from __future__ import annotations
+
+import logging
 import os
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 # Import mem0 - this requires the package to be installed
 try:
     from mem0 import Memory
 except ImportError:
-    print("mem0ai package not installed. Please install it with: pip install mem0ai")
-    Memory = None  # type: ignore
+    logger.error(
+        "mem0ai package not installed. Please install it with: pip install mem0ai"
+    )
+    Memory = None  # type: ignore[assignment]
+
 
 # Mock our existing agent class for demonstration purposes
 class MockAgent:
     """Mock agent class to simulate our existing agent implementation."""
-    
-    def __init__(self, name: str):
+
+    def __init__(self, name: str) -> None:
+        """Initialize the mock agent.
+
+        Args:
+            name: The name of the agent
+        """
         self.name = name
-    
-    def process_message(self, message: str, additional_context: Optional[str] = None) -> str:
+
+    def process_message(
+        self, message: str, additional_context: Optional[str] = None
+    ) -> str:
         """Process a message and return a response."""
         if additional_context:
             return f"Agent {self.name} responding to '{message}' with context: {additional_context}"
@@ -35,101 +55,127 @@ class MockAgent:
 
 class MemoryEnhancedAgent(MockAgent):
     """Agent enhanced with mem0 memory capabilities."""
-    
+
     def __init__(self, name: str, user_id: str):
         """
         Initialize a memory-enhanced agent.
-        
+
         Args:
             name: The name of the agent
             user_id: The ID of the user interacting with the agent
+
         """
         super().__init__(name)
-        
+
         # Initialize mem0 memory
         if Memory is not None:
             self.memory = Memory()
         else:
             # Fallback if mem0 is not installed
             self.memory = None
-            print("Warning: mem0 not available, running without memory capabilities")
-        
+            logger.warning("mem0 not available, running without memory capabilities")
+
         self.user_id = user_id
-    
-    def process_message(self, message: str) -> str:
+
+    def process_message(
+        self, message: str, additional_context: Optional[str] = None
+    ) -> str:
         """
         Process a message with memory enhancement.
-        
+
         This method:
         1. Retrieves relevant memories based on the message
         2. Enhances the context with these memories
         3. Processes the message with the enhanced context
         4. Stores the interaction in memory
-        
+
         Args:
             message: The user message to process
-            
+            additional_context: Optional additional context to include
+
         Returns:
             The agent's response
+
         """
         # Skip memory enhancement if mem0 is not available
         if self.memory is None:
-            return super().process_message(message)
-        
-        # Retrieve relevant memories
-        relevant_memories = self.memory.search(
-            query=message,
-            user_id=self.user_id,
-            limit=5
-        )
-        
-        # Enhance the context with memories
-        context = self._build_context_from_memories(relevant_memories)
-        
-        # Process with enhanced context
-        response = super().process_message(message, additional_context=context)
-        
+            return super().process_message(message, additional_context)
+
+        # If additional_context is provided, use it directly
+        if additional_context:
+            response = super().process_message(message, additional_context)
+        else:
+            # Retrieve relevant memories
+            try:
+                relevant_memories = self.memory.search(
+                    query=message, user_id=self.user_id, limit=5
+                )
+
+                # Enhance the context with memories
+                memory_context = self._build_context_from_memories(relevant_memories)
+
+                # Process with enhanced context
+                response = super().process_message(message, memory_context)
+            except Exception:
+                logger.exception("Error using memory")
+                # Fallback to processing without memory
+                response = super().process_message(message)
+
         # Store the interaction in memory
-        self.memory.add(
-            [
-                {"role": "user", "content": message},
-                {"role": "assistant", "content": response}
-            ],
-            user_id=self.user_id
-        )
-        
+        try:
+            if self.memory is not None:
+                self.memory.add(
+                    [
+                        {"role": "user", "content": message},
+                        {"role": "assistant", "content": response},
+                    ],
+                    user_id=self.user_id,
+                )
+        except Exception:
+            logger.exception("Error storing memory")
+
         return response
-    
-    def _build_context_from_memories(self, memories: Optional[Dict]) -> str:
+
+    def _build_context_from_memories(self, memories: Optional[Dict[str, Any]]) -> str:
         """
-        Convert memories to a format usable by the agent.
-        
+        Converts memories to a format usable by the agent.
+
         Args:
             memories: The memories retrieved from mem0
-            
+
         Returns:
             A string representation of the memories
         """
         # Handle case where no memories are found
         if not memories or "results" not in memories:
             return "No relevant memories found."
-        
-        # Format memories as a bulleted list
-        memory_str = "\n".join([f"- {m['memory']}" for m in memories["results"]])
+
+        # Format memories as a bulleted list using list comprehension
+        memory_list = [
+            f"- {memory['memory']}"
+            for memory in memories["results"]
+            if isinstance(memory, dict) and "memory" in memory
+        ]
+
+        if not memory_list:
+            return "No relevant memories found."
+
+        memory_str = "\n".join(memory_list)
         return f"Relevant user information:\n{memory_str}"
 
 
-def main():
-    """Main function to demonstrate mem0 integration."""
+def main() -> None:
+    """Demonstrates mem0 integration with a simple conversation."""
     # Check if OpenAI API key is available (required by mem0)
-    if "OPENAI_API_KEY" not in os.environ:
-        print("Warning: OPENAI_API_KEY environment variable not set.")
-        print("mem0 requires an OpenAI API key to function properly.")
-        print("Set it with: export OPENAI_API_KEY='your-api-key'")
-    
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
+    if not openai_key:
+        logger.warning("OPENAI_API_KEY environment variable not set.")
+        logger.warning("mem0 requires an OpenAI API key to function properly.")
+        logger.warning("Set it with: export OPENAI_API_KEY='your-api-key'")
+
     # Create a memory-enhanced agent
     agent = MemoryEnhancedAgent(name="MemoryBot", user_id="demo_user")
-    
+
     # Simulate a conversation
     messages = [
         "Hi, my name is Alex and I like Italian food.",
@@ -139,12 +185,12 @@ def main():
         "I'm allergic to peanuts, so please remember that.",
         "What should I avoid eating?",
     ]
-    
+
     # Process each message and print the response
     for message in messages:
-        print(f"\nUser: {message}")
+        logger.info("\nUser: %s", message)
         response = agent.process_message(message)
-        print(f"Agent: {response}")
+        logger.info("Agent: %s", response)
 
 
 if __name__ == "__main__":

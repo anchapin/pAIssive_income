@@ -5,78 +5,102 @@ This module contains tests for the ARTIST experiments.
 """
 
 import json
-import unittest
-from unittest.mock import patch
+from typing import Any
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from artist_experiments import math_problem_solving, multi_api_orchestration
 
 
-class TestMathProblemSolving(unittest.TestCase):
+class TestMathProblemSolving:
     """Tests for the mathematical problem-solving experiment."""
 
-    def test_solve_equation(self):
+    # Constants for test values
+    EQUATION_INPUT = "x = 2 + 3"
+    EQUATION_RESULT = "5"
+    FACTOR_INPUT = "x**2 - 5*x + 6"
+    FACTOR_RESULT = "(x - 2)*(x - 3)"
+    EXPAND_INPUT = "(x + 2)*(x - 3)"
+    EXPAND_RESULT = "x**2 - x - 6"
+
+    def test_solve_equation(self) -> None:
         """Test solving an equation."""
         math_tool = math_problem_solving.MathTool()
-        result = math_tool.solve_equation("x = 2 + 3")
-        self.assertEqual(result, "5")
+        result = math_tool.solve_equation(self.EQUATION_INPUT)
+        assert result == self.EQUATION_RESULT
 
-    def test_factor_expression(self):
+    def test_factor_expression(self) -> None:
         """Test factoring an expression."""
         math_tool = math_problem_solving.MathTool()
-        result = math_tool.factor_expression("x**2 - 5*x + 6")
-        self.assertEqual(result, "(x - 2)*(x - 3)")
+        result = math_tool.factor_expression(self.FACTOR_INPUT)
+        assert result == self.FACTOR_RESULT
 
-    def test_expand_expression(self):
+    def test_expand_expression(self) -> None:
         """Test expanding an expression."""
         math_tool = math_problem_solving.MathTool()
-        result = math_tool.expand_expression("(x + 2)*(x - 3)")
-        self.assertEqual(result, "x**2 - x - 6")
+        result = math_tool.expand_expression(self.EXPAND_INPUT)
+        assert result == self.EXPAND_RESULT
+
+    # Constants for test values
+    EXPECTED_RESULT = "5"
+    TEST_PROMPT = "Solve 2 + 3"
 
     @patch("ai_models.artist_agent.ArtistAgent.run")
-    def test_run_experiment(self, mock_run):
+    def test_run_experiment(self, mock_run: MagicMock) -> None:
         """Test running the experiment."""
-        mock_run.return_value = "5"
-        result = math_problem_solving.run_experiment("Solve 2 + 3")
-        self.assertEqual(result, "5")
-        mock_run.assert_called_once_with("Solve 2 + 3")
+        mock_run.return_value = self.EXPECTED_RESULT
+        result = math_problem_solving.run_experiment(self.TEST_PROMPT)
+        assert result == self.EXPECTED_RESULT
+        mock_run.assert_called_once_with(self.TEST_PROMPT)
 
 
-class TestMultiAPIOrchestration(unittest.TestCase):
+class TestMultiAPIOrchestration:
     """Tests for the multi-API orchestration experiment."""
 
-    def test_search_products(self):
+    # Constants for test values
+    SEARCH_QUERY = "test"
+    SEARCH_LIMIT = 2
+    EXPECTED_PRODUCT_NAME = "test Product 1"
+    MARKET_CATEGORY = "electronics"
+    COMPANY_NAME = "Test Company"
+
+    def test_search_products(self) -> None:
         """Test searching for products."""
         api_tool = multi_api_orchestration.APITool()
-        result = api_tool.search_products("test", 2)
+        result = api_tool.search_products(self.SEARCH_QUERY, self.SEARCH_LIMIT)
         result_dict = json.loads(result)
-        self.assertEqual(len(result_dict["results"]), 2)
-        self.assertEqual(result_dict["results"][0]["name"], "test Product 1")
+        assert len(result_dict["results"]) == self.SEARCH_LIMIT
+        assert result_dict["results"][0]["name"] == self.EXPECTED_PRODUCT_NAME
 
-    def test_get_market_trends(self):
+    def test_get_market_trends(self) -> None:
         """Test getting market trends."""
         api_tool = multi_api_orchestration.APITool()
-        result = api_tool.get_market_trends("electronics")
+        result = api_tool.get_market_trends(self.MARKET_CATEGORY)
         result_dict = json.loads(result)
-        self.assertEqual(result_dict["category"], "electronics")
-        self.assertIn("growth_rate", result_dict)
+        assert result_dict["category"] == self.MARKET_CATEGORY
+        assert "growth_rate" in result_dict
 
-    def test_analyze_competitors(self):
+    def test_analyze_competitors(self) -> None:
         """Test analyzing competitors."""
         api_tool = multi_api_orchestration.APITool()
-        result = api_tool.analyze_competitors("Test Company")
+        result = api_tool.analyze_competitors(self.COMPANY_NAME)
         result_dict = json.loads(result)
-        self.assertEqual(result_dict["company"], "Test Company")
-        self.assertIn("direct_competitors", result_dict)
+        assert result_dict["company"] == self.COMPANY_NAME
+        assert "direct_competitors" in result_dict
+
+    # Constants for test values
+    MOCK_RESULT = json.dumps({"results": [{"name": "test Product 1"}]})
+    TEST_PROMPT = "Search for test products"
 
     @patch("ai_models.artist_agent.ArtistAgent.run")
-    def test_run_experiment(self, mock_run):
+    def test_run_experiment(self, mock_run: MagicMock) -> None:
         """Test running the experiment."""
-        mock_result = json.dumps({"results": [{"name": "test Product 1"}]})
-        mock_run.return_value = mock_result
-        result = multi_api_orchestration.run_experiment("Search for test products")
-        self.assertEqual(result, mock_result)
-        mock_run.assert_called_once_with("Search for test products")
+        mock_run.return_value = self.MOCK_RESULT
+        result = multi_api_orchestration.run_experiment(self.TEST_PROMPT)
+        assert result == self.MOCK_RESULT
+        mock_run.assert_called_once_with(self.TEST_PROMPT)
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()
