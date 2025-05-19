@@ -2,7 +2,7 @@ name: Docker Compose Integration
 
 on:
   push:
-    branches: [ main, develop, cosine/add/ag-ui-pnpm-zt2ztr ]
+    branches: [ main, develop, cosine/add/ag-ui-pnpm-zt2ztr, cosine/improve-frontend-tests-y4hwd5 ]
     paths:
       - 'docker-compose*.yml'
       - 'scripts/fix-docker-*.sh'
@@ -14,7 +14,7 @@ on:
       - 'docker-healthcheck.sh'
       - 'wait-for-db.sh'
   pull_request:
-    branches: [ main, develop, master ]
+    branches: [ main, develop, master, cosine/improve-frontend-tests-y4hwd5 ]
     paths:
       - 'docker-compose*.yml'
       - 'scripts/fix-docker-*.sh'
