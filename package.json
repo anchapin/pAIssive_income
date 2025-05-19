@@ -5,8 +5,8 @@
   "scripts": {
     "tailwind:build": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
     "tailwind:watch": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --watch",
-    "test": "npm run tailwind:build && nyc mocha \"src/**/*.test.js\"",
-    "test:ci": "npm run tailwind:build && nyc mocha \"src/**/*.test.js\"",
+    "test": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\"",
+    "test:ci": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\"",
     "coverage": "nyc report --reporter=text-lcov"
   },
   "keywords": [],

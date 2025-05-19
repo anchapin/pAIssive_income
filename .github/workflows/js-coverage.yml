@@ -35,7 +35,7 @@ jobs:
         run: pnpm tailwind:build
 
       - name: Run JS tests and check coverage
-        run: pnpm test:ci
+        run: pnpm test
 
       - name: Generate coverage report
         run: pnpm coverage > ./coverage/lcov.info
