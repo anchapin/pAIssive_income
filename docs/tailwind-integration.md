@@ -26,10 +26,22 @@ npm run tailwind:build
 # or
 pnpm tailwind:build
 
-# Watch for changes and rebuild Tailwind CSS
+# Build with custom configuration
+pnpm tailwind:build:custom --config ./path/to/config.js --input ./path/to/input.css --output ./path/to/output.css
+
+# Watch for changes and rebuild Tailwind CSS (both static and React)
 npm run tailwind:watch
 # or
 pnpm tailwind:watch
+
+# Watch only static CSS
+pnpm tailwind:watch:static
+
+# Watch only React frontend CSS
+pnpm tailwind:watch:react
+
+# Watch with custom configuration
+node ui/tailwind_watch.js --static-config ./path/to/config.js --static-input ./path/to/input.css --static-output ./path/to/output.css --react-config ./path/to/react-config.js --react-input ./path/to/react-input.css --react-output ./path/to/react-output.css
 ```
 
 ## CI/CD Integration
@@ -79,9 +91,19 @@ The integration includes tests to ensure that Tailwind CSS is properly set up:
 Run the tests with:
 
 ```bash
+# Standard tests
 npm test
 # or
 pnpm test
+
+# Run tests in parallel
+pnpm test:parallel
+
+# Run tests with custom configuration
+pnpm test:custom "vitest run --passWithNoTests"
+
+# React frontend tests with custom configuration
+cd ui/react_frontend && node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css --parallel
 ```
 
 ## React Frontend Integration
