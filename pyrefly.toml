@@ -1,0 +1,85 @@
+project_includes = [
+    "!scripts/__init__.py",
+    "!.github/scripts/__init__.py",
+]
+project_excludes = ["**/ui/react_frontend, scripts/__init__.py, .github/scripts/__init__.py"]
+search_path = ["mypy_stubs"]
+python_version = "3.10.0"
+replace_imports_with_any = [
+    "flask",
+    "flask.*",
+    "flask_sqlalchemy",
+    "flask_sqlalchemy.*",
+    "app_flask",
+    "app_flask.*",
+    "tests.*",
+    "fastapi",
+    "fastapi.*",
+    "fastapi.testclient",
+]
+
+[[sub_config]]
+matches = "flask"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'flask/**\*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "flask/__init__"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "migrations/env"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "flask/__init__/py"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "migrations/env/py"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "app_flask"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'app_flask/**\*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "app_flask/models"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'tests/api/**\*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'tests/integration/**\*'
+
+[sub_config.errors]
+missing-attribute = false
