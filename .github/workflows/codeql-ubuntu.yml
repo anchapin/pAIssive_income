@@ -170,6 +170,7 @@ jobs:
             echo "Found lock files:"
             echo "$LOCK_FILES"
           fi
+        continue-on-error: true
 
       # Install dependencies for JavaScript/TypeScript
       - name: Install Node.js dependencies
@@ -260,7 +261,7 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal Ubuntu configuration
+            # Create minimal Ubuntu configuration using a single heredoc
             cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
 name: "CodeQL Configuration for Ubuntu"
 os: ubuntu-latest
@@ -272,7 +273,7 @@ disable-default-queries: false
 trap-for-errors: true
 EOF
 
-            # Create minimal unified configuration
+            # Create minimal unified configuration using a single heredoc
             cat > .github/codeql/security-os-config.yml << 'EOF'
 name: "Unified CodeQL Configuration"
 queries:

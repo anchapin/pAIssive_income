@@ -41,6 +41,7 @@
     "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
     "esbuild": "^0.25.0",
+    "eslint": "^9.0.0",
     "express": "^5.1.0",
     "prismjs": "^1.30.0",
     "react-app-rewired": "^2.2.1",
