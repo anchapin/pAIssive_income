@@ -13,7 +13,7 @@ This directory contains the results of our investigation into mem0, a memory lay
 - [mem0_core_apis.md](mem0_core_apis.md): Documentation of mem0's core APIs, classes, and usage patterns
 - [../examples/mem0_integration_example.py](../examples/mem0_integration_example.py): Example script demonstrating mem0 integration with our project
 - [../examples/test_mem0_local.py](../examples/test_mem0_local.py): Script for testing mem0 locally
-- [../requirements_mem0.txt](../requirements_mem0.txt): List of dependencies required for mem0 integration
+- [../requirements.txt](../requirements.txt): Contains all dependencies required for mem0 integration
 
 ## Key Findings
 
@@ -37,7 +37,7 @@ To explore mem0 locally:
 
 1. Install the required dependencies:
    ```bash
-   pip install -r requirements_mem0.txt
+   pip install -r requirements.txt
    ```
 
 2. Set your OpenAI API key (required by mem0):

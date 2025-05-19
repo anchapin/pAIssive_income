@@ -26,6 +26,7 @@ services:
       - CI=${CI:-false}
       - CONTAINER=true
       - USE_MOCK_API=${USE_MOCK_API:-false}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}  # Required for mem0
     networks:
       - paissive-network
     healthcheck:

@@ -64,6 +64,10 @@ COPY . .
 RUN mkdir -p /app/logs /app/data && \
     touch /app/logs/flask.log /app/logs/error.log /app/logs/audit.log /app/logs/app.log
 
+# Install mem0 and its dependencies
+RUN . /app/.venv/bin/activate && \
+    uv pip install mem0ai qdrant-client openai pytz
+
 # Ensure scripts are executable and have unix line endings
 RUN chmod +x /app/docker-healthcheck.sh /app/wait-for-db.sh && \
     sed -i 's/\r$//' /app/docker-healthcheck.sh && \
