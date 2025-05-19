@@ -19,15 +19,38 @@
  * - Added support for Windows environments with path normalization
  * - Enhanced security with input validation and sanitization
  * - Added multiple fallback strategies for maximum reliability
+ * - Integrated unified environment detection module for consistent environment detection
+ * - Improved GitHub Actions detection with the unified module
+ * - Enhanced Docker environment detection with the unified module
  */
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Enhanced environment detection with better compatibility
+// Import the unified environment detection module
+let unifiedEnv;
+try {
+  unifiedEnv = require('./helpers/unified-environment');
+  console.log('Successfully imported unified environment detection module');
+} catch (importError) {
+  console.warn(`Failed to import unified environment detection module: ${importError.message}`);
+
+  // Try alternative paths for the unified environment module
+  try {
+    unifiedEnv = require('./helpers/environment-detection').detectEnvironment();
+    console.log('Successfully imported environment-detection module as fallback');
+  } catch (fallbackError) {
+    console.warn(`Failed to import environment-detection module: ${fallbackError.message}`);
+    // Continue with existing detection logic
+  }
+}
+
+// Enhanced environment detection with unified module
 // CI environment detection
-const isCI = process.env.CI === 'true' || process.env.CI === true ||
+const isCI = unifiedEnv ?
+             (typeof unifiedEnv.isCI === 'function' ? unifiedEnv.isCI() : unifiedEnv.isCI) :
+             process.env.CI === 'true' || process.env.CI === true ||
              process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
              process.env.TF_BUILD || process.env.JENKINS_URL ||
              process.env.GITLAB_CI || process.env.CIRCLECI ||
@@ -35,60 +58,123 @@ const isCI = process.env.CI === 'true' || process.env.CI === true ||
              !!process.env.DRONE || !!process.env.BUDDY ||
              !!process.env.BUILDKITE || !!process.env.CODEBUILD_BUILD_ID;
 
-// Enhanced CI platform detection
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW || !!process.env.GITHUB_RUN_ID;
-const isJenkinsCI = !!process.env.JENKINS_URL || !!process.env.JENKINS_HOME;
-const isGitLabCI = !!process.env.GITLAB_CI || (!!process.env.CI_SERVER_NAME && process.env.CI_SERVER_NAME.includes('GitLab'));
-const isCircleCI = !!process.env.CIRCLECI || !!process.env.CIRCLE_BUILD_NUM;
-const isTravisCI = !!process.env.TRAVIS || !!process.env.TRAVIS_JOB_ID;
-const isAzurePipelines = !!process.env.TF_BUILD || !!process.env.AZURE_HTTP_USER_AGENT;
-const isTeamCity = !!process.env.TEAMCITY_VERSION || !!process.env.TEAMCITY_BUILD_PROPERTIES_FILE;
-const isBitbucket = !!process.env.BITBUCKET_COMMIT || !!process.env.BITBUCKET_BUILD_NUMBER;
-const isAppVeyor = !!process.env.APPVEYOR || !!process.env.APPVEYOR_BUILD_ID;
-const isDroneCI = !!process.env.DRONE || !!process.env.DRONE_BUILD_NUMBER;
-const isBuddyCI = !!process.env.BUDDY || !!process.env.BUDDY_PIPELINE_ID;
-const isBuildkite = !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID;
-const isCodeBuild = !!process.env.CODEBUILD_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN;
+// Enhanced CI platform detection with unified module
+const isGitHubActions = unifiedEnv ?
+                       (typeof unifiedEnv.isGitHubActions === 'function' ? unifiedEnv.isGitHubActions() : unifiedEnv.isGitHubActions) :
+                       process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW || !!process.env.GITHUB_RUN_ID;
 
-// Enhanced container environment detection
-const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true' ||
+const isJenkinsCI = unifiedEnv ?
+                   (unifiedEnv.isJenkins || unifiedEnv.isJenkinsCI) :
+                   !!process.env.JENKINS_URL || !!process.env.JENKINS_HOME;
+
+const isGitLabCI = unifiedEnv ?
+                  (unifiedEnv.isGitLabCI) :
+                  !!process.env.GITLAB_CI || (!!process.env.CI_SERVER_NAME && process.env.CI_SERVER_NAME.includes('GitLab'));
+
+const isCircleCI = unifiedEnv ?
+                  (unifiedEnv.isCircleCI) :
+                  !!process.env.CIRCLECI || !!process.env.CIRCLE_BUILD_NUM;
+
+const isTravisCI = unifiedEnv ?
+                  (unifiedEnv.isTravis || unifiedEnv.isTravisCI) :
+                  !!process.env.TRAVIS || !!process.env.TRAVIS_JOB_ID;
+
+const isAzurePipelines = unifiedEnv ?
+                        (unifiedEnv.isAzurePipelines) :
+                        !!process.env.TF_BUILD || !!process.env.AZURE_HTTP_USER_AGENT;
+
+const isTeamCity = unifiedEnv ?
+                  (unifiedEnv.isTeamCity) :
+                  !!process.env.TEAMCITY_VERSION || !!process.env.TEAMCITY_BUILD_PROPERTIES_FILE;
+
+const isBitbucket = unifiedEnv ?
+                   (unifiedEnv.isBitbucket) :
+                   !!process.env.BITBUCKET_COMMIT || !!process.env.BITBUCKET_BUILD_NUMBER;
+
+const isAppVeyor = unifiedEnv ?
+                  (unifiedEnv.isAppVeyor) :
+                  !!process.env.APPVEYOR || !!process.env.APPVEYOR_BUILD_ID;
+
+const isDroneCI = unifiedEnv ?
+                 (unifiedEnv.isDroneCI) :
+                 !!process.env.DRONE || !!process.env.DRONE_BUILD_NUMBER;
+
+const isBuddyCI = unifiedEnv ?
+                 (unifiedEnv.isBuddyCI) :
+                 !!process.env.BUDDY || !!process.env.BUDDY_PIPELINE_ID;
+
+const isBuildkite = unifiedEnv ?
+                   (unifiedEnv.isBuildkite) :
+                   !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID;
+
+const isCodeBuild = unifiedEnv ?
+                   (unifiedEnv.isCodeBuild) :
+                   !!process.env.CODEBUILD_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN;
+
+// Enhanced container environment detection with unified module
+const isDockerEnvironment = unifiedEnv ?
+                           (typeof unifiedEnv.isDockerEnvironment === 'function' ? unifiedEnv.isDockerEnvironment() : (unifiedEnv.isDocker || unifiedEnv.isDockerEnvironment)) :
+                           process.env.DOCKER_ENVIRONMENT === 'true' ||
                            process.env.DOCKER === 'true' ||
                            fs.existsSync('/.dockerenv') ||
                            fs.existsSync('/run/.containerenv') ||
                            (fs.existsSync('/proc/1/cgroup') &&
                             fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'));
 
-const isKubernetesEnv = !!process.env.KUBERNETES_SERVICE_HOST ||
+const isKubernetesEnv = unifiedEnv ?
+                       (unifiedEnv.isKubernetes || unifiedEnv.isKubernetesEnv) :
+                       !!process.env.KUBERNETES_SERVICE_HOST ||
                        !!process.env.KUBERNETES_PORT ||
                        fs.existsSync('/var/run/secrets/kubernetes.io');
 
-const isDockerCompose = !!process.env.COMPOSE_PROJECT_NAME ||
+const isDockerCompose = unifiedEnv ?
+                       (unifiedEnv.isDockerCompose) :
+                       !!process.env.COMPOSE_PROJECT_NAME ||
                        !!process.env.COMPOSE_FILE ||
                        !!process.env.COMPOSE_PATH_SEPARATOR;
 
-const isDockerSwarm = !!process.env.DOCKER_SWARM ||
+const isDockerSwarm = unifiedEnv ?
+                     (unifiedEnv.isDockerSwarm) :
+                     !!process.env.DOCKER_SWARM ||
                      !!process.env.SWARM_NODE_ID ||
                      !!process.env.SWARM_MANAGER;
 
-// Enhanced cloud environment detection
-const isAWSEnv = !!process.env.AWS_REGION ||
+// Enhanced cloud environment detection with unified module
+const isAWSEnv = unifiedEnv ?
+                (unifiedEnv.isAWS || unifiedEnv.isAWSEnv) :
+                !!process.env.AWS_REGION ||
                 !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
                 !!process.env.AWS_EXECUTION_ENV;
 
-const isAzureEnv = !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
+const isAzureEnv = unifiedEnv ?
+                  (unifiedEnv.isAzure || unifiedEnv.isAzureEnv) :
+                  !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
                   !!process.env.WEBSITE_SITE_NAME ||
                   !!process.env.APPSETTING_WEBSITE_SITE_NAME;
 
-const isGCPEnv = !!process.env.GOOGLE_CLOUD_PROJECT ||
+const isGCPEnv = unifiedEnv ?
+                (unifiedEnv.isGCP || unifiedEnv.isGCPEnv) :
+                !!process.env.GOOGLE_CLOUD_PROJECT ||
                 !!process.env.GCLOUD_PROJECT ||
                 !!process.env.GCP_PROJECT ||
                 (!!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION);
 
-// Enhanced OS detection
-const isWindows = process.platform === 'win32';
-const isMacOS = process.platform === 'darwin';
-const isLinux = process.platform === 'linux';
-const isWSL = !!process.env.WSL_DISTRO_NAME || !!process.env.WSLENV;
+// Enhanced OS detection with unified module
+const isWindows = unifiedEnv ?
+                 (unifiedEnv.isWindows) :
+                 process.platform === 'win32';
+
+const isMacOS = unifiedEnv ?
+               (unifiedEnv.isMacOS) :
+               process.platform === 'darwin';
+
+const isLinux = unifiedEnv ?
+               (unifiedEnv.isLinux) :
+               process.platform === 'linux';
+
+const isWSL = unifiedEnv ?
+             (unifiedEnv.isWSL) :
+             !!process.env.WSL_DISTRO_NAME || !!process.env.WSLENV;
 
 // Other configuration
 const skipPathToRegexp = process.env.SKIP_PATH_TO_REGEXP === 'true' || process.env.PATH_TO_REGEXP_MOCK === 'true';
@@ -106,6 +192,10 @@ console.log(`Enhanced Mock path-to-regexp - Environment Information:
 - Platform: ${process.platform}
 - Architecture: ${process.arch}
 - Working Directory: ${process.cwd()}
+
+Environment Detection:
+- Unified Environment Module: ${unifiedEnv ? 'Available' : 'Not Available'}
+- Detection Method: ${unifiedEnv ? 'Unified Module' : 'Fallback Detection'}
 
 Operating System:
 - Windows: ${isWindows ? 'Yes' : 'No'}
@@ -263,12 +353,16 @@ try {
       fs.writeFileSync(
         path.join(dir, 'enhanced-mock-path-to-regexp-marker.txt'),
         `Enhanced mock path-to-regexp script executed at ${new Date().toISOString()}\n` +
+        `Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}\n` +
         `CI environment: ${isCI ? 'Yes' : 'No'}\n` +
         `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n` +
+        `GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}\n` +
+        `Kubernetes: ${isKubernetesEnv ? 'Yes' : 'No'}\n` +
         `Node.js version: ${process.version}\n` +
         `Platform: ${os.platform()}\n` +
         `Architecture: ${os.arch()}\n` +
-        `Working directory: ${process.cwd()}\n`
+        `Working directory: ${process.cwd()}\n` +
+        `Detection method: ${unifiedEnv ? 'Unified Environment Module' : 'Fallback Detection'}\n`
       );
 
       log(`Created marker file in ${dir}`, 'info');
@@ -329,6 +423,11 @@ function createEnhancedMockImplementation() {
         try {
           fs.chmodSync(location, 0o777);
           log(`Set permissions for ${location}`, 'info');
+
+          // Log additional environment information for debugging
+          if (unifiedEnv) {
+            log(`Using unified environment detection: Docker=${unifiedEnv.isDocker || unifiedEnv.isDockerEnvironment}, CI=${unifiedEnv.isCI}`, 'info');
+          }
         } catch (chmodError) {
           log(`Failed to set permissions: ${chmodError.message}`, 'warn');
           // Continue anyway
@@ -1061,11 +1160,15 @@ function enhancedMonkeyPatchRequire() {
         path.join(logDir, 'require-patched-marker.txt'),
         `Require function patched for path-to-regexp at ${new Date().toISOString()}\n` +
         `This file indicates that the require function was patched to handle path-to-regexp imports.\n` +
+        `Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}\n` +
         `Node.js version: ${process.version}\n` +
         `Platform: ${os.platform()}\n` +
         `Working directory: ${process.cwd()}\n` +
         `CI environment: ${isCI ? 'Yes' : 'No'}\n` +
-        `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n`
+        `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n` +
+        `GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}\n` +
+        `Kubernetes: ${isKubernetesEnv ? 'Yes' : 'No'}\n` +
+        `Detection method: ${unifiedEnv ? 'Unified Environment Module' : 'Fallback Detection'}\n`
       );
     } catch (markerError) {
       log(`Failed to create require patched marker file: ${sanitizeForLog(markerError.message)}`, 'warn');
@@ -1111,11 +1214,15 @@ if (isCI || isDockerEnvironment) {
     const markerContent = `Enhanced mock path-to-regexp success at ${new Date().toISOString()}\n` +
       `Mock implementation created: ${mockCreated ? 'Yes' : 'No'}\n` +
       `Require patched: ${requirePatched ? 'Yes' : 'No'}\n` +
+      `Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}\n` +
       `CI environment: ${isCI ? 'Yes' : 'No'}\n` +
       `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n` +
+      `GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}\n` +
+      `Kubernetes: ${isKubernetesEnv ? 'Yes' : 'No'}\n` +
       `Node.js version: ${process.version}\n` +
       `Platform: ${os.platform()}\n` +
-      `Working directory: ${process.cwd()}\n`;
+      `Working directory: ${process.cwd()}\n` +
+      `Detection method: ${unifiedEnv ? 'Unified Environment Module' : 'Fallback Detection'}\n`;
 
     let markerCreated = false;
     for (const dir of possibleDirs) {
@@ -1178,8 +1285,10 @@ try {
   log('Mock implementation verification successful', 'important');
 
   try {
+    // Make sure path is properly imported
+    const pathModule = require('path');
     fs.appendFileSync(
-      path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
+      pathModule.join(logDir, 'enhanced-mock-path-to-regexp.log'),
       `Enhanced mock implementation verification: Success\n` +
       `Timestamp: ${new Date().toISOString()}\n`
     );
@@ -1190,8 +1299,10 @@ try {
   log(`Failed to load or verify path-to-regexp: ${error.message}`, 'error');
 
   try {
+    // Make sure path is properly imported
+    const pathModule = require('path');
     fs.appendFileSync(
-      path.join(logDir, 'enhanced-mock-path-to-regexp.log'),
+      pathModule.join(logDir, 'enhanced-mock-path-to-regexp.log'),
       `Enhanced mock implementation verification: Failed - ${error.message}\n` +
       `Stack: ${error.stack || 'No stack trace available'}\n` +
       `Timestamp: ${new Date().toISOString()}\n`
@@ -1301,6 +1412,24 @@ module.exports = {
 
   // Export environment detection function
   detectEnvironment: function() {
+    // If unified environment detection module is available, use it
+    if (unifiedEnv) {
+      // If it's a function, call it
+      if (typeof unifiedEnv.detectEnvironment === 'function') {
+        return unifiedEnv.detectEnvironment();
+      }
+
+      // Otherwise, return the object directly with some additional properties
+      return {
+        ...unifiedEnv,
+        // Add timestamp
+        timestamp: new Date().toISOString(),
+        // Add detection method
+        detectionMethod: 'unified-environment-module'
+      };
+    }
+
+    // Fallback to our own detection
     return {
       // CI Environment
       isCI,
@@ -1346,7 +1475,10 @@ module.exports = {
       osRelease: process.release ? process.release.name + ' ' + process.release.lts : null,
 
       // Timestamp
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+
+      // Detection method
+      detectionMethod: 'fallback-detection'
     };
   }
 };

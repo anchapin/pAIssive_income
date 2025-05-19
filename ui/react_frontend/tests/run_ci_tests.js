@@ -5,6 +5,7 @@
  * It starts the mock API server and the fallback server, then runs the tests.
  *
  * Enhanced with better error handling and directory creation for GitHub Actions.
+ * Updated with unified environment detection and improved path-to-regexp handling.
  */
 
 const { spawn, exec } = require('child_process');
@@ -13,34 +14,23 @@ const fs = require('fs');
 const http = require('http');
 const os = require('os');
 
-// Function to safely create directory with multiple fallbacks
+// Import the unified environment detection module
+const env = require('./helpers/unified-environment');
+
+// Import the enhanced mock path-to-regexp module
+const pathToRegexpMock = require('./helpers/enhanced-mock-path-to-regexp');
+
+// Try to patch the require function for path-to-regexp
+try {
+  pathToRegexpMock.patchRequireFunction();
+  console.log('Successfully patched require function for path-to-regexp');
+} catch (patchError) {
+  console.error(`Failed to patch require function: ${patchError.message}`);
+}
+
+// Function to safely create directory with multiple fallbacks - using unified environment module
 function safelyCreateDirectory(dirPath) {
-  try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`Created directory at ${dirPath}`);
-      return true;
-    } else {
-      console.log(`Directory already exists at ${dirPath}`);
-      return false;
-    }
-  } catch (error) {
-    console.error(`Error creating directory at ${dirPath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-        return true;
-      }
-    } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
-    }
-
-    return false;
-  }
+  return env.createDirectoryWithErrorHandling(dirPath);
 }
 
 // Function to safely write file with fallbacks
@@ -654,21 +644,24 @@ function cleanup(exitCode) {
   safelyWriteFile(path.join(htmlDir, 'cleanup.html'), cleanupHtml);
 
   // Create a GitHub Actions compatible status file
-  if (process.env.CI === 'true' || process.env.CI === true) {
+  if (env.isCI()) {
     safelyWriteFile(path.join(reportDir, 'github-actions-status.txt'),
-      `GitHub Actions test run completed at ${new Date().toISOString()}\n` +
+      `CI test run completed at ${new Date().toISOString()}\n` +
+      `GitHub Actions: ${env.isGitHubActions() ? 'Yes' : 'No'}\n` +
+      `Docker Environment: ${env.isDockerEnvironment() ? 'Yes' : 'No'}\n` +
       `Exit code: ${exitCode}\n` +
       `Mock API server running: ${mockApiServerRunning ? 'Yes' : 'No'}\n` +
       `Simple mock server running: ${simpleMockServerRunning ? 'Yes' : 'No'}\n` +
       `Fallback server running: ${fallbackServerRunning ? 'Yes' : 'No'}\n` +
-      `React server running: ${reactServerRunning ? 'Yes' : 'No'}\n`
+      `React server running: ${reactServerRunning ? 'Yes' : 'No'}\n` +
+      `${env.getEnvironmentInfo()}\n`
     );
   }
 
   log(`Exiting with code ${exitCode}`);
 
   // In CI environment, always exit with success to prevent workflow failure
-  if (process.env.CI === 'true' || process.env.CI === true) {
+  if (env.isCI()) {
     log('CI environment detected, forcing exit code 0');
     process.exit(0);
   } else {

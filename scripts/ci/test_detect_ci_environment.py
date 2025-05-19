@@ -185,6 +185,42 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["container"]["is_docker_swarm"])
         self.assertTrue(env_info["container"]["is_containerized"])
 
+    @patch.dict(os.environ, {"PODMAN_ENVIRONMENT": "true", "PODMAN": "true"})
+    def test_detect_podman_environment(self):
+        """Test Podman environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect Podman
+        self.assertTrue(env_info["container"]["is_podman"])
+        self.assertTrue(env_info["container"]["is_containerized"])
+
+    @patch.dict(os.environ, {"LXC_ENVIRONMENT": "true", "LXC": "true", "LXD": "true"})
+    def test_detect_lxc_environment(self):
+        """Test LXC/LXD environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect LXC/LXD
+        self.assertTrue(env_info["container"]["is_lxc"])
+        self.assertTrue(env_info["container"]["is_containerized"])
+
+    @patch.dict(os.environ, {"CONTAINERD_ENVIRONMENT": "true", "CONTAINERD": "true"})
+    def test_detect_containerd_environment(self):
+        """Test Containerd environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect Containerd
+        self.assertTrue(env_info["container"]["is_containerd"])
+        self.assertTrue(env_info["container"]["is_containerized"])
+
+    @patch.dict(os.environ, {"CRIO_ENVIRONMENT": "true", "CRIO": "true"})
+    def test_detect_crio_environment(self):
+        """Test CRI-O environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CRI-O
+        self.assertTrue(env_info["container"]["is_crio"])
+        self.assertTrue(env_info["container"]["is_containerized"])
+
     @patch.dict(os.environ, {"AWS_REGION": "us-west-2"})
     def test_detect_aws_environment(self):
         """Test AWS environment detection."""
@@ -224,6 +260,130 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_cloud_functions"])
         self.assertTrue(env_info["cloud"]["is_serverless"])
 
+    @patch.dict(os.environ, {"OCI_RESOURCE_PRINCIPAL_VERSION": "2.2", "OCI_COMPARTMENT_ID": "ocid1.compartment.oc1..aaaaaaaa"})
+    def test_detect_oci_environment(self):
+        """Test Oracle Cloud Infrastructure (OCI) environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect OCI
+        self.assertTrue(env_info["cloud"]["is_oci"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"BLUEMIX_REGION": "us-south", "IBM_CLOUD_API_KEY": "1234567890abcdef1234567890abcdef"})
+    def test_detect_ibm_cloud_environment(self):
+        """Test IBM Cloud environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect IBM Cloud
+        self.assertTrue(env_info["cloud"]["is_ibm_cloud"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"DIGITALOCEAN_ACCESS_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"})
+    def test_detect_digitalocean_environment(self):
+        """Test DigitalOcean environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect DigitalOcean
+        self.assertTrue(env_info["cloud"]["is_digitalocean"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"LINODE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"})
+    def test_detect_linode_environment(self):
+        """Test Linode environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect Linode
+        self.assertTrue(env_info["cloud"]["is_linode"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"VULTR_API_KEY": "1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"})
+    def test_detect_vultr_environment(self):
+        """Test Vultr environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect Vultr
+        self.assertTrue(env_info["cloud"]["is_vultr"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"CLOUDFLARE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef", "CF_PAGES": "true"})
+    def test_detect_cloudflare_environment(self):
+        """Test Cloudflare environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect Cloudflare
+        self.assertTrue(env_info["cloud"]["is_cloudflare"])
+        self.assertTrue(env_info["cloud"]["is_cloud"])
+
+    @patch.dict(os.environ, {"CI": "true", "CM_BUILD_ID": "12345", "CODEMAGIC_ID": "abcdef1234567890"})
+    def test_detect_codemagic_environment(self):
+        """Test Codemagic environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CI and Codemagic
+        self.assertTrue(env_info["ci"]["is_ci"])
+        self.assertEqual(env_info["ci"]["ci_type"], "codemagic")
+        self.assertEqual(env_info["ci"]["ci_platform"], "Codemagic")
+
+        # Should include Codemagic environment variables
+        self.assertIn("CM_BUILD_ID", env_info["ci"]["ci_environment_variables"])
+        self.assertIn("CODEMAGIC_ID", env_info["ci"]["ci_environment_variables"])
+
+    @patch.dict(os.environ, {"CODESPACE_NAME": "username-project-abcdef", "GITHUB_CODESPACE_NAME": "username-project-abcdef"})
+    def test_detect_github_codespaces_environment(self):
+        """Test GitHub Codespaces environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CI and GitHub Codespaces
+        self.assertTrue(env_info["ci"]["is_ci"])
+        self.assertEqual(env_info["ci"]["ci_type"], "github-codespaces")
+        self.assertEqual(env_info["ci"]["ci_platform"], "GitHub Codespaces")
+
+        # Should include GitHub Codespaces environment variables
+        self.assertIn("CODESPACE_NAME", env_info["ci"]["ci_environment_variables"])
+        self.assertIn("GITHUB_CODESPACE_NAME", env_info["ci"]["ci_environment_variables"])
+
+    @patch.dict(os.environ, {"CI": "true", "CLOUD_BUILD": "true", "CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789012"})
+    def test_detect_google_cloud_build_environment(self):
+        """Test Google Cloud Build environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CI and Google Cloud Build
+        self.assertTrue(env_info["ci"]["is_ci"])
+        self.assertEqual(env_info["ci"]["ci_type"], "google-cloud-build")
+        self.assertEqual(env_info["ci"]["ci_platform"], "Google Cloud Build")
+
+        # Should include Google Cloud Build environment variables
+        self.assertIn("CLOUD_BUILD", env_info["ci"]["ci_environment_variables"])
+        self.assertIn("CLOUD_BUILD_ID", env_info["ci"]["ci_environment_variables"])
+
+    @patch.dict(os.environ, {"CI": "true", "ALIBABA_CLOUD": "true", "ALICLOUD_ACCOUNT_ID": "1234567890"})
+    def test_detect_alibaba_cloud_environment(self):
+        """Test Alibaba Cloud DevOps environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CI and Alibaba Cloud DevOps
+        self.assertTrue(env_info["ci"]["is_ci"])
+        self.assertEqual(env_info["ci"]["ci_type"], "alibaba-cloud")
+        self.assertEqual(env_info["ci"]["ci_platform"], "Alibaba Cloud DevOps")
+
+        # Should include Alibaba Cloud DevOps environment variables
+        self.assertIn("ALIBABA_CLOUD", env_info["ci"]["ci_environment_variables"])
+        self.assertIn("ALICLOUD_ACCOUNT_ID", env_info["ci"]["ci_environment_variables"])
+
+    @patch.dict(os.environ, {"CI": "true", "GITPOD_WORKSPACE_ID": "username-project-abcdef", "GITPOD_WORKSPACE_URL": "https://username-project-abcdef.gitpod.io"})
+    def test_detect_gitpod_environment(self):
+        """Test Gitpod environment detection."""
+        env_info = detect_ci_environment()
+
+        # Should detect CI and Gitpod
+        self.assertTrue(env_info["ci"]["is_ci"])
+        self.assertEqual(env_info["ci"]["ci_type"], "gitpod")
+        self.assertEqual(env_info["ci"]["ci_platform"], "Gitpod")
+
+        # Should include Gitpod environment variables
+        self.assertIn("GITPOD_WORKSPACE_ID", env_info["ci"]["ci_environment_variables"])
+        self.assertIn("GITPOD_WORKSPACE_URL", env_info["ci"]["ci_environment_variables"])
+
 
 if __name__ == "__main__":
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+    unittest.main()

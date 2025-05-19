@@ -5,15 +5,17 @@
  * - Operating Systems: Windows, macOS, Linux, WSL
  * - CI environments: GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines,
  *   TeamCity, Bitbucket, AppVeyor, Drone, Buddy, Buildkite, AWS CodeBuild, Vercel, Netlify,
- *   Heroku, Semaphore, Codefresh, Woodpecker, Harness, Render, Railway, Fly.io, etc.
- * - Container environments: Docker, Docker Compose, Kubernetes, Docker Swarm
- * - Cloud environments: AWS, Azure, GCP
+ *   Heroku, Semaphore, Codefresh, Woodpecker, Harness, Render, Railway, Fly.io, Codemagic,
+ *   GitHub Codespaces, Google Cloud Build, Alibaba Cloud DevOps, Huawei Cloud DevCloud,
+ *   Tencent Cloud CODING, Baidu Cloud CICD, Sourcegraph, Gitpod, Replit, Stackblitz, Glitch, etc.
+ * - Container environments: Docker, Podman, LXC/LXD, Containerd, CRI-O, Docker Compose, Kubernetes, Docker Swarm
+ * - Cloud environments: AWS, Azure, GCP, Oracle Cloud, IBM Cloud, DigitalOcean, Linode, Vultr, Cloudflare
  * - Node.js environments: Development, Production, Test, Staging
  *
  * It's designed to be used across the application to ensure consistent
  * environment detection and handling with proper fallbacks.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 const fs = require('fs');
@@ -95,7 +97,20 @@ function detectEnvironment() {
                !!process.env.DRONE_BUILD_NUMBER || !!process.env.BUDDY_PIPELINE_ID ||
                !!process.env.BUILDKITE_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN ||
                !!process.env.HEROKU_APP_ID || !!process.env.SEMAPHORE_WORKFLOW_ID ||
-               !!process.env.CI_TYPE || !!process.env.CI_PLATFORM || !!process.env.CI_RUNNER_OS;
+               !!process.env.CI_TYPE || !!process.env.CI_PLATFORM || !!process.env.CI_RUNNER_OS ||
+               // New CI platforms
+               !!process.env.CM_BUILD_ID || !!process.env.CODEMAGIC_ID ||
+               !!process.env.CODESPACE_NAME || !!process.env.GITHUB_CODESPACE_NAME ||
+               !!process.env.CLOUD_BUILD || !!process.env.CLOUD_BUILD_ID ||
+               !!process.env.ALIBABA_CLOUD || !!process.env.ALICLOUD_ACCOUNT_ID ||
+               !!process.env.DEVCLOUD_PIPELINE_ID || !!process.env.HUAWEICLOUD_PIPELINE ||
+               !!process.env.CODING_PIPELINE_ID || !!process.env.TENCENT_CLOUD_CI ||
+               !!process.env.BAIDU_CLOUD_CI || !!process.env.BAIDU_PIPELINE_ID ||
+               !!process.env.SOURCEGRAPH_EXECUTOR || !!process.env.SRC_EXECUTOR_NAME ||
+               !!process.env.GITPOD_WORKSPACE_ID || !!process.env.GITPOD_WORKSPACE_URL ||
+               !!process.env.REPL_ID || !!process.env.REPL_OWNER ||
+               !!process.env.STACKBLITZ_ENV || !!process.env.STACKBLITZ_PROJECT_ID ||
+               !!process.env.GLITCH_EDITOR_URL || !!process.env.GLITCH_PROJECT_ID;
 
   // Specific CI platform detection with improved detection methods
   const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' ||
@@ -252,6 +267,105 @@ function detectEnvironment() {
                  !!process.env.FLY_ALLOC_ID ||
                  (process.env.CI_PLATFORM === 'flyio') ||
                  (process.env.CI_TYPE === 'flyio');
+
+  // New CI platforms
+
+  // Codemagic CI/CD for mobile apps
+  const isCodemagic = !!process.env.CM_BUILD_ID ||
+                     !!process.env.CODEMAGIC_ID ||
+                     !!process.env.CM_BUILD_DIR ||
+                     !!process.env.CM_REPO_SLUG ||
+                     (process.env.CI_PLATFORM === 'codemagic') ||
+                     (process.env.CI_TYPE === 'codemagic');
+
+  // GitHub Codespaces
+  const isGitHubCodespaces = !!process.env.CODESPACE_NAME ||
+                            !!process.env.GITHUB_CODESPACE_NAME ||
+                            !!process.env.CODESPACES ||
+                            !!process.env.GITHUB_CODESPACES ||
+                            (process.env.CI_PLATFORM === 'github-codespaces') ||
+                            (process.env.CI_TYPE === 'github-codespaces');
+
+  // Google Cloud Build
+  const isGoogleCloudBuild = !!process.env.CLOUD_BUILD ||
+                            !!process.env.CLOUD_BUILD_ID ||
+                            !!process.env.CLOUD_BUILD_PROJECT_ID ||
+                            !!process.env.CLOUD_BUILD_TRIGGER_ID ||
+                            (process.env.CI_PLATFORM === 'google-cloud-build') ||
+                            (process.env.CI_TYPE === 'google-cloud-build');
+
+  // Alibaba Cloud DevOps
+  const isAlibabaCloud = !!process.env.ALIBABA_CLOUD ||
+                        !!process.env.ALICLOUD_ACCOUNT_ID ||
+                        !!process.env.ALICLOUD_PIPELINE_ID ||
+                        !!process.env.ALICLOUD_BUILD_ID ||
+                        (process.env.CI_PLATFORM === 'alibaba-cloud') ||
+                        (process.env.CI_TYPE === 'alibaba-cloud');
+
+  // Huawei Cloud DevCloud
+  const isHuaweiCloud = !!process.env.DEVCLOUD_PIPELINE_ID ||
+                       !!process.env.HUAWEICLOUD_PIPELINE ||
+                       !!process.env.HUAWEICLOUD_BUILD_ID ||
+                       !!process.env.HUAWEICLOUD_PROJECT_ID ||
+                       (process.env.CI_PLATFORM === 'huawei-cloud') ||
+                       (process.env.CI_TYPE === 'huawei-cloud');
+
+  // Tencent Cloud CODING
+  const isTencentCloud = !!process.env.CODING_PIPELINE_ID ||
+                        !!process.env.TENCENT_CLOUD_CI ||
+                        !!process.env.CODING_BUILD_ID ||
+                        !!process.env.CODING_PROJECT_NAME ||
+                        (process.env.CI_PLATFORM === 'tencent-cloud') ||
+                        (process.env.CI_TYPE === 'tencent-cloud');
+
+  // Baidu Cloud CICD
+  const isBaiduCloud = !!process.env.BAIDU_CLOUD_CI ||
+                      !!process.env.BAIDU_PIPELINE_ID ||
+                      !!process.env.BAIDU_BUILD_ID ||
+                      !!process.env.BAIDU_PROJECT_ID ||
+                      (process.env.CI_PLATFORM === 'baidu-cloud') ||
+                      (process.env.CI_TYPE === 'baidu-cloud');
+
+  // Sourcegraph
+  const isSourcegraph = !!process.env.SOURCEGRAPH_EXECUTOR ||
+                       !!process.env.SRC_EXECUTOR_NAME ||
+                       !!process.env.SOURCEGRAPH_REPO ||
+                       !!process.env.SOURCEGRAPH_COMMIT ||
+                       (process.env.CI_PLATFORM === 'sourcegraph') ||
+                       (process.env.CI_TYPE === 'sourcegraph');
+
+  // Gitpod
+  const isGitpod = !!process.env.GITPOD_WORKSPACE_ID ||
+                  !!process.env.GITPOD_WORKSPACE_URL ||
+                  !!process.env.GITPOD_REPO_ROOT ||
+                  !!process.env.GITPOD_INSTANCE_ID ||
+                  (process.env.CI_PLATFORM === 'gitpod') ||
+                  (process.env.CI_TYPE === 'gitpod');
+
+  // Replit
+  const isReplit = !!process.env.REPL_ID ||
+                  !!process.env.REPL_OWNER ||
+                  !!process.env.REPL_SLUG ||
+                  !!process.env.REPL_PUBKEYS ||
+                  (process.env.CI_PLATFORM === 'replit') ||
+                  (process.env.CI_TYPE === 'replit');
+
+  // Stackblitz
+  const isStackblitz = !!process.env.STACKBLITZ_ENV ||
+                      !!process.env.STACKBLITZ_PROJECT_ID ||
+                      !!process.env.STACKBLITZ_WORKSPACE_ID ||
+                      !!process.env.STACKBLITZ_USER_ID ||
+                      (process.env.CI_PLATFORM === 'stackblitz') ||
+                      (process.env.CI_TYPE === 'stackblitz');
+
+  // Glitch
+  const isGlitch = !!process.env.GLITCH_EDITOR_URL ||
+                  !!process.env.GLITCH_PROJECT_ID ||
+                  !!process.env.GLITCH_PROJECT_DOMAIN ||
+                  !!process.env.PROJECT_DOMAIN ||
+                  !!process.env.PROJECT_ID ||
+                  (process.env.CI_PLATFORM === 'glitch') ||
+                  (process.env.CI_TYPE === 'glitch');
 
   // Container Environment Detection - enhanced with more container platforms and improved detection methods
   // Docker detection with multiple methods and fallbacks
@@ -599,6 +713,19 @@ function detectEnvironment() {
     isRender,
     isRailway,
     isFlyio,
+    // New CI platforms
+    isCodemagic,
+    isGitHubCodespaces,
+    isGoogleCloudBuild,
+    isAlibabaCloud,
+    isHuaweiCloud,
+    isTencentCloud,
+    isBaiduCloud,
+    isSourcegraph,
+    isGitpod,
+    isReplit,
+    isStackblitz,
+    isGlitch,
 
     // Container Environment
     isDocker: isDockerEnvironment,
@@ -728,7 +855,20 @@ function createEnvironmentReport(filePath, options = {}) {
         isHarness: env.isHarness,
         isRender: env.isRender,
         isRailway: env.isRailway,
-        isFlyio: env.isFlyio
+        isFlyio: env.isFlyio,
+        // New CI platforms
+        isCodemagic: env.isCodemagic,
+        isGitHubCodespaces: env.isGitHubCodespaces,
+        isGoogleCloudBuild: env.isGoogleCloudBuild,
+        isAlibabaCloud: env.isAlibabaCloud,
+        isHuaweiCloud: env.isHuaweiCloud,
+        isTencentCloud: env.isTencentCloud,
+        isBaiduCloud: env.isBaiduCloud,
+        isSourcegraph: env.isSourcegraph,
+        isGitpod: env.isGitpod,
+        isReplit: env.isReplit,
+        isStackblitz: env.isStackblitz,
+        isGlitch: env.isGlitch
       },
       containerEnvironment: {
         isDocker: env.isDocker,
@@ -918,6 +1058,18 @@ CI Environment:
 - Render: ${env.isRender ? 'Yes' : 'No'}
 - Railway: ${env.isRailway ? 'Yes' : 'No'}
 - Fly.io: ${env.isFlyio ? 'Yes' : 'No'}
+- Codemagic: ${env.isCodemagic ? 'Yes' : 'No'}
+- GitHub Codespaces: ${env.isGitHubCodespaces ? 'Yes' : 'No'}
+- Google Cloud Build: ${env.isGoogleCloudBuild ? 'Yes' : 'No'}
+- Alibaba Cloud: ${env.isAlibabaCloud ? 'Yes' : 'No'}
+- Huawei Cloud: ${env.isHuaweiCloud ? 'Yes' : 'No'}
+- Tencent Cloud: ${env.isTencentCloud ? 'Yes' : 'No'}
+- Baidu Cloud: ${env.isBaiduCloud ? 'Yes' : 'No'}
+- Sourcegraph: ${env.isSourcegraph ? 'Yes' : 'No'}
+- Gitpod: ${env.isGitpod ? 'Yes' : 'No'}
+- Replit: ${env.isReplit ? 'Yes' : 'No'}
+- Stackblitz: ${env.isStackblitz ? 'Yes' : 'No'}
+- Glitch: ${env.isGlitch ? 'Yes' : 'No'}
 
 Container Environment:
 - Docker: ${env.isDocker ? 'Yes' : 'No'}

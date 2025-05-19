@@ -63,14 +63,26 @@ try {
   // Continue execution despite error
 }
 
+// Import the unified environment detection module
+let unifiedEnv;
+try {
+  unifiedEnv = require('./helpers/unified-environment');
+  console.log('Successfully imported unified environment detection module');
+} catch (importError) {
+  console.warn(`Failed to import unified environment detection module: ${importError.message}`);
+  // Continue with existing detection logic
+}
+
 // Detect CI environments with more comprehensive detection
-const isCI = process.env.CI === 'true' || process.env.CI === true ||
+const isCI = (unifiedEnv && unifiedEnv.isCI()) ||
+             process.env.CI === 'true' || process.env.CI === true ||
              process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
              process.env.TF_BUILD || process.env.JENKINS_URL ||
              process.env.GITLAB_CI || process.env.CIRCLECI;
 
 // Detect GitHub Actions environment specifically
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+const isGitHubActions = (unifiedEnv && unifiedEnv.isGitHubActions()) ||
+                       process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
 
 // Always set CI=true in GitHub Actions for maximum compatibility
 if (isGitHubActions && process.env.CI !== 'true') {
@@ -91,7 +103,8 @@ if (isWindows) {
 }
 
 // Detect Docker environment
-const isDocker = process.env.DOCKER_ENVIRONMENT === 'true' ||
+const isDocker = (unifiedEnv && unifiedEnv.isDockerEnvironment()) ||
+                process.env.DOCKER_ENVIRONMENT === 'true' ||
                 (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
 if (isDocker) {
   console.log('Docker environment detected, applying Docker-specific compatibility settings');
@@ -924,7 +937,17 @@ if (isCI || isGitHubActions) {
 
 // Enhanced function to safely create directory with improved error handling for CI
 function safelyCreateDirectory(dirPath) {
-  // First, try to use the ensure_report_dir module if available
+  // First, try to use the unified environment module if available
+  if (unifiedEnv && unifiedEnv.createDirectoryWithErrorHandling) {
+    try {
+      return unifiedEnv.createDirectoryWithErrorHandling(dirPath);
+    } catch (envError) {
+      console.warn(`Failed to use unified environment module for directory creation: ${envError.message}`);
+      // Continue with the standard implementation
+    }
+  }
+
+  // Then, try to use the ensure_report_dir module if available
   if (dirPath.includes('playwright-report') || dirPath.includes('test-results') || dirPath.includes('coverage') || dirPath.includes('logs')) {
     try {
       // Try to use the ensure_report_dir module for more robust directory creation

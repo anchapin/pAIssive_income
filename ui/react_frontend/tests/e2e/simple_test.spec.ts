@@ -630,8 +630,29 @@ async function takeScreenshot(page: any, filename: string) {
   }
 }
 
-// Enhanced CI environment detection
-const isCI = process.env.CI === 'true' || process.env.CI === true ||
+// Import the unified environment detection module
+let unifiedEnv;
+try {
+  // Try to import the unified environment detection module
+  unifiedEnv = require('../helpers/unified-environment');
+  console.log('Successfully imported unified environment detection module');
+} catch (importError) {
+  console.warn(`Failed to import unified environment detection module: ${importError.message}`);
+
+  // Try alternative paths for the unified environment module
+  try {
+    unifiedEnv = require('../helpers/environment-detection').detectEnvironment();
+    console.log('Successfully imported environment-detection module as fallback');
+  } catch (fallbackError) {
+    console.warn(`Failed to import environment-detection module: ${fallbackError.message}`);
+    // Continue with existing detection logic
+  }
+}
+
+// Enhanced CI environment detection with unified module
+const isCI = unifiedEnv ?
+             (typeof unifiedEnv.isCI === 'function' ? unifiedEnv.isCI() : unifiedEnv.isCI) :
+             process.env.CI === 'true' || process.env.CI === true ||
              process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
              process.env.TF_BUILD || process.env.JENKINS_URL ||
              process.env.GITLAB_CI || process.env.CIRCLECI ||
@@ -639,13 +660,17 @@ const isCI = process.env.CI === 'true' || process.env.CI === true ||
              !!process.env.DRONE || !!process.env.BUDDY ||
              !!process.env.BUILDKITE || !!process.env.CODEBUILD_BUILD_ID;
 
-// Enhanced GitHub Actions detection
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' ||
+// Enhanced GitHub Actions detection with unified module
+const isGitHubActions = unifiedEnv ?
+                       (typeof unifiedEnv.isGitHubActions === 'function' ? unifiedEnv.isGitHubActions() : unifiedEnv.isGitHubActions) :
+                       process.env.GITHUB_ACTIONS === 'true' ||
                        !!process.env.GITHUB_WORKFLOW ||
                        !!process.env.GITHUB_RUN_ID;
 
-// Enhanced Docker environment detection
-const isDockerEnvironment = fs.existsSync('/.dockerenv') ||
+// Enhanced Docker environment detection with unified module
+const isDockerEnvironment = unifiedEnv ?
+                           (typeof unifiedEnv.isDockerEnvironment === 'function' ? unifiedEnv.isDockerEnvironment() : (unifiedEnv.isDocker || unifiedEnv.isDockerEnvironment)) :
+                           fs.existsSync('/.dockerenv') ||
                            process.env.DOCKER_ENVIRONMENT === 'true' ||
                            fs.existsSync('/run/.containerenv') ||
                            (fs.existsSync('/proc/1/cgroup') &&
@@ -658,9 +683,17 @@ console.log(`- Node version: ${process.version}`);
 console.log(`- BASE_URL: ${BASE_URL}`);
 console.log(`- Working directory: ${process.cwd()}`);
 console.log(`- Report directory: ${reportDir}`);
+console.log(`- Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}`);
+console.log(`- Detection Method: ${unifiedEnv ? 'Unified Module' : 'Fallback Detection'}`);
 console.log(`- CI environment: ${isCI ? 'Yes' : 'No'}`);
 console.log(`- GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}`);
 console.log(`- Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}`);
+
+// Log unified environment info if available
+if (unifiedEnv && typeof unifiedEnv.getEnvironmentInfo === 'function') {
+  console.log('Unified Environment Information:');
+  console.log(unifiedEnv.getEnvironmentInfo());
+}
 
 // Create environment report
 createReport('environment-info.txt',
@@ -669,10 +702,14 @@ createReport('environment-info.txt',
   `BASE_URL: ${BASE_URL}\n` +
   `Working directory: ${process.cwd()}\n` +
   `Report directory: ${reportDir}\n` +
+  `Environment Detection Module: ${unifiedEnv ? 'Available' : 'Not Available'}\n` +
+  `Detection Method: ${unifiedEnv ? 'Unified Module' : 'Fallback Detection'}\n` +
   `CI environment: ${isCI ? 'Yes' : 'No'}\n` +
   `GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}\n` +
   `Docker environment: ${isDockerEnvironment ? 'Yes' : 'No'}\n` +
-  `Timestamp: ${new Date().toISOString()}`
+  `Timestamp: ${new Date().toISOString()}\n` +
+  (unifiedEnv && typeof unifiedEnv.getEnvironmentInfo === 'function' ?
+   `\nUnified Environment Information:\n${unifiedEnv.getEnvironmentInfo()}\n` : '')
 );
 
 // Simple test suite that always passes

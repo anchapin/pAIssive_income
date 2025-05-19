@@ -7,12 +7,35 @@ This document describes the CI environment detection functionality in the projec
 The CI environment detection functionality is designed to detect and handle different environments:
 
 - **Operating Systems**: Windows, macOS, Linux, WSL
-- **CI environments**: GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines, TeamCity, Bitbucket, AppVeyor, Drone, Buddy, Buildkite, AWS CodeBuild, Vercel, Netlify, Heroku, Semaphore, Codefresh, Woodpecker, Harness, Render, Railway, Fly.io, etc.
+- **CI environments**: GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines, TeamCity, Bitbucket, AppVeyor, Drone, Buddy, Buildkite, AWS CodeBuild, Vercel, Netlify, Heroku, Semaphore, Codefresh, Woodpecker, Harness, Render, Railway, Fly.io, Codemagic, GitHub Codespaces, Google Cloud Build, Alibaba Cloud DevOps, Huawei Cloud DevCloud, Tencent Cloud CODING, Baidu Cloud CICD, Sourcegraph, Gitpod, Replit, Stackblitz, Glitch, etc.
 - **Container environments**: Docker, Podman, LXC/LXD, Containerd, CRI-O, Docker Compose, Kubernetes, Docker Swarm
 - **Cloud environments**: AWS, Azure, GCP, Oracle Cloud (OCI), IBM Cloud, DigitalOcean, Linode, Vultr, Cloudflare
 - **Serverless environments**: Lambda, Azure Functions, Cloud Functions
 
 It's designed to be used across the application to ensure consistent environment detection and handling with proper fallbacks.
+
+## Unified Environment Detection Module
+
+The unified environment detection module provides a consistent way to detect and handle different environments across the application. It consists of both Python and JavaScript implementations that share the same detection logic and provide similar interfaces.
+
+### Key Features
+
+- **Comprehensive Detection**: Detects a wide range of CI platforms, container environments, cloud providers, and operating systems.
+- **Consistent Interface**: Both Python and JavaScript implementations provide similar interfaces for easy integration.
+- **Fallback Mechanisms**: Uses multiple detection methods with fallbacks to ensure reliable detection.
+- **Environment Reports**: Generates detailed reports about the detected environment for debugging and logging.
+- **Simulation Support**: Includes tools to simulate different environments for testing.
+- **Test Integration**: Integrates with testing frameworks to adjust test behavior based on the environment.
+
+### Use Cases
+
+- **CI/CD Pipelines**: Adjust build and deployment processes based on the CI platform.
+- **Testing**: Skip or modify tests based on the environment (e.g., skip browser tests in headless environments).
+- **Configuration**: Load environment-specific configuration.
+- **Logging**: Include environment information in logs for debugging.
+- **Error Handling**: Provide environment context in error reports.
+- **Feature Flags**: Enable or disable features based on the environment.
+- **Performance Optimization**: Optimize performance based on the available resources in different environments.
 
 ## Python Implementation
 
@@ -365,3 +388,191 @@ If you encounter issues with the environment detection, try the following:
    const { createEnvironmentReport } = require('./helpers/environment-detection');
    createEnvironmentReport('environment-report.txt', { verbose: true });
    ```
+
+### Common Issues and Solutions
+
+#### Environment Not Detected Correctly
+
+If the environment is not detected correctly, check the following:
+
+1. **Missing Environment Variables**: Some CI platforms require specific environment variables to be set. Check the documentation for your CI platform to ensure all required variables are set.
+
+2. **File Access Issues**: Some detection methods rely on accessing specific files (e.g., `/.dockerenv`, `/proc/1/cgroup`). Ensure the script has permission to access these files.
+
+3. **Multiple Environments**: If you're running in multiple environments (e.g., Docker container in a CI environment), the detection might prioritize one environment over another. Use the environment report to see all detected environments.
+
+#### New CI Platforms
+
+For newly added CI platforms (Codemagic, GitHub Codespaces, Google Cloud Build, etc.), ensure that:
+
+1. **Environment Variables**: The platform-specific environment variables are set correctly. Check the platform's documentation for the list of available variables.
+
+2. **Detection Order**: The detection order might affect which platform is detected first. If you're running in multiple environments, the first detected platform will be reported as the primary CI platform.
+
+3. **Custom Variables**: You can set custom environment variables to force detection of a specific platform:
+   ```bash
+   export CI_PLATFORM=github-codespaces
+   export CI_TYPE=github-codespaces
+   ```
+
+#### Container and Cloud Environments
+
+For container and cloud environments, check:
+
+1. **Container Runtime**: Different container runtimes (Docker, Podman, LXC, etc.) have different detection methods. Ensure the correct runtime is detected.
+
+2. **Cloud Provider**: Cloud providers have specific environment variables and metadata services. Ensure the script can access these services.
+
+3. **Serverless Environments**: Serverless environments have limited file system access. Ensure the detection methods work in these environments.
+
+### Getting Help
+
+If you're still having issues, try the following:
+
+1. **Check the Documentation**: The documentation for your CI platform might have information about environment variables and detection methods.
+
+2. **Create an Issue**: Create an issue in the project repository with the environment report and a description of the problem.
+
+3. **Contact Support**: Contact the support team for your CI platform for help with platform-specific issues.
+
+## Adding Support for New CI Platforms
+
+If you need to add support for a new CI platform, follow these steps:
+
+### 1. Research the CI Platform
+
+1. **Identify Environment Variables**: Find out what environment variables are set by the CI platform. Check the platform's documentation or run a test job that prints all environment variables.
+
+2. **Identify Detection Methods**: Determine how to detect the CI platform. This usually involves checking for specific environment variables or files.
+
+3. **Gather Sample Data**: If possible, gather sample data from the CI platform, such as environment variables, file paths, and other relevant information.
+
+### 2. Update the JavaScript Implementation
+
+1. **Add Detection Logic**: Add detection logic to the `detectEnvironment` function in `ui/react_frontend/tests/helpers/environment-detection.js`:
+
+   ```javascript
+   // New CI platform detection
+   const isNewPlatform = !!process.env.NEW_PLATFORM_VAR ||
+                        !!process.env.ANOTHER_NEW_PLATFORM_VAR ||
+                        (process.env.CI_PLATFORM === 'new-platform') ||
+                        (process.env.CI_TYPE === 'new-platform');
+   ```
+
+2. **Add to Return Object**: Add the new platform to the return object:
+
+   ```javascript
+   return {
+     // ...
+     isNewPlatform,
+     // ...
+   };
+   ```
+
+3. **Update JSON Report**: Add the new platform to the JSON report:
+
+   ```javascript
+   ciEnvironment: {
+     // ...
+     isNewPlatform: env.isNewPlatform,
+     // ...
+   }
+   ```
+
+4. **Update Text Report**: Add the new platform to the text report:
+
+   ```javascript
+   CI Environment:
+   // ...
+   - New Platform: ${env.isNewPlatform ? 'Yes' : 'No'}
+   // ...
+   ```
+
+### 3. Update the Python Implementation
+
+1. **Add Detection Logic**: Add detection logic to the `detect_ci_environment` function in `scripts/ci/detect_ci_environment.py`:
+
+   ```python
+   # New CI platform detection
+   elif os.environ.get("NEW_PLATFORM_VAR") or os.environ.get("ANOTHER_NEW_PLATFORM_VAR"):
+       ci_info["ci_type"] = "new-platform"
+       ci_info["ci_platform"] = "New Platform"
+       ci_info["ci_environment_variables"] = {
+           key: value
+           for key, value in os.environ.items()
+           if key.startswith("NEW_PLATFORM_")
+       }
+   ```
+
+2. **Update CI Detection**: Add the new platform to the CI detection logic:
+
+   ```python
+   "is_ci": (
+       # ...
+       or os.environ.get("NEW_PLATFORM_VAR") is not None
+       or os.environ.get("ANOTHER_NEW_PLATFORM_VAR") is not None
+       # ...
+   ),
+   ```
+
+### 4. Update the Simulation Script
+
+1. **Add Simulation Logic**: Add simulation logic to the `simulate_ci_environment.py` script:
+
+   ```python
+   def setup_new_platform():
+       """Set up environment variables for the new platform."""
+       return {
+           "CI": "true",
+           "NEW_PLATFORM_VAR": "true",
+           "NEW_PLATFORM_BUILD_ID": "12345",
+           "NEW_PLATFORM_JOB_ID": "67890",
+           # Add other relevant environment variables
+       }
+   ```
+
+2. **Update the `get_ci_env_vars` Function**: Add the new platform to the `get_ci_env_vars` function:
+
+   ```python
+   def get_ci_env_vars(ci_type: str) -> Dict[str, str]:
+       # ...
+       elif ci_type == "new-platform":
+           return setup_new_platform()
+       # ...
+   ```
+
+### 5. Update the Documentation
+
+1. **Update the Overview**: Add the new platform to the list of supported CI platforms.
+
+2. **Add Platform-Specific Information**: Add platform-specific information to the documentation, such as environment variables, detection methods, and any special considerations.
+
+3. **Update the Troubleshooting Section**: Add platform-specific troubleshooting information if needed.
+
+### 6. Test the Implementation
+
+1. **Simulate the Environment**: Test the implementation by simulating the environment:
+
+   ```bash
+   python scripts/ci/simulate_ci_environment.py --ci-type new-platform
+   ```
+
+2. **Run the Detection Script**: Run the detection script to verify that the new platform is detected correctly:
+
+   ```bash
+   python scripts/ci/detect_ci_environment.py --verbose
+   ```
+
+3. **Run the Tests**: Run the tests to verify that the implementation works correctly:
+
+   ```bash
+   python -m unittest scripts/ci/test_detect_ci_environment.py
+   ```
+
+### 7. Submit a Pull Request
+
+1. **Create a Branch**: Create a branch for your changes.
+
+2. **Commit Your Changes**: Commit your changes with a descriptive commit message.
+
+3. **Create a Pull Request**: Create a pull request with a description of the changes and any relevant information about the new platform.
