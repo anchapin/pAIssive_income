@@ -158,6 +158,43 @@ jobs:
             Write-Host "package-lock.json not found!"
           }
 
+      # Ensure CodeQL configuration files exist
+      - name: Ensure CodeQL configuration files
+        shell: pwsh
+        run: |
+          if (Test-Path ".github/scripts/ensure-codeql-configs.ps1") {
+            Write-Host "Running ensure-codeql-configs.ps1 script..."
+            & .github/scripts/ensure-codeql-configs.ps1
+          } else {
+            Write-Host "ensure-codeql-configs.ps1 script not found. Creating minimal configuration..."
+
+            # Ensure directory exists
+            New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null
+
+            # Create minimal Windows configuration
+            Set-Content -Path ".github/codeql/security-os-windows.yml" -Value @"
+name: "CodeQL Configuration for Windows"
+os: windows-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+"@ -Encoding UTF8 -Force
+
+            # Create minimal unified configuration
+            Set-Content -Path ".github/codeql/security-os-config.yml" -Value @"
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+"@ -Encoding UTF8 -Force
+          }
+
       # Initialize CodeQL with Windows-specific configuration
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -166,6 +203,62 @@ jobs:
           queries: security-and-quality
           config-file: .github/codeql/security-os-windows.yml
           debug: true # Enable debug mode for more detailed logs
+
+      # Verify CodeQL configuration file exists
+      - name: Verify CodeQL configuration
+        shell: pwsh
+        run: |
+          $configFile = ".github/codeql/security-os-windows.yml"
+          if (Test-Path $configFile) {
+            Write-Host "CodeQL configuration file exists: $configFile"
+            Get-Content -Path $configFile -First 10
+          } else {
+            Write-Host "WARNING: CodeQL configuration file not found: $configFile"
+            Write-Host "Creating minimal configuration file..."
+
+            $configContent = @"
+name: "CodeQL Configuration for Windows"
+
+# This configuration file customizes the CodeQL analysis for Windows
+# It provides Windows-specific settings
+
+# Windows-specific settings
+os: windows-latest
+
+# Query filters
+queries:
+  # Include the standard security and quality queries
+  - uses: security-and-quality
+
+  # Include additional security queries
+  - uses: security-extended
+
+  # Use standard security queries
+  - uses: security
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Trap errors during extraction
+trap-for-errors: true
+"@
+
+            # Ensure directory exists
+            New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null
+
+            # Create the configuration file
+            Set-Content -Path $configFile -Value $configContent -Encoding UTF8 -Force
+
+            Write-Host "Created minimal CodeQL configuration file: $configFile"
+          }
+
+          # Also check for the unified configuration file
+          $unifiedConfigFile = ".github/codeql/security-os-config.yml"
+          if (-not (Test-Path $unifiedConfigFile) -and (Test-Path $configFile)) {
+            Write-Host "Unified configuration file not found. Creating a copy from the Windows configuration..."
+            Copy-Item -Path $configFile -Destination $unifiedConfigFile -Force
+            Write-Host "Created unified configuration file: $unifiedConfigFile"
+          }
 
       # Autobuild attempts to build any compiled languages with enhanced error handling
       - name: Autobuild

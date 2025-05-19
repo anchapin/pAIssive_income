@@ -289,6 +289,43 @@ jobs:
           fi
         continue-on-error: true
 
+      # Ensure CodeQL configuration files exist
+      - name: Ensure CodeQL configuration files
+        shell: bash
+        run: |
+          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+            echo "Running ensure-codeql-configs.sh script..."
+            bash .github/scripts/ensure-codeql-configs.sh
+          else
+            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
+
+            # Ensure directory exists
+            mkdir -p .github/codeql
+
+            # Create minimal macOS configuration
+            cat > .github/codeql/security-os-macos.yml << 'EOL'
+name: "CodeQL Configuration for macOS"
+os: macos-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+EOL
+
+            # Create minimal unified configuration
+            cat > .github/codeql/security-os-config.yml << 'EOL'
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+EOL
+          fi
+
       # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
