@@ -384,71 +384,97 @@ async function buildMultipleFiles(options) {
     parallel
   });
 
+  // Prevent infinite recursion by checking if we're already in a buildMultipleFiles call
+  const callDepth = options._buildMultipleFilesCallDepth || 0;
+  if (callDepth > 2) {
+    log('Detected potential infinite recursion in buildMultipleFiles', 'error');
+    return false;
+  }
+
+  // Create a new options object with incremented call depth
+  const newOptions = {
+    ...options,
+    _buildMultipleFilesCallDepth: callDepth + 1
+  };
+
   // If parallel is enabled and we're not in watch mode, build all files in parallel
   if (parallel && !watch) {
     const maxConcurrent = config?.performance?.concurrentBuilds || 2;
     log(`Building in parallel with max ${maxConcurrent} concurrent builds`, 'info');
 
-    // Process files in batches
-    const results = [];
-    for (let i = 0; i < files.length; i += maxConcurrent) {
-      const batch = files.slice(i, i + maxConcurrent);
-      const batchPromises = batch.map(file => {
-        return new Promise(resolve => {
-          const success = buildTailwind({
-            ...options,
-            configPath: file.configPath,
-            inputPath: file.inputPath,
-            outputPath: file.outputPath,
-            minify: file.minify !== undefined ? file.minify : options.minify,
-            watch: false // Never watch in parallel mode
+    // Process files in batches using async/await pattern
+    return (async () => {
+      const results = [];
+
+      // Process files in batches to avoid too many concurrent processes
+      for (let i = 0; i < files.length; i += maxConcurrent) {
+        const batch = files.slice(i, i + maxConcurrent);
+        const batchPromises = batch.map(file => {
+          return new Promise(resolve => {
+            try {
+              // Use direct function call to avoid recursion
+              const success = buildSingleFile({
+                ...newOptions,
+                configPath: file.configPath,
+                inputPath: file.inputPath,
+                outputPath: file.outputPath,
+                minify: file.minify !== undefined ? file.minify : newOptions.minify,
+                watch: false // Never watch in parallel mode
+              });
+              resolve(success);
+            } catch (error) {
+              log(`Error building file ${file.inputPath}: ${error.message}`, 'error');
+              resolve(false);
+            }
           });
-          resolve(success);
         });
-      });
 
-      // Wait for all promises in this batch to resolve
-      // Use await to properly resolve the Promise.all before spreading
-      const batchResults = Promise.all(batchPromises).then(resolvedResults => {
-        // Add each result individually instead of using spread operator
-        resolvedResults.forEach(result => {
-          results.push(result);
-        });
-      });
-    }
+        // Wait for all promises in this batch to resolve before moving to next batch
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+      }
 
-    // We need to make the function fully async/await compatible
-    // Return a Promise that resolves after all batches are processed
-    return new Promise(resolve => {
-      // Use setTimeout to ensure all batch promises have been created and started
-      setTimeout(() => {
-        // Check if all builds were successful
-        resolve(results.every(result => result === true));
-      }, 0);
-    });
+      // Check if all builds were successful
+      return results.every(result => result === true);
+    })();
   } else {
     // Build files sequentially
     let allSuccessful = true;
 
-    for (const file of files) {
-      const success = buildTailwind({
-        ...options,
-        configPath: file.configPath,
-        inputPath: file.inputPath,
-        outputPath: file.outputPath,
-        minify: file.minify !== undefined ? file.minify : options.minify,
-        watch // Pass through watch mode
-      });
+    try {
+      for (const file of files) {
+        try {
+          // Use direct function call to avoid recursion
+          const success = buildSingleFile({
+            ...newOptions,
+            configPath: file.configPath,
+            inputPath: file.inputPath,
+            outputPath: file.outputPath,
+            minify: file.minify !== undefined ? file.minify : newOptions.minify,
+            watch // Pass through watch mode
+          });
 
-      if (!success && !watch) {
-        allSuccessful = false;
+          if (!success && !watch) {
+            allSuccessful = false;
 
-        // If continueOnError is false, stop on first failure
-        if (!config?.errorHandling?.continueOnError) {
-          log(`Build failed for ${file.inputPath} -> ${file.outputPath}, stopping`, 'error');
-          return false;
+            // If continueOnError is false, stop on first failure
+            if (!config?.errorHandling?.continueOnError) {
+              log(`Build failed for ${file.inputPath} -> ${file.outputPath}, stopping`, 'error');
+              return false;
+            }
+          }
+        } catch (error) {
+          log(`Error building file ${file.inputPath}: ${error.message}`, 'error');
+          allSuccessful = false;
+
+          if (!config?.errorHandling?.continueOnError) {
+            return false;
+          }
         }
       }
+    } catch (error) {
+      log(`Unexpected error in buildMultipleFiles: ${error.message}`, 'error');
+      return false;
     }
 
     return allSuccessful;
@@ -974,6 +1000,139 @@ if (require.main === module) {
   });
 }
 
+/**
+ * Find the tailwindcss binary
+ *
+ * @returns {string|null} - Path to the tailwindcss binary or null if not found
+ */
+function findTailwindBinary() {
+  const isWindows = process.platform === 'win32';
+  const possiblePaths = [
+    // Local project installation
+    isWindows ? 'node_modules\\.bin\\tailwindcss.cmd' : 'node_modules/.bin/tailwindcss',
+    // Global installation
+    isWindows ? '%USERPROFILE%\\AppData\\Roaming\\npm\\tailwindcss.cmd' : '/usr/local/bin/tailwindcss'
+  ];
+
+  for (const binPath of possiblePaths) {
+    try {
+      if (fs.existsSync(binPath)) {
+        return binPath;
+      }
+    } catch (error) {
+      // Ignore errors and try next path
+    }
+  }
+
+  // If no binary found, try to use npx/pnpm/npm
+  if (isWindows) {
+    return 'npx.cmd tailwindcss';
+  } else {
+    return 'npx tailwindcss';
+  }
+}
+
+/**
+ * Build Tailwind CSS for a single file - direct implementation to avoid recursion
+ *
+ * @param {Object} options - Build options
+ * @param {string} options.configPath - Path to tailwind config file
+ * @param {string} options.inputPath - Path to input CSS file
+ * @param {string} options.outputPath - Path to output CSS file
+ * @param {boolean} options.minify - Whether to minify the output
+ * @param {boolean} options.watch - Whether to watch for changes
+ * @returns {boolean} - Whether the build was successful
+ */
+function buildSingleFile(options = {}) {
+  const config = getConfig();
+
+  try {
+    const {
+      configPath = './tailwind.config.js',
+      inputPath = './ui/static/css/tailwind.css',
+      outputPath = './ui/static/css/tailwind.output.css',
+      minify = true,
+      watch = false,
+      postcss = config?.postcss || {}
+    } = options;
+
+    // Validate inputs
+    if (!fs.existsSync(inputPath)) {
+      log(`Input file not found: ${inputPath}`, 'error');
+      return false;
+    }
+
+    // Ensure output directory exists
+    const outputDir = path.dirname(outputPath);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    // Build the command
+    const tailwindBin = findTailwindBinary();
+    if (!tailwindBin) {
+      log('Could not find tailwindcss binary', 'error');
+      return false;
+    }
+
+    const args = [
+      '-i', inputPath,
+      '-o', outputPath,
+      '-c', configPath
+    ];
+
+    if (minify) {
+      args.push('--minify');
+    }
+
+    if (watch) {
+      args.push('--watch');
+    }
+
+    // Add PostCSS config if specified
+    if (postcss.useConfigFile && fs.existsSync(postcss.configPath)) {
+      args.push('--postcss', postcss.configPath);
+    }
+
+    // Execute the command
+    if (watch) {
+      // In watch mode, spawn a background process
+      const child = spawn(tailwindBin, args, {
+        stdio: 'inherit',
+        shell: true
+      });
+
+      log(`Started Tailwind CSS watch process for ${inputPath}`, 'info', {
+        pid: child.pid
+      });
+
+      // Handle process events
+      child.on('error', (error) => {
+        log(`Error in Tailwind CSS watch process: ${error.message}`, 'error', { error });
+      });
+
+      return true; // Return success immediately for watch mode
+    } else {
+      // For one-time builds, use execSync
+      log(`Building Tailwind CSS: ${inputPath} -> ${outputPath}`, 'info', {
+        minify,
+        configPath
+      });
+
+      execSync(`${tailwindBin} ${args.join(' ')}`, {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        encoding: 'utf8'
+      });
+
+      log(`Successfully built Tailwind CSS: ${outputPath}`, 'info');
+      return true;
+    }
+  } catch (error) {
+    log(`Error building Tailwind CSS: ${error.message}`, 'error', { error });
+    return false;
+  }
+}
+
 module.exports = {
   buildTailwind,
   watchTailwind,
@@ -986,5 +1145,7 @@ module.exports = {
   getConfig,
   loadConfig,
   log,
-  updateLoggingConfig
+  updateLoggingConfig,
+  buildSingleFile,
+  findTailwindBinary
 };
