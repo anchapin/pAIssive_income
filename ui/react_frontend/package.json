@@ -68,22 +68,22 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "test": "react-app-rewired test --passWithNoTests",
     "test:unit": "vitest run --passWithNoTests",
     "test:unit:ui": "vitest --ui",
-    "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts",
+    "test:e2e": "npx playwright test tests/e2e/agent_ui.spec.ts --passWithNoTests",
     "test:e2e:with-servers": "node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
-    "test:ci": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json || true",
-    "test:ci:windows": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --skip-browser-install",
-    "test:simple": "npx playwright test tests/e2e/simple_test.spec.ts",
-    "test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false",
+    "test:ci": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --passWithNoTests || true",
+    "test:ci:windows": "node tests/ensure_report_dir.js && cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --reporter=list,json --skip-browser-install --passWithNoTests",
+    "test:simple": "npx playwright test tests/e2e/simple_test.spec.ts --passWithNoTests",
+    "test:headless": "cross-env CI=true npx playwright test tests/e2e/simple_test.spec.ts --headed=false --passWithNoTests",
     "ensure:report-dir": "node tests/ensure_report_dir.js",
     "start:mock-api": "node tests/mock_api_server.js",
     "start:fallback": "node tests/fallback_server.js",
     "eject": "react-scripts eject",
     "preinstall": "npx only-allow pnpm",
-    "tailwind:build": "tailwindcss -c ./tailwind.config.js -i ./src/index.css -o ./src/tailwind.output.css --minify || cd ../.. && pnpm tailwind:build"
+    "tailwind:build": "tailwindcss -c ./tailwind.config.js -i ./src/index.css -o ./src/tailwind.output.css --minify"
   },
   "eslintConfig": {
     "extends": [

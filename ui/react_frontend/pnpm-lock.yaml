@@ -78,6 +78,9 @@ importers:
       '@vitest/ui':
         specifier: ^1.6.0
         version: 1.6.1(vitest@1.6.1)
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.21(postcss@8.5.3)
       body-parser:
         specifier: ^2.2.0
         version: 2.2.0
@@ -105,6 +108,9 @@ importers:
       resolve-url-loader:
         specifier: ^5.0.0
         version: 5.0.0
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.17
       tough-cookie:
         specifier: ^4.1.4
         version: 4.1.4
