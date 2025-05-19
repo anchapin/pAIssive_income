@@ -1,62 +1,30 @@
-name: "macOS CodeQL Security Configuration"
+name: "CodeQL Configuration for macOS"
 
-# This configuration file is used by the consolidated-ci-cd.yml workflow
-# It provides macOS-specific configurations for CodeQL analysis
+# This configuration file customizes the CodeQL analysis for macOS
+# It inherits settings from the unified configuration and adds macOS-specific settings
 
-# Specify paths to analyze
-paths:
-  # JavaScript/TypeScript paths
-  - 'ui'
-  - 'sdk/javascript'
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.ts'
-  - '**/*.tsx'
-  - '**/*.json'
-  - '**/*.html'
-  
-  # Python paths
-  - '**/*.py'
-  - '**/*.pyw'
-  - '**/*.pyi'
+# Inherit from the unified configuration
+extends: security-os-config.yml
 
-# Paths to exclude
+# macOS-specific settings
+os: macos-latest
+
+# Additional macOS-specific paths to exclude
 paths-ignore:
-  # Build artifacts
-  - '**/node_modules/**'
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/.venv/**'
-  - '**/vendor/**'
-  - '**/external/**'
-  - '**/third_party/**'
-  
-  # Test files
-  - '**/test/**'
-  - '**/tests/**'
-  - '**/__tests__/**'
-  - '**/__mocks__/**'
-  - '**/*.test.js'
-  - '**/*.test.ts'
-  - '**/*.test.jsx'
-  - '**/*.test.tsx'
-  - '**/*.spec.js'
-  - '**/*.spec.ts'
-  - '**/*.spec.jsx'
-  - '**/*.spec.tsx'
-  
-  # Configuration files
-  - '**/.github/**'
-  - '**/.vscode/**'
-  - '**/.idea/**'
-  - '**/coverage/**'
-  
-  # Documentation
-  - '**/docs/**'
-  - '**/*.md'
-  - '**/*.mdx'
-  - '**/*.rst'
-  - '**/sphinx/**'
+  # macOS specific files
+  - '**/.DS_Store'
+  - '**/.AppleDouble'
+  - '**/.LSOverride'
+  # Using '?' instead of '\r' to avoid backslash issues in CodeQL filters
+  - '**/Icon?'
+  - '**/*.app/**'
+  - '**/*.pkg'
+  - '**/*.dmg'
+  - '**/._*'
+  - '**/.Spotlight-V100/**'
+  - '**/.Trashes/**'
+  - '**/ehthumbs.db'
+  - '**/Thumbs.db'
 
 # Query filters
 queries:
@@ -66,9 +34,8 @@ queries:
   # Include additional security queries
   - uses: security-extended
 
-  # Include language-specific security queries
-  - uses: ./javascript-security-queries.qls
-  - uses: ./python-security-queries.qls
+  # Use standard security queries
+  - uses: security
 
 # Disable noisy alerts
 disable-default-queries: false
@@ -80,28 +47,6 @@ query-filters:
   - exclude:
       tags contain: maintainability
       precision below: high
-  - exclude:
-      tags contain: correctness
-      precision below: high
-
-# macOS-specific settings
-macos:
-  # Handle macOS specific paths
-  additional-extensions:
-    - '.sh'
-    - '.zsh'
-    - '.bash'
 
 # Trap errors during extraction
 trap-for-errors: true
-
-# Database extraction settings
-database:
-  # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
-  # Exclude files with too many lines
-  max-lines-of-code: 25000
-  # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
-  # Extraction timeout per file
-  extraction-timeout: 300

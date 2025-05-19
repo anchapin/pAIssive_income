@@ -66,6 +66,19 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+select = ["E", "F", "B", "S", "I", "N", "UP", "ANN", "C4", "SIM", "ARG", "PTH", "RUF", "ERA", "TRY", "PLR", "PLW", "PLE", "BLE", "ISC"]
+ignore = []
+
+[tool.ruff.per-file-ignores]
+"scripts/fix/fix_security_issues.py" = ["S603"]
+"scripts/run/run_github_actions_locally.py" = ["S603", "G004", "TRY300", "RUF013", "RUF005"]
+"scripts/setup/regenerate_venv.py" = ["S603", "TRY300"]
+"scripts/setup/setup_pre_commit.py" = ["S603"]
+"scripts/setup/setup_dev_environment.py" = ["S603"]
+
 [tool.mypy]
 python_version = "3.10"
 exclude = ["ui/react_frontend", "scripts/__init__.py", ".github/scripts/__init__.py", ".github/scripts"]

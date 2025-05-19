@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paissive-income-sdk"
+version = "0.1.0"
+description = "Python SDK for the pAIssive Income API"
+readme = "README.md"
+authors = [
+  { name = "pAIssive Income Team", email = "support@paissiveincome.example.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.7"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/paissive-income/paissive-income-sdk-py"
+Repository = "https://github.com/paissive-income/paissive-income-sdk-py"
+Issues = "https://github.com/paissive-income/paissive-income-sdk-py/issues"
