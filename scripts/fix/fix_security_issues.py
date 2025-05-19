@@ -48,24 +48,41 @@ try:
 
     IMPORTED_SECRET_SCANNER = True
 except ImportError:
+<<<<<<< HEAD
     # Store error information instead of printing at module level
     # This is not a password, just an error message
     # Use a variable to avoid S105 warnings
     module_name = "fix_potential_secrets"
     SECRET_SCANNER_IMPORT_ERROR = (
         f"Could not import {module_name} module. Will use subprocess fallback."
+=======
+    # Store error information in a log message instead of a global variable
+    # This is not a password, just an error message
+    module_name = "fix_potential_secrets"
+    logger.warning(
+        "Could not import %s module. Will use subprocess fallback.", module_name
+>>>>>>> origin/main
     )
     IMPORTED_SECRET_SCANNER = False
 
     # Define a fallback function to avoid unbound variable errors
     def scan_directory(
         directory: str,  # Match the signature of the imported function
+<<<<<<< HEAD
+=======
+        exclude_dirs: set[str]  # noqa: ARG001
+        | None = None,  # Match the signature of the imported function
+>>>>>>> origin/main
     ) -> dict[str, list[tuple[str, int, int]]]:
         """
         Fallback function when fix_potential_secrets cannot be imported.
 
         Args:
             directory: Directory to scan (unused in fallback)
+<<<<<<< HEAD
+=======
+            exclude_dirs: Directories to exclude from scanning (unused in fallback)
+>>>>>>> origin/main
 
         Returns:
             dict[str, list[tuple[str, int, int]]]: Empty result dictionary
@@ -78,6 +95,7 @@ except ImportError:
         return {}
 
 
+<<<<<<< HEAD
 # Check if other critical dependencies are available
 try:
     # json is already imported at the module level
@@ -89,6 +107,11 @@ except ImportError as e:
     IMPORTED_DEPENDENCIES = False
 else:
     IMPORTED_DEPENDENCIES = True
+=======
+# All critical dependencies are imported at the module level
+# json and subprocess are already imported at the module level
+IMPORTED_DEPENDENCIES = True
+>>>>>>> origin/main
 
 
 def setup_args() -> argparse.Namespace:
@@ -263,9 +286,100 @@ def sanitize_finding_message(pattern_name: str) -> str:
     return message
 
 
+<<<<<<< HEAD
 def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
     """
     Run the security scan using the appropriate tool.
+=======
+def _run_scan_with_imported_function(
+    directory: str, exclude_dirs: set[str]
+) -> dict[str, list[tuple[str, int, int]]] | None:
+    """
+    Run the security scan using the imported function.
+
+    Args:
+        directory: Directory to scan
+        exclude_dirs: Directories to exclude
+
+    Returns:
+        dict[str, list[tuple[str, int, int]]] | None: Results of the scan or None if failed
+
+    """
+    if not (IMPORTED_SECRET_SCANNER and "scan_directory" in globals()):
+        return None
+
+    # Import the SECRET_PATTERNS from fix_potential_secrets to match the function signature
+    try:
+        from fix_potential_secrets import SECRET_PATTERNS
+
+        results: dict[str, list[tuple[str, int, int]]] = scan_directory(
+            directory, SECRET_PATTERNS, exclude_dirs
+        )
+    except ImportError:
+        logger.warning("Could not import SECRET_PATTERNS from fix_potential_secrets")
+        return None
+    else:
+        return results
+
+
+def _find_script_path() -> Path | None:
+    """
+    Find the path to the fix_potential_secrets.py script.
+
+    Returns:
+        Path | None: Path to the script or None if not found
+
+    """
+    # Check in the same directory as this script
+    script_path = Path(__file__).parent / "fix_potential_secrets.py"
+    if script_path.exists():
+        return script_path
+
+    # Try relative path
+    script_path = Path("fix_potential_secrets.py")
+    if script_path.exists():
+        return script_path
+
+    # Script not found
+    from common_utils.exceptions import ScriptNotFoundError
+
+    error_message = "Could not find fix_potential_secrets.py"
+    logger.error(error_message)
+    raise ScriptNotFoundError
+
+
+def _parse_subprocess_output(result: subprocess.CompletedProcess) -> dict[str, Any]:
+    """
+    Parse the output from the subprocess call.
+
+    Args:
+        result: Result from subprocess.run
+
+    Returns:
+        dict[str, Any]: Parsed results or error message
+
+    """
+    if not (result.stdout and result.returncode == 0):
+        return {"error": "No output from security scanner"}
+
+    # Try to parse JSON from output
+    try:
+        # Find JSON in output (assuming it's delimited somehow)
+        json_start = result.stdout.find("{")
+        if json_start >= 0:
+            return json.loads(result.stdout[json_start:])
+    except json.JSONDecodeError as json_error:
+        logger.warning("Could not parse JSON output from security scan: %s", json_error)
+
+    # If we can't parse the output, return a simplified result
+    logger.warning("Could not parse detailed results, returning simplified report")
+    return {"error": "Could not parse output from security scanner"}
+
+
+def _run_scan_with_subprocess(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
+    """
+    Run the security scan using subprocess.
+>>>>>>> origin/main
 
     Args:
         directory: Directory to scan
@@ -275,6 +389,7 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
         dict[str, Any]: Results of the scan
 
     """
+<<<<<<< HEAD
     logger.info("Scanning directory: %s", directory)
     logger.info("Excluding directories: %s", ", ".join(exclude_dirs))
 
@@ -301,6 +416,10 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
                 error_message = "Could not find fix_potential_secrets.py"
                 logger.error(error_message)
                 raise ScriptNotFoundError
+=======
+    try:
+        script_path = _find_script_path()
+>>>>>>> origin/main
 
         # Call the script using subprocess
         exclude_arg = ",".join(exclude_dirs)
@@ -318,6 +437,7 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
         # nosec S603 - This is safe as we control the input and don't use shell=True
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)  # nosec B603 S603
 
+<<<<<<< HEAD
         # Extract results from script output
         # This assumes fix_potential_secrets.py outputs a JSON report
         if result.stdout and result.returncode == 0:
@@ -342,6 +462,39 @@ def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
         return {"error": f"Error running security scan: {type(e).__name__}"}
     else:
         return {"error": "Could not parse output from security scanner"}
+=======
+        return _parse_subprocess_output(result)
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        logger.exception("Error running security scan")
+        return {"error": f"Error running security scan: {type(e).__name__}"}
+
+
+def run_security_scan(directory: str, exclude_dirs: set[str]) -> dict[str, Any]:
+    """
+    Run the security scan using the appropriate tool.
+
+    Args:
+        directory: Directory to scan
+        exclude_dirs: Directories to exclude
+
+    Returns:
+        dict[str, Any]: Results of the scan
+
+    """
+    logger.info("Scanning directory: %s", directory)
+    logger.info("Excluding directories: %s", ", ".join(exclude_dirs))
+
+    # Try to use imported function first
+    results = _run_scan_with_imported_function(directory, exclude_dirs)
+    if results is not None:
+        return results
+
+    # Fall back to subprocess execution
+    logger.info(
+        "Secret scanner is not available. Falling back to subprocess execution."
+    )
+    return _run_scan_with_subprocess(directory, exclude_dirs)
+>>>>>>> origin/main
 
 
 def generate_sarif_report(results: dict[str, Any], output_file: str) -> None:

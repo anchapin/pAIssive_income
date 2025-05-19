@@ -81,7 +81,9 @@ repos:
           "--non-interactive",
           "--disable-error-code=attr-defined",
           "--disable-error-code=name-defined",
-          "--disable-error-code=unused-ignore"
+          "--disable-error-code=unused-ignore",
+          "--namespace-packages",
+          "--explicit-package-bases"
         ]
 
   # Optimized local hooks for incremental checks
@@ -94,6 +96,11 @@ repos:
         types: [python]
         pass_filenames: true
         stages: [pre-commit]
+        exclude: |
+          (?x)(
+            ^scripts/__init__.py$|
+            ^.github/scripts/__init__.py$
+          )
 
       - id: check-logger-initialization
         name: Check logger initialization

@@ -2,51 +2,11 @@
 
 # This query suite contains JavaScript-specific security queries
 # It focuses on high-impact security vulnerabilities
+# Updated for better Windows compatibility
 
 - description: JavaScript Security Queries
-- queries: .
-- include:
-    kind:
-    - problem
-    - path-problem
-    precision:
-    - high
-    - very-high
-    tags contain:
-    - security
 
-# High-priority security queries
-- include:
-    id:
-    - js/xss
-    - js/path-injection
-    - js/command-line-injection
-    - js/sql-injection
-    - js/code-injection
-    - js/regex-injection
-    - js/prototype-pollution
-    - js/insecure-randomness
-    - js/jwt-missing-verification
-    - js/missing-token-validation
-    - js/server-side-request-forgery
-    - js/insecure-cors-policy
-    - js/request-forgery
-    - js/reflected-xss
-    - js/stored-xss
-    - js/dom-based-xss
-    - js/unsafe-deserialization
-    - js/xxe
-    - js/zipslip
-    - js/hardcoded-credentials
-    - js/clear-text-logging-of-sensitive-information
-    - js/clear-text-storage-of-sensitive-information
-    - js/exposure-of-sensitive-information
-    - js/stack-trace-exposure
-    - js/missing-csrf-protection
-    - js/missing-origin-check
-    - js/weak-cryptographic-algorithm
-    - js/insufficient-key-size
-    - js/weak-password-hash
-    - js/insecure-cookie
-    - js/cookie-without-httponly
-    - js/cookie-without-secure-flag
+# Use standard security queries from CodeQL
+# Using only the security-and-quality suite to avoid conflicts and Windows path issues
+# This provides a comprehensive set of security and quality checks
+- uses: security-and-quality

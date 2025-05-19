@@ -74,7 +74,11 @@ def main() -> int:
     parser.add_argument(
         "--with-coverage",
         action="store_true",
+<<<<<<< HEAD
         help="Run tests with coverage and enforce minimum coverage threshold (80%)",
+=======
+        help="Run tests with coverage and enforce minimum coverage threshold (90%)",
+>>>>>>> origin/main
     )
     parser.add_argument(
         "extra_pytest_args",
@@ -101,7 +105,11 @@ def main() -> int:
             "--cov=.",
             "--cov-report=term-missing",
             "--cov-report=xml",
+<<<<<<< HEAD
             "--cov-fail-under=80",
+=======
+            "--cov-fail-under=90",
+>>>>>>> origin/main
         ]
     if marker_expr:
         pytest_cmd += ["-m", marker_expr]
@@ -112,7 +120,11 @@ def main() -> int:
     if marker_expr:
         logger.info("Pytest marker expression: %s", marker_expr)
     if args.with_coverage:
+<<<<<<< HEAD
         logger.info("Coverage reporting enabled (minimum threshold: 80%)")
+=======
+        logger.info("Coverage reporting enabled (minimum threshold: 90%)")
+>>>>>>> origin/main
     if args.extra_pytest_args:
         logger.info("Extra pytest args: %s", " ".join(args.extra_pytest_args))
 
@@ -131,4 +143,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     sys.exit(main())
+=======
+    sys.exit(main())
+>>>>>>> origin/main

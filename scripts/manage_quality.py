@@ -206,6 +206,12 @@ async def run_checks(files: set[Path]) -> list[CheckResult]:
         "mypy",
         "--install-types",
         "--non-interactive",
+        "--namespace-packages",
+        "--explicit-package-bases",
+        "--exclude",
+        "scripts/__init__.py",
+        "--exclude",
+        ".github/scripts/__init__.py",
     ]
 
     # Add special flags for problematic files

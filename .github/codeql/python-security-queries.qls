@@ -2,65 +2,11 @@
 
 # This query suite contains Python-specific security queries
 # It focuses on high-impact security vulnerabilities
+# Updated for better Windows compatibility
 
 - description: Python Security Queries
-- queries: .
-- include:
-    kind:
-    - problem
-    - path-problem
-    precision:
-    - high
-    - very-high
-    tags contain:
-    - security
 
-# High-priority security queries
-- include:
-    id:
-    - py/sql-injection
-    - py/command-line-injection
-    - py/code-injection
-    - py/path-injection
-    - py/unsafe-deserialization
-    - py/unsafe-pickle-deserialization
-    - py/unsafe-yaml-load
-    - py/xss
-    - py/reflective-xss
-    - py/stored-xss
-    - py/template-injection
-    - py/jinja2-autoescape-false
-    - py/server-side-template-injection
-    - py/xml-injection
-    - py/xxe
-    - py/zipslip
-    - py/tarslip
-    - py/log-injection
-    - py/regex-injection
-    - py/ldap-injection
-    - py/xpath-injection
-    - py/header-injection
-    - py/request-forgery
-    - py/server-side-request-forgery
-    - py/open-redirect
-    - py/url-redirection
-    - py/weak-cryptographic-algorithm
-    - py/weak-sensitive-data-hashing
-    - py/weak-sensitive-data-encryption
-    - py/hardcoded-credentials
-    - py/clear-text-logging-sensitive-data
-    - py/clear-text-storage-sensitive-data
-    - py/exposure-of-sensitive-information
-    - py/stack-trace-exposure
-    - py/insecure-temporary-file
-    - py/insecure-cookie
-    - py/cookie-without-httponly
-    - py/cookie-without-secure-flag
-    - py/missing-jwt-signature-verification
-    - py/missing-token-validation
-    - py/missing-hostname-verification
-    - py/missing-certificate-validation
-    - py/missing-csrf-protection
-    - py/insecure-randomness
-    - py/insecure-hashlib-md5
-    - py/insecure-hashlib-sha1
+# Use standard security queries from CodeQL
+# Using only the security-and-quality suite to avoid conflicts and Windows path issues
+# This provides a comprehensive set of security and quality checks
+- uses: security-and-quality

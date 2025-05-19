@@ -26,20 +26,22 @@ skips:
   - B101
   # B311: Standard pseudo-random generators are not suitable for security/cryptographic purposes
   - B311
+  # Note: We don't skip B404 and B603 globally anymore
+  # Instead, we use nosec comments in the code where subprocess is used safely
 
 # Set the output format for GitHub Advanced Security
-output_format: sarif
+output_format: json
 
 # Set the output file for GitHub Advanced Security
-output_file: security-reports/bandit-results.sarif
+output_file: security-reports/bandit-results.json
 
 # Set the severity level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-severity: MEDIUM
+# Options: 1 (LOW), 2 (MEDIUM), 3 (HIGH)
+severity: 1
 
 # Set the confidence level for GitHub Advanced Security
-# Options: LOW, MEDIUM, HIGH
-confidence: MEDIUM
+# Options: 1 (LOW), 2 (MEDIUM), 3 (HIGH)
+confidence: 1
 
 # Per-test configurations
 any_other_function_with_shell_equals_true:
