@@ -12,6 +12,7 @@ def main():
     print(f"Current working directory: {os.getcwd()}")
     print(f"Is virtual environment: {hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)}")
     print(f"sys.prefix: {sys.prefix}")
+    print(f"Path: {Path.cwd()}")  # Added this line to trigger workflow
     if hasattr(sys, 'base_prefix'):
         print(f"sys.base_prefix: {sys.base_prefix}")
 
