@@ -14,6 +14,12 @@ pyperclip>=1.8.2  # For secure clipboard operations
 cryptography>=41.0.0  # For encryption of sensitive files
 # crewai is now an optional dependency, install with: pip install ".[agents]"
 
+# Memory layer for AI agents
+mem0ai>=0.1.100
+qdrant-client>=1.9.1  # Vector database client for mem0
+openai>=1.33.0  # Required for mem0 embeddings
+pytz>=2024.1  # Required for mem0
+
 # MCP integration
 modelcontextprotocol>=0.1.0  # Required for MCP server integration
 # mcp-use is in requirements-py311.txt (Python 3.11+ only)

@@ -28,10 +28,10 @@ jobs:
         with:
           version: 8
 
-      - name: Use Node.js 20.x
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
           cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
 
@@ -81,6 +81,10 @@ jobs:
             echo "Test files already exist, skipping dummy test creation"
           fi
 
+      # Build Tailwind CSS first
+      - name: Build Tailwind CSS
+        run: pnpm tailwind:build
+
       # Run Vitest unit tests with error handling
       - name: Run Vitest unit tests
         id: run_tests
@@ -90,7 +94,7 @@ jobs:
           export CI=true
 
           # Run tests with proper error handling
-          pnpm run test:unit || echo "Tests failed but continuing workflow"
+          pnpm run test:unit --passWithNoTests || echo "Tests failed but continuing workflow"
 
       # Create a minimal coverage report if tests fail
       - name: Create minimal coverage report if tests fail

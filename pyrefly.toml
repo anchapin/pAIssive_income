@@ -1,0 +1,331 @@
+project_includes = [
+    "!scripts/__init__.py",
+    "!.github/scripts/__init__.py",
+]
+project_excludes = [
+    "**/ui/react_frontend",
+    "scripts/__init__.py",
+    ".github/scripts/__init__.py",
+    "mock_crewai/**",
+    "adk_demo/**",
+    "ai_models/adapters/mcp_adapter.py",
+    "ai_models/adapters/adapter_factory.py",
+    "ai_models/adapters/__init__.py",
+    "tests/ai_models/adapters/test_mcp_adapter.py",
+    "tests/test_mcp_import.py",
+    "tests/test_mcp_top_level_import.py",
+    "verify_mock_crewai_fix.py",
+    "verify_mock_crewai.py",
+    "migrations/versions/**",
+    "services/**/setup.py",
+    "api/middleware/setup.py",
+    "scripts/**",
+    "main_demo_vector_rag.py",
+    "demo_vector_rag.py",
+    "run_ui.py",
+    "users/models.py",
+    "users/services.py",
+    "users/auth.py",
+    "users/password_reset.py",
+    "common_utils/secrets/**",
+    "common_utils/validation/core.py",
+    "common_utils/logging/secure_logging.py",
+    "tests/security/**",
+    "tests/users/**",
+    "tests/ui/**",
+    "tests/common_utils/**",
+    "tests/test_user_service.py",
+    "tests/test_crewai_integration.py",
+    "tests/test_crewai_copilotkit_integration.py",
+    "tests/test_crewai_agents.py",
+    "ui/api_server.py",
+    "main_health_check.py",
+    "dev_tools/health_check.py",
+    "main_agents.py",
+    "agent_team/crewai_agents.py",
+    "crewai.py",
+    "convert_bandit_to_sarif.py",
+    "test_bandit_config.py",
+    "app_flask/**",
+    "install_crewai_for_tests.py",
+    "verify_mock_crewai.py",
+    "verify_mock_crewai_fix.py",
+    "run_mcp_tests.py",
+    "install_mcp_sdk.py",
+    "run_tests.py",
+    "run_tests_wrapper.py",
+    "run_bandit_scan.py",
+    "create_empty_sarif.py",
+    "init_agent_db.py",
+    "init_db.py",
+    "main.py",
+    "main_artist_agent.py",
+    "main_crewai_agents.py",
+    "run_crewai_tests.py",
+    "run_pre_commit.py",
+    "run_pre_commit_on_all_files.py",
+    "fix_line_endings.py",
+    "generate_bandit_config.py",
+    "generate_bandit_config_fixed.py",
+    "test_security_reports.py"
+]
+search_path = ["mypy_stubs"]
+python_version = "3.10.0"
+replace_imports_with_any = [
+    "flask",
+    "flask.*",
+    "flask_sqlalchemy",
+    "flask_sqlalchemy.*",
+    "flask_migrate",
+    "flask_migrate.*",
+    "app_flask",
+    "app_flask.*",
+    "tests.*",
+    "fastapi",
+    "fastapi.*",
+    "fastapi.testclient",
+    "crewai",
+    "crewai.*",
+    "werkzeug.*",
+    "pydantic",
+    "pydantic.*",
+    "common_utils.*",
+    "api.*",
+    "ai_models.*",
+    "adk.*",
+    "agents",
+    "agents.*",
+    "modelcontextprotocol",
+    "modelcontextprotocol.*",
+    "mcp_use",
+    "mcp_use.*",
+    "setuptools",
+    "setuptools.*",
+    "alembic",
+    "alembic.*",
+    "audit",
+    "rotation",
+    "cryptography.*",
+    "config",
+    "__unknown__.*",
+    "jwt",
+    "jwt.*",
+    "users.*",
+    "utils.*",
+    "chromadb",
+    "chromadb.*",
+    "sentence_transformers",
+    "sentence_transformers.*",
+    "psutil",
+    "psutil.*",
+    "psycopg2",
+    "psycopg2.*",
+    "pyperclip",
+    "pyperclip.*",
+    "fix_security_issues",
+    "fix_security_issues.*",
+    "fix_potential_secrets",
+    "fix_potential_secrets.*",
+    "file_backend",
+    "file_backend.*",
+    "memory_backend",
+    "memory_backend.*",
+    "vault_backend",
+    "vault_backend.*",
+    "secrets_manager",
+    "secrets_manager.*",
+    "bcrypt",
+    "bcrypt.*",
+    "exceptions",
+    "exceptions.*",
+    "sarif_utils",
+    "sarif_utils.*",
+    "agent_team.*",
+    "ui.*",
+    "importlib.util",
+    "importlib.util.*",
+    "datetime.timezone",
+    "datetime.timezone.*",
+    "mock_crewai",
+    "mock_crewai.*",
+    "logging.handlers",
+    "logging.handlers.*",
+    "unittest.main",
+    "unittest.main.*",
+    "os.setsid",
+    "os.killpg",
+    "os.getpgid",
+    "os.R_OK",
+    "os.X_OK",
+    "os.path",
+    "os.path.*",
+    "sqlalchemy.*",
+    "datetime.*",
+    "logging",
+    "logging.*",
+    "argparse",
+    "argparse.*",
+    "pathlib",
+    "pathlib.*",
+    "services.*",
+    "dev_tools.*"
+]
+
+[[sub_config]]
+matches = "flask"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'flask/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "flask/__init__"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "migrations/env"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "flask/__init__.py"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "migrations/env.py"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "app_flask"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'app_flask/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = "app_flask/models"
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'tests/api/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'tests/integration/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'tests/ui/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+no-access = false
+not-callable = false
+
+[[sub_config]]
+matches = 'tests/security/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+not-callable = false
+
+[[sub_config]]
+matches = 'tests/common_utils/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+not-callable = false
+
+[[sub_config]]
+matches = 'convert_bandit_to_sarif.py'
+
+[sub_config.errors]
+missing-attribute = false
+not-callable = false
+no-matching-overload = false
+bad-argument-type = false
+
+[[sub_config]]
+matches = 'test_bandit_config.py'
+
+[sub_config.errors]
+internal-error = false
+
+[[sub_config]]
+matches = 'run_ui.py'
+
+[sub_config.errors]
+missing-attribute = false
+bad-argument-type = false
+
+[[sub_config]]
+matches = 'users/models.py'
+
+[sub_config.errors]
+bad-argument-type = false
+
+[[sub_config]]
+matches = 'users/services.py'
+
+[sub_config.errors]
+missing-attribute = false
+bad-instantiation = false
+
+[[sub_config]]
+matches = 'users/password_reset.py'
+
+[sub_config.errors]
+missing-attribute = false
+bad-argument-type = false
+
+[[sub_config]]
+matches = 'common_utils/validation/core.py'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'common_utils/secrets/rotation.py'
+
+[sub_config.errors]
+missing-attribute = false
+
+[[sub_config]]
+matches = 'common_utils/secrets/audit.py'
+
+[sub_config.errors]
+bad-return = false
+
+[[sub_config]]
+matches = 'scripts/**/*'
+
+[sub_config.errors]
+missing-attribute = false
+bad-argument-type = false
+import-error = false
+bad-return = false
+not-callable = false
+no-matching-overload = false

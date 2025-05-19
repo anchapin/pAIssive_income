@@ -10,7 +10,6 @@ import json
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 # Create security-reports directory
 os.makedirs("security-reports", exist_ok=True)
@@ -21,7 +20,7 @@ empty_json = {
     "errors": [],
     "generated_at": "2025-05-18T14:00:00Z",
     "metrics": {"_totals": {}},
-    "results": []
+    "results": [],
 }
 
 with open("security-reports/bandit-results.json", "w") as f:
@@ -43,12 +42,12 @@ empty_sarif = {
                     "name": "Bandit",
                     "informationUri": "https://github.com/PyCQA/bandit",
                     "version": "1.7.5",
-                    "rules": []
+                    "rules": [],
                 }
             },
-            "results": []
+            "results": [],
         }
-    ]
+    ],
 }
 
 with open("security-reports/bandit-results.sarif", "w") as f:
@@ -62,13 +61,21 @@ print("Created empty bandit-results-ini.sarif")
 # Try to run bandit if available
 try:
     subprocess.run(
-        ["bandit", "-r", ".", 
-         "-f", "json", "-o", "security-reports/bandit-results.json",
-         "--exclude", ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
-         "--exit-zero"],
+        [
+            "bandit",
+            "-r",
+            ".",
+            "-f",
+            "json",
+            "-o",
+            "security-reports/bandit-results.json",
+            "--exclude",
+            ".venv,node_modules,tests,docs,docs_source,junit,bin,dev_tools,scripts,tool_templates",
+            "--exit-zero",
+        ],
         check=False,
         shell=False,
-        timeout=600
+        timeout=600,
     )
     print("Bandit scan completed")
 except Exception as e:

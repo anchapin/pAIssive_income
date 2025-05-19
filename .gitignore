@@ -194,6 +194,7 @@ env.bak/
 env/
 example_project_plan.json
 htmlcov/
+coverage/
 instance/
 ipython_config.py
 lib/
@@ -221,5 +222,16 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+# Ignore generated Tailwind CSS build artifacts
+ui/static/css/tailwind.output.css
+ui/react_frontend/src/tailwind.output.css
+
+# Ignore mypy stubs
+mypy_stubs/
+mypy_stubs/modelcontextprotocol/
+mypy_stubs/psycopg2/
+
+# Ignore package lock files
+.nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json

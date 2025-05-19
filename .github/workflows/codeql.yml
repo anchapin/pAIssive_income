@@ -298,9 +298,15 @@ jobs:
             mkdir -p .github/codeql
 
             # Create minimal unified configuration
-            echo 'name: "Unified CodeQL Configuration"' > .github/codeql/security-os-config.yml
-            echo 'queries:' >> .github/codeql/security-os-config.yml
-            echo '  - uses: security-and-quality' >> .github/codeql/security-os-config.yml
+            cat > .github/codeql/security-os-config.yml << 'EOF'
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+EOF
           fi
 
       # Initialize CodeQL

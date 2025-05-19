@@ -1,9 +1,15 @@
 # pAIssive Income
 
+[![codecov](https://codecov.io/gh/anchapin/pAIssive_income/branch/main/graph/badge.svg)](https://codecov.io/gh/anchapin/pAIssive_income)
+
+> **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
+>
+> **Pull Requests will receive automated coverage comments from the [Codecov](https://about.codecov.io/) bot when Codecov integration is enabled for your repository.**
+
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
-[![Build Status](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/your-org/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/your-org/pAIssive_income?branch=main)
+[![Build Status](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/anchapin/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/anchapin/pAIssive_income?branch=main)
 
 ## Features
 
@@ -11,6 +17,7 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
 - **CopilotKit Integration**: Add AI copilot features to the React frontend
 - **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
+- **mem0 Memory Integration**: Enhance agents with persistent memory capabilities
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
 
@@ -68,6 +75,122 @@ See [LICENSE](LICENSE).
 
 ---
 
+
+## JavaScript Testing and Coverage
+
+This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
+
+### How to Run JavaScript Tests
+
+Install dependencies (if not already done):
+
+```sh
+pnpm install
+```
+
+Run JavaScript tests and check coverage:
+
+```sh
+pnpm test
+```
+
+- If code coverage falls below 80%, the test run will fail.
+- Coverage reports will be printed to the console and an HTML report will be generated in the `coverage/` directory (if running locally).
+
+To generate a detailed lcov report:
+
+```sh
+pnpm coverage
+```
+
+**Coverage thresholds for statements, branches, functions, and lines are all set to 80%.**
+
+You can find example JS source and tests in the `src/` directory.
+
+---
+
+## Writing Advanced JavaScript Tests (React Component Example)
+
+For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
+
+**Example: Testing a React Component with Mocha and Enzyme**
+
+First, install additional test utilities:
+
+```sh
+pnpm add --save-dev enzyme enzyme-adapter-react-16 @wojtekmaj/enzyme-adapter-react-17
+```
+
+Example component (`src/Hello.js`):
+
+```jsx
+import React from 'react';
+
+export function Hello({ name }) {
+  return <div>Hello, {name}!</div>;
+}
+```
+
+Example test (`src/Hello.test.js`):
+
+```js
+const React = require('react');
+const { shallow, configure } = require('enzyme');
+const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
+const { Hello } = require('./Hello');
+
+configure({ adapter: new Adapter() });
+
+describe('Hello component', () => {
+  it('renders the correct greeting', () => {
+    const wrapper = shallow(<Hello name="World" />);
+    if (!wrapper.text().includes('Hello, World!')) {
+      throw new Error('Greeting not rendered correctly');
+    }
+  });
+});
+```
+
+> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+
+**Best Practices:**
+- Test both rendering and user events/interactions.
+- Mock API calls and external dependencies.
+- Use coverage reports to identify untested code paths.
+- Place tests next to source files or in a dedicated test directory.
+
+---
+
+## Dependency Updates (via Dependabot)
+
+This project uses [Dependabot](https://docs.github.com/en/code-security/dependabot) to keep dependencies up-to-date for all major ecosystems:
+
+- **JavaScript/Node (pnpm):** Updates to packages in `package.json`
+- **Python:** Updates to packages in `requirements-ci.txt`, `requirements_filtered.txt`
+- **Docker:** Updates to base images in `Dockerfile`, `main_Dockerfile`, and `ui/react_frontend/Dockerfile.dev`
+- **GitHub Actions:** Updates to workflow actions in `.github/workflows/`
+
+**How it works:**
+- Dependabot will automatically open pull requests for version updates on a weekly schedule.
+- PRs are labeled by ecosystem (e.g., `dependencies`, `javascript`, `python`, `docker`, `github-actions`).
+- Some dependencies (e.g., `react`, `flask`, `pytest`) will not be updated for major releases automatically.
+
+**Maintainer action:**
+- Review Dependabot PRs promptly.
+- Ensure CI/tests pass before merging.
+- For major upgrades, review changelogs for breaking changes.
+
+For more details, see `.github/dependabot.yml`.
+
+> **Tip for maintainers:**
+> Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules, ignored dependencies, PR limits) to ensure it fits the project's evolving needs.
+
+---
+
+For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
+
+## Docker Compose Integration
+=======
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
@@ -116,6 +239,56 @@ For more details on the CrewAI + CopilotKit integration, see:
 - [docs/CrewAI_CopilotKit_Integration.md](docs/CrewAI_CopilotKit_Integration.md) - Main integration guide
 - [ui/react_frontend/CopilotKit_CrewAI.md](ui/react_frontend/CopilotKit_CrewAI.md) - Frontend implementation details
 - [docs/examples/CrewAI_CopilotKit_Advanced_Examples.md](docs/examples/CrewAI_CopilotKit_Advanced_Examples.md) - Advanced usage examples
+
+## mem0 Memory Integration
+
+This project includes integration with [mem0](https://mem0.ai), a memory layer for AI agents that enables persistent memory capabilities across conversations and sessions.
+
+### Features
+
+- **Persistent Memory**: Agents remember user preferences, past interactions, and important information
+- **Memory Search**: Retrieve relevant memories based on context and queries
+- **Conversation Storage**: Store entire conversations for future reference
+- **Memory-Enhanced Agents**: Both ADK and CrewAI agents are enhanced with memory capabilities
+
+### Usage
+
+To use the mem0 integration:
+
+1. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Set your OpenAI API key (required by mem0):
+   ```bash
+   # Linux/macOS
+   export OPENAI_API_KEY='your-api-key'
+
+   # Windows (PowerShell)
+   $env:OPENAI_API_KEY='your-api-key'
+
+   # Windows (Command Prompt)
+   set OPENAI_API_KEY=your-api-key
+   ```
+
+3. Use memory-enhanced agents in your code:
+   ```python
+   # For ADK agents
+   from adk_demo.mem0_enhanced_adk_agents import MemoryEnhancedDataGathererAgent
+
+   agent = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="user123")
+
+   # For CrewAI agents
+   from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
+
+   team = MemoryEnhancedCrewAIAgentTeam(user_id="user123")
+   ```
+
+For more details on the mem0 integration, see:
+- [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
+- [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
+- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
 
 ## 🚀 Getting Started
 
