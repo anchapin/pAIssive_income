@@ -299,7 +299,7 @@ jobs:
             mkdir -p .github/codeql
 
             # Create minimal unified configuration
-            cat > .github/codeql/security-os-config.yml << 'EOL'
+            cat > .github/codeql/security-os-config.yml << 'EOF'
 name: "Unified CodeQL Configuration"
 queries:
   - uses: security-and-quality
@@ -307,7 +307,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOL
+EOF
           fi
 
       # Initialize CodeQL
