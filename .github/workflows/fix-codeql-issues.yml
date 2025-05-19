@@ -2,6 +2,7 @@ name: Fix CodeQL Issues
 
 # This workflow runs before the CodeQL scan to fix issues that might cause the scan to fail
 # It removes virtual environment directories and fixes security issues in the codebase
+# Enhanced for better compatibility with GitHub Actions and CodeQL
 
 on:
   workflow_dispatch:  # Allow manual triggering
@@ -136,7 +137,20 @@ jobs:
       # Run fix-codeql-issues.sh script
       - name: Run fix-codeql-issues.sh script
         run: |
+          # Set CI-specific variables
+          export CI=true
+          export GITHUB_ACTIONS=true
+
+          # Run the script
           ./scripts/fix-codeql-issues.sh
+
+          # Create success marker files for GitHub Actions
+          mkdir -p playwright-report/github-actions test-results/github-actions logs/github-actions || true
+
+          echo "CodeQL issues fixed successfully at $(date)" > codeql-success.txt || true
+          echo "CodeQL issues fixed successfully at $(date)" > playwright-report/github-actions/codeql-success.txt || true
+          echo "CodeQL issues fixed successfully at $(date)" > test-results/github-actions/codeql-success.txt || true
+          echo "CodeQL issues fixed successfully at $(date)" > logs/github-actions/codeql-success.txt || true
 
       # Clean up node_modules directories
       - name: Clean up node_modules directories
@@ -169,3 +183,15 @@ jobs:
             # Push changes to the appropriate branch
             git push origin HEAD:$BRANCH_NAME
           fi
+
+      # Upload logs and artifacts
+      - name: Upload logs and artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeql-fix-logs
+          path: |
+            logs/
+            playwright-report/
+            test-results/
+            codeql-success.txt
+          if-no-files-found: warn
