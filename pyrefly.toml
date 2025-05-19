@@ -2,7 +2,11 @@ project_includes = [
     "!scripts/__init__.py",
     "!.github/scripts/__init__.py",
 ]
-project_excludes = ["**/ui/react_frontend, scripts/__init__.py, .github/scripts/__init__.py"]
+project_excludes = [
+    "**/ui/react_frontend",
+    "scripts/__init__.py",
+    ".github/scripts/__init__.py"
+]
 search_path = ["mypy_stubs"]
 python_version = "3.10.0"
 replace_imports_with_any = [
