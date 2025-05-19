@@ -13,7 +13,7 @@ The project uses [ESLint](https://eslint.org/) version 9.x for JavaScript lintin
 
 ## ESLint Version
 
-The project uses ESLint v9.x, which is the current supported version as of May 2024. ESLint v8.x reached End of Life (EOL) on October 5, 2024.
+The project uses ESLint v9.x, which is the current supported version. ESLint v8.x reached End of Life (EOL) on October 5, 2024.
 
 ## Running ESLint
 
@@ -38,6 +38,7 @@ The project uses the recommended ESLint rules with some customizations:
 
 - Base configuration extends `eslint:recommended`
 - Test files have Jest environment enabled
+- Common build directories (`node_modules/`, `dist/`, `build/`) are ignored via `ignorePatterns`
 
 ## Integration with CI/CD
 

@@ -10,7 +10,7 @@
     "test": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:ci": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "coverage": "nyc report --reporter=text-lcov",
-    "lint": "eslint \"**/*.js\" --ignore-pattern \"node_modules/\" --ignore-pattern \"dist/\" --ignore-pattern \"build/\""
+    "lint": "eslint \"**/*.js\""
   },
   "keywords": [],
   "author": "",

@@ -12,6 +12,11 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
+  ignorePatterns: [
+    'node_modules/',
+    'dist/',
+    'build/',
+  ],
   rules: {
     // Add any custom rules here
   },
