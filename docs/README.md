@@ -35,6 +35,7 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
 16. [Integrations](integrations/)
     - [CrewAI + CopilotKit Integration](CrewAI_CopilotKit_Integration.md)
     - [Advanced Integration Examples](examples/CrewAI_CopilotKit_Advanced_Examples.md)
+    - [ARTIST Experiments](artist-experiments.md)
 17. [Security](security/)
     - [Security Overview](security.md)
     - [CodeQL Workflows](security/codeql_workflows.md)
