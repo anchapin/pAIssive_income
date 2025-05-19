@@ -487,6 +487,116 @@ try {
   console.error(`Failed to write log: ${logError.message}`);
 }
 
+// Create a more robust URL parsing function that doesn't rely on path-to-regexp
+function parseUrl(pattern, url) {
+  try {
+    // Sanitize inputs to prevent security issues
+    if (typeof pattern !== 'string' || typeof url !== 'string') {
+      console.warn(`Invalid inputs to parseUrl: pattern=${typeof pattern}, url=${typeof url}`);
+      return { match: false, params: {} };
+    }
+
+    // Log the inputs for debugging
+    if (verboseLogging) {
+      console.log(`Parsing URL: pattern=${pattern}, url=${url}`);
+    }
+
+    // Split the pattern and URL into segments
+    const patternSegments = pattern.split('/').filter(Boolean);
+    const urlSegments = url.split('/').filter(Boolean);
+
+    // If the number of segments doesn't match, it's not a match
+    if (patternSegments.length !== urlSegments.length) {
+      return { match: false, params: {} };
+    }
+
+    // Extract parameters from the URL
+    const params = {};
+    let match = true;
+
+    for (let i = 0; i < patternSegments.length; i++) {
+      const patternSegment = patternSegments[i];
+      const urlSegment = urlSegments[i];
+
+      // If the pattern segment starts with a colon, it's a parameter
+      if (patternSegment.startsWith(':')) {
+        const paramName = patternSegment.substring(1);
+
+        // Validate the parameter name to prevent security issues
+        if (/^[a-zA-Z0-9_]+$/.test(paramName)) {
+          // Decode the URL segment to handle URL encoding
+          try {
+            params[paramName] = decodeURIComponent(urlSegment);
+          } catch (decodeError) {
+            // If decoding fails, use the raw segment
+            params[paramName] = urlSegment;
+          }
+        } else {
+          console.warn(`Invalid parameter name in URL pattern: ${paramName}`);
+          match = false;
+          break;
+        }
+      } else if (patternSegment !== urlSegment) {
+        // If the segments don't match and it's not a parameter, it's not a match
+        match = false;
+        break;
+      }
+    }
+
+    return { match, params };
+  } catch (error) {
+    console.error(`Error parsing URL: ${error.message}`);
+    return { match: false, params: {} };
+  }
+}
+
+// Create a function to generate a URL from a pattern and parameters
+function generateUrl(pattern, params) {
+  try {
+    // Sanitize inputs to prevent security issues
+    if (typeof pattern !== 'string') {
+      console.warn(`Invalid pattern in generateUrl: ${typeof pattern}`);
+      return '';
+    }
+
+    if (!params || typeof params !== 'object') {
+      console.warn(`Invalid params in generateUrl: ${typeof params}`);
+      return pattern;
+    }
+
+    // Log the inputs for debugging
+    if (verboseLogging) {
+      console.log(`Generating URL: pattern=${pattern}, params=${JSON.stringify(params)}`);
+    }
+
+    // Replace parameters in the pattern
+    let result = pattern;
+    Object.keys(params).forEach(key => {
+      // Validate the parameter name to prevent security issues
+      if (/^[a-zA-Z0-9_]+$/.test(key)) {
+        // Encode the parameter value to handle special characters
+        let value;
+        try {
+          value = encodeURIComponent(params[key]);
+        } catch (encodeError) {
+          // If encoding fails, use the raw value
+          value = params[key];
+        }
+
+        // Replace the parameter in the pattern
+        result = result.split(`:${key}`).join(value);
+      } else {
+        console.warn(`Invalid parameter name in generateUrl: ${key}`);
+      }
+    });
+
+    return result;
+  } catch (error) {
+    console.error(`Error generating URL: ${error.message}`);
+    return pattern;
+  }
+}
+
 // Monkey patch Express Router to avoid using path-to-regexp
 if (express && express.Router) {
   const originalRouter = express.Router;
