@@ -186,7 +186,7 @@ def update_user(user_id: str):
         # Fix for CodeQL Log Injection issue - don't include user input in log messages
         logger.exception("Error updating user")
         # Use secure logging utility to prevent log injection
-        log_user_id_safely(logger, logging.INFO, "Failed user_id %s", user_id)
+        log_user_id_safely(logger, logging.INFO, "Failed user_id: %s", user_id)
         db.session.rollback()
         return jsonify({"error": "An error occurred while updating the user"}), 500
 
@@ -207,6 +207,6 @@ def delete_user(user_id: str):
         # Fix for CodeQL Log Injection issue - don't include user input in log messages
         logger.exception("Error deleting user")
         # Use secure logging utility to prevent log injection
-        log_user_id_safely(logger, logging.INFO, "Failed user_id %s", user_id)
+        log_user_id_safely(logger, logging.INFO, "Failed user_id: %s", user_id)
         db.session.rollback()
         return jsonify({"error": "An error occurred while deleting the user"}), 500

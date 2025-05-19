@@ -692,7 +692,10 @@ class SecretsManager:
         if not secrets:
             return {}
 
-        # Import secure logging utility        # Create a sanitized copy
+        # Import secure logging utility
+        from common_utils.logging.secure_logging import mask_sensitive_data
+
+        # Create a sanitized copy
         safe_secrets: dict[str, str | dict[str, Any]] = {}
 
         for key, value in secrets.items():

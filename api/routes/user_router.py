@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 
 # Type checking imports
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Dict, Any, Optional, List
 
 from fastapi import APIRouter, HTTPException, Path, status
-from pydantic import BaseModel, EmailStr, Field
 from flask import Blueprint, jsonify, request
 
 from common_utils.logging import get_logger

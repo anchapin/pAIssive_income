@@ -150,7 +150,14 @@ class SecretRotation:
         due_for_rotation = []
 
         for key, data in self.rotation_data.items():
-            last_rotated = datetime.datetime.fromisoformat(data["last_rotated"])
+            # Ensure last_rotated is timezone-aware
+            last_rotated_str = data["last_rotated"]
+            last_rotated = datetime.datetime.fromisoformat(last_rotated_str)
+
+            # Add timezone info if it's missing
+            if last_rotated.tzinfo is None:
+                last_rotated = last_rotated.replace(tzinfo=datetime.timezone.utc)
+
             interval_days = data["interval_days"]
             next_rotation = last_rotated + datetime.timedelta(days=interval_days)
 
