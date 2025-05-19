@@ -241,10 +241,13 @@ start_services() {
 }
 
 # Function to wait for services to be healthy
+# Fixed in PR #188: Added early break and proper return codes to avoid unnecessary waiting
+# when services are already healthy, reducing CI time
 wait_for_services() {
   local compose_cmd="$1"
   local max_attempts=45  # Increased from 30 to 45 for more patience
   local attempt=1
+  local services_healthy=false
 
   log "Waiting for services to be healthy..."
 
@@ -279,7 +282,10 @@ wait_for_services() {
             fi
           fi
 
-          return 0
+          # Set flag to indicate services are healthy
+          services_healthy=true
+          # Break out of the loop early since services are healthy
+          break
         else
           log "⚠️ App is not ready yet"
         fi
@@ -309,26 +315,32 @@ wait_for_services() {
     attempt=$((attempt + 1))
   done
 
-  log "⚠️ Services did not become fully healthy within the timeout period"
-  log "Getting final container status and logs..."
+  # Check if services became healthy
+  if [ "$services_healthy" = true ]; then
+    log "✅ Services are healthy and ready"
+    return 0
+  else
+    log "⚠️ Services did not become fully healthy within the timeout period"
+    log "Getting final container status and logs..."
 
-  log "Container status:"
-  $compose_cmd ps || true
+    log "Container status:"
+    $compose_cmd ps || true
 
-  log "Database container logs:"
-  docker logs paissive-postgres --tail 50 || true
+    log "Database container logs:"
+    docker logs paissive-postgres --tail 50 || true
 
-  log "App container logs:"
-  docker logs paissive-income-app --tail 50 || true
+    log "App container logs:"
+    docker logs paissive-income-app --tail 50 || true
 
-  if [ -d "ui/react_frontend" ]; then
-    log "Frontend container logs:"
-    docker logs paissive-frontend --tail 50 || true
+    if [ -d "ui/react_frontend" ]; then
+      log "Frontend container logs:"
+      docker logs paissive-frontend --tail 50 || true
+    fi
+
+    # Return failure to indicate services are not healthy
+    log "Continuing despite health check issues..."
+    return 1
   fi
-
-  # Return success even if services are not fully healthy to allow the workflow to continue
-  log "Continuing despite health check issues..."
-  return 0
 }
 
 # Main function
@@ -379,7 +391,11 @@ main() {
   start_services "$compose_cmd"
 
   # Wait for services to be healthy
-  if ! wait_for_services "$compose_cmd"; then
+  local health_check_result=0
+  wait_for_services "$compose_cmd" || health_check_result=$?
+
+  # If services are not healthy (return code is non-zero)
+  if [ $health_check_result -ne 0 ]; then
     log "⚠️ Services did not become fully healthy, but continuing..."
 
     # Try to restart the app service as a last resort
@@ -394,6 +410,8 @@ main() {
     else
       log "⚠️ App service is still not responding, but continuing with the workflow"
     fi
+  else
+    log "✅ Services became healthy within the timeout period"
   fi
 
   # Final check of services
