@@ -473,7 +473,8 @@ try {
 
 // Use the mock implementation status with improved logging
 const pathToRegexpAvailable = mockPathToRegexp.mockCreated || mockPathToRegexp.requirePatched;
-const isCI = process.env.CI === 'true' || process.env.CI === true;
+// Using the isCI variable already defined at the top of the file
+// const isCI = process.env.CI === 'true' || process.env.CI === true;
 const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true';
 
 console.log(`Path-to-regexp availability: ${pathToRegexpAvailable ? 'Yes (mocked)' : 'No'}`);
@@ -489,10 +490,10 @@ if ((isCI || isDockerEnvironment) && !pathToRegexpAvailable) {
   console.log('CI/Docker environment detected but path-to-regexp not available. Forcing compatibility mode.');
 }
 
-// Import core modules
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+// Import core modules already imported at the top of the file
+// const fs = require('fs');
+// const path = require('path');
+// const os = require('os');
 
 // Create a marker file to indicate we're using the mock implementation
 try {

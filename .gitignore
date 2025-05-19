@@ -184,12 +184,16 @@ ui/react_frontend/enhanced-mock-path-to-regexp-success.txt
 ui/react_frontend/require-patched-marker.txt
 ui/react_frontend/ci-mode-active.txt
 ui/react_frontend/ci-path-to-regexp-status.txt
+ui/react_frontend/ci-compat-success.txt
+ui/react_frontend/github-actions-success.txt
 test-results/
 enhanced-mock-path-to-regexp-marker.txt
 enhanced-mock-path-to-regexp-success.txt
 require-patched-marker.txt
 ci-mode-active.txt
 ci-path-to-regexp-status.txt
+ci-compat-success.txt
+github-actions-success.txt
 path-to-regexp-patched.txt
 path-to-regexp-patch-error.txt
 path-to-regexp-fallback-created.txt
