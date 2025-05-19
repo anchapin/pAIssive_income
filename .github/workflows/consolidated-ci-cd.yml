@@ -56,7 +56,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup Node.js and pnpm for Tailwind CSS build (Unix only)
+      # Setup Node.js and pnpm for Tailwind CSS build
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
