@@ -8,8 +8,8 @@
 
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
-[![Build Status](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/your-org/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/your-org/pAIssive_income?branch=main)
+[![Build Status](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/anchapin/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/anchapin/pAIssive_income?branch=main)
 
 ## Features
 
@@ -174,14 +174,14 @@ This project uses [Dependabot](https://docs.github.com/en/code-security/dependab
 - PRs are labeled by ecosystem (e.g., `dependencies`, `javascript`, `python`, `docker`, `github-actions`).
 - Some dependencies (e.g., `react`, `flask`, `pytest`) will not be updated for major releases automatically.
 
-**Maintainer action:**  
+**Maintainer action:**
 - Review Dependabot PRs promptly.
 - Ensure CI/tests pass before merging.
 - For major upgrades, review changelogs for breaking changes.
 
 For more details, see `.github/dependabot.yml`.
 
-> **Tip for maintainers:**  
+> **Tip for maintainers:**
 > Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules, ignored dependencies, PR limits) to ensure it fits the project's evolving needs.
 
 ---
