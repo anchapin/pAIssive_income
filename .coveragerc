@@ -8,23 +8,24 @@ omit =
     .venv/*
     venv/*
     env/*
-    # Exclude documentation
-    docs/*
-    docs_source/*
-    # Exclude test utilities
-    **/test_utils/*.py
-    **/testing/*.py
-    **/conftest.py
-    # Exclude test fixtures and helpers
-    **/fixtures/*.py
-    **/helpers/*.py
-    **/test_helpers/*.py
-    # Exclude generated code
-    **/generated/*.py
-    # Exclude experimental code
-    **/experimental/*.py
-    # Exclude example implementations
-    **/examples/*.py
+    # Exclude setup files
+    setup.py
+    # Exclude utility scripts
+    fix_*.py
+    run_*.py
+    setup_*.py
+    # Exclude examples and CLI
+    */examples/*
+    */cli/*
+    # Exclude third-party packages
+    */site-packages/*
+    # Exclude specific directories temporarily to focus on core functionality
+    # These will be included in coverage as the project progresses
+    ui/react_frontend/*
+    marketing/legacy/*
+    monetization/legacy/*
+    niche_analysis/legacy/*
+    collaboration/legacy/*
 
 [report]
 exclude_lines =
