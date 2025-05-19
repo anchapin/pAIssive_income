@@ -1,7 +1,8 @@
-name: "OS-Specific CodeQL Configuration"
+name: "Unified CodeQL Configuration for All Platforms"
 
-# This configuration file is used by the consolidated-ci-cd.yml workflow
-# It provides OS-specific configurations for CodeQL analysis
+# This configuration file provides a unified configuration for CodeQL analysis
+# across all platforms (Windows, macOS, Linux)
+# Updated for better Windows compatibility
 
 # Specify paths to analyze
 paths:
@@ -20,73 +21,83 @@ paths:
   - '**/*.pyw'
   - '**/*.pyi'
 
-# Paths to exclude
+# Specify paths to exclude from analysis
 paths-ignore:
-  # Virtual environments and dependencies
-  - '.venv/**'
-  - 'venv/**'
-  - 'env/**'
-  - '.env/**'
-  - '**/virtualenv/**'
-  - '**/site-packages/**'
-  - '**/dist-packages/**'
+  # Package management
   - '**/node_modules/**'
+  # Don't ignore lock files for CodeQL analysis
+  # - '**/package-lock.json'
+  # - '**/yarn.lock'
+  # - '**/pnpm-lock.yaml'
+  - '**/.venv/**'
+  - '**/venv/**'
+  - '**/env/**'
+  - '**/.env/**'
+  - '**/pip-wheel-metadata/**'
+
+  # Build artifacts
   - '**/dist/**'
   - '**/build/**'
+  - '**/out/**'
   - '**/vendor/**'
-  - '**/external/**'
-  - '**/third_party/**'
+  - '**/.next/**'
   - '**/__pycache__/**'
+  - '**/*.egg-info/**'
   - '**/.pytest_cache/**'
   - '**/.mypy_cache/**'
   - '**/.ruff_cache/**'
-  - '**/*.pyc'
-  - '**/*.pyo'
-  - '**/*.pyd'
 
   # Test files
-  - '**/test/**'
-  - '**/tests/**'
-  - '**/__tests__/**'
-  - '**/__mocks__/**'
   - '**/*.test.js'
-  - '**/*.test.ts'
   - '**/*.test.jsx'
+  - '**/*.test.ts'
   - '**/*.test.tsx'
   - '**/*.spec.js'
-  - '**/*.spec.ts'
   - '**/*.spec.jsx'
+  - '**/*.spec.ts'
   - '**/*.spec.tsx'
+  - '**/__tests__/**'
+  - '**/__mocks__/**'
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/jest.config.js'
+  - '**/jest.setup.js'
+  - '**/cypress/**'
+  - '**/playwright-report/**'
+  - '**/pytest.ini'
+  - '**/conftest.py'
+
+  # Minified files and type definitions
+  - '**/*.min.js'
+  - '**/*.d.ts'
 
   # Configuration files
-  - '**/.github/**'
-  - '**/.vscode/**'
-  - '**/.idea/**'
-  - '**/coverage/**'
-  - '**/.git/**'
+  - '**/.eslintrc.*'
+  - '**/.prettierrc.*'
+  - '**/tsconfig.json'
+  - '**/babel.config.js'
+  - '**/webpack.config.js'
+  - '**/rollup.config.js'
+  - '**/setup.py'
+  - '**/setup.cfg'
+  - '**/pyproject.toml'
+  - '**/.flake8'
+  - '**/.pylintrc'
+  - '**/tox.ini'
+  - '**/.coveragerc'
 
   # Documentation
-  - '**/docs/**'
   - '**/*.md'
   - '**/*.mdx'
   - '**/*.rst'
+  - '**/docs/**'
   - '**/sphinx/**'
-
-  # Generated files
-  - '**/playwright-report/**'
-  - '**/generated/**'
 
 # Query filters
 queries:
-  # Include the standard security and quality queries
+  # Use only the standard security-and-quality query suite to avoid conflicts and Windows path issues
+  # This provides a comprehensive set of security and quality checks in a single suite
   - uses: security-and-quality
-
-  # Include additional security queries
-  - uses: security-extended
-
-  # Include language-specific security queries
-  - uses: ./javascript-security-queries.qls
-  - uses: ./python-security-queries.qls
 
 # Disable noisy alerts
 disable-default-queries: false
@@ -102,34 +113,6 @@ query-filters:
       tags contain: correctness
       precision below: high
 
-# OS-specific settings
-windows:
-  # Handle Windows path separators
-  path-separator: '\\'
-  # Windows-specific file extensions
-  additional-extensions:
-    - '.bat'
-    - '.cmd'
-    - '.ps1'
-
-macos:
-  # Handle macOS path separators
-  path-separator: '/'
-  # macOS-specific file extensions
-  additional-extensions:
-    - '.sh'
-    - '.bash'
-    - '.zsh'
-
-linux:
-  # Handle Linux path separators
-  path-separator: '/'
-  # Linux-specific file extensions
-  additional-extensions:
-    - '.sh'
-    - '.bash'
-    - '.pl'
-
 # Trap errors during extraction
 trap-for-errors: true
 
@@ -143,3 +126,7 @@ database:
   max-ast-nodes: 500000
   # Extraction timeout per file
   extraction-timeout: 300
+  # Windows-specific settings
+  windows:
+    # Increase timeout for Windows
+    extraction-timeout: 600

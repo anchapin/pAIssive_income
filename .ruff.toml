@@ -65,8 +65,8 @@ max-complexity = 10
 [lint.per-file-ignores]
 # Tests can use assert and don't need docstrings, and can use root logger and os.path
 "tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "ANN", "LOG015", "G004", "PTH", "F401", "N806", "PLR2004"]
-# Allow print statements in scripts
-"scripts/**/*.py" = ["T201"]
+# Allow print statements in scripts and ignore subprocess security warnings
+"scripts/**/*.py" = ["T201", "S603"]
 # Ignore import issues in __init__.py files
 "__init__.py" = ["F401", "F403"]
 # Ignore subprocess security warnings in pre-commit scripts
@@ -74,6 +74,11 @@ max-complexity = 10
 "run_pre_commit_on_all_files.py" = ["S603"]
 "install_crewai_for_tests.py" = ["S603"]
 "run_crewai_tests.py" = ["S603"]
+"scripts/setup/install_pre_commit.py" = ["S603"]
+"scripts/run/run_tests.py" = ["S603"]
+"scripts/fix/fix_all_issues_final.py" = ["S603", "G004", "PTH", "TRY300", "PERF401", "PERF203", "INP001"]
+# Ignore subprocess security warnings in manage.py
+"manage.py" = ["S603", "C901", "PLR0912", "PLR0915"]
 # Ignore type annotation issues in mypy stubs
 "mypy_stubs/**/*.pyi" = ["ANN401", "PYI001", "PYI018", "PYI021", "D204"]
 

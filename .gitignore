@@ -50,7 +50,32 @@
 *.py[cod]
 *.sage.py
 *.sarif
+!security-reports/*.sarif
 *.sarif.json
+# Explicit ignore for security/test artifacts
+bandit-output.json
+bandit-results.json
+!security-reports/bandit-results.json
+bandit-results-ini.json
+!security-reports/bandit-results-ini.json
+bandit-results-*.json
+bandit-results-*.txt
+test-bandit-*.json
+test_bandit_sample.py
+run_tests_bandit.json
+security-reports/bandit-results-*.sarif
+!security-reports/bandit-results.sarif
+!security-reports/bandit-results-ini.sarif
+coverage-*.xml
+junit/test-results-*.xml
+*-results-*.json
+*-results-*.xml
+secrets.sarif.json
+create_bandit_files.sh
+
+# Editor/tool-specific configs
+.cursor/
+cline_mcp_settings.json
 *.so
 *.spec
 *.swo
@@ -138,4 +163,5 @@ wheels/
 yarn-debug.log
 yarn-error.log
 .nyc_output/
+package-lock.json
 sdk/javascript/package-lock.json

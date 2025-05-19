@@ -5,6 +5,7 @@ name: Test Setup Script
 # using fallback mechanisms when scripts are not available.
 
 on:
+  workflow_call:
   push:
     branches: [ main ]
     paths:
@@ -19,12 +20,7 @@ on:
         description: 'Platform to test on'
         required: false
         default: 'all'
-        type: choice
-        options:
-          - all
-          - ubuntu
-          - windows
-          - macos
+        type: string
       setup_profile:
         description: 'Setup profile to test'
         required: false
