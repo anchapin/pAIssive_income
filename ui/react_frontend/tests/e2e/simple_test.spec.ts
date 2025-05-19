@@ -572,22 +572,25 @@ async function takeScreenshot(page: any, filename: string) {
     // Take the screenshot with a longer timeout and enhanced error handling
     try {
       await page.screenshot({
-      path: path.join(reportDir, filename),
-      fullPage: true,
-      timeout: 30000 // 30 seconds timeout
-    });
-    console.log(`Screenshot captured: ${filename}`);
+        path: path.join(reportDir, filename),
+        fullPage: true,
+        timeout: 30000 // 30 seconds timeout
+      });
+      console.log(`Screenshot captured: ${filename}`);
 
-    // Create a marker file to indicate success
-    try {
-      fs.writeFileSync(
-        path.join(reportDir, `${filename.replace('.png', '')}-success.txt`),
-        `Screenshot captured successfully at ${new Date().toISOString()}\n` +
-        `Filename: ${filename}\n` +
-        `Path: ${path.join(reportDir, filename)}\n`
-      );
-    } catch (markerError) {
-      console.warn(`Failed to create screenshot success marker: ${markerError}`);
+      // Create a marker file to indicate success
+      try {
+        fs.writeFileSync(
+          path.join(reportDir, `${filename.replace('.png', '')}-success.txt`),
+          `Screenshot captured successfully at ${new Date().toISOString()}\n` +
+          `Filename: ${filename}\n` +
+          `Path: ${path.join(reportDir, filename)}\n`
+        );
+      } catch (markerError) {
+        console.warn(`Failed to create screenshot success marker: ${markerError}`);
+      }
+    } catch (screenshotError) {
+      console.error(`Failed to take screenshot: ${screenshotError}`);
     }
   } catch (error) {
     // Enhanced error handling with better CI compatibility
@@ -1192,9 +1195,28 @@ test.describe('Simple Tests', () => {
 
       // Check each possible path with better error handling
       for (const agentUIPath of possiblePaths) {
+        // Use a safer approach that doesn't throw exceptions
         try {
-          if (fs.existsSync(agentUIPath)) {
-            exists = true;
+          // First check if the directory exists before checking the file
+          const dirPath = path.dirname(agentUIPath);
+          let dirExists = false;
+
+          try {
+            dirExists = fs.existsSync(dirPath);
+          } catch (dirError) {
+            console.error(`Error checking directory ${dirPath}: ${dirError.message}`);
+            // Continue to next path if directory check fails
+            continue;
+          }
+
+          if (!dirExists) {
+            console.log(`Directory ${dirPath} does not exist, skipping ${agentUIPath}`);
+            continue;
+          }
+
+          // Now check if the file exists
+          exists = fs.existsSync(agentUIPath);
+          if (exists) {
             foundPath = agentUIPath;
             console.log(`AgentUI component found at ${agentUIPath}`);
             break;

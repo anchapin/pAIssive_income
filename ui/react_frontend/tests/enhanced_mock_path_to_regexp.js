@@ -918,6 +918,11 @@ This package is automatically installed by the CI workflow.
   return mockCreated;
 }
 
+// Export the patchRequireFunction for external use
+module.exports.patchRequireFunction = function() {
+  return enhancedMonkeyPatchRequire();
+};
+
 // Monkey patch require to handle path-to-regexp with improved error handling
 function enhancedMonkeyPatchRequire() {
   log('Starting to monkey patch require', 'important');
