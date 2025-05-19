@@ -16,7 +16,7 @@ from typing import Any
 # Local imports
 from common_utils.logging import get_logger
 
-from .secrets_manager import SecretsBackend, get_secret, set_secret
+from .secrets_manager import SecretsBackend, get_secret, set_secret, delete_secret
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -267,7 +267,6 @@ class SecretConfig:
             # Extract the key and delete the secret
             secret_key = value_to_check[len(self.SECRET_PREFIX) :]
             logger.debug("Deleting secret from configuration")
-            from .secrets_manager import delete_secret
 
             # Delete the secret
             delete_result = delete_secret(secret_key, self.secrets_backend)

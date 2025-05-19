@@ -92,7 +92,8 @@ def log_user_input_safely(
 
 def log_exception_safely(
     logger: Union[SecureLogger, logging.Logger],
-    message: str,
+    level_or_message: Union[int, str],
+    message_or_arg: Optional[str] = None,
     *args: Any,
     **kwargs: Any
 ) -> None:
@@ -103,12 +104,24 @@ def log_exception_safely(
 
     Args:
         logger: The logger to use
-        message: The message to log
+        level_or_message: Either the logging level or the message to log
+        message_or_arg: The message to log if level_or_message is a level, or the first arg if level_or_message is a message
         *args: Additional arguments to pass to the logger
         **kwargs: Additional keyword arguments to pass to the logger
     """
-    # Log the exception
-    logger.exception(message, *args, **kwargs)
+    # Handle both function signatures:
+    # 1. log_exception_safely(logger, "message")
+    # 2. log_exception_safely(logger, logging.ERROR, "message")
+    if isinstance(level_or_message, int):
+        # First argument is a level, second is the message
+        if message_or_arg is not None:
+            logger.exception(message_or_arg, *args, **kwargs)
+        else:
+            # No message provided, use a default
+            logger.exception("An exception occurred", *args, **kwargs)
+    else:
+        # First argument is the message
+        logger.exception(level_or_message, *args, **kwargs)
 
 
 def configure_secure_logging(
@@ -136,19 +149,22 @@ def configure_secure_logging(
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
+    # Set the format
+    if format_string is None:
+        format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+    # Create formatter with the specified format string
+    formatter = logging.Formatter(format_string)
+
     # Add the specified handlers or create a default one
     if handlers:
         for handler in handlers:
+            # Set the formatter on each handler
+            handler.setFormatter(formatter)
             root_logger.addHandler(handler)
     else:
         handler = logging.StreamHandler()
-
-        # Set the format
-        if format_string is None:
-            format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        formatter = logging.Formatter(format_string)
         handler.setFormatter(formatter)
-
         root_logger.addHandler(handler)
 
 

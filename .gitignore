@@ -65,6 +65,9 @@ $RECYCLE.BIN/
 # mypy
 # pyenv
 *$py.class
+pytest.ini.temp
+pytest_temp.ini
+coverage_placeholder.py
 **/.env/
 **/.venv/
 **/dist-packages/
@@ -120,6 +123,7 @@ create_bandit_files.sh
 # Editor/tool-specific configs
 .cursor/
 cline_mcp_settings.json
+pyrefly.toml
 .vscode/
 .idea/
 *.iml

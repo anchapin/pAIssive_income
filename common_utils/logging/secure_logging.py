@@ -67,6 +67,11 @@ PATTERNS: dict[str, Pattern] = {
     "api_key_pattern": re.compile(r'(api[_-]?key)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     "token_pattern": re.compile(r'(token)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
     "secret_pattern": re.compile(r'(secret)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
+    # Additional patterns for specific API key formats
+    "sk_api_key_pattern": re.compile(r'(sk_[a-zA-Z0-9_]{10,})', re.IGNORECASE),
+    "api_key_format": re.compile(r'API Key:?\s+([a-zA-Z0-9_\-\.]{10,})', re.IGNORECASE),
+    # Additional patterns for sensitive data
+    "sensitive_data_pattern": re.compile(r'(sensitive_data)["\']?\s*[:=]\s*["\']?([^"\'\s]{3,})["\']?', re.IGNORECASE),
 }
 
 
@@ -129,8 +134,8 @@ def prevent_log_injection(data: object) -> object:
 
     if isinstance(data, str):
         # Replace newlines and control characters
-        sanitized = PATTERNS["log_injection_newlines"].sub(" [FILTERED] ", data)
-        sanitized = PATTERNS["log_injection_control_chars"].sub(" [FILTERED] ", sanitized)
+        sanitized = PATTERNS["log_injection_newlines"].sub("[FILTERED] ", data)
+        sanitized = PATTERNS["log_injection_control_chars"].sub("[FILTERED] ", sanitized)
         return sanitized
 
     if isinstance(data, dict):
@@ -273,7 +278,18 @@ def _mask_pattern(
 
     def _replacer(match: re.Match[str]) -> str:
         full_match: str = match.group(0)
-        sensitive_value: str = match.group(2)
+
+        # Handle patterns with different group structures
+        if pattern.pattern.startswith(r'(sk_') or pattern.pattern.startswith(r'API Key'):
+            # These patterns have only one capturing group for the sensitive value
+            sensitive_value: str = match.group(1)
+        else:
+            # Standard patterns have two capturing groups (field name and value)
+            try:
+                sensitive_value = match.group(2)
+            except IndexError:
+                # Fallback if group 2 doesn't exist
+                sensitive_value = match.group(0)
 
         if not sensitive_value:
             return full_match

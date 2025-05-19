@@ -46,6 +46,8 @@ import logging
 import os
 import re
 import socket
+import threading
+import time
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Optional
 
@@ -462,7 +464,8 @@ def configure_log_aggregation(
     logstash_host: Optional[str] = None,
     logstash_port: int = 5000,
     output_file: Optional[str] = None,
-) -> None:
+    test_mode: bool = False,
+) -> threading.Thread:
     """Configure log aggregation for the application.
 
     This function sets up log aggregation and schedules it to run periodically.
@@ -476,11 +479,33 @@ def configure_log_aggregation(
         logstash_host: Logstash host (if None, Logstash is not used)
         logstash_port: Logstash port
         output_file: Output file for aggregated logs (if None, no file output)
+        test_mode: If True, the thread will run only once (for testing)
+
+    Returns:
+        The created thread object
     """
-    import threading
 
     # Define the aggregation function
     def _aggregate():
+        # In test mode, run only once
+        if test_mode:
+            try:
+                # Aggregate logs
+                aggregate_logs(
+                    app_name=app_name,
+                    log_dir=log_dir,
+                    es_host=es_host,
+                    es_port=es_port,
+                    es_index=es_index,
+                    logstash_host=logstash_host,
+                    logstash_port=logstash_port,
+                    output_file=output_file,
+                )
+            except Exception as e:
+                logger.error(f"Error aggregating logs: {e}")
+            return
+
+        # In normal mode, run continuously
         while True:
             try:
                 # Aggregate logs
@@ -498,7 +523,6 @@ def configure_log_aggregation(
                 logger.error(f"Error aggregating logs: {e}")
 
             # Sleep for 5 minutes
-            import time
             time.sleep(300)
 
     # Start the aggregation thread
@@ -506,3 +530,5 @@ def configure_log_aggregation(
     thread.start()
 
     logger.info("Log aggregation configured and started")
+
+    return thread

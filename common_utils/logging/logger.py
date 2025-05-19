@@ -67,8 +67,11 @@ def setup_logger(
         console_handler.setFormatter(logging.Formatter(format_str))
         handlers = [console_handler]
 
-    # Add all handlers to the logger
+    # Add all handlers to the logger and set formatter
+    formatter = logging.Formatter(format_str)
     for handler in handlers:
+        # Always set the formatter on the handler to ensure consistency
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
 
     return logger

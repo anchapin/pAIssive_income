@@ -191,6 +191,11 @@ def validate_server_data(server: dict[str, Any]) -> Optional[tuple[str, int]]:
         (not server or not isinstance(server, dict), "Invalid JSON data"),
     ]
 
+    # Check if server is None or not a dict before trying to access fields
+    if not server or not isinstance(server, dict):
+        # Return early with the first validation error
+        return "Invalid JSON data", 400
+
     # Validate required fields
     required_fields = ["name", "host", "port"]
     validations.extend(

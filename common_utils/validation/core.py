@@ -30,6 +30,20 @@ class ValidationError(Exception):
         self.details = details
         super().__init__(self.message)
 
+    def __str__(self) -> str:
+        """Return a string representation of the error."""
+        if not self.details:
+            return self.message
+
+        # Include details in the string representation
+        error_parts = [self.message]
+        for detail in self.details:
+            field = detail.get("field", "unknown")
+            msg = detail.get("message", "Invalid value")
+            error_parts.append(f"{field}: {msg}")
+
+        return "\n".join(error_parts)
+
 
 def validate_input(model_cls: type[T], data: object) -> T:
     """
@@ -54,7 +68,9 @@ def validate_input(model_cls: type[T], data: object) -> T:
             )
             raise TypeError(error_msg)
     except PydanticValidationError as exc:
-        raise ValidationError from exc
+        # Format the validation error details
+        formatted_errors = format_validation_error(exc)
+        raise ValidationError(message="Input validation failed", details=formatted_errors) from exc
     else:
         return model_instance
 
@@ -73,13 +89,15 @@ def format_validation_error(error: PydanticValidationError) -> List[Dict[str, An
 
     for err in error.errors():
         # Extract field and error message
-        field = ".".join(str(loc) for loc in err.get("loc", []))
+        loc = err.get("loc", [])
+        field = ".".join(str(item) for item in loc) if loc else "unknown"
         err_message = err.get("msg", "Invalid value")
+        err_type = err.get("type", "validation_error")
 
         formatted_errors.append({
             "field": field,
             "message": err_message,
-            "type": err.get("type", "validation_error")
+            "type": err_type
         })
 
     return formatted_errors
@@ -106,17 +124,12 @@ def validation_error_response(error: Union[PydanticValidationError, ValidationEr
     elif isinstance(error, ValidationError):
         error_message = message or error.message
 
-        if error.details and isinstance(error.details, list):
-            for err in error.details:
-                # Extract field and error message
-                field = ".".join(str(loc) for loc in err.get("loc", []))
-                err_message = err.get("msg", "Invalid value")
-
-                formatted_errors.append({
-                    "field": field,
-                    "message": err_message,
-                    "type": err.get("type", "validation_error")
-                })
+        if error.details:
+            if isinstance(error.details, list):
+                formatted_errors = error.details
+            else:
+                # Handle the case where details might be a dict or other format
+                formatted_errors = [{"field": "unknown", "message": str(error.details)}]
 
     return {
         "error_code": "validation_error",

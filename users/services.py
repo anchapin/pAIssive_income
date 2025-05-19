@@ -16,7 +16,6 @@ import jwt
 from sqlalchemy.exc import SQLAlchemyError
 
 from app_flask import db
-from app_flask.models import UserModel
 from users.auth import hash_credential, verify_credential
 from common_utils.logging import get_logger
 
@@ -75,6 +74,14 @@ except ImportError:
 
 class AuthenticationError(ValueError):
     """Raised when there's an authentication-related error."""
+
+    USERNAME_REQUIRED = "Username is required"
+    EMAIL_REQUIRED = "Email is required"
+    PASSWORD_REQUIRED = "Password is required"
+
+    def __init__(self, message: str | None = None) -> None:
+        """Initialize with a default message if none provided."""
+        super().__init__(message or "Authentication error")
 
 
 class UserExistsError(ValueError):
@@ -158,8 +165,12 @@ class UserService:
             DatabaseSessionNotAvailableError: If db session not available
         """
         # Validate inputs
-        if not username or not email or not auth_credential:
-            raise AuthenticationError
+        if not username:
+            raise AuthenticationError(AuthenticationError.USERNAME_REQUIRED)
+        if not email:
+            raise AuthenticationError(AuthenticationError.EMAIL_REQUIRED)
+        if not auth_credential:
+            raise AuthenticationError(AuthenticationError.PASSWORD_REQUIRED)
 
         # Check if user already exists
         if hasattr(self, "user_repository") and self.user_repository:
@@ -207,9 +218,13 @@ class UserService:
             **{k: v for k, v in kwargs.items() if hasattr(model, k)},
         )
         db.session.add(user)
-        db.session.commit()
-
-        logger.info("User created successfully", extra={"user_id": user.id})
+        try:
+            db.session.commit()
+            logger.info("User created successfully", extra={"user_id": user.id})
+        except SQLAlchemyError as e:
+            logger.exception("Database error creating user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e
 
         # Return user data without sensitive information
         created_at = getattr(user, "created_at", None)

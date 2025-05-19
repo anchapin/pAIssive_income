@@ -223,6 +223,51 @@ def some_function():
         raise
 ```
 
+### Logging Context Information
+
+Use context managers to add temporary context information to logs:
+
+```python
+import logging
+from contextlib import contextmanager
+from typing import Dict, Any, Generator
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+@contextmanager
+def log_context(context_data: Dict[str, Any]) -> Generator[None, None, None]:
+    """Add context data to log records within this context.
+
+    Args:
+        context_data: Dictionary of context data to add to log records
+    """
+    # Create a filter that adds context data to log records
+    class ContextFilter(logging.Filter):
+        def filter(self, record):
+            for key, value in context_data.items():
+                setattr(record, key, value)
+            return True
+
+    # Add the filter to the logger
+    context_filter = ContextFilter()
+    logger.addFilter(context_filter)
+
+    try:
+        yield
+    finally:
+        # Remove the filter when exiting the context
+        logger.removeFilter(context_filter)
+
+# Usage example
+def process_request(request_id: str, user_id: str) -> None:
+    with log_context({"request_id": request_id, "user_id": user_id}):
+        logger.info("Processing request")
+        # All logs within this context will include request_id and user_id
+        perform_operation()
+        logger.info("Request processed successfully")
+```
+
 ### Exception Handling
 
 Always use `logger.exception()` when logging exceptions to include the traceback:
@@ -616,4 +661,262 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("Starting web application on port %d", port)
     app.run(host="0.0.0.0", port=port)
+```
+
+### FastAPI Application Example
+
+Here's an example of proper logger usage in a FastAPI application:
+
+```python
+"""fastapi_app - FastAPI application module."""
+
+# Standard library imports
+import logging
+import os
+from typing import Dict, Any, Optional
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Third-party imports
+try:
+    from fastapi import FastAPI, Request, Response, Depends, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
+    import uvicorn
+    logger.debug("Successfully imported FastAPI and dependencies")
+except ImportError as e:
+    logger.critical(f"Failed to import FastAPI dependencies: {e}")
+    raise
+
+# Configure logging
+def configure_logging():
+    """Configure logging for the FastAPI application."""
+    logger = logging.getLogger("app")
+    logger.setLevel(logging.INFO)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    # Create file handler
+    from logging.handlers import RotatingFileHandler
+    file_handler = RotatingFileHandler(
+        "app.log",
+        maxBytes=10485760,  # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
+
+# Create FastAPI app
+app = FastAPI(title="FastAPI Example")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure logging
+configure_logging()
+
+@app.middleware("http")
+async def logging_middleware(request: Request, call_next):
+    """Middleware to log request and response information."""
+    logger.info(f"Request: {request.method} {request.url.path}")
+
+    # Process the request
+    try:
+        response = await call_next(request)
+        logger.info(f"Response: {request.method} {request.url.path} - Status: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.exception(f"Error processing request: {e}")
+        raise
+
+@app.get("/api/items/", response_model=Dict[str, Any])
+async def get_items():
+    """Get all items."""
+    logger.info("Handling request for all items")
+    try:
+        # Simulate data retrieval
+        items = [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}]
+        logger.debug(f"Retrieved {len(items)} items")
+        return {"items": items}
+    except Exception as e:
+        logger.exception(f"Error retrieving items: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/items/{item_id}", response_model=Dict[str, Any])
+async def get_item(item_id: int):
+    """Get a specific item by ID."""
+    logger.info(f"Handling request for item {item_id}")
+    try:
+        # Simulate data retrieval
+        if item_id <= 0:
+            logger.warning(f"Invalid item ID: {item_id}")
+            raise HTTPException(status_code=400, detail="Invalid item ID")
+
+        # Simulate item not found
+        if item_id > 100:
+            logger.warning(f"Item not found: {item_id}")
+            raise HTTPException(status_code=404, detail="Item not found")
+
+        # Simulate successful retrieval
+        item = {"id": item_id, "name": f"Item {item_id}"}
+        logger.debug(f"Retrieved item: {item}")
+        return item
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        logger.exception(f"Error retrieving item {item_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    logger.info(f"Starting FastAPI application on port {port}")
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
+```
+
+### Django Application Example
+
+Here's an example of proper logger usage in a Django application:
+
+```python
+"""views.py - Django views module."""
+
+# Standard library imports
+import logging
+import json
+from typing import Dict, Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Django imports
+from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ObjectDoesNotExist
+
+# Local imports
+from .models import Item
+from .serializers import ItemSerializer
+
+@require_http_methods(["GET"])
+def get_items(request: HttpRequest) -> JsonResponse:
+    """API endpoint to get all items.
+
+    Args:
+        request: The HTTP request
+
+    Returns:
+        JSON response with items data
+    """
+    logger.info("Handling request for all items")
+    try:
+        # Get query parameters
+        limit = request.GET.get("limit")
+        if limit:
+            try:
+                limit = int(limit)
+                logger.debug(f"Limiting results to {limit} items")
+            except ValueError:
+                logger.warning(f"Invalid limit parameter: {limit}")
+                return JsonResponse({"error": "Invalid limit parameter"}, status=400)
+
+        # Get items from database
+        if limit:
+            items = Item.objects.all()[:limit]
+        else:
+            items = Item.objects.all()
+
+        # Serialize items
+        serializer = ItemSerializer(items, many=True)
+        logger.debug(f"Retrieved {len(serializer.data)} items")
+
+        return JsonResponse({"items": serializer.data})
+    except Exception as e:
+        logger.exception(f"Error retrieving items: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_item(request: HttpRequest, item_id: int) -> JsonResponse:
+    """API endpoint to get a specific item.
+
+    Args:
+        request: The HTTP request
+        item_id: The ID of the item to retrieve
+
+    Returns:
+        JSON response with item data
+    """
+    logger.info(f"Handling request for item {item_id}")
+    try:
+        # Get item from database
+        item = Item.objects.get(pk=item_id)
+
+        # Serialize item
+        serializer = ItemSerializer(item)
+        logger.debug(f"Retrieved item: {serializer.data}")
+
+        return JsonResponse(serializer.data)
+    except ObjectDoesNotExist:
+        logger.warning(f"Item not found: {item_id}")
+        return JsonResponse({"error": "Item not found"}, status=404)
+    except Exception as e:
+        logger.exception(f"Error retrieving item {item_id}: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_item(request: HttpRequest) -> JsonResponse:
+    """API endpoint to create a new item.
+
+    Args:
+        request: The HTTP request
+
+    Returns:
+        JSON response with created item data
+    """
+    logger.info("Handling request to create item")
+    try:
+        # Parse request body
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            logger.warning(f"Invalid JSON in request: {e}")
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        logger.debug(f"Received data: {data}")
+
+        # Create item
+        serializer = ItemSerializer(data=data)
+        if serializer.is_valid():
+            item = serializer.save()
+            logger.info(f"Created item with ID {item.id}")
+            return JsonResponse(serializer.data, status=201)
+        else:
+            logger.warning(f"Validation errors: {serializer.errors}")
+            return JsonResponse({"errors": serializer.errors}, status=400)
+    except Exception as e:
+        logger.exception(f"Error creating item: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
 ```

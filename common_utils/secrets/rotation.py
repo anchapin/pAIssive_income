@@ -102,7 +102,32 @@ class SecretRotation:
             interval_days: The interval in days between rotations
             generator_func: The name of a function to generate a new secret value
 
+        Raises:
+        ------
+            InvalidRotationIntervalError: If the interval is less than MIN_ROTATION_INTERVAL
+                or greater than MAX_ROTATION_INTERVAL
         """
+        # Define constants for validation
+        MIN_ROTATION_INTERVAL = 1  # Minimum rotation interval in days
+        MAX_ROTATION_INTERVAL = 365  # Maximum rotation interval in days
+
+        # Validate the rotation interval
+        if interval_days < MIN_ROTATION_INTERVAL:
+            logger.error("Rotation interval %s is too small (minimum: %s)",
+                        interval_days, MIN_ROTATION_INTERVAL)
+            from common_utils.exceptions import InvalidRotationIntervalError
+            raise InvalidRotationIntervalError(
+                f"Rotation interval must be at least {MIN_ROTATION_INTERVAL} day(s)"
+            )
+
+        if interval_days > MAX_ROTATION_INTERVAL:
+            logger.error("Rotation interval %s is too large (maximum: %s)",
+                        interval_days, MAX_ROTATION_INTERVAL)
+            from common_utils.exceptions import InvalidRotationIntervalError
+            raise InvalidRotationIntervalError(
+                f"Rotation interval must be at most {MAX_ROTATION_INTERVAL} days"
+            )
+
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
         self.rotation_data[key] = {
             "last_rotated": now,
