@@ -171,24 +171,30 @@ jobs:
             # Ensure directory exists
             New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null
 
-            # Create minimal Windows configuration using individual lines
-            Set-Content -Path ".github/codeql/security-os-windows.yml" -Value 'name: "CodeQL Configuration for Windows"' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value 'os: windows-latest' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value 'queries:' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value '  - uses: security-and-quality' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value '  - uses: security-extended' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value '  - uses: security' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value 'disable-default-queries: false' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-windows.yml" -Value 'trap-for-errors: true' -Encoding UTF8 -Force
+            # Create minimal Windows configuration using a here-string
+            $windowsConfig = @"
+name: "CodeQL Configuration for Windows"
+os: windows-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+"@
+            Set-Content -Path ".github/codeql/security-os-windows.yml" -Value $windowsConfig -Encoding UTF8 -Force
 
-            # Create minimal unified configuration using individual lines
-            Set-Content -Path ".github/codeql/security-os-config.yml" -Value 'name: "Unified CodeQL Configuration"' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value 'queries:' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value '  - uses: security-and-quality' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value '  - uses: security-extended' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value '  - uses: security' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value 'disable-default-queries: false' -Encoding UTF8 -Force
-            Add-Content -Path ".github/codeql/security-os-config.yml" -Value 'trap-for-errors: true' -Encoding UTF8 -Force
+            # Create minimal unified configuration using a here-string
+            $unifiedConfig = @"
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+"@
+            Set-Content -Path ".github/codeql/security-os-config.yml" -Value $unifiedConfig -Encoding UTF8 -Force
           }
 
       # Initialize CodeQL with Windows-specific configuration
@@ -212,31 +218,35 @@ jobs:
             Write-Host "WARNING: CodeQL configuration file not found: $configFile"
             Write-Host "Creating minimal configuration file..."
 
-            # Create configuration content using individual lines
-            Set-Content -Path $configFile -Value 'name: "CodeQL Configuration for Windows"' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# This configuration file customizes the CodeQL analysis for Windows' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# It provides Windows-specific settings' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# Windows-specific settings' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value 'os: windows-latest' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# Query filters' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value 'queries:' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  # Include the standard security and quality queries' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  - uses: security-and-quality' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  # Include additional security queries' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  - uses: security-extended' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  # Use standard security queries' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '  - uses: security' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# Disable noisy alerts' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value 'disable-default-queries: false' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value '# Trap errors during extraction' -Encoding UTF8 -Force
-            Add-Content -Path $configFile -Value 'trap-for-errors: true' -Encoding UTF8 -Force
+            # Create configuration content using a here-string
+            $configContent = @"
+name: "CodeQL Configuration for Windows"
+
+# This configuration file customizes the CodeQL analysis for Windows
+# It provides Windows-specific settings
+
+# Windows-specific settings
+os: windows-latest
+
+# Query filters
+queries:
+  # Include the standard security and quality queries
+  - uses: security-and-quality
+
+  # Include additional security queries
+  - uses: security-extended
+
+  # Use standard security queries
+  - uses: security
+
+# Disable noisy alerts
+disable-default-queries: false
+
+# Trap errors during extraction
+trap-for-errors: true
+"@
+            # Create the configuration file
+            Set-Content -Path $configFile -Value $configContent -Encoding UTF8 -Force
 
             # Ensure directory exists
             New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null

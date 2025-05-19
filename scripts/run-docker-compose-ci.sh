@@ -207,7 +207,7 @@ start_services() {
 }
 
 # Function to wait for services to be healthy
-# Fixed in PR #187: Added early break and proper return codes to avoid unnecessary waiting
+# Fixed in PR #188: Added early break and proper return codes to avoid unnecessary waiting
 # when services are already healthy, reducing CI time
 wait_for_services() {
   local compose_cmd="$1"
