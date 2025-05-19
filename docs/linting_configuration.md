@@ -10,7 +10,7 @@ The project uses [Ruff](https://github.com/astral-sh/ruff) as the primary tool f
 
 - **ruff.toml**: Contains the configuration for Ruff, including linting rules and formatting settings.
 - **.pre-commit-config.yaml**: Configures pre-commit hooks, including Ruff for linting and formatting.
-- **mypy.ini**: Contains configuration for MyPy type checking.
+- **pyproject.toml**: Can contain configuration for Pyrefly type checking (if needed).
 
 ## Linting Rules
 
@@ -124,8 +124,8 @@ For VS Code, add the following to your `.vscode/settings.json`:
 ```json
 {
     "python.linting.enabled": true,
-    "python.linting.mypyEnabled": true,
-    
+    "python.linting.pyreflyEnabled": true,
+
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": true,
@@ -163,8 +163,10 @@ If you encounter issues with linting or formatting:
    python fix_linting_issues.py --verbose
    ```
 
-## Migration from Flake8
+## Migration from Flake8 and MyPy
 
 The project has migrated from using Flake8 to using Ruff as the primary linting tool. Ruff provides all the functionality of Flake8 and more, with significantly better performance.
 
-If you encounter any references to Flake8 in documentation or scripts, please update them to reference Ruff instead.
+Additionally, the project has migrated from using MyPy to using Pyrefly for type checking. Pyrefly offers improved performance and better error messages compared to MyPy. See the [Type Checking](type-checking.md) documentation for more details.
+
+If you encounter any references to Flake8 or MyPy in documentation or scripts, please update them to reference Ruff and Pyrefly respectively.
