@@ -1,0 +1,59 @@
+{
+  "defaults": {
+    "static": {
+      "configPath": "./tailwind.config.js",
+      "inputPath": "./ui/static/css/tailwind.css",
+      "outputPath": "./ui/static/css/tailwind.output.css",
+      "minify": true
+    },
+    "react": {
+      "configPath": "./ui/react_frontend/tailwind.config.js",
+      "inputPath": "./ui/react_frontend/src/index.css",
+      "outputPath": "./ui/react_frontend/src/tailwind.output.css",
+      "minify": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "detailed",
+    "logToFile": false,
+    "logFilePath": "./logs/tailwind-build.log",
+    "maxLogFileSize": 10485760,
+    "maxLogFiles": 5
+  },
+  "buildTools": {
+    "webpack": {
+      "enabled": false,
+      "configPath": "./webpack.config.js"
+    },
+    "vite": {
+      "enabled": false,
+      "configPath": "./vite.config.js"
+    }
+  },
+  "postcss": {
+    "useConfigFile": true,
+    "configPath": "./postcss.config.js",
+    "plugins": [
+      {
+        "name": "tailwindcss",
+        "options": {}
+      },
+      {
+        "name": "autoprefixer",
+        "options": {}
+      }
+    ]
+  },
+  "errorHandling": {
+    "retryCount": 3,
+    "retryDelay": 1000,
+    "failFast": false,
+    "continueOnError": true
+  },
+  "performance": {
+    "concurrentBuilds": 2,
+    "cacheEnabled": true,
+    "cachePath": "./.cache/tailwind"
+  }
+}
