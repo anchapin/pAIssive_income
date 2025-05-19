@@ -172,7 +172,7 @@ jobs:
             New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null
 
             # Create minimal Windows configuration
-            $windowsConfig = @'
+            $windowsConfig = @"
 name: "CodeQL Configuration for Windows"
 os: windows-latest
 queries:
@@ -181,11 +181,11 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-'@
+"@
             Set-Content -Path ".github/codeql/security-os-windows.yml" -Value $windowsConfig -Encoding UTF8 -Force
 
             # Create minimal unified configuration
-            $unifiedConfig = @'
+            $unifiedConfig = @"
 name: "Unified CodeQL Configuration"
 queries:
   - uses: security-and-quality
@@ -193,7 +193,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-'@
+"@
             Set-Content -Path ".github/codeql/security-os-config.yml" -Value $unifiedConfig -Encoding UTF8 -Force
           }
 
@@ -218,7 +218,7 @@ trap-for-errors: true
             Write-Host "WARNING: CodeQL configuration file not found: $configFile"
             Write-Host "Creating minimal configuration file..."
 
-            $configContent = @'
+            $configContent = @"
 name: "CodeQL Configuration for Windows"
 
 # This configuration file customizes the CodeQL analysis for Windows
@@ -243,7 +243,7 @@ disable-default-queries: false
 
 # Trap errors during extraction
 trap-for-errors: true
-'@
+"@
 
             # Ensure directory exists
             New-Item -ItemType Directory -Force -Path ".github/codeql" | Out-Null

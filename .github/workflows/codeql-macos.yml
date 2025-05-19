@@ -303,29 +303,24 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal macOS configuration using a single cat command
-            mkdir -p .github/codeql
-            cat > .github/codeql/security-os-macos.yml << 'EOL'
-name: "CodeQL Configuration for macOS"
-os: macos-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOL
+            # Create minimal macOS configuration
+            echo 'name: "CodeQL Configuration for macOS"' > .github/codeql/security-os-macos.yml
+            echo 'os: macos-latest' >> .github/codeql/security-os-macos.yml
+            echo 'queries:' >> .github/codeql/security-os-macos.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-macos.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-macos.yml
+            echo '  - uses: security' >> .github/codeql/security-os-macos.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-macos.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-macos.yml
 
-            # Create minimal unified configuration using a single cat command
-            cat > .github/codeql/security-os-config.yml << 'EOL'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOL
+            # Create minimal unified configuration
+            echo 'name: "Unified CodeQL Configuration"' > .github/codeql/security-os-config.yml
+            echo 'queries:' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security' >> .github/codeql/security-os-config.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-config.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-config.yml
           fi
 
       # Initialize CodeQL

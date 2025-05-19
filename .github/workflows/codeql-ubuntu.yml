@@ -170,6 +170,7 @@ jobs:
             echo "Found lock files:"
             echo "$LOCK_FILES"
           fi
+        continue-on-error: true
 
       # Install dependencies for JavaScript/TypeScript
       - name: Install Node.js dependencies
@@ -260,29 +261,24 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal Ubuntu configuration using a single cat command
-            mkdir -p .github/codeql
-            cat > .github/codeql/security-os-ubuntu.yml << 'EOL'
-name: "CodeQL Configuration for Ubuntu"
-os: ubuntu-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOL
+            # Create minimal Ubuntu configuration
+            echo 'name: "CodeQL Configuration for Ubuntu"' > .github/codeql/security-os-ubuntu.yml
+            echo 'os: ubuntu-latest' >> .github/codeql/security-os-ubuntu.yml
+            echo 'queries:' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-ubuntu.yml
+            echo '  - uses: security' >> .github/codeql/security-os-ubuntu.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-ubuntu.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-ubuntu.yml
 
-            # Create minimal unified configuration using a single cat command
-            cat > .github/codeql/security-os-config.yml << 'EOL'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOL
+            # Create minimal unified configuration
+            echo 'name: "Unified CodeQL Configuration"' > .github/codeql/security-os-config.yml
+            echo 'queries:' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-and-quality' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security-extended' >> .github/codeql/security-os-config.yml
+            echo '  - uses: security' >> .github/codeql/security-os-config.yml
+            echo 'disable-default-queries: false' >> .github/codeql/security-os-config.yml
+            echo 'trap-for-errors: true' >> .github/codeql/security-os-config.yml
           fi
 
       # Initialize CodeQL
