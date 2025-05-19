@@ -6,7 +6,7 @@ name: Consolidated CI/CD
 # Jobs:
 # - lint-test: Code quality, type checking, and testing
 #   - Runs on: Ubuntu, Windows, MacOS
-#   - Performs: linting (ruff), type checking (mypy), testing (pytest)
+#   - Performs: linting (ruff), type checking (pyrefly), testing (pytest)
 #   - Generates: test reports and coverage data
 #
 # - security: Comprehensive security scanning
@@ -113,7 +113,7 @@ jobs:
           which uv || python -m pip install uv
 
           # Install testing tools
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -131,7 +131,7 @@ jobs:
           python -m pip install --upgrade pip
 
           # Install testing tools
-          python -m pip install ruff mypy pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
@@ -168,7 +168,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           ruff check .
-          mypy .
+          pyrefly check .
 
       - name: Run linting (Windows)
         if: runner.os == 'Windows'
@@ -176,7 +176,7 @@ jobs:
         run: |
           # Skip MCP adapter files during linting on Windows
           ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
-          mypy --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
+          pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
 
       - name: Run MCP tests (Unix only)
         if: runner.os != 'Windows'
@@ -229,14 +229,14 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          $content = @"
+          $content = @'
 #!/usr/bin/env python3
 """Mock CrewAI test script."""
 import sys
 print("Mock CrewAI test script")
 print("CrewAI tests skipped - script not found")
 sys.exit(0)
-"@
+'@
           Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
