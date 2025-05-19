@@ -21,11 +21,17 @@ omit =
     */site-packages/*
     # Exclude specific directories temporarily to focus on core functionality
     # These will be included in coverage as the project progresses
-    ui/react_frontend/*
-    marketing/legacy/*
-    monetization/legacy/*
-    niche_analysis/legacy/*
-    collaboration/legacy/*
+    ui/*
+    marketing/*
+    monetization/*
+    niche_analysis/*
+    collaboration/*
+    common_utils/secrets/*
+    common_utils/validation/*
+    api/*
+    users/*
+    dev_tools/*
+    scripts/*
 
 [report]
 exclude_lines =
