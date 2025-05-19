@@ -372,9 +372,9 @@ function buildTailwind(options = {}) {
  * @param {Array} options.files - Array of file configurations
  * @param {boolean} options.watch - Whether to watch for changes
  * @param {boolean} options.parallel - Whether to build in parallel
- * @returns {boolean} - Whether all builds were successful
+ * @returns {Promise<boolean>|boolean} - Promise that resolves to whether all builds were successful, or boolean in non-parallel mode
  */
-function buildMultipleFiles(options) {
+async function buildMultipleFiles(options) {
   const { files, watch, parallel = false } = options;
   const config = getConfig();
 
@@ -408,12 +408,24 @@ function buildMultipleFiles(options) {
       });
 
       // Wait for all promises in this batch to resolve
-      const batchResults = Promise.all(batchPromises);
-      results.push(...batchResults);
+      // Use await to properly resolve the Promise.all before spreading
+      const batchResults = Promise.all(batchPromises).then(resolvedResults => {
+        // Add each result individually instead of using spread operator
+        resolvedResults.forEach(result => {
+          results.push(result);
+        });
+      });
     }
 
-    // Check if all builds were successful
-    return results.every(result => result === true);
+    // We need to make the function fully async/await compatible
+    // Return a Promise that resolves after all batches are processed
+    return new Promise(resolve => {
+      // Use setTimeout to ensure all batch promises have been created and started
+      setTimeout(() => {
+        // Check if all builds were successful
+        resolve(results.every(result => result === true));
+      }, 0);
+    });
   } else {
     // Build files sequentially
     let allSuccessful = true;
@@ -469,9 +481,9 @@ function watchTailwind(options = {}) {
  * @param {boolean} options.watch - Whether to watch for changes
  * @param {boolean} options.parallel - Whether to build in parallel
  * @param {Object} options.buildTools - Integration with other build tools
- * @returns {boolean} - Whether the build was successful
+ * @returns {Promise<boolean>|boolean} - Promise that resolves to whether the build was successful, or boolean in non-parallel mode
  */
-function buildAllTailwind(options = {}) {
+async function buildAllTailwind(options = {}) {
   const config = getConfig();
   const defaults = config.defaults || {};
 
@@ -904,7 +916,7 @@ function createPostCSSConfig(options = {}) {
 }
 
 // Main function
-function main() {
+async function main() {
   try {
     const options = parseArgs();
 
@@ -931,16 +943,21 @@ function main() {
     });
 
     // Handle multiple files if specified
-    if (options.files.length > 0) {
-      buildMultipleFiles(options);
-    } else if (options.buildTools?.webpack?.enabled) {
-      buildWithWebpack(options);
-    } else if (options.buildTools?.vite?.enabled) {
-      buildWithVite(options);
-    } else if (options.watch) {
-      watchTailwind(options);
-    } else {
-      buildTailwind(options);
+    try {
+      if (options.files.length > 0) {
+        await buildMultipleFiles(options);
+      } else if (options.buildTools?.webpack?.enabled) {
+        await buildWithWebpack(options);
+      } else if (options.buildTools?.vite?.enabled) {
+        await buildWithVite(options);
+      } else if (options.watch) {
+        watchTailwind(options);
+      } else {
+        buildTailwind(options);
+      }
+    } catch (buildError) {
+      log(`Error during build process: ${buildError.message}`, 'error', { error: buildError });
+      process.exit(1);
     }
   } catch (error) {
     console.error(`Unexpected error in main function: ${error.message}`);
@@ -950,7 +967,11 @@ function main() {
 
 // Run the main function if this file is executed directly
 if (require.main === module) {
-  main();
+  // Handle the Promise returned by main()
+  main().catch(error => {
+    console.error(`Fatal error in main function: ${error.message}`);
+    process.exit(1);
+  });
 }
 
 module.exports = {
