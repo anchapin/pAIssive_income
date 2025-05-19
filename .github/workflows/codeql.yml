@@ -58,17 +58,14 @@ permissions:
   contents: read
 
 jobs:
-  analyze:
-    name: Analyze
-    # Use Ubuntu as the primary runner for this workflow
-    # Platform-specific analysis is handled by dedicated workflows
-    runs-on: ubuntu-latest
+  analyze-javascript:
+    name: Analyze JavaScript/TypeScript
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90  # Increased timeout for larger codebases
-
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript-typescript', 'python' ]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout repository
@@ -76,144 +73,148 @@ jobs:
         with:
           fetch-depth: 0  # Full git history for better analysis
 
-      # Set up pnpm first for JavaScript/TypeScript analysis
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-javascript-${{ github.sha }}
+          restore-keys: |
+            codeql-javascript-
+
+      # Set up pnpm
       - name: Setup pnpm
-        if: matrix.language == 'javascript-typescript'
         uses: pnpm/action-setup@v4
         with:
           version: '8'
-          run_install: false
 
-      # Set up Node.js for JavaScript/TypeScript analysis
+      # Add pnpm to PATH (Linux/macOS)
+      - name: Add pnpm to PATH (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          export PATH=$(pnpm bin):$PATH
+          echo "PATH=$(pnpm bin):$PATH" >> $GITHUB_ENV
+          echo "Current PATH: $PATH"
+          which pnpm || { echo "Error: pnpm is still not in PATH."; exit 1; }
+
+      # Add pnpm to PATH (Windows)
+      - name: Add pnpm to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $pnpmPath = (& pnpm bin)
+          $env:PATH = "$pnpmPath;$env:PATH"
+          echo "PATH=$pnpmPath;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Current PATH: $env:PATH"
+          if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+            Write-Host "Error: pnpm is not in PATH."
+            exit 1
+          }
+
+      # Set up Node.js for better JavaScript/TypeScript analysis
       - name: Set up Node.js
-        if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'pnpm'
 
-      # Add pnpm to PATH for Linux/macOS
-      - name: Add pnpm to PATH (Linux/macOS)
-        if: matrix.language == 'javascript-typescript' && runner.os != 'Windows'
+      # Verify pnpm installation
+      - name: Check pnpm version
+        shell: bash
+        run: pnpm --version
+
+      # Install dependencies if package.json exists
+      - name: Install dependencies
         shell: bash
         run: |
-          # Add both global and local pnpm to PATH
-          echo "PATH=$(pnpm -g bin):$(pnpm bin):$PATH" >> $GITHUB_ENV
-          # Verify pnpm is in PATH
-          echo "Current PATH: $PATH"
-          which pnpm || {
-            echo "pnpm not found in PATH. Installing globally with npm..."
-            npm install -g pnpm
-            echo "PATH=$(npm bin -g):$PATH" >> $GITHUB_ENV
-            which pnpm || { echo "Error: pnpm is still not in PATH after npm install."; exit 1; }
-          }
-
-      # Add pnpm to PATH for Windows
-      - name: Add pnpm to PATH (Windows)
-        if: matrix.language == 'javascript-typescript' && runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          try {
-            # Add pnpm to PATH
-            $pnpmPath = "$env:LOCALAPPDATA\pnpm"
-            if (Test-Path $pnpmPath) {
-              echo "Adding $pnpmPath to PATH"
-              echo "$pnpmPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            }
-
-            # Verify pnpm is available
-            $pnpmVersion = pnpm --version
-            echo "pnpm version: $pnpmVersion"
-          } catch {
-            echo "Error setting up pnpm: $_"
-            echo "Installing pnpm globally with npm..."
-            npm install -g pnpm
-
-            # Add npm global bin to PATH
-            $npmBin = npm bin -g
-            echo "Adding npm global bin to PATH: $npmBin"
-            echo "$npmBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-            # Verify pnpm is now available
-            try {
-              $pnpmVersion = pnpm --version
-              echo "pnpm version after npm install: $pnpmVersion"
-            } catch {
-              echo "pnpm still not available after npm install. Continuing with npm only."
-            }
-          }
-
-      # Verify Node.js and pnpm installation
-      - name: Verify Node.js and pnpm installation
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          echo "Node.js version: $(node --version)"
-          echo "npm version: $(npm --version)"
-          if command -v pnpm &>/dev/null; then
-            echo "pnpm version: $(pnpm --version)"
+          # Check for package.json in the root directory
+          if [ -f package.json ]; then
+            echo "Installing dependencies with pnpm in root directory..."
+            pnpm install
           else
-            echo "pnpm not found, will use npm instead"
-          fi
-
-      # Set up Python for Python analysis
-      - name: Set up Python
-        if: matrix.language == 'python'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      # Display disk space before analysis
-      - name: Check disk space
-        shell: bash
-        run: df -h
-
-      # Verify lock files exist before analysis
-      - name: Verify lock files
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          echo "Verifying lock files exist before CodeQL analysis..."
-          LOCK_FILES=$(find . -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml")
-
-          if [ -z "$LOCK_FILES" ]; then
-            echo "Warning: No lock files found. Creating a minimal package-lock.json in the root directory."
-
-            # Create a minimal valid package-lock.json with echo
-            echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
-
-            echo "Created minimal package-lock.json in the root directory."
-
-            # Note: We're not automatically fixing any CodeQL issues, just creating necessary files for analysis
-
-            # Verify the file was created
-            if [ -f "package-lock.json" ]; then
-              echo "Verification: package-lock.json exists and contains:"
-              cat package-lock.json
-
-              # Add to .gitignore if it exists
-              if [ -f ".gitignore" ]; then
-                if ! grep -q "package-lock.json" .gitignore; then
-                  echo -e "\n# Generated during CodeQL analysis\npackage-lock.json" >> .gitignore
-                  echo "Added package-lock.json to .gitignore"
-                fi
-              fi
+            echo "No package.json found in root directory, checking ui/react_frontend..."
+            # Check for package.json in ui/react_frontend
+            if [ -f ui/react_frontend/package.json ]; then
+              echo "Installing dependencies with pnpm in ui/react_frontend..."
+              cd ui/react_frontend && pnpm install
             else
-              echo "CRITICAL ERROR: Failed to create package-lock.json"
-              # Try alternative method
-              node -e "fs.writeFileSync('package-lock.json', JSON.stringify({name:'paissive-income',version:'1.0.0',lockfileVersion:3,packages:{'':{'name':'paissive-income','version':'1.0.0'}}}))" || true
-              if [ -f "package-lock.json" ]; then
-                echo "Successfully created package-lock.json using Node.js"
-              fi
+              echo "No package.json found in ui/react_frontend, skipping dependency installation."
             fi
-          else
-            echo "Found lock files:"
-            echo "$LOCK_FILES"
           fi
+        continue-on-error: true
 
-      # Install dependencies for JavaScript/TypeScript
+      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
+      # Instead, we'll just create a .codeqlignore file
+      - name: Create .codeqlignore file
+        shell: bash
+        run: |
+          echo "Creating .codeqlignore file instead of running fix script..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
+
+          # List directories to verify
+          echo "Current directories:"
+          ls -la
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-config.yml
+
+      # Install Node.js dependencies before autobuild
       - name: Install Node.js dependencies
-        if: matrix.language == 'javascript-typescript'
         shell: bash
         run: |
           # Function to install dependencies with fallback
@@ -234,20 +235,16 @@ jobs:
                 echo "pnpm install failed, trying with npm..."
                 npm install || {
                   echo "Both pnpm and npm installation failed in $(pwd)"
-                  if [ -n "$dir" ]; then
-                    cd "$original_dir"
-                  fi
+                  cd "$original_dir"
                   return 1
                 }
               }
             else
               # Fallback to npm if pnpm is not available
-              echo "pnpm not found, using npm..."
+              echo "pnpm not found, using npm to install dependencies..."
               npm install || {
-                echo "npm install failed in $(pwd)"
-                if [ -n "$dir" ]; then
-                  cd "$original_dir"
-                fi
+                echo "npm installation failed in $(pwd)"
+                cd "$original_dir"
                 return 1
               }
             fi
@@ -276,110 +273,281 @@ jobs:
             echo "Found package.json in sdk/javascript"
             install_deps "sdk/javascript"
           fi
-        continue-on-error: true
-
-      # Clean up node_modules to save space
-      - name: Clean up node_modules
-        if: matrix.language == 'javascript-typescript'
-        shell: bash
-        run: |
-          echo "Cleaning up node_modules to save space..."
-          find . -name "node_modules" -type d -prune -exec rm -rf {} \; 2>/dev/null || true
-        continue-on-error: true
-
-      # Ensure CodeQL configuration files exist
-      - name: Ensure CodeQL configuration files
-        shell: bash
-        run: |
-          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
-            echo "Running ensure-codeql-configs.sh script..."
-            bash .github/scripts/ensure-codeql-configs.sh
-          else
-            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
-            # Ensure directory exists
-            mkdir -p .github/codeql
-
-            # Create minimal unified configuration
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
-          fi
-
-      # Initialize CodeQL
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          queries: security-and-quality
-          config-file: .github/codeql/security-os-config.yml
-          debug: true
 
       # Autobuild attempts to build any compiled languages
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
-        continue-on-error: true
 
-      # Verify environment before CodeQL analysis
-      - name: Verify environment before analysis
+      # Display disk space before analysis
+      - name: Check disk space (Linux/macOS)
+        if: runner.os != 'Windows'
         shell: bash
-        run: |
-          echo "Verifying environment before CodeQL analysis..."
+        run: df -h
 
-          # Create sarif-results directory if it doesn't exist
-          if [ ! -d "sarif-results" ]; then
-            echo "Creating sarif-results directory..."
-            mkdir -p sarif-results
-          fi
+      # Display disk space before analysis (Windows)
+      - name: Check disk space (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Get-Volume
 
-          # JavaScript/TypeScript specific checks
-          if [ "${{ matrix.language }}" = "javascript-typescript" ]; then
-            # Final check for package-lock.json - create it if it still doesn't exist
-            if [ ! -f "package-lock.json" ]; then
-              echo "WARNING: package-lock.json still not found! Creating it as a last resort..."
-              echo '{"name":"paissive-income","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"paissive-income","version":"1.0.0"}}}' > package-lock.json
-              echo "Created minimal package-lock.json in the root directory."
-            fi
-
-            # Verify package-lock.json
-            if [ -f "package-lock.json" ]; then
-              echo "package-lock.json exists and contains:"
-              cat package-lock.json
-            else
-              echo "CRITICAL ERROR: package-lock.json still not found after multiple attempts!"
-            fi
-          fi
-
-          # Python specific checks
-          if [ "${{ matrix.language }}" = "python" ]; then
-            echo "Verifying Python environment..."
-            python --version
-            pip --version
-          fi
-
-          echo "Environment verification complete."
-
-      # Perform CodeQL Analysis with enhanced error handling
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/language:javascript-typescript"
           upload: true
-          output: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
-        continue-on-error: false # Fail the workflow if CodeQL analysis fails
+          output: sarif-results/javascript-typescript-${{ runner.os }}.sarif
+
+      # Add language-specific configuration for JavaScript/TypeScript
+      - name: Upload language-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/javascript-typescript-${{ runner.os }}.sarif
+          category: "/language:javascript-typescript"
 
       # Upload SARIF results as an artifact
       - name: Upload SARIF results
         uses: actions/upload-artifact@v4
-        if: always() # Always attempt to upload artifacts even if previous steps fail
         with:
-          name: ${{ matrix.language }}-${{ runner.os }}-sarif
-          path: sarif-results/${{ matrix.language }}-${{ runner.os }}.sarif
+          name: javascript-typescript-${{ runner.os }}-sarif
+          path: sarif-results/javascript-typescript-${{ runner.os }}.sarif
           retention-days: 7
-          if-no-files-found: warn # Warn but don't fail if no files are found
+
+  analyze-python:
+    name: Analyze Python
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90  # Increased timeout for larger codebases
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history for better analysis
+
+      # Cache CodeQL database to speed up analysis
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: ~/.codeql/databases
+          key: codeql-python-${{ github.sha }}
+          restore-keys: |
+            codeql-python-
+
+      # Set up Python for better analysis
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Ensure tar is available on Windows
+      - name: Ensure tar is available (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Check if tar is available
+          if (-not (Get-Command tar -ErrorAction SilentlyContinue)) {
+            Write-Host "tar not found in PATH. Installing tar via Chocolatey..."
+            # Install Chocolatey if not already installed
+            if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+              iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            }
+            # Install tar
+            choco install -y tar
+            # Refresh PATH
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          } else {
+            Write-Host "tar is already available in PATH"
+          }
+          # Verify tar is now available
+          tar --version
+
+      # Install dependencies if requirements.txt exists
+      - name: Install dependencies (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          python -m pip install --upgrade uv
+          if [ -f requirements.txt ]; then
+            echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            uv pip install -r requirements.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          elif [ -f requirements-dev.txt ]; then
+            echo "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
+          else
+            echo "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          fi
+
+          # Install package in development mode if setup.py exists
+          if [ -f setup.py ]; then
+            echo "Installing package in development mode using 'uv pip'..."
+            uv pip install -e . || {
+              echo "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
+          fi
+        continue-on-error: true
+
+      # Install dependencies if requirements.txt exists (Windows)
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade uv
+          if (Test-Path "requirements.txt") {
+            Write-Host "Installing pip dependencies from requirements.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            }
+          } elseif (Test-Path "requirements-dev.txt") {
+            Write-Host "Installing pip dependencies from requirements-dev.txt using 'uv pip'..."
+            try {
+              python -m uv pip install -r requirements-dev.txt
+            } catch {
+              Write-Host "Failed to install with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -r requirements-dev.txt
+            }
+          } else {
+            Write-Host "No requirements.txt or requirements-dev.txt found, skipping dependency installation."
+          }
+
+          # Install package in development mode if setup.py exists
+          if (Test-Path "setup.py") {
+            Write-Host "Installing package in development mode using 'uv pip'..."
+            try {
+              python -m uv pip install -e .
+            } catch {
+              Write-Host "Failed to install package with uv pip, falling back to regular pip..."
+              python -m pip install --upgrade pip
+              pip install -e .
+            }
+          }
+        continue-on-error: true
+
+      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
+      # Instead, we'll just create a .codeqlignore file
+      - name: Create .codeqlignore file
+        shell: bash
+        run: |
+          echo "Creating .codeqlignore file instead of running fix script..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
+
+          # List directories to verify
+          echo "Current directories:"
+          ls -la
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-and-quality
+          config-file: ./.github/codeql/security-os-config.yml
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Display disk space before analysis
+      - name: Check disk space (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: df -h
+
+      # Display disk space before analysis (Windows)
+      - name: Check disk space (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Get-Volume
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
+          upload: true
+          output: sarif-results/python-${{ runner.os }}.sarif
+
+      # Add language-specific configuration for Python
+      - name: Upload language-specific CodeQL configuration
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: sarif-results/python-${{ runner.os }}.sarif
+          category: "/language:python"
+
+      # Upload SARIF results as an artifact
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-${{ runner.os }}-sarif
+          path: sarif-results/python-${{ runner.os }}.sarif
+          retention-days: 7
