@@ -34,10 +34,10 @@ const {
  */
 function configurePlaywright(options = {}) {
   const { verbose = false, createReportDirs = true } = options;
-  
+
   // Detect the current environment
   const env = detectEnvironment();
-  
+
   if (verbose) {
     console.log('Configuring Playwright for detected environment:');
     console.log(`- Platform: ${env.platform}`);
@@ -47,12 +47,12 @@ function configurePlaywright(options = {}) {
     console.log(`- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}`);
     console.log(`- Node Environment: ${process.env.NODE_ENV || 'not set'}`);
   }
-  
+
   // Create report directories if needed
   if (createReportDirs) {
     createPlaywrightDirectories(env);
   }
-  
+
   // Base configuration
   const config = {
     testDir: './tests/e2e',
@@ -76,7 +76,7 @@ function configurePlaywright(options = {}) {
     outputDir: 'test-results/',
     skipInstallBrowsers: env.isCI,
   };
-  
+
   return config;
 }
 
@@ -90,10 +90,10 @@ function determineReporters(env) {
     ['html', { outputFolder: 'playwright-report' }],
     ['list']
   ];
-  
+
   // Add JSON reporter for all environments
   reporters.push(['json', { outputFile: 'playwright-report/test-results.json' }]);
-  
+
   // Add CI-specific reporters
   if (env.isCI) {
     if (env.isGitHubActions) {
@@ -102,14 +102,14 @@ function determineReporters(env) {
       reporters.push(['junit', { outputFile: 'test-results/junit-results.xml' }]);
     }
   }
-  
+
   return reporters;
 }
 
 /**
  * Determine appropriate number of workers based on the environment
  * @param {Object} env - Environment object from detectEnvironment()
- * @returns {number|string} Number of workers or 'auto'
+ * @returns {number} Number of workers
  */
 function determineWorkers(env) {
   if (env.isCI) {
@@ -119,8 +119,8 @@ function determineWorkers(env) {
     // Use fewer workers in container environments
     return Math.max(1, Math.floor(os.cpus().length / 2));
   } else {
-    // Use more workers in local development
-    return 'auto';
+    // Use more workers in local development but ensure it's a number
+    return Math.max(1, Math.floor(os.cpus().length * 0.75));
   }
 }
 
@@ -131,7 +131,7 @@ function determineWorkers(env) {
  */
 function determineProjects(env) {
   const { devices } = require('@playwright/test');
-  
+
   // Base project configuration
   const projects = [
     {
@@ -142,7 +142,7 @@ function determineProjects(env) {
       },
     }
   ];
-  
+
   // Add more browsers for local development
   if (!env.isCI && !env.isDocker && !env.isKubernetes) {
     projects.push({
@@ -153,7 +153,7 @@ function determineProjects(env) {
       },
     });
   }
-  
+
   return projects;
 }
 
@@ -173,14 +173,14 @@ function createPlaywrightDirectories(env) {
       path.join('playwright-report', 'videos'),
       path.join('playwright-report', 'traces')
     ];
-    
+
     // Environment-specific directories
     if (env.isCI) {
       baseDirectories.push(
         path.join('playwright-report', 'ci'),
         path.join('test-results', 'ci')
       );
-      
+
       // CI platform-specific directories
       if (env.isGitHubActions) {
         baseDirectories.push(
@@ -194,20 +194,20 @@ function createPlaywrightDirectories(env) {
         );
       }
     }
-    
+
     if (env.isDocker || env.isKubernetes) {
       baseDirectories.push(
         path.join('playwright-report', 'container'),
         path.join('test-results', 'container')
       );
     }
-    
+
     // Create all directories
     for (const dir of baseDirectories) {
       const dirPath = path.join(process.cwd(), dir);
       safelyCreateDirectory(dirPath);
     }
-    
+
     return true;
   } catch (error) {
     console.error(`Failed to create Playwright directories: ${error.message}`);
@@ -225,10 +225,10 @@ function createPlaywrightDirectories(env) {
  */
 function createPlaywrightEnvironmentReport(options = {}) {
   const { filePath, formatJson = false, includeEnvVars = false } = options;
-  
+
   // Detect the current environment
   const env = detectEnvironment();
-  
+
   // Create report content
   const reportData = {
     timestamp: new Date().toISOString(),
@@ -269,13 +269,13 @@ function createPlaywrightEnvironmentReport(options = {}) {
       nodeVersion: env.nodeVersion
     },
     playwright: {
-      configuredWorkers: determineWorkers(env),
+      configuredWorkers: String(determineWorkers(env)),
       headless: env.isCI || env.isDocker || env.isKubernetes,
       browsers: env.isCI ? ['chromium'] : ['chromium', 'firefox'],
       retries: env.isCI ? 3 : 2
     }
   };
-  
+
   // Format the report
   let report;
   if (formatJson) {
@@ -327,7 +327,7 @@ Playwright Configuration:
 - Retries: ${reportData.playwright.retries}
 `;
   }
-  
+
   // Write report to file if path is provided
   if (filePath) {
     try {
@@ -340,7 +340,7 @@ Playwright Configuration:
       console.error(`Failed to write Playwright environment report to ${filePath}: ${error.message}`);
     }
   }
-  
+
   return report;
 }
 

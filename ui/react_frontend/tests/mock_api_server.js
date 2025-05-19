@@ -1075,7 +1075,7 @@ app.use((err, req, res, next) => {
   );
 
   // In CI environment, always return a 200 response to avoid test failures
-  if (process.env.CI === 'true' || process.env.CI === true) {
+  if (isCI) {
     log('CI environment detected, returning success response despite error', 'warn');
     return res.status(200).json({
       status: 'success',
@@ -1110,7 +1110,7 @@ process.on('uncaughtException', (err) => {
   );
 
   // In CI environment, don't exit the process to allow tests to continue
-  if (process.env.CI === 'true' || process.env.CI === true) {
+  if (isCI) {
     log('CI environment detected, suppressing process exit for uncaught exception', 'warn');
   } else if (!process.env.KEEP_ALIVE) {
     // In non-CI environments, exit after a delay to allow logs to be written

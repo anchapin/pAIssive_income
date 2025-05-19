@@ -235,19 +235,40 @@ function createMockPathToRegexp() {
         console.log('Mock path-to-regexp called with path:', typeof path === 'string' ? path : typeof path);
 
         try {
+          // Handle null or undefined path
+          if (path === null || path === undefined) {
+            console.log('Path is null or undefined, returning default regex');
+            return /.*/;
+          }
+
+          // Handle non-string paths (like RegExp objects)
+          if (typeof path !== 'string') {
+            if (path instanceof RegExp) {
+              console.log('Path is already a RegExp, returning as is');
+              return path;
+            }
+            console.log('Path is not a string or RegExp, returning default regex');
+            return /.*/;
+          }
+
           // If keys is provided, populate it with parameter names
-          if (Array.isArray(keys) && typeof path === 'string') {
-            // Use a safer regex with a limited repetition to prevent ReDoS
-            const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
-            paramNames.forEach((param, index) => {
-              keys.push({
-                name: param.substring(1),
-                prefix: '/',
-                suffix: '',
-                modifier: '',
-                pattern: '[^/]+'
+          if (Array.isArray(keys)) {
+            try {
+              // Use a safer regex with a limited repetition to prevent ReDoS
+              const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
+              paramNames.forEach((param, index) => {
+                keys.push({
+                  name: param.substring(1),
+                  prefix: '/',
+                  suffix: '',
+                  modifier: '',
+                  pattern: '[^/]+'
+                });
               });
-            });
+            } catch (keysError) {
+              console.error('Error processing keys:', keysError.message);
+              // Continue execution even if keys processing fails
+            }
           }
 
           return /.*/;
@@ -265,28 +286,55 @@ function createMockPathToRegexp() {
         console.log('Mock path-to-regexp.parse called with path:', typeof path === 'string' ? path : typeof path);
 
         try {
+          // Handle null or undefined path
+          if (path === null || path === undefined) {
+            console.log('Path is null or undefined in parse, returning empty array');
+            return [];
+          }
+
+          // Handle non-string paths
+          if (typeof path !== 'string') {
+            console.log('Path is not a string in parse, returning empty array');
+            return [];
+          }
+
           // Return a more detailed parse result for better compatibility
-          if (typeof path === 'string') {
-            const tokens = [];
-            const parts = path.split('/').filter(Boolean);
+          const tokens = [];
 
-            parts.forEach(part => {
-              if (part.startsWith(':')) {
-                tokens.push({
-                  name: part.substring(1),
-                  prefix: '/',
-                  suffix: '',
-                  pattern: '[^/]+',
-                  modifier: ''
-                });
-              } else if (part) {
-                tokens.push(part);
-              }
-            });
-
+          // Handle empty path
+          if (path === '') {
             return tokens;
           }
-          return [];
+
+          // Handle root path
+          if (path === '/') {
+            return [''];
+          }
+
+          // Split the path into segments
+          const parts = path.split('/');
+
+          // Handle leading slash
+          if (path.startsWith('/')) {
+            tokens.push('');
+          }
+
+          // Process each part
+          parts.filter(Boolean).forEach(part => {
+            if (part.startsWith(':')) {
+              tokens.push({
+                name: part.substring(1),
+                prefix: '/',
+                suffix: '',
+                pattern: '[^/]+',
+                modifier: ''
+              });
+            } else if (part) {
+              tokens.push(part);
+            }
+          });
+
+          return tokens;
         } catch (error) {
           console.error('Error in mock parse implementation:', error.message);
           return [];
@@ -321,19 +369,36 @@ function createMockPathToRegexp() {
         console.log('Mock path-to-regexp.tokensToRegexp called');
 
         try {
+          // Handle null or undefined tokens
+          if (!tokens) {
+            console.log('Tokens is null or undefined in tokensToRegexp, returning default regex');
+            return /.*/;
+          }
+
+          // Handle non-array tokens
+          if (!Array.isArray(tokens)) {
+            console.log('Tokens is not an array in tokensToRegexp, returning default regex');
+            return /.*/;
+          }
+
           // If keys is provided, populate it with parameter names from tokens
-          if (Array.isArray(keys) && Array.isArray(tokens)) {
-            tokens.forEach(token => {
-              if (typeof token === 'object' && token.name) {
-                keys.push({
-                  name: token.name,
-                  prefix: token.prefix || '/',
-                  suffix: token.suffix || '',
-                  modifier: token.modifier || '',
-                  pattern: token.pattern || '[^/]+'
-                });
-              }
-            });
+          if (Array.isArray(keys)) {
+            try {
+              tokens.forEach(token => {
+                if (token && typeof token === 'object' && token.name) {
+                  keys.push({
+                    name: token.name,
+                    prefix: token.prefix || '/',
+                    suffix: token.suffix || '',
+                    modifier: token.modifier || '',
+                    pattern: token.pattern || '[^/]+'
+                  });
+                }
+              });
+            } catch (keysError) {
+              console.error('Error processing keys in tokensToRegexp:', keysError.message);
+              // Continue execution even if keys processing fails
+            }
           }
 
           return /.*/;
@@ -346,26 +411,52 @@ function createMockPathToRegexp() {
       pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
         console.log('Mock path-to-regexp.tokensToFunction called');
 
+        // Handle null or undefined tokens
+        if (!tokens) {
+          console.log('Tokens is null or undefined in tokensToFunction, returning empty function');
+          return function() { return ''; };
+        }
+
+        // Handle non-array tokens
+        if (!Array.isArray(tokens)) {
+          console.log('Tokens is not an array in tokensToFunction, returning empty function');
+          return function() { return ''; };
+        }
+
         return function(params) {
           try {
             console.log('Mock path-to-regexp.tokensToFunction function called with params:', params ? 'object' : typeof params);
 
-            // Try to generate a path from tokens and params
-            if (Array.isArray(tokens) && params) {
-              let result = '';
-
-              tokens.forEach(token => {
-                if (typeof token === 'string') {
-                  result += token;
-                } else if (typeof token === 'object' && token.name && params[token.name]) {
-                  result += params[token.name];
-                }
-              });
-
-              return result;
+            // Handle null or undefined params
+            if (!params) {
+              console.log('Params is null or undefined in tokensToFunction function, returning empty string');
+              return '';
             }
 
-            return '';
+            // Handle non-object params
+            if (typeof params !== 'object') {
+              console.log('Params is not an object in tokensToFunction function, returning empty string');
+              return '';
+            }
+
+            // Try to generate a path from tokens and params
+            let result = '';
+
+            tokens.forEach(token => {
+              if (typeof token === 'string') {
+                result += token;
+              } else if (token && typeof token === 'object' && token.name && params[token.name]) {
+                try {
+                  // Try to encode the parameter value
+                  result += encodeURIComponent(params[token.name]);
+                } catch (encodeError) {
+                  // If encoding fails, use the raw value
+                  result += params[token.name];
+                }
+              }
+            });
+
+            return result;
           } catch (error) {
             console.error('Error in mock tokensToFunction function:', error.message);
             return '';
@@ -376,6 +467,23 @@ function createMockPathToRegexp() {
       // Add encode/decode functions for compatibility with some libraries
       pathToRegexp.encode = function encode(value) {
         try {
+          // Handle null or undefined value
+          if (value === null || value === undefined) {
+            console.log('Value is null or undefined in encode, returning empty string');
+            return '';
+          }
+
+          // Handle non-string values
+          if (typeof value !== 'string') {
+            try {
+              // Try to convert to string
+              value = String(value);
+            } catch (stringifyError) {
+              console.error('Error converting value to string in encode:', stringifyError.message);
+              return '';
+            }
+          }
+
           return encodeURIComponent(value);
         } catch (error) {
           console.error('Error encoding value:', error.message);
@@ -385,6 +493,23 @@ function createMockPathToRegexp() {
 
       pathToRegexp.decode = function decode(value) {
         try {
+          // Handle null or undefined value
+          if (value === null || value === undefined) {
+            console.log('Value is null or undefined in decode, returning empty string');
+            return '';
+          }
+
+          // Handle non-string values
+          if (typeof value !== 'string') {
+            try {
+              // Try to convert to string
+              value = String(value);
+            } catch (stringifyError) {
+              console.error('Error converting value to string in decode:', stringifyError.message);
+              return '';
+            }
+          }
+
           return decodeURIComponent(value);
         } catch (error) {
           console.error('Error decoding value:', error.message);
@@ -650,4 +775,42 @@ pathToRegexp.environment = {
   isWindows: env.isWindows
 };
 
+// Add match function for compatibility with Express
+pathToRegexp.match = function match(path) {
+  console.log(`Mock path-to-regexp.match called with path: ${path}`);
+
+  return function(pathname) {
+    try {
+      console.log(`Mock path-to-regexp.match function called with pathname: ${pathname}`);
+
+      // Extract parameter values from the pathname if possible
+      const params = {};
+      if (typeof path === 'string' && typeof pathname === 'string') {
+        const pathParts = path.split('/').filter(Boolean);
+        const pathnameParts = pathname.split('/').filter(Boolean);
+
+        if (pathParts.length === pathnameParts.length) {
+          for (let i = 0; i < pathParts.length; i++) {
+            if (pathParts[i].startsWith(':')) {
+              const paramName = pathParts[i].substring(1);
+              params[paramName] = pathnameParts[i];
+            }
+          }
+        }
+      }
+
+      return { path: pathname, params: params, index: 0, isExact: true };
+    } catch (error) {
+      console.error(`Error in mock path-to-regexp.match function: ${error.message}`);
+      return { path: pathname, params: {}, index: 0, isExact: false };
+    }
+  };
+};
+
+// Add additional properties for better compatibility
+pathToRegexp.PATH_REGEXP = /.*/;
+pathToRegexp.DEFAULT_DELIMITER = '/';
+pathToRegexp.DEFAULT_PATTERN = '[^/]+';
+
+// Export the mock implementation with all necessary properties
 module.exports = pathToRegexp;
