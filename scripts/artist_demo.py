@@ -6,14 +6,16 @@ This script demonstrates the use of the ArtistAgent with various tools.
 It shows how the agent can select and use tools based on user prompts.
 """
 
+from __future__ import annotations
+
 import argparse
 import logging
-import os
 import sys
+from pathlib import Path
 from typing import List, Optional
 
 # Add the project root to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, str(Path(__file__).parent.resolve() / ".."))
 
 from ai_models.artist_agent import ArtistAgent
 from common_utils import tooling
@@ -75,8 +77,8 @@ def run_interactive_demo(agent: ArtistAgent) -> None:
         except KeyboardInterrupt:
             logger.info("\nExiting demo...")
             break
-        except Exception as e:
-            logger.error("Error processing prompt: %s", e)
+        except (ValueError, TypeError, KeyError):
+            logger.exception("Error processing prompt")
 
 
 def run_example_prompts(
@@ -165,13 +167,11 @@ def main() -> int:
             run_interactive_demo(agent)
         else:
             run_example_prompts(agent, args.prompts)
-
-        return 0
-    except Exception as e:
-        logger.error("Error in Artist Agent demo: %s", e)
-        if args.verbose:
-            logger.exception("Detailed error:")
+    except (ValueError, TypeError, KeyError):
+        logger.exception("Error in Artist Agent demo")
         return 1
+    else:
+        return 0
 
 
 if __name__ == "__main__":
