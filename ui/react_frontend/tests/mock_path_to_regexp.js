@@ -293,7 +293,128 @@ EOF`);
 // Execute the function
 createMockPathToRegexp();
 
+// Create the pathToRegexp function with proper error handling
+function pathToRegexp(path, keys, options) {
+  try {
+    // Input validation
+    if (typeof path !== 'string' && !(path instanceof RegExp)) {
+      console.warn('Invalid path type:', typeof path);
+      return /.*/;
+    }
+
+    console.log('Mock path-to-regexp called with path:', typeof path === 'string' ? path : 'RegExp');
+
+    // If keys is provided, populate it with parameter names
+    if (Array.isArray(keys) && typeof path === 'string') {
+      // Use a safer regex with a limited repetition to prevent ReDoS
+      const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
+      paramNames.forEach((param) => {
+        keys.push({
+          name: param.substring(1),
+          prefix: '/',
+          suffix: '',
+          modifier: '',
+          pattern: '[^/]+'
+        });
+      });
+    }
+
+    return /.*/;
+  } catch (error) {
+    console.error('Error in mock path-to-regexp implementation:', error.message);
+    return /.*/;
+  }
+}
+
+// Add the main function as a property of itself (some libraries expect this)
+pathToRegexp.pathToRegexp = pathToRegexp;
+
+// Helper functions with improved error handling
+pathToRegexp.parse = function parse(path) {
+  try {
+    console.log('Mock path-to-regexp.parse called with path:', typeof path === 'string' ? path : typeof path);
+
+    // Return a more detailed parse result for better compatibility
+    if (typeof path === 'string') {
+      const tokens = [];
+      const parts = path.split('/').filter(Boolean);
+
+      parts.forEach(part => {
+        if (part.startsWith(':')) {
+          tokens.push({
+            name: part.substring(1),
+            prefix: '/',
+            suffix: '',
+            pattern: '[^/]+',
+            modifier: ''
+          });
+        } else if (part) {
+          tokens.push(part);
+        }
+      });
+
+      return tokens;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error in mock parse implementation:', error.message);
+    return [];
+  }
+};
+
+pathToRegexp.compile = function compile(path) {
+  try {
+    console.log('Mock path-to-regexp.compile called with path:', typeof path === 'string' ? path : typeof path);
+
+    return function(params) {
+      try {
+        // Try to replace parameters in the path
+        if (typeof path === 'string' && params) {
+          let result = path;
+          Object.keys(params).forEach(key => {
+            // Use a safer string replacement approach instead of regex
+            result = result.split(':' + key).join(params[key]);
+          });
+          return result;
+        }
+        return path || '';
+      } catch (error) {
+        console.error('Error in mock compile function:', error.message);
+        return path || '';
+      }
+    };
+  } catch (error) {
+    console.error('Error in mock compile implementation:', error.message);
+    return function() { return ''; };
+  }
+};
+
 // Add regexp property for compatibility with some libraries
 pathToRegexp.regexp = /.*/;
 
-module.exports = pathToRegexp;
+// Add encode/decode functions for compatibility with some libraries
+pathToRegexp.encode = function encode(value) {
+  try {
+    return encodeURIComponent(value);
+  } catch (error) {
+    console.error('Error encoding value:', error.message);
+    return '';
+  }
+};
+
+pathToRegexp.decode = function decode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    console.error('Error decoding value:', error.message);
+    return value;
+  }
+};
+
+// Export the mock implementation
+module.exports = {
+  pathToRegexp: pathToRegexp,
+  mockCreated: true,
+  requirePatched: false,
+  isCI: CI_MODE
+};

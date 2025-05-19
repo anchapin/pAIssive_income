@@ -86,11 +86,11 @@ try {
               });
               return result;
             }
+            return path || '';
           } catch (error) {
             console.error(`Error in mock path-to-regexp.compile: ${error.message}`);
+            return path || '';
           }
-
-          return '';
         };
       };
 
@@ -171,11 +171,11 @@ try {
 
               return result;
             }
+            return '';
           } catch (error) {
             console.error(`Error in mock path-to-regexp.tokensToFunction: ${error.message}`);
+            return '';
           }
-
-          return '';
         };
       };
 
