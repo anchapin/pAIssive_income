@@ -12,6 +12,11 @@ from typing import Optional
 # Define version attribute at the module level
 __version__ = "0.120.0"
 
+# Ensure __version__ is accessible when importing the module
+# This is needed for compatibility with different import styles
+import sys
+sys.modules[__name__].__version__ = __version__
+
 
 class Agent:
     """Mock implementation of CrewAI Agent class."""

@@ -25,3 +25,8 @@ from . import tools
 
 # Define what should be exported
 __all__ = ["Agent", "Crew", "Task", "AgentType", "CrewType", "TaskType", "tools", "__version__"]
+
+# Ensure __version__ is accessible when importing the module
+# This is needed for compatibility with different import styles
+import sys
+sys.modules[__name__].__version__ = __version__

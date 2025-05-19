@@ -62,6 +62,12 @@ class TestCrewAI:
         # Check that the version is not just whitespace
         assert crewai.__version__.strip() == crewai.__version__
 
+    def test_version_attribute_direct_import(self):
+        """Test that the __version__ attribute can be imported directly."""
+        # Test direct import of __version__
+        from crewai import __version__
+        assert __version__ == "0.120.0"
+
     def test_agent_class(self):
         """Test the Agent class."""
         # Create an agent
