@@ -75,6 +75,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Ensure fixed CodeQL workflow files are used
+      - name: Ensure fixed CodeQL workflow files
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Ensuring fixed CodeQL workflow files are used..."
+          if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+            Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+            ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+          } else {
+            Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+          }
+
       # Setup Node.js and pnpm for Tailwind CSS build
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -143,9 +156,11 @@ jobs:
           mkdir -p ci-reports ci-artifacts ci-logs ci-temp ci-cache
           echo "Created CI-specific directories"
 
-          # Set CI environment variables
+          # Set CI environment variables with enhanced environment detection
           echo "CI=true" >> $GITHUB_ENV
           echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+          echo "CI_TYPE=github" >> $GITHUB_ENV
+          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
           echo "CI_PLATFORM=github" >> $GITHUB_ENV
           echo "CI_OS=$(uname -s)" >> $GITHUB_ENV
           echo "CI_ARCH=$(uname -m)" >> $GITHUB_ENV
@@ -153,6 +168,12 @@ jobs:
           echo "CI_NODE_VERSION=$(node --version)" >> $GITHUB_ENV
           echo "CI_RUNNER_OS=${{ runner.os }}" >> $GITHUB_ENV
           echo "CI_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+
+          # Set container environment detection variables
+          echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
+          echo "KUBERNETES_ENVIRONMENT=false" >> $GITHUB_ENV
+          echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
+          echo "DOCKER_SWARM=false" >> $GITHUB_ENV
 
           # Generate environment report
           {
@@ -212,6 +233,25 @@ jobs:
           # Ensure pip is up to date
           python -m pip install --upgrade pip
 
+          # Set CI environment variables with enhanced environment detection
+          echo "CI=true" >> $env:GITHUB_ENV
+          echo "CI_ENVIRONMENT=true" >> $env:GITHUB_ENV
+          echo "CI_TYPE=github" >> $env:GITHUB_ENV
+          echo "GITHUB_ACTIONS=true" >> $env:GITHUB_ENV
+          echo "CI_PLATFORM=github" >> $env:GITHUB_ENV
+          echo "CI_OS=Windows" >> $env:GITHUB_ENV
+          echo "CI_ARCH=x64" >> $env:GITHUB_ENV
+          echo "CI_PYTHON_VERSION=$(python --version)" >> $env:GITHUB_ENV
+          echo "CI_NODE_VERSION=$(node --version)" >> $env:GITHUB_ENV
+          echo "CI_RUNNER_OS=${{ runner.os }}" >> $env:GITHUB_ENV
+          echo "CI_WORKSPACE=${{ github.workspace }}" >> $env:GITHUB_ENV
+
+          # Set container environment detection variables
+          echo "DOCKER_ENVIRONMENT=false" >> $env:GITHUB_ENV
+          echo "KUBERNETES_ENVIRONMENT=false" >> $env:GITHUB_ENV
+          echo "DOCKER_COMPOSE=false" >> $env:GITHUB_ENV
+          echo "DOCKER_SWARM=false" >> $env:GITHUB_ENV
+
           # Install testing tools
           python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
 
@@ -230,6 +270,16 @@ jobs:
 
           # Create mock MCP module for Windows
           python install_mcp_sdk.py
+
+          # Run the CI environment detection script if available
+          if (Test-Path "scripts/ci/detect_ci_environment.py") {
+            Write-Host "Installing CI environment detection script dependencies..."
+            python -m pip install pyyaml
+
+            # Run the CI environment detection script
+            Write-Host "Running CI environment detection script..."
+            python scripts/ci/detect_ci_environment.py --verbose --create-dirs
+          }
 
       - name: Create ruff configuration (Windows)
         if: runner.os == 'Windows'
@@ -489,6 +539,19 @@ sys.exit(0)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Ensure fixed CodeQL workflow files are used
+      - name: Ensure fixed CodeQL workflow files
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Ensuring fixed CodeQL workflow files are used..."
+          if (Test-Path ".github/scripts/ensure-fixed-codeql-workflows.ps1") {
+            Write-Host "Running ensure-fixed-codeql-workflows.ps1 script..."
+            ./.github/scripts/ensure-fixed-codeql-workflows.ps1
+          } else {
+            Write-Host "ensure-fixed-codeql-workflows.ps1 script not found, skipping..."
+          }
 
       - name: Set up Python
         uses: actions/setup-python@v5

@@ -120,9 +120,51 @@ When adding new tests for different environments:
 
 ## Environment Detection
 
-The `detectEnvironment` function in `helpers/environment-detection.js` detects the current environment and returns an object with environment information:
+The unified environment detection system consists of two main components:
+
+1. **`helpers/environment-detection.js`**: The original environment detection module
+2. **`helpers/unified-environment.js`**: The enhanced unified environment detection module
+
+The unified environment module provides a more comprehensive and consistent way to detect environments across different platforms and CI systems.
+
+### Using the Unified Environment Module
 
 ```javascript
+const env = require('./helpers/unified-environment');
+
+// Check environment types
+if (env.isCI()) {
+  console.log('Running in a CI environment');
+
+  if (env.isGitHubActions()) {
+    console.log('Running in GitHub Actions');
+  }
+}
+
+if (env.isDockerEnvironment()) {
+  console.log('Running in a Docker container');
+}
+
+if (env.isKubernetesEnvironment()) {
+  console.log('Running in Kubernetes');
+}
+
+// Create directories with error handling
+env.createDirectoryWithErrorHandling('path/to/directory');
+
+// Get detailed environment information
+console.log(env.getEnvironmentInfo());
+
+// Create CI success markers
+env.createCISuccessMarkers('Test completed successfully');
+```
+
+### Using the Original Environment Detection Module
+
+The original `detectEnvironment` function in `helpers/environment-detection.js` is still available and returns an object with environment information:
+
+```javascript
+const { detectEnvironment } = require('./helpers/environment-detection');
 const env = detectEnvironment();
 
 // Operating System
@@ -130,6 +172,7 @@ console.log(`Platform: ${env.platform}`);
 console.log(`Windows: ${env.isWindows}`);
 console.log(`macOS: ${env.isMacOS}`);
 console.log(`Linux: ${env.isLinux}`);
+console.log(`WSL: ${env.isWSL}`);
 
 // CI Environment
 console.log(`CI: ${env.isCI}`);
@@ -140,14 +183,36 @@ console.log(`Circle CI: ${env.isCircleCI}`);
 console.log(`Travis CI: ${env.isTravis}`);
 console.log(`Azure Pipelines: ${env.isAzurePipelines}`);
 console.log(`TeamCity: ${env.isTeamCity}`);
+console.log(`Buildkite: ${env.isBuildkite}`);
+console.log(`Codefresh: ${env.isCodefresh}`);
+console.log(`Semaphore: ${env.isSemaphore}`);
+console.log(`Harness: ${env.isHarness}`);
 
-// Docker Environment
+// Container Environment
 console.log(`Docker: ${env.isDocker}`);
+console.log(`Kubernetes: ${env.isKubernetes}`);
+console.log(`Containerized: ${env.isContainerized}`);
+console.log(`rkt: ${env.isRkt}`);
+console.log(`containerd: ${env.isContainerd}`);
+console.log(`CRI-O: ${env.isCRIO}`);
+console.log(`Singularity: ${env.isSingularity}`);
+
+// Cloud Environment
+console.log(`AWS: ${env.isAWS}`);
+console.log(`Azure: ${env.isAzure}`);
+console.log(`GCP: ${env.isGCP}`);
+console.log(`Alibaba Cloud: ${env.isAlibabaCloud}`);
+console.log(`Tencent Cloud: ${env.isTencentCloud}`);
+console.log(`Huawei Cloud: ${env.isHuaweiCloud}`);
+console.log(`Oracle Cloud: ${env.isOracleCloud}`);
+console.log(`IBM Cloud: ${env.isIBMCloud}`);
+console.log(`Cloud Environment: ${env.isCloudEnvironment}`);
 
 // Node Environment
 console.log(`Development: ${env.isDevelopment}`);
 console.log(`Production: ${env.isProduction}`);
 console.log(`Test: ${env.isTest}`);
+console.log(`Staging: ${env.isStaging}`);
 
 // System Info
 console.log(`Node Version: ${env.nodeVersion}`);
@@ -223,11 +288,19 @@ If tests fail in specific environments:
 
 ## CI Integration
 
-The environment-specific tests are integrated with CI pipelines:
+The environment-specific tests are integrated with CI pipelines using the unified environment detection system:
 
-1. **GitHub Actions**: The tests run on Windows, macOS, and Linux.
-2. **Docker**: The tests run in Docker containers.
-3. **Jenkins**: The tests run on Jenkins.
+1. **GitHub Actions**: The tests run on Windows, macOS, and Linux with enhanced environment detection.
+2. **Docker**: The tests run in Docker containers with container-specific environment detection.
+3. **Jenkins**: The tests run on Jenkins with CI-specific environment detection.
+4. **GitLab CI**: The tests run on GitLab CI with CI-specific environment detection.
+5. **CircleCI**: The tests run on CircleCI with CI-specific environment detection.
+6. **Travis CI**: The tests run on Travis CI with CI-specific environment detection.
+7. **Azure Pipelines**: The tests run on Azure Pipelines with CI-specific environment detection.
+8. **Buildkite**: The tests run on Buildkite with CI-specific environment detection.
+9. **Codefresh**: The tests run on Codefresh with CI-specific environment detection.
+10. **Semaphore**: The tests run on Semaphore with CI-specific environment detection.
+11. **Harness**: The tests run on Harness with CI-specific environment detection.
 
 The CI environment tests automatically detect the CI environment and adjust their behavior accordingly. For example, in GitHub Actions:
 
@@ -247,27 +320,104 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
+
+    - name: Set environment variables
+      shell: bash
+      run: |
+        # Set CI environment variables with enhanced environment detection
+        echo "CI=true" >> $GITHUB_ENV
+        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+        echo "CI_TYPE=github" >> $GITHUB_ENV
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+        echo "CI_PLATFORM=github" >> $GITHUB_ENV
+
     - run: pnpm install
     - run: pnpm test:environments
 ```
 
-This workflow runs the environment tests on multiple operating systems and Node.js versions.
+This workflow runs the environment tests on multiple operating systems and Node.js versions with enhanced environment detection.
 
 ## Adding New Environments
 
 To add support for a new environment:
 
-1. **Update the environment detection**: Add detection for the new environment in `helpers/environment-detection.js`.
+1. **Update both environment detection modules**:
+   - Add detection for the new environment in `helpers/environment-detection.js`
+   - Add detection functions in `helpers/unified-environment.js`
+
 2. **Add environment-specific behavior**: Add functions for handling the new environment in a new helper module.
-3. **Add tests**: Add tests for the new environment.
-4. **Add test scripts**: Add new test scripts to `package.json` for running the new tests.
-5. **Update documentation**: Update this document with information about the new environment.
+
+3. **Update CI workflow files**:
+   - Add environment variables for the new environment in `.github/workflows/frontend-e2e.yml`
+   - Add environment variables for the new environment in `.github/workflows/docker-compose.yml`
+   - Add environment variables for the new environment in `.github/workflows/consolidated-ci-cd.yml`
+
+4. **Add tests**: Add tests for the new environment.
+
+5. **Add test scripts**: Add new test scripts to `package.json` for running the new tests.
+
+6. **Update documentation**: Update this document with information about the new environment.
+
+### Example: Adding Support for a New CI Platform
+
+```javascript
+// In helpers/environment-detection.js
+function detectEnvironment() {
+  // ... existing code ...
+
+  // Add detection for the new CI platform
+  const isNewCIPlatform = typeof process !== 'undefined' && (
+    !!process.env.NEW_CI_PLATFORM ||
+    !!process.env.NEW_CI_VARIABLE
+  );
+
+  return {
+    // ... existing properties ...
+    isNewCIPlatform
+  };
+}
+
+// In helpers/unified-environment.js
+/**
+ * Detect if running in the new CI platform
+ * @returns {boolean} True if running in the new CI platform
+ */
+function isNewCIPlatform() {
+  return !!(
+    process.env.NEW_CI_PLATFORM === 'true' ||
+    !!process.env.NEW_CI_VARIABLE
+  );
+}
+
+// Export the new function
+module.exports = {
+  // ... existing exports ...
+  isNewCIPlatform
+};
+```
+
+### Example: Updating CI Workflow Files
+
+```yaml
+# In .github/workflows/frontend-e2e.yml
+- name: Set environment variables
+  run: |
+    # Set CI environment variables with enhanced environment detection
+    export CI=true
+    export CI_ENVIRONMENT=true
+    export CI_TYPE=github
+    export GITHUB_ACTIONS=true
+
+    # Add variables for the new CI platform
+    export NEW_CI_PLATFORM=false
+    export NEW_CI_VARIABLE=""
+```

@@ -349,9 +349,13 @@ EOL
             COMPOSE_CMD="docker-compose"
           fi
 
-          # Set optimized CI variables
+          # Set optimized CI variables with enhanced environment detection
           export CI=true
           export GITHUB_ACTIONS=true
+          export CI_ENVIRONMENT=true
+          export CI_TYPE=github
+          export DOCKER_ENVIRONMENT=true
+          export DOCKER_COMPOSE=true
           export DOCKER_BUILDKIT=1
           export COMPOSE_DOCKER_CLI_BUILD=1
           export JEST_WORKER_ID=1
@@ -402,7 +406,7 @@ EOL
 
             # Try multiple test scripts in order of preference with enhanced logging and CI compatibility flags
             echo "Running frontend tests with CI compatibility flags..."
-            $COMPOSE_CMD exec -T frontend sh -c "export CI=true && export VERBOSE_LOGGING=true && export SKIP_PATH_TO_REGEXP=true && export PATH_TO_REGEXP_MOCK=true && export DOCKER_ENVIRONMENT=true && node tests/verify_mock_path_to_regexp.js && pnpm test:ci:new || pnpm test:ci || pnpm test:ci:windows || pnpm test:mock-api:ci || echo 'Frontend tests failed but continuing'" > test-results/frontend.log 2>&1 &
+            $COMPOSE_CMD exec -T frontend sh -c "export CI=true && export CI_ENVIRONMENT=true && export CI_TYPE=github && export GITHUB_ACTIONS=true && export VERBOSE_LOGGING=true && export SKIP_PATH_TO_REGEXP=true && export PATH_TO_REGEXP_MOCK=true && export DOCKER_ENVIRONMENT=true && export DOCKER_COMPOSE=true && node tests/verify_mock_path_to_regexp.js && pnpm test:ci:new || pnpm test:ci || pnpm test:ci:windows || pnpm test:mock-api:ci || echo 'Frontend tests failed but continuing'" > test-results/frontend.log 2>&1 &
             frontend_pid=$!
 
             # Collect logs for debugging in background

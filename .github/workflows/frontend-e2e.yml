@@ -566,7 +566,7 @@ jobs:
 
           # Run the CI test runner with error handling
           echo "Running CI test runner..."
-          node tests/run_ci_tests.js --passWithNoTests || {
+          node tests/run_ci_tests.js || {
             echo "Tests failed but continuing workflow"
             echo "Test failures detected at $(date)" > logs/test-failures.txt
           }
@@ -695,7 +695,7 @@ Configuration:
               node tests/run_ci_tests_enhanced.js
             } else {
               Write-Host "Enhanced CI test runner not found, falling back to regular runner..."
-              node tests/run_ci_tests.js --passWithNoTests
+              node tests/run_ci_tests.js
             }
           } catch {
             Write-Host "Tests failed but continuing workflow: $_"
