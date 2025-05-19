@@ -11,14 +11,14 @@ This section documents the use of Bandit, CodeQL, Trivy, and pnpm audit for comp
 
 ## Bandit Scan Workflow Improvements
 
-- Explicit directory creation with error handling for SARIF results
+- Template-based configuration approach for improved maintainability
+- Simplified shell injection configuration
+- Enhanced directory exclusions for more comprehensive scanning
 - Pre-create empty SARIF files to prevent workflow errors
-- Custom Bandit config generation for each scan run
-- Changed default output to JSON for reliability
-- Scripts: `fix_bandit_security_scan.ps1`, `generate_bandit_config.py`, `run_bandit_scan.ps1`
+- Explicit directory creation with error handling for SARIF results
 - Robust error handling and verification steps before uploading scan results
 
-See [BANDIT_SECURITY_SCAN_FIX.md](../../BANDIT_SECURITY_SCAN_FIX.md) for implementation and troubleshooting.
+See [bandit_configuration.md](../bandit_configuration.md) and [bandit_configuration_changes.md](../bandit_configuration_changes.md) for implementation details and recent changes.
 
 ## CodeQL Fixes and Recommendations
 

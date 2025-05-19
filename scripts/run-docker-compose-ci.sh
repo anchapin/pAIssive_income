@@ -230,8 +230,10 @@ wait_for_services() {
       if docker exec paissive-postgres pg_isready -U myuser -d mydb >/dev/null 2>&1; then
         log "✅ Database is ready"
 
-        # Check if app is ready
-        if docker exec paissive-income-app wget -q --spider http://localhost:5000/health >/dev/null 2>&1; then
+        # Check if app is ready - try multiple methods
+        if docker exec paissive-income-app wget -q --spider http://localhost:5000/health >/dev/null 2>&1 || \
+           docker exec paissive-income-app curl -s -f http://localhost:5000/health >/dev/null 2>&1 || \
+           docker exec paissive-income-app python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" >/dev/null 2>&1; then
           log "✅ App is ready"
 
           # Check if frontend is ready (if it exists)
@@ -345,7 +347,19 @@ main() {
   # Wait for services to be healthy
   if ! wait_for_services "$compose_cmd"; then
     log "⚠️ Services did not become fully healthy, but continuing..."
-    # Don't exit, continue with the workflow
+
+    # Try to restart the app service as a last resort
+    log "Attempting to restart the app service..."
+    $compose_cmd restart app
+    sleep 10
+
+    # Final check of app service
+    if docker exec paissive-income-app wget -q --spider http://localhost:5000/health >/dev/null 2>&1 || \
+       docker exec paissive-income-app curl -s -f http://localhost:5000/health >/dev/null 2>&1; then
+      log "✅ App service is now responding after restart"
+    else
+      log "⚠️ App service is still not responding, but continuing with the workflow"
+    fi
   fi
 
   # Final check of services
