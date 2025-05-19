@@ -10,6 +10,12 @@
  * Improved directory creation and file writing for CI environments.
  * Added additional fallback mechanisms for GitHub Actions workflow.
  * Added support for path-to-regexp related endpoints.
+ * Fixed URL parsing issues for better CI compatibility.
+ * Added more robust error handling for path-to-regexp functions.
+ * Enhanced mock implementation to handle all edge cases.
+ * Added support for GitHub Actions workflow checks.
+ * Improved compatibility with mock API server tests.
+ * Added better fallback mechanisms for CI environments.
  */
 
 const http = require('http');

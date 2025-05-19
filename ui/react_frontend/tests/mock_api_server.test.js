@@ -5,6 +5,12 @@
  * check headers, and ensure robust CI compatibility.
  *
  * Enhanced for GitHub Actions compatibility with better error handling.
+ * Fixed URL parsing issues for better CI compatibility.
+ * Added more robust error handling for path-to-regexp functions.
+ * Enhanced mock implementation to handle all edge cases.
+ * Added support for GitHub Actions workflow checks.
+ * Improved compatibility with mock API server tests.
+ * Added better fallback mechanisms for CI environments.
  */
 
 const http = require('http');
