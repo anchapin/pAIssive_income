@@ -240,6 +240,11 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+# Ignore generated Tailwind CSS build artifacts
+ui/static/css/tailwind.output.css
+ui/react_frontend/src/tailwind.output.css
+
+# Ignore package lock files
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json

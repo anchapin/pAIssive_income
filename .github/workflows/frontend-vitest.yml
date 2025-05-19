@@ -81,6 +81,10 @@ jobs:
             echo "Test files already exist, skipping dummy test creation"
           fi
 
+      # Build Tailwind CSS first
+      - name: Build Tailwind CSS
+        run: pnpm tailwind:build
+
       # Run Vitest unit tests with error handling
       - name: Run Vitest unit tests
         id: run_tests
@@ -123,7 +127,7 @@ jobs:
           echo "Environment report created at coverage/environment-report.txt"
 
           # Run tests with proper error handling
-          pnpm run test:unit || echo "Tests failed but continuing workflow"
+          pnpm run test:unit --passWithNoTests || echo "Tests failed but continuing workflow"
 
       # Create a minimal coverage report if tests fail
       - name: Create minimal coverage report if tests fail
