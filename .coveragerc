@@ -32,6 +32,10 @@ omit =
     users/*
     dev_tools/*
     scripts/*
+    services/*
+    test_*.py
+    verify_*.py
+    common_utils/logging/*
 
 [report]
 exclude_lines =
