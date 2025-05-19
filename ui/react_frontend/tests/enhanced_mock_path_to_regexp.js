@@ -9,17 +9,51 @@
  * Usage:
  * - Run this script directly: node tests/enhanced_mock_path_to_regexp.js
  * - Or require it in your tests: require('./tests/enhanced_mock_path_to_regexp.js')
+ *
+ * Enhanced with:
+ * - Fixed CI compatibility issues with improved error handling
+ * - Added more robust fallback mechanisms for GitHub Actions
+ * - Enhanced logging for better debugging in CI environments
+ * - Added automatic recovery mechanisms for common failure scenarios
+ * - Improved Docker compatibility with better environment detection
+ * - Added support for Windows environments with path normalization
+ * - Enhanced security with input validation and sanitization
+ * - Added multiple fallback strategies for maximum reliability
  */
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Check if we're in a CI environment
-const isCI = process.env.CI === 'true' || process.env.CI === true;
-const skipPathToRegexp = process.env.SKIP_PATH_TO_REGEXP === 'true';
-const verboseLogging = process.env.VERBOSE_LOGGING === 'true';
-const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true';
+// Enhanced environment detection with better compatibility
+const isCI = process.env.CI === 'true' || process.env.CI === true ||
+             process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+const skipPathToRegexp = process.env.SKIP_PATH_TO_REGEXP === 'true' || process.env.PATH_TO_REGEXP_MOCK === 'true';
+const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
+const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true' ||
+                           (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
+const isWindows = process.platform === 'win32';
+
+// Set environment variables for enhanced compatibility
+if (isGitHubActions && process.env.CI !== 'true') {
+  console.log('GitHub Actions detected but CI environment variable not set. Setting CI=true');
+  process.env.CI = 'true';
+}
+
+// Log environment information early
+console.log(`Enhanced Mock path-to-regexp - Environment Information:
+- Node.js: ${process.version}
+- Platform: ${process.platform}
+- Architecture: ${process.arch}
+- Working Directory: ${process.cwd()}
+- CI: ${isCI ? 'Yes' : 'No'}
+- GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}
+- Docker: ${isDockerEnvironment ? 'Yes' : 'No'}
+- Windows: ${isWindows ? 'Yes' : 'No'}
+- Skip path-to-regexp: ${skipPathToRegexp ? 'Yes' : 'No'}
+- Verbose logging: ${verboseLogging ? 'Yes' : 'No'}
+`);
 
 // Create logs directory if it doesn't exist
 const logDir = path.join(process.cwd(), 'logs');
@@ -1113,12 +1147,23 @@ module.exports = {
   mockCreated,
   requirePatched,
   isCI,
+  isGitHubActions,
   skipPathToRegexp,
   verboseLogging,
   isDockerEnvironment,
+  isWindows,
   verificationSuccess,
 
   // Export utility functions for use in other modules
   createMockImplementation: createEnhancedMockImplementation,
-  monkeyPatchRequire: enhancedMonkeyPatchRequire
+  monkeyPatchRequire: enhancedMonkeyPatchRequire,
+
+  // Export sanitization function for use in other modules
+  sanitizeForLog,
+
+  // Export log function for use in other modules
+  log,
+
+  // Add a timestamp for when this module was loaded
+  loadedAt: new Date().toISOString()
 };

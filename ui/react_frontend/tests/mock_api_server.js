@@ -29,7 +29,17 @@ const http = require('http');
 // Import the mock path-to-regexp helper if available
 let mockPathToRegexp;
 let pathToRegexpAvailable = false;
-const isCI = process.env.CI === 'true' || process.env.CI === true;
+const isCI = process.env.CI === 'true' || process.env.CI === true ||
+             process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_WORKFLOW ||
+             process.env.TF_BUILD || process.env.JENKINS_URL ||
+             process.env.GITLAB_CI || process.env.CIRCLECI;
+const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+const isDockerEnvironment = fs.existsSync('/.dockerenv') || process.env.DOCKER_ENVIRONMENT === 'true';
+const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
+
+// Set environment variables for maximum compatibility
+process.env.PATH_TO_REGEXP_MOCK = 'true';
+process.env.MOCK_API_SKIP_DEPENDENCIES = 'true';
 
 // Create a more robust mock implementation function
 function createMockPathToRegexp() {
