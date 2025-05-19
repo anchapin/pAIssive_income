@@ -134,6 +134,7 @@ env.bak/
 env/
 example_project_plan.json
 htmlcov/
+coverage/
 instance/
 ipython_config.py
 lib/
@@ -161,5 +162,6 @@ virtualenv/
 wheels/
 yarn-debug.log
 yarn-error.log
+.nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
