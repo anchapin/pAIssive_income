@@ -260,6 +260,92 @@ trap-for-errors: true
             Write-Host "Created unified configuration file: $unifiedConfigFile"
           }
 
+      # Run fix-codeql-issues.ps1 script to fix CodeQL issues
+      - name: Run fix-codeql-issues.ps1 script
+        shell: pwsh
+        run: |
+          # Check if the script exists
+          if (Test-Path "scripts/fix-codeql-issues.ps1") {
+            Write-Host "Running fix-codeql-issues.ps1 script..."
+
+            # Run the script
+            & "scripts/fix-codeql-issues.ps1"
+
+            # List directories to verify cleanup
+            Write-Host "Current directories:"
+            Get-ChildItem -Path . | Format-Table Name, LastWriteTime, Length
+          } else {
+            Write-Host "WARNING: fix-codeql-issues.ps1 script not found. Creating a minimal .codeqlignore file..."
+
+            # Create a minimal .codeqlignore file
+            $codeqlIgnoreContent = @"
+# Virtual environments and dependencies
+.venv/**
+venv/**
+env/**
+.env/**
+**/virtualenv/**
+**/site-packages/**
+**/dist-packages/**
+**/node_modules/**
+**/dist/**
+**/build/**
+**/vendor/**
+**/external/**
+**/third_party/**
+**/__pycache__/**
+**/.pytest_cache/**
+**/.mypy_cache/**
+**/.ruff_cache/**
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Test files
+**/test/**
+**/tests/**
+**/__tests__/**
+**/__mocks__/**
+**/*.test.js
+**/*.test.ts
+**/*.test.jsx
+**/*.test.tsx
+**/*.spec.js
+**/*.spec.ts
+**/*.spec.jsx
+**/*.spec.tsx
+
+# Configuration files
+**/.github/**
+**/.vscode/**
+**/.idea/**
+**/coverage/**
+**/.git/**
+
+# Documentation
+**/docs/**
+**/*.md
+**/*.mdx
+**/*.rst
+**/sphinx/**
+
+# Generated files
+**/playwright-report/**
+**/generated/**
+**/sarif-results/**
+**/*.sarif
+**/*.sarif.json
+
+# Specific directories that might contain third-party code
+ui/react_frontend/node_modules/**
+sdk/javascript/node_modules/**
+"@
+
+            # Create the file
+            Set-Content -Path ".codeqlignore" -Value $codeqlIgnoreContent -Encoding UTF8 -Force
+            Write-Host "Created .codeqlignore file"
+          }
+
       # Autobuild attempts to build any compiled languages with enhanced error handling
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3

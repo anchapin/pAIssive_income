@@ -326,6 +326,20 @@ trap-for-errors: true
 EOL
           fi
 
+      # Run fix-codeql-issues.sh script to fix CodeQL issues
+      - name: Run fix-codeql-issues.sh script
+        shell: bash
+        run: |
+          # Make the script executable
+          chmod +x scripts/fix-codeql-issues.sh
+
+          # Run the script
+          ./scripts/fix-codeql-issues.sh
+
+          # List directories to verify cleanup
+          echo "Current directories:"
+          ls -la
+
       # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
