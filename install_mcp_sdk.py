@@ -7,10 +7,7 @@ with existing workflows that expect install_mcp_sdk.py to be in the root directo
 """
 
 import logging
-<<<<<<< HEAD
-=======
 import os
->>>>>>> origin/main
 import sys
 from pathlib import Path
 
@@ -19,7 +16,6 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("install_mcp_sdk")
 
 
-<<<<<<< HEAD
 def verify_mock_installation() -> bool:
     """Verify that the mock MCP SDK is properly installed.
 
@@ -51,7 +47,6 @@ def verify_mock_installation() -> bool:
     except Exception as e:
         logger.exception(f"Error verifying mock MCP SDK: {e}")
         return False
-=======
 def _setup_environment() -> None:
     """Set up the environment variables for MCP SDK installation."""
     os.environ["CI"] = "true"
@@ -180,7 +175,6 @@ def _create_mock_module_with_fallback() -> int:
         return _handle_ci_environment()
     else:
         return 0
->>>>>>> origin/main
 
 
 def main() -> int:
@@ -191,51 +185,6 @@ def main() -> int:
         int: The return code from the installation (0 for success, non-zero for failure)
 
     """
-<<<<<<< HEAD
-    # Get the path to the actual script
-    script_path = Path(__file__).parent / "scripts" / "setup" / "install_mcp_sdk.py"
-
-    # Check if the script exists
-    if not script_path.exists():
-        import logging
-
-        # Create a named logger instead of using the root logger
-        logger = logging.getLogger("install_mcp_sdk")
-
-        # Use string formatting instead of f-string
-        logger.error("Script not found at %s", script_path)
-        return 1
-
-    # Execute the script with the same arguments
-    # We use subprocess.run instead of os.execv for better security
-    # This still ensures that the return code is properly propagated
-    import subprocess
-
-    # Validate script_path to ensure it's not from untrusted input
-    # Convert to absolute path and ensure it's within the expected directory
-    abs_script_path = script_path.resolve()
-    expected_dir = (Path(__file__).parent / "scripts" / "setup").resolve()
-
-    if not abs_script_path.startswith(expected_dir):
-        import logging
-
-        logger = logging.getLogger("install_mcp_sdk")
-        logger.error("Invalid script path: not in expected directory")
-        return 1
-
-    # Use a list of arguments to avoid shell injection
-    cmd = [sys.executable, str(script_path)] + sys.argv[1:]
-
-    # We've validated script_path is within our expected directory
-    # and we're using a list of arguments to avoid shell injection
-    # ruff: noqa: S603
-    result = subprocess.run(  # nosec B603
-        cmd,
-        check=False,
-        shell=False,  # Explicitly set shell=False for security
-    )
-    return result.returncode
-=======
     _setup_environment()
 
     # Get and validate the script path
@@ -477,7 +426,6 @@ def create_mock_mcp_module() -> None:
         # Clean up the temporary directory
         shutil.rmtree(temp_dir, ignore_errors=True)
         raise
->>>>>>> origin/main
 
 
 if __name__ == "__main__":

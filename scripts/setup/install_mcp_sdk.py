@@ -75,31 +75,6 @@ def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str
         return 1, "", str(e)
 
 
-<<<<<<< HEAD
-def create_mock_mcp_sdk() -> bool:
-    """
-    Create a mock MCP SDK package when the real one can't be installed.
-
-    This ensures tests can run even if the GitHub repository is unavailable.
-
-    Returns:
-        True if mock creation was successful, False otherwise
-
-    """
-    logger.info("Creating mock MCP SDK package...")
-
-    # Create a temporary directory
-    temp_dir = tempfile.mkdtemp()
-    try:
-        # Create a minimal package structure
-        mcp_dir = Path(temp_dir) / "modelcontextprotocol"
-        mcp_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create __init__.py
-        init_file = mcp_dir / "__init__.py"
-        with init_file.open("w") as f:
-            f.write("""
-=======
 def _create_package_files(temp_dir: str) -> tuple[Path, Path]:
     """
     Create the package files for the mock MCP SDK.
@@ -119,7 +94,6 @@ def _create_package_files(temp_dir: str) -> tuple[Path, Path]:
     init_file = mcp_dir / "__init__.py"
     with init_file.open("w") as f:
         f.write("""
->>>>>>> origin/main
 class Client:
     def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint
@@ -135,17 +109,10 @@ class Client:
         return f"Mock response to: {message}"
 """)
 
-<<<<<<< HEAD
-        # Create setup.py
-        setup_file = Path(temp_dir) / "setup.py"
-        with setup_file.open("w") as f:
-            f.write("""
-=======
     # Create setup.py
     setup_file = Path(temp_dir) / "setup.py"
     with setup_file.open("w") as f:
         f.write("""
->>>>>>> origin/main
 from setuptools import setup, find_packages
 
 setup(
@@ -156,23 +123,6 @@ setup(
 )
 """)
 
-<<<<<<< HEAD
-        # Install the mock package
-        exit_code, stdout, stderr = run_command(
-            [sys.executable, "-m", "pip", "install", "-e", "."],
-            cwd=temp_dir,
-        )
-
-        if exit_code != 0:
-            logger.error("Failed to install mock MCP SDK: %s", stderr)
-            return False
-
-        logger.info("Mock MCP SDK installed successfully")
-        return True
-    finally:
-        # Clean up the temporary directory
-        shutil.rmtree(temp_dir, ignore_errors=True)
-=======
     return mcp_dir, setup_file
 
 
@@ -347,7 +297,6 @@ def create_mock_mcp_sdk() -> bool:
         # Don't remove the temp directory as it contains the installed package
         # This is intentional to ensure the package remains available
         logger.info("Keeping temporary directory at %s for installed package", temp_dir)
->>>>>>> origin/main
 
 
 def install_mcp_sdk() -> bool:
@@ -401,8 +350,6 @@ def install_mcp_sdk() -> bool:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
-<<<<<<< HEAD
-=======
 def _setup_environment() -> bool:
     """
     Set up the environment for MCP SDK installation.
@@ -540,9 +487,6 @@ def _verify_final_installation(in_ci: bool) -> bool:
         logger.exception("Error verifying module importability")
         # In CI, we'll still return success
         return in_ci
-
-
->>>>>>> origin/main
 def main() -> int:
     """
     Execute the main installation process.
@@ -551,46 +495,6 @@ def main() -> int:
         Exit code (0 for success, 1 for failure)
 
     """
-<<<<<<< HEAD
-    # Log platform information for debugging
-    import platform
-
-    logger.info("Platform: %s", platform.system())
-    logger.info("Python version: %s", sys.version)
-
-    # First, try to import the module to see if it's already installed
-    try:
-        # Use importlib.util.find_spec to check if the module is installed
-        import importlib.util
-
-        if importlib.util.find_spec("modelcontextprotocol") is not None:
-            logger.info("MCP SDK is already installed")
-            return 0
-    except ImportError as e:
-        # Pass silently if importlib.util is not available
-        # This is acceptable as we'll attempt installation anyway
-        logger.debug(
-            "ImportError when checking if MCP SDK is installed, continuing with installation: %s",
-            e,
-        )
-
-    # Check if we're running on Windows
-    if platform.system() == "Windows":
-        logger.info("Running on Windows, using mock MCP SDK for compatibility")
-        # Set CI environment variables to ensure proper behavior
-        os.environ["CI"] = "true"
-        os.environ["GITHUB_ACTIONS"] = "true"
-
-        # Create mock MCP SDK and log the result
-        mock_created = create_mock_mcp_sdk()
-        logger.info("Mock creation %s", "succeeded" if mock_created else "failed")
-
-        # Always return success on Windows to allow tests to continue
-        # Even if mock creation failed, we return success to not block CI
-        logger.info("Returning success on Windows regardless of mock creation result")
-        return 0
-
-=======
     # Set up environment and check if we're in CI
     in_ci = _setup_environment()
 
@@ -602,17 +506,12 @@ def main() -> int:
     windows_result = _handle_windows_platform()
     if windows_result >= 0:
         return windows_result
-
->>>>>>> origin/main
     # If not installed and not on Windows, try to install it
     success = install_mcp_sdk()
 
     # If installation failed, fall back to mock implementation
     if not success:
         logger.warning("Failed to install MCP SDK, falling back to mock implementation")
-<<<<<<< HEAD
-        success = create_mock_mcp_sdk()
-=======
         create_mock_mcp_sdk()
 
     # In CI environments, always return success to allow the workflow to continue
@@ -624,7 +523,6 @@ def main() -> int:
 
     # Verify the module is now importable
     success = _verify_final_installation(in_ci)
->>>>>>> origin/main
 
     return 0 if success else 1
 

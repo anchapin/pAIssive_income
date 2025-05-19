@@ -239,7 +239,7 @@ class AdapterFactory:
             raise UnsupportedServerTypeError(adapter_type)
 
         # Special case for MCP adapter
-        if adapter_type == "mcp" and (MCPAdapter is None or cls._adapter_registry[adapter_type] is None):
+        if adapter_type == "mcp" and MCPAdapter is None:
             raise MCPAdapterNotAvailableError()
 
         # Create and return the adapter

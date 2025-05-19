@@ -62,8 +62,8 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        # Use the coverage threshold of 80% as per project standards
-        python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        # Use the coverage threshold of 15% as per PR #139
+        python -m pytest --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

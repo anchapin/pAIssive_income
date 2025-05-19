@@ -204,8 +204,10 @@ class TestAdapterFactoryComprehensive:
     @patch("ai_models.adapters.adapter_factory.MCPAdapter", None)
     def test_adapter_factory_create_adapter_mcp_not_available(self):
         """Test AdapterFactory.create_adapter with MCP when it's not available."""
-        # Initialize registry
+        # Initialize registry but manually add 'mcp' to it
         AdapterFactory._initialize_registry()
+        # Manually add 'mcp' to the registry to simulate it being recognized but not available
+        AdapterFactory._adapter_registry["mcp"] = None
 
         # Call create_adapter and verify it raises the expected exception
         with pytest.raises(MCPAdapterNotAvailableError) as excinfo:
