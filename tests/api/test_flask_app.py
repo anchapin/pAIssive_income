@@ -1,6 +1,5 @@
 """test_flask_app - Test module for Flask app."""
 
-<<<<<<< HEAD
 import logging
 import json
 import unittest
@@ -18,35 +17,20 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 # Import the app and db
 from app_flask import create_app, db
-=======
-import json
-
-import pytest
->>>>>>> origin/main
 
 # Constants
 TUPLE_LENGTH = 3
 HTTP_OK = 200
 HTTP_NOT_FOUND = 404
 
-<<<<<<< HEAD
 # Create a mock Flask class for basic tests
-=======
-# Note: MagicMock and patch are not used in this file but are kept
-# as they might be needed for future test expansions
-
-
-# Create a mock Flask class to avoid import issues
->>>>>>> origin/main
+# Note: MagicMock and patch are kept as they might be needed for future test expansions
 class MockFlask:
     def __init__(self, name):
         self.name = name
         self.routes = {}
-<<<<<<< HEAD
         self.config = {}
         self.blueprints = {}
-=======
->>>>>>> origin/main
 
     def route(self, path, **_kwargs):
         def decorator(func):
@@ -58,12 +42,9 @@ class MockFlask:
     def test_client(self):
         return MockClient(self)
 
-<<<<<<< HEAD
     def register_blueprint(self, blueprint, **_kwargs):
         self.blueprints[blueprint.name] = blueprint
 
-=======
->>>>>>> origin/main
 
 class MockClient:
     def __init__(self, app):
@@ -77,7 +58,6 @@ class MockClient:
                 return MockResponse(data, status_code, headers)
         return MockResponse('{"error": "Not found"}', HTTP_NOT_FOUND, {})
 
-<<<<<<< HEAD
     def post(self, path, json=None):
         if path in self.app.routes:
             result = self.app.routes[path](json)
@@ -87,9 +67,6 @@ class MockClient:
                 return response
         return MockResponse('{"error": "Not found"}', 404, {})
 
-=======
->>>>>>> origin/main
-
 class MockResponse:
     def __init__(self, data, status_code, headers):
         self.data = data.encode("utf-8") if isinstance(data, str) else data
@@ -98,11 +75,7 @@ class MockResponse:
 
 
 @pytest.fixture
-<<<<<<< HEAD
 def mock_app():
-=======
-def app():
->>>>>>> origin/main
     """
     Create a mock Flask app for testing.
 
@@ -117,11 +90,7 @@ def app():
 
 
 @pytest.fixture
-<<<<<<< HEAD
 def mock_client(mock_app):
-=======
-def client(app):
->>>>>>> origin/main
     """
     Create a test client.
 
@@ -174,34 +143,6 @@ def test_flask_route(mock_app, mock_client):
 
     # Add a test route
     @mock_app.route("/test")
-=======
-        app: Mock Flask application
-
-    Returns:
-        MockClient: Test client for the mock Flask application
-
-    """
-    return app.test_client()
-
-
-def test_flask_app_creation(app):
-    """Test that the Flask app is created successfully."""
-    assert app is not None
-    assert isinstance(app, MockFlask)
-
-
-def test_flask_client_creation(client):
-    """Test that the Flask test client is created successfully."""
-    assert client is not None
-    assert isinstance(client, MockClient)
-
-
-def test_flask_route(app, client):
-    """Test adding a route to the Flask app."""
-
-    # Add a test route
-    @app.route("/test")
->>>>>>> origin/main
     def test_route():
         return (
             json.dumps({"success": True}),
@@ -210,7 +151,6 @@ def test_flask_route(app, client):
         )
 
     # Test the route
-<<<<<<< HEAD
     response = mock_client.get("/test")
     assert response.status_code == HTTP_OK
     data = json.loads(response.data)
@@ -353,9 +293,3 @@ class TestFlaskApp(unittest.TestCase):
         """Test the authenticate user endpoint with failed authentication."""
         # Skip this test for now as we need to properly mock the user service
         self.skipTest("Skipping until user service is properly mocked")
-=======
-    response = client.get("/test")
-    assert response.status_code == HTTP_OK
-    data = json.loads(response.data)
-    assert data["success"] is True
->>>>>>> origin/main

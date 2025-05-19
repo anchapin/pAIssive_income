@@ -64,9 +64,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.14.0
+          run_install: false
 
       - name: Install Node.js dependencies and build Tailwind CSS
         run: |

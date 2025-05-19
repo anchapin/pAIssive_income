@@ -189,11 +189,9 @@ For more details, see `.github/dependabot.yml`.
 
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
-## Docker Compose Integration
-=======
-For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
-
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
+
+## Docker Compose Integration
 
 ---
 
