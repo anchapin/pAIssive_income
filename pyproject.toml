@@ -43,6 +43,11 @@ dev = [
 agents = [
     "crewai>=0.120.0",  # AI agent orchestration framework
 ]
+memory = [
+    "mem0ai>=0.1.100",  # Memory layer for AI agents
+    "qdrant-client>=1.9.1",  # Vector database client for mem0
+    "openai>=1.33.0",  # Required for mem0 embeddings
+]
 ml = [
     "torch>=1.10.0",
     "transformers>=4.20.0",
