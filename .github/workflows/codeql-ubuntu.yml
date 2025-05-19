@@ -260,8 +260,9 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal Ubuntu configuration
-            cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
+            # Create minimal Ubuntu configuration using a single cat command
+            mkdir -p .github/codeql
+            cat > .github/codeql/security-os-ubuntu.yml << 'EOL'
 name: "CodeQL Configuration for Ubuntu"
 os: ubuntu-latest
 queries:
@@ -270,10 +271,10 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+EOL
 
-            # Create minimal unified configuration
-            cat > .github/codeql/security-os-config.yml << 'EOF'
+            # Create minimal unified configuration using a single cat command
+            cat > .github/codeql/security-os-config.yml << 'EOL'
 name: "Unified CodeQL Configuration"
 queries:
   - uses: security-and-quality
@@ -281,7 +282,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+EOL
           fi
 
       # Initialize CodeQL

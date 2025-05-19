@@ -181,6 +181,7 @@ jobs:
             echo "Found lock files:"
             echo "$LOCK_FILES"
           fi
+        continue-on-error: true
 
       # Install dependencies for JavaScript/TypeScript
       - name: Install Node.js dependencies
@@ -302,8 +303,9 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal macOS configuration
-            cat > .github/codeql/security-os-macos.yml << 'EOF'
+            # Create minimal macOS configuration using a single cat command
+            mkdir -p .github/codeql
+            cat > .github/codeql/security-os-macos.yml << 'EOL'
 name: "CodeQL Configuration for macOS"
 os: macos-latest
 queries:
@@ -312,10 +314,10 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+EOL
 
-            # Create minimal unified configuration
-            cat > .github/codeql/security-os-config.yml << 'EOF'
+            # Create minimal unified configuration using a single cat command
+            cat > .github/codeql/security-os-config.yml << 'EOL'
 name: "Unified CodeQL Configuration"
 queries:
   - uses: security-and-quality
@@ -323,7 +325,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+EOL
           fi
 
       # Initialize CodeQL
