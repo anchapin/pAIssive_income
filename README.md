@@ -257,7 +257,7 @@ To use the mem0 integration:
 
 1. Install the required dependencies:
    ```bash
-   pip install -r requirements_mem0.txt
+   pip install -r requirements.txt
    ```
 
 2. Set your OpenAI API key (required by mem0):

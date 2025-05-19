@@ -46,15 +46,11 @@ try:
 except ImportError:
     pass
 
-# Skip all tests if dependencies are not available
+# Skip all tests if dependencies are not available or OpenAI API key is not set
 pytestmark = pytest.mark.skipif(
-    not MEM0_AVAILABLE or not (ADK_AVAILABLE or CREWAI_AVAILABLE),
-    reason="mem0 or agent frameworks not installed",
+    not MEM0_AVAILABLE or not (ADK_AVAILABLE or CREWAI_AVAILABLE) or "OPENAI_API_KEY" not in os.environ,
+    reason="mem0, agent frameworks not installed, or OPENAI_API_KEY not set",
 )
-
-# Skip all tests if OpenAI API key is not set
-if "OPENAI_API_KEY" not in os.environ:
-    pytestmark = pytest.mark.skip(reason="OPENAI_API_KEY not set")
 
 
 class TestMem0Integration(unittest.TestCase):
@@ -64,23 +60,23 @@ class TestMem0Integration(unittest.TestCase):
         """Set up test fixtures."""
         # Create a unique user ID for testing
         self.user_id = f"test_user_{os.urandom(4).hex()}"
-        
+
         # Initialize mem0 memory
         self.memory = Memory()
-        
+
         # Add some test memories
         self.memory.add(
             "User prefers dark mode in applications",
             user_id=self.user_id,
             metadata={"category": "preferences"}
         )
-        
+
         self.memory.add(
             "User is allergic to shellfish",
             user_id=self.user_id,
             metadata={"category": "health"}
         )
-        
+
         self.memory.add(
             [
                 {"role": "user", "content": "What's the weather like today?"},
@@ -105,10 +101,10 @@ class TestMem0Integration(unittest.TestCase):
             name="TestAgent",
             user_id=self.user_id
         )
-        
+
         # Test memory retrieval
         memories = agent._retrieve_relevant_memories("preferences")
-        
+
         # Check that memories were retrieved
         assert len(memories) > 0
         assert any("dark mode" in str(memory) for memory in memories)
@@ -121,14 +117,14 @@ class TestMem0Integration(unittest.TestCase):
             name="TestAgent",
             user_id=self.user_id
         )
-        
+
         # Store a new memory
         test_content = f"Test memory {os.urandom(4).hex()}"
         agent._store_memory(test_content)
-        
+
         # Retrieve the memory
         memories = agent._retrieve_relevant_memories(test_content[:10])
-        
+
         # Check that the memory was stored and retrieved
         assert len(memories) > 0
         assert any(test_content in str(memory) for memory in memories)
@@ -138,10 +134,10 @@ class TestMem0Integration(unittest.TestCase):
         """Test that CrewAI teams can retrieve memories."""
         # Create a memory-enhanced team
         team = MemoryEnhancedCrewAIAgentTeam(user_id=self.user_id)
-        
+
         # Test memory retrieval
         memories = team._retrieve_relevant_memories("allergies")
-        
+
         # Check that memories were retrieved
         assert len(memories) > 0
         assert any("shellfish" in str(memory) for memory in memories)
@@ -151,14 +147,14 @@ class TestMem0Integration(unittest.TestCase):
         """Test that CrewAI teams can store memories."""
         # Create a memory-enhanced team
         team = MemoryEnhancedCrewAIAgentTeam(user_id=self.user_id)
-        
+
         # Store a new memory
         test_content = f"Test team memory {os.urandom(4).hex()}"
         team._store_memory(test_content)
-        
+
         # Retrieve the memory
         memories = team._retrieve_relevant_memories(test_content[:10])
-        
+
         # Check that the memory was stored and retrieved
         assert len(memories) > 0
         assert any(test_content in str(memory) for memory in memories)
