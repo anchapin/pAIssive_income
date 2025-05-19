@@ -28,6 +28,7 @@ Files in this directory follow the naming convention:
 
 For example:
 - `postcss-8.4.32.md` - Documents the update to PostCSS version 8.4.32
+- `mocha-11.3.0.md` - Documents the update to Mocha version 11.3.0
 
 ## Contents
 
