@@ -65,9 +65,9 @@ repos:
   # Type checking (run after formatting/linting)
   - repo: local
     hooks:
-      - id: mypy
-        name: Type check with MyPy
-        entry: python -m mypy
+      - id: pyrefly
+        name: Type check with Pyrefly
+        entry: python -m pyrefly
         language: system
         types: [python]
         require_serial: true
@@ -76,15 +76,6 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
-        args: [
-          "--install-types",
-          "--non-interactive",
-          "--disable-error-code=attr-defined",
-          "--disable-error-code=name-defined",
-          "--disable-error-code=unused-ignore",
-          "--namespace-packages",
-          "--explicit-package-bases"
-        ]
 
   # Optimized local hooks for incremental checks
   - repo: local

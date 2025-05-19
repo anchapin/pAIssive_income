@@ -25,17 +25,17 @@ There are many ways to contribute to the pAIssive Income Framework:
 - **Node.js:** [`pnpm`](https://pnpm.io/) (for all Node.js/JavaScript/TypeScript dependency management—frontend and scripts)
 - **Do _not_ use:** `pip`, `venv`, `npm`, or `yarn` directly for development, testing, or CI. Contributions using unsupported tools will not be accepted.
 
-> **Install `uv`:**  
-> - Preferred: `curl -LsSf https://astral.sh/uv/install.sh | sh`  
+> **Install `uv`:**
+> - Preferred: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 > - If curl is unavailable: `pip install uv` (only for initial installation)
 
 > **Install `pnpm`:**
-> - Preferred (with Node.js v16.10+):  
+> - Preferred (with Node.js v16.10+):
 >   ```bash
 >   corepack enable
 >   ```
 >   This will make `pnpm` available.
-> - If Corepack is unavailable:  
+> - If Corepack is unavailable:
 >   ```bash
 >   npm install -g pnpm
 >   ```
@@ -55,7 +55,7 @@ cd pAIssive_income
 
 3. **Set up the Python environment (choose one):**
 
-- **Recommended:**  
+- **Recommended:**
   ```bash
   # On Windows
   enhanced_setup_dev_environment.bat
@@ -161,7 +161,7 @@ For detailed setup instructions, please see the [IDE Setup Guide](ide_setup.md).
 
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use pre-commit hooks with ruff (for linting and formatting) and mypy for type checking:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with ruff (for linting and formatting) and pyrefly for type checking:
 
 > **Important Note:**
 > This project uses **Ruff** as the primary code formatter, not Black. Please configure your IDE accordingly (see the [IDE Setup Guide](ide_setup.md) for instructions).
@@ -192,7 +192,7 @@ ruff check .
 ruff format .
 
 # Type checking
-mypy .
+pyrefly .
 
 # Run Node.js/unit tests for frontend (if applicable)
 pnpm test
@@ -204,10 +204,10 @@ By contributing to the pAIssive Income Framework, you agree that your contributi
 
 ---
 
-> **Summary:**  
-> - Use **`uv`** for all Python dependency and environment management.  
-> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.  
-> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.  
+> **Summary:**
+> - Use **`uv`** for all Python dependency and environment management.
+> - Use **`pnpm`** for all Node.js/JavaScript/TypeScript dependencies and scripts.
+> - Do **not** use `pip`, `venv`, `npm`, or `yarn` for any development or CI/CD steps.
 > - For any questions, see the top of this document or ask a maintainer.
 
 ```
