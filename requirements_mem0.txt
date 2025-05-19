@@ -5,6 +5,7 @@ mem0ai>=0.1.100
 qdrant-client>=1.9.1
 pydantic>=2.7.3
 openai>=1.33.0
+posthog>=3.5.0
 pytz>=2024.1
 sqlalchemy>=2.0.31
 
