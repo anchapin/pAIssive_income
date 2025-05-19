@@ -1,0 +1,66 @@
+# --- Builder Stage: Python with uv ---
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements files
+COPY artist_experiments/requirements-artist.txt .
+
+# Set up virtual environment and install dependencies
+RUN uv venv /app/.venv-artist \
+    && . /app/.venv-artist/bin/activate \
+    && uv pip install --no-cache -r requirements-artist.txt --python /app/.venv-artist/bin/python \
+    && uv pip install psycopg2-binary gunicorn
+
+# Copy application code
+COPY . .
+
+# Prepare runtime directories and log files
+RUN mkdir -p /app/artist_experiments/logs /app/artist_experiments/data /app/artist_experiments/models && \
+    touch /app/artist_experiments/logs/flask.log /app/artist_experiments/logs/error.log /app/artist_experiments/logs/app.log
+
+# --- Runtime Stage: Python ---
+FROM python:3.10-slim AS runtime
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtual environment from builder
+COPY --from=builder /app/.venv-artist /app/.venv-artist
+
+# Copy only necessary application code
+COPY --from=builder /app/artist_experiments /app/artist_experiments
+COPY --from=builder /app/ai_models /app/ai_models
+COPY --from=builder /app/common_utils /app/common_utils
+
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    FLASK_APP=artist_experiments/run_artist.py \
+    FLASK_ENV=development \
+    PATH="/app/.venv-artist/bin:$PATH" \
+    VIRTUAL_ENV="/app/.venv-artist"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=60s --start-period=240s --retries=12 \
+  CMD ["curl", "-f", "http://localhost:5000/health"]
+
+# Expose port
+EXPOSE 5000
+
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "artist_experiments.run_artist:app"]
