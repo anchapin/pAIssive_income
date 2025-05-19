@@ -35,7 +35,7 @@ try:
         [sys.executable, "-m", "pytest", *args],
         check=False,
         shell=False,
-        timeout=3600  # 1 hour timeout
+        timeout=3600,  # 1 hour timeout
     )
     sys.exit(result.returncode)
 except Exception as e:

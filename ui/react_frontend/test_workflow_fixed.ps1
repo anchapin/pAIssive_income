@@ -38,6 +38,10 @@ describe("Dummy test", () => {
 # Run Vitest unit tests
 Write-Host "Running Vitest unit tests..."
 try {
+    # Ensure tailwind CSS is built before running tests
+    Write-Host "Building tailwind CSS..."
+    pnpm tailwind:build
+
     pnpm run test:unit
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Vitest tests failed, but continuing workflow"
@@ -63,6 +67,10 @@ $env:REACT_APP_AG_UI_ENABLED = "true"
 
 # Run the CI-friendly tests
 try {
+    # Ensure tailwind CSS is built before running tests
+    Write-Host "Building tailwind CSS for Playwright tests..."
+    pnpm tailwind:build
+
     pnpm test:ci:windows
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Playwright tests failed, but continuing workflow"
@@ -76,10 +84,10 @@ try {
 if (-not (Get-ChildItem -Path "playwright-report" -Force -ErrorAction SilentlyContinue)) {
     Write-Host "Creating dummy file in empty playwright-report directory"
     Set-Content -Path "playwright-report\test-summary.txt" -Value "Test run completed at $(Get-Date)"
-    
+
     # Create a minimal HTML report
     New-Item -ItemType Directory -Path "playwright-report\html" -Force | Out-Null
-    
+
     # Create HTML report line by line
     Set-Content -Path "playwright-report\html\index.html" -Value "<!DOCTYPE html>"
     Add-Content -Path "playwright-report\html\index.html" -Value "<html>"
