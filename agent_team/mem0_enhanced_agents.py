@@ -6,17 +6,17 @@ It extends the CrewAI agent implementation with persistent memory capabilities.
 
 Usage:
     from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
-    
+
     # Create a memory-enhanced agent team
     team = MemoryEnhancedCrewAIAgentTeam(user_id="user123")
-    
+
     # Add agents with memory capabilities
     researcher = team.add_agent(
         role="Researcher",
         goal="Find relevant information",
         backstory="Expert at gathering data"
     )
-    
+
     # Run the team with memory enhancement
     result = team.run()
 
@@ -56,24 +56,24 @@ logger = logging.getLogger(__name__)
 class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
     """
     CrewAI Agent Team with mem0 memory enhancement.
-    
+
     This class extends the CrewAIAgentTeam with persistent memory capabilities
     using mem0. It adds memory hooks to key lifecycle points:
     - Agent initialization
     - Task assignment
     - Team execution
     """
-    
+
     def __init__(self, llm_provider: object = None, user_id: str = None) -> None:
         """
         Initialize a memory-enhanced CrewAI Agent Team.
-        
+
         Args:
             llm_provider: The LLM provider to use for agent interactions
             user_id: The user ID for memory storage and retrieval
         """
         super().__init__(llm_provider)
-        
+
         # Initialize mem0 memory if available
         if MEM0_AVAILABLE:
             self.memory = Memory()
@@ -81,94 +81,94 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
         else:
             self.memory = None
             logger.warning("mem0 not available. Install with: pip install mem0ai")
-        
+
         # Set user ID for memory operations
         self.user_id = user_id or "default_user"
-        
+
         # Store team creation in memory
         self._store_memory(f"Agent team created with user ID: {self.user_id}")
-    
+
     def add_agent(self, role: str, goal: str, backstory: str) -> object:
         """
         Add an agent to the team with memory enhancement.
-        
+
         Args:
             role: The role of the agent
             goal: The goal of the agent
             backstory: The backstory of the agent
-            
+
         Returns:
             The created agent
         """
         # Create the agent using the parent method
         agent = super().add_agent(role, goal, backstory)
-        
+
         # Store agent information in memory
         self._store_memory(
             f"Agent '{role}' added to team with goal: {goal}",
             metadata={"agent_role": role, "agent_goal": goal}
         )
-        
+
         return agent
-    
+
     def add_task(self, description: str, agent: object) -> object:
         """
         Add a task to the team with memory enhancement.
-        
+
         Args:
             description: The task description
             agent: The agent assigned to the task
-            
+
         Returns:
             The created task
         """
         # Create the task using the parent method
         task = super().add_task(description, agent)
-        
+
         # Get agent role for metadata
-        agent_role = getattr(agent, "role", "unknown") if not isinstance(agent, str) else agent
-        
+        agent_role = getattr(agent, "role", "unknown")
+
         # Store task information in memory
         self._store_memory(
             f"Task assigned to agent '{agent_role}': {description}",
             metadata={"task_description": description, "agent_role": agent_role}
         )
-        
+
         return task
-    
+
     def run(self) -> object:
         """
         Run the agent team workflow with memory enhancement.
-        
+
         This method:
         1. Retrieves relevant memories before running
         2. Runs the team workflow
         3. Stores the results in memory
-        
+
         Returns:
             The result of the workflow
         """
         if not CREWAI_AVAILABLE:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
-        
+
         # Retrieve relevant memories for context enhancement
         context = self._retrieve_relevant_memories()
         logger.info(f"Retrieved {len(context)} relevant memories for context enhancement")
-        
+
         # Log the start of the workflow
         logger.info(f"Starting memory-enhanced workflow with {len(self.agents)} agents and {len(self.tasks)} tasks")
         self._store_memory(f"Starting workflow execution with {len(self.agents)} agents and {len(self.tasks)} tasks")
-        
+
         # Create and run the crew
         crew = self._create_crew()
-        
+
         # TODO: Enhance crew with context from memories
         # This would require modifying the CrewAI implementation
-        
+
         # Run the workflow
         result = crew.kickoff()  # type: ignore[attr-defined]
-        
+
         # Store the result in memory
         if isinstance(result, str):
             self._store_memory(
@@ -180,20 +180,20 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
                 "Workflow completed with non-string result",
                 metadata={"workflow_result": "success"}
             )
-        
+
         return result
-    
+
     def _store_memory(self, content: Union[str, List[Dict[str, str]]], metadata: Dict[str, str] = None) -> None:
         """
         Store a memory using mem0.
-        
+
         Args:
             content: The content to store (string or conversation messages)
             metadata: Optional metadata for the memory
         """
         if self.memory is None:
             return
-        
+
         try:
             self.memory.add(
                 content,
@@ -203,26 +203,26 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
             logger.error(f"Error storing memory: {e}")
-    
+
     def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve relevant memories for the current context.
-        
+
         Args:
             query: Optional query string (defaults to team and agent information)
             limit: Maximum number of memories to retrieve
-            
+
         Returns:
             List of relevant memories
         """
         if self.memory is None:
             return []
-        
+
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
             query = f"Information about agents with roles: {', '.join(agent_roles)}"
-        
+
         try:
             # Search for relevant memories
             memories = self.memory.search(
@@ -243,7 +243,7 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    
+
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
@@ -252,31 +252,31 @@ if __name__ == "__main__":
     else:
         # Create a memory-enhanced agent team
         team = MemoryEnhancedCrewAIAgentTeam(user_id="example_user")
-        
+
         # Add agents
         researcher = team.add_agent(
             role="Researcher",
             goal="Find relevant information about the topic",
             backstory="Expert at gathering and analyzing data from various sources"
         )
-        
+
         writer = team.add_agent(
             role="Writer",
             goal="Create engaging content based on research",
             backstory="Skilled content creator with expertise in clear communication"
         )
-        
+
         # Add tasks
         research_task = team.add_task(
             description="Research the latest trends in AI memory systems",
             agent=researcher
         )
-        
+
         writing_task = team.add_task(
             description="Write a summary of the research findings",
             agent=writer
         )
-        
+
         # Run the team
         try:
             result = team.run()
