@@ -186,7 +186,9 @@ ui/react_frontend/ci-mode-active.txt
 ui/react_frontend/ci-path-to-regexp-status.txt
 ui/react_frontend/ci-compat-success.txt
 ui/react_frontend/github-actions-success.txt
+ui/react_frontend/ci-reports/
 test-results/
+ci-reports/
 enhanced-mock-path-to-regexp-marker.txt
 enhanced-mock-path-to-regexp-success.txt
 require-patched-marker.txt
