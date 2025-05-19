@@ -1,9 +1,15 @@
 # pAIssive Income
 
+[![codecov](https://codecov.io/gh/anchapin/pAIssive_income/branch/main/graph/badge.svg)](https://codecov.io/gh/anchapin/pAIssive_income)
+
+> **CI will fail if coverage drops compared to the base branch (enforced by Codecov).**
+>
+> **Pull Requests will receive automated coverage comments from the [Codecov](https://about.codecov.io/) bot when Codecov integration is enabled for your repository.**
+
 Framework for generating passive income by utilizing a team of AI agents to generate niche software and AI bots for customers.
 
-[![Build Status](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pAIssive_income/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/your-org/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/your-org/pAIssive_income?branch=main)
+[![Build Status](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/anchapin/pAIssive_income/badge.svg?branch=main)](https://coveralls.io/github/anchapin/pAIssive_income?branch=main)
 
 ## Features
 
@@ -68,6 +74,122 @@ See [LICENSE](LICENSE).
 
 ---
 
+
+## JavaScript Testing and Coverage
+
+This project enforces at least **80% code coverage** for JavaScript files using [nyc (Istanbul)](https://github.com/istanbuljs/nyc) and [Mocha](https://mochajs.org/).
+
+### How to Run JavaScript Tests
+
+Install dependencies (if not already done):
+
+```sh
+pnpm install
+```
+
+Run JavaScript tests and check coverage:
+
+```sh
+pnpm test
+```
+
+- If code coverage falls below 80%, the test run will fail.
+- Coverage reports will be printed to the console and an HTML report will be generated in the `coverage/` directory (if running locally).
+
+To generate a detailed lcov report:
+
+```sh
+pnpm coverage
+```
+
+**Coverage thresholds for statements, branches, functions, and lines are all set to 80%.**
+
+You can find example JS source and tests in the `src/` directory.
+
+---
+
+## Writing Advanced JavaScript Tests (React Component Example)
+
+For more complex JavaScript code, such as React components, you can write tests to verify rendering, user interaction, and state updates.
+
+**Example: Testing a React Component with Mocha and Enzyme**
+
+First, install additional test utilities:
+
+```sh
+pnpm add --save-dev enzyme enzyme-adapter-react-16 @wojtekmaj/enzyme-adapter-react-17
+```
+
+Example component (`src/Hello.js`):
+
+```jsx
+import React from 'react';
+
+export function Hello({ name }) {
+  return <div>Hello, {name}!</div>;
+}
+```
+
+Example test (`src/Hello.test.js`):
+
+```js
+const React = require('react');
+const { shallow, configure } = require('enzyme');
+const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
+const { Hello } = require('./Hello');
+
+configure({ adapter: new Adapter() });
+
+describe('Hello component', () => {
+  it('renders the correct greeting', () => {
+    const wrapper = shallow(<Hello name="World" />);
+    if (!wrapper.text().includes('Hello, World!')) {
+      throw new Error('Greeting not rendered correctly');
+    }
+  });
+});
+```
+
+> **Tip:** For React projects, [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) is very popular and may offer a smoother setup for component and hook testing.
+
+**Best Practices:**
+- Test both rendering and user events/interactions.
+- Mock API calls and external dependencies.
+- Use coverage reports to identify untested code paths.
+- Place tests next to source files or in a dedicated test directory.
+
+---
+
+## Dependency Updates (via Dependabot)
+
+This project uses [Dependabot](https://docs.github.com/en/code-security/dependabot) to keep dependencies up-to-date for all major ecosystems:
+
+- **JavaScript/Node (pnpm):** Updates to packages in `package.json`
+- **Python:** Updates to packages in `requirements-ci.txt`, `requirements_filtered.txt`
+- **Docker:** Updates to base images in `Dockerfile`, `main_Dockerfile`, and `ui/react_frontend/Dockerfile.dev`
+- **GitHub Actions:** Updates to workflow actions in `.github/workflows/`
+
+**How it works:**
+- Dependabot will automatically open pull requests for version updates on a weekly schedule.
+- PRs are labeled by ecosystem (e.g., `dependencies`, `javascript`, `python`, `docker`, `github-actions`).
+- Some dependencies (e.g., `react`, `flask`, `pytest`) will not be updated for major releases automatically.
+
+**Maintainer action:**
+- Review Dependabot PRs promptly.
+- Ensure CI/tests pass before merging.
+- For major upgrades, review changelogs for breaking changes.
+
+For more details, see `.github/dependabot.yml`.
+
+> **Tip for maintainers:**
+> Periodically review and adjust the `.github/dependabot.yml` configuration (update schedules, ignored dependencies, PR limits) to ensure it fits the project's evolving needs.
+
+---
+
+For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
+
+## Docker Compose Integration
+=======
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
