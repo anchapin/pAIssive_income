@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from "@testing-library/react";
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import CopilotChatDemo from "./CopilotChat";
 
 // Mock CopilotKitProvider and CopilotChat if packages are not installed yet
@@ -12,6 +12,11 @@ vi.mock("@copilotkit/react-ui", () => ({
 }));
 
 describe("CopilotChatDemo", () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetAllMocks();
+  });
+
   it("renders without crashing and displays the heading", () => {
     render(<CopilotChatDemo />);
     expect(screen.getByRole("heading", { name: /CopilotKit \+ CrewAI Chat/i })).toBeInTheDocument();
