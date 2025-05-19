@@ -2,14 +2,14 @@
  * Environment Detection Utility
  *
  * This module provides functions to detect and handle different environments:
- * - Windows vs macOS/Linux
- * - CI environments (GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines, TeamCity)
- * - Docker containers
- * - Development vs Production vs Test
+ * - Operating Systems: Windows, macOS, Linux, WSL
+ * - CI environments: GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines,
+ *   TeamCity, Bitbucket, AppVeyor, Buildkite, Codefresh, Semaphore, Harness, and more
+ * - Container environments: Docker, Kubernetes, rkt, containerd, CRI-O, Singularity
+ * - Development vs Production vs Test vs Staging
  * - Browser vs Node.js
- * - Kubernetes environments
- * - Cloud environments (AWS, Azure, GCP)
- * - Serverless environments
+ * - Cloud environments: AWS, Azure, GCP, Alibaba Cloud, Tencent Cloud, Huawei Cloud, Oracle Cloud, IBM Cloud
+ * - Serverless environments: AWS Lambda, Azure Functions, Google Cloud Functions
  *
  * It's designed to be used across the application to ensure consistent
  * environment detection and handling across all platforms and environments.
@@ -88,7 +88,11 @@ export function detectEnvironment() {
     !!process.env.JENKINS_URL || !!process.env.GITLAB_CI ||
     !!process.env.CIRCLECI || !!process.env.TRAVIS ||
     !!process.env.TF_BUILD || !!process.env.TEAMCITY_VERSION ||
-    !!process.env.BITBUCKET_BUILD_NUMBER || !!process.env.APPVEYOR
+    !!process.env.BITBUCKET_BUILD_NUMBER || !!process.env.APPVEYOR ||
+    !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID ||
+    !!process.env.CF_BUILD_ID || !!process.env.CODEFRESH_IO ||
+    !!process.env.SEMAPHORE || !!process.env.SEMAPHORE_WORKFLOW_ID ||
+    !!process.env.HARNESS_BUILD_ID || !!process.env.HARNESS_PIPELINE_ID
   );
 
   const isGitHubActions = typeof process !== 'undefined' && (
@@ -104,10 +108,28 @@ export function detectEnvironment() {
   const isBitbucket = typeof process !== 'undefined' && !!process.env.BITBUCKET_BUILD_NUMBER;
   const isAppVeyor = typeof process !== 'undefined' && !!process.env.APPVEYOR;
 
+  // New CI platforms
+  const isBuildkite = typeof process !== 'undefined' && (
+    !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID
+  );
+  const isCodefresh = typeof process !== 'undefined' && (
+    !!process.env.CF_BUILD_ID || !!process.env.CODEFRESH_IO
+  );
+  const isSemaphore = typeof process !== 'undefined' && (
+    !!process.env.SEMAPHORE || !!process.env.SEMAPHORE_WORKFLOW_ID
+  );
+  const isHarness = typeof process !== 'undefined' && (
+    !!process.env.HARNESS_BUILD_ID || !!process.env.HARNESS_PIPELINE_ID
+  );
+
   // Container Environment Detection
   let isDocker = false;
   let isKubernetes = false;
   let isContainerized = false;
+  let isRkt = false;
+  let isContainerd = false;
+  let isCRIO = false;
+  let isSingularity = false;
 
   if (typeof process !== 'undefined') {
     try {
@@ -126,15 +148,46 @@ export function detectEnvironment() {
                     !!process.env.KUBERNETES_PORT ||
                     fs.existsSync('/var/run/secrets/kubernetes.io');
 
+      // rkt detection
+      isRkt = process.env.RKT_ENVIRONMENT === 'true' ||
+             process.env.RKT === 'true' ||
+             (fs.existsSync('/proc/1/cgroup') &&
+              fs.readFileSync('/proc/1/cgroup', 'utf8').includes('rkt'));
+
+      // containerd detection
+      isContainerd = process.env.CONTAINERD_ENVIRONMENT === 'true' ||
+                    process.env.CONTAINERD === 'true' ||
+                    (fs.existsSync('/proc/1/cgroup') &&
+                     fs.readFileSync('/proc/1/cgroup', 'utf8').includes('containerd'));
+
+      // CRI-O detection
+      isCRIO = process.env.CRIO_ENVIRONMENT === 'true' ||
+              process.env.CRIO === 'true' ||
+              (fs.existsSync('/proc/1/cgroup') &&
+               fs.readFileSync('/proc/1/cgroup', 'utf8').includes('crio'));
+
+      // Singularity detection
+      isSingularity = process.env.SINGULARITY_ENVIRONMENT === 'true' ||
+                     process.env.SINGULARITY === 'true' ||
+                     !!process.env.SINGULARITY_CONTAINER ||
+                     fs.existsSync('/.singularity.d') ||
+                     fs.existsSync('/singularity');
+
       // General containerization detection
-      isContainerized = isDocker || isKubernetes ||
+      isContainerized = isDocker || isKubernetes || isRkt || isContainerd || isCRIO || isSingularity ||
                        process.env.CONTAINER === 'true' ||
                        process.env.CONTAINERIZED === 'true';
     } catch (error) {
       // fs module not available in browser
       isDocker = process.env.DOCKER_ENVIRONMENT === 'true' || process.env.DOCKER === 'true';
       isKubernetes = !!process.env.KUBERNETES_SERVICE_HOST || !!process.env.KUBERNETES_PORT;
-      isContainerized = isDocker || isKubernetes ||
+      isRkt = process.env.RKT_ENVIRONMENT === 'true' || process.env.RKT === 'true';
+      isContainerd = process.env.CONTAINERD_ENVIRONMENT === 'true' || process.env.CONTAINERD === 'true';
+      isCRIO = process.env.CRIO_ENVIRONMENT === 'true' || process.env.CRIO === 'true';
+      isSingularity = process.env.SINGULARITY_ENVIRONMENT === 'true' ||
+                     process.env.SINGULARITY === 'true' ||
+                     !!process.env.SINGULARITY_CONTAINER;
+      isContainerized = isDocker || isKubernetes || isRkt || isContainerd || isCRIO || isSingularity ||
                        process.env.CONTAINER === 'true' ||
                        process.env.CONTAINERIZED === 'true';
     }
@@ -144,23 +197,65 @@ export function detectEnvironment() {
   const isAWS = typeof process !== 'undefined' && (
     !!process.env.AWS_REGION ||
     !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
-    !!process.env.AWS_EXECUTION_ENV
+    !!process.env.AWS_EXECUTION_ENV ||
+    !!process.env.AWS_ACCESS_KEY_ID ||
+    !!process.env.AWS_SECRET_ACCESS_KEY
   );
 
   const isAzure = typeof process !== 'undefined' && (
     !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
     !!process.env.WEBSITE_SITE_NAME ||
-    !!process.env.APPSETTING_WEBSITE_SITE_NAME
+    !!process.env.APPSETTING_WEBSITE_SITE_NAME ||
+    !!process.env.AZURE_SUBSCRIPTION_ID ||
+    !!process.env.AZURE_TENANT_ID
   );
 
   const isGCP = typeof process !== 'undefined' && (
     !!process.env.GOOGLE_CLOUD_PROJECT ||
     !!process.env.GCLOUD_PROJECT ||
     !!process.env.GCP_PROJECT ||
-    !!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION
+    !!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION ||
+    !!process.env.GOOGLE_APPLICATION_CREDENTIALS
   );
 
-  const isCloudEnvironment = isAWS || isAzure || isGCP;
+  // New cloud providers
+  const isAlibabaCloud = typeof process !== 'undefined' && (
+    !!process.env.ALIBABA_CLOUD_ACCESS_KEY_ID ||
+    !!process.env.ALIBABA_CLOUD_ACCESS_KEY_SECRET ||
+    !!process.env.ALICLOUD_ACCESS_KEY ||
+    !!process.env.ALICLOUD_SECRET_KEY ||
+    !!process.env.ALICLOUD_REGION
+  );
+
+  const isTencentCloud = typeof process !== 'undefined' && (
+    !!process.env.TENCENTCLOUD_SECRET_ID ||
+    !!process.env.TENCENTCLOUD_SECRET_KEY ||
+    !!process.env.TENCENTCLOUD_REGION
+  );
+
+  const isHuaweiCloud = typeof process !== 'undefined' && (
+    !!process.env.HUAWEICLOUD_ACCESS_KEY ||
+    !!process.env.HUAWEICLOUD_SECRET_KEY ||
+    !!process.env.HUAWEICLOUD_REGION
+  );
+
+  const isOracleCloud = typeof process !== 'undefined' && (
+    !!process.env.OCI_RESOURCE_PRINCIPAL_VERSION ||
+    !!process.env.OCI_COMPARTMENT_ID ||
+    !!process.env.OCI_REGION ||
+    !!process.env.OCI_TENANT_ID
+  );
+
+  const isIBMCloud = typeof process !== 'undefined' && (
+    !!process.env.IBMCLOUD_API_KEY ||
+    !!process.env.BLUEMIX_API_KEY ||
+    !!process.env.BLUEMIX_REGION ||
+    !!process.env.IBM_CLOUD_REGION
+  );
+
+  const isCloudEnvironment = isAWS || isAzure || isGCP ||
+                            isAlibabaCloud || isTencentCloud || isHuaweiCloud ||
+                            isOracleCloud || isIBMCloud;
 
   // Serverless Environment Detection
   const isLambda = typeof process !== 'undefined' && !!process.env.AWS_LAMBDA_FUNCTION_NAME;
@@ -248,16 +343,32 @@ export function detectEnvironment() {
     isTeamCity,
     isBitbucket,
     isAppVeyor,
+    // New CI platforms
+    isBuildkite,
+    isCodefresh,
+    isSemaphore,
+    isHarness,
 
     // Container Environment
     isDocker,
     isKubernetes,
     isContainerized,
+    // New container runtimes
+    isRkt,
+    isContainerd,
+    isCRIO,
+    isSingularity,
 
     // Cloud Environment
     isAWS,
     isAzure,
     isGCP,
+    // New cloud providers
+    isAlibabaCloud,
+    isTencentCloud,
+    isHuaweiCloud,
+    isOracleCloud,
+    isIBMCloud,
     isCloudEnvironment,
 
     // Serverless Environment

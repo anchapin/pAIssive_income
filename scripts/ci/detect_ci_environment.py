@@ -27,9 +27,25 @@ It supports a wide range of CI platforms including:
 - Render
 - Railway
 - Fly.io
+- Codemagic
+- GitHub Codespaces
+- Google Cloud Build
+- Alibaba Cloud DevOps
+- Huawei Cloud DevCloud
+- Tencent Cloud CODING
+- Baidu Cloud CICD
+- Sourcegraph
+- Gitpod
+- Replit
+- Stackblitz
+- Glitch
 
 It also detects container environments:
 - Docker
+- Podman
+- LXC/LXD
+- Containerd
+- CRI-O
 - Docker Compose
 - Docker Swarm
 - Kubernetes
@@ -38,6 +54,12 @@ And cloud environments:
 - AWS
 - Azure
 - GCP
+- Oracle Cloud (OCI)
+- IBM Cloud
+- DigitalOcean
+- Linode
+- Vultr
+- Cloudflare
 - Serverless (Lambda, Azure Functions, Cloud Functions)
 
 Usage:
@@ -120,7 +142,8 @@ def detect_ci_environment() -> Dict[str, Any]:
             or os.environ.get("WSLENV") is not None
             or (
                 safe_file_exists("/proc/version")
-                and "microsoft" in safe_read_file("/proc/version").lower()
+                and safe_read_file("/proc/version") is not None
+                and "microsoft" in (safe_read_file("/proc/version") or "").lower()
             )
             or "microsoft" in platform.release().lower()
         )
@@ -162,6 +185,31 @@ def detect_ci_environment() -> Dict[str, Any]:
             or os.environ.get("RENDER") is not None
             or os.environ.get("RAILWAY_ENVIRONMENT_ID") is not None
             or os.environ.get("FLY_APP_NAME") is not None
+            # New CI platforms
+            or os.environ.get("CM_BUILD_ID") is not None
+            or os.environ.get("CODEMAGIC_ID") is not None
+            or os.environ.get("CODESPACE_NAME") is not None
+            or os.environ.get("GITHUB_CODESPACE_NAME") is not None
+            or os.environ.get("CLOUD_BUILD") is not None
+            or os.environ.get("CLOUD_BUILD_ID") is not None
+            or os.environ.get("ALIBABA_CLOUD") is not None
+            or os.environ.get("ALICLOUD_ACCOUNT_ID") is not None
+            or os.environ.get("DEVCLOUD_PIPELINE_ID") is not None
+            or os.environ.get("HUAWEICLOUD_PIPELINE") is not None
+            or os.environ.get("CODING_PIPELINE_ID") is not None
+            or os.environ.get("TENCENT_CLOUD_CI") is not None
+            or os.environ.get("BAIDU_CLOUD_CI") is not None
+            or os.environ.get("BAIDU_PIPELINE_ID") is not None
+            or os.environ.get("SOURCEGRAPH_EXECUTOR") is not None
+            or os.environ.get("SRC_EXECUTOR_NAME") is not None
+            or os.environ.get("GITPOD_WORKSPACE_ID") is not None
+            or os.environ.get("GITPOD_WORKSPACE_URL") is not None
+            or os.environ.get("REPL_ID") is not None
+            or os.environ.get("REPL_OWNER") is not None
+            or os.environ.get("STACKBLITZ_ENV") is not None
+            or os.environ.get("STACKBLITZ_PROJECT_ID") is not None
+            or os.environ.get("GLITCH_EDITOR_URL") is not None
+            or os.environ.get("GLITCH_PROJECT_ID") is not None
         ),
         "ci_type": "unknown",
         "ci_platform": "unknown",
@@ -353,6 +401,103 @@ def detect_ci_environment() -> Dict[str, Any]:
             for key, value in os.environ.items()
             if key.startswith("FLY_")
         }
+    # New CI platforms
+    elif os.environ.get("CM_BUILD_ID") or os.environ.get("CODEMAGIC_ID"):
+        ci_info["ci_type"] = "codemagic"
+        ci_info["ci_platform"] = "Codemagic"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CM_") or key.startswith("CODEMAGIC_")
+        }
+    elif os.environ.get("CODESPACE_NAME") or os.environ.get("GITHUB_CODESPACE_NAME"):
+        ci_info["ci_type"] = "github-codespaces"
+        ci_info["ci_platform"] = "GitHub Codespaces"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CODESPACE_") or key.startswith("GITHUB_CODESPACE_")
+        }
+    elif os.environ.get("CLOUD_BUILD") or os.environ.get("CLOUD_BUILD_ID"):
+        ci_info["ci_type"] = "google-cloud-build"
+        ci_info["ci_platform"] = "Google Cloud Build"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CLOUD_BUILD_") or key == "CLOUD_BUILD"
+        }
+    elif os.environ.get("ALIBABA_CLOUD") or os.environ.get("ALICLOUD_ACCOUNT_ID"):
+        ci_info["ci_type"] = "alibaba-cloud"
+        ci_info["ci_platform"] = "Alibaba Cloud DevOps"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("ALIBABA_") or key.startswith("ALICLOUD_")
+        }
+    elif os.environ.get("DEVCLOUD_PIPELINE_ID") or os.environ.get("HUAWEICLOUD_PIPELINE"):
+        ci_info["ci_type"] = "huawei-cloud"
+        ci_info["ci_platform"] = "Huawei Cloud DevCloud"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("DEVCLOUD_") or key.startswith("HUAWEICLOUD_")
+        }
+    elif os.environ.get("CODING_PIPELINE_ID") or os.environ.get("TENCENT_CLOUD_CI"):
+        ci_info["ci_type"] = "tencent-cloud"
+        ci_info["ci_platform"] = "Tencent Cloud CODING"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("CODING_") or key.startswith("TENCENT_")
+        }
+    elif os.environ.get("BAIDU_CLOUD_CI") or os.environ.get("BAIDU_PIPELINE_ID"):
+        ci_info["ci_type"] = "baidu-cloud"
+        ci_info["ci_platform"] = "Baidu Cloud CICD"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("BAIDU_")
+        }
+    elif os.environ.get("SOURCEGRAPH_EXECUTOR") or os.environ.get("SRC_EXECUTOR_NAME"):
+        ci_info["ci_type"] = "sourcegraph"
+        ci_info["ci_platform"] = "Sourcegraph"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("SOURCEGRAPH_") or key.startswith("SRC_")
+        }
+    elif os.environ.get("GITPOD_WORKSPACE_ID") or os.environ.get("GITPOD_WORKSPACE_URL"):
+        ci_info["ci_type"] = "gitpod"
+        ci_info["ci_platform"] = "Gitpod"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("GITPOD_")
+        }
+    elif os.environ.get("REPL_ID") or os.environ.get("REPL_OWNER"):
+        ci_info["ci_type"] = "replit"
+        ci_info["ci_platform"] = "Replit"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("REPL_")
+        }
+    elif os.environ.get("STACKBLITZ_ENV") or os.environ.get("STACKBLITZ_PROJECT_ID"):
+        ci_info["ci_type"] = "stackblitz"
+        ci_info["ci_platform"] = "Stackblitz"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("STACKBLITZ_")
+        }
+    elif os.environ.get("GLITCH_EDITOR_URL") or os.environ.get("GLITCH_PROJECT_ID"):
+        ci_info["ci_type"] = "glitch"
+        ci_info["ci_platform"] = "Glitch"
+        ci_info["ci_environment_variables"] = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("GLITCH_") or key.startswith("PROJECT_")
+        }
     elif ci_info["is_ci"]:
         ci_info["ci_type"] = "generic"
         ci_info["ci_platform"] = "Generic CI"
@@ -360,9 +505,15 @@ def detect_ci_environment() -> Dict[str, Any]:
     # Container Environment Detection
     container_info = {
         "is_docker": False,
+        "is_podman": False,
+        "is_lxc": False,
+        "is_containerd": False,
+        "is_crio": False,
         "is_kubernetes": False,
         "is_docker_compose": False,
         "is_docker_swarm": False,
+        "is_rkt": False,
+        "is_singularity": False,
         "is_containerized": False,
         "detection_method": "none",
     }
@@ -375,7 +526,8 @@ def detect_ci_environment() -> Dict[str, Any]:
         or safe_file_exists("/run/.containerenv")
         or (
             safe_file_exists("/proc/1/cgroup")
-            and "docker" in safe_read_file("/proc/1/cgroup").lower()
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "docker" in (safe_read_file("/proc/1/cgroup") or "").lower()
         )
     ):
         container_info["is_docker"] = True
@@ -386,7 +538,7 @@ def detect_ci_environment() -> Dict[str, Any]:
             container_info["detection_method"] = ".dockerenv file"
         elif safe_file_exists("/run/.containerenv"):
             container_info["detection_method"] = ".containerenv file"
-        elif safe_file_exists("/proc/1/cgroup") and "docker" in safe_read_file("/proc/1/cgroup").lower():
+        elif safe_file_exists("/proc/1/cgroup") and safe_read_file("/proc/1/cgroup") is not None and "docker" in (safe_read_file("/proc/1/cgroup") or "").lower():
             container_info["detection_method"] = "cgroup file"
         else:
             container_info["detection_method"] = "environment variable"
@@ -418,11 +570,100 @@ def detect_ci_environment() -> Dict[str, Any]:
         container_info["is_docker_swarm"] = True
         container_info["is_containerized"] = True
 
+    # Podman detection
+    if (
+        os.environ.get("PODMAN_ENVIRONMENT") == "true"
+        or os.environ.get("PODMAN") == "true"
+        or (
+            safe_file_exists("/proc/1/cgroup")
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "podman" in (safe_read_file("/proc/1/cgroup") or "").lower()
+        )
+    ):
+        container_info["is_podman"] = True
+        container_info["is_containerized"] = True
+
+    # LXC/LXD detection
+    if (
+        os.environ.get("LXC_ENVIRONMENT") == "true"
+        or os.environ.get("LXC") == "true"
+        or os.environ.get("LXD") == "true"
+        or safe_file_exists("/dev/.lxc")
+        or safe_file_exists("/dev/.lxd")
+        or (
+            safe_file_exists("/proc/1/cgroup")
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "lxc" in (safe_read_file("/proc/1/cgroup") or "").lower()
+        )
+    ):
+        container_info["is_lxc"] = True
+        container_info["is_containerized"] = True
+
+    # Containerd detection
+    if (
+        os.environ.get("CONTAINERD_ENVIRONMENT") == "true"
+        or os.environ.get("CONTAINERD") == "true"
+        or (
+            safe_file_exists("/proc/1/cgroup")
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "containerd" in (safe_read_file("/proc/1/cgroup") or "").lower()
+        )
+    ):
+        container_info["is_containerd"] = True
+        container_info["is_containerized"] = True
+
+    # CRI-O detection
+    if (
+        os.environ.get("CRIO_ENVIRONMENT") == "true"
+        or os.environ.get("CRIO") == "true"
+        or (
+            safe_file_exists("/proc/1/cgroup")
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "crio" in (safe_read_file("/proc/1/cgroup") or "").lower()
+        )
+    ):
+        container_info["is_crio"] = True
+        container_info["is_containerized"] = True
+
+    # rkt detection
+    if (
+        os.environ.get("RKT_ENVIRONMENT") == "true"
+        or os.environ.get("RKT") == "true"
+        or (
+            safe_file_exists("/proc/1/cgroup")
+            and safe_read_file("/proc/1/cgroup") is not None
+            and "rkt" in (safe_read_file("/proc/1/cgroup") or "").lower()
+        )
+        or safe_file_exists("/var/lib/rkt")
+    ):
+        container_info["is_rkt"] = True
+        container_info["is_containerized"] = True
+
+    # Singularity detection
+    if (
+        os.environ.get("SINGULARITY_ENVIRONMENT") == "true"
+        or os.environ.get("SINGULARITY") == "true"
+        or os.environ.get("SINGULARITY_CONTAINER") is not None
+        or safe_file_exists("/.singularity.d")
+        or safe_file_exists("/singularity")
+    ):
+        container_info["is_singularity"] = True
+        container_info["is_containerized"] = True
+
     # Cloud Environment Detection
     cloud_info = {
         "is_aws": False,
         "is_azure": False,
         "is_gcp": False,
+        "is_oci": False,
+        "is_ibm_cloud": False,
+        "is_digitalocean": False,
+        "is_linode": False,
+        "is_vultr": False,
+        "is_cloudflare": False,
+        "is_alibaba_cloud": False,
+        "is_tencent_cloud": False,
+        "is_huawei_cloud": False,
         "is_cloud": False,
         "is_lambda": False,
         "is_azure_functions": False,
@@ -472,6 +713,92 @@ def detect_ci_environment() -> Dict[str, Any]:
         if os.environ.get("FUNCTION_NAME") and os.environ.get("FUNCTION_REGION"):
             cloud_info["is_cloud_functions"] = True
             cloud_info["is_serverless"] = True
+
+    # Oracle Cloud Infrastructure (OCI) detection
+    if (
+        os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION")
+        or os.environ.get("OCI_COMPARTMENT_ID")
+        or os.environ.get("OCI_REGION")
+        or os.environ.get("OCI_TENANT_ID")
+    ):
+        cloud_info["is_oci"] = True
+        cloud_info["is_cloud"] = True
+
+    # IBM Cloud detection
+    if (
+        os.environ.get("BLUEMIX_REGION")
+        or os.environ.get("BLUEMIX_API_KEY")
+        or os.environ.get("IBM_CLOUD_API_KEY")
+        or os.environ.get("VCAP_SERVICES")
+    ):
+        cloud_info["is_ibm_cloud"] = True
+        cloud_info["is_cloud"] = True
+
+    # DigitalOcean detection
+    if (
+        os.environ.get("DIGITALOCEAN_ACCESS_TOKEN")
+        or os.environ.get("DIGITALOCEAN_REGION")
+        or os.environ.get("DIGITALOCEAN_DROPLET_ID")
+    ):
+        cloud_info["is_digitalocean"] = True
+        cloud_info["is_cloud"] = True
+
+    # Linode detection
+    if (
+        os.environ.get("LINODE_API_TOKEN")
+        or os.environ.get("LINODE_REGION")
+        or os.environ.get("LINODE_INSTANCE_ID")
+    ):
+        cloud_info["is_linode"] = True
+        cloud_info["is_cloud"] = True
+
+    # Vultr detection
+    if (
+        os.environ.get("VULTR_API_KEY")
+        or os.environ.get("VULTR_REGION")
+        or os.environ.get("VULTR_INSTANCE_ID")
+    ):
+        cloud_info["is_vultr"] = True
+        cloud_info["is_cloud"] = True
+
+    # Cloudflare detection
+    if (
+        os.environ.get("CLOUDFLARE_API_TOKEN")
+        or os.environ.get("CLOUDFLARE_ZONE_ID")
+        or os.environ.get("CLOUDFLARE_ACCOUNT_ID")
+        or os.environ.get("CF_PAGES")
+    ):
+        cloud_info["is_cloudflare"] = True
+        cloud_info["is_cloud"] = True
+
+    # Alibaba Cloud detection
+    if (
+        os.environ.get("ALIBABA_CLOUD_ACCESS_KEY_ID")
+        or os.environ.get("ALIBABA_CLOUD_ACCESS_KEY_SECRET")
+        or os.environ.get("ALICLOUD_ACCESS_KEY")
+        or os.environ.get("ALICLOUD_SECRET_KEY")
+        or os.environ.get("ALICLOUD_REGION")
+    ):
+        cloud_info["is_alibaba_cloud"] = True
+        cloud_info["is_cloud"] = True
+
+    # Tencent Cloud detection
+    if (
+        os.environ.get("TENCENTCLOUD_SECRET_ID")
+        or os.environ.get("TENCENTCLOUD_SECRET_KEY")
+        or os.environ.get("TENCENTCLOUD_REGION")
+    ):
+        cloud_info["is_tencent_cloud"] = True
+        cloud_info["is_cloud"] = True
+
+    # Huawei Cloud detection
+    if (
+        os.environ.get("HUAWEICLOUD_ACCESS_KEY")
+        or os.environ.get("HUAWEICLOUD_SECRET_KEY")
+        or os.environ.get("HUAWEICLOUD_REGION")
+    ):
+        cloud_info["is_huawei_cloud"] = True
+        cloud_info["is_cloud"] = True
 
     return {
         "os": os_info,
@@ -543,7 +870,7 @@ def main() -> int:
         print(json.dumps(env_info, indent=2))
     else:
         print("\n=== CI Environment Detection ===\n")
-        
+
         # OS Information
         print("OS Information:")
         print(f"  Platform: {env_info['os']['platform']}")
@@ -553,13 +880,13 @@ def main() -> int:
         print(f"  macOS: {env_info['os']['is_macos']}")
         print(f"  Linux: {env_info['os']['is_linux']}")
         print(f"  WSL: {env_info['os']['is_wsl']}")
-        
+
         # CI Information
         print("\nCI Information:")
         print(f"  CI Environment: {env_info['ci']['is_ci']}")
         print(f"  CI Platform: {env_info['ci']['ci_platform']}")
         print(f"  CI Type: {env_info['ci']['ci_type']}")
-        
+
         # Container Information
         print("\nContainer Information:")
         print(f"  Containerized: {env_info['container']['is_containerized']}")
@@ -567,25 +894,40 @@ def main() -> int:
         print(f"  Kubernetes: {env_info['container']['is_kubernetes']}")
         print(f"  Docker Compose: {env_info['container']['is_docker_compose']}")
         print(f"  Docker Swarm: {env_info['container']['is_docker_swarm']}")
-        
+        print(f"  Podman: {env_info['container']['is_podman']}")
+        print(f"  LXC/LXD: {env_info['container']['is_lxc']}")
+        print(f"  Containerd: {env_info['container']['is_containerd']}")
+        print(f"  CRI-O: {env_info['container']['is_crio']}")
+        print(f"  rkt: {env_info['container']['is_rkt']}")
+        print(f"  Singularity: {env_info['container']['is_singularity']}")
+
         # Cloud Information
         print("\nCloud Information:")
         print(f"  Cloud Environment: {env_info['cloud']['is_cloud']}")
         print(f"  AWS: {env_info['cloud']['is_aws']}")
         print(f"  Azure: {env_info['cloud']['is_azure']}")
         print(f"  GCP: {env_info['cloud']['is_gcp']}")
+        print(f"  Oracle Cloud: {env_info['cloud']['is_oci']}")
+        print(f"  IBM Cloud: {env_info['cloud']['is_ibm_cloud']}")
+        print(f"  Alibaba Cloud: {env_info['cloud']['is_alibaba_cloud']}")
+        print(f"  Tencent Cloud: {env_info['cloud']['is_tencent_cloud']}")
+        print(f"  Huawei Cloud: {env_info['cloud']['is_huawei_cloud']}")
+        print(f"  DigitalOcean: {env_info['cloud']['is_digitalocean']}")
+        print(f"  Linode: {env_info['cloud']['is_linode']}")
+        print(f"  Vultr: {env_info['cloud']['is_vultr']}")
+        print(f"  Cloudflare: {env_info['cloud']['is_cloudflare']}")
         print(f"  Serverless: {env_info['cloud']['is_serverless']}")
         print(f"  Lambda: {env_info['cloud']['is_lambda']}")
         print(f"  Azure Functions: {env_info['cloud']['is_azure_functions']}")
         print(f"  Cloud Functions: {env_info['cloud']['is_cloud_functions']}")
-        
+
         # CI Directories
         if args.create_dirs and "ci_directories" in env_info:
             print("\nCI Directories:")
             for directory in env_info["ci_directories"]:
                 status = "✅ Created" if directory["created"] else f"❌ Failed: {directory['error']}"
                 print(f"  {directory['directory']}: {status}")
-        
+
         # System Information (if verbose)
         if args.verbose and "system" in env_info:
             print("\nSystem Information:")
