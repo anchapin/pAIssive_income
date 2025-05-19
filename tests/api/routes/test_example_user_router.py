@@ -169,10 +169,9 @@ class TestCreateUserEndpoint:
         assert response.status_code == 500  # Internal Server Error
         assert response.json()["detail"] == "Internal server error"
 
-        # Verify logging
-        mock_logger.error.assert_called_once_with(
-            "An unexpected error occurred",
-            exc_info=True
+        # Verify logging - use exception method instead of error
+        mock_logger.exception.assert_called_once_with(
+            "An unexpected error occurred"
         )
 
     @pytest.mark.asyncio

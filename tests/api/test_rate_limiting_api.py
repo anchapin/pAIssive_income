@@ -35,8 +35,8 @@ class TestRateLimitingAPI:
     def test_rate_limit_reset(self, mock_client):
         # Exceed limit, then wait for reset window and try again
         for _ in range(10):
-            client.get(self.ENDPOINT)
-        resp = client.get(self.ENDPOINT)
+            mock_client.get(self.ENDPOINT)
+        resp = mock_client.get(self.ENDPOINT)
         if (
             resp.status_code == HTTPStatus.TOO_MANY_REQUESTS
             and "Retry-After" in resp.headers
@@ -52,7 +52,7 @@ class TestRateLimitingAPI:
 
     def test_burst_requests(self, mock_client):
         # Send rapid burst and check at least some are limited
-        responses = [client.get(self.ENDPOINT) for _ in range(20)]
+        responses = [mock_client.get(self.ENDPOINT) for _ in range(20)]
         limited = [
             r for r in responses if r.status_code == HTTPStatus.TOO_MANY_REQUESTS
         ]

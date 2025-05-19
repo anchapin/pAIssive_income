@@ -543,6 +543,10 @@ class TestFileRotatingHandler:
 
     def teardown_method(self):
         """Tear down test fixtures."""
+        # Close the handler to release the file
+        if hasattr(self, "handler") and hasattr(self.handler, "handler"):
+            self.handler.handler.close()
+
         # Clean up the temporary directory
         if hasattr(self, "temp_dir"):
             self.temp_dir.cleanup()
@@ -808,15 +812,26 @@ class TestConfigureLogAggregation:
             self.temp_dir.cleanup()
 
     @patch("common_utils.logging.log_aggregation.aggregate_logs")
-    @patch("threading.Thread")
-    def test_configure_log_aggregation(self, mock_thread, mock_aggregate_logs):
+    def test_configure_log_aggregation(self, mock_aggregate_logs):
         """Test configuring log aggregation."""
-        # Mock the thread instance
-        mock_thread_instance = MagicMock()
-        mock_thread.return_value = mock_thread_instance
+        # Call the function under test with test_mode=True
+        thread = configure_log_aggregation(
+            app_name="test_app",
+            log_dir=self.temp_dir.name,
+            es_host="elasticsearch",
+            es_port=9200,
+            es_index="logs",
+            logstash_host="logstash",
+            logstash_port=5000,
+            output_file="aggregated.log",
+            test_mode=True,
+        )
 
-        # Call the function under test
-        configure_log_aggregation(
+        # Wait for the thread to complete
+        thread.join(timeout=5)
+
+        # Verify that aggregate_logs was called
+        mock_aggregate_logs.assert_called_once_with(
             app_name="test_app",
             log_dir=self.temp_dir.name,
             es_host="elasticsearch",
@@ -827,64 +842,25 @@ class TestConfigureLogAggregation:
             output_file="aggregated.log",
         )
 
-        # Verify that a thread was created
-        mock_thread.assert_called_once()
-        assert mock_thread.call_args[1]["daemon"] is True
-
-        # Verify that the thread was started
-        mock_thread_instance.start.assert_called_once()
-
-        # Call the thread target function
-        thread_target = mock_thread.call_args[1]["target"]
-
-        # Mock time.sleep to avoid waiting
-        with patch("time.sleep"):
-            # Call the thread target function
-            thread_target()
-
-            # Verify that aggregate_logs was called
-            mock_aggregate_logs.assert_called_once_with(
-                app_name="test_app",
-                log_dir=self.temp_dir.name,
-                es_host="elasticsearch",
-                es_port=9200,
-                es_index="logs",
-                logstash_host="logstash",
-                logstash_port=5000,
-                output_file="aggregated.log",
-            )
-
     @patch("common_utils.logging.log_aggregation.aggregate_logs")
-    @patch("threading.Thread")
-    def test_configure_log_aggregation_error(self, mock_thread, mock_aggregate_logs):
+    @patch("common_utils.logging.log_aggregation.logger")
+    def test_configure_log_aggregation_error(self, mock_logger, mock_aggregate_logs):
         """Test configuring log aggregation with an error."""
-        # Mock the thread instance
-        mock_thread_instance = MagicMock()
-        mock_thread.return_value = mock_thread_instance
-
         # Make aggregate_logs raise an exception
         mock_aggregate_logs.side_effect = Exception("Test error")
 
-        # Call the function under test
-        configure_log_aggregation(
+        # Call the function under test with test_mode=True
+        thread = configure_log_aggregation(
             app_name="test_app",
             log_dir=self.temp_dir.name,
+            test_mode=True,
         )
 
-        # Verify that a thread was created
-        mock_thread.assert_called_once()
+        # Wait for the thread to complete
+        thread.join(timeout=5)
 
-        # Call the thread target function
-        thread_target = mock_thread.call_args[1]["target"]
-
-        # Mock time.sleep to avoid waiting and mock the logger
-        with patch("time.sleep"), \
-             patch("common_utils.logging.log_aggregation.logger") as mock_logger:
-            # Call the thread target function
-            thread_target()
-
-            # Verify that an error was logged
-            mock_logger.error.assert_called()
-            # Check that any error call contains the expected text
-            error_calls = [call_args[0][0] for call_args in mock_logger.error.call_args_list]
-            assert any("Error aggregating logs" in call for call in error_calls)
+        # Verify that an error was logged
+        mock_logger.error.assert_called()
+        # Check that any error call contains the expected text
+        error_calls = [call_args[0][0] for call_args in mock_logger.error.call_args_list]
+        assert any("Error aggregating logs" in call for call in error_calls)

@@ -1,8 +1,9 @@
-"""test_exceptions - Module for tests/common_utils.test_exceptions."""
+"""Comprehensive tests for the common_utils.exceptions module."""
 
 # Standard library imports
 import logging
 import unittest
+import pytest
 
 # Local imports
 from common_utils.exceptions import (
@@ -131,3 +132,68 @@ class TestExceptions(unittest.TestCase):
         # Assert
         self.assertEqual(str(error), "Invalid rotation interval")
         self.assertIsInstance(error, ValueError)
+
+
+class TestExceptionsPytest:
+    """Test suite for custom exceptions using pytest."""
+
+    def test_directory_permission_error_inheritance(self):
+        """Test DirectoryPermissionError inheritance chain."""
+        error = DirectoryPermissionError()
+        assert isinstance(error, PermissionError)
+        assert isinstance(error, OSError)
+        assert isinstance(error, Exception)
+
+    def test_file_permission_error_inheritance(self):
+        """Test FilePermissionError inheritance chain."""
+        error = FilePermissionError()
+        assert isinstance(error, PermissionError)
+        assert isinstance(error, OSError)
+        assert isinstance(error, Exception)
+
+    def test_directory_not_found_error_inheritance(self):
+        """Test DirectoryNotFoundError inheritance chain."""
+        error = DirectoryNotFoundError()
+        assert isinstance(error, FileNotFoundError)
+        assert isinstance(error, OSError)
+        assert isinstance(error, Exception)
+
+    def test_file_not_python_error_inheritance(self):
+        """Test FileNotPythonError inheritance chain."""
+        error = FileNotPythonError()
+        assert isinstance(error, ValueError)
+        assert isinstance(error, Exception)
+
+    def test_missing_file_error_inheritance(self):
+        """Test MissingFileError inheritance chain."""
+        error = MissingFileError()
+        assert isinstance(error, FileNotFoundError)
+        assert isinstance(error, OSError)
+        assert isinstance(error, Exception)
+
+    def test_script_not_found_error_inheritance(self):
+        """Test ScriptNotFoundError inheritance chain."""
+        error = ScriptNotFoundError()
+        assert isinstance(error, FileNotFoundError)
+        assert isinstance(error, OSError)
+        assert isinstance(error, Exception)
+
+    def test_invalid_rotation_interval_error_inheritance(self):
+        """Test InvalidRotationIntervalError inheritance chain."""
+        error = InvalidRotationIntervalError()
+        assert isinstance(error, ValueError)
+        assert isinstance(error, Exception)
+
+    def test_script_not_found_error_with_path(self):
+        """Test ScriptNotFoundError with a path."""
+        script_path = "/path/to/script.py"
+        error = ScriptNotFoundError(script_path)
+        assert str(error) == f"Script not found: {script_path}"
+        assert isinstance(error, FileNotFoundError)
+
+    def test_invalid_rotation_interval_error_with_message(self):
+        """Test InvalidRotationIntervalError with a custom message."""
+        custom_message = "Rotation interval must be a positive integer"
+        error = InvalidRotationIntervalError(custom_message)
+        assert str(error) == custom_message
+        assert isinstance(error, ValueError)

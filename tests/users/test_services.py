@@ -8,6 +8,7 @@ import uuid
 import jwt
 
 import pytest
+from flask import Flask
 
 from users.services import (
     UserService,
@@ -25,22 +26,40 @@ class TestUserService(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         self.token_secret = "test_secret_key"
-        self.service = UserService(self.token_secret)
+        self.service = UserService(token_secret=self.token_secret)
+        # Create a Flask app for testing
+        self.app = Flask(__name__)
+        # Configure the app for testing
+        self.app.config['TESTING'] = True
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        # Push an application context
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        """Clean up after tests."""
+        # Pop the application context
+        self.app_context.pop()
 
     def test_init_with_token_secret(self):
         """Test initialization with token secret."""
-        service = UserService(self.token_secret)
+        service = UserService(token_secret=self.token_secret)
         self.assertEqual(service.token_secret, self.token_secret)
 
     def test_init_without_token_secret(self):
         """Test initialization without token secret."""
         with self.assertRaises(AuthenticationError):
-            UserService("")
+            UserService(token_secret="")
 
+    @patch("users.services.hash_credential")
     @patch("users.services.UserModel")
-    @patch("users.services.db")
-    def test_create_user_success(self, mock_db, mock_user_model):
+    @patch("users.services.db_session")
+    def test_create_user_success(self, mock_db_session, mock_user_model, mock_hash_credential):
         """Test create_user with success."""
+        # Mock hash_credential to return a hashed password
+        mock_hash_credential.return_value = "hashed_password"
+
         # Mock the query to return no existing user
         mock_query = MagicMock()
         mock_query.filter.return_value.first.return_value = None
@@ -61,9 +80,12 @@ class TestUserService(unittest.TestCase):
         self.assertEqual(result["username"], "testuser")
         self.assertEqual(result["email"], "test@example.com")
 
+        # Verify that hash_credential was called
+        mock_hash_credential.assert_called_once_with("password123")
+
         # Verify that the user was added and committed
-        mock_db.session.add.assert_called_once_with(mock_new_user)
-        mock_db.session.commit.assert_called_once()
+        mock_db_session.session.add.assert_called_once_with(mock_new_user)
+        mock_db_session.session.commit.assert_called_once()
 
     def test_create_user_missing_username(self):
         """Test create_user with missing username."""
@@ -117,30 +139,38 @@ class TestUserService(unittest.TestCase):
             self.service.create_user("testuser", "test@example.com", "password123")
         self.assertEqual(str(context.exception), UserExistsError.EMAIL_EXISTS)
 
+    @patch("users.services.hash_credential")
     @patch("users.services.UserModel")
-    @patch("users.services.db")
-    def test_create_user_database_error(self, mock_db, mock_user_model):
+    @patch("users.services.db_session")
+    def test_create_user_database_error(self, mock_db_session, mock_user_model, mock_hash_credential):
         """Test create_user with database error."""
+        # Mock hash_credential to return a hashed password
+        mock_hash_credential.return_value = "hashed_password"
+
         # Mock the query to return no existing user
         mock_query = MagicMock()
         mock_query.filter.return_value.first.return_value = None
         mock_user_model.query = mock_query
 
+        # Mock the new user
+        mock_new_user = MagicMock()
+        mock_user_model.return_value = mock_new_user
+
         # Mock the session to raise an SQLAlchemyError
         from sqlalchemy.exc import SQLAlchemyError
-        mock_db.session.commit.side_effect = SQLAlchemyError("Database error")
+        mock_db_session.session.commit.side_effect = SQLAlchemyError("Database error")
 
         # Call the method and verify the exception
         with self.assertRaises(DatabaseSessionNotAvailableError):
             self.service.create_user("testuser", "test@example.com", "password123")
 
         # Verify that rollback was called
-        mock_db.session.rollback.assert_called_once()
+        mock_db_session.session.rollback.assert_called_once()
 
     @patch("users.services.UserModel")
     @patch("users.services.verify_credential")
-    @patch("users.services.db")
-    def test_authenticate_user_success(self, mock_db, mock_verify_credential, mock_user_model):
+    @patch("users.services.db_session")
+    def test_authenticate_user_success(self, mock_db_session, mock_verify_credential, mock_user_model):
         """Test authenticate_user with success."""
         # Mock the query to return a user
         mock_user = MagicMock()
@@ -148,8 +178,12 @@ class TestUserService(unittest.TestCase):
         mock_user.username = "testuser"
         mock_user.email = "test@example.com"
         mock_user.password_hash = "hashed_password"
+        # Add last_login attribute to trigger the update
+        mock_user.last_login = None
+
+        # Fix the filter method to use filter instead of filter_by
         mock_query = MagicMock()
-        mock_query.filter_by.return_value.first.return_value = mock_user
+        mock_query.filter.return_value.first.return_value = mock_user
         mock_user_model.query = mock_query
 
         # Mock verify_credential to return True
@@ -168,7 +202,7 @@ class TestUserService(unittest.TestCase):
         mock_verify_credential.assert_called_once_with("password123", "hashed_password")
 
         # Verify that db.session.commit was called
-        mock_db.session.commit.assert_called_once()
+        mock_db_session.session.commit.assert_called_once()
 
     @patch("users.services.UserModel")
     def test_authenticate_user_missing_credentials(self, mock_user_model):
@@ -220,20 +254,29 @@ class TestUserService(unittest.TestCase):
 
     @patch("users.services.UserModel")
     @patch("users.services.verify_credential")
-    @patch("users.services.db")
-    def test_authenticate_user_update_error(self, mock_db, mock_verify_credential, mock_user_model):
+    @patch("users.services.db_session")
+    def test_authenticate_user_update_error(self, mock_db_session, mock_verify_credential, mock_user_model):
         """Test authenticate_user with error updating last login."""
         # Mock the query to return a user
         mock_user = MagicMock()
+        mock_user.id = 1
+        mock_user.username = "testuser"
+        mock_user.email = "test@example.com"
+        mock_user.password_hash = "hashed_password"
+        # Add last_login attribute to trigger the update
+        mock_user.last_login = None
+
+        # Fix the filter method to use filter instead of filter_by
         mock_query = MagicMock()
-        mock_query.filter_by.return_value.first.return_value = mock_user
+        mock_query.filter.return_value.first.return_value = mock_user
         mock_user_model.query = mock_query
 
         # Mock verify_credential to return True
         mock_verify_credential.return_value = True
 
         # Mock the session to raise an exception
-        mock_db.session.commit.side_effect = Exception("Database error")
+        from sqlalchemy.exc import SQLAlchemyError
+        mock_db_session.session.commit.side_effect = SQLAlchemyError("Database error")
 
         # Call the method
         success, user_data = self.service.authenticate_user("testuser", "password123")
@@ -241,6 +284,9 @@ class TestUserService(unittest.TestCase):
         # Verify the result
         self.assertFalse(success)
         self.assertIsNone(user_data)
+
+        # Verify rollback was called
+        mock_db_session.session.rollback.assert_called_once()
 
     @patch("users.services.datetime")
     @patch("users.services.uuid")

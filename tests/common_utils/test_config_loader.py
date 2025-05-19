@@ -149,3 +149,67 @@ class TestConfigLoader:
         finally:
             # Clean up the temporary file
             os.unlink(temp_path)
+
+    def test_example_config_model_dict_method(self):
+        """Test the dict method of ExampleConfigModel."""
+        # Create a valid configuration
+        valid_config = {
+            "db_url": "postgresql://user:password@localhost:5432/db",
+            "debug": True,
+            "max_connections": 50
+        }
+
+        # Create a config model
+        config = ExampleConfigModel(**valid_config)
+
+        # Convert to dict and verify
+        config_dict = config.dict()
+        assert isinstance(config_dict, dict)
+        assert config_dict["db_url"] == valid_config["db_url"]
+        assert config_dict["debug"] is True
+        assert config_dict["max_connections"] == 50
+
+    def test_example_config_model_json_method(self):
+        """Test the json method of ExampleConfigModel."""
+        # Create a valid configuration
+        valid_config = {
+            "db_url": "postgresql://user:password@localhost:5432/db",
+            "debug": True,
+            "max_connections": 50
+        }
+
+        # Create a config model
+        config = ExampleConfigModel(**valid_config)
+
+        # Convert to JSON and verify
+        config_json = config.json()
+        assert isinstance(config_json, str)
+
+        # Parse the JSON and verify the contents
+        parsed_json = json.loads(config_json)
+        assert parsed_json["db_url"] == valid_config["db_url"]
+        assert parsed_json["debug"] is True
+        assert parsed_json["max_connections"] == 50
+
+    @patch('pathlib.Path.open')
+    def test_load_config_file_not_found(self, mock_open):
+        """Test loading a configuration file that doesn't exist."""
+        # Configure the mock to raise FileNotFoundError
+        mock_open.side_effect = FileNotFoundError("File not found")
+
+        # Attempt to load the config
+        with pytest.raises(FileNotFoundError):
+            load_config("nonexistent_file.json")
+
+    def test_example_config_model_schema(self):
+        """Test the schema method of ExampleConfigModel."""
+        # Get the schema
+        schema = ExampleConfigModel.schema()
+
+        # Verify the schema
+        assert isinstance(schema, dict)
+        assert schema["title"] == "ExampleConfigModel"
+        assert "properties" in schema
+        assert "db_url" in schema["properties"]
+        assert "debug" in schema["properties"]
+        assert "max_connections" in schema["properties"]

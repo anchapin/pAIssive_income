@@ -21,7 +21,7 @@ class TestTokenManagementAPI:
     HTTP_NOT_FOUND = 404
     HTTP_UNPROCESSABLE_ENTITY = 422
 
-    def test_token_creation_success(self):
+    def test_token_creation_success(self, mock_client):
         # Test data - not real credentials
         resp = mock_client.post(
             self.AUTH_ENDPOINT,
@@ -58,17 +58,17 @@ class TestTokenManagementAPI:
         )
         token = resp.json().get("access_token")  # Test token only
         headers = {"Authorization": f"Bearer {token}"}  # Test token only
-        resp2 = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        resp2 = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp2.status_code == self.HTTP_OK
 
     def test_token_validation_invalid_token(self, mock_client):
         # Test data - not a real token
         headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
-        resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
-    def test_token_validation_missing_token(self):
-        resp = client.get(self.PROTECTED_ENDPOINT)
+    def test_token_validation_missing_token(self, mock_client):
+        resp = mock_client.get(self.PROTECTED_ENDPOINT)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
     def test_token_validation_expired_token(self, mock_client):
@@ -76,7 +76,7 @@ class TestTokenManagementAPI:
         # Here, simulate with a known expired token if possible
         # Test data - not a real token
         headers = {"Authorization": "Bearer expiredtoken"}  # Test token only
-        resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
     def test_token_refresh_success(self, mock_client):
@@ -124,10 +124,10 @@ class TestTokenManagementAPI:
         )
         access_token = auth_resp.json()["access_token"]  # Test token only
         headers = {"Authorization": f"Bearer {access_token}"}  # Test token only
-        revoke_resp = client.post(self.REVOKE_ENDPOINT, headers=headers)
+        revoke_resp = mock_client.post(self.REVOKE_ENDPOINT, headers=headers)
         assert revoke_resp.status_code in (self.HTTP_OK, self.HTTP_NO_CONTENT)
         # Should no longer be able to use the token
-        protected_resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        protected_resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert protected_resp.status_code in (
             self.HTTP_UNAUTHORIZED,
             self.HTTP_FORBIDDEN,
@@ -136,7 +136,7 @@ class TestTokenManagementAPI:
     def test_token_revocation_invalid_token(self, mock_client):
         # Test data - not a real token
         headers = {"Authorization": "Bearer invalidtoken"}  # Test token only
-        resp = client.post(self.REVOKE_ENDPOINT, headers=headers)
+        resp = mock_client.post(self.REVOKE_ENDPOINT, headers=headers)
         assert resp.status_code in (
             self.HTTP_UNAUTHORIZED,
             self.HTTP_FORBIDDEN,
@@ -146,11 +146,11 @@ class TestTokenManagementAPI:
     def test_malformed_token(self, mock_client):
         # Test data - malformed token for testing
         headers = {"Authorization": "Bearer "}  # Intentionally malformed test token
-        resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)
 
     def test_empty_authorization_header(self, mock_client):
         # Test data - empty authorization header for testing
         headers = {"Authorization": ""}  # Intentionally empty test header
-        resp = client.get(self.PROTECTED_ENDPOINT, headers=headers)
+        resp = mock_client.get(self.PROTECTED_ENDPOINT, headers=headers)
         assert resp.status_code in (self.HTTP_UNAUTHORIZED, self.HTTP_FORBIDDEN)

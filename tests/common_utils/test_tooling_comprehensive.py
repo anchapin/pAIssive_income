@@ -1,10 +1,10 @@
 """Comprehensive tests for the common_utils.tooling module."""
 
-import logging
-import re
-import ast
 import pytest
-from typing import Callable, Dict, Any
+import ast
+import operator
+import re
+from unittest.mock import patch, MagicMock
 
 from common_utils.tooling import (
     register_tool,
@@ -16,8 +16,8 @@ from common_utils.tooling import (
 )
 
 
-class TestTooling:
-    """Test suite for tooling module."""
+class TestToolingComprehensive:
+    """Comprehensive test suite for the tooling module."""
 
     def setup_method(self):
         """Set up test environment before each test."""
@@ -35,7 +35,7 @@ class TestTooling:
     def test_register_tool(self):
         """Test register_tool function."""
         # Define a test function
-        def test_func(x: int) -> int:
+        def test_func(x):
             return x * 2
 
         # Register the function
@@ -48,7 +48,7 @@ class TestTooling:
     def test_get_tool(self):
         """Test get_tool function."""
         # Define a test function
-        def test_func(x: int) -> int:
+        def test_func(x):
             return x * 2
 
         # Register the function
@@ -63,9 +63,6 @@ class TestTooling:
 
     def test_get_tool_nonexistent(self):
         """Test get_tool with a nonexistent tool."""
-        # Clear the registry
-        _TOOL_REGISTRY.clear()
-
         # Try to get a nonexistent tool
         with pytest.raises(KeyError):
             get_tool("nonexistent_tool")
@@ -73,10 +70,10 @@ class TestTooling:
     def test_list_tools(self):
         """Test list_tools function."""
         # Define test functions
-        def test_func1(x: int) -> int:
+        def test_func1(x):
             return x * 2
 
-        def test_func2(x: int) -> int:
+        def test_func2(x):
             return x * 3
 
         # Register the functions
@@ -93,6 +90,18 @@ class TestTooling:
         assert "test_tool2" in tools
         assert tools["test_tool1"] is test_func1
         assert tools["test_tool2"] is test_func2
+
+    def test_list_tools_empty(self):
+        """Test list_tools with an empty registry."""
+        # Clear the registry
+        _TOOL_REGISTRY.clear()
+
+        # List the tools
+        tools = list_tools()
+
+        # Check if an empty dict was returned
+        assert isinstance(tools, dict)
+        assert len(tools) == 0
 
     def test_calculator_addition(self):
         """Test calculator function with addition."""
@@ -119,28 +128,6 @@ class TestTooling:
         result = calculator("2 + 3 * 4")
         assert result == 14
 
-    def test_calculator_error(self):
-        """Test calculator function with an invalid expression."""
-        result = calculator("2 + / 3")
-        assert isinstance(result, str)
-        assert result.startswith("Error:")
-
-    def test_calculator_security(self):
-        """Test calculator function security (no access to builtins)."""
-        result = calculator("__import__('os').system('echo security_breach')")
-        assert isinstance(result, str)
-        assert result.startswith("Error:")
-
-    def test_calculator_registered(self):
-        """Test that calculator is registered as a tool."""
-        # Register the calculator tool explicitly for this test
-        register_tool("calculator", calculator)
-
-        # Now check if it's registered
-        tools = list_tools()
-        assert "calculator" in tools
-        assert tools["calculator"] is calculator
-
     def test_calculator_with_parentheses(self):
         """Test calculator function with parentheses."""
         result = calculator("(2 + 3) * 4")
@@ -158,7 +145,6 @@ class TestTooling:
 
     def test_calculator_with_exponentiation(self):
         """Test calculator function with exponentiation."""
-        # This should be allowed since the values are small
         result = calculator("2 ** 3")
         assert result == 8
 
@@ -177,6 +163,18 @@ class TestTooling:
         assert "Error:" in result
         assert "Invalid characters" in result
 
+    def test_calculator_error(self):
+        """Test calculator function with an invalid expression."""
+        result = calculator("2 + / 3")
+        assert isinstance(result, str)
+        assert result.startswith("Error:")
+
+    def test_calculator_security(self):
+        """Test calculator function security (no access to builtins)."""
+        result = calculator("__import__('os').system('echo security_breach')")
+        assert isinstance(result, str)
+        assert result.startswith("Error:")
+
     def test_calculator_with_empty_expression(self):
         """Test calculator function with an empty expression."""
         result = calculator("")
@@ -189,13 +187,82 @@ class TestTooling:
         assert isinstance(result, str)
         assert "Error:" in result
 
+    def test_calculator_registered(self):
+        """Test that calculator is registered as a tool."""
+        # Register the calculator tool explicitly for this test
+        register_tool("calculator", calculator)
+
+        # Now check if it's registered
+        tools = list_tools()
+        assert "calculator" in tools
+        assert tools["calculator"] is calculator
+
+    def test_calculator_with_literal_eval(self):
+        """Test calculator function with ast.literal_eval."""
+        # This should be handled by ast.literal_eval
+        result = calculator("123")
+        assert result == 123
+
+    def test_calculator_with_zero_division(self):
+        """Test calculator function with division by zero."""
+        result = calculator("5 / 0")
+        assert isinstance(result, str)
+        assert "Error:" in result
+        assert "division by zero" in str(result).lower()
+
+    def test_calculator_with_overflow(self):
+        """Test calculator function with overflow."""
+        # This should cause an OverflowError
+        result = calculator("2 ** 1000")
+        assert isinstance(result, str)
+        assert "Error:" in result
+
+    @patch("ast.literal_eval")
+    def test_calculator_with_syntax_error(self, mock_literal_eval):
+        """Test calculator function with a syntax error."""
+        # Mock ast.literal_eval to raise a SyntaxError
+        mock_literal_eval.side_effect = SyntaxError("invalid syntax")
+
+        # This should be handled by the SafeExpressionEvaluator
+        result = calculator("2 + 3")
+        assert result == 5
+
+    @patch("ast.literal_eval")
+    @patch.object(ast, "parse")
+    def test_calculator_with_unsupported_node(self, mock_parse, mock_literal_eval):
+        """Test calculator function with an unsupported node type."""
+        # Mock ast.literal_eval to raise a ValueError
+        mock_literal_eval.side_effect = ValueError("malformed node or string")
+
+        # Create a mock AST node that will be unsupported
+        mock_node = MagicMock(spec=ast.AST)
+        mock_node.__class__.__name__ = "UnsupportedNode"
+
+        # Create a mock expression with the unsupported node
+        mock_expr = MagicMock(spec=ast.Expression)
+        mock_expr.body = mock_node
+
+        # Mock ast.parse to return the mock expression
+        mock_parse.return_value = mock_expr
+
+        # Override the regex check to allow the expression through
+        with patch("re.match") as mock_match:
+            mock_match.return_value = True  # Make the regex check pass
+
+            # This should raise an error in the SafeExpressionEvaluator
+            result = calculator("unsupported_expression")
+            assert isinstance(result, str)
+            assert "Error:" in result
+            # The error message might vary, so we'll check for a more general condition
+            assert "Error" in result
+
     def test_register_tool_overwrite(self):
         """Test register_tool function with overwriting an existing tool."""
         # Define test functions
-        def test_func1(x: int) -> int:
+        def test_func1(x):
             return x * 2
 
-        def test_func2(x: int) -> int:
+        def test_func2(x):
             return x * 3
 
         # Register the first function
@@ -205,18 +272,6 @@ class TestTooling:
         # Register the second function with the same name
         register_tool("test_tool", test_func2)
         assert _TOOL_REGISTRY["test_tool"] is test_func2
-
-    def test_list_tools_empty(self):
-        """Test list_tools function with an empty registry."""
-        # Clear the registry
-        _TOOL_REGISTRY.clear()
-
-        # List the tools
-        tools = list_tools()
-
-        # Check if an empty dict was returned
-        assert isinstance(tools, dict)
-        assert len(tools) == 0
 
     def test_register_tool_with_lambda(self):
         """Test register_tool function with a lambda function."""
