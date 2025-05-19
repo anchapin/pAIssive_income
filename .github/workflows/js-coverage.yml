@@ -21,9 +21,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install
@@ -32,7 +36,11 @@ jobs:
         run: mkdir -p coverage
 
       - name: Run JS tests and check coverage
-        run: pnpm test
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "pnpm version: $(pnpm --version)"
+          pnpm test
 
       - name: Generate coverage report
         run: pnpm coverage > ./coverage/lcov.info
