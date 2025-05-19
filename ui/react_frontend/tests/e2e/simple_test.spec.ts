@@ -535,7 +535,7 @@ async function takeScreenshot(page: any, filename: string) {
 
     // Try with a sanitized filename
     try {
-      const safeFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+      let safeFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
       if (!safeFilename.toLowerCase().endsWith('.png')) {
         safeFilename = safeFilename + '.png';
       }

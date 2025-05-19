@@ -164,30 +164,39 @@ try {
  * @returns {string} - A sanitized string representation of the value
  */
 function sanitizeForLog(value) {
-  if (value === null || value === undefined) {
+  try {
+    if (value === null || value === undefined) {
+      return String(value);
+    }
+
+    if (typeof value === 'string') {
+      // Replace newlines, carriage returns and other control characters
+      return value
+        .replace(/[\n\r\t\v\f\b]/g, ' ')
+        .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        .replace(/[^\x20-\x7E]/g, '?');
+    }
+
+    if (typeof value === 'object') {
+      try {
+        // For objects, we sanitize the JSON string representation
+        const stringified = JSON.stringify(value);
+        return sanitizeForLog(stringified);
+      } catch (error) {
+        return '[Object sanitization failed]';
+      }
+    }
+
+    // For other types (number, boolean), convert to string
     return String(value);
-  }
-
-  if (typeof value === 'string') {
-    // Replace newlines, carriage returns and other control characters
-    return value
-      .replace(/[\n\r\t\v\f\b]/g, ' ')
-      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
-      .replace(/[^\x20-\x7E]/g, '?');
-  }
-
-  if (typeof value === 'object') {
+  } catch (error) {
+    // Ultimate fallback to prevent any errors from breaking the logging
     try {
-      // For objects, we sanitize the JSON string representation
-      const stringified = JSON.stringify(value);
-      return sanitizeForLog(stringified);
-    } catch (error) {
-      return '[Object sanitization failed]';
+      return `[Sanitization error: ${error.message || 'Unknown error'}]`;
+    } catch (e) {
+      return '[Sanitization completely failed]';
     }
   }
-
-  // For other types (number, boolean), convert to string
-  return String(value);
 }
 
 // Helper function for logging with timestamps and levels
