@@ -202,6 +202,48 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         assert memories[0]["id"] == "memory-1"
         assert memories[1]["id"] == "memory-2"
 
+    def test_enhance_context_with_memories(self):
+        """Test enhancing context with memories."""
+        # Set up test memories
+        memories = [
+            {"id": "memory-1", "text": "User prefers dark mode"},
+            {"id": "memory-2", "text": "User is allergic to shellfish"},
+        ]
+
+        # Mock the _retrieve_relevant_memories method
+        self.team._retrieve_relevant_memories = MagicMock(return_value=memories)
+
+        # Test enhancing context
+        original_context = "What should I eat for dinner?"
+        enhanced_context = self.team._enhance_context_with_memories(original_context)
+
+        # Check that the context was enhanced with memories
+        assert "User prefers dark mode" in enhanced_context
+        assert "User is allergic to shellfish" in enhanced_context
+        assert original_context in enhanced_context
+
+        # Check that memories were retrieved
+        self.team._retrieve_relevant_memories.assert_called_once()
+
+    def test_memory_persistence(self):
+        """Test that memories persist across team instances."""
+        # Create a new team with the same user_id
+        new_team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
+
+        # Check that the memory was initialized
+        assert new_team.memory == self.memory_mock
+        assert new_team.user_id == "test-user"
+
+        # Retrieve memories with the new team
+        query = "What are my preferences?"
+        new_team._retrieve_relevant_memories(query=query)
+
+        # Check that memories were retrieved using the same user_id
+        self.memory_mock.search.assert_called_with(
+            query=query,
+            user_id="test-user",
+            limit=5,  # Default limit
+        )
 
 if __name__ == "__main__":
     unittest.main()
