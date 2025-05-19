@@ -32,12 +32,72 @@ const url = require('url');
 
 // Configuration with enhanced environment detection
 const PORT = process.env.MOCK_API_PORT || process.env.PORT || 8000;
+
+// Enhanced CI environment detection
 const CI_MODE = process.env.CI === 'true' || process.env.CI === true ||
                 process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
                 process.env.TF_BUILD || process.env.JENKINS_URL ||
-                process.env.GITLAB_CI || process.env.CIRCLECI;
-const GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
-const DOCKER_ENV = process.env.DOCKER_ENVIRONMENT === 'true' || fs.existsSync('/.dockerenv');
+                process.env.GITLAB_CI || process.env.CIRCLECI ||
+                !!process.env.BITBUCKET_COMMIT || !!process.env.APPVEYOR ||
+                !!process.env.DRONE || !!process.env.BUDDY ||
+                !!process.env.BUILDKITE || !!process.env.CODEBUILD_BUILD_ID;
+
+// Enhanced CI platform detection
+const GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW || !!process.env.GITHUB_RUN_ID;
+const JENKINS_CI = !!process.env.JENKINS_URL || !!process.env.JENKINS_HOME;
+const GITLAB_CI = !!process.env.GITLAB_CI || (!!process.env.CI_SERVER_NAME && process.env.CI_SERVER_NAME.includes('GitLab'));
+const CIRCLE_CI = !!process.env.CIRCLECI || !!process.env.CIRCLE_BUILD_NUM;
+const TRAVIS_CI = !!process.env.TRAVIS || !!process.env.TRAVIS_JOB_ID;
+const AZURE_PIPELINES = !!process.env.TF_BUILD || !!process.env.AZURE_HTTP_USER_AGENT;
+const TEAMCITY = !!process.env.TEAMCITY_VERSION || !!process.env.TEAMCITY_BUILD_PROPERTIES_FILE;
+const BITBUCKET = !!process.env.BITBUCKET_COMMIT || !!process.env.BITBUCKET_BUILD_NUMBER;
+const APPVEYOR = !!process.env.APPVEYOR || !!process.env.APPVEYOR_BUILD_ID;
+const DRONE_CI = !!process.env.DRONE || !!process.env.DRONE_BUILD_NUMBER;
+const BUDDY_CI = !!process.env.BUDDY || !!process.env.BUDDY_PIPELINE_ID;
+const BUILDKITE = !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID;
+const CODEBUILD = !!process.env.CODEBUILD_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN;
+
+// Enhanced container environment detection
+const DOCKER_ENV = process.env.DOCKER_ENVIRONMENT === 'true' ||
+                  process.env.DOCKER === 'true' ||
+                  fs.existsSync('/.dockerenv') ||
+                  fs.existsSync('/run/.containerenv') ||
+                  (fs.existsSync('/proc/1/cgroup') &&
+                   fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'));
+
+const KUBERNETES_ENV = !!process.env.KUBERNETES_SERVICE_HOST ||
+                      !!process.env.KUBERNETES_PORT ||
+                      fs.existsSync('/var/run/secrets/kubernetes.io');
+
+const DOCKER_COMPOSE = !!process.env.COMPOSE_PROJECT_NAME ||
+                      !!process.env.COMPOSE_FILE ||
+                      !!process.env.COMPOSE_PATH_SEPARATOR;
+
+const DOCKER_SWARM = !!process.env.DOCKER_SWARM ||
+                    !!process.env.SWARM_NODE_ID ||
+                    !!process.env.SWARM_MANAGER;
+
+// Enhanced cloud environment detection
+const AWS_ENV = !!process.env.AWS_REGION ||
+               !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+               !!process.env.AWS_EXECUTION_ENV;
+
+const AZURE_ENV = !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
+                 !!process.env.WEBSITE_SITE_NAME ||
+                 !!process.env.APPSETTING_WEBSITE_SITE_NAME;
+
+const GCP_ENV = !!process.env.GOOGLE_CLOUD_PROJECT ||
+               !!process.env.GCLOUD_PROJECT ||
+               !!process.env.GCP_PROJECT ||
+               (!!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION);
+
+// Enhanced OS detection
+const WINDOWS_ENV = process.platform === 'win32';
+const MACOS_ENV = process.platform === 'darwin';
+const LINUX_ENV = process.platform === 'linux';
+const WSL_ENV = !!process.env.WSL_DISTRO_NAME || !!process.env.WSLENV;
+
+// Other configuration
 const VERBOSE_LOGGING = process.env.VERBOSE_LOGGING === 'true' || CI_MODE;
 const SKIP_PATH_TO_REGEXP = process.env.SKIP_PATH_TO_REGEXP === 'true' ||
                            process.env.PATH_TO_REGEXP_MOCK === 'true' || CI_MODE;
@@ -140,6 +200,136 @@ const mockData = {
   health: {
     status: 'ok',
     timestamp: new Date().toISOString()
+  },
+  environment: {
+    // Operating System
+    platform: process.platform,
+    isWindows: WINDOWS_ENV,
+    isMacOS: MACOS_ENV,
+    isLinux: LINUX_ENV,
+    isWSL: WSL_ENV,
+    wslDistro: process.env.WSL_DISTRO_NAME || null,
+
+    // Node Environment
+    nodeVersion: process.version,
+    architecture: process.arch,
+    isDevelopment: process.env.NODE_ENV === 'development',
+    isProduction: process.env.NODE_ENV === 'production',
+    isTest: process.env.NODE_ENV === 'test' || !process.env.NODE_ENV,
+
+    // CI Environment
+    isCI: CI_MODE,
+    isGitHubActions: GITHUB_ACTIONS,
+    isJenkins: JENKINS_CI,
+    isGitLabCI: GITLAB_CI,
+    isCircleCI: CIRCLE_CI,
+    isTravis: TRAVIS_CI,
+    isAzurePipelines: AZURE_PIPELINES,
+    isTeamCity: TEAMCITY,
+    isBitbucket: BITBUCKET,
+    isAppVeyor: APPVEYOR,
+    isDrone: DRONE_CI,
+    isBuddy: BUDDY_CI,
+    isBuildkite: BUILDKITE,
+    isCodeBuild: CODEBUILD,
+
+    // Container Environment
+    isDocker: DOCKER_ENV,
+    isKubernetes: KUBERNETES_ENV,
+    isDockerCompose: DOCKER_COMPOSE,
+    isDockerSwarm: DOCKER_SWARM,
+
+    // Cloud Environment
+    isAWS: AWS_ENV,
+    isAzure: AZURE_ENV,
+    isGCP: GCP_ENV,
+    isCloudEnvironment: AWS_ENV || AZURE_ENV || GCP_ENV,
+
+    // System Info
+    osType: process.platform === 'win32' ? 'Windows' :
+            process.platform === 'darwin' ? 'macOS' :
+            process.platform === 'linux' ? 'Linux' : process.platform,
+    osRelease: process.release ? process.release.name + ' ' + process.release.lts : null,
+    memory: process.memoryUsage ? {
+      total: process.memoryUsage().heapTotal,
+      used: process.memoryUsage().heapUsed,
+      external: process.memoryUsage().external,
+      rss: process.memoryUsage().rss
+    } : null,
+
+    // Timestamp
+    timestamp: new Date().toISOString()
+  },
+
+  // Environment-specific data
+  ci: {
+    github: {
+      workflow: process.env.GITHUB_WORKFLOW || null,
+      repository: process.env.GITHUB_REPOSITORY || null,
+      ref: process.env.GITHUB_REF || null,
+      sha: process.env.GITHUB_SHA || null,
+      actor: process.env.GITHUB_ACTOR || null,
+      event: process.env.GITHUB_EVENT_NAME || null,
+      runId: process.env.GITHUB_RUN_ID || null,
+      runNumber: process.env.GITHUB_RUN_NUMBER || null,
+      serverUrl: process.env.GITHUB_SERVER_URL || null
+    },
+    jenkins: {
+      job: process.env.JOB_NAME || null,
+      build: process.env.BUILD_NUMBER || null,
+      url: process.env.JENKINS_URL || null,
+      workspace: process.env.WORKSPACE || null,
+      nodeName: process.env.NODE_NAME || null,
+      jenkinsHome: process.env.JENKINS_HOME || null
+    },
+    gitlab: {
+      job: process.env.CI_JOB_NAME || null,
+      pipeline: process.env.CI_PIPELINE_ID || null,
+      project: process.env.CI_PROJECT_PATH || null,
+      commit: process.env.CI_COMMIT_SHA || null,
+      branch: process.env.CI_COMMIT_BRANCH || null,
+      tag: process.env.CI_COMMIT_TAG || null,
+      server: process.env.CI_SERVER_URL || null
+    }
+  },
+
+  // Container-specific data
+  container: {
+    docker: {
+      dockerEnv: process.env.DOCKER_ENVIRONMENT || null,
+      dockerVar: process.env.DOCKER || null,
+      composeProject: process.env.COMPOSE_PROJECT_NAME || null,
+      composeFile: process.env.COMPOSE_FILE || null,
+      swarm: process.env.DOCKER_SWARM || null,
+      swarmNodeId: process.env.SWARM_NODE_ID || null,
+      swarmManager: process.env.SWARM_MANAGER || null
+    },
+    kubernetes: {
+      serviceHost: process.env.KUBERNETES_SERVICE_HOST || null,
+      port: process.env.KUBERNETES_PORT || null,
+      namespace: process.env.KUBERNETES_NAMESPACE || null,
+      podName: process.env.POD_NAME || null,
+      podIp: process.env.POD_IP || null,
+      serviceAccount: process.env.SERVICE_ACCOUNT || null
+    }
+  },
+
+  // Cloud-specific data
+  cloud: {
+    aws: {
+      region: process.env.AWS_REGION || null,
+      lambdaFunction: process.env.AWS_LAMBDA_FUNCTION_NAME || null,
+      executionEnv: process.env.AWS_EXECUTION_ENV || null
+    },
+    azure: {
+      functions: process.env.AZURE_FUNCTIONS_ENVIRONMENT || null,
+      website: process.env.WEBSITE_SITE_NAME || null
+    },
+    gcp: {
+      project: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || null,
+      function: process.env.FUNCTION_NAME || null,
+      region: process.env.FUNCTION_REGION || null
+    }
   }
 };
 
@@ -223,6 +413,112 @@ async function handleRequest(req, res) {
     if (pathname === '/api/status') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(mockData.status));
+      return;
+    }
+
+    // Environment endpoint
+    if (pathname === '/api/environment') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.environment));
+      return;
+    }
+
+    // Environment detection endpoint
+    if (pathname === '/api/environment/detect') {
+      // Update environment data with current timestamp
+      mockData.environment.timestamp = new Date().toISOString();
+      mockData.environment.userAgent = req.headers['user-agent'] || 'Unknown';
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.environment));
+      return;
+    }
+
+    // CI environment endpoints
+    if (pathname === '/api/environment/ci') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.ci));
+      return;
+    }
+
+    if (pathname === '/api/environment/ci/github' && GITHUB_ACTIONS) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.ci.github));
+      return;
+    }
+
+    if (pathname === '/api/environment/ci/jenkins' && JENKINS_CI) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.ci.jenkins));
+      return;
+    }
+
+    if (pathname === '/api/environment/ci/gitlab' && GITLAB_CI) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.ci.gitlab));
+      return;
+    }
+
+    // Container environment endpoints
+    if (pathname === '/api/environment/container') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.container));
+      return;
+    }
+
+    if (pathname === '/api/environment/container/docker' && DOCKER_ENV) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.container.docker));
+      return;
+    }
+
+    if (pathname === '/api/environment/container/kubernetes' && KUBERNETES_ENV) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.container.kubernetes));
+      return;
+    }
+
+    // Cloud environment endpoints
+    if (pathname === '/api/environment/cloud') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.cloud));
+      return;
+    }
+
+    if (pathname === '/api/environment/cloud/aws' && AWS_ENV) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.cloud.aws));
+      return;
+    }
+
+    if (pathname === '/api/environment/cloud/azure' && AZURE_ENV) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.cloud.azure));
+      return;
+    }
+
+    if (pathname === '/api/environment/cloud/gcp' && GCP_ENV) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(mockData.cloud.gcp));
+      return;
+    }
+
+    // OS-specific endpoints
+    if (pathname === '/api/environment/os') {
+      const osInfo = {
+        platform: process.platform,
+        isWindows: WINDOWS_ENV,
+        isMacOS: MACOS_ENV,
+        isLinux: LINUX_ENV,
+        isWSL: WSL_ENV,
+        wslDistro: process.env.WSL_DISTRO_NAME || null,
+        osType: mockData.environment.osType,
+        osRelease: mockData.environment.osRelease,
+        architecture: process.arch
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(osInfo));
       return;
     }
 

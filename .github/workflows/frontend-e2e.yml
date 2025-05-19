@@ -549,8 +549,44 @@ jobs:
           export CI=true
           export VERBOSE_LOGGING=true
 
+          # Set environment detection variables
+          export GITHUB_ACTIONS=true
+          export DOCKER_ENVIRONMENT=false
+          export KUBERNETES_SERVICE_HOST=""
+          export COMPOSE_PROJECT_NAME=""
+          export DOCKER_SWARM=""
+
           # Create logs directory
           mkdir -p logs
+
+          # Create environment report
+          echo "Creating environment report..."
+          mkdir -p playwright-report
+
+          cat > playwright-report/environment-report.txt << EOF
+          Environment Report
+          -----------------
+          Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          CI Environment:
+            CI: true
+            GitHub Actions: true
+            Runner OS: $(uname -s)
+            Node.js: $(node --version)
+
+          Container Environment:
+            Docker: false
+            Kubernetes: false
+            Docker Compose: false
+            Docker Swarm: false
+
+          Configuration:
+            API Base URL: $REACT_APP_API_BASE_URL
+            AG UI Enabled: $REACT_APP_AG_UI_ENABLED
+            Verbose Logging: $VERBOSE_LOGGING
+          EOF
+
+          echo "Environment report created at playwright-report/environment-report.txt"
 
           # Check if the enhanced CI test runner exists
           if [ -f "tests/run_ci_tests_enhanced.js" ]; then
@@ -571,10 +607,50 @@ jobs:
           $env:CI = "true"
           $env:VERBOSE_LOGGING = "true"
 
+          # Set environment detection variables
+          $env:GITHUB_ACTIONS = "true"
+          $env:DOCKER_ENVIRONMENT = "false"
+          $env:KUBERNETES_SERVICE_HOST = ""
+          $env:COMPOSE_PROJECT_NAME = ""
+          $env:DOCKER_SWARM = ""
+
           # Create logs directory
           if (-not (Test-Path "logs")) {
             New-Item -ItemType Directory -Path "logs" -Force
           }
+
+          # Create environment report
+          Write-Host "Creating environment report..."
+          if (-not (Test-Path "playwright-report")) {
+            New-Item -ItemType Directory -Path "playwright-report" -Force
+          }
+
+          $environmentReport = @"
+          Environment Report
+          -----------------
+          Generated at: $(Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")
+
+          CI Environment:
+            CI: true
+            GitHub Actions: true
+            Runner OS: Windows
+            PowerShell Version: $($PSVersionTable.PSVersion)
+            Node.js: $(node --version)
+
+          Container Environment:
+            Docker: false
+            Kubernetes: false
+            Docker Compose: false
+            Docker Swarm: false
+
+          Configuration:
+            API Base URL: $($env:REACT_APP_API_BASE_URL)
+            AG UI Enabled: $($env:REACT_APP_AG_UI_ENABLED)
+            Verbose Logging: $($env:VERBOSE_LOGGING)
+          "@
+
+          Set-Content -Path "playwright-report/environment-report.txt" -Value $environmentReport
+          Write-Host "Environment report created at playwright-report/environment-report.txt"
 
           # Check if the enhanced CI test runner exists
           if (Test-Path "tests/run_ci_tests_enhanced.js") {

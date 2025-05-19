@@ -26,14 +26,73 @@ const path = require('path');
 const os = require('os');
 
 // Enhanced environment detection with better compatibility
+// CI environment detection
 const isCI = process.env.CI === 'true' || process.env.CI === true ||
-             process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+             process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW ||
+             process.env.TF_BUILD || process.env.JENKINS_URL ||
+             process.env.GITLAB_CI || process.env.CIRCLECI ||
+             !!process.env.BITBUCKET_COMMIT || !!process.env.APPVEYOR ||
+             !!process.env.DRONE || !!process.env.BUDDY ||
+             !!process.env.BUILDKITE || !!process.env.CODEBUILD_BUILD_ID;
+
+// Enhanced CI platform detection
+const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW || !!process.env.GITHUB_RUN_ID;
+const isJenkinsCI = !!process.env.JENKINS_URL || !!process.env.JENKINS_HOME;
+const isGitLabCI = !!process.env.GITLAB_CI || (!!process.env.CI_SERVER_NAME && process.env.CI_SERVER_NAME.includes('GitLab'));
+const isCircleCI = !!process.env.CIRCLECI || !!process.env.CIRCLE_BUILD_NUM;
+const isTravisCI = !!process.env.TRAVIS || !!process.env.TRAVIS_JOB_ID;
+const isAzurePipelines = !!process.env.TF_BUILD || !!process.env.AZURE_HTTP_USER_AGENT;
+const isTeamCity = !!process.env.TEAMCITY_VERSION || !!process.env.TEAMCITY_BUILD_PROPERTIES_FILE;
+const isBitbucket = !!process.env.BITBUCKET_COMMIT || !!process.env.BITBUCKET_BUILD_NUMBER;
+const isAppVeyor = !!process.env.APPVEYOR || !!process.env.APPVEYOR_BUILD_ID;
+const isDroneCI = !!process.env.DRONE || !!process.env.DRONE_BUILD_NUMBER;
+const isBuddyCI = !!process.env.BUDDY || !!process.env.BUDDY_PIPELINE_ID;
+const isBuildkite = !!process.env.BUILDKITE || !!process.env.BUILDKITE_BUILD_ID;
+const isCodeBuild = !!process.env.CODEBUILD_BUILD_ID || !!process.env.CODEBUILD_BUILD_ARN;
+
+// Enhanced container environment detection
+const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true' ||
+                           process.env.DOCKER === 'true' ||
+                           fs.existsSync('/.dockerenv') ||
+                           fs.existsSync('/run/.containerenv') ||
+                           (fs.existsSync('/proc/1/cgroup') &&
+                            fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'));
+
+const isKubernetesEnv = !!process.env.KUBERNETES_SERVICE_HOST ||
+                       !!process.env.KUBERNETES_PORT ||
+                       fs.existsSync('/var/run/secrets/kubernetes.io');
+
+const isDockerCompose = !!process.env.COMPOSE_PROJECT_NAME ||
+                       !!process.env.COMPOSE_FILE ||
+                       !!process.env.COMPOSE_PATH_SEPARATOR;
+
+const isDockerSwarm = !!process.env.DOCKER_SWARM ||
+                     !!process.env.SWARM_NODE_ID ||
+                     !!process.env.SWARM_MANAGER;
+
+// Enhanced cloud environment detection
+const isAWSEnv = !!process.env.AWS_REGION ||
+                !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+                !!process.env.AWS_EXECUTION_ENV;
+
+const isAzureEnv = !!process.env.AZURE_FUNCTIONS_ENVIRONMENT ||
+                  !!process.env.WEBSITE_SITE_NAME ||
+                  !!process.env.APPSETTING_WEBSITE_SITE_NAME;
+
+const isGCPEnv = !!process.env.GOOGLE_CLOUD_PROJECT ||
+                !!process.env.GCLOUD_PROJECT ||
+                !!process.env.GCP_PROJECT ||
+                (!!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION);
+
+// Enhanced OS detection
+const isWindows = process.platform === 'win32';
+const isMacOS = process.platform === 'darwin';
+const isLinux = process.platform === 'linux';
+const isWSL = !!process.env.WSL_DISTRO_NAME || !!process.env.WSLENV;
+
+// Other configuration
 const skipPathToRegexp = process.env.SKIP_PATH_TO_REGEXP === 'true' || process.env.PATH_TO_REGEXP_MOCK === 'true';
 const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
-const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true' ||
-                           (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true');
-const isWindows = process.platform === 'win32';
 
 // Set environment variables for enhanced compatibility
 if (isGitHubActions && process.env.CI !== 'true') {
@@ -47,10 +106,42 @@ console.log(`Enhanced Mock path-to-regexp - Environment Information:
 - Platform: ${process.platform}
 - Architecture: ${process.arch}
 - Working Directory: ${process.cwd()}
+
+Operating System:
+- Windows: ${isWindows ? 'Yes' : 'No'}
+- macOS: ${isMacOS ? 'Yes' : 'No'}
+- Linux: ${isLinux ? 'Yes' : 'No'}
+- WSL: ${isWSL ? 'Yes' : 'No'}
+- WSL Distro: ${process.env.WSL_DISTRO_NAME || 'N/A'}
+
+CI Environment:
 - CI: ${isCI ? 'Yes' : 'No'}
 - GitHub Actions: ${isGitHubActions ? 'Yes' : 'No'}
+- Jenkins: ${isJenkinsCI ? 'Yes' : 'No'}
+- GitLab CI: ${isGitLabCI ? 'Yes' : 'No'}
+- CircleCI: ${isCircleCI ? 'Yes' : 'No'}
+- Travis CI: ${isTravisCI ? 'Yes' : 'No'}
+- Azure Pipelines: ${isAzurePipelines ? 'Yes' : 'No'}
+- TeamCity: ${isTeamCity ? 'Yes' : 'No'}
+- Bitbucket: ${isBitbucket ? 'Yes' : 'No'}
+- AppVeyor: ${isAppVeyor ? 'Yes' : 'No'}
+- Drone CI: ${isDroneCI ? 'Yes' : 'No'}
+- Buddy CI: ${isBuddyCI ? 'Yes' : 'No'}
+- Buildkite: ${isBuildkite ? 'Yes' : 'No'}
+- AWS CodeBuild: ${isCodeBuild ? 'Yes' : 'No'}
+
+Container Environment:
 - Docker: ${isDockerEnvironment ? 'Yes' : 'No'}
-- Windows: ${isWindows ? 'Yes' : 'No'}
+- Kubernetes: ${isKubernetesEnv ? 'Yes' : 'No'}
+- Docker Compose: ${isDockerCompose ? 'Yes' : 'No'}
+- Docker Swarm: ${isDockerSwarm ? 'Yes' : 'No'}
+
+Cloud Environment:
+- AWS: ${isAWSEnv ? 'Yes' : 'No'}
+- Azure: ${isAzureEnv ? 'Yes' : 'No'}
+- GCP: ${isGCPEnv ? 'Yes' : 'No'}
+
+Configuration:
 - Skip path-to-regexp: ${skipPathToRegexp ? 'Yes' : 'No'}
 - Verbose logging: ${verboseLogging ? 'Yes' : 'No'}
 `);
@@ -1146,13 +1237,45 @@ log('Enhanced mock path-to-regexp script completed', 'important');
 module.exports = {
   mockCreated,
   requirePatched,
+  verificationSuccess,
+
+  // Export environment detection variables
+  // CI Environment
   isCI,
   isGitHubActions,
+  isJenkinsCI,
+  isGitLabCI,
+  isCircleCI,
+  isTravisCI,
+  isAzurePipelines,
+  isTeamCity,
+  isBitbucket,
+  isAppVeyor,
+  isDroneCI,
+  isBuddyCI,
+  isBuildkite,
+  isCodeBuild,
+
+  // Container Environment
+  isDockerEnvironment,
+  isKubernetesEnv,
+  isDockerCompose,
+  isDockerSwarm,
+
+  // Cloud Environment
+  isAWSEnv,
+  isAzureEnv,
+  isGCPEnv,
+
+  // OS Environment
+  isWindows,
+  isMacOS,
+  isLinux,
+  isWSL,
+
+  // Configuration
   skipPathToRegexp,
   verboseLogging,
-  isDockerEnvironment,
-  isWindows,
-  verificationSuccess,
 
   // Export utility functions for use in other modules
   createMockImplementation: createEnhancedMockImplementation,
@@ -1165,5 +1288,56 @@ module.exports = {
   log,
 
   // Add a timestamp for when this module was loaded
-  loadedAt: new Date().toISOString()
+  loadedAt: new Date().toISOString(),
+
+  // Export environment detection function
+  detectEnvironment: function() {
+    return {
+      // CI Environment
+      isCI,
+      isGitHubActions,
+      isJenkinsCI,
+      isGitLabCI,
+      isCircleCI,
+      isTravisCI,
+      isAzurePipelines,
+      isTeamCity,
+      isBitbucket,
+      isAppVeyor,
+      isDroneCI,
+      isBuddyCI,
+      isBuildkite,
+      isCodeBuild,
+
+      // Container Environment
+      isDocker: isDockerEnvironment,
+      isKubernetes: isKubernetesEnv,
+      isDockerCompose,
+      isDockerSwarm,
+
+      // Cloud Environment
+      isAWS: isAWSEnv,
+      isAzure: isAzureEnv,
+      isGCP: isGCPEnv,
+      isCloudEnvironment: isAWSEnv || isAzureEnv || isGCPEnv,
+
+      // OS Environment
+      isWindows,
+      isMacOS,
+      isLinux,
+      isWSL,
+      platform: process.platform,
+
+      // System Info
+      nodeVersion: process.version,
+      architecture: process.arch,
+      osType: process.platform === 'win32' ? 'Windows' :
+              process.platform === 'darwin' ? 'macOS' :
+              process.platform === 'linux' ? 'Linux' : process.platform,
+      osRelease: process.release ? process.release.name + ' ' + process.release.lts : null,
+
+      // Timestamp
+      timestamp: new Date().toISOString()
+    };
+  }
 };

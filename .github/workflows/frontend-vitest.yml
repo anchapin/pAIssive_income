@@ -88,6 +88,39 @@ jobs:
         run: |
           # Set CI environment variables
           export CI=true
+          export GITHUB_ACTIONS=true
+          export DOCKER_ENVIRONMENT=false
+          export KUBERNETES_SERVICE_HOST=""
+          export COMPOSE_PROJECT_NAME=""
+          export DOCKER_SWARM=""
+
+          # Create environment report
+          echo "Creating environment report..."
+          mkdir -p coverage
+
+          cat > coverage/environment-report.txt << EOF
+          Environment Report
+          -----------------
+          Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          CI Environment:
+            CI: true
+            GitHub Actions: true
+            Runner OS: $(uname -s)
+            Node.js: $(node --version)
+
+          Container Environment:
+            Docker: false
+            Kubernetes: false
+            Docker Compose: false
+            Docker Swarm: false
+
+          Configuration:
+            Test Mode: Vitest Unit Tests
+            Debug Mode: ${{ inputs.debug }}
+          EOF
+
+          echo "Environment report created at coverage/environment-report.txt"
 
           # Run tests with proper error handling
           pnpm run test:unit || echo "Tests failed but continuing workflow"
