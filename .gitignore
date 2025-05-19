@@ -134,6 +134,7 @@ env.bak/
 env/
 example_project_plan.json
 htmlcov/
+coverage/
 instance/
 ipython_config.py
 lib/
@@ -165,5 +166,6 @@ yarn-error.log
 ui/static/css/tailwind.output.css
 
 # Ignore package lock files
+.nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json

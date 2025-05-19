@@ -2,13 +2,81 @@
   "name": "paissive-income",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "tailwind:build": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
+    "tailwind:watch": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --watch",
+    "test": "nyc mocha \"src/**/*.test.js\"",
+    "coverage": "nyc report --reporter=text-lcov"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mui/icons-material": "^7.1.0",
+    "@mui/material": "^7.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.5.3",
+    "recharts": "^2.12.0"
+  },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.32",
-    "autoprefixer": "^10.4.16"
+    "autoprefixer": "^10.4.16",
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.99.8",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1",
+    "mocha": "^10.4.0",
+    "nyc": "^15.1.0"
   },
-  "scripts": {
-    "tailwind:build": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
-    "tailwind:watch": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --watch"
+  "nyc": {
+    "all": true,
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "include": [
+      "src/**/*.js",
+      "ui/**/*.js",
+      "sdk/javascript/**/*.js"
+    ],
+    "exclude": [
+      "**/*.test.js",
+      "**/test/**",
+      "tests/**",
+      "**/__mocks__/**",
+      "**/mocks/**",
+      "**/mock*/**",
+      "**/testUtils.js",
+      "**/test_utils.js",
+      "**/test-utils.js",
+      "**/setupTests.js"
+    ],
+    "statements": 1,
+    "branches": 1,
+    "functions": 1,
+    "lines": 1,
+    "check-coverage": false,
+    "overrides": {
+      "src/**/*.js": {
+        "statements": 70,
+        "branches": 70,
+        "functions": 70,
+        "lines": 70
+      },
+      "src/math.js": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
   }
 }

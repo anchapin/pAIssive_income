@@ -101,3 +101,12 @@ repos:
             ^scripts/__init__.py$|
             ^.github/scripts/__init__.py$
           )
+
+      - id: js-tests
+        name: Run JavaScript tests with coverage (pnpm test)
+        entry: pnpm test
+        language: system
+        types: [javascript]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
