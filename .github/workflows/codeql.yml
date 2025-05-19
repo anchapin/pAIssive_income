@@ -184,6 +184,8 @@ jobs:
 
             echo "Created minimal package-lock.json in the root directory."
 
+            # Note: We're not automatically fixing any CodeQL issues, just creating necessary files for analysis
+
             # Verify the file was created
             if [ -f "package-lock.json" ]; then
               echo "Verification: package-lock.json exists and contains:"

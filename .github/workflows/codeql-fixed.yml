@@ -144,17 +144,65 @@ jobs:
           fi
         continue-on-error: true
 
-      # Run fix-codeql-issues.sh script to fix CodeQL issues
-      - name: Run fix-codeql-issues.sh script
+      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
+      # Instead, we'll just create a .codeqlignore file
+      - name: Create .codeqlignore file
         shell: bash
         run: |
-          # Make the script executable
-          chmod +x scripts/fix-codeql-issues.sh
+          echo "Creating .codeqlignore file instead of running fix script..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
 
-          # Run the script
-          ./scripts/fix-codeql-issues.sh
-
-          # List directories to verify cleanup
+          # List directories to verify
           echo "Current directories:"
           ls -la
 
@@ -396,17 +444,65 @@ jobs:
           }
         continue-on-error: true
 
-      # Run fix-codeql-issues.sh script to fix CodeQL issues
-      - name: Run fix-codeql-issues.sh script
+      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
+      # Instead, we'll just create a .codeqlignore file
+      - name: Create .codeqlignore file
         shell: bash
         run: |
-          # Make the script executable
-          chmod +x scripts/fix-codeql-issues.sh
+          echo "Creating .codeqlignore file instead of running fix script..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
 
-          # Run the script
-          ./scripts/fix-codeql-issues.sh
-
-          # List directories to verify cleanup
+          # List directories to verify
           echo "Current directories:"
           ls -la
 

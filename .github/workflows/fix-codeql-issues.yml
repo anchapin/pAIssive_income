@@ -1,22 +1,17 @@
-name: Fix CodeQL Issues
+name: Fix CodeQL Issues (Manual Mode)
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'ui/react_frontend/**'
-      - '.github/workflows/codeql*.yml'
-      - 'scripts/fix-codeql-issues.sh'
+  # Removed automatic trigger on pull requests to prevent auto-fixing
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read  # Changed from write to read
+  pull-requests: read  # Changed from write to read
   security-events: write
 
 jobs:
-  fix-codeql-issues:
-    name: Fix CodeQL Issues
+  analyze-codeql-issues:
+    name: Analyze CodeQL Issues
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -43,11 +38,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
 
-      - name: Run fix-codeql-issues.sh script
-        run: |
-          chmod +x scripts/fix-codeql-issues.sh
-          bash scripts/fix-codeql-issues.sh
-        
+      # Removed the automatic fix script execution
+      # Instead, just create the .codeqlignore file for better analysis
+
       - name: Create .codeqlignore
         run: |
           cat > .codeqlignore << 'EOL'
@@ -102,21 +95,5 @@ jobs:
           sdk/javascript/node_modules/**
           EOL
 
-      - name: Check for changes
-        id: git-check
-        run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-            git status --porcelain
-          else
-            echo "No changes detected"
-          fi
-
-      - name: Commit CodeQL fixes
-        if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          git commit -m "Fix CodeQL issues"
-          git push
+      # Removed the automatic commit and push steps
+      # Now the workflow will only analyze issues but not fix them automatically
