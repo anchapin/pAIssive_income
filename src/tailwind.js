@@ -17,6 +17,6 @@ export function isTailwindLoaded() {
  * @returns {string} Tailwind CSS version
  */
 export function getTailwindVersion() {
-  // Return a dummy version for testing
-  return '3.3.3';
+  // Return the version matching package.json
+  return '3.4.1';
 }

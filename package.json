@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "tailwind:build": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify && cd ui/react_frontend && pnpm tailwind:build",
+    "tailwind:build:static": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
+    "tailwind:build:react": "cd ui/react_frontend && pnpm tailwind:build",
+    "tailwind:build": "pnpm tailwind:build:static && pnpm tailwind:build:react",
     "tailwind:watch": "tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --watch",
     "test": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
     "test:ci": "pnpm tailwind:build && nyc mocha \"src/**/*.test.js\" --passWithNoTests",
