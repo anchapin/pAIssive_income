@@ -71,7 +71,7 @@ def ensure_security_reports_dir() -> None:
                     # Use full path to cmd.exe to avoid security warning
                     cmd_path = shutil.which("cmd.exe") or "cmd"
                     subprocess.run(  # nosec B603
-                        [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
+                        [cmd_path, "/c", "mklink", "/J", "security-reports", str(temp_dir)],
                         check=False,
                         shell=False,
                         capture_output=True

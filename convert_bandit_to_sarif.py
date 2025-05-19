@@ -178,7 +178,7 @@ def ensure_security_reports_dir() -> None:
                         # nosec B603 - subprocess call is used with shell=False and validated arguments
                         # nosec S603 - This is a safe subprocess call with no user input
                         subprocess.run(  # nosec B603 # noqa: S603
-                            [cmd_path, "/c", f"mklink /J security-reports {alt_reports_dir}"],
+                            [cmd_path, "/c", "mklink", "/J", "security-reports", str(alt_reports_dir)],
                             check=False,
                             shell=False,
                             capture_output=True
@@ -210,7 +210,7 @@ def ensure_security_reports_dir() -> None:
                     # nosec B603 - subprocess call is used with shell=False and validated arguments
                     # nosec S603 - This is a safe subprocess call with no user input
                     subprocess.run(  # nosec B603 # noqa: S603
-                        [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
+                        [cmd_path, "/c", "mklink", "/J", "security-reports", str(temp_dir)],
                         check=False,
                         shell=False,
                         capture_output=True
