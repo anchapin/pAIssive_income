@@ -1,0 +1,78 @@
+services:
+  artist-app:
+    build:
+      context: ..
+      dockerfile: artist_experiments/Dockerfile.artist
+    container_name: artist-experiment-app
+    restart: unless-stopped
+    ports:
+      - "5001:5000"  # Different port to avoid conflicts with main app
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs:rw
+      - ./models:/app/models:rw
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=artist_experiments/run_artist.py
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://artist_user:artist_password@artist-db:5432/artist_db
+      - PATH=/app/.venv-artist/bin:$PATH
+      - POSTGRES_USER=artist_user
+      - POSTGRES_PASSWORD=artist_password
+      - POSTGRES_DB=artist_db
+      - POSTGRES_HOST=artist-db
+      - LOG_LEVEL=DEBUG
+      - CONTAINER=true
+    networks:
+      - artist-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 20s
+      retries: 10
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    depends_on:
+      artist-db:
+        condition: service_healthy
+
+  artist-db:
+    image: postgres:15.3-alpine
+    container_name: artist-experiment-db
+    restart: unless-stopped
+    ports:
+      - "5434:5432"  # Different port to avoid conflicts with main db
+    volumes:
+      - artist-postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=artist_user
+      - POSTGRES_PASSWORD=artist_password
+      - POSTGRES_DB=artist_db
+    networks:
+      - artist-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artist_user -d artist_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+      start_period: 15s
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "max_connections=200"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+networks:
+  artist-network:
+    driver: bridge
+
+volumes:
+  artist-postgres-data:
+    driver: local
