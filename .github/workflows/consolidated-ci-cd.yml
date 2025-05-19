@@ -160,7 +160,10 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           # Run MCP adapter tests separately using the custom script
-          if [ -f "run_tests.sh" ]; then
+          if [ -f "run_tests.py" ]; then
+            echo "Using run_tests.py script to run MCP tests"
+            python run_tests.py -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed, but continuing"
+          elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run MCP tests"
             chmod +x run_tests.sh
             ./run_tests.sh -v tests/ai_models/adapters/test_mcp_adapter.py tests/test_mcp_import.py tests/test_mcp_top_level_import.py || echo "MCP tests failed, but continuing"
@@ -216,7 +219,10 @@ jobs:
         continue-on-error: true
         run: |
           # Run CrewAI tests separately using the custom script
-          if [ -f "run_tests.sh" ]; then
+          if [ -f "run_tests.py" ]; then
+            echo "Using run_tests.py script to run CrewAI tests"
+            python run_tests.py -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
+          elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run CrewAI tests"
             chmod +x run_tests.sh
             ./run_tests.sh -v tests/test_crewai_agents.py || echo "CrewAI tests failed, but continuing"
@@ -231,7 +237,10 @@ jobs:
         shell: pwsh
         run: |
           # Run CrewAI tests separately using the custom script
-          if (Test-Path "run_tests.ps1") {
+          if (Test-Path "run_tests.py") {
+            Write-Host "Using run_tests.py script to run CrewAI tests"
+            python run_tests.py -v tests/test_crewai_agents.py
+          } elseif (Test-Path "run_tests.ps1") {
             Write-Host "Using run_tests.ps1 script to run CrewAI tests"
             .\run_tests.ps1 -v tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.bat") {
@@ -245,8 +254,11 @@ jobs:
       - name: Run other tests (Unix)
         if: runner.os != 'Windows'
         run: |
-          # Run all tests except MCP adapter tests and CrewAI tests using the shell script
-          if [ -f "run_tests.sh" ]; then
+          # Run all tests except MCP adapter tests and CrewAI tests
+          if [ -f "run_tests.py" ]; then
+            echo "Using run_tests.py script to run tests"
+            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+          elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run tests"
             chmod +x run_tests.sh
             ./run_tests.sh -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
@@ -262,8 +274,11 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Run all tests except MCP adapter tests and CrewAI tests using the PowerShell script
-          if (Test-Path "run_tests.ps1") {
+          # Run all tests except MCP adapter tests and CrewAI tests
+          if (Test-Path "run_tests.py") {
+            Write-Host "Using run_tests.py script to run tests"
+            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+          } elseif (Test-Path "run_tests.ps1") {
             Write-Host "Using run_tests.ps1 script to run tests"
             .\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.bat") {
