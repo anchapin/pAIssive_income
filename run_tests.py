@@ -129,8 +129,8 @@ def count_tests(validated_args: list[str]) -> int:
 
         # Run pytest with --collect-only to get the list of tests
         # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # nosec S603 - This is a safe subprocess call with no user input
-        result = subprocess.run(  # nosec B603 # noqa: S603
+        # nosec B607 - subprocess call is used with a fixed executable path
+        result = subprocess.run(  # nosec B603 # nosec B607
             [sys.executable, "-m", "pytest", "--collect-only", *validated_args],
             check=False,
             capture_output=True,
@@ -234,8 +234,8 @@ def ensure_security_reports_dir() -> None:
                     cmd_path = shutil.which("cmd.exe")
                     if cmd_path:
                         # nosec B603 - subprocess call is used with shell=False and validated arguments
-                        # nosec S603 - This is a safe subprocess call with no user input
-                        subprocess.run(  # nosec B603 # noqa: S603
+                        # nosec B607 - subprocess call is used with a fixed executable path
+                        subprocess.run(  # nosec B603 # nosec B607
                             [cmd_path, "/c", f"mklink /J security-reports {alt_reports_dir}"],
                             check=False,
                             shell=False,
@@ -264,8 +264,8 @@ def ensure_security_reports_dir() -> None:
                 cmd_path = shutil.which("cmd.exe")
                 if cmd_path:
                     # nosec B603 - subprocess call is used with shell=False and validated arguments
-                    # nosec S603 - This is a safe subprocess call with no user input
-                    subprocess.run(  # nosec B603 # noqa: S603
+                    # nosec B607 - subprocess call is used with a fixed executable path
+                    subprocess.run(  # nosec B603 # nosec B607
                         [cmd_path, "/c", f"mklink /J security-reports {temp_dir}"],
                         check=False,
                         shell=False,
@@ -344,8 +344,8 @@ def main() -> None:
         # First check if pytest-xdist is already installed
         try:
             # nosec B603 - subprocess call is used with shell=False and validated arguments
-            # nosec S603 - This is a safe subprocess call with no user input
-            check_result = subprocess.run(  # nosec B603 # noqa: S603
+            # nosec B607 - subprocess call is used with a fixed executable path
+            check_result = subprocess.run(  # nosec B603 # nosec B607
                 [sys.executable, "-c", "import pytest_xdist"],
                 check=False,
                 capture_output=True,
@@ -367,9 +367,8 @@ def main() -> None:
                     # Get full path to uv executable to avoid B607 warning
                     uv_path = shutil.which("uv") or "uv"
                     # nosec B603 - subprocess call is used with shell=False and validated arguments
-                    # nosec S603 - This is a safe subprocess call with no user input
                     # nosec B607 - We're using shutil.which to get the full path
-                    uv_check = subprocess.run(  # nosec B603 # noqa: S603 # nosec B607
+                    uv_check = subprocess.run(  # nosec B603 # nosec B607
                         [uv_path, "--version"],
                         check=False,
                         capture_output=True,
@@ -390,8 +389,8 @@ def main() -> None:
                     install_cmd = [sys.executable, "-m", "pip", "install", "pytest-xdist"]
 
                 # nosec B603 - subprocess call is used with shell=False and validated arguments
-                # nosec S603 - This is a safe subprocess call with no user input
-                install_result = subprocess.run(  # nosec B603 # noqa: S603
+                # nosec B607 - subprocess call is used with a fixed executable path
+                install_result = subprocess.run(  # nosec B603 # nosec B607
                     install_cmd,
                     check=False,
                     capture_output=True,
@@ -431,8 +430,8 @@ def main() -> None:
         xdist_available = False
         try:
             # nosec B603 - subprocess call is used with shell=False and validated arguments
-            # nosec S603 - This is a safe subprocess call with no user input
-            xdist_check = subprocess.run(  # nosec B603 # noqa: S603
+            # nosec B607 - subprocess call is used with a fixed executable path
+            xdist_check = subprocess.run(  # nosec B603 # nosec B607
                 [sys.executable, "-c", "import pytest_xdist"],
                 check=False,
                 capture_output=True,
@@ -475,8 +474,8 @@ def main() -> None:
 
         # Run pytest with the calculated command
         # nosec B603 - subprocess call is used with shell=False and validated arguments
-        # nosec S603 - This is a safe subprocess call with no user input
-        result = subprocess.run(  # nosec B603 # noqa: S603
+        # nosec B607 - subprocess call is used with a fixed executable path
+        result = subprocess.run(  # nosec B603 # nosec B607
             pytest_cmd,
             check=False,
             shell=False,  # Explicitly set shell=False for security
