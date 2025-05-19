@@ -15,7 +15,8 @@ paths-ignore:
   - '**/.DS_Store'
   - '**/.AppleDouble'
   - '**/.LSOverride'
-  - '**/Icon\r'
+  # Using '?' instead of '\r' to avoid backslash issues in CodeQL filters
+  - '**/Icon?'
   - '**/*.app/**'
   - '**/*.pkg'
   - '**/*.dmg'
