@@ -274,12 +274,23 @@ try {
 function createMockImplementation() {
   safeLog('Starting to create mock implementation', '', 'important');
 
-  // Try multiple locations for creating the mock implementation
+  // Enhanced environment detection
+  const env = {
+    isCI: process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true',
+    isDocker: fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv'),
+    isGitHubActions: process.env.GITHUB_ACTIONS === 'true',
+    tempDir: process.env.RUNNER_TEMP || os.tmpdir(),
+    workDir: process.env.GITHUB_WORKSPACE || process.cwd()
+  };
+
+  safeLog(`Environment: CI=${env.isCI}, Docker=${env.isDocker}, GitHub=${env.isGitHubActions}`, '', 'info');
+
+  // Prioritized locations for mock implementation based on environment
   const possibleLocations = [
-    path.join(process.cwd(), 'node_modules', 'path-to-regexp'),
-    path.join(process.cwd(), 'node_modules', '.cache', 'path-to-regexp'),
-    path.join(os.tmpdir(), 'path-to-regexp'),
-    path.join(process.cwd(), '.cache', 'path-to-regexp')
+    path.join(env.workDir, 'node_modules', 'path-to-regexp'),
+    path.join(env.workDir, '.cache', 'path-to-regexp'),
+    path.join(env.tempDir, 'path-to-regexp'),
+    path.join(env.workDir, 'node_modules', '.cache', 'path-to-regexp')
   ];
 
   // Add GitHub Actions specific locations if we're in GitHub Actions
@@ -360,18 +371,37 @@ function createMockImplementation() {
  * @returns {RegExp} - The regexp
  */
 function pathToRegexp(path, keys, options) {
-  console.log('Mock path-to-regexp called with path:', typeof path === 'string' ? path : typeof path);
+  const logPrefix = process.env.VERBOSE_LOGGING === 'true' ? '[path-to-regexp] ' : '';
+  safeLog(`${logPrefix}Called with path: ${typeof path === 'string' ? path : typeof path}`, '', 'info');
 
-  // Input validation
-  if (typeof path !== 'string' && !(path instanceof RegExp)) {
-    console.warn('Invalid path type:', typeof path);
+  // Enhanced input validation and sanitization
+  if (path === null || path === undefined) {
+    safeLog(`${logPrefix}Path is null or undefined`, '', 'warn');
     return /.*/;
   }
 
-  // If keys is provided, populate it with parameter names
+  // Handle RegExp objects directly
+  if (path instanceof RegExp) {
+    return path;
+  }
+
+  // Ensure string type for paths
+  if (typeof path !== 'string') {
+    safeLog(`${logPrefix}Invalid path type: ${typeof path}`, '', 'warn');
+    return /.*/;
+  }
+
+  // Anti-DoS measures: limit path length
+  const maxPathLength = 2000;
+  if (path.length > maxPathLength) {
+    safeLog(`${logPrefix}Path too long (${path.length} chars), truncating`, '', 'warn');
+    path = path.substring(0, maxPathLength);
+  }
+
+  // If keys is provided, safely populate with parameter names
   if (Array.isArray(keys) && typeof path === 'string') {
     try {
-      // Use a safer regex with a limited repetition to prevent ReDoS
+      // Use a safer regex with strict limits to prevent ReDoS
       const paramNames = path.match(/:[a-zA-Z0-9_]{1,50}/g) || [];
 
       // Limit the number of parameters to prevent DoS
