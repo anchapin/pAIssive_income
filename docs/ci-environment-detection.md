@@ -8,7 +8,7 @@ The CI environment detection functionality is designed to detect and handle diff
 
 - **Operating Systems**: Windows, macOS, Linux, WSL
 - **CI environments**: GitHub Actions, Jenkins, GitLab CI, CircleCI, Travis, Azure Pipelines, TeamCity, Bitbucket, AppVeyor, Drone, Buddy, Buildkite, AWS CodeBuild, Vercel, Netlify, Heroku, Semaphore, Codefresh, Woodpecker, Harness, Render, Railway, Fly.io, Codemagic, GitHub Codespaces, Google Cloud Build, Alibaba Cloud DevOps, Huawei Cloud DevCloud, Tencent Cloud CODING, Baidu Cloud CICD, Sourcegraph, Gitpod, Replit, Stackblitz, Glitch, etc.
-- **Container environments**: Docker, Podman, LXC/LXD, Containerd, CRI-O, Docker Compose, Kubernetes, Docker Swarm
+- **Container environments**: Docker, Podman, LXC/LXD, Containerd, CRI-O, rkt, Singularity, Docker Compose, Kubernetes, Docker Swarm
 - **Cloud environments**: AWS, Azure, GCP, Oracle Cloud (OCI), IBM Cloud, DigitalOcean, Linode, Vultr, Cloudflare
 - **Serverless environments**: Lambda, Azure Functions, Cloud Functions
 
@@ -120,6 +120,10 @@ if (env.isContainerized) {
     console.log('Running in Containerd container');
   } else if (env.isCRIO) {
     console.log('Running in CRI-O container');
+  } else if (env.isRkt) {
+    console.log('Running in rkt container');
+  } else if (env.isSingularity) {
+    console.log('Running in Singularity container');
   } else if (env.isKubernetes) {
     console.log('Running in Kubernetes pod');
 

@@ -75,6 +75,22 @@ function configurePlaywright(options = {}) {
     projects: determineProjects(env),
     outputDir: 'test-results/',
     skipInstallBrowsers: env.isCI,
+
+    // Enhanced parallel execution configuration
+    fullyParallel: true, // Run tests in files in parallel
+    forbidOnly: env.isCI, // Fail if test.only is called in CI
+    maxFailures: env.isCI ? 10 : 5, // Stop after N failures
+
+    // Group tests by their file path pattern for optimal parallel execution
+    grep: process.env.TEST_GREP ? new RegExp(process.env.TEST_GREP) : undefined,
+    grepInvert: process.env.TEST_GREP_INVERT ? new RegExp(process.env.TEST_GREP_INVERT) : undefined,
+
+    // Shared test setup and teardown
+    globalSetup: process.env.SKIP_GLOBAL_SETUP ? undefined : './tests/global-setup.js',
+    globalTeardown: process.env.SKIP_GLOBAL_TEARDOWN ? undefined : './tests/global-teardown.js',
+
+    // Artifact management
+    preserveOutput: env.isCI ? 'failures-only' : 'always',
   };
 
   return config;
@@ -109,18 +125,40 @@ function determineReporters(env) {
 /**
  * Determine appropriate number of workers based on the environment
  * @param {Object} env - Environment object from detectEnvironment()
- * @returns {number} Number of workers
+ * @returns {number|string} Number of workers or 'auto'
  */
 function determineWorkers(env) {
+  // Check if workers are explicitly set in environment variables
+  if (process.env.TEST_WORKERS) {
+    const workers = parseInt(process.env.TEST_WORKERS, 10);
+    if (!isNaN(workers) && workers > 0) {
+      return workers;
+    }
+  }
+
+  // Enhanced worker allocation based on environment
   if (env.isCI) {
-    // Use fewer workers in CI to avoid resource contention
-    return 1;
-  } else if (env.isDocker || env.isKubernetes) {
-    // Use fewer workers in container environments
-    return Math.max(1, Math.floor(os.cpus().length / 2));
+    // Use more workers in CI for parallel execution
+    // GitHub Actions and other modern CI systems can handle parallel tests well
+    if (env.isGitHubActions || env.isBuildkite || env.isCircleCI) {
+      return Math.max(2, Math.floor(os.cpus().length / 2));
+    } else {
+      // For other CI systems, use a more conservative approach
+      return Math.max(2, Math.floor(os.cpus().length / 3));
+    }
+  } else if (env.isDocker || env.isKubernetes || env.isRkt || env.isSingularity) {
+    // Use fewer workers in container environments based on container type
+    if (env.isKubernetes) {
+      // Kubernetes usually has more resources available
+      return Math.max(2, Math.floor(os.cpus().length / 2));
+    } else {
+      // Other container environments might be more resource-constrained
+      return Math.max(1, Math.floor(os.cpus().length / 2));
+    }
   } else {
-    // Use more workers in local development but ensure it's a number
-    return Math.max(1, Math.floor(os.cpus().length * 0.75));
+    // For local development, use more workers but leave some CPU for other tasks
+    // Use 'auto' to let Playwright decide based on available CPUs
+    return 'auto';
   }
 }
 
@@ -250,6 +288,12 @@ function createPlaywrightEnvironmentReport(options = {}) {
     },
     container: {
       isDocker: env.isDocker,
+      isPodman: env.isPodman,
+      isLXC: env.isLXC,
+      isContainerd: env.isContainerd,
+      isCRIO: env.isCRIO,
+      isRkt: env.isRkt,
+      isSingularity: env.isSingularity,
       isKubernetes: env.isKubernetes,
       isDockerCompose: env.isDockerCompose,
       isDockerSwarm: env.isDockerSwarm,
@@ -302,6 +346,12 @@ CI Environment:
 
 Container Environment:
 - Docker: ${env.isDocker ? 'Yes' : 'No'}
+- Podman: ${env.isPodman ? 'Yes' : 'No'}
+- LXC/LXD: ${env.isLXC ? 'Yes' : 'No'}
+- Containerd: ${env.isContainerd ? 'Yes' : 'No'}
+- CRI-O: ${env.isCRIO ? 'Yes' : 'No'}
+- rkt: ${env.isRkt ? 'Yes' : 'No'}
+- Singularity: ${env.isSingularity ? 'Yes' : 'No'}
 - Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
 - Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
 - Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}

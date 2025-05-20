@@ -26,10 +26,18 @@
  * - Railway
  * - Fly.io
  *
+ * Container Environments:
+ * - Docker
+ * - Kubernetes
+ * - rkt
+ * - containerd
+ * - CRI-O
+ * - Singularity
+ *
  * It's designed to be used across the application to ensure consistent
  * CI environment handling with proper fallbacks and error handling.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 const fs = require('fs');
@@ -823,7 +831,12 @@ function createCIReport(filePath, options = {}) {
         isKubernetes: env.isKubernetes || false,
         isDockerCompose: env.isDockerCompose || false,
         isDockerSwarm: env.isDockerSwarm || false,
-        isContainerized: env.isContainerized || false
+        isContainerized: env.isContainerized || false,
+        // New container runtimes
+        isRkt: env.isRkt || false,
+        isContainerd: env.isContainerd || false,
+        isCRIO: env.isCRIO || false,
+        isSingularity: env.isSingularity || false
       };
     }
 
@@ -1398,6 +1411,10 @@ Docker: ${env.isDocker ? 'Yes' : 'No'}
 Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
 Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
 Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}
+rkt: ${env.isRkt ? 'Yes' : 'No'}
+containerd: ${env.isContainerd ? 'Yes' : 'No'}
+CRI-O: ${env.isCRIO ? 'Yes' : 'No'}
+Singularity: ${env.isSingularity ? 'Yes' : 'No'}
 Containerized: ${env.isContainerized ? 'Yes' : 'No'}
 `;
   }

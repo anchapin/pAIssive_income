@@ -44,12 +44,69 @@ const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' ||
                        !!process.env.GITHUB_WORKFLOW ||
                        !!process.env.GITHUB_RUN_ID;
 
-// Enhanced Docker environment detection
-const isDockerEnvironment = fs.existsSync('/.dockerenv') ||
-                           process.env.DOCKER_ENVIRONMENT === 'true' ||
-                           fs.existsSync('/run/.containerenv') ||
-                           (fs.existsSync('/proc/1/cgroup') &&
-                            fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'));
+// Enhanced container environment detection with better logging
+let isDockerEnvironment = false;
+let isRktEnvironment = false;
+let isSingularityEnvironment = false;
+let containerDetectionMethod = 'none';
+
+try {
+  // Docker detection
+  if (process.env.DOCKER_ENVIRONMENT === 'true' || process.env.DOCKER === 'true') {
+    isDockerEnvironment = true;
+    containerDetectionMethod = 'environment variable';
+    log('Docker environment detected via environment variable', 'info');
+  } else if (fs.existsSync('/.dockerenv')) {
+    isDockerEnvironment = true;
+    containerDetectionMethod = '.dockerenv file';
+    log('Docker environment detected via .dockerenv file', 'info');
+  } else if (fs.existsSync('/run/.containerenv')) {
+    isDockerEnvironment = true;
+    containerDetectionMethod = '.containerenv file';
+    log('Docker environment detected via .containerenv file', 'info');
+  } else if (fs.existsSync('/proc/1/cgroup')) {
+    const cgroupContent = fs.readFileSync('/proc/1/cgroup', 'utf8');
+    if (cgroupContent.includes('docker')) {
+      isDockerEnvironment = true;
+      containerDetectionMethod = 'cgroup file (docker)';
+      log('Docker environment detected via cgroup file', 'info');
+    } else if (cgroupContent.includes('rkt')) {
+      isRktEnvironment = true;
+      containerDetectionMethod = 'cgroup file (rkt)';
+      log('rkt environment detected via cgroup file', 'info');
+    }
+  }
+
+  // rkt detection
+  if (!isRktEnvironment && (process.env.RKT_ENVIRONMENT === 'true' || process.env.RKT === 'true')) {
+    isRktEnvironment = true;
+    containerDetectionMethod = 'environment variable (rkt)';
+    log('rkt environment detected via environment variable', 'info');
+  }
+
+  // Singularity detection
+  if (process.env.SINGULARITY_ENVIRONMENT === 'true' ||
+      process.env.SINGULARITY === 'true' ||
+      process.env.SINGULARITY_CONTAINER) {
+    isSingularityEnvironment = true;
+    containerDetectionMethod = 'environment variable (singularity)';
+    log('Singularity environment detected via environment variable', 'info');
+  } else if (fs.existsSync('/.singularity.d') || fs.existsSync('/.singularity.env')) {
+    isSingularityEnvironment = true;
+    containerDetectionMethod = 'singularity file markers';
+    log('Singularity environment detected via file markers', 'info');
+  }
+
+  // Log container detection results
+  log(`Container environment detection results:`, 'info');
+  log(`- Docker: ${isDockerEnvironment ? 'Yes' : 'No'}`, 'info');
+  log(`- rkt: ${isRktEnvironment ? 'Yes' : 'No'}`, 'info');
+  log(`- Singularity: ${isSingularityEnvironment ? 'Yes' : 'No'}`, 'info');
+  log(`- Detection method: ${containerDetectionMethod}`, 'info');
+} catch (containerDetectionError) {
+  log(`Error during container environment detection: ${containerDetectionError.message}`, 'error');
+  log(`Stack: ${containerDetectionError.stack}`, 'debug');
+}
 
 // Enhanced logging configuration
 const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
@@ -1055,15 +1112,37 @@ app.all('/api/*', (req, res) => {
   });
 });
 
-// Enhanced error handling middleware with better CI compatibility
+// Enhanced error handling middleware with better CI compatibility and diagnostics
 app.use((err, req, res, next) => {
   // Sanitize error message and URL
   const sanitizedUrl = req.url.replace(/[\r\n]/g, '');
   const sanitizedErrorMsg = err.message.replace(/[\r\n]/g, ' ');
-  log(`Error processing ${req.method} ${sanitizedUrl}: ${sanitizedErrorMsg}`, 'error');
-  console.error(err.stack);
 
-  // Create a detailed error report for debugging
+  // Enhanced logging with more context
+  log(`Error processing ${req.method} ${sanitizedUrl}: ${sanitizedErrorMsg}`, 'error');
+  log(`Error stack: ${err.stack || 'No stack trace available'}`, 'error');
+
+  // Log request details for better diagnostics
+  log(`Request headers: ${JSON.stringify(req.headers, null, 2)}`, 'debug');
+  log(`Request body: ${JSON.stringify(req.body || {}, null, 2)}`, 'debug');
+
+  // Get environment information for better diagnostics
+  const environmentInfo = {
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    env: {
+      CI: process.env.CI,
+      GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
+      CI_ENVIRONMENT: process.env.CI_ENVIRONMENT,
+      CI_TYPE: process.env.CI_TYPE,
+      DOCKER_ENVIRONMENT: process.env.DOCKER_ENVIRONMENT,
+      RKT_ENVIRONMENT: process.env.RKT_ENVIRONMENT,
+      SINGULARITY_ENVIRONMENT: process.env.SINGULARITY_ENVIRONMENT
+    }
+  };
+
+  // Create a more detailed error report for debugging
   createReport(`api-error-${Date.now()}.txt`,
     `API Error at ${new Date().toISOString()}\n` +
     `Method: ${req.method}\n` +
@@ -1071,17 +1150,58 @@ app.use((err, req, res, next) => {
     `Error: ${sanitizedErrorMsg}\n` +
     `Stack: ${err.stack || 'No stack trace available'}\n` +
     `Headers: ${JSON.stringify(req.headers, null, 2)}\n` +
-    `Body: ${JSON.stringify(req.body || {}, null, 2)}`
+    `Body: ${JSON.stringify(req.body || {}, null, 2)}\n` +
+    `Environment Information:\n` +
+    `- Node.js Version: ${environmentInfo.nodeVersion}\n` +
+    `- Platform: ${environmentInfo.platform}\n` +
+    `- Architecture: ${environmentInfo.arch}\n` +
+    `- CI: ${environmentInfo.env.CI || 'No'}\n` +
+    `- GitHub Actions: ${environmentInfo.env.GITHUB_ACTIONS || 'No'}\n` +
+    `- CI Environment: ${environmentInfo.env.CI_ENVIRONMENT || 'No'}\n` +
+    `- CI Type: ${environmentInfo.env.CI_TYPE || 'None'}\n` +
+    `- Docker Environment: ${environmentInfo.env.DOCKER_ENVIRONMENT || 'No'}\n` +
+    `- rkt Environment: ${environmentInfo.env.RKT_ENVIRONMENT || 'No'}\n` +
+    `- Singularity Environment: ${environmentInfo.env.SINGULARITY_ENVIRONMENT || 'No'}\n`
+  );
+
+  // Also create a JSON error report for machine parsing
+  createReport(`api-error-${Date.now()}.json`,
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      method: req.method,
+      url: sanitizedUrl,
+      error: sanitizedErrorMsg,
+      stack: err.stack || 'No stack trace available',
+      headers: req.headers,
+      body: req.body || {},
+      environment: environmentInfo
+    }, null, 2)
   );
 
   // In CI environment, always return a 200 response to avoid test failures
   if (isCI) {
     log('CI environment detected, returning success response despite error', 'warn');
+
+    // Create a CI-specific error report
+    createReport(`ci-api-error-${Date.now()}.txt`,
+      `CI API Error at ${new Date().toISOString()}\n` +
+      `Method: ${req.method}\n` +
+      `URL: ${sanitizedUrl}\n` +
+      `Error: ${sanitizedErrorMsg}\n` +
+      `CI Type: ${process.env.CI_TYPE || 'Unknown'}\n` +
+      `Note: Error suppressed for CI compatibility\n`
+    );
+
     return res.status(200).json({
       status: 'success',
       message: 'CI compatibility mode - error suppressed',
       original_error: sanitizedErrorMsg,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      environment: {
+        ci: true,
+        ciType: process.env.CI_TYPE || 'unknown',
+        containerized: isDockerEnvironment || process.env.RKT_ENVIRONMENT === 'true' || process.env.SINGULARITY_ENVIRONMENT === 'true'
+      }
     });
   }
 
@@ -1089,7 +1209,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     error: 'Internal Server Error',
     message: sanitizedErrorMsg,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    requestId: `req-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    environment: {
+      ci: false,
+      containerized: isDockerEnvironment || process.env.RKT_ENVIRONMENT === 'true' || process.env.SINGULARITY_ENVIRONMENT === 'true'
+    }
   });
 });
 

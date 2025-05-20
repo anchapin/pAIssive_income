@@ -117,6 +117,49 @@ function isDockerEnvironment() {
 }
 
 /**
+ * Detect if running in a rkt container environment
+ * @returns {boolean} True if running in rkt
+ */
+function isRktEnvironment() {
+  try {
+    return !!(
+      // Environment variable set in our rkt setup
+      process.env.RKT_ENVIRONMENT === 'true' ||
+      process.env.RKT === 'true' ||
+
+      // Check cgroup for rkt
+      (fs.existsSync('/proc/1/cgroup') &&
+       fs.readFileSync('/proc/1/cgroup', 'utf8').includes('rkt'))
+    );
+  } catch (error) {
+    console.warn(`Error detecting rkt environment: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Detect if running in a Singularity container environment
+ * @returns {boolean} True if running in Singularity
+ */
+function isSingularityEnvironment() {
+  try {
+    return !!(
+      // Environment variable set in Singularity
+      process.env.SINGULARITY_ENVIRONMENT === 'true' ||
+      process.env.SINGULARITY === 'true' ||
+      !!process.env.SINGULARITY_CONTAINER ||
+
+      // Check for Singularity specific files
+      fs.existsSync('/.singularity.d') ||
+      fs.existsSync('/singularity')
+    );
+  } catch (error) {
+    console.warn(`Error detecting Singularity environment: ${error.message}`);
+    return false;
+  }
+}
+
+/**
  * Detect if running in a Kubernetes environment
  * @returns {boolean} True if running in Kubernetes
  */
@@ -203,8 +246,11 @@ function getEnvironmentInfo() {
   return `Environment Information:
 - CI Environment: ${isCI() ? 'Yes' : 'No'}
 - GitHub Actions: ${isGitHubActions() ? 'Yes' : 'No'}
-- Docker Environment: ${isDockerEnvironment() ? 'Yes' : 'No'}
-- Kubernetes Environment: ${isKubernetesEnvironment() ? 'Yes' : 'No'}
+- Container Environments:
+  - Docker: ${isDockerEnvironment() ? 'Yes' : 'No'}
+  - Kubernetes: ${isKubernetesEnvironment() ? 'Yes' : 'No'}
+  - rkt: ${isRktEnvironment() ? 'Yes' : 'No'}
+  - Singularity: ${isSingularityEnvironment() ? 'Yes' : 'No'}
 - Platform: ${process.platform}
 - Architecture: ${process.arch}
 - Node.js Version: ${process.version}
@@ -233,8 +279,11 @@ Created at: ${timestamp}
 Message: ${message}
 CI Environment: ${isCI() ? 'Yes' : 'No'}
 GitHub Actions: ${isGitHubActions() ? 'Yes' : 'No'}
-Docker Environment: ${isDockerEnvironment() ? 'Yes' : 'No'}
-Kubernetes Environment: ${isKubernetesEnvironment() ? 'Yes' : 'No'}
+Container Environments:
+  Docker: ${isDockerEnvironment() ? 'Yes' : 'No'}
+  Kubernetes: ${isKubernetesEnvironment() ? 'Yes' : 'No'}
+  rkt: ${isRktEnvironment() ? 'Yes' : 'No'}
+  Singularity: ${isSingularityEnvironment() ? 'Yes' : 'No'}
 Platform: ${process.platform}
 Node.js Version: ${process.version}
 Working Directory: ${process.cwd()}
@@ -286,6 +335,8 @@ module.exports = {
   isCI,
   isGitHubActions,
   isDockerEnvironment,
+  isRktEnvironment,
+  isSingularityEnvironment,
   isKubernetesEnvironment,
   createDirectoryWithErrorHandling,
   createMarkerFile,

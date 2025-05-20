@@ -104,8 +104,10 @@ const TRAVIS = env.isTravis;
 const AZURE_PIPELINES = env.isAzurePipelines;
 const TEAMCITY = env.isTeamCity;
 
-// Docker detection
+// Container environment detection
 const DOCKER_ENV = env.isDocker || unifiedEnv.isDockerEnvironment();
+const RKT_ENV = env.isRkt || (unifiedEnv.isRktEnvironment && unifiedEnv.isRktEnvironment());
+const SINGULARITY_ENV = env.isSingularity || (unifiedEnv.isSingularityEnvironment && unifiedEnv.isSingularityEnvironment());
 
 // Platform detection
 const IS_WINDOWS = env.isWindows || process.platform === 'win32';
@@ -179,6 +181,8 @@ fs.writeFileSync(
   `- Azure Pipelines: ${AZURE_PIPELINES ? 'Yes' : 'No'}\n` +
   `- TeamCity: ${TEAMCITY ? 'Yes' : 'No'}\n` +
   `- Docker: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
+  `- rkt: ${RKT_ENV ? 'Yes' : 'No'}\n` +
+  `- Singularity: ${SINGULARITY_ENV ? 'Yes' : 'No'}\n` +
   `Platform Information:\n` +
   `- Windows: ${IS_WINDOWS ? 'Yes' : 'No'}\n` +
   `- macOS: ${IS_MACOS ? 'Yes' : 'No'}\n` +
@@ -262,6 +266,8 @@ function createSuccessMarker(message) {
           `- Azure Pipelines: ${AZURE_PIPELINES ? 'Yes' : 'No'}\n` +
           `- TeamCity: ${TEAMCITY ? 'Yes' : 'No'}\n` +
           `- Docker: ${DOCKER_ENV ? 'Yes' : 'No'}\n` +
+          `- rkt: ${RKT_ENV ? 'Yes' : 'No'}\n` +
+          `- Singularity: ${SINGULARITY_ENV ? 'Yes' : 'No'}\n` +
           `Platform Information:\n` +
           `- Windows: ${IS_WINDOWS ? 'Yes' : 'No'}\n` +
           `- macOS: ${IS_MACOS ? 'Yes' : 'No'}\n` +
@@ -350,6 +356,8 @@ async function runCommand(command, args, options = {}) {
         MOCK_API_PORT: MOCK_API_PORT.toString(),
         REACT_PORT: REACT_PORT.toString(),
         DOCKER_ENVIRONMENT: DOCKER_ENV ? 'true' : 'false',
+        RKT_ENVIRONMENT: RKT_ENV ? 'true' : 'false',
+        SINGULARITY_ENVIRONMENT: SINGULARITY_ENV ? 'true' : 'false',
         PLATFORM: process.platform,
         IS_WINDOWS: IS_WINDOWS ? 'true' : 'false',
         IS_MACOS: IS_MACOS ? 'true' : 'false',

@@ -229,12 +229,26 @@ function detectEnvironment() {
                      !!process.env.SEMAPHORE_WORKFLOW_ID ||
                      !!process.env.SEMAPHORE_GIT_BRANCH ||
                      !!process.env.SEMAPHORE_GIT_SHA ||
+                     !!process.env.SEMAPHORE_JOB_ID ||
+                     !!process.env.SEMAPHORE_PIPELINE_ID ||
+                     !!process.env.SEMAPHORE_PROJECT_ID ||
+                     !!process.env.SEMAPHORE_ORGANIZATION_URL ||
+                     !!process.env.SEMAPHORE_AGENT_MACHINE_TYPE ||
+                     !!process.env.SEMAPHORE_AGENT_MACHINE_OS_IMAGE ||
                      (process.env.CI_PLATFORM === 'semaphore') ||
                      (process.env.CI_TYPE === 'semaphore');
 
   const isCodefresh = !!process.env.CF_BUILD_ID ||
                      !!process.env.CF_PIPELINE_NAME ||
                      !!process.env.CF_BRANCH ||
+                     !!process.env.CF_VOLUME_PATH ||
+                     !!process.env.CF_BUILD_URL ||
+                     !!process.env.CF_BUILD_TRIGGER ||
+                     !!process.env.CF_REPO_NAME ||
+                     !!process.env.CF_REPO_OWNER ||
+                     !!process.env.CF_STEP_NAME ||
+                     !!process.env.CF_VOLUME_NAME ||
+                     !!process.env.CODEFRESH_IO ||
                      (process.env.CI_PLATFORM === 'codefresh') ||
                      (process.env.CI_TYPE === 'codefresh');
 
@@ -244,9 +258,17 @@ function detectEnvironment() {
                       (process.env.CI_PLATFORM === 'woodpecker') ||
                       (process.env.CI_TYPE === 'woodpecker');
 
-  const isHarness = !!process.env.HARNESS_BUILD_ID ||
+  const isHarness = !!process.env.HARNESS ||
+                   !!process.env.HARNESS_BUILD_ID ||
                    !!process.env.HARNESS_ACCOUNT_ID ||
                    !!process.env.HARNESS_PIPELINE_ID ||
+                   !!process.env.HARNESS_STEP_ID ||
+                   !!process.env.HARNESS_PROJECT_ID ||
+                   !!process.env.HARNESS_ENVIRONMENT_ID ||
+                   !!process.env.HARNESS_SERVICE_ID ||
+                   !!process.env.HARNESS_EXECUTION_ID ||
+                   !!process.env.HARNESS_ARTIFACT_ID ||
+                   !!process.env.HARNESS_WORKFLOW_ID ||
                    (process.env.CI_PLATFORM === 'harness') ||
                    (process.env.CI_TYPE === 'harness');
 
@@ -269,6 +291,11 @@ function detectEnvironment() {
                  (process.env.CI_TYPE === 'flyio');
 
   // New CI platforms
+
+  // Enhanced Buildkite detection (already defined above, this is just for additional logging)
+  if (isBuildkite) {
+    console.log('Buildkite CI environment detected');
+  }
 
   // Codemagic CI/CD for mobile apps
   const isCodemagic = !!process.env.CM_BUILD_ID ||
@@ -294,27 +321,56 @@ function detectEnvironment() {
                             (process.env.CI_PLATFORM === 'google-cloud-build') ||
                             (process.env.CI_TYPE === 'google-cloud-build');
 
-  // Alibaba Cloud DevOps
+  // Alibaba Cloud DevOps - Enhanced detection
   const isAlibabaCloud = !!process.env.ALIBABA_CLOUD ||
                         !!process.env.ALICLOUD_ACCOUNT_ID ||
                         !!process.env.ALICLOUD_PIPELINE_ID ||
                         !!process.env.ALICLOUD_BUILD_ID ||
+                        !!process.env.ALIBABA_CLOUD_ACCESS_KEY_ID ||
+                        !!process.env.ALIBABA_CLOUD_ACCESS_KEY_SECRET ||
+                        !!process.env.ALICLOUD_ACCESS_KEY ||
+                        !!process.env.ALICLOUD_SECRET_KEY ||
+                        !!process.env.ALICLOUD_REGION ||
+                        !!process.env.ALIBABA_CLOUD_REGION ||
+                        !!process.env.ALIBABA_CLOUD_RESOURCE_GROUP ||
+                        !!process.env.ALIBABA_CLOUD_INSTANCE_ID ||
                         (process.env.CI_PLATFORM === 'alibaba-cloud') ||
                         (process.env.CI_TYPE === 'alibaba-cloud');
 
-  // Huawei Cloud DevCloud
+  // Huawei Cloud DevCloud - Enhanced detection
   const isHuaweiCloud = !!process.env.DEVCLOUD_PIPELINE_ID ||
                        !!process.env.HUAWEICLOUD_PIPELINE ||
                        !!process.env.HUAWEICLOUD_BUILD_ID ||
                        !!process.env.HUAWEICLOUD_PROJECT_ID ||
+                       !!process.env.HUAWEICLOUD_ACCESS_KEY ||
+                       !!process.env.HUAWEICLOUD_SECRET_KEY ||
+                       !!process.env.HUAWEICLOUD_REGION ||
+                       !!process.env.HUAWEI_CLOUD_ACCESS_KEY ||
+                       !!process.env.HUAWEI_CLOUD_SECRET_KEY ||
+                       !!process.env.HUAWEI_CLOUD_REGION ||
+                       !!process.env.HUAWEI_CLOUD_PROJECT_ID ||
+                       !!process.env.HUAWEI_CLOUD_INSTANCE_ID ||
+                       !!process.env.HUAWEI_CLOUD_FUNCTION_NAME ||
+                       !!process.env.HUAWEI_CLOUD_FUNCTION_VERSION ||
                        (process.env.CI_PLATFORM === 'huawei-cloud') ||
                        (process.env.CI_TYPE === 'huawei-cloud');
 
-  // Tencent Cloud CODING
+  // Tencent Cloud CODING - Enhanced detection
   const isTencentCloud = !!process.env.CODING_PIPELINE_ID ||
                         !!process.env.TENCENT_CLOUD_CI ||
                         !!process.env.CODING_BUILD_ID ||
                         !!process.env.CODING_PROJECT_NAME ||
+                        !!process.env.TENCENTCLOUD_SECRET_ID ||
+                        !!process.env.TENCENTCLOUD_SECRET_KEY ||
+                        !!process.env.TENCENTCLOUD_REGION ||
+                        !!process.env.TENCENT_CLOUD_SECRET_ID ||
+                        !!process.env.TENCENT_CLOUD_SECRET_KEY ||
+                        !!process.env.TENCENT_CLOUD_REGION ||
+                        !!process.env.TENCENT_CLOUD_APP_ID ||
+                        !!process.env.TENCENT_CLOUD_UIN ||
+                        !!process.env.TENCENT_CLOUD_INSTANCE_ID ||
+                        !!process.env.TENCENT_CLOUD_SCF_NAMESPACE ||
+                        !!process.env.TENCENT_CLOUD_SCF_FUNCTION ||
                         (process.env.CI_PLATFORM === 'tencent-cloud') ||
                         (process.env.CI_TYPE === 'tencent-cloud');
 
@@ -404,19 +460,32 @@ function detectEnvironment() {
                (process.env.CI_PLATFORM === 'lxc') ||
                (process.env.CI_TYPE === 'lxc');
 
-  // Containerd detection
+  // Containerd detection - Enhanced
   const isContainerd = process.env.CONTAINERD_ENVIRONMENT === 'true' ||
                       process.env.CONTAINERD === 'true' ||
                       (safeFileExists('/proc/1/cgroup') && safeReadFile('/proc/1/cgroup')?.includes('containerd')) ||
                       (safeFileExists('/proc/self/cgroup') && safeReadFile('/proc/self/cgroup')?.includes('containerd')) ||
+                      safeFileExists('/run/containerd') ||
+                      safeFileExists('/var/run/containerd') ||
+                      safeFileExists('/run/containerd/containerd.sock') ||
+                      safeFileExists('/var/run/containerd/containerd.sock') ||
+                      !!process.env.CONTAINERD_NAMESPACE ||
+                      !!process.env.CONTAINERD_SOCKET ||
                       (process.env.CI_PLATFORM === 'containerd') ||
                       (process.env.CI_TYPE === 'containerd');
 
-  // CRI-O detection
+  // CRI-O detection - Enhanced
   const isCRIO = process.env.CRIO_ENVIRONMENT === 'true' ||
                 process.env.CRIO === 'true' ||
                 (safeFileExists('/proc/1/cgroup') && safeReadFile('/proc/1/cgroup')?.includes('crio')) ||
                 (safeFileExists('/proc/self/cgroup') && safeReadFile('/proc/self/cgroup')?.includes('crio')) ||
+                safeFileExists('/run/crio') ||
+                safeFileExists('/var/run/crio') ||
+                safeFileExists('/run/crio/crio.sock') ||
+                safeFileExists('/var/run/crio/crio.sock') ||
+                !!process.env.CRIO_SOCKET ||
+                !!process.env.CRIO_RUNTIME ||
+                !!process.env.CRIO_ROOT ||
                 (process.env.CI_PLATFORM === 'crio') ||
                 (process.env.CI_TYPE === 'crio');
 
@@ -617,6 +686,31 @@ function detectEnvironment() {
                       (process.env.CI_TYPE === 'cloudflare');
 
   // Serverless environment detection
+  // rkt container runtime detection
+  const isRkt = process.env.RKT_ENVIRONMENT === 'true' ||
+               process.env.RKT === 'true' ||
+               (safeFileExists('/proc/1/cgroup') && safeReadFile('/proc/1/cgroup')?.includes('rkt')) ||
+               (safeFileExists('/proc/self/cgroup') && safeReadFile('/proc/self/cgroup')?.includes('rkt')) ||
+               safeFileExists('/var/lib/rkt') ||
+               safeFileExists('/var/lib/rkt/pods') ||
+               !!process.env.RKT_UUID ||
+               !!process.env.RKT_APP_NAME ||
+               (process.env.CI_PLATFORM === 'rkt') ||
+               (process.env.CI_TYPE === 'rkt');
+
+  // Singularity container runtime detection
+  const isSingularity = process.env.SINGULARITY_ENVIRONMENT === 'true' ||
+                       process.env.SINGULARITY === 'true' ||
+                       !!process.env.SINGULARITY_CONTAINER ||
+                       !!process.env.SINGULARITY_NAME ||
+                       safeFileExists('/.singularity.d') ||
+                       safeFileExists('/singularity') ||
+                       safeFileExists('/.singularity.d/actions') ||
+                       safeFileExists('/.singularity.d/env') ||
+                       (process.env.CI_PLATFORM === 'singularity') ||
+                       (process.env.CI_TYPE === 'singularity');
+
+  // Serverless environment detection
   const isServerless = isAWSLambda || isAzureFunctions || isGCPCloudFunctions ||
                       !!process.env.SERVERLESS ||
                       !!process.env.SERVERLESS_PLATFORM ||
@@ -733,11 +827,13 @@ function detectEnvironment() {
     isLXC,
     isContainerd,
     isCRIO,
+    isRkt,
+    isSingularity,
     isKubernetes: isKubernetesEnv,
     isDockerCompose,
     isDockerSwarm,
     isContainerized: isDockerEnvironment || isKubernetesEnv || isDockerCompose || isDockerSwarm ||
-                     isPodman || isLXC || isContainerd || isCRIO,
+                     isPodman || isLXC || isContainerd || isCRIO || isRkt || isSingularity,
 
     // Kubernetes Distributions
     isOpenShift,
@@ -876,6 +972,8 @@ function createEnvironmentReport(filePath, options = {}) {
         isLXC: env.isLXC,
         isContainerd: env.isContainerd,
         isCRIO: env.isCRIO,
+        isRkt: env.isRkt,
+        isSingularity: env.isSingularity,
         isKubernetes: env.isKubernetes,
         isDockerCompose: env.isDockerCompose,
         isDockerSwarm: env.isDockerSwarm,
@@ -997,7 +1095,9 @@ function createEnvironmentReport(filePath, options = {}) {
         HARNESS_BUILD_ID: process.env.HARNESS_BUILD_ID || 'not set',
         RENDER: process.env.RENDER || 'not set',
         RAILWAY_ENVIRONMENT_ID: process.env.RAILWAY_ENVIRONMENT_ID || 'not set',
-        FLY_APP_NAME: process.env.FLY_APP_NAME || 'not set'
+        FLY_APP_NAME: process.env.FLY_APP_NAME || 'not set',
+        BUILDKITE: process.env.BUILDKITE || 'not set',
+        BUILDKITE_BUILD_ID: process.env.BUILDKITE_BUILD_ID || 'not set'
       };
     }
 
@@ -1077,6 +1177,8 @@ Container Environment:
 - LXC/LXD: ${env.isLXC ? 'Yes' : 'No'}
 - Containerd: ${env.isContainerd ? 'Yes' : 'No'}
 - CRI-O: ${env.isCRIO ? 'Yes' : 'No'}
+- rkt: ${env.isRkt ? 'Yes' : 'No'}
+- Singularity: ${env.isSingularity ? 'Yes' : 'No'}
 - Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
 - Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
 - Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}
@@ -1154,6 +1256,8 @@ Environment Variables:
 - RENDER: ${process.env.RENDER || 'not set'}
 - RAILWAY_ENVIRONMENT_ID: ${process.env.RAILWAY_ENVIRONMENT_ID || 'not set'}
 - FLY_APP_NAME: ${process.env.FLY_APP_NAME || 'not set'}
+- BUILDKITE: ${process.env.BUILDKITE || 'not set'}
+- BUILDKITE_BUILD_ID: ${process.env.BUILDKITE_BUILD_ID || 'not set'}
 ${includeEnvVars ? formatEnvironmentVariables() : ''}
 `;
 
