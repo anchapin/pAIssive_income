@@ -22,6 +22,14 @@
   "pnpm": {
     "overrides": {
       "@ag-ui-protocol/ag-ui": "npm:@ag-ui-protocol/ag-ui-mock@^1.0.0"
+    },
+    "peerDependencyRules": {
+      "allowAny": [
+        "react-scripts",
+        "eslint",
+        "typescript",
+        "@types/react"
+      ]
     }
   },
   "devDependencies": {
