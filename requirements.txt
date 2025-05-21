@@ -1,17 +1,17 @@
 # Core dependencies
-fastapi>=0.95.0
-uvicorn>=0.22.0
-pydantic>=2.0.0
-redis>=4.5.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.6.0
+redis>=5.0.0
 python-multipart>=0.0.9
-httpx>=0.24.0
-flask>=2.0.1
-celery>=5.2.0
-flask-socketio>=5.1.0
-pyjwt>=2.6.0
-bcrypt>=4.0.0
+httpx>=0.26.0
+flask>=2.3.3
+celery>=5.3.0
+flask-socketio>=5.3.6
+pyjwt>=2.8.0
+bcrypt>=4.1.0
 pyperclip>=1.8.2  # For secure clipboard operations
-cryptography>=41.0.0  # For encryption of sensitive files
+cryptography>=42.0.0  # For encryption of sensitive files
 # crewai is now an optional dependency, install with: pip install ".[agents]"
 
 # Memory layer for AI agents
@@ -28,7 +28,7 @@ modelcontextprotocol>=0.1.0  # Required for MCP server integration
 grpcio>=1.54.0
 grpcio-reflection>=1.54.0
 grpcio-health-checking>=1.54.0
-protobuf>=3.19.0,<4.22.0
+protobuf>=5.26.1
 
 # AI and ML dependencies
 torch>=1.10.0
