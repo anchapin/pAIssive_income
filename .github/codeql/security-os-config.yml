@@ -66,7 +66,8 @@ paths-ignore:
   - '**/playwright-report/**'
   - '**/pytest.ini'
   - '**/conftest.py'
-  - '**/test_mem0_integration.py'
+  - '**/test_mem0_integration.py'  # Exclude mem0 integration test from security scanning
+  - '**/test_mem0_*.py'  # Exclude all mem0-related test files
 
   # Minified files and type definitions
   - '**/*.min.js'
