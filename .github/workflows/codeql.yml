@@ -161,8 +161,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: '**/requirements.txt' # Only cache if requirements.txt exists
 
       # Display disk space before analysis
       - name: Check disk space

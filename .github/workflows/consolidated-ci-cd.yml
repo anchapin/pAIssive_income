@@ -62,16 +62,12 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+- name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '8'
 
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@8.14.0
-          pnpm --version
 
-      - name: Install Node.js dependencies and build Tailwind CSS
-        run: |
-          pnpm install
-          pnpm tailwind:build
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -79,18 +75,7 @@ jobs:
           python-version: "3.12"
 
       # Set up Node.js for JavaScript testing
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
 
-      # Set up pnpm for JavaScript package management
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-          run_install: false
 
       - name: Cache uv dependencies
         uses: actions/cache@v4

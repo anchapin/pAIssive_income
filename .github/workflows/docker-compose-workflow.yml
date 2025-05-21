@@ -87,11 +87,11 @@ jobs:
         run: |
           # Install Python 3.10 directly (faster than actions/setup-python)
           sudo apt-get update -q
-          sudo apt-get install -y --no-install-recommends python3.10 python3.10-venv python3.10-dev
+          sudo apt-get install -y --no-install-recommends python3 python3-venv python3-dev
 
           # Create symlink to make it the default python
-          sudo ln -sf /usr/bin/python3.10 /usr/bin/python
-          sudo ln -sf /usr/bin/python3.10 /usr/bin/python3
+          sudo ln -sf /usr/bin/python3 /usr/bin/python
+          sudo ln -sf /usr/bin/python3 /usr/bin/python3
 
           # Verify Python version
           python --version
