@@ -7,12 +7,19 @@ import re
 import time
 from logging import INFO, Logger, getLogger
 from typing import Any, Callable, TypeVar, cast
+import sys # Added sys import
 
-from flask.globals import current_app, g
-from werkzeug.local import LocalProxy
+try:
+    from flask.globals import current_app, g
+    from werkzeug.local import LocalProxy
+except ImportError:
+    print("Error: Flask or Werkzeug module not found. Please install them (e.g., pip install Flask Werkzeug).")
+    sys.exit(1)
+
 
 # Type variables for generic function decorators
 F = TypeVar("F", bound=Callable[..., Any])
+logger = getLogger(__name__) # Initialize logger
 
 # Type hint for Flask app logger
 app_logger = LocalProxy(lambda: current_app.logger)

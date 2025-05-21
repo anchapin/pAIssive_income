@@ -14,10 +14,13 @@ import platform
 import shutil
 import subprocess  # nosec B404 - subprocess is used with proper security controls
 import sys
-from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+try:
+    from pathlib import Path
+except ImportError:
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
+
 logger = logging.getLogger(__name__)
 
 
@@ -107,8 +110,8 @@ def create_empty_json_files() -> bool:
         logger.info("Created empty bandit-results-ini.sarif")
 
         return True
-    except Exception as e:
-        logger.error("Failed to create empty files: %s", e)
+    except Exception:
+        logger.exception("Failed to create empty files")
         return False
 
 
@@ -177,8 +180,8 @@ def main() -> int:
             )
             # Update bandit path after installation
             bandit_path = find_bandit_executable()
-        except Exception as e:
-            logger.warning("Failed to install bandit: %s", e)
+        except Exception:
+            logger.exception("Failed to install bandit")
 
     # Run bandit with the available configuration
     try:
@@ -209,8 +212,8 @@ def main() -> int:
                     timeout=600,
                 )
                 logger.info("Bandit scan completed with configuration file")
-            except Exception as e:
-                logger.warning("Bandit scan with configuration file failed: %s", e)
+            except Exception:
+                logger.exception("Bandit scan with configuration file failed")
         else:
             logger.info(
                 "No bandit.yaml configuration file found, using default configuration"
@@ -236,10 +239,10 @@ def main() -> int:
                     timeout=600,
                 )
                 logger.info("Bandit scan completed with default configuration")
-            except Exception as e:
-                logger.warning("Bandit scan with default configuration failed: %s", e)
-    except Exception as e:
-        logger.error("Error running bandit: %s", e)
+            except Exception:
+                logger.exception("Bandit scan with default configuration failed")
+    except Exception:
+        logger.exception("Error running bandit")
 
     # Convert JSON to SARIF format
     try:
@@ -255,16 +258,18 @@ def main() -> int:
                     timeout=300,
                 )
                 logger.info("Converted Bandit results to SARIF format")
-            except Exception as e:
-                logger.warning(
-                    "Failed to convert Bandit results to SARIF format: %s", e
+            except Exception:
+                logger.exception(
+                    "Failed to convert Bandit results to SARIF format"
                 )
-    except Exception as e:
-        logger.error("Error converting to SARIF: %s", e)
+    except Exception:
+        logger.exception("Error converting to SARIF")
 
     logger.info("Bandit scan completed successfully")
     return 0
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     sys.exit(main())

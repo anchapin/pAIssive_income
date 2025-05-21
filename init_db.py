@@ -10,17 +10,21 @@ import sys
 from secrets import randbelow
 from typing import Any
 
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+try:
+    from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+except ImportError:
+    print("Error: SQLAlchemy module not found. Please install it with 'pip install SQLAlchemy'")
+    sys.exit(1)
 
-from app_flask import create_app, db
-from app_flask.models import Agent, Team, User
-from users.auth import hash_credential
+try:
+    from app_flask import create_app, db
+    from app_flask.models import Agent, Team, User
+    from users.auth import hash_credential
+except ImportError as e:
+    print(f"Error importing Flask app components: {e}. Ensure app_flask and users modules are correctly set up.")
+    sys.exit(1)
 
-# Set up logger with more detailed formatting
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+
 logger = logging.getLogger(__name__)
 
 
@@ -178,6 +182,11 @@ def _verify_initialization(agents: list[Any]) -> bool:
 
 
 if __name__ == "__main__":
+    # Set up logger with more detailed formatting
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     success = init_db()
     if not success:
         logger.error("Database initialization failed")

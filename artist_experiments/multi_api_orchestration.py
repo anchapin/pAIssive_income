@@ -8,18 +8,30 @@ from __future__ import annotations
 
 import json
 import logging
+import sys # Added sys import
 from typing import Optional
 
-import httpx
+try:
+    import httpx
+except ImportError:
+    logging.error("httpx library not found. Please install it using 'pip install httpx'")
+    sys.exit(1)
 
-from ai_models.artist_agent import ArtistAgent
-from common_utils import tooling
+try:
+    from ai_models.artist_agent import ArtistAgent
+    from common_utils import tooling
+except ImportError:
+    logging.error("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+def setup_logging():
+    """Configures basic logging."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
+setup_logging()
 logger = logging.getLogger(__name__)
 
 

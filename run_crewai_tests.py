@@ -10,12 +10,14 @@ from __future__ import annotations
 import logging
 import subprocess
 import sys
-from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+try:
+    from pathlib import Path
+except ImportError:
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
+
+logger = logging.getLogger(__name__)
 
 
 def run_command(command: str | list, check: bool = True) -> str | None:
@@ -30,7 +32,6 @@ def run_command(command: str | list, check: bool = True) -> str | None:
         The command output as a string, or None if the command fails and check is False
 
     """
-    logger = logging.getLogger(__name__)
     try:
         # Convert string command to list if needed
         if isinstance(command, str):
@@ -60,7 +61,10 @@ def main() -> int:
         int: Exit code (0 for success)
 
     """
-    logger = logging.getLogger(__name__)
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     logger.info("Starting CrewAI tests...")
 
     try:

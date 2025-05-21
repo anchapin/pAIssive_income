@@ -28,7 +28,7 @@ except ImportError as e:
         from . import mock_aiohttp as aiohttp
         logger.info(f"Using mock aiohttp version {aiohttp.__version__}")
     except ImportError as e2:
-        logger.error(f"Failed to import mock_aiohttp: {e2}")
+        logger.exception(f"Failed to import mock_aiohttp: {e2}")
 
 
 # Define variables that will be populated when importing adapters

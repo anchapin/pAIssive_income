@@ -14,7 +14,15 @@ logger = logging.getLogger(__name__)
 # Third-party imports
 # Local imports
 # Export the exception classes first (these should always be available)
-from .exceptions import AdapterError, ModelContextProtocolError
+try:
+    from .exceptions import AdapterError, ModelContextProtocolError
+except ImportError as e:
+    logger.exception(f"Failed to import core exception classes: {e}")
+    # If these critical exceptions can't be imported, re-raise or exit
+    # For now, we'll let them be None and rely on downstream checks
+    AdapterError = None # type: ignore
+    ModelContextProtocolError = None # type: ignore
+
 
 # Define adapter classes as optional
 # We'll try to import them, but if they're not available, they'll remain None
@@ -47,8 +55,8 @@ def _safe_import(module_name: str, class_name: str) -> object | None:
             )
             # Get the class from the module
             return getattr(module, class_name, None)
-    except (ImportError, AttributeError):
-        pass
+    except (ImportError, AttributeError) as e:
+        logger.debug("Failed to import %s.%s: %s", module_name, class_name, e, exc_info=False)
 
     # Return None if any of the above fails
     return None

@@ -13,8 +13,20 @@ import logging
 import os
 from typing import Optional
 
-# Import standard CrewAI components
-from crewai import Agent, Crew, Task
+try:
+    # Import standard CrewAI components
+    from crewai import Agent, Crew, Task
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    # Define dummy classes if crewai is not available to avoid NameErrors
+    class Agent: # type: ignore
+        pass
+    class Crew: # type: ignore
+        pass
+    class Task: # type: ignore
+        pass
+
 
 # Import memory-enhanced agent team
 try:
@@ -22,12 +34,13 @@ try:
         MEM0_AVAILABLE,
         MemoryEnhancedCrewAIAgentTeam,
     )
-    CREWAI_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    CREWAI_AVAILABLE = False
+    # Define a dummy class if not available
+    class MemoryEnhancedCrewAIAgentTeam: # type: ignore
+        pass
 
-# Configure logging
+
 logger = logging.getLogger(__name__)
 
 # Example: Define agent roles
@@ -152,11 +165,14 @@ if __name__ == "__main__":
 
     # Example: Run the workflow (for demonstration; adapt as needed)
     try:
-        result = team.run()
-        logger.info("CrewAI workflow completed successfully")
-        logger.info(f"Result: {result}")
+        if CREWAI_AVAILABLE: # Check if CrewAI is available before running
+            result = team.run()
+            logger.info("CrewAI workflow completed successfully")
+            logger.info(f"Result: {result}")
+        else:
+            logger.error("CrewAI components not available to run the workflow.")
     except Exception as e:
-        logger.error(f"Error running CrewAI workflow: {e}")
+        logger.exception(f"Error running CrewAI workflow: {e}")
 
 # Next steps:
 # - Replace example agents, goals, and tasks with project-specific logic.

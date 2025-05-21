@@ -7,11 +7,12 @@ This module provides mock implementations of the adapter classes for testing.
 import logging
 from typing import Dict, Any, List, Optional, Type
 
+# Configure logger
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 
 # Local imports
-
-logger = logging.getLogger(__name__)
 
 class MockBaseModelAdapter:
     """Mock implementation of BaseModelAdapter for testing."""

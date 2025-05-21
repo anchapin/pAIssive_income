@@ -21,6 +21,9 @@ Requirements:
 import logging
 from typing import Any, Dict, List, Optional, Union
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Import ADK components
 try:
     from adk.agent import Agent
@@ -88,9 +91,7 @@ else:
         def run(self, data: str) -> str:
             return f"Summary of data: {data[:50]}..."
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
+# logger is now initialized globally earlier
 
 class MemoryEnhancedAgent(Agent):
     """
@@ -250,7 +251,7 @@ class MemoryEnhancedAgent(Agent):
             )
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
 
     def _retrieve_relevant_memories(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """
@@ -275,7 +276,7 @@ class MemoryEnhancedAgent(Agent):
             )
             return memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
             return []
 
 
@@ -342,42 +343,44 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
+    try:
+        # Check if dependencies are available
+        if not ADK_AVAILABLE:
+            logger.error("ADK is not installed. Install with: pip install adk")
+        elif not MEM0_AVAILABLE:
+            logger.error("mem0 is not installed. Install with: pip install mem0ai")
+        else:
+            # Create memory-enhanced agents
+            gatherer = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="example_user")
+            summarizer = MemoryEnhancedSummarizerAgent(name="Summarizer", user_id="example_user")
 
-    # Check if dependencies are available
-    if not ADK_AVAILABLE:
-        logger.error("ADK is not installed. Install with: pip install adk")
-    elif not MEM0_AVAILABLE:
-        logger.error("mem0 is not installed. Install with: pip install mem0ai")
-    else:
-        # Create memory-enhanced agents
-        gatherer = MemoryEnhancedDataGathererAgent(name="DataGatherer", user_id="example_user")
-        summarizer = MemoryEnhancedSummarizerAgent(name="Summarizer", user_id="example_user")
-
-        # Create a gather message
-        gather_message = Message(
-            type="gather",
-            payload={"query": "AI memory systems"},
-            sender="user"
-        )
-
-        # Process the message
-        logger.info("Sending gather message to data gatherer agent")
-        response = gatherer.handle_message(gather_message)
-
-        if response:
-            logger.info(f"Received response: {response.type} - {response.payload}")
-
-            # Forward to summarizer
-            logger.info("Forwarding data to summarizer agent")
-            summarize_message = Message(
-                type="summarize",
-                payload={"data": response.payload.get("data", ""), "original_sender": "DataGatherer"},
-                sender="DataGatherer"
+            # Create a gather message
+            gather_message = Message(
+                type="gather",
+                payload={"query": "AI memory systems"},
+                sender="user"
             )
 
-            summary_response = summarizer.handle_message(summarize_message)
+            # Process the message
+            logger.info("Sending gather message to data gatherer agent")
+            response = gatherer.handle_message(gather_message)
 
-            if summary_response:
-                logger.info(f"Received summary: {summary_response.payload.get('summary', '')}")
-        else:
-            logger.error("No response received from data gatherer agent")
+            if response:
+                logger.info(f"Received response: {response.type} - {response.payload}")
+
+                # Forward to summarizer
+                logger.info("Forwarding data to summarizer agent")
+                summarize_message = Message(
+                    type="summarize",
+                    payload={"data": response.payload.get("data", ""), "original_sender": "DataGatherer"},
+                    sender="DataGatherer"
+                )
+
+                summary_response = summarizer.handle_message(summarize_message)
+
+                if summary_response:
+                    logger.info(f"Received summary: {summary_response.payload.get('summary', '')}")
+            else:
+                logger.error("No response received from data gatherer agent")
+    except Exception as e:
+        logger.exception(f"An error occurred during example execution: {e}")

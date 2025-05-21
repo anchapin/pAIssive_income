@@ -10,8 +10,13 @@ import stat
 import threading
 from pathlib import Path
 from typing import Any, Optional
+import sys # Added sys import
 
-from flask import Blueprint, Response, jsonify, request
+try:
+    from flask import Blueprint, Response, jsonify, request
+except ImportError:
+    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    sys.exit(1)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +32,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 # Thread safety
 _LOCK = threading.Lock()
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 

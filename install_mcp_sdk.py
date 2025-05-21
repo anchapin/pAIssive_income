@@ -11,8 +11,6 @@ import os
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("install_mcp_sdk")
 
 
@@ -429,4 +427,6 @@ def create_mock_mcp_module() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     sys.exit(main())

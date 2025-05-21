@@ -15,15 +15,16 @@ Usage:
 import logging
 import os
 from typing import List, Dict, Any
+import sys # Added sys import
 
 # Import the memory-enhanced agent team
-from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam, CREWAI_AVAILABLE, MEM0_AVAILABLE
+try:
+    from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam, CREWAI_AVAILABLE, MEM0_AVAILABLE
+except ImportError:
+    print("Error: agent_team.mem0_enhanced_agents module not found. Ensure it's in the PYTHONPATH.")
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+
 logger = logging.getLogger(__name__)
 
 
@@ -122,8 +123,8 @@ def run_example() -> None:
         result = team.run()
         logger.info("Workflow completed successfully")
         logger.info(f"Result: {result}")
-    except Exception as e:
-        logger.error(f"Error running workflow: {e}")
+    except Exception:
+        logger.exception("Error running workflow") # Changed to logger.exception
     
     # Demonstrate memory retrieval
     if team.memory is not None:
@@ -138,8 +139,8 @@ def run_example() -> None:
             logger.info(f"Retrieved {len(memories)} memories:")
             for i, memory in enumerate(memories):
                 logger.info(f"Memory {i+1}: {memory.get('text', 'No text')[:100]}...")
-        except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+        except Exception:
+            logger.exception("Error retrieving memories") # Changed to logger.exception
 
 
 def main() -> None:
@@ -150,4 +151,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     main()

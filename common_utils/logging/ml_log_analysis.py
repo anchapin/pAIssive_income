@@ -35,16 +35,26 @@ import datetime
 import json
 import logging
 import re
+import sys # Added sys import
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-import numpy as np
-from sklearn.cluster import DBSCAN
-from sklearn.ensemble import IsolationForest
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import StandardScaler
+try:
+    import numpy as np
+    from sklearn.cluster import DBSCAN
+    from sklearn.ensemble import IsolationForest
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.preprocessing import StandardScaler
+except ImportError as e:
+    logging.error(f"Failed to import scikit-learn or numpy: {e}")
+    sys.exit(1)
 
-from common_utils.logging.secure_logging import get_secure_logger
+try:
+    from common_utils.logging.secure_logging import get_secure_logger
+except ImportError:
+    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    sys.exit(1)
+
 
 # Set up logging for this module
 logger = get_secure_logger(__name__)

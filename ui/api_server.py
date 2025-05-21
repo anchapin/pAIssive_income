@@ -15,16 +15,17 @@ import os
 import socketserver
 from typing import Any
 from urllib.parse import urlparse
+import sys # Added sys import
 
 # Third-party imports
-import psycopg2
-import psycopg2.extensions
-from psycopg2.extras import RealDictCursor
+try:
+    import psycopg2
+    import psycopg2.extensions
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    print("Error: psycopg2 module not found. Please install it (e.g., pip install psycopg2-binary).")
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -332,6 +333,10 @@ def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     # Get port from environment variable or use default
     port_str = os.environ.get("PORT", "8000")
     try:

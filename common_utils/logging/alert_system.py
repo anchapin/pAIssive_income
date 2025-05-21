@@ -79,14 +79,24 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import sys # Added sys import
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Pattern, Set, Union
 
-import numpy as np
-import requests
-from scipy import stats
+try:
+    import numpy as np
+    import requests
+    from scipy import stats
+except ImportError as e:
+    logging.error(f"Failed to import third-party library: {e}")
+    sys.exit(1)
 
-from common_utils.logging.secure_logging import get_secure_logger
+try:
+    from common_utils.logging.secure_logging import get_secure_logger
+except ImportError:
+    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    sys.exit(1)
+
 
 # Set up logging for this module
 logger = get_secure_logger(__name__)

@@ -17,13 +17,13 @@ import logging
 import os
 import sys
 
-# Path is used throughout the script, so we keep this import
-from pathlib import Path
+try:
+    # Path is used throughout the script, so we keep this import
+    from pathlib import Path
+except ImportError:
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
 
-# Configure logging with timestamp
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 # Constants
@@ -218,4 +218,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging with timestamp
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     sys.exit(main())

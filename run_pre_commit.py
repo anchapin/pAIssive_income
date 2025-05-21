@@ -13,8 +13,16 @@ import logging
 import os
 import subprocess
 import sys
-from pathlib import Path
 from typing import Optional
+
+try:
+    from pathlib import Path
+except ImportError:
+    print("Error: pathlib module not found. Please install it.")
+    sys.exit(1)
+
+
+logger = logging.getLogger(__name__)
 
 
 def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]:
@@ -68,10 +76,6 @@ def run_pre_commit(files: list[str]) -> int:
         Exit code from pre-commit
 
     """
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    logger = logging.getLogger(__name__)
-
     if not files:
         logger.info("No Python files found to check.")
         return 0
@@ -92,10 +96,6 @@ def run_pre_commit(files: list[str]) -> int:
 
 def main() -> None:
     """Execute the main script functionality."""
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    logger = logging.getLogger(__name__)
-
     # Find Python files
     python_files = find_python_files()
 
@@ -111,4 +111,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     main()

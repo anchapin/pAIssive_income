@@ -5,14 +5,22 @@ Common utilities for secure logging and log management.
 import logging
 from typing import cast, Dict, Union
 
+import sys # Added sys import
+
 # Third-party imports
 # Local imports
-from .secure_logging import (
-    SENSITIVE_FIELDS,
-    SecureLogger,
-    get_secure_logger,
-    mask_sensitive_data,
-)
+try:
+    from .secure_logging import (
+        SENSITIVE_FIELDS,
+        SecureLogger,
+        get_secure_logger,
+        mask_sensitive_data,
+    )
+except ImportError:
+    print("Error: .secure_logging module not found. Ensure it's in the PYTHONPATH and the current package.")
+    sys.exit(1)
+
+logger = logging.getLogger(__name__) # Initialize logger
 
 __all__ = [
     "SENSITIVE_FIELDS",
@@ -41,17 +49,18 @@ def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Lo
 
     if secure:
         try:
-            logger = SecureLogger(name)
+            logger_instance = SecureLogger(name) # Renamed to avoid conflict with module-level logger
         except Exception:
             # Fall back to standard logger if secure logger fails
-            logger = logging.getLogger(name)
-            logger.setLevel(logging.INFO)
+            logger.exception("Failed to initialize SecureLogger, falling back to standard logger.") # Use logger.exception
+            logger_instance = logging.getLogger(name)
+            logger_instance.setLevel(logging.INFO)
     else:
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.INFO)
+        logger_instance = logging.getLogger(name)
+        logger_instance.setLevel(logging.INFO)
 
-    _logger_cache[name] = logger
-    return logger
+    _logger_cache[name] = logger_instance
+    return logger_instance
 
 # Create global secure logger instance
 secure_logger = get_logger("secure_logger")

@@ -11,6 +11,10 @@ from __future__ import annotations
 
 # Check if crewai is installed
 from typing import Any, Union
+import logging # Ensure logging is imported before use
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 try:
     from crewai import Agent, Crew, Task
@@ -110,6 +114,8 @@ except ImportError:
         stacklevel=2,
     )
 
+# Configure logging (moved here)
+logger = logging.getLogger(__name__)
 
 class CrewAIAgentTeam:
     """
@@ -271,13 +277,10 @@ reporting_team = Crew(
 if __name__ == "__main__":
     import logging
 
-    # Configure logging
+    # Configure logging (moved into main guard)
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
-
-    # Create a module logger
-    logger = logging.getLogger(__name__)
 
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")

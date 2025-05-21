@@ -27,10 +27,7 @@ from typing import Dict, List, Set, Tuple
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s"
-)
+# logging.basicConfig will be moved to the main() function
 
 # Default directories to exclude
 DEFAULT_EXCLUDE_DIRS = {
@@ -543,6 +540,12 @@ def main() -> int:
     Returns:
         Exit code (0 for success, non-zero for failure)
     """
+    # Configure logging early in main
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s"
+    )
+    
     parser = argparse.ArgumentParser(description="Check for proper logger initialization in Python files")
     parser.add_argument("paths", nargs="*", default=["."], help="Paths to scan (default: current directory)")
     parser.add_argument("--fix", action="store_true", help="Attempt to fix issues automatically")

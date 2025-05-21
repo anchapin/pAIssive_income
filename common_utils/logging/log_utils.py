@@ -1,13 +1,18 @@
 """Utility functions for secure logging."""
 
 import logging
+import sys # Added sys import
 from typing import Any, List, Optional, Union
 
-from common_utils.logging.secure_logging import (
-    SecureLogger,
-    get_secure_logger,
-    prevent_log_injection,
-)
+try:
+    from common_utils.logging.secure_logging import (
+        SecureLogger,
+        get_secure_logger,
+        prevent_log_injection,
+    )
+except ImportError:
+    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    sys.exit(1)
 
 
 def get_logger(name: str) -> SecureLogger:

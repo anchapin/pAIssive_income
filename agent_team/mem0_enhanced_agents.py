@@ -48,9 +48,11 @@ except ImportError:
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
+import logging # Ensure logging is imported if not already
 
 # Configure logging
 logger = logging.getLogger(__name__)
+# logging.basicConfig will be moved to main guard
 
 
 class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
@@ -209,7 +211,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             )
             logger.debug(f"Memory stored: {content[:50]}..." if isinstance(content, str) else "Conversation stored")
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
 
     def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
@@ -239,7 +241,7 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
             )
             return memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.exception(f"Error retrieving memories: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
@@ -290,7 +292,6 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-
     # Check if dependencies are available
     if not CREWAI_AVAILABLE:
         logger.error("CrewAI is not installed. Install with: pip install '.[agents]'")
@@ -329,4 +330,4 @@ if __name__ == "__main__":
             result = team.run()
             logger.info(f"Workflow result: {result}")
         except Exception as e:
-            logger.error(f"Error running workflow: {e}")
+            logger.exception(f"Error running workflow: {e}")

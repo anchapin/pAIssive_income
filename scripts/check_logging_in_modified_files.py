@@ -35,10 +35,7 @@ from scripts.check_logger_initialization import (
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s"
-)
+# logging.basicConfig will be moved to the main() function
 
 
 def get_modified_files() -> List[str]:
@@ -71,7 +68,7 @@ def get_modified_files() -> List[str]:
 
         return python_files
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error getting modified files: {e}")
+        logger.exception(f"Error getting modified files: {e}")
         return []
 
 
@@ -153,6 +150,12 @@ def main() -> int:
     Returns:
         Exit code (0 for success, non-zero for failure)
     """
+    # Configure logging early in main
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s"
+    )
+    
     parser = argparse.ArgumentParser(description="Check for proper logger usage in modified files")
     parser.add_argument("--fix", action="store_true", help="Attempt to fix issues automatically")
     parser.add_argument("--verbose", action="store_true", help="Show detailed output")

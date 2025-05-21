@@ -6,6 +6,9 @@ from __future__ import annotations
 import logging
 from typing import Any, cast
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 
 
@@ -83,10 +86,7 @@ class TensorRTAdapter:
         self.port = port
         self.kwargs = kwargs
 
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
+# logger is now initialized globally, no need to redefine here
 
 class AdapterError(Exception):
     """Base class for adapter-related errors."""
@@ -154,7 +154,9 @@ def get_adapter(
 
         # Initialize the MCP adapter with provided configuration
         return MCPAdapter(host, port, **kwargs)
-    raise UnsupportedServerTypeError(server_type)
+    except Exception as e:
+        logger.exception(f"Failed to get adapter for {server_type} at {host}:{port} - {e}")
+        raise UnsupportedServerTypeError(server_type) from e
 
 
 class AdapterFactory:
@@ -236,12 +238,21 @@ class AdapterFactory:
 
         # Check if adapter type is supported
         if adapter_type not in cls._adapter_registry:
+            logger.error(f"Unsupported adapter type requested: {adapter_type}")
             raise UnsupportedServerTypeError(adapter_type)
 
         # Special case for MCP adapter
         if adapter_type == "mcp" and MCPAdapter is None:
+            logger.error("MCP adapter requested but not available.")
             raise MCPAdapterNotAvailableError()
 
         # Create and return the adapter
         adapter_class = cls._adapter_registry[adapter_type]
-        return adapter_class(host=host, port=port, **kwargs)
+        try:
+            adapter = adapter_class(host=host, port=port, **kwargs)
+            logger.info(f"Successfully created adapter of type: {adapter_type}")
+            return adapter
+        except Exception as e:
+            logger.exception(f"Error creating adapter of type {adapter_type} for {host}:{port}")
+            # Optionally, re-raise a more specific error or return None/default
+            raise AdapterError(f"Failed to create adapter {adapter_type}: {e}") from e

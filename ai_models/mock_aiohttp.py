@@ -9,11 +9,12 @@ import logging
 from typing import Dict, Any, Optional, AsyncIterator
 from contextlib import asynccontextmanager
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 
 # Local imports
-
-logger = logging.getLogger(__name__)
 
 __version__ = "3.9.0-mock"
 

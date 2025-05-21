@@ -1,13 +1,23 @@
 """flask_user_router - User API endpoints using Flask."""
 
 import logging
+import sys
 
-from flask import Blueprint, jsonify, request
+try:
+    from flask import Blueprint, jsonify, request
+except ImportError:
+    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    sys.exit(1)
 
-from app_flask.models import User
-from app_flask import db
-from users.services import UserService
-from common_utils.logging.log_utils import log_user_id_safely, sanitize_user_input
+try:
+    from app_flask.models import User
+    from app_flask import db
+    from users.services import UserService
+    from common_utils.logging.log_utils import log_user_id_safely, sanitize_user_input
+except ImportError as e:
+    print(f"Error importing local modules: {e}. Ensure they are in the PYTHONPATH.")
+    sys.exit(1)
+
 
 # Set up logger
 logger = logging.getLogger(__name__)

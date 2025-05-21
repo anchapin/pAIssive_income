@@ -71,15 +71,26 @@ import uuid
 from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Set, Union
+import sys # Added sys import
 
-import dash
-import flask
-from dash import html, dcc
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-from flask import session, request, g
+try:
+    import dash
+    import flask
+    from dash import html, dcc
+    from dash.dependencies import Input, Output, State
+    from dash.exceptions import PreventUpdate
+    from flask import session, request, g
+except ImportError:
+    print("Error: Dash or Flask module not found. Please install them (e.g., pip install dash flask).")
+    sys.exit(1)
 
-from common_utils.logging.secure_logging import get_secure_logger
+
+try:
+    from common_utils.logging.secure_logging import get_secure_logger
+except ImportError:
+    print("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
+    sys.exit(1)
+
 
 # Set up logging for this module
 logger = get_secure_logger(__name__)

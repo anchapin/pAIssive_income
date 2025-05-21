@@ -29,6 +29,8 @@ T = TypeVar("T")
 # Type hint for Flask app logger
 FlaskLogger = logging.Logger
 
+# Initialize logging first
+setup_logging()
 logger = LocalProxy[logging.Logger](lambda: current_app.logger)
 
 
@@ -269,9 +271,6 @@ def setup_logging() -> None:
         root_logger.addHandler(console_handler)
         root_logger.exception("Failed to initialize file logging")
 
-
-# Initialize logging first
-setup_logging()
 
 # Create Flask application
 app = create_app()

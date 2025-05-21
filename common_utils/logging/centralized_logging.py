@@ -252,12 +252,12 @@ class FileOutput(LogOutput):
 
                 # Write the formatted log entry
                 f.write(log_line)
-        except Exception as e:
-            # Log the error locally
-            logger = get_secure_logger("file_output")
-            logger.error(f"Failed to write log entry to {log_file}: {e}")
+       except Exception:
+           # Log the error locally
+           logger = get_secure_logger("file_output")
+           logger.exception(f"Failed to write log entry to {log_file}")
 
-    def close(self) -> None:
+   def close(self) -> None:
         """Close the file output."""
         pass
 
@@ -411,10 +411,10 @@ class ElasticsearchOutput(LogOutput):
             # Clear the batch
             self.batch = []
             self.last_flush = time.time()
-        except Exception as e:
+        except Exception:
             # Log the error locally
             logger = get_secure_logger("elasticsearch_output")
-            logger.error(f"Failed to flush logs to Elasticsearch: {e}")
+            logger.exception("Failed to flush logs to Elasticsearch")
 
     def _flush_thread(self) -> None:
         """Flush thread that periodically flushes the batch."""
@@ -481,10 +481,10 @@ class LogstashOutput(LogOutput):
 
             # Emit the record
             self.handler.emit(record)
-        except Exception as e:
+        except Exception:
             # Log the error locally
             logger = get_secure_logger("logstash_output")
-            logger.error(f"Failed to send log entry to Logstash: {e}")
+            logger.exception("Failed to send log entry to Logstash")
 
     def close(self) -> None:
         """Close the Logstash output."""
@@ -577,9 +577,8 @@ class CentralizedLoggingService:
             self.thread.start()
 
             self.logger.info(f"Centralized logging service started on {self.host}:{self.port} (SSL: {self.use_ssl})")
-        except Exception as e:
-            self.logger.error(f"Failed to start centralized logging service: {e}")
-            self.logger.debug(traceback.format_exc())
+        except Exception:
+            self.logger.exception("Failed to start centralized logging service")
             if self.socket:
                 self.socket.close()
                 self.socket = None
@@ -609,8 +608,8 @@ class CentralizedLoggingService:
         for output in self.outputs:
             try:
                 output.close()
-            except Exception as e:
-                self.logger.error(f"Error closing output {output.__class__.__name__}: {e}")
+            except Exception:
+                self.logger.exception(f"Error closing output {output.__class__.__name__}")
 
         # Log statistics
         uptime = datetime.datetime.now() - self.stats["start_time"] if self.stats["start_time"] else datetime.timedelta(0)
@@ -676,8 +675,8 @@ class CentralizedLoggingService:
                     log_entry["timestamp"] = datetime.datetime.now().isoformat()
 
                 return log_entry
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Failed to parse log entry from {addr}: {e}")
+            except json.JSONDecodeError:
+                self.logger.exception(f"Failed to parse log entry from {addr}")
                 self.stats["errors"] += 1
                 return {
                     "timestamp": datetime.datetime.now().isoformat(),
@@ -686,8 +685,8 @@ class CentralizedLoggingService:
                     "logger": "centralized_logging_service",
                     "app": "centralized_logging_service",
                 }
-        except Exception as e:
-            self.logger.error(f"Error receiving log entry: {e}")
+        except Exception:
+            self.logger.exception("Error receiving log entry")
             self.stats["errors"] += 1
             raise
 
@@ -708,11 +707,11 @@ class CentralizedLoggingService:
             for output in self.outputs:
                 try:
                     output.output(log_entry)
-                except Exception as e:
-                    self.logger.error(f"Error sending log entry to {output.__class__.__name__}: {e}")
+                except Exception:
+                    self.logger.exception(f"Error sending log entry to {output.__class__.__name__}")
                     self.stats["errors"] += 1
-        except Exception as e:
-            self.logger.error(f"Error processing log entry: {e}")
+        except Exception:
+            self.logger.exception("Error processing log entry")
             self.stats["errors"] += 1
 
     def get_stats(self) -> Dict[str, Any]:
@@ -743,10 +742,9 @@ class CentralizedLoggingService:
 
                 # Process the log entry
                 self.process_log(log_entry)
-            except Exception as e:
+            except Exception:
                 if self.running:
-                    self.logger.error(f"Error processing log: {e}")
-                    self.logger.debug(traceback.format_exc())
+                    self.logger.exception("Error processing log")
                     self.stats["errors"] += 1
                     # Sleep briefly to avoid tight loop in case of persistent errors
                     time.sleep(0.1)
@@ -872,10 +870,9 @@ class LoggingClient:
             # Update statistics
             self.stats["sent"] += 1
             return True
-        except Exception as e:
+        except Exception:
             # Log the error locally
-            self.logger.error(f"Failed to send log entry: {e}")
-            self.logger.debug(traceback.format_exc())
+            self.logger.exception("Failed to send log entry")
 
             # Update statistics
             self.stats["failed"] += 1
@@ -907,9 +904,8 @@ class LoggingClient:
 
                 # Mark the task as done
                 self.buffer.task_done()
-            except Exception as e:
-                self.logger.error(f"Error processing log buffer: {e}")
-                self.logger.debug(traceback.format_exc())
+            except Exception:
+                self.logger.exception("Error processing log buffer")
                 time.sleep(0.1)
 
     def stop(self) -> None:

@@ -8,9 +8,20 @@ This is a scaffold for further expansion.
 from __future__ import annotations
 
 from typing import Any, Callable
+import logging # Added import
+import os # Added import for os.environ check
+
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    anthropic = None # type: ignore
+    ANTHROPIC_AVAILABLE = False
 
 from common_utils import tooling
 
+# Configure logging (logger only, basicConfig in main)
+logger = logging.getLogger(__name__)
 
 class ArtistAgent:
     """Agent that selects and uses tools based on user prompts."""
@@ -93,10 +104,16 @@ class ArtistAgent:
 
 def main() -> None:
     """Run example usage of ArtistAgent."""
-    import logging
-
+    # logging.basicConfig is now at the start of this function
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logger = logging.getLogger(__name__)
+    # logger is now initialized globally
+
+    if not ANTHROPIC_AVAILABLE:
+        logger.error("Anthropic SDK not installed. Cannot run example.")
+        return
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        logger.error("ANTHROPIC_API_KEY not found in environment variables.")
+        return
 
     agent = ArtistAgent()
     # Example usage

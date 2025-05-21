@@ -9,16 +9,27 @@ from logging import ERROR, INFO, Logger, getLogger
 from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
-    from flask.app import Flask
-    from flask.wrappers import Response
-    from werkzeug.wrappers import Response as WerkzeugResponse
+    from flask.app import Flask # type: ignore
+    from flask.wrappers import Response # type: ignore
+    from werkzeug.wrappers import Response as WerkzeugResponse # type: ignore
+import sys # Added sys import
 
-from flask.globals import current_app, g, request
+try:
+    from flask.globals import current_app, g, request
+except ImportError:
+    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    sys.exit(1)
 
-from app_flask.utils.logging_utils import sanitize_log_data, structured_log
+
+try:
+    from app_flask.utils.logging_utils import sanitize_log_data, structured_log
+except ImportError:
+    print("Error: app_flask.utils.logging_utils module not found. Ensure it's in the PYTHONPATH.")
+    sys.exit(1)
 
 # Type hint for Flask app logger
 FlaskLogger = Logger
+logger = getLogger(__name__) # Initialize logger
 
 
 def logging_getattr(module: object, name: str, default: object = None) -> object:

@@ -3,8 +3,15 @@
 # Standard library imports
 import logging
 import asyncio
-import aiohttp
+import sys # Added sys import
 from typing import Dict, List, Any
+
+try:
+    import aiohttp
+except ImportError:
+    logging.error("aiohttp library not found. Please install it using 'pip install aiohttp'")
+    sys.exit(1)
+
 
 # Third-party imports
 
