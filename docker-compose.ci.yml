@@ -10,11 +10,13 @@ services:
       - LOG_LEVEL=DEBUG
       - CI=true
       - CONTAINER=true
+      # Health check configuration
       - HEALTHCHECK_MAX_RETRIES=10
       - HEALTHCHECK_INITIAL_RETRY_INTERVAL=2
       - HEALTHCHECK_CURL_TIMEOUT=5
+      # API keys with safe defaults
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy_key_for_ci}  # Required for mem0
-      - GITHUB_ACTIONS=true
+      - GITHUB_ACTIONS=${GITHUB_ACTIONS:-true}
     healthcheck:
       test: ["CMD", "/app/docker-healthcheck.sh"]
       interval: 5s
@@ -30,7 +32,24 @@ services:
         - CI=true
     environment:
       - NODE_ENV=test
-      - CI=true
-      - SKIP_PREFLIGHT_CHECK=true
-      - REACT_APP_TESTING=true
-      - GITHUB_ACTIONS=true
+      # Use pnpm in CI
+      - USE_PNPM=true
+      - PNPM_VERSION=8.14.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  db:
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s

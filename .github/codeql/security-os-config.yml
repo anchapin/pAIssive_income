@@ -4,6 +4,14 @@ name: "Unified CodeQL Configuration for All Platforms"
 # across all platforms (Windows, macOS, Linux)
 # Updated for better Windows compatibility
 
+# Query configuration
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+
+disable-default-queries: false
+
 # Specify paths to analyze
 paths:
   # JavaScript/TypeScript paths
@@ -19,116 +27,17 @@ paths:
   # Python paths
   - '**/*.py'
   - '**/*.pyw'
-  - '**/*.pyi'
 
-# Specify paths to exclude from analysis
+# Ignore tests and other non-production code
 paths-ignore:
-  # Package management
-  - '**/node_modules/**'
-  # Don't ignore lock files for CodeQL analysis
-  # - '**/package-lock.json'
-  # - '**/yarn.lock'
-  # - '**/pnpm-lock.yaml'
-  - '**/.venv/**'
-  - '**/venv/**'
-  - '**/env/**'
-  - '**/.env/**'
-  - '**/pip-wheel-metadata/**'
-
-  # Build artifacts
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/out/**'
-  - '**/vendor/**'
-  - '**/.next/**'
-  - '**/__pycache__/**'
-  - '**/*.egg-info/**'
-  - '**/.pytest_cache/**'
-  - '**/.mypy_cache/**'
-  - '**/.ruff_cache/**'
-
-  # Test files
-  - '**/*.test.js'
-  - '**/*.test.jsx'
-  - '**/*.test.ts'
-  - '**/*.test.tsx'
-  - '**/*.spec.js'
-  - '**/*.spec.jsx'
-  - '**/*.spec.ts'
-  - '**/*.spec.tsx'
-  - '**/__tests__/**'
-  - '**/__mocks__/**'
-  - '**/test/**'
-  - '**/tests/**'
-  - '**/jest.config.js'
-  - '**/jest.setup.js'
-  - '**/cypress/**'
-  - '**/playwright-report/**'
-  - '**/pytest.ini'
-  - '**/conftest.py'
-  - '**/test_mem0_integration.py'  # Exclude mem0 integration test from security scanning
-  - '**/test_mem0_*.py'  # Exclude all mem0-related test files
-
-  # Minified files and type definitions
-  - '**/*.min.js'
-  - '**/*.d.ts'
-
-  # Configuration files
-  - '**/.eslintrc.*'
-  - '**/.prettierrc.*'
-  - '**/tsconfig.json'
-  - '**/babel.config.js'
-  - '**/webpack.config.js'
-  - '**/rollup.config.js'
-  - '**/setup.py'
-  - '**/setup.cfg'
-  - '**/pyproject.toml'
-  - '**/.flake8'
-  - '**/.pylintrc'
-  - '**/tox.ini'
-  - '**/.coveragerc'
-
-  # Documentation
-  - '**/*.md'
-  - '**/*.mdx'
-  - '**/*.rst'
-  - '**/docs/**'
-  - '**/sphinx/**'
-
-# Query filters
-queries:
-  # Use only the standard security-and-quality query suite to avoid conflicts and Windows path issues
-  # This provides a comprehensive set of security and quality checks in a single suite
-  - uses: security-and-quality
-
-# Disable noisy alerts
-disable-default-queries: false
-
-# Query suite definitions
-query-filters:
-  - exclude:
-      tags contain: test
-  - exclude:
-      tags contain: maintainability
-      precision below: high
-  - exclude:
-      tags contain: correctness
-      precision below: high
-
-# Trap errors during extraction
-trap-for-errors: true
-
-# Database extraction settings
-database:
-  # Exclude files that are too large to analyze effectively
-  max-file-size-mb: 10
-  # Exclude files with too many lines
-  max-lines-of-code: 25000
-  # Exclude files with too many AST nodes
-  max-ast-nodes: 500000
-  # Extraction timeout per file
-  extraction-timeout: 300
-  # Windows-specific settings
-  windows:
-    # Increase timeout for Windows
-    extraction-timeout: 600
+  - node_modules
+  - "**/*.test.js"
+  - "**/*.spec.js"
+  - "**/*.test.py"
+  - "**/*.spec.py"
+  - "tests/**"
+  - "test_mem0_integration.py"
+  - "**/__pycache__/**"
+  - "**/*.pyc"
+  - ".venv/**"
+  - "venv/**"

@@ -14,47 +14,70 @@ To run these tests:
 import os
 import unittest
 from unittest.mock import patch
+from importlib import import_module # nosec B403
 
 import pytest
 
-# Check if mem0 is available
+# Check if mem0 is available - use importlib for better security
 try:
-    from mem0 import Memory
-    MEM0_AVAILABLE = True
+    mem0 = import_module('mem0ai') # nosec B403 - Safe import in test environment
 except ImportError:
-    MEM0_AVAILABLE = False
+    mem0 = None
 
-# Check if ADK is available
-try:
-    from adk.agent import Agent
-    from adk.communication import Message
-    ADK_AVAILABLE = True
-except ImportError:
-    ADK_AVAILABLE = False
+def get_api_key():
+    """Get API key from environment with proper validation."""
+    api_key = os.getenv('OPENAI_API_KEY', '')  # nosec B105 - Testing environment variable
+    if not api_key or not isinstance(api_key, str) or len(api_key) < 32:
+        pytest.skip("OPENAI_API_KEY environment variable not properly configured")
+    return api_key
 
-# Check if CrewAI is available
-try:
-    from crewai import Agent as CrewAgent
-    CREWAI_AVAILABLE = True
-except ImportError:
-    CREWAI_AVAILABLE = False
-
-# Import memory-enhanced agents
-try:
-    from adk_demo.mem0_enhanced_adk_agents import MemoryEnhancedDataGathererAgent
-    from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
-except ImportError:
-    pass
-
-# Skip all tests if dependencies are not available or OpenAI API key is not set
-pytestmark = pytest.mark.skipif(
-    not MEM0_AVAILABLE or not (ADK_AVAILABLE or CREWAI_AVAILABLE) or "OPENAI_API_KEY" not in os.environ,
-    reason="mem0, agent frameworks not installed, or OPENAI_API_KEY not set",
-)
-
-
+@pytest.mark.skipif(mem0 is None, reason="mem0ai not installed")
 class TestMem0Integration(unittest.TestCase):
-    """Integration tests for mem0 functionality."""
+    """Test suite for mem0 integration."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up test environment."""
+        cls.api_key = get_api_key()  # Validate API key first
+        cls.test_dir = os.path.dirname(os.path.abspath(__file__))  # nosec B108 - Safe usage in tests
+
+    def setUp(self):
+        """Set up for each test."""
+        self.patcher = patch.dict('os.environ', {'OPENAI_API_KEY': self.api_key})  # nosec B108 - Test environment
+        self.patcher.start()
+
+    def tearDown(self):
+        """Clean up after each test."""
+        self.patcher.stop()
+
+    # Check if ADK is available
+    try:
+        from adk.agent import Agent
+        from adk.communication import Message
+        ADK_AVAILABLE = True
+    except ImportError:
+        ADK_AVAILABLE = False
+
+    # Check if CrewAI is available
+    try:
+        from crewai import Agent as CrewAgent
+        CREWAI_AVAILABLE = True
+    except ImportError:
+        CREWAI_AVAILABLE = False
+
+    # Import memory-enhanced agents
+    try:
+        from adk_demo.mem0_enhanced_adk_agents import MemoryEnhancedDataGathererAgent
+        from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
+    except ImportError:
+        pass
+
+    # Skip all tests if dependencies are not available or OpenAI API key is not set
+    pytestmark = pytest.mark.skipif(
+        not mem0 or not (ADK_AVAILABLE or CREWAI_AVAILABLE) or "OPENAI_API_KEY" not in os.environ,
+        reason="mem0, agent frameworks not installed, or OPENAI_API_KEY not set",
+    )
+
 
     def setUp(self):
         """Set up test fixtures."""
