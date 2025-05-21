@@ -68,7 +68,7 @@ def send_email(to_addr, subject, body):
                 server.starttls()
                 server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(FROM_ADDR, [to_addr], msg.as_string())
-        logging.info(f"[Password Reset] Sent email to {to_addr}")
+        logging.info(f"[Password Reset] Sent email to {sanitize_log_data(to_addr)}")
     except Exception as e:
         logging.error(f"[Password Reset] Failed to send email: {str(e)}")
 

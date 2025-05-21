@@ -77,11 +77,9 @@ Options:
 import argparse
 import os
 import platform
-import shutil
 import sys
 import tempfile
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 
 def setup_github_actions() -> Dict[str, str]:
