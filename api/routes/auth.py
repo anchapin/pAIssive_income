@@ -153,7 +153,10 @@ def reset_password():
 
     # Sanitize data for logging
     safe_ip = sanitize_log_data(remote_ip)
-    token_prefix = token[:5] if token else '<none>'
+    # Sanitize token_prefix before logging
+    # Use None for empty token so sanitize_log_data handles it as '<none>'
+    raw_token_prefix = token[:5] if token else None
+    safe_token_prefix = sanitize_log_data(raw_token_prefix)
 
     if not token or not new_password:
         logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (missing fields) from {safe_ip}")
@@ -165,7 +168,7 @@ def reset_password():
         prt = session.query(PasswordResetToken).filter_by(token=token).first()
 
         if not prt or prt.expires_at < datetime.utcnow():
-            logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (invalid/expired token) from {safe_ip} token_prefix={token_prefix}...")
+            logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (invalid/expired token) from {safe_ip} token_prefix={safe_token_prefix}...")
             return jsonify({"message": "Invalid or expired reset link."}), 400
 
         email = prt.email

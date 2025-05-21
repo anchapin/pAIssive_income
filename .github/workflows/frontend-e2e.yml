@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         working-directory: ui/react_frontend
         run: |
-          npm ci
+          npm install
       
       - name: Install Playwright browsers
         working-directory: ui/react_frontend
