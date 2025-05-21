@@ -68,7 +68,7 @@ def send_email(to_addr, subject, body):
                 server.starttls()
                 server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(FROM_ADDR, [to_addr], msg.as_string())
-        logging.info(f"[Password Reset] Sent email to {sanitize_log_data(to_addr)}")
+        logging.info("[Password Reset] Sent email to %s", sanitize_log_data(to_addr))
     except Exception as e:
         logging.error(f"[Password Reset] Failed to send email: {str(e)}")
 
@@ -99,7 +99,7 @@ def forgot_password():
     safe_ip = sanitize_log_data(remote_ip)
 
     # Audit log every request
-    logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset requested for {safe_email or '<empty>'} from {safe_ip}")
+    logging.info("[AUDIT][%s] Password reset requested for %s from %s", datetime.utcnow().isoformat(), safe_email or '<empty>', safe_ip)
 
     # Always respond identically for user enumeration protection
     if not email:
@@ -121,7 +121,7 @@ def forgot_password():
             # Use None for empty token so sanitize_log_data handles it as '<none>'
             token_prefix_raw = token[:5] if token else None
             token_prefix_sanitized = sanitize_log_data(token_prefix_raw)
-            logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset token generated for {safe_email} from {safe_ip} token_prefix={token_prefix_sanitized}...")
+            logging.info("[AUDIT][%s] Password reset token generated for %s from %s token_prefix=%s...", datetime.utcnow().isoformat(), safe_email, safe_ip, token_prefix_sanitized)
 
             # Compose reset link with proper URL construction
             frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
@@ -161,7 +161,7 @@ def reset_password():
     safe_token_prefix = sanitize_log_data(raw_token_prefix)
 
     if not token or not new_password:
-        logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (missing fields) from {safe_ip}")
+        logging.warning("[AUDIT][%s] Password reset failed (missing fields) from %s", datetime.utcnow().isoformat(), safe_ip)
         return jsonify({"message": "Missing token or new password."}), 400
 
     session = SessionLocal()
@@ -170,7 +170,7 @@ def reset_password():
         prt = session.query(PasswordResetToken).filter_by(token=token).first()
 
         if not prt or prt.expires_at < datetime.utcnow():
-            logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (invalid/expired token) from {safe_ip} token_prefix={safe_token_prefix}...")
+            logging.warning("[AUDIT][%s] Password reset failed (invalid/expired token) from %s token_prefix=%s...", datetime.utcnow().isoformat(), safe_ip, safe_token_prefix)
             return jsonify({"message": "Invalid or expired reset link."}), 400
 
         email = prt.email
@@ -179,7 +179,7 @@ def reset_password():
         if email not in USERS:
             session.delete(prt)
             session.commit()
-            logging.warning(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset failed (user not found) for {safe_email} from {safe_ip}")
+            logging.warning("[AUDIT][%s] Password reset failed (user not found) for %s from %s", datetime.utcnow().isoformat(), safe_email, safe_ip)
             return jsonify({"message": "Invalid or expired reset link."}), 400  # Use same message for security
 
         # Hash the new password with bcrypt (already secure)
@@ -189,7 +189,7 @@ def reset_password():
         # Delete the used token
         session.delete(prt)
         session.commit()
-        logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset completed for {safe_email} from {safe_ip}")
+        logging.info("[AUDIT][%s] Password reset completed for %s from %s", datetime.utcnow().isoformat(), safe_email, safe_ip)
 
         return jsonify({"message": "Password has been reset."}), 200
     except Exception as e:

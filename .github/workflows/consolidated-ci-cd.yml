@@ -209,6 +209,7 @@ jobs:
 
           # Install testing tools
           python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install protobuf==5.29.4 # Ensure compatible protobuf
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -256,6 +257,7 @@ jobs:
 
           # Install testing tools
           python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install protobuf==5.29.4 # Ensure compatible protobuf
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
@@ -280,6 +282,7 @@ jobs:
 
             # Run the CI environment detection script
             Write-Host "Running CI environment detection script..."
+            $env:PYTHONIOENCODING = "UTF-8"
             python scripts/ci/detect_ci_environment.py --verbose --create-dirs
           }
 
