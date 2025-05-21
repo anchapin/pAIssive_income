@@ -494,14 +494,30 @@ jobs:
             echo "Created empty-sarif.json in root directory"
           fi
 
-          # Generate Bandit configuration files
+          # Generate Bandit configuration files          # Sanitize and validate run_id
+          if [[ ! "${{ github.run_id }}" =~ ^[0-9]+$ ]]; then
+            echo "Invalid run ID format"
+            exit 1
+          fi
+          
+          # Sanitize and validate runner OS
+          platform_unsanitized="${{ runner.os }}"
+          case "${platform_unsanitized,,}" in
+            "linux"|"windows"|"macos")
+              platform="${platform_unsanitized,,}"
+              ;;
+            *)
+              echo "Invalid platform: ${platform_unsanitized}"
+              exit 1
+              ;;
+          esac
+          
           if [ -f "generate_bandit_config.py" ]; then
-            python generate_bandit_config.py ${{ github.run_id }}
+            python generate_bandit_config.py "${{ github.run_id }}"
           else
             echo "generate_bandit_config.py not found, creating empty bandit config files"
             mkdir -p .github/bandit
             mkdir -p security-reports
-            platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
             echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}.yaml"
             echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
           fi
@@ -738,15 +754,30 @@ jobs:
     outputs:
       docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
       should_push: ${{ steps.set-docker-tag.outputs.should_push }}
-    steps:
-      - name: Checkout code
+    steps:      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set Docker image tag
         id: set-docker-tag
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          # Validate ref format
+          ref="${{ github.ref }}"
+          ref_name="${{ github.ref_name }}"
+          
+          # Validate username format
+          username="${{ secrets.DOCKERHUB_USERNAME }}"
+          if [[ ! "$username" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]; then
+            echo "Invalid Docker Hub username format"
+            exit 1
+          fi
+          
+          # Version tag must match format v*.*.*
+          if [[ "$ref" == refs/tags/v* ]]; then
+            if [[ ! "$ref_name" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version tag format. Must be vX.Y.Z where X,Y,Z are numbers"
+              exit 1
+            fi
+            echo "docker_tag=${username}/paissiveincome-app:${ref_name}" >> $GITHUB_OUTPUT
             echo "should_push=true" >> $GITHUB_OUTPUT
           else
             echo "docker_tag=paissiveincome/app:test" >> $GITHUB_OUTPUT

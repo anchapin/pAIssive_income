@@ -81,10 +81,6 @@ def mock_app():
 
     Returns:
         MockFlask: The configured mock Flask application
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     """
     return MockFlask(__name__)
 
@@ -95,8 +91,7 @@ def mock_client(mock_app):
     Create a test client.
 
     Args:
-<<<<<<< HEAD
-        mock_app: Mock Flask application
+        mock_app (MockFlask): Mock Flask application
 
     Returns:
         MockClient: Test client for the mock Flask application
