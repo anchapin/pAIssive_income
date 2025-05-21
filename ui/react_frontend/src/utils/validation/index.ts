@@ -10,132 +10,144 @@ import {
   validateEmail,
   validatePassword,
   validateNumber,
-  validateArray
+  validateArray,
+  type ValidationResult
 } from './validators';
 
-// Export all validators
+// Export all validators and types
 export * from './validators';
 
 // Export the form validation hook
 export { default as useFormValidation } from './useFormValidation';
 
-// Export common validation schemas
+// Validation schema interfaces
+interface ValidationSchema<T> {
+  [key: string]: (value: any, allValues?: T) => ValidationResult;
+}
+
+// Form validation schemas 
 export const validationSchemas = {
   /**
    * Login form validation schema
    */
   login: {
-    username: (value) => validateString(value, {
+    username: (value: string) => validateString(value, {
       required: true,
       minLength: 3,
       maxLength: 50
     }),
 
-    credentials: (value) => validateString(value, {
+    credentials: (value: string) => validateString(value, {
       required: true,
       minLength: 6,
       maxLength: 100
     })
-  },
+  } as ValidationSchema<{username: string; credentials: string}>,
 
   /**
    * Registration form validation schema
    */
   register: {
-    username: (value) => validateString(value, {
+    username: (value: string) => validateString(value, {
       required: true,
       minLength: 3,
       maxLength: 50
     }),
 
-    email: (value) => validateEmail(value, {
+    email: (value: string) => validateEmail(value, {
       required: true
     }),
 
-    authCredential: (value) => validatePassword(value, {
+    authCredential: (value: string) => validatePassword(value, {
       required: true,
       minLength: 8,
       requireNumber: true
     }),
 
-    confirmCredential: (value, values) => {
+    confirmCredential: (value: string, values?: {authCredential: string}) => {
       const baseValidation = validateString(value, { required: true });
 
       if (!baseValidation.valid) {
         return baseValidation;
       }
 
-      return value === values.authCredential
+      return value === values?.authCredential
         ? { valid: true, error: null }
         : { valid: false, error: 'Credentials must match' };
     },
 
-    name: (value) => validateString(value, {
+    name: (value: string) => validateString(value, {
       required: true,
       minLength: 1,
       maxLength: 100
     })
-  },
+  } as ValidationSchema<{
+    username: string;
+    email: string;
+    authCredential: string;
+    confirmCredential: string;
+    name: string;
+  }>,
 
   /**
    * Profile update form validation schema
    */
   profile: {
-    email: (value) => validateEmail(value, { required: true }),
-    name: (value) => validateString(value, {
+    email: (value: string) => validateEmail(value, { required: true }),
+    name: (value: string) => validateString(value, {
       required: true,
       minLength: 1,
       maxLength: 100
     })
-  },
+  } as ValidationSchema<{email: string; name: string}>,
 
   /**
    * Solution generation form validation schema
    */
   solution: {
-    nicheId: (value) => validateNumber(value, {
+    nicheId: (value: number) => validateNumber(value, {
       required: true,
       integer: true
     }),
 
-    templateId: (value) => validateNumber(value, {
+    templateId: (value: number) => validateNumber(value, {
       required: true,
       integer: true
     })
-  },
+  } as ValidationSchema<{nicheId: number; templateId: number}>,
 
   /**
    * Monetization strategy form validation schema
    */
   monetizationStrategy: {
-    solutionId: (value) => validateNumber(value, {
+    solutionId: (value: number) => validateNumber(value, {
       required: true,
       integer: true
     }),
 
-    basePrice: (value) => validateNumber(value, {
+    basePrice: (value: number) => validateNumber(value, {
       required: true,
       min: 0
     })
-  },
+  } as ValidationSchema<{solutionId: number; basePrice: number}>,
 
   /**
    * Marketing campaign form validation schema
    */
   marketingCampaign: {
-    solutionId: (value) => validateNumber(value, {
+    solutionId: (value: number) => validateNumber(value, {
       required: true,
       integer: true
     }),
 
-    audienceIds: (value) => validateArray(value, {
+    audienceIds: (value: number[]) => validateArray(value, {
       required: true,
       minLength: 1
     }),
 
-    channelIds: (value) => validateArray(value, {
+    channelIds: (value: number[]) => validateArray(value, {
       required: true,
       minLength: 1
     })
-  }
+  } as ValidationSchema<{solutionId: number; audienceIds: number[]; channelIds: number[]}>
 };

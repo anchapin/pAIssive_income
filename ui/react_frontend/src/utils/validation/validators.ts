@@ -5,22 +5,65 @@
  * consistent validation behavior across the application.
  */
 
+// Type for validation result
+export type ValidationResult = {
+  valid: boolean;
+  error: string | null;
+}
+
+// Type for validation options
+interface BaseValidationOptions {
+  required?: boolean;
+}
+
+interface StringValidationOptions extends BaseValidationOptions {
+  minLength?: number;
+  maxLength?: number;
+  trim?: boolean;
+}
+
+interface EmailValidationOptions extends BaseValidationOptions {}
+
+interface CredentialValidationOptions extends BaseValidationOptions {
+  minLength?: number;
+  maxLength?: number;
+  requireLowercase?: boolean;
+  requireUppercase?: boolean;
+  requireNumber?: boolean;
+  requireSpecial?: boolean;
+}
+
+interface NumberValidationOptions extends BaseValidationOptions {
+  min?: number;
+  max?: number;
+  integer?: boolean;
+}
+
+interface ArrayValidationOptions extends BaseValidationOptions {
+  minLength?: number;
+  maxLength?: number;
+  itemValidator?: (item: any) => ValidationResult;
+}
+
+interface URLValidationOptions extends BaseValidationOptions {
+  requireProtocol?: boolean;
+}
+
 /**
  * Validate a string value
- * @param {string} value - The string to validate
- * @param {Object} options - Validation options
- * @param {number} [options.minLength] - Minimum length
- * @param {number} [options.maxLength] - Maximum length
- * @param {boolean} [options.required=false] - Whether the field is required
- * @param {boolean} [options.trim=true] - Whether to trim the string before validation
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The string to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateString = (value, {
-  minLength,
-  maxLength,
-  required = false,
-  trim = true
-} = {}) => {
+export const validateString = (
+  value: any,
+  {
+    minLength,
+    maxLength,
+    required = false,
+    trim = true
+  }: StringValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
     return { valid: false, error: 'This field is required' };
@@ -59,12 +102,14 @@ export const validateString = (value, {
 
 /**
  * Validate an email address
- * @param {string} value - The email address to validate
- * @param {Object} options - Validation options
- * @param {boolean} [options.required=false] - Whether the field is required
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The email address to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateEmail = (value, { required = false } = {}) => {
+export const validateEmail = (
+  value: any,
+  { required = false }: EmailValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
     return { valid: false, error: 'Email is required' };
@@ -91,26 +136,22 @@ export const validateEmail = (value, { required = false } = {}) => {
 
 /**
  * Validate an authentication credential
- * @param {string} value - The credential to validate
- * @param {Object} options - Validation options
- * @param {boolean} [options.required=true] - Whether the field is required
- * @param {number} [options.minLength=8] - Minimum length
- * @param {number} [options.maxLength=100] - Maximum length
- * @param {boolean} [options.requireLowercase=false] - Require lowercase letter
- * @param {boolean} [options.requireUppercase=false] - Require uppercase letter
- * @param {boolean} [options.requireNumber=false] - Require a number
- * @param {boolean} [options.requireSpecial=false] - Require a special character
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The credential to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateCredential = (value, {
-  required = true,
-  minLength = 8,
-  maxLength = 100,
-  requireLowercase = false,
-  requireUppercase = false,
-  requireNumber = false,
-  requireSpecial = false
-} = {}) => {
+export const validateCredential = (
+  value: any,
+  {
+    required = true,
+    minLength = 8,
+    maxLength = 100,
+    requireLowercase = false,
+    requireUppercase = false,
+    requireNumber = false,
+    requireSpecial = false
+  }: CredentialValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
     return { valid: false, error: 'Authentication credential is required' };
@@ -181,20 +222,19 @@ export const validatePassword = validateCredential;
 
 /**
  * Validate a number
- * @param {number} value - The number to validate
- * @param {Object} options - Validation options
- * @param {boolean} [options.required=false] - Whether the field is required
- * @param {number} [options.min] - Minimum value
- * @param {number} [options.max] - Maximum value
- * @param {boolean} [options.integer=false] - Whether the number must be an integer
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The number to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateNumber = (value, {
-  required = false,
-  min,
-  max,
-  integer = false
-} = {}) => {
+export const validateNumber = (
+  value: any,
+  {
+    required = false,
+    min,
+    max,
+    integer = false
+  }: NumberValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
     return { valid: false, error: 'This field is required' };
@@ -235,20 +275,19 @@ export const validateNumber = (value, {
 
 /**
  * Validate a list/array
- * @param {Array} value - The array to validate
- * @param {Object} options - Validation options
- * @param {boolean} [options.required=false] - Whether the field is required
- * @param {number} [options.minLength] - Minimum length
- * @param {number} [options.maxLength] - Maximum length
- * @param {Function} [options.itemValidator] - Function to validate each item
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The array to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateArray = (value, {
-  required = false,
-  minLength,
-  maxLength,
-  itemValidator
-} = {}) => {
+export const validateArray = (
+  value: any,
+  {
+    required = false,
+    minLength,
+    maxLength,
+    itemValidator
+  }: ArrayValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null)) {
     return { valid: false, error: 'This field is required' };
@@ -298,16 +337,17 @@ export const validateArray = (value, {
 
 /**
  * Validate a URL
- * @param {string} value - The URL to validate
- * @param {Object} options - Validation options
- * @param {boolean} [options.required=false] - Whether the field is required
- * @param {boolean} [options.requireProtocol=true] - Whether to require protocol (http/https)
- * @returns {Object} Validation result { valid: boolean, error: string|null }
+ * @param value - The URL to validate
+ * @param options - Validation options
+ * @returns Validation result { valid: boolean, error: string|null }
  */
-export const validateURL = (value, {
-  required = false,
-  requireProtocol = true
-} = {}) => {
+export const validateURL = (
+  value: any,
+  {
+    required = false,
+    requireProtocol = true
+  }: URLValidationOptions = {}
+): ValidationResult => {
   // Check if value is required and missing
   if (required && (value === undefined || value === null || value === '')) {
     return { valid: false, error: 'URL is required' };
