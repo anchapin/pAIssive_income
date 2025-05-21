@@ -1,6 +1,5 @@
 """Test script to verify mem0 integration."""
 
-import os
 import sys
 import logging
 
@@ -32,7 +31,7 @@ def test_mem0_dependencies():
         try:
             # Use importlib instead of __import__ for better security
             import importlib
-            module = importlib.import_module(dep)  # nosec B403
+            importlib.import_module(dep)  # nosec B403
             logger.info(f"Successfully imported {dep}")
         except ImportError as e:
             logger.error(f"Failed to import {dep}: {e}")
@@ -44,11 +43,9 @@ def test_mem0_dependencies():
 def test_mem0_basic_functionality():
     """Test basic mem0 functionality."""
     try:
-        import mem0  # nosec B404
-
-        # Create a memory instance (without actually connecting to any services)
-        # Using the correct API based on documentation
-        memory = mem0.Memory()  # nosec B106
+        import mem0  # nosec B404        # Create a memory instance (without actually connecting to any services)
+        # Using the correct API based on documentation, and ensuring instance creation works
+        _ = mem0.Memory()  # nosec B106
 
         logger.info("Successfully created Memory instance")
         return True
