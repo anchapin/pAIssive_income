@@ -162,6 +162,19 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Install Python dependencies if requirements.txt exists
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        shell: bash
+        run: |
+          if [ -f "requirements.txt" ]; then
+            echo "Installing Python dependencies from requirements.txt..."
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found. Skipping Python dependency installation."
+            echo "If your Python project has dependencies, create a requirements.txt file or add a custom installation step."
+          fi
+
       # Display disk space before analysis
       - name: Check disk space
         shell: bash
