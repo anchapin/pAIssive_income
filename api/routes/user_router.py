@@ -8,7 +8,8 @@ import os
 from typing import TYPE_CHECKING, Union, Dict, Any, Optional, List
 
 from fastapi import APIRouter, HTTPException, Path, status
-from flask import Blueprint, jsonify, request
+
+from users.schemas import UserResponse, UserCreate, UserUpdate
 
 from common_utils.logging import get_logger
 
@@ -25,105 +26,6 @@ TOKEN_SECRET = os.environ.get("USER_TOKEN_SECRET", "super-secret")
 
 # Create router
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-@user_bp.route("/", methods=["POST"])
-def create_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
-    """
-    Create a new user.
-
-    Returns:
-        tuple[Response, int]: JSON response with user data or error and HTTP status code
-
-    """
-    # This is a mock implementation
-    if user_id == 999:
-        return None
-    return {
-        "id": user_id,
-        "username": f"user{user_id}",
-        "email": f"user{user_id}@example.com",
-        "is_active": True
-    }
-
-
-@user_bp.route("/authenticate", methods=["POST"])
-def authenticate_user() -> Union[tuple[Response, int], tuple[WerkzeugResponse, int]]:
-    """
-    Authenticate a user.
-
-    Returns:
-        tuple[Response, int]: JSON response with user data or error and HTTP status code
-
-    """
-    # This is a mock implementation
-    return [
-        {
-            "id": 1,
-            "username": "user1",
-            "email": "user1@example.com",
-            "is_active": True
-        },
-        {
-            "id": 2,
-            "username": "user2",
-            "email": "user2@example.com",
-            "is_active": False
-        }
-    ]
-
-
-def create_user(user_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Create a new user in the database.
-
-    Args:
-        user_data: User data
-
-    Returns:
-        Created user data
-    """
-    # This is a mock implementation
-    return {
-        "id": 1,
-        "username": user_data["username"],
-        "email": user_data["email"],
-        "is_active": True
-    }
-
-
-def update_user(user_id: int, user_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Update a user in the database.
-
-    Args:
-        user_id: The user ID
-        user_data: User data to update
-
-    Returns:
-        Updated user data or None if not found
-    """
-    # This is a mock implementation
-    if user_id == 999:
-        return None
-    return {
-        "id": user_id,
-        "username": user_data.get("username", f"user{user_id}"),
-        "email": user_data.get("email", f"user{user_id}@example.com"),
-        "is_active": True
-    }
-
-
-def delete_user(user_id: int) -> bool:
-    """Delete a user from the database.
-
-    Args:
-        user_id: The user ID
-
-    Returns:
-        True if deleted, False if not found
-    """
-    # This is a mock implementation
-    return user_id != 999
-
 
 # API endpoints
 @router.get("", response_model=List[UserResponse])

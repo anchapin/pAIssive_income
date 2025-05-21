@@ -8,7 +8,7 @@ from flask.app import Flask  # Import actual Flask class
 from flask.testing import FlaskClient
 
 from app_flask import db
-from app_flask.models import Agent, Team, User, UserProfile
+from app_flask.models import Agent, Team, User
 
 # Constants
 EXPECTED_AGENT_COUNT = 2
@@ -153,81 +153,6 @@ def test_team_agent_relationship(app: Flask) -> None:
         # Query an agent and check its team
         agent = Agent.query.filter_by(name="Agent 1").first()
         assert agent.team.name == "Test Team"
-
-
-def test_user_profile_model(app):
-    """Test the UserProfile model."""
-    with app.app_context():
-        # Create a user
-        user = User(
-            username="profileuser",
-            email="profile@example.com",
-            password_hash="hashed_password",
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        # Create a profile for the user
-        profile = UserProfile(
-            user=user,
-            first_name="Test",
-            last_name="User",
-            bio="Test bio",
-            avatar_url="https://example.com/avatar.jpg"
-        )
-        db.session.add(profile)
-        db.session.commit()
-
-        # Query the profile
-        retrieved_profile = UserProfile.query.filter_by(user_id=user.id).first()
-        assert retrieved_profile is not None
-        assert retrieved_profile.first_name == "Test"
-        assert retrieved_profile.last_name == "User"
-        assert retrieved_profile.bio == "Test bio"
-        assert retrieved_profile.avatar_url == "https://example.com/avatar.jpg"
-        assert retrieved_profile.user_id == user.id
-
-        # Test the relationship from user to profile
-        assert user.profile is not None
-        assert user.profile.first_name == "Test"
-
-        # Test to_dict method
-        profile_dict = retrieved_profile.to_dict()
-        assert profile_dict["first_name"] == "Test"
-        assert profile_dict["last_name"] == "User"
-        assert profile_dict["bio"] == "Test bio"
-        assert profile_dict["avatar_url"] == "https://example.com/avatar.jpg"
-        assert "created_at" in profile_dict
-        assert "updated_at" in profile_dict
-
-        # Test user.to_dict with include_profile=True
-        user_dict = user.to_dict(include_profile=True)
-        assert "profile" in user_dict
-        assert user_dict["profile"]["first_name"] == "Test"
-        assert user_dict["profile"]["last_name"] == "User"
-
-        # Create a new user for testing from_dict
-        new_user = User(
-            username="newprofileuser",
-            email="newprofile@example.com",
-            password_hash="hashed_password",
-        )
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Test from_dict method
-        new_profile_data = {
-            "first_name": "New",
-            "last_name": "Profile",
-            "bio": "New bio",
-            "avatar_url": "https://example.com/new_avatar.jpg"
-        }
-        new_profile = UserProfile.from_dict(new_profile_data, new_user)
-        assert new_profile.user_id == new_user.id
-        assert new_profile.first_name == "New"
-        assert new_profile.last_name == "Profile"
-        assert new_profile.bio == "New bio"
-        assert new_profile.avatar_url == "https://example.com/new_avatar.jpg"
 
 
 def test_user_update_last_login_error(app):

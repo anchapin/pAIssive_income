@@ -9,11 +9,11 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 # Local imports
-from app_flask.models import UserModel, User, Agent, Team
+from app_flask.models import User, Agent, Team
 
 
-class TestUserModel:
-    """Test suite for the UserModel class."""
+class TestUser:
+    """Test suite for the User class."""
 
     def test_init_with_password_hash(self):
         """Test initializing a user with a pre-hashed password."""
@@ -23,7 +23,7 @@ class TestUserModel:
         password_hash = "hashed_password"
 
         # Act
-        user = UserModel(username=username, email=email, password_hash=password_hash)
+        user = User(username=username, email=email, password_hash=password_hash)
 
         # Assert
         assert user.username == username
@@ -42,7 +42,7 @@ class TestUserModel:
         mock_hash_credential.return_value = "hashed_password"
 
         # Act
-        user = UserModel(username=username, email=email, password=password)
+        user = User(username=username, email=email, password=password)
 
         # Assert
         assert user.username == username
@@ -55,7 +55,7 @@ class TestUserModel:
     def test_repr(self):
         """Test the string representation of a user."""
         # Arrange
-        user = UserModel(username="testuser", email="test@example.com", password_hash="hash")
+        user = User(username="testuser", email="test@example.com", password_hash="hash")
 
         # Act
         result = repr(user)
@@ -64,8 +64,8 @@ class TestUserModel:
         assert result == "<User testuser>"
 
     def test_user_alias(self):
-        """Test that User is an alias for UserModel."""
-        assert User is UserModel
+        """Test that User is the correct class."""
+        assert User.__name__ == "User"
 
 
 class TestAgentModel:

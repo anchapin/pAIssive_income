@@ -5,15 +5,15 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from users.models import UserModel
+from users.models import User
 
 
-class TestUserModel(unittest.TestCase):
-    """Test cases for the UserModel class."""
+class TestUser(unittest.TestCase):
+    """Test cases for the User class."""
 
     def setUp(self):
         """Set up test fixtures."""
-        self.user = UserModel()
+        self.user = User()
         self.user.id = 1
         self.user.username = "testuser"
         self.user.email = "test@example.com"
@@ -34,16 +34,16 @@ class TestUserModel(unittest.TestCase):
 
     def test_tablename(self):
         """Test __tablename__ attribute."""
-        self.assertEqual(UserModel.__tablename__, "users")
+        self.assertEqual(User.__tablename__, "users")
 
     def test_columns(self):
         """Test column definitions."""
-        self.assertTrue(hasattr(UserModel, "id"))
-        self.assertTrue(hasattr(UserModel, "username"))
-        self.assertTrue(hasattr(UserModel, "email"))
-        self.assertTrue(hasattr(UserModel, "password_hash"))
-        self.assertTrue(hasattr(UserModel, "created_at"))
-        self.assertTrue(hasattr(UserModel, "updated_at"))
+        self.assertTrue(hasattr(User, "id"))
+        self.assertTrue(hasattr(User, "username"))
+        self.assertTrue(hasattr(User, "email"))
+        self.assertTrue(hasattr(User, "password_hash"))
+        self.assertTrue(hasattr(User, "created_at"))
+        self.assertTrue(hasattr(User, "updated_at"))
 
 
 if __name__ == "__main__":
