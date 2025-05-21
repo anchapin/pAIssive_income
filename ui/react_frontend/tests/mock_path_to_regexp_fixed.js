@@ -1,22 +1,6 @@
 /**
  * Mock path-to-regexp module for CI compatibility
- *
- * This script creates a mock implementation of the path-to-regexp module
- * to avoid dependency issues in CI environments.
- *
- * Enhanced for GitHub Actions compatibility with better error handling.
- * Added more comprehensive mock implementation with all required functions.
- * Improved directory creation and file writing for CI environments.
- * Added additional fallback mechanisms for GitHub Actions workflow.
- * Added sanitization to prevent log injection vulnerabilities.
- * Added multiple fallback mechanisms for maximum CI compatibility.
- * Improved error handling for Windows environments.
- * Added support for GitHub Actions specific environments.
- * Fixed security issues with path traversal and improved input validation.
- *
- * Usage:
- * - Run this script directly: node tests/mock_path_to_regexp.js
- * - Or require it in your tests: require('./tests/mock_path_to_regexp.js')
+ * Enhanced with improved environment detection and security measures
  */
 
 const fs = require('fs');
@@ -24,20 +8,78 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 
-// Check if we're in a CI environment with more comprehensive detection
-const isCI = process.env.CI === 'true' || process.env.CI === true ||
-             process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_WORKFLOW ||
-             process.env.TF_BUILD || process.env.JENKINS_URL ||
-             process.env.GITLAB_CI || process.env.CIRCLECI;
+// Enhanced environment detection with compreh  // Enhanced environment detection with comprehensive CI platform support
+  const env = {
+    isCI: process.env.CI === 'true' || process.env.CI === true ||
+          process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_WORKFLOW ||
+          process.env.TF_BUILD || process.env.JENKINS_URL ||
+          process.env.GITLAB_CI || process.env.CIRCLECI ||
+          process.env.TEAMCITY_VERSION || process.env.TRAVIS,
+    isDocker: fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv'),
+    isGitHubActions: process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
+    isJenkins: !!process.env.JENKINS_URL,
+    isAzureDevOps: !!process.env.TF_BUILD,
+    isGitLabCI: !!process.env.GITLAB_CI,
+    isCircleCI: !!process.env.CIRCLECI,
+    isTeamCity: !!process.env.TEAMCITY_VERSION,
+    isTravis: !!process.env.TRAVIS,
+    verbose: process.env.VERBOSE_LOGGING === 'true',
+    tempDir: process.env.RUNNER_TEMP || 
+             process.env.TEMP || 
+             process.env.TMP || 
+             os.tmpdir(),
+    workDir: process.env.GITHUB_WORKSPACE || 
+             process.env.JENKINS_HOME || 
+             process.env.BUILD_SOURCESDIRECTORY || 
+             process.env.CI_PROJECT_DIR ||
+             process.cwd(),
+  };support
+const ciEnv = {
+  isCI: process.env.CI === 'true' || process.env.CI === true ||
+      process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_WORKFLOW ||
+      process.env.TF_BUILD || process.env.JENKINS_URL ||
+      process.env.GITLAB_CI || process.env.CIRCLECI ||
+      process.env.TEAMCITY_VERSION || process.env.TRAVIS,
+  isDocker: fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv'),
+  githubActions: process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
+  jenkins: !!process.env.JENKINS_URL,
+  azureDevOps: !!process.env.TF_BUILD,
+  gitlabCI: !!process.env.GITLAB_CI,
+  circleCI: !!process.env.CIRCLECI,
+  teamCity: !!process.env.TEAMCITY_VERSION,
+  travis: !!process.env.TRAVIS,
+  workDir: process.env.GITHUB_WORKSPACE || 
+          process.env.JENKINS_HOME || 
+          process.env.BUILD_SOURCESDIRECTORY || 
+          process.env.CI_PROJECT_DIR ||
+          process.cwd(),
+  tempDir: process.env.RUNNER_TEMP || 
+          process.env.TEMP || 
+          process.env.TMP || 
+          os.tmpdir(),
+  verbose: process.env.VERBOSE_LOGGING === 'true'
+};
 
-// Check if we're in a GitHub Actions environment specifically
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW;
+// Set commonly used flags for backward compatibility
+const isCI = ciEnv.isCI;
+const isGitHubActions = ciEnv.githubActions;
+const isDockerEnvironment = ciEnv.isDocker;
+const verboseLogging = ciEnv.verbose || isCI;
 
-// Check if we're in a Docker environment
-const isDockerEnvironment = fs.existsSync('/.dockerenv') || process.env.DOCKER_ENVIRONMENT === 'true';
-
-// Check if verbose logging is enabled
-const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || isCI;
+// Log the detected environment
+safeLog('Detected CI environment:', {
+  CI: ciEnv.isCI,
+  Docker: ciEnv.isDocker,
+  GitHub: ciEnv.githubActions,
+  Jenkins: ciEnv.jenkins,
+  Azure: ciEnv.azureDevOps,
+  GitLab: ciEnv.gitlabCI,
+  CircleCI: ciEnv.circleCI,
+  TeamCity: ciEnv.teamCity,
+  Travis: ciEnv.travis,
+  tempDir: ciEnv.tempDir,
+  workDir: ciEnv.workDir
+}, 'important');
 
 /**
  * Sanitizes a value for safe logging to prevent log injection attacks.
@@ -274,16 +316,38 @@ try {
 function createMockImplementation() {
   safeLog('Starting to create mock implementation', '', 'important');
 
-  // Enhanced environment detection
+  // Enhanced environment detection with more CI platforms
   const env = {
-    isCI: process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true',
+    isCI: process.env.CI === 'true' || process.env.CI === true ||
+          process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_WORKFLOW ||
+          process.env.TF_BUILD || process.env.JENKINS_URL ||
+          process.env.GITLAB_CI || process.env.CIRCLECI,
     isDocker: fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv'),
-    isGitHubActions: process.env.GITHUB_ACTIONS === 'true',
+    isGitHubActions: process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
+    isJenkins: !!process.env.JENKINS_URL,
+    isAzureDevOps: !!process.env.TF_BUILD,
+    isGitLabCI: !!process.env.GITLAB_CI,
+    isCircleCI: !!process.env.CIRCLECI,
+    verbose: process.env.VERBOSE_LOGGING === 'true',
     tempDir: process.env.RUNNER_TEMP || os.tmpdir(),
-    workDir: process.env.GITHUB_WORKSPACE || process.cwd()
+    workDir: process.env.GITHUB_WORKSPACE || 
+            process.env.JENKINS_HOME || 
+            process.env.BUILD_SOURCESDIRECTORY || 
+            process.cwd()
   };
 
-  safeLog(`Environment: CI=${env.isCI}, Docker=${env.isDocker}, GitHub=${env.isGitHubActions}`, '', 'info');
+  // Log detected environment for debugging
+  safeLog(`Detected CI environment:`, {
+    CI: env.isCI,
+    Docker: env.isDocker,
+    GitHub: env.isGitHubActions,
+    Jenkins: env.isJenkins,
+    Azure: env.isAzureDevOps,
+    GitLab: env.isGitLabCI,
+    CircleCI: env.isCircleCI,
+    tempDir: env.tempDir,
+    workDir: env.workDir
+  }, 'important');
 
   // Prioritized locations for mock implementation based on environment
   const possibleLocations = [
@@ -716,96 +780,4 @@ pathToRegexp.decode = function decode(value) {
   }
 };
 
-module.exports = pathToRegexp;`;
-
-    // Write the mock implementation to disk
-    const indexPath = path.join(mockDir, 'index.js');
-    if (!safeWriteFile(indexPath, mockImplementation)) {
-      throw new Error(`Failed to write mock implementation to ${indexPath}`);
-    }
-
-    // Create a package.json file with more details
-    const packageJson = {
-      name: 'path-to-regexp',
-      version: '0.0.0',
-      main: 'index.js',
-      description: 'Mock implementation for CI compatibility',
-      author: 'CI Mock Generator',
-      license: 'MIT',
-      repository: {
-        type: 'git',
-        url: 'https://github.com/anchapin/pAIssive_income'
-      },
-      keywords: ['mock', 'ci', 'path-to-regexp']
-    };
-
-    const packageJsonPath = path.join(mockDir, 'package.json');
-    if (!safeWriteFile(packageJsonPath, JSON.stringify(packageJson, null, 2))) {
-      throw new Error(`Failed to write package.json to ${packageJsonPath}`);
-    }
-
-    // Create a README.md file to explain the mock implementation
-    const readme = `# Mock path-to-regexp
-
-This is a mock implementation of the path-to-regexp package for CI compatibility.
-
-Created at ${new Date().toISOString()}
-
-## Purpose
-
-This mock implementation is used to avoid dependency issues in CI environments.
-It provides all the necessary functions and methods of the original package,
-but with simplified implementations that always succeed.
-
-## Security Improvements
-
-This mock implementation includes security improvements to prevent:
-- Regular expression denial of service (ReDoS)
-- Path traversal attacks
-- Input validation for all parameters
-- Sanitization of user inputs
-
-## Usage
-
-This package is automatically installed by the CI workflow.
-`;
-
-    const readmePath = path.join(mockDir, 'README.md');
-    if (!safeWriteFile(readmePath, readme)) {
-      throw new Error(`Failed to write README.md to ${readmePath}`);
-    }
-
-    // Create a marker file to indicate we've created a mock implementation
-    const markerFilePath = path.join(logDir, `path-to-regexp-mock-created-${Date.now()}.txt`);
-
-    const markerContent = `Mock path-to-regexp implementation created at ${new Date().toISOString()}\n` +
-      `Location: ${mockDir}\n` +
-      `This file indicates that a mock implementation of path-to-regexp was created for CI compatibility.\n` +
-      `Node.js version: ${process.version}\n` +
-      `Platform: ${process.platform}\n` +
-      `Working directory: ${process.cwd()}\n` +
-      `CI environment: ${isCI ? 'Yes' : 'No'}\n`;
-
-    safeWriteFile(markerFilePath, markerContent);
-
-    return true;
-  } catch (error) {
-    safeErrorLog(`Error creating mock implementation:`, error.message);
-    return false;
-  }
-}
-
-// Execute the functions
-const mockCreated = createMockImplementation();
-
-// Export the mock implementation and utility functions for use in other modules
-module.exports = {
-  createMockImplementation,
-  mockCreated,
-  isCI,
-  safeLog,
-  safeErrorLog,
-  safeCreateDirectory,
-  safeWriteFile,
-  isValidPath
-};
+module.exports = pathToRegexp;

@@ -23,794 +23,148 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import enhanced environment detection if available
-let environmentDetection;
-let env;
+// Import enhanced environment detection
+const { getMockEnvironment } = require('./helpers/mock-environment');
 
-try {
-  environmentDetection = require('./helpers/environment-detection');
-  env = environmentDetection.detectEnvironment();
-  console.log('Successfully imported environment detection module');
-} catch (importError) {
-  console.warn(`Failed to import environment detection module: ${importError.message}`);
+// Get environment information using our enhanced detection
+const env = getMockEnvironment();
 
-  // Create fallback environment detection
-  env = {
-    isCI: process.env.CI === 'true' || process.env.CI === true ||
-          process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
-    isGitHubActions: process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_WORKFLOW,
-    isDocker: process.env.DOCKER_ENVIRONMENT === 'true' ||
-             (fs.existsSync('/.dockerenv') || process.env.DOCKER === 'true'),
-    isWindows: process.platform === 'win32',
-    platform: process.platform,
-    nodeVersion: process.version,
-    architecture: process.arch,
-    osType: require('os').type(),
-    osRelease: require('os').release(),
-    workingDir: process.cwd(),
-    hostname: require('os').hostname(),
-    verboseLogging: process.env.VERBOSE_LOGGING === 'true' ||
-                   (process.env.CI === 'true' || process.env.CI === true)
-  };
+// Log environment information
+env.utils.logSafely('Mock path-to-regexp running in environment:', 'info');
+env.utils.logSafely(`CI Platform: ${env.ciPlatform.provider}`, 'info');
+env.utils.logSafely(`Container: ${env.container.type}`, 'info');
+env.utils.logSafely(`System: ${env.system.platform} (${env.system.arch})`, 'info');
+env.utils.logSafely(`Node.js: ${env.system.nodeVersion}`, 'info');
+env.utils.logSafely(`Working Directory: ${env.paths.workspace}`, 'info');
 
-  // Create minimal environmentDetection object
-  environmentDetection = {
-    safelyCreateDirectory: function(dirPath) {
-      try {
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
-          return true;
-        }
-        return true;
-      } catch (error) {
-        console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
-        return false;
-      }
-    },
-    safelyWriteFile: function(filePath, content) {
-      try {
-        const dir = path.dirname(filePath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
-        fs.writeFileSync(filePath, content);
-        return true;
-      } catch (error) {
-        console.error(`Failed to write file at ${filePath}: ${error.message}`);
-        return false;
-      }
-    }
-  };
-}
+// Create necessary directories with proper error handling
+[
+  path.join(env.paths.workspace, 'logs'),
+  path.join(env.paths.workspace, 'playwright-report'),
+  path.join(env.paths.workspace, 'test-results')
+].forEach(dir => env.utils.safeCreateDirectory(dir));
 
-// Configuration based on enhanced environment detection
-const CI_MODE = env.isCI;
-const GITHUB_ACTIONS = env.isGitHubActions;
-const VERBOSE_LOGGING = env.verboseLogging;
-
-// Enhanced logging with environment information
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-
-  // Sanitize the message to prevent log injection
-  const sanitizedMessage = typeof message === 'string'
-    ? message.replace(/[\r\n]/g, ' ')
-    : String(message);
-
-  // Create a more detailed log message with environment information
-  const logMessage = `[${timestamp}] [${level.toUpperCase()}] [${env.isCI ? 'CI' : env.isDocker ? 'Docker' : 'Local'}] ${sanitizedMessage}`;
-
-  // Log based on verbosity level and environment
-  if (VERBOSE_LOGGING || level === 'error' || level === 'warn') {
-    console.log(logMessage);
-  }
-
-  // Write to log file if possible
-  try {
-    const logDir = path.join(process.cwd(), 'logs');
-    const logFile = path.join(logDir, 'mock-path-to-regexp.log');
-
-    if (environmentDetection.safelyCreateDirectory) {
-      environmentDetection.safelyCreateDirectory(logDir);
-    } else if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
-    }
-
-    // Append to log file
-    if (environmentDetection.safelyWriteFile) {
-      environmentDetection.safelyWriteFile(
-        logFile,
-        `${logMessage}\n`,
-        true // append mode
-      );
-    } else {
-      fs.appendFileSync(logFile, `${logMessage}\n`);
-    }
-  } catch (error) {
-    // Don't log the error to avoid infinite recursion
-    if (level !== 'error') {
-      console.error(`[${timestamp}] [ERROR] Failed to write to log file: ${error.message}`);
-    }
-  }
-}
-
-// Enhanced function to create the mock path-to-regexp module
+// Enhanced mock implementation
 function createMockPathToRegexp() {
-  try {
-    log('Creating enhanced mock path-to-regexp module...');
+  env.utils.logSafely('Creating enhanced mock path-to-regexp implementation...', 'info');
 
-    // Create environment report first
-    createEnvironmentReport();
+  // Get possible installation locations
+  const locations = env.utils.getFallbackDirectories().map(dir => 
+    path.join(dir, 'path-to-regexp')
+  );
 
-    // Create the directory if it doesn't exist
-    const mockDir = path.join(process.cwd(), 'node_modules', 'path-to-regexp');
+  let mockDir = null;
+  let mockCreated = false;
 
-    // Use enhanced directory creation
-    let dirCreated = false;
-
-    // Try using the environment detection module first
-    if (environmentDetection.safelyCreateDirectory) {
-      dirCreated = environmentDetection.safelyCreateDirectory(mockDir);
-      if (dirCreated) {
-        log(`Created directory using environment detection: ${mockDir}`);
-      }
+  // Try each location until successful
+  for (const location of locations) {
+    if (!env.utils.validatePath(location)) {
+      env.utils.logSafely(`Invalid path: ${location}`, 'warn');
+      continue;
     }
 
-    // Fallback to standard approach if environment detection failed
-    if (!dirCreated) {
-      try {
-        if (!fs.existsSync(mockDir)) {
-          fs.mkdirSync(mockDir, { recursive: true });
-          log(`Created directory using standard approach: ${mockDir}`);
-          dirCreated = true;
-        } else {
-          log(`Directory already exists: ${mockDir}`);
-          dirCreated = true;
-        }
-      } catch (error) {
-        log(`Error creating directory: ${error.message}`, 'error');
-
-        // Try an alternative approach with child_process
-        try {
-          if (env.isWindows) {
-            require('child_process').execSync(`mkdir "${mockDir}"`);
-          } else {
-            require('child_process').execSync(`mkdir -p "${mockDir}"`);
-          }
-          log('Created directory using child_process', 'info');
-          dirCreated = true;
-        } catch (execError) {
-          log(`Error creating directory with child_process: ${execError.message}`, 'error');
-        }
-      }
-    }
-
-    // If all approaches failed, try one more fallback for CI environments
-    if (!dirCreated && env.isCI) {
-      try {
-        // Try to create in a temp directory and symlink
-        const os = require('os');
-        const tempDir = path.join(os.tmpdir(), 'path-to-regexp');
-
-        if (!fs.existsSync(tempDir)) {
-          fs.mkdirSync(tempDir, { recursive: true });
-        }
-
-        log(`Created fallback directory in temp location: ${tempDir}`);
-
-        // Try to create a symbolic link
-        try {
-          if (!fs.existsSync(mockDir)) {
-            if (env.isWindows) {
-              // On Windows, need admin rights for symlinks, so we'll just use the temp dir
-              mockDir = tempDir;
-            } else {
-              fs.symlinkSync(tempDir, mockDir, 'dir');
-            }
-            log(`Created symbolic link from ${tempDir} to ${mockDir}`);
-          }
-          dirCreated = true;
-        } catch (symlinkError) {
-          log(`Could not create symbolic link: ${symlinkError.message}`, 'warn');
-          // Just use the temp directory instead
-          mockDir = tempDir;
-          dirCreated = true;
-        }
-      } catch (tempDirError) {
-        log(`Failed to create temp directory: ${tempDirError.message}`, 'error');
-      }
-    }
-
-    // Create the mock implementation with more robust error handling
-    const mockImplementation = `
-      /**
-       * Mock path-to-regexp module for CI compatibility
-       * Created at ${new Date().toISOString()}
-       * For CI and Docker environments
-       * With enhanced error handling and security improvements
-       */
-
-      // Main function with improved error handling
-      function pathToRegexp(path, keys, options) {
-        console.log('Mock path-to-regexp called with path:', typeof path === 'string' ? path : typeof path);
-
-        try {
-          // Handle null or undefined path
-          if (path === null || path === undefined) {
-            console.log('Path is null or undefined, returning default regex');
-            return /.*/;
-          }
-
-          // Handle non-string paths (like RegExp objects)
-          if (typeof path !== 'string') {
-            if (path instanceof RegExp) {
-              console.log('Path is already a RegExp, returning as is');
-              return path;
-            }
-            console.log('Path is not a string or RegExp, returning default regex');
-            return /.*/;
-          }
-
-          // If keys is provided, populate it with parameter names
-          if (Array.isArray(keys)) {
-            try {
-              // Use a safer regex with a limited repetition to prevent ReDoS
-              const paramNames = path.match(/:[a-zA-Z0-9_]{1,100}/g) || [];
-              paramNames.forEach((param, index) => {
-                keys.push({
-                  name: param.substring(1),
-                  prefix: '/',
-                  suffix: '',
-                  modifier: '',
-                  pattern: '[^/]+'
-                });
-              });
-            } catch (keysError) {
-              console.error('Error processing keys:', keysError.message);
-              // Continue execution even if keys processing fails
-            }
-          }
-
-          return /.*/;
-        } catch (error) {
-          console.error('Error in mock path-to-regexp implementation:', error.message);
-          return /.*/;
-        }
-      }
-
-      // Add the main function as a property of itself (some libraries expect this)
-      pathToRegexp.pathToRegexp = pathToRegexp;
-
-      // Helper functions with improved error handling
-      pathToRegexp.parse = function parse(path) {
-        console.log('Mock path-to-regexp.parse called with path:', typeof path === 'string' ? path : typeof path);
-
-        try {
-          // Handle null or undefined path
-          if (path === null || path === undefined) {
-            console.log('Path is null or undefined in parse, returning empty array');
-            return [];
-          }
-
-          // Handle non-string paths
-          if (typeof path !== 'string') {
-            console.log('Path is not a string in parse, returning empty array');
-            return [];
-          }
-
-          // Return a more detailed parse result for better compatibility
-          const tokens = [];
-
-          // Handle empty path
-          if (path === '') {
-            return tokens;
-          }
-
-          // Handle root path
-          if (path === '/') {
-            return [''];
-          }
-
-          // Split the path into segments
-          const parts = path.split('/');
-
-          // Handle leading slash
-          if (path.startsWith('/')) {
-            tokens.push('');
-          }
-
-          // Process each part
-          parts.filter(Boolean).forEach(part => {
-            if (part.startsWith(':')) {
-              tokens.push({
-                name: part.substring(1),
-                prefix: '/',
-                suffix: '',
-                pattern: '[^/]+',
-                modifier: ''
-              });
-            } else if (part) {
-              tokens.push(part);
-            }
-          });
-
-          return tokens;
-        } catch (error) {
-          console.error('Error in mock parse implementation:', error.message);
-          return [];
-        }
-      };
-
-      pathToRegexp.compile = function compile(path) {
-        console.log('Mock path-to-regexp.compile called with path:', typeof path === 'string' ? path : typeof path);
-
-        return function(params) {
-          try {
-            console.log('Mock path-to-regexp.compile function called with params:', params ? 'object' : typeof params);
-
-            // Try to replace parameters in the path
-            if (typeof path === 'string' && params) {
-              let result = path;
-              Object.keys(params).forEach(key => {
-                // Use a safer string replacement approach instead of regex
-                result = result.split(':' + key).join(params[key]);
-              });
-              return result;
-            }
-            return path || '';
-          } catch (error) {
-            console.error('Error in mock compile function:', error.message);
-            return path || '';
-          }
-        };
-      };
-
-      pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
-        console.log('Mock path-to-regexp.tokensToRegexp called');
-
-        try {
-          // Handle null or undefined tokens
-          if (!tokens) {
-            console.log('Tokens is null or undefined in tokensToRegexp, returning default regex');
-            return /.*/;
-          }
-
-          // Handle non-array tokens
-          if (!Array.isArray(tokens)) {
-            console.log('Tokens is not an array in tokensToRegexp, returning default regex');
-            return /.*/;
-          }
-
-          // If keys is provided, populate it with parameter names from tokens
-          if (Array.isArray(keys)) {
-            try {
-              tokens.forEach(token => {
-                if (token && typeof token === 'object' && token.name) {
-                  keys.push({
-                    name: token.name,
-                    prefix: token.prefix || '/',
-                    suffix: token.suffix || '',
-                    modifier: token.modifier || '',
-                    pattern: token.pattern || '[^/]+'
-                  });
-                }
-              });
-            } catch (keysError) {
-              console.error('Error processing keys in tokensToRegexp:', keysError.message);
-              // Continue execution even if keys processing fails
-            }
-          }
-
-          return /.*/;
-        } catch (error) {
-          console.error('Error in mock tokensToRegexp implementation:', error.message);
-          return /.*/;
-        }
-      };
-
-      pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
-        console.log('Mock path-to-regexp.tokensToFunction called');
-
-        // Handle null or undefined tokens
-        if (!tokens) {
-          console.log('Tokens is null or undefined in tokensToFunction, returning empty function');
-          return function() { return ''; };
-        }
-
-        // Handle non-array tokens
-        if (!Array.isArray(tokens)) {
-          console.log('Tokens is not an array in tokensToFunction, returning empty function');
-          return function() { return ''; };
-        }
-
-        return function(params) {
-          try {
-            console.log('Mock path-to-regexp.tokensToFunction function called with params:', params ? 'object' : typeof params);
-
-            // Handle null or undefined params
-            if (!params) {
-              console.log('Params is null or undefined in tokensToFunction function, returning empty string');
-              return '';
-            }
-
-            // Handle non-object params
-            if (typeof params !== 'object') {
-              console.log('Params is not an object in tokensToFunction function, returning empty string');
-              return '';
-            }
-
-            // Try to generate a path from tokens and params
-            let result = '';
-
-            tokens.forEach(token => {
-              if (typeof token === 'string') {
-                result += token;
-              } else if (token && typeof token === 'object' && token.name && params[token.name]) {
-                try {
-                  // Try to encode the parameter value
-                  result += encodeURIComponent(params[token.name]);
-                } catch (encodeError) {
-                  // If encoding fails, use the raw value
-                  result += params[token.name];
-                }
-              }
-            });
-
-            return result;
-          } catch (error) {
-            console.error('Error in mock tokensToFunction function:', error.message);
-            return '';
-          }
-        };
-      };
-
-      // Add encode/decode functions for compatibility with some libraries
-      pathToRegexp.encode = function encode(value) {
-        try {
-          // Handle null or undefined value
-          if (value === null || value === undefined) {
-            console.log('Value is null or undefined in encode, returning empty string');
-            return '';
-          }
-
-          // Handle non-string values
-          if (typeof value !== 'string') {
-            try {
-              // Try to convert to string
-              value = String(value);
-            } catch (stringifyError) {
-              console.error('Error converting value to string in encode:', stringifyError.message);
-              return '';
-            }
-          }
-
-          return encodeURIComponent(value);
-        } catch (error) {
-          console.error('Error encoding value:', error.message);
-          return '';
-        }
-      };
-
-      pathToRegexp.decode = function decode(value) {
-        try {
-          // Handle null or undefined value
-          if (value === null || value === undefined) {
-            console.log('Value is null or undefined in decode, returning empty string');
-            return '';
-          }
-
-          // Handle non-string values
-          if (typeof value !== 'string') {
-            try {
-              // Try to convert to string
-              value = String(value);
-            } catch (stringifyError) {
-              console.error('Error converting value to string in decode:', stringifyError.message);
-              return '';
-            }
-          }
-
-          return decodeURIComponent(value);
-        } catch (error) {
-          console.error('Error decoding value:', error.message);
-          return value;
-        }
-      };
-
-      // Add regexp property for compatibility with some libraries
-      pathToRegexp.regexp = /.*/;
-
-      // Export the mock implementation
-      module.exports = pathToRegexp;
-    `;
-
-    // Write the mock implementation to disk with better error handling
     try {
-      fs.writeFileSync(path.join(mockDir, 'index.js'), mockImplementation);
-      log(`Created mock implementation file: ${path.join(mockDir, 'index.js')}`);
-    } catch (error) {
-      log(`Error writing mock implementation file: ${error.message}`, 'error');
-
-      // Try an alternative approach
-      try {
-        require('child_process').execSync(`cat > ${path.join(mockDir, 'index.js')} << 'EOF'
-${mockImplementation}
-EOF`);
-        log('Created mock implementation file using child_process', 'info');
-      } catch (execError) {
-        log(`Error writing file with child_process: ${execError.message}`, 'error');
+      if (!env.utils.safeCreateDirectory(location)) {
+        continue;
       }
+
+      mockDir = location;
+      mockCreated = true;
+      env.utils.logSafely(`Successfully created mock at ${location}`, 'info');
+      break;
+    } catch (error) {
+      env.utils.logSafely(`Failed to create mock at ${location}: ${error.message}`, 'warn');
+    }
+  }
+
+  if (!mockCreated) {
+    // Fallback to temp directory
+    const tempLocation = env.utils.generateTempPath('path-to-regexp');
+    try {
+      if (env.utils.safeCreateDirectory(tempLocation)) {
+        mockDir = tempLocation;
+        mockCreated = true;
+        env.utils.logSafely(`Created mock in temp location: ${tempLocation}`, 'info');
+      }
+    } catch (error) {
+      env.utils.logSafely(`Failed to create mock in temp location: ${error.message}`, 'error');
+      throw new Error('Could not create mock implementation in any location');
+    }
+  }
+
+  // Create the mock implementation with security measures
+  return function pathToRegexp(path, keys, options) {
+    env.utils.logSafely(`Mock path-to-regexp called with path: ${path}`, 'debug');
+
+    // Input validation and sanitization
+    if (typeof path !== 'string') {
+      env.utils.logSafely('Invalid input: path must be a string', 'warn');
+      return /.*/;
     }
 
-    // Create the package.json file
-    const packageJson = JSON.stringify({
-      name: 'path-to-regexp',
-      version: '0.0.0',
-      main: 'index.js'
+    // Security: Limit the path length to prevent DoS
+    if (path.length > 4096) {
+      env.utils.logSafely('Path exceeds maximum length', 'warn');
+      return /.*/;
+    }
+
+    // Parse path into tokens with protection against ReDoS
+    const tokens = path.split('/').map(segment => {
+      if (segment.startsWith(':')) {
+        const paramName = segment.substring(1);
+        if (keys && Array.isArray(keys)) {
+          keys.push({ name: paramName });
+        }
+        return `(?<${paramName}>[^/]+)`;
+      }
+      return segment.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     });
 
-    try {
-      fs.writeFileSync(path.join(mockDir, 'package.json'), packageJson);
-      log(`Created package.json file: ${path.join(mockDir, 'package.json')}`);
-    } catch (error) {
-      log(`Error writing package.json file: ${error.message}`, 'error');
-
-      // Try an alternative approach
-      try {
-        require('child_process').execSync(`echo '${packageJson}' > ${path.join(mockDir, 'package.json')}`);
-        log('Created package.json file using child_process', 'info');
-      } catch (execError) {
-        log(`Error writing package.json with child_process: ${execError.message}`, 'error');
-      }
-    }
-
-    log('Mock path-to-regexp module created successfully');
-    return true;
-  } catch (error) {
-    log(`Error creating mock path-to-regexp module: ${error.message}`, 'error');
-    return false;
-  }
+    const pattern = tokens.join('\\/');
+    return new RegExp(`^${pattern}$`);
+  };
 }
 
-/**
- * Create a comprehensive environment report
- */
-function createEnvironmentReport() {
-  try {
-    const os = require('os');
-    const logDir = path.join(process.cwd(), 'logs');
+// Create the mock with all necessary properties and methods
+const pathToRegexp = createMockPathToRegexp();
 
-    // Create logs directory
-    if (environmentDetection.safelyCreateDirectory) {
-      environmentDetection.safelyCreateDirectory(logDir);
-    } else if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
-    }
-
-    // Create report content
-    const timestamp = new Date().toISOString();
-    const reportContent = `Mock Path-to-Regexp Environment Report
-=======================================
-Generated at: ${timestamp}
-
-Environment Information:
-- Node.js: ${env.nodeVersion || process.version}
-- Platform: ${env.platform || process.platform}
-- Architecture: ${env.architecture || process.arch}
-- OS: ${env.osType || os.type()} ${env.osRelease || os.release()}
-- Working Directory: ${env.workingDir || process.cwd()}
-- Hostname: ${env.hostname || os.hostname()}
-
-CI Environment:
-- CI: ${env.isCI ? 'Yes' : 'No'}
-- GitHub Actions: ${env.isGitHubActions ? 'Yes' : 'No'}
-- CI Type: ${env.ciType || (env.isGitHubActions ? 'github' : env.isCI ? 'generic' : 'none')}
-
-Container Environment:
-- Docker: ${env.isDocker ? 'Yes' : 'No'}
-- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}
-- Docker Compose: ${env.isDockerCompose ? 'Yes' : 'No'}
-- Docker Swarm: ${env.isDockerSwarm ? 'Yes' : 'No'}
-- Containerized: ${env.isContainerized ? 'Yes' : 'No'}
-
-OS Environment:
-- Windows: ${env.isWindows ? 'Yes' : 'No'}
-- WSL: ${env.isWSL ? 'Yes' : 'No'}
-- macOS: ${env.isMacOS ? 'Yes' : 'No'}
-- Linux: ${env.isLinux ? 'Yes' : 'No'}
-
-Memory:
-- Total: ${formatBytes(os.totalmem())}
-- Free: ${formatBytes(os.freemem())}
-- Process: ${JSON.stringify(process.memoryUsage())}
-
-Environment Variables:
-- NODE_ENV: ${process.env.NODE_ENV || 'not set'}
-- CI: ${process.env.CI || 'not set'}
-- GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS || 'not set'}
-- DOCKER_ENVIRONMENT: ${process.env.DOCKER_ENVIRONMENT || 'not set'}
-`;
-
-    // Write report to file
-    const reportPath = path.join(logDir, 'mock-path-to-regexp-environment.txt');
-
-    if (environmentDetection.safelyWriteFile) {
-      environmentDetection.safelyWriteFile(reportPath, reportContent);
-    } else {
-      fs.writeFileSync(reportPath, reportContent);
-    }
-
-    // Create JSON version
-    const jsonReport = {
-      timestamp,
-      environment: {
-        nodeVersion: env.nodeVersion || process.version,
-        platform: env.platform || process.platform,
-        architecture: env.architecture || process.arch,
-        osType: env.osType || os.type(),
-        osRelease: env.osRelease || os.release(),
-        workingDirectory: env.workingDir || process.cwd(),
-        hostname: env.hostname || os.hostname()
-      },
-      ci: {
-        isCI: env.isCI,
-        isGitHubActions: env.isGitHubActions,
-        ciType: env.ciType || (env.isGitHubActions ? 'github' : env.isCI ? 'generic' : 'none')
-      },
-      container: {
-        isDocker: env.isDocker,
-        isKubernetes: env.isKubernetes,
-        isDockerCompose: env.isDockerCompose,
-        isDockerSwarm: env.isDockerSwarm,
-        isContainerized: env.isContainerized
-      },
-      os: {
-        isWindows: env.isWindows,
-        isWSL: env.isWSL,
-        isMacOS: env.isMacOS,
-        isLinux: env.isLinux
-      },
-      memory: {
-        total: os.totalmem(),
-        free: os.freemem(),
-        process: process.memoryUsage()
-      },
-      environmentVariables: {
-        NODE_ENV: process.env.NODE_ENV || 'not set',
-        CI: process.env.CI || 'not set',
-        GITHUB_ACTIONS: process.env.GITHUB_ACTIONS || 'not set',
-        DOCKER_ENVIRONMENT: process.env.DOCKER_ENVIRONMENT || 'not set'
-      }
-    };
-
-    const jsonReportPath = path.join(logDir, 'mock-path-to-regexp-environment.json');
-
-    if (environmentDetection.safelyWriteFile) {
-      environmentDetection.safelyWriteFile(jsonReportPath, JSON.stringify(jsonReport, null, 2));
-    } else {
-      fs.writeFileSync(jsonReportPath, JSON.stringify(jsonReport, null, 2));
-    }
-
-    log('Created environment reports', 'info');
-  } catch (error) {
-    log(`Failed to create environment report: ${error.message}`, 'error');
-  }
-}
-
-/**
- * Format bytes to a human-readable string
- * @param {number} bytes - Bytes to format
- * @returns {string} Formatted string
- */
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// Execute the function
-createMockPathToRegexp();
-
-// Create a mock pathToRegexp function for module.exports
-const pathToRegexp = function(path, keys, options) {
-  console.log('Mock path-to-regexp called with path:', typeof path === 'string' ? path : typeof path);
-  return /.*/;
-};
-
-// Add helper functions
+// Add helper functions with enhanced error handling
 pathToRegexp.parse = function parse(path) {
-  console.log('Mock path-to-regexp.parse called with path:', typeof path === 'string' ? path : typeof path);
-  return [];
+  env.utils.logSafely('Mock path-to-regexp.parse called', 'debug');
+  return path.split('/').map(p => ({ type: 'static', value: p }));
 };
 
 pathToRegexp.compile = function compile(path) {
-  console.log('Mock path-to-regexp.compile called with path:', typeof path === 'string' ? path : typeof path);
-  return function() { return ''; };
-};
-
-pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens, keys, options) {
-  console.log('Mock path-to-regexp.tokensToRegexp called');
-  return /.*/;
-};
-
-pathToRegexp.tokensToFunction = function tokensToFunction(tokens) {
-  console.log('Mock path-to-regexp.tokensToFunction called');
-  return function() { return ''; };
-};
-
-// Add encode/decode functions
-pathToRegexp.encode = function encode(value) {
-  try {
-    return encodeURIComponent(value);
-  } catch (error) {
-    console.error('Error encoding value:', error.message);
-    return '';
-  }
-};
-
-pathToRegexp.decode = function decode(value) {
-  try {
-    return decodeURIComponent(value);
-  } catch (error) {
-    console.error('Error decoding value:', error.message);
-    return value;
-  }
-};
-
-// Add regexp property for compatibility with some libraries
-pathToRegexp.regexp = /.*/;
-
-// Add metadata
-pathToRegexp.mockCreated = true;
-pathToRegexp.requirePatched = false;
-pathToRegexp.version = '2.0.0';
-pathToRegexp.timestamp = new Date().toISOString();
-pathToRegexp.environment = {
-  isCI: env.isCI,
-  isDocker: env.isDocker,
-  isWindows: env.isWindows
-};
-
-// Add match function for compatibility with Express
-pathToRegexp.match = function match(path) {
-  console.log(`Mock path-to-regexp.match called with path: ${path}`);
-
-  return function(pathname) {
+  env.utils.logSafely('Mock path-to-regexp.compile called', 'debug');
+  return (params) => {
     try {
-      console.log(`Mock path-to-regexp.match function called with pathname: ${pathname}`);
-
-      // Extract parameter values from the pathname if possible
-      const params = {};
-      if (typeof path === 'string' && typeof pathname === 'string') {
-        const pathParts = path.split('/').filter(Boolean);
-        const pathnameParts = pathname.split('/').filter(Boolean);
-
-        if (pathParts.length === pathnameParts.length) {
-          for (let i = 0; i < pathParts.length; i++) {
-            if (pathParts[i].startsWith(':')) {
-              const paramName = pathParts[i].substring(1);
-              params[paramName] = pathnameParts[i];
-            }
-          }
-        }
-      }
-
-      return { path: pathname, params: params, index: 0, isExact: true };
+      return path.replace(/:(\w+)/g, (_, key) => params[key] || '');
     } catch (error) {
-      console.error(`Error in mock path-to-regexp.match function: ${error.message}`);
-      return { path: pathname, params: {}, index: 0, isExact: false };
+      env.utils.logSafely(`Error in compile: ${error.message}`, 'error');
+      return '';
     }
   };
 };
 
-// Add additional properties for better compatibility
-pathToRegexp.PATH_REGEXP = /.*/;
+pathToRegexp.tokensToRegexp = function tokensToRegexp(tokens) {
+  env.utils.logSafely('Mock path-to-regexp.tokensToRegexp called', 'debug');
+  return /.*/;
+};
+
+pathToRegexp.match = function match(path) {
+  env.utils.logSafely('Mock path-to-regexp.match called', 'debug');
+  return function(pathname) {
+    if (path === pathname) {
+      return { path: pathname, params: {}, index: 0, isExact: true };
+    }
+    return false;
+  };
+};
+
+// Add metadata and convenience properties
+pathToRegexp.VERSION = '2.0.0';
 pathToRegexp.DEFAULT_DELIMITER = '/';
 pathToRegexp.DEFAULT_PATTERN = '[^/]+';
 
-// Export the mock implementation with all necessary properties
+// Export the enhanced mock implementation
 module.exports = pathToRegexp;
