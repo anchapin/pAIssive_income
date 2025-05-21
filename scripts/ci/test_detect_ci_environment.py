@@ -12,7 +12,7 @@ import os
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add the project root to the path so we can import the script
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
