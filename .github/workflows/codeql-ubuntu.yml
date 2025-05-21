@@ -4,24 +4,6 @@ name: "CodeQL Analysis (Ubuntu)"
 # It's a specialized version of the main CodeQL workflow for Ubuntu-specific analysis
 
 on:
-  push:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main, dev, master, develop ]
     paths-ignore:

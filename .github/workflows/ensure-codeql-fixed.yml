@@ -1,12 +1,6 @@
 name: Ensure Fixed CodeQL Workflows
 
 on:
-  push:
-    branches: [ main, dev, master, develop, cosine/improve-frontend-tests-y4hwd5 ]
-    paths:
-      - '.github/workflows/codeql*.yml'
-      - '.github/scripts/ensure-fixed-codeql-workflows.ps1'
-      - '.github/workflows/ensure-codeql-fixed.yml'
   pull_request:
     branches: [ main, dev, master, develop ]
     paths:

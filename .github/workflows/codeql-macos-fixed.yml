@@ -5,24 +5,6 @@ name: "CodeQL Analysis - macOS"
 # The workflow is designed to provide comprehensive security analysis with detailed configuration
 
 on:
-  push:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main, dev, master, develop ]
     paths-ignore:
