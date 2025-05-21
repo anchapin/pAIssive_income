@@ -16,10 +16,10 @@ def test_mem0_import():
     try:
         import mem0  # nosec B404
         logger.info(f"Successfully imported mem0 version {mem0.__version__}")
-        return True
+        assert True
     except ImportError as e:
         logger.error(f"Failed to import mem0: {e}")
-        return False
+        assert False
 
 
 def test_mem0_dependencies():
@@ -37,7 +37,7 @@ def test_mem0_dependencies():
             logger.error(f"Failed to import {dep}: {e}")
             all_installed = False
 
-    return all_installed
+    assert all_installed, "Not all required dependencies are installed"
 
 
 def test_mem0_basic_functionality():
@@ -48,10 +48,10 @@ def test_mem0_basic_functionality():
         _ = mem0.Memory()  # nosec B106
 
         logger.info("Successfully created Memory instance")
-        return True
+        assert True
     except Exception as e:
         logger.error(f"Failed to test basic mem0 functionality: {e}")
-        return False
+        assert False, str(e)
 
 
 if __name__ == "__main__":
