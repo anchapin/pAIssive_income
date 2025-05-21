@@ -118,8 +118,10 @@ def forgot_password():
             session.commit()
 
             # Log token generation (without exposing the full token in logs)
-            token_prefix = token[:5] if token else '<none>'
-            logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset token generated for {safe_email} from {safe_ip} token_prefix={token_prefix}...")
+            # Use None for empty token so sanitize_log_data handles it as '<none>'
+            token_prefix_raw = token[:5] if token else None
+            token_prefix_sanitized = sanitize_log_data(token_prefix_raw)
+            logging.info(f"[AUDIT][{datetime.utcnow().isoformat()}] Password reset token generated for {safe_email} from {safe_ip} token_prefix={token_prefix_sanitized}...")
 
             # Compose reset link with proper URL construction
             frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')

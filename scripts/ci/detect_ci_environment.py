@@ -77,7 +77,7 @@ import platform
 import socket
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 def safe_file_exists(file_path: str) -> bool:
@@ -96,7 +96,7 @@ def safe_file_exists(file_path: str) -> bool:
         return False
 
 
-def safe_read_file(file_path: str) -> Optional[str]:
+def safe_read_file(file_path: str) -> str | None:
     """
     Safely read a file without raising exceptions.
 
@@ -115,7 +115,7 @@ def safe_read_file(file_path: str) -> Optional[str]:
         return None
 
 
-def detect_ci_environment() -> Dict[str, Any]:
+def detect_ci_environment() -> dict[str, Any]:
     """
     Detect the current CI environment.
 
@@ -808,7 +808,7 @@ def detect_ci_environment() -> Dict[str, Any]:
     }
 
 
-def create_ci_directories() -> List[Dict[str, Any]]:
+def create_ci_directories() -> list[dict[str, Any]]:
     """
     Create CI-specific directories.
 
