@@ -119,6 +119,36 @@ coverage.xml
 htmlcov/
 create_bandit_files.sh
 
+# Test coverage reports
+coverage/
+coverage*/
+.coverage
+coverage.xml
+coverage-*.xml
+htmlcov/
+
+# Test reports
+test-output/
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+
+# Editor and IDE files
+.vscode/
+.idea/
+.cursor/
+*.code-workspace
+.cursor.json
+.cursor/*.json
+mcp.json
+
+# Build artifacts and temporary files
+*.new
+*.old
+*.temp
+*.tmp
+
 # Editor/tool-specific configs
 .cursor/
 cline_mcp_settings.json
