@@ -1,5 +1,5 @@
 """Mock Agent class for ADK."""
-from typing import Optional, Any
+from typing import Optional
 from .communication import Message, AgentCommunicator
 
 class Agent:

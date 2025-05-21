@@ -27,13 +27,14 @@ try:
     Memory = mem0ai.Memory
     mem0 = mem0ai
 except ImportError:
-    # Skip tests if mem0 is not installed
+    # This empty except block is intentional.
+    # It allows the tests to be skipped if mem0ai is not installed,
+    # which is a valid scenario for environments that don't require mem0.
     mem0 = None
     Memory = None
 
 # Import ADK components
 from adk.agent import Agent
-from adk.memory import SimpleMemory
 
 
 class MemoryEnhancedAgent(Agent):
