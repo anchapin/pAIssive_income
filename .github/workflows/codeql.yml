@@ -167,6 +167,9 @@ jobs:
         if: matrix.language == 'python'
         shell: bash
         run: |
+          # Ensure pip cache directory exists to prevent post-job cleanup errors
+          mkdir -p /home/runner/.cache/pip
+          
           if [ -f "requirements.txt" ]; then
             echo "Installing Python dependencies from requirements.txt..."
             pip install -r requirements.txt
