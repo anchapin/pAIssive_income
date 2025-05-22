@@ -9,6 +9,8 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const express = require('express');
+const cors = require('cors');
 
 // Import the mock path-to-regexp helper if available
 let mockPathToRegexp;
@@ -17,6 +19,8 @@ let pathToRegexpAvailable = false;
 // CI environment detection
 const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+const isDockerEnvironment = process.env.DOCKER_ENVIRONMENT === 'true';
+const verboseLogging = process.env.VERBOSE_LOGGING === 'true' || false;
 
 // Set environment variables for maximum compatibility
 process.env.PATH_TO_REGEXP_MOCK = 'true';
