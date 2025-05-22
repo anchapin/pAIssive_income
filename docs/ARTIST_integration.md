@@ -50,23 +50,31 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
    cd pAIssive_income
    ```
 
-2. **Set up the Python environment:**
-   ```bash
-   # Install uv if not present
-   pip install uv
+2. **Set up the Python environment (choose one of the following based on your needs):**
 
-   # Create and activate a virtual environment (optional step for isolation)
-   python3 -m venv .venv
-   source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+   - **For ARTIST-only development:**  
+     Install only the dependencies required for ARTIST experiments. This is the recommended and safest approach if you are not working on the broader project codebase.
+     ```bash
+     # Install uv if not present
+     pip install uv
 
-   # Install ARTIST dependencies using uv
-   uv pip install -r requirements-artist.txt
-   ```
+     # Create and activate a virtual environment (optional step for isolation)
+     python3 -m venv .venv
+     source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
-3. **Run the setup script (optional, but recommended for first-time setup):**
-   ```bash
-   ./setup_with_uv.sh  # or setup_with_uv.ps1 on Windows
-   ```
+     # Install ARTIST dependencies using uv
+     uv pip install -r requirements-artist.txt
+     ```
+
+   - **For full project development (including ARTIST integration):**  
+     Use the general project setup script, which installs all main and dev dependencies (but note this may introduce version differences with the ARTIST experiments).
+     ```bash
+     ./setup_with_uv.sh  # or setup_with_uv.ps1 on Windows
+     ```
+     > **Note:** The general setup script does **not** install ARTIST-specific dependencies from `requirements-artist.txt` by default. If you plan to work on both the core project and ARTIST experiments, you may need to run both, but be aware this could result in package version conflicts. In such cases, consider using separate virtual environments for ARTIST and the main project.
+
+**Tip:**  
+If you are focusing solely on ARTIST experiments, you can safely skip running `./setup_with_uv.sh`. Conversely, if developing for the whole project, run both steps but keep dependency overlap in mind. Future improvements may include an option/flag in `setup_with_uv.sh` for ARTIST-specific installs.
 
 ### B. Using Docker
 
