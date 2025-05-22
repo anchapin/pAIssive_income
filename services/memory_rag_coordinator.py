@@ -13,12 +13,47 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 # Import mem0 and ChromaDB interfaces as used in the codebase
-# Example imports; update paths if needed for your project.
-try:
-    from agent_team.mem0_enhanced_agents import mem0_query  # function: mem0_query(query: str, user_id: str) -> List[Dict]
-except ImportError:
-    # Fallback stub for dev/CI if mem0_query is not available
-    def mem0_query(query: str, user_id: str) -> List[Dict]:
+import logging
+
+def mem0_query(query: str, user_id: str) -> List[Dict]:
+    """
+    Query the mem0 memory system for relevant memories given a query and user ID.
+
+    Instantiates a mem0 Memory object and calls its `search` method.
+
+    Parameters
+    ----------
+    query : str
+        The query string to search for.
+    user_id : str
+        The user identifier.
+
+    Returns
+    -------
+    List[Dict]
+        A list of dictionaries representing relevant memories.
+
+    Notes
+    -----
+    - Requires the `mem0ai` package to be installed.
+    - If mem0 is unavailable or an exception occurs, returns an empty list.
+    """
+    try:
+        from mem0 import Memory
+    except ImportError:
+        logging.warning("mem0ai package is not installed. Install with: uv pip install mem0ai")
+        return []
+
+    try:
+        memory = Memory()
+        results = memory.search(query=query, user_id=user_id)
+        # Ensure results are a list of dicts
+        if not isinstance(results, list):
+            logging.error("mem0 Memory.search did not return a list.")
+            return []
+        return results
+    except Exception as e:
+        logging.error(f"Exception during mem0_query: {e}")
         return []
 
 try:
