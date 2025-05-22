@@ -85,7 +85,7 @@ memory.add(f"User rated recipe '{recipe_title}' as 'liked'", user_id="alice")
 
 - **Default to mem0** for persistent, user-specific context.
 - **Default to RAG** for up-to-date, external, or domain-specific knowledge.
-- **Combine** when you want personalized, dynamic responses: retrieve memory first, then use it to guide/document retrieval.
+- **Combine** when you want personalized, dynamic responses: retrieve memory first, then use it to inform or personalize the RAG system's document retrieval.
 - **Store feedback** and user-generated knowledge in mem0 for cumulative improvement.
 - **Log and monitor** combined workflows to identify when memory or retrieval is most impactful.
 
