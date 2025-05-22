@@ -8,6 +8,7 @@ This directory contains the results of our investigation into mem0, a memory lay
 
 ## Contents
 
+- [mem0_integration.md](../05_sdk_and_integrations/mem0_integration.md): **Integration/setup guide**
 - [mem0_investigation.md](mem0_investigation.md): Comprehensive overview of mem0, its features, and integration considerations
 - [mem0_integration_options.md](mem0_integration_options.md): Detailed analysis of different integration approaches
 - [mem0_core_apis.md](mem0_core_apis.md): Documentation of mem0's core APIs, classes, and usage patterns
