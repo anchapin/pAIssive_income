@@ -54,6 +54,44 @@ For a full directory map, see [docs/00_introduction/03_project_structure.md](doc
 
 ---
 
+## 🛠️ Minimal Agent & Tool Registry Demo
+
+A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator) via a simple registry.
+
+**What the demo does:**
+- Instantiates an `ArtistAgent`
+- Lists available tools
+- Runs two prompts: one handled by a tool (e.g., calculator), one unhandled (e.g., translation)
+- Clearly prints the prompt and the agent's output
+
+**How to run:**
+```bash
+python scripts/artist_demo.py
+```
+
+**Expected output:**
+- The list of available tools (e.g., calculator, etc.)
+- The prompt that is sent to the agent
+- The agent's output (e.g., calculation result or a message indicating no tool can handle the prompt)
+
+Example (output will vary by implementation):
+
+```
+=== ArtistAgent Tool Use Demo ===
+
+Available tools:
+  - calculator
+-----------------------------
+Prompt: What is 12 * 8?
+Agent output: 96
+-----------------------------
+Prompt: Translate hello to French
+Agent output: Sorry, I can't handle that request.
+```
+
+**Note:**  
+The agent and tool registry are easily extensible—new tools can be added with minimal code changes, allowing the agent to handle more types of tasks.
+
 ## 🤝 Contributing
 
 See [Development Workflow](docs/02_developer_guide/01_development_workflow.md) for contribution guidelines and coding standards.
