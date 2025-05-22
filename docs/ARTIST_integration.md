@@ -100,14 +100,18 @@ python ai_models/artist_agent.py
 
 Example: **Math Problem Solving**
 ```bash
-python artist_experiments/math_problem_solving/run.py
+python -c "from artist_experiments import math_problem_solving; print(math_problem_solving.run_experiment('Solve 2 + 3 * 4'))"
 ```
+
 Example: **Multi-API Orchestration**
 ```bash
-python artist_experiments/multi_api_orchestration/run.py
+python -c "from artist_experiments import multi_api_orchestration; print(multi_api_orchestration.run_experiment('Find products related to smart home automation'))"
 ```
-- Each experiment folder contains a README and a `run.py` entrypoint.
-- To extend, add new tools to the registry or modify the agent logic, then update the experiment script and tests.
+
+- Each experiment module provides a callable function (e.g., `run_experiment`) you can invoke from the command line or Python shell.
+- To extend, add new tools to the registry or modify the agent logic, then update the experiment module and tests.
+
+**Tip:** For frequent direct execution, consider adding an `if __name__ == '__main__':` block to the experiment modules or create a simple wrapper script.
 
 **Tips:**
 - Follow the codebase convention: keep new experiments, tools, and outputs organized and .gitignore-aware.
