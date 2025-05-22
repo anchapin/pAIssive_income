@@ -27,17 +27,15 @@ def mock_calculator_tool():
 @pytest.fixture
 def artist_agent_with_tools(mock_calculator_tool):
     """Fixture providing ArtistAgent initialized with a calculator tool."""
-    # We assume ArtistAgent accepts a list of tools or similar; adapt if necessary.
-    # Try to patch tools if they are global or passed in constructor.
-    # If tools are discovered dynamically, patch at the discover/registration point.
+    # Patch tools as a dict mapping tool name to its callable (mock's run method)
     if hasattr(main_artist_agent, 'ArtistAgent'):
-        # Try to instantiate with explicit tool list if possible
         try:
-            return main_artist_agent.ArtistAgent(tools=[mock_calculator_tool])
+            # If ArtistAgent supports tools injection, inject as dict
+            return main_artist_agent.ArtistAgent(tools={mock_calculator_tool.name: mock_calculator_tool.run})
         except TypeError:
             # Fallback: patch the attribute on the instance after creation
             agent = main_artist_agent.ArtistAgent()
-            agent.tools = [mock_calculator_tool]
+            agent.tools = {mock_calculator_tool.name: mock_calculator_tool.run}
             return agent
     else:
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
@@ -68,13 +66,13 @@ def test_artist_agent_no_matching_tool(monkeypatch):
     dummy_tool.description = 'Not a calculator'
     dummy_tool.run = Mock(return_value="I can't help with that.")
 
-    # Patch ArtistAgent to only have an irrelevant tool
+    # Patch ArtistAgent to only have an irrelevant tool (as a dict)
     if hasattr(main_artist_agent, 'ArtistAgent'):
         try:
-            agent = main_artist_agent.ArtistAgent(tools=[dummy_tool])
+            agent = main_artist_agent.ArtistAgent(tools={dummy_tool.name: dummy_tool.run})
         except TypeError:
             agent = main_artist_agent.ArtistAgent()
-            agent.tools = [dummy_tool]
+            agent.tools = {dummy_tool.name: dummy_tool.run}
     else:
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
 
