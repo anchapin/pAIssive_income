@@ -28,14 +28,14 @@ vector_rag_source = VectorRAGKnowledgeSource(DummyVectorClient())
 # Fallback strategy: returns from mem0 if available, otherwise from vector_rag
 integration_fallback = KnowledgeIntegrationLayer(
     sources=[mem0_source, vector_rag_source],
-    strategy="fallback"
+    strategy=KnowledgeStrategy.FALLBACK
 )
 results_fallback = integration_fallback.search("your query here", user_id="user123")
 
 # Aggregation strategy: combines results from all sources
 integration_aggregate = KnowledgeIntegrationLayer(
     sources=[mem0_source, vector_rag_source],
-    strategy="aggregate"
+    strategy=KnowledgeStrategy.AGGREGATE
 )
 results_aggregate = integration_aggregate.search("your query here", user_id="user123")
 
@@ -45,6 +45,9 @@ Provides:
 - KnowledgeIntegrationLayer that handles fallback and aggregation logic.
 - Extensible and decoupled design.
 
+KnowledgeIntegrationLayer uses the KnowledgeStrategy Enum for setting the strategy, 
+making it robust and type-safe.
+
 NOTE: 
 - This code stubs out Mem0 and ChromaDB initializations; see actual integration guides for details.
 - No code references files or directories in .gitignore.
@@ -52,6 +55,7 @@ NOTE:
 
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Protocol, Union
+from enum import Enum
 
 
 class KnowledgeSource(ABC):
@@ -182,6 +186,13 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
         return {"source": "vector_rag", "status": "added", "content": content}
 
 
+class KnowledgeStrategy(Enum):
+    """
+    Enum for strategy options in KnowledgeIntegrationLayer.
+    """
+    FALLBACK = "fallback"
+    AGGREGATE = "aggregate"
+
 class KnowledgeIntegrationLayer:
     """
     Aggregates/cascades calls to multiple knowledge sources, with options for fallback or aggregation logic.
@@ -189,23 +200,32 @@ class KnowledgeIntegrationLayer:
     Example usage:
         mem0_source = Mem0KnowledgeSource(mem0_client)
         rag_source = VectorRAGKnowledgeSource(vector_client)
-        integration = KnowledgeIntegrationLayer([mem0_source, rag_source], strategy="fallback")
+        integration = KnowledgeIntegrationLayer([mem0_source, rag_source], strategy=KnowledgeStrategy.FALLBACK)
     """
 
     def __init__(
         self,
         sources: List[KnowledgeSource],
-        strategy: str = "fallback",
+        strategy: "KnowledgeStrategy" = KnowledgeStrategy.FALLBACK,
     ):
         """
         Args:
             sources: List of KnowledgeSource implementations.
             strategy: Aggregation logic. One of:
-                - "fallback": Try sources in order, return first with results.
-                - "aggregate": Query all sources and merge results.
+                - KnowledgeStrategy.FALLBACK: Try sources in order, return first with results.
+                - KnowledgeStrategy.AGGREGATE: Query all sources and merge results.
         """
         self.sources = sources
-        self.strategy = strategy  # "fallback" or "aggregate"
+        if isinstance(strategy, str):
+            # Accept string for backward compatibility, but prefer Enum usage
+            try:
+                self.strategy = KnowledgeStrategy(strategy.lower())
+            except ValueError:
+                raise ValueError(f"Unknown integration strategy: {strategy}")
+        elif isinstance(strategy, KnowledgeStrategy):
+            self.strategy = strategy
+        else:
+            raise TypeError(f"Invalid strategy type: {type(strategy)}")
 
     def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -214,13 +234,13 @@ class KnowledgeIntegrationLayer:
         Returns:
             List of search results (may be merged across sources).
         """
-        if self.strategy == "fallback":
+        if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
                 results = source.search(query, user_id, **kwargs)
                 if results:
                     return results
             return []
-        elif self.strategy == "aggregate":
+        elif self.strategy == KnowledgeStrategy.AGGREGATE:
             aggregated: List[Dict[str, Any]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))

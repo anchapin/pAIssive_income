@@ -149,6 +149,7 @@ def run_example() -> None:
             Mem0KnowledgeSource,
             VectorRAGKnowledgeSource,
             KnowledgeIntegrationLayer,
+            KnowledgeStrategy
         )
 
         # Stub/mock clients for demonstration (replace with real clients as needed)
@@ -170,7 +171,7 @@ def run_example() -> None:
         # Example: fallback strategy (will return from mem0 if available)
         integration_fallback = KnowledgeIntegrationLayer(
             sources=[mem0_source, vector_rag_source],
-            strategy="fallback"
+            strategy=KnowledgeStrategy.FALLBACK
         )
         query = "What agents were involved in the workflow?"
         results_fallback = integration_fallback.search(query, user_id=user_id)
@@ -179,7 +180,7 @@ def run_example() -> None:
         # Example: aggregation strategy (combines results from all sources)
         integration_aggregate = KnowledgeIntegrationLayer(
             sources=[mem0_source, vector_rag_source],
-            strategy="aggregate"
+            strategy=KnowledgeStrategy.AGGREGATE
         )
         results_aggregate = integration_aggregate.search(query, user_id=user_id)
         logger.info(f"Aggregation strategy results: {results_aggregate}")
