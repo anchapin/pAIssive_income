@@ -10,10 +10,10 @@ Usage:
 """
 
 import time
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 # Import mem0 and ChromaDB interfaces as used in the codebase
-import logging
 
 def mem0_query(query: str, user_id: str) -> List[Dict]:
     """
@@ -88,7 +88,6 @@ def chroma_query(query: str, user_id: Optional[str] = None) -> List[Dict]:
     - This function creates or loads a collection named "demo_rag".
       For production, parameterize the collection name and persist directory as needed.
     """
-    import logging
     try:
         import chromadb
         from chromadb.config import Settings
