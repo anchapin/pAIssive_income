@@ -83,17 +83,7 @@ def prepare_document(
     doc_out["embedding"] = embedding or doc.get("embedding")
     return doc_out
 
-def find_duplicate(
-    doc: dict, 
-    stored_hashes: set, 
-    hash_func
-) -> Optional[str]:
-    """
-    Check if the document is a duplicate by canonical hash.
-    Return the hash if found, else None.
-    """
-    doc_hash = hash_func(doc["user_id"], doc["content"], doc["metadata"])
-    return doc_hash if doc_hash in stored_hashes else None
+
 
 # 3. Demo documents, now with schema fields (legacy content adapted)
 demo_documents = [
