@@ -56,11 +56,92 @@ def mem0_query(query: str, user_id: str) -> List[Dict]:
         logging.error(f"Exception during mem0_query: {e}")
         return []
 
-try:
-    from demo_vector_rag import chroma_query  # function: chroma_query(query: str, user_id: Optional[str] = None) -> List[Dict]
-except ImportError:
-    # Fallback stub for dev/CI if chroma_query is not available
-    def chroma_query(query: str, user_id: Optional[str] = None) -> List[Dict]:
+import os
+
+def chroma_query(query: str, user_id: Optional[str] = None) -> List[Dict]:
+    """
+    Query the ChromaDB RAG system for relevant documents given a query and optional user ID.
+
+    Instantiates a ChromaDB client and collection, embeds the query using SentenceTransformer,
+    performs a vector similarity search, and returns results as a list of dicts.
+
+    Parameters
+    ----------
+    query : str
+        The query string to search for.
+    user_id : Optional[str]
+        The user identifier (currently unused; future extension: per-user collections).
+
+    Returns
+    -------
+    List[Dict]
+        A list of dictionaries representing relevant documents, with keys including:
+            - 'text' or 'content': The matched document text.
+            - 'score': Vector distance (smaller is more similar).
+            - ... (other metadata as available)
+
+    Notes
+    -----
+    - Requires the `chromadb` and `sentence-transformers` packages.
+      Install with: uv pip install chromadb sentence-transformers
+    - If ChromaDB or embedding model is unavailable or an exception occurs, returns an empty list.
+    - This function creates or loads a collection named "demo_rag".
+      For production, parameterize the collection name and persist directory as needed.
+    """
+    import logging
+    try:
+        import chromadb
+        from chromadb.config import Settings
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        logging.warning(
+            "chromadb and/or sentence-transformers not installed. Install with: uv pip install chromadb sentence-transformers"
+        )
+        return []
+
+    try:
+        # Choose a persist directory for ChromaDB (avoid .gitignore-excluded locations)
+        persist_dir = os.environ.get("CHROMADB_PERSIST_DIR", ".chromadb_demo")
+        client = chromadb.Client(
+            Settings(
+                persist_directory=persist_dir,
+                chroma_db_impl="duckdb+parquet",
+            )
+        )
+
+        collection_name = "demo_rag"
+        collection = client.get_or_create_collection(collection_name)
+
+        # Load embedding model (can be cached between calls in production)
+        embedder = SentenceTransformer("all-MiniLM-L6-v2")
+
+        # Embed the query
+        query_embedding = embedder.encode(query).tolist()
+
+        # Query the collection for top 5 matches (customize as needed)
+        results = collection.query(query_embeddings=[query_embedding], n_results=5)
+
+        # results["documents"], results["distances"], results["ids"], results["metadatas"]
+        # Each is a list of lists (one per query)
+        docs = results.get("documents", [[]])[0]
+        dists = results.get("distances", [[]])[0]
+        ids = results.get("ids", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0] if results.get("metadatas") else [{} for _ in docs]
+
+        formatted = []
+        for doc, dist, doc_id, meta in zip(docs, dists, ids, metadatas):
+            entry = {
+                "content": doc,
+                "score": dist,
+                "id": doc_id,
+            }
+            if isinstance(meta, dict):
+                entry.update(meta)
+            formatted.append(entry)
+
+        return formatted
+    except Exception as e:
+        logging.error(f"Exception during chroma_query: {e}")
         return []
 
 
