@@ -175,3 +175,8 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# ARTIST experiment outputs – exclude from version control
+artist_experiments/data/
+artist_experiments/models/
+artist_experiments/logs/
