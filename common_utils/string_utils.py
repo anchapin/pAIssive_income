@@ -5,6 +5,7 @@ This module provides common string manipulation functions used across the projec
 
 # Standard library imports
 import re
+import math
 import unicodedata
 from typing import Dict, List, Optional, Union, Any
 
@@ -242,7 +243,8 @@ def format_number(number: Union[int, float], decimal_places: int = 2) -> str:
         return "inf"
     if number == float('-inf'):
         return "-inf"
-    if isinstance(number, float) and number != number:  # NaN check
+    # Use math.isnan for more reliable NaN checking across Python versions
+    if isinstance(number, float) and math.isnan(number):  # NaN check
         return "NaN"
     
     # For decimal_places=0, we need to round first to avoid unexpected rounding
