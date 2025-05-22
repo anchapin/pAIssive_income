@@ -66,7 +66,11 @@ A minimal demonstration script is provided to show how an agent can pick and use
 
 **How to run:**
 ```bash
+# Run with example prompts
 python scripts/artist_demo.py
+
+# Run in interactive mode
+python scripts/artist_demo.py -i
 ```
 
 **Expected output:**
