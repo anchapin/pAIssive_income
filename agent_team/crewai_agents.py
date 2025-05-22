@@ -312,6 +312,10 @@ class CrewAIAgentTeam:
                 # Try to extract a math expression if it's the calculator
                 if tool_name == "calculator":
                     import re
+                    # NOTE: This regex is intentionally simple for demonstration and will match
+                    # the first contiguous block of math-like characters, which may include extra spaces.
+                    # For more robust extraction in production, consider improving this to handle
+                    # more complex/natural language task descriptions.
                     match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
                     if match:
                         tool_input = match.group(1)

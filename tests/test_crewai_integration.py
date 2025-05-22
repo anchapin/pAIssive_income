@@ -121,8 +121,8 @@ def test_crewai_agentic_reasoning_tool_selection_logging(caplog):
     # Check for tool selection reasoning
     assert "Evaluating task: 'Calculate 2 + 2'" in logs
     assert "Tool 'calculator' matched by keyword" in logs or "Tool 'calculator' matched by name" in logs
-    # Check for tool invocation and result
-    assert "Invoking tool 'calculator' with input:" in logs
+    # Check for tool invocation and result (account for leading space as extracted by regex)
+    assert "Invoking tool 'calculator' with input: ' 2 + 2'" in logs
     assert "Tool 'calculator' returned:" in logs
     # Should see result '4' for 2 + 2
     assert "Tool 'calculator' returned: 4" in logs
