@@ -155,18 +155,37 @@ if __name__ == "__main__":
 
 
 # CrewAI Agent Team implementation
+import logging
+from common_utils.tooling import list_tools, get_tool
+
 class CrewAIAgentTeam:
     """
     CrewAI Agent Team implementation for integration with other modules.
 
     This class provides a higher-level interface for working with CrewAI agents,
-    tasks, and crews. It can be used to create and run agent teams from other
-    parts of the application.
+    tasks, and crews. Now with autonomous agentic reasoning, tool selection,
+    and detailed logging.
+
+    **Autonomous Tool Selection and Agentic Reasoning:**
+    - The agent/team can access all registered tools via the tool registry in `common_utils.tooling`.
+    - When running a task, CrewAIAgentTeam will analyze the task description and, using simple heuristics,
+      will attempt to select a tool to use. If a tool name or relevant keyword matches the task description,
+      that tool is selected and invoked with inferred parameters (for demo, the description itself).
+    - All reasoning steps, tool considerations, selection, invocations, and results are logged via a dedicated logger ('agentic_reasoning').
+    - If no tool is selected, a fallback is logged and normal workflow is followed.
+    - See tests for examples of this autonomous tool use and logging.
+
+    Usage:
+        team = CrewAIAgentTeam()
+        team.add_agent(...)
+        team.add_task(...)
+        team.run()  # Agentic reasoning with tool selection and logging
+
     """
 
     def __init__(self, llm_provider: object = None) -> None:
         """
-        Initialize a CrewAI Agent Team.
+        Initialize a CrewAI Agent Team with agentic reasoning and logging.
 
         Args:
             llm_provider: The LLM provider to use for agent interactions
@@ -176,6 +195,15 @@ class CrewAIAgentTeam:
         self.agents: list[object] = []
         self.tasks: list[object] = []
         self.api_client = None
+
+        # Dedicated logger for agentic reasoning
+        self.logger = logging.getLogger("agentic_reasoning")
+        if not self.logger.hasHandlers():
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
 
     def add_agent(self, role: str, goal: str, backstory: str) -> object:
         """
@@ -206,7 +234,6 @@ class CrewAIAgentTeam:
             The created task
 
         """
-        # If agent is a string (role name), find the corresponding agent
         if isinstance(agent, str):
             agent_obj = next((a for a in self.agents if a.role == agent), None)  # type: ignore[attr-defined]
             if not agent_obj:
@@ -229,9 +256,42 @@ class CrewAIAgentTeam:
         """
         return Crew(agents=self.agents, tasks=self.tasks)  # type: ignore[arg-type]
 
+    def _heuristic_tool_selection(self, description: str) -> tuple[str, callable] | tuple[None, None]:
+        """
+        Select a tool based on task description using heuristic matching.
+
+        Args:
+            description: The task description
+
+        Returns:
+            (tool_name, tool_func) if found, else (None, None)
+        """
+        # Gather all registered tools
+        available_tools = list_tools()
+        description_lower = description.lower()
+        self.logger.info(f"Considering tools for task: '{description}'")
+        # Heuristic: Match tool name or keywords
+        for tool_name, tool_func in available_tools.items():
+            if tool_name.lower() in description_lower:
+                self.logger.info(f"Tool '{tool_name}' matched by name in description.")
+                return tool_name, tool_func
+            # Example: additional heuristics for calculator
+            if tool_name == "calculator":
+                key_words = ["calculate", "math", "add", "subtract", "multiply", "divide", "+", "-", "*", "/", "%"]
+                if any(word in description_lower for word in key_words):
+                    self.logger.info(f"Tool '{tool_name}' matched by keyword in description.")
+                    return tool_name, tool_func
+        self.logger.info("No tool matched by heuristic.")
+        return None, None
+
     def run(self) -> object:
         """
-        Run the agent team workflow.
+        Run the agent team workflow with agentic reasoning and logging.
+
+        For each task:
+            - Attempts to select and invoke a tool if heuristics match.
+            - Logs all reasoning, tool consideration, invocation, and results.
+            - Proceeds with standard CrewAI workflow.
 
         Returns:
             The result of the workflow
@@ -241,7 +301,31 @@ class CrewAIAgentTeam:
             error_msg = "CrewAI is not installed. Install with: pip install '.[agents]'"
             raise ImportError(error_msg)
 
-        # Create and run the crew
+        # For each task, perform agentic reasoning/tool selection
+        for task in self.tasks:
+            description = getattr(task, "description", "")
+            self.logger.info(f"---\nEvaluating task: '{description}'")
+            tool_name, tool_func = self._heuristic_tool_selection(description)
+            if tool_name and tool_func:
+                # For demonstration, pass the description as the parameter (or extract expr for calculator)
+                tool_input = description
+                # Try to extract a math expression if it's the calculator
+                if tool_name == "calculator":
+                    import re
+                    match = re.search(r"([0-9\+\-\*\/\.\s\%\(\)]+)", description)
+                    if match:
+                        tool_input = match.group(1)
+                self.logger.info(f"Invoking tool '{tool_name}' with input: {tool_input!r}")
+                try:
+                    result = tool_func(tool_input)
+                    self.logger.info(f"Tool '{tool_name}' returned: {result!r}")
+                    # Optionally, set as context for agent (not implemented here)
+                except Exception as e:
+                    self.logger.exception(f"Error invoking tool '{tool_name}': {e}")
+            else:
+                self.logger.info("No tool selected for this task. Proceeding without tool.")
+
+        # Create and run the crew as usual
         crew = self._create_crew()
         return crew.kickoff()  # type: ignore[attr-defined]
 
