@@ -56,27 +56,28 @@ For a full directory map, see [docs/00_introduction/03_project_structure.md](doc
 
 ## 🛠️ Minimal Agent & Tool Registry Demo
 
-A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator) via a simple registry.
+A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator or text analyzer) via a simple registry.
 
 **What the demo does:**
 - Instantiates an `ArtistAgent`
 - Lists available tools
-- Runs two prompts: one handled by a tool (e.g., calculator), one unhandled (e.g., translation)
-- Clearly prints the prompt and the agent's output
+- Supports both example prompts and interactive mode
+- Example mode: runs three prompts—one handled by the calculator, one by the text analyzer, one unhandled
+- Interactive mode: enter your own prompts in a loop
 
 **How to run:**
 ```bash
-# Run with example prompts
+# Example-based demo (default)
 python scripts/artist_demo.py
 
-# Run in interactive mode
+# Interactive mode (enter prompts manually)
 python scripts/artist_demo.py -i
 ```
 
 **Expected output:**
-- The list of available tools (e.g., calculator, etc.)
+- The list of available tools (e.g., calculator, text_analyzer, etc.)
 - The prompt that is sent to the agent
-- The agent's output (e.g., calculation result or a message indicating no tool can handle the prompt)
+- The agent's output (e.g., calculation result, analysis, or a message indicating no tool can handle the prompt)
 
 Example (output will vary by implementation):
 
@@ -85,9 +86,13 @@ Example (output will vary by implementation):
 
 Available tools:
   - calculator
+  - text_analyzer
 -----------------------------
 Prompt: What is 12 * 8?
 Agent output: 96
+-----------------------------
+Prompt: Analyze the sentiment of this phrase: 'This is a fantastic development!'
+Agent output: Sentiment: positive
 -----------------------------
 Prompt: Translate hello to French
 Agent output: Sorry, I can't handle that request.
