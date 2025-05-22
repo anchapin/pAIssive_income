@@ -66,13 +66,13 @@ def test_artist_agent_no_matching_tool(monkeypatch):
     dummy_tool.description = 'Not a calculator'
     dummy_tool.run = Mock(return_value="I can't help with that.")
 
-    # Patch ArtistAgent to only have an irrelevant tool (as a dict)
+    # Patch ArtistAgent to only have an irrelevant tool
     if hasattr(main_artist_agent, 'ArtistAgent'):
         try:
             agent = main_artist_agent.ArtistAgent(tools={dummy_tool.name: dummy_tool.run})
         except TypeError:
             agent = main_artist_agent.ArtistAgent()
-            agent.tools = {dummy_tool.name: dummy_tool.run}
+            agent.tools = {dummy_tool.name: dummy_tool.run} # Ensure tools is a dict
     else:
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
 

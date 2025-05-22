@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 
 # Import ArtistAgent
+# Note: sys.path modification is used to enable direct script execution from this directory.
+# If main_artist_agent.py becomes part of an installed package, replace this with a standard import.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from main_artist_agent import ArtistAgent
 
@@ -68,34 +70,51 @@ def is_correct(output, expected, kind):
     else:
         return False
 
-def run_artist_agent(prompt):
-    agent = ArtistAgent()
+def run_artist_agent(prompt, agent=None):
+    """Run prompt through ArtistAgent. If agent is provided, reuse it. Only time the run() call."""
+    if agent is None:
+        agent = ArtistAgent()
     start = time.perf_counter()
-    output = agent.run(prompt)
+    try:
+        output = agent.run(prompt)
+    except Exception as e:
+        output = f"Exception: {e}"
     elapsed = (time.perf_counter() - start) * 1000  # ms
     return output, elapsed
 
-def run_data_gatherer_agent(prompt):
-    # DataGathererAgent expects a specific message type and payload
-    agent = DataGathererAgent(name="benchmark_agent")
+def run_data_gatherer_agent(prompt, agent=None):
+    """Run prompt through DataGathererAgent. If agent is provided, reuse it. Only time the skill call."""
+    if agent is None:
+        agent = DataGathererAgent(name="benchmark_agent")
     if prompt.lower().startswith("gather:"):
         query = prompt.split(":", 1)[1].strip()
     else:
         query = prompt.strip()
-    # Directly invoke the skill for speed; in a full system, you'd use on_message()
     start = time.perf_counter()
-    output = agent.skills["gather"].run(query)
+    try:
+        output = agent.skills["gather"].run(query)
+    except Exception as e:
+        output = f"Exception: {e}"
     elapsed = (time.perf_counter() - start) * 1000  # ms
     return output, elapsed
 
 def main():
     results = []
+    # Reuse agent instances to avoid timing constructor; only measure run() call
+    artist_agent = ArtistAgent()
+    data_agent = DataGathererAgent(name="benchmark_agent")
     for p in PROMPTS:
         # Run ArtistAgent
-        artist_out, artist_time = run_artist_agent(p["prompt"])
+        try:
+            artist_out, artist_time = run_artist_agent(p["prompt"], agent=artist_agent)
+        except Exception as e:
+            artist_out, artist_time = f"Exception: {e}", 0.0
         artist_correct = is_correct(artist_out, p["expected"], p["type"])
         # Run DataGathererAgent
-        data_out, data_time = run_data_gatherer_agent(p["prompt"])
+        try:
+            data_out, data_time = run_data_gatherer_agent(p["prompt"], agent=data_agent)
+        except Exception as e:
+            data_out, data_time = f"Exception: {e}", 0.0
         data_correct = is_correct(data_out, p["expected"], p["type"])
         results.append({
             "prompt": p["prompt"],
