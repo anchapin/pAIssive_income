@@ -5,8 +5,8 @@ This script shows how to use the memory-enhanced agent team implementation
 to create and run a team of agents with persistent memory capabilities.
 
 Requirements:
-    - mem0ai package: pip install mem0ai
-    - crewai package: pip install crewai
+    - mem0ai package: uv pip install mem0ai
+    - crewai package: uv pip install crewai
 
 Usage:
     python examples/mem0_enhanced_agents_example.py
@@ -35,11 +35,11 @@ def check_dependencies() -> bool:
         bool: True if all dependencies are available, False otherwise
     """
     if not CREWAI_AVAILABLE:
-        logger.error("CrewAI is not installed. Install with: pip install crewai")
+        logger.error("CrewAI is not installed. Install with: uv pip install crewai")
         return False
     
     if not MEM0_AVAILABLE:
-        logger.error("mem0 is not installed. Install with: pip install mem0ai")
+        logger.error("mem0 is not installed. Install with: uv pip install mem0ai")
         return False
     
     # Check for OpenAI API key (required by mem0)
