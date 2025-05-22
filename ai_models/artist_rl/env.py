@@ -5,8 +5,8 @@ This environment serves as an interface between RL agents and the ArtistAgent,
 enabling reinforcement learning experiments on complex, multi-step tool-use scenarios.
 """
 
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 from typing import Any, Dict, Tuple, Optional
 
 # Placeholder: import or define ArtistAgent elsewhere in your codebase
