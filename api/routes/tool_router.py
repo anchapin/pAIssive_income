@@ -24,8 +24,9 @@ if not logger.hasHandlers():
 def api_key_auth(request: Request):
     header_key = request.headers.get("x-api-key")
     if header_key != API_KEY:
+        client_host = request.client.host if request.client else "unknown"
         logger.info(
-            f"[AUTH FAIL] Attempted access with API key: {header_key!r}"
+            f"[AUTH FAIL] Attempted access with invalid or missing API key from {client_host}."
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
