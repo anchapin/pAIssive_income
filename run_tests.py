@@ -451,7 +451,7 @@ def main() -> None:
                             "Installation error: %s",
                             install_result.stderr.decode("utf-8", errors="replace"),
                         )
-                    sys.exit(1)
+                    sys.exit(1)  # Exit on failure to install pytest-xdist with uv
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.error(
                 "Error checking for or installing pytest-xdist with uv: %s. Cannot proceed.",
