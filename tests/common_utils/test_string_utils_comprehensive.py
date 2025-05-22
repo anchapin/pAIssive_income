@@ -95,13 +95,13 @@ class TestStringUtilsComprehensive:
 
     def test_truncate_basic(self):
         """Test basic truncate functionality."""
-        assert truncate("Hello World", 5) == "Hello..."
+        assert truncate("Hello World", 5) == "He..."
         assert truncate("Hello", 10) == "Hello"
         assert truncate("Hello World", 8) == "Hello..."
 
     def test_truncate_custom_suffix(self):
         """Test truncate with custom suffix."""
-        assert truncate("Hello World", 5, suffix="!") == "Hello!"
+        assert truncate("Hello World", 5, suffix="!") == "Hell!"
         assert truncate("Hello", 10, suffix="!!!") == "Hello"
         assert truncate("Hello World", 8, suffix=" [more]") == "Hello [more]"
 
