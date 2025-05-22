@@ -95,18 +95,22 @@ memory.add(f"User rated recipe '{recipe_title}' as 'liked'", user_id="alice")
 
 ```python
 # Pseudocode for a combined agent
-def agent_respond(query, user_id):
-    mem_context = memory.search(query, user_id=user_id)
-    rag_context = rag_retrieve(query, top_k=3)
+def agent_respond(user_query, user_id):
+    # The memory search query can be adapted to focus on user history or preferences related to the main user query
+    mem_search_query = f"Preferences or past behavior relevant to: {user_query}"
+    mem_context = memory.search(mem_search_query, user_id=user_id)
+    rag_context = rag_retrieve(user_query, top_k=3)
     final_prompt = (
         f"User memory: {mem_context}\n"
         f"Relevant docs: {rag_context}\n"
-        f"User query: {query}\n"
+        f"User query: {user_query}\n"
         "Respond helpfully."
     )
     response = llm(final_prompt)
     return response
 ```
+
+*Note: The query for `memory.search` may be adapted to focus on user history, preferences, or context relevant to the main user query, while `rag_retrieve` typically uses the direct user query to find external documents.*
 
 ---
 
