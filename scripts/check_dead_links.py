@@ -85,6 +85,18 @@ def check_http_link(url):
     except Exception:
         return False
 
+def anchors_in_markdown(content):
+    """Return a set of valid anchor names in the file, following GitHub's anchor logic."""
+    headers = re.findall(r"^#+\s*(.+)$", content, flags=re.MULTILINE)
+    anchors = set()
+    for h in headers:
+        # Basic GitHub-style anchor: lowercase, spaces to -, remove some punctuation
+        anchor = h.strip().lower()
+        anchor = re.sub(r"[^\w\- ]+", "", anchor)  # Remove most punctuation except -
+        anchor = anchor.replace(" ", "-")
+        anchors.add(anchor)
+    return anchors
+
 def check_file_link(url, basepath):
     # Remove anchor
     path, anchor = urldefrag(url)
@@ -95,15 +107,10 @@ def check_file_link(url, basepath):
     if anchor:
         with open(path, encoding="utf-8", errors="ignore") as f:
             txt = f.read()
+            anchors = anchors_in_markdown(txt)
             anchor_fmt = anchor.lower().replace(" ", "-")
-            if f"#{anchor_fmt}" in txt.lower():
+            if anchor_fmt in anchors:
                 return True
-            # Try GitHub-style header conversion
-            headers = re.findall(r"^#+\s*(.+)$", txt, flags=re.MULTILINE)
-            for h in headers:
-                h_clean = h.strip().lower().replace(" ", "-")
-                if anchor_fmt == h_clean:
-                    return True
         return False
     return True
 
@@ -119,6 +126,7 @@ def main():
             content = f.read()
         links = extract_links(content)
         total_links += len(links)
+        file_anchors = anchors_in_markdown(content)
         for link in links:
             parsed = urlparse(link)
             if parsed.scheme in ("http", "https"):
@@ -128,9 +136,9 @@ def main():
             elif parsed.scheme == "":
                 # Relative file or anchor
                 if link.startswith("#"):
-                    # Anchor within same file
+                    # Anchor within same file (e.g., [foo](#bar))
                     anchor_fmt = link[1:].lower().replace(" ", "-")
-                    if anchor_fmt not in content.lower():
+                    if anchor_fmt not in file_anchors:
                         dead_links.append((mdfile, link))
                 else:
                     if not check_file_link(link, mdfile):
