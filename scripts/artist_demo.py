@@ -32,7 +32,8 @@ def main():
         print("\n-----------------------------")
         print(f"Prompt: {prompt}")
         try:
-            response = agent(prompt)
+            # Use run() as the current interface (ArtistAgent does not implement __call__)
+            response = agent.run(prompt)
         except Exception as e:
             response = f"[Error calling agent: {e}]"
         print(f"Agent output: {response}")
