@@ -179,28 +179,8 @@ function isKubernetesEnvironment() {
  * @returns {boolean} True if directory was created or already exists
  */
 function createDirectoryWithErrorHandling(dirPath) {
-  try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`Created directory at ${dirPath}`);
-    }
-    return true;
-  } catch (error) {
-    console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
-
-    // Try with absolute path as fallback
-    try {
-      const absolutePath = path.resolve(process.cwd(), dirPath);
-      if (!fs.existsSync(absolutePath)) {
-        fs.mkdirSync(absolutePath, { recursive: true });
-        console.log(`Created directory at absolute path: ${absolutePath}`);
-      }
-      return true;
-    } catch (fallbackError) {
-      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
-      return false;
-    }
-  }
+  // Use the enhanced safelyCreateDirectory function
+  return safelyCreateDirectory(dirPath);
 }
 
 /**
@@ -210,32 +190,24 @@ function createDirectoryWithErrorHandling(dirPath) {
  * @returns {boolean} True if file was created successfully
  */
 function createMarkerFile(filePath, content) {
-  try {
-    // Ensure directory exists
-    const dirPath = path.dirname(filePath);
-    createDirectoryWithErrorHandling(dirPath);
-
-    // Write the file
-    fs.writeFileSync(filePath, content);
-    console.log(`Created marker file at ${filePath}`);
-    return true;
-  } catch (error) {
-    console.error(`Failed to create marker file at ${filePath}: ${error.message}`);
-
-    // Try with a timestamp-based filename in the same directory
+  // Use the enhanced safelyWriteFile function
+  const result = safelyWriteFile(filePath, content);
+  
+  // If the primary write fails, try with a timestamp-based filename
+  if (!result) {
     try {
       const dirPath = path.dirname(filePath);
       const timestampFilename = `marker-${Date.now()}.txt`;
       const timestampPath = path.join(dirPath, timestampFilename);
 
-      fs.writeFileSync(timestampPath, content);
-      console.log(`Created marker file with timestamp name: ${timestampPath}`);
-      return true;
+      return safelyWriteFile(timestampPath, content);
     } catch (fallbackError) {
       console.error(`Failed to create marker with timestamp filename: ${fallbackError.message}`);
       return false;
     }
   }
+  
+  return result;
 }
 
 /**
