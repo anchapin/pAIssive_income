@@ -9,7 +9,9 @@ import os
 from utils.math_utils import add, subtract, multiply, divide, average
 
 # --- Settings ---
-API_KEY = os.getenv("TOOL_API_KEY", "supersecretkey")
+API_KEY = os.getenv("TOOL_API_KEY")
+if not API_KEY:
+    raise ValueError("TOOL_API_KEY environment variable not set")
 
 # --- Logging setup ---
 logger = logging.getLogger("tool_api_audit")
@@ -24,9 +26,8 @@ if not logger.hasHandlers():
 def api_key_auth(request: Request):
     header_key = request.headers.get("x-api-key")
     if header_key != API_KEY:
-        client_host = request.client.host if request.client else "unknown"
         logger.info(
-            f"[AUTH FAIL] Attempted access with invalid or missing API key from {client_host}."
+            "[AUTH FAIL] Attempted access with invalid API key"
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,7 +56,7 @@ async def add_endpoint(
     api_key: str = Depends(api_key_auth)
 ):
     result = add(payload.a, payload.b)
-    logger.info(f"[AUDIT] tool=add, params={payload.dict()}, api_key={api_key!r}")
+    logger.info(f"[AUDIT] tool=add, params={payload.dict()}, api_key=***")
     return {"result": result}
 
 @router.post("/subtract", summary="Subtract two numbers", response_description="Difference of the numbers")
@@ -64,7 +65,7 @@ async def subtract_endpoint(
     api_key: str = Depends(api_key_auth)
 ):
     result = subtract(payload.a, payload.b)
-    logger.info(f"[AUDIT] tool=subtract, params={payload.dict()}, api_key={api_key!r}")
+    logger.info(f"[AUDIT] tool=subtract, params={payload.dict()}, api_key=***")
     return {"result": result}
 
 @router.post("/multiply", summary="Multiply two numbers", response_description="Product of the numbers")
@@ -73,7 +74,7 @@ async def multiply_endpoint(
     api_key: str = Depends(api_key_auth)
 ):
     result = multiply(payload.a, payload.b)
-    logger.info(f"[AUDIT] tool=multiply, params={payload.dict()}, api_key={api_key!r}")
+    logger.info(f"[AUDIT] tool=multiply, params={payload.dict()}, api_key=***")
     return {"result": result}
 
 @router.post("/divide", summary="Divide two numbers", response_description="Quotient of the numbers")
@@ -84,9 +85,9 @@ async def divide_endpoint(
     try:
         result = divide(payload.a, payload.b)
     except ZeroDivisionError:
-        logger.info(f"[AUDIT] tool=divide, params={payload.dict()}, api_key={api_key!r}, error=ZeroDivisionError")
+        logger.info(f"[AUDIT] tool=divide, params={payload.dict()}, api_key=***, error=ZeroDivisionError")
         raise HTTPException(status_code=400, detail="Cannot divide by zero")
-    logger.info(f"[AUDIT] tool=divide, params={payload.dict()}, api_key={api_key!r}")
+    logger.info(f"[AUDIT] tool=divide, params={payload.dict()}, api_key=***")
     return {"result": result}
 
 @router.post("/average", summary="Average a list of numbers", response_description="Average value")
@@ -97,7 +98,7 @@ async def average_endpoint(
     try:
         result = average(payload.numbers)
     except ValueError:
-        logger.info(f"[AUDIT] tool=average, params={payload.dict()}, api_key={api_key!r}, error=ValueError")
+        logger.info(f"[AUDIT] tool=average, params={payload.dict()}, api_key=***, error=ValueError")
         raise HTTPException(status_code=400, detail="Cannot calculate average of empty list")
-    logger.info(f"[AUDIT] tool=average, params={payload.dict()}, api_key={api_key!r}")
+    logger.info(f"[AUDIT] tool=average, params={payload.dict()}, api_key=***")
     return {"result": result}
