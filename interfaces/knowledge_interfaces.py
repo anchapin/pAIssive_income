@@ -1,6 +1,44 @@
 """
 Unified integration layer for agent retrieval from multiple knowledge sources.
 
+Usage Example:
+---------------
+from interfaces.knowledge_interfaces import (
+    Mem0KnowledgeSource,
+    VectorRAGKnowledgeSource,
+    KnowledgeIntegrationLayer,
+)
+
+# Stub/mock clients for demo purposes
+class DummyMem0Client:
+    def search(self, query, user_id, **kwargs):
+        return [{"source": "mem0", "content": f"dummy mem0 for '{query}'"}]
+    def add(self, content, user_id, **kwargs):
+        return {"status": "added", "content": content}
+
+class DummyVectorClient:
+    def query(self, query, user_id, **kwargs):
+        return [{"source": "vector_rag", "content": f"dummy vector for '{query}'"}]
+    def add(self, content, user_id, **kwargs):
+        return {"status": "added", "content": content}
+
+mem0_source = Mem0KnowledgeSource(DummyMem0Client())
+vector_rag_source = VectorRAGKnowledgeSource(DummyVectorClient())
+
+# Fallback strategy: returns from mem0 if available, otherwise from vector_rag
+integration_fallback = KnowledgeIntegrationLayer(
+    sources=[mem0_source, vector_rag_source],
+    strategy="fallback"
+)
+results_fallback = integration_fallback.search("your query here", user_id="user123")
+
+# Aggregation strategy: combines results from all sources
+integration_aggregate = KnowledgeIntegrationLayer(
+    sources=[mem0_source, vector_rag_source],
+    strategy="aggregate"
+)
+results_aggregate = integration_aggregate.search("your query here", user_id="user123")
+
 Provides:
 - Abstract base class (KnowledgeSource) for knowledge sources.
 - Concrete implementations for Mem0 and Vector RAG (e.g., ChromaDB).

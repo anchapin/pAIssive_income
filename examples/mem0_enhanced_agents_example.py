@@ -125,9 +125,9 @@ def run_example() -> None:
     except Exception as e:
         logger.error(f"Error running workflow: {e}")
     
-    # Demonstrate memory retrieval
+    # Demonstrate memory retrieval (old, direct use)
     if team.memory is not None:
-        logger.info("Retrieving memories from the workflow")
+        logger.info("Retrieving memories from the workflow (direct mem0)")
         try:
             memories = team.memory.search(
                 query="What agents were involved in the workflow?",
@@ -135,11 +135,59 @@ def run_example() -> None:
                 limit=5
             )
             
-            logger.info(f"Retrieved {len(memories)} memories:")
+            logger.info(f"Retrieved {len(memories)} memories (direct):")
             for i, memory in enumerate(memories):
                 logger.info(f"Memory {i+1}: {memory.get('text', 'No text')[:100]}...")
         except Exception as e:
             logger.error(f"Error retrieving memories: {e}")
+
+    # --- New: Demonstrate retrieval using KnowledgeIntegrationLayer ---
+    logger.info("=== Using KnowledgeIntegrationLayer for unified knowledge querying ===")
+    try:
+        # Import the integration layer and sources
+        from interfaces.knowledge_interfaces import (
+            Mem0KnowledgeSource,
+            VectorRAGKnowledgeSource,
+            KnowledgeIntegrationLayer,
+        )
+
+        # Stub/mock clients for demonstration (replace with real clients as needed)
+        class DummyMem0Client:
+            def search(self, query, user_id, **kwargs):
+                return [{"source": "mem0", "content": f"dummy mem0 for '{query}'"}]
+            def add(self, content, user_id, **kwargs):
+                return {"status": "added", "content": content}
+
+        class DummyVectorClient:
+            def query(self, query, user_id, **kwargs):
+                return [{"source": "vector_rag", "content": f"dummy vector for '{query}'"}]
+            def add(self, content, user_id, **kwargs):
+                return {"status": "added", "content": content}
+
+        mem0_source = Mem0KnowledgeSource(DummyMem0Client())
+        vector_rag_source = VectorRAGKnowledgeSource(DummyVectorClient())
+
+        # Example: fallback strategy (will return from mem0 if available)
+        integration_fallback = KnowledgeIntegrationLayer(
+            sources=[mem0_source, vector_rag_source],
+            strategy="fallback"
+        )
+        query = "What agents were involved in the workflow?"
+        results_fallback = integration_fallback.search(query, user_id=user_id)
+        logger.info(f"Fallback strategy results: {results_fallback}")
+
+        # Example: aggregation strategy (combines results from all sources)
+        integration_aggregate = KnowledgeIntegrationLayer(
+            sources=[mem0_source, vector_rag_source],
+            strategy="aggregate"
+        )
+        results_aggregate = integration_aggregate.search(query, user_id=user_id)
+        logger.info(f"Aggregation strategy results: {results_aggregate}")
+
+        # This is the new recommended pattern for agent/team knowledge retrieval:
+        # Use KnowledgeIntegrationLayer as a unified, extensible interface to search across all sources.
+    except Exception as e:
+        logger.error(f"Error using KnowledgeIntegrationLayer: {e}")
 
 
 def main() -> None:
