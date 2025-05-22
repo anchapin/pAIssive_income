@@ -156,6 +156,7 @@ if __name__ == "__main__":
 
 # CrewAI Agent Team implementation
 import logging
+import re
 from common_utils.tooling import list_tools, get_tool
 
 class CrewAIAgentTeam:
@@ -311,7 +312,6 @@ class CrewAIAgentTeam:
                 tool_input = description
                 # Try to extract a math expression if it's the calculator
                 if tool_name == "calculator":
-                    import re
                     # NOTE: This regex is intentionally simple for demonstration and will match
                     # the first contiguous block of math-like characters, which may include extra spaces.
                     # For more robust extraction in production, consider improving this to handle
