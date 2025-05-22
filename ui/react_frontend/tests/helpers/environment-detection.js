@@ -37,6 +37,85 @@ function safeReadFile(filePath, encoding = 'utf8') {
 }
 
 /**
+ * Safely create a directory with error handling
+ * @param {string} dirPath - Directory path to create
+ * @returns {boolean} True if directory was created or already exists
+ */
+function safelyCreateDirectory(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`Created directory at ${dirPath}`);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Failed to create directory at ${dirPath}: ${error.message}`);
+
+    // Try with absolute path as fallback
+    try {
+      const absolutePath = path.resolve(process.cwd(), dirPath);
+      if (!fs.existsSync(absolutePath)) {
+        fs.mkdirSync(absolutePath, { recursive: true });
+        console.log(`Created directory at absolute path: ${absolutePath}`);
+      }
+      return true;
+    } catch (fallbackError) {
+      console.error(`Failed to create directory with absolute path: ${fallbackError.message}`);
+      return false;
+    }
+  }
+}
+
+/**
+ * Safely write a file with error handling
+ * @param {string} filePath - File path to write
+ * @param {string} content - Content to write
+ * @param {Object} [options] - Options for writing
+ * @param {boolean} [options.append=false] - Whether to append to the file
+ * @returns {boolean} True if file was written successfully
+ */
+function safelyWriteFile(filePath, content, options = {}) {
+  const { append = false } = options;
+  
+  try {
+    // Ensure directory exists
+    const dirPath = path.dirname(filePath);
+    safelyCreateDirectory(dirPath);
+
+    // Write the file
+    if (append) {
+      fs.appendFileSync(filePath, content);
+    } else {
+      fs.writeFileSync(filePath, content);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Failed to write file at ${filePath}: ${error.message}`);
+
+    // Try with absolute path as fallback
+    try {
+      const absolutePath = path.resolve(process.cwd(), filePath);
+      const absoluteDirPath = path.dirname(absolutePath);
+      
+      // Ensure directory exists
+      safelyCreateDirectory(absoluteDirPath);
+      
+      // Write the file
+      if (append) {
+        fs.appendFileSync(absolutePath, content);
+      } else {
+        fs.writeFileSync(absolutePath, content);
+      }
+      console.log(`Wrote file at absolute path: ${absolutePath}`);
+      return true;
+    } catch (fallbackError) {
+      console.error(`Failed to write file with absolute path: ${fallbackError.message}`);
+      return false;
+    }
+  }
+}
+
+/**
  * Detect CI environment with comprehensive platform support
  * @returns {Object} CI environment details
  */
@@ -189,5 +268,9 @@ module.exports = {
   detectEnvironment,
   detectCIEnvironment,
   detectContainerEnvironment,
-  getWorkingDirs
+  getWorkingDirs,
+  safeFileExists,
+  safeReadFile,
+  safelyCreateDirectory,
+  safelyWriteFile
 };
