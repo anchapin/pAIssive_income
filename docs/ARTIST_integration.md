@@ -74,7 +74,8 @@ To work with ARTIST in this repository, familiarize yourself with these key loca
    ```bash
    docker compose up --build
    ```
-   - For ARTIST-specific experiments, you may need to customize the Dockerfile to include `requirements-artist.txt`.
+   - For ARTIST-specific experiments, use the dedicated `artist_experiments/Dockerfile.artist`. This Dockerfile is pre-configured to use `requirements-artist.txt` and is recommended for isolated ARTIST experiment execution.
+   - If, for some reason, you need to run ARTIST experiments from the main project Dockerfile, you may need to customize it to ensure it installs dependencies from `requirements-artist.txt`. However, using `artist_experiments/Dockerfile.artist` is generally preferred for ARTIST-related workflows.
 
 2. **Environment and .gitignore Best Practices**
 
@@ -135,7 +136,9 @@ pytest
 - If you see version mismatches, remove your `.venv` and reinstall all dependencies with `uv`.
 
 **Q3: Docker issues (missing dependencies, agent errors)**
-- Ensure the Dockerfile installs from `requirements-artist.txt`.
+- Ensure you are using the correct Dockerfile for your use case:
+  - For ARTIST experiments, the recommended approach is to use `artist_experiments/Dockerfile.artist`, which is already set up to install dependencies from `requirements-artist.txt`.
+  - If running via a different Dockerfile, make sure it also installs the necessary dependencies from `requirements-artist.txt`.
 - Rebuild images on requirements changes.
 
 **Q4: Experiment/test failures**
