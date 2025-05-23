@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --upgrade uv
+          python -m pip install --upgrade "uv>=0.17.0"
           uv --version
           
       - name: Create virtual environment
