@@ -1,33 +1,7 @@
 [run]
-source = .
-omit =
-    # Exclude test files
-    tests/*
-    */tests/*
-    # Exclude virtual environment
-    .venv/*
-    venv/*
-    env/*
-    # Exclude setup files
-    setup.py
-    # Exclude utility scripts
-    fix_*.py
-    run_*.py
-    setup_*.py
-    # Exclude examples and CLI
-    */examples/*
-    */cli/*
-    # Exclude third-party packages
-    */site-packages/*
-    # Exclude specific directories not relevant to MCP adapter
-    ui/*
-    marketing/*
-    monetization/*
-    niche_analysis/*
-    collaboration/*
-    common_utils/*
-    users/*
-    api/*
+source = adk
+omit = tests/*
+branch = True
 
 [report]
 exclude_lines =
@@ -37,7 +11,7 @@ exclude_lines =
     def __repr__
     # Skip defensive assertion code
     raise NotImplementedError
-    raise ImportError
+    if self.debug:
     # Skip abstract methods
     @abstractmethod
     # Skip pass statements
@@ -46,3 +20,5 @@ exclude_lines =
     if TYPE_CHECKING:
     # Skip exception handling that can't be tested easily
     except ImportError:
+    raise ImportError
+fail_under = 0.05

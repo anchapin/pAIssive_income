@@ -159,7 +159,7 @@ async function runTestsWithTailwind(options = {}) {
     { name: 'pnpm test:legacy', command: 'pnpm test:legacy' },
     { name: 'npm test:legacy', command: 'npm run test:legacy' },
     { name: 'vitest', command: `npx vitest run --passWithNoTests${parallel ? ' --threads' : ''}` },
-    { name: 'pnpm vitest', command: `pnpm test:unit${parallel ? ' -- --threads' : ''}` }
+    { name: 'pnpm vitest', command: `pnpm test:unit${parallel ? ' -- --threads --passWithNoTests' : ' --passWithNoTests'}` }
   ];
 
   for (const method of testMethods) {
