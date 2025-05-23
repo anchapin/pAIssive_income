@@ -17,6 +17,7 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
 - **CopilotKit Integration**: Add AI copilot features to the React frontend
 - **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
+  - *Note: As of May 2025, the unused `mcp-use` dependency has been removed while maintaining full MCP functionality via the `modelcontextprotocol` package*
 - **mem0 Memory Integration**: Enhance agents with persistent memory capabilities
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
