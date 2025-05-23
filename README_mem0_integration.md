@@ -89,14 +89,33 @@ To verify that mem0 is working correctly, you can run the test script:
 python test_mem0.py
 ```
 
+## Best Practices: mem0 and RAG
+
+For agents that require both persistent user memory and dynamic retrieval of external knowledge (Retrieval-Augmented Generation, or RAG), we recommend a combined approach:
+
+- **Use mem0** for user-specific, long-term memory (preferences, interaction history).
+- **Use RAG** for dynamic, up-to-date, or domain-specific knowledge and document retrieval.
+- **Combine both** to enable agents that can personalize retrieval, re-rank responses, and learn from user feedback.
+
+**Example combined workflow:**
+1. Retrieve user context from mem0.
+2. Retrieve relevant external documents with RAG.
+3. Use both memory and retrieval results as context for the agent's generation.
+4. Store user feedback or new insights back into mem0.
+
+See [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) for a full guide, code examples, and recommendations.
+
+---
+
 ## Documentation
 
-For more detailed information about mem0, refer to the following documentation:
+For more detailed information about mem0 and advanced integration patterns, refer to:
 
 - `docs/README_mem0.md`: Overview of mem0 investigation
 - `docs/mem0_investigation.md`: Comprehensive overview of mem0
 - `docs/mem0_integration_options.md`: Analysis of integration approaches
 - `docs/mem0_core_apis.md`: Documentation of mem0's core APIs
+- `docs/mem0_rag_best_practices.md`: Best practices for mem0 + RAG usage
 
 ## Troubleshooting
 
