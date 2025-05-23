@@ -2,6 +2,8 @@
 
 The Agent Team module is a core component of the pAIssive Income Framework. It provides a team of specialized AI agents that collaborate on developing and monetizing niche AI tools for passive income generation.
 
+---
+
 ## Overview
 
 The Agent Team consists of five specialized agents:
@@ -13,6 +15,106 @@ The Agent Team consists of five specialized agents:
 5. **Feedback Agent**: Collects and analyzes user feedback to improve solutions.
 
 These agents work together in a coordinated workflow to take a project from initial market research to a fully developed, monetized, and marketed AI tool.
+
+---
+
+## Agentic Reasoning and Autonomous Tool Selection
+
+### Metadata-Driven Tool Selection
+
+The `CrewAIAgentTeam` (and compatible agent team classes) now support advanced agentic reasoning and autonomous tool selection. This is built on the extensible tool registry (see [Common Utils Tooling](common-utils-tooling.md)), where each tool is registered with metadata such as:
+
+- **keywords**: List of descriptive terms for matching user or agent intent.
+- **input_preprocessor**: Function to prepare or adapt raw task input for the tool.
+
+When an agent (or the team) is assigned a task, it uses agentic reasoning to:
+
+1. **Match the Task to a Tool**: The agent analyzes the task description and matches it to a registered tool by comparing task-relevant keywords to those provided in each tool's metadata.
+2. **Prepare Input**: If the selected tool defines an `input_preprocessor`, the agent runs the raw task input through the preprocessor to generate the correct input structure for the tool.
+3. **Invoke the Tool**: The tool is invoked autonomously, and results are integrated back into the agent's workflow.
+
+This system allows both built-in and custom tools to be used seamlessly, with agents able to discover, select, and invoke tools purely from their metadata.
+
+---
+
+### Registering and Extending Tools
+
+To add new capabilities to your agent team, simply register a tool with keywords and (optionally) an input preprocessor:
+
+```python
+from common_utils import tooling
+
+def summarize_text(text: str, max_sentences: int = 3) -> str:
+    """Summarize a text into the given number of sentences."""
+    # Dummy example logic
+    sentences = text.split(".")
+    return ". ".join(sentences[:max_sentences]) + "."
+
+tooling.register_tool(
+    name="summarize",
+    func=summarize_text,
+    keywords=["summarize", "summary", "text", "shorten", "condense"],
+    input_preprocessor=lambda user_input: {
+        "text": user_input if isinstance(user_input, str) else user_input.get("text"),
+        "max_sentences": 2
+    }
+)
+```
+
+Tools can be registered at any time before or during the lifetime of the agent team. All agents on the team will automatically consider new tools in their reasoning.
+
+---
+
+### Usage Example: Autonomous Tool Selection in Action
+
+Below is an example showing a team, a task, and how a tool is selected and invoked using metadata-driven reasoning and input preprocessing:
+
+```python
+from agent_team import CrewAIAgentTeam
+from common_utils import tooling
+
+# Register a calculator tool with keywords and an input preprocessor
+def calculator(expression: str) -> float:
+    """Evaluate a mathematical expression."""
+    return eval(expression, {"__builtins__": None}, {})
+
+tooling.register_tool(
+    name="calculator",
+    func=calculator,
+    keywords=["calculate", "math", "arithmetic", "expression", "evaluate"],
+    input_preprocessor=lambda s: {"expression": s.strip()}
+)
+
+# Create a team
+team = CrewAIAgentTeam("Autonomous Team")
+
+# Assign a task that implies calculation
+task = "Please calculate the result of 5 * (3 + 2)."
+
+# The agent team will:
+# 1. Match 'calculate'/'calculation' in the task to the calculator tool by keywords
+# 2. Use the input_preprocessor to structure the input
+# 3. Invoke the calculator tool autonomously
+
+result = team.assign_task(task)  # This will trigger autonomous tool selection and invocation
+print("Result:", result)
+```
+
+In this example, the agent team will automatically select the `calculator` tool based on the task's language, preprocess the input as needed, and invoke the tool – all without explicit user intervention.
+
+---
+
+### Logging: Agentic Reasoning and Tool Invocations
+
+All agentic reasoning steps (such as tool selection, input preparation, and invocation results) are logged to the `agentic_reasoning` logger for transparency and debugging. Log messages include:
+
+- Which tool was selected for a task and why (keyword match info)
+- How the input was preprocessed before invocation
+- Tool invocation results and any errors
+
+**Note:** Logging configuration (handlers, levels, output destinations) is now left to the application using the framework. To capture or format agentic reasoning logs, configure the `agentic_reasoning` logger using standard Python or your preferred logging setup.
+
+---
 
 ## AgentTeam Class
 
@@ -65,6 +167,8 @@ The `AgentTeam` class maintains a project state that tracks the progress of the 
 - **Monetization Strategy**: Monetization strategy created by the Monetization Agent
 - **Marketing Campaign**: Marketing campaign created by the Marketing Agent
 - **User Feedback**: User feedback collected by the Feedback Agent
+
+---
 
 ## Agent Profiles
 
@@ -193,6 +297,8 @@ analysis = feedback.analyze_feedback(user_feedback)
 recommendations = feedback.generate_recommendations(analysis)
 ```
 
+---
+
 ## Workflow
 
 The typical workflow for using the Agent Team is as follows:
@@ -234,6 +340,8 @@ feedback_analysis = team.collect_and_analyze_feedback(solution["id"])
 improved_solution = team.iterate_and_improve(solution["id"], feedback_analysis["id"])
 ```
 
+---
+
 ## Integration with AI Models
 
 The Agent Team can be integrated with local AI models using the `AgentModelProvider` class from the `ai_models` module. This allows the agents to use local AI models for their tasks instead of relying on external API calls.
@@ -254,10 +362,13 @@ team = AgentTeam("My Team", agent_model_provider=provider)
 # Now the team will use local AI models for its tasks
 ```
 
+---
+
 ## Example: Complete Workflow
 
-
 Here's a complete example that demonstrates the entire workflow of the Agent Team:
+
+---
 
 ## CrewAI Integration
 
@@ -287,6 +398,8 @@ Refer to the CrewAI documentation for more information on how to use and extend 
 
 - [CrewAI Documentation](https://docs.crewai.com/)
 - [CrewAI GitHub](https://github.com/VisionBlack/CrewAI)
+
+---
 
 ### Testing
 
