@@ -27,12 +27,20 @@ try:
 
     Memory = mem0ai.Memory
     mem0 = mem0ai
-except ImportError:  # mem0 or agent frameworks not available, skip test
+except ImportError as e:  # mem0 or agent frameworks not available, skip test
+    logger.warning(f"mem0ai not available: {e}")
     mem0 = None
     Memory = None
 
 # Import ADK components
-from adk.agent import Agent
+try:
+    from adk.agent import Agent
+    # SimpleMemory is not used, so we don't import it
+    # from adk.memory import SimpleMemory
+except ImportError as e:
+    # Mock ADK if not available
+    logger.warning(f"ADK not available: {e}, using mock implementation")
+    from mock_adk.adk.agent import Agent
 
 
 class MemoryEnhancedAgent(Agent):
