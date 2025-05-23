@@ -1,0 +1,16 @@
+{
+  "name": "path-to-regexp",
+  "version": "0.0.0",
+  "description": "Enhanced mock implementation for CI compatibility",
+  "main": "index.js",
+  "author": "CI Mock Generator",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anchapin/pAIssive_income"
+  },
+  "keywords": ["mock", "ci", "path-to-regexp", "github-actions", "docker"],
+  "engines": {
+    "node": ">=12"
+  }
+}

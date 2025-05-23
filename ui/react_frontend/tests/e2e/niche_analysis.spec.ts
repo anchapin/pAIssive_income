@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Adjust this URL if your dev server runs elsewhere
 const BASE_URL = 'http://localhost:3000';
 
-test.describe.skip('Niche Analysis Workflow', () => {
+test.describe('Niche Analysis Workflow', () => {
   // Add a hook to capture screenshots on test failure
   test.afterEach(async ({ page }, testInfo) => {
     if (testInfo.status !== 'passed') {
@@ -26,45 +26,66 @@ test.describe.skip('Niche Analysis Workflow', () => {
   });
 
   test('User can run a niche analysis and see project plan', async ({ page }) => {
-    // Go to the React app (already done in beforeEach)
-
-    // The landing page should have a way to start niche analysis
-    // Replace these selectors and text with actual ones from your UI
-    // Increased timeout to 30 seconds to allow for slower API responses
-    console.log('Waiting for Niche Analysis text to be visible...');
-
-    // First wait for navigation to complete
     await page.waitForLoadState('load', { timeout: 10000 });
 
-    // Then wait for the element with increased timeout
-    // Wait for the niche analysis text to be visible
+    // Step 1: Ensure the Niche Analysis entry point is visible
     const nicheAnalysisText = page.getByText(/niche analysis/i);
     await nicheAnalysisText.waitFor({ timeout: 30000 });
     await expect(nicheAnalysisText).toBeVisible();
-    console.log('Niche Analysis text is visible!');
 
-    // Take a screenshot if the element is found for debugging
+    // Accessibility: The Niche Analysis element is focusable
+    await expect(nicheAnalysisText).toHaveAttribute('tabindex', /-?1|0/);
+
     await page.screenshot({ path: 'niche-analysis-found.png', fullPage: true });
 
-    // Click "Start Niche Analysis" (example: adjust selector as needed)
+    // Step 2: Start analysis; button is enabled, has ARIA label
     const startButton = page.getByRole('button', { name: /start niche analysis/i });
-    await startButton.click();
+    await expect(startButton).toBeEnabled();
+    await expect(startButton).toHaveAttribute(/aria-label/i, /start niche analysis/i);
+    await startButton.focus();
+    await expect(startButton).toBeFocused();
+    await startButton.press('Enter');
 
-    // Wait for analysis to complete (replace with actual UI logic)
+    // Step 3: Loading state: spinner/progress bar shown, button disabled
+    const loadingSpinner = await page.waitForSelector('[role=progressbar], .MuiCircularProgress-root, .spinner', { timeout: 10000 });
+    expect(loadingSpinner).not.toBeNull();
+    await expect(startButton).toBeDisabled();
+
+    // Step 4: Wait for analysis to complete
     const analysisCompleteText = page.getByText(/analysis complete|project plan/i, { exact: false });
     await analysisCompleteText.waitFor({ timeout: 30000 });
     await expect(analysisCompleteText).toBeVisible();
 
-    // Optionally: expand project plan details
+    // Step 5: Expand project plan details, keyboard accessible
     const viewPlanButton = page.getByRole('button', { name: /view project plan/i });
-    await viewPlanButton.click();
+    await expect(viewPlanButton).toBeVisible();
+    await viewPlanButton.focus();
+    await expect(viewPlanButton).toBeFocused();
+    await viewPlanButton.press('Space');
 
-    // Check that project plan is displayed (adjust selector as needed)
     const projectPlanText = page.getByText(/niche|solution|monetization|marketing/i);
     await projectPlanText.waitFor({ timeout: 10000 });
     await expect(projectPlanText).toBeVisible();
 
-    // Optionally: take a screenshot for visual regression
+    // Accessibility: project plan region is labelled
+    const region = await page.$('[role=region][aria-label*="project plan"], [aria-labelledby*="project-plan"]');
+    expect(region).not.toBeNull();
+
     await page.screenshot({ path: 'niche-analysis-result.png', fullPage: true });
+  });
+
+  test('Shows error message if analysis fails', async ({ page }) => {
+    // This assumes you can trigger a backend/API failure, e.g., via query param, mock, or by disabling network.
+    await page.goto(BASE_URL + '?mock_niche_analysis=fail', { timeout: 10000 });
+    await page.waitForLoadState('load', { timeout: 10000 });
+
+    // Start analysis (simulate API failure)
+    const startButton = page.getByRole('button', { name: /start niche analysis/i });
+    await startButton.click();
+
+    // Wait for error message to appear
+    const errorMsg = await page.getByText(/failed|error|could not complete niche analysis/i, { exact: false, timeout: 20000 });
+    await expect(errorMsg).toBeVisible();
+    await page.screenshot({ path: 'niche-analysis-error.png', fullPage: true });
   });
 });
