@@ -22,7 +22,6 @@ pytz>=2024.1  # Required for mem0
 
 # MCP integration
 modelcontextprotocol>=0.1.0  # Required for MCP server integration
-mcp-use>=0.1.0  # Required for MCP server integration
 
 # Service dependencies
 grpcio>=1.54.0
