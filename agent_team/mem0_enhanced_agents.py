@@ -49,6 +49,9 @@ except ImportError:
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
 
+# Import MemoryRAGCoordinator for unified memory/RAG retrieval
+from services.memory_rag_coordinator import MemoryRAGCoordinator
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -84,6 +87,9 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
         # Set user ID for memory operations
         self.user_id = user_id or "default_user"
+
+        # Initialize the MemoryRAGCoordinator for unified memory & RAG retrieval
+        self.rag_coordinator = MemoryRAGCoordinator()
 
         # Store team creation in memory
         self._store_memory(f"Agent team created with user ID: {self.user_id}")
@@ -213,33 +219,31 @@ class MemoryEnhancedCrewAIAgentTeam(CrewAIAgentTeam):
 
     def _retrieve_relevant_memories(self, query: str = None, limit: int = 5) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant memories for the current context.
+        Retrieve relevant memories and RAG results for the current context.
+
+        This method now uses the MemoryRAGCoordinator to provide unified,
+        deduplicated, and relevance-ranked results from both mem0 and ChromaDB.
 
         Args:
             query: Optional query string (defaults to team and agent information)
-            limit: Maximum number of memories to retrieve
+            limit: Maximum number of memories to retrieve (applied after merge)
 
         Returns:
-            List of relevant memories
+            List of relevant memories and RAG results, merged and deduplicated.
         """
-        if self.memory is None:
-            return []
-
         # If no query provided, create one based on team information
         if query is None:
             agent_roles = [getattr(agent, "role", "unknown") for agent in self.agents]
             query = f"Information about agents with roles: {', '.join(agent_roles)}"
 
         try:
-            # Search for relevant memories
-            memories = self.memory.search(
-                query=query,
-                user_id=self.user_id,
-                limit=limit
-            )
-            return memories
+            # Query the unified memory/RAG coordinator
+            unified_response = self.rag_coordinator.query(query, self.user_id)
+            memories = unified_response.get("merged_results", [])
+            # Optionally apply a limit to the number of returned results
+            return memories[:limit] if limit else memories
         except Exception as e:
-            logger.error(f"Error retrieving memories: {e}")
+            logger.error(f"Error retrieving unified memories: {e}")
             return []
 
     def _enhance_context_with_memories(self, context: str) -> str:
