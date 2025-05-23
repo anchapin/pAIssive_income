@@ -1,5 +1,9 @@
 # ARTIST Experiments
 
+## Recent Updates
+
+- **April 2024:** ARTIST experiment environment isolation improved. Dedicated uv-based and Docker-based setup provided, dependencies tracked in `requirements-artist.txt`, robust `.gitignore` exclusions for outputs, and documentation/testing updated for reproducibility and clarity.
+
 This directory contains experiments related to the ARTIST (Agentic Reasoning and Tool Integration in Self-improving Transformers) framework developed by Microsoft Research.
 
 ## Overview
