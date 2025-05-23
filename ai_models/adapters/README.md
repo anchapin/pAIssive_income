@@ -30,6 +30,8 @@ cd python-sdk
 pip install -e .
 ```
 
+> **Note:** As of May 2025, the `mcp-use` dependency has been removed from the project requirements as it was not being utilized in the codebase. The core MCP functionality is provided by the `modelcontextprotocol` package.
+
 ### Usage
 
 ```python
