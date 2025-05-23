@@ -252,12 +252,12 @@ class FileOutput(LogOutput):
 
                 # Write the formatted log entry
                 f.write(log_line)
-       except Exception:
-           # Log the error locally
-           logger = get_secure_logger("file_output")
-           logger.exception(f"Failed to write log entry to {log_file}")
+        except Exception:
+            # Log the error locally
+            logger = get_secure_logger("file_output")
+            logger.exception(f"Failed to write log entry to {log_file}")
 
-   def close(self) -> None:
+    def close(self) -> None:
         """Close the file output."""
         pass
 

@@ -154,9 +154,9 @@ def get_adapter(
 
         # Initialize the MCP adapter with provided configuration
         return MCPAdapter(host, port, **kwargs)
-    except Exception as e:
-        logger.exception(f"Failed to get adapter for {server_type} at {host}:{port} - {e}")
-        raise UnsupportedServerTypeError(server_type) from e
+
+    # If we get here, the server type is not supported
+    raise UnsupportedServerTypeError(server_type)
 
 
 class AdapterFactory:
