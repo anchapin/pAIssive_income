@@ -37,7 +37,7 @@ jobs:
 
       - name: Install uv and dependencies
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+          python -m pip install --upgrade "uv"
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           uv venv .venv || python -m venv .venv
           source .venv/bin/activate

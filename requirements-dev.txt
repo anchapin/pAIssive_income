@@ -1,5 +1,6 @@
 # Development dependencies
 ruff>=0.1.6
+uv>=0.17.0  # Fast Python package and virtual environment manager
 pytest>=7.0.0
 pytest-cov>=4.0.0
 pytest-mock>=3.10.0
