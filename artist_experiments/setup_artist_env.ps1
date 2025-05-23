@@ -1,4 +1,4 @@
-# Setup script for ARTIST experiment environment
+# Setup script for ARTIST experiment environment using only 'uv'
 $ErrorActionPreference = "Stop"
 
 # Create necessary directories
@@ -13,7 +13,7 @@ if (-not (Test-Path "artist_experiments/models")) {
     New-Item -Path "artist_experiments/models" -ItemType Directory -Force | Out-Null
 }
 
-# Install uv if not already installed
+# Ensure uv is installed
 Write-Host "Checking for uv installation..."
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     Write-Host "Installing uv..."
@@ -23,33 +23,33 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
         Remove-Item install-uv.ps1
     }
     catch {
-        Write-Host "Failed to install uv. Falling back to traditional venv and pip..."
-        python -m pip install --upgrade pip
-        python -m venv artist_experiments/.venv-artist
-        .\artist_experiments\.venv-artist\Scripts\Activate.ps1
-        python -m pip install -r artist_experiments/requirements-artist.txt
+        Write-Host "ERROR: Failed to install 'uv'. Please install 'uv' manually and re-run this script."
+        exit 1
+    }
+    if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+        Write-Host "ERROR: 'uv' still not found after install attempt. Please install 'uv' manually and re-run this script."
         exit 1
     }
 }
 
-# Create virtual environment with uv
+# Create virtual environment with uv (no fallback)
 Write-Host "Creating ARTIST virtual environment with uv..."
 uv venv artist_experiments/.venv-artist
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-    python -m venv artist_experiments/.venv-artist
+    Write-Host "ERROR: Failed to create virtual environment with 'uv'."
+    exit 1
 }
 
 # Activate virtual environment
 .\artist_experiments\.venv-artist\Scripts\Activate.ps1
 
-# Install dependencies with uv
-Write-Host "Installing ARTIST dependencies with uv..."
+# Install dependencies with uv pip (no fallback)
+Write-Host "Installing ARTIST dependencies with uv pip..."
 if (Test-Path "artist_experiments/requirements-artist.txt") {
     uv pip install -r artist_experiments/requirements-artist.txt
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Failed to install dependencies with uv pip. Falling back to regular pip..."
-        python -m pip install -r artist_experiments/requirements-artist.txt
+        Write-Host "ERROR: Failed to install dependencies from requirements-artist.txt with 'uv'."
+        exit 1
     }
 }
 

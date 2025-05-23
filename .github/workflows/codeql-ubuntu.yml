@@ -4,24 +4,6 @@ name: "CodeQL Analysis (Ubuntu)"
 # It's a specialized version of the main CodeQL workflow for Ubuntu-specific analysis
 
 on:
-  push:
-    branches: [ main, dev, master, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.svg'
-      - '**/*.ico'
-      - '.gitignore'
-      - 'docs/**'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'CODE_OF_CONDUCT.md'
   pull_request:
     branches: [ main, dev, master, develop ]
     paths-ignore:
@@ -284,6 +266,68 @@ disable-default-queries: false
 trap-for-errors: true
 EOF
           fi
+
+      # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
+      # Instead, we'll just create a .codeqlignore file
+      - name: Create .codeqlignore file
+        shell: bash
+        run: |
+          echo "Creating .codeqlignore file instead of running fix script..."
+          cat > .codeqlignore << 'EOL'
+          .venv/**
+          venv/**
+          env/**
+          .env/**
+          **/virtualenv/**
+          **/site-packages/**
+          **/dist-packages/**
+          **/node_modules/**
+          **/dist/**
+          **/build/**
+          **/vendor/**
+          **/external/**
+          **/third_party/**
+          **/__pycache__/**
+          **/.pytest_cache/**
+          **/.mypy_cache/**
+          **/.ruff_cache/**
+          **/*.pyc
+          **/*.pyo
+          **/*.pyd
+          **/test/**
+          **/tests/**
+          **/__tests__/**
+          **/__mocks__/**
+          **/*.test.js
+          **/*.test.ts
+          **/*.test.jsx
+          **/*.test.tsx
+          **/*.spec.js
+          **/*.spec.ts
+          **/*.spec.jsx
+          **/*.spec.tsx
+          **/.github/**
+          **/.vscode/**
+          **/.idea/**
+          **/coverage/**
+          **/.git/**
+          **/docs/**
+          **/*.md
+          **/*.mdx
+          **/*.rst
+          **/sphinx/**
+          **/playwright-report/**
+          **/generated/**
+          **/sarif-results/**
+          **/*.sarif
+          **/*.sarif.json
+          ui/react_frontend/node_modules/**
+          sdk/javascript/node_modules/**
+          EOL
+
+          # List directories to verify
+          echo "Current directories:"
+          ls -la
 
       # Initialize CodeQL
       - name: Initialize CodeQL

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup script for ARTIST experiment environment
+# Setup script for ARTIST experiment environment using only 'uv'
 set -e
 
 # Create necessary directories
@@ -8,39 +8,35 @@ mkdir -p artist_experiments/data
 mkdir -p artist_experiments/logs
 mkdir -p artist_experiments/models
 
-# Install uv if not already installed
+# Ensure uv is installed
 echo "Checking for uv installation..."
 if ! command -v uv &> /dev/null; then
     echo "Installing uv..."
-    try {
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-    } || {
-        echo "Failed to install uv. Falling back to traditional venv and pip..."
-        python -m pip install --upgrade pip
-        python -m venv artist_experiments/.venv-artist
-        source artist_experiments/.venv-artist/bin/activate
-        python -m pip install -r artist_experiments/requirements-artist.txt
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.cargo/bin:$PATH"
+    if ! command -v uv &> /dev/null; then
+        echo "ERROR: Failed to install 'uv'. Please install 'uv' manually and re-run this script."
         exit 1
-    }
+    fi
 fi
 
-# Create virtual environment with uv
+# Create virtual environment with uv (no fallback)
 echo "Creating ARTIST virtual environment with uv..."
-uv venv artist_experiments/.venv-artist || {
-    echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-    python -m venv artist_experiments/.venv-artist
-}
+if ! uv venv artist_experiments/.venv-artist; then
+    echo "ERROR: Failed to create virtual environment with 'uv'."
+    exit 1
+fi
 
 # Activate virtual environment
 source artist_experiments/.venv-artist/bin/activate
 
-# Install dependencies with uv
-echo "Installing ARTIST dependencies with uv..."
+# Install dependencies with uv pip (no fallback)
+echo "Installing ARTIST dependencies with uv pip..."
 if [ -f "artist_experiments/requirements-artist.txt" ]; then
-    uv pip install -r artist_experiments/requirements-artist.txt || {
-        echo "Failed to install dependencies with uv pip. Falling back to regular pip..."
-        python -m pip install -r artist_experiments/requirements-artist.txt
-    }
+    if ! uv pip install -r artist_experiments/requirements-artist.txt; then
+        echo "ERROR: Failed to install dependencies from requirements-artist.txt with 'uv'."
+        exit 1
+    fi
 fi
 
 echo "ARTIST environment setup complete!"
