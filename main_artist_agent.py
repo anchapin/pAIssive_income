@@ -4,8 +4,16 @@ Minimal ARTIST-style agent wrapper for agentic tool use.
 This agent can reason over a prompt, decide which tool to use, and invoke it.
 This is a scaffold for further expansion.
 """
+import logging # Added import
+import sys # Added import
 
-from common_utils import tooling
+try:
+    from common_utils import tooling
+except ImportError:
+    print("Error: common_utils.tooling module not found. Ensure it is in the PYTHONPATH.")
+    sys.exit(1)
+
+logger = logging.getLogger(__name__) # Added logger initialization
 
 
 class ArtistAgent:
@@ -93,10 +101,8 @@ class ArtistAgent:
 
 
 if __name__ == "__main__":
-    import logging
-
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logger = logging.getLogger(__name__)
+    # logger is already defined at the module level, no need to redefine here.
 
     agent = ArtistAgent()
     # Example usage

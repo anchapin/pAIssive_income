@@ -247,6 +247,7 @@ def _perform_venv_creation_steps(
 
     """
     operation_successful = True
+    current_venv_path = venv_dir_path  # Start with original, update if temp is used
 
     # Step 1: Remove existing venv
     op_success, venv_to_use_after_removal = remove_existing_venv(venv_dir_path)

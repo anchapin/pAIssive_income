@@ -1,0 +1,8 @@
+elasticsearch>=7.17.0
+python-logstash>=0.4.6
+dash>=2.9.0
+dash-bootstrap-components>=1.4.0
+pandas>=1.5.0
+plotly>=5.13.0
+numpy>=1.24.0
+scipy>=1.10.0

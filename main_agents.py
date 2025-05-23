@@ -34,8 +34,14 @@ try:
     )
 except ImportError:
     MEM0_AVAILABLE = False
+    # If adk_demo.mem0_enhanced_adk_agents is not available,
+    # create dummy classes to avoid NameError later.
+    class MemoryEnhancedDataGathererAgent:  # type: ignore[no-redef]
+        pass
+    class MemoryEnhancedSummarizerAgent:  # type: ignore[no-redef]
+        pass
 
-# Configure logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -209,9 +215,8 @@ if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-
     # Check if mem0 is available
     if not MEM0_AVAILABLE:
         logger.warning("mem0 is not installed. Install with: pip install mem0ai")

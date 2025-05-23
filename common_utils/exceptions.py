@@ -97,14 +97,29 @@ class MissingFileError(FileNotFoundError):
 class ScriptNotFoundError(FileNotFoundError):
     """Exception raised when a script is not found."""
 
-    def __init__(self) -> None:
-        """Initialize the exception."""
-        super().__init__("Script not found")
+    def __init__(self, script_path: Optional[str] = None) -> None:
+        """
+        Initialize the exception.
+
+        Args:
+            script_path: The path to the script
+
+        """
+        message = "Script not found"
+        if script_path:
+            message = f"{message}: {script_path}"
+        super().__init__(message)
 
 
 class InvalidRotationIntervalError(ValueError):
     """Exception raised when an invalid rotation interval is provided."""
 
-    def __init__(self) -> None:
-        """Initialize the exception."""
-        super().__init__("Invalid rotation interval")
+    def __init__(self, message: str = "Invalid rotation interval") -> None:
+        """
+        Initialize the exception.
+
+        Args:
+            message: The error message
+
+        """
+        super().__init__(message)

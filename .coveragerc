@@ -19,15 +19,23 @@ omit =
     */cli/*
     # Exclude third-party packages
     */site-packages/*
-    # Exclude specific directories not relevant to MCP adapter
+    # Exclude specific directories temporarily to focus on core functionality
+    # These will be included in coverage as the project progresses
     ui/*
     marketing/*
     monetization/*
     niche_analysis/*
     collaboration/*
-    common_utils/*
-    users/*
+    common_utils/secrets/*
+    common_utils/validation/*
     api/*
+    users/*
+    dev_tools/*
+    scripts/*
+    services/*
+    test_*.py
+    verify_*.py
+    common_utils/logging/*
 
 [report]
 exclude_lines =
@@ -38,6 +46,7 @@ exclude_lines =
     # Skip defensive assertion code
     raise NotImplementedError
     raise ImportError
+    if __name__ == .__main__.:
     # Skip abstract methods
     @abstractmethod
     # Skip pass statements

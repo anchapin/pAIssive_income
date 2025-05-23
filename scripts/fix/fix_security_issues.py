@@ -79,7 +79,6 @@ except ImportError:
         )
         return {}
 
-
 # All critical dependencies are imported at the module level
 # json and subprocess are already imported at the module level
 IMPORTED_DEPENDENCIES = True

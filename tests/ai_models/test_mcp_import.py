@@ -1,5 +1,6 @@
 """Test that MCP adapter can be imported."""
 
+import logging
 from unittest.mock import patch
 
 

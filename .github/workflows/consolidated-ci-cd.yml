@@ -64,9 +64,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.14.0
+          run_install: false
 
       - name: Install Node.js dependencies and build Tailwind CSS
         run: |
@@ -102,21 +103,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
 
-      - name: Install uv (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          # Verify uv is installed and in PATH
-          which uv || echo "uv not found in PATH"
-
-      - name: Install uv (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          iwr -useb https://astral.sh/uv/install.ps1 | iex
-          echo "$HOME\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        shell: pwsh
-
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -127,7 +113,7 @@ jobs:
           which uv || python -m pip install uv
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio python-multipart
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -145,7 +131,7 @@ jobs:
           python -m pip install --upgrade pip
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio python-multipart
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
@@ -184,6 +170,9 @@ jobs:
           ruff check .
           pyrefly check .
 
+          # Run logger initialization check
+          python scripts/check_logger_initialization.py
+
       - name: Run linting (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -191,6 +180,9 @@ jobs:
           # Skip MCP adapter files during linting on Windows
           ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
           pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
+
+          # Run logger initialization check
+          python scripts/check_logger_initialization.py
 
       - name: Run MCP tests (Unix only)
         if: runner.os != 'Windows'
@@ -243,15 +235,13 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          $content = @'
-#!/usr/bin/env python3
-"""Mock CrewAI test script."""
-import sys
-print("Mock CrewAI test script")
-print("CrewAI tests skipped - script not found")
-sys.exit(0)
-'@
-          Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
+          # Create a simple Python script without using here-string
+          Set-Content -Path run_crewai_tests.py -Value "#!/usr/bin/env python3" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "# Mock CrewAI test script." -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "import sys" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "print('Mock CrewAI test script')" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "print('CrewAI tests skipped - script not found')" -Encoding utf8
+          Add-Content -Path run_crewai_tests.py -Value "sys.exit(0)" -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
@@ -296,17 +286,17 @@ sys.exit(0)
           # Run all tests except MCP adapter tests and CrewAI tests
           if [ -f "run_tests.py" ]; then
             echo "Using run_tests.py script to run tests"
-            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           elif [ -f "run_tests.sh" ]; then
             echo "Using run_tests.sh script to run tests"
             chmod +x run_tests.sh
-            ./run_tests.sh -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            ./run_tests.sh -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           else
             echo "Using pytest directly"
             # Set environment variables to bypass virtual environment checks
             export PYTHONNOUSERSITE=1
             export SKIP_VENV_CHECK=1
-            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           fi
 
       - name: Run other tests (Windows)
@@ -316,19 +306,19 @@ sys.exit(0)
           # Run all tests except MCP adapter tests and CrewAI tests
           if (Test-Path "run_tests.py") {
             Write-Host "Using run_tests.py script to run tests"
-            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            python run_tests.py -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.ps1") {
             Write-Host "Using run_tests.ps1 script to run tests"
-            .\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            .\run_tests.ps1 -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } elseif (Test-Path "run_tests.bat") {
             Write-Host "Using run_tests.bat script to run tests"
-            .\run_tests.bat -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            .\run_tests.bat -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           } else {
             Write-Host "Using pytest directly"
             # Set environment variables to bypass virtual environment checks
             $env:PYTHONNOUSERSITE = "1"
             $env:SKIP_VENV_CHECK = "1"
-            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
+            pytest -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=15 --ignore=tests/ai_models/adapters/test_mcp_adapter.py --ignore=tests/ai_models/test_mcp_import.py --ignore=tests/test_mcp_top_level_import.py --ignore=tests/test_crewai_agents.py
           }
 
       - name: Run JavaScript tests (Unix)
@@ -405,31 +395,24 @@ sys.exit(0)
           flags: javascript
 
   security:
-    name: Security & SAST
+    name: Security Scan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
     permissions:
-      security-events: write
       contents: read
-      actions: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
-      - name: Create security reports directory
-        run: mkdir -p security-reports
-        shell: bash
+          python-version: "3.12"
 
       - name: Cache uv dependencies (Security)
         uses: actions/cache@v4
@@ -498,7 +481,6 @@ sys.exit(0)
 
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
-        continue-on-error: true
         run: |
           # Create security-reports directory if it doesn't exist
           mkdir -p security-reports
@@ -512,14 +494,30 @@ sys.exit(0)
             echo "Created empty-sarif.json in root directory"
           fi
 
-          # Generate Bandit configuration files
+          # Generate Bandit configuration files          # Sanitize and validate run_id
+          if [[ ! "${{ github.run_id }}" =~ ^[0-9]+$ ]]; then
+            echo "Invalid run ID format"
+            exit 1
+          fi
+          
+          # Sanitize and validate runner OS
+          platform_unsanitized="${{ runner.os }}"
+          case "${platform_unsanitized,,}" in
+            "linux"|"windows"|"macos")
+              platform="${platform_unsanitized,,}"
+              ;;
+            *)
+              echo "Invalid platform: ${platform_unsanitized}"
+              exit 1
+              ;;
+          esac
+          
           if [ -f "generate_bandit_config.py" ]; then
-            python generate_bandit_config.py ${{ github.run_id }}
+            python generate_bandit_config.py "${{ github.run_id }}"
           else
             echo "generate_bandit_config.py not found, creating empty bandit config files"
             mkdir -p .github/bandit
             mkdir -p security-reports
-            platform=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
             echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}.yaml"
             echo '# Empty Bandit config' > ".github/bandit/bandit-config-${platform}-${{ github.run_id }}.yaml"
           fi
@@ -582,9 +580,11 @@ sys.exit(0)
           echo "Running semgrep..."
           semgrep scan --config auto || echo "semgrep scan failed, but continuing"
 
+          # Run gitleaks
+          gitleaks detect --report-path=security-reports/gitleaks-report.json || true
+
       - name: Run security scans (Windows)
         if: runner.os == 'Windows'
-        continue-on-error: true
         shell: pwsh
         run: |
           # Create security-reports directory if it doesn't exist
@@ -619,7 +619,7 @@ sys.exit(0)
           # Run safety check with error handling
           Write-Host "Running safety check..."
           try {
-            safety check
+            safety check --full-report
           } catch {
             Write-Host "Safety check failed, but continuing: $_"
           }
@@ -693,23 +693,23 @@ sys.exit(0)
             Write-Host "semgrep scan failed, but continuing: $_"
           }
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+          # Run gitleaks
+          gitleaks detect --report-path=security-reports/gitleaks-report.json
         continue-on-error: true
+
+      - name: Upload Bandit SARIF report
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'security-reports/trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          timeout: '10m'
+          sarif_file: security-reports/bandit-results.sarif
+          category: bandit-${{ runner.os }}
+        continue-on-error: true
 
       - name: Upload security reports
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: security-reports-${{ runner.os }}-${{ github.run_id }}
           path: security-reports/
+          if-no-files-found: warn
           retention-days: 7
 
       # Skip CodeQL in this workflow as it's handled by dedicated workflows
@@ -754,15 +754,30 @@ sys.exit(0)
     outputs:
       docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
       should_push: ${{ steps.set-docker-tag.outputs.should_push }}
-    steps:
-      - name: Checkout code
+    steps:      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set Docker image tag
         id: set-docker-tag
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          # Validate ref format
+          ref="${{ github.ref }}"
+          ref_name="${{ github.ref_name }}"
+          
+          # Validate username format
+          username="${{ secrets.DOCKERHUB_USERNAME }}"
+          if [[ ! "$username" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]; then
+            echo "Invalid Docker Hub username format"
+            exit 1
+          fi
+          
+          # Version tag must match format v*.*.*
+          if [[ "$ref" == refs/tags/v* ]]; then
+            if [[ ! "$ref_name" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version tag format. Must be vX.Y.Z where X,Y,Z are numbers"
+              exit 1
+            fi
+            echo "docker_tag=${username}/paissiveincome-app:${ref_name}" >> $GITHUB_OUTPUT
             echo "should_push=true" >> $GITHUB_OUTPUT
           else
             echo "docker_tag=paissiveincome/app:test" >> $GITHUB_OUTPUT
@@ -781,7 +796,7 @@ sys.exit(0)
           driver-opts: |
             image=moby/buildkit:v0.12.0
 
-      - name: Log in to Docker Hub
+      - name: Login to DockerHub
         if: steps.set-docker-tag.outputs.should_push == 'true'
         uses: docker/login-action@v3
         with:

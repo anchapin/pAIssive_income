@@ -6,18 +6,45 @@ This script is a wrapper around scripts/setup/install_mcp_sdk.py to maintain bac
 with existing workflows that expect install_mcp_sdk.py to be in the root directory.
 """
 
-from __future__ import annotations
-
 import logging
 import os
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("install_mcp_sdk")
 
 
+def verify_mock_installation() -> bool:
+    """Verify that the mock MCP SDK is properly installed.
+
+    Returns:
+        True if the mock is properly installed, False otherwise
+    """
+    try:
+        # Try to import the module
+        import modelcontextprotocol as mcp
+
+        # Verify that it has the expected attributes
+        if not hasattr(mcp, 'Client'):
+            logger.error("Mock MCP SDK is missing Client class")
+            return False
+
+        # Create a client and test basic functionality
+        client = mcp.Client("http://localhost:9000")
+        client.connect()
+        response = client.send_message("Test message")
+        client.disconnect()
+
+        # Check that the response is as expected
+        if not isinstance(response, str) or "Test message" not in response:
+            logger.error(f"Mock MCP SDK returned unexpected response: {response}")
+            return False
+
+        logger.info("Mock MCP SDK is properly installed and working")
+        return True
+    except Exception as e:
+        logger.exception(f"Error verifying mock MCP SDK: {e}")
+        return False
 def _setup_environment() -> None:
     """Set up the environment variables for MCP SDK installation."""
     os.environ["CI"] = "true"
@@ -400,4 +427,6 @@ def create_mock_mcp_module() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     sys.exit(main())

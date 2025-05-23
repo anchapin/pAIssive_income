@@ -13,10 +13,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+# Logger will be configured in main() or when first used if not in main.
+# This avoids configuring it at import time if this script is imported as a module.
+# logger = logging.getLogger(__name__) # This will be initialized in each function that uses it or in main
 
 
 def run_command(command: str | list, check: bool = True) -> str | None:
@@ -354,4 +353,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     main()

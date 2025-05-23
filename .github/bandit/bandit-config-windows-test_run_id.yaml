@@ -1,5 +1,5 @@
-# Bandit Configuration Template
-# This configuration is used by GitHub Advanced Security for Bandit scanning
+# Bandit Configuration for Windows (Run ID: test_run_id)
+# This configuration is used by GitHub Advanced Security for Bandit scanning on Windows
 
 # Exclude directories from security scans
 exclude_dirs:

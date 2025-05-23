@@ -10,8 +10,13 @@ import stat
 import threading
 from pathlib import Path
 from typing import Any, Optional
+import sys # Added sys import
 
-from flask import Blueprint, Response, jsonify, request
+try:
+    from flask import Blueprint, Response, jsonify, request
+except ImportError:
+    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    sys.exit(1)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +32,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 # Thread safety
 _LOCK = threading.Lock()
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 
@@ -190,6 +194,11 @@ def validate_server_data(server: dict[str, Any]) -> Optional[tuple[str, int]]:
         # Check if server data is valid
         (not server or not isinstance(server, dict), "Invalid JSON data"),
     ]
+
+    # Check if server is None or not a dict before trying to access fields
+    if not server or not isinstance(server, dict):
+        # Return early with the first validation error
+        return "Invalid JSON data", 400
 
     # Validate required fields
     required_fields = ["name", "host", "port"]

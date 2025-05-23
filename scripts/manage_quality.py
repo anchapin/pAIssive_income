@@ -22,13 +22,13 @@ import time
 from pathlib import Path
 from typing import Any, Optional, cast
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Maximum time to wait for any single check
 TIMEOUT_SECONDS = 300
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
-
+# logging.basicConfig will be moved to the main() function
 
 class CheckResult:
     """Represents the result of a quality check operation."""
@@ -302,6 +302,8 @@ async def main_async() -> int:
 
 def main() -> None:
     """Handle signals properly and run the main entry point."""
+    # Configure logging at the start of the main execution
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
         if not is_windows():
             # Set up signal handlers for graceful shutdown on Unix

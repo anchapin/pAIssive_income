@@ -487,8 +487,6 @@ def _verify_final_installation(in_ci: bool) -> bool:
         logger.exception("Error verifying module importability")
         # In CI, we'll still return success
         return in_ci
-
-
 def main() -> int:
     """
     Execute the main installation process.
@@ -508,7 +506,6 @@ def main() -> int:
     windows_result = _handle_windows_platform()
     if windows_result >= 0:
         return windows_result
-
     # If not installed and not on Windows, try to install it
     success = install_mcp_sdk()
 

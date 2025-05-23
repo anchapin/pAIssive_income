@@ -602,7 +602,7 @@ def handle_audit(args: argparse.Namespace) -> None:
                 logger.error("Output directory not found: %s", output_dir)
                 sys.exit(1)
 
-        exclude_dirs = set(args.exclude) if args.exclude else None
+        exclude_dirs = args.exclude if args.exclude else None
         auditor = SecretsAuditor(exclude_dirs=exclude_dirs)
 
         logger.info(
@@ -615,7 +615,13 @@ def handle_audit(args: argparse.Namespace) -> None:
         )
 
         try:
-            auditor.audit(args.directory, args.output, args.json)
+            # Fix for CodeQL "Wrong name for an argument in a call" issue
+            # Use the correct parameter name 'format' instead of 'json_format'
+            auditor.audit(
+                directory=args.directory,
+                output_file=args.output,
+                format="json" if args.json else "text"
+            )
             logger.info("Audit completed successfully")
         except Exception as e:
             logger.exception("Audit failed", extra={"error": str(e)})
@@ -679,7 +685,6 @@ def _handle_rotate_secret(
 
     """
     # SECURITY FIX: Always prompt for secret value
-    logger.info("Getting new secret value", extra={"key": masked_key})
     value = get_secret_value(args.key)
     if value is None:
         sys.exit(1)
@@ -712,7 +717,6 @@ def _handle_rotate_all(rotation: SecretRotation) -> None:
             logger.info("  %s", masked_key)
     else:
         logger.info("No secrets due for rotation")
-        logger.info("No secrets due for rotation")
 
 
 def _handle_list_due(rotation: SecretRotation) -> None:
@@ -723,7 +727,7 @@ def _handle_list_due(rotation: SecretRotation) -> None:
         rotation: The SecretRotation instance
 
     """
-    due = rotation.get_secrets_due_for_rotation()
+    due = rotation.get_due_secrets()
     if due:
         logger.info("Found %d secrets due for rotation", len(due))
         logger.info("Found %d secrets due for rotation:", len(due))
@@ -732,7 +736,6 @@ def _handle_list_due(rotation: SecretRotation) -> None:
             masked_key = mask_sensitive_data(key)
             logger.info("  %s", masked_key)
     else:
-        logger.info("No secrets due for rotation")
         logger.info("No secrets due for rotation")
 
 
@@ -745,7 +748,7 @@ def _handle_unknown_rotation_command(command: str) -> None:
 
     """
     logger.error("Unknown rotation command", extra={"command": command})
-    logger.error("Unknown rotation command")
+    logger.error(f"Unknown rotation command: {command}")
     sys.exit(1)
 
 

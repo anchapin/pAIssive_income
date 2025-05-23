@@ -12,8 +12,7 @@ import logging
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
 logger = logging.getLogger(__name__)
 
 # Add the parent directory to sys.path to ensure mock_crewai can be imported
@@ -111,4 +110,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     sys.exit(main())

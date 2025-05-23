@@ -11,9 +11,9 @@ import shutil
 import sys
 from pathlib import Path
 
-# Add logging setup at the top
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Configure logger
 logger = logging.getLogger(__name__)
+# logging.basicConfig will be moved to the main() function
 
 
 def cleanup_task(path: str, dry_run: bool) -> None:
@@ -175,6 +175,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """Execute the main script functionality."""
+    # Configure logging at the start of main execution
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    
     args = parse_args()
 
     if not args.task:

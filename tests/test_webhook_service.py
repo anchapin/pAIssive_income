@@ -1,4 +1,4 @@
-"""test_webhook_service - Module for test_webhook_service."""
+"""run_github_actions - Module for run_github_actions."""
 
 # Standard library imports
 

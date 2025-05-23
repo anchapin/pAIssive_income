@@ -1,5 +1,6 @@
 """Test the user API endpoints with the ORM/database."""
 
+import logging
 from unittest.mock import patch
 
 # Import constants
@@ -27,6 +28,9 @@ def test_create_and_authenticate_user(client):
                 "email": "testuser@example.com",
             },
         )
+
+        # Set up the mock for generate_token
+        mock_service.generate_token.return_value = "test-token"
 
         # Create a user
         response = client.post(

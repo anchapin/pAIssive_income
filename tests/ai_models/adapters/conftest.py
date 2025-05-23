@@ -16,4 +16,12 @@ def mock_mcp():
     with patch("ai_models.adapters.mcp_adapter.mcp") as mock_mcp:
         mock_client = MagicMock()
         mock_mcp.Client.return_value = mock_client
+        mock_mcp.__version__ = "0.1.0-mock"
         yield mock_mcp
+
+
+@pytest.fixture
+def mock_logger():
+    """Mock the logger."""
+    with patch("ai_models.adapters.mcp_adapter.logger") as mock_logger:
+        yield mock_logger

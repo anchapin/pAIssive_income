@@ -64,7 +64,6 @@ jobs:
     # Platform-specific analysis is handled by dedicated workflows
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for larger codebases
-
     strategy:
       fail-fast: false
       matrix:
