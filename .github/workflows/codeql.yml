@@ -309,6 +309,20 @@ trap-for-errors: true
 EOF
           fi
 
+      # Install Python dependencies
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          fi
+          # Install the project itself if pyproject.toml or setup.py exists
+          if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+            pip install .
+          fi
+
       # Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
