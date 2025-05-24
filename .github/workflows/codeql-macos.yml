@@ -295,40 +295,38 @@ jobs:
       - name: Ensure CodeQL configuration files
         shell: bash
         run: |
-          # Ensure directory exists
-          mkdir -p .github/codeql
+          if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
+            echo "Running ensure-codeql-configs.sh script..."
+            bash .github/scripts/ensure-codeql-configs.sh
+          else
+            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
 
-          # Create macOS configuration file
-          echo "Creating macOS configuration file..."
-          echo 'name: "CodeQL Configuration for macOS"' > .github/codeql/security-os-macos.yml
-          echo 'queries:' >> .github/codeql/security-os-macos.yml
-          echo '  - uses: security-and-quality' >> .github/codeql/security-os-macos.yml
-          echo '  - uses: security-extended' >> .github/codeql/security-os-macos.yml
-          echo '  - uses: security' >> .github/codeql/security-os-macos.yml
-          echo 'disable-default-queries: false' >> .github/codeql/security-os-macos.yml
-          echo 'paths-ignore:' >> .github/codeql/security-os-macos.yml
-          echo '  - node_modules' >> .github/codeql/security-os-macos.yml
-          echo '  - "**/*.test.js"' >> .github/codeql/security-os-macos.yml
-          echo '  - "**/*.spec.js"' >> .github/codeql/security-os-macos.yml
-          echo '  - "**/*.test.py"' >> .github/codeql/security-os-macos.yml
-          echo '  - "**/*.spec.py"' >> .github/codeql/security-os-macos.yml
-          echo '  - "tests/**"' >> .github/codeql/security-os-macos.yml
+            # Ensure directory exists
+            mkdir -p .github/codeql
 
-          # Create unified configuration file
-          echo "Creating unified configuration file..."
-          echo 'name: "Unified CodeQL Configuration"' > .github/codeql/security-os-config.yml
-          echo 'queries:' >> .github/codeql/security-os-config.yml
-          echo '  - uses: security-and-quality' >> .github/codeql/security-os-config.yml
-          echo '  - uses: security-extended' >> .github/codeql/security-os-config.yml
-          echo '  - uses: security' >> .github/codeql/security-os-config.yml
-          echo 'disable-default-queries: false' >> .github/codeql/security-os-config.yml
-          echo 'paths-ignore:' >> .github/codeql/security-os-config.yml
-          echo '  - node_modules' >> .github/codeql/security-os-config.yml
-          echo '  - "**/*.test.js"' >> .github/codeql/security-os-config.yml
-          echo '  - "**/*.spec.js"' >> .github/codeql/security-os-config.yml
-          echo '  - "**/*.test.py"' >> .github/codeql/security-os-config.yml
-          echo '  - "**/*.spec.py"' >> .github/codeql/security-os-config.yml
-          echo '  - "tests/**"' >> .github/codeql/security-os-config.yml
+            # Create minimal macOS configuration using a single heredoc
+            cat > .github/codeql/security-os-macos.yml << 'EOF'
+name: "CodeQL Configuration for macOS"
+os: macos-latest
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+EOF
+
+            # Create minimal unified configuration using a single heredoc
+            cat > .github/codeql/security-os-config.yml << 'EOF'
+name: "Unified CodeQL Configuration"
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security
+disable-default-queries: false
+trap-for-errors: true
+EOF
+          fi
 
       # Initialize CodeQL
       - name: Initialize CodeQL

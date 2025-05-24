@@ -62,12 +62,16 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-- name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '8'
 
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.14.0 --activate
 
+      - name: Install Node.js dependencies and build Tailwind CSS
+        run: |
+          pnpm install
+          pnpm tailwind:build
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -75,7 +79,18 @@ jobs:
           python-version: "3.12"
 
       # Set up Node.js for JavaScript testing
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
 
+      # Set up pnpm for JavaScript package management
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
 
       - name: Cache uv dependencies
         uses: actions/cache@v4
@@ -228,13 +243,15 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          # Create the mock script line by line
-          Set-Content -Path run_crewai_tests.py -Value "#!/usr/bin/env python3" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value '"""Mock CrewAI test script."""' -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "import sys" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value 'print("Mock CrewAI test script")' -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value 'print("CrewAI tests skipped - script not found")' -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "sys.exit(0)" -Encoding utf8
+          $content = @'
+#!/usr/bin/env python3
+"""Mock CrewAI test script."""
+import sys
+print("Mock CrewAI test script")
+print("CrewAI tests skipped - script not found")
+sys.exit(0)
+'@
+          Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
