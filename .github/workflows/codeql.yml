@@ -183,6 +183,9 @@ jobs:
             echo "If your Python project has dependencies, create a requirements.txt file or add a custom installation step."
           fi
 
+          echo "Installing the current project using uv..."
+          uv pip install --system .
+
       # Display disk space before analysis
       - name: Check disk space
         shell: bash
