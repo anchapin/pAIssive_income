@@ -186,6 +186,12 @@ jobs:
           echo "Installing the current project using uv..."
           uv pip install --system .
 
+      - name: Configure pip for CodeQL
+        if: matrix.language == 'python'
+        run: |
+          echo "PIP_NO_CACHE_DIR=true" >> $GITHUB_ENV
+          echo "PIP_DISABLE_PIP_VERSION_CHECK=true" >> $GITHUB_ENV
+
       # Display disk space before analysis
       - name: Check disk space
         shell: bash
