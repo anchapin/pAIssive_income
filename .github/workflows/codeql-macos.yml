@@ -260,7 +260,8 @@ jobs:
         if: matrix.language == 'python'
         shell: bash
         run: |
-          python -m pip install --upgrade "uv>=0.17.0"
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade "uv>=0.7.0"
           if [ -f requirements.txt ]; then
             echo "Installing pip dependencies from requirements.txt using 'uv pip'..."
             uv pip install -r requirements.txt || {
