@@ -1,12 +1,15 @@
+import logging
 import unittest
 from unittest.mock import MagicMock, patch
-import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional # Assuming these are used in the file
 
-# Assuming MemoryEnhancedCrewAIAgentTeam is in agent_team.mem0_enhanced_agents
-# Adjust the import path if it's located elsewhere
-from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
+import pytest
 
+from agent_team.mem0_enhanced_agents import (
+    MemoryEnhancedCrewAIAgentTeam,
+    CREWAI_AVAILABLE,
+    MEM0_AVAILABLE,
+)
 
 """
 Tests for mem0-enhanced agents.
@@ -14,19 +17,6 @@ Tests for mem0-enhanced agents.
 These tests verify the functionality of the memory-enhanced agent implementations.
 They use mocking to avoid actual API calls to mem0 or CrewAI.
 """
-
-import logging
-import unittest
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-# Import the memory-enhanced agent team
-from agent_team.mem0_enhanced_agents import (
-    CREWAI_AVAILABLE,
-    MEM0_AVAILABLE,
-    MemoryEnhancedCrewAIAgentTeam,
-)
 
 
 # Skip all tests if dependencies are not available
