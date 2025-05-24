@@ -1,3 +1,13 @@
+import unittest
+from unittest.mock import MagicMock, patch
+import logging
+from typing import List, Dict, Any, Optional
+
+# Assuming MemoryEnhancedCrewAIAgentTeam is in agent_team.mem0_enhanced_agents
+# Adjust the import path if it's located elsewhere
+from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam
+
+
 """
 Tests for mem0-enhanced agents.
 
