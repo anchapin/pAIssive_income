@@ -39,7 +39,7 @@ jobs:
       - name: Install uv using official action
         uses: astral-sh/setup-uv@v6
         with:
-          version: "latest"
+          version: "0.7.8"
           enable-cache: true
 
       - name: Verify uv installation
