@@ -39,7 +39,7 @@ jobs:
       - name: Install uv using official action
         uses: astral-sh/setup-uv@v6
         with:
-          version: "0.17.0"
+          version: "latest"
           enable-cache: true
           cache-dependency-glob: |
             ${{ inputs.requirements-file }}
