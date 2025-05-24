@@ -162,17 +162,22 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Install uv
+      - name: Install uv
+        if: matrix.language == 'python'
+        shell: bash
+        run: |
+          echo "Installing uv..."
+          pip install uv
+
       # Install Python dependencies if requirements.txt exists
       - name: Install Python dependencies
         if: matrix.language == 'python'
         shell: bash
         run: |
-          # Ensure pip cache directory exists to prevent post-job cleanup errors
-          mkdir -p /home/runner/.cache/pip
-          
           if [ -f "requirements.txt" ]; then
-            echo "Installing Python dependencies from requirements.txt..."
-            pip install -r requirements.txt
+            echo "Installing Python dependencies from requirements.txt using uv..."
+            uv pip install -r requirements.txt
           else
             echo "No requirements.txt found. Skipping Python dependency installation."
             echo "If your Python project has dependencies, create a requirements.txt file or add a custom installation step."
