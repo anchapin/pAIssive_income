@@ -31,73 +31,30 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - name: Set up Python
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
 
-      - name: Install uv using official action
-        uses: astral-sh/setup-uv@v6
+      - name: Use official astral-sh/setup-uv action
+        uses: astral-sh/setup-uv@v4
         with:
-          version: "latest"
+          version: "0.7.8"
           enable-cache: true
-          cache-dependency-glob: |
-            ${{ inputs.requirements-file }}
-            ${{ inputs.dev-requirements-file }}
-            pyproject.toml
-            uv.lock
 
-      - name: Create virtual environment
-        shell: bash
+      - name: Verify uv installation
+        run: |
+          uv --version
+          python --version
+
+      - name: Install dependencies (if requested)
+        if: inputs.install-dependencies == true
         working-directory: ${{ inputs.working-directory }}
         run: |
-          uv venv .venv || {
-            echo "Failed to create virtual environment with uv. Falling back to Python's venv module..."
-            python -m venv .venv
-          }
-
-      - name: Install dependencies (Linux/macOS)
-        if: runner.os != 'Windows' && inputs.install-dependencies
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          source .venv/bin/activate
-
-          if [ -f "${{ inputs.requirements-file }}" ]; then
-            uv pip install -r "${{ inputs.requirements-file }}" || {
-              echo "Failed to install dependencies with uv pip. Falling back to regular pip..."
-              python -m pip install -r "${{ inputs.requirements-file }}"
-            }
+          if [ -f ${{ inputs.requirements-file }} ]; then
+            uv pip install -r ${{ inputs.requirements-file }}
           fi
-
-          if [ -f "${{ inputs.dev-requirements-file }}" ]; then
-            uv pip install -r "${{ inputs.dev-requirements-file }}" || {
-              echo "Failed to install dev dependencies with uv pip. Falling back to regular pip..."
-              python -m pip install -r "${{ inputs.dev-requirements-file }}"
-            }
+          if [ -f ${{ inputs.dev-requirements-file }} ]; then
+            uv pip install -r ${{ inputs.dev-requirements-file }}
           fi
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows' && inputs.install-dependencies
-        shell: powershell
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          .\.venv\Scripts\Activate.ps1
-
-          if (Test-Path "${{ inputs.requirements-file }}") {
-            Write-Host "Installing requirements from ${{ inputs.requirements-file }}"
-            uv pip install -r "${{ inputs.requirements-file }}"
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to install dependencies with uv pip. Falling back to regular pip..."
-              python -m pip install -r "${{ inputs.requirements-file }}"
-            }
-          }
-
-          if (Test-Path "${{ inputs.dev-requirements-file }}") {
-            Write-Host "Installing dev requirements from ${{ inputs.dev-requirements-file }}"
-            uv pip install -r "${{ inputs.dev-requirements-file }}"
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Failed to install dev dependencies with uv pip. Falling back to regular pip..."
-              python -m pip install -r "${{ inputs.dev-requirements-file }}"
-            }
-          }
+        shell: bash
