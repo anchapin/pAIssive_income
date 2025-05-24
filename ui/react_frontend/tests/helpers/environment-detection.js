@@ -152,13 +152,16 @@ function detectContainerEnvironment() {
   const isPodman = safeFileExists('/run/.containerenv');
   const isKubernetes = !!process.env.KUBERNETES_SERVICE_HOST;
 
-  // Check for container runtime
-  const cgroupContent = safeReadFile('/proc/1/cgroup');
-  const hasContainerRuntime = cgroupContent && (
-    cgroupContent.includes('docker') ||
-    cgroupContent.includes('kubepods') ||
-    cgroupContent.includes('containerd')
-  );
+  // Check for container runtime - only on Linux platforms
+  let hasContainerRuntime = false;
+  if (process.platform === 'linux') {
+    const cgroupContent = safeReadFile('/proc/1/cgroup');
+    hasContainerRuntime = cgroupContent && (
+      cgroupContent.includes('docker') ||
+      cgroupContent.includes('kubepods') ||
+      cgroupContent.includes('containerd')
+    );
+  }
 
   return {
     isContainer: isDocker || isPodman || isKubernetes || hasContainerRuntime,
@@ -166,7 +169,7 @@ function detectContainerEnvironment() {
       docker: isDocker,
       podman: isPodman,
       kubernetes: isKubernetes,
-      containerd: hasContainerRuntime && cgroupContent?.includes('containerd')
+      containerd: hasContainerRuntime && process.platform === 'linux'
     }
   };
 }
@@ -203,20 +206,77 @@ function detectEnvironment() {
   const container = detectContainerEnvironment();
   const dirs = getWorkingDirs();
 
+  // Get system information
+  let memory = { total: 0, free: 0 };
+  let cpus = [];
+  let hostname = 'localhost';
+  let username = 'user';
+
+  try {
+    const os = require('os');
+    memory = {
+      total: os.totalmem(),
+      free: os.freemem()
+    };
+    cpus = os.cpus();
+    hostname = os.hostname();
+    try {
+      username = os.userInfo().username;
+    } catch (userError) {
+      // userInfo might not be available in some environments
+      username = process.env.USER || process.env.USERNAME || 'user';
+    }
+  } catch (error) {
+    console.warn(`Error getting system information: ${error.message}`);
+  }
+
   return {
     isCI: ci.isCI,
+    isGitHubActions: ci.providers.gitHubActions,
+    isJenkins: ci.providers.jenkins,
+    isGitLabCI: ci.providers.gitLabCI,
+    isCircleCI: ci.providers.circleCI,
+    isTravis: ci.providers.travis,
+    isAzurePipelines: ci.providers.azure,
+    isTeamCity: ci.providers.teamCity,
+    isBitbucket: ci.providers.bitbucket,
+    isAppVeyor: ci.providers.appVeyor,
+    isDroneCI: ci.providers.drone,
+    isBuddyCI: ci.providers.buddy,
+    isBuildkite: ci.providers.buildkite,
+    isCodeBuild: ci.providers.codeBuild,
     ciProviders: ci.providers,
+    isDocker: container.type.docker,
+    isKubernetes: container.type.kubernetes,
+    isContainerized: container.isContainer,
+    isRkt: false, // Add support for rkt if needed
+    isContainerd: container.type.containerd,
+    isCRIO: false, // Add support for CRI-O if needed
+    isSingularity: false, // Add support for Singularity if needed
+    isDockerCompose: !!process.env.COMPOSE_PROJECT_NAME,
+    isDockerSwarm: !!process.env.DOCKER_SWARM,
+    isAWS: !!process.env.AWS_REGION || !!process.env.AWS_LAMBDA_FUNCTION_NAME,
+    isAzure: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT || !!process.env.WEBSITE_SITE_NAME,
+    isGCP: !!process.env.GOOGLE_CLOUD_PROJECT || !!process.env.GCLOUD_PROJECT,
+    isCloudEnvironment: !!(process.env.AWS_REGION || process.env.AZURE_FUNCTIONS_ENVIRONMENT || process.env.GOOGLE_CLOUD_PROJECT),
+    isLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
+    isAzureFunctions: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT,
+    isCloudFunctions: !!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION,
+    isServerless: !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AZURE_FUNCTIONS_ENVIRONMENT || (process.env.FUNCTION_NAME && process.env.FUNCTION_REGION)),
     container,
-    platform: {
-      type: os.type(),
-      platform: process.platform,
-      release: os.release(),
-      arch: process.arch,
-      nodeVersion: process.version,
-      isWindows: process.platform === 'win32',
-      isMac: process.platform === 'darwin',
-      isLinux: process.platform === 'linux'
-    },
+    platform: process.platform,
+    isWindows: process.platform === 'win32',
+    isMacOS: process.platform === 'darwin',
+    isLinux: process.platform === 'linux',
+    nodeVersion: process.version,
+    architecture: process.arch,
+    osType: require('os').type(),
+    osRelease: require('os').release(),
+    workingDir: process.cwd(),
+    hostname,
+    username,
+    memory,
+    cpus,
     directories: dirs,
     env: process.env.NODE_ENV || 'development'
   };
