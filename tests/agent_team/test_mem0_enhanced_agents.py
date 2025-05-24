@@ -75,7 +75,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
         # Disable logging during tests
-        logging.disable(logging.CRITICAL)
+        # logging.disable(logging.CRITICAL) # Commented out to avoid logger init issues
 
     def tearDown(self):
         """Tear down test fixtures."""
@@ -86,7 +86,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.task_patcher.stop()
 
         # Re-enable logging
-        logging.disable(logging.NOTSET)
+        # logging.disable(logging.NOTSET) # Commented out to avoid logger init issues
 
     def test_initialization(self):
         """Test that the team initializes correctly."""
