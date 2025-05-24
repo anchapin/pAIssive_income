@@ -112,13 +112,19 @@ function detectCIEnvironment() {
   const isVercel = !!envVars.VERCEL;
   const isNetlify = !!envVars.NETLIFY;
   const isHeroku = !!envVars.HEROKU_TEST_RUN_ID;
+  
+  // Additional CI platforms
+  const isCodefresh = !!envVars.CF_BUILD_ID;
+  const isSemaphore = !!envVars.SEMAPHORE;
+  const isHarness = !!envVars.HARNESS_BUILD_ID;
 
   // Combined CI detection
   const isCI = envVars.CI === 'true' || envVars.CI === true ||
                isGitHubActions || isJenkins || isGitLabCI || isCircleCI ||
                isAzure || isTravis || isTeamCity || isBitbucket ||
                isAppVeyor || isDrone || isBuddy || isBuildkite ||
-               isCodeBuild || isVercel || isNetlify || isHeroku;
+               isCodeBuild || isVercel || isNetlify || isHeroku ||
+               isCodefresh || isSemaphore || isHarness;
 
   return {
     isCI,
@@ -138,7 +144,10 @@ function detectCIEnvironment() {
       codeBuild: isCodeBuild,
       vercel: isVercel,
       netlify: isNetlify,
-      heroku: isHeroku
+      heroku: isHeroku,
+      codefresh: isCodefresh,
+      semaphore: isSemaphore,
+      harness: isHarness
     }
   };
 }
@@ -245,29 +254,45 @@ function detectEnvironment() {
     isBuddyCI: ci.providers.buddy,
     isBuildkite: ci.providers.buildkite,
     isCodeBuild: ci.providers.codeBuild,
+    isCodefresh: ci.providers.codefresh,
+    isSemaphore: ci.providers.semaphore,
+    isHarness: ci.providers.harness,
     ciProviders: ci.providers,
     isDocker: container.type.docker,
+    isPodman: container.type.podman,
     isKubernetes: container.type.kubernetes,
     isContainerized: container.isContainer,
     isRkt: false, // Add support for rkt if needed
     isContainerd: container.type.containerd,
     isCRIO: false, // Add support for CRI-O if needed
     isSingularity: false, // Add support for Singularity if needed
+    isLXC: false, // Add support for LXC if needed
     isDockerCompose: !!process.env.COMPOSE_PROJECT_NAME,
     isDockerSwarm: !!process.env.DOCKER_SWARM,
     isAWS: !!process.env.AWS_REGION || !!process.env.AWS_LAMBDA_FUNCTION_NAME,
     isAzure: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT || !!process.env.WEBSITE_SITE_NAME,
     isGCP: !!process.env.GOOGLE_CLOUD_PROJECT || !!process.env.GCLOUD_PROJECT,
-    isCloudEnvironment: !!(process.env.AWS_REGION || process.env.AZURE_FUNCTIONS_ENVIRONMENT || process.env.GOOGLE_CLOUD_PROJECT),
+    isAlibabaCloud: !!process.env.ALIBABA_CLOUD_REGION || !!process.env.ALIBABA_CLOUD_ACCESS_KEY_ID,
+    isTencentCloud: !!process.env.TENCENTCLOUD_REGION || !!process.env.TENCENTCLOUD_SECRET_ID,
+    isHuaweiCloud: !!process.env.HUAWEICLOUD_REGION || !!process.env.HUAWEICLOUD_ACCESS_KEY,
+    isOracleCloud: !!process.env.OCI_REGION || !!process.env.OCI_TENANCY,
+    isIBMCloud: !!process.env.IBM_CLOUD_REGION || !!process.env.IBMCLOUD_API_KEY,
+    isCloudEnvironment: !!(process.env.AWS_REGION || process.env.AZURE_FUNCTIONS_ENVIRONMENT || process.env.GOOGLE_CLOUD_PROJECT || process.env.ALIBABA_CLOUD_REGION || process.env.TENCENTCLOUD_REGION || process.env.HUAWEICLOUD_REGION || process.env.OCI_REGION || process.env.IBM_CLOUD_REGION),
     isLambda: !!process.env.AWS_LAMBDA_FUNCTION_NAME,
     isAzureFunctions: !!process.env.AZURE_FUNCTIONS_ENVIRONMENT,
     isCloudFunctions: !!process.env.FUNCTION_NAME && !!process.env.FUNCTION_REGION,
     isServerless: !!(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AZURE_FUNCTIONS_ENVIRONMENT || (process.env.FUNCTION_NAME && process.env.FUNCTION_REGION)),
+    // Node.js environment detection
+    isDevelopment: process.env.NODE_ENV === 'development',
+    isProduction: process.env.NODE_ENV === 'production',
+    isTest: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'testing' || process.env.CI === 'true',
+    isStaging: process.env.NODE_ENV === 'staging',
     container,
     platform: process.platform,
     isWindows: process.platform === 'win32',
     isMacOS: process.platform === 'darwin',
     isLinux: process.platform === 'linux',
+    isWSL: process.env.WSL_DISTRO_NAME !== undefined,
     nodeVersion: process.version,
     architecture: process.arch,
     osType: require('os').type(),

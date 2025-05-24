@@ -392,7 +392,7 @@ function safelyCreateDirectory(dirPath) {
         try {
           const isWindows = process.platform === 'win32';
           const cmd = isWindows
-            ? `if not exist "${normalizedPath.replace(/\//g, '\\')}" mkdir "${normalizedPath.replace(/\//g, '\\')}"`
+            ? `if not exist "${normalizedPath}" mkdir "${normalizedPath}"`
             : `mkdir -p "${normalizedPath}"`;
 
           require('child_process').execSync(cmd);

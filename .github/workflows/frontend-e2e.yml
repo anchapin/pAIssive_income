@@ -25,23 +25,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
       
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
           path: ui/react_frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('ui/react_frontend/package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         working-directory: ui/react_frontend
         run: |
-          npm install
+          pnpm install
       
       - name: Install Playwright browsers
         working-directory: ui/react_frontend

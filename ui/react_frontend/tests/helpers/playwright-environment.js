@@ -40,10 +40,10 @@ function configurePlaywright(options = {}) {
 
   if (verbose) {
     console.log('Configuring Playwright for detected environment:');
-    console.log(`- Platform: ${env.platform.platform}`);
+    console.log(`- Platform: ${env.platform}`);
     console.log(`- CI: ${env.isCI ? 'Yes' : 'No'}`);
-    console.log(`- Docker: ${env.container.type.docker ? 'Yes' : 'No'}`);
-    console.log(`- Kubernetes: ${env.container.type.kubernetes ? 'Yes' : 'No'}`);
+    console.log(`- Docker: ${env.isDocker ? 'Yes' : 'No'}`);
+    console.log(`- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}`);
     console.log(`- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}`);
     console.log(`- Node Environment: ${process.env.NODE_ENV || 'not set'}`);
   }
