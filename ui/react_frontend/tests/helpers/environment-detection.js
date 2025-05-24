@@ -37,33 +37,71 @@ function safeReadFile(filePath, encoding = 'utf8') {
 }
 
 /**
+ * Safely create a directory with error handling
+ * @param {string} dirPath - Directory path to create
+ * @returns {boolean} True if successful, false otherwise
+ */
+function safelyCreateDirectory(dirPath) {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    return true;
+  } catch (error) {
+    console.warn(`Error creating directory at ${dirPath}: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Safely write a file with error handling
+ * @param {string} filePath - File path to write
+ * @param {string} content - Content to write
+ * @param {string} [encoding='utf8'] - File encoding
+ * @returns {boolean} True if successful, false otherwise
+ */
+function safelyWriteFile(filePath, content, encoding = 'utf8') {
+  try {
+    // Ensure directory exists
+    const dir = path.dirname(filePath);
+    safelyCreateDirectory(dir);
+
+    fs.writeFileSync(filePath, content, encoding);
+    return true;
+  } catch (error) {
+    console.warn(`Error writing file at ${filePath}: ${error.message}`);
+    return false;
+  }
+}
+
+/**
  * Detect CI environment with comprehensive platform support
  * @returns {Object} CI environment details
  */
 function detectCIEnvironment() {
   const envVars = process.env;
-  
+
   // GitHub Actions
   const isGitHubActions = envVars.GITHUB_ACTIONS === 'true' || !!envVars.GITHUB_WORKFLOW;
-  
+
   // Jenkins
   const isJenkins = !!envVars.JENKINS_URL || !!envVars.JENKINS_HOME;
-  
+
   // GitLab CI
   const isGitLabCI = !!envVars.GITLAB_CI || !!envVars.CI_SERVER;
-  
+
   // CircleCI
   const isCircleCI = !!envVars.CIRCLECI;
-  
+
   // Azure Pipelines
   const isAzure = !!envVars.TF_BUILD || !!envVars.AZURE_HTTP_USER_AGENT;
-  
+
   // Travis CI
   const isTravis = !!envVars.TRAVIS;
-  
+
   // TeamCity
   const isTeamCity = !!envVars.TEAMCITY_VERSION;
-  
+
   // Additional CI platforms
   const isBitbucket = !!envVars.BITBUCKET_BUILD_NUMBER;
   const isAppVeyor = !!envVars.APPVEYOR;
@@ -113,7 +151,7 @@ function detectContainerEnvironment() {
   const isDocker = safeFileExists('/.dockerenv');
   const isPodman = safeFileExists('/run/.containerenv');
   const isKubernetes = !!process.env.KUBERNETES_SERVICE_HOST;
-  
+
   // Check for container runtime
   const cgroupContent = safeReadFile('/proc/1/cgroup');
   const hasContainerRuntime = cgroupContent && (
@@ -140,7 +178,7 @@ function detectContainerEnvironment() {
 function getWorkingDirs() {
   const cwd = process.cwd();
   const tmp = os.tmpdir();
-  
+
   return {
     workspace: process.env.GITHUB_WORKSPACE ||
               process.env.JENKINS_HOME ||
@@ -164,7 +202,7 @@ function detectEnvironment() {
   const ci = detectCIEnvironment();
   const container = detectContainerEnvironment();
   const dirs = getWorkingDirs();
-  
+
   return {
     isCI: ci.isCI,
     ciProviders: ci.providers,
@@ -189,5 +227,9 @@ module.exports = {
   detectEnvironment,
   detectCIEnvironment,
   detectContainerEnvironment,
-  getWorkingDirs
+  getWorkingDirs,
+  safeFileExists,
+  safeReadFile,
+  safelyCreateDirectory,
+  safelyWriteFile
 };

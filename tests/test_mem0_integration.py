@@ -20,6 +20,7 @@ import pytest
 # Check if mem0 is available
 try:
     from mem0 import Memory
+
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
@@ -28,6 +29,7 @@ except ImportError:
 try:
     from adk.agent import Agent
     from adk.communication import Message
+
     ADK_AVAILABLE = True
 except ImportError:
     ADK_AVAILABLE = False
@@ -35,6 +37,7 @@ except ImportError:
 # Check if CrewAI is available
 try:
     from crewai import Agent as CrewAgent
+
     CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
@@ -48,7 +51,9 @@ except ImportError:
 
 # Skip all tests if dependencies are not available or OpenAI API key is not set
 pytestmark = pytest.mark.skipif(
-    not MEM0_AVAILABLE or not (ADK_AVAILABLE or CREWAI_AVAILABLE) or "OPENAI_API_KEY" not in os.environ,
+    not MEM0_AVAILABLE
+    or not (ADK_AVAILABLE or CREWAI_AVAILABLE)
+    or "OPENAI_API_KEY" not in os.environ,
     reason="mem0, agent frameworks not installed, or OPENAI_API_KEY not set",
 )
 
@@ -68,22 +73,22 @@ class TestMem0Integration(unittest.TestCase):
         self.memory.add(
             "User prefers dark mode in applications",
             user_id=self.user_id,
-            metadata={"category": "preferences"}
+            metadata={"category": "preferences"},
         )
 
         self.memory.add(
             "User is allergic to shellfish",
             user_id=self.user_id,
-            metadata={"category": "health"}
+            metadata={"category": "health"},
         )
 
         self.memory.add(
             [
                 {"role": "user", "content": "What's the weather like today?"},
-                {"role": "assistant", "content": "It's sunny and 75 degrees."}
+                {"role": "assistant", "content": "It's sunny and 75 degrees."},
             ],
             user_id=self.user_id,
-            metadata={"category": "conversation"}
+            metadata={"category": "conversation"},
         )
 
     def tearDown(self):
@@ -91,16 +96,12 @@ class TestMem0Integration(unittest.TestCase):
         # Clean up test memories
         # Note: mem0 doesn't have a built-in delete_all method,
         # so we're just letting them expire naturally
-        pass
 
     @pytest.mark.skipif(not ADK_AVAILABLE, reason="ADK not installed")
     def test_adk_agent_memory_retrieval(self):
         """Test that ADK agents can retrieve memories."""
         # Create a memory-enhanced agent
-        agent = MemoryEnhancedDataGathererAgent(
-            name="TestAgent",
-            user_id=self.user_id
-        )
+        agent = MemoryEnhancedDataGathererAgent(name="TestAgent", user_id=self.user_id)
 
         # Test memory retrieval
         memories = agent._retrieve_relevant_memories("preferences")
@@ -113,10 +114,7 @@ class TestMem0Integration(unittest.TestCase):
     def test_adk_agent_memory_storage(self):
         """Test that ADK agents can store memories."""
         # Create a memory-enhanced agent
-        agent = MemoryEnhancedDataGathererAgent(
-            name="TestAgent",
-            user_id=self.user_id
-        )
+        agent = MemoryEnhancedDataGathererAgent(name="TestAgent", user_id=self.user_id)
 
         # Store a new memory
         test_content = f"Test memory {os.urandom(4).hex()}"

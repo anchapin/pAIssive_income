@@ -18,7 +18,11 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 # Import the script to test
-from scripts.ci.detect_ci_environment import detect_ci_environment, safe_file_exists, safe_read_file
+from scripts.ci.detect_ci_environment import (
+    detect_ci_environment,
+    safe_file_exists,
+    safe_read_file,
+)
 
 
 class TestDetectCIEnvironment(unittest.TestCase):
@@ -57,9 +61,9 @@ class TestDetectCIEnvironment(unittest.TestCase):
 
         # Should detect one of these operating systems
         self.assertTrue(
-            env_info["os"]["is_windows"] or
-            env_info["os"]["is_macos"] or
-            env_info["os"]["is_linux"]
+            env_info["os"]["is_windows"]
+            or env_info["os"]["is_macos"]
+            or env_info["os"]["is_linux"]
         )
 
         # Platform should match the detected OS
@@ -79,7 +83,15 @@ class TestDetectCIEnvironment(unittest.TestCase):
         # Should detect WSL
         self.assertTrue(env_info["os"]["is_wsl"])
 
-    @patch.dict(os.environ, {"CI": "true", "GITHUB_ACTIONS": "true", "GITHUB_WORKFLOW": "test", "GITHUB_RUN_ID": "12345"})
+    @patch.dict(
+        os.environ,
+        {
+            "CI": "true",
+            "GITHUB_ACTIONS": "true",
+            "GITHUB_WORKFLOW": "test",
+            "GITHUB_RUN_ID": "12345",
+        },
+    )
     def test_detect_github_actions_environment(self):
         """Test GitHub Actions environment detection."""
         env_info = detect_ci_environment()
@@ -94,7 +106,9 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertIn("GITHUB_WORKFLOW", env_info["ci"]["ci_environment_variables"])
         self.assertIn("GITHUB_RUN_ID", env_info["ci"]["ci_environment_variables"])
 
-    @patch.dict(os.environ, {"CI": "true", "JENKINS_URL": "http://jenkins.example.com/"})
+    @patch.dict(
+        os.environ, {"CI": "true", "JENKINS_URL": "http://jenkins.example.com/"}
+    )
     def test_detect_jenkins_environment(self):
         """Test Jenkins environment detection."""
         env_info = detect_ci_environment()
@@ -120,7 +134,9 @@ class TestDetectCIEnvironment(unittest.TestCase):
         # Should include GitLab CI environment variables
         self.assertIn("GITLAB_CI", env_info["ci"]["ci_environment_variables"])
 
-    @patch.dict(os.environ, {"CI": "true", "CI_TYPE": "github", "CI_PLATFORM": "GitHub Actions"})
+    @patch.dict(
+        os.environ, {"CI": "true", "CI_TYPE": "github", "CI_PLATFORM": "GitHub Actions"}
+    )
     def test_detect_ci_with_type_and_platform(self):
         """Test CI environment detection with CI_TYPE and CI_PLATFORM."""
         env_info = detect_ci_environment()
@@ -135,7 +151,10 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertEqual(env_info["ci"]["ci_platform"], "Generic CI")
 
     @patch("scripts.ci.detect_ci_environment.safe_file_exists")
-    @patch("scripts.ci.detect_ci_environment.safe_read_file", return_value="12:memory:/docker/abcdef1234567890\n")
+    @patch(
+        "scripts.ci.detect_ci_environment.safe_read_file",
+        return_value="12:memory:/docker/abcdef1234567890\n",
+    )
     def test_detect_docker_environment(self, mock_read_file, mock_file_exists):
         """Test Docker environment detection."""
         # Mock the file exists check to return True only for specific paths
@@ -156,9 +175,13 @@ class TestDetectCIEnvironment(unittest.TestCase):
         # Should detect Docker
         self.assertTrue(env_info["container"]["is_docker"])
         self.assertTrue(env_info["container"]["is_containerized"])
-        self.assertEqual(env_info["container"]["detection_method"], "environment variable")
+        self.assertEqual(
+            env_info["container"]["detection_method"], "environment variable"
+        )
 
-    @patch.dict(os.environ, {"KUBERNETES_SERVICE_HOST": "10.0.0.1", "KUBERNETES_PORT": "443"})
+    @patch.dict(
+        os.environ, {"KUBERNETES_SERVICE_HOST": "10.0.0.1", "KUBERNETES_PORT": "443"}
+    )
     def test_detect_kubernetes_environment(self):
         """Test Kubernetes environment detection."""
         env_info = detect_ci_environment()
@@ -230,7 +253,10 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_aws"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"AWS_REGION": "us-west-2", "AWS_LAMBDA_FUNCTION_NAME": "test-function"})
+    @patch.dict(
+        os.environ,
+        {"AWS_REGION": "us-west-2", "AWS_LAMBDA_FUNCTION_NAME": "test-function"},
+    )
     def test_detect_aws_lambda_environment(self):
         """Test AWS Lambda environment detection."""
         env_info = detect_ci_environment()
@@ -250,7 +276,14 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_azure_functions"])
         self.assertTrue(env_info["cloud"]["is_serverless"])
 
-    @patch.dict(os.environ, {"GOOGLE_CLOUD_PROJECT": "test-project", "FUNCTION_NAME": "test-function", "FUNCTION_REGION": "us-central1"})
+    @patch.dict(
+        os.environ,
+        {
+            "GOOGLE_CLOUD_PROJECT": "test-project",
+            "FUNCTION_NAME": "test-function",
+            "FUNCTION_REGION": "us-central1",
+        },
+    )
     def test_detect_gcp_cloud_functions_environment(self):
         """Test GCP Cloud Functions environment detection."""
         env_info = detect_ci_environment()
@@ -260,7 +293,13 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_cloud_functions"])
         self.assertTrue(env_info["cloud"]["is_serverless"])
 
-    @patch.dict(os.environ, {"OCI_RESOURCE_PRINCIPAL_VERSION": "2.2", "OCI_COMPARTMENT_ID": "ocid1.compartment.oc1..aaaaaaaa"})
+    @patch.dict(
+        os.environ,
+        {
+            "OCI_RESOURCE_PRINCIPAL_VERSION": "2.2",
+            "OCI_COMPARTMENT_ID": "ocid1.compartment.oc1..aaaaaaaa",
+        },
+    )
     def test_detect_oci_environment(self):
         """Test Oracle Cloud Infrastructure (OCI) environment detection."""
         env_info = detect_ci_environment()
@@ -269,7 +308,13 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_oci"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"BLUEMIX_REGION": "us-south", "IBM_CLOUD_API_KEY": "1234567890abcdef1234567890abcdef"})
+    @patch.dict(
+        os.environ,
+        {
+            "BLUEMIX_REGION": "us-south",
+            "IBM_CLOUD_API_KEY": "1234567890abcdef1234567890abcdef",
+        },
+    )
     def test_detect_ibm_cloud_environment(self):
         """Test IBM Cloud environment detection."""
         env_info = detect_ci_environment()
@@ -278,7 +323,12 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_ibm_cloud"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"DIGITALOCEAN_ACCESS_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"})
+    @patch.dict(
+        os.environ,
+        {
+            "DIGITALOCEAN_ACCESS_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        },
+    )
     def test_detect_digitalocean_environment(self):
         """Test DigitalOcean environment detection."""
         env_info = detect_ci_environment()
@@ -287,7 +337,12 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_digitalocean"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"LINODE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"})
+    @patch.dict(
+        os.environ,
+        {
+            "LINODE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        },
+    )
     def test_detect_linode_environment(self):
         """Test Linode environment detection."""
         env_info = detect_ci_environment()
@@ -296,7 +351,12 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_linode"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"VULTR_API_KEY": "1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"})
+    @patch.dict(
+        os.environ,
+        {
+            "VULTR_API_KEY": "1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF"
+        },
+    )
     def test_detect_vultr_environment(self):
         """Test Vultr environment detection."""
         env_info = detect_ci_environment()
@@ -305,7 +365,13 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_vultr"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"CLOUDFLARE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef", "CF_PAGES": "true"})
+    @patch.dict(
+        os.environ,
+        {
+            "CLOUDFLARE_API_TOKEN": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+            "CF_PAGES": "true",
+        },
+    )
     def test_detect_cloudflare_environment(self):
         """Test Cloudflare environment detection."""
         env_info = detect_ci_environment()
@@ -314,7 +380,10 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertTrue(env_info["cloud"]["is_cloudflare"])
         self.assertTrue(env_info["cloud"]["is_cloud"])
 
-    @patch.dict(os.environ, {"CI": "true", "CM_BUILD_ID": "12345", "CODEMAGIC_ID": "abcdef1234567890"})
+    @patch.dict(
+        os.environ,
+        {"CI": "true", "CM_BUILD_ID": "12345", "CODEMAGIC_ID": "abcdef1234567890"},
+    )
     def test_detect_codemagic_environment(self):
         """Test Codemagic environment detection."""
         env_info = detect_ci_environment()
@@ -328,7 +397,13 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertIn("CM_BUILD_ID", env_info["ci"]["ci_environment_variables"])
         self.assertIn("CODEMAGIC_ID", env_info["ci"]["ci_environment_variables"])
 
-    @patch.dict(os.environ, {"CODESPACE_NAME": "username-project-abcdef", "GITHUB_CODESPACE_NAME": "username-project-abcdef"})
+    @patch.dict(
+        os.environ,
+        {
+            "CODESPACE_NAME": "username-project-abcdef",
+            "GITHUB_CODESPACE_NAME": "username-project-abcdef",
+        },
+    )
     def test_detect_github_codespaces_environment(self):
         """Test GitHub Codespaces environment detection."""
         env_info = detect_ci_environment()
@@ -340,9 +415,18 @@ class TestDetectCIEnvironment(unittest.TestCase):
 
         # Should include GitHub Codespaces environment variables
         self.assertIn("CODESPACE_NAME", env_info["ci"]["ci_environment_variables"])
-        self.assertIn("GITHUB_CODESPACE_NAME", env_info["ci"]["ci_environment_variables"])
+        self.assertIn(
+            "GITHUB_CODESPACE_NAME", env_info["ci"]["ci_environment_variables"]
+        )
 
-    @patch.dict(os.environ, {"CI": "true", "CLOUD_BUILD": "true", "CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789012"})
+    @patch.dict(
+        os.environ,
+        {
+            "CI": "true",
+            "CLOUD_BUILD": "true",
+            "CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789012",
+        },
+    )
     def test_detect_google_cloud_build_environment(self):
         """Test Google Cloud Build environment detection."""
         env_info = detect_ci_environment()
@@ -356,7 +440,10 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertIn("CLOUD_BUILD", env_info["ci"]["ci_environment_variables"])
         self.assertIn("CLOUD_BUILD_ID", env_info["ci"]["ci_environment_variables"])
 
-    @patch.dict(os.environ, {"CI": "true", "ALIBABA_CLOUD": "true", "ALICLOUD_ACCOUNT_ID": "1234567890"})
+    @patch.dict(
+        os.environ,
+        {"CI": "true", "ALIBABA_CLOUD": "true", "ALICLOUD_ACCOUNT_ID": "1234567890"},
+    )
     def test_detect_alibaba_cloud_environment(self):
         """Test Alibaba Cloud DevOps environment detection."""
         env_info = detect_ci_environment()
@@ -370,7 +457,14 @@ class TestDetectCIEnvironment(unittest.TestCase):
         self.assertIn("ALIBABA_CLOUD", env_info["ci"]["ci_environment_variables"])
         self.assertIn("ALICLOUD_ACCOUNT_ID", env_info["ci"]["ci_environment_variables"])
 
-    @patch.dict(os.environ, {"CI": "true", "GITPOD_WORKSPACE_ID": "username-project-abcdef", "GITPOD_WORKSPACE_URL": "https://username-project-abcdef.gitpod.io"})
+    @patch.dict(
+        os.environ,
+        {
+            "CI": "true",
+            "GITPOD_WORKSPACE_ID": "username-project-abcdef",
+            "GITPOD_WORKSPACE_URL": "https://username-project-abcdef.gitpod.io",
+        },
+    )
     def test_detect_gitpod_environment(self):
         """Test Gitpod environment detection."""
         env_info = detect_ci_environment()
@@ -382,7 +476,9 @@ class TestDetectCIEnvironment(unittest.TestCase):
 
         # Should include Gitpod environment variables
         self.assertIn("GITPOD_WORKSPACE_ID", env_info["ci"]["ci_environment_variables"])
-        self.assertIn("GITPOD_WORKSPACE_URL", env_info["ci"]["ci_environment_variables"])
+        self.assertIn(
+            "GITPOD_WORKSPACE_URL", env_info["ci"]["ci_environment_variables"]
+        )
 
 
 if __name__ == "__main__":

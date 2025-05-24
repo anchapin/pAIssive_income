@@ -15,15 +15,15 @@ environment detection and handling with proper fallbacks.
 """
 
 from .detect_ci_environment import (
+    create_ci_directories,
     detect_ci_environment,
     safe_file_exists,
     safe_read_file,
-    create_ci_directories,
 )
 
 __all__ = [
+    "create_ci_directories",
     "detect_ci_environment",
     "safe_file_exists",
     "safe_read_file",
-    "create_ci_directories",
 ]

@@ -40,10 +40,10 @@ function configurePlaywright(options = {}) {
 
   if (verbose) {
     console.log('Configuring Playwright for detected environment:');
-    console.log(`- Platform: ${env.platform}`);
+    console.log(`- Platform: ${env.platform.platform}`);
     console.log(`- CI: ${env.isCI ? 'Yes' : 'No'}`);
-    console.log(`- Docker: ${env.isDocker ? 'Yes' : 'No'}`);
-    console.log(`- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}`);
+    console.log(`- Docker: ${env.container.type.docker ? 'Yes' : 'No'}`);
+    console.log(`- Kubernetes: ${env.container.type.kubernetes ? 'Yes' : 'No'}`);
     console.log(`- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}`);
     console.log(`- Node Environment: ${process.env.NODE_ENV || 'not set'}`);
   }
@@ -85,13 +85,21 @@ function configurePlaywright(options = {}) {
     grep: process.env.TEST_GREP ? new RegExp(process.env.TEST_GREP) : undefined,
     grepInvert: process.env.TEST_GREP_INVERT ? new RegExp(process.env.TEST_GREP_INVERT) : undefined,
 
-    // Shared test setup and teardown
-    globalSetup: process.env.SKIP_GLOBAL_SETUP ? undefined : './tests/global-setup.js',
-    globalTeardown: process.env.SKIP_GLOBAL_TEARDOWN ? undefined : './tests/global-teardown.js',
-
     // Artifact management
     preserveOutput: env.isCI ? 'failures-only' : 'always',
   };
+
+  // Add global setup/teardown only if files exist
+  const globalSetupPath = './tests/global-setup.js';
+  const globalTeardownPath = './tests/global-teardown.js';
+
+  if (!process.env.SKIP_GLOBAL_SETUP && safeFileExists(path.join(process.cwd(), globalSetupPath))) {
+    config.globalSetup = globalSetupPath;
+  }
+
+  if (!process.env.SKIP_GLOBAL_TEARDOWN && safeFileExists(path.join(process.cwd(), globalTeardownPath))) {
+    config.globalTeardown = globalTeardownPath;
+  }
 
   return config;
 }
@@ -112,9 +120,9 @@ function determineReporters(env) {
 
   // Add CI-specific reporters
   if (env.isCI) {
-    if (env.isGitHubActions) {
+    if (env.ciProviders.gitHubActions) {
       reporters.push(['github']);
-    } else if (env.isJenkins || env.isGitLabCI || env.isAzurePipelines) {
+    } else if (env.ciProviders.jenkins || env.ciProviders.gitLabCI || env.ciProviders.azure) {
       reporters.push(['junit', { outputFile: 'test-results/junit-results.xml' }]);
     }
   }
@@ -140,15 +148,15 @@ function determineWorkers(env) {
   if (env.isCI) {
     // Use more workers in CI for parallel execution
     // GitHub Actions and other modern CI systems can handle parallel tests well
-    if (env.isGitHubActions || env.isBuildkite || env.isCircleCI) {
+    if (env.ciProviders.gitHubActions || env.ciProviders.buildkite || env.ciProviders.circleCI) {
       return Math.max(2, Math.floor(os.cpus().length / 2));
     } else {
       // For other CI systems, use a more conservative approach
       return Math.max(2, Math.floor(os.cpus().length / 3));
     }
-  } else if (env.isDocker || env.isKubernetes || env.isRkt || env.isSingularity) {
+  } else if (env.container.isContainer) {
     // Use fewer workers in container environments based on container type
-    if (env.isKubernetes) {
+    if (env.container.type.kubernetes) {
       // Kubernetes usually has more resources available
       return Math.max(2, Math.floor(os.cpus().length / 2));
     } else {
@@ -157,8 +165,8 @@ function determineWorkers(env) {
     }
   } else {
     // For local development, use more workers but leave some CPU for other tasks
-    // Use 'auto' to let Playwright decide based on available CPUs
-    return 'auto';
+    // Use a specific number instead of 'auto' to avoid the configuration error
+    return Math.max(1, Math.floor(os.cpus().length / 2));
   }
 }
 
@@ -182,7 +190,7 @@ function determineProjects(env) {
   ];
 
   // Add more browsers for local development
-  if (!env.isCI && !env.isDocker && !env.isKubernetes) {
+  if (!env.isCI && !env.container.type.docker && !env.container.type.kubernetes) {
     projects.push({
       name: 'firefox',
       use: {

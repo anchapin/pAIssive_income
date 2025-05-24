@@ -18,7 +18,6 @@ from agent_team.mem0_enhanced_agents import (
     MemoryEnhancedCrewAIAgentTeam,
 )
 
-
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
     not CREWAI_AVAILABLE or not MEM0_AVAILABLE,
@@ -143,7 +142,9 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         # Check that a memory was stored
         assert self.memory_mock.add.call_count >= 3  # Init, add_agent, add_task
         args, kwargs = self.memory_mock.add.call_args
-        assert "Research AI memory systems" in str(args) or "Research AI memory systems" in str(kwargs)
+        assert "Research AI memory systems" in str(
+            args
+        ) or "Research AI memory systems" in str(kwargs)
 
     def test_run(self):
         """Test running the team workflow."""
@@ -244,6 +245,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             user_id="test-user",
             limit=5,  # Default limit
         )
+
 
 if __name__ == "__main__":
     unittest.main()

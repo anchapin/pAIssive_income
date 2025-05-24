@@ -1,6 +1,7 @@
 {
   "name": "paissive-income",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "tailwind:build:static": "npx tailwindcss -c tailwind.config.js -i ./ui/static/css/tailwind.css -o ./ui/static/css/tailwind.output.css --minify",
@@ -77,7 +78,20 @@
       "**/testUtils.js",
       "**/test_utils.js",
       "**/test-utils.js",
-      "**/setupTests.js"
+      "**/setupTests.js",
+      "**/.venv/**",
+      "**/.venv_new/**",
+      "**/venv/**",
+      "**/env/**",
+      "**/.env/**",
+      "**/node_modules/**",
+      "**/__pycache__/**",
+      "**/.pytest_cache/**",
+      "**/.mypy_cache/**",
+      "**/.ruff_cache/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/*.egg-info/**"
     ],
     "statements": 1,
     "branches": 1,
