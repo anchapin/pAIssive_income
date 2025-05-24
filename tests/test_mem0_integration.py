@@ -22,18 +22,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Check if mem0 is available
-_temp_mem0_module = None
-_temp_Memory_class = None
+mem0 = None
+Memory = None
 try:
     import mem0ai
-    _temp_Memory_class = mem0ai.Memory
-    _temp_mem0_module = mem0ai
+    mem0 = mem0ai
+    Memory = mem0ai.Memory
 except ImportError as e:  # mem0 or agent frameworks not available, skip test
     logger.warning(f"mem0ai not available: {e}")
-    # _temp_mem0_module and _temp_Memory_class remain None, which is the desired fallback.
-
-mem0 = _temp_mem0_module
-Memory = _temp_Memory_class
+    # mem0 and Memory remain None, which is the desired fallback.
 
 # Import ADK components
 try:
