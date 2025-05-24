@@ -55,39 +55,38 @@ jobs:
           # Activate virtual environment
           source .venv/bin/activate
 
-          # First install aiohttp explicitly to ensure it's available
-          python -m pip install --upgrade pip
-          python -m pip install aiohttp>=3.9.0
+          # Install dependencies with uv (including aiohttp and test dependencies)
+          uv pip install aiohttp>=3.9.0 pytest pytest-cov pytest-xdist pytest-asyncio || {
+            echo "Failed to install dependencies with uv pip. Installing/upgrading uv in the virtual environment and retrying..."
+            python -m pip install --upgrade pip # Ensure pip is up-to-date for uv install
+            python -m pip install --upgrade "uv>=0.7.8" # Ensure uv is available in venv
+            uv pip install aiohttp>=3.9.0 pytest pytest-cov pytest-xdist pytest-asyncio
+          }
 
           # Verify aiohttp is installed
           python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')" || {
-            echo "Failed to import aiohttp. Trying alternative installation..."
-            python -m pip install --force-reinstall aiohttp>=3.9.0
-            python -c "import aiohttp; print(f'aiohttp version: {aiohttp.__version__}')"
+            echo "Failed to import aiohttp after uv install. This might indicate a deeper issue."
           }
-
-          # Install test dependencies
-          python -m pip install pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install project requirements
           if [ -f requirements-dev.txt ]; then
-            python -m pip install -r requirements-dev.txt || {
-              echo "Failed to install from requirements-dev.txt with pip. Trying with uv..."
-              uv pip install -r requirements-dev.txt
+            uv pip install -r requirements-dev.txt || {
+              echo "Failed to install from requirements-dev.txt with uv. Trying with pip..."
+              python -m pip install -r requirements-dev.txt
             }
           fi
 
           if [ -f requirements.txt ]; then
-            python -m pip install -r requirements.txt || {
-              echo "Failed to install from requirements.txt with pip. Trying with uv..."
-              uv pip install -r requirements.txt
+            uv pip install -r requirements.txt || {
+              echo "Failed to install from requirements.txt with uv. Trying with pip..."
+              python -m pip install -r requirements.txt
             }
           fi
 
           # Install the package in development mode
-          python -m pip install -e . -v || {
-            echo "Failed to install package with pip. Trying with uv..."
-            uv pip install -e . -v
+          uv pip install -e . -v || {
+            echo "Failed to install package with uv. Trying with pip..."
+            python -m pip install -e . -v
           }
 
       - name: Create junit directory
