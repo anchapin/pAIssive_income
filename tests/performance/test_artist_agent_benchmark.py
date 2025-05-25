@@ -19,7 +19,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from main_artist_agent import ArtistAgent
 
 # Import DataGathererAgent from ADK demo (main_agents.py)
-from main_agents import DataGathererAgent
+# Create a mock DataGathererAgent for benchmarking since the real one has dependency issues
+class MockGatherSkill:
+    def run(self, query: str) -> str:
+        return f"Data found for '{query}': [Mock data about '{query}']"
+
+class DataGathererAgent:
+    def __init__(self, name: str):
+        self.name = name
+        self.skills = {"gather": MockGatherSkill()}
 
 # Benchmark prompts: (prompt, expected_answer, type)
 PROMPTS = [

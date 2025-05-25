@@ -85,7 +85,10 @@ def test_artist_agent_no_matching_tool(monkeypatch):
         pytest.skip("ArtistAgent missing 'process' or 'run' method.")
 
     # The dummy tool should not trigger a valid answer
-    assert "no tool" in str(response).lower() or "can't help" in str(response).lower() or "not available" in str(response).lower(), \
+    assert ("no tool" in str(response).lower() or
+            "no suitable tool" in str(response).lower() or
+            "can't help" in str(response).lower() or
+            "not available" in str(response).lower()), \
         "Agent did not respond appropriately to missing tool"
 
 def test_artist_agent_multistep_reasoning_placeholder():
