@@ -1,8 +1,8 @@
 """
 Tool registry for agentic reasoning and integration.
 
-This module allows registration and retrieval of callable tools (functions, APIs, etc.)
-for use by agent wrappers.
+This module allows registration and retrieval of callable tools (functions,
+APIs, etc.) for use by agent wrappers.
 """
 
 from __future__ import annotations
@@ -89,23 +89,29 @@ def calculator(expression: str) -> object:  # noqa: C901
         # Disallow potentially dangerous patterns
         if "**" in expression and any(
             n > MAX_EXPONENT_VALUE
-            for n in [float(x) for x in re.findall(r"\d+", expression) if x.isdigit()]
+            for n in [
+                float(x) for x in re.findall(r"\d+", expression)
+                if x.isdigit()
+            ]
         ):
             return (
-                f"Error: Exponentiation with values > {MAX_EXPONENT_VALUE} not allowed"
+                f"Error: Exponentiation with values > "
+                f"{MAX_EXPONENT_VALUE} not allowed"
             )
 
         # Try to use ast.literal_eval for simple expressions
         try:
             return ast.literal_eval(expression)
         except (ValueError, SyntaxError):
-            # For expressions with operators, implement a safer alternative to eval
-            # Parse the expression and evaluate it using the operators dictionary
+            # For expressions with operators, implement a safer alternative
+            # to eval. Parse the expression and evaluate it using the
+            # operators dictionary
             import ast
 
             # Create a custom evaluator that uses our restricted operators
-            # Note: Method names must match AST node types exactly for NodeVisitor to work
-            # We need to disable N802 (function name should be lowercase) for these methods
+            # Note: Method names must match AST node types exactly for
+            # NodeVisitor to work. We need to disable N802 (function name
+            # should be lowercase) for these methods
             class SafeExpressionEvaluator(ast.NodeVisitor):
                 # Method names must match AST node types exactly
                 def visit_BinOp(self, node: ast.BinOp) -> object:  # noqa: N802
@@ -125,18 +131,25 @@ def calculator(expression: str) -> object:  # noqa: C901
                         return operators["**"](left, right)
                     if isinstance(node.op, ast.Mod):
                         return operators["%"](left, right)
-                    error_msg = f"Unsupported operator: {type(node.op).__name__}"
+                    error_msg = (
+                        f"Unsupported operator: {type(node.op).__name__}"
+                    )
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
-                def visit_UnaryOp(self, node: ast.UnaryOp) -> object:  # noqa: N802
+                def visit_UnaryOp(  # noqa: N802
+                    self, node: ast.UnaryOp
+                ) -> object:
                     """Process unary operations."""
                     operand = self.visit(node.operand)
                     if isinstance(node.op, ast.USub):
                         return -operand
                     if isinstance(node.op, ast.UAdd):
                         return operand
-                    error_msg = f"Unsupported unary operator: {type(node.op).__name__}"
+                    error_msg = (
+                        f"Unsupported unary operator: "
+                        f"{type(node.op).__name__}"
+                    )
                     raise ValueError(error_msg)
 
                 # Method names must match AST node types exactly
@@ -145,20 +158,30 @@ def calculator(expression: str) -> object:  # noqa: C901
                     return node.n
 
                 # Method names must match AST node types exactly
-                def visit_Constant(self, node: ast.Constant) -> object:  # noqa: N802
+                def visit_Constant(  # noqa: N802
+                    self, node: ast.Constant
+                ) -> object:
                     """Process constant nodes."""
                     return node.value
 
                 def generic_visit(self, node: ast.AST) -> None:
                     """Handle unsupported node types."""
-                    error_msg = f"Unsupported node type: {type(node).__name__}"
+                    error_msg = (
+                        f"Unsupported node type: {type(node).__name__}"
+                    )
                     raise ValueError(error_msg)
 
             # Parse and evaluate the expression
             parsed_expr = ast.parse(expression, mode="eval")
             evaluator = SafeExpressionEvaluator()
             return evaluator.visit(parsed_expr.body)
-    except (ValueError, SyntaxError, TypeError, ZeroDivisionError, OverflowError) as e:
+    except (
+        ValueError,
+        SyntaxError,
+        TypeError,
+        ZeroDivisionError,
+        OverflowError,
+    ) as e:
         return f"Error: {e}"
 
 
