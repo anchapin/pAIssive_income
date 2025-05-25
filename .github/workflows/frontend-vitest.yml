@@ -14,6 +14,16 @@ on:
         default: false
         type: boolean
 
+# Prevent concurrent runs to avoid memory issues
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Enable debug logging when requested
+  ACTIONS_RUNNER_DEBUG: ${{ inputs.debug == true }}
+  ACTIONS_STEP_DEBUG: ${{ inputs.debug == true }}
+
 jobs:
   vitest:
     runs-on: ubuntu-latest
@@ -106,12 +116,12 @@ jobs:
               echo "Platform: $(uname -s)" >> coverage/environment-report.txt
               echo "Node.js: $(node --version)" >> coverage/environment-report.txt
             }
-            
+
             node tests/helpers/generate-environment-report.js coverage/environment-report.json --json || {
               echo "JSON environment report generation failed, creating fallback..."
               echo '{"timestamp":"'$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")'","ci":true,"platform":"'$(uname -s)'","nodeVersion":"'$(node --version)'"}' > coverage/environment-report.json
             }
-            
+
             node tests/helpers/generate-environment-report.js ci-reports/github/environment-report.txt --env-vars || {
               echo "Environment variables report generation failed, creating fallback..."
               echo "Environment Variables Report" > ci-reports/github/environment-report.txt
@@ -126,9 +136,9 @@ jobs:
             echo "CI: true" >> coverage/environment-report.txt
             echo "Platform: $(uname -s)" >> coverage/environment-report.txt
             echo "Node.js: $(node --version)" >> coverage/environment-report.txt
-            
+
             echo '{"timestamp":"'$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")'","ci":true,"platform":"'$(uname -s)'","nodeVersion":"'$(node --version)'"}' > coverage/environment-report.json
-            
+
             echo "Environment Variables Report" > ci-reports/github/environment-report.txt
             echo "Generated at: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" >> ci-reports/github/environment-report.txt
             echo "CI=true" >> ci-reports/github/environment-report.txt
@@ -188,7 +198,7 @@ jobs:
             echo "Warning: test:unit script not found in package.json"
             echo "Available scripts:"
             pnpm run --help
-            
+
             # Try alternative test commands
             if pnpm run test --help >/dev/null 2>&1; then
               echo "Using 'test' script as fallback..."

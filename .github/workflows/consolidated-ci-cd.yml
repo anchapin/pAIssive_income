@@ -58,6 +58,21 @@ on:
 permissions:
   contents: read
 
+# Prevent concurrent runs to avoid memory issues
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Enable debug logging for troubleshooting
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
+  # Enhanced environment detection
+  CI: true
+  CI_ENVIRONMENT: true
+  CI_TYPE: github
+  GITHUB_ACTIONS: true
+
 jobs:
   lint-test:
     name: Lint, Type Check, and Test
