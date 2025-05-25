@@ -6,7 +6,7 @@ It contains simple functions and classes that are easy to test.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 
 class DummyClass:
