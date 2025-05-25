@@ -72,17 +72,27 @@ from typing import Any, Dict, List, Optional, Union, Set, Callable, Tuple, Type
 
 from common_utils.logging.secure_logging import SecureLogger, get_secure_logger, mask_sensitive_data
 
+_logger = logging.getLogger(__name__)
+
 # Try to import optional dependencies
 try:
     from elasticsearch import Elasticsearch
     ELASTICSEARCH_AVAILABLE = True
 except ImportError:
+    _logger.warning(
+        "Elasticsearch library not found. ElasticsearchOutput will not be available.",
+        exc_info=True
+    )
     ELASTICSEARCH_AVAILABLE = False
 
 try:
     import logstash
     LOGSTASH_AVAILABLE = True
 except ImportError:
+    _logger.warning(
+        "python-logstash library not found. LogstashOutput will not be available.",
+        exc_info=True
+    )
     LOGSTASH_AVAILABLE = False
 
 

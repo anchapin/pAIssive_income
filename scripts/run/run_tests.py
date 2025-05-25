@@ -21,6 +21,9 @@ import logging
 import subprocess
 import sys
 
+# Create a dedicated logger for this module
+logger = logging.getLogger(__name__)
+
 # Third-party imports
 
 PHASE_MARKERS = {
@@ -38,12 +41,10 @@ PHASE_MARKERS = {
     # Add more as needed
 }
 
-# Create a dedicated logger for this module
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 
 def main() -> int:
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """
     Parse arguments and run pytest with markers and coverage enforcement.
 

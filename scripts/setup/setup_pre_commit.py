@@ -15,8 +15,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Set up a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
@@ -150,6 +148,7 @@ def setup_hooks() -> bool:
 
 
 def main() -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """
     Set up pre-commit hooks.
 

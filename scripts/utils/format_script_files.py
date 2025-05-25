@@ -9,8 +9,6 @@ from pathlib import Path
 
 # Use built-in types for type annotations
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Set up a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
@@ -65,6 +63,7 @@ def format_file(file_path: str) -> bool:
 
 
 def main() -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Format all Python files in the scripts directory."""
     script_files = [
         "scripts/debug_filtering.py",

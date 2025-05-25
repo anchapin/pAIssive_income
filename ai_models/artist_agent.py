@@ -11,17 +11,19 @@ from typing import Any, Callable
 import logging # Added import
 import os # Added import for os.environ check
 
+# Configure logging (logger only, basicConfig in main)
+logger = logging.getLogger(__name__)
+
 try:
     import anthropic
     ANTHROPIC_AVAILABLE = True
-except ImportError:
+except ImportError as e:
+    logger.exception(f"Anthropic SDK not found or import failed: {e}. Optional features depending on Anthropic will be unavailable.")
     anthropic = None # type: ignore
     ANTHROPIC_AVAILABLE = False
 
 from common_utils import tooling
 
-# Configure logging (logger only, basicConfig in main)
-logger = logging.getLogger(__name__)
 
 class ArtistAgent:
     """Agent that selects and uses tools based on user prompts."""

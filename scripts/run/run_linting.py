@@ -13,9 +13,6 @@ import subprocess
 import sys
 from typing import Union
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Set up a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
@@ -50,6 +47,8 @@ def run(cmd: Union[str, list[str]], description: str) -> None:
 
 def main() -> None:
     """Run linting and formatting checks."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Lint and fix with Ruff
     run("ruff check --fix .", "Ruff lint and auto-fix")
     # Enforce Ruff formatting (check only, do not auto-fix in CI)

@@ -15,8 +15,6 @@ import subprocess  # nosec B404 - subprocess is used with proper security contro
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -290,6 +288,8 @@ def run_mcp_tests() -> int:
         int: The return code from the test run (0 for success, non-zero for failure)
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     logger.info("Running MCP adapter tests...")
     logger.info("Platform: %s", platform.system())
     logger.info("Python version: %s", sys.version)

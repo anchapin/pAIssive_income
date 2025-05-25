@@ -245,9 +245,34 @@ class LoggerChecker(ast.NodeVisitor):
             and node.func.attr == "basicConfig"
         ):
             self.logging_basicConfig_used = True
+            
+            # 'node' is ast.Call. Its parent should be ast.Expr. Parent of ast.Expr is the scope-defining node.
+            parent_expr = getattr(node, 'parent', None) # Parent of Call node (should be ast.Expr)
+            scope_defining_node = getattr(parent_expr, 'parent', None) if parent_expr else None # Parent of Expr node
 
-            # Check if basicConfig is used in the global scope (not in a function)
-            if not any(isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)) for parent in self.get_parents(node)):
+            is_in_function = isinstance(scope_defining_node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            is_in_main_guard = False
+
+            if isinstance(scope_defining_node, ast.If):
+                # Check if this 'If' node is 'if __name__ == "__main__":'
+                # and this 'If' node itself is at the module level (its parent is ast.Module).
+                if_node_is_top_level = isinstance(getattr(scope_defining_node, 'parent', None), ast.Module)
+
+                if if_node_is_top_level:
+                    test_expr = scope_defining_node.test
+                    if (
+                        isinstance(test_expr, ast.Compare) and
+                        isinstance(test_expr.left, ast.Name) and test_expr.left.id == "__name__" and
+                        isinstance(test_expr.ops[0], ast.Eq) and
+                        len(test_expr.comparators) == 1 and isinstance(test_expr.comparators[0], ast.Constant) and
+                        test_expr.comparators[0].value == "__main__"
+                    ):
+                        # Check if the parent_expr (which contains basicConfig call) is directly in the body of this If node
+                        if parent_expr in scope_defining_node.body:
+                            is_in_main_guard = True
+            
+            # If not in a function and not in a recognized main guard, then it's considered global/problematic.
+            if not is_in_function and not is_in_main_guard:
                 self.issues.append(
                     LoggerIssue(
                         self.file_path,
@@ -378,9 +403,15 @@ def check_file(file_path: str) -> List[LoggerIssue]:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        tree = ast.parse(content, filename=file_path)
-        checker = LoggerChecker(file_path)
-        checker.visit(tree)
+            tree = ast.parse(content, filename=file_path)
+
+            # Add parent pointers to all nodes in the AST
+            for node_obj in ast.walk(tree):
+                for child_node in ast.iter_child_nodes(node_obj):
+                    child_node.parent = node_obj # type: ignore[attr-defined]
+
+            checker = LoggerChecker(file_path)
+            checker.visit(tree)
         return checker.check()
     except SyntaxError as e:
         logger.warning(f"Syntax error in {file_path}: {e}")

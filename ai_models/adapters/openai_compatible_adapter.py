@@ -4,12 +4,13 @@
 import logging
 import asyncio
 import sys # Added sys import
+logger = logging.getLogger(__name__)
 from typing import Dict, List, Any, Union
 
 try:
     import aiohttp
 except ImportError:
-    logging.error("aiohttp library not found. Please install it using 'pip install aiohttp'")
+    logger.exception("aiohttp library not found. Please install it using 'pip install aiohttp'")
     sys.exit(1)
 
 
@@ -18,7 +19,6 @@ except ImportError:
 # Local imports
 from .base_adapter import BaseModelAdapter
 
-logger = logging.getLogger(__name__)
 
 class OpenAICompatibleAdapter(BaseModelAdapter):
     """Adapter for connecting to OpenAI-compatible APIs, including local servers that implement the OpenAI API."""

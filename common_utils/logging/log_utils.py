@@ -4,6 +4,9 @@ import logging
 import sys # Added sys import
 from typing import Any, List, Optional, Union
 
+# Configure logger for this module
+logger = logging.getLogger(__name__)
+
 try:
     from common_utils.logging.secure_logging import (
         SecureLogger,
@@ -11,7 +14,7 @@ try:
         prevent_log_injection,
     )
 except ImportError:
-    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    logger.error("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
 
 

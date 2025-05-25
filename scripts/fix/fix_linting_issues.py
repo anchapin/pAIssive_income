@@ -18,11 +18,6 @@ import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 
@@ -372,6 +367,11 @@ def _process_files_in_parallel(
 
 def main() -> None:
     """Run the script."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
     args = _parse_arguments()
 
     # Process exclude patterns

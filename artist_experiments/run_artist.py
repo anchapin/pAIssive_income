@@ -9,10 +9,12 @@ import os
 import sys # Added sys import
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 try:
     from flask import Flask, jsonify
 except ImportError:
-    logging.error("Flask library not found. Please install it using 'pip install Flask'")
+    logger.exception("Flask library not found. Please install it using 'pip install Flask'")
     sys.exit(1)
 
 def setup_logging():
@@ -29,7 +31,6 @@ def setup_logging():
     )
 
 setup_logging()
-logger = logging.getLogger(__name__)
 
 # Create Flask app
 app = Flask(__name__)

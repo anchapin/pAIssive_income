@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -319,6 +318,7 @@ def convert_file(
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Simple command-line interface
     MIN_ARGS = 4  # input_file, output_file, tool_name are required
     if len(sys.argv) < MIN_ARGS:

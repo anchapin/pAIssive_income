@@ -14,10 +14,6 @@ import shutil
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -183,6 +179,10 @@ def main() -> int:
         int: 0 for success, 1 for failure
 
     """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     exit_code = 1
 
     try:

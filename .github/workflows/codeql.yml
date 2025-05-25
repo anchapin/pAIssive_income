@@ -176,6 +176,7 @@ jobs:
           fi
           echo "Installing project in editable mode (if setup.py or pyproject.toml exists)..."
           if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            python -m pip install --upgrade setuptools wheel
             pip install -e .
           else
             echo "No setup.py or pyproject.toml found, skipping project installation."

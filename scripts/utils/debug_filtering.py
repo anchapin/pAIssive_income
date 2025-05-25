@@ -12,8 +12,6 @@ from common_utils.logging import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 
 def filter_debug_logs(
     logs: list[tuple[int, str]], level: int = logging.INFO
@@ -33,6 +31,7 @@ def filter_debug_logs(
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Demo usage of the debug log filtering utility."""
     sample_logs = [
         (logging.DEBUG, "Debug message"),

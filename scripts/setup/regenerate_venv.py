@@ -11,8 +11,6 @@ import sys
 from pathlib import Path
 from typing import NoReturn, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Set up a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
@@ -312,6 +310,7 @@ def _perform_venv_creation_steps(
 
 def main() -> int:
     """Regenerate the virtual environment using uv."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     if not check_venv_status():
         # This path is currently not taken as check_venv_status always returns True
         # If it could fail, this would be a return point.

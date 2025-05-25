@@ -76,11 +76,6 @@ from common_utils.logging.dashboard_auth import (
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 
 try:
     import dash
@@ -3562,15 +3557,14 @@ def create_dashboard(
         )
 
 
-
-    return app
-
 def main() -> int:
-    """Main function.
+    """Main function."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
-    Returns:
-        Exit code (0 for success, non-zero for failure)
-    """
     parser = argparse.ArgumentParser(description="Advanced Log Dashboard for pAIssive_income")
     parser.add_argument("--port", type=int, default=8050, help="Port to run the dashboard on")
     parser.add_argument("--log-dir", type=str, default=".", help="Directory containing log files")

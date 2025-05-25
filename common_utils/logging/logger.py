@@ -5,6 +5,9 @@ import logging
 import sys
 from typing import Dict, List, Optional
 
+# Configure logger for this module
+logger_module = logging.getLogger(__name__) # Renamed to avoid conflict with 'logger' var in get_logger
+
 # Third-party imports
 
 # Local imports

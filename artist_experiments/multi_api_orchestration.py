@@ -11,17 +11,19 @@ import logging
 import sys # Added sys import
 from typing import Optional
 
+logger = logging.getLogger(__name__)
+
 try:
     import httpx
 except ImportError:
-    logging.error("httpx library not found. Please install it using 'pip install httpx'")
+    logger.exception("httpx library not found. Please install it using 'pip install httpx'")
     sys.exit(1)
 
 try:
     from ai_models.artist_agent import ArtistAgent
     from common_utils import tooling
 except ImportError:
-    logging.error("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
+    logger.exception("Failed to import local modules (ArtistAgent or tooling). Ensure they are in PYTHONPATH.")
     sys.exit(1)
 
 def setup_logging():
@@ -32,7 +34,6 @@ def setup_logging():
     )
 
 setup_logging()
-logger = logging.getLogger(__name__)
 
 
 class APITool:

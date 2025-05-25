@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 import traceback
 import uuid
-from logging import ERROR, INFO, Logger, getLogger
+import logging
 from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
@@ -13,23 +13,23 @@ if TYPE_CHECKING:
     from flask.wrappers import Response # type: ignore
     from werkzeug.wrappers import Response as WerkzeugResponse # type: ignore
 import sys # Added sys import
+logger = logging.getLogger(__name__)
 
 try:
     from flask.globals import current_app, g, request
 except ImportError:
-    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    logger.exception("Error: Flask module not found. Please install it (e.g., pip install Flask).")
     sys.exit(1)
 
 
 try:
     from app_flask.utils.logging_utils import sanitize_log_data, structured_log
 except ImportError:
-    print("Error: app_flask.utils.logging_utils module not found. Ensure it's in the PYTHONPATH.")
+    logger.exception("Error: app_flask.utils.logging_utils module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
 
 # Type hint for Flask app logger
-FlaskLogger = Logger
-logger = getLogger(__name__) # Initialize logger
+FlaskLogger = logging.Logger
 
 
 def logging_getattr(module: object, name: str, default: object = None) -> object:

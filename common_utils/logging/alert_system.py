@@ -83,23 +83,17 @@ import sys # Added sys import
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Pattern, Set, Union
 
+_logger = logging.getLogger(__name__)
+
 try:
     import numpy as np
     import requests
     from scipy import stats
 except ImportError as e:
-    logging.error(f"Failed to import third-party library: {e}")
-    sys.exit(1)
-
-try:
-    from common_utils.logging.secure_logging import get_secure_logger
-except ImportError:
-    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    _logger.error(f"Failed to import third-party library: {e}")
     sys.exit(1)
 
 
-# Set up logging for this module
-logger = get_secure_logger(__name__)
 
 
 class AlertCondition(str, Enum):
@@ -254,10 +248,10 @@ class EmailNotifier(AlertNotifier):
                 server.login(self.username, self.password)
                 server.send_message(msg)
 
-            logger.info(f"Sent email alert: {alert_rule.name}")
+            _logger.info(f"Sent email alert: {alert_rule.name}")
             return True
         except Exception as e:
-            logger.error(f"Error sending email alert: {e}")
+            _logger.error(f"Failed to send email alert '{alert_rule.name}': {e}")
             return False
 
 
@@ -313,10 +307,10 @@ class WebhookNotifier(AlertNotifier):
             )
             response.raise_for_status()
 
-            logger.info(f"Sent webhook alert: {alert_rule.name}")
+            _logger.info(f"Sent webhook alert: {alert_rule.name}")
             return True
         except Exception as e:
-            logger.error(f"Error sending webhook alert: {e}")
+            _logger.error(f"Failed to send webhook alert '{alert_rule.name}': {e}")
             return False
 
 
@@ -349,10 +343,10 @@ class InAppNotifier(AlertNotifier):
         """
         try:
             self.callback(alert_rule, context)
-            logger.info(f"Sent in-app alert: {alert_rule.name}")
+            _logger.info(f"Sent in-app alert: {alert_rule.name}")
             return True
         except Exception as e:
-            logger.error(f"Error sending in-app alert: {e}")
+            _logger.exception(f"Error in in-app notification callback for alert '{alert_rule.name}': {e}")
             return False
 
 
@@ -378,12 +372,12 @@ class AlertSystem:
                 if existing_rule.id == rule.id:
                     # Replace existing rule
                     self.rules[i] = rule
-                    logger.info(f"Updated alert rule: {rule.name}")
+                    _logger.info(f"Updated alert rule: {rule.name}")
                     return
 
             # Add new rule
             self.rules.append(rule)
-            logger.info(f"Added alert rule: {rule.name}")
+            _logger.info(f"Added alert rule: {rule.name}")
 
     def remove_rule(self, rule_id: str) -> bool:
         """Remove an alert rule.
@@ -398,7 +392,7 @@ class AlertSystem:
             for i, rule in enumerate(self.rules):
                 if rule.id == rule_id:
                     self.rules.pop(i)
-                    logger.info(f"Removed alert rule: {rule.name}")
+                    _logger.info(f"Removed alert rule: {rule.name}")
                     return True
             return False
 
@@ -410,7 +404,7 @@ class AlertSystem:
         """
         with self.lock:
             self.notifiers[notifier.name] = notifier
-            logger.info(f"Added notifier: {notifier.name}")
+            _logger.info(f"Added notifier: {notifier.name}")
 
     def remove_notifier(self, name: str) -> bool:
         """Remove a notifier.
@@ -424,8 +418,9 @@ class AlertSystem:
         with self.lock:
             if name in self.notifiers:
                 del self.notifiers[name]
-                logger.info(f"Removed notifier: {name}")
+                _logger.info(f"Removed notifier: {name}")
                 return True
+            _logger.error(f"Notifier '{name}' not found")
             return False
 
     def process_logs(self, log_entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -469,7 +464,7 @@ class AlertSystem:
                         "context": context,
                     })
             except Exception as e:
-                logger.error(f"Error processing rule {rule.name}: {e}")
+                _logger.error(f"Error processing rule {rule.name}: {e}")
 
         return triggered_alerts
 
@@ -567,7 +562,7 @@ class AlertSystem:
         elif rule.condition == AlertCondition.ABSENCE:
             return self._check_absence_condition(rule, log_entries, context)
         else:
-            logger.warning(f"Unknown alert condition: {rule.condition}")
+            _logger.warning(f"Unknown alert condition: {rule.condition}")
             return False, context
 
     def _check_pattern_condition(
@@ -591,7 +586,7 @@ class AlertSystem:
         try:
             regex = re.compile(pattern)
         except re.error:
-            logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
+            _logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
             return False, context
             
         # Check for matches
@@ -834,7 +829,7 @@ class AlertSystem:
                     if regex.search(entry.get("message", ""))
                 ]
             except re.error:
-                logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
+                _logger.error(f"Invalid regex pattern in rule {rule.name}: {pattern}")
                 matches = []
         else:
             matches = window_logs
@@ -865,6 +860,6 @@ class AlertSystem:
                 try:
                     notifier.send_alert(rule, context)
                 except Exception as e:
-                    logger.error(f"Error sending notification via {notifier_name}: {e}")
+                    _logger.error(f"Error sending notification via {notifier_name}: {e}")
             else:
-                logger.warning(f"Notifier not found: {notifier_name}")
+                _logger.error(f"Notifier '{notifier_name}' not found for alert '{rule.name}'")

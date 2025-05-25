@@ -21,8 +21,6 @@ from pathlib import Path
 # Set up a dedicated logger for this module
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 
 def get_git_tracked_files() -> set[str]:
     """Return a set of all Python files tracked by git."""
@@ -63,6 +61,7 @@ def get_all_python_files() -> set[str]:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     """Verify that all Python files are tracked by git."""
     tracked = get_git_tracked_files()
     all_found = get_all_python_files()

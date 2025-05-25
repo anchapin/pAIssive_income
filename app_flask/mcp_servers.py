@@ -11,6 +11,7 @@ import threading
 from pathlib import Path
 from typing import Any, Optional
 import sys # Added sys import
+logger = logging.getLogger(__name__)
 
 try:
     from flask import Blueprint, Response, jsonify, request
@@ -31,8 +32,6 @@ MAX_JSON_DEPTH = 5  # Maximum nesting depth for JSON parsing
 
 # Thread safety
 _LOCK = threading.Lock()
-
-logger = logging.getLogger(__name__)
 
 
 # Custom exceptions

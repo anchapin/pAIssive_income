@@ -11,12 +11,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 logger = logging.getLogger("run_github_actions_locally")
 
 
@@ -279,6 +273,12 @@ def run_lint_file(file_path: str) -> int:
 
 def main() -> int:
     """Execute the main workflow for running GitHub Actions locally."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[%(asctime)s] %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     parser = argparse.ArgumentParser(description="Run GitHub Actions workflows locally")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 

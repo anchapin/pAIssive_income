@@ -14,8 +14,6 @@ import re
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 # Patterns to detect potential security issues
@@ -311,6 +309,8 @@ def fix_file(file_path: str) -> bool:
 
 def main() -> None:
     """Execute the main function to fix CodeQL issues."""
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     # Get the directory to scan
     root_dir = sys.argv[1] if len(sys.argv) > 1 else "."
 

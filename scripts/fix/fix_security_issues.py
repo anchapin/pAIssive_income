@@ -39,9 +39,6 @@ PATTERN_LENGTH_THRESHOLD = 5
 CHAR_THRESHOLD_1 = 110
 CHAR_THRESHOLD_2 = 115
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
 # Import the existing security tools if possible
 try:
     from fix_potential_secrets import scan_directory
@@ -783,6 +780,8 @@ def main() -> int:
         int: Exit code
 
     """
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     args = setup_args()
 
     # Convert excluded directories to a set

@@ -2,11 +2,12 @@
 
 import logging
 import sys
+logger = logging.getLogger(__name__)
 
 try:
     from flask import Blueprint, jsonify, request
 except ImportError:
-    print("Error: Flask module not found. Please install it (e.g., pip install Flask).")
+    logger.exception("Error: Flask module not found. Please install it (e.g., pip install Flask).")
     sys.exit(1)
 
 try:
@@ -15,12 +16,9 @@ try:
     from users.services import UserService
     from common_utils.logging.log_utils import log_user_id_safely, sanitize_user_input
 except ImportError as e:
-    print(f"Error importing local modules: {e}. Ensure they are in the PYTHONPATH.")
+    logger.exception(f"Error importing local modules: {e}. Ensure they are in the PYTHONPATH.")
     sys.exit(1)
 
-
-# Set up logger
-logger = logging.getLogger(__name__)
 
 # Create blueprint
 user_bp = Blueprint("user", __name__, url_prefix="/api/users")
