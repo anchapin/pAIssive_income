@@ -63,7 +63,7 @@ class ExampleInputModel(BaseModel):
     ("payload", "expected_error"),
     [
         # Missing required field
-        ({"username": "alice", "age": 30}, "Input validation failed."),
+        ({"username": "alice", "age": 30}, "Input validation failed"),
         # Extra/unknown field
         (
             {
@@ -73,12 +73,12 @@ class ExampleInputModel(BaseModel):
                 "bio": "hi",
                 "hacker": True,
             },
-            "Input validation failed.",
+            "Input validation failed",
         ),
         # Invalid type
         (
             {"username": "carol", "age": "not_a_number", "email": "carol@example.com"},
-            "Input validation failed.",
+            "Input validation failed",
         ),
         # XSS payload
         (
@@ -87,7 +87,7 @@ class ExampleInputModel(BaseModel):
                 "age": 22,
                 "email": "xss@example.com",
             },
-            "Input validation failed.",
+            "Input validation failed",
         ),
         # SQL injection payload
         (
@@ -96,17 +96,17 @@ class ExampleInputModel(BaseModel):
                 "age": 22,
                 "email": "sql@example.com",
             },
-            "Input validation failed.",
+            "Input validation failed",
         ),
         # Oversized payload
         (
             {"username": "a" * 100, "age": 22, "email": "big@example.com"},
-            "Input validation failed.",
+            "Input validation failed",
         ),
         # Out-of-range age
         (
             {"username": "dan", "age": 999, "email": "dan@example.com"},
-            "Input validation failed.",
+            "Input validation failed",
         ),
     ],
 )
