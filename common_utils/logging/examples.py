@@ -50,7 +50,7 @@ def example_mask_sensitive_data() -> None:
     """Demonstrate direct usage of the mask_sensitive_data function."""
     # Standard logger
     # logger = logging.getLogger("standard_logger") # This logger is not configured, using the module logger instead
-    global logger # Use the module level logger
+    # Use the module level logger
 
     # Sensitive data - using placeholder for demonstration
     demo_access_token = "DEMO_TOKEN_PLACEHOLDER"  # noqa: S105

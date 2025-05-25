@@ -685,7 +685,7 @@ class CentralizedLoggingService:
                     log_entry["timestamp"] = datetime.datetime.now().isoformat()
 
                 return log_entry
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 self.logger.exception(f"Failed to parse log entry from {addr}")
                 self.stats["errors"] += 1
                 return {
