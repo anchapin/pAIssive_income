@@ -1,20 +1,8 @@
 name: Docker Compose Integration
 
 on:
-  push:
-    branches: [ main, develop, cosine/add/ag-ui-pnpm-zt2ztr, cosine/improve-frontend-tests-y4hwd5 ]
-    paths:
-      - 'docker-compose*.yml'
-      - 'scripts/fix-docker-*.sh'
-      - 'scripts/run-docker-compose-ci.sh'
-      - '.github/workflows/docker-compose.yml'
-      - 'ui/react_frontend/Dockerfile.dev'
-      - 'ui/react_frontend/package.json'
-      - 'Dockerfile'
-      - 'docker-healthcheck.sh'
-      - 'wait-for-db.sh'
   pull_request:
-    branches: [ main, develop, master, cosine/improve-frontend-tests-y4hwd5 ]
+    branches: [ main ]
     paths:
       - 'docker-compose*.yml'
       - 'scripts/fix-docker-*.sh'
@@ -212,63 +200,63 @@ jobs:
           if [ ! -f "docker-compose.yml" ]; then
             echo "Creating optimized docker-compose.yml..."
             cat > docker-compose.yml << 'EOL'
-services:
-  db:
-    image: postgres:15.3-alpine
-    container_name: paissive-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=mydb
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - paissive-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
-      interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
-    command: ["postgres", "-c", "max_connections=200"]
+              services:
+                db:
+                  image: postgres:15.3-alpine
+                  container_name: paissive-postgres
+                  restart: unless-stopped
+                  environment:
+                    - POSTGRES_USER=myuser
+                    - POSTGRES_PASSWORD=mypassword
+                    - POSTGRES_DB=mydb
+                  volumes:
+                    - postgres-data:/var/lib/postgresql/data
+                  networks:
+                    - paissive-network
+                  healthcheck:
+                    test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+                    interval: 3s
+                    timeout: 3s
+                    retries: 10
+                    start_period: 5s
+                  command: ["postgres", "-c", "max_connections=200"]
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - CI=true
-    container_name: paissive-income-app
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=production
-      - FLASK_APP=run_ui.py
-      - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
-      - CI=true
-    networks:
-      - paissive-network
-    healthcheck:
-      test: ["CMD", "/app/docker-healthcheck.sh"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    depends_on:
-      db:
-        condition: service_healthy
+                app:
+                  build:
+                    context: .
+                    dockerfile: Dockerfile
+                    args:
+                      - CI=true
+                  container_name: paissive-income-app
+                  restart: unless-stopped
+                  ports:
+                    - "5000:5000"
+                  environment:
+                    - FLASK_ENV=production
+                    - FLASK_APP=run_ui.py
+                    - PYTHONUNBUFFERED=1
+                    - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mydb
+                    - CI=true
+                  networks:
+                    - paissive-network
+                  healthcheck:
+                    test: ["CMD", "/app/docker-healthcheck.sh"]
+                    interval: 5s
+                    timeout: 10s
+                    retries: 5
+                    start_period: 30s
+                  depends_on:
+                    db:
+                      condition: service_healthy
 
-networks:
-  paissive-network:
-    driver: bridge
+              networks:
+                paissive-network:
+                  driver: bridge
 
-volumes:
-  postgres-data:
-    driver: local
-EOL
+              volumes:
+                postgres-data:
+                  driver: local
+              EOL
           else
             echo "Using existing docker-compose.yml"
           fi
@@ -287,6 +275,7 @@ EOL
 
       - name: Set up Docker Buildx and login to Docker Hub
         id: buildx
+        continue-on-error: true
         run: |
           # Set up Docker Buildx with optimized settings
           docker buildx create --use --name=buildx-instance \

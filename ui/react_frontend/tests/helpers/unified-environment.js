@@ -97,17 +97,18 @@ function isGitHubActions() {
 function isDockerEnvironment() {
   try {
     return !!(
-      // Standard Docker environment file
-      fs.existsSync('/.dockerenv') ||
-
       // Environment variable set in our Docker setup
       process.env.DOCKER_ENVIRONMENT === 'true' ||
 
-      // Podman/container environment file
-      fs.existsSync('/run/.containerenv') ||
+      // Standard Docker environment file (Linux/macOS only)
+      (process.platform !== 'win32' && fs.existsSync('/.dockerenv')) ||
 
-      // Check cgroup for Docker
-      (fs.existsSync('/proc/1/cgroup') &&
+      // Podman/container environment file (Linux only)
+      (process.platform !== 'win32' && fs.existsSync('/run/.containerenv')) ||
+
+      // Check cgroup for Docker (Linux only)
+      (process.platform !== 'win32' && 
+       fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'))
     );
   } catch (error) {
@@ -127,8 +128,9 @@ function isRktEnvironment() {
       process.env.RKT_ENVIRONMENT === 'true' ||
       process.env.RKT === 'true' ||
 
-      // Check cgroup for rkt
-      (fs.existsSync('/proc/1/cgroup') &&
+      // Check cgroup for rkt (Linux only)
+      (process.platform !== 'win32' && 
+       fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('rkt'))
     );
   } catch (error) {
@@ -149,9 +151,9 @@ function isSingularityEnvironment() {
       process.env.SINGULARITY === 'true' ||
       !!process.env.SINGULARITY_CONTAINER ||
 
-      // Check for Singularity specific files
-      fs.existsSync('/.singularity.d') ||
-      fs.existsSync('/singularity')
+      // Check for Singularity specific files (Linux/macOS only)
+      (process.platform !== 'win32' && fs.existsSync('/.singularity.d')) ||
+      (process.platform !== 'win32' && fs.existsSync('/singularity'))
     );
   } catch (error) {
     console.warn(`Error detecting Singularity environment: ${error.message}`);

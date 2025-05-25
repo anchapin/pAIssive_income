@@ -98,7 +98,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm' # This will cache the pnpm store
           # cache-dependency-path: 'pnpm-lock.yaml' # Recommended: path to your pnpm lock file for this part of the build
 
@@ -112,15 +112,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      # Set up Node.js for JavaScript testing
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      # Set up pnpm for JavaScript package management
 
       - name: Cache uv dependencies
         uses: actions/cache@v4

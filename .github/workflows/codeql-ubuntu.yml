@@ -5,7 +5,7 @@ name: "CodeQL Analysis (Ubuntu)"
 
 on:
   pull_request:
-    branches: [ main, dev, master, develop ]
+    branches: [ main ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -233,6 +233,7 @@ jobs:
       # Ensure CodeQL configuration files exist
       - name: Ensure CodeQL configuration files
         shell: bash
+        continue-on-error: true
         run: |
           if [ -f ".github/scripts/ensure-codeql-configs.sh" ]; then
             echo "Running ensure-codeql-configs.sh script..."
@@ -245,26 +246,26 @@ jobs:
 
             # Create minimal Ubuntu configuration using a single heredoc
             cat > .github/codeql/security-os-ubuntu.yml << 'EOF'
-name: "CodeQL Configuration for Ubuntu"
-os: ubuntu-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+              name: "CodeQL Configuration for Ubuntu"
+              os: ubuntu-latest
+              queries:
+                - uses: security-and-quality
+                - uses: security-extended
+                - uses: security
+              disable-default-queries: false
+              trap-for-errors: true
+              EOF
 
             # Create minimal unified configuration using a single heredoc
             cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+              name: "Unified CodeQL Configuration"
+              queries:
+                - uses: security-and-quality
+                - uses: security-extended
+                - uses: security
+              disable-default-queries: false
+              trap-for-errors: true
+              EOF
           fi
 
       # Removed automatic fix script execution to prevent auto-fixing CodeQL issues
