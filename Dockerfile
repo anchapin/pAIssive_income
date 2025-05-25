@@ -34,6 +34,15 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /lib/apt/lists/*
 
+# Add deadsnakes PPA for Python 3.10
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update
+
+# Install Python 3.10 and its development headers/venv module
+RUN apt-get install -y python3.10 python3.10-venv python3.10-dev
+
 # Copy requirements files
 COPY requirements-dev.txt .
 COPY requirements-ci.txt .
@@ -41,10 +50,10 @@ COPY ai_models/requirements.txt ai_models_requirements.txt
 
 # Select requirements file based on environment
 RUN if [ "$CI" = "true" ]; then \
-      cp requirements-ci.txt requirements.txt; \
-    else \
-      cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
-    fi
+       cp requirements-ci.txt requirements.txt; \
+     else \
+       cat requirements-dev.txt ai_models_requirements.txt > requirements.txt; \
+     fi
 
 # Set up virtual environment and install dependencies
 RUN uv venv /app/.venv \

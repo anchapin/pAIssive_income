@@ -4,5 +4,16 @@ extra-index-url = []
 no-binary = []
 only-binary = []
 
+[tool.uv]
+cache-dir = ".uv/cache"  # Specify a cache directory for uv
+timeout = 60  # Increase timeout for slow networks
+parallel = 4  # Use up to 4 parallel processes for installation
+retries = 3  # Retry failed installations up to 3 times
+
+[tool.uv.pip]
+timeout = 60  # Increase timeout for slow networks
+
 [venv]
 python = "3.10"
+prompt = "pAIssive_income-venv"  # Custom prompt for the virtual environment
+clear = true  # Clear the environment before creating a new one
