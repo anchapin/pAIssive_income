@@ -17,6 +17,7 @@ Framework for generating passive income by utilizing a team of AI agents to gene
 - **CrewAI Integration**: Use CrewAI to create and manage AI agent teams
 - **CopilotKit Integration**: Add AI copilot features to the React frontend
 - **Multi-Chain Protocol (MCP) Support**: Connect to various AI providers through a unified interface
+  - *Note: As of May 2025, the unused `mcp-use` dependency has been removed while maintaining full MCP functionality via the `modelcontextprotocol` package*
 - **mem0 Memory Integration**: Enhance agents with persistent memory capabilities
 
 **pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, and automation. It combines advanced AI models, multi-agent orchestration, and robust APIs with a focus on developer experience and security.
@@ -53,6 +54,53 @@ All project documentation is now centralized in [docs/](docs/):
 For a full directory map, see [docs/00_introduction/03_project_structure.md](docs/00_introduction/03_project_structure.md).
 
 ---
+
+## 🛠️ Minimal Agent & Tool Registry Demo
+
+A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator or text analyzer) via a simple registry.
+
+**What the demo does:**
+- Instantiates an `ArtistAgent`
+- Lists available tools
+- Supports both example prompts and interactive mode
+- Example mode: runs three prompts—one handled by the calculator, one by the text analyzer, one unhandled
+- Interactive mode: enter your own prompts in a loop
+
+**How to run:**
+```bash
+# Example-based demo (default)
+python scripts/artist_demo.py
+
+# Interactive mode (enter prompts manually)
+python scripts/artist_demo.py -i
+```
+
+**Expected output:**
+- The list of available tools (calculator, text_analyzer, etc.)
+- The prompt that is sent to the agent
+- The agent's output (e.g., calculation result, analysis, or a message indicating no tool can handle the prompt)
+
+Example (output will vary by implementation):
+
+```
+=== ArtistAgent Tool Use Demo ===
+
+Available tools:
+  - calculator
+  - text_analyzer
+-----------------------------
+Prompt: What is 12 * 8?
+Agent output: 96
+-----------------------------
+Prompt: Analyze the sentiment of this phrase: 'This is a fantastic development!'
+Agent output: Sentiment: positive | Words: 6 | Characters: 35 | Positive indicators: 1 | Negative indicators: 0
+-----------------------------
+Prompt: Translate hello to French
+Agent output: No suitable tool found for this prompt.
+```
+
+**Note:**  
+The agent and tool registry are easily extensible—new tools can be added with minimal code changes, allowing the agent to handle more types of tasks.
 
 ## 🤝 Contributing
 
@@ -190,12 +238,6 @@ For more details, see `.github/dependabot.yml`.
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
 ## Docker Compose Integration
-=======
-For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
-
-**pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
-
----
 
 > **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.
 > This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
@@ -344,4 +386,11 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 ## 📝 License
 
 See [LICENSE](LICENSE) for license details.
+
+## Recent Changes
+
+### uv and pnpm Implementation Updates
+- Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
+- Enhanced GitHub workflow configurations for better cross-platform compatibility
+- Improved uv virtual environment handling and dependency management
 

@@ -1,5 +1,14 @@
 # CrewAI + CopilotKit Integration Guide
 
+---
+
+## Product Requirements Document (PRD)
+
+The Product Requirements Document (PRD) for Coding Assistant and CopilotKit features can be found at [Product_Requirements_Document.md](./Product_Requirements_Document.md).  
+**All contributors should review the PRD to ensure feature implementations and changes align with product goals and requirements.**
+
+---
+
 This guide provides detailed information about the integration between CrewAI and CopilotKit in the pAIssive_income project.
 
 ## Overview
