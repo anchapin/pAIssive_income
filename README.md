@@ -327,10 +327,12 @@ To use the mem0 integration:
    team = MemoryEnhancedCrewAIAgentTeam(user_id="user123")
    ```
 
-For more details on the mem0 integration, see:
-- [README_mem0_integration.md](README_mem0_integration.md) - Main integration guide
-- [docs/README_mem0.md](docs/README_mem0.md) - Overview of mem0 investigation
-- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) - Documentation of mem0's core APIs
+For more details on the mem0 integration and best practices for combining mem0 with Retrieval-Augmented Generation (RAG):
+
+- [README_mem0_integration.md](README_mem0_integration.md) – Main integration guide (now includes best practices for mem0 + RAG)
+- [docs/mem0_rag_best_practices.md](docs/mem0_rag_best_practices.md) – Detailed guide on when and how to use mem0 and RAG, with examples
+- [docs/README_mem0.md](docs/README_mem0.md) – Overview of mem0 investigation
+- [docs/mem0_core_apis.md](docs/mem0_core_apis.md) – Documentation of mem0's core APIs
 
 ## 🚀 Getting Started
 
