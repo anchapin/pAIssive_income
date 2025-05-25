@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional, List
 
 if TYPE_CHECKING:
-    from .types import AgentVar, TaskVar, CrewType
+    from .types import AgentVar, TaskVar
 
 
 class Crew:

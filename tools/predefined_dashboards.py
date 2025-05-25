@@ -1,12 +1,8 @@
 """Predefined dashboard layouts for common monitoring scenarios."""
 
 import dash_bootstrap_components as dbc
-from dash import dcc, html, dash_table
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from dash import dcc, html
 
-from common_utils.logging.dashboard_auth import require_permission
 
 
 def create_error_monitoring_dashboard():

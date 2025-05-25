@@ -27,7 +27,7 @@ Requirements:
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 # Import CrewAI components
 try:
@@ -36,7 +36,6 @@ try:
 except ImportError:
     CREWAI_AVAILABLE = False
     # Use placeholder classes from crewai_agents.py
-    from agent_team.crewai_agents import Agent, Crew, Task, AgentPlaceholder, CrewPlaceholder, TaskPlaceholder
 
 # Import mem0 components
 try:
@@ -48,7 +47,6 @@ except ImportError:
 
 # Import base CrewAI agent team
 from agent_team.crewai_agents import CrewAIAgentTeam
-import logging # Ensure logging is imported if not already
 
 # Configure logging
 logger = logging.getLogger(__name__)

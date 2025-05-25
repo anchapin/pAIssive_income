@@ -6,7 +6,6 @@ Script to add logging import to test files.
 import os
 import re
 import sys
-from pathlib import Path
 
 def add_logging_import(file_path):
     """Add logging import to a Python file if it's missing."""

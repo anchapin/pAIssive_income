@@ -144,7 +144,6 @@ class TestAggregateLogsImproved:
         """Test aggregate_logs function with a Logstash error."""
         # This test is simplified to avoid mocking issues
         # We'll just verify that the function exists and can be called
-        from common_utils.logging.log_aggregation import aggregate_logs
 
         # Verify that the function exists
         assert callable(aggregate_logs)
@@ -172,7 +171,6 @@ class TestConfigureLogAggregationImproved:
         """Test configure_log_aggregation function."""
         # This test is simplified to avoid mocking issues
         # We'll just verify that the function exists and can be called
-        from common_utils.logging.log_aggregation import configure_log_aggregation
 
         # Verify that the function exists
         assert callable(configure_log_aggregation)

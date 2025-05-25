@@ -115,7 +115,11 @@ class TestUserRouter:
         assert response.status_code == 201
         data = response.json()
         assert data == mock_user
-        mock_create_user.assert_called_once_with(user_data)
+        mock_create_user.assert_called_once_with(
+            username="newuser",
+            email="newuser@example.com",
+            auth_credential="Password123!"
+        )
 
     @patch("users.services.UserService.create_user")
     @patch("api.routes.user_router.logger")

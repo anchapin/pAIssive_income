@@ -58,19 +58,16 @@ Usage:
         ...
 """
 
-import base64
 import datetime
 import hashlib
 import hmac
-import json
-import logging
 import os
 import secrets
 import time
 import uuid
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set
 import sys # Added sys import
 
 try:

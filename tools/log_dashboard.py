@@ -37,13 +37,9 @@ import logging
 import os
 import re
 import sys
-import time
-import socket
-import threading
 import traceback
 from collections import Counter, defaultdict
-from typing import Dict, List, Optional, Tuple, Any, Union, Set
-from urllib.parse import quote
+from typing import Dict, List, Optional, Tuple, Any
 
 # Import alert system
 from common_utils.logging.alert_system import (
@@ -51,17 +47,12 @@ from common_utils.logging.alert_system import (
     AlertRule,
     AlertCondition,
     AlertSeverity,
-    EmailNotifier,
-    WebhookNotifier,
     InAppNotifier,
 )
 
 # Import machine learning log analysis
 from common_utils.logging.ml_log_analysis import (
     LogAnalyzer,
-    AnomalyDetector,
-    PatternRecognizer,
-    LogClusterer,
 )
 
 # Import dashboard authentication
@@ -69,8 +60,6 @@ from common_utils.logging.dashboard_auth import (
     DashboardAuth,
     User,
     Role,
-    Permission,
-    require_auth,
     require_permission,
 )
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 # Type checking imports
-from typing import TYPE_CHECKING, Union, Dict, Any, Optional, List
+from typing import TYPE_CHECKING, List
 
 from fastapi import APIRouter, HTTPException, Path, status
 
@@ -14,9 +14,8 @@ from users.schemas import UserResponse, UserCreate, UserUpdate
 from common_utils.logging import get_logger
 
 if TYPE_CHECKING:
-    from flask.wrappers import Response
-    from werkzeug.wrappers import Response as WerkzeugResponse
-from users.services import AuthenticationError, UserExistsError, UserService
+    pass
+from users.services import UserService
 
 # Set up secure logger that masks sensitive info
 logger = get_logger(__name__)
@@ -27,17 +26,20 @@ TOKEN_SECRET = os.environ.get("USER_TOKEN_SECRET", "super-secret")
 # Create router
 router = APIRouter(prefix="/users", tags=["users"])
 
+# Initialize user service with token secret
+user_service = UserService(token_secret=TOKEN_SECRET)
+
 # API endpoints
 @router.get("", response_model=List[UserResponse])
 async def get_users_endpoint():
     """Get all users."""
-    return get_users()
+    return user_service.get_users()
 
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user_endpoint(user_id: int = Path(..., ge=1)):
     """Get a user by ID."""
-    user = get_user_by_id(user_id)
+    user = user_service.get_user_by_id(user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -50,7 +52,12 @@ async def get_user_endpoint(user_id: int = Path(..., ge=1)):
 async def create_user_endpoint(user: UserCreate):
     """Create a new user."""
     try:
-        return create_user(user.model_dump())
+        user_data = user.model_dump()
+        return user_service.create_user(
+            username=user_data["username"],
+            email=user_data["email"],
+            auth_credential=user_data["password"]
+        )
     except Exception:
         logger.exception("Error creating user")
         raise HTTPException(
@@ -62,7 +69,7 @@ async def create_user_endpoint(user: UserCreate):
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user_endpoint(user: UserUpdate, user_id: int = Path(..., ge=1)):
     """Update a user."""
-    updated_user = update_user(user_id, user.model_dump(exclude_unset=True))
+    updated_user = user_service.update_user(user_id, user.model_dump(exclude_unset=True))
     if not updated_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -74,7 +81,7 @@ async def update_user_endpoint(user: UserUpdate, user_id: int = Path(..., ge=1))
 @router.delete("/{user_id}")
 async def delete_user_endpoint(user_id: int = Path(..., ge=1)):
     """Delete a user."""
-    if not delete_user(user_id):
+    if not user_service.delete_user(user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with ID {user_id} not found"

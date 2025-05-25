@@ -14,7 +14,6 @@ Usage:
 """
 
 import logging
-import os
 import sys
 
 try:

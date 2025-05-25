@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 import urllib.parse
-from typing import Any, Optional
+from typing import Any
 
 # Configure logging
 logger = logging.getLogger(__name__)

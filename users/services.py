@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Optional, Protocol, Tuple, cast
+from typing import Any, Protocol, cast
 
 import jwt
 from sqlalchemy.exc import SQLAlchemyError
@@ -409,3 +409,168 @@ class UserService:
         except Exception:
             logger.exception("Token verification error")
             return False, None
+
+    def get_users(self) -> list[dict[str, object]]:
+        """
+        Get all users.
+
+        Returns:
+            List of user dictionaries
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+        users = model.query.all()
+
+        # Return user data without sensitive information
+        result = []
+        for user in users:
+            created_at = getattr(user, "created_at", None)
+            updated_at = getattr(user, "updated_at", None)
+            result.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "created_at": str(created_at) if created_at else None,
+                "updated_at": str(updated_at) if updated_at else None,
+            })
+        return result
+
+    def get_user_by_id(self, user_id: int) -> dict[str, object] | None:
+        """
+        Get a user by ID.
+
+        Args:
+            user_id: ID of the user to retrieve
+
+        Returns:
+            User dictionary or None if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Use UserModel directly since we've checked it's not None
+        model = UserModel
+        user = model.query.filter(model.id == user_id).first()
+
+        if not user:
+            return None
+
+        # Return user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
+        }
+
+    def update_user(self, user_id: int, update_data: dict[str, object]) -> dict[str, object] | None:
+        """
+        Update a user.
+
+        Args:
+            user_id: ID of the user to update
+            update_data: Dictionary containing fields to update
+
+        Returns:
+            Updated user dictionary or None if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+            DatabaseSessionNotAvailableError: If db session not available
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
+        user = model.query.filter(model.id == user_id).first()
+        if not user:
+            return None
+
+        # Update user fields
+        for key, value in update_data.items():
+            if hasattr(user, key) and key not in ['id', 'password_hash']:
+                setattr(user, key, value)
+            elif key == 'password' and value:
+                # Hash password if provided
+                user.password_hash = hash_credential(str(value))
+
+        try:
+            db.session.commit()
+            logger.info("User updated successfully", extra={"user_id": user.id})
+        except SQLAlchemyError as e:
+            logger.exception("Database error updating user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e
+
+        # Return updated user data without sensitive information
+        created_at = getattr(user, "created_at", None)
+        updated_at = getattr(user, "updated_at", None)
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": str(created_at) if created_at else None,
+            "updated_at": str(updated_at) if updated_at else None,
+        }
+
+    def delete_user(self, user_id: int) -> bool:
+        """
+        Delete a user.
+
+        Args:
+            user_id: ID of the user to delete
+
+        Returns:
+            True if user was deleted, False if not found
+
+        Raises:
+            UserModelNotAvailableError: If User model not available
+            DatabaseSessionNotAvailableError: If db session not available
+        """
+        # Check if UserModel is available
+        if UserModel is None:
+            raise UserModelNotAvailableError
+
+        # Check if db_session is available
+        if db_session is None:
+            raise DatabaseSessionNotAvailableError
+
+        # Use variables directly since we've checked they're not None
+        model = UserModel
+        db = db_session
+
+        user = model.query.filter(model.id == user_id).first()
+        if not user:
+            return False
+
+        try:
+            db.session.delete(user)
+            db.session.commit()
+            logger.info("User deleted successfully", extra={"user_id": user_id})
+            return True
+        except SQLAlchemyError as e:
+            logger.exception("Database error deleting user")
+            db.session.rollback()
+            raise DatabaseSessionNotAvailableError from e

@@ -8,7 +8,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Union, BinaryIO, TextIO, Iterator, Any, Dict
+from typing import List, Union
 
 # Third-party imports
 
@@ -17,7 +17,6 @@ from common_utils.exceptions import (
     DirectoryPermissionError,
     FilePermissionError,
     DirectoryNotFoundError,
-    FileNotPythonError,
     MissingFileError,
 )
 

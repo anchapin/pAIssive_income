@@ -2,7 +2,6 @@
 
 # Standard library imports
 import logging
-import sys
 
 # Third-party imports
 # Example:

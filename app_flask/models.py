@@ -2,10 +2,10 @@
 
 from datetime import datetime
 import uuid
-from typing import TypeVar, Dict, Any, Optional
+from typing import TypeVar, Dict, Any
 
 from sqlalchemy import Column, DateTime, ForeignKey, String
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 # Import db from app_flask
 from app_flask import db

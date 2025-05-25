@@ -32,12 +32,11 @@ Usage:
 """
 
 import datetime
-import json
 import logging
 import re
 import sys # Added sys import
 from collections import Counter, defaultdict
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)

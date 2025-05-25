@@ -10,7 +10,7 @@ Note: This is a demonstration script and not intended for production use.
 """
 
 import os
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional
 
 # Import mem0 - this requires the package to be installed
 try:

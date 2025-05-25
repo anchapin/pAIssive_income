@@ -74,14 +74,13 @@ import logging
 import re
 import smtplib
 import threading
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import sys # Added sys import
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Pattern, Set, Union
+from typing import Any, Callable, Dict, List, Optional
 
 _logger = logging.getLogger(__name__)
 
