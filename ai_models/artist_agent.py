@@ -68,7 +68,8 @@ class ArtistAgent:
         """
         if tool_name == "calculator":
             # Try to extract the mathematical expression using regex
-            math_pattern = r'[\d\+\-\*/\(\)\.\s%]+'
+            # Refined pattern: match sequences resembling math expressions
+            math_pattern = r'([\d\+\-\*/\(\)\.]+\b)'
             matches = re.findall(math_pattern, prompt)
             # Join all found math-like substrings and strip whitespace
             expr = "".join(matches).strip()
