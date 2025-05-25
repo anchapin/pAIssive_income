@@ -3,9 +3,11 @@
 Script to validate YAML syntax of GitHub workflow files
 """
 
-import yaml
 import os
 import sys
+
+import yaml
+
 
 def check_workflow_files():
     """Check all workflow files for YAML syntax errors"""

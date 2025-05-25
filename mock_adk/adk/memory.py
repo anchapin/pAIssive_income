@@ -1,6 +1,7 @@
 """Mock memory class for ADK."""
 from typing import Any, Dict, List
 
+
 class SimpleMemory:
     """Simple in-memory storage."""
     

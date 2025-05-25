@@ -18,7 +18,11 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 # Import the script to test
-from scripts.ci.detect_ci_environment import detect_ci_environment, safe_file_exists, safe_read_file
+from scripts.ci.detect_ci_environment import (
+    detect_ci_environment,
+    safe_file_exists,
+    safe_read_file,
+)
 
 
 class TestDetectCIEnvironment(unittest.TestCase):

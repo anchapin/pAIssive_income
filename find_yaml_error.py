@@ -1,5 +1,6 @@
 import yaml
 
+
 def find_yaml_error():
     file_path = '.github/workflows/codeql.yml'
 

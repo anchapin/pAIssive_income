@@ -1,6 +1,8 @@
 import pytest
+
 from api.app import create_app
-from api.routes.auth import RESET_TOKENS, USERS
+from api.routes.auth import RESET_TOKENS
+
 
 @pytest.fixture
 def client():

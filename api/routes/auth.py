@@ -1,19 +1,19 @@
-from flask import Blueprint, request, jsonify
+import html
+import logging
+import os
+import secrets
+import smtplib
+from datetime import datetime, timedelta
+from email.mime.text import MIMEText
+
+import bcrypt
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import secrets
-import bcrypt
-import smtplib
-from email.mime.text import MIMEText
-import os
-from datetime import datetime, timedelta
-import logging
-import html
-
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+
+from flask import Blueprint, jsonify, request
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 

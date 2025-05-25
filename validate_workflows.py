@@ -1,6 +1,8 @@
-import yaml
-import os
 import glob
+import os
+
+import yaml
+
 
 def validate_workflows():
     workflow_dir = '.github/workflows'

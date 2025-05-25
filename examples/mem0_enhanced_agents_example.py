@@ -14,10 +14,13 @@ Usage:
 
 import logging
 import os
-from typing import List, Dict, Any
 
 # Import the memory-enhanced agent team
-from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam, CREWAI_AVAILABLE, MEM0_AVAILABLE
+from agent_team.mem0_enhanced_agents import (
+    CREWAI_AVAILABLE,
+    MEM0_AVAILABLE,
+    MemoryEnhancedCrewAIAgentTeam,
+)
 
 # Configure logging
 logging.basicConfig(

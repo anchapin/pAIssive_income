@@ -10,10 +10,10 @@ Note: This script requires an OpenAI API key to be set as an environment variabl
     export OPENAI_API_KEY='your-api-key'
 """
 
+import json
 import os
 import sys
-import json
-from typing import Dict, List, Any, Optional
+from typing import Any, Optional
 
 try:
     from mem0 import Memory
