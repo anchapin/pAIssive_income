@@ -1,0 +1,50 @@
+Playwright Environment Report
+Generated: 2025-05-25T04:26:33.405Z
+
+Operating System:
+- Platform: [object Object]
+- Windows: No
+- macOS: No
+- Linux: No
+- WSL: No
+
+CI Environment:
+- CI: No
+- GitHub Actions: No
+- Jenkins: No
+- GitLab CI: No
+- CircleCI: No
+- Travis: No
+- Azure Pipelines: No
+
+Container Environment:
+- Docker: No
+- Podman: No
+- LXC/LXD: No
+- Containerd: No
+- CRI-O: No
+- rkt: No
+- Singularity: No
+- Kubernetes: No
+- Docker Compose: No
+- Docker Swarm: No
+- Containerized: No
+
+Cloud Environment:
+- AWS: No
+- Azure: No
+- GCP: No
+- Cloud Environment: No
+
+Node Environment:
+- Development: No
+- Production: No
+- Test: No
+- Staging: No
+- Node Version: undefined
+
+Playwright Configuration:
+- Workers: auto
+- Headless: No
+- Browsers: chromium, firefox
+- Retries: 2
