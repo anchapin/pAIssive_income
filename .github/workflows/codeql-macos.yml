@@ -314,7 +314,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+            EOF
 
             # Create minimal unified configuration using a single heredoc
             cat > .github/codeql/security-os-config.yml << 'EOF'
@@ -325,8 +325,9 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-EOF
+            EOF
           fi
+        continue-on-error: true
 
       # Initialize CodeQL
       - name: Initialize CodeQL

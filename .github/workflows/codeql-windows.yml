@@ -181,7 +181,7 @@ queries:
   - uses: security
 disable-default-queries: false
 trap-for-errors: true
-"@
+            "@
             Set-Content -Path ".github/codeql/security-os-windows.yml" -Value $windowsConfig -Encoding UTF8 -Force
 
             # Create minimal unified configuration using a here-string
