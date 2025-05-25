@@ -1,5 +1,5 @@
 """
-Module: memory_rag_coordinator
+Module: memory_rag_coordinator.
 
 This module provides the MemoryRAGCoordinator class, which queries both the mem0 memory system and the ChromaDB RAG system,
 aggregates and deduplicates their responses, and returns a unified response object with detailed provenance and metrics.
@@ -9,10 +9,11 @@ Usage:
     response = coordinator.query(query="What is the project deadline?", user_id="user123")
 """
 
-import time
 import logging
-from typing import Any, Dict, List, Optional, Tuple
 import os
+import time
+from typing import Any, Dict, List, Optional
+
 
 class MemoryRAGCoordinator:
     """
@@ -27,6 +28,7 @@ class MemoryRAGCoordinator:
         Number of top results to return from ChromaDB (default: 5).
     chroma_persist_dir : Optional[str]
         Directory for ChromaDB persistence (default: uses CHROMADB_PERSIST_DIR env or ".chromadb_demo").
+
     """
 
     def __init__(
@@ -34,7 +36,7 @@ class MemoryRAGCoordinator:
         chroma_collection_name: str = "demo_rag",
         chroma_n_results: int = 5,
         chroma_persist_dir: Optional[str] = None,
-    ):
+    ) -> None:
         # Setup ChromaDB client, collection, and embedder (can fail gracefully if not installed)
         self.chroma_collection_name = chroma_collection_name
         self.chroma_n_results = chroma_n_results
@@ -61,7 +63,7 @@ class MemoryRAGCoordinator:
                 "chromadb and/or sentence-transformers not installed. Install with: uv pip install chromadb sentence-transformers"
             )
         except Exception as e:
-            logging.error(f"Failed to initialize ChromaDB or embedder: {e}")
+            logging.exception(f"Failed to initialize ChromaDB or embedder: {e}")
 
         # mem0 Memory object is not persistent; instantiate per query for thread safety
 
@@ -85,28 +87,29 @@ class MemoryRAGCoordinator:
                 - subsystem_metrics: Dict with timing/cost per subsystem
                 - raw_mem0_results: Raw mem0 results
                 - raw_chroma_results: Raw ChromaDB results
+
         """
         metrics = {}
         # Query mem0
         start = time.time()
         mem0_results = self.mem0_query(query, user_id)
         mem0_time = time.time() - start
-        metrics['mem0'] = {'time_sec': mem0_time, 'cost': self._estimate_cost(mem0_results)}
+        metrics["mem0"] = {"time_sec": mem0_time, "cost": self._estimate_cost(mem0_results)}
 
         # Query ChromaDB
         start = time.time()
         chroma_results = self.chroma_query(query)
         chroma_time = time.time() - start
-        metrics['chroma'] = {'time_sec': chroma_time, 'cost': self._estimate_cost(chroma_results)}
+        metrics["chroma"] = {"time_sec": chroma_time, "cost": self._estimate_cost(chroma_results)}
 
         # Aggregate and deduplicate
         merged_results = self._merge_results(mem0_results, chroma_results)
 
         return {
-            'merged_results': merged_results,
-            'subsystem_metrics': metrics,
-            'raw_mem0_results': mem0_results,
-            'raw_chroma_results': chroma_results,
+            "merged_results": merged_results,
+            "subsystem_metrics": metrics,
+            "raw_mem0_results": mem0_results,
+            "raw_chroma_results": chroma_results,
         }
 
     def mem0_query(self, query: str, user_id: str) -> List[Dict]:
@@ -130,7 +133,7 @@ class MemoryRAGCoordinator:
                 return []
             return results
         except Exception as e:
-            logging.error(f"Exception during mem0_query: {e}")
+            logging.exception(f"Exception during mem0_query: {e}")
             return []
 
     def chroma_query(self, query: str) -> List[Dict]:
@@ -168,7 +171,7 @@ class MemoryRAGCoordinator:
                 formatted.append(entry)
             return formatted
         except Exception as e:
-            logging.error(f"Exception during chroma_query: {e}")
+            logging.exception(f"Exception during chroma_query: {e}")
             return []
 
     def _merge_results(self, mem0_results: List[Dict], chroma_results: List[Dict]) -> List[Dict]:
@@ -179,26 +182,26 @@ class MemoryRAGCoordinator:
         Normalizes scores so that higher is always better, regardless of source.
         """
         def norm_result(r: Dict, source: str) -> Dict:
-            text_content = r.get('text') or r.get('content') or ""
-            timestamp = r.get('timestamp')
-            original_score = r.get('score')
-            original_relevance = r.get('relevance')
+            text_content = r.get("text") or r.get("content") or ""
+            timestamp = r.get("timestamp")
+            original_score = r.get("score")
+            original_relevance = r.get("relevance")
             # Normalize: for Chroma, lower distance is better, so invert to "higher is better"
             current_relevance_value = 0.0
-            if source == 'chroma':
+            if source == "chroma":
                 # If score is None, treat as worst
-                chroma_score = original_score if original_score is not None else float('inf')
+                chroma_score = original_score if original_score is not None else float("inf")
                 # If distance is 0..2 (L2) or 0..1 (cosine), this will always map higher similarity to higher value
                 current_relevance_value = 1.0 / (1.0 + chroma_score)
-            elif source == 'mem0':
+            elif source == "mem0":
                 # If score not present, fall back to relevance, then 0.0
                 current_relevance_value = original_score if original_score is not None else (original_relevance if original_relevance is not None else 0.0)
             return {
-                'text': text_content,
-                'source': source,
-                'timestamp': timestamp,
-                'relevance': current_relevance_value,
-                **{k: v for k, v in r.items() if k not in ('text', 'content', 'timestamp', 'score', 'relevance')}
+                "text": text_content,
+                "source": source,
+                "timestamp": timestamp,
+                "relevance": current_relevance_value,
+                **{k: v for k, v in r.items() if k not in ("text", "content", "timestamp", "score", "relevance")}
             }
 
         canonical_mem0 = [norm_result(r, "mem0") for r in mem0_results]
@@ -208,17 +211,17 @@ class MemoryRAGCoordinator:
         combined = canonical_mem0 + canonical_chroma
         deduped = {}
         for r in combined:
-            key = r['text'].strip()
+            key = r["text"].strip()
             if not key:
                 continue
             if key in deduped:
                 existing = deduped[key]
                 # Prefer higher relevance, then more recent timestamp
-                if r['relevance'] > existing['relevance']:
+                if r["relevance"] > existing["relevance"]:
                     deduped[key] = r
-                elif r['relevance'] == existing['relevance']:
-                    ts_r = r.get('timestamp') or 0
-                    ts_e = existing.get('timestamp') or 0
+                elif r["relevance"] == existing["relevance"]:
+                    ts_r = r.get("timestamp") or 0
+                    ts_e = existing.get("timestamp") or 0
                     if ts_r > ts_e:
                         deduped[key] = r
             else:
@@ -226,7 +229,7 @@ class MemoryRAGCoordinator:
 
         # Sort by descending relevance, then most recent timestamp
         merged = list(deduped.values())
-        merged.sort(key=lambda x: (-x.get('relevance', 0.0), -(x.get('timestamp') or 0)))
+        merged.sort(key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0)))
         return merged
 
     def _estimate_cost(self, results: List[Dict]) -> float:

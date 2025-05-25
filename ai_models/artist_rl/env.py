@@ -5,10 +5,11 @@ This environment serves as an interface between RL agents and the ArtistAgent,
 enabling reinforcement learning experiments on complex, multi-step tool-use scenarios.
 """
 
+from typing import Any, Dict, Optional, Tuple
+
 import gymnasium as gym
-from gymnasium import spaces
-from typing import Any, Dict, Tuple, Optional
 import numpy as np
+from gymnasium import spaces
 
 # Placeholder: import or define ArtistAgent elsewhere in your codebase
 # from .artist_agent import ArtistAgent
@@ -24,12 +25,13 @@ class ArtistRLEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Initialize the RL environment.
 
         Args:
             config (Dict[str, Any], optional): Environment configuration parameters.
+
         """
         super().__init__()
         self.config = config or {}
@@ -45,6 +47,7 @@ class ArtistRLEnv(gym.Env):
 
         Returns:
             observation (np.ndarray): Initial observation after reset.
+
         """
         # self.state = self.agent.reset()
         self.state = self.observation_space.sample()  # Placeholder
@@ -62,6 +65,7 @@ class ArtistRLEnv(gym.Env):
             reward (float): Reward signal.
             done (bool): Whether the episode has ended.
             info (Dict[str, Any]): Additional info.
+
         """
         # obs, reward, done, info = self.agent.step(action)
         obs = self.observation_space.sample()  # Placeholder
@@ -70,14 +74,8 @@ class ArtistRLEnv(gym.Env):
         info = {}
         return obs, reward, done, info
 
-    def render(self, mode="human"):
-        """
-        Render the environment (optional).
-        """
-        pass
+    def render(self, mode="human") -> None:
+        """Render the environment (optional)."""
 
-    def close(self):
-        """
-        Clean up the environment.
-        """
-        pass
+    def close(self) -> None:
+        """Clean up the environment."""
