@@ -79,7 +79,7 @@ jobs:
       # Set up pnpm first for JavaScript/TypeScript analysis
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: '8.15.4'
           run_install: false
@@ -293,21 +293,8 @@ jobs:
             echo "Running ensure-codeql-configs.sh script..."
             bash .github/scripts/ensure-codeql-configs.sh
           else
-            echo "ensure-codeql-configs.sh script not found. Creating minimal configuration..."
-
-            # Ensure directory exists
-            mkdir -p .github/codeql
-
-            # Create minimal unified configuration
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-EOF
+            echo "ensure-codeql-configs.sh script not found. Skipping custom configuration..."
+            echo "CodeQL will use default configuration."
           fi
 
       # Initialize CodeQL
@@ -316,7 +303,6 @@ EOF
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-          config-file: .github/codeql/security-os-config.yml
           debug: true
 
       # Autobuild attempts to build any compiled languages
