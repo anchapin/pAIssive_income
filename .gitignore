@@ -80,6 +80,7 @@ cline_mcp_settings.json
 *.spec
 *.swo
 *.swp
+*.tmp
 *env*/
 *venv*/
 .DS_Store
