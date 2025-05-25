@@ -1,6 +1,7 @@
 """Mock skill class for ADK."""
 from typing import Any
 
+
 class Skill:
     """Base skill class."""
     

@@ -1,0 +1,117 @@
+name: Workflow Failure Handler
+
+on:
+  workflow_run:
+    workflows: ["Consolidated CI/CD", "Frontend Unit Tests (Vitest)", "CodeQL"]
+    types: [completed]
+
+jobs:
+  handle-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    permissions:
+      contents: read
+      issues: write
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get workflow run details
+        id: workflow-details
+        run: |
+          echo "workflow_name=${{ github.event.workflow_run.name }}" >> $GITHUB_OUTPUT
+          echo "workflow_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+          echo "run_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+          echo "head_sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+
+      - name: Create failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowName = '${{ steps.workflow-details.outputs.workflow_name }}';
+            const workflowUrl = '${{ steps.workflow-details.outputs.workflow_url }}';
+            const runId = '${{ steps.workflow-details.outputs.run_id }}';
+            const headSha = '${{ steps.workflow-details.outputs.head_sha }}';
+
+            const title = `🚨 Workflow Failure: ${workflowName}`;
+            const body = `
+            ## Workflow Failure Report
+
+            **Workflow:** ${workflowName}
+            **Run ID:** ${runId}
+            **Commit:** ${headSha}
+            **URL:** ${workflowUrl}
+            **Time:** ${new Date().toISOString()}
+
+            ### Troubleshooting Steps
+
+            1. **Check the workflow logs** at the URL above
+            2. **Enable debug logging** by re-running the workflow with debug mode
+            3. **Check for common issues:**
+               - Memory limitations (concurrent runs)
+               - Dependency conflicts
+               - Environment-specific failures
+               - Network timeouts
+
+            ### Quick Actions
+
+            - [ ] Review workflow logs
+            - [ ] Check for recent changes that might have caused the failure
+            - [ ] Verify all dependencies are properly installed
+            - [ ] Re-run the workflow if it appears to be a transient issue
+
+            ### Debug Information
+
+            To enable debug logging, add these repository secrets:
+            - \`ACTIONS_RUNNER_DEBUG\`: \`true\`
+            - \`ACTIONS_STEP_DEBUG\`: \`true\`
+
+            Or use the workflow_dispatch trigger with debug mode enabled.
+
+            ---
+            *This issue was automatically created by the Workflow Failure Handler*
+            `;
+
+            // Check if there's already an open issue for this workflow
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'workflow-failure',
+              per_page: 100
+            });
+
+            const existingIssue = existingIssues.data.find(issue =>
+              issue.title.includes(workflowName) &&
+              issue.created_at > new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+            );
+
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['workflow-failure', 'bug', 'ci/cd']
+              });
+              console.log('Created new failure issue');
+            } else {
+              console.log('Recent failure issue already exists, skipping creation');
+            }
+
+      - name: Notify team (if configured)
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            🚨 Workflow failure detected in ${{ steps.workflow-details.outputs.workflow_name }}
+
+            Run: ${{ steps.workflow-details.outputs.workflow_url }}
+            Commit: ${{ steps.workflow-details.outputs.head_sha }}
+
+            Please check the logs and take appropriate action.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,0 +1,341 @@
+name: Workflow Troubleshooting and Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      debug_mode:
+        description: 'Enable debug mode for detailed logging'
+        required: false
+        default: true
+        type: boolean
+      validate_all:
+        description: 'Validate all workflow files'
+        required: false
+        default: true
+        type: boolean
+      check_dependencies:
+        description: 'Check workflow dependencies and actions'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  ACTIONS_RUNNER_DEBUG: ${{ inputs.debug_mode }}
+  ACTIONS_STEP_DEBUG: ${{ inputs.debug_mode }}
+
+jobs:
+  workflow-validation:
+    name: Validate Workflow Files
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML validation tools
+        run: |
+          pip install pyyaml yamllint
+          echo "Installed YAML validation tools"
+
+      - name: Validate YAML syntax
+        id: yaml_validation
+        run: |
+          echo "=== YAML Syntax Validation ==="
+
+          # Create validation script
+          cat > validate_yaml.py << 'EOF'
+          import yaml
+          import glob
+          import sys
+          import os
+
+          def validate_yaml_files():
+              workflow_files = glob.glob('.github/workflows/*.yml')
+              print(f"Found {len(workflow_files)} workflow files to validate")
+
+              failed_files = []
+
+              for file_path in workflow_files:
+                  try:
+                      with open(file_path, 'r', encoding='utf-8') as f:
+                          content = yaml.safe_load(f)
+
+                      if content is None:
+                          print(f"⚠️  {file_path}: Empty or invalid YAML")
+                          failed_files.append(file_path)
+                      else:
+                          print(f"✅ {file_path}: Valid YAML")
+
+                  except yaml.YAMLError as e:
+                      print(f"❌ {file_path}: YAML Error - {e}")
+                      failed_files.append(file_path)
+                  except Exception as e:
+                      print(f"❌ {file_path}: Error - {e}")
+                      failed_files.append(file_path)
+
+              print(f"\n=== Validation Summary ===")
+              print(f"Total files: {len(workflow_files)}")
+              print(f"Valid files: {len(workflow_files) - len(failed_files)}")
+              print(f"Failed files: {len(failed_files)}")
+
+              if failed_files:
+                  print(f"\nFailed files:")
+                  for f in failed_files:
+                      print(f"  - {f}")
+                  return False
+              else:
+                  print("All workflow files are valid!")
+                  return True
+
+          if __name__ == "__main__":
+              success = validate_yaml_files()
+              sys.exit(0 if success else 1)
+          EOF
+
+          python validate_yaml.py
+
+      - name: Check workflow file structure
+        if: inputs.validate_all
+        run: |
+          echo "=== Workflow Structure Analysis ==="
+
+          # Check for required fields in workflow files
+          for file in .github/workflows/*.yml; do
+            echo "Checking structure of: $file"
+
+            # Check for required top-level keys
+            if ! grep -q "^name:" "$file"; then
+              echo "⚠️  Missing 'name' field in $file"
+            fi
+
+            if ! grep -q "^on:" "$file"; then
+              echo "⚠️  Missing 'on' field in $file"
+            fi
+
+            if ! grep -q "^jobs:" "$file"; then
+              echo "⚠️  Missing 'jobs' field in $file"
+            fi
+
+            # Check for common issues
+            if grep -q "continue-on-error: true" "$file"; then
+              echo "ℹ️  $file uses continue-on-error (may mask failures)"
+            fi
+
+            if grep -q "timeout-minutes:" "$file"; then
+              echo "✅ $file has timeout configured"
+            else
+              echo "⚠️  $file missing timeout configuration"
+            fi
+          done
+
+      - name: Check GitHub Actions versions
+        if: inputs.check_dependencies
+        run: |
+          echo "=== GitHub Actions Version Check ==="
+
+          # Extract action versions from workflow files
+          grep -r "uses:" .github/workflows/ | grep -v "^#" | sort | uniq | while read -r line; do
+            action=$(echo "$line" | sed 's/.*uses: *//' | sed 's/@.*//')
+            version=$(echo "$line" | sed 's/.*@//')
+
+            echo "Action: $action, Version: $version"
+
+            # Check for common outdated actions
+            case "$action" in
+              "actions/checkout")
+                if [[ "$version" < "v4" ]]; then
+                  echo "⚠️  Consider updating $action to v4"
+                fi
+                ;;
+              "actions/setup-node")
+                if [[ "$version" < "v4" ]]; then
+                  echo "⚠️  Consider updating $action to v4"
+                fi
+                ;;
+              "actions/setup-python")
+                if [[ "$version" < "v5" ]]; then
+                  echo "⚠️  Consider updating $action to v5"
+                fi
+                ;;
+            esac
+          done
+
+      - name: Check for workflow conflicts
+        run: |
+          echo "=== Workflow Conflict Analysis ==="
+
+          # Check for duplicate workflow names
+          echo "Checking for duplicate workflow names..."
+          grep -h "^name:" .github/workflows/*.yml | sort | uniq -d | while read -r name; do
+            echo "⚠️  Duplicate workflow name found: $name"
+          done
+
+          # Check for conflicting triggers
+          echo "Checking for potential trigger conflicts..."
+
+          # Find workflows that trigger on the same events
+          for event in "push" "pull_request" "schedule"; do
+            count=$(grep -l "^  $event:" .github/workflows/*.yml | wc -l)
+            if [ "$count" -gt 5 ]; then
+              echo "⚠️  Many workflows ($count) trigger on '$event' - may cause resource conflicts"
+            fi
+          done
+
+      - name: Generate troubleshooting report
+        if: always()
+        run: |
+          echo "=== Workflow Troubleshooting Report ==="
+
+          # Create comprehensive report
+          cat > workflow-troubleshooting-report.md << 'EOF'
+          # Workflow Troubleshooting Report
+
+          Generated: $(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          ## Workflow Files Status
+
+          EOF
+
+          # Add YAML validation results
+          echo "### YAML Validation" >> workflow-troubleshooting-report.md
+          echo "" >> workflow-troubleshooting-report.md
+
+          python validate_yaml.py >> workflow-troubleshooting-report.md 2>&1 || true
+
+          echo "" >> workflow-troubleshooting-report.md
+          echo "### Common Issues and Solutions" >> workflow-troubleshooting-report.md
+          echo "" >> workflow-troubleshooting-report.md
+          echo "1. **YAML Syntax Errors**: Check for proper indentation and missing colons" >> workflow-troubleshooting-report.md
+          echo "2. **Action Version Issues**: Update to latest stable versions" >> workflow-troubleshooting-report.md
+          echo "3. **Resource Conflicts**: Use concurrency groups to prevent parallel runs" >> workflow-troubleshooting-report.md
+          echo "4. **Timeout Issues**: Add appropriate timeout-minutes to jobs" >> workflow-troubleshooting-report.md
+          echo "5. **Environment Issues**: Ensure proper environment variable setup" >> workflow-troubleshooting-report.md
+          echo "" >> workflow-troubleshooting-report.md
+          echo "### Debug Commands" >> workflow-troubleshooting-report.md
+          echo "" >> workflow-troubleshooting-report.md
+          echo "To enable debug logging, add these environment variables:" >> workflow-troubleshooting-report.md
+          echo '```yaml' >> workflow-troubleshooting-report.md
+          echo 'env:' >> workflow-troubleshooting-report.md
+          echo '  ACTIONS_RUNNER_DEBUG: true' >> workflow-troubleshooting-report.md
+          echo '  ACTIONS_STEP_DEBUG: true' >> workflow-troubleshooting-report.md
+          echo '```' >> workflow-troubleshooting-report.md
+
+          echo "Report generated: workflow-troubleshooting-report.md"
+
+      - name: Upload troubleshooting report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-troubleshooting-report
+          path: workflow-troubleshooting-report.md
+          retention-days: 30
+
+  environment-check:
+    name: Environment Compatibility Check
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check environment detection
+        run: |
+          echo "=== Environment Detection Test ==="
+          echo "OS: ${{ runner.os }}"
+          echo "Platform: ${{ matrix.os }}"
+
+          # Test environment detection script if it exists
+          if [ -f "ui/react_frontend/tests/helpers/unified-environment.js" ]; then
+            echo "Testing unified environment detection..."
+            node ui/react_frontend/tests/helpers/unified-environment.js || echo "Environment detection test completed with warnings"
+          else
+            echo "Unified environment detection script not found"
+          fi
+        shell: bash
+
+      - name: Check Windows compatibility
+        if: runner.os == 'Windows'
+        run: |
+          echo "=== Windows Compatibility Check ==="
+
+          # Check for Windows-specific issues
+          echo "PowerShell version: $($PSVersionTable.PSVersion)"
+          echo "Windows version: $(Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion)"
+
+          # Test path handling
+          echo "Testing path handling..."
+          $testPath = "C:\test\path"
+          echo "Test path: $testPath"
+        shell: pwsh
+
+  create-issue-on-failure:
+    name: Create Issue on Workflow Failure
+    runs-on: ubuntu-latest
+    needs: [workflow-validation, environment-check]
+    if: failure()
+
+    steps:
+      - name: Create issue for workflow failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Workflow Failure Detected - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            ## Workflow Failure Report
+
+            **Workflow Run**: [${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            **Triggered by**: ${context.actor}
+            **Branch**: ${context.ref}
+            **Commit**: ${context.sha}
+
+            ### Failed Jobs
+            ${JSON.stringify(context.payload, null, 2)}
+
+            ### Troubleshooting Steps
+
+            1. **Check YAML Syntax**: Run the workflow troubleshooting workflow to validate all YAML files
+            2. **Enable Debug Logging**: Add \`ACTIONS_RUNNER_DEBUG: true\` and \`ACTIONS_STEP_DEBUG: true\` to workflow env
+            3. **Check Dependencies**: Verify all GitHub Actions are using valid versions
+            4. **Review Logs**: Check the detailed logs in the failed workflow run
+
+            ### Quick Fixes
+
+            - **YAML Errors**: Check for missing colons, incorrect indentation
+            - **Action Versions**: Update to latest stable versions (checkout@v4, setup-node@v4, setup-python@v5)
+            - **Resource Issues**: Add concurrency groups to prevent conflicts
+            - **Timeout Issues**: Add appropriate timeout-minutes to jobs
+
+            ### Related Documentation
+
+            - [GitHub Actions Troubleshooting](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/troubleshooting-workflows)
+            - [Workflow Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
+
+            ---
+            *This issue was automatically created by the workflow troubleshooting system.*
+            `;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['bug', 'workflow', 'ci/cd']
+            });

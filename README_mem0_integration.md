@@ -8,15 +8,19 @@ This document provides information about the integration of mem0, a memory layer
 
 ## Installation
 
-mem0 and its dependencies are now included in the main `requirements.txt` file. To install them:
+mem0 and its dependencies are now included in the main `requirements.txt` file. To install them, use:
 
 ```bash
-# Using pip
-pip install -r requirements.txt
-
-# Using uv (recommended)
 uv pip install -r requirements.txt
 ```
+
+If you do not have 'uv' installed, you can install it one time with:
+
+```bash
+pip install uv
+```
+
+All subsequent dependency management should use 'uv' exclusively.
 
 ## Required Dependencies
 

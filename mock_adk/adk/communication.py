@@ -1,6 +1,7 @@
 """Mock message and communication classes for ADK."""
-from typing import Any, Dict, Optional, List
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
 
 @dataclass
 class Message:

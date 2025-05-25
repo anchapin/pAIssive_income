@@ -1,14 +1,14 @@
 import logging
 import unittest
+from typing import Any, Dict, List, Optional  # Assuming these are used in the file
 from unittest.mock import MagicMock, patch
-from typing import List, Dict, Any, Optional # Assuming these are used in the file
 
 import pytest
 
 from agent_team.mem0_enhanced_agents import (
-    MemoryEnhancedCrewAIAgentTeam,
     CREWAI_AVAILABLE,
     MEM0_AVAILABLE,
+    MemoryEnhancedCrewAIAgentTeam,
 )
 
 """

@@ -1,7 +1,7 @@
 """Test script to verify mem0 integration."""
 
-import sys
 import logging
+import sys
 
 # Configure logging
 logging.basicConfig(

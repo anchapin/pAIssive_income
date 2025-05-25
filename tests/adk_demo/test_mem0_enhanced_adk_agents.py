@@ -19,7 +19,6 @@ from adk_demo.mem0_enhanced_adk_agents import (
     MemoryEnhancedSummarizerAgent,
 )
 
-
 # Skip all tests if dependencies are not available
 pytestmark = pytest.mark.skipif(
     not ADK_AVAILABLE or not MEM0_AVAILABLE,

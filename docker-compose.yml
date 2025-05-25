@@ -25,6 +25,7 @@ services:
       - LOG_LEVEL=INFO
       - CI=${CI:-false}
       - CONTAINER=true
+      - USE_MOCK_API=${USE_MOCK_API:-false}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}  # Required for mem0
     networks:
       - paissive-network
@@ -45,6 +46,39 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mock-api:
+        condition: service_started
+
+  # Mock API server for testing in CI environments
+  # Uses a dedicated script file for better readability and maintainability
+  mock-api:
+    image: node:18-alpine
+    container_name: paissive-mock-api
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "/app/scripts/start-mock-api.sh"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./logs:/app/logs:rw
+      - ./ui/react_frontend/tests:/app/ui/react_frontend/tests:rw
+      - ./playwright-report:/app/playwright-report:rw
+      - ./test-results:/app/test-results:rw
+    environment:
+      - CI=${CI:-false}
+      - USE_MOCK_API=${USE_MOCK_API:-false}
+      - NODE_ENV=test
+      - PORT=8000
+      - MOCK_API_VERBOSE=true
+    networks:
+      - paissive-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   db:
     image: postgres:15.3-alpine

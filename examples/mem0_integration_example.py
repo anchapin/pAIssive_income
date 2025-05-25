@@ -4,19 +4,19 @@ Example script demonstrating mem0 integration with our project.
 This script shows how mem0 could be used to enhance our agents with memory capabilities.
 It requires the mem0ai package to be installed:
 
-    pip install mem0ai
+    uv pip install mem0ai
 
 Note: This is a demonstration script and not intended for production use.
 """
 
 import os
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional
 
 # Import mem0 - this requires the package to be installed
 try:
     from mem0 import Memory
 except ImportError:
-    print("mem0ai package not installed. Please install it with: pip install mem0ai")
+    print("mem0ai package not installed. Please install it with: uv pip install mem0ai")
     Memory = None  # type: ignore
 
 # Mock our existing agent class for demonstration purposes
