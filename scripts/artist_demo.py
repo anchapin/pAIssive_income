@@ -9,14 +9,13 @@ Demonstration script for the ArtistAgent's agentic tool use.
 """
 
 import argparse
-from ai_models.artist_agent import ArtistAgent
+import sys
+import os
 
-def example_prompts():
-    return [
-        "What is 12 * 8?",  # Should trigger calculator tool
-        "Analyze the sentiment of this phrase: 'This is a fantastic development!'",  # For text analyzer
-        "Translate hello to French"  # Should NOT be handled
-    ]
+# Add the parent directory to the path to ensure we can import modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from ai_models.artist_agent import ArtistAgent
 
 def main():
     parser = argparse.ArgumentParser(
@@ -31,13 +30,10 @@ def main():
     print("=== ArtistAgent Tool Use Demo ===")
     agent = ArtistAgent()
 
-    # Print/log available tools
+    # Print available tools
     print("\nAvailable tools:")
-    if hasattr(agent, "tools"):
-        for tool in getattr(agent, "tools", []):
-            print(f"  - {tool}")
-    else:
-        print("  (No tools attribute found on agent)")
+    for tool_name in agent.tools.keys():
+        print(f"  - {tool_name}")
 
     if args.interactive:
         print("\nInteractive mode. Type your prompt and press Enter. Type 'exit' to quit.")
@@ -49,15 +45,17 @@ def main():
             response = agent.run(prompt)
             print(f"Agent output: {response}")
     else:
-        prompts = example_prompts()
+        # Example prompts
+        prompts = [
+            "What is 12 * 8?",  # Should trigger calculator tool
+            "Analyze the sentiment of this phrase: 'This is a fantastic development!'",  # For text analyzer
+            "Translate hello to French"  # Should NOT be handled
+        ]
+
         for prompt in prompts:
             print("\n-----------------------------")
             print(f"Prompt: {prompt}")
-            try:
-                # Use run() as the current interface (ArtistAgent does not implement __call__)
-                response = agent.run(prompt)
-            except Exception as e:
-                response = f"[Error calling agent: {e}]"
+            response = agent.run(prompt)
             print(f"Agent output: {response}")
 
 if __name__ == "__main__":

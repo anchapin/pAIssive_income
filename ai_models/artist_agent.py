@@ -48,6 +48,21 @@ class ArtistAgent:
             ]
         ):
             return "calculator"
+
+        # Check for text analysis keywords
+        if any(
+            k in prompt.lower()
+            for k in [
+                "analyze",
+                "sentiment",
+                "text",
+                "phrase",
+                "analyze the",
+                "sentiment of",
+            ]
+        ):
+            return "text_analyzer"
+
         # Add more heuristics for other tools here
         return ""
 
@@ -66,9 +81,55 @@ class ArtistAgent:
 
         """
         if tool_name == "calculator":
-            # Naive extraction: assume the entire prompt is the expression
-            # This should be improved for more complex prompts
+            # For calculator, try to extract the mathematical expression
+            import re
+
+            # Look for mathematical expressions with numbers and operators
+            # Pattern matches: numbers, operators (+, -, *, /, %), parentheses, and decimal points
+            math_pattern = r'[\d\+\-\*/\(\)\.\s%]+'
+
+            # Try to find the mathematical part of the prompt
+            # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
+            calc_match = re.search(r'(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)', prompt, re.IGNORECASE)
+            if calc_match:
+                expression = calc_match.group(1).strip()
+                # Validate that it contains at least one operator
+                if any(op in expression for op in ['+', '-', '*', '/', '%']):
+                    return expression
+
+            # Fallback: extract any sequence of numbers and operators
+            math_parts = re.findall(r'[0-9\+\-\*/\(\)\.\s%]+', prompt)
+            if math_parts:
+                # Take the longest match that contains operators
+                for part in sorted(math_parts, key=len, reverse=True):
+                    part = part.strip()
+                    if any(op in part for op in ['+', '-', '*', '/', '%']) and len(part) > 1:
+                        return part
+
+            # Final fallback to the entire prompt
             return prompt
+        elif tool_name == "text_analyzer":
+            # For text analysis, try to extract the text to analyze
+            # Look for patterns like "analyze this: 'text'" or "sentiment of 'text'"
+            import re
+
+            # Try to find quoted text first
+            quoted_match = re.search(r"['\"]([^'\"]+)['\"]", prompt)
+            if quoted_match:
+                return quoted_match.group(1)
+
+            # Try to find text after "analyze" or "sentiment of"
+            analyze_match = re.search(r"analyze(?:\s+the)?\s+(?:sentiment\s+of\s+)?(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            if analyze_match:
+                return analyze_match.group(1).strip()
+
+            sentiment_match = re.search(r"sentiment\s+of\s+(?:this\s+)?(?:phrase:?\s*)?(.+)", prompt, re.IGNORECASE)
+            if sentiment_match:
+                return sentiment_match.group(1).strip()
+
+            # Fallback to the entire prompt
+            return prompt
+
         return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
     def run(self, prompt: str) -> str:

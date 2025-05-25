@@ -76,7 +76,7 @@ python scripts/artist_demo.py -i
 ```
 
 **Expected output:**
-- The list of available tools (e.g., calculator, text_analyzer, etc.)
+- The list of available tools (calculator, text_analyzer, etc.)
 - The prompt that is sent to the agent
 - The agent's output (e.g., calculation result, analysis, or a message indicating no tool can handle the prompt)
 
@@ -93,10 +93,10 @@ Prompt: What is 12 * 8?
 Agent output: 96
 -----------------------------
 Prompt: Analyze the sentiment of this phrase: 'This is a fantastic development!'
-Agent output: Sentiment: positive
+Agent output: Sentiment: positive | Words: 6 | Characters: 35 | Positive indicators: 1 | Negative indicators: 0
 -----------------------------
 Prompt: Translate hello to French
-Agent output: Sorry, I can't handle that request.
+Agent output: No suitable tool found for this prompt.
 ```
 
 **Note:**  
