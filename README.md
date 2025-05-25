@@ -55,6 +55,53 @@ For a full directory map, see [docs/00_introduction/03_project_structure.md](doc
 
 ---
 
+## 🛠️ Minimal Agent & Tool Registry Demo
+
+A minimal demonstration script is provided to show how an agent can pick and use tools (such as a calculator or text analyzer) via a simple registry.
+
+**What the demo does:**
+- Instantiates an `ArtistAgent`
+- Lists available tools
+- Supports both example prompts and interactive mode
+- Example mode: runs three prompts—one handled by the calculator, one by the text analyzer, one unhandled
+- Interactive mode: enter your own prompts in a loop
+
+**How to run:**
+```bash
+# Example-based demo (default)
+python scripts/artist_demo.py
+
+# Interactive mode (enter prompts manually)
+python scripts/artist_demo.py -i
+```
+
+**Expected output:**
+- The list of available tools (calculator, text_analyzer, etc.)
+- The prompt that is sent to the agent
+- The agent's output (e.g., calculation result, analysis, or a message indicating no tool can handle the prompt)
+
+Example (output will vary by implementation):
+
+```
+=== ArtistAgent Tool Use Demo ===
+
+Available tools:
+  - calculator
+  - text_analyzer
+-----------------------------
+Prompt: What is 12 * 8?
+Agent output: 96
+-----------------------------
+Prompt: Analyze the sentiment of this phrase: 'This is a fantastic development!'
+Agent output: Sentiment: positive | Words: 6 | Characters: 35 | Positive indicators: 1 | Negative indicators: 0
+-----------------------------
+Prompt: Translate hello to French
+Agent output: No suitable tool found for this prompt.
+```
+
+**Note:**  
+The agent and tool registry are easily extensible—new tools can be added with minimal code changes, allowing the agent to handle more types of tasks.
+
 ## 🤝 Contributing
 
 See [Development Workflow](docs/02_developer_guide/01_development_workflow.md) for contribution guidelines and coding standards.

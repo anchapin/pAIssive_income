@@ -169,6 +169,7 @@ pyrefly.toml
 *.spec
 *.swo
 *.swp
+*.tmp
 *env*/
 *venv*/
 .DS_Store
@@ -275,3 +276,7 @@ ci-reports/
 artist_experiments/data/
 artist_experiments/models/
 artist_experiments/logs/
+
+# Environment reports that may contain sensitive information
+**/environment-report.json
+**/ci-reports/**/environment-report.json
