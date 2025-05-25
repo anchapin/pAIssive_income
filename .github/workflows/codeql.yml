@@ -309,6 +309,7 @@ disable-default-queries: false
 trap-for-errors: true
 EOF
           fi
+        continue-on-error: true
 
       # Initialize CodeQL
       - name: Initialize CodeQL

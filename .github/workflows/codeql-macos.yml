@@ -85,7 +85,7 @@ jobs:
       # Set up pnpm first
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: '8.15.4'
           run_install: false
@@ -304,28 +304,28 @@ jobs:
             # Ensure directory exists
             mkdir -p .github/codeql
 
-            # Create minimal macOS configuration using a single heredoc
-            cat > .github/codeql/security-os-macos.yml << 'EOF'
-name: "CodeQL Configuration for macOS"
-os: macos-latest
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-            EOF
+            # Create minimal macOS configuration
+            cat > .github/codeql/security-os-macos.yml << 'EOFCONFIG'
+            name: "CodeQL Configuration for macOS"
+            os: macos-latest
+            queries:
+              - uses: security-and-quality
+              - uses: security-extended
+              - uses: security
+            disable-default-queries: false
+            trap-for-errors: true
+            EOFCONFIG
 
-            # Create minimal unified configuration using a single heredoc
-            cat > .github/codeql/security-os-config.yml << 'EOF'
-name: "Unified CodeQL Configuration"
-queries:
-  - uses: security-and-quality
-  - uses: security-extended
-  - uses: security
-disable-default-queries: false
-trap-for-errors: true
-            EOF
+            # Create minimal unified configuration
+            cat > .github/codeql/security-os-config.yml << 'EOFCONFIG'
+            name: "Unified CodeQL Configuration"
+            queries:
+              - uses: security-and-quality
+              - uses: security-extended
+              - uses: security
+            disable-default-queries: false
+            trap-for-errors: true
+            EOFCONFIG
           fi
         continue-on-error: true
 
