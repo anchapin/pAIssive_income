@@ -26,7 +26,7 @@ This module provides a Gym-style reinforcement learning (RL) environment and tra
 ## Setup
 
 1. **Dependencies**:  
-   This module requires Python 3.8+ and [Gymnasium](https://gymnasium.farama.org/) or [Gym](https://www.gymlibrary.dev/).
+   This module requires Python 3.8+ and [Gymnasium](https://gymnasium.farama.org/) (the maintained successor to OpenAI Gym).
    Install dependencies using [uv](https://github.com/astral-sh/uv) (recommended for this project):
 
    ```

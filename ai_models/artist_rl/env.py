@@ -8,6 +8,7 @@ enabling reinforcement learning experiments on complex, multi-step tool-use scen
 import gymnasium as gym
 from gymnasium import spaces
 from typing import Any, Dict, Tuple, Optional
+import numpy as np
 
 # Placeholder: import or define ArtistAgent elsewhere in your codebase
 # from .artist_agent import ArtistAgent
@@ -23,12 +24,12 @@ class ArtistRLEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the RL environment.
 
         Args:
-            config (dict, optional): Environment configuration parameters.
+            config (Dict[str, Any], optional): Environment configuration parameters.
         """
         super().__init__()
         self.config = config or {}
@@ -38,18 +39,18 @@ class ArtistRLEnv(gym.Env):
         # self.agent = ArtistAgent(self.config)
         self.state = None
 
-    def reset(self) -> Any:
+    def reset(self) -> np.ndarray:
         """
         Reset the environment to an initial state.
 
         Returns:
-            observation (Any): Initial observation after reset.
+            observation (np.ndarray): Initial observation after reset.
         """
         # self.state = self.agent.reset()
         self.state = self.observation_space.sample()  # Placeholder
         return self.state
 
-    def step(self, action: int) -> Tuple[Any, float, bool, Dict]:
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict[str, Any]]:
         """
         Take an action in the environment.
 
@@ -57,10 +58,10 @@ class ArtistRLEnv(gym.Env):
             action (int): Action taken by the agent.
 
         Returns:
-            observation (Any): Next observation.
+            observation (np.ndarray): Next observation.
             reward (float): Reward signal.
             done (bool): Whether the episode has ended.
-            info (dict): Additional info.
+            info (Dict[str, Any]): Additional info.
         """
         # obs, reward, done, info = self.agent.step(action)
         obs = self.observation_space.sample()  # Placeholder
