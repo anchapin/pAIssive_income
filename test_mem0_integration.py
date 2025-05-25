@@ -1,7 +1,8 @@
 """Test script to verify mem0 integration."""
 
-import sys
 import logging
+import sys
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -11,14 +12,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_mem0_import():
+def test_mem0_import() -> Optional[bool]:
     """Test that mem0 can be imported."""
     try:
         import mem0  # nosec B404
         logger.info(f"Successfully imported mem0 version {mem0.__version__}")
         return True
     except ImportError as e:
-        logger.error(f"Failed to import mem0: {e}")
+        logger.exception(f"Failed to import mem0: {e}")
         return False
 
 
@@ -34,7 +35,7 @@ def test_mem0_dependencies():
             importlib.import_module(dep)  # nosec B403
             logger.info(f"Successfully imported {dep}")
         except ImportError as e:
-            logger.error(f"Failed to import {dep}: {e}")
+            logger.exception(f"Failed to import {dep}: {e}")
             all_installed = False
 
     if not all_installed:
@@ -42,7 +43,7 @@ def test_mem0_dependencies():
     return all_installed
 
 
-def test_mem0_basic_functionality():
+def test_mem0_basic_functionality() -> Optional[bool]:
     """Test basic mem0 functionality."""
     try:
         import mem0  # nosec B404        # Create a memory instance (without actually connecting to any services)
@@ -52,7 +53,7 @@ def test_mem0_basic_functionality():
         logger.info("Successfully created Memory instance")
         return True
     except Exception as e:
-        logger.error(f"Failed to test basic mem0 functionality: {e}")
+        logger.exception(f"Failed to test basic mem0 functionality: {e}")
         return False
 
 

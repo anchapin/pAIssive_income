@@ -45,17 +45,18 @@ Provides:
 - KnowledgeIntegrationLayer that handles fallback and aggregation logic.
 - Extensible and decoupled design.
 
-KnowledgeIntegrationLayer uses the KnowledgeStrategy Enum for setting the strategy, 
+KnowledgeIntegrationLayer uses the KnowledgeStrategy Enum for setting the strategy,
 making it robust and type-safe.
 
-NOTE: 
+Note:
 - This code stubs out Mem0 and ChromaDB initializations; see actual integration guides for details.
 - No code references files or directories in .gitignore.
+
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Protocol, Union
 from enum import Enum
+from typing import Any, Dict, List
 
 
 class KnowledgeSource(ABC):
@@ -76,8 +77,8 @@ class KnowledgeSource(ABC):
 
         Returns:
             A list of dictionaries with search results.
+
         """
-        pass
 
     @abstractmethod
     def add(self, content: str, user_id: str, **kwargs) -> Any:
@@ -91,8 +92,8 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
-        pass
 
     def update(self, content_id: str, new_content: str, user_id: str, **kwargs) -> Any:
         """
@@ -106,8 +107,10 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
-        raise NotImplementedError("Update not implemented for this source.")
+        msg = "Update not implemented for this source."
+        raise NotImplementedError(msg)
 
     def delete(self, content_id: str, user_id: str, **kwargs) -> Any:
         """
@@ -120,35 +123,32 @@ class KnowledgeSource(ABC):
 
         Returns:
             Source-specific result or metadata.
+
         """
-        raise NotImplementedError("Delete not implemented for this source.")
+        msg = "Delete not implemented for this source."
+        raise NotImplementedError(msg)
 
 
 class Mem0KnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for mem0 (Memory API).
-    """
+    """Concrete implementation of KnowledgeSource for mem0 (Memory API)."""
 
-    def __init__(self, mem0_client: Any):
+    def __init__(self, mem0_client: Any) -> None:
         """
         Args:
             mem0_client: Initialized client for mem0's Memory API.
+
         """
         self.mem0_client = mem0_client  # Stub: Replace with actual mem0 client
 
     def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Search mem0 for relevant memories.
-        """
+        """Search mem0 for relevant memories."""
         # Stub: Replace with actual call to mem0's Memory API
         # Example:
         # return self.mem0_client.search(query, user_id, **kwargs)
         return [{"source": "mem0", "content": f"Stub memory for '{query}'"}]
 
     def add(self, content: str, user_id: str, **kwargs) -> Any:
-        """
-        Add new content to mem0.
-        """
+        """Add new content to mem0."""
         # Stub: Replace with actual call to mem0's add API
         # Example:
         # return self.mem0_client.add(content, user_id, **kwargs)
@@ -156,30 +156,25 @@ class Mem0KnowledgeSource(KnowledgeSource):
 
 
 class VectorRAGKnowledgeSource(KnowledgeSource):
-    """
-    Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB).
-    """
+    """Concrete implementation of KnowledgeSource for vector database RAG (e.g., ChromaDB)."""
 
-    def __init__(self, vector_client: Any):
+    def __init__(self, vector_client: Any) -> None:
         """
         Args:
             vector_client: Initialized vector DB client (e.g., ChromaDB).
+
         """
         self.vector_client = vector_client  # Stub: Replace with actual vector DB client
 
     def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Search vector DB for relevant documents.
-        """
+        """Search vector DB for relevant documents."""
         # Stub: Replace with actual vector DB search
         # Example:
         # return self.vector_client.query(query, user_id, **kwargs)
         return [{"source": "vector_rag", "content": f"Stub vector match for '{query}'"}]
 
     def add(self, content: str, user_id: str, **kwargs) -> Any:
-        """
-        Add new content to vector DB.
-        """
+        """Add new content to vector DB."""
         # Stub: Replace with actual vector DB add
         # Example:
         # return self.vector_client.add(content, user_id, **kwargs)
@@ -187,9 +182,8 @@ class VectorRAGKnowledgeSource(KnowledgeSource):
 
 
 class KnowledgeStrategy(Enum):
-    """
-    Enum for strategy options in KnowledgeIntegrationLayer.
-    """
+    """Enum for strategy options in KnowledgeIntegrationLayer."""
+
     FALLBACK = "fallback"
     AGGREGATE = "aggregate"
 
@@ -207,13 +201,14 @@ class KnowledgeIntegrationLayer:
         self,
         sources: List[KnowledgeSource],
         strategy: "KnowledgeStrategy" = KnowledgeStrategy.FALLBACK,
-    ):
+    ) -> None:
         """
         Args:
             sources: List of KnowledgeSource implementations.
             strategy: Aggregation logic. One of:
                 - KnowledgeStrategy.FALLBACK: Try sources in order, return first with results.
                 - KnowledgeStrategy.AGGREGATE: Query all sources and merge results.
+
         """
         self.sources = sources
         if isinstance(strategy, str):
@@ -221,11 +216,13 @@ class KnowledgeIntegrationLayer:
             try:
                 self.strategy = KnowledgeStrategy(strategy.lower())
             except ValueError:
-                raise ValueError(f"Unknown integration strategy: {strategy}")
+                msg = f"Unknown integration strategy: {strategy}"
+                raise ValueError(msg)
         elif isinstance(strategy, KnowledgeStrategy):
             self.strategy = strategy
         else:
-            raise TypeError(f"Invalid strategy type: {type(strategy)}")
+            msg = f"Invalid strategy type: {type(strategy)}"
+            raise TypeError(msg)
 
     def search(self, query: str, user_id: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -233,6 +230,7 @@ class KnowledgeIntegrationLayer:
 
         Returns:
             List of search results (may be merged across sources).
+
         """
         if self.strategy == KnowledgeStrategy.FALLBACK:
             for source in self.sources:
@@ -240,13 +238,13 @@ class KnowledgeIntegrationLayer:
                 if results:
                     return results
             return []
-        elif self.strategy == KnowledgeStrategy.AGGREGATE:
+        if self.strategy == KnowledgeStrategy.AGGREGATE:
             aggregated: List[Dict[str, Any]] = []
             for source in self.sources:
                 aggregated.extend(source.search(query, user_id, **kwargs))
             return aggregated
-        else:
-            raise ValueError(f"Unknown integration strategy: {self.strategy}")
+        msg = f"Unknown integration strategy: {self.strategy}"
+        raise ValueError(msg)
 
     def add(self, content: str, user_id: str, **kwargs) -> List[Any]:
         """
@@ -254,6 +252,7 @@ class KnowledgeIntegrationLayer:
 
         Returns:
             List of source-specific add results.
+
         """
         results = []
         for source in self.sources:
