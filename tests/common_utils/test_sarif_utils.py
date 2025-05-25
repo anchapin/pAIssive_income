@@ -13,12 +13,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# Add the scripts/utils directory to the Python path for importing sarif_utils
-_SCRIPTS_UTILS_PATH = Path(__file__).parent.parent.parent / "scripts" / "utils"
-if str(_SCRIPTS_UTILS_PATH) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_UTILS_PATH))
+# Add the project root to the Python path for importing scripts package
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
-import sarif_utils  # noqa: E402
+from scripts.utils import sarif_utils  # noqa: E402
 
 
 class TestSarifUtils(unittest.TestCase):

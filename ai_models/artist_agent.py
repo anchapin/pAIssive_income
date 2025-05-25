@@ -7,6 +7,7 @@ This is a scaffold for further expansion.
 
 from __future__ import annotations
 
+import re
 from typing import Any, Callable
 
 from common_utils import tooling
@@ -82,12 +83,6 @@ class ArtistAgent:
         """
         if tool_name == "calculator":
             # For calculator, try to extract the mathematical expression
-            import re
-
-            # Look for mathematical expressions with numbers and operators
-            # Pattern matches: numbers, operators (+, -, *, /, %), parentheses, and decimal points
-            math_pattern = r'[\d\+\-\*/\(\)\.\s%]+'
-
             # Try to find the mathematical part of the prompt
             # Look for patterns like "What is 12 * 8?" -> extract "12 * 8"
             calc_match = re.search(r'(?:what\s+is\s+|calculate\s+|compute\s+)?([0-9\+\-\*/\(\)\.\s%]+)', prompt, re.IGNORECASE)
@@ -111,7 +106,6 @@ class ArtistAgent:
         elif tool_name == "text_analyzer":
             # For text analysis, try to extract the text to analyze
             # Look for patterns like "analyze this: 'text'" or "sentiment of 'text'"
-            import re
 
             # Try to find quoted text first
             quoted_match = re.search(r"['\"]([^'\"]+)['\"]", prompt)

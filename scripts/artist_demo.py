@@ -10,10 +10,12 @@ Demonstration script for the ArtistAgent's agentic tool use.
 
 import argparse
 import sys
-import os
+from pathlib import Path
 
 # Add the parent directory to the path to ensure we can import modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from ai_models.artist_agent import ArtistAgent
 
