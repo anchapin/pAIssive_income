@@ -8,6 +8,7 @@ This is a scaffold for further expansion.
 from __future__ import annotations
 
 from typing import Any, Callable
+import re
 
 from common_utils import tooling
 
@@ -66,9 +67,12 @@ class ArtistAgent:
 
         """
         if tool_name == "calculator":
-            # Naive extraction: assume the entire prompt is the expression
-            # This should be improved for more complex prompts
-            return prompt
+            # Try to extract the mathematical expression using regex
+            math_pattern = r'[\d\+\-\*/\(\)\.\s%]+'
+            matches = re.findall(math_pattern, prompt)
+            # Join all found math-like substrings and strip whitespace
+            expr = "".join(matches).strip()
+            return expr if expr else prompt
         return prompt  # Default to returning the whole prompt if extraction logic is not defined
 
     def run(self, prompt: str) -> str:
