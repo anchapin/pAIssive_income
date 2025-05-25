@@ -8,12 +8,17 @@ to ensure it handles edge cases correctly.
 
 import json
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-# Import the module to test
-import sarif_utils
+# Add the scripts/utils directory to the Python path for importing sarif_utils
+_SCRIPTS_UTILS_PATH = Path(__file__).parent.parent.parent / "scripts" / "utils"
+if str(_SCRIPTS_UTILS_PATH) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_UTILS_PATH))
+
+import sarif_utils  # noqa: E402
 
 
 class TestSarifUtils(unittest.TestCase):
