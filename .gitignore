@@ -264,3 +264,9 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# CI/CD artifacts and temporary files
+ci-mode-active.txt
+ci-reports/
+**/ci-mode-active.txt
+**/ci-reports/
