@@ -1,8 +1,15 @@
-"""Tests for service_initialization module."""
+"""Tests for service_initialization.py."""
 
 import logging
+import os
+import sys
+import tempfile
 import unittest
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+# Add the scripts/utils directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts" / "utils"))
 
 import pytest
 

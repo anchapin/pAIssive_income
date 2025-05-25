@@ -69,8 +69,10 @@ class MockDB:
 # Create patch for flask.models
 patch("users.models.User", MockUser).start()
 
-# Patch the session attribute of the db object
-patch.object(db, "session", MagicMock()).start()
+# Patch the db object itself instead of trying to patch db.session
+# since db is already a session instance
+mock_db = MagicMock()
+patch("users.models.db", mock_db).start()
 
 # Mock Flask app context
 patch("flask.current_app._get_current_object", MagicMock()).start()

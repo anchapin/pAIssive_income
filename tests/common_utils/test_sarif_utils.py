@@ -8,9 +8,13 @@ to ensure it handles edge cases correctly.
 
 import json
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+# Add the scripts/utils directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts" / "utils"))
 
 # Import the module to test
 import sarif_utils
