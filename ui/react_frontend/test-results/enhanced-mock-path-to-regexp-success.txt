@@ -1,0 +1,12 @@
+Enhanced mock path-to-regexp success at 2025-05-24T23:08:40.235Z
+Mock implementation created: Yes
+Require patched: Yes
+Environment Detection Module: Available
+CI environment: Yes
+Docker environment: No
+GitHub Actions: Yes
+Kubernetes: No
+Node.js version: v22.15.0
+Platform: win32
+Working directory: C:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\ui\react_frontend
+Detection method: Unified Environment Module
