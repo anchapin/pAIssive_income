@@ -1,0 +1,5 @@
+Successfully patched require for path-to-regexp at 2025-05-24T23:08:37.360Z
+This file indicates that the require function was successfully patched to handle path-to-regexp.
+Node.js version: v22.15.0
+Platform: win32
+CI environment: Yes
