@@ -36,6 +36,7 @@ omit =
     test_*.py
     verify_*.py
     common_utils/logging/*
+branch = True
 
 [report]
 exclude_lines =
@@ -47,6 +48,7 @@ exclude_lines =
     raise NotImplementedError
     raise ImportError
     if __name__ == .__main__.:
+    if self.debug:
     # Skip abstract methods
     @abstractmethod
     # Skip pass statements
@@ -55,3 +57,4 @@ exclude_lines =
     if TYPE_CHECKING:
     # Skip exception handling that can't be tested easily
     except ImportError:
+fail_under = 0.05

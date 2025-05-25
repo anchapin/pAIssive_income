@@ -8,6 +8,7 @@ They use mocking to avoid actual API calls to mem0 or CrewAI.
 import logging
 import unittest
 from unittest.mock import MagicMock, patch
+from typing import List, Dict, Any, Optional
 
 import pytest
 
@@ -75,7 +76,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
 
         # Disable logging during tests
-        # logging.disable(logging.CRITICAL) # Commented out to avoid logger init issues
+        logging.disable(logging.CRITICAL)
 
     def tearDown(self):
         """Tear down test fixtures."""
@@ -86,7 +87,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         self.task_patcher.stop()
 
         # Re-enable logging
-        # logging.disable(logging.NOTSET) # Commented out to avoid logger init issues
+        logging.disable(logging.NOTSET)
 
     def test_initialization(self):
         """Test that the team initializes correctly."""
@@ -244,6 +245,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             user_id="test-user",
             limit=5,  # Default limit
         )
+
 
 if __name__ == "__main__":
     unittest.main()

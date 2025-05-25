@@ -190,11 +190,7 @@ For more details, see `.github/dependabot.yml`.
 
 For any questions, see the [FAQ](docs/07_troubleshooting_and_faq/faq.md) or open an issue.
 
-**pAIssive Income** is a modular, extensible platform for AI-powered content generation, market analysis, monetization, automation, and more. It features advanced agent orchestration, robust APIs, secure development practices, and a developer-friendly workflow. The project is organized for clarity, maintainability, and rapid onboarding.
-
 ## Docker Compose Integration
-
----
 
 > **Tip:** To enable advanced build graph features (Compose BuildKit Bake), set `COMPOSE_BAKE=true` in your `.env` file.
 > This requires Docker Compose v2.10+ and will use the BuildKit bake engine for improved build performance and caching.
@@ -819,8 +815,6 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 ## 📝 License
 
 See [LICENSE](LICENSE) for license details.
-<<<<<<< HEAD
-=======
 
 ## Recent Changes
 
@@ -828,5 +822,3 @@ See [LICENSE](LICENSE) for license details.
 - Updated `.uv.toml` configuration with improved cache management, timeout settings, and parallel installation support
 - Enhanced GitHub workflow configurations for better cross-platform compatibility
 - Improved uv virtual environment handling and dependency management
-
->>>>>>> origin/main

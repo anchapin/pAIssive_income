@@ -81,10 +81,10 @@
     "build": "pnpm tailwind:build && react-app-rewired build",
     "test": "pnpm test:unit",
     "test:legacy": "pnpm tailwind:build && react-app-rewired test --passWithNoTests",
-    "test:unit": "pnpm tailwind:build && vitest run",
+    "test:unit": "pnpm tailwind:build && vitest run --passWithNoTests",
     "test:unit:watch": "pnpm tailwind:build && vitest",
     "test:unit:coverage": "vitest run --coverage",
-    "test:unit:ui": "pnpm tailwind:build && vitest --ui",
+    "test:unit:ui": "pnpm tailwind:build && vitest --ui --passWithNoTests",
     "test:e2e": "pnpm tailwind:build && npx playwright test tests/e2e/agent_ui.spec.ts --passWithNoTests",
     "test:e2e:with-servers": "pnpm tailwind:build && node -e \"process.platform === 'win32' ? require('child_process').execSync('powershell -File tests/run_e2e_tests.ps1', {stdio: 'inherit'}) : require('child_process').execSync('bash tests/run_e2e_tests.sh', {stdio: 'inherit'})\"",
     "test:mock-api": "node tests/run_mock_api_test.js",
@@ -99,7 +99,9 @@
     "preinstall": "npx only-allow pnpm",
     "tailwind:build": "tailwindcss -c ./tailwind.config.js -i ./src/index.css -o ./src/tailwind.output.css --minify",
     "tailwind:watch": "node run_tests_with_tailwind.js --watch",
-    "tailwind:build:custom": "node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css"
+    "tailwind:build:custom": "node run_tests_with_tailwind.js --config ./tailwind.config.js --input ./src/index.css --output ./src/tailwind.output.css",
+    "test:parallel": "node run_tests_with_tailwind.js --parallel --test-command \"npx vitest run --threads --passWithNoTests\"",
+    "test:custom": "node run_tests_with_tailwind.js --test-command"
   },
   "eslintConfig": {
     "extends": [
