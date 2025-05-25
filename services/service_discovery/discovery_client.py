@@ -51,12 +51,11 @@ class ConsulServiceRegistry:
         service_tags = [] if tags is None else tags
         service_metadata = {} if metadata is None else metadata
 
-        # Use logging.info directly to make it easier to mock in tests
-        # Ensure the exact format expected by tests
-        logging.info(f"Registering service {service_name} on port {port}")
+        # Using module logger. Original intent for direct logging.info was for test mocking.
+        logger.info(f"Registering service {service_name} on port {port}")
         # Additional logging that can be useful for debugging
-        logging.info(f"Service tags: {service_tags}")
-        logging.info(f"Service metadata: {service_metadata}")
+        logger.info(f"Service tags: {service_tags}")
+        logger.info(f"Service metadata: {service_metadata}")
 
         # In a real implementation, this would make an API call to Consul
         # with the tags and metadata included
@@ -71,8 +70,8 @@ class ConsulServiceRegistry:
         Returns:
             bool: True if deregistration was successful
         """
-        # Use logging.info directly to make it easier to mock in tests
-        logging.info(f"Deregistering service {service_id}")
+        # Using module logger. Original intent for direct logging.info was for test mocking.
+        logger.info(f"Deregistering service {service_id}")
         # In a real implementation, this would make an API call to Consul
         return True
 
@@ -85,8 +84,8 @@ class ConsulServiceRegistry:
         Returns:
             List of service instances
         """
-        # Use logging.info directly to make it easier to mock in tests
-        logging.info(f"Looking up instances for service {service_name}")
+        # Using module logger. Original intent for direct logging.info was for test mocking.
+        logger.info(f"Looking up instances for service {service_name}")
         # In a real implementation, this would make an API call to Consul
         # For testing purposes, return mock data
         if service_name == "test-service":

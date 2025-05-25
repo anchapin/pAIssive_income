@@ -9,15 +9,14 @@ from pathlib import Path
 import sys # Added sys import
 from typing import Any, Optional
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 try:
     from ai_models.adapters.adapter_factory import AdapterError, get_adapter
 except ImportError:
-    logging.error("Failed to import AdapterError or get_adapter from ai_models.adapters.adapter_factory. Ensure it is in PYTHONPATH.")
+    logger.error("Failed to import AdapterError or get_adapter from ai_models.adapters.adapter_factory. Ensure it is in PYTHONPATH.")
     sys.exit(1)
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 # Use a safer path construction with Path
 BASE_DIR = Path(__file__).resolve().parent.parent

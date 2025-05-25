@@ -17,15 +17,14 @@ import os
 from typing import List, Dict, Any
 import sys # Added sys import
 
+logger = logging.getLogger(__name__)
+
 # Import the memory-enhanced agent team
 try:
     from agent_team.mem0_enhanced_agents import MemoryEnhancedCrewAIAgentTeam, CREWAI_AVAILABLE, MEM0_AVAILABLE
 except ImportError:
     print("Error: agent_team.mem0_enhanced_agents module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
-
-
-logger = logging.getLogger(__name__)
 
 
 def check_dependencies() -> bool:

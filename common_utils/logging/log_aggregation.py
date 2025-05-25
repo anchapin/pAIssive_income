@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """Log aggregation module for collecting and processing logs from multiple sources.
 
 This module provides functionality for aggregating logs from multiple sources,

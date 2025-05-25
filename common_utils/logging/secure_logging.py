@@ -12,6 +12,9 @@ import re
 from re import Pattern
 from typing import Any, Optional
 
+# Configure logger for this module
+module_logger = logging.getLogger(__name__) # Renamed to avoid conflict with class/method names
+
 # List of sensitive field names to mask in logs
 SENSITIVE_FIELDS: list[str] = [
     "auth_credential",

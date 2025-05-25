@@ -39,6 +39,9 @@ import sys # Added sys import
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
+# Configure logger for this module
+logger = logging.getLogger(__name__)
+
 try:
     import numpy as np
     from sklearn.cluster import DBSCAN
@@ -46,13 +49,13 @@ try:
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.preprocessing import StandardScaler
 except ImportError as e:
-    logging.error(f"Failed to import scikit-learn or numpy: {e}")
+    logger.error(f"Failed to import scikit-learn or numpy: {e}")
     sys.exit(1)
 
 try:
     from common_utils.logging.secure_logging import get_secure_logger
 except ImportError:
-    logging.error("Error: common_utils.logging.secure_logging module not found.")
+    logger.error("Error: common_utils.logging.secure_logging module not found.")
     sys.exit(1)
 
 
