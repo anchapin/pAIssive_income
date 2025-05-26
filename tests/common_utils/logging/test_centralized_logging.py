@@ -29,6 +29,7 @@ class TestCentralizedLoggingService:
 
         # Create a CentralizedLoggingService instance with custom FileOutput
         from common_utils.logging.centralized_logging import FileOutput
+
         file_output = FileOutput(directory=self.temp_dir.name)
         self.service = CentralizedLoggingService(
             host="localhost",
@@ -39,11 +40,12 @@ class TestCentralizedLoggingService:
     def teardown_method(self):
         """Tear down test fixtures."""
         # Stop the service if it's running
-        if hasattr(self, 'service') and self.service.running:
+        if hasattr(self, "service") and self.service.running:
             self.service.stop()
 
         # Sleep briefly to allow file handles to be released
         import time
+
         time.sleep(0.1)
 
         # Clean up the temporary directory

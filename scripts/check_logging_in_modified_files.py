@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
 """
 Script to check for proper logger usage in modified files.
 
@@ -26,6 +21,9 @@ import os
 import subprocess
 import sys
 from typing import List, Set, Tuple
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Import the logger initialization checker
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -159,7 +157,7 @@ def main() -> int:
         level=logging.INFO,
         format="%(levelname)s: %(message)s"
     )
-    
+
     parser = argparse.ArgumentParser(description="Check for proper logger usage in modified files")
     parser.add_argument("--fix", action="store_true", help="Attempt to fix issues automatically")
     parser.add_argument("--verbose", action="store_true", help="Show detailed output")

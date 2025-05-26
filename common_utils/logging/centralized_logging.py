@@ -1,4 +1,5 @@
-"""Advanced centralized logging service for distributed applications.
+"""
+Advanced centralized logging service for distributed applications.
 
 This module provides a comprehensive centralized logging service that can be used to collect,
 process, and store logs from multiple distributed applications in a central location.
@@ -54,21 +55,25 @@ Usage:
 """
 
 import datetime
+import gzip
 import json
 import logging
 import os
+import queue
+import shutil
 import socket
+import ssl
 import threading
 import time
-import queue
-import gzip
-import shutil
-import ssl
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from common_utils.logging.secure_logging import SecureLogger, get_secure_logger, mask_sensitive_data
+from common_utils.logging.secure_logging import (
+    SecureLogger,
+    get_secure_logger,
+    mask_sensitive_data,
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -80,31 +85,33 @@ logger = logging.getLogger(__name__)
 # Configure logging
 
 
-
 # Try to import optional dependencies
 try:
     from elasticsearch import Elasticsearch
+
     ELASTICSEARCH_AVAILABLE = True
 except ImportError:
     logger.warning(
         "Elasticsearch library not found. ElasticsearchOutput will not be available.",
-        exc_info=True
+        exc_info=True,
     )
     ELASTICSEARCH_AVAILABLE = False
 
 try:
     import logstash
+
     LOGSTASH_AVAILABLE = True
 except ImportError:
     logger.warning(
         "python-logstash library not found. LogstashOutput will not be available.",
-        exc_info=True
+        exc_info=True,
     )
     LOGSTASH_AVAILABLE = False
 
 
 class LogLevel(Enum):
     """Log levels enum for easier filtering."""
+
     DEBUG = 10
     INFO = 20
     WARNING = 30
@@ -117,25 +124,28 @@ class LogFilter(ABC):
 
     @abstractmethod
     def filter(self, log_entry: Dict[str, Any]) -> bool:
-        """Filter a log entry.
+        """
+        Filter a log entry.
 
         Args:
             log_entry: The log entry to filter
 
         Returns:
             bool: True if the log entry should be kept, False if it should be filtered out
+
         """
-        pass
 
 
 class LevelFilter(LogFilter):
     """Filter logs based on level."""
 
     def __init__(self, min_level: Union[str, int, LogLevel] = LogLevel.INFO):
-        """Initialize the level filter.
+        """
+        Initialize the level filter.
 
         Args:
             min_level: Minimum log level to keep
+
         """
         if isinstance(min_level, str):
             self.min_level = getattr(LogLevel, min_level.upper(), LogLevel.INFO).value
@@ -145,13 +155,15 @@ class LevelFilter(LogFilter):
             self.min_level = min_level.value
 
     def filter(self, log_entry: Dict[str, Any]) -> bool:
-        """Filter a log entry based on level.
+        """
+        Filter a log entry based on level.
 
         Args:
             log_entry: The log entry to filter
 
         Returns:
             bool: True if the log entry should be kept, False if it should be filtered out
+
         """
         level_name = log_entry.get("level", "INFO").upper()
         level = getattr(LogLevel, level_name, LogLevel.INFO).value
@@ -162,21 +174,25 @@ class SensitiveDataFilter(LogFilter):
     """Filter sensitive data from logs."""
 
     def __init__(self, fields: Optional[List[str]] = None):
-        """Initialize the sensitive data filter.
+        """
+        Initialize the sensitive data filter.
 
         Args:
             fields: List of field names to mask
+
         """
         self.fields = fields or []
 
     def filter(self, log_entry: Dict[str, Any]) -> bool:
-        """Mask sensitive data in a log entry.
+        """
+        Mask sensitive data in a log entry.
 
         Args:
             log_entry: The log entry to filter
 
         Returns:
             bool: Always True, as this filter only modifies the log entry
+
         """
         # Mask sensitive data in the message
         if "message" in log_entry:
@@ -195,17 +211,17 @@ class LogOutput(ABC):
 
     @abstractmethod
     def output(self, log_entry: Dict[str, Any]) -> None:
-        """Output a log entry.
+        """
+        Output a log entry.
 
         Args:
             log_entry: The log entry to output
+
         """
-        pass
 
     @abstractmethod
     def close(self) -> None:
         """Close the output."""
-        pass
 
 
 class FileOutput(LogOutput):
@@ -219,7 +235,8 @@ class FileOutput(LogOutput):
         backup_count: int = 5,
         compress: bool = True,
     ) -> None:
-        """Initialize the file output.
+        """
+        Initialize the file output.
 
         Args:
             directory: Directory to store log files
@@ -227,6 +244,7 @@ class FileOutput(LogOutput):
             max_size: Maximum file size for size-based rotation
             backup_count: Number of backup files to keep
             compress: Whether to compress rotated files
+
         """
         self.directory = directory
         self.rotation = rotation
@@ -239,10 +257,12 @@ class FileOutput(LogOutput):
         os.makedirs(directory, exist_ok=True)
 
     def output(self, log_entry: Dict[str, Any]) -> None:
-        """Output a log entry to a file.
+        """
+        Output a log entry to a file.
 
         Args:
             log_entry: The log entry to output
+
         """
         # Get the app name from the log entry
         app_name = log_entry.get("app", "unknown")
@@ -259,13 +279,17 @@ class FileOutput(LogOutput):
         try:
             with open(log_file, "a") as f:
                 # Format the log entry
-                timestamp = log_entry.get("timestamp", datetime.datetime.now().isoformat())
+                timestamp = log_entry.get(
+                    "timestamp", datetime.datetime.now().isoformat()
+                )
                 level = log_entry.get("level", "INFO")
                 logger_name = log_entry.get("logger", "unknown")
                 message = log_entry.get("message", "")
 
                 # Ensure app_name is included in the log entry
-                log_line = f"{timestamp} - {app_name} - {logger_name} - {level} - {message}\n"
+                log_line = (
+                    f"{timestamp} - {app_name} - {logger_name} - {level} - {message}\n"
+                )
 
                 # Write the formatted log entry
                 f.write(log_line)
@@ -276,34 +300,36 @@ class FileOutput(LogOutput):
 
     def close(self) -> None:
         """Close the file output."""
-        pass
 
     def _get_log_file_path(self, app_name: str) -> str:
-        """Get the log file path for an app.
+        """
+        Get the log file path for an app.
 
         Args:
             app_name: Name of the application
 
         Returns:
             str: Path to the log file
+
         """
         if self.rotation == "daily":
             date_str = datetime.datetime.now().strftime("%Y-%m-%d")
             return os.path.join(self.directory, f"{app_name}_{date_str}.log")
-        elif self.rotation == "hourly":
+        if self.rotation == "hourly":
             date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H")
             return os.path.join(self.directory, f"{app_name}_{date_str}.log")
-        else:
-            return os.path.join(self.directory, f"{app_name}.log")
+        return os.path.join(self.directory, f"{app_name}.log")
 
     def _should_rotate(self, log_file: str) -> bool:
-        """Check if a log file should be rotated.
+        """
+        Check if a log file should be rotated.
 
         Args:
             log_file: Path to the log file
 
         Returns:
             bool: True if the log file should be rotated, False otherwise
+
         """
         if not os.path.exists(log_file):
             return False
@@ -314,11 +340,13 @@ class FileOutput(LogOutput):
         return False
 
     def _rotate_log_file(self, app_name: str, log_file: str) -> None:
-        """Rotate a log file.
+        """
+        Rotate a log file.
 
         Args:
             app_name: Name of the application
             log_file: Path to the log file
+
         """
         if not os.path.exists(log_file):
             return
@@ -355,13 +383,15 @@ class ElasticsearchOutput(LogOutput):
         batch_size: int = 100,
         flush_interval: int = 5,
     ) -> None:
-        """Initialize the Elasticsearch output.
+        """
+        Initialize the Elasticsearch output.
 
         Args:
             hosts: List of Elasticsearch hosts
             index_prefix: Prefix for Elasticsearch indices
             batch_size: Number of logs to batch before sending
             flush_interval: Interval in seconds to flush the batch
+
         """
         if not ELASTICSEARCH_AVAILABLE:
             raise ImportError("Elasticsearch package is not installed")
@@ -383,10 +413,12 @@ class ElasticsearchOutput(LogOutput):
         self.thread.start()
 
     def output(self, log_entry: Dict[str, Any]) -> None:
-        """Output a log entry to Elasticsearch.
+        """
+        Output a log entry to Elasticsearch.
 
         Args:
             log_entry: The log entry to output
+
         """
         # Add the log entry to the batch
         self.batch.append(log_entry)
@@ -453,12 +485,14 @@ class LogstashOutput(LogOutput):
         port: int = 5000,
         protocol: str = "udp",
     ) -> None:
-        """Initialize the Logstash output.
+        """
+        Initialize the Logstash output.
 
         Args:
             host: Logstash host
             port: Logstash port
             protocol: Protocol to use ('udp' or 'tcp')
+
         """
         if not LOGSTASH_AVAILABLE:
             raise ImportError("Logstash package is not installed")
@@ -474,10 +508,12 @@ class LogstashOutput(LogOutput):
             self.handler = logstash.TCPLogstashHandler(host, port)
 
     def output(self, log_entry: Dict[str, Any]) -> None:
-        """Output a log entry to Logstash.
+        """
+        Output a log entry to Logstash.
 
         Args:
             log_entry: The log entry to output
+
         """
         try:
             # Create a log record
@@ -522,7 +558,8 @@ class CentralizedLoggingService:
         ssl_cert: Optional[str] = None,
         ssl_key: Optional[str] = None,
     ) -> None:
-        """Initialize the centralized logging service.
+        """
+        Initialize the centralized logging service.
 
         Args:
             host: Host to bind the service to
@@ -533,6 +570,7 @@ class CentralizedLoggingService:
             use_ssl: Whether to use SSL for secure communication
             ssl_cert: Path to SSL certificate file
             ssl_key: Path to SSL key file
+
         """
         self.host = host
         self.port = port
@@ -593,7 +631,9 @@ class CentralizedLoggingService:
             self.thread.daemon = True
             self.thread.start()
 
-            self.logger.info(f"Centralized logging service started on {self.host}:{self.port} (SSL: {self.use_ssl})")
+            self.logger.info(
+                f"Centralized logging service started on {self.host}:{self.port} (SSL: {self.use_ssl})"
+            )
         except Exception:
             self.logger.exception("Failed to start centralized logging service")
             if self.socket:
@@ -626,10 +666,16 @@ class CentralizedLoggingService:
             try:
                 output.close()
             except Exception:
-                self.logger.exception(f"Error closing output {output.__class__.__name__}")
+                self.logger.exception(
+                    f"Error closing output {output.__class__.__name__}"
+                )
 
         # Log statistics
-        uptime = datetime.datetime.now() - self.stats["start_time"] if self.stats["start_time"] else datetime.timedelta(0)
+        uptime = (
+            datetime.datetime.now() - self.stats["start_time"]
+            if self.stats["start_time"]
+            else datetime.timedelta(0)
+        )
         self.logger.info(
             f"Centralized logging service stopped. "
             f"Stats: received={self.stats['received']}, "
@@ -639,10 +685,12 @@ class CentralizedLoggingService:
         )
 
     def receive_log(self) -> Dict[str, Any]:
-        """Receive a log entry from a client.
+        """
+        Receive a log entry from a client.
 
         Returns:
             Dict[str, Any]: The received log entry
+
         """
         if not self.running or not self.socket:
             raise RuntimeError("Service is not running")
@@ -708,10 +756,12 @@ class CentralizedLoggingService:
             raise
 
     def process_log(self, log_entry: Dict[str, Any]) -> None:
-        """Process a log entry.
+        """
+        Process a log entry.
 
         Args:
             log_entry: The log entry to process
+
         """
         try:
             # Apply filters
@@ -725,17 +775,21 @@ class CentralizedLoggingService:
                 try:
                     output.output(log_entry)
                 except Exception:
-                    self.logger.exception(f"Error sending log entry to {output.__class__.__name__}")
+                    self.logger.exception(
+                        f"Error sending log entry to {output.__class__.__name__}"
+                    )
                     self.stats["errors"] += 1
         except Exception:
             self.logger.exception("Error processing log entry")
             self.stats["errors"] += 1
 
     def get_stats(self) -> Dict[str, Any]:
-        """Get statistics about the logging service.
+        """
+        Get statistics about the logging service.
 
         Returns:
             Dict[str, Any]: Statistics about the logging service
+
         """
         stats = self.stats.copy()
 
@@ -779,7 +833,8 @@ class LoggingClient:
         retry_interval: int = 5,
         secure: bool = False,
     ) -> None:
-        """Initialize the logging client.
+        """
+        Initialize the logging client.
 
         Args:
             app_name: Name of the application
@@ -788,6 +843,7 @@ class LoggingClient:
             buffer_size: Size of the log buffer (0 to disable buffering)
             retry_interval: Interval in seconds to retry sending logs
             secure: Whether to use SSL for secure communication
+
         """
         self.app_name = app_name
         self.host = host
@@ -795,7 +851,7 @@ class LoggingClient:
         self.buffer_size = buffer_size
         self.retry_interval = retry_interval
         self.secure = secure
-        self.buffer = queue.Queue(maxsize=buffer_size if buffer_size > 0 else 0)
+        self.buffer = queue.Queue(maxsize=max(0, buffer_size))
         self.running = True
         self.stats = {
             "sent": 0,
@@ -816,10 +872,12 @@ class LoggingClient:
             self.thread = None
 
     def send_log(self, log_entry: Dict[str, Any]) -> None:
-        """Send a log entry to the centralized logging service.
+        """
+        Send a log entry to the centralized logging service.
 
         Args:
             log_entry: The log entry to send
+
         """
         # Add the app name to the log entry if not already present
         if "app" not in log_entry:
@@ -842,13 +900,15 @@ class LoggingClient:
             self._send_log_entry(log_entry)
 
     def _send_log_entry(self, log_entry: Dict[str, Any]) -> bool:
-        """Send a log entry to the centralized logging service.
+        """
+        Send a log entry to the centralized logging service.
 
         Args:
             log_entry: The log entry to send
 
         Returns:
             bool: True if the log entry was sent successfully, False otherwise
+
         """
         try:
             # Convert the log entry to JSON
@@ -917,7 +977,9 @@ class LoggingClient:
                     if not self._send_log_entry(log_entry):
                         # Failed again, drop the log entry
                         self.stats["dropped"] += 1
-                        self.logger.warning("Failed to send log entry after retry, dropping")
+                        self.logger.warning(
+                            "Failed to send log entry after retry, dropping"
+                        )
 
                 # Mark the task as done
                 self.buffer.task_done()
@@ -951,20 +1013,24 @@ class RemoteHandler(logging.Handler):
         client: LoggingClient,
         level: int = logging.NOTSET,
     ) -> None:
-        """Initialize the remote handler.
+        """
+        Initialize the remote handler.
 
         Args:
             client: The logging client to use
             level: The logging level
+
         """
         super().__init__(level)
         self.client = client
 
     def emit(self, record: logging.LogRecord) -> None:
-        """Emit a log record.
+        """
+        Emit a log record.
 
         Args:
             record: The log record to emit
+
         """
         try:
             # Format the log record
@@ -998,7 +1064,8 @@ def configure_centralized_logging(
     secure: bool = False,
     formatter: Optional[logging.Formatter] = None,
 ) -> None:
-    """Configure centralized logging.
+    """
+    Configure centralized logging.
 
     Args:
         app_name: Name of the application
@@ -1009,6 +1076,7 @@ def configure_centralized_logging(
         retry_interval: Interval in seconds to retry sending logs
         secure: Whether to use SSL for secure communication
         formatter: Custom formatter for log messages
+
     """
     global _client
 
@@ -1051,13 +1119,15 @@ def configure_centralized_logging(
 
 
 def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
-    """Get a logger that sends logs to the centralized logging service.
+    """
+    Get a logger that sends logs to the centralized logging service.
 
     Args:
         name: Name of the logger
 
     Returns:
         Union[logging.Logger, SecureLogger]: The logger
+
     """
     # Check if centralized logging is configured
     if _client is None:
@@ -1068,8 +1138,16 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
     target_logger = logging.getLogger(name)
 
     # Add a method to log with extra fields
-    def log_with_extra(self, level: int, msg: str, *args: Any, extra: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
-        """Log a message with extra fields.
+    def log_with_extra(
+        self,
+        level: int,
+        msg: str,
+        *args: Any,
+        extra: Optional[Dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Log a message with extra fields.
 
         Args:
             level: Log level
@@ -1077,20 +1155,33 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
             args: Arguments for message formatting
             extra: Extra fields to include in the log entry
             kwargs: Additional keyword arguments
+
         """
         if extra is None:
             extra = {}
         self.log(level, msg, *args, extra=extra, **kwargs)
 
     # Add the method to the logger
-    target_logger.log_with_extra = lambda level, msg, *args, **kwargs: log_with_extra(target_logger, level, msg, *args, **kwargs)
+    target_logger.log_with_extra = lambda level, msg, *args, **kwargs: log_with_extra(
+        target_logger, level, msg, *args, **kwargs
+    )
 
     # Add convenience methods
-    target_logger.debug_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.DEBUG, msg, *args, **kwargs)
-    target_logger.info_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.INFO, msg, *args, **kwargs)
-    target_logger.warning_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.WARNING, msg, *args, **kwargs)
-    target_logger.error_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.ERROR, msg, *args, **kwargs)
-    target_logger.critical_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.CRITICAL, msg, *args, **kwargs)
+    target_logger.debug_with_extra = lambda msg, *args, **kwargs: log_with_extra(
+        target_logger, logging.DEBUG, msg, *args, **kwargs
+    )
+    target_logger.info_with_extra = lambda msg, *args, **kwargs: log_with_extra(
+        target_logger, logging.INFO, msg, *args, **kwargs
+    )
+    target_logger.warning_with_extra = lambda msg, *args, **kwargs: log_with_extra(
+        target_logger, logging.WARNING, msg, *args, **kwargs
+    )
+    target_logger.error_with_extra = lambda msg, *args, **kwargs: log_with_extra(
+        target_logger, logging.ERROR, msg, *args, **kwargs
+    )
+    target_logger.critical_with_extra = lambda msg, *args, **kwargs: log_with_extra(
+        target_logger, logging.CRITICAL, msg, *args, **kwargs
+    )
 
     return target_logger
 

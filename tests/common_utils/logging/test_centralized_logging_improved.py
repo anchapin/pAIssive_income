@@ -30,6 +30,7 @@ class TestCentralizedLoggingServiceImproved:
 
         # Create a CentralizedLoggingService instance with custom FileOutput
         from common_utils.logging.centralized_logging import FileOutput
+
         file_output = FileOutput(directory=self.temp_dir.name)
         self.service = CentralizedLoggingService(
             host="localhost",
@@ -40,7 +41,7 @@ class TestCentralizedLoggingServiceImproved:
     def teardown_method(self):
         """Tear down test fixtures."""
         # Stop the service if it's running
-        if hasattr(self, 'service') and self.service.running:
+        if hasattr(self, "service") and self.service.running:
             self.service.stop()
 
         # Clean up the temporary directory
@@ -49,8 +50,9 @@ class TestCentralizedLoggingServiceImproved:
     def test_start_when_already_running(self):
         """Test start method when the service is already running."""
         # Start the service
-        with patch("socket.socket") as mock_socket, \
-             patch("threading.Thread") as mock_thread:
+        with patch("socket.socket") as mock_socket, patch(
+            "threading.Thread"
+        ) as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
             mock_thread_instance = MagicMock()
@@ -111,8 +113,9 @@ class TestCentralizedLoggingServiceImproved:
     def test_receive_log_with_json_decode_error(self):
         """Test receive_log method with a JSON decode error."""
         # Start the service
-        with patch("socket.socket") as mock_socket, \
-             patch("threading.Thread") as mock_thread:
+        with patch("socket.socket") as mock_socket, patch(
+            "threading.Thread"
+        ) as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
             mock_thread_instance = MagicMock()
@@ -121,7 +124,10 @@ class TestCentralizedLoggingServiceImproved:
             self.service.start()
 
         # Mock the socket to return invalid JSON
-        self.service.socket.recvfrom.return_value = (b"invalid json", ("localhost", 5000))
+        self.service.socket.recvfrom.return_value = (
+            b"invalid json",
+            ("localhost", 5000),
+        )
 
         # Mock the logger
         with patch.object(self.service.logger, "error") as mock_error:
@@ -161,8 +167,9 @@ class TestCentralizedLoggingServiceImproved:
     def test_process_logs_with_exception(self):
         """Test _process_logs method with an exception."""
         # Start the service
-        with patch("socket.socket") as mock_socket, \
-             patch("threading.Thread") as mock_thread:
+        with patch("socket.socket") as mock_socket, patch(
+            "threading.Thread"
+        ) as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
             mock_thread_instance = MagicMock()
@@ -172,15 +179,15 @@ class TestCentralizedLoggingServiceImproved:
 
         # Mock receive_log to raise an exception, then stop the service
         call_count = 0
+
         def mock_receive_log():
             nonlocal call_count
             call_count += 1
             if call_count == 1:
                 raise Exception("Test exception")
-            else:
-                # Stop the service to exit the loop
-                self.service.running = False
-                raise Exception("Stop loop")
+            # Stop the service to exit the loop
+            self.service.running = False
+            raise Exception("Stop loop")
 
         with patch.object(self.service, "receive_log", side_effect=mock_receive_log):
             # Mock time.sleep to avoid waiting
@@ -271,10 +278,13 @@ class TestCentralizedLoggingFunctionsImproved:
         """Test get_centralized_logger function when the client is not configured."""
         # Ensure the global client is None
         from common_utils.logging.centralized_logging import _client
+
         _client = None
 
         # Mock get_secure_logger
-        with patch("common_utils.logging.centralized_logging.get_secure_logger") as mock_get_secure_logger:
+        with patch(
+            "common_utils.logging.centralized_logging.get_secure_logger"
+        ) as mock_get_secure_logger:
             mock_logger = MagicMock()
             mock_get_secure_logger.return_value = mock_logger
 

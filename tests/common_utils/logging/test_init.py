@@ -7,8 +7,8 @@ import pytest
 
 from common_utils.logging import (
     SecureLogger,
-    get_logger,
     _logger_cache,
+    get_logger,
 )
 
 
@@ -20,27 +20,33 @@ class TestLoggingInit:
         logger = SecureLogger("test_secure_logger")
 
         # Mock the parent class's error method
-        with patch.object(logging.Logger, 'error') as mock_error:
+        with patch.object(logging.Logger, "error") as mock_error:
             logger.error("Test message", secure_context=True)
-            mock_error.assert_called_once_with("[SECURE] Test message", secure_context=True)
+            mock_error.assert_called_once_with(
+                "[SECURE] Test message", secure_context=True
+            )
 
     def test_secure_logger_warning_with_secure_context(self):
         """Test SecureLogger.warning with secure_context."""
         logger = SecureLogger("test_secure_logger")
 
         # Mock the parent class's warning method
-        with patch.object(logging.Logger, 'warning') as mock_warning:
+        with patch.object(logging.Logger, "warning") as mock_warning:
             logger.warning("Test message", secure_context=True)
-            mock_warning.assert_called_once_with("[SECURE] Test message", secure_context=True)
+            mock_warning.assert_called_once_with(
+                "[SECURE] Test message", secure_context=True
+            )
 
     def test_secure_logger_info_with_secure_context(self):
         """Test SecureLogger.info with secure_context."""
         logger = SecureLogger("test_secure_logger")
 
         # Mock the parent class's info method
-        with patch.object(logging.Logger, 'info') as mock_info:
+        with patch.object(logging.Logger, "info") as mock_info:
             logger.info("Test message", secure_context=True)
-            mock_info.assert_called_once_with("[SECURE] Test message", secure_context=True)
+            mock_info.assert_called_once_with(
+                "[SECURE] Test message", secure_context=True
+            )
 
     def test_get_logger_from_cache(self):
         """Test get_logger returns cached logger."""
@@ -48,7 +54,7 @@ class TestLoggingInit:
         logger1 = get_logger("test_cached_logger")
 
         # Mock the SecureLogger constructor to verify it's not called again
-        with patch('common_utils.logging.SecureLogger') as mock_secure_logger:
+        with patch("common_utils.logging.SecureLogger") as mock_secure_logger:
             # Second call should return the cached logger
             logger2 = get_logger("test_cached_logger")
 
@@ -60,7 +66,7 @@ class TestLoggingInit:
 
     def test_get_logger_non_secure(self):
         """Test get_logger with secure=False."""
-        with patch('common_utils.logging.logging.getLogger') as mock_get_logger:
+        with patch("common_utils.logging.logging.getLogger") as mock_get_logger:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
 
@@ -81,9 +87,12 @@ class TestLoggingInit:
         _logger_cache.clear()
 
         # Mock SecureLogger to raise an exception
-        with patch('common_utils.logging.SecureLogger', side_effect=Exception("Failed to create SecureLogger")):
+        with patch(
+            "common_utils.logging.SecureLogger",
+            side_effect=Exception("Failed to create SecureLogger"),
+        ):
             # Mock logging.getLogger
-            with patch('common_utils.logging.logging.getLogger') as mock_get_logger:
+            with patch("common_utils.logging.logging.getLogger") as mock_get_logger:
                 mock_logger = MagicMock()
                 mock_get_logger.return_value = mock_logger
 
