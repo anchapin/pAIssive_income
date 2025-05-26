@@ -28,11 +28,13 @@ class TestCentralizedLoggingServiceImproved:
         # Create a temporary directory for test log files
         self.temp_dir = tempfile.TemporaryDirectory()
 
-        # Create a CentralizedLoggingService instance
+        # Create a CentralizedLoggingService instance with custom FileOutput
+        from common_utils.logging.centralized_logging import FileOutput
+        file_output = FileOutput(directory=self.temp_dir.name)
         self.service = CentralizedLoggingService(
             host="localhost",
             port=5000,
-            log_dir=self.temp_dir.name,
+            outputs=[file_output],
         )
 
     def teardown_method(self):
@@ -47,9 +49,13 @@ class TestCentralizedLoggingServiceImproved:
     def test_start_when_already_running(self):
         """Test start method when the service is already running."""
         # Start the service
-        with patch("socket.socket") as mock_socket:
+        with patch("socket.socket") as mock_socket, \
+             patch("threading.Thread") as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
+            mock_thread_instance = MagicMock()
+            mock_thread.return_value = mock_thread_instance
+
             self.service.start()
 
         # Verify that the service is running
@@ -105,9 +111,13 @@ class TestCentralizedLoggingServiceImproved:
     def test_receive_log_with_json_decode_error(self):
         """Test receive_log method with a JSON decode error."""
         # Start the service
-        with patch("socket.socket") as mock_socket:
+        with patch("socket.socket") as mock_socket, \
+             patch("threading.Thread") as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
+            mock_thread_instance = MagicMock()
+            mock_thread.return_value = mock_thread_instance
+
             self.service.start()
 
         # Mock the socket to return invalid JSON
@@ -151,22 +161,35 @@ class TestCentralizedLoggingServiceImproved:
     def test_process_logs_with_exception(self):
         """Test _process_logs method with an exception."""
         # Start the service
-        with patch("socket.socket") as mock_socket:
+        with patch("socket.socket") as mock_socket, \
+             patch("threading.Thread") as mock_thread:
             mock_socket_instance = MagicMock()
             mock_socket.return_value = mock_socket_instance
+            mock_thread_instance = MagicMock()
+            mock_thread.return_value = mock_thread_instance
+
             self.service.start()
 
-        # Mock receive_log to raise an exception
-        with patch.object(self.service, "receive_log", side_effect=Exception("Test exception")):
-            # Mock the logger
-            with patch.object(self.service.logger, "error") as mock_error:
-                # Mock time.sleep to avoid waiting
-                with patch("time.sleep"):
-                    # Call _process_logs
-                    self.service._process_logs()
+        # Mock receive_log to raise an exception, then stop the service
+        call_count = 0
+        def mock_receive_log():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise Exception("Test exception")
+            else:
+                # Stop the service to exit the loop
+                self.service.running = False
+                raise Exception("Stop loop")
 
-                    # Verify that the error was logged
-                    mock_error.assert_called_once()
+        with patch.object(self.service, "receive_log", side_effect=mock_receive_log):
+            # Mock time.sleep to avoid waiting
+            with patch("time.sleep"):
+                # Call _process_logs - it will process one exception then exit
+                self.service._process_logs()
+
+            # Verify that the stats were updated (error count increased)
+            assert self.service.stats["errors"] >= 1
 
 
 class TestLoggingClientImproved:

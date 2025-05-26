@@ -27,11 +27,13 @@ class TestCentralizedLoggingService:
         # Create a temporary directory for test log files
         self.temp_dir = tempfile.TemporaryDirectory()
 
-        # Create a CentralizedLoggingService instance
+        # Create a CentralizedLoggingService instance with custom FileOutput
+        from common_utils.logging.centralized_logging import FileOutput
+        file_output = FileOutput(directory=self.temp_dir.name)
         self.service = CentralizedLoggingService(
             host="localhost",
             port=5000,
-            log_dir=self.temp_dir.name,
+            outputs=[file_output],
         )
 
     def teardown_method(self):
@@ -51,7 +53,6 @@ class TestCentralizedLoggingService:
         """Test CentralizedLoggingService initialization."""
         assert self.service.host == "localhost"
         assert self.service.port == 5000
-        assert self.service.log_dir == self.temp_dir.name
         assert self.service.running is False
 
     @patch("socket.socket")
@@ -175,11 +176,12 @@ class TestLoggingClient:
 
     def setup_method(self):
         """Set up test fixtures."""
-        # Create a LoggingClient instance
+        # Create a LoggingClient instance with buffering disabled
         self.client = LoggingClient(
             app_name="test_app",
             host="localhost",
             port=5000,
+            buffer_size=0,  # Disable buffering to send immediately
         )
 
     def test_init(self):

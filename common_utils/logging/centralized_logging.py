@@ -86,7 +86,7 @@ try:
     from elasticsearch import Elasticsearch
     ELASTICSEARCH_AVAILABLE = True
 except ImportError:
-    _logger.warning(
+    logger.warning(
         "Elasticsearch library not found. ElasticsearchOutput will not be available.",
         exc_info=True
     )
@@ -96,7 +96,7 @@ try:
     import logstash
     LOGSTASH_AVAILABLE = True
 except ImportError:
-    _logger.warning(
+    logger.warning(
         "python-logstash library not found. LogstashOutput will not be available.",
         exc_info=True
     )

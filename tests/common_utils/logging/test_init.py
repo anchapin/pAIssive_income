@@ -8,7 +8,6 @@ import pytest
 from common_utils.logging import (
     SecureLogger,
     get_logger,
-    secure_logger,
     _logger_cache,
 )
 
@@ -71,7 +70,8 @@ class TestLoggingInit:
             mock_logger.setLevel.assert_called_once_with(logging.INFO)
 
     def test_secure_logger_global_instance(self):
-        """Test the global secure_logger instance."""
+        """Test creating a secure_logger instance."""
+        secure_logger = get_logger("secure_logger", secure=True)
         assert isinstance(secure_logger, SecureLogger)
         assert secure_logger.name == "secure_logger"
 
