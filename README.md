@@ -861,6 +861,20 @@ All development uses [uv](https://github.com/astral-sh/uv) (Python) and [pnpm](h
 
 ---
 
+## Agentic Reasoning Tests & Benchmarking
+
+This project now includes advanced tests and benchmarking for agentic reasoning and tool use:
+
+- **Agentic Reasoning Unit Tests:**
+  - See `tests/test_artist_agent.py` for tests validating the ability of agents to select and use tools (such as the calculator) and to handle multi-step reasoning prompts.
+- **Benchmarking:**
+  - See `tests/performance/test_artist_agent_benchmark.py` for automated benchmarking of the ARTIST agent against other agent frameworks.
+  - Benchmark results are output to `tests/performance/artist_agent_benchmark.md` after running the benchmark script.
+
+These additions help ensure robust, measurable progress in agentic reasoning and tool integration in this codebase.
+
+---
+
 ## 📝 License
 
 See [LICENSE](LICENSE) for license details.

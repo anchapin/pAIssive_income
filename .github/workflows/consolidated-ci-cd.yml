@@ -181,8 +181,9 @@ jobs:
           ruff check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
           pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
 
-          # Run logger initialization check
-          python scripts/check_logger_initialization.py
+      - name: Check logger initialization
+        run: python scripts/check_logger_initialization.py
+        shell: bash
 
       - name: Run MCP tests (Unix only)
         if: runner.os != 'Windows'
@@ -235,13 +236,13 @@ jobs:
         if: runner.os == 'Windows' && steps.check_script_windows.outputs.script_exists == 'false'
         shell: pwsh
         run: |
-          # Create a simple Python script without using here-string
-          Set-Content -Path run_crewai_tests.py -Value "#!/usr/bin/env python3" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "# Mock CrewAI test script." -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "import sys" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "print('Mock CrewAI test script')" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "print('CrewAI tests skipped - script not found')" -Encoding utf8
-          Add-Content -Path run_crewai_tests.py -Value "sys.exit(0)" -Encoding utf8
+          $content = '#!/usr/bin/env python3
+          """Mock CrewAI test script."""
+          import sys
+          print("Mock CrewAI test script")
+          print("CrewAI tests skipped - script not found")
+          sys.exit(0)'
+          Set-Content -Path run_crewai_tests.py -Value $content -Encoding utf8
 
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
