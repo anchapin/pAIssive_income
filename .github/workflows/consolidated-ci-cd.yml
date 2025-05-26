@@ -56,17 +56,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup Node.js and pnpm for Tailwind CSS build
+      # Setup Node.js and pnpm
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install pnpm
-        shell: bash
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.14.0 --activate
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.14.0
+          run_install: false
 
       - name: Install Node.js dependencies and build Tailwind CSS
         shell: bash
@@ -78,19 +78,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      # Set up Node.js for JavaScript testing
-      - name: Set up Node.js for testing
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      # Set up pnpm for JavaScript package management
-      - name: Setup pnpm for testing
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-          run_install: false
 
       - name: Cache uv dependencies
         uses: actions/cache@v4
