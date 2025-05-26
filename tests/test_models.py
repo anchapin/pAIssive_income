@@ -3,37 +3,14 @@
 from typing import Generator
 
 import pytest
+from flask import Flask
+from flask.testing import FlaskClient
 
 from app_flask import db
 from app_flask.models import Agent, Team, User
-from flask.app import Flask  # Import actual Flask class
-from flask.testing import FlaskClient
 
 # Constants
 EXPECTED_AGENT_COUNT = 2
-
-
-@pytest.fixture
-def app() -> Generator[Flask, None, None]:
-    """Create a Flask app for testing."""
-    app = Flask(__name__)
-    app.config.update(
-        {
-            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-        }
-    )
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app: Flask) -> FlaskClient:
-    """Create a test client."""
-    return app.test_client()
 
 
 def test_user_model(app: Flask) -> None:
@@ -55,27 +32,35 @@ def test_user_model(app: Flask) -> None:
         assert queried_user.email == "test@example.com"
         assert queried_user.password_hash == "hashed_password"  # noqa: S105 - Test data only
 
+        # Test string representation
+        assert str(queried_user) == "<User testuser>"
+
 
 def test_team_model(app: Flask) -> None:
     """Test the Team model."""
     with app.app_context():
         # Create a team
-        team = Team(name="Test Team", description="A test team")
+        team = Team(name="Team Model Test", description="A test team for team model")
         db.session.add(team)
         db.session.commit()
 
         # Query the team
-        queried_team = Team.query.filter_by(name="Test Team").first()
+        queried_team = Team.query.filter_by(name="Team Model Test").first()
         assert queried_team is not None
-        assert queried_team.name == "Test Team"
-        assert queried_team.description == "A test team"
+        assert queried_team.name == "Team Model Test"
+        assert queried_team.description == "A test team for team model"
+        assert queried_team.created_at is not None
+        assert queried_team.updated_at is not None
+
+        # Test string representation
+        assert str(queried_team) == "<Team Team Model Test>"
 
 
 def test_agent_model(app: Flask) -> None:
     """Test the Agent model."""
     with app.app_context():
         # Create a team
-        team = Team(name="Test Team", description="A test team")
+        team = Team(name="Agent Model Test Team", description="A test team for agent model")
         db.session.add(team)
         db.session.commit()
 
@@ -96,13 +81,18 @@ def test_agent_model(app: Flask) -> None:
         assert queried_agent.role == "tester"
         assert queried_agent.description == "A test agent"
         assert queried_agent.team_id == team.id
+        assert queried_agent.created_at is not None
+        assert queried_agent.updated_at is not None
+
+        # Test string representation
+        assert str(queried_agent) == "<Agent Test Agent (tester)>"
 
 
 def test_team_agent_relationship(app: Flask) -> None:
     """Test the relationship between Team and Agent models."""
     with app.app_context():
         # Create a team
-        team = Team(name="Test Team", description="A test team")
+        team = Team(name="Relationship Test Team", description="A test team for relationships")
         db.session.add(team)
         db.session.commit()
 
@@ -117,11 +107,94 @@ def test_team_agent_relationship(app: Flask) -> None:
         db.session.commit()
 
         # Query the team and check its agents
-        queried_team = Team.query.filter_by(name="Test Team").first()
+        queried_team = Team.query.filter_by(name="Relationship Test Team").first()
+        assert queried_team is not None
         assert len(queried_team.agents) == EXPECTED_AGENT_COUNT
-        assert queried_team.agents[0].name in ["Agent 1", "Agent 2"]
-        assert queried_team.agents[1].name in ["Agent 1", "Agent 2"]
+        agent_names = [agent.name for agent in queried_team.agents]
+        assert "Agent 1" in agent_names
+        assert "Agent 2" in agent_names
 
         # Query an agent and check its team
         agent = Agent.query.filter_by(name="Agent 1").first()
-        assert agent.team.name == "Test Team"
+        assert agent is not None
+        assert agent.team is not None
+        assert agent.team.name == "Relationship Test Team"
+
+
+def test_cascade_delete(app: Flask) -> None:
+    """Test that deleting a team cascades to delete its agents."""
+    with app.app_context():
+        # Create a team with agents
+        team = Team(name="Cascade Delete Team", description="Team to be deleted")
+        db.session.add(team)
+        db.session.commit()
+
+        agent1 = Agent(name="Agent 1", role="role1", team=team)
+        agent2 = Agent(name="Agent 2", role="role2", team=team)
+        db.session.add_all([agent1, agent2])
+        db.session.commit()
+
+        team_id = team.id
+
+        # Verify agents exist
+        assert Agent.query.filter_by(team_id=team_id).count() == 2
+
+        # Delete the team
+        db.session.delete(team)
+        db.session.commit()
+
+        # Verify agents are also deleted (cascade)
+        assert Agent.query.filter_by(team_id=team_id).count() == 0
+
+
+def test_user_unique_constraints(app: Flask) -> None:
+    """Test that unique constraints work for User model."""
+    with app.app_context():
+        # Create first user
+        user1 = User(
+            username="unique_user",
+            email="unique@example.com",
+            password_hash="password1",
+        )
+        db.session.add(user1)
+        db.session.commit()
+
+        # Try to create user with same username
+        user2 = User(
+            username="unique_user",  # Same username
+            email="different@example.com",
+            password_hash="password2",
+        )
+        db.session.add(user2)
+        
+        with pytest.raises(Exception):  # Should raise IntegrityError
+            db.session.commit()
+        
+        db.session.rollback()
+
+        # Try to create user with same email
+        user3 = User(
+            username="different_user",
+            email="unique@example.com",  # Same email
+            password_hash="password3",
+        )
+        db.session.add(user3)
+        
+        with pytest.raises(Exception):  # Should raise IntegrityError
+            db.session.commit()
+
+
+def test_team_unique_name(app: Flask) -> None:
+    """Test that team names must be unique."""
+    with app.app_context():
+        # Create first team
+        team1 = Team(name="Unique Team Name", description="First team")
+        db.session.add(team1)
+        db.session.commit()
+
+        # Try to create team with same name
+        team2 = Team(name="Unique Team Name", description="Second team")
+        db.session.add(team2)
+        
+        with pytest.raises(Exception):  # Should raise IntegrityError
+            db.session.commit()
