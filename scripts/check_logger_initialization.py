@@ -8,6 +8,11 @@ logger initialization issues, such as:
 - Not initializing a logger at the top of the module
 - Using the root logger directly instead of a module-specific logger
 
+The script automatically excludes:
+- All directories starting with '.' (e.g., .git, .venv, .pytest_cache)
+- Common build and cache directories (node_modules, __pycache__, build, dist, etc.)
+- Test files (files matching *_test.py or test_*.py patterns)
+
 Usage:
     python scripts/check_logger_initialization.py [--fix] [--verbose] [path1 path2 ...]
 
@@ -30,19 +35,20 @@ logger = logging.getLogger(__name__)
 # logging.basicConfig will be moved to the main() function
 
 # Default directories to exclude
+# Note: All directories starting with '.' are automatically excluded in scan_directory()
 DEFAULT_EXCLUDE_DIRS = {
-    ".git",
-    ".github",
-    ".venv",
     "venv",
     "env",
     "node_modules",
     "__pycache__",
     "build",
     "dist",
-    ".pytest_cache",
-    ".mypy_cache",
-    ".ruff_cache",
+    "site-packages",
+    "htmlcov",
+    "coverage",
+    "playwright-report",
+    "ci-reports",
+    "security-reports",
 }
 
 # Default files to exclude
@@ -535,8 +541,8 @@ def scan_directory(
     fixed_count = 0
 
     for root, dirs, files in os.walk(directory):
-        # Skip excluded directories
-        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        # Skip excluded directories and any directory starting with a dot
+        dirs[:] = [d for d in dirs if d not in exclude_dirs and not d.startswith('.')]
 
         for file in files:
             if not file.endswith(".py"):

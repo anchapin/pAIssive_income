@@ -755,7 +755,8 @@ jobs:
     outputs:
       docker_tag: ${{ steps.set-docker-tag.outputs.docker_tag }}
       should_push: ${{ steps.set-docker-tag.outputs.should_push }}
-    steps:      - name: Checkout code
+    steps:
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set Docker image tag
