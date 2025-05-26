@@ -1,9 +1,9 @@
 /**
  * Environment-Specific Test Fixtures
- * 
+ *
  * This module provides Playwright test fixtures that are environment-aware.
  * These fixtures can be used in tests to adjust behavior based on the detected environment.
- * 
+ *
  * @version 1.0.0
  */
 
@@ -19,8 +19,15 @@ const playwrightEnvironment = eval('require')('../helpers/playwright-environment
 // Detect the current environment
 const env = environmentDetection.detectEnvironment();
 
+// Define the type for our custom fixtures
+type TestFixtures = {
+  environmentInfo: any;
+  testArtifacts: any;
+  apiConfig: any;
+};
+
 // Create a new test object with environment-specific fixtures
-export const test = base.extend({
+export const test = base.extend<TestFixtures>({
   /**
    * Environment information fixture
    * Provides access to the detected environment in tests
@@ -35,46 +42,46 @@ export const test = base.extend({
    */
   page: async ({ page }, use) => {
     // Add environment-specific behavior to the page
-    
+
     // Adjust timeouts based on environment
     if (env.isCI) {
       page.setDefaultTimeout(90000); // 90 seconds in CI
-    } else if (env.isDocker || env.isKubernetes) {
+    } else if (env.container.isContainer) {
       page.setDefaultTimeout(60000); // 60 seconds in containers
     } else {
       page.setDefaultTimeout(30000); // 30 seconds locally
     }
-    
+
     // Add environment information to the page context for logging
-    page.environmentInfo = env;
-    
+    (page as any).environmentInfo = env;
+
     // Add environment-specific helper methods
-    page.logEnvironmentInfo = async () => {
+    (page as any).logEnvironmentInfo = async () => {
       console.log('Test running in environment:');
-      console.log(`- Platform: ${env.platform}`);
+      console.log(`- Platform: ${env.platform.platform}`);
       console.log(`- CI: ${env.isCI ? 'Yes' : 'No'}`);
-      console.log(`- Docker: ${env.isDocker ? 'Yes' : 'No'}`);
-      console.log(`- Kubernetes: ${env.isKubernetes ? 'Yes' : 'No'}`);
+      console.log(`- Docker: ${env.container.type.docker ? 'Yes' : 'No'}`);
+      console.log(`- Kubernetes: ${env.container.type.kubernetes ? 'Yes' : 'No'}`);
       console.log(`- Cloud: ${env.isCloudEnvironment ? 'Yes' : 'No'}`);
     };
-    
+
     // Create a screenshot with environment info in the filename
-    page.screenshotWithEnvironmentInfo = async (options = {}) => {
+    (page as any).screenshotWithEnvironmentInfo = async (options: any = {}) => {
       const { path: screenshotPath, ...otherOptions } = options;
-      
+
       let finalPath = screenshotPath;
       if (finalPath) {
         // Add environment info to the filename
         const parsedPath = path.parse(finalPath);
         finalPath = path.join(
           parsedPath.dir,
-          `${parsedPath.name}-${env.platform}${env.isCI ? '-ci' : ''}${parsedPath.ext}`
+          `${parsedPath.name}-${env.platform.platform}${env.isCI ? '-ci' : ''}${parsedPath.ext}`
         );
       }
-      
+
       return await page.screenshot({ path: finalPath, ...otherOptions });
     };
-    
+
     await use(page);
   },
 
@@ -88,16 +95,16 @@ export const test = base.extend({
     if (!fs.existsSync(artifactsDir)) {
       fs.mkdirSync(artifactsDir, { recursive: true });
     }
-    
+
     // Create environment-specific subdirectory
     const envDir = path.join(
       artifactsDir,
-      env.isCI ? 'ci' : env.isDocker ? 'docker' : 'local'
+      env.isCI ? 'ci' : env.container.type.docker ? 'docker' : 'local'
     );
     if (!fs.existsSync(envDir)) {
       fs.mkdirSync(envDir, { recursive: true });
     }
-    
+
     // Create test artifacts object
     const testArtifacts = {
       // Save a file to the artifacts directory
@@ -106,7 +113,7 @@ export const test = base.extend({
         fs.writeFileSync(filePath, content);
         return filePath;
       },
-      
+
       // Save environment report
       saveEnvironmentReport: async (filename: string = 'environment-report.txt') => {
         const report = playwrightEnvironment.createPlaywrightEnvironmentReport();
@@ -114,19 +121,19 @@ export const test = base.extend({
         fs.writeFileSync(filePath, report);
         return filePath;
       },
-      
+
       // Get path for an artifact
       getArtifactPath: (filename: string) => {
         return path.join(envDir, filename);
       },
-      
+
       // Get the artifacts directory
       getArtifactsDir: () => envDir,
-      
+
       // Get environment information
       getEnvironmentInfo: () => env
     };
-    
+
     await use(testArtifacts);
   },
 
@@ -137,19 +144,19 @@ export const test = base.extend({
   apiConfig: async ({}, use) => {
     // Determine API URL based on environment
     let apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL || 'http://localhost:8000/api';
-    
+
     // Adjust API URL based on environment
     if (env.isCI) {
       // In CI, use the mock API server
       apiBaseUrl = process.env.CI_API_URL || 'http://localhost:8000/api';
-    } else if (env.isDocker) {
+    } else if (env.container.type.docker) {
       // In Docker, use the Docker service name
       apiBaseUrl = process.env.DOCKER_API_URL || 'http://api:8000/api';
-    } else if (env.isKubernetes) {
+    } else if (env.container.type.kubernetes) {
       // In Kubernetes, use the service name
       apiBaseUrl = process.env.K8S_API_URL || 'http://api-service:8000/api';
     }
-    
+
     // Create API config object
     const apiConfig = {
       baseUrl: apiBaseUrl,
@@ -157,15 +164,15 @@ export const test = base.extend({
       retries: env.isCI ? 3 : 1,
       headers: {
         'Content-Type': 'application/json',
-        'X-Test-Environment': env.isCI ? 'ci' : env.isDocker ? 'docker' : 'local'
+        'X-Test-Environment': env.isCI ? 'ci' : env.container.type.docker ? 'docker' : 'local'
       },
-      
+
       // Helper method to create a full URL
       getUrl: (path: string) => {
         return `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
       }
     };
-    
+
     await use(apiConfig);
   }
 });
@@ -188,18 +195,19 @@ export function skipByEnvironment(condition: (env: any) => boolean, reason: stri
  * @param reason Reason for conditional run
  */
 export function runInEnvironment(condition: (env: any) => boolean, reason: string) {
-  return test.runIf(({ environmentInfo }) => condition(environmentInfo), reason);
+  // Use test.skip with inverted condition instead of test.runIf
+  return test.skip(({ environmentInfo }) => !condition(environmentInfo), reason);
 }
 
 // Convenience exports for common environment-specific test conditions
 export const skipInCI = skipByEnvironment(env => env.isCI, 'Test skipped in CI environment');
-export const skipInDocker = skipByEnvironment(env => env.isDocker, 'Test skipped in Docker environment');
-export const skipInWindows = skipByEnvironment(env => env.isWindows, 'Test skipped in Windows environment');
-export const skipInMacOS = skipByEnvironment(env => env.isMacOS, 'Test skipped in macOS environment');
-export const skipInLinux = skipByEnvironment(env => env.isLinux, 'Test skipped in Linux environment');
+export const skipInDocker = skipByEnvironment(env => env.container.type.docker, 'Test skipped in Docker environment');
+export const skipInWindows = skipByEnvironment(env => env.platform.isWindows, 'Test skipped in Windows environment');
+export const skipInMacOS = skipByEnvironment(env => env.platform.isMac, 'Test skipped in macOS environment');
+export const skipInLinux = skipByEnvironment(env => env.platform.isLinux, 'Test skipped in Linux environment');
 
 export const runInCI = runInEnvironment(env => env.isCI, 'Test runs only in CI environment');
-export const runInDocker = runInEnvironment(env => env.isDocker, 'Test runs only in Docker environment');
-export const runInWindows = runInEnvironment(env => env.isWindows, 'Test runs only in Windows environment');
-export const runInMacOS = runInEnvironment(env => env.isMacOS, 'Test runs only in macOS environment');
-export const runInLinux = runInEnvironment(env => env.isLinux, 'Test runs only in Linux environment');
+export const runInDocker = runInEnvironment(env => env.container.type.docker, 'Test runs only in Docker environment');
+export const runInWindows = runInEnvironment(env => env.platform.isWindows, 'Test runs only in Windows environment');
+export const runInMacOS = runInEnvironment(env => env.platform.isMac, 'Test runs only in macOS environment');
+export const runInLinux = runInEnvironment(env => env.platform.isLinux, 'Test runs only in Linux environment');

@@ -106,8 +106,9 @@ function isDockerEnvironment() {
       // Podman/container environment file
       fs.existsSync('/run/.containerenv') ||
 
-      // Check cgroup for Docker
-      (fs.existsSync('/proc/1/cgroup') &&
+      // Check cgroup for Docker - only on Linux platforms
+      (process.platform === 'linux' && 
+       fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('docker'))
     );
   } catch (error) {
@@ -127,8 +128,9 @@ function isRktEnvironment() {
       process.env.RKT_ENVIRONMENT === 'true' ||
       process.env.RKT === 'true' ||
 
-      // Check cgroup for rkt
-      (fs.existsSync('/proc/1/cgroup') &&
+      // Check cgroup for rkt - only on Linux platforms
+      (process.platform === 'linux' &&
+       fs.existsSync('/proc/1/cgroup') &&
        fs.readFileSync('/proc/1/cgroup', 'utf8').includes('rkt'))
     );
   } catch (error) {
@@ -149,9 +151,11 @@ function isSingularityEnvironment() {
       process.env.SINGULARITY === 'true' ||
       !!process.env.SINGULARITY_CONTAINER ||
 
-      // Check for Singularity specific files
-      fs.existsSync('/.singularity.d') ||
-      fs.existsSync('/singularity')
+      // Check for Singularity specific files - only on Linux platforms
+      (process.platform === 'linux' && (
+        fs.existsSync('/.singularity.d') ||
+        fs.existsSync('/singularity')
+      ))
     );
   } catch (error) {
     console.warn(`Error detecting Singularity environment: ${error.message}`);
@@ -168,8 +172,8 @@ function isKubernetesEnvironment() {
     // Standard Kubernetes environment variables
     process.env.KUBERNETES_SERVICE_HOST ||
 
-    // Check for Kubernetes service account token
-    (process.platform !== 'win32' && fs.existsSync('/var/run/secrets/kubernetes.io'))
+    // Check for Kubernetes service account token - only on Linux platforms
+    (process.platform === 'linux' && fs.existsSync('/var/run/secrets/kubernetes.io'))
   );
 }
 

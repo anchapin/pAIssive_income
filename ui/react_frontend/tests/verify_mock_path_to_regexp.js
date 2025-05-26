@@ -505,8 +505,8 @@ function createFallbackMock() {
           }
         }
 
-    // Create a more robust mock implementation with enhanced error handling
-    const mockImplementation = `/**
+        // Create a more robust mock implementation with enhanced error handling
+        const mockImplementation = `/**
  * Ultra-robust mock implementation of path-to-regexp for CI compatibility
  * Created at ${new Date().toISOString()}
  * For Docker and CI environments

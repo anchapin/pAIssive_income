@@ -1,12 +1,12 @@
 /**
  * Unit tests for math utility functions.
- * 
+ *
  * Tests basic arithmetic operations including edge cases
  * and error conditions.
  */
 
-const assert = require('assert');
-const { add, subtract, multiply, divide } = require('./math');
+import assert from 'assert';
+import { add, divide, multiply, subtract } from './math.js';
 
 describe('Math functions', () => {
   describe('add', () => {
