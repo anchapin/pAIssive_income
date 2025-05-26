@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Generate Bandit configuration files for GitHub Actions workflows.
 
@@ -23,7 +28,6 @@ except ImportError:
     print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__)
 
 # Constants
 BANDIT_DIR = ".github/bandit"

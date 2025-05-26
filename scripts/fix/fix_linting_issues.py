@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Script to fix common linting issues across the codebase.
 
@@ -18,7 +22,6 @@ import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
 
 def get_executable_path(name: str) -> str:

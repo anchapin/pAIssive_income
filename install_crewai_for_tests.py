@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Install CrewAI and its dependencies for tests.
 
@@ -15,7 +20,6 @@ from pathlib import Path
 
 # Logger will be configured in main() or when first used if not in main.
 # This avoids configuring it at import time if this script is imported as a module.
-# logger = logging.getLogger(__name__) # This will be initialized in each function that uses it or in main
 
 
 def run_command(command: str | list, check: bool = True) -> str | None:
@@ -30,7 +34,6 @@ def run_command(command: str | list, check: bool = True) -> str | None:
         The command output as a string, or None if the command fails and check is False
 
     """
-    logger = logging.getLogger(__name__)
     try:
         # Convert string command to list if needed
         if isinstance(command, str):
@@ -60,7 +63,6 @@ def install_crewai() -> bool:
         bool: True if installation was successful, False otherwise
 
     """
-    logger = logging.getLogger(__name__)
     logger.info("Installing CrewAI and its dependencies...")
 
     try:
@@ -149,7 +151,6 @@ def install_crewai() -> bool:
         ),
     ]
 
-    logger = logging.getLogger(__name__)
     for i, method in enumerate(methods, 1):
         logger.info("Trying installation method %d...", i)
         method()
@@ -179,14 +180,12 @@ def create_mock_crewai() -> bool:
         bool: True if mock module was created successfully, False otherwise
 
     """
-    logger = logging.getLogger(__name__)
     logger.info("Creating mock CrewAI module...")
 
     try:
         # First, check if we can create a system-wide mock
         script_path = Path(__file__).resolve()
         mock_dir = script_path.parent / "mock_crewai"
-        logger = logging.getLogger(__name__)
         logger.info("Creating mock CrewAI module in %s", mock_dir)
 
         # Create a mock crewai package directory
@@ -271,6 +270,10 @@ class Crew:
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List
 
+
+
+
+
 __version__ = "0.120.0"
 
 class Task:
@@ -338,7 +341,6 @@ class Crew:
 
 def main() -> None:
     """Run the CrewAI installation process."""
-    logger = logging.getLogger(__name__)
     logger.info("Starting CrewAI installation for tests...")
 
     # Try to install CrewAI

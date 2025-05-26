@@ -58,8 +58,7 @@ from typing import Any, Dict, List, Optional
 # Import the secure logging utilities
 from common_utils.logging.secure_logging import get_secure_logger
 
-# Set up logging for this module
-logger = get_secure_logger(__name__)
+# Use the existing logger from line 3
 
 # Log entry pattern (same as in log_dashboard.py)
 LOG_PATTERN = re.compile(

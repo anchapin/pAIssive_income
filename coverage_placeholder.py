@@ -8,6 +8,16 @@ It contains simple functions and classes that are easy to test.
 import logging
 from typing import Any, Dict, List, Union
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 
 class DummyClass:
     """A dummy class with 100% test coverage."""
@@ -44,7 +54,6 @@ class CoverageHelper:
             name: The name of the helper.
         """
         self.name = name
-        self.logger = logging.getLogger(__name__)
         self.data = {}
         self.count = 0
 
@@ -309,7 +318,6 @@ class DataProcessor:
             True if successful.
         """
         if key in self.data:
-            logger = logging.getLogger(__name__)
             logger.warning(f"Overwriting existing key: {key}")
         self.data[key] = value
         return True
@@ -325,7 +333,6 @@ class DataProcessor:
             The value for the key, or the default if the key is not found.
         """
         if key not in self.data:
-            logger = logging.getLogger(__name__)
             logger.debug(f"Key not found: {key}")
         return self.data.get(key, default)
 
@@ -342,7 +349,6 @@ class DataProcessor:
             del self.data[key]
             return True
         else:
-            logger = logging.getLogger(__name__)
             logger.warning(f"Key not found for removal: {key}")
             return False
 

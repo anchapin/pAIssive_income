@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Security issues scanner and fixer for CI/CD.
 
@@ -24,7 +29,6 @@ from pathlib import Path
 from typing import Any, cast
 
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 # Define constants for magic numbers
 MIN_PATTERN_LENGTH = 3

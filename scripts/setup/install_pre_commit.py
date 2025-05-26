@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Install pre-commit hooks for the project.
 
@@ -16,7 +20,6 @@ import sys
 from pathlib import Path
 
 # Create a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str], check: bool = True) -> int:

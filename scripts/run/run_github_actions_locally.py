@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-logger = logging.getLogger("run_github_actions_locally")
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def _run_linting_tool(

@@ -5,10 +5,13 @@ from __future__ import annotations
 # Standard library imports
 import logging
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Third-party imports
 
 # Local imports
-logger = logging.getLogger(__name__)
 
 
 def report_missing_schemas(

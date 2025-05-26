@@ -10,6 +10,9 @@ from typing import Any
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+# Configure logging
+
 # Third-party imports
 try:
     import modelcontextprotocol as mcp

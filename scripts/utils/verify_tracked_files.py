@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 verify_tracked_files.py.
 
@@ -19,7 +24,6 @@ import sys
 from pathlib import Path
 
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def get_git_tracked_files() -> set[str]:

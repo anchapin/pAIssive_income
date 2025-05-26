@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Unified project management script for developers.
 
@@ -22,14 +27,13 @@ import subprocess
 import sys
 from typing import Optional
 
+# Configure logging
+
 try:
     from pathlib import Path
 except ImportError:
     print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
-
-# Create a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 # Map commands to their corresponding scripts
 COMMAND_MAP = {

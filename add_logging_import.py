@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Script to add logging import to test files.
 """
@@ -6,6 +11,8 @@ Script to add logging import to test files.
 import os
 import re
 import sys
+
+
 
 def add_logging_import(file_path):
     """Add logging import to a Python file if it's missing."""

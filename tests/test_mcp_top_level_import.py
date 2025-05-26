@@ -6,6 +6,9 @@ import importlib
 import pytest
 from unittest.mock import patch
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 
 def test_mcp_adapter_top_level_import():
     """Test that MCP adapter can be imported from the top-level package."""

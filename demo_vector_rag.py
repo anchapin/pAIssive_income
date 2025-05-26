@@ -24,6 +24,10 @@ import json
 import unicodedata
 from typing import List, Dict, Any, Optional, Tuple
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 try:
     import chromadb
     from chromadb.config import Settings
@@ -37,9 +41,7 @@ except ImportError:
     print("Error: sentence_transformers module not found. Please install it with 'pip install sentence-transformers'")
     sys.exit(1)
 
-# Configure logging for reference usage
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+# Configure logging
 
 # 1. Initialize ChromaDB client (local, persistent for demo)
 client = chromadb.Client(
@@ -295,6 +297,7 @@ def test_deduplication_and_metadata():
 
 def main():
     """Main function to run the demo."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     logger.info("\n--- Running Test Block ---")
     test_deduplication_and_metadata()
     logger.info("All tests passed.")

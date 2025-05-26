@@ -2,6 +2,9 @@
 
 import logging
 import os
+
+# Configure logging
+logger = logging.getLogger(__name__)
 import sys
 from unittest.mock import MagicMock, patch
 

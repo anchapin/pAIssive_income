@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Run linters on all Python files except those in node_modules.
 
@@ -16,7 +21,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-logger = logging.getLogger(__name__)
 
 # Directories to exclude
 EXCLUDE_DIRS = {

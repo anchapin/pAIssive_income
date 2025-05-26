@@ -7,13 +7,16 @@ This is a scaffold for further expansion.
 import logging # Added import
 import sys # Added import
 
+# Configure logging
+logger = logging.getLogger(__name__) # Added logger initialization
+
+
 try:
     from common_utils import tooling
 except ImportError:
     print("Error: common_utils.tooling module not found. Ensure it is in the PYTHONPATH.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__) # Added logger initialization
 
 
 class ArtistAgent:

@@ -15,8 +15,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Set up a dedicated logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Set up a dedicated logger for this module
 
 
 def run_command(command: list[str], check: bool = True) -> tuple[int, str, str]:

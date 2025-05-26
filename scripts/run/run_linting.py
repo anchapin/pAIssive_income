@@ -13,8 +13,11 @@ import subprocess
 import sys
 from typing import Union
 
-# Set up a dedicated logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Set up a dedicated logger for this module
 
 
 def run(cmd: Union[str, list[str]], description: str) -> None:

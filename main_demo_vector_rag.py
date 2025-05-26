@@ -14,6 +14,16 @@ from __future__ import annotations
 import logging
 import sys # Added for sys.exit
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 try:
     import chromadb
     from chromadb.config import Settings
@@ -28,7 +38,6 @@ except ImportError:
     sys.exit(1)
 
 
-logger = logging.getLogger(__name__)
 
 # 1. Initialize ChromaDB client (local, in-memory for demo)
 client = chromadb.Client(

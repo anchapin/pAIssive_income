@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Script to fix CodeQL issues in the codebase.
 
@@ -14,7 +19,6 @@ import re
 import sys
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
 # Patterns to detect potential security issues
 PATTERNS = {

@@ -17,6 +17,10 @@ from typing import Any
 from urllib.parse import urlparse
 import sys # Added sys import
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Third-party imports
 try:
     import psycopg2
@@ -26,7 +30,6 @@ except ImportError:
     print("Error: psycopg2 module not found. Please install it (e.g., pip install psycopg2-binary).")
     sys.exit(1)
 
-logger = logging.getLogger(__name__)
 
 
 class DatabaseError(RuntimeError):

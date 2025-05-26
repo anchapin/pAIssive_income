@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Fix GitHub Actions Bandit Configuration Issues.
 
@@ -14,7 +19,6 @@ import shutil
 import sys
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
 
 def ensure_directory_exists(directory_path: str) -> bool:

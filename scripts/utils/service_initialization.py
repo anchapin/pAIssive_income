@@ -9,8 +9,14 @@ import logging
 # Local imports
 from common_utils.logging import get_logger
 
-# Initialize logger
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Use the existing logger from line 13
 
 
 class Service:

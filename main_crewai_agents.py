@@ -13,6 +13,16 @@ import logging
 import os
 from typing import Optional
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 try:
     # Import standard CrewAI components
     from crewai import Agent, Crew, Task
@@ -41,7 +51,6 @@ except ImportError:
         pass
 
 
-logger = logging.getLogger(__name__)
 
 # Example: Define agent roles
 

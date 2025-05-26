@@ -7,8 +7,11 @@ This module provides mock implementations of the adapter classes for testing.
 import logging
 from typing import Dict, Any, List, Optional, Type
 
-# Configure logger
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Configure logger
 
 # Third-party imports
 

@@ -12,6 +12,9 @@ from typing import Any, Optional
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+# Configure logging
+
 try:
     from ai_models.adapters.adapter_factory import AdapterError, get_adapter
 except ImportError:

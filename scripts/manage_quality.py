@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Unified Code Quality and Security Management Script.
 
@@ -23,7 +27,6 @@ from pathlib import Path
 from typing import Any, Optional, cast
 
 # Configure logging
-logger = logging.getLogger(__name__)
 
 # Maximum time to wait for any single check
 TIMEOUT_SECONDS = 300

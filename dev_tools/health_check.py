@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 health_check.py.
 
@@ -23,8 +28,13 @@ import shutil
 import subprocess
 import sys
 
+# Configure logging
+
+
+# Configure logging
+
+
 # Initialize logger
-logger = logging.getLogger(__name__)
 
 try:
     from pathlib import Path

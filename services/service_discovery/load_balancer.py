@@ -5,11 +5,20 @@ import logging
 import random
 from typing import Any, Callable, Dict, List, Optional, Protocol
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 # Third-party imports
 
 # Local imports
 
-logger = logging.getLogger(__name__)
 
 
 class LoadBalancingStrategy(Protocol):

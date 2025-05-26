@@ -29,6 +29,10 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Union
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Import CrewAI components
 try:
     from crewai import Agent, Crew, Task
@@ -49,7 +53,6 @@ except ImportError:
 from agent_team.crewai_agents import CrewAIAgentTeam
 
 # Configure logging
-logger = logging.getLogger(__name__)
 # logging.basicConfig will be moved to main guard
 
 

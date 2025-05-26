@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Log Aggregation Runner
 
@@ -30,6 +35,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 # Import the log aggregation utilities
 from common_utils.logging.log_aggregation import aggregate_logs, configure_log_aggregation
 from common_utils.logging.secure_logging import get_secure_logger
+
+# Configure logging
+
 
 # Set up logging
 logger = get_secure_logger("log_aggregation_runner")

@@ -11,8 +11,11 @@ import shutil
 import sys
 from pathlib import Path
 
-# Configure logger
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Configure logger
 # logging.basicConfig will be moved to the main() function
 
 

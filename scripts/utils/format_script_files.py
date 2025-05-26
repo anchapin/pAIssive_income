@@ -7,10 +7,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Use built-in types for type annotations
 
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str]) -> tuple[int, str, str]:

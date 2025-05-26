@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Centralized Logging Service Runner
 
@@ -27,6 +32,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 # Import the centralized logging service
 from common_utils.logging.centralized_logging import CentralizedLoggingService
 from common_utils.logging.secure_logging import get_secure_logger
+
+# Configure logging
+
 
 # Set up logging
 logger = get_secure_logger("centralized_logging_service_runner")

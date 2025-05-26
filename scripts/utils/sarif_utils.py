@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 SARIF utilities for security scanning workflows.
 
@@ -15,7 +20,6 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-logger = logging.getLogger(__name__)
 
 
 def create_empty_sarif(tool_name: str, tool_url: str = "") -> dict[str, Any]:

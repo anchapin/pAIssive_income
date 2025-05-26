@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Fix Bandit Security Scan Issues for GitHub Actions.
 
@@ -17,7 +22,6 @@ import shutil
 import sys
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
 # Define the base configuration template
 CONFIG_TEMPLATE = """# Bandit Configuration for {platform} (Run ID: {run_id})

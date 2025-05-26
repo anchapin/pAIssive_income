@@ -7,6 +7,10 @@ from typing import cast, Dict, Union
 
 import sys # Added sys import
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Third-party imports
 # Local imports
 try:
@@ -20,7 +24,6 @@ except ImportError:
     print("Error: .secure_logging module not found. Ensure it's in the PYTHONPATH and the current package.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__) # Initialize logger
 
 __all__ = [
     "SENSITIVE_FIELDS",
@@ -62,5 +65,4 @@ def get_logger(name: str, secure: bool = True) -> Union[SecureLogger, logging.Lo
     _logger_cache[name] = logger_instance
     return logger_instance
 
-# Create global secure logger instance
-secure_logger = get_logger("secure_logger")
+# Note: secure_logger can be created on-demand using get_logger("secure_logger")

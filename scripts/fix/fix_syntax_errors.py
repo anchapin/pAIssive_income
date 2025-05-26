@@ -6,9 +6,12 @@ import sys
 # Third-party imports
 import logging
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 # Local imports
 
-logger = logging.getLogger(__name__)
 
 def main() -> int:
     """Main function to fix syntax errors."""

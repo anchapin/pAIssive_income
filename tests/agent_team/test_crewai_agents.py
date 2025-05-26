@@ -1,7 +1,11 @@
 """Tests for the CrewAI agents module."""
 
+import logging
 import pytest
 from unittest.mock import patch, MagicMock
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Import the module to test
 from agent_team.crewai_agents import (

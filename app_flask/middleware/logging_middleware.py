@@ -9,12 +9,15 @@ import logging
 from logging import getLogger, INFO, ERROR
 from typing import TYPE_CHECKING, Any, Union, cast
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 if TYPE_CHECKING:
     from flask.app import Flask # type: ignore
     from flask.wrappers import Response # type: ignore
     from werkzeug.wrappers import Response as WerkzeugResponse # type: ignore
 import sys # Added sys import
-logger = logging.getLogger(__name__)
 
 try:
     from flask.globals import current_app, g, request

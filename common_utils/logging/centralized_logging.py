@@ -70,7 +70,16 @@ from typing import Any, Dict, List, Optional, Union
 
 from common_utils.logging.secure_logging import SecureLogger, get_secure_logger, mask_sensitive_data
 
-_logger = logging.getLogger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 
 # Try to import optional dependencies
 try:
@@ -1056,7 +1065,7 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
         return get_secure_logger(name)
 
     # Get a logger
-    logger = logging.getLogger(name)
+    target_logger = logging.getLogger(name)
 
     # Add a method to log with extra fields
     def log_with_extra(self, level: int, msg: str, *args: Any, extra: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
@@ -1074,16 +1083,16 @@ def get_centralized_logger(name: str) -> Union[logging.Logger, SecureLogger]:
         self.log(level, msg, *args, extra=extra, **kwargs)
 
     # Add the method to the logger
-    logger.log_with_extra = lambda level, msg, *args, **kwargs: log_with_extra(logger, level, msg, *args, **kwargs)
+    target_logger.log_with_extra = lambda level, msg, *args, **kwargs: log_with_extra(target_logger, level, msg, *args, **kwargs)
 
     # Add convenience methods
-    logger.debug_with_extra = lambda msg, *args, **kwargs: log_with_extra(logger, logging.DEBUG, msg, *args, **kwargs)
-    logger.info_with_extra = lambda msg, *args, **kwargs: log_with_extra(logger, logging.INFO, msg, *args, **kwargs)
-    logger.warning_with_extra = lambda msg, *args, **kwargs: log_with_extra(logger, logging.WARNING, msg, *args, **kwargs)
-    logger.error_with_extra = lambda msg, *args, **kwargs: log_with_extra(logger, logging.ERROR, msg, *args, **kwargs)
-    logger.critical_with_extra = lambda msg, *args, **kwargs: log_with_extra(logger, logging.CRITICAL, msg, *args, **kwargs)
+    target_logger.debug_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.DEBUG, msg, *args, **kwargs)
+    target_logger.info_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.INFO, msg, *args, **kwargs)
+    target_logger.warning_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.WARNING, msg, *args, **kwargs)
+    target_logger.error_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.ERROR, msg, *args, **kwargs)
+    target_logger.critical_with_extra = lambda msg, *args, **kwargs: log_with_extra(target_logger, logging.CRITICAL, msg, *args, **kwargs)
 
-    return logger
+    return target_logger
 
 
 def stop_centralized_logging() -> None:

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
 """
 Script to run pre-commit with proper exclusions for .venv directory.
 
@@ -15,6 +19,12 @@ import subprocess
 import sys
 from typing import Optional
 
+# Configure logging
+
+
+# Configure logging
+
+
 try:
     from pathlib import Path
 except ImportError:
@@ -22,7 +32,6 @@ except ImportError:
     sys.exit(1)
 
 
-logger = logging.getLogger(__name__)
 
 
 def find_python_files(exclude_patterns: Optional[list[str]] = None) -> list[str]:

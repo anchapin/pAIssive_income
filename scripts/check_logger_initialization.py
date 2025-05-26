@@ -471,7 +471,6 @@ def fix_file(file_path: str, issues: List[LoggerIssue]) -> bool:
 
                 # Insert after imports and before other code
                 if insert_line > 0:
-                    lines.insert(insert_line, "\n# Configure logging\nlogger = logging.getLogger(__name__)\n\n")
                     fixed = True
                     break
 

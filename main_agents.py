@@ -25,6 +25,16 @@ from adk.communication import Message
 from adk.memory import SimpleMemory
 from adk.skill import Skill
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
+# Configure logging
+
+
 # Import memory-enhanced agents
 try:
     from adk_demo.mem0_enhanced_adk_agents import (
@@ -42,7 +52,6 @@ except ImportError:
         pass
 
 
-logger = logging.getLogger(__name__)
 
 
 class DataGathererSkill(Skill):

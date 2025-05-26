@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """Create SARIF files for GitHub Advanced Security."""
 
 import json
@@ -6,7 +11,6 @@ import logging
 from pathlib import Path
 
 # Set up a dedicated logger for this module
-logger = logging.getLogger(__name__)
 
 
 def create_sarif_file(file_path: str, tool_name: str, tool_url: str) -> None:

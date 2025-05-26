@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Log Dashboard - An advanced web-based dashboard for visualizing application logs.
 
@@ -64,7 +69,6 @@ from common_utils.logging.dashboard_auth import (
 )
 
 # Configure logging
-logger = logging.getLogger(__name__)
 
 try:
     import dash

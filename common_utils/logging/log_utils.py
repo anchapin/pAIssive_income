@@ -4,7 +4,7 @@ import logging
 import sys # Added sys import
 from typing import Any, List, Optional, Union
 
-# Configure logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
 
 try:

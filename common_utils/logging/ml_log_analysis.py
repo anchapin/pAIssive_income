@@ -38,8 +38,11 @@ import sys # Added sys import
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional
 
-# Configure logger for this module
+# Configure logging
 logger = logging.getLogger(__name__)
+
+
+# Configure logger for this module
 
 try:
     import numpy as np
@@ -58,8 +61,7 @@ except ImportError:
     sys.exit(1)
 
 
-# Set up logging for this module
-logger = get_secure_logger(__name__)
+# Use the existing logger from line 42
 
 
 class AnomalyDetector:

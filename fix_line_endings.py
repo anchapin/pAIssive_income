@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """Fix line endings in a file."""
 
 import logging
@@ -11,7 +16,6 @@ except ImportError:
     print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__)
 
 # Constants
 EXPECTED_ARG_COUNT = 2

@@ -8,14 +8,20 @@ to prevent sensitive information from being logged in clear text.
 import logging
 import sys # Added sys import
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+# Configure logging
+
+
 try:
     from common_utils.logging.secure_logging import get_secure_logger, mask_sensitive_data
 except ImportError:
     print("Error: common_utils.logging.secure_logging module not found. Ensure it's in the PYTHONPATH.")
     sys.exit(1)
 
-# Create a default logger instance
-logger = get_secure_logger("examples")
+# Note: Use get_secure_logger("examples") when needed
 
 
 def example_secure_logger() -> None:

@@ -5,8 +5,8 @@ import logging
 import sys
 from typing import Dict, List, Optional
 
-# Configure logger for this module
-logger_module = logging.getLogger(__name__) # Renamed to avoid conflict with 'logger' var in get_logger
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Third-party imports
 
@@ -31,9 +31,9 @@ def get_logger(name: str) -> logging.Logger:
     if name in _loggers:
         return _loggers[name]
 
-    logger = logging.getLogger(name)
-    _loggers[name] = logger
-    return logger
+    new_logger = logging.getLogger(name)
+    _loggers[name] = new_logger
+    return new_logger
 
 
 def setup_logger(
@@ -55,13 +55,13 @@ def setup_logger(
     Returns:
         The configured Logger instance
     """
-    logger = get_logger(name)
-    logger.setLevel(level)
-    logger.propagate = propagate
+    target_logger = get_logger(name)
+    target_logger.setLevel(level)
+    target_logger.propagate = propagate
 
     # Remove existing handlers to avoid duplicates
-    for handler in list(logger.handlers):
-        logger.removeHandler(handler)
+    for handler in list(target_logger.handlers):
+        target_logger.removeHandler(handler)
 
     # Add default console handler if no handlers provided
     if not handlers:
@@ -75,6 +75,6 @@ def setup_logger(
     for handler in handlers:
         # Always set the formatter on the handler to ensure consistency
         handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        target_logger.addHandler(handler)
 
-    return logger
+    return target_logger

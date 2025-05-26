@@ -24,6 +24,9 @@ from typing import Any, Dict, List, Optional, Union
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+# Configure logging
+
 # Import ADK components
 try:
     from adk.agent import Agent

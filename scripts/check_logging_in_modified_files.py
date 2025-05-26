@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Script to check for proper logger usage in modified files.
 
@@ -34,7 +39,6 @@ from scripts.check_logger_initialization import (
 )
 
 # Configure logging
-logger = logging.getLogger(__name__)
 # logging.basicConfig will be moved to the main() function
 
 

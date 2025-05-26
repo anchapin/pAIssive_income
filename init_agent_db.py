@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """init_agent_db.py - Initialize the agent database with test data."""
 
 import logging
@@ -12,7 +17,6 @@ except ImportError:
     print("Error: psycopg2 module not found. Please install it.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__)
 
 
 def init_agent_db() -> bool:

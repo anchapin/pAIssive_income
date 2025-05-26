@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """init_db.py - Initialize the database with tables and initial data."""
 
 from __future__ import annotations
@@ -9,6 +14,12 @@ import string
 import sys
 from secrets import randbelow
 from typing import Any
+
+# Configure logging
+
+
+# Configure logging
+
 
 try:
     from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -25,7 +36,6 @@ except ImportError as e:
     sys.exit(1)
 
 
-logger = logging.getLogger(__name__)
 
 
 def generate_secure_password(length: int = 16) -> str:

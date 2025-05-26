@@ -16,6 +16,15 @@ import logging # Ensure logging is imported before use
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+# Configure logging
+
+
+# Configure logging
+
+
+# Configure logging
+
 try:
     from crewai import Agent, Crew, Task
 
@@ -115,7 +124,6 @@ except ImportError:
     )
 
 # Configure logging (moved here)
-logger = logging.getLogger(__name__)
 
 class CrewAIAgentTeam:
     """

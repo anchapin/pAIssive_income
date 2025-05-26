@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Script to install the MCP SDK from GitHub.
 
@@ -16,7 +21,6 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-logger = logging.getLogger(__name__)
 
 
 def run_command(command: list[str], cwd: Optional[str] = None) -> tuple[int, str, str]:

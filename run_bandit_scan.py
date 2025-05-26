@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
 """
 Run Bandit security scan with appropriate configuration.
 
@@ -21,7 +26,6 @@ except ImportError:
     print("Error: pathlib module not found. Please install it.")
     sys.exit(1)
 
-logger = logging.getLogger(__name__)
 
 
 def ensure_directory(directory: str) -> None:
