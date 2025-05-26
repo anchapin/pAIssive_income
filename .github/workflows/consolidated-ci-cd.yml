@@ -104,6 +104,7 @@ jobs:
 
       - name: Install uv (Unix)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
@@ -119,6 +120,7 @@ jobs:
 
       - name: Install dependencies (Unix)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           # Ensure pip is up to date
           python -m pip install --upgrade pip
@@ -181,6 +183,7 @@ jobs:
 
       - name: Debug environment (Unix)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           echo "Python version: $(python --version)"
           echo "Pip version: $(pip --version)"
@@ -207,6 +210,7 @@ jobs:
       - name: Run linting (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           echo "Running ruff check..."
           ruff check . || echo "Ruff check failed, but continuing"
@@ -236,6 +240,7 @@ jobs:
       - name: Run basic tests (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           echo "Running basic tests..."
           # Set environment variables to bypass virtual environment checks
@@ -281,6 +286,7 @@ jobs:
       - name: Run MCP tests (Unix only)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           # Run MCP adapter tests separately using the custom script
           if [ -f "run_tests.py" ]; then
@@ -298,6 +304,7 @@ jobs:
       - name: Check for CrewAI test script (Unix)
         id: check_script
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           if [ -f "run_crewai_tests.py" ]; then
             echo "script_exists=true" >> $GITHUB_OUTPUT
@@ -318,6 +325,7 @@ jobs:
 
       - name: Create mock CrewAI test script (Unix)
         if: runner.os != 'Windows' && steps.check_script.outputs.script_exists == 'false'
+        shell: bash
         run: |
           echo '#!/usr/bin/env python3' > run_crewai_tests.py
           echo '"""Mock CrewAI test script."""' >> run_crewai_tests.py
@@ -341,6 +349,7 @@ jobs:
       - name: Run CrewAI tests (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           # Run CrewAI tests separately using the custom script
           if [ -f "run_tests.py" ]; then
@@ -378,6 +387,7 @@ jobs:
       - name: Run other tests (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           # Run all tests except MCP adapter tests and CrewAI tests
           if [ -f "run_tests.py" ]; then
@@ -425,6 +435,7 @@ jobs:
       - name: Run JavaScript tests (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           # Check if package.json exists
           if [ -f "package.json" ]; then
@@ -548,6 +559,7 @@ jobs:
 
       - name: Install uv (Unix)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install uv
@@ -561,6 +573,7 @@ jobs:
 
       - name: Install security tools (Unix)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           # Install security tools directly without creating a virtual environment
           # This avoids issues with virtual environment creation in the CI environment
@@ -604,6 +617,7 @@ jobs:
       - name: Run security scans (Unix)
         if: runner.os != 'Windows'
         continue-on-error: true
+        shell: bash
         run: |
           # Create security-reports directory if it doesn't exist
           mkdir -p security-reports
@@ -865,6 +879,7 @@ jobs:
 
       - name: Set Docker image tag
         id: set-docker-tag
+        shell: bash
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "docker_tag=${{ secrets.DOCKERHUB_USERNAME }}/paissiveincome-app:${{ github.ref_name }}" >> $GITHUB_OUTPUT
@@ -915,6 +930,7 @@ jobs:
           provenance: mode=max
 
       - name: Move Docker cache
+        shell: bash
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
