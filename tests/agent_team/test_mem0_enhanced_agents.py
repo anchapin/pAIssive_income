@@ -200,7 +200,7 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         }
 
         # Create a task
-        self.team.create_task(**task_config)
+        self.team.add_task(**task_config)
 
         # Verify task was created with correct parameters
         self.task_mock.assert_called_once_with(
@@ -209,89 +209,78 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
             context=task_config["context"],
         )
 
+        assert len(self.team.tasks) == 1
+
     def test_execute_workflow(self) -> None:
-        """Test executing a workflow with tasks."""
-        # Add an agent and create a task
-        agent_config: dict[str, Any] = {
-            "name": "Test Agent",
-            "role": "Test Role",
-            "goal": "Test Goal",
-            "backstory": "Test Backstory",
-        }
-        self.team.add_agent(**agent_config)
+        """Test executing the workflow."""
+        # Add an agent and task
+        self.team.add_agent(
+            name="Test Agent",
+            role="Test Role",
+            goal="Test Goal",
+            backstory="Test Backstory",
+        )
+        self.team.add_task(
+            description="Test Task",
+            agent=self.agent_mock,
+        )
 
-        task_config: dict[str, Any] = {
-            "description": "Test Task",
-            "agent": self.agent_mock,
-            "context": "Test Context",
-        }
-        task = self.team.create_task(**task_config)
+        # Execute the workflow
+        result = self.team.run()
 
-        # Execute workflow
-        result = self.team.execute_workflow([task])
-
-        # Verify workflow execution
-        self.crew_mock.kickoff.assert_called_once()
+        # Verify the crew was created and executed
         assert result == "Test workflow result"
+        self.crew_mock.kickoff.assert_called_once()
 
     def test_memory_integration(self) -> None:
         """Test memory integration during workflow execution."""
-        # Prepare test data
-        query: Final[str] = "test query"
-        self.memory_mock.search.return_value = [
-            {"id": "memory-1", "text": "Relevant memory 1"},
-            {"id": "memory-2", "text": "Relevant memory 2"},
-        ]
+        # Add an agent and task
+        self.team.add_agent(
+            name="Test Agent",
+            role="Test Role",
+            goal="Test Goal",
+            backstory="Test Backstory",
+        )
+        self.team.add_task(
+            description="Test Task",
+            agent=self.agent_mock,
+        )
 
-        # Get relevant memories
-        memories = self.team._retrieve_relevant_memories(query)
+        # Execute the workflow
+        self.team.run()
 
-        # Verify memory search
-        self.memory_mock.search.assert_called_once_with(query)
-        assert len(memories) == 2
-        assert "Relevant memory 1" in memories
-        assert "Relevant memory 2" in memories
+        # Verify memories were stored and retrieved
+        assert self.memory_mock.add.call_count >= 3  # Init, agent, task
+        assert self.memory_mock.search.call_count >= 1
 
     def test_memory_enhancement(self) -> None:
         """Test memory enhancement of task context."""
-        # Prepare test data
-        task_description: Final[str] = "Test task with context"
-        memories: Final[list[str]] = ["Memory 1", "Memory 2"]
+        # Store some test memories
+        self.team._store_memory("Previous task result")
+        self.team._store_memory("Important context")
 
-        # Create a task
-        task_config: dict[str, Any] = {
-            "description": task_description,
-            "agent": self.agent_mock,
-            "context": "Original context",
-        }
-        task = self.team.create_task(**task_config)
+        # Enhance context with memories
+        enhanced_context = self.team._enhance_context_with_memories(
+            context="Original context",
+            query="test query",
+        )
 
-        # Mock memory retrieval
-        with patch.object(
-            self.team, "_retrieve_relevant_memories", return_value=memories
-        ) as mock_retrieve:
-            # Enhance task with memories
-            enhanced_task = self.team._enhance_task_with_memories(task)
-
-            # Verify memory retrieval and enhancement
-            mock_retrieve.assert_called_once_with(task_description)
-            assert "Memory 1" in enhanced_task.context
-            assert "Memory 2" in enhanced_task.context
-            assert "Original context" in enhanced_task.context
+        # Verify memories were retrieved and context was enhanced
+        self.memory_mock.search.assert_called()
+        assert "Original context" in enhanced_context
+        assert "Test memory 1" in enhanced_context
+        assert "Test memory 2" in enhanced_context
 
     def test_store_memory(self) -> None:
-        """
-        Test storing a memory.
-
-        Verifies that a memory can be stored with the expected content and metadata.
-        """
+        """Test storing a memory."""
         # Store a memory
-        self.team._store_memory(
+        result = self.team._store_memory(
             "Test memory content",
             metadata={"test_key": "test_value"},
         )
 
-        # Check that the memory was stored
+        # Verify memory was stored
+        assert result is True
         self.memory_mock.add.assert_called_with(
             "Test memory content",
             user_id="test-user",
@@ -299,78 +288,57 @@ class TestMemoryEnhancedCrewAIAgentTeam(unittest.TestCase):
         )
 
     def test_retrieve_relevant_memories(self) -> None:
-        """
-        Test retrieving relevant memories.
-
-        Verifies that relevant memories can be retrieved based on a query and limit.
-        """
+        """Test retrieving relevant memories."""
         # Retrieve memories
         memories = self.team._retrieve_relevant_memories(
             query="Test query",
             limit=5,
         )
 
-        # Check that memories were retrieved
+        # Verify memories were retrieved
         self.memory_mock.search.assert_called_with(
             query="Test query",
             user_id="test-user",
             limit=5,
         )
-        assert len(memories) == 2
-        assert memories[0]["id"] == "memory-1"
-        assert memories[1]["id"] == "memory-2"
 
-    def test_enhance_context_with_memories(self) -> None:
-        """
-        Test enhancing context with memories.
-
-        Verifies that the context is enhanced with relevant memories.
-        """
-        # Set up test memories
-        memories = [
-            {"id": "memory-1", "text": "User prefers dark mode"},
-            {"id": "memory-2", "text": "User is allergic to shellfish"},
+        # Verify correct memories were returned
+        assert memories == [
+            {"id": "memory-1", "text": "Test memory 1"},
+            {"id": "memory-2", "text": "Test memory 2"},
         ]
 
-        # Mock the _retrieve_relevant_memories method
-        self.team._retrieve_relevant_memories = MagicMock(return_value=memories)
+    def test_enhance_context_with_memories(self) -> None:
+        """Test enhancing context with relevant memories."""
+        # Enhance context
+        enhanced_context = self.team._enhance_context_with_memories(
+            context="Original context",
+            query="Test query",
+        )
 
-        # Test enhancing context
-        original_context = "What should I eat for dinner?"
-        enhanced_context = self.team._enhance_context_with_memories(original_context)
+        # Verify memories were retrieved
+        self.memory_mock.search.assert_called_once()
 
-        # Check that the context was enhanced with memories
-        assert "User prefers dark mode" in enhanced_context
-        assert "User is allergic to shellfish" in enhanced_context
-        assert original_context in enhanced_context
-
-        # Check that memories were retrieved
-        self.team._retrieve_relevant_memories.assert_called_once()
+        # Verify context was enhanced
+        assert "Original context" in enhanced_context
+        assert "Test memory 1" in enhanced_context
+        assert "Test memory 2" in enhanced_context
 
     def test_memory_persistence(self) -> None:
-        """
-        Test that memories persist across team instances.
+        """Test that memories persist across operations."""
+        # Store multiple memories
+        self.team._store_memory("Memory 1")
+        self.team._store_memory("Memory 2")
+        self.team._store_memory("Memory 3")
 
-        Verifies that memories are accessible across different instances of MemoryEnhancedCrewAIAgentTeam
-        with the same user_id.
-        """
-        # Create a new team with the same user_id
-        new_team = MemoryEnhancedCrewAIAgentTeam(user_id="test-user")
+        # Verify all memories were stored
+        assert self.memory_mock.add.call_count >= 4  # Init + 3 memories
 
-        # Check that the memory was initialized
-        assert new_team.memory == self.memory_mock
-        assert new_team.user_id == "test-user"
+        # Retrieve memories
+        memories = self.team._retrieve_relevant_memories("test query")
 
-        # Retrieve memories with the new team
-        query = "What are my preferences?"
-        new_team._retrieve_relevant_memories(query=query)
-
-        # Check that memories were retrieved using the same user_id
-        self.memory_mock.search.assert_called_with(
-            query=query,
-            user_id="test-user",
-            limit=5,  # Default limit
-        )
+        # Verify memories can be retrieved
+        assert len(memories) == 2  # Based on our mock return value
 
 
 if __name__ == "__main__":

@@ -22,22 +22,25 @@ services:
           memory: 512M
     # Adjust healthcheck for CI with more lenient settings and faster checks
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health", "||", "exit", "0"]
-      interval: 10s
-      timeout: 15s
+      test: ["CMD", "/app/docker-healthcheck.sh"]
+      interval: 5s
+      timeout: 10s
       retries: 10
-      start_period: 45s
+      start_period: 30s
     # Add CI-specific environment variables with enhanced compatibility
     environment:
-      - FLASK_ENV=testing
+      - FLASK_ENV=testing 
       - TESTING=true
       - LOG_LEVEL=DEBUG
       - CI=true
       - CONTAINER=true
+      # Health check configuration
       - HEALTHCHECK_MAX_RETRIES=10
       - HEALTHCHECK_INITIAL_RETRY_INTERVAL=2
       - HEALTHCHECK_CURL_TIMEOUT=5
-      - GITHUB_ACTIONS=true
+      # API keys with safe defaults
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy_key_for_ci}  # Required for mem0
+      - GITHUB_ACTIONS=${GITHUB_ACTIONS:-true}
       - DOCKER_ENVIRONMENT=true
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
@@ -52,41 +55,29 @@ services:
     # Add init process to handle zombie processes
     init: true
 
-  # Note: The frontend service is commented out because it's not defined in the main docker-compose.yml
-  # Uncomment this section if you add a frontend service to the main docker-compose.yml
-  # frontend:
-  #   # Use a simpler build for CI
-  #   build:
-  #     context: ./ui/react_frontend
-  #     dockerfile: Dockerfile.dev
-  #     args:
-  #       - CI=true
-  #   # Adjust healthcheck for CI
-  #   healthcheck:
-  #     interval: 15s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   # Add CI-specific environment variables
-  #   environment:
-  #     - NODE_ENV=test
-  #     - CI=true
-  #     - SKIP_PREFLIGHT_CHECK=true
-  #     - REACT_APP_TESTING=true
-  #     - NPM_CONFIG_LEGACY_PEER_DEPS=true
-  #     - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-  #     - REACT_APP_AG_UI_ENABLED=true
+  frontend:
+    build:
+      context: ./ui/react_frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - CI=true
+    environment:
+      - NODE_ENV=test
+      # Use pnpm in CI
+      - USE_PNPM=true
+      - PNPM_VERSION=8.14.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   # Mock API service configuration for CI with enhanced compatibility
   mock-api:
     # Adjust healthcheck for CI with more lenient settings
     healthcheck:
-      test: ["CMD",
-      "node",
-      "-e",
-      "try { require('http').get('http://localhost:8000/health',
-      res => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error',
-      () => process.exit(1)); } catch (e) { process.exit(0); }"]
+      test: ["CMD", "node", "-e", "try { require('http').get('http://localhost:8000/health', res => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1)); } catch (e) { process.exit(0); }"]
       interval: 5s
       timeout: 10s
       retries: 5

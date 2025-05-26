@@ -81,6 +81,7 @@ cline_mcp_settings.json
 *.spec
 *.swo
 *.swp
+*.tmp
 *env*/
 *venv*/
 .DS_Store
@@ -255,3 +256,12 @@ mypy_stubs/psycopg2/
 .nyc_output/
 package-lock.json
 sdk/javascript/package-lock.json
+
+# ARTIST experiment outputs – exclude from version control
+artist_experiments/data/
+artist_experiments/models/
+artist_experiments/logs/
+
+# Environment reports that may contain sensitive information
+**/environment-report.json
+**/ci-reports/**/environment-report.json

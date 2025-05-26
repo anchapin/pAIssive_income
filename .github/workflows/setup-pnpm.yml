@@ -126,6 +126,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
 
       # Verify or create package.json
       - name: Verify package.json (Linux)
