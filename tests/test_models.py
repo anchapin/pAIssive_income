@@ -166,10 +166,10 @@ def test_user_unique_constraints(app: Flask) -> None:
             password_hash="password2",
         )
         db.session.add(user2)
-        
-        with pytest.raises(Exception):  # Should raise IntegrityError
+
+        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
             db.session.commit()
-        
+
         db.session.rollback()
 
         # Try to create user with same email
@@ -179,8 +179,8 @@ def test_user_unique_constraints(app: Flask) -> None:
             password_hash="password3",
         )
         db.session.add(user3)
-        
-        with pytest.raises(Exception):  # Should raise IntegrityError
+
+        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
             db.session.commit()
 
 
@@ -195,6 +195,6 @@ def test_team_unique_name(app: Flask) -> None:
         # Try to create team with same name
         team2 = Team(name="Unique Team Name", description="Second team")
         db.session.add(team2)
-        
-        with pytest.raises(Exception):  # Should raise IntegrityError
+
+        with pytest.raises(Exception, match="UNIQUE constraint failed"):  # Should raise IntegrityError
             db.session.commit()
