@@ -61,7 +61,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Install pnpm
         shell: bash
@@ -81,14 +80,13 @@ jobs:
           python-version: "3.12"
 
       # Set up Node.js for JavaScript testing
-      - name: Set up Node.js
+      - name: Set up Node.js for testing
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
 
       # Set up pnpm for JavaScript package management
-      - name: Setup pnpm
+      - name: Setup pnpm for testing
         uses: pnpm/action-setup@v4
         with:
           version: 8
