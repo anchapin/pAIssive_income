@@ -162,6 +162,8 @@ class Agent(db.Model):  # type: ignore[name-defined]
             str: String representation
 
         """
+        if self.role:
+            return f"<Agent {self.name} ({self.role})>"
         return f"<Agent {self.name}>"
 
     def to_dict(self) -> Dict[str, Any]:

@@ -60,6 +60,7 @@ class User(BaseModel):
     id: int
     username: str
     email: str
+    is_active: bool = True
 
 
 class Token(BaseModel):
@@ -272,6 +273,12 @@ async def create_user(user: UserCreate):
     }
 
 
+@mock_app.get("/users/me", response_model=User)
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    # This endpoint is used for token validation tests
+    return current_user
+
+
 @mock_app.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: int):
     if user_id == 999999:
@@ -311,12 +318,6 @@ async def delete_user(user_id: int):
             return {}
 
     raise HTTPException(status_code=404, detail="User not found")
-
-
-@mock_app.get("/users/me", response_model=User)
-async def get_current_user_info(current_user: dict = Depends(get_current_user)):
-    # This endpoint is used for token validation tests
-    return current_user
 
 
 @pytest.fixture

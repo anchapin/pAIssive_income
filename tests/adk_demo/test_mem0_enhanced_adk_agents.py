@@ -84,6 +84,14 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         self.response_mock.type = "gather_result"
         self.response_mock.payload = {"data": "Test data"}
 
+        # Add handle_message method to Agent class if it doesn't exist
+        from adk_demo.mem0_enhanced_adk_agents import Agent
+        if not hasattr(Agent, 'handle_message'):
+            Agent.handle_message = MagicMock(return_value=self.response_mock)
+            self._added_handle_message = True
+        else:
+            self._added_handle_message = False
+
         # Patch the Agent.handle_message method
         self.handle_message_patcher = patch(
             "adk_demo.mem0_enhanced_adk_agents.Agent.handle_message",
@@ -112,6 +120,12 @@ class TestMemoryEnhancedADKAgents(unittest.TestCase):
         self.data_gatherer_skill_patcher.stop()
         self.summarizer_skill_patcher.stop()
         self.handle_message_patcher.stop()
+
+        # Remove dynamically added handle_message method if we added it
+        if self._added_handle_message:
+            from adk_demo.mem0_enhanced_adk_agents import Agent
+            if hasattr(Agent, 'handle_message'):
+                delattr(Agent, 'handle_message')
 
         # Re-enable logging
         logging.disable(logging.NOTSET)

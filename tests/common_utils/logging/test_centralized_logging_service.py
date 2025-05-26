@@ -11,6 +11,7 @@ import pytest
 
 from common_utils.logging.centralized_logging import (
     CentralizedLoggingService,
+    FileOutput,
     LoggingClient,
     RemoteHandler,
     configure_centralized_logging,
@@ -26,11 +27,14 @@ class TestCentralizedLoggingService:
         # Create a temporary directory for test log files
         self.temp_dir = tempfile.TemporaryDirectory()
 
+        # Create a FileOutput with the temp directory
+        file_output = FileOutput(directory=self.temp_dir.name)
+
         # Create a CentralizedLoggingService instance
         self.service = CentralizedLoggingService(
             host="localhost",
             port=5000,
-            log_dir=self.temp_dir.name,
+            outputs=[file_output],
         )
 
     def teardown_method(self):
@@ -46,7 +50,8 @@ class TestCentralizedLoggingService:
         """Test CentralizedLoggingService initialization."""
         assert self.service.host == "localhost"
         assert self.service.port == 5000
-        assert self.service.log_dir == self.temp_dir.name
+        assert len(self.service.outputs) == 1
+        assert isinstance(self.service.outputs[0], FileOutput)
         assert self.service.running is False
 
     @patch("socket.socket")
@@ -142,29 +147,16 @@ class TestCentralizedLoggingService:
             "app": "test_app",
         }
 
-        # Mock the log file
-        log_file_path = os.path.join(self.temp_dir.name, "test_app.log")
-
         # Start the service
         self.service.start()
 
-        # Process the log
-        with patch("builtins.open", MagicMock()) as mock_open:
+        # Mock the output method of the FileOutput
+        with patch.object(self.service.outputs[0], 'output') as mock_output:
+            # Process the log
             self.service.process_log(log_entry)
 
-            # Verify that the log file was opened for appending
-            mock_open.assert_called_once_with(log_file_path, "a")
-
-            # Verify that the log entry was written to the file
-            mock_file = mock_open.return_value.__enter__.return_value
-            mock_file.write.assert_called_once()
-
-            # Verify that the written log entry contains the expected fields
-            written_log = mock_file.write.call_args[0][0]
-            assert "2023-01-01T12:00:00Z" in written_log
-            assert "INFO" in written_log
-            assert "Test message" in written_log
-            assert "test_logger" in written_log
+            # Verify that the output method was called with the log entry
+            mock_output.assert_called_once_with(log_entry)
 
 
 class TestLoggingClient:

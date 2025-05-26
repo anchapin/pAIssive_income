@@ -38,6 +38,16 @@ except ImportError:
         """Placeholder for Agent class when ADK is not installed."""
         def __init__(self, name: str) -> None:
             self.name = name
+        
+        def handle_message(self, message: "Message") -> Optional["Message"]:
+            """Handle a received message. Override in subclasses."""
+            return None
+        
+        def add_skill(self, name: str, skill: "Skill") -> None:
+            """Add a skill to the agent."""
+            if not hasattr(self, 'skills'):
+                self.skills = {}
+            self.skills[name] = skill
 
     class Message:
         """Placeholder for Message class when ADK is not installed."""
@@ -114,6 +124,9 @@ class MemoryEnhancedAgent(Agent):
         """
         super().__init__(name)
 
+        # Initialize skills dictionary
+        self.skills = {}
+
         # Initialize ADK SimpleMemory for compatibility
         self.simple_memory = SimpleMemory()
 
@@ -130,6 +143,16 @@ class MemoryEnhancedAgent(Agent):
 
         # Store agent creation in memory
         self._store_memory(f"Agent {name} created with user ID: {user_id}")
+
+    def add_skill(self, name: str, skill: "Skill") -> None:
+        """
+        Add a skill to the agent.
+
+        Args:
+            name: The name of the skill
+            skill: The skill instance
+        """
+        self.skills[name] = skill
 
     def handle_message(self, message: Message) -> Optional[Message]:
         """

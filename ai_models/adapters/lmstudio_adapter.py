@@ -23,19 +23,41 @@ from .base_adapter import BaseModelAdapter
 class LMStudioAdapter(BaseModelAdapter):
     """Adapter for connecting to LM Studio, a local API server for running large language models."""
 
-    def __init__(self, base_url: str = "http://localhost:1234/v1", api_key: str = "", timeout: int = 60):
+    def __init__(self, host_or_base_url: str = "http://localhost:1234/v1", port: int = None, api_key: str = "", timeout: int = 60):
         """Initialize the LM Studio adapter.
 
         Args:
-            base_url: The base URL of the LM Studio API server
+            host_or_base_url: Either a full base URL or just the host (for backward compatibility)
+            port: Port number (only used if host_or_base_url is just a host)
             api_key: API key (usually not required for local LM Studio)
             timeout: Request timeout in seconds
         """
-        self.base_url = base_url
+        # Support both old interface (host, port) and new interface (base_url)
+        if port is not None:
+            # Old interface: separate host and port
+            self.host = host_or_base_url
+            self.port = port
+            self.base_url = f"http://{self.host}:{self.port}/v1"
+        else:
+            # New interface: full base_url
+            self.base_url = host_or_base_url
+            # Extract host and port for backward compatibility
+            if "://" in self.base_url:
+                url_parts = self.base_url.split("://")[1].split("/")[0]
+                if ":" in url_parts:
+                    self.host, port_str = url_parts.split(":")
+                    self.port = int(port_str)
+                else:
+                    self.host = url_parts
+                    self.port = 80 if self.base_url.startswith("http://") else 443
+            else:
+                self.host = "localhost"
+                self.port = 1234
+        
         self.api_key = api_key
         self.timeout = timeout
         self._session = None
-        logger.info(f"Initialized LMStudioAdapter with base_url={base_url}")
+        logger.info(f"Initialized LMStudioAdapter with base_url={self.base_url}")
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create an aiohttp session."""
