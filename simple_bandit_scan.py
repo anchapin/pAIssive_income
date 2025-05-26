@@ -6,6 +6,7 @@ This script runs Bandit security scans and creates empty result files if needed.
 It's designed to be as simple as possible to avoid any issues with virtual environments.
 """
 
+import contextlib
 import json
 import os
 import subprocess
@@ -13,7 +14,6 @@ import sys
 
 # Create security-reports directory
 os.makedirs("security-reports", exist_ok=True)
-print("Created security-reports directory")
 
 # Create empty JSON files
 empty_json = {
@@ -25,11 +25,9 @@ empty_json = {
 
 with open("security-reports/bandit-results.json", "w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results.json")
 
 with open("security-reports/bandit-results-ini.json", "w") as f:
     json.dump(empty_json, f, indent=2)
-print("Created empty bandit-results-ini.json")
 
 # Create empty SARIF files
 empty_sarif = {
@@ -52,14 +50,12 @@ empty_sarif = {
 
 with open("security-reports/bandit-results.sarif", "w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results.sarif")
 
 with open("security-reports/bandit-results-ini.sarif", "w") as f:
     json.dump(empty_sarif, f, indent=2)
-print("Created empty bandit-results-ini.sarif")
 
 # Try to run bandit if available
-try:
+with contextlib.suppress(Exception):
     subprocess.run(
         [
             "bandit",
@@ -77,10 +73,5 @@ try:
         shell=False,
         timeout=600,
     )
-    print("Bandit scan completed")
-except Exception as e:
-    print(f"Error running bandit: {e}")
-    print("Using empty result files")
 
-print("Bandit scan script completed successfully")
 sys.exit(0)

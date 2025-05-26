@@ -54,9 +54,11 @@ Note:
 
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 
 class KnowledgeSource(ABC):
@@ -200,7 +202,7 @@ class KnowledgeIntegrationLayer:
     def __init__(
         self,
         sources: List[KnowledgeSource],
-        strategy: "KnowledgeStrategy" = KnowledgeStrategy.FALLBACK,
+        strategy: KnowledgeStrategy = KnowledgeStrategy.FALLBACK,
     ) -> None:
         """
         Args:

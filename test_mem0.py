@@ -4,16 +4,17 @@ Simple test script to verify mem0 installation and functionality.
 This script tests basic mem0 operations to ensure it's working correctly.
 """
 
+from __future__ import annotations
+
 import os
 import sys
-from typing import Optional
 
 try:
     from mem0 import Memory
 except ImportError:
     sys.exit(1)
 
-def test_mem0_basic_operations() -> Optional[bool]:
+def test_mem0_basic_operations() -> bool | None:
     """Test basic mem0 operations."""
     try:
         # Initialize memory

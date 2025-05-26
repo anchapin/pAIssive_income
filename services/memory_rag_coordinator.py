@@ -9,10 +9,12 @@ Usage:
     response = coordinator.query(query="What is the project deadline?", user_id="user123")
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class MemoryRAGCoordinator:
@@ -35,7 +37,7 @@ class MemoryRAGCoordinator:
         self,
         chroma_collection_name: str = "demo_rag",
         chroma_n_results: int = 5,
-        chroma_persist_dir: Optional[str] = None,
+        chroma_persist_dir: str | None = None,
     ) -> None:
         # Setup ChromaDB client, collection, and embedder (can fail gracefully if not installed)
         self.chroma_collection_name = chroma_collection_name
@@ -67,7 +69,7 @@ class MemoryRAGCoordinator:
 
         # mem0 Memory object is not persistent; instantiate per query for thread safety
 
-    def query(self, query: str, user_id: str) -> Dict[str, Any]:
+    def query(self, query: str, user_id: str) -> dict[str, Any]:
         """
         Query both mem0 and ChromaDB, aggregate and deduplicate their responses,
         and return a unified response.
@@ -112,7 +114,7 @@ class MemoryRAGCoordinator:
             "raw_chroma_results": chroma_results,
         }
 
-    def mem0_query(self, query: str, user_id: str) -> List[Dict]:
+    def mem0_query(self, query: str, user_id: str) -> list[dict]:
         """
         Query the mem0 memory system for relevant memories given a query and user ID.
         Instantiates a mem0 Memory object and calls its `search` method.
@@ -136,7 +138,7 @@ class MemoryRAGCoordinator:
             logging.exception(f"Exception during mem0_query: {e}")
             return []
 
-    def chroma_query(self, query: str) -> List[Dict]:
+    def chroma_query(self, query: str) -> list[dict]:
         """
         Query the ChromaDB RAG system for relevant documents given a query.
 
@@ -174,14 +176,14 @@ class MemoryRAGCoordinator:
             logging.exception(f"Exception during chroma_query: {e}")
             return []
 
-    def _merge_results(self, mem0_results: List[Dict], chroma_results: List[Dict]) -> List[Dict]:
+    def _merge_results(self, mem0_results: list[dict], chroma_results: list[dict]) -> list[dict]:
         """
         Merge, deduplicate, and resolve conflicts between mem0 and ChromaDB results.
 
         Preference is given to more recent or more relevant information when duplicates/conflicts arise.
         Normalizes scores so that higher is always better, regardless of source.
         """
-        def norm_result(r: Dict, source: str) -> Dict:
+        def norm_result(r: dict, source: str) -> dict:
             text_content = r.get("text") or r.get("content") or ""
             timestamp = r.get("timestamp")
             original_score = r.get("score")
@@ -232,7 +234,7 @@ class MemoryRAGCoordinator:
         merged.sort(key=lambda x: (-x.get("relevance", 0.0), -(x.get("timestamp") or 0)))
         return merged
 
-    def _estimate_cost(self, results: List[Dict]) -> float:
+    def _estimate_cost(self, results: list[dict]) -> float:  # noqa: ARG002
         """
         Estimate the 'cost' of a query to a subsystem (stub implementation).
 

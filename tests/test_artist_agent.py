@@ -7,28 +7,29 @@ Tests:
 - Placeholder for multi-step reasoning/tool chaining.
 """
 
-import pytest
-from unittest.mock import Mock, patch
-
 import sys
 import types
+from unittest.mock import Mock, patch
+
+import pytest
 
 import main_artist_agent
+
 
 @pytest.fixture
 def mock_calculator_tool():
     """Fixture for a mock calculator tool."""
     tool = Mock()
-    tool.name = 'calculator'
-    tool.description = 'A calculator tool for arithmetic operations.'
-    tool.run = Mock(return_value='14')
+    tool.name = "calculator"
+    tool.description = "A calculator tool for arithmetic operations."
+    tool.run = Mock(return_value="14")
     return tool
 
 @pytest.fixture
 def artist_agent_with_tools(mock_calculator_tool):
     """Fixture providing ArtistAgent initialized with a calculator tool."""
     # Patch tools as a dict mapping tool name to its callable (mock's run method)
-    if hasattr(main_artist_agent, 'ArtistAgent'):
+    if hasattr(main_artist_agent, "ArtistAgent"):
         try:
             # If ArtistAgent supports tools injection, inject as dict
             return main_artist_agent.ArtistAgent(tools={mock_calculator_tool.name: mock_calculator_tool.run})
@@ -41,9 +42,7 @@ def artist_agent_with_tools(mock_calculator_tool):
         pytest.skip("ArtistAgent not found in main_artist_agent.py")
 
 def test_artist_agent_uses_calculator_for_arithmetic(artist_agent_with_tools, mock_calculator_tool):
-    """
-    Test that ArtistAgent selects and uses the 'calculator' tool for an arithmetic prompt.
-    """
+    """Test that ArtistAgent selects and uses the 'calculator' tool for an arithmetic prompt."""
     prompt = "What is 2 + 3 * 4?"
     # Depending on implementation, this may be a .run(), .respond(), etc.
     if hasattr(artist_agent_with_tools, "process"):
@@ -55,19 +54,17 @@ def test_artist_agent_uses_calculator_for_arithmetic(artist_agent_with_tools, mo
 
     # The calculator tool should have been called
     assert mock_calculator_tool.run.called, "Calculator tool was not called"
-    assert '14' in str(response), "Agent did not return calculator result"
+    assert "14" in str(response), "Agent did not return calculator result"
 
 def test_artist_agent_no_matching_tool(monkeypatch):
-    """
-    Test that ArtistAgent returns an appropriate message if no tool matches the prompt.
-    """
+    """Test that ArtistAgent returns an appropriate message if no tool matches the prompt."""
     dummy_tool = Mock()
-    dummy_tool.name = 'not_calculator'
-    dummy_tool.description = 'Not a calculator'
+    dummy_tool.name = "not_calculator"
+    dummy_tool.description = "Not a calculator"
     dummy_tool.run = Mock(return_value="I can't help with that.")
 
     # Patch ArtistAgent to only have an irrelevant tool
-    if hasattr(main_artist_agent, 'ArtistAgent'):
+    if hasattr(main_artist_agent, "ArtistAgent"):
         try:
             agent = main_artist_agent.ArtistAgent(tools={dummy_tool.name: dummy_tool.run})
         except TypeError:
@@ -97,4 +94,3 @@ def test_artist_agent_multistep_reasoning_placeholder():
     Expand this test when multi-step tool use is implemented in ArtistAgent.
     """
     # TODO: Implement when ArtistAgent supports multi-step/tool chaining.
-    pass

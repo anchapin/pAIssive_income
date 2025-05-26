@@ -1,8 +1,9 @@
 """Test script to verify mem0 integration."""
 
+from __future__ import annotations
+
 import logging
 import sys
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -12,7 +13,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_mem0_import() -> Optional[bool]:
+def test_mem0_import() -> bool | None:
     """Test that mem0 can be imported."""
     try:
         import mem0  # nosec B404
@@ -43,7 +44,7 @@ def test_mem0_dependencies():
     return all_installed
 
 
-def test_mem0_basic_functionality() -> Optional[bool]:
+def test_mem0_basic_functionality() -> bool | None:
     """Test basic mem0 functionality."""
     try:
         import mem0  # nosec B404        # Create a memory instance (without actually connecting to any services)

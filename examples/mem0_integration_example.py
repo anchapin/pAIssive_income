@@ -9,8 +9,9 @@ It requires the mem0ai package to be installed:
 Note: This is a demonstration script and not intended for production use.
 """
 
+from __future__ import annotations
+
 import os
-from typing import Dict, Optional
 
 # Import mem0 - this requires the package to be installed
 try:

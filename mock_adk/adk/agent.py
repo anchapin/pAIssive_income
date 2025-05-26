@@ -1,7 +1,10 @@
 """Mock Agent class for ADK."""
-from typing import Optional
+from __future__ import annotations
 
-from .communication import AgentCommunicator, Message
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .communication import AgentCommunicator, Message
 
 
 class Agent:
@@ -10,7 +13,7 @@ class Agent:
     def __init__(self, name: str) -> None:
         """Initialize an agent."""
         self.name = name
-        self.communicator: Optional[AgentCommunicator] = None
+        self.communicator: AgentCommunicator | None = None
 
     def set_communicator(self, communicator: AgentCommunicator) -> None:
         """Set the communicator for this agent."""
@@ -19,6 +22,6 @@ class Agent:
     def start(self) -> None:
         """Start the agent. Override in subclasses."""
 
-    def handle_message(self, message: Message) -> Optional[Message]:
+    def handle_message(self, message: Message) -> Message | None:
         """Handle a received message. Override in subclasses."""
         return None

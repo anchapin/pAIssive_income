@@ -5,11 +5,15 @@ This environment serves as an interface between RL agents and the ArtistAgent,
 enabling reinforcement learning experiments on complex, multi-step tool-use scenarios.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import gymnasium as gym
-import numpy as np
 from gymnasium import spaces
+
+if TYPE_CHECKING:
+    import numpy as np
 
 # Placeholder: import or define ArtistAgent elsewhere in your codebase
 # from .artist_agent import ArtistAgent

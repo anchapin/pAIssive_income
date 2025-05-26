@@ -9,10 +9,11 @@ Adapt and extend these scaffolds to fit your use-case.
 - mem0 Docs: https://mem0.ai
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
-from typing import Optional
 
 # Import standard CrewAI components
 from crewai import Agent, Crew, Task
