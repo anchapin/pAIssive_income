@@ -64,11 +64,13 @@ jobs:
           cache: 'pnpm'
 
       - name: Install pnpm
+        shell: bash
         run: |
           corepack enable
           corepack prepare pnpm@8.14.0 --activate
 
       - name: Install Node.js dependencies and build Tailwind CSS
+        shell: bash
         run: |
           pnpm install
           pnpm tailwind:build
