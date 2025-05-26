@@ -1,181 +1,224 @@
 name: Frontend E2E Tests
-
-on:
+true:
   push:
-    branches: [ main, develop ]
+    branches:
+    - main
+    - develop
     paths:
-      - 'ui/react_frontend/**'
-      - '.github/workflows/frontend-e2e.yml'
+    - ui/react_frontend/**
+    - .github/workflows/frontend-e2e.yml
   pull_request:
-    branches: [ main, develop ]
+    branches:
+    - main
+    - develop
     paths:
-      - 'ui/react_frontend/**'
-      - '.github/workflows/frontend-e2e.yml'
-  workflow_dispatch:
-
+    - ui/react_frontend/**
+    - .github/workflows/frontend-e2e.yml
+  workflow_dispatch: null
 jobs:
   frontend-e2e:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node-version: [18.x]
-
+        os:
+        - ubuntu-latest
+        - windows-latest
+        node-version:
+        - 18.x
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-          cache-dependency-path: 'ui/react_frontend/pnpm-lock.yaml'
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ui/react_frontend/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+    - uses: actions/checkout@v4
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: pnpm
+        cache-dependency-path: ui/react_frontend/pnpm-lock.yaml
+    - name: Cache Node.js modules
+      uses: actions/cache@v4
+      with:
+        path: ui/react_frontend/node_modules
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('ui/react_frontend/pnpm-lock.yaml')
+          }}
+        restore-keys: '${{ runner.os }}-pnpm-
 
-      - name: Install dependencies
-        working-directory: ui/react_frontend
-        run: |
-          pnpm install
-      
-      - name: Install Playwright browsers
-        working-directory: ui/react_frontend
-        run: |
-          npx playwright install --with-deps
-      
-      - name: Setup environment (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          # Create directories
-          mkdir -p logs
-          mkdir -p ci-reports/github
-          mkdir -p test-results/github
-          mkdir -p playwright-report
-          mkdir -p playwright-report/html
-          
-          # Set environment variables
-          echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" >> $GITHUB_ENV
-          echo "REACT_APP_AG_UI_ENABLED=true" >> $GITHUB_ENV
-          echo "CI=true" >> $GITHUB_ENV
-          echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
-          
-          # Set enhanced environment detection variables
-          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
-          echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
-          echo "CI_PLATFORM=github" >> $GITHUB_ENV
-          echo "CI_TYPE=github" >> $GITHUB_ENV
-          echo "CI_RUNNER_OS=$(uname -s)" >> $GITHUB_ENV
-          echo "CI_WORKSPACE=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          
-          # Set container environment detection variables
-          echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
-          echo "KUBERNETES_SERVICE_HOST=" >> $GITHUB_ENV
-          echo "RKT_ENVIRONMENT=false" >> $GITHUB_ENV
-          echo "SINGULARITY_ENVIRONMENT=false" >> $GITHUB_ENV
-          echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
-          echo "DOCKER_SWARM=" >> $GITHUB_ENV
-      
-      - name: Setup environment (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          # Create directories
-          New-Item -ItemType Directory -Path "logs" -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path "ci-reports/github" -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path "test-results/github" -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path "playwright-report" -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction SilentlyContinue
-          
-          # Set environment variables
-          echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "REACT_APP_AG_UI_ENABLED=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "VERBOSE_LOGGING=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          
-          # Set enhanced environment detection variables
-          echo "GITHUB_ACTIONS=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI_ENVIRONMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI_PLATFORM=github" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI_TYPE=github" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI_RUNNER_OS=$env:OS" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "CI_WORKSPACE=$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_ENV -Append
-          
-          # Set container environment detection variables
-          echo "DOCKER_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "KUBERNETES_SERVICE_HOST=" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "RKT_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "SINGULARITY_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "DOCKER_COMPOSE=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "DOCKER_SWARM=" | Out-File -FilePath $env:GITHUB_ENV -Append
-      
-      - name: Run tests (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        working-directory: ui/react_frontend
-        run: |
-          if [ -f "tests/run_ci_tests_enhanced.js" ]; then
-            echo "Running Enhanced CI test runner..."
-            node tests/run_ci_tests_enhanced.js
-          else
-            echo "Enhanced CI test runner not found, falling back to regular runner..."
-            node tests/run_ci_tests.js
-          fi
-      
-      - name: Run tests (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        working-directory: ui/react_frontend
-        run: |
-          try {
-            if (Test-Path "tests/run_ci_tests_enhanced.js") {
-              Write-Host "Running Enhanced CI test runner..."
-              node tests/run_ci_tests_enhanced.js
-            } else {
-              Write-Host "Enhanced CI test runner not found,
-              falling back to regular runner..."
-              node tests/run_ci_tests.js
-            }
-          } catch {
-            Write-Host "Tests failed but continuing workflow: $_"
-            Set-Content -Path "../../logs/test-failures.txt" -Value "Test failures detected at $(Get-Date)"
-          }
-      
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ runner.os }}-${{ github.run_id }}
-          path: playwright-report/
-          if-no-files-found: warn
-          retention-days: 30
-      
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs-${{ runner.os }}-${{ github.run_id }}
-          path: logs/
-          if-no-files-found: warn
-          retention-days: 30
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ runner.os }}-${{ github.run_id }}
-          path: test-results/
-          if-no-files-found: ignore
-          retention-days: 30
+          '
+    - name: Install dependencies
+      working-directory: ui/react_frontend
+      run: 'pnpm install
+
+        '
+    - name: Install Playwright browsers
+      working-directory: ui/react_frontend
+      run: 'npx playwright install --with-deps
+
+        '
+    - name: Setup environment (Linux/macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: '# Create directories
+
+        mkdir -p logs
+
+        mkdir -p ci-reports/github
+
+        mkdir -p test-results/github
+
+        mkdir -p playwright-report
+
+        mkdir -p playwright-report/html
+
+
+        # Set environment variables
+
+        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" >> $GITHUB_ENV
+
+        echo "REACT_APP_AG_UI_ENABLED=true" >> $GITHUB_ENV
+
+        echo "CI=true" >> $GITHUB_ENV
+
+        echo "VERBOSE_LOGGING=true" >> $GITHUB_ENV
+
+
+        # Set enhanced environment detection variables
+
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+
+        echo "CI_ENVIRONMENT=true" >> $GITHUB_ENV
+
+        echo "CI_PLATFORM=github" >> $GITHUB_ENV
+
+        echo "CI_TYPE=github" >> $GITHUB_ENV
+
+        echo "CI_RUNNER_OS=$(uname -s)" >> $GITHUB_ENV
+
+        echo "CI_WORKSPACE=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+
+        # Set container environment detection variables
+
+        echo "DOCKER_ENVIRONMENT=false" >> $GITHUB_ENV
+
+        echo "KUBERNETES_SERVICE_HOST=" >> $GITHUB_ENV
+
+        echo "RKT_ENVIRONMENT=false" >> $GITHUB_ENV
+
+        echo "SINGULARITY_ENVIRONMENT=false" >> $GITHUB_ENV
+
+        echo "DOCKER_COMPOSE=false" >> $GITHUB_ENV
+
+        echo "DOCKER_SWARM=" >> $GITHUB_ENV
+
+        '
+    - name: Setup environment (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: '# Create directories
+
+        New-Item -ItemType Directory -Path "logs" -Force -ErrorAction SilentlyContinue
+
+        New-Item -ItemType Directory -Path "ci-reports/github" -Force -ErrorAction
+        SilentlyContinue
+
+        New-Item -ItemType Directory -Path "test-results/github" -Force -ErrorAction
+        SilentlyContinue
+
+        New-Item -ItemType Directory -Path "playwright-report" -Force -ErrorAction
+        SilentlyContinue
+
+        New-Item -ItemType Directory -Path "playwright-report/html" -Force -ErrorAction
+        SilentlyContinue
+
+
+        # Set environment variables
+
+        echo "REACT_APP_API_BASE_URL=http://localhost:8000/api" | Out-File -FilePath
+        $env:GITHUB_ENV -Append
+
+        echo "REACT_APP_AG_UI_ENABLED=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "VERBOSE_LOGGING=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+
+        # Set enhanced environment detection variables
+
+        echo "GITHUB_ACTIONS=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI_ENVIRONMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI_PLATFORM=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI_TYPE=github" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI_RUNNER_OS=$env:OS" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "CI_WORKSPACE=$env:GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_ENV
+        -Append
+
+
+        # Set container environment detection variables
+
+        echo "DOCKER_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "KUBERNETES_SERVICE_HOST=" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "RKT_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "SINGULARITY_ENVIRONMENT=false" | Out-File -FilePath $env:GITHUB_ENV
+        -Append
+
+        echo "DOCKER_COMPOSE=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        echo "DOCKER_SWARM=" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        '
+    - name: Run tests (Linux/macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      working-directory: ui/react_frontend
+      run: "if [ -f \"tests/run_ci_tests_enhanced.js\" ]; then\n  echo \"Running Enhanced\
+        \ CI test runner...\"\n  node tests/run_ci_tests_enhanced.js\nelse\n  echo\
+        \ \"Enhanced CI test runner not found, falling back to regular runner...\"\
+        \n  node tests/run_ci_tests.js\nfi\n"
+    - name: Run tests (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      working-directory: ui/react_frontend
+      run: "try {\n  if (Test-Path \"tests/run_ci_tests_enhanced.js\") {\n    Write-Host\
+        \ \"Running Enhanced CI test runner...\"\n    node tests/run_ci_tests_enhanced.js\n\
+        \  } else {\n    Write-Host \"Enhanced CI test runner not found,\n    falling\
+        \ back to regular runner...\"\n    node tests/run_ci_tests.js\n  }\n} catch\
+        \ {\n  Write-Host \"Tests failed but continuing workflow: $_\"\n  Set-Content\
+        \ -Path \"../../logs/test-failures.txt\" -Value \"Test failures detected at\
+        \ $(Get-Date)\"\n}\n"
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-${{ runner.os }}-${{ github.run_id }}
+        path: playwright-report/
+        if-no-files-found: warn
+        retention-days: 30
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ runner.os }}-${{ github.run_id }}
+        path: logs/
+        if-no-files-found: warn
+        retention-days: 30
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ runner.os }}-${{ github.run_id }}
+        path: test-results/
+        if-no-files-found: ignore
+        retention-days: 30
+    timeout-minutes: 30

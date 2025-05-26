@@ -1,45 +1,41 @@
 name: Build Tailwind CSS
-
-on:
+true:
   push:
-    branches: [main]
+    branches:
+    - main
     paths:
-      - "ui/static/css/tailwind.css"
-      - "tailwind.config.js"
-      - "package.json"
-      - ".github/workflows/tailwind-build.yml"
+    - ui/static/css/tailwind.css
+    - tailwind.config.js
+    - package.json
+    - .github/workflows/tailwind-build.yml
   pull_request:
-    branches: [main]
+    branches:
+    - main
     paths:
-      - "ui/static/css/tailwind.css"
-      - "tailwind.config.js"
-      - "package.json"
-      - ".github/workflows/tailwind-build.yml"
-
+    - ui/static/css/tailwind.css
+    - tailwind.config.js
+    - package.json
+    - .github/workflows/tailwind-build.yml
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm@8.15.4
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build Tailwind CSS
-        run: pnpm tailwind:build
-
-      - name: Upload Tailwind CSS output as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tailwind-output-css
-          path: ui/static/css/tailwind.output.css
-          if-no-files-found: error
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install pnpm
+      run: npm install -g pnpm@8.15.4
+    - name: Install dependencies
+      run: pnpm install
+    - name: Build Tailwind CSS
+      run: pnpm tailwind:build
+    - name: Upload Tailwind CSS output as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tailwind-output-css
+        path: ui/static/css/tailwind.output.css
+        if-no-files-found: error
+    timeout-minutes: 30
