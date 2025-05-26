@@ -1,20 +1,17 @@
 """models.py - SQLAlchemy models for Flask app."""
 
-from datetime import datetime
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
-from sqlalchemy.orm import relationship
-
 if TYPE_CHECKING:
-    from typing import Any
+    pass
 
-# Import db from the app module
-from . import db
+# Import db from the database module
+from .database import db
 
 
-class User(db.Model):
+class User(db.Model):  # type: ignore[name-defined]
     """User model for authentication and user management."""
 
     __tablename__ = "users"
@@ -35,7 +32,7 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
-class Team(db.Model):
+class Team(db.Model):  # type: ignore[name-defined]
     """Team model for grouping AI agents."""
 
     __tablename__ = "teams"
@@ -64,7 +61,7 @@ class Team(db.Model):
         return f"<Team {self.name}>"
 
 
-class Agent(db.Model):
+class Agent(db.Model):  # type: ignore[name-defined]
     """Agent model for AI agents that belong to teams."""
 
     __tablename__ = "agents"

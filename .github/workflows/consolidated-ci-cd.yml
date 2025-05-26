@@ -74,6 +74,11 @@ jobs:
           pnpm install
           pnpm tailwind:build
 
+      - name: Install pyright
+        shell: bash
+        run: |
+          npm install -g pyright
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -116,7 +121,7 @@ jobs:
           which uv || python -m pip install uv
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements
           if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
@@ -134,7 +139,7 @@ jobs:
           python -m pip install --upgrade pip
 
           # Install testing tools
-          python -m pip install ruff pyrefly pytest pytest-cov pytest-xdist pytest-asyncio
+          python -m pip install ruff pytest pytest-cov pytest-xdist pytest-asyncio
 
           # Install requirements (excluding MCP-related packages)
           if (Test-Path requirements-dev.txt) {
@@ -201,8 +206,8 @@ jobs:
         run: |
           echo "Running ruff check..."
           ruff check . || echo "Ruff check failed, but continuing"
-          echo "Running pyrefly check..."
-          pyrefly check . || echo "Pyrefly check failed, but continuing"
+          echo "Running pyright check..."
+          pyright . || echo "Pyright check failed, but continuing"
 
       - name: Run linting (Windows)
         if: runner.os == 'Windows'
@@ -217,11 +222,11 @@ jobs:
             Write-Host "Ruff check failed: $_"
           }
           
-          Write-Host "Running pyrefly check..."
+          Write-Host "Running pyright check..."
           try {
-            pyrefly check --exclude "ai_models/adapters/mcp_adapter.py" --exclude "tests/ai_models/adapters/test_mcp_adapter.py" --exclude "tests/test_mcp_import.py" --exclude "tests/test_mcp_top_level_import.py" .
+            pyright .
           } catch {
-            Write-Host "Pyrefly check failed: $_"
+            Write-Host "Pyright check failed: $_"
           }
 
       - name: Run basic tests (Unix)

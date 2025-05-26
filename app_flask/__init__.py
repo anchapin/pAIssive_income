@@ -8,12 +8,9 @@ from typing import Any
 
 # Third-party imports
 from flask import Flask
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 
-# Initialize extensions
-db = SQLAlchemy()
-migrate = Migrate()
+# Import database extensions
+from .database import db, migrate
 
 # Define FlaskApp as an alias for the actual Flask class
 FlaskApp = Flask
